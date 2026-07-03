@@ -1,0 +1,33 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Range Series Example"
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Group",
+    "property": "group",
+    "type": "number",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": {},
+  "seriesConfigs": [
+    {
+      "property": "range-max",
+      "rangeProperty": "range-min",
+      "title": "Range",
+      "renderer": "area",
+      "fillColor": "#9467bd",
+      "strokeColor": "#9467bd",
+      "markerShape": null
+    },
+    {
+      "property": "middle",
+      "title": "Middle",
+      "renderer": "line",
+      "fillColor": "#1f77b4",
+      "strokeColor": "#1f77b4",
+      "markerSize": 8,
+      "markerShape": "star"
+    }
+  ]
+}

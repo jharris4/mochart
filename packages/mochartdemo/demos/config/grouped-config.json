@@ -1,0 +1,44 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Grouped Bar Example"
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Group",
+    "property": "groupNO",
+    "type": "number",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": {
+      "before": true,
+      "min": 0
+    },
+  "seriesGroupConfigs": {},
+  "seriesAllConfig": {
+    "axis": "SA0",
+    "renderer": "bar"
+  },
+  "seriesConfigs": [
+    {
+      "group": null,
+      "property": "value5",
+      "title": "Ungrouped Bar 1"
+    },
+    {
+      "property": "value1",
+      "title": "Grouped Bar 1"
+    },
+    {
+      "property": "value2",
+      "title": "Grouped Bar 2"
+    },
+    {
+      "property": "value3",
+      "title": "Grouped Bar 3"
+    },
+    {
+      "property": "value4",
+      "title": "Grouped Bar 4"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "version": "1.0.1",
+  "plotConfig": {
+    "inverted": true
+  },
+  "titleConfig": {
+    "title": "Positive Negative Labels"
+  },
+  "legendConfig": {
+    "visible": true
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Group",
+    "property": "groupSO",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": {
+    "base": 0,
+    "softMin": 0,
+    "softMax": 0
+  },
+  "seriesConfigs": {
+    "property": "value7",
+    "title": "Series 1",
+    "renderer": "bar",
+    "labelProperty": "value7",
+    "labelPosition": "inside",
+    "labelStrokeColor": "#ffffff",
+    "labelFillColor": "#ffffff",
+    "labelMinPositionPercent": 0.05,
+    "labelMinRangePercent": 0.05,
+    "labelOffset": -2
+  }
+}

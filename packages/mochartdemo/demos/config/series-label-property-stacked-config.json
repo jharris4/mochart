@@ -1,0 +1,41 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Stacked Label Example"
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Number",
+    "property": "groupNL",
+    "type": "number",
+    "scale": "linear"
+  },
+  "seriesAxisConfigs": {
+    "before": true,
+    "min": 0
+  },
+  "seriesStackConfigs": {},
+  "seriesAllConfig": {
+    "labelPosition": "outside",
+    "labelStrokeColor": "#000000",
+    "labelFillColor": "#000000",
+    "labelMinRangePercent": 0.05,
+    "renderer": "area"
+  },
+  "seriesConfigs": [
+    {
+      "property": "value1",
+      "labelProperty": "value1",
+      "title": "Stacked Area 1"
+    },
+    {
+      "property": "value2",
+      "labelProperty": "value2",
+      "title": "Stacked Area 2"
+    },
+    {
+      "property": "value3",
+      "labelProperty": "value3",
+      "title": "Stacked Area 3"
+    }
+  ]
+}

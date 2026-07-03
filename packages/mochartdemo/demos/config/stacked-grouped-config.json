@@ -1,0 +1,61 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Stacked Grouped Bar"
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Group",
+    "property": "groupNO",
+    "type": "number",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": {
+    "before": true,
+    "min": 0
+  },
+  "seriesStackConfigs": [
+    {
+      "id": "SS0"
+    },
+    {
+      "id": "SS1"
+    }
+  ],
+  "seriesGroupConfigs": [
+    {
+      "id": "SG0"
+    },
+    {
+      "id": "SG1"
+    }
+  ],
+  "seriesAllConfig": {
+    "renderer": "bar"
+  },
+  "seriesConfigs": [
+    {
+      "stack": "SS0",
+      "group": "SG0",
+      "property": "value1",
+      "title": "Group 1 Stack 1"
+    },
+    {
+      "stack": "SS1",
+      "group": "SG0",
+      "property": "value2",
+      "title": "Group 1 Stack 2"
+    },
+    {
+      "stack": "SS0",
+      "group": "SG1",
+      "property": "value3",
+      "title": "Group 2 Stack 1"
+    },
+    {
+      "stack": "SS1",
+      "group": "SG1",
+      "property": "value4",
+      "title": "Group 2 Stack 2"
+    }
+  ]
+}

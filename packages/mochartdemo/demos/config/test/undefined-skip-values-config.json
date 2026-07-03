@@ -1,0 +1,101 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Skip Undefined Shape Values"
+  },
+  "tooltipConfig": {
+    "showMissingValues": true,
+    "missingValueText": "N/A"
+  },
+  "groupAxisConfig": {
+    "before": false,
+    "title": "Group Axis",
+    "gridLines": true,
+    "gridLineColor": "#e5e5e5",
+    "gridLineWidth": 1,
+    "gridLineDashArray": "5, 5",
+    "min": "auto",
+    "max": "auto",
+    "type": "number",
+    "scale": "ordinal",
+    "valueLabel": "Group",
+    "property": "group"
+  },
+  "seriesAxisConfigs": [
+    {
+      "before": true,
+      "title": "Series Axis 1",
+      "axisLine": true,
+      "gridLines": false,
+      "id": "SA0",
+      "base": 0
+    },
+    {
+      "before": false,
+      "title": "Series Axis 2",
+      "axisLine": true,
+      "gridLines": true,
+      "id": "SA1",
+      "base": 0
+    }
+  ],
+  "seriesGroupConfigs": [
+    {
+      "id": "SG0"
+    }
+  ],
+  "seriesAllConfig": {
+    "markerSize": 6,
+    "skipMissing": true
+  },
+  "seriesConfigs": [
+    {
+      "renderer": "line",
+      "title": "Value 0",
+      "markerShape": "circle",
+      "axis": "SA0",
+      "group": null,
+      "property": "value0"
+    },
+    {
+      "renderer": "bar",
+      "title": "Value 1",
+      "markerShape": null,
+      "axis": "SA0",
+      "group": null,
+      "property": "value1"
+    },
+    {
+      "renderer": "area",
+      "title": "Value 2",
+      "markerShape": "circle",
+      "axis": "SA0",
+      "group": null,
+      "property": "value2"
+    },
+    {
+      "renderer": "line",
+      "title": "Value 3",
+      "markerShape": "circle",
+      "axis": "SA1",
+      "group": null,
+      "property": "value3"
+    },
+    {
+      "renderer": "bar",
+      "title": "Value 4",
+      "markerShape": null,
+      "axis": "SA1",
+      "group": "SG0",
+      "property": "value4"
+    },
+    {
+      "renderer": "bar",
+      "title": "Value 5",
+      "markerShape": null,
+      "axis": "SA1",
+      "group": "SG0",
+      "property": "value5"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Multiple Axes"
+  },
+  "animationConfig": {
+    "animate": true,
+    "expansionDuration": 500,
+    "valueChangeDuration": 500,
+    "collapseDuration": 500,
+    "focusDuration": 700
+  },
+  "groupAxisConfig": {
+    "before": false,
+    "title": "Time (in Minutes)",
+    "axisLine": true,
+    "axisLineMargin": 0,
+    "tickLabelFormat": "%_H:%M",
+    "type": "date",
+    "scale": "linear",
+    "dateUTC": true,
+    "valueLabel": "Time",
+    "property": "time"
+  },
+  "seriesAxisAllConfig": {
+    "axisLineMargin": 0,
+    "gridLines": false,
+    "min": 0
+  },
+  "seriesAxisConfigs": [
+    {
+      "before": true,
+      "tickLabelFormat": "$s",
+      "title": "Sales Value",
+      "id": "SA1"
+    },
+    {
+      "before": true,
+      "tickLabelFormat": "$s",
+      "id": "SA0"
+    },
+    {
+      "before": false,
+      "gridLines": true,
+      "id": "SA2"
+    },
+    {
+      "before": false,
+      "title": "Sold Count",
+      "id": "SA3"
+    }
+  ],
+  "seriesAllConfig": {
+    "renderer": "line",
+    "markerShape": null
+  },
+  "seriesConfigs": [
+    {
+      "title": "Sales A",
+      "axis": "SA0",
+      "property": "sales_a"
+    },
+    {
+      "title": "Running Sales A",
+      "axis": "SA1",
+      "property": "running_sales_a"
+    },
+    {
+      "title": "Sales B",
+      "axis": "SA0",
+      "property": "sales_b"
+    },
+    {
+      "title": "Running Sales B",
+      "axis": "SA1",
+      "property": "running_sales_b"
+    },
+    {
+      "title": "Count A",
+      "axis": "SA2",
+      "property": "count_a"
+    },
+    {
+      "title": "Running Count A",
+      "axis": "SA3",
+      "property": "running_count_a"
+    },
+    {
+      "title": "Count B",
+      "axis": "SA2",
+      "property": "count_b"
+    },
+    {
+      "title": "Running Count B",
+      "axis": "SA3",
+      "property": "running_count_b"
+    }
+  ]
+}

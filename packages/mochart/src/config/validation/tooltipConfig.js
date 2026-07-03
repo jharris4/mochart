@@ -1,0 +1,49 @@
+import validators from './validators';
+
+import { NONE } from '../core/constants';
+
+export default function getValidators() {
+  return {
+    visible: validators.boolean(),
+    applyFocus: validators.boolean(),
+    snapToGroup: validators.boolean(),
+    mouseOver: validators.boolean(),
+    closeOnClick: validators.boolean(),
+    filterOnSeriesClick: validators.boolean(),
+    focusOnGroupClick: validators.boolean(),
+    focusOnSeriesClick: validators.boolean(),
+    focusOnGroupMouseOver: validators.boolean(),
+    focusOnSeriesMouseOver: validators.boolean(),
+    showControls: validators.boolean(),
+    keepInside: validators.boolean(),
+    minWidth: validators.numberMin(0),
+    padding: validators.numberMin(0),
+    linePadding: validators.numberMin(0),
+    alignValues: validators.boolean(),
+    backgroundColor: validators.color(),
+    borderColor: validators.color(),
+    borderWidth: validators.numberMin(0),
+    borderRadius: validators.numberMin(0),
+    dropShadowColor: validators.color(),
+    dropShadowOffsetX: validators.numberMin(0),
+    dropShadowOffsetY: validators.numberMin(0),
+    dropShadowBlurRadius: validators.numberMin(0),
+    showIconColors: validators.boolean(),
+    showIconShapes: validators.boolean(),
+    showIconPlaceholders: validators.boolean(),
+    iconSize: validators.numberMin(0),
+    iconSpacerSize: validators.numberMin(0),
+    iconBorderSize: validators.numberMin(0),
+    iconBorderColor: validators.color(),
+    iconSuppressedColor: validators.color(),
+    iconUnsuppressedColor: validators.color(),
+    adjustForSuppression: validators.boolean(),
+    adjustSizeForSuppression: validators.boolean(),
+    hideSuppressed: validators.boolean(),
+    showMissingValues: validators.boolean(),
+    missingValueText: validators.string(),
+    suppressedValueText: validators.string().orEqual(NONE),
+    suppressedValueCharacter: validators.stringWithLength(1).orEqual(NONE),
+    rangeValueText: validators.string()
+  };
+}

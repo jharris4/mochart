@@ -1,0 +1,111 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Capped Inverted Bars"
+  },
+  "plotConfig": {
+    "inverted": true
+  },
+  "animationConfig": {
+    "animate": true,
+    "expansionDuration": 1500,
+    "valueChangeDuration": 8000,
+    "collapseDuration": 1500,
+    "focusDuration": 800
+  },
+  "groupAxisConfig": {
+    "before": false,
+    "title": "Month",
+    "axisLine": true,
+    "axisLineMargin": 0,
+    "gridLines": true,
+    "tickLabelFormat": "%b",
+    "tickLabelRotation": 45,
+    "tickCount": 12,
+    "type": "date",
+    "scale": "ordinal",
+    "dateUTC": true,
+    "valueLabel": "Group",
+    "valueFormat": "%B",
+    "property": "date"
+  },
+  "seriesAxisConfigs": {
+    "before": true,
+    "visible": true,
+    "axisLineMargin": 0,
+    "gridLines": true,
+    "tickLabelFormat": "$s",
+    "title": "Monthly Amount",
+    "min": -5000,
+    "max": 5000
+  },
+  "seriesStackConfigs": {},
+  "seriesAllConfig": {
+    "renderer": "bar",
+    "markerShape": null
+  },
+  "seriesConfigs": [
+    {
+      "title": "Round",
+      "property": "value1",
+      "capSize": 15,
+      "capType": "round",
+      "capExpand": false,
+      "fillColor": "#1f77b4",
+      "strokeColor": "#1f77b4"
+    },
+    {
+      "title": "Curve",
+      "property": "value2",
+      "capSize": 15,
+      "capType": "curve",
+      "capExpand": false,
+      "fillColor": "#ff7f0e",
+      "strokeColor": "#ff7f0e"
+    },
+    {
+      "title": "Point",
+      "property": "value3",
+      "capSize": 15,
+      "capType": "point",
+      "capExpand": false,
+      "fillColor": "#2ca02c",
+      "strokeColor": "#2ca02c"
+    },
+    {
+      "title": "Round Expand",
+      "property": "value1",
+      "capSize": 15,
+      "capType": "round",
+      "capExpand": true,
+      "fillColor": "#aec7e8",
+      "strokeColor": "#aec7e8"
+    },
+    {
+      "title": "Curve Expand",
+      "property": "value2",
+      "capSize": 15,
+      "capType": "curve",
+      "capExpand": true,
+      "fillColor": "#ffbb78",
+      "strokeColor": "#ffbb78"
+    },
+    {
+      "title": "Point Expand",
+      "property": "value3",
+      "capSize": 15,
+      "capType": "point",
+      "capExpand": true,
+      "fillColor": "#98df8a",
+      "strokeColor": "#98df8a"
+    },
+    {
+      "title": "None",
+      "property": "value4",
+      "capSize": 15,
+      "capType": null,
+      "fillColor": "#d62728",
+      "strokeColor": "#d62728"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Curved Lines"
+  },
+  "animationConfig": {
+    "animate": true,
+    "expansionDuration": 500,
+    "valueChangeDuration": 500,
+    "collapseDuration": 500,
+    "focusDuration": 700
+  },
+  "groupAxisConfig": {
+    "before": false,
+    "title": "Time (in Minutes)",
+    "axisLine": true,
+    "axisLineMargin": 0,
+    "tickLabelFormat": "%_H:%M",
+    "type": "date",
+    "scale": "linear",
+    "dateUTC": true,
+    "valueLabel": "Time",
+    "property": "time"
+  },
+  "seriesAxisConfigs": {
+    "before": true,
+    "axisLineMargin": 0,
+    "gridLines": true,
+    "tickLabelFormat": "$s",
+    "title": "Sales Value",
+    "min": 0
+  },
+  "seriesAllConfig": {
+    "markerShape": null
+  },
+  "seriesConfigs": [
+    {
+      "renderer": "area",
+      "title": "Sales A Natural",
+      "property": "sales_a",
+      "curve": {
+        "type": "natural"
+      }
+    },
+    {
+      "renderer": "line",
+      "title": "Sales A Linear",
+      "property": "sales_a"
+    },
+    {
+      "renderer": "area",
+      "title": "Sales B Stepped",
+      "property": "sales_b",
+      "curve": {
+        "type": "step"
+      }
+    },
+    {
+      "renderer": "line",
+      "title": "Sales B Linear",
+      "property": "sales_b"
+    }
+  ]
+}

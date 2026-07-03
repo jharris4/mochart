@@ -1,0 +1,31 @@
+export default function getDescriptions() {
+  return {
+    title: 'the text to display in the title at the top of the chart (use null for none)',
+    position: 'the position of the title relative to the chart (top or bottom)',
+    titlePrefix: 'the text to display at the start of the title at the top of the chart (use null for none)',
+    titleSuffix: 'the text to display at the end of the title at the top of the chart (use null for none)',
+    link: 'the link to create for the title (use null for none)',
+    linkDisabled: 'whether to prevent default navigation behaviour when the link is clicked',
+    truncationEnabled: 'whether to use text truncation when the title width exceeds the width of the chart',
+    truncationValue: 'the truncation text to append to the title when its length exceeds the length of the chart',
+    alignedToAxes: 'whether the title should be aligned between the axes (true) or the chart bounds (false)',
+    align: 'the alignment for the title (left, center, right)',
+    verticalAlign: 'the vertical alignment of the prefix/text/suffix within the title',
+    verticalExpand: 'whether to expand the padding height of the prefix/text/suffix to match the max section height',
+    margin: 'the margin (in pixels) for the top, right, bottom and left sides of the title',
+    padding: 'the padding (in pixels) for the top, right, bottom and left sides of the title',
+    textMargin: 'the margin (in pixels) for the top, right, bottom and left sides of the title text',
+    textPadding: 'the padding (in pixels) for the top, right, bottom and left sides of the title text',
+    prefixMargin: 'the margin (in pixels) for the top, right, bottom and left sides of the title prefix',
+    prefixPadding: 'the padding (in pixels) for the top, right, bottom and left sides of the title prefix',
+    suffixMargin: 'the margin (in pixels) for the top, right, bottom and left sides of the title suffix',
+    suffixPadding: 'the padding (in pixels) for the top, right, bottom and left sides of the title suffix',
+    backgroundStyle: 'the styles to apply to the title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    titleBackgroundStyle: 'the styles to apply to the title text background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    titleTextStyle: 'the styles to apply to the title text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    prefixBackgroundStyle: 'the styles to apply to the title prefix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    prefixTextStyle: 'the styles to apply to the title prefix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    suffixBackgroundStyle: 'the styles to apply to the title suffix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    suffixTextStyle: 'the styles to apply to the title suffix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))'
+  };
+}

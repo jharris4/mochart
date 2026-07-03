@@ -1,0 +1,137 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Gradients"
+  },
+  "animationConfig": {
+    "animate": true,
+    "expansionDuration": 500,
+    "valueChangeDuration": 500,
+    "collapseDuration": 500,
+    "focusDuration": 700
+  },
+  "groupAxisConfig": {
+    "before": false,
+    "axisLine": true,
+    "axisLineMargin": 0,
+    "type": "number",
+    "scale": "ordinal",
+    "valueLabel": "Group",
+    "property": "groupNO"
+  },
+  "seriesAxisConfigs": {
+    "before": true,
+    "axisLineMargin": 0,
+    "gridLines": true,
+    "min": 0
+  },
+  "linearGradientAllConfig": {
+    "x1": 0,
+    "y1": 0,
+    "x2": 0,
+    "y2": 1
+  },
+  "linearGradientConfigs": [
+    {
+      "id": "LG0",
+      "stops": [
+        {
+          "offset": 0.1,
+          "color": "#ff0000",
+          "opacity": 0.8
+        },
+        {
+          "offset": 0.9,
+          "color": "#0000ff",
+          "opacity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "LG1",
+      "rotation": 45,
+      "stops": [
+        {
+          "offset": 0.0,
+          "color": "#0000ff",
+          "opacity": 0.8
+        },
+        {
+          "offset": 1.0,
+          "color": "#00ff00",
+          "opacity": 0.8
+        }
+      ]
+    }
+  ],
+  "radialGradientAllConfig": {
+    "cx": 0.5,
+    "cy": 0.5,
+    "r": 0.5
+  },
+  "radialGradientConfigs": [
+    {
+      "id": "RG0",
+      "fx": 0.5,
+      "fy": 0.5,
+      "stops": [
+        {
+          "offset": 0.1,
+          "color": "#ff0000",
+          "opacity": 0.8
+        },
+        {
+          "offset": 0.9,
+          "color": "#0000ff",
+          "opacity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "RG1",
+      "fx": 0.75,
+      "fy": 0.75,
+      "stops": [
+        {
+          "offset": 0.0,
+          "color": "#0000ff",
+          "opacity": 0.8
+        },
+        {
+          "offset": 1.0,
+          "color": "#00ff00",
+          "opacity": 0.8
+        }
+      ]
+    }
+  ],
+  "seriesAllConfig": {
+    "markerShape": null
+  },
+  "seriesConfigs": [
+    {
+      "renderer": "area",
+      "title": "Linear Gradient",
+      "property": "value0",
+      "gradient": "LG0"
+    },
+    {
+      "renderer": "bar",
+      "title": "Linear Rotated Gradient",
+      "property": "value1",
+      "gradient": "LG1"
+    },
+    {
+      "renderer": "area",
+      "title": "Radial Gradient",
+      "property": "value2",
+      "gradient": "RG0"
+    },
+    {
+      "renderer": "bar",
+      "title": "Radial Offset Gradient",
+      "property": "value3",
+      "gradient": "RG1"
+    }
+  ]
+}

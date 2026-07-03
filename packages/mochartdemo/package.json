@@ -1,0 +1,17 @@
+{
+  "name": "mochartdemo",
+  "version": "2.0.0",
+  "description": "Demo gallery for the mochart charting library",
+  "private": true,
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "mochart": "^1.0.74"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  }
+}

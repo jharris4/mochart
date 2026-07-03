@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mochart ESM example</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; }
+        #chart { width: 640px; height: 360px; }
+        button { margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <h1>mochart — ES module example</h1>
+    <p>Uses the imperative <code>createChart</code> API. Serve this directory over HTTP (ES modules do not load from <code>file://</code>).</p>
+    <button id="randomize">Randomize</button>
+    <div id="chart"></div>
+    <script type="module">
+        import { createChart, enhanceConfig, ArrayOfObjectsDataProvider } from '../dist/mochart.js';
+
+        const config = {
+            version: '1.0.3',
+            titleConfig: { title: 'Fruit' },
+            groupAxisConfig: {
+                property: 'name',
+                type: 'string',
+                scale: 'ordinal'
+            },
+            seriesAxisConfigs: [
+                { id: 'sa', min: 0 }
+            ],
+            seriesConfigs: [
+                { axis: 'sa', property: 'weight', title: 'Weight', renderer: 'bar' },
+                { axis: 'sa', property: 'price', title: 'Price', renderer: 'line' }
+            ]
+        };
+
+        let data = [
+            { name: 'Apple', weight: 10, price: 5 },
+            { name: 'Orange', weight: 6, price: 7 },
+            { name: 'Banana', weight: 8, price: 3 }
+        ];
+
+        const mochartConfig = enhanceConfig(config);
+        const groupProperty = mochartConfig.groupAxisConfig.property;
+
+        const chart = createChart(document.getElementById('chart'), {
+            mochartConfig,
+            dataProvider: new ArrayOfObjectsDataProvider(data, groupProperty),
+            width: 640,
+            height: 360
+        });
+
+        document.getElementById('randomize').addEventListener('click', () => {
+            data = data.map((row) => ({
+                ...row,
+                weight: Math.round(Math.random() * 12),
+                price: Math.round(Math.random() * 12)
+            }));
+            chart.update({ dataProvider: new ArrayOfObjectsDataProvider(data, groupProperty) });
+        });
+    </script>
+</body>
+</html>

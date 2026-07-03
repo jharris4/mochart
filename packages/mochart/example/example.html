@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mochart example</title>
+    <!-- Self-contained bundle built by `npm run build -w mochart`. Exposes the global `mochart`. -->
+    <script src="../dist/mochart.iife.js"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; }
+        #chart { width: 640px; height: 360px; }
+    </style>
+</head>
+<body>
+    <h1>mochart — classic script example</h1>
+    <p>No build tools required: build the library once, then open this file directly in a browser.</p>
+    <div id="chart"></div>
+    <script>
+        var dataA = [
+            { name: "Apple", weight: 10, price: 5 },
+            { name: "Orange", weight: 6, price: 7 },
+            { name: "Banana", weight: 8, price: 3 }
+        ];
+
+        var dataB = [
+            { name: "Apple", weight: 4, price: 8 },
+            { name: "Orange", weight: 8, price: 6 },
+            { name: "Banana", weight: 5, price: 10 }
+        ];
+
+        var config = {
+            version: '1.0.3',
+            titleConfig: { title: 'Fruit' },
+            groupAxisConfig: {
+                property: "name",
+                type: "string",
+                scale: "ordinal"
+            },
+            seriesAxisConfigs: [
+                {
+                    id: "sa",
+                    min: 0
+                }
+            ],
+            seriesConfigs: [
+                {
+                    axis: "sa",
+                    property: "weight",
+                    title: "Weight",
+                    renderer: "bar"
+                },
+                {
+                    axis: "sa",
+                    property: "price",
+                    title: "Price",
+                    renderer: "line"
+                }
+            ]
+        };
+
+        var data = dataA;
+        var chartElement = document.getElementById('chart');
+
+        function renderChart() {
+            mochart.render(
+                mochart.h(mochart.DefaultChart, { data: data, config: config, width: 640, height: 360 }),
+                chartElement
+            );
+        }
+
+        renderChart();
+
+        // swap the data every few seconds to show the animated transitions
+        setInterval(function () {
+            data = data === dataA ? dataB : dataA;
+            renderChart();
+        }, 5000);
+    </script>
+</body>
+</html>

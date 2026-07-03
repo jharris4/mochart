@@ -1,0 +1,32 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Color and Base Property"
+  },
+  "legendConfig": {
+    "visible": true
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Group",
+    "property": "groupSO",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": {
+    "base": 0
+  },
+  "seriesConfigs": {
+    "property": "value7",
+    "title": "Color Property Series",
+    "renderer": "bar",
+    "fillOpacity": 1,
+    "strokeOpacity": 1,
+    "colorProperty": "value7",
+    "colorBaseAboveMin": "#8f8fff",
+    "colorBaseAboveMax": "#0000ff",
+    "colorBase": 0,
+    "colorBaseBelowMin": "#ff0000",
+    "colorBaseBelowMax": "#ff8f8f",
+    "colorInterpolation": "hcl"
+  }
+}

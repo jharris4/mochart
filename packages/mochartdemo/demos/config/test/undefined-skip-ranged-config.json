@@ -1,0 +1,59 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Skip Undefined Ranged Shape Values"
+  },
+  "tooltipConfig": {
+    "showMissingValues": true,
+    "missingValueText": "N/A"
+  },
+  "legendConfig": {
+    "visible": true
+  },
+  "groupAxisConfig": {
+    "before": false,
+    "title": "Group Axis",
+    "gridLines": true,
+    "gridLineColor": "#e5e5e5",
+    "gridLineWidth": 1,
+    "gridLineDashArray": "5, 5",
+    "min": "auto",
+    "max": "auto",
+    "type": "number",
+    "scale": "ordinal",
+    "valueLabel": "Group",
+    "property": "group"
+  },
+  "seriesAxisConfigs": [
+    {
+      "before": true,
+      "title": "Series Axis 1",
+      "axisLine": true,
+      "gridLines": false,
+      "id": "SA0",
+      "base": 0
+    }
+  ],
+  "seriesConfigs": [
+    {
+      "renderer": "area",
+      "title": "Ranged Area",
+      "markerSize": 6,
+      "markerShape": "circle",
+      "axis": "SA0",
+      "property": "value0",
+      "rangeProperty": "value1",
+      "skipMissing": true
+    },
+    {
+      "renderer": "bar",
+      "title": "Ranged Bar",
+      "markerSize": 6,
+      "markerShape": "circle",
+      "axis": "SA0",
+      "property": "value2",
+      "rangeProperty": "value3",
+      "skipMissing": true
+    }
+  ]
+}

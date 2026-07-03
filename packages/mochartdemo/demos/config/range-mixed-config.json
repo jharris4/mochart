@@ -1,0 +1,38 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Positive & Negative Range Example"
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Group",
+    "property": "groupSO",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": {
+    "base": 0
+  },
+  "seriesAllConfig": {
+    "markerShape": null
+  },
+  "seriesConfigs": [
+    {
+      "property": "value1",
+      "rangeProperty": "value2",
+      "title": "Pos - Neg",
+      "renderer": "area"
+    },
+    {
+      "property": "value3",
+      "rangeProperty": "value4",
+      "title": "Mixed - Mixed",
+      "renderer": "bar"
+    },
+    {
+      "property": "value5",
+      "rangeProperty": "value6",
+      "title": "Mixed - Mixed 2",
+      "renderer": "area"
+    }
+  ]
+}

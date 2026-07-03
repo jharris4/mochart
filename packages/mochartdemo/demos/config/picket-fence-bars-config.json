@@ -1,0 +1,63 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Picket Fence Bars"
+  },
+  "animationConfig": {
+    "animate": true,
+    "expansionDuration": 1500,
+    "valueChangeDuration": 3000,
+    "collapseDuration": 1500,
+    "focusDuration": 800
+  },
+  "groupAxisConfig": {
+    "before": false,
+    "title": "Month",
+    "axisLine": true,
+    "axisLineMargin": 0,
+    "gridLines": true,
+    "tickLabelFormat": "%b",
+    "tickLabelRotation": 45,
+    "tickCount": 12,
+    "type": "date",
+    "scale": "ordinal",
+    "dateUTC": true,
+    "valueLabel": "Group",
+    "valueFormat": "%B",
+    "property": "date"
+  },
+  "seriesAxisConfigs": {
+    "before": true,
+    "visible": true,
+    "axisLineMargin": 0,
+    "gridLines": true,
+    "tickLabelFormat": "$s",
+    "title": "Monthly Amount",
+    "min": 0
+  },
+  "seriesStackConfigs": {},
+  "seriesAllConfig": {
+    "renderer": "bar",
+    "markerShape": null
+  },
+  "seriesConfigs": [
+    {
+      "title": "Round",
+      "property": "value1",
+      "capSize": 15,
+      "capType": "round"
+    },
+    {
+      "title": "Curve",
+      "property": "value2",
+      "capSize": 15,
+      "capType": "curve"
+    },
+    {
+      "title": "Point",
+      "property": "value3",
+      "capSize": 15,
+      "capType": "point"
+    }
+  ]
+}

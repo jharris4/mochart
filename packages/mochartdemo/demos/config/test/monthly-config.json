@@ -1,0 +1,65 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Monthly Data"
+  },
+  "animationConfig": {
+    "animate": true,
+    "expansionDuration": 300,
+    "valueChangeDuration": 300,
+    "collapseDuration": 300,
+    "focusDuration": 500
+  },
+  "groupAxisConfig": {
+    "before": false,
+    "title": "Month",
+    "axisLine": true,
+    "axisLineMargin": 0,
+    "gridLines": true,
+    "tickLabelFormat": "%b",
+    "tickLabelRotation": 45,
+    "tickCount": 12,
+    "type": "date",
+    "scale": "ordinal",
+    "dateUTC": true,
+    "valueLabel": "Group",
+    "valueFormat": "%B",
+    "property": "date"
+  },
+  "seriesAxisConfigs": [
+    {
+      "before": true,
+      "visible": true,
+      "axisLineMargin": 0,
+      "gridLines": true,
+      "tickLabelFormat": "$s",
+      "title": "Monthly Amount",
+      "min": 0,
+      "id": "SA0"
+    }
+  ],
+  "seriesStackConfigs": [
+    {
+      "axis": "SA0",
+      "id": "SS0"
+    }
+  ],
+  "seriesConfigs": [
+    {
+      "renderer": "bar",
+      "title": "Value 1",
+      "markerShape": null,
+      "axis": "SA0",
+      "stack": "SS0",
+      "property": "value1"
+    },
+    {
+      "renderer": "bar",
+      "title": "Value 2",
+      "markerShape": null,
+      "axis": "SA0",
+      "stack": "SS0",
+      "property": "value2"
+    }
+  ]
+}

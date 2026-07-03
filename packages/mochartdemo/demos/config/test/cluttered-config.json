@@ -1,0 +1,142 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Cluttered"
+  },
+  "animationConfig": {
+    "animate": true,
+    "expansionDuration": 1000,
+    "valueChangeDuration": 1000,
+    "collapseDuration": 1000,
+    "focusDuration": 1000
+  },
+  "tooltipConfig": {
+    "padding": 1,
+    "backgroundColor": "rgba(205,205,205,0.7)",
+    "borderColor": "rgba(0,0,0,0.8)",
+    "borderWidth": 3
+  },
+  "groupAxisConfig": {
+    "title": "Group Axis",
+    "axisLineMargin": 3,
+    "gridLines": true,
+    "type": "number",
+    "scale": "ordinal",
+    "valueLabel": "Group",
+    "property": "groupNO"
+  },
+  "seriesAxisAllConfig": {
+    "axisLineMargin": 3
+  },
+  "seriesAxisConfigs": [
+    {
+      "before": true,
+      "title": "Series Axis 1",
+      "id": "SA0"
+    },
+    {
+      "before": false,
+      "title": "Series Axis 2",
+      "id": "SA1"
+    }
+  ],
+  "seriesStackConfigs": [
+    {
+      "axis": "SA1",
+      "id": "SS1"
+    }
+  ],
+  "seriesGroupConfigs": [
+    {
+      "id": "SG0"
+    }
+  ],
+  "seriesAllConfig": {
+    "markerSize": 6
+  },
+  "seriesConfigs": [
+    {
+      "renderer": "line",
+      "title": "Value 0",
+      "markerShape": "circle",
+      "axis": "SA0",
+      "group": null,
+      "stack": null,
+      "property": "value0"
+    },
+    {
+      "renderer": "bar",
+      "title": "Value 1",
+      "fillColor": "#000",
+      "strokeColor": "#ccc",
+      "markerShape": null,
+      "axis": "SA0",
+      "group": null,
+      "stack": null,
+      "property": "value1"
+    },
+    {
+      "renderer": "area",
+      "title": "Value 2",
+      "markerShape": "circle",
+      "axis": "SA0",
+      "group": null,
+      "stack": null,
+      "property": "value2"
+    },
+    {
+      "renderer": "line",
+      "title": "Value 3",
+      "markerShape": "circle",
+      "axis": "SA1",
+      "group": null,
+      "stack": null,
+      "property": "value3"
+    },
+    {
+      "renderer": "bar",
+      "title": "Value 4",
+      "markerShape": null,
+      "axis": "SA1",
+      "group": "SG0",
+      "stack": null,
+      "property": "value4"
+    },
+    {
+      "renderer": "bar",
+      "title": "Value 5",
+      "markerShape": null,
+      "axis": "SA1",
+      "group": "SG0",
+      "stack": null,
+      "property": "value5"
+    },
+    {
+      "renderer": "area",
+      "title": "Value 6",
+      "markerShape": "circle",
+      "axis": "SA1",
+      "group": null,
+      "stack": "SS1",
+      "property": "value6"
+    },
+    {
+      "renderer": "area",
+      "title": "Value 7",
+      "markerShape": "circle",
+      "axis": "SA1",
+      "group": null,
+      "stack": "SS1",
+      "property": "value7"
+    },
+    {
+      "renderer": "area",
+      "title": "Value 8",
+      "markerShape": "circle",
+      "axis": "SA1",
+      "group": null,
+      "stack": "SS1",
+      "property": "value8"
+    }
+  ]
+}

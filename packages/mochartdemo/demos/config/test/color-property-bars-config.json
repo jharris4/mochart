@@ -1,0 +1,35 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Color Property"
+  },
+  "legendConfig": {
+    "visible": true
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Group",
+    "property": "groupSO",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": [
+    {
+      "id": "SA0",
+      "base": 0
+    }
+  ],
+  "seriesConfigs": [
+    {
+      "axis": "SA0",
+      "property": "value7",
+      "title": "Color Property Series",
+      "renderer": "bar",
+      "fillOpacity": 1,
+      "strokeOpacity": 1,
+      "colorProperty": "value7",
+      "colorMin": "#8f8fff",
+      "colorMax": "#0000ff",
+      "colorInterpolation": "hcl"
+    }
+  ]
+}

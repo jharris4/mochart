@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mochart demos</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside id="sidebar">
+        <h1>mochart</h1>
+        <div id="demo-list"></div>
+      </aside>
+      <main id="content">
+        <div id="toolbar">
+          <span id="demo-title"></span>
+          <span class="spacer"></span>
+          <button id="randomize">Randomize</button>
+          <button id="add-group">+ Group</button>
+          <button id="remove-group">&minus; Group</button>
+          <button id="autoplay">Play</button>
+          <button id="reset">Reset</button>
+        </div>
+        <div id="chart-host"></div>
+        <pre id="errors" hidden></pre>
+      </main>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

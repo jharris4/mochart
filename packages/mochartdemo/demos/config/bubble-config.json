@@ -1,0 +1,42 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Bubble Chart Example"
+  },
+  "animationConfig": {
+    "expansionDuration": 1000,
+    "valueChangeDuration": 1000,
+    "collapseDuration": 1000
+  },
+  "groupAxisConfig": {
+    "valueLabel": "Group",
+    "property": "group",
+    "type": "number",
+    "scale": "ordinal",
+    "groupCountPadding": 1
+  },
+  "seriesAxisConfigs": {},
+  "seriesAllConfig": {
+    "renderer": "none",
+    "minMarkerSize": 3,
+    "markerSize": 24
+  },
+  "seriesConfigs": [
+    {
+      "property": "value1",
+      "title": "Bubble 1",
+      "strokeColor": "#9467bd",
+      "fillColor": "#9467bd",
+      "markerProperty": "marker1",
+      "markerShape": "circle"
+    },
+    {
+      "property": "value2",
+      "title": "Bubble 2",
+      "strokeColor": "#ffbb78",
+      "fillColor": "#ffbb78",
+      "markerProperty": "marker2",
+      "markerShape": "cross"
+    }
+  ]
+}

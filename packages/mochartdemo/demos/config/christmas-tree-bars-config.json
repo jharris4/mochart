@@ -1,0 +1,25 @@
+{
+  "version": "1.0.1",
+  "titleConfig": {
+    "title": "Christmas Tree Bars"
+  },
+  "legendConfig": {
+    "visible": true
+  },
+  "groupAxisConfig": {
+    "valueLabel": "String",
+    "property": "groupSO",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": {
+    "min": 0
+  },
+  "seriesConfigs": {
+    "property": "value2",
+    "title": "Christmas Tree Bar Series",
+    "renderer": "bar",
+    "fillColor": "groupIndex",
+    "strokeColor": "groupIndex"
+  }
+}

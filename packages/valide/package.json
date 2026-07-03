@@ -1,0 +1,51 @@
+{
+  "name": "valide",
+  "version": "1.0.10",
+  "description": "Simple yet powerful Javascript validators",
+  "keywords": [
+    "validation",
+    "chainable",
+    "type checking"
+  ],
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Jon Harris",
+    "url": "https://github.com/jharris4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jharris4/valide.git"
+  },
+  "main": "src/validators.js",
+  "module": "src/validators.js",
+  "babel": {
+    "env": {
+      "production": {
+        "presets": [
+          "es2015"
+        ]
+      },
+      "development": {
+        "presets": [
+          "es2015"
+        ]
+      },
+      "es": {
+        "presets": [
+          [
+            "es2015",
+            {
+              "modules": false
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "vendorize": [],
+  "globalize": [],
+  "scripts": {
+    "test": "vitest run --passWithNoTests"
+  },
+  "type": "module"
+}

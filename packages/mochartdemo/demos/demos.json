@@ -1,0 +1,322 @@
+{
+  "testDemos": [
+    {
+      "id": "tick-prune",
+      "title": "Long Tick Label Pruning",
+      "config": "long-tick-label-config.json",
+      "data": "mixed-groups-positive-values-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "threshold-line",
+      "title": "Threshold Line",
+      "config": "threshold-line-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "threshold-group-line",
+      "title": "Threshold Group Line",
+      "config": "threshold-group-line-config.json",
+      "data": "dst-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "color-property",
+      "title": "Color Property",
+      "config": "color-property-bars-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "ordinal",
+      "title": "Group Ordinal",
+      "config": "group-ordinal-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "ordinal-dates",
+      "title": "Ordinal Dates",
+      "config": "ordinal-dates-config.json",
+      "data": "ordinal-dates-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "group-display",
+      "title": "Group Display Property",
+      "config": "group-display-config.json",
+      "data": "group-display-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "monthly",
+      "title": "Monthly",
+      "config": "monthly-config.json",
+      "data": "monthly-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "capped",
+      "title": "Capped",
+      "config": "cap-bars-config.json",
+      "data": "cap-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "capped-inverted",
+      "title": "Capped Inverted",
+      "config": "cap-bars-inverted-config.json",
+      "data": "cap-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "scatter",
+      "title": "Scatter",
+      "config": "scatter-config.json",
+      "data": "range-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "dst",
+      "title": "Daylight Savings",
+      "config": "dst-config.json",
+      "data": "dst-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "cluttered",
+      "title": "Cluttered",
+      "config": "cluttered-config.json",
+      "data": "mixed-groups-positive-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "cluttered-inverted",
+      "title": "Cluttered Inverted",
+      "config": "cluttered-inverted-config.json",
+      "data": "mixed-groups-positive-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "undefined-values",
+      "title": "Missing Values",
+      "config": "undefined-values-config.json",
+      "data": "undefined-values-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "undefined-stacked",
+      "title": "Missing Stacked Values",
+      "config": "undefined-stacked-config.json",
+      "data": "undefined-values-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "undefined-ranged",
+      "title": "Missing Ranged Values",
+      "config": "undefined-ranged-config.json",
+      "data": "undefined-values-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "undefined-single",
+      "title": "Missing Single Values",
+      "config": "undefined-single-config.json",
+      "data": "undefined-single-values-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "undefined-skipped",
+      "title": "Skip Missing Values",
+      "config": "undefined-skip-values-config.json",
+      "data": "undefined-values-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "undefined-skipped-stacked",
+      "title": "Skip Missing Stacked Values",
+      "config": "undefined-skip-stacked-config.json",
+      "data": "undefined-values-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "undefined-skipped-ranged",
+      "title": "Skip Missing Ranged Values",
+      "config": "undefined-skip-ranged-config.json",
+      "data": "undefined-values-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "undefined-skipped-single",
+      "title": "Skip Missing Single Values",
+      "config": "undefined-skip-single-config.json",
+      "data": "undefined-single-values-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "undefined-all",
+      "title": "Missing All Values",
+      "config": "undefined-all-config.json",
+      "data": "undefined-all-values-data.json",
+      "random": "undefined-positive-random.json"
+    }
+  ],
+  "demos": [
+    {
+      "id": "stacked",
+      "title": "Stacked",
+      "config": "stacked-config.json",
+      "data": "mixed-groups-positive-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "grouped",
+      "title": "Grouped",
+      "config": "grouped-config.json",
+      "data": "mixed-groups-positive-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "grouped-multi-axis",
+      "title": "Grouped Across Axes",
+      "config": "grouped-multi-axis-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "stacked-grouped",
+      "title": "Stacked & Grouped",
+      "config": "stacked-grouped-config.json",
+      "data": "mixed-groups-positive-values-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "color-base-property",
+      "title": "Color and Base Property",
+      "config": "color-property-base-bars-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "axis-supression",
+      "title": "Axis Suppression Adjustment",
+      "config": "axis-suppression-adjust-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "axis-multiple",
+      "title": "Multiple Axes",
+      "config": "multiple-axes-config.json",
+      "data": "sales-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "truncated-text",
+      "title": "Truncated Text",
+      "config": "truncated-text-config.json",
+      "data": "long-group-string-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "label-property-pos-neg",
+      "title": "Positive Negative Labels",
+      "config": "series-label-property-pos-neg-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "label-property-stacked",
+      "title": "Stacked Labels",
+      "config": "series-label-property-stacked-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "christmas",
+      "title": "Christmas Tree Bars",
+      "config": "christmas-tree-bars-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "currency-pos-neg",
+      "title": "Positive Negative Currency",
+      "config": "positive-negative-currency-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "ticks-rotated",
+      "title": "Rotated Ticks",
+      "config": "rotated-ticks-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "range",
+      "title": "Range",
+      "config": "range-config.json",
+      "data": "range-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "range-pos-neg",
+      "title": "Positive Negative Range",
+      "config": "range-mixed-config.json",
+      "data": "range-mixed-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "bubble",
+      "title": "Bubble Chart",
+      "config": "bubble-config.json",
+      "data": "bubble-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "picket",
+      "title": "Picket Fence Bars",
+      "config": "picket-fence-bars-config.json",
+      "data": "monthly-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "picket-pos-neg",
+      "title": "Pos/Neg Picket Fence Bars",
+      "config": "positive-negative-picket-fence-bars-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "curved",
+      "title": "Curved Lines",
+      "config": "curves-config.json",
+      "data": "curves-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "gradients",
+      "title": "Gradients",
+      "config": "gradients-config.json",
+      "data": "mixed-groups-positive-values-data.json",
+      "random": "positive-random.json"
+    },
+    {
+      "id": "missing",
+      "title": "Missing Values",
+      "config": "missing-config.json",
+      "data": "missing-data.json",
+      "random": "undefined-random.json"
+    },
+    {
+      "id": "missing-stacked",
+      "title": "Missing Pos/Neg Stacked Values",
+      "config": "missing-stacked-config.json",
+      "data": "undefined-values-data.json",
+      "random": "undefined-random.json"
+    }
+  ]
+}
+
