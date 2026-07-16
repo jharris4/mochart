@@ -153,7 +153,7 @@ function getSeriesAxisScaleForDomain(axisConfig, axisLayoutInfo, axisDomain, ver
 }
 
 function createLinearTickObject(scaleTickValue, axisScale, tickLabelFormatter, isHidden) {
-  const tickObject = {
+  const tickObject: any = {
     label: tickLabelFormatter(scaleTickValue),
     position: axisScale(scaleTickValue),
     value: scaleTickValue
@@ -163,7 +163,7 @@ function createLinearTickObject(scaleTickValue, axisScale, tickLabelFormatter, i
 }
 
 function createOrdinalTickObject(scaleTickValue, groupValues, groupPositions, tickLabelFormatter, isHidden) {
-  const tickObject = {
+  const tickObject: any = {
     label: tickLabelFormatter(groupValues[scaleTickValue]),
     position: groupPositions[scaleTickValue],
     value: groupValues[scaleTickValue]
@@ -349,7 +349,7 @@ function getSeriesAxisTickDataObject(axisConfig, axisLayoutInfo, rawSeriesAxisDo
   return ticks;
 }
 
-function getLinearAxisExtraTicks(axisDomain, axisScale, scaleTicks, tickLabelFormatter) {
+function getLinearAxisExtraTicks(axisDomain, axisScale, scaleTicks) {
   let preTicks = [];
   let postTicks = [];
   if (scaleTicks.length > 1) {

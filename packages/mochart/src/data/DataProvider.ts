@@ -1,4 +1,7 @@
 export class ArrayOfObjectsDataProvider {
+  _groupValues: any[];
+  _groupValueMap: Record<string, any>;
+
   constructor(data, groupProperty) {
     this._groupValues = data.map(d => d[groupProperty]);
     const groupValueMap = this._groupValueMap = {};
@@ -17,6 +20,10 @@ export class ArrayOfObjectsDataProvider {
 }
 
 export class ObjectOfArraysDataProvider {
+  _groupValues: any[];
+  _data: Record<string, any[]>;
+  _groupProperty: string;
+
   constructor(data, groupProperty) {
     this._groupValues = data[groupProperty];
     this._data = data;

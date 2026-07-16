@@ -15,7 +15,11 @@ export const dataTweenCollapseStart = 'dataTweenCollapseStart';
 export const dataTweenCollapseUpdate = 'dataTweenCollapseUpdate';
 export const dataTweenCollapseComplete = 'dataTweenCollapseComplete';
 
-const MochartTween = initMochartTween();
+const MochartTween: ReturnType<typeof initMochartTween> & {
+  _requestRaf?: () => void;
+  _animationId?: number | null;
+  _rafCallback?: (ts?: number) => void;
+} = initMochartTween();
 
 function initMochartTween() {
   let now;
@@ -317,8 +321,8 @@ function buildDataTween(
     updateCallback,
     completeCallback = () => {},
     startCallback = () => {},
-    completeValueChangeCallback = () => {},
-    startValueChangeCallback = () => {}
+    completeValueChangeCallback = (_value?: any) => {},
+    startValueChangeCallback = (_value?: any) => {}
   }) {
   const { axisExpansionData, valueChangeData, axisCollapseData } = chartAnimationData;
   let tweenData = [];

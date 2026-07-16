@@ -38,7 +38,7 @@ export function getGroupDeltaData(groupAxisConfig, oldGroupData, newGroupData) {
   let groupValuesOld = oldGroupData ? oldGroupData.values.raw : [];
   let groupValuesNew = newGroupData ? newGroupData.values.raw : [];
 
-  let mergedValuesData = getGroupMergedValuesData(groupValuesOld, groupValuesNew, groupAxisConfig.scale !== SCALE_ORDINAL, getMapKey);
+  let mergedValuesData: any = getGroupMergedValuesData(groupValuesOld, groupValuesNew, groupAxisConfig.scale !== SCALE_ORDINAL, getMapKey);
   let mergedIndicesData = getGroupMergedIndicesData(groupValuesOld, groupValuesNew, mergedValuesData, getMapKey);
   let mergedOuterCounts = getGroupMergedOuterCountsData(mergedIndicesData);
   mergedValuesData.displayMerged = getGroupMergedDisplayValues(groupAxisConfig, oldGroupData, newGroupData, mergedValuesData, mergedIndicesData);

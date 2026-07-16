@@ -410,7 +410,7 @@ function getSeriesDomainDeltas(seriesConfigs, fromDomainObjects, toDomainObjects
 }
 
 function getSeriesDomainDelta(fromDomainObject, toDomainObject, fromAxisExtent) {
-  let newDomainObject = {};
+  let newDomainObject: any = {};
   let deltaPercentage = 0;
   let key, domainDelta, domainDeltaPercentage;
   let i, length = domainKeys.length;

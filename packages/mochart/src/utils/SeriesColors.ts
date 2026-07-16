@@ -109,7 +109,7 @@ export function getSeriesOpacities(seriesConfig) {
   };
 }
 
-export function getSeriesColor(colorPaletteConfig, seriesConfig, ...args) {
+export function getSeriesColor(colorPaletteConfig, seriesConfig, ...args: [seriesIndex?: any, focusPercentage?: any, defaultColor?: any, groupIndex?: any]) {
   const { renderer } = seriesConfig;
   if (renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
     return getSeriesFillColor(colorPaletteConfig, seriesConfig, ...args);

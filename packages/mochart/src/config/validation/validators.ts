@@ -27,8 +27,9 @@ const style = () => validators.objectWithShape(styleKeyMap);
 const opacity = () => validators.numberMinMax(0, 1);
 const svgColor = () => svgColorValidator;
 
-let configValidators = {
-  ...validators,
+// Object.assign (not object spread) so TypeScript keeps the keys of valide's
+// mapped Validators type — spreading it into a literal collapses them.
+const configValidators = Object.assign({}, validators, {
   dashArray,
   numberFormat,
   dateFormat,
@@ -39,6 +40,6 @@ let configValidators = {
   style,
   opacity,
   svgColor
-};
+});
 
 export default configValidators;

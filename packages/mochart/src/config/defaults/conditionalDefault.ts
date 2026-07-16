@@ -1,5 +1,5 @@
 export function conditionalDefault(rules, configWithRegularDefaults, ...extraArgs) {
-  let conditionalFunction = () => rules.find(rule => rule.condition(configWithRegularDefaults, ...extraArgs)).default;
+  let conditionalFunction: (() => any) & { rules?: any[] } = () => rules.find(rule => rule.condition(configWithRegularDefaults, ...extraArgs)).default;
   conditionalFunction.rules = rules;
   return conditionalFunction;
 }

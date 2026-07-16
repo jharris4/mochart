@@ -336,7 +336,7 @@ function getSeriesDomainObjects(seriesValueObjects) {
 }
 
 function getSeriesDomainObject(seriesValueObject) {
-  let seriesDomainObject = {};
+  let seriesDomainObject: any = {};
   for (let key of positionOrComputedOrExtraKeys) {
     setSeriesDomain(seriesDomainObject, seriesValueObject, key);
   }

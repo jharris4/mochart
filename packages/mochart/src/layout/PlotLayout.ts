@@ -61,7 +61,7 @@ function getAxisTotalTickLabelSize(axisConfig, rotatedTickBounds, vertical) {
 }
 
 function getAxisTitleSize(axisConfig, titleBounds) {
-  let titleSize = 0;
+  let titleSize: any = 0;
   if (axisConfig.title !== NONE) {
     titleSize = axisConfig.titleSize;
     if (titleSize === AUTO) {
@@ -350,7 +350,7 @@ export function getPlotLayoutInfo(mochartConfig, chartTextBoundsData, chartData,
     seriesY + seriesAxesOffset.before, groupInnerExtent, seriesInnerExtent, inverted);
 
   const groupAxisLayoutInfo = createGroupAxisLayoutInfo(mochartConfig, chartTextBoundsData, groupAxisRotatedTickBounds, axisTickInfos, groupY, seriesY, groupInnerExtent, seriesInnerExtent, groupAxesOffset, groupAxisSize);
-  const seriesAxisLayoutInfos = createSeriesAxisLayoutInfos(mochartConfig, chartTextBoundsData, chartData, seriesAxisRotatedTickBounds, axisTickInfos, groupY, seriesY, groupInnerExtent, seriesInnerExtent, groupAxesOffset, seriesAxesOffset, seriesAxisSizes);
+  const seriesAxisLayoutInfos = createSeriesAxisLayoutInfos(mochartConfig, chartTextBoundsData, chartData, seriesAxisRotatedTickBounds, axisTickInfos, groupY, seriesY, groupInnerExtent, seriesInnerExtent, groupAxesOffset, seriesAxesOffset, seriesAxisSizes, seriesAxisFilteredSeriesCounts, seriesAxesCollapsedAfter);
 
   const plotLayoutInfo = createInvertedSpacingLayoutInfo({ x, y: plotY, width, height: plotHeight }, inverted, margin, padding);
 

@@ -350,7 +350,9 @@ function validateReferences(config, configWithoutDefaults, configDefaults, targe
   validateReferencesInternal(config, configWithoutDefaults[targetSectionKey], targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors);
 }
 
-function validateCommonReferencesInternal(config, targetSections, targetSectionKey, targetAllKey, targetProperty, sourceSectionKey, sourceProperty, commonProperty, errors) {
+// TODO: pre-existing bug kept intact by the TypeScript conversion — the call sites
+// below never pass commonProperty, so this check has always been inert at runtime.
+function validateCommonReferencesInternal(config, targetSections, targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors, commonProperty?) {
   let sourceSections = config[sourceSectionKey];
   if (arrayValidator(sourceSections)) {
     let sourceProperties = {};
@@ -360,9 +362,10 @@ function validateCommonReferencesInternal(config, targetSections, targetSectionK
         sourceProperties[sourceSection[sourceProperty]] = sourceSection[commonProperty];
       }
     }
+    let target;
+    let i;
     if (arrayValidator(targetSections)) {
-      let target;
-      for (let i = 0; i < targetSections.length; i++) {
+      for (i = 0; i < targetSections.length; i++) {
         target = targetSections[i];
         if (objectValidator(target) && target[targetProperty] !== void 0 && target[commonProperty] !== void 0 &&
           sourceProperties[target[targetProperty]] !== void 0 && sourceProperties[target[targetProperty]] !== target[commonProperty]) {

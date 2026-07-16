@@ -1,5 +1,5 @@
 export function createLayoutInfo(groupPosition, seriesPosition, groupExtent, seriesExtent, inverted) {
-  let layoutInfo = {
+  let layoutInfo: any = {
     groupPosition,
     seriesPosition,
     groupExtent,

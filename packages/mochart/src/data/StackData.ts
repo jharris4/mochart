@@ -35,7 +35,7 @@ function getStackOuterSeriesIds(seriesStackConfigs, groupCount) {
   return stackOuterSeriesIds;
 }
 
-export function getStackData(mochartConfig, chartData, valueObjects, filteredValueObjects) {
+export function getStackData(mochartConfig, chartData) {
   const { seriesStackConfigs } = mochartConfig;
   const { raw, filtered } = chartData.seriesData;
   const { values: rawValues } = raw;

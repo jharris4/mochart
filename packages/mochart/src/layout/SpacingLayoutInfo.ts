@@ -21,7 +21,7 @@ export const getSpacingInnerWidth = ({ width }, margin, padding) => getInnerWidt
 export const getSpacingHeight = (margin, padding) => getAll(getTopBottom, margin, padding);
 export const getOuterHeight = (height, margin, padding) => height + getSpacingHeight(margin, padding);
 export const getInnerHeight = (height, margin, padding) => height - getSpacingHeight(margin, padding);
-export const getSpacingOuterHeight = ({ height }, margin, padding) => getOuterHeight(height, margin, padding);
+export const getSpacingOuterHeight = ({ height }, margin, padding?) => getOuterHeight(height, margin, padding);
 export const getSpacingInnerHeight = ({ height }, margin, padding) => getInnerHeight(height, margin, padding);
 export const getMaxSpacingHeight = (max, bounds, margin, padding) => Math.max(max, getSpacingOuterHeight(bounds, margin, padding));
 export const getRelativeBounds = ({x, y}, innerBounds) => ({ ...innerBounds, x: Math.floor(innerBounds.x - x), y: Math.floor(innerBounds.y - y) });

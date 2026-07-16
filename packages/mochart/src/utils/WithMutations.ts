@@ -1,4 +1,4 @@
-export function getWithMutations(oldValue, newValue, customMutator) {
+export function getWithMutations(oldValue, newValue, customMutator?) {
   if (oldValue === null || oldValue === void 0 || newValue === void 0 || newValue === null || oldValue === newValue) {
     return newValue;
   }

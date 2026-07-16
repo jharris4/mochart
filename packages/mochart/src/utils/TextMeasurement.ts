@@ -23,7 +23,7 @@ export function getChartTextBoundsData(mochartConfig, domAccessors) {
   const legendItemTextRawBounds = getLegendItemTextRawBounds(mochartConfig, domAccessors);
   const legendItemMaxTextBounds = getMaxBounds(legendItemTextBounds);
 
-  const chartTextBoundsData = {
+  const chartTextBoundsData: any = {
     titleTextBounds,
     titleTextRawBounds,
     titlePrefixBounds,

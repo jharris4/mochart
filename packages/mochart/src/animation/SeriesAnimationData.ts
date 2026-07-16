@@ -53,7 +53,7 @@ export function getInitialValueChangeData(mochartConfig, newChartData) {
   let initialValues = getInitialSeriesValueObjects(mochartConfig.seriesConfigs, newChartData.seriesData.raw.domains,
     newChartData.seriesData.raw.values, newChartData.seriesData.raw.priorIndices, newChartData.seriesData.axisBases);
   let initialFilteredValues = getInitialFilteredSeriesValueObjects(mochartConfig.seriesStackConfigs,
-    initialValues, newChartData.seriesData.filteredFlags, newChartData.seriesData.raw.priorIndices);
+    initialValues, newChartData.seriesData.filteredFlags);
 
   let startChartData = getChartDataWithSeriesData(newChartData, getSeriesDataWithSeriesValues(newChartData.seriesData, initialValues, initialFilteredValues));
 
@@ -123,7 +123,7 @@ export function getTransitionValueChangeData(mochartConfig, prevChartData, newCh
 
   startValues = getSeriesValueObjectsWithChanges(prevSeriesData.raw, groupDeltaData.indices.old, groupDeltaData.indices.added);
   startFilteredValues = getFilteredSeriesValueObjectsWithChanges(prevSeriesData.filtered, prevSeriesData.raw,
-    startValues, groupDeltaData.indices.old, groupDeltaData.indices.added, groupDeltaData.indices.reordered);
+    startValues, groupDeltaData.indices.old, groupDeltaData.indices.added);
 
   // TODO - here is where the series values from the prev series data all need to be rearranged if necessary
 
@@ -595,7 +595,7 @@ function adjustDeltaPercentagesForStackedGroups(seriesStackConfigs, deltaObjects
 }
 
 function createRawValueDeltaDataObject(startValueObject, endValueObject, seriesAxisExtent, seriesDomain) {
-  let valueDeltaObject = {};
+  let valueDeltaObject: any = {};
   for (let key of positionOrComputedKeys) {
     setRawSeriesValueDeltas(valueDeltaObject, startValueObject, endValueObject, key, seriesAxisExtent);
   }
@@ -677,7 +677,7 @@ function createFilteredValueDeltaData(mochartConfig, startFilteredValueObjects, 
 }
 
 function createFilteredValueDeltaDataObject(startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, rawValueDeltaObject, seriesAxisExtent, seriesDomain) {
-  let valueDeltaObject = {};
+  let valueDeltaObject: any = {};
   for (let key of positionOrComputedKeys) {
     setFilteredSeriesValueDeltas(valueDeltaObject, startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, rawValueDeltaObject, key, seriesAxisExtent);
   }

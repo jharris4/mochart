@@ -28,7 +28,7 @@ const configsToIdMap = (configs, value = config => config) => {
 };
 
 function isInteger(v) {
-  return v !== void 0 && (typeof v === "number" || v instanceof Number) && isFinite(v) && v % 1 === 0;
+  return v !== void 0 && (typeof v === "number" || v instanceof Number) && isFinite(v as number) && (v as number) % 1 === 0;
 }
 
 function isString(v) {
@@ -128,7 +128,7 @@ const arrayToIdIndexMap = configs => {
 
 function validateValidation(validation) {
   if (!isObject(validation)) {
-    throw new Error('mochartConfig validation must be an object: ', validation);
+    throw new Error('mochartConfig validation must be an object: ');
   }
   const { valid, errors, warnings } = validation;
   if (!(valid === true || valid === false)) {

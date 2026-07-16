@@ -1,83 +1,77 @@
-require("babel-register");
+import {
+  configWithoutAllValidators as mochartConfigSectionValidators,
+  getUniqueMessage,
+  getReferenceMessage,
+  getCommonReferenceMessage,
+  allValidator
+} from './src/config/validation/mochartConfig';
+import getSectionDescriptions from './src/config/docs/mochartConfig';
+import { sectionKeyAllMap } from './src/config/core/mochartConfig';
 
-const mochartConfigSectionValidators = require('./src/config/validation/mochartConfig').configWithoutAllValidators;
-const getUniqueMessage = require('./src/config/validation/mochartConfig').getUniqueMessage;
-const getReferenceMessage = require('./src/config/validation/mochartConfig').getReferenceMessage;
-const getCommonReferenceMessage = require('./src/config/validation/mochartConfig').getCommonReferenceMessage;
-const getSectionDescriptions = require('./src/config/docs/mochartConfig').default;
-const sectionKeyAllMap = require('./src/config/core/mochartConfig').sectionKeyAllMap;
-const allValidator = require('./src/config/validation/mochartConfig').allValidator;
+import getAnimationDefaults from './src/config/defaults/animationConfig';
+import getAnimationValidators from './src/config/validation/animationConfig';
+import getAnimationDescriptions from './src/config/docs/animationConfig';
 
-const getAnimationDefaults = require('./src/config/defaults/animationConfig').default;
-const getAnimationValidators = require('./src/config/validation/animationConfig').default;
-const getAnimationDescriptions = require('./src/config/docs/animationConfig').default;
+import getChartDefaults from './src/config/defaults/chartConfig';
+import getChartValidators from './src/config/validation/chartConfig';
+import getChartDescriptions from './src/config/docs/chartConfig';
 
-const getChartDefaults = require('./src/config/defaults/chartConfig').default;
-const getChartValidators = require('./src/config/validation/chartConfig').default;
-const getChartDescriptions = require('./src/config/docs/chartConfig').default;
+import getColorPaletteDefaults from './src/config/defaults/colorPaletteConfig';
+import getColorPaletteValidators from './src/config/validation/colorPaletteConfig';
+import getColorPaletteDescriptions from './src/config/docs/colorPaletteConfig';
 
-const getColorPaletteDefaults = require('./src/config/defaults/colorPaletteConfig').default;
-const getColorPaletteValidators = require('./src/config/validation/colorPaletteConfig').default;
-const getColorPaletteDescriptions = require('./src/config/docs/colorPaletteConfig').default;
+import getCrosshairDefaults from './src/config/defaults/crosshairConfig';
+import getCrosshairValidators from './src/config/validation/crosshairConfig';
+import getCrosshairDescriptions from './src/config/docs/crosshairConfig';
 
-const getCrosshairDefaults = require('./src/config/defaults/crosshairConfig').default;
-const getCrosshairValidators = require('./src/config/validation/crosshairConfig').default;
-const getCrosshairDescriptions = require('./src/config/docs/crosshairConfig').default;
+import { getRegularDefaults as getGroupAxisRegularDefaults, getConditionalDefaults as getGroupAxisConditionalDefaults } from './src/config/defaults/groupAxisConfig';
+import getGroupAxisValidators from './src/config/validation/groupAxisConfig';
+import getGroupAxisDescriptions from './src/config/docs/groupAxisConfig';
 
-const getGroupAxisRegularDefaults = require('./src/config/defaults/groupAxisConfig').getRegularDefaults;
-const getGroupAxisConditionalDefaults = require('./src/config/defaults/groupAxisConfig').getConditionalDefaults;
-const getGroupAxisValidators = require('./src/config/validation/groupAxisConfig').default;
-const getGroupAxisDescriptions = require('./src/config/docs/groupAxisConfig').default;
+import { getRegularDefaults as getLegendRegularDefaults, getConditionalDefaults as getLegendConditionalDefaults } from './src/config/defaults/legendConfig';
+import getLegendValidators from './src/config/validation/legendConfig';
+import getLegendDescriptions from './src/config/docs/legendConfig';
 
-const getLegendRegularDefaults = require('./src/config/defaults/legendConfig').getRegularDefaults;
-const getLegendConditionalDefaults = require('./src/config/defaults/legendConfig').getConditionalDefaults;
-const getLegendValidators = require('./src/config/validation/legendConfig').default;
-const getLegendDescriptions = require('./src/config/docs/legendConfig').default;
+import { getRegularDefaults as getLinearGradientRegularDefaults, getConditionalDefaults as getLinearGradientConditionalDefaults } from './src/config/defaults/linearGradientConfig';
+import getLinearGradientValidators from './src/config/validation/linearGradientConfig';
+import getLinearGradientDescriptions from './src/config/docs/linearGradientConfig';
 
-const getLinearGradientRegularDefaults = require('./src/config/defaults/linearGradientConfig').getRegularDefaults;
-const getLinearGradientConditionalDefaults = require('./src/config/defaults/linearGradientConfig').getConditionalDefaults;
-const getLinearGradientValidators = require('./src/config/validation/linearGradientConfig').default;
-const getLinearGradientDescriptions = require('./src/config/docs/linearGradientConfig').default;
+import getPlotDefaults from './src/config/defaults/plotConfig';
+import getPlotValidators from './src/config/validation/plotConfig';
+import getPlotDescriptions from './src/config/docs/plotConfig';
 
-const getPlotDefaults = require('./src/config/defaults/plotConfig').default;
-const getPlotValidators = require('./src/config/validation/plotConfig').default;
-const getPlotDescriptions = require('./src/config/docs/plotConfig').default;
+import { getRegularDefaults as getRadialGradientRegularDefaults, getConditionalDefaults as getRadialGradientConditionalDefaults } from './src/config/defaults/radialGradientConfig';
+import getRadialGradientValidators from './src/config/validation/radialGradientConfig';
+import getRadialGradientDescriptions from './src/config/docs/radialGradientConfig';
 
-const getRadialGradientRegularDefaults = require('./src/config/defaults/radialGradientConfig').getRegularDefaults;
-const getRadialGradientConditionalDefaults = require('./src/config/defaults/radialGradientConfig').getConditionalDefaults;
-const getRadialGradientValidators = require('./src/config/validation/radialGradientConfig').default;
-const getRadialGradientDescriptions = require('./src/config/docs/radialGradientConfig').default;
+import { getRegularDefaults as getSeriesAxisRegularDefaults, getConditionalDefaults as getSeriesAxisConditionalDefaults } from './src/config/defaults/seriesAxisConfig';
+import getSeriesAxisValidators from './src/config/validation/seriesAxisConfig';
+import getSeriesAxisDescriptions from './src/config/docs/seriesAxisConfig';
 
-const getSeriesAxisRegularDefaults = require('./src/config/defaults/seriesAxisConfig').getRegularDefaults;
-const getSeriesAxisConditionalDefaults = require('./src/config/defaults/seriesAxisConfig').getConditionalDefaults;
-const getSeriesAxisValidators = require('./src/config/validation/seriesAxisConfig').default;
-const getSeriesAxisDescriptions = require('./src/config/docs/seriesAxisConfig').default;
+import { getRegularDefaults as getSeriesRegularDefaults, getConditionalDefaults as getSeriesConditionalDefaults } from './src/config/defaults/seriesConfig';
+import getSeriesValidators from './src/config/validation/seriesConfig';
+import getSeriesDescriptions from './src/config/docs/seriesConfig';
 
-const getSeriesRegularDefaults = require('./src/config/defaults/seriesConfig').getRegularDefaults;
-const getSeriesConditionalDefaults = require('./src/config/defaults/seriesConfig').getConditionalDefaults;
-const getSeriesValidators = require('./src/config/validation/seriesConfig').default;
-const getSeriesDescriptions = require('./src/config/docs/seriesConfig').default;
+import { getRegularDefaults as getSeriesGroupRegularDefaults, getConditionalDefaults as getSeriesGroupConditionalDefaults } from './src/config/defaults/seriesGroupConfig';
+import getSeriesGroupValidators from './src/config/validation/seriesGroupConfig';
+import getSeriesGroupDescriptions from './src/config/docs/seriesGroupConfig';
 
-const getSeriesGroupRegularDefaults = require('./src/config/defaults/seriesGroupConfig').getRegularDefaults;
-const getSeriesGroupConditionalDefaults = require('./src/config/defaults/seriesGroupConfig').getConditionalDefaults;
-const getSeriesGroupValidators = require('./src/config/validation/seriesGroupConfig').default;
-const getSeriesGroupDescriptions = require('./src/config/docs/seriesGroupConfig').default;
+import { getRegularDefaults as getSeriesStackRegularDefaults, getConditionalDefaults as getSeriesStackConditionalDefaults } from './src/config/defaults/seriesStackConfig';
+import getSeriesStackValidators from './src/config/validation/seriesStackConfig';
+import getSeriesStackDescriptions from './src/config/docs/seriesStackConfig';
 
-const getSeriesStackRegularDefaults = require('./src/config/defaults/seriesStackConfig').getRegularDefaults;
-const getSeriesStackConditionalDefaults = require('./src/config/defaults/seriesStackConfig').getConditionalDefaults;
-const getSeriesStackValidators = require('./src/config/validation/seriesStackConfig').default;
-const getSeriesStackDescriptions = require('./src/config/docs/seriesStackConfig').default;
+import getTitleDefaults from './src/config/defaults/titleConfig';
+import getTitleValidators from './src/config/validation/titleConfig';
+import getTitleDescriptions from './src/config/docs/titleConfig';
 
-const getTitleDefaults = require('./src/config/defaults/titleConfig').default;
-const getTitleValidators = require('./src/config/validation/titleConfig').default;
-const getTitleDescriptions = require('./src/config/docs/titleConfig').default;
+import getTooltipDefaults from './src/config/defaults/tooltipConfig';
+import getTooltipValidators from './src/config/validation/tooltipConfig';
+import getTooltipDescriptions from './src/config/docs/tooltipConfig';
 
-const getTooltipDefaults = require('./src/config/defaults/tooltipConfig').default;
-const getTooltipValidators = require('./src/config/validation/tooltipConfig').default;
-const getTooltipDescriptions = require('./src/config/docs/tooltipConfig').default;
+import validators from 'valide';
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 function generateDocs(filename) {
 
@@ -398,8 +392,6 @@ function generateComplexDefaultDoc(conditionalDefault) {
   }).join('');
 }
 
-const validators = require('valide').default;
-
 const colorValidator = validators.color();
 
 function formatDefault(theDefault) {
@@ -435,4 +427,4 @@ function outputColor(color) {
   return '<span class="colorIcon" style="background-color: ' + color + '"></span>';
 }
 
-module.exports = generateDocs;
+export default generateDocs;
