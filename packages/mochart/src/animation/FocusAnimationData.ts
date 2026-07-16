@@ -1,6 +1,14 @@
-import { getFocusData, getFocusDataWithMutations } from '../data/FocusData';
+import type { MochartConfig } from '../types/config';
+import type {
+  ArrayFocusDeltaData,
+  FocusAnimationData,
+  FocusData,
+  FocusPercentage,
+  FocusPercentageMap,
+  MapFocusDeltaData
+} from '../types/animation';
 
-export function getFocusAnimationData(mochartConfig, oldFocusData, newFocusData) {
+export function getFocusAnimationData(_mochartConfig: MochartConfig, oldFocusData: FocusData, newFocusData: FocusData): FocusAnimationData {
   let startFocusData = oldFocusData;
   let endFocusData = newFocusData;
   let groupFocusDeltaData = getGroupFocusDeltaData(startFocusData.groupFocusPercentages, endFocusData.groupFocusPercentages);
@@ -17,14 +25,14 @@ export function getFocusAnimationData(mochartConfig, oldFocusData, newFocusData)
   };
 }
 
-function getFocusDelta(newFocusPercentage, oldFocusPercentage) {
+function getFocusDelta(newFocusPercentage: FocusPercentage, oldFocusPercentage: FocusPercentage): number {
   newFocusPercentage = newFocusPercentage === null ? 0 : newFocusPercentage;
   oldFocusPercentage = oldFocusPercentage === null ? 0 : oldFocusPercentage;
   return newFocusPercentage - oldFocusPercentage;
 }
 
-function getGroupFocusDeltaData(oldFocusPercentages, newFocusPercentages) {
-  let focusDeltas = [];
+function getGroupFocusDeltaData(oldFocusPercentages: FocusPercentage[], newFocusPercentages: FocusPercentage[]): ArrayFocusDeltaData {
+  const focusDeltas: number[] = [];
   let focusDelta, maxDelta = 0;
   let i, count = oldFocusPercentages.length;
   for (i=0; i<count; i++) {
@@ -34,8 +42,8 @@ function getGroupFocusDeltaData(oldFocusPercentages, newFocusPercentages) {
       maxDelta = Math.abs(focusDelta);
     }
   }
-  let deltaPercentages = null;
-  let deltaFactors = null;
+  let deltaPercentages: number[] | null = null;
+  let deltaFactors: number[] | null = null;
   if (maxDelta > 0) {
     deltaPercentages = [];
     deltaFactors = [];
@@ -62,8 +70,8 @@ function getGroupFocusDeltaData(oldFocusPercentages, newFocusPercentages) {
   };
 }
 
-function getSeriesAxisFocusDeltaData(oldFocusPercentages, newFocusPercentages) {
-  let focusDeltas = {};
+function getSeriesAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFocusPercentages: FocusPercentageMap): MapFocusDeltaData {
+  const focusDeltas: Record<string, number> = {};
   let focusDelta, maxDelta = 0;
   let seriesAxisIds = Object.keys(oldFocusPercentages);
   for (let seriesAxisId of seriesAxisIds) {
@@ -73,8 +81,8 @@ function getSeriesAxisFocusDeltaData(oldFocusPercentages, newFocusPercentages) {
       maxDelta = Math.abs(focusDelta);
     }
   }
-  let deltaPercentages = null;
-  let deltaFactors = null;
+  let deltaPercentages: Record<string, number> | null = null;
+  let deltaFactors: Record<string, number> | null = null;
   if (maxDelta > 0) {
     deltaPercentages = {};
     deltaFactors = {};
@@ -101,8 +109,8 @@ function getSeriesAxisFocusDeltaData(oldFocusPercentages, newFocusPercentages) {
   };
 }
 
-function getSeriesFocusDeltaData(oldFocusPercentages, newFocusPercentages) {
-  let focusDeltas = {};
+function getSeriesFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFocusPercentages: FocusPercentageMap): MapFocusDeltaData {
+  const focusDeltas: Record<string, number> = {};
   let focusDelta, maxDelta = 0;
   let seriesIds = Object.keys(oldFocusPercentages);
   for (let seriesId of seriesIds) {
@@ -112,8 +120,8 @@ function getSeriesFocusDeltaData(oldFocusPercentages, newFocusPercentages) {
       maxDelta = Math.abs(focusDelta);
     }
   }
-  let deltaPercentages = null;
-  let deltaFactors = null;
+  let deltaPercentages: Record<string, number> | null = null;
+  let deltaFactors: Record<string, number> | null = null;
   if (maxDelta > 0) {
     deltaPercentages = {};
     deltaFactors = {};

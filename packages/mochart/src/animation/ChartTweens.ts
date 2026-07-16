@@ -3,26 +3,82 @@ import { getFocusDataForPercent } from './FocusAnimation';
 
 import { getChartDataForAxisDelta, getChartDataForValueDelta } from './ChartAnimation';
 
-export const dataTweenExpandStart = 'dataTweenExpandStart';
-export const dataTweenExpandUpdate = 'dataTweenExpandUpdate';
-export const dataTweenExpandComplete = 'dataTweenExpandComplete';
+import type { MochartConfig } from '../types/config';
+import type { AnimationChartData, ChartAnimationData, FocusAnimationData, FocusData } from '../types/animation';
 
-export const dataTweenValueStart = 'dataTweenValueStart';
-export const dataTweenValueUpdate = 'dataTweenValueUpdate';
-export const dataTweenValueComplete = 'dataTweenValueComplete';
+export const dataTweenExpandStart = 'dataTweenExpandStart' as const;
+export const dataTweenExpandUpdate = 'dataTweenExpandUpdate' as const;
+export const dataTweenExpandComplete = 'dataTweenExpandComplete' as const;
 
-export const dataTweenCollapseStart = 'dataTweenCollapseStart';
-export const dataTweenCollapseUpdate = 'dataTweenCollapseUpdate';
-export const dataTweenCollapseComplete = 'dataTweenCollapseComplete';
+export const dataTweenValueStart = 'dataTweenValueStart' as const;
+export const dataTweenValueUpdate = 'dataTweenValueUpdate' as const;
+export const dataTweenValueComplete = 'dataTweenValueComplete' as const;
 
-const MochartTween: ReturnType<typeof initMochartTween> & {
+export const dataTweenCollapseStart = 'dataTweenCollapseStart' as const;
+export const dataTweenCollapseUpdate = 'dataTweenCollapseUpdate' as const;
+export const dataTweenCollapseComplete = 'dataTweenCollapseComplete' as const;
+
+export type DataTweenEvent =
+  | typeof dataTweenExpandStart | typeof dataTweenExpandUpdate | typeof dataTweenExpandComplete
+  | typeof dataTweenValueStart | typeof dataTweenValueUpdate | typeof dataTweenValueComplete
+  | typeof dataTweenCollapseStart | typeof dataTweenCollapseUpdate | typeof dataTweenCollapseComplete;
+
+type VoidCallback = () => void;
+type FocusUpdateCallback = (focusData: FocusData) => void;
+type DataUpdateCallback = (chartData: AnimationChartData, event: DataTweenEvent) => void;
+
+interface Tween {
+  readonly id: number;
+  start(time?: number): Tween;
+  update(time: number): boolean;
+  stop(): Tween;
+  chain(...tweens: Tween[]): Tween;
+  onStart(callback: VoidCallback): Tween;
+  onUpdate(callback: (percentage: number) => void): Tween;
+  onComplete(callback: VoidCallback): Tween;
+}
+
+interface TweenEngine {
+  now: () => number;
+  add(tween: Tween): void;
+  remove(tween: Tween): void;
+  update(time?: number): boolean;
+  create(duration: number, delay?: number): Tween;
+}
+
+interface FocusTweenOptions {
+  completeCallback?: VoidCallback;
+  startCallback?: VoidCallback;
+}
+
+interface DataTweenOptions extends FocusTweenOptions {
+  completeValueChangeCallback?: (chartData: AnimationChartData) => void;
+  startValueChangeCallback?: (chartData: AnimationChartData) => void;
+}
+
+export interface ChartTweenManager {
+  tweenFocus(mochartConfig: MochartConfig, focusAnimationData: FocusAnimationData, updateCallback: FocusUpdateCallback, options?: FocusTweenOptions): void;
+  cancelFocusTween(): void;
+  tweenData(mochartConfig: MochartConfig, chartAnimationData: ChartAnimationData, updateCallback: DataUpdateCallback, options?: DataTweenOptions): void;
+  cancelDataTween(): void;
+  cancelTweens(): void;
+}
+
+interface DataTweenStep {
+  onStart: VoidCallback;
+  onUpdate: (percentage: number) => void;
+  onComplete: VoidCallback;
+  duration: number;
+}
+
+const MochartTween: TweenEngine & {
   _requestRaf?: () => void;
   _animationId?: number | null;
-  _rafCallback?: (ts?: number) => void;
+  _rafCallback?: FrameRequestCallback;
 } = initMochartTween();
 
-function initMochartTween() {
-  let now;
+function initMochartTween(): TweenEngine {
+  let now: () => number;
   if (typeof (window) !== 'undefined' && window.performance !== void 0 && window.performance.now !== void 0) {
     now = window.performance.now.bind(window.performance);
   }
@@ -35,21 +91,21 @@ function initMochartTween() {
     };
   }
 
-  let _tweens = {};
-  let _pendingTweens = {};
+  let _tweens: Record<number, Tween> = {};
+  let _pendingTweens: Record<number, Tween> = {};
   let _nextTweenId = 0;
 
-  let add = function(tween) {
+  const add = function(tween: Tween): void {
     _tweens[tween.id] = tween;
     _pendingTweens[tween.id] = tween;
   };
 
-  let remove = function(tween) {
+  const remove = function(tween: Tween): void {
     delete _tweens[tween.id];
     delete _pendingTweens[tween.id];
   }
 
-  let update = function(time) {
+  const update = function(time?: number): boolean {
     let tweenIds = Object.keys(_tweens);
 
     if (tweenIds.length === 0) {
@@ -72,18 +128,18 @@ function initMochartTween() {
     return true;
   }
 
-  let create = function(duration, delay = 0) {
-    let id = _nextTweenId++;
-    let startTime = null;
+  const create = function(duration: number, delay = 0): Tween {
+    const id = _nextTweenId++;
+    let startTime = 0;
     let isPlaying = false;
     let onStartCallbackFired = false;
-    let onStartCallback = null;
-    let onUpdateCallback = null;
-    let onStopCallback = null;
-    let onCompleteCallback = null;
-    let chainedTweens = [];
+    let onStartCallback: VoidCallback | null = null;
+    let onUpdateCallback: ((percentage: number) => void) | null = null;
+    let onStopCallback: VoidCallback | null = null;
+    let onCompleteCallback: VoidCallback | null = null;
+    let chainedTweens: Tween[] = [];
 
-    let start = function(time) {
+    const start = function(time?: number): Tween {
       add(tween);
 
       isPlaying = true;
@@ -93,7 +149,7 @@ function initMochartTween() {
       return tween;
     }
 
-    let update = function(time) {
+    const update = function(time: number): boolean {
       if (time < startTime) {
 			  return true;
 		  }
@@ -126,18 +182,18 @@ function initMochartTween() {
       return true;
     };
 
-    let stopChainedTweens = function() {
+    const stopChainedTweens = function(): void {
       for (let chainedTween of chainedTweens) {
         chainedTween.stop();
       }
     }
 
-    let chain = function(...tweens) {
+    const chain = function(...tweens: Tween[]): Tween {
       chainedTweens = tweens;
       return tween;
     }
 
-    let stop = function() {
+    const stop = function(): Tween {
       if (!isPlaying) {
         return tween;
       }
@@ -153,27 +209,27 @@ function initMochartTween() {
       return tween;
     };
 
-    let onStart = function(callback) {
+    const onStart = function(callback: VoidCallback): Tween {
       onStartCallback = callback;
       return tween;
     }
 
-    let onUpdate = function(callback) {
+    const onUpdate = function(callback: (percentage: number) => void): Tween {
       onUpdateCallback = callback;
       return tween;
     }
 
-    let onComplete = function(callback) {
+    const onComplete = function(callback: VoidCallback): Tween {
       onCompleteCallback = callback;
       return tween;
     }
 
-    let onStop = function(callback) {
+    const onStop = function(callback: VoidCallback): Tween {
       onStopCallback = callback;
       return tween;
     }
 
-    let tween = {
+    const tween: Tween = {
       id,
       start,
       update,
@@ -198,12 +254,12 @@ function initMochartTween() {
 
 if (MochartTween._requestRaf === void 0) {
   MochartTween._animationId = null;
-  MochartTween._rafCallback = function(ts) {
+  MochartTween._rafCallback = function(ts: number): void {
     if (!ts) {
       ts = +(new Date());
     }
     if (MochartTween.update(ts)) {
-      MochartTween._animationId = requestAnimationFrame(MochartTween._rafCallback);
+      MochartTween._animationId = requestAnimationFrame(MochartTween._rafCallback!);
     }
     else {
       MochartTween._animationId = null;
@@ -211,12 +267,12 @@ if (MochartTween._requestRaf === void 0) {
   };
   MochartTween._requestRaf = function() {
     if (MochartTween._animationId === null) {
-      MochartTween._animationId = requestAnimationFrame(MochartTween._rafCallback);
+      MochartTween._animationId = requestAnimationFrame(MochartTween._rafCallback!);
     }
   };
 }
 
-function startTween(tween) {
+function startTween(tween: Tween): void {
   if (MochartTween.now === Date.now) {
     // Fix for older versions of Safari
     requestAnimationFrame((time) => { tween.start(time); });
@@ -226,11 +282,11 @@ function startTween(tween) {
   }
 }
 
-export function getChartTweenManager() {
-  let focusTween = null;
-  let dataTween = null;
+export function getChartTweenManager(): ChartTweenManager {
+  let focusTween: Tween | null = null;
+  let dataTween: Tween | null = null;
 
-  let self = {
+  const self: ChartTweenManager = {
     tweenFocus: (mochartConfig, focusAnimationData, updateCallback, {
       completeCallback = () => {},
       startCallback = () => {}
@@ -244,7 +300,7 @@ export function getChartTweenManager() {
       });
       // TODO, defer start until after next raf callback?!
       startTween(focusTween);
-      MochartTween._requestRaf();
+      MochartTween._requestRaf!();
     },
     cancelFocusTween: () => {
       if (focusTween !== null) {
@@ -272,7 +328,7 @@ export function getChartTweenManager() {
       else {
         completeCallback();
       }
-      MochartTween._requestRaf();
+      MochartTween._requestRaf!();
     },
     cancelDataTween: () => {
       if (dataTween !== null) {
@@ -290,12 +346,12 @@ export function getChartTweenManager() {
 }
 
 function buildFocusTween(
-  mochartConfig, focusAnimationData,
+  mochartConfig: MochartConfig, focusAnimationData: FocusAnimationData,
   {
     updateCallback,
     completeCallback = () => {},
     startCallback = () => {}
-  }) {
+  }: FocusTweenOptions & { updateCallback: FocusUpdateCallback }): Tween {
   let focusDuration = mochartConfig.animationConfig.focusDuration;
   let duration = focusAnimationData.deltaPercentage * focusDuration;
   // delay the start of the focus tween by a few milliseconds to allow it to be canceled if another tween is built
@@ -317,16 +373,19 @@ function buildFocusTween(
 }
 
 function buildDataTween(
-  mochartConfig, chartAnimationData, {
+  mochartConfig: MochartConfig, chartAnimationData: ChartAnimationData, {
     updateCallback,
     completeCallback = () => {},
     startCallback = () => {},
-    completeValueChangeCallback = (_value?: any) => {},
-    startValueChangeCallback = (_value?: any) => {}
-  }) {
+    completeValueChangeCallback = () => {},
+    startValueChangeCallback = () => {}
+  }: DataTweenOptions & { updateCallback: DataUpdateCallback }): Tween | null {
   const { axisExpansionData, valueChangeData, axisCollapseData } = chartAnimationData;
-  let tweenData = [];
+  const tweenData: DataTweenStep[] = [];
   if (axisExpansionData.deltaPercentage !== 0) {
+    if (axisExpansionData.start === null || axisExpansionData.final === null || axisExpansionData.final === undefined) {
+      throw new Error('Axis expansion tween requires chart data');
+    }
     tweenData.push({
       onStart: () => { updateCallback(axisExpansionData.start, dataTweenExpandStart); },
       onUpdate: (percentage) => { updateCallback(getChartDataForAxisDelta(mochartConfig, chartAnimationData, true, percentage), dataTweenExpandUpdate); },
@@ -365,6 +424,9 @@ function buildDataTween(
     }
   }
   if (axisCollapseData.deltaPercentage !== 0) {
+    if (axisCollapseData.start === null || axisCollapseData.final === null || axisCollapseData.final === undefined) {
+      throw new Error('Axis collapse tween requires chart data');
+    }
     tweenData.push({
       onStart: () => { updateCallback(axisCollapseData.start, dataTweenCollapseStart); },
       onUpdate: (percentage) => { updateCallback(getChartDataForAxisDelta(mochartConfig, chartAnimationData, false, percentage), dataTweenCollapseUpdate); },
@@ -383,8 +445,8 @@ function buildDataTween(
       });
     }
   }
-  let firstTween = null;
-  let lastTween = null;
+  let firstTween: Tween | null = null;
+  let lastTween: Tween | null = null;
   for (let i=0; i<tweenData.length; i++) {
     let newTween = MochartTween.create(tweenData[i].duration);
     if (i == 0) {

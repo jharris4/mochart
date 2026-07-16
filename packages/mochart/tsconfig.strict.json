@@ -12,6 +12,8 @@
   "files": [
     "src/types/index.ts",
     "src/config/core/constants.ts",
+    "src/animation/FocusAnimation.ts",
+    "src/animation/FocusAnimationData.ts",
     "src/data/DataProvider.ts",
     "src/data/constants.ts",
     "src/render/index.ts",

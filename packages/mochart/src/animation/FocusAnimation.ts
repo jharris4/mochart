@@ -1,4 +1,13 @@
-export function getFocusDataForPercent(focusAnimationData, percentage) {
+import type {
+  ArrayFocusDeltaData,
+  FocusAnimationData,
+  FocusData,
+  FocusPercentage,
+  FocusPercentageMap,
+  MapFocusDeltaData
+} from '../types/animation';
+
+export function getFocusDataForPercent(focusAnimationData: FocusAnimationData, percentage: number): FocusData {
   if (focusAnimationData.start === focusAnimationData.end) {
     return focusAnimationData.start;
   }
@@ -28,7 +37,7 @@ export function getFocusDataForPercent(focusAnimationData, percentage) {
   }
 }
 
-function getFocusPercentage(start, percentage, deltaFactor, delta) {
+function getFocusPercentage(start: FocusPercentage, percentage: number, deltaFactor: number, delta: number): FocusPercentage {
   if (delta === 0) {
     return start;
   }
@@ -40,15 +49,18 @@ function getFocusPercentage(start, percentage, deltaFactor, delta) {
   }
 }
 
-function getGroupFocusPercentages({ start, deltas, deltaPercentage, deltaPercentages, deltaFactors, end }, percentage) {
+function getGroupFocusPercentages(
+  { start, deltas, deltaPercentage, deltaPercentages, deltaFactors, end }: ArrayFocusDeltaData,
+  percentage: number
+): FocusPercentage[] {
   if (start === end) {
     return start;
   }
   else if (deltaPercentage === 0) {
     return start;
   }
-  else {
-    let focusPercentages = []; // TODO, investigate reusing this array for subsequent calls
+  else if (deltaPercentages !== null && deltaFactors !== null) {
+    const focusPercentages: FocusPercentage[] = []; // TODO, investigate reusing this array for subsequent calls
     let i, count = start.length;
     for (i=0; i<count; i++) {
       if (deltaPercentages[i] >= percentage) {
@@ -60,17 +72,21 @@ function getGroupFocusPercentages({ start, deltas, deltaPercentage, deltaPercent
     }
     return focusPercentages;
   }
+  return start;
 }
 
-function getSeriesAxisFocusPercentages({ start, deltas, deltaPercentage, deltaPercentages, deltaFactors, end }, percentage) {
+function getSeriesAxisFocusPercentages(
+  { start, deltas, deltaPercentage, deltaPercentages, deltaFactors, end }: MapFocusDeltaData,
+  percentage: number
+): FocusPercentageMap {
   if (start === end) {
     return start;
   }
   else if (deltaPercentage === 0) {
     return start;
   }
-  else {
-    let focusPercentages = {}; // TODO, investigate reusing this map for subsequent calls
+  else if (deltaPercentages !== null && deltaFactors !== null) {
+    const focusPercentages: FocusPercentageMap = {}; // TODO, investigate reusing this map for subsequent calls
     let seriesAxisIds = Object.keys(start);
     for (let seriesAxisId of seriesAxisIds) {
       if (deltaPercentages[seriesAxisId] >= percentage) {
@@ -82,17 +98,21 @@ function getSeriesAxisFocusPercentages({ start, deltas, deltaPercentage, deltaPe
     }
     return focusPercentages;
   }
+  return start;
 }
 
-function getSeriesFocusPercentages({ start, deltas, deltaPercentage, deltaPercentages, deltaFactors, end }, percentage) {
+function getSeriesFocusPercentages(
+  { start, deltas, deltaPercentage, deltaPercentages, deltaFactors, end }: MapFocusDeltaData,
+  percentage: number
+): FocusPercentageMap {
   if (start === end) {
     return start;
   }
   else if (deltaPercentage === 0) {
     return start;
   }
-  else {
-    let focusPercentages = {}; // TODO, investigate reusing this map for subsequent calls
+  else if (deltaPercentages !== null && deltaFactors !== null) {
+    const focusPercentages: FocusPercentageMap = {}; // TODO, investigate reusing this map for subsequent calls
     let seriesIds = Object.keys(start);
     for (let seriesId of seriesIds) {
       if (deltaPercentages[seriesId] >= percentage) {
@@ -104,4 +124,5 @@ function getSeriesFocusPercentages({ start, deltas, deltaPercentage, deltaPercen
     }
     return focusPercentages;
   }
+  return start;
 }

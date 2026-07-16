@@ -8,32 +8,54 @@ import { emptyAxisDeltaData, getTransitionAxisExpansionData, getTransitionAxisCo
 
 import { getInitialValueChangeData, getFilterDeltaData, getTransitionValueChangeData } from './SeriesAnimationData';
 
+import type { MochartConfig } from '../types/config';
+import type {
+  AnimationChartData,
+  AxisTransitionData,
+  ChartAnimationData,
+  EmptyAxisDeltaData,
+  ValueChangeData
+} from '../types/animation';
+
 /**
  *
  * Main animation logic functions
  *
  **/
 
-export function getChartAnimationData(mochartConfig, oldChartData, newChartData) {
-  let groupDeltaData, axisExpansionData, valueChangeData, axisCollapseData;
+export function getChartAnimationData(
+  mochartConfig: MochartConfig,
+  oldChartData: AnimationChartData | null,
+  newChartData: AnimationChartData
+): ChartAnimationData {
+  let groupDeltaData: unknown;
+  let axisExpansionData: AxisTransitionData;
+  let valueChangeData: ValueChangeData;
+  let axisCollapseData: AxisTransitionData;
 
   const initialAnimation = getChartDataGroupCount(oldChartData) === 0;
 
   if (initialAnimation) {
     groupDeltaData = getInitialGroupDeltaData(mochartConfig.groupAxisConfig, newChartData.groupData);
-    axisExpansionData = emptyAxisDeltaData;
-    valueChangeData = getInitialValueChangeData(mochartConfig, newChartData);
-    axisCollapseData = emptyAxisDeltaData;
+    axisExpansionData = emptyAxisDeltaData as EmptyAxisDeltaData;
+    valueChangeData = getInitialValueChangeData(mochartConfig, newChartData) as ValueChangeData;
+    axisCollapseData = emptyAxisDeltaData as EmptyAxisDeltaData;
   }
   else {
+    if (oldChartData === null) {
+      throw new Error('A previous chart data value is required for a transition animation');
+    }
     groupDeltaData = getGroupDeltaData(mochartConfig.groupAxisConfig, oldChartData.groupData, newChartData.groupData);
-    let filterDeltaData = getFilterDeltaData(mochartConfig, oldChartData.seriesData, newChartData.seriesData);
+    const filterDeltaData = getFilterDeltaData(mochartConfig, oldChartData.seriesData, newChartData.seriesData);
     let startSeriesData = getSeriesDataWithSeriesCounts(oldChartData.seriesData, filterDeltaData.axisSeriesCounts, filterDeltaData.stackSeriesCounts, filterDeltaData.groupSeriesCounts);
     startSeriesData = getSeriesDataWithFilteredFlags(startSeriesData, newChartData.seriesData.filteredFlags);
     let startChartData = getChartDataWithSeriesData(oldChartData, startSeriesData);
-    axisExpansionData = getTransitionAxisExpansionData(mochartConfig, startChartData, newChartData, groupDeltaData);
-    valueChangeData = getTransitionValueChangeData(mochartConfig, axisExpansionData.final, newChartData, groupDeltaData);
-    axisCollapseData = getTransitionAxisCollapseData(mochartConfig, valueChangeData.final, newChartData, groupDeltaData);
+    axisExpansionData = getTransitionAxisExpansionData(mochartConfig, startChartData, newChartData, groupDeltaData) as AxisTransitionData;
+    if (axisExpansionData.final === null || axisExpansionData.final === undefined) {
+      throw new Error('Axis expansion did not produce final chart data');
+    }
+    valueChangeData = getTransitionValueChangeData(mochartConfig, axisExpansionData.final, newChartData, groupDeltaData) as ValueChangeData;
+    axisCollapseData = getTransitionAxisCollapseData(mochartConfig, valueChangeData.final, newChartData, groupDeltaData) as AxisTransitionData;
   }
 
   return {
@@ -45,12 +67,12 @@ export function getChartAnimationData(mochartConfig, oldChartData, newChartData)
   }
 }
 
-export function getStartChartData(chartAnimationData) {
-  let { valueChangeData } = chartAnimationData;
+export function getStartChartData(chartAnimationData: ChartAnimationData): AnimationChartData {
+  const { valueChangeData } = chartAnimationData;
   return valueChangeData.start;
 }
 
-export function getEndChartData(chartAnimationData) {
-  let { valueChangeData } = chartAnimationData;
+export function getEndChartData(chartAnimationData: ChartAnimationData): AnimationChartData {
+  const { valueChangeData } = chartAnimationData;
   return valueChangeData.end;
 }
