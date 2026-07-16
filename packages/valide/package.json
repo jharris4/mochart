@@ -1,7 +1,7 @@
 {
   "name": "valide",
   "version": "1.0.10",
-  "description": "Simple yet powerful Javascript validators",
+  "description": "Simple yet powerful TypeScript validators",
   "keywords": [
     "validation",
     "chainable",
@@ -16,36 +16,18 @@
     "type": "git",
     "url": "https://github.com/jharris4/valide.git"
   },
-  "main": "src/validators.js",
-  "module": "src/validators.js",
-  "babel": {
-    "env": {
-      "production": {
-        "presets": [
-          "es2015"
-        ]
-      },
-      "development": {
-        "presets": [
-          "es2015"
-        ]
-      },
-      "es": {
-        "presets": [
-          [
-            "es2015",
-            {
-              "modules": false
-            }
-          ]
-        ]
-      }
+  "type": "module",
+  "main": "src/validators.ts",
+  "module": "src/validators.ts",
+  "types": "src/validators.ts",
+  "exports": {
+    ".": {
+      "types": "./src/validators.ts",
+      "default": "./src/validators.ts"
     }
   },
-  "vendorize": [],
-  "globalize": [],
   "scripts": {
-    "test": "vitest run --passWithNoTests"
-  },
-  "type": "module"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  }
 }

@@ -1,6 +1,6 @@
 # valide
 
-Simple yet powerful JavaScript validators with chainable extensions and
+Simple yet powerful TypeScript validators with chainable extensions and
 human-readable error messages.
 
 Every validator is a factory: calling `validators.number()` returns a plain
@@ -55,6 +55,10 @@ The bare type predicates are also exported directly for convenience:
 import { typeValidators, customTypeValidators } from 'valide';
 typeValidators.string('hi'); // true
 ```
+
+TypeScript types are exported as well: `Validator` (the predicate-with-metadata
+shape returned by every factory), `Validators`, `CustomValidator`,
+`ConditionalRule`, and `RangeValues`.
 
 ## Chainable extensions
 

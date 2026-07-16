@@ -1,37 +1,61 @@
-import { default as expect } from "expect";
-import isEqual from "is-equal";
+import { describe, it, expect } from "vitest";
 
 import baseValidators from "../src/validators";
+import type { CustomValidator } from "../src/validators";
 
-// TODO - explore how to make the message be formatted nicely like other matchers...
-var customMatchers = {
-  toIsEqual: function() {
-    return {
-      compare: function(actual, expected) {
-        var result = isEqual(actual, expected);
-        var message = function() {
-          return "Expected " + actual + " to be isEqual to " + expected;
-        };
-        return {
-          pass: result,
-          message: message
-        };
-      }
-    };
+// Deep equality that treats structurally identical functions as equal —
+// vitest's toEqual compares functions by reference, which would fail the
+// nestedValues comparisons against freshly created validators.
+const isEqual = (a: any, b: any): boolean => {
+  if (Object.is(a, b)) {
+    return true;
   }
+  if (typeof a === "function" && typeof b === "function") {
+    return a.name === b.name && String(a) === String(b);
+  }
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) {
+      return false;
+    }
+    return a.every((value, i) => isEqual(value, b[i]));
+  }
+  if (a !== null && b !== null && typeof a === "object" && typeof b === "object") {
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+    return aKeys.length === bKeys.length && aKeys.every(key => isEqual(a[key], b[key]));
+  }
+  return false;
 };
 
-beforeEach(function() {
-  jasmine.addMatchers(customMatchers);
+declare module "vitest" {
+  interface Matchers<T = any> {
+    toIsEqual(expected: any, context?: string): T;
+  }
+}
+
+expect.extend({
+  toIsEqual(received: any, expected: any, context?: string) {
+    const pass = isEqual(received, expected);
+    return {
+      pass,
+      message: () =>
+        "Expected " +
+        received +
+        (pass ? " not" : "") +
+        " to be isEqual to " +
+        expected +
+        (context !== undefined ? " (" + context + ")" : "")
+    };
+  }
 });
 
 class AClass {}
 
-const customValidator = v => v === 123;
+const customValidator: CustomValidator = v => v === 123;
 customValidator.message = "should be the magic number 123!";
 
 describe("validators", () => {
-  let validatorInputs = {
+  let validatorInputs: Record<string, { args: any[]; valid?: any; invalid?: any }> = {
     boolean: { args: [], valid: true, invalid: "true" },
     number: { args: [], valid: 123.45, invalid: "123.45" },
     string: { args: [], valid: "hello", invalid: true },

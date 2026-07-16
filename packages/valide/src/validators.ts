@@ -1,10 +1,54 @@
+type Predicate = (v?: any) => boolean;
+
+export type CustomValidator = Predicate & { message?: string };
+
+export interface RangeValues {
+  min?: number;
+  max?: number;
+}
+
+export interface ConditionalRule {
+  condition: (object: any) => boolean;
+  validator: Validator;
+  suffix?: string;
+}
+
+// Note: validators created via `conditional` only carry the message extensions
+// (withMessage/appendMessage/prependMessage) and withCustomName at runtime,
+// not orEqual/orOneOf/or.
+export interface Validator {
+  (v?: any): boolean;
+  validatorName: string;
+  customName: string | null;
+  extensionNames: string[] | null;
+  allowedValues: any[] | null;
+  nestedValues: Record<string, Validator> | null;
+  rangeValues: RangeValues | null;
+  isEnum: boolean;
+  errorMessage: string;
+  errorMessages: string[];
+  getErrorMessage(v?: any): string;
+  orEqual(value: any): Validator;
+  orOneOf(valueArray: any[]): Validator;
+  or(validator: Validator): Validator;
+  withMessage(message: string): Validator;
+  appendMessage(message: string): Validator;
+  prependMessage(message: string): Validator;
+  withCustomName(customName: string): Validator;
+}
+
+interface ValidatorDefinition {
+  validator: (...args: any[]) => Predicate;
+  message: (...args: any[]) => string;
+}
+
 const typeValidatorDefinitions = {
   boolean: {
     validator: () => v => v === true || v === false,
     message: () => "should be a boolean"
   },
   number: {
-    validator: () => v => v !== void 0 && (typeof v === "number" || v instanceof Number) && isFinite(v),
+    validator: () => v => v !== void 0 && (typeof v === "number" || v instanceof Number) && isFinite(v as number),
     message: () => "should be a number"
   },
   string: {
@@ -23,17 +67,17 @@ const typeValidatorDefinitions = {
     validator: () => v => true,
     message: () => "should be any value"
   }
-};
+} satisfies Record<string, ValidatorDefinition>;
 
-const typeValidators = {}; // convenience for use in other validators...
-const typeValidatorKeys = Object.keys(typeValidatorDefinitions);
+const typeValidators = {} as Record<keyof typeof typeValidatorDefinitions, Predicate>; // convenience for use in other validators...
+const typeValidatorKeys = Object.keys(typeValidatorDefinitions) as Array<keyof typeof typeValidatorDefinitions>;
 typeValidatorKeys.forEach(typeValidatorKey => {
   typeValidators[typeValidatorKey] = typeValidatorDefinitions[typeValidatorKey].validator();
 });
 
 export { typeValidators };
 
-const printAny = (value, recurse) => {
+const printAny = (value: any, recurse?: boolean): string => {
   if (recurse === false) {
     return value;
   } else if (value === void 0) {
@@ -48,8 +92,9 @@ const printAny = (value, recurse) => {
     return JSON.stringify(value);
   }
 };
-const printArray = (array, recurse) => "[ " + array.map(value => printAny(value, recurse)).join(", ") + " ]";
-const printObject = (object, recurse) =>
+const printArray = (array: any[], recurse?: boolean): string =>
+  "[ " + array.map(value => printAny(value, recurse)).join(", ") + " ]";
+const printObject = (object: Record<string, any>, recurse?: boolean): string =>
   "{ " +
   Object.keys(object)
     .map(key => key + ": " + printAny(object[key], recurse))
@@ -131,10 +176,12 @@ const customTypeValidatorDefinitions = {
     validator: () => v => typeValidators.number(v) || dateISORegex.test(v),
     message: () => "should be an iso date string or epoch number"
   }
-};
+} satisfies Record<string, ValidatorDefinition>;
 
-const customTypeValidators = {}; // convenience for use in other validators...
-const customTypeValidatorKeys = Object.keys(customTypeValidatorDefinitions);
+const customTypeValidators = {} as Record<keyof typeof customTypeValidatorDefinitions, Predicate>; // convenience for use in other validators...
+const customTypeValidatorKeys = Object.keys(customTypeValidatorDefinitions) as Array<
+  keyof typeof customTypeValidatorDefinitions
+>;
 customTypeValidatorKeys.forEach(customTypeValidatorKey => {
   customTypeValidators[customTypeValidatorKey] = customTypeValidatorDefinitions[customTypeValidatorKey].validator();
 });
@@ -143,123 +190,127 @@ export { customTypeValidators };
 
 const argumentTypeValidatorDefinitions = {
   instanceOf: {
-    validator: type => v => v instanceof type,
-    message: type => "should be an instanceof " + type
+    validator: (type: new (...args: any[]) => any) => v => v instanceof type,
+    message: (type: new (...args: any[]) => any) => "should be an instanceof " + type
   },
   typeOf: {
-    validator: type => v => typeof v === type,
-    message: type => "should have typeof " + type
+    validator: (type: string) => v => typeof v === type,
+    message: (type: string) => "should have typeof " + type
   },
   custom: {
-    validator: validator => v => validator(v),
-    message: validator => (validator.message ? validator.message : "should be valid with the custom validator")
+    validator: (validator: CustomValidator) => v => validator(v),
+    message: (validator: CustomValidator) =>
+      validator.message ? validator.message : "should be valid with the custom validator"
   },
   numberMin: {
-    validator: min => v => typeValidators.number(v) && v >= min,
-    message: min => "should be a number >= to " + min
+    validator: (min: number) => v => typeValidators.number(v) && v >= min,
+    message: (min: number) => "should be a number >= to " + min
   },
   numberMax: {
-    validator: max => v => typeValidators.number(v) && v <= max,
-    message: max => "should be a number <= to " + max
+    validator: (max: number) => v => typeValidators.number(v) && v <= max,
+    message: (max: number) => "should be a number <= to " + max
   },
   numberMinMax: {
-    validator: (min, max) => v => typeValidators.number(v) && v >= min && v <= max,
-    message: (min, max) => "should be a number >= to " + min + " and <= " + max
+    validator: (min: number, max: number) => v => typeValidators.number(v) && v >= min && v <= max,
+    message: (min: number, max: number) => "should be a number >= to " + min + " and <= " + max
   },
   numericMin: {
-    validator: min => v => customTypeValidators.numeric(v) && v >= min,
-    message: min => "should be numeric and >= to " + min
+    validator: (min: number) => v => customTypeValidators.numeric(v) && v >= min,
+    message: (min: number) => "should be numeric and >= to " + min
   },
   numericMax: {
-    validator: max => v => customTypeValidators.numeric(v) && v <= max,
-    message: max => "should be numeric and <= to " + max
+    validator: (max: number) => v => customTypeValidators.numeric(v) && v <= max,
+    message: (max: number) => "should be numeric and <= to " + max
   },
   numericMinMax: {
-    validator: (min, max) => v => customTypeValidators.numeric(v) && v >= min && v <= max,
-    message: (min, max) => "should be numeric and >= to " + min + " and <= " + max
+    validator: (min: number, max: number) => v => customTypeValidators.numeric(v) && v >= min && v <= max,
+    message: (min: number, max: number) => "should be numeric and >= to " + min + " and <= " + max
   },
   integerMin: {
-    validator: min => v => customTypeValidators.integer(v) && v >= min,
-    message: min => "should be an integer and >= to " + min
+    validator: (min: number) => v => customTypeValidators.integer(v) && v >= min,
+    message: (min: number) => "should be an integer and >= to " + min
   },
   integerMax: {
-    validator: max => v => customTypeValidators.integer(v) && v <= max,
-    message: max => "should be an integer and <= to " + max
+    validator: (max: number) => v => customTypeValidators.integer(v) && v <= max,
+    message: (max: number) => "should be an integer and <= to " + max
   },
   integerMinMax: {
-    validator: (min, max) => v => customTypeValidators.integer(v) && v >= min && v <= max,
-    message: (min, max) => "should be an integer and >= to " + min + " and <= " + max
+    validator: (min: number, max: number) => v => customTypeValidators.integer(v) && v >= min && v <= max,
+    message: (min: number, max: number) => "should be an integer and >= to " + min + " and <= " + max
   },
   regexp: {
-    validator: regex => v => regex.test(v),
-    message: regex => "should match regex " + regex
+    validator: (regex: RegExp) => v => regex.test(v),
+    message: (regex: RegExp) => "should match regex " + regex
   },
   stringWithLength: {
-    validator: length => v => typeValidators.string(v) && v.length === length,
-    message: length => "should be a string with length " + length
+    validator: (length: number) => v => typeValidators.string(v) && v.length === length,
+    message: (length: number) => "should be a string with length " + length
   },
   stringWithLengthMin: {
-    validator: minLength => v => typeValidators.string(v) && v.length >= minLength,
-    message: minLength => "should be a string with length >= to " + minLength
+    validator: (minLength: number) => v => typeValidators.string(v) && v.length >= minLength,
+    message: (minLength: number) => "should be a string with length >= to " + minLength
   },
   stringWithLengthMax: {
-    validator: maxLength => v => typeValidators.string(v) && v.length <= maxLength,
-    message: maxLength => "should be a string with length <= to " + maxLength
+    validator: (maxLength: number) => v => typeValidators.string(v) && v.length <= maxLength,
+    message: (maxLength: number) => "should be a string with length <= to " + maxLength
   },
   stringWithLengthMinMax: {
-    validator: (minLength, maxLength) => v =>
+    validator: (minLength: number, maxLength: number) => v =>
       typeValidators.string(v) && v.length >= minLength && v.length <= maxLength,
-    message: (minLength, maxLength) => "should be a stringy with length >= to " + minLength + " and <= to " + maxLength
+    message: (minLength: number, maxLength: number) =>
+      "should be a stringy with length >= to " + minLength + " and <= to " + maxLength
   },
   equal: {
-    validator: value => v => v === value,
-    message: value => "should be equal to " + printAny(value)
+    validator: (value: any) => v => v === value,
+    message: (value: any) => "should be equal to " + printAny(value)
   },
   oneOf: {
-    validator: valueArray => v => valueArray.indexOf(v) !== -1,
-    message: valueArray => "should be one of " + printArray(valueArray)
+    validator: (valueArray: any[]) => v => valueArray.indexOf(v) !== -1,
+    message: (valueArray: any[]) => "should be one of " + printArray(valueArray)
   },
   oneIn: {
-    validator: valueMap => v => valueMap[v] !== void 0,
-    message: valueMap => "should be in " + printObject(valueMap)
+    validator: (valueMap: Record<string, any>) => v => valueMap[v] !== void 0,
+    message: (valueMap: Record<string, any>) => "should be in " + printObject(valueMap)
   },
   notEqual: {
-    validator: value => v => v !== value,
-    message: value => "should not be equal to " + printAny(value)
+    validator: (value: any) => v => v !== value,
+    message: (value: any) => "should not be equal to " + printAny(value)
   },
   notOneOf: {
-    validator: valueArray => v => valueArray.indexOf(v) === -1,
-    message: valueArray => "should not be one of " + printArray(valueArray)
+    validator: (valueArray: any[]) => v => valueArray.indexOf(v) === -1,
+    message: (valueArray: any[]) => "should not be one of " + printArray(valueArray)
   },
   notOneIn: {
-    validator: valueMap => v => valueMap[v] === void 0,
-    message: valueMap => "should not be in " + printObject(valueMap)
+    validator: (valueMap: Record<string, any>) => v => valueMap[v] === void 0,
+    message: (valueMap: Record<string, any>) => "should not be in " + printObject(valueMap)
   },
   arrayWithLength: {
-    validator: length => v => typeValidators.array(v) && v.length === length,
-    message: length => "should be an array with length " + length
+    validator: (length: number) => v => typeValidators.array(v) && v.length === length,
+    message: (length: number) => "should be an array with length " + length
   },
   arrayWithLengthMin: {
-    validator: minLength => v => typeValidators.array(v) && v.length >= minLength,
-    message: minLength => "should be an array with length >= to " + minLength
+    validator: (minLength: number) => v => typeValidators.array(v) && v.length >= minLength,
+    message: (minLength: number) => "should be an array with length >= to " + minLength
   },
   arrayWithLengthMax: {
-    validator: maxLength => v => typeValidators.array(v) && v.length <= maxLength,
-    message: maxLength => "should be an array with length <= to " + maxLength
+    validator: (maxLength: number) => v => typeValidators.array(v) && v.length <= maxLength,
+    message: (maxLength: number) => "should be an array with length <= to " + maxLength
   },
   arrayWithLengthMinMax: {
-    validator: (minLength, maxLength) => v => typeValidators.array(v) && v.length >= minLength && v.length <= maxLength,
-    message: (minLength, maxLength) => "should be an array with length >= to " + minLength + " and <= to " + maxLength
+    validator: (minLength: number, maxLength: number) => v =>
+      typeValidators.array(v) && v.length >= minLength && v.length <= maxLength,
+    message: (minLength: number, maxLength: number) =>
+      "should be an array with length >= to " + minLength + " and <= to " + maxLength
   }
-};
+} satisfies Record<string, ValidatorDefinition>;
 
 const compoundValidatorDefinitions = {
   arrayOf: {
-    validator: (elementValidator, allowEmpty = false) => v => {
+    validator: (elementValidator: Validator, allowEmpty: boolean = false) => v => {
       if (!typeValidators.array(v) || (v.length === 0 && allowEmpty === false)) {
         return false;
       }
-      let someInvalid = v.some(av => {
+      let someInvalid = v.some((av: any) => {
         if (!elementValidator(av)) {
           return true;
         }
@@ -267,11 +318,11 @@ const compoundValidatorDefinitions = {
       });
       return !someInvalid;
     },
-    message: (elementValidator, allowEmpty = false) =>
+    message: (elementValidator: Validator, allowEmpty: boolean = false) =>
       "should be " + (allowEmpty ? "an" : "a non-empty") + " array with elements that " + elementValidator.errorMessage
   },
   objectWith: {
-    validator: (properties, propertyValidator) => v => {
+    validator: (properties: string[], propertyValidator: Validator) => v => {
       if (!typeValidators.object(v) || Object.keys(v).length !== properties.length) {
         return false;
       }
@@ -283,19 +334,19 @@ const compoundValidatorDefinitions = {
       });
       return !someInvalid;
     },
-    message: (properties, propertyValidator) =>
+    message: (properties: string[], propertyValidator: Validator) =>
       "should be an object with properties " +
       printArray(properties) +
       " all of which " +
       propertyValidator.errorMessage
   },
   objectWithSome: {
-    validator: (properties, propertyValidator) => v => {
+    validator: (properties: string[], propertyValidator: Validator) => v => {
       let valueKeys = Object.keys(v);
       if (!typeValidators.object(v) || valueKeys.length === 0 || valueKeys.length > properties.length) {
         return false;
       }
-      let propertyMap = {};
+      let propertyMap: Record<string, string> = {};
       properties.forEach(property => {
         propertyMap[property] = property;
       });
@@ -307,15 +358,15 @@ const compoundValidatorDefinitions = {
       });
       return !someInvalid;
     },
-    message: (properties, propertyValidator) =>
+    message: (properties: string[], propertyValidator: Validator) =>
       "should be an object with some properties " +
       printArray(properties) +
       " all of which " +
       propertyValidator.errorMessage
   },
   objectWithShape: {
-    validator: (propertyToValidatorMap, allowExtraProperties = false) => v => {
-      if (!validators.object()(v)) {
+    validator: (propertyToValidatorMap: Record<string, Validator>, allowExtraProperties: boolean = false) => v => {
+      if (!typeValidators.object(v)) {
         return false;
       }
       let shapeKeys = Object.keys(propertyToValidatorMap);
@@ -336,8 +387,8 @@ const compoundValidatorDefinitions = {
       }
       return !someInvalid;
     },
-    message: (propertyToValidatorMap, allowExtraProperties = false) => {
-      let validatorMessageMap = {};
+    message: (propertyToValidatorMap: Record<string, Validator>, allowExtraProperties: boolean = false) => {
+      let validatorMessageMap: Record<string, string> = {};
       let shapePropertyKeys = Object.keys(propertyToValidatorMap);
       shapePropertyKeys.forEach(shapePropertyKey => {
         validatorMessageMap[shapePropertyKey] = propertyToValidatorMap[shapePropertyKey].errorMessage;
@@ -351,28 +402,28 @@ const compoundValidatorDefinitions = {
     }
   },
   or: {
-    validator: validators => v => validators.some(validator => validator(v)),
-    message: validators =>
+    validator: (validators: Validator[]) => v => validators.some(validator => validator(v)),
+    message: (validators: Validator[]) =>
       "should be true for one of " + printArray(validators.map(validator => validator.errorMessage))
   },
   and: {
-    validator: validators => v => !validators.some(validator => !validator(v)),
-    message: validators =>
+    validator: (validators: Validator[]) => v => !validators.some(validator => !validator(v)),
+    message: (validators: Validator[]) =>
       "should be true for all of " + printArray(validators.map(validator => validator.errorMessage))
   },
   not: {
-    validator: validator => v => !validator(v),
-    message: validator => "should be false for " + validator.errorMessage
+    validator: (validator: Validator) => v => !validator(v),
+    message: (validator: Validator) => "should be false for " + validator.errorMessage
   }
-};
+} satisfies Record<string, ValidatorDefinition>;
 
-const validatorArgsToAllowedValues = {
+const validatorArgsToAllowedValues: Record<string, (...args: any[]) => any[] | null> = {
   equal: value => [value],
   oneOf: values => values,
   oneIn: valueMap => Object.keys(valueMap),
   or: validators => {
-    let allowedValues = null;
-    validators.forEach(validator => {
+    let allowedValues: any[] | null = null;
+    validators.forEach((validator: Validator) => {
       if (validator.allowedValues !== null) {
         if (allowedValues === null) {
           allowedValues = validator.allowedValues.slice();
@@ -385,16 +436,16 @@ const validatorArgsToAllowedValues = {
   }
 };
 
-const validatorArgsToNestedValues = {
-  objectWith: (properties, propertyValidator) => {
-    let propertyToValidatorMap = {};
+const validatorArgsToNestedValues: Record<string, (...args: any[]) => Record<string, Validator>> = {
+  objectWith: (properties: string[], propertyValidator: Validator) => {
+    let propertyToValidatorMap: Record<string, Validator> = {};
     properties.forEach(property => {
       propertyToValidatorMap[property] = propertyValidator;
     });
     return propertyToValidatorMap;
   },
-  objectWithSome: (properties, propertyValidator) => {
-    let propertyToValidatorMap = {};
+  objectWithSome: (properties: string[], propertyValidator: Validator) => {
+    let propertyToValidatorMap: Record<string, Validator> = {};
     if (propertyValidator.allowedValues === null || propertyValidator.allowedValues.indexOf(void 0) === -1) {
       propertyValidator = propertyValidator.orEqual(void 0);
     }
@@ -403,14 +454,14 @@ const validatorArgsToNestedValues = {
     });
     return propertyToValidatorMap;
   },
-  objectWithShape: propertyToValidatorMap => propertyToValidatorMap
+  objectWithShape: (propertyToValidatorMap: Record<string, Validator>) => propertyToValidatorMap
 };
 
-const minRangeValues = min => ({ min });
-const maxRangeValues = max => ({ max });
-const minMaxRangeValues = (min, max) => ({ min, max });
+const minRangeValues = (min: number): RangeValues => ({ min });
+const maxRangeValues = (max: number): RangeValues => ({ max });
+const minMaxRangeValues = (min: number, max: number): RangeValues => ({ min, max });
 
-const validatorArgsToRangeValues = {
+const validatorArgsToRangeValues: Record<string, (...args: any[]) => RangeValues> = {
   numberMin: minRangeValues,
   numberMax: maxRangeValues,
   numberMinMax: minMaxRangeValues,
@@ -422,11 +473,11 @@ const validatorArgsToRangeValues = {
   integerMinMax: minMaxRangeValues
 };
 
-const validatorArgsToIsEnum = {
+const validatorArgsToIsEnum: Record<string, (...args: any[]) => boolean> = {
   equal: value => true,
   oneOf: values => true,
   oneIn: valueMap => true,
-  or: validators => !validators.some(validator => !validator.isEnum)
+  or: validators => !validators.some((validator: Validator) => !validator.isEnum)
 };
 
 const validatorDefinitions = Object.assign(
@@ -437,30 +488,38 @@ const validatorDefinitions = Object.assign(
   compoundValidatorDefinitions
 );
 
+type ValidatorDefinitionMap = typeof validatorDefinitions;
+
+export type Validators = {
+  [K in keyof ValidatorDefinitionMap]: (...args: Parameters<ValidatorDefinitionMap[K]["validator"]>) => Validator;
+} & {
+  conditional(rules: ConditionalRule[], object: any): Validator;
+};
+
 const validatorDefinitionKeys = Object.keys(validatorDefinitions);
 
-const validatorExtensionDefinitions = {
+const validatorExtensionDefinitions: Record<string, ValidatorDefinition> = {
   orEqual: {
-    validator: value => v => v === value,
-    message: value => " or be equal to " + printAny(value)
+    validator: (value: any) => v => v === value,
+    message: (value: any) => " or be equal to " + printAny(value)
   },
   orOneOf: {
-    validator: valueArray => v => valueArray.indexOf(v) !== -1,
-    message: valueArray => " or be one of " + printArray(valueArray)
+    validator: (valueArray: any[]) => v => valueArray.indexOf(v) !== -1,
+    message: (valueArray: any[]) => " or be one of " + printArray(valueArray)
   },
   or: {
-    validator: validator => v => validator(v),
-    message: validator => " or " + validator.errorMessage
+    validator: (validator: Validator) => v => validator(v),
+    message: (validator: Validator) => " or " + validator.errorMessage
   }
 };
 
-const validatorExtensionArgsToAllowedValues = {
+const validatorExtensionArgsToAllowedValues: Record<string, (...args: any[]) => any[] | null> = {
   orEqual: value => [value],
   orOneOf: values => values,
   or: validator => validator.allowedValues
 };
 
-const validatorExtensionArgsToIsEnum = {
+const validatorExtensionArgsToIsEnum: Record<string, (...args: any[]) => boolean> = {
   orEqual: value => true,
   orOneOf: values => true,
   or: validator => validator.isEnum
@@ -468,9 +527,9 @@ const validatorExtensionArgsToIsEnum = {
 
 const validatorExtensionKeys = Object.keys(validatorExtensionDefinitions);
 
-const appendValue = (message, v) => message + ": " + printAny(v);
+const appendValue = (message: string, v?: any): string => message + ": " + printAny(v);
 
-const validatorMessageExtensions = {
+const validatorMessageExtensions: Record<string, (messageValidatorFunction: Validator, message: string) => void> = {
   withMessage: (messageValidatorFunction, message) => {
     messageValidatorFunction.errorMessage = message;
     messageValidatorFunction.errorMessages = [messageValidatorFunction.errorMessage];
@@ -487,11 +546,11 @@ const validatorMessageExtensions = {
 
 const validatorMessageExtensionKeys = Object.keys(validatorMessageExtensions);
 
-function addExtensions(validatorFunction, messageExtensions = true, extensions = true) {
+function addExtensions(validatorFunction: Validator, messageExtensions = true, extensions = true): void {
   if (messageExtensions) {
     validatorMessageExtensionKeys.forEach(messageExtensionKey => {
-      validatorFunction[messageExtensionKey] = message => {
-        let messageValidatorFunction = v => validatorFunction(v);
+      (validatorFunction as any)[messageExtensionKey] = (message: string): Validator => {
+        let messageValidatorFunction = ((v?: any) => validatorFunction(v)) as Validator;
         messageValidatorFunction.validatorName = validatorFunction.validatorName;
         messageValidatorFunction.extensionNames = validatorFunction.extensionNames;
         messageValidatorFunction.customName = validatorFunction.customName;
@@ -510,9 +569,9 @@ function addExtensions(validatorFunction, messageExtensions = true, extensions =
   }
   if (extensions) {
     validatorExtensionKeys.forEach(extensionKey => {
-      validatorFunction[extensionKey] = (...args) => {
-        let extensionFunction = v =>
-          validatorFunction(v) || validatorExtensionDefinitions[extensionKey].validator(...args)(v);
+      (validatorFunction as any)[extensionKey] = (...args: any[]): Validator => {
+        let extensionFunction = ((v?: any) =>
+          validatorFunction(v) || validatorExtensionDefinitions[extensionKey].validator(...args)(v)) as Validator;
         extensionFunction.validatorName = validatorFunction.validatorName;
         if (validatorFunction.extensionNames === null) {
           extensionFunction.extensionNames = [extensionKey];
@@ -545,8 +604,8 @@ function addExtensions(validatorFunction, messageExtensions = true, extensions =
     });
   }
 
-  validatorFunction.withCustomName = customName => {
-    let customNameFunction = v => validatorFunction(v);
+  validatorFunction.withCustomName = (customName: string): Validator => {
+    let customNameFunction = ((v?: any) => validatorFunction(v)) as Validator;
     customNameFunction.validatorName = validatorFunction.validatorName;
     customNameFunction.extensionNames = validatorFunction.extensionNames;
     customNameFunction.customName = customName;
@@ -562,10 +621,12 @@ function addExtensions(validatorFunction, messageExtensions = true, extensions =
   };
 }
 
-const validators = {};
+const validators = {} as Validators;
 validatorDefinitionKeys.forEach(validatorKey => {
-  validators[validatorKey] = (...args) => {
-    let validatorFunction = validatorDefinitions[validatorKey].validator(...args);
+  (validators as any)[validatorKey] = (...args: any[]): Validator => {
+    let validatorFunction = (validatorDefinitions as Record<string, ValidatorDefinition>)[validatorKey].validator(
+      ...args
+    ) as Validator;
     validatorFunction.validatorName = validatorKey;
     validatorFunction.customName = null;
     validatorFunction.extensionNames = null;
@@ -583,18 +644,21 @@ validatorDefinitionKeys.forEach(validatorKey => {
     if (validatorArgsToRangeValues[validatorKey] !== void 0) {
       validatorFunction.rangeValues = validatorArgsToRangeValues[validatorKey](...args);
     }
-    validatorFunction.errorMessage = validatorDefinitions[validatorKey].message(...args);
+    validatorFunction.errorMessage = (validatorDefinitions as Record<string, ValidatorDefinition>)[
+      validatorKey
+    ].message(...args);
     validatorFunction.errorMessages = [validatorFunction.errorMessage];
     validatorFunction.getErrorMessage = v => appendValue(validatorFunction.errorMessage, v);
     addExtensions(validatorFunction);
     return validatorFunction;
   };
 });
-const appendSuffix = (message, suffix) => (suffix !== void 0 ? message + " " + suffix : message);
+const appendSuffix = (message: string, suffix?: string): string =>
+  suffix !== void 0 ? message + " " + suffix : message;
 
-validators.conditional = (rules, object) => {
+validators.conditional = (rules: ConditionalRule[], object: any): Validator => {
   let matchedRule = rules.find(rule => rule.condition(object));
-  let validatorFunction = v => matchedRule.validator(v);
+  let validatorFunction = ((v?: any) => matchedRule.validator(v)) as Validator;
   validatorFunction.validatorName = "conditional";
   validatorFunction.customName = null;
   validatorFunction.extensionNames = null;
