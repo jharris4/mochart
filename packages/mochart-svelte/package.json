@@ -1,0 +1,48 @@
+{
+  "name": "mochart-svelte",
+  "version": "1.0.0",
+  "description": "Svelte 5 components for the mochart charting library",
+  "keywords": [
+    "chart",
+    "svelte",
+    "animation",
+    "responsive",
+    "svg",
+    "mochart"
+  ],
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Jon Harris",
+    "url": "https://github.com/jharris4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jharris4/mochart.git"
+  },
+  "type": "module",
+  "svelte": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "svelte": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "mochart": "^1.0.74"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "svelte": "^5.56.5"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}
