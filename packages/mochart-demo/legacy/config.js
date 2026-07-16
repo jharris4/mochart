@@ -1,6 +1,6 @@
 var npmPackage = require('./package');
 
-var productName = "mochartdemo";
+var productName = "mochart-demo";
 var productVersion = npmPackage.version;
 
 var versionString = '' + productVersion;

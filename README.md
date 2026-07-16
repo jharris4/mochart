@@ -11,7 +11,7 @@ the **valide** validation library it uses for config validation.
 | [mochart](packages/mochart/README.md) | The core charting library — animated, interactive SVG charts rendered with a retained-mode renderer (no vdom, no framework). |
 | [mochart-react](packages/mochart-react/README.md) | React components wrapping mochart. |
 | [mochart-svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
-| [mochartdemo](packages/mochartdemo/README.md) | Demo gallery app (private) — browse every chart config with live data controls. |
+| [mochart-demo](packages/mochart-demo/README.md) | Demo gallery app (private) — browse every chart config with live data controls. |
 | [valide](packages/valide/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
 There are also build-free static HTML examples in
@@ -23,7 +23,7 @@ This repo uses npm workspaces:
 
 ```sh
 npm install
-npm run dev        # start the demo gallery (mochartdemo) with vite
+npm run dev        # start the demo gallery (mochart-demo) with vite
 ```
 
 ## Scripts

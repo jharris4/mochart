@@ -1,4 +1,4 @@
-# mochartdemo
+# mochart-demo
 
 Demo gallery for the [mochart](../mochart/README.md) charting library
 (private, not published).

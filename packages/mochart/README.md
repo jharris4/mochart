@@ -93,7 +93,7 @@ Two dataset shapes are supported:
 
 Build-free static HTML examples (script tag and ES module) live in
 [example/](example/README.md). The full demo gallery is the
-[mochartdemo](../mochartdemo/README.md) package.
+[mochart-demo](../mochart-demo/README.md) package.
 
 ## Development
 

@@ -16,8 +16,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w mochartdemo",
-    "build": "npm run build -w mochartdemo",
+    "dev": "npm run dev -w mochart-demo",
+    "build": "npm run build -w mochart-demo",
     "test": "npm test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },

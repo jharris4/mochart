@@ -1,7 +1,7 @@
 /**
  * Golden DOM snapshot tests for the full chart rendering pipeline.
  *
- * Every demo config from packages/mochartdemo/demos is rendered through the
+ * Every demo config from packages/mochart-demo/demos is rendered through the
  * public createChart() API in jsdom. Animations are driven deterministically
  * on a fake clock (requestAnimationFrame + performance.now are faked BEFORE
  * the library is imported, because ChartTweens binds performance.now at
@@ -17,7 +17,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const demosDir = path.resolve(here, '../../../mochartdemo/demos');
+const demosDir = path.resolve(here, '../../../mochart-demo/demos');
 
 const WIDTH = 800;
 const HEIGHT = 600;
