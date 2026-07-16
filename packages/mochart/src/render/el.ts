@@ -1,6 +1,6 @@
 import { SVG_NAMESPACE, setProperty } from './dom';
 
-export type ElProps = Record<string, any>;
+export type ElProps = Record<string, unknown>;
 
 /**
  * A retained DOM element. `set(props)` diffs against the previously written

@@ -16,18 +16,25 @@ interface ChildRegion {
   destroy(removeDom: boolean): void;
 }
 
-function withDefaults<P extends object>(ctor: any, props: P): P {
+interface ConstructorWithDefaults<P extends object> {
+  defaultProps?: Partial<P>;
+}
+
+function withDefaults<P extends object>(ctor: ConstructorWithDefaults<P>, props: P): P {
   const defaults = ctor.defaultProps;
   if (!defaults) {
     return props;
   }
-  let out: any = props;
+  let out = props;
+  let outValues = props as unknown as Record<string, unknown>;
+  const defaultValues = defaults as unknown as Record<string, unknown>;
   for (const name in defaults) {
-    if (out[name] === undefined) {
+    if (outValues[name] === undefined) {
       if (out === props) {
         out = { ...props };
+        outValues = out as unknown as Record<string, unknown>;
       }
-      out[name] = defaults[name];
+      outValues[name] = defaultValues[name];
     }
   }
   return out;
@@ -87,7 +94,7 @@ export abstract class Renderer<P extends object = any, S extends object = any> {
       this.parentDom = parentDom;
       this.anchor = document.createComment('');
       parentDom.insertBefore(this.anchor, before);
-      this.props = withDefaults(this.constructor, props);
+      this.props = withDefaults(this.constructor as ConstructorWithDefaults<P>, props);
       if (this.willMount) {
         this._mergeState = true;
         this.willMount();
@@ -120,7 +127,7 @@ export abstract class Renderer<P extends object = any, S extends object = any> {
     }
     beginWork();
     try {
-      const nextProps = withDefaults(this.constructor, props);
+      const nextProps = withDefaults(this.constructor as ConstructorWithDefaults<P>, props);
       if (this.willReceiveProps && nextProps !== this.props) {
         this._mergeState = true;
         this.willReceiveProps(nextProps);

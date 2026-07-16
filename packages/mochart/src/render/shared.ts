@@ -1,17 +1,23 @@
-export function shallowEqual(a: any, b: any): boolean {
+function isObject(value: unknown): value is object {
+  return (typeof value === 'object' && value !== null) || typeof value === 'function';
+}
+
+export function shallowEqual(a: unknown, b: unknown): boolean {
   if (a === b) {
     return true;
   }
-  if (!a || !b) {
+  if (!isObject(a) || !isObject(b)) {
     return false;
   }
-  for (const key in a) {
-    if (!(key in b)) {
+  const aValues = a as Record<string, unknown>;
+  const bValues = b as Record<string, unknown>;
+  for (const key in aValues) {
+    if (!(key in bValues)) {
       return false;
     }
   }
-  for (const key in b) {
-    if (a[key] !== b[key]) {
+  for (const key in bValues) {
+    if (aValues[key] !== bValues[key]) {
       return false;
     }
   }

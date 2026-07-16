@@ -21,19 +21,27 @@ const UNITLESS_STYLES = new Set([
   'strokeDashoffset', 'strokeOpacity', 'strokeWidth', 'tabSize', 'widows', 'zIndex', 'zoom'
 ]);
 
-function setStyleValue(style: CSSStyleDeclaration, name: string, value: any): void {
+type PropertyMap = Record<string, unknown>;
+type ElementWithListeners = Element & { _listeners?: Record<string, EventListener | null | undefined> };
+
+function isPropertyMap(value: unknown): value is PropertyMap {
+  return typeof value === 'object' && value !== null;
+}
+
+function setStyleValue(style: CSSStyleDeclaration, name: string, value: unknown): void {
+  const properties = style as unknown as PropertyMap;
   if (value == null || value === false) {
-    (style as any)[name] = '';
+    properties[name] = '';
   }
   else if (typeof value === 'number' && !UNITLESS_STYLES.has(name)) {
-    (style as any)[name] = value + 'px';
+    properties[name] = value + 'px';
   }
   else {
-    (style as any)[name] = value;
+    properties[name] = value;
   }
 }
 
-function setStyle(style: CSSStyleDeclaration, oldValue: any, newValue: any): void {
+function setStyle(style: CSSStyleDeclaration, oldValue: unknown, newValue: unknown): void {
   if (typeof newValue === 'string') {
     style.cssText = newValue;
     return;
@@ -42,23 +50,23 @@ function setStyle(style: CSSStyleDeclaration, oldValue: any, newValue: any): voi
     style.cssText = '';
     oldValue = null;
   }
-  if (oldValue) {
+  if (isPropertyMap(oldValue)) {
     for (const name in oldValue) {
-      if (!newValue || !(name in newValue)) {
+      if (!isPropertyMap(newValue) || !(name in newValue)) {
         setStyleValue(style, name, '');
       }
     }
   }
-  if (newValue) {
+  if (isPropertyMap(newValue)) {
     for (const name in newValue) {
-      if (!oldValue || oldValue[name] !== newValue[name]) {
+      if (!isPropertyMap(oldValue) || oldValue[name] !== newValue[name]) {
         setStyleValue(style, name, newValue[name]);
       }
     }
   }
 }
 
-function eventProxy(this: any, event: Event): void {
+function eventProxy(this: ElementWithListeners, event: Event): void {
   const handler = this._listeners && this._listeners[event.type];
   if (handler) {
     handler(event);
@@ -72,7 +80,7 @@ function eventProxy(this: any, event: Event): void {
  * attribute contract the old mochart-vdom used, so markup produced by the
  * retained renderer stays byte-identical.
  */
-export function setProperty(dom: Element, name: string, oldValue: any, newValue: any, isSvg: boolean): void {
+export function setProperty(dom: Element, name: string, oldValue: unknown, newValue: unknown, isSvg: boolean): void {
   if (name === 'children' || name === 'key' || name === 'ref') {
     return;
   }
@@ -82,14 +90,15 @@ export function setProperty(dom: Element, name: string, oldValue: any, newValue:
   }
   if (name[0] === 'o' && name[1] === 'n' && name.length > 2 && name[2] === name[2].toUpperCase()) {
     const eventType = name.slice(2).toLowerCase();
-    const listeners = (dom as any)._listeners || ((dom as any)._listeners = {});
+    const listenerDom = dom as ElementWithListeners;
+    const listeners = listenerDom._listeners || (listenerDom._listeners = {});
     if (newValue && !listeners[eventType]) {
       dom.addEventListener(eventType, eventProxy);
     }
     else if (!newValue && listeners[eventType]) {
       dom.removeEventListener(eventType, eventProxy);
     }
-    listeners[eventType] = newValue;
+    listeners[eventType] = newValue as EventListener | null | undefined;
     return;
   }
   if (oldValue === newValue) {
@@ -104,7 +113,7 @@ export function setProperty(dom: Element, name: string, oldValue: any, newValue:
     }
   }
   else if (name === 'value' || name === 'checked' || name === 'selected') {
-    (dom as any)[name] = newValue == null ? '' : newValue;
+    (dom as unknown as PropertyMap)[name] = newValue == null ? '' : newValue;
     return;
   }
   if (newValue == null || newValue === false) {

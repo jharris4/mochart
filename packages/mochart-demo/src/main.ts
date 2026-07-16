@@ -60,6 +60,9 @@ function showErrors(messages: string[]): void {
 }
 
 function makeDataProvider(): any {
+  if (groupProperty === undefined) {
+    throw new Error('Cannot create a data provider without a group property');
+  }
   return new ArrayOfObjectsDataProvider(currentData, groupProperty);
 }
 
