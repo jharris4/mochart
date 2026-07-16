@@ -5,16 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Mochart Charts Demo</title>
-    <% for (var cssIndex = 0; cssIndex < htmlWebpackPlugin.files.css.length; cssIndex++) { %>
-    <link rel="stylesheet" href="<%= htmlWebpackPlugin.files.css[cssIndex] %>">
-    <% } %>
+    <link rel="stylesheet" href="./demo.css">
 </head>
 <body>
     <noscript>This page requires Javascript to be enabled.</noscript>
-    <script>
-      // HACK: Inject initial state into React when serving from Flask by using Jinja2 templating
-      window.__config = {{ config }}
-    </script>
     <!-- Application Root -->
     <div id="root">
         <!-- Loading -->
@@ -38,8 +32,5 @@
             }, 750);
         </script>
     </div>
-    <% for (var jsIndex = 0; jsIndex < htmlWebpackPlugin.files.js.length; jsIndex++) { %>
-    <script src="<%= htmlWebpackPlugin.files.js[jsIndex] %>"></script>
-    <% } %>
 </body>
 </html>
