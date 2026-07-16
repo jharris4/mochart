@@ -60,19 +60,12 @@
         var data = dataA;
         var chartElement = document.getElementById('chart');
 
-        function renderChart() {
-            mochart.render(
-                mochart.h(mochart.DefaultChart, { data: data, config: config, width: 640, height: 360 }),
-                chartElement
-            );
-        }
-
-        renderChart();
+        var chart = mochart.createDefaultChart(chartElement, { data: data, config: config, width: 640, height: 360 });
 
         // swap the data every few seconds to show the animated transitions
         setInterval(function () {
             data = data === dataA ? dataB : dataA;
-            renderChart();
+            chart.update({ data: data });
         }, 5000);
     </script>
 </body>

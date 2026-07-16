@@ -1,0 +1,317 @@
+// @ts-nocheck — ported from the vdom implementation; add types when touched
+import { Renderer, htmlEl, textEl } from '../render';
+
+import { getGroupFormat, getSeriesFormats } from '../utils/ValueFormat';
+import { getSeriesText } from '../utils/TooltipFormat';
+import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
+import { mochartCssClasses } from '../utils/ChartDom';
+import { NONE } from '../config/core/constants';
+
+import TooltipControls from './TooltipControls';
+import SeriesColorIcon from './SeriesColorIcon';
+
+const itemPadding = 2;
+
+const MODE_FOCUS = 'focus';
+const MODE_FILTER = 'filter';
+
+const baseLineStyle = {
+  whiteSpace: 'nowrap',
+  padding: itemPadding,
+  paddingTop: itemPadding,
+  paddingRight: itemPadding,
+  paddingLeft: itemPadding
+};
+
+const alignedLineStyle = {
+  overflow: 'auto',
+  whiteSpace: 'nowrap'
+};
+
+class TooltipGroupLine extends Renderer {
+  root = htmlEl('div');
+  text = textEl();
+
+  create() {
+    this.root.append(this.text);
+    return this.root.node;
+  }
+
+  sync() {
+    const { lineStyle, groupLabel, groupText, onMouseEnter, onMouseLeave, onClick } = this.props;
+    this.root.set({ className: mochartCssClasses['tooltipGroupLine'], style: lineStyle,
+      onMouseEnter, onMouseLeave, onClick });
+    this.text.set(groupLabel + groupText);
+  }
+}
+
+class TooltipSeriesLine extends Renderer {
+  root = htmlEl('div');
+  line = this.elSlot(this.root);
+  icon = null;
+  labelValue = null;
+  valueValue = null;
+
+  create() {
+    return this.root.node;
+  }
+
+  buildAlignedLine() {
+    const container = htmlEl('div');
+    const left = htmlEl('span');
+    this.iconSlot = this.slot(left);
+    const label = htmlEl('span');
+    this.labelValue = textEl();
+    label.append(this.labelValue);
+    left.append(label);
+    const spacer = htmlEl('span');
+    const value = htmlEl('span');
+    this.valueValue = textEl();
+    value.append(this.valueValue);
+    container.append(left, spacer, value);
+    container.leftHandle = left;
+    container.labelHandle = label;
+    container.spacerHandle = spacer;
+    container.valueHandle = value;
+    return container;
+  }
+
+  buildPlainLine() {
+    const container = htmlEl('span');
+    this.iconSlot = this.slot(container);
+    const text = htmlEl('span');
+    this.labelValue = textEl();
+    text.append(this.labelValue);
+    container.append(text);
+    container.textHandle = text;
+    return container;
+  }
+
+  sync() {
+    const { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsSuppressed, seriesFocusPercentage,
+      colorPaletteConfig, svgUniqueId, visible, labelText, valueText, style, onMouseEnter, onMouseLeave, onClick } = this.props;
+    const { tooltipConfig } = mochartConfig;
+
+    this.root.set({ className: mochartCssClasses['tooltipSeriesLine'] + seriesConfig.id, style,
+      onMouseEnter, onMouseLeave, onClick });
+
+    const iconProps = {
+      seriesContextConfig: tooltipConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
+      focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,
+      svgUniqueId: svgUniqueId + '-tooltip', seriesShowColorProperty: 'showColorInTooltip',
+      seriesIsSuppressed, iconClassName: mochartCssClasses['tooltipLineIcon'],
+      visible, renderHTML: true
+    };
+
+    if (tooltipConfig.alignValues) {
+      const container = this.line.set('aligned', () => this.buildAlignedLine());
+      container.set({ style: alignedLineStyle });
+      container.leftHandle.set({ style: { float: 'left' } });
+      this.iconSlot.set(SeriesColorIcon, iconProps);
+      container.labelHandle.set({ className: mochartCssClasses['tooltipLineLabel'] });
+      this.labelValue.set(labelText);
+      container.spacerHandle.set({ style: { float: 'left', width: 2, height: 4 } });
+      container.valueHandle.set({ className: mochartCssClasses['tooltipLineValue'], style: { float: 'right' } });
+      this.valueValue.set(valueText);
+    }
+    else {
+      const container = this.line.set('plain', () => this.buildPlainLine());
+      container.set({ className: mochartCssClasses['tooltipLineIcon'] });
+      this.iconSlot.set(SeriesColorIcon, iconProps);
+      container.textHandle.set({ className: mochartCssClasses['tooltipLineText'] });
+      this.labelValue.set(labelText + valueText);
+    }
+  }
+}
+
+export default class TooltipContent extends Renderer {
+  static defaultProps = {
+    adjustForSuppression: true,
+    minWidth: null
+  };
+
+  root = htmlEl('div');
+  controlsContainer = htmlEl('div');
+  controls = this.slot(this.controlsContainer);
+  linesContainer = htmlEl('div');
+  lines = this.rendererList(this.linesContainer);
+
+  constructor() {
+    super();
+    this.state = { mode: MODE_FILTER };
+  }
+
+  toggleMode = () => {
+    let { mode } = this.state;
+    if (mode === MODE_FILTER) {
+      mode = MODE_FOCUS;
+    }
+    else if (mode === MODE_FOCUS) {
+      mode = MODE_FILTER;
+    }
+    this.setState({ mode });
+  }
+
+  onGroupMouseEnter = (event) => {
+    const { mochartConfig, tooltipGroupIndex, onFocus } = this.props;
+    const { mode } = this.state;
+    const { tooltipConfig } = mochartConfig;
+    const { showControls, focusOnGroupMouseOver } = tooltipConfig;
+    let shouldFocus = focusOnGroupMouseOver && (showControls ? mode === MODE_FILTER : true);
+    if (shouldFocus) {
+      onFocus({ groupIndex: tooltipGroupIndex });
+    }
+  }
+
+  onGroupMouseLeave = (event) => {
+    const { mochartConfig, onFocus } = this.props;
+    const { mode } = this.state;
+    const { tooltipConfig } = mochartConfig;
+    const { showControls, focusOnGroupMouseOver } = tooltipConfig;
+    let shouldFocus = focusOnGroupMouseOver && (showControls ? mode === MODE_FILTER : true);
+    if (shouldFocus) {
+      onFocus({ groupIndex: null });
+    }
+  }
+
+  onGroupClick = (event) => {
+    const { mochartConfig, tooltipGroupIndex, focusedGroupIndex, onFocus } = this.props;
+    const { mode } = this.state;
+    const { tooltipConfig } = mochartConfig;
+    const { showControls, focusOnGroupClick } = tooltipConfig;
+    let shouldFocus = showControls ? mode === MODE_FOCUS : focusOnGroupClick;
+    if (shouldFocus) {
+      event.stopPropagation();
+      onFocus({ groupIndex: focusedGroupIndex === tooltipGroupIndex ? -1 : tooltipGroupIndex });
+    }
+  }
+
+  onSeriesMouseEnter = (event, seriesId) => {
+    const { mochartConfig, onFocus } = this.props;
+    const { mode } = this.state;
+    const { tooltipConfig } = mochartConfig;
+    const { showControls, focusOnSeriesMouseOver } = tooltipConfig;
+    const shouldFocus = focusOnSeriesMouseOver && (showControls ? mode === MODE_FILTER : true);
+    if (shouldFocus) {
+      onFocus({ seriesId });
+    }
+  }
+
+  onSeriesMouseLeave = (event) => {
+    const { mochartConfig, onFocus } = this.props;
+    const { mode } = this.state;
+    const { tooltipConfig } = mochartConfig;
+    const { showControls, focusOnSeriesMouseOver } = tooltipConfig;
+    let shouldFocus = focusOnSeriesMouseOver && (showControls ? mode === MODE_FILTER : true);
+    if (shouldFocus) {
+      onFocus({ seriesId: null });
+    }
+  }
+
+  onSeriesClick = (event, seriesId) => {
+    const { mode } = this.state;
+    const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
+    const { tooltipConfig } = mochartConfig;
+    const { showControls, focusOnSeriesClick, filterOnSeriesClick } = tooltipConfig;
+    let shouldFocus = showControls ? mode === MODE_FOCUS : focusOnSeriesClick;
+    let shouldFilter = showControls ? mode === MODE_FILTER : filterOnSeriesClick;
+    if (shouldFocus || shouldFilter) {
+      event.stopPropagation();
+      if (shouldFocus) {
+        if (focusedSeriesId !== void 0 && focusedSeriesId !== null) {
+          onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId });
+        }
+        else {
+          onFocus({ seriesId });
+        }
+      }
+      if (shouldFilter) {
+        onSeriesFilter(seriesId);
+      }
+    }
+  }
+
+  onClick = (event) => {
+    const { mochartConfig, onClose } = this.props;
+    const { tooltipConfig } = mochartConfig;
+    if (tooltipConfig.closeOnClick) {
+      event.preventDefault();
+      onClose();
+    }
+    else {
+      event.stopPropagation();
+    }
+  }
+
+  create() {
+    this.root.append(this.controlsContainer, this.linesContainer);
+    return this.root.node;
+  }
+
+  sync() {
+    const { mochartConfig, tooltipValueObject, groupCount, focusedGroupIndex, focusedSeriesId, visible, tooltipGroupIndex, updateTooltipGroupIndex,
+      minWidth, adjustForSuppression, svgUniqueId, onFocus, seriesAxisFocusPercentages, seriesFocusPercentages } = this.props;
+    const { mode } = this.state;
+
+    const { tooltipConfig, groupAxisConfig, seriesAxisConfigs, seriesConfigs, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
+
+    const { group, series } = tooltipValueObject;
+    const { raw, filteredFlags } = series;
+    const { axisDomains } = raw;
+
+    this.root.set({ className: mochartCssClasses['tooltipContent'], onClick: this.onClick });
+    this.controlsContainer.set({ className: mochartCssClasses['tooltipControls'] });
+    this.controls.set(TooltipControls, { mochartConfig, groupCount, updateTooltipGroupIndex,
+      tooltipGroupIndex, focusedGroupIndex, focusedSeriesId,
+      onFocus, mode, toggleMode: this.toggleMode, minWidth });
+    this.linesContainer.set({ className: mochartCssClasses['tooltipLines'], style: { clear: 'both' } });
+
+    const groupText = group.values.parsed;
+    const groupFormat = getGroupFormat(groupAxisConfig);
+
+    const lastLineStyle = minWidth !== null ? { ...baseLineStyle, minWidth } : baseLineStyle;
+    const lineStyle = {
+      ...lastLineStyle, paddingBottom: tooltipConfig.linePadding
+    };
+
+    const tooltipLines = [];
+
+    const groupLabel = groupAxisConfig.valueLabel !== NONE ? groupAxisConfig.valueLabel + ": " : "";
+    tooltipLines.push({
+      key: 'group',
+      ctor: TooltipGroupLine,
+      props: { lineStyle, groupLabel, groupText: groupFormat(groupText),
+        onMouseEnter: (event) => this.onGroupMouseEnter(event),
+        onMouseLeave: (event) => this.onGroupMouseLeave(event),
+        onClick: (event) => this.onGroupClick(event) }
+    });
+
+    const valueFormats = getSeriesFormats(seriesConfigs, seriesAxisConfigs, axisDomains);
+    for (let seriesConfig of seriesConfigs) {
+      const { id: seriesId } = seriesConfig;
+      const seriesIndex = seriesConfigIndicesById[seriesId];
+      const seriesIsSuppressed = filteredFlags[seriesId];
+      const seriesIsFocused = seriesId === focusedSeriesId;
+      const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
+      const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
+      if (!adjustForSuppression || !(seriesIsSuppressed && tooltipConfig.hideSuppressed)) {
+        let valueFormat = valueFormats[seriesId];
+        let { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForSuppression);
+        if (valueText !== null) {
+          tooltipLines.push({
+            key: 'series-' + seriesId,
+            ctor: TooltipSeriesLine,
+            props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsSuppressed, seriesFocusPercentage,
+              colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
+              style: seriesIndex === seriesConfigs.length - 1 ? lastLineStyle : lineStyle,
+              onMouseEnter: (event) => this.onSeriesMouseEnter(event, seriesId),
+              onMouseLeave: (event) => this.onSeriesMouseLeave(event),
+              onClick: (event) => this.onSeriesClick(event, seriesId) }
+          });
+        }
+      }
+    }
+
+    this.lines.sync(tooltipLines);
+  }
+}
