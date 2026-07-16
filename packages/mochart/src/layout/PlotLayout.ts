@@ -1,26 +1,27 @@
 import { NONE, AUTO, ANCHOR_START, ANCHOR_END, ANCHOR_MIDDLE } from '../config/core/constants';
+import type { Anchor } from '../config/core/constants';
 import { arrayToMap, idAccessor } from '../utils/utils';
 import { createLayoutInfo } from './LayoutInfo';
 import { getRotatedBounds, getRotatedZeroBounds } from './RotatedLayoutInfo';
 import { createGroupAxisLayoutInfo, getGroupAxisRotatedTickBounds, getGroupAxisBeforeAfter, getGroupAxisSize } from './GroupAxisLayout';
 import { createSeriesAxisLayoutInfos, getSeriesAxisRotatedTickBounds, getSeriesAxisBeforeAfter, getSeriesAxisSizes, emptyLayoutInfo } from './SeriesAxisLayoutInfo';
 import { createInvertedSpacingLayoutInfo, getSpacingWidth, getSpacingHeight, getSpacingLeft, getSpacingTop, createInnerOuterSpacingLayoutInfo, createSpacingLayoutInfo } from './SpacingLayoutInfo';
+import type { Bounds, Size, TextBounds } from '../types/geometry';
+import type { AxisConfigBase, GroupAxisConfig, MochartConfig, PlotConfig, SeriesAxisConfig } from '../types/config';
+import type { AxisLayoutInfo, AxisTickInfo, AxisTickInfos, ChartDataForLayout, ChartTextBoundsData, PlotLayoutResult } from '../types/layout';
 
-export function getRotatedTickBounds(axisConfig, tickBounds, axisTickInfo) {
-  if (axisConfig.tickLabelRotation !== 0) {
-    tickBounds = getRotatedBounds(tickBounds, axisConfig.tickLabelRotation, axisTickInfo.tickLabelAnchor);
-  }
-  else {
-    tickBounds = getRotatedZeroBounds(tickBounds, axisTickInfo.tickLabelAnchor);
-  }
-  tickBounds.x = Math.floor(tickBounds.x);
-  tickBounds.y = Math.floor(tickBounds.y);
-  tickBounds.width = Math.ceil(tickBounds.width);
-  tickBounds.height = Math.ceil(tickBounds.height);
-  return tickBounds;
+export function getRotatedTickBounds(axisConfig: AxisConfigBase, tickBounds: TextBounds, axisTickInfo: AxisTickInfo): Bounds {
+  const rotatedTickBounds = axisConfig.tickLabelRotation !== 0
+    ? getRotatedBounds(tickBounds, axisConfig.tickLabelRotation, axisTickInfo.tickLabelAnchor)
+    : getRotatedZeroBounds(tickBounds, axisTickInfo.tickLabelAnchor);
+  rotatedTickBounds.x = Math.floor(rotatedTickBounds.x);
+  rotatedTickBounds.y = Math.floor(rotatedTickBounds.y);
+  rotatedTickBounds.width = Math.ceil(rotatedTickBounds.width);
+  rotatedTickBounds.height = Math.ceil(rotatedTickBounds.height);
+  return rotatedTickBounds;
 }
 
-function getCollapsedAfterSizeConsumption(axisConfigs, axisSizeArray) {
+function getCollapsedAfterSizeConsumption(axisConfigs: SeriesAxisConfig[], axisSizeArray: Record<string, number>): number {
   let totalSize = 0;
   for (let axisConfig of axisConfigs) {
     if (axisConfig.collapsed === true && axisConfig.before === false) {
@@ -30,7 +31,7 @@ function getCollapsedAfterSizeConsumption(axisConfigs, axisSizeArray) {
   return Math.ceil(totalSize);
 }
 
-function getAxisTickInfos(plotConfig, groupAxisConfig, seriesAxisConfigs) {
+function getAxisTickInfos(plotConfig: PlotConfig, groupAxisConfig: GroupAxisConfig, seriesAxisConfigs: SeriesAxisConfig[]): AxisTickInfos {
   const { inverted } = plotConfig;
   const groupAxisTickInfo = getAxisTickInfo(groupAxisConfig, inverted);
   const seriesAxisTickInfos = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig =>
@@ -42,7 +43,7 @@ function getAxisTickInfos(plotConfig, groupAxisConfig, seriesAxisConfigs) {
   };
 }
 
-function getAxisTickInfo(axisConfig, vertical) {
+function getAxisTickInfo(axisConfig: AxisConfigBase, vertical: boolean): AxisTickInfo {
   const tickLabelRotation = Math.abs(axisConfig.tickLabelRotation);
   const tickLabelParallel = vertical ? tickLabelRotation > 70 : tickLabelRotation < 20;
   const tickLabelAnchor = getTickLabelAnchor(axisConfig, vertical, tickLabelParallel);
@@ -52,26 +53,22 @@ function getAxisTickInfo(axisConfig, vertical) {
   };
 }
 
-function getAxisTotalTickLabelSize(axisConfig, rotatedTickBounds, vertical) {
-  let tickLabelSize = axisConfig.tickLabelSize;
-  if (axisConfig.tickLabelSize === AUTO) {
-    tickLabelSize = vertical ? rotatedTickBounds.width : rotatedTickBounds.height;
-  }
+function getAxisTotalTickLabelSize(axisConfig: AxisConfigBase, rotatedTickBounds: Size, vertical: boolean): number {
+  const tickLabelSize = axisConfig.tickLabelSize === AUTO
+    ? (vertical ? rotatedTickBounds.width : rotatedTickBounds.height)
+    : axisConfig.tickLabelSize;
   return axisConfig.tickLabelMarginInner + axisConfig.tickLabelPaddingInner + tickLabelSize + axisConfig.tickLabelMarginOuter + axisConfig.tickLabelPaddingOuter;
 }
 
-function getAxisTitleSize(axisConfig, titleBounds) {
-  let titleSize: any = 0;
+function getAxisTitleSize(axisConfig: AxisConfigBase, titleBounds: Size): number {
+  let titleSize = 0;
   if (axisConfig.title !== NONE) {
-    titleSize = axisConfig.titleSize;
-    if (titleSize === AUTO) {
-      titleSize = titleBounds.height;
-    }
+    titleSize = axisConfig.titleSize === AUTO ? titleBounds.height : axisConfig.titleSize;
   }
   return titleSize;
 }
 
-function getAxisTotalTitleSize(axisConfig, titleBounds) {
+function getAxisTotalTitleSize(axisConfig: AxisConfigBase, titleBounds: Size): number {
   let titleSize = 0;
   if (axisConfig.title !== NONE) {
     titleSize = axisConfig.titleMarginInner + axisConfig.titlePaddingInner + getAxisTitleSize(axisConfig, titleBounds) + axisConfig.titleMarginOuter + axisConfig.titlePaddingOuter;
@@ -79,7 +76,7 @@ function getAxisTotalTitleSize(axisConfig, titleBounds) {
   return titleSize;
 }
 
-export function getAxisSize(axisConfig, rotatedTickBounds, titleBounds, vertical) {
+export function getAxisSize(axisConfig: AxisConfigBase, rotatedTickBounds: Size, titleBounds: Size, vertical: boolean): number {
   let axisSize = 0;
   if (axisConfig.visible) {
     axisSize = axisConfig.marginInner + axisConfig.paddingInner +
@@ -89,11 +86,11 @@ export function getAxisSize(axisConfig, rotatedTickBounds, titleBounds, vertical
   return Math.ceil(axisSize);
 }
 
-export function getPlotHeight(innerHeight, titleHeight, legendHeight) {
+export function getPlotHeight(innerHeight: number, titleHeight: number, legendHeight: number): number {
   return innerHeight - titleHeight - legendHeight;
 }
 
-export function setExtraAxisInfo(axisLayoutInfo, axisConfig, axisTickInfo, tickBounds, rotatedTickBounds, titleBounds, thresholdTitleBounds, vertical, inverted) {
+export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: AxisConfigBase, axisTickInfo: AxisTickInfo, tickBounds: TextBounds, rotatedTickBounds: Bounds, titleBounds: TextBounds, thresholdTitleBounds: TextBounds, vertical: boolean, inverted: boolean): void {
   const { before, collapsed, titleMarginInner, titleMarginOuter, titlePaddingInner, titlePaddingOuter, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter,
     thresholdTitleMargin, thresholdTitlePadding, tickLabelRotation, title, threshold, thresholdTitle } = axisConfig;
   const notAfter = (before && !collapsed) || (!before && collapsed);
@@ -115,7 +112,9 @@ export function setExtraAxisInfo(axisLayoutInfo, axisConfig, axisTickInfo, tickB
   }
   let { tickLabelSizeOffset, tickLabelParallel } = axisLayoutInfo;
   if (!vertical && notAfter && !tickLabelParallel) {
-    if (axisTickInfo.tickTextAnchor === ANCHOR_MIDDLE) {
+    // AxisTickInfo never defines tickTextAnchor (only tickLabelAnchor), so this is always
+    // undefined and the else branch always runs; preserved as-is while adding types.
+    if ((axisTickInfo as AxisTickInfo & { tickTextAnchor?: Anchor }).tickTextAnchor === ANCHOR_MIDDLE) {
       tickLabelSizeOffset = tickLabelSize / 2.0;
     }
     else {
@@ -256,7 +255,7 @@ export function setExtraAxisInfo(axisLayoutInfo, axisConfig, axisTickInfo, tickB
   axisLayoutInfo.titleBoundsHeight = titleBoundsHeight;
 }
 
-function getTickLabelAnchor(axisConfig, vertical, tickLabelParallel) {
+function getTickLabelAnchor(axisConfig: AxisConfigBase, vertical: boolean, tickLabelParallel: boolean): Anchor {
   if (axisConfig.tickLabelAnchor === AUTO) {
     if (!tickLabelParallel) {
       const { before, collapsed, tickLabelRotation } = axisConfig;
@@ -277,10 +276,10 @@ function getTickLabelAnchor(axisConfig, vertical, tickLabelParallel) {
   }
 }
 
-export function getPlotWidthAndX(mochartConfig, chartTextBoundsData, chartData, contentBounds) {
+export function getPlotWidthAndX(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds): { x: number; width: number } {
   const { plotConfig, groupAxisConfig, seriesAxisConfigs } = mochartConfig;
   const { groupAxisTitleBounds, seriesAxisTitleBounds } = chartTextBoundsData;
-  const seriesAxisFilteredSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : 0;
+  const seriesAxisFilteredSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : {};
   const { x: contentX, width: contentWidth } = contentBounds;
   const { inverted, margin, padding } = plotConfig;
   const spacingLeft = getSpacingLeft(margin, padding);
@@ -314,10 +313,10 @@ export function getPlotWidthAndX(mochartConfig, chartTextBoundsData, chartData, 
   };
 }
 
-export function getPlotLayoutInfo(mochartConfig, chartTextBoundsData, chartData, contentBounds, plotHeight, plotY) {
+export function getPlotLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds, plotHeight: number, plotY: number): PlotLayoutResult {
   const { plotConfig, groupAxisConfig, seriesAxisConfigs } = mochartConfig;
   const { groupAxisTitleBounds, seriesAxisTitleBounds } = chartTextBoundsData;
-  const seriesAxisFilteredSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : 0;
+  const seriesAxisFilteredSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : {};
   const { x, width } = contentBounds;
   const { inverted, margin, padding } = plotConfig;
   const spacingTop = getSpacingTop(margin, padding);

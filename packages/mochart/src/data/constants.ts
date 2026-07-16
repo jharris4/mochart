@@ -11,18 +11,26 @@ const copyKeyMarker = 'markerCopyKey';
 const copyKeyLabel = 'labelCopyKey';
 const copyKeyColor = 'colorCopyKey';
 
-export const valueKeys = [keyPlain, keyRange, keyStack, keyPrior, keyMarker, keyLabel, keyColor];
+export type PositionKey = typeof keyPlain | typeof keyRange;
+export type PositionOrComputedKey = typeof keyPlain | typeof keyRange | typeof keyStack | typeof keyPrior;
+export type ExtraKey = typeof keyMarker | typeof keyLabel | typeof keyColor;
+export type ValueKey = PositionOrComputedKey | ExtraKey;
+export type DomainKey = typeof keyDomain | typeof keyPlain | typeof keyRange | typeof keyStack | typeof keyMarker | typeof keyLabel | typeof keyColor;
+export type ExtraCopyKey = typeof copyKeyMarker | typeof copyKeyLabel | typeof copyKeyColor;
 
-export const positionOrComputedOrExtraKeys = [keyPlain, keyRange, keyStack, keyPrior, keyMarker, keyLabel, keyColor];
+export const valueKeys: ValueKey[] = [keyPlain, keyRange, keyStack, keyPrior, keyMarker, keyLabel, keyColor];
 
-export const positionKeys = [keyPlain, keyRange];
+export const positionOrComputedOrExtraKeys: ValueKey[] = [keyPlain, keyRange, keyStack, keyPrior, keyMarker, keyLabel, keyColor];
 
-export const positionOrComputedKeys = [keyPlain, keyRange, keyStack, keyPrior];
+export const positionKeys: PositionKey[] = [keyPlain, keyRange];
 
-export const extraKeys = [keyMarker, keyColor, keyLabel];
+export const positionOrComputedKeys: PositionOrComputedKey[] = [keyPlain, keyRange, keyStack, keyPrior];
 
-export const extraCopyKeys = [copyKeyMarker, copyKeyLabel, copyKeyColor];
+export const extraKeys: ExtraKey[] = [keyMarker, keyColor, keyLabel];
 
-export const extraAndCopyKeys = [{extraKey: keyMarker, copyKey: copyKeyMarker}, {extraKey: keyColor, copyKey: copyKeyColor}, {extraKey: keyLabel, copyKey: copyKeyLabel}];
+export const extraCopyKeys: ExtraCopyKey[] = [copyKeyMarker, copyKeyLabel, copyKeyColor];
 
-export const domainKeys = [keyDomain, keyPlain, keyRange, keyStack, keyMarker, keyLabel, keyColor];
+export const extraAndCopyKeys: { extraKey: ExtraKey; copyKey: ExtraCopyKey }[] =
+  [{extraKey: keyMarker, copyKey: copyKeyMarker}, {extraKey: keyColor, copyKey: copyKeyColor}, {extraKey: keyLabel, copyKey: copyKeyLabel}];
+
+export const domainKeys: DomainKey[] = [keyDomain, keyPlain, keyRange, keyStack, keyMarker, keyLabel, keyColor];

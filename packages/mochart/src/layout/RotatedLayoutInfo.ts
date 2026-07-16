@@ -1,7 +1,10 @@
+import type { Anchor } from '../config/core/constants';
+import type { Bounds, Size } from '../types/geometry';
+
 // calculates the rotated bounds for the given bounds, angle and anchor, used for rotating ticks on the axis
 // it is assumed that the centerY of the bounds is bounds.height/2.0 and that the centerX for the various anchors is:
 // 'start': 0, 'middle': bounds.width/2.0, 'end': bounds.width
-export function getRotatedBounds(bounds, angle, anchor) {
+export function getRotatedBounds(bounds: Size, angle: number, anchor: Anchor): Bounds {
   var angleRadians = angle * (Math.PI / 180);
 
   let boundsWidth = bounds.width;
@@ -60,7 +63,7 @@ export function getRotatedBounds(bounds, angle, anchor) {
   };
 }
 
-export function getRotatedZeroBounds(bounds, anchor) {
+export function getRotatedZeroBounds(bounds: Size, anchor: Anchor): Bounds {
   const { width, height } = bounds;
   const y = height / - 2.0;
   const x = anchor === 'middle' ? (width / -2.0) : (anchor === 'start' ? 0 : (-1 * width));

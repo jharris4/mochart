@@ -1,8 +1,12 @@
 import { NONE, ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT, VERTICAL_ALIGN_TOP, VERTICAL_ALIGN_MIDDLE } from '../config/core/constants';
+import type { VerticalAlign } from '../config/core/constants';
 import { getSpacingWidth, getSpacingOuterWidth, getSpacingOuterHeight, getSpacingHeight, getMaxSpacingHeight } from './SpacingLayoutInfo';
 import { createSpacingLayoutInfo, getSpacingLeft, getSpacingRight } from './SpacingLayoutInfo';
+import type { MarginPadding, Bounds } from '../types/geometry';
+import type { MochartConfig, TitleConfig } from '../types/config';
+import type { ChartTextBoundsData, LayoutInfo, SpacingLayoutInfo, TitleLayoutResult } from '../types/layout';
 
-function createTitleLayoutInfo(x, y, width, height, margin, padding, titleHeight, titleMargin, titlePadding, verticalAlign, expand) {
+function createTitleLayoutInfo(x: number, y: number, width: number, height: number, margin: MarginPadding, padding: MarginPadding, titleHeight: number, titleMargin: MarginPadding, titlePadding: MarginPadding, verticalAlign: VerticalAlign, expand: number): SpacingLayoutInfo {
   const titleSpacingHeight = titleHeight - getSpacingHeight(titleMargin, titlePadding);
   let textY = 0;
   if (width > 0 && height < titleSpacingHeight) {
@@ -28,12 +32,16 @@ function createTitleLayoutInfo(x, y, width, height, margin, padding, titleHeight
   return createSpacingLayoutInfo({ x, y: y + textY, width, height}, margin, padding);
 }
 
-export function getTitleHeight(mochartConfig, chartTextBoundsData) {
+export function getTitleHeight(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData): number {
   const { titleConfig } = mochartConfig;
   const { titleTextRawBounds, titlePrefixBounds, titleSuffixBounds } = chartTextBoundsData;
   let titleHeight = 0;
   if (titleConfig.title !== NONE) {
-    const { margin, padding, textMargin, textPadding, prefix, suffix, prefixMargin, prefixPadding, suffixMargin, suffixPadding } = titleConfig;
+    // `prefix`/`suffix` are not TitleConfig properties (the config keys are `titlePrefix`/
+    // `titleSuffix`), so both are always undefined and both branches below always run;
+    // preserved as-is while adding types.
+    const { margin, padding, textMargin, textPadding, prefix, suffix, prefixMargin, prefixPadding, suffixMargin, suffixPadding } =
+      titleConfig as TitleConfig & { prefix?: string | null; suffix?: string | null };
 
     titleHeight = getSpacingOuterHeight(titleTextRawBounds, textMargin, textPadding);
     if (prefix !== NONE) {
@@ -47,7 +55,7 @@ export function getTitleHeight(mochartConfig, chartTextBoundsData) {
   return titleHeight;
 }
 
-export function getTitleLayoutInfo(mochartConfig, chartTextBoundsData, contentBounds, seriesLayoutInfo, titleHeight, titleY) {
+export function getTitleLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, titleHeight: number, titleY: number): TitleLayoutResult {
   const { plotConfig, titleConfig } = mochartConfig;
   const { inverted } = plotConfig;
   const { title, titlePrefix, titleSuffix, alignedToAxes, align, verticalAlign, verticalExpand,

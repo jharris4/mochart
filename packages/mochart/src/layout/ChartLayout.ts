@@ -4,10 +4,13 @@ import { createSpacingLayoutInfo, getSpacingInnerBounds } from './SpacingLayoutI
 import { getTitleHeight, getTitleLayoutInfo } from './TitleLayout';
 import { getLegendHeight, getLegendLayoutInfo } from './LegendLayout';
 import { getPlotWidthAndX, getPlotHeight, getPlotLayoutInfo } from './PlotLayout';
+import type { Bounds, MarginPadding } from '../types/geometry';
+import type { MochartConfig } from '../types/config';
+import type { ChartDataForLayout, ChartLayoutInfo, ChartTextBoundsData, LegendLayoutResult, PlotLayoutResult, TitleLayoutResult } from '../types/layout';
 
-const emptyMarginPadding = { top: 0, right: 0, bottom: 0, left: 0 };
+const emptyMarginPadding: MarginPadding = { top: 0, right: 0, bottom: 0, left: 0 };
 
-export function getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height, standalone) {
+export function getChartLayoutInfo(mochartConfig: MochartConfig, chartData: ChartDataForLayout | null, chartTextBoundsData: ChartTextBoundsData, width: number, height: number, standalone?: boolean): ChartLayoutInfo {
   const { chartConfig } = mochartConfig;
   const { margin, padding } = chartConfig;
 
@@ -16,7 +19,7 @@ export function getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData
 
   const chartMargin = standalone ? emptyMarginPadding : margin;
   const chartPadding = standalone ? emptyMarginPadding : padding;
-  const bounds = { x: 0, y: 0, width, height };
+  const bounds: Bounds = { x: 0, y: 0, width, height };
 
   const chartContentLayoutInfo = createSpacingLayoutInfo(bounds, chartMargin, chartPadding);
   const containerLayoutInfo = createSpacingLayoutInfo(bounds);
@@ -29,7 +32,7 @@ export function getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData
   }
 }
 
-function getChartContentLayoutInfo(mochartConfig, chartData, chartTextBoundsData, contentBounds) {
+function getChartContentLayoutInfo(mochartConfig: MochartConfig, chartData: ChartDataForLayout | null, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds): TitleLayoutResult & PlotLayoutResult & Partial<LegendLayoutResult> {
   const { plotConfig, titleConfig, legendConfig } = mochartConfig;
   const { y, height } = contentBounds;
 
@@ -74,6 +77,6 @@ function getChartContentLayoutInfo(mochartConfig, chartData, chartTextBoundsData
   };
 }
 
-export function getChartLayoutInfoWithMutations(oldLayoutInfo, newLayoutInfo) {
+export function getChartLayoutInfoWithMutations(oldLayoutInfo: ChartLayoutInfo | null, newLayoutInfo: ChartLayoutInfo): ChartLayoutInfo {
   return getWithMutations(oldLayoutInfo, newLayoutInfo);
 }

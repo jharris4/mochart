@@ -1,9 +1,12 @@
 import { getWithMutations } from '../utils/WithMutations';
+import type { Bounds, Size } from '../types/geometry';
+import type { MochartConfig } from '../types/config';
+import type { ChartLayoutInfo } from '../types/layout';
 
-const defaultLayout = { x: 0, y: 0, width: 50, height: 50 };
+const defaultLayout: Bounds = { x: 0, y: 0, width: 50, height: 50 };
 
-export function getTooltipLayoutInfo(mochartConfig, tooltipBounds, layoutInfo, groupValueData, focusedGroupIndex,
-                                     tooltipGroupPercentage, tooltipSeriesPercentage) {
+export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds: Size | null, layoutInfo: ChartLayoutInfo, groupValueData: { positions: number[] }, focusedGroupIndex: number,
+                                     tooltipGroupPercentage: number, tooltipSeriesPercentage: number): Bounds {
   if (tooltipBounds === null) {
     return defaultLayout;
   }
@@ -39,7 +42,7 @@ export function getTooltipLayoutInfo(mochartConfig, tooltipBounds, layoutInfo, g
   return tooltipLayoutInfo;
 }
 
-export function fitRectangleWithinRectangle({x: bx, y: by, width: bwidth, height: bheight}, { x, y, width, height }) {
+export function fitRectangleWithinRectangle({x: bx, y: by, width: bwidth, height: bheight}: Bounds, { x, y, width, height }: Bounds): Bounds {
   if (x < bx) {
     x = bx;
   }
@@ -55,6 +58,6 @@ export function fitRectangleWithinRectangle({x: bx, y: by, width: bwidth, height
   return { x, y, width, height };
 }
 
-export function getTooltipLayoutInfoWithMutations(oldTooltipLayoutInfo, newTooltipLayoutInfo) {
+export function getTooltipLayoutInfoWithMutations(oldTooltipLayoutInfo: Bounds | null, newTooltipLayoutInfo: Bounds): Bounds {
   return getWithMutations(oldTooltipLayoutInfo, newTooltipLayoutInfo);
 }

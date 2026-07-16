@@ -1,4 +1,11 @@
-export function getWithMutations(oldValue, newValue, customMutator?) {
+export type CustomMutator = (oldValue: unknown, newValue: unknown) => unknown;
+
+/**
+ * Structurally merges newValue with oldValue, returning oldValue (or its
+ * sub-objects) wherever nothing changed, so unchanged references are preserved.
+ */
+export function getWithMutations<T>(oldValue: T | null | undefined, newValue: T, customMutator?: CustomMutator): T;
+export function getWithMutations(oldValue: any, newValue: any, customMutator?: CustomMutator): any {
   if (oldValue === null || oldValue === void 0 || newValue === void 0 || newValue === null || oldValue === newValue) {
     return newValue;
   }
@@ -19,8 +26,8 @@ export function getWithMutations(oldValue, newValue, customMutator?) {
   else if (typeof oldValue === "object" && typeof newValue === "object") {
     let oldKeys = Object.keys(oldValue);
     let newKeys = Object.keys(newValue);
-    let oldKeyMap = oldKeys.reduce((map, key) => { map[key] = true; return map }, {});
-    let newObject = {};
+    let oldKeyMap = oldKeys.reduce<Record<string, boolean>>((map, key) => { map[key] = true; return map }, {});
+    let newObject: Record<string, unknown> = {};
     for (let newKey of newKeys) {
       if (oldKeyMap[newKey]) {
         newObject[newKey] = getWithMutations(oldValue[newKey], newValue[newKey], customMutator);

@@ -1,11 +1,14 @@
-export function createLayoutInfo(groupPosition, seriesPosition, groupExtent, seriesExtent, inverted) {
-  let layoutInfo: any = {
+import type { Bounds, Size } from '../types/geometry';
+import type { LayoutInfo } from '../types/layout';
+
+export function createLayoutInfo(groupPosition: number, seriesPosition: number, groupExtent: number, seriesExtent: number, inverted: boolean): LayoutInfo {
+  let layoutInfo = {
     groupPosition,
     seriesPosition,
     groupExtent,
     seriesExtent,
     inverted
-  };
+  } as LayoutInfo;
   if (inverted) {
     layoutInfo.x = seriesPosition;
     layoutInfo.y = groupPosition;
@@ -21,12 +24,12 @@ export function createLayoutInfo(groupPosition, seriesPosition, groupExtent, ser
   return layoutInfo;
 }
 
-export function createBoundsLayoutInfo(bounds, inverted) {
+export function createBoundsLayoutInfo(bounds: Bounds, inverted: boolean): LayoutInfo {
   const { x, y, width, height } = bounds;
   return createLayoutInfo(inverted ? y : x, inverted ? x : y, inverted ? height : width, inverted ? width : height, inverted);
 }
 
-export function layoutInfoExtentChanged(oldLayoutInfo, newLayoutInfo) {
+export function layoutInfoExtentChanged(oldLayoutInfo: Size | null, newLayoutInfo: Size | null): boolean {
   if (oldLayoutInfo === newLayoutInfo) {
     return false;
   }

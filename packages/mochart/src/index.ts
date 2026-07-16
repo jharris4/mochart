@@ -1,3 +1,4 @@
+export type * from './types';
 export { createChart, createDefaultChart } from './createChart';
 export type { ChartHandle } from './createChart';
 export { getVersionString } from './version';

@@ -132,3 +132,26 @@ export const MARKER_SHAPES = [
   MARKER_SHAPE_CIRCLE, MARKER_SHAPE_CROSS, MARKER_SHAPE_DIAMOND, MARKER_SHAPE_SQUARE,
   MARKER_SHAPE_STAR, MARKER_SHAPE_TRIANGLE, MARKER_SHAPE_WYE
 ];
+// Literal union types derived from the constant values above.
+export type Auto = typeof AUTO;
+export type None = typeof NONE;
+
+export type Align = typeof ALIGN_LEFT | typeof ALIGN_CENTER | typeof ALIGN_RIGHT;
+export type VerticalAlign = typeof VERTICAL_ALIGN_TOP | typeof VERTICAL_ALIGN_MIDDLE | typeof VERTICAL_ALIGN_BOTTOM;
+export type Anchor = typeof ANCHOR_START | typeof ANCHOR_END | typeof ANCHOR_MIDDLE;
+export type Position = typeof POSITION_TOP | typeof POSITION_BOTTOM;
+export type Scale = typeof SCALE_ORDINAL | typeof SCALE_LINEAR;
+export type DataType = typeof TYPE_STRING | typeof TYPE_NUMBER | typeof TYPE_DATE;
+export type RendererType = typeof RENDERER_BAR | typeof RENDERER_LINE | typeof RENDERER_AREA | typeof RENDERER_NONE;
+export type CurveType =
+  typeof CURVE_TYPE_LINEAR | typeof CURVE_TYPE_MONOTONE_X | typeof CURVE_TYPE_MONOTONE_Y | typeof CURVE_TYPE_BASIS |
+  typeof CURVE_TYPE_CARDINAL | typeof CURVE_TYPE_CATMULL_ROM | typeof CURVE_TYPE_NATURAL | typeof CURVE_TYPE_STEP |
+  typeof CURVE_TYPE_STEP_BEFORE | typeof CURVE_TYPE_STEP_AFTER;
+export type CapType = typeof CAP_TYPE_POINT | typeof CAP_TYPE_CURVE | typeof CAP_TYPE_ROUND;
+export type LabelPosition = typeof LABEL_POSITION_INSIDE | typeof LABEL_POSITION_CENTER | typeof LABEL_POSITION_OUTSIDE;
+export type ColorMode = typeof COLOR_SERIES | typeof COLOR_SAME | typeof COLOR_SERIES_INDEX | typeof COLOR_GROUP_INDEX;
+export type ColorInterpolation =
+  typeof COLOR_INTERPOLATION_RGB | typeof COLOR_INTERPOLATION_HSL | typeof COLOR_INTERPOLATION_LAB | typeof COLOR_INTERPOLATION_HCL;
+export type MarkerShape =
+  typeof MARKER_SHAPE_CIRCLE | typeof MARKER_SHAPE_CROSS | typeof MARKER_SHAPE_DIAMOND | typeof MARKER_SHAPE_SQUARE |
+  typeof MARKER_SHAPE_STAR | typeof MARKER_SHAPE_TRIANGLE | typeof MARKER_SHAPE_WYE;

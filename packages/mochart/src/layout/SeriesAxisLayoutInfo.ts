@@ -2,12 +2,15 @@ import { arrayToMap, idAccessor } from '../utils/utils';
 import { getAxisSize, setExtraAxisInfo, getRotatedTickBounds } from './PlotLayout';
 import { NONE } from '../config/core/constants';
 import { createInnerOuterSpacingLayoutInfo } from './SpacingLayoutInfo';
+import type { Bounds, TextBounds } from '../types/geometry';
+import type { MochartConfig, SeriesAxisConfig } from '../types/config';
+import type { AxisLayoutInfo, AxisTickInfos, BeforeAfter, ChartDataForLayout, ChartTextBoundsData } from '../types/layout';
 
-export const emptyLayoutInfo = {
+export const emptyLayoutInfo: Bounds = {
   x: 0, y: 0, width: 0, height: 0
 };
 
-function getSeriesAxisSizeConsumption(axisConfigs, axisSizes, isBefore) {
+function getSeriesAxisSizeConsumption(axisConfigs: SeriesAxisConfig[], axisSizes: Record<string, number>, isBefore: boolean): number {
   let totalSize = 0;
   for (let axisConfig of axisConfigs) {
     if (axisConfig.collapsed === false && axisConfig.before === isBefore) {
@@ -17,14 +20,14 @@ function getSeriesAxisSizeConsumption(axisConfigs, axisSizes, isBefore) {
   return Math.ceil(totalSize);
 }
 
-export function getSeriesAxisBeforeAfter(axisConfigs, axisSizes) {
+export function getSeriesAxisBeforeAfter(axisConfigs: SeriesAxisConfig[], axisSizes: Record<string, number>): BeforeAfter {
   return {
     before: getSeriesAxisSizeConsumption(axisConfigs, axisSizes, true),
     after: getSeriesAxisSizeConsumption(axisConfigs, axisSizes, false)
   };
 }
 
-export function getSeriesAxisSizes(axisConfigs, axisDataCounts, rotatedTickBoundsMap, titleBoundsMap, vertical) {
+export function getSeriesAxisSizes(axisConfigs: SeriesAxisConfig[], axisDataCounts: Record<string, number>, rotatedTickBoundsMap: Record<string, Bounds>, titleBoundsMap: Record<string, TextBounds>, vertical: boolean): Record<string, number> {
   return arrayToMap(axisConfigs, idAccessor, axisConfig => {
     if (axisConfig.visible && (axisConfig.alwaysVisible || axisDataCounts[axisConfig.id] > 0)) {
       return getAxisSize(axisConfig, rotatedTickBoundsMap[axisConfig.id], titleBoundsMap[axisConfig.id], vertical);
@@ -35,7 +38,7 @@ export function getSeriesAxisSizes(axisConfigs, axisDataCounts, rotatedTickBound
   });
 }
 
-export function createSeriesAxisLayoutInfos(mochartConfig, chartTextBoundsData, chartData, seriesAxisRotatedTickBounds, axisTickInfos, groupY, seriesY, groupInnerExtent, seriesInnerExtent, groupAxesOffset, seriesAxesOffset, seriesAxisSizes, seriesAxisFilteredSeriesCounts, seriesAxesCollapsedAfter) {
+export function createSeriesAxisLayoutInfos(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, seriesAxisRotatedTickBounds: Record<string, Bounds>, axisTickInfos: AxisTickInfos, groupY: number, seriesY: number, groupInnerExtent: number, seriesInnerExtent: number, groupAxesOffset: BeforeAfter, seriesAxesOffset: BeforeAfter, seriesAxisSizes: Record<string, number>, seriesAxisFilteredSeriesCounts: Record<string, number>, seriesAxesCollapsedAfter: number): Record<string, AxisLayoutInfo | Bounds> {
   const { plotConfig, seriesAxisConfigs } = mochartConfig;
   const { seriesAxisTitleBounds, seriesAxisTickBounds, seriesAxisThresholdTitleBounds } = chartTextBoundsData;
   const { seriesAxisTickInfos } = axisTickInfos;
@@ -45,7 +48,7 @@ export function createSeriesAxisLayoutInfos(mochartConfig, chartTextBoundsData, 
   let currentSeriesOffsetAfter = 0;
   let currentSeriesCollapsedOffsetBefore = 0;
   let currentSeriesCollapsedOffsetAfter = 0;
-  return arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
+  return arrayToMap<SeriesAxisConfig, AxisLayoutInfo | Bounds>(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
     const { id, before, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = seriesAxisConfig;
     if (seriesAxisConfig.visible && (seriesAxisConfig.alwaysVisible || seriesAxisFilteredSeriesCounts[id] > 0)) {
       let seriesAxisOffset = groupY;
@@ -62,7 +65,7 @@ export function createSeriesAxisLayoutInfos(mochartConfig, chartTextBoundsData, 
         width: inverted ? seriesInnerExtent : seriesAxisSize,
         height: inverted ? seriesAxisSize : seriesInnerExtent
       },
-        vertical, inverted, before, marginInner, marginOuter, paddingInner, paddingOuter);
+        vertical, inverted, before, marginInner, marginOuter, paddingInner, paddingOuter) as AxisLayoutInfo;
       setExtraAxisInfo(seriesAxisLayoutInfo, seriesAxisConfig, seriesAxisTickInfos[id], seriesAxisTickBounds[id], seriesAxisRotatedTickBounds[id], seriesAxisTitleBounds[id], seriesAxisThresholdTitleBounds[id], vertical, inverted);
       if (collapsed) {
         currentSeriesCollapsedOffsetBefore += before === true ? seriesAxisSize : 0;
@@ -80,7 +83,7 @@ export function createSeriesAxisLayoutInfos(mochartConfig, chartTextBoundsData, 
   });
 }
 
-export function getSeriesAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos) {
+export function getSeriesAxisRotatedTickBounds(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, axisTickInfos: AxisTickInfos): Record<string, Bounds> {
   const { seriesAxisConfigs } = mochartConfig;
   const { seriesAxisTickBounds } = chartTextBoundsData;
   const { seriesAxisTickInfos } = axisTickInfos;
