@@ -129,4 +129,18 @@ describe('undefined series values', () => {
     const { chartData, seriesId } = makeHoledChartData();
     expect(chartData.seriesData.raw.domains[seriesId].plain).toEqual([10, 30]);
   });
+
+  it('carries an undefined range value as a hole and excludes it from the range domain', () => {
+    const config = makeConfig({
+      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
+      seriesConfigs: [{ property: 'a', rangeProperty: 'hi' }]
+    });
+    // group 1 has no "hi" (range) value, but keeps its "a" (plain) value
+    const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10, hi: 15 }, { g: 1, a: 20 }, { g: 2, a: 30, hi: 35 }], 'g');
+    const seriesId = config.seriesConfigs[0].id;
+    const chartData = getChartData(config, provider, {});
+    expect(chartData.seriesData.raw.values[seriesId].plain).toEqual([10, 20, 30]);
+    expect(chartData.seriesData.raw.values[seriesId].range).toEqual([15, undefined, 35]);
+    expect(chartData.seriesData.raw.domains[seriesId].range).toEqual([15, 35]);
+  });
 });

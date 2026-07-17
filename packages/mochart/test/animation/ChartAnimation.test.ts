@@ -105,3 +105,61 @@ describe('getStartChartData / getEndChartData', () => {
     expect(getEndChartData(cad)).toBe(cad.valueChangeData.end);
   });
 });
+
+describe('getChartDataForValueDelta (range channel with an undefined hole)', () => {
+  const rangeConfig: MochartConfig = makeConfig({
+    groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
+    seriesConfigs: [{ property: 'a', rangeProperty: 'hi', renderer: 'bar' }]
+  });
+  const rangeSeriesId = rangeConfig.seriesConfigs[0].id;
+
+  function rangeChartData(rows: Record<string, number>[]): AnimationChartData {
+    return getChartData(rangeConfig, new ArrayOfObjectsDataProvider(rows, 'g'), {});
+  }
+
+  // group 1's range value (hi) disappears at the end while its plain value stays
+  const cad = getChartAnimationData(
+    rangeConfig,
+    rangeChartData([{ g: 0, a: 0, hi: 0 }, { g: 1, a: 0, hi: 0 }]),
+    rangeChartData([{ g: 0, a: 10, hi: 15 }, { g: 1, a: 20 }])
+  );
+
+  it('tweens the plain channel while holding the vanishing range point', () => {
+    const mid = getChartDataForValueDelta(rangeConfig, cad, 0.5).seriesData.raw.values[rangeSeriesId];
+    const end = getChartDataForValueDelta(rangeConfig, cad, 1).seriesData.raw.values[rangeSeriesId];
+    // plain animates on both groups; range animates on group 0 but the missing
+    // group-1 range has a zero delta and holds at its start value
+    expect(mid.plain).toEqual([5, 10]);
+    expect(mid.range).toEqual([10, 0]);
+    expect(end.plain).toEqual([10, 20]);
+    expect(end.range).toEqual([15, 0]);
+  });
+});
+
+describe('getChartDataForValueDelta (a point entering from undefined)', () => {
+  // group 1 starts undefined (absent) and animates in to a defined end value
+  const cad = getChartAnimationData(
+    config,
+    chartDataFor([{ g: 0, a: 10 }, { g: 1 }]),
+    chartDataFor([{ g: 0, a: 10 }, { g: 1, a: 20 }])
+  );
+
+  it('animates the entering point from a defined baseline up to its end value', () => {
+    const at0 = plain(getChartDataForValueDelta(config, cad, 0))!;
+    const at05 = plain(getChartDataForValueDelta(config, cad, 0.5))!;
+    const at1 = plain(getChartDataForValueDelta(config, cad, 1))!;
+
+    // the stable neighbour is unaffected throughout
+    expect(at0[0]).toBe(10);
+    expect(at05[0]).toBe(10);
+    expect(at1[0]).toBe(10);
+
+    // the entering point is a real number at the start (never undefined),
+    // increases monotonically, and lands exactly on the end value
+    expect(typeof at0[1]).toBe('number');
+    expect(at0[1]!).toBeLessThan(20);
+    expect(at05[1]!).toBeGreaterThan(at0[1]!);
+    expect(at05[1]!).toBeLessThan(20);
+    expect(at1[1]).toBe(20);
+  });
+});
