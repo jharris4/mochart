@@ -1,0 +1,26 @@
+{
+  "name": "mochart-demo-svelte",
+  "version": "2.0.0",
+  "description": "Svelte demo gallery for the mochart charting library",
+  "private": true,
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "font-awesome": "^4.7.0",
+    "lodash.merge": "^4.6.2",
+    "mochart": "^1.0.74",
+    "mochart-svelte": "^1.0.0",
+    "seedrandom": "^3.0.5",
+    "svelte": "^5.56.5",
+    "valide": "^1.0.10"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.2.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}

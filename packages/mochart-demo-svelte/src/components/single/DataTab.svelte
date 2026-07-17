@@ -1,0 +1,101 @@
+<script>
+  import { untrack } from 'svelte';
+
+  import { ArrayOfObjectsDataProvider, getDataErrors } from 'mochart';
+
+  import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+
+  import TextAreaContent from '../misc/TextAreaContent.svelte';
+  import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
+  import Icon from '../misc/Icon.svelte';
+
+  function formatData(dataJSON) {
+    return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
+  }
+
+  function isObject(v) {
+    return v !== null && v !== void 0 && typeof v === "object";
+  }
+
+  function isArrayOfObjects(candidate) {
+    return Array.isArray(candidate) && !candidate.some(v => !isObject(v));
+  }
+
+  let { active = false, config, data, onDataChange, onDataError, onDataReset } = $props();
+
+  let dataText = $state(formatData(data));
+
+  let previousData = data;
+  $effect.pre(() => {
+    const nextData = data;
+    untrack(() => {
+      if (nextData !== previousData) {
+        previousData = nextData;
+        dataText = formatData(nextData);
+      }
+    });
+  });
+
+  function onTextChange(nextDataText) {
+    dataText = nextDataText;
+  }
+
+  function resetData() {
+    dataText = formatData(data);
+    onDataReset();
+  }
+
+  function applyData() {
+    try {
+      const parsedData = JSON.parse(dataText);
+      let error = null;
+      if (isArrayOfObjects(parsedData)) {
+        const { mochartConfig } = buildMochartDemoConfig(config);
+        if (mochartConfig.validation.valid) {
+          const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.groupAxisConfig.property));
+          if (dataErrors.length > 0) {
+            console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
+            error = 'Invalid Data Content';
+          }
+        }
+        else {
+          console.warn('Could not validate data since mochart config was not valid');
+          error = 'Invalid Config & Data';
+        }
+      }
+      else {
+        console.warn('Invalid Data - should be an array of objects');
+        error = 'Invalid Data';
+      }
+      if (error) {
+        onDataError(error);
+      }
+      else {
+        onDataChange(parsedData);
+      }
+    }
+    catch (error) {
+      console.warn('Invalid Data JSON: ' + error);
+      alert('Invalid Data JSON');
+      onDataError('Invalid Data ');
+    }
+  }
+</script>
+
+<div class={"mochart-demo-tab-container col data" + (active ? " active" : "")}>
+  <div class="mochart-demo-tab-content">
+    <TextAreaContent value={dataText} onChange={onTextChange} />
+  </div>
+  <div class="mochart-demo-tab-footer">
+    <div class="btn-toolbar" role="toolbar">
+      <ButtonWithTooltip id="data-reset" tooltipText="Reset" tooltipPlacement="top-start"
+                         onClick={resetData} aria-label="Reset">
+        <Icon size="lg" fixedWidth={true} name="undo" />
+      </ButtonWithTooltip>
+      <ButtonWithTooltip id="data-apply" tooltipText="Apply" tooltipPlacement="top-start"
+                         onClick={applyData} aria-label="Apply">
+        <Icon size="lg" fixedWidth={true} name="check" />
+      </ButtonWithTooltip>
+    </div>
+  </div>
+</div>

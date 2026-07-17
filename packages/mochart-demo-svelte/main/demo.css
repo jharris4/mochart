@@ -1,0 +1,385 @@
+html, body {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    -ms-overflow-style: none;
+    font-size: 14px;
+    /* font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; */
+}
+#root {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    -ms-overflow-style: none;
+}
+.mochart-demo-container {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+    -ms-overflow-style: none;
+}
+.mochart-demo-tabs-container {
+    display: flex;
+    flex: none;
+    width: 100%;
+    overflow: hidden;
+    -ms-overflow-style: none;
+}
+.mochart-demo-tabs-container .nav {
+    width: 100%;
+}
+.mochart-demo-content {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+    -ms-overflow-style: none;
+}
+.mochart-demo-content-pane {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    overflow: hidden;
+    min-height: 0;
+    -ms-overflow-style: none;
+}
+.mochart-demo-controls-container {
+    display: flex;
+    flex: none;
+    width: 100%;
+}
+.mochart-demo-tab-container {
+    display: flex;
+    flex: 1 1 auto;
+    margin-left: -100%;
+    z-index: 5;
+    width: 100%;
+    min-width: 100%;
+    overflow: hidden;
+    min-height: 0;
+    max-width: 100%;
+    background: #ffffff;
+    -ms-overflow-style: auto;
+}
+.mochart-demo-tab-container.row {
+    flex-flow: row;
+    flex-wrap: nowrap;
+}
+.mochart-demo-tab-container.col {
+    flex-flow: column;
+    padding-left: 0;
+    padding-right: 0;
+}
+.mochart-demo-tab-container.multi-row {
+
+}
+.mochart-demo-tab-container.demos {
+    order: 1;
+}
+.mochart-demo-tab-container.chart {
+    order: 2;
+}
+.mochart-demo-tab-container.config {
+    order: 3;
+}
+.mochart-demo-tab-container.data {
+    order: 4;
+}
+.mochart-demo-tab-container.active {
+    order: 5;
+    margin-left: 15px;
+    z-index: 10;
+}
+.mochart-demo-container.multi .mochart-demo-tab-container.active {
+    margin-left: 0;
+}
+.single-tab .mochart-demo-tab-container.active {
+    margin-left: 0;
+}
+.mochart-demo-tab-container.chart.active {
+    margin-left: 0;
+}
+.mochart-demo-content .editable-charts-sizer {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.mochart-demo-content .editable-charts {
+    display: flex;
+    flex: 1 1 auto;
+    flex-flow: row;
+    flex-wrap: nowrap;
+    min-height: 0;
+}
+.mochart-demo-content .editable-chart {
+    display: inline-flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.mochart-demo-content .editable-mochart-chart {
+    display: inline-flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.mochart-demo-content .editable-chart-container {
+    display: flex;
+    flex-flow: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: 100%;
+}
+.mochart-demo-content .editable-chart-content {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+.mochart-demo-content .editable-chart-controls {
+    display: flex;
+    flex: none;
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+.mochart-demo-content .multi-charts-sizer {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.mochart-demo-content .multi-charts {
+    display: flex;
+    flex: 1 1 auto;
+    flex-flow: row;
+    flex-wrap: wrap;
+    min-height: 0;
+}
+.mochart-demo-content .multi-mochart-chart {
+    display: inline-flex;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.mochart-demo-content .multi-controls {
+    display: flex;
+    flex: none;
+    width: 100%;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+.mochart-demo-content .multi-controls .form-control-plaintext {
+    width: auto;
+    margin-left: .1rem;
+    margin-right: .1rem;
+}
+.mochart-demo-content .random-chart-sizer {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.mochart-demo-content .random-controls {
+    display: flex;
+    flex: none;
+    width: 100%;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+.mochart-demo-content .transition-chart-sizer {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.mochart-demo-content .transition-controls {
+    display: flex;
+    flex: none;
+    width: 100%;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+.rotation-container {
+    display: block;
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+    max-height: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+.rotation-chart {
+    position: absolute;
+}
+.mochart-demo-content .mochart-chart {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+.mochart-demo-tab-content {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+}
+.mochart-demo-tab-footer {
+    display: flex;
+    flex: none;
+    width: 100%;
+    min-height: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+.mochart-demo-text-area-container {
+    display: flex;
+    flex: 1 1 auto;
+}
+.mochart-demo-modes-container {
+    display: flex;
+    flex: none;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    padding: 5px;
+}
+.mochart-demo-list-container {
+    display: flex;
+    flex: 1 1 auto;
+    flex-flow: column;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 0;
+}
+.mochart-demo-list {
+    flex: 1;
+    overflow: scroll;
+}
+.chart-controls-container {
+    padding-left: 2px;
+    padding-right: 2px;
+    display: flex;
+    flex-flow: row;
+    flex: none;
+    width: 100%;
+}
+.chart-controls-buttons {
+    display: flex;
+    flex: none;
+}
+.chart-controls-input {
+    padding-left: 5px;
+    display: flex;
+    flex: none;
+    overflow: hidden;
+}
+.chart-controls-input .form-inline input {
+    width: 100%;
+}
+/*
+@media (max-width: 768px) {
+    .nav>li>a {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+*/
+.text-area-content textarea {
+    font-size: 16px;
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    select:focus,
+    textarea:focus,
+    input:focus {
+        font-size: 16px;
+    }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    select,
+    textarea,
+    input {
+        font-size: 16px;
+    }
+}
+
+.mochart-chart {
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 14px;
+}
+
+.mochart-chart .mochart-title {
+    font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
+    font-size: 18px;
+}
+
+.mochart-chart .mochart-axis-title {
+    font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
+    font-size: 16px;
+}
+
+.mochart-chart .mochart-legend-item:hover {
+    cursor: pointer;
+}
+
+.mochart-demo-error-message {
+    width: 80%;
+    margin-left: 10%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.form-inline > .form-group,
+.btn-toolbar > .btn-group,
+.btn-toolbar .btn,
+.btn-toolbar .button-with-tooltip,
+.btn-group .btn,
+.btn-group .button-with-tooltip {
+    margin-left: .15rem;
+    margin-right: .15rem;
+}
+
+.form-inline > .form-group:first-child,
+.btn-toolbar > .btn-group:first-child,
+.btn-toolbar .btn:first-child,
+.btn-toolbar .button-with-tooltip:first-child,
+.btn-group .btn:first-child,
+.btn-group .button-with-tooltip:first-child {
+    margin-left: 0;
+}
+
+.form-inline > .form-group:last-child,
+.btn-toolbar > .btn-group:last-child,
+.btn-toolbar .btn:last-child,
+.btn-toolbar .button-with-tooltip:last-child,
+.btn-group .btn:last-child,
+.btn-toolbar .btn:last-child {
+    margin-right: 0;
+}
+
+.nav-link:hover {
+    cursor: pointer;
+}
+
+.mochart-demo-list .list-group-item:hover {
+    cursor: pointer;
+}
