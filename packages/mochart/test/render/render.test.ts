@@ -299,6 +299,31 @@ describe('ElList', () => {
     list.sync([], rowAdapter);
     expect(markup(parent)).toBe('');
   });
+
+  it('does not leak DOM nodes when items have duplicate keys', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const parent = host();
+      const list = new ElList<Row>(parent, null);
+
+      const rows = [{ id: 'a', label: 'A1' }, { id: 'a', label: 'A2' }, { id: 'b', label: 'B' }];
+      list.sync(rows, rowAdapter);
+      expect(parent.querySelectorAll('li').length).toBe(3);
+
+      // re-syncing with persistent duplicates must warn and keep the node
+      // count stable instead of orphaning one extra node per sync
+      list.sync(rows, rowAdapter);
+      list.sync(rows, rowAdapter);
+      expect(parent.querySelectorAll('li').length).toBe(3);
+      expect(warn).toHaveBeenCalledWith('mochart list has duplicate key: a');
+
+      list.sync([], rowAdapter);
+      expect(markup(parent)).toBe('');
+    }
+    finally {
+      warn.mockRestore();
+    }
+  });
 });
 
 describe('RendererList (via Renderer.rendererList)', () => {
@@ -346,5 +371,50 @@ describe('RendererList (via Renderer.rendererList)', () => {
     r.destroy();
     expect(parent.innerHTML).toBe('');
     expect(destroyed).toEqual(['a', 'b']);
+  });
+
+  it('does not leak renderers when items have duplicate keys', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      class Item extends Renderer<{ label: string }> {
+        root = htmlEl('p');
+        text = textEl();
+        create() {
+          this.root.append(this.text);
+          return this.root.node;
+        }
+        sync() {
+          this.text.set(this.props.label);
+        }
+      }
+      class ListHost extends Renderer<{ rows: Row[] }> {
+        root = htmlEl('div');
+        list!: ReturnType<Renderer<object>['rendererList']>;
+        create() {
+          this.list = this.rendererList(this.root);
+          return this.root.node;
+        }
+        sync() {
+          this.list.sync(this.props.rows.map((row) => ({ key: row.id, ctor: Item, props: { label: row.label } })));
+        }
+      }
+
+      const parent = host();
+      const r = new ListHost();
+      const rows = [{ id: 'a', label: 'A1' }, { id: 'a', label: 'A2' }, { id: 'b', label: 'B' }];
+      r.mount(parent, null, { rows });
+      expect(parent.querySelectorAll('p').length).toBe(3);
+
+      r.update({ rows: [...rows] });
+      r.update({ rows: [...rows] });
+      expect(parent.querySelectorAll('p').length).toBe(3);
+      expect(warn).toHaveBeenCalledWith('mochart renderer list has duplicate key: a');
+
+      r.destroy();
+      expect(parent.innerHTML).toBe('');
+    }
+    finally {
+      warn.mockRestore();
+    }
   });
 });

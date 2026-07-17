@@ -183,11 +183,13 @@ describe('setArrayValuesFromSourcesIfOneIsUndefined', () => {
 });
 
 describe('equality helpers', () => {
-  it('areMapsEqual compares by the keys of the first map', () => {
+  it('areMapsEqual requires the same keys and values in both maps', () => {
     expect(areMapsEqual({ a: 1, b: 2 }, { a: 1, b: 2 })).toBe(true);
     expect(areMapsEqual({ a: 1 }, { a: 2 })).toBe(false);
-    // extra keys in the second map are ignored
-    expect(areMapsEqual({ a: 1 }, { a: 1, b: 2 })).toBe(true);
+    expect(areMapsEqual({ a: 1 }, { a: 1, b: 2 })).toBe(false);
+    expect(areMapsEqual({ a: 1, b: 2 }, { a: 1 })).toBe(false);
+    expect(areMapsEqual({ a: 1, b: undefined }, { a: 1, c: undefined })).toBe(false);
+    expect(areMapsEqual({}, {})).toBe(true);
   });
 
   it('areArraysAndEqual requires both to be arrays of equal length and content', () => {

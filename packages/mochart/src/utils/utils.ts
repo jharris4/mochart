@@ -131,8 +131,11 @@ export function copyWithValueOnlyIfOtherUndefined<T, U>(source: T[], otherSource
 
 export function areMapsEqual(mapA: Record<string, unknown>, mapB: Record<string, unknown>): boolean {
   let keys = Object.keys(mapA);
+  if (keys.length !== Object.keys(mapB).length) {
+    return false;
+  }
   for (let key of keys) {
-    if(mapA[key] !== mapB[key]) {
+    if (!(key in mapB) || mapA[key] !== mapB[key]) {
       return false;
     }
   }

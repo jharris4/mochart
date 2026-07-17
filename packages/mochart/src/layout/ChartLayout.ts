@@ -1,27 +1,23 @@
 import { getWithMutations } from '../utils/WithMutations';
 import { POSITION_TOP } from '../config/core/constants';
-import { createSpacingLayoutInfo, getSpacingInnerBounds } from './SpacingLayoutInfo';
+import { createSpacingLayoutInfo } from './SpacingLayoutInfo';
 import { getTitleHeight, getTitleLayoutInfo } from './TitleLayout';
 import { getLegendHeight, getLegendLayoutInfo } from './LegendLayout';
 import { getPlotWidthAndX, getPlotHeight, getPlotLayoutInfo } from './PlotLayout';
-import type { Bounds, MarginPadding } from '../types/geometry';
+import type { Bounds } from '../types/geometry';
 import type { MochartConfig } from '../types/config';
 import type { ChartDataForLayout, ChartLayoutInfo, ChartTextBoundsData, LegendLayoutResult, PlotLayoutResult, TitleLayoutResult } from '../types/layout';
 
-const emptyMarginPadding: MarginPadding = { top: 0, right: 0, bottom: 0, left: 0 };
-
-export function getChartLayoutInfo(mochartConfig: MochartConfig, chartData: ChartDataForLayout | null, chartTextBoundsData: ChartTextBoundsData, width: number, height: number, standalone?: boolean): ChartLayoutInfo {
+// Margin and padding always apply, including for standalone charts — inherited
+// behavior locked in by the golden snapshots (the `standalone` prop's only
+// remaining effect is gating config warnings in Chart).
+export function getChartLayoutInfo(mochartConfig: MochartConfig, chartData: ChartDataForLayout | null, chartTextBoundsData: ChartTextBoundsData, width: number, height: number): ChartLayoutInfo {
   const { chartConfig } = mochartConfig;
   const { margin, padding } = chartConfig;
 
-  standalone = false; // TODO - trace this back to source
-
-
-  const chartMargin = standalone ? emptyMarginPadding : margin;
-  const chartPadding = standalone ? emptyMarginPadding : padding;
   const bounds: Bounds = { x: 0, y: 0, width, height };
 
-  const chartContentLayoutInfo = createSpacingLayoutInfo(bounds, chartMargin, chartPadding);
+  const chartContentLayoutInfo = createSpacingLayoutInfo(bounds, margin, padding);
   const containerLayoutInfo = createSpacingLayoutInfo(bounds);
   const layoutInfo = getChartContentLayoutInfo(mochartConfig, chartData, chartTextBoundsData, chartContentLayoutInfo.paddingBounds);
 

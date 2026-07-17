@@ -462,7 +462,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         const domAccessors = this.chartRef ? getDomAccessors(this.chartRef) : null;
         let chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
 
-        let layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height, standalone);
+        let layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
         let axisData = null;
         let stackData = null;
         if (chartData !== null && getChartDataGroupCount(chartData) > 0) {
@@ -514,10 +514,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   calculateTextSizes(setState = true): ChartStateUpdate {
     let newState: ChartStateUpdate = {};
     if (this.chartRef) {
-      const { mochartConfig, chartData, width, height, standalone } = this.props;
+      const { mochartConfig, chartData, width, height } = this.props;
       const domAccessors = getDomAccessors(this.chartRef);
       let chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
-      let layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height, standalone);
+      let layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
       newState = { chartTextBoundsData, layoutInfo };
       const { tooltipVisible } = this.state;
       if (tooltipVisible) {
@@ -554,12 +554,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   updateTextSizes() {
     if (this.chartRef) {
-      const { mochartConfig, chartData, width, height, standalone } = this.props;
+      const { mochartConfig, chartData, width, height } = this.props;
       const domAccessors = getDomAccessors(this.chartRef);
       let chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
       chartTextBoundsData = getChartTextBoundsDataWithMutations(this.state.chartTextBoundsData, chartTextBoundsData);
       if (chartTextBoundsData !== this.state.chartTextBoundsData) {
-        let layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height, standalone);
+        let layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
         layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, layoutInfo);
         this.setState({ chartTextBoundsData, layoutInfo });
       }
@@ -567,7 +567,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   willReceiveProps(nextProps: ChartProps): void {
-    const { mochartConfig, chartData, width, height, standalone } = nextProps;
+    const { mochartConfig, chartData, width, height } = nextProps;
 
     const dataChanged = chartData !== this.props.chartData;
     const sizeChanged = width !== this.props.width || height !== this.props.height;
@@ -586,7 +586,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         const seriesAxisChanged = chartData === null || this.props.chartData === null || this.props.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
           this.props.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains;
         // TODO - what about if seriesData.axisSeriesCounts changes? how should that be handled?
-        layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height, standalone);
+        layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
         layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, layoutInfo);
 
         let tooltipStateSource: ChartState | ReturnType<typeof getInitialTooltipState> = this.state;

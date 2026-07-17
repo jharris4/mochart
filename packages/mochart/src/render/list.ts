@@ -39,6 +39,16 @@ export class ElList<T, H extends ElBlock = ElBlock> {
   sync(items: readonly T[], adapter: ElListAdapter<T, H>): void {
     const oldByKey = new Map<ListKey, ElListEntry<H>>();
     for (const entry of this.entries) {
+      const clash = oldByKey.get(entry.key);
+      if (clash !== undefined) {
+        // duplicate keys break matching (the map keeps only the last entry);
+        // drop the older block here so its DOM node cannot leak
+        console.warn('mochart list has duplicate key: ' + String(entry.key));
+        const node = clash.handle.root.node;
+        if (node.parentNode) {
+          node.parentNode.removeChild(node);
+        }
+      }
       oldByKey.set(entry.key, entry);
     }
 
@@ -126,6 +136,13 @@ export class RendererList {
   sync(items: readonly RendererItem[]): void {
     const oldByKey = new Map<ListKey, RendererEntry>();
     for (const entry of this.entries) {
+      const clash = oldByKey.get(entry.key);
+      if (clash !== undefined) {
+        // duplicate keys break matching (the map keeps only the last entry);
+        // destroy the older renderer here so its DOM cannot leak
+        console.warn('mochart renderer list has duplicate key: ' + String(entry.key));
+        clash.renderer.destroy(true);
+      }
       oldByKey.set(entry.key, entry);
     }
 

@@ -372,12 +372,7 @@ function validateReferences(config: ConfigRecord, configWithoutDefaults: ConfigR
   validateReferencesInternal(config, configWithoutDefaults[targetSectionKey], targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors);
 }
 
-// TODO: pre-existing bug kept intact by the TypeScript conversion — the call sites
-// below never pass commonProperty, so this check has always been inert at runtime.
-function validateCommonReferencesInternal(config: ConfigRecord, targetSections: unknown, targetSectionKey: string, targetProperty: string, sourceSectionKey: string, sourceProperty: string, errors: string[], commonProperty?: string): void {
-  if (commonProperty === void 0) {
-    return;
-  }
+function validateCommonReferencesInternal(config: ConfigRecord, targetSections: unknown, targetSectionKey: string, targetProperty: string, sourceSectionKey: string, sourceProperty: string, errors: string[], commonProperty: string): void {
   let sourceSections = config[sourceSectionKey];
   if (Array.isArray(sourceSections)) {
     let sourceProperties: Record<string, unknown> = {};
@@ -412,15 +407,15 @@ function validateCommonReferencesInternal(config: ConfigRecord, targetSections: 
   }
 }
 
-function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, targetSectionKey: string, targetAllKey: string | undefined, targetProperty: string, sourceSectionKey: string, sourceProperty: string, _commonProperty: string, errors: string[]): void {
+function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, targetSectionKey: string, targetAllKey: string | undefined, targetProperty: string, sourceSectionKey: string, sourceProperty: string, commonProperty: string, errors: string[]): void {
   if (targetAllKey) {
-    validateCommonReferencesInternal(config, configDefaults[targetAllKey], DEFAULT + targetAllKey, targetProperty, sourceSectionKey, sourceProperty, errors);
+    validateCommonReferencesInternal(config, configDefaults[targetAllKey], DEFAULT + targetAllKey, targetProperty, sourceSectionKey, sourceProperty, errors, commonProperty);
   }
-  validateCommonReferencesInternal(config, configDefaults[targetSectionKey], DEFAULT + targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors);
+  validateCommonReferencesInternal(config, configDefaults[targetSectionKey], DEFAULT + targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors, commonProperty);
 
   if (targetAllKey) {
-    validateCommonReferencesInternal(config, configWithoutDefaults[targetAllKey], targetAllKey, targetProperty, sourceSectionKey, sourceProperty, errors);
+    validateCommonReferencesInternal(config, configWithoutDefaults[targetAllKey], targetAllKey, targetProperty, sourceSectionKey, sourceProperty, errors, commonProperty);
   }
-  validateCommonReferencesInternal(config, configWithoutDefaults[targetSectionKey], targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors);
+  validateCommonReferencesInternal(config, configWithoutDefaults[targetSectionKey], targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors, commonProperty);
 
 }

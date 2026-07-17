@@ -34,21 +34,12 @@ function buildErrorDataProvider(error: unknown = 'Invalid Data'): DataProvider {
   };
 }
 
-function buildDataProvider(mochartConfig: MochartConfig, data: readonly unknown[]): DataProvider {
+function createRawDataProvider(mochartConfig: MochartConfig, data: readonly unknown[]): DataProvider | null {
   const groupProperty = getGroupProperty(mochartConfig);
   if (groupProperty !== void 0 && isArrayOfObjects(data)) {
-    const dataProvider = new ArrayOfObjectsDataProvider(data, groupProperty) as unknown as DataProvider;
-    const dataErrors = getDataErrors(mochartConfig, dataProvider);
-    if (dataErrors.length === 0) {
-      return dataProvider;
-    }
-    else {
-      return buildErrorDataProvider();
-    }
+    return new ArrayOfObjectsDataProvider(data, groupProperty) as unknown as DataProvider;
   }
-  else {
-    return buildErrorDataProvider();
-  }
+  return null;
 }
 
 interface DefaultChartState {
@@ -68,16 +59,31 @@ export default class DefaultChart extends Renderer<DefaultChartProps, DefaultCha
   };
 
   chart: Slot | null = null;
+  /** provider over the raw data, before validation against the config */
+  rawDataProvider: DataProvider | null = null;
+  /** shared error provider so staying invalid keeps a stable identity */
+  errorDataProvider: DataProvider | null = null;
 
   constructor() {
     super();
     this.state = { mochartConfig: null, dataProvider: null };
   }
 
+  validateDataProvider(mochartConfig: MochartConfig): DataProvider {
+    if (this.rawDataProvider !== null && getDataErrors(mochartConfig, this.rawDataProvider).length === 0) {
+      return this.rawDataProvider;
+    }
+    if (this.errorDataProvider === null) {
+      this.errorDataProvider = buildErrorDataProvider();
+    }
+    return this.errorDataProvider;
+  }
+
   willMount() {
     const { config, data } = this.props;
     const mochartConfig = enhanceConfig(config);
-    const dataProvider = buildDataProvider(mochartConfig, data);
+    this.rawDataProvider = createRawDataProvider(mochartConfig, data);
+    const dataProvider = this.validateDataProvider(mochartConfig);
     this.setState({ mochartConfig, dataProvider });
   }
 
@@ -87,14 +93,17 @@ export default class DefaultChart extends Renderer<DefaultChartProps, DefaultCha
     const dataChanged = data !== this.props.data;
 
     if (configChanged || dataChanged) {
-      let { mochartConfig, dataProvider } = this.state;
+      let { mochartConfig } = this.state;
       const groupPropertyChanged = getGroupProperty(config) !== getGroupProperty(this.props.config);
       if (configChanged) {
         mochartConfig = enhanceConfig(config);
       }
       if (dataChanged || groupPropertyChanged) {
-        dataProvider = buildDataProvider(mochartConfig!, data);
+        this.rawDataProvider = createRawDataProvider(mochartConfig!, data);
       }
+      // validity depends on the config too (series properties, group axis),
+      // so it is rechecked even when only the config changed
+      const dataProvider = this.validateDataProvider(mochartConfig!);
       this.setState({ mochartConfig, dataProvider });
     }
   }

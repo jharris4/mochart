@@ -58,6 +58,32 @@ describe('reference validation', () => {
   });
 });
 
+describe('common-reference validation', () => {
+  it('flags a series whose stack lives on a different axis', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesAxisConfigs: [{ id: 'A' }, { id: 'B' }],
+      seriesStackConfigs: [{ id: 'S', axis: 'A' }],
+      seriesConfigs: [{ property: 'a', stack: 'S', axis: 'B' }]
+    });
+    expect(errors).toContain(
+      'seriesConfigs[0] - stack - should equal the id property of one of the seriesStackConfigs that has the same axis property: "A" vs  "B"'
+    );
+  });
+
+  it('accepts a series whose stack shares its axis', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesAxisConfigs: [{ id: 'A' }],
+      seriesStackConfigs: [{ id: 'S', axis: 'A' }],
+      seriesConfigs: [{ property: 'a', stack: 'S', axis: 'A' }]
+    });
+    expect(errors).toEqual([]);
+  });
+});
+
 describe('unique-key validation', () => {
   it('flags duplicate series ids at both offending indices', () => {
     const errors = errorsFor({
