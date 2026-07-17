@@ -18,12 +18,12 @@ class RandomMochartDataTab extends Component {
     this.state = { dataText: null };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { data } = this.props;
     this.setState({dataText: formatData(data)});
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { data } = nextProps;
     if (data !== this.props.data) {
       this.setState({dataText: formatData(data)});

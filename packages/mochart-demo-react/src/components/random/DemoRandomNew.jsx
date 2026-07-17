@@ -132,7 +132,7 @@ class MochartDemoRandom extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { demoData, initialDemoId, randomId } = nextProps;
     if (initialDemoId !== 'demos' && initialDemoId !== this.props.initialDemoId) {
       const config = demoData.demoObjectMap[initialDemoId].config;
@@ -245,14 +245,14 @@ class RandomMochartDemoContent extends Component {
     this.state = { randomConfig: null, dataProvider: null, data: null, applyReuse: false };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { initialDemoId, initialRandomConfig } = this.props;
     if (initialDemoId !== 'demos') {
       this.updateDataProvider(this.props, initialRandomConfig);
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { initialDemoId, initialRandomConfig, mochartDemoConfig, randomId } = nextProps;
     if (initialDemoId !== this.props.initialDemoId || initialRandomConfig !== this.props.initialRandomConfig ||
       mochartDemoConfig !== this.props.mochartDemoConfig) {

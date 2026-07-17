@@ -13,7 +13,7 @@ export default class ErrorTab extends Component {
   }
 
   componentDidCatch(error, info) {
-    Raven.captureException(error, { extra: info });
+    console.error(error, info);
     this.setState( { hasError: true });
   }
 

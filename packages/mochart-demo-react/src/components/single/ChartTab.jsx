@@ -40,14 +40,14 @@ class MochartChartTab extends PureComponent {
     this.filteredSeriesIds = {};
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { config } = this.props;
     if (config) {
       this.setState({ mochartDemoConfig: buildMochartDemoConfig(config) });
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { config, data, dataError } = nextProps;
     const { config: oldConfig, data: oldData, dataError: oldDataError } = this.props;
     const { focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex, filteredSeriesIds } = this;
@@ -111,15 +111,11 @@ class MochartChartTab extends PureComponent {
     this.setState({ focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex });
   }
 
+  // The chart owns filter toggling now and reports the whole map.
   @autobind
-  onSeriesFilter(seriesId) {
-    if (this.filteredSeriesIds[seriesId] === true) {
-      delete this.filteredSeriesIds[seriesId];
-    }
-    else {
-      this.filteredSeriesIds[seriesId] = true;
-    }
-    this.setState({ filteredSeriesIds: { ...this.filteredSeriesIds } });
+  onSeriesFilter({ filteredSeriesIds }) {
+    this.filteredSeriesIds = { ...filteredSeriesIds };
+    this.setState({ filteredSeriesIds: this.filteredSeriesIds });
   }
 
   @autobind

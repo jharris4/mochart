@@ -5,13 +5,14 @@ import { ButtonToolbar, ButtonGroup, Form, FormGroup, Input } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 import sizer from 'react-sizer';
 
-import { hasConfigStructureChange, NONE, AnimatedChart, StaticChart, ArrayOfObjectsDataProvider } from 'mochart';
+import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'mochart';
+import { Chart } from 'mochart-react';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
-const SizerAnimatedChart = sizer({ widthProp: 'dontwantwidth' })(AnimatedChart);
-
-const SizerStaticChart = sizer({ widthProp: 'dontwantwidth' })(StaticChart);
+// Width comes from the parent as an explicit prop; the sizer only measures
+// the available height (the old code used the same widthProp trick).
+const SizerChart = sizer({ widthProp: 'dontwantwidth' })(Chart);
 
 const emptyGroupText = "Select Group(s)";
 
@@ -107,11 +108,11 @@ export default class EditableChart extends PureComponent {
     this.updateFilteredDataState({orderChanged, seriesIndex, groupValuesText}, filteredData, [], props);
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.initData(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { mochartDemoConfig, data, dataError, focusedGroupIndex, isActive } = nextProps;
     if (data !== this.props.data || dataError !== this.props.dataError ||
         (mochartDemoConfig !== this.props.mochartDemoConfig &&
@@ -125,6 +126,13 @@ export default class EditableChart extends PureComponent {
     if (isActive === false) {
       this.stopSequence();
     }
+  }
+
+  // mochart's ManagedChart reports focus with the new payload shape; adapt it
+  // to the { seriesAxisId, seriesId, groupIndex } shape this demo tracks.
+  @autobind
+  onChartFocus({ focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex }) {
+    this.onFocus({ seriesAxisId: focusedSeriesAxisId, seriesId: focusedSeriesId, groupIndex: focusedGroupIndex });
   }
 
   @autobind
@@ -731,7 +739,7 @@ export default class EditableChart extends PureComponent {
                   </ButtonToolbar>
                 </FormGroup>
                 <FormGroup>
-                  <Input plaintext style={{marginLeft: 5, marginRight: 5}}>{groupIndexText + groupIndex}</Input>
+                  <span className="form-control-plaintext" style={{marginLeft: 5, marginRight: 5}}>{groupIndexText + groupIndex}</span>
                 </FormGroup>
                 <FormGroup>
                   <ButtonToolbar>
@@ -754,7 +762,7 @@ export default class EditableChart extends PureComponent {
                   </ButtonToolbar>
                 </FormGroup>
                 <FormGroup>
-                  <Input plaintext style={{marginLeft: 5, marginRight: 5}}>{seriesIndexText + seriesIndex}</Input>
+                  <span className="form-control-plaintext" style={{marginLeft: 5, marginRight: 5}}>{seriesIndexText + seriesIndex}</span>
                 </FormGroup>
                 <FormGroup>
                   <ButtonToolbar>
@@ -788,22 +796,13 @@ export default class EditableChart extends PureComponent {
       }
     }
 
-    let chartContent = false;
+    // ManagedChart (behind mochart-react's Chart) picks animated vs static from
+    // the config and owns focus/filter state internally now.
     const { mochartConfig } = mochartDemoConfig;
-    if (!mochartDemoConfig.valid || mochartConfig.animationConfig.animate) {
-      chartContent = (
-        <SizerAnimatedChart width={width} mochartConfig={mochartConfig} dataProvider={dataProvider} filteredSeriesIds={filteredSeriesIds}
-                            style={null} focusedGroupIndex={filteredFocusedGroupIndex} focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId}
-                            onFocus={this.onFocus} onSeriesFilter={onSeriesFilter} onChartClick={this.onChartClick} chartCount={chartCount}/>
-      );
-    }
-    else {
-      chartContent = (
-        <SizerStaticChart width={width} mochartConfig={mochartConfig} dataProvider={dataProvider} filteredSeriesIds={filteredSeriesIds}
-                          style={null} focusedGroupIndex={filteredFocusedGroupIndex} focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId}
-                          onFocus={this.onFocus} onSeriesFilter={onSeriesFilter} onChartClick={this.onChartClick} chartCount={chartCount}/>
-      );
-    }
+    const chartContent = (
+      <SizerChart width={width} mochartConfig={mochartConfig} dataProvider={dataProvider}
+                  onFocus={this.onChartFocus} onSeriesFilter={onSeriesFilter} onChartClick={this.onChartClick}/>
+    );
 
     return (
       <div className="editable-mochart-chart">

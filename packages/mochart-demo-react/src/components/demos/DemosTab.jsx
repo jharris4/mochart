@@ -62,7 +62,7 @@ class MochartDemosTab extends Component {
         <div className="mochart-demo-modes-container">
           <Form inline>
             <FormGroup>
-              <Input plaintext>Demo Mode:&nbsp;</Input>
+              <span className="form-control-plaintext">Demo Mode:&nbsp;</span>
             </FormGroup>
             <FormGroup>
               <ButtonToolbar>
@@ -74,6 +74,12 @@ class MochartDemosTab extends Component {
                 </Button>
                 <Button disabled={isRandom} onClick={() => { this.onDemoModeChange('random', demoId) }} color={isRandom ? "primary" : void 0}>
                   <FontAwesome size="lg" name="random"/> Random
+                </Button>
+                <Button onClick={() => { this.onDemoModeChange('transition', demoId) }}>
+                  <FontAwesome size="lg" name="exchange"/> Transition
+                </Button>
+                <Button onClick={() => { this.onDemoModeChange('rotation', demoId) }}>
+                  <FontAwesome size="lg" name="repeat"/> Rotation
                 </Button>
               </ButtonToolbar>
             </FormGroup>

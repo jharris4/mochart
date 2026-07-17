@@ -5,7 +5,7 @@ import { Form, FormGroup, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 import sizer from 'react-sizer';
 
-import { ManagedChart } from 'mochart';
+import { Chart } from 'mochart-react';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
@@ -21,7 +21,7 @@ export default class MultiMochartChartsTab extends Component {
     this.state = { dataProviderIndex: 0 };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { mochartConfig, dataProviders } = nextProps;
     if (mochartConfig !== this.props.mochartConfig || dataProviders !== this.props.dataProviders) {
       this.setState({ dataProviderIndex: 0 });
@@ -90,4 +90,4 @@ export default class MultiMochartChartsTab extends Component {
   }
 }
 
-const SizerManagedChart = sizer()(ManagedChart);
+const SizerManagedChart = sizer()(Chart);

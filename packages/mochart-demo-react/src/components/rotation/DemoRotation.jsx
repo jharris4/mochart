@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import merge from 'lodash.merge';
 
-import { DefaultChart } from 'mochart';
+import { DefaultChart } from 'mochart-react';
 
 const minWidth = 400;
 
@@ -21,9 +21,9 @@ const data = [
 ];
 
 const baseConfig = {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "chartConfig": {
-    "margins": { "top": 10, "right": 10, "bottom": 10, "left": 10 }
+    "margin": { "top": 10, "right": 10, "bottom": 10, "left": 10 }
   },
   "plotConfig": {
     "inverted": false
@@ -154,7 +154,7 @@ export default class DemoRotation extends Component {
     this.onResize = this.onResize.bind(this);
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     window.onresize = () => {
       this.onResize();
     }

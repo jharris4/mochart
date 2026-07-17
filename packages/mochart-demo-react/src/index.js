@@ -1,5 +1,5 @@
-import DemoSingle from './components/DemoSingle';
-import DemoMulti from './components/DemoMulti';
+import DemoSingle from './components/single/DemoSingle';
+import DemoMulti from './components/multi/DemoMulti';
 
 export {
   DemoSingle,

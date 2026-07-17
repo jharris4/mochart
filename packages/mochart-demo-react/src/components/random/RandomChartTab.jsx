@@ -5,7 +5,7 @@ import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 import sizer from 'react-sizer';
 
-import { ManagedChart } from 'mochart';
+import { Chart } from 'mochart-react';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
@@ -28,7 +28,7 @@ export default class RandomMochartChartsTab extends Component {
     this.state = { playing: false, rate: defaultRate, rateText: '' + defaultRate };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { active } = nextProps;
     const { active: oldActive } = this.props;
     if (active !== oldActive) {
@@ -134,4 +134,4 @@ export default class RandomMochartChartsTab extends Component {
   }
 }
 
-const SizerManagedChart = sizer()(ManagedChart);
+const SizerManagedChart = sizer()(Chart);

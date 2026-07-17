@@ -56,7 +56,7 @@ class MochartConfigTab extends Component {
     this.state = { mochartDemoConfig: null, demoConfig: null, showDefaults: false, configText: null };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { config } = this.props;
     const mochartDemoConfig = buildMochartDemoConfig(config);
     const demoConfig = copyDemoConfig(mochartDemoConfig);
@@ -65,7 +65,7 @@ class MochartConfigTab extends Component {
     this.setState({ mochartDemoConfig, demoConfig, configText });
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { config } = nextProps;
     if (config !== this.props.config) {
       const mochartDemoConfig = buildMochartDemoConfig(config);

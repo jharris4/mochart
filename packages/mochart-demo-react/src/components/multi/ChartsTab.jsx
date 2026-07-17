@@ -5,7 +5,8 @@ import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 import sizer from 'react-sizer';
 
-import { AnimatedChart, ArrayOfObjectsDataProvider } from 'mochart';
+import { ArrayOfObjectsDataProvider } from 'mochart';
+import { Chart } from 'mochart-react';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 
@@ -79,7 +80,7 @@ export default class MultiMochartChartsTab extends Component {
     this.filteredSeriesIds = {};
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { demoObject } = this.props;
     const { chartRows, chartCols } = this.state;
     const mochartDemoConfig = buildMochartDemoConfig(demoObject.config);
@@ -92,7 +93,7 @@ export default class MultiMochartChartsTab extends Component {
     this.setState({mochartDemoConfig, mochartConfig, data, dataCount, dataProviders, focusedGroupIndices, currentDataCount});
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { active, demoObject } = nextProps;
     const { active: oldActive, demoObject: oldDemoObject } = this.props;
     const { chartRows, chartCols } = this.state;
@@ -223,8 +224,8 @@ export default class MultiMochartChartsTab extends Component {
 
   @autobind
   onChartFocus(chartIndex, focusData) {
-    const { seriesAxisId, seriesId } = focusData;
-    let { groupIndex } = focusData;
+    const { focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId } = focusData;
+    let groupIndex = focusData.focusedGroupIndex;
     const { mochartDemoConfig, data, dataProviders } = this.state;
     const { mochartConfig } = mochartDemoConfig;
     let { focusedGroupIndices } = this.state;
@@ -257,15 +258,11 @@ export default class MultiMochartChartsTab extends Component {
       focusedSeriesAxisId: this.focusedSeriesAxisId, focusedSeriesId: this.focusedSeriesId });
   }
 
+  // The chart owns filter toggling now and reports the whole map.
   @autobind
-  onSeriesFilter(seriesId) {
-    if (this.filteredSeriesIds[seriesId] === true) {
-      delete this.filteredSeriesIds[seriesId];
-    }
-    else {
-      this.filteredSeriesIds[seriesId] = true;
-    }
-    this.setState({ filteredSeriesIds: { ...this.filteredSeriesIds } });
+  onSeriesFilter({ filteredSeriesIds }) {
+    this.filteredSeriesIds = { ...filteredSeriesIds };
+    this.setState({ filteredSeriesIds: this.filteredSeriesIds });
   }
 
   render() {
@@ -325,9 +322,8 @@ class MultiMochartCharts extends Component {
       let chartIndex = i;
       charts.push(
         <div key={'chart-' + i} className="multi-mochart-chart">
-          <AnimatedChart mochartConfig={mochartConfig} dataProvider={dataProviders[i]} width={chartWidth} height={chartHeight}
-                         focusedGroupIndex={focusedGroupIndices[i]} focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId}
-                         filteredSeriesIds={filteredSeriesIds} onSeriesFilter={onSeriesFilter} onFocus={(fd) => onChartFocus(chartIndex,fd)}/>
+          <Chart mochartConfig={mochartConfig} dataProvider={dataProviders[i]} width={chartWidth} height={chartHeight}
+                 onSeriesFilter={onSeriesFilter} onFocus={(fd) => onChartFocus(chartIndex,fd)}/>
         </div>
       );
     }
@@ -406,7 +402,7 @@ class MultiMochartControls extends Component {
         <Form inline>
           <FormGroup>
             <Input disabled={playing} type="text" value={rowsText} maxLength="3" size="3" onChange={this.rowsChanged}/>
-            <Input plaintext>x</Input>
+            <span className="form-control-plaintext">x</span>
             <Input disabled={playing} type="text" value={colsText} maxLength="3" size="3" onChange={this.colsChanged}/>
           </FormGroup>
           <FormGroup>

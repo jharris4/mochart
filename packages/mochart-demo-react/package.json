@@ -1,0 +1,31 @@
+{
+  "name": "mochart-demo-react",
+  "version": "2.0.0",
+  "description": "React demo gallery for the mochart charting library",
+  "private": true,
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "autobind-decorator": "^2.4.0",
+    "bootstrap": "^5.3.3",
+    "font-awesome": "^4.7.0",
+    "lodash.merge": "^4.6.2",
+    "mochart": "^1.0.74",
+    "mochart-react": "^1.0.0",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "reactstrap": "^9.2.3",
+    "seedrandom": "^3.0.5",
+    "valide": "^1.0.10"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.25.9",
+    "@vitejs/plugin-react": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}

@@ -186,12 +186,12 @@ export default class RandomMochartConfigTab extends PureComponent {
     this.state = { configText: null };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { randomConfig } = this.props;
     this.setState({ configText: formatConfig(randomConfig) });
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { randomConfig } = nextProps;
     if (randomConfig !== this.props.randomConfig) {
       this.setState({ configText: formatConfig(randomConfig) });

@@ -42,7 +42,7 @@ class MochartDemoSingle extends Component {
     this.state = { activeKey: getActiveKeyForInitialDemoId(initialDemoId) };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { initialDemoId } = nextProps;
     if (initialDemoId !== this.props.initialDemoId) {
       this.setState({ activeKey: getActiveKeyForInitialDemoId(initialDemoId) });
@@ -129,7 +129,7 @@ class MochartDemoContent extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { demoData, initialDemoId, activeKey } = nextProps;
     if (initialDemoId !== this.props.initialDemoId) {
       const demoId = initialDemoId;

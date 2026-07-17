@@ -57,12 +57,12 @@ export default class MultiMochartChartsTab extends PureComponent {
     this.state = { configText: null };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { transitionConfig } = this.props;
     this.setState({ configText: formatConfig(transitionConfig) });
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { transitionConfig } = nextProps;
     if (transitionConfig !== this.props.transitionConfig) {
       this.setState({ configText: formatConfig(transitionConfig) });

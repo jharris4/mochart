@@ -42,7 +42,7 @@ class MochartDemoMulti extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { initialDemoId } = nextProps;
     if (initialDemoId !== this.props.initialDemoId) {
       this.setState({ activeKey: getActiveKeyForInitialDemoId(initialDemoId), demoId: initialDemoId });
