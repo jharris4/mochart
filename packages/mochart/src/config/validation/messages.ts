@@ -1,5 +1,5 @@
 import validators from './validators';
-import type { Validator } from 'valide';
+import type { Validator } from 'movalid';
 
 type ConfigObject = Record<string, unknown>;
 type ValidatorMap = Record<string, Validator>;

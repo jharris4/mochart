@@ -68,7 +68,7 @@ import getTooltipDefaults from './src/config/defaults/tooltipConfig';
 import getTooltipValidators from './src/config/validation/tooltipConfig';
 import getTooltipDescriptions from './src/config/docs/tooltipConfig';
 
-import validators from 'valide';
+import validators from 'movalid';
 
 import fs from 'fs';
 import path from 'path';

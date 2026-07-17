@@ -1,7 +1,7 @@
 <script>
   import { untrack } from 'svelte';
 
-  import validators from 'valide';
+  import validators from 'movalid';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';

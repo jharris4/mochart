@@ -2,7 +2,7 @@
 
 Monorepo for **mochart**, an animated interactive SVG charting library with
 zero framework dependencies, plus its framework wrappers, demo gallery, and
-the **valide** validation library it uses for config validation.
+the **movalid** validation library it uses for config validation.
 
 ## Packages
 
@@ -12,7 +12,7 @@ the **valide** validation library it uses for config validation.
 | [mochart-react](packages/mochart-react/README.md) | React components wrapping mochart. |
 | [mochart-svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
 | [mochart-demo](packages/mochart-demo/README.md) | Demo gallery app (private) — browse every chart config with live data controls. |
-| [valide](packages/valide/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
+| [movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
 There are also build-free static HTML examples in
 [packages/mochart/example](packages/mochart/example/README.md).

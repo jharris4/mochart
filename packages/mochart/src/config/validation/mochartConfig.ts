@@ -18,7 +18,7 @@ import seriesGroupValidators from './seriesGroupConfig';
 import seriesStackValidators from './seriesStackConfig';
 import titleValidators from './titleConfig';
 import tooltipValidators from './tooltipConfig';
-import type { Validator } from 'valide';
+import type { Validator } from 'movalid';
 import type { ConfigValidation } from '../../types/config';
 
 type ConfigRecord = Record<string, unknown>;

@@ -1,7 +1,7 @@
 {
   "name": "mochart-monorepo",
   "version": "1.0.0",
-  "description": "Monorepo for the mochart charting library, the valide validation library, and the mochart demo app",
+  "description": "Monorepo for the mochart charting library, the movalid validation library, and the mochart demo app",
   "private": true,
   "license": "BSD-3-Clause",
   "author": {
@@ -22,7 +22,7 @@
   "scripts": {
     "dev": "npm run dev -w mochart-demo",
     "build": "npm run build -w mochart-demo",
-    "build:libs": "npm run build -w valide && npm run build -w mochart && npm run build -w mochart-react && npm run build -w mochart-svelte",
+    "build:libs": "npm run build -w movalid && npm run build -w mochart && npm run build -w mochart-react && npm run build -w mochart-svelte",
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"

@@ -1,4 +1,4 @@
-# valide
+# movalid
 
 Simple yet powerful TypeScript validators with chainable extensions and
 human-readable error messages.
@@ -13,7 +13,7 @@ validation.
 ## Usage
 
 ```js
-import validators from 'valide';
+import validators from 'movalid';
 
 const isRenderer = validators.oneOf(['bar', 'line', 'area']).orEqual(undefined);
 
@@ -52,7 +52,7 @@ All are called as `validators.name(...args)`:
 The bare type predicates are also exported directly for convenience:
 
 ```js
-import { typeValidators, customTypeValidators } from 'valide';
+import { typeValidators, customTypeValidators } from 'movalid';
 typeValidators.string('hi'); // true
 ```
 
@@ -76,7 +76,7 @@ const size = validators.numberMin(0).orEqual('auto').withMessage('should be a si
 ## Development
 
 ```sh
-npm test -w valide
+npm test -w movalid
 ```
 
 ## License

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 // Library build: bundles mochart together with all of its dependencies
-// (d3-*, valide) into self-contained browser artifacts.
+// (d3-*, movalid) into self-contained browser artifacts.
 //   dist/mochart.js      — ES module, for <script type="module"> / bundlers
 //   dist/mochart.iife.js — classic script, exposes the global `mochart`
 export default defineConfig({

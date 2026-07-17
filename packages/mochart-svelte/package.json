@@ -35,7 +35,7 @@
     "dist"
   ],
   "dependencies": {
-    "mochart": "^1.0.74"
+    "mochart": "^1.0.0"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

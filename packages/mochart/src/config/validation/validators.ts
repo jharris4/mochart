@@ -1,4 +1,4 @@
-import validators from 'valide';
+import validators from 'movalid';
 import { NONE, MARGIN_KEYS, PADDING_KEYS } from '../core/constants';
 
 const dashArrayRegexp = /(\d+)(,\s*\d+)*/;
@@ -27,7 +27,7 @@ const style = () => validators.objectWithShape(styleKeyMap);
 const opacity = () => validators.numberMinMax(0, 1);
 const svgColor = () => svgColorValidator;
 
-// Object.assign (not object spread) so TypeScript keeps the keys of valide's
+// Object.assign (not object spread) so TypeScript keeps the keys of movalid's
 // mapped Validators type — spreading it into a literal collapses them.
 const configValidators = Object.assign({}, validators, {
   dashArray,

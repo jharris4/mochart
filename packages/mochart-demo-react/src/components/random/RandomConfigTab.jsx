@@ -4,7 +4,7 @@ import autobind from 'autobind-decorator';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import validators from 'valide';
+import validators from '../../../../movalid/dist/validators';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';

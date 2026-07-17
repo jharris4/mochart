@@ -1,7 +1,7 @@
 <script>
   import { untrack } from 'svelte';
 
-  import validators from 'valide';
+  import validators from 'movalid';
 
   import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

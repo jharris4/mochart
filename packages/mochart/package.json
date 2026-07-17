@@ -1,6 +1,6 @@
 {
   "name": "mochart",
-  "version": "1.0.74",
+  "version": "1.0.0",
   "description": "Animated interactive SVG charting library with zero framework dependencies",
   "keywords": [
     "chart",
@@ -40,7 +40,7 @@
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
     "d3-time-format": "^4.1.0",
-    "valide": "^1.0.10"
+    "movalid": "^1.0.0"
   },
   "scripts": {
     "build": "vite build && npm run build:types",

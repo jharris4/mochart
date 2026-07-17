@@ -17,7 +17,7 @@ and series filtering out of the box.
 - **Extras**: axis thresholds and ranges, linear/radial gradients, series
   markers and labels
 - **Config validation**: configs are validated with
-  [valide](../valide/README.md), producing human-readable error messages
+  [movalid](../movalid/README.md), producing human-readable error messages
 
 ## Install
 
