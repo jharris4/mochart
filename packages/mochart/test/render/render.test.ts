@@ -86,7 +86,6 @@ describe('TextEl', () => {
 interface LeafProps { label: string; calls?: string[] }
 
 class Leaf extends Renderer<LeafProps> {
-  static defaultProps = { label: 'default' };
   root = svgEl('text');
   text = textEl();
   syncCount = 0;
@@ -130,15 +129,15 @@ class Wrapper extends Renderer<{ label: string; calls: string[] }> {
 }
 
 describe('Renderer', () => {
-  it('mounts, applies defaultProps, and skips sync on shallow-equal props', () => {
+  it('mounts and skips sync on shallow-equal props', () => {
     const parent = host();
     const leaf = new Leaf();
-    leaf.mount(parent, null, {} as LeafProps);
+    leaf.mount(parent, null, { label: 'default' });
     expect(markup(parent)).toBe('<text class="leaf">default</text>');
     expect(leaf.syncCount).toBe(1);
 
-    leaf.update({ label: 'default' } as LeafProps);
-    expect(leaf.syncCount).toBe(1); // shallow-equal after defaults -> skipped
+    leaf.update({ label: 'default' });
+    expect(leaf.syncCount).toBe(1); // shallow-equal -> skipped
 
     leaf.update({ label: 'hi' });
     expect(leaf.syncCount).toBe(2);

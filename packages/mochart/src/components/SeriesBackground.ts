@@ -8,14 +8,9 @@ type ShapeRef = (element: Element | null) => void;
 interface SeriesBackgroundProps {
   seriesLayoutInfo: LayoutInfo;
   shapeRef?: ShapeRef | null;
-  chartTransform?: string | null;
 }
 
 export default class SeriesBackground extends Renderer<SeriesBackgroundProps> {
-  static defaultProps: Partial<SeriesBackgroundProps> = {
-    chartTransform: null
-  };
-
   root = svgEl('g');
   rect = svgEl('rect');
   lastShapeRef: ShapeRef | null = null;

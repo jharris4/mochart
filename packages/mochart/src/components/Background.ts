@@ -26,10 +26,6 @@ interface BackgroundProps {
 }
 
 export default class Background extends Renderer<BackgroundProps> {
-  static defaultProps: Partial<BackgroundProps> = {
-    configStyleKey: 'backgroundStyle'
-  };
-
   backgroundClick = () => {
     const { onClick } = this.props;
     if (onClick) {

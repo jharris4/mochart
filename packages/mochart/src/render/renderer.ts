@@ -9,36 +9,11 @@ export type StateUpdate<P, S> = Partial<S> | ((state: S, props: P) => Partial<S>
 
 export interface RendererClass<P extends object = any> {
   new (): Renderer<P, any>;
-  defaultProps?: Partial<P>;
 }
 
 interface ChildRegion {
   hostNode: Node;
   destroy(removeDom: boolean): void;
-}
-
-interface ConstructorWithDefaults<P extends object> {
-  defaultProps?: Partial<P>;
-}
-
-function withDefaults<P extends object>(ctor: ConstructorWithDefaults<P>, props: P): P {
-  const defaults = ctor.defaultProps;
-  if (!defaults) {
-    return props;
-  }
-  let out = props;
-  let outValues = props as unknown as Record<string, unknown>;
-  const defaultValues = defaults as unknown as Record<string, unknown>;
-  for (const name in defaults) {
-    if (outValues[name] === undefined) {
-      if (out === props) {
-        out = { ...props };
-        outValues = out as unknown as Record<string, unknown>;
-      }
-      outValues[name] = defaultValues[name];
-    }
-  }
-  return out;
 }
 
 /**
@@ -104,7 +79,7 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
       this.parentDom = parentDom;
       this.anchor = document.createComment('');
       parentDom.insertBefore(this.anchor, before);
-      this.props = withDefaults(this.constructor as ConstructorWithDefaults<P>, props);
+      this.props = props;
       if (this.derive) {
         const delta = this.derive(this.props, this.state, null);
         if (delta !== null && delta !== undefined) {
@@ -137,10 +112,9 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
     }
     beginWork();
     try {
-      const nextProps = withDefaults(this.constructor as ConstructorWithDefaults<P>, props);
       let nextState = this.state;
-      if (this.derive && nextProps !== this.props) {
-        const delta = this.derive(nextProps, this.state, this.props);
+      if (this.derive && props !== this.props) {
+        const delta = this.derive(props, this.state, this.props);
         if (delta !== null && delta !== undefined) {
           nextState = { ...this.state, ...delta };
         }
@@ -150,13 +124,13 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
 
       let skip: boolean;
       if (this.shouldSync) {
-        skip = this.shouldSync(nextProps, nextState) === false;
+        skip = this.shouldSync(props, nextState) === false;
       }
       else {
-        skip = shallowEqual(prevProps, nextProps) && shallowEqual(prevState, nextState);
+        skip = shallowEqual(prevProps, props) && shallowEqual(prevState, nextState);
       }
 
-      this.props = nextProps;
+      this.props = props;
       this.state = nextState;
 
       if (!skip) {

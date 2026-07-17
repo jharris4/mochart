@@ -32,12 +32,6 @@ interface AxisProps {
 }
 
 export default class Axis extends Renderer<AxisProps> {
-  static defaultProps: Partial<AxisProps> = {
-    onMouseEnter: null,
-    onMouseLeave: null,
-    onClick: null
-  };
-
   root = svgEl('g');
   inner = svgEl('g');
   backgroundSlot = this.slot(this.inner);

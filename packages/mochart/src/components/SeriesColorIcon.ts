@@ -36,10 +36,6 @@ interface SeriesColorIconProps {
 }
 
 export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
-  static defaultProps = {
-    visible: true
-  };
-
   span!: El;
   svg!: El;
   spacer!: El;
@@ -131,7 +127,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
   }
 
   syncColorDefs(gradientId: string): void {
-    const { seriesConfig, visible } = this.props;
+    const { seriesConfig, visible = true } = this.props;
 
     if (!visible) {
       this.defsSlot.set(null);
@@ -162,7 +158,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
   syncColorContent(showSeriesColor: boolean, gradientId: string, className: string | null | undefined): void {
     const {
       seriesContextConfig, seriesConfig, seriesIndex, colorPaletteConfig,
-      seriesIsSuppressed, focused, focusPercentage, visible
+      seriesIsSuppressed, focused, focusPercentage, visible = true
     } = this.props;
 
     if (!visible) {

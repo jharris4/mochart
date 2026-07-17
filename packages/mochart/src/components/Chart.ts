@@ -275,25 +275,9 @@ class ChartBody extends Renderer<ChartBodyProps> {
   }
 }
 
-export default class Chart extends Renderer<ChartProps, ChartState> {
-  static defaultProps = {
-    style: { position: 'relative' },
-    onSeriesLayoutInfoChange: (_bounds: Bounds) => {},
-    onFocus: (_focus: InternalFocus) => {},
-    onSeriesFilter: (_seriesId: string) => {},
-    onChartClick: (_payload: ChartEventPayload) => {},
-    onChartMouseEnter: (_payload: ChartEventPayload) => {},
-    onChartMouseMove: (_payload: ChartEventPayload) => {},
-    onChartMouseLeave: (_payload: ChartEventPayload) => {},
-    onTitleClick: () => {},
-    getLoadingComponent,
-    getErrorComponent,
-    getNoDataComponent,
-    getNoSizeComponent,
-    getNoSeriesComponent,
-    getConfigErrorComponent
-  };
+const defaultChartStyle = { position: 'relative' };
 
+export default class Chart extends Renderer<ChartProps, ChartState> {
   root = htmlEl('div');
   simpleContent = this.elSlot(this.root);
   body = this.slot(this.root);
@@ -824,7 +808,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   sync() {
     const {
-      mochartConfig, dataProvider, style, width, height, error: propsError, loading: propsLoading,
+      mochartConfig, dataProvider, style = defaultChartStyle, width, height, error: propsError, loading: propsLoading,
       getErrorComponent: errorFactory = getErrorComponent,
       getLoadingComponent: loadingFactory = getLoadingComponent,
       getNoSizeComponent: noSizeFactory = getNoSizeComponent,

@@ -183,11 +183,6 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
 }
 
 export default class TooltipContent extends Renderer<TooltipContentProps, TooltipContentState> {
-  static defaultProps = {
-    adjustForSuppression: true,
-    minWidth: null
-  };
-
   root = htmlEl('div');
   controlsContainer = htmlEl('div');
   controls = this.slot(this.controlsContainer);

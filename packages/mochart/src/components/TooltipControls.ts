@@ -19,10 +19,6 @@ interface TooltipControlsProps {
 const buttonWidth = 35;
 
 export default class TooltipControls extends Renderer<TooltipControlsProps> {
-  static defaultProps: Partial<TooltipControlsProps> = {
-    minWidth: null
-  };
-
   root = htmlEl('div');
   prevContainer = htmlEl('div');
   prevButton = htmlEl('button');
