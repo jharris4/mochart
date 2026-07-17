@@ -1,0 +1,191 @@
+import { describe, it, expect } from 'vitest';
+import { getSeriesText, getSuppressedValue } from '../../src/utils/TooltipFormat';
+import type { TooltipConfig, SeriesConfig } from '../../src/types/config';
+import type { ChartData, SeriesValueObject } from '../../src/types/data';
+
+// getSeriesText walks a "group series slice" shaped like the runtime's data
+// layer. Build small typed-loose fixtures rather than a full ChartData.
+type ValueObj = Record<string, number | null | undefined>;
+interface Slice {
+  axisBases: Record<string, number | null>;
+  raw: { values: Record<string, ValueObj>; domains: unknown };
+  filtered: { values: Record<string, ValueObj>; domains: unknown };
+}
+
+function makeTooltipConfig(over: Partial<TooltipConfig> = {}): TooltipConfig {
+  return {
+    suppressedValueText: null,
+    suppressedValueCharacter: null,
+    adjustForSuppression: false,
+    showMissingValues: false,
+    missingValueText: 'N/A',
+    rangeValueText: ' - ',
+    ...over
+  } as TooltipConfig;
+}
+
+function makeSeriesConfig(over: Partial<SeriesConfig> = {}): SeriesConfig {
+  return {
+    id: 's1',
+    rangeProperty: null,
+    markerProperty: null,
+    valueLabel: 'Val',
+    useTitleForValueLabel: false,
+    title: null,
+    seriesAxisConfig: { id: 'y' },
+    ...over
+  } as SeriesConfig;
+}
+
+function makeSlice(raw: ValueObj, filtered: ValueObj = raw, axisBases: Record<string, number | null> = { y: 0 }): Slice {
+  return {
+    axisBases,
+    raw: { values: { s1: raw }, domains: {} },
+    filtered: { values: { s1: filtered }, domains: {} }
+  };
+}
+
+const identity = (v: number | Date) => v as unknown as string;
+
+describe('getSeriesText', () => {
+  it('formats a plain value with its label', () => {
+    const { labelText, valueText } = getSeriesText(
+      makeTooltipConfig(), makeSeriesConfig(), identity, makeSlice({ plain: 42 }) as never, false
+    );
+    expect(labelText).toBe('Val: ');
+    expect(valueText).toBe('42');
+  });
+
+  it('joins a range value and plain value with the range separator', () => {
+    const { valueText } = getSeriesText(
+      makeTooltipConfig(),
+      makeSeriesConfig({ rangeProperty: 'hi' }),
+      identity,
+      makeSlice({ plain: 42, range: 10 }) as never,
+      false
+    );
+    expect(valueText).toBe('10 - 42');
+  });
+
+  it('shows a marker-only value in parentheses when there is no plain value', () => {
+    const { valueText } = getSeriesText(
+      makeTooltipConfig(),
+      makeSeriesConfig({ markerProperty: 'm' }),
+      identity,
+      makeSlice({ marker: 7 }) as never, // plain undefined
+      false
+    );
+    expect(valueText).toBe('(7)');
+  });
+
+  it('appends a marker value in parentheses after a plain value', () => {
+    const { valueText } = getSeriesText(
+      makeTooltipConfig(),
+      makeSeriesConfig({ markerProperty: 'm' }),
+      identity,
+      makeSlice({ plain: 42, marker: 7 }) as never,
+      false
+    );
+    expect(valueText).toBe('42 (7)');
+  });
+
+  it('is null when there is no value and missing values are hidden', () => {
+    const { valueText } = getSeriesText(
+      makeTooltipConfig({ showMissingValues: false }),
+      makeSeriesConfig(),
+      identity,
+      makeSlice({}) as never, // plain undefined
+      false
+    );
+    expect(valueText).toBe(null);
+  });
+
+  it('shows the missing-value text when the value is absent but missing values are shown', () => {
+    const { valueText } = getSeriesText(
+      makeTooltipConfig({ showMissingValues: true, missingValueText: '—' }),
+      makeSeriesConfig(),
+      identity,
+      makeSlice({}, { plain: 5 }) as never, // raw hole, filtered present
+      false
+    );
+    expect(valueText).toBe('—');
+  });
+
+  describe('suppression', () => {
+    it('uses the filtered value when the series is not suppressed', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ adjustForSuppression: true }),
+        makeSeriesConfig(),
+        identity,
+        makeSlice({ plain: 42 }, { plain: 30 }, { y: 0 }) as never,
+        true
+      );
+      expect(valueText).toBe('30');
+    });
+
+    it('substitutes suppressedValueText for a suppressed value', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ adjustForSuppression: true, suppressedValueText: '***' }),
+        makeSeriesConfig(),
+        identity,
+        makeSlice({ plain: 42 }, { plain: null }, { y: 99 }) as never, // filtered null => suppressed
+        true
+      );
+      expect(valueText).toBe('***');
+    });
+
+    it('repeats suppressedValueCharacter to mask the base value length', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ adjustForSuppression: true, suppressedValueCharacter: '#' }),
+        makeSeriesConfig(),
+        identity,
+        makeSlice({ plain: 42 }, { plain: null }, { y: 100 }) as never, // base "100" => 3 chars
+        true
+      );
+      expect(valueText).toBe('###');
+    });
+  });
+});
+
+describe('getSuppressedValue', () => {
+  const seriesConfig = makeSeriesConfig({ seriesAxisConfig: { id: 'y' } as SeriesConfig['seriesAxisConfig'] });
+
+  function makeChartData(over: Partial<{ base: number; groups: (unknown)[]; markerDomain: number[] }> = {}): ChartData {
+    const base = over.base ?? 5;
+    const groups = over.groups ?? ['a', 'b', undefined];
+    return {
+      seriesData: {
+        axisBases: { y: base },
+        raw: { domains: { s1: { marker: over.markerDomain ?? [3, 9] } } }
+      },
+      groupData: { values: { raw: groups } }
+    } as unknown as ChartData;
+  }
+
+  it('returns the original object unchanged when the plain value is not null', () => {
+    const valueObject = { plain: [1, 2, 3] } as unknown as SeriesValueObject;
+    expect(getSuppressedValue(makeChartData(), seriesConfig, valueObject)).toBe(valueObject);
+  });
+
+  it('fills plain values from the axis base, keeping group holes', () => {
+    const valueObject = { plain: null } as unknown as SeriesValueObject;
+    const out = getSuppressedValue(makeChartData({ base: 5 }), seriesConfig, valueObject);
+    expect(out.plain).toEqual([5, 5, undefined]);
+  });
+
+  it('mirrors plain into range when a range property is configured', () => {
+    const valueObject = { plain: null, range: null } as unknown as SeriesValueObject;
+    const out = getSuppressedValue(makeChartData({ base: 5 }), makeSeriesConfig({ rangeProperty: 'hi' }), valueObject);
+    expect(out.range).toEqual(out.plain);
+  });
+
+  it('fills marker values from the marker domain minimum', () => {
+    const valueObject = { plain: null, marker: null } as unknown as SeriesValueObject;
+    const out = getSuppressedValue(
+      makeChartData({ base: 5, markerDomain: [3, 9] }),
+      makeSeriesConfig({ markerProperty: 'm' }),
+      valueObject
+    );
+    expect(out.marker).toEqual([3, 3, undefined]);
+  });
+});

@@ -105,6 +105,67 @@ describe('getDataErrors', () => {
     ]);
   });
 
+  it('accepts date group values on a date axis', () => {
+    const config = makeConfig({
+      groupAxisConfig: { property: 'd', type: 'date', scale: 'linear' },
+      seriesConfigs: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { d: '2020-01-01', y: 5 },
+        { d: '2020-02-01', y: 6 }
+      ],
+      'd'
+    );
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('flags non-date group values on a date axis', () => {
+    const config = makeConfig({
+      groupAxisConfig: { property: 'd', type: 'date', scale: 'linear' },
+      seriesConfigs: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { d: '2020-01-01', y: 5 },
+        { d: 'not-a-date', y: 6 }
+      ],
+      'd'
+    );
+    expect(getDataErrors(config, provider)).toEqual(['group values must all match the specified type']);
+  });
+
+  it('validates the display property values against the axis type', () => {
+    const config = makeConfig({
+      groupAxisConfig: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      seriesConfigs: [{ property: 'y' }]
+    });
+    // raw group ids are numbers (valid), but one display label is not a string
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { id: 1, label: 'Jan', y: 5 },
+        { id: 2, label: 99, y: 6 }
+      ],
+      'id'
+    );
+    expect(getDataErrors(config, provider)).toEqual(['display group values must all match the specified type']);
+  });
+
+  it('accepts valid display property values', () => {
+    const config = makeConfig({
+      groupAxisConfig: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      seriesConfigs: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { id: 1, label: 'Jan', y: 5 },
+        { id: 2, label: 'Feb', y: 6 }
+      ],
+      'id'
+    );
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
   it('returns no errors for an invalid (errored) data provider', () => {
     const config = stringConfig();
     const errored = {
