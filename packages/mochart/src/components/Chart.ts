@@ -838,8 +838,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       return;
     }
 
-    const error = propsError ? propsError : !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : false;
-    const loading = Boolean(propsLoading ? propsLoading : dataProvider.getLoading?.());
+    const error = propsError ? propsError : dataProvider && !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : false;
+    const loading = Boolean(propsLoading ? propsLoading : dataProvider && dataProvider.getLoading?.());
 
     if (!mochartConfig) {
       if (error) {
