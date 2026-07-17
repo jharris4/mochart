@@ -1,9 +1,16 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import type { AxisConfigBase } from '../types/config';
+import type { AxisLayoutInfo } from '../types/layout';
 
-export default class AxisThresholdRange extends Renderer {
+interface AxisThresholdRangeProps {
+  axisConfig: AxisConfigBase;
+  axisLayoutInfo: AxisLayoutInfo;
+  focusPercentages: number[];
+}
+
+export default class AxisThresholdRange extends Renderer<AxisThresholdRangeProps> {
   root = svgEl('g');
   range = this.elSlot(this.root);
 
@@ -47,7 +54,7 @@ export default class AxisThresholdRange extends Renderer {
             width = (focusPercentageMax - focusPercentageMin) * width;
           }
         }
-        this.range.set('rect', () => svgEl('rect')).set({ x, y, width, height,
+        this.range.set('rect', () => svgEl('rect'))!.set({ x, y, width, height,
           stroke: focusRangeStrokeColor, strokeOpacity: focusRangeStrokeOpacity,
           fill: focusRangeFillColor, fillOpacity: focusRangeFillOpacity,
           strokeWidth: focusRangeStrokeWidth, strokeDasharray: focusRangeDashArray });

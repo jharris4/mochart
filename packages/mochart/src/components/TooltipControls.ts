@@ -1,12 +1,26 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, htmlEl, textEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import type { MochartConfig } from '../types/config';
+
+interface InternalFocus { groupIndex?: number | null }
+
+interface TooltipControlsProps {
+  mochartConfig: MochartConfig;
+  groupCount: number;
+  focusedGroupIndex: number;
+  tooltipGroupIndex: number;
+  onFocus: (focus: InternalFocus) => void;
+  updateTooltipGroupIndex: (groupIndex: number) => void;
+  toggleMode: () => void;
+  mode: string;
+  minWidth?: number | null;
+}
 
 const buttonWidth = 35;
 
-export default class TooltipControls extends Renderer {
-  static defaultProps = {
+export default class TooltipControls extends Renderer<TooltipControlsProps> {
+  static defaultProps: Partial<TooltipControlsProps> = {
     minWidth: null
   };
 
@@ -19,7 +33,7 @@ export default class TooltipControls extends Renderer {
   nextContainer = htmlEl('div');
   nextButton = htmlEl('button');
 
-  onGroupPrevClick = (event) => {
+  onGroupPrevClick = (event: Event) => {
     const { mochartConfig, tooltipGroupIndex, onFocus, updateTooltipGroupIndex } = this.props;
     event.stopPropagation();
     if (tooltipGroupIndex > 0) {
@@ -31,7 +45,7 @@ export default class TooltipControls extends Renderer {
     }
   }
 
-  onGroupNextClick = (event) => {
+  onGroupNextClick = (event: Event) => {
     const { mochartConfig, groupCount, tooltipGroupIndex, onFocus, updateTooltipGroupIndex } = this.props;
     event.stopPropagation();
     if (tooltipGroupIndex >= 0 && tooltipGroupIndex < groupCount - 1) {
@@ -43,7 +57,7 @@ export default class TooltipControls extends Renderer {
     }
   }
 
-  onTooltipModeClick = (event) => {
+  onTooltipModeClick = (event: Event) => {
     event.stopPropagation();
     const { toggleMode } = this.props;
     toggleMode();
@@ -64,12 +78,12 @@ export default class TooltipControls extends Renderer {
     const { mochartConfig, minWidth, mode } = this.props;
     if (mochartConfig.tooltipConfig.showControls) {
       let modeWidth = 'calc(100% - ' + (buttonWidth * 2) + 'px)';
-      let controlsStyle = {
+      let controlsStyle: Record<string, string | number> = {
         float: 'left',
         clear: 'both',
         width: '100%'
       };
-      if (minWidth !== null) {
+      if (minWidth != null) {
         controlsStyle.width = minWidth;
         controlsStyle.minWidth = minWidth;
       }

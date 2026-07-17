@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl, textEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -8,12 +7,29 @@ import { getClipPathReference } from '../utils/svgUtils';
 import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
 import { NONE } from '../config/core/constants';
 import Background from './Background';
+import type { AxisConfigBase, SeriesAxisConfig } from '../types/config';
+import type { AxisLayoutInfo } from '../types/layout';
+import type { FocusPercentage } from '../types/animation';
+import type { TruncationDataValue } from '../utils/TextTruncation';
 
-export default class AxisTitle extends Renderer {
+type AxisTitleConfig = AxisConfigBase & Partial<Pick<SeriesAxisConfig, 'useSeriesFocus'>>;
+
+interface AxisTitleProps {
+  axisConfig: AxisTitleConfig;
+  axisLayoutInfo: AxisLayoutInfo;
+  titleClipPathUniqueId: string;
+  axisFocusPercentage: FocusPercentage;
+  seriesFocusPercentage: FocusPercentage;
+}
+interface AxisTitleState { truncationData: TruncationDataValue }
+
+export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> {
   root = svgEl('g');
   background = this.slot(this.root);
   text = svgEl('text');
   textValue = textEl();
+  truncationData: TruncationDataValue = null;
+  checkTruncation = false;
 
   constructor() {
     super();
@@ -26,7 +42,7 @@ export default class AxisTitle extends Renderer {
     this.checkTruncation = this.props.axisConfig.titleTruncationEnabled;
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: AxisTitleProps): void {
     const { axisConfig, axisLayoutInfo } = nextProps;
     const truncationEnabled = axisConfig.title !== NONE && axisConfig.titleTruncationEnabled;
     const truncationChanged = truncationEnabled && layoutInfoExtentChanged(this.props.axisLayoutInfo, axisLayoutInfo);
@@ -53,7 +69,7 @@ export default class AxisTitle extends Renderer {
     if (axisConfig.title !== NONE) {
       const { axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { truncationData } = this.state;
-      const title = getTruncatedText(axisConfig.titleTruncationEnabled, axisConfig.titleTruncationValue, axisConfig.title, truncationData);
+      const title = getTruncatedText(axisConfig.titleTruncationEnabled, axisConfig.titleTruncationValue, axisConfig.title!, truncationData);
 
       const titleTextDY = '0.35em'; // more or less centers the text vertically http://stackoverflow.com/questions/12250403/vertical-alignment-of-text-element-in-svg
       const titleTextAnchor = 'middle';
@@ -62,13 +78,14 @@ export default class AxisTitle extends Renderer {
 
       const clipPath = axisConfig.titleTruncationEnabled ? getClipPathReference(titleClipPathUniqueId) : null;
 
-      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const useSeriesFocus = axisConfig.useSeriesFocus ?? false;
+      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
         axisConfig.titleStrokeColor, axisConfig.titleFocusedStrokeColor, axisConfig.titleDefocusedStrokeColor);
-      const fill = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const fill = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
         axisConfig.titleFillColor, axisConfig.titleFocusedFillColor, axisConfig.titleDefocusedFillColor);
-      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
         axisConfig.titleStrokeOpacity, axisConfig.titleFocusedStrokeOpacity, axisConfig.titleDefocusedStrokeOpacity);
-      const fillOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const fillOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
         axisConfig.titleFillOpacity, axisConfig.titleFocusedFillOpacity, axisConfig.titleDefocusedFillOpacity);
 
       this.setPresent(true);
@@ -86,11 +103,11 @@ export default class AxisTitle extends Renderer {
 
   didUpdate() {
     if (this.checkTruncation && this.present) {
-      const domElement = this.root.node.querySelector(getAxisTitleCssSelector());
+      const domElement = this.root.node.querySelector<SVGTextContentElement>(getAxisTitleCssSelector());
       const { axisConfig, axisLayoutInfo } = this.props;
       let maxLength = axisLayoutInfo.vertical ? axisLayoutInfo.height : axisLayoutInfo.width;
       const { title, titleTruncationValue } = axisConfig;
-      const { checkTruncation, truncationData } = updateTruncation(titleTruncationValue, this.state.truncationData, title, maxLength, domElement);
+      const { checkTruncation, truncationData } = updateTruncation(titleTruncationValue, this.state.truncationData, title!, maxLength, domElement);
       if (checkTruncation) {
         this.setState({ truncationData });
         this.truncationData = truncationData;

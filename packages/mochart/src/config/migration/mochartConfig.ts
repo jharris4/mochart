@@ -1,8 +1,14 @@
 import { CONFIG_VERSION } from '../core/constants';
 
-export default function migrateConfig(config) {
+type LegacyConfig = Record<string, unknown>;
+
+function isRecord(value: unknown): value is LegacyConfig {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+export default function migrateConfig(config: LegacyConfig): LegacyConfig {
   const { version } = config;
-  const migrationSteps = [];
+  const migrationSteps: Array<(config: LegacyConfig) => LegacyConfig> = [];
   switch(version) {
     case '1.0': // Handle the fact that initial version was not proper semver :-(
     case '1.0.0':
@@ -20,13 +26,14 @@ export default function migrateConfig(config) {
   return migratedConfig;
 }
 
-export function migrateConfig_1_0_0_TO_1_0_1(config) {
+export function migrateConfig_1_0_0_TO_1_0_1(config: LegacyConfig): LegacyConfig {
   const version = CONFIG_VERSION;
   const { version: oldVersion, seriesConfigs: oldSeriesConfigs, ...otherProps } = config;
 
   let seriesConfigs = oldSeriesConfigs;
   if (oldSeriesConfigs !== void 0 && Array.isArray(oldSeriesConfigs)) {
-    seriesConfigs = oldSeriesConfigs.map(seriesConfig => {
+    seriesConfigs = oldSeriesConfigs.map(item => {
+      let seriesConfig = isRecord(item) ? item : {};
       const { color, ...otherSettings } = seriesConfig;
       if (color !== void 0) {
         const strokeColor = color;
@@ -35,39 +42,35 @@ export function migrateConfig_1_0_0_TO_1_0_1(config) {
       }
       return seriesConfig;
     });
-    for (let seriesConfig of seriesConfigs) {
-      const { color, ...otherSettings } = seriesConfig;
-      if (color !== void 0) {
-        seriesConfig = { ...otherSettings, }
-      }
-    }
   }
   return { ...otherProps, version, seriesConfigs };
 }
 
-export function migrateConfig_1_0_1_TO_1_0_2(config) {
+export function migrateConfig_1_0_1_TO_1_0_2(config: LegacyConfig): LegacyConfig {
   const version = CONFIG_VERSION;
   const { version: oldVersion, animationConfig: oldAnimationConfig, ...otherProps } = config;
   let animationConfig = oldAnimationConfig;
-  if (animationConfig !== void 0 && animationConfig.valueChangeDuration !== void 0) {
-    animationConfig = { ...oldAnimationConfig, initialDuration: animationConfig.valueChangeDuration };
+  if (isRecord(animationConfig) && animationConfig.valueChangeDuration !== void 0) {
+    animationConfig = { ...animationConfig, initialDuration: animationConfig.valueChangeDuration };
   }
   return { ...otherProps, version, ...(animationConfig ? { animationConfig } : {}) };
 }
 
-export function migrateConfig_1_0_2_TO_1_0_3(config) {
+export function migrateConfig_1_0_2_TO_1_0_3(config: LegacyConfig): LegacyConfig {
   const version = CONFIG_VERSION;
   const { version: oldVersion, groupAxisConfig: oldGroupAxisConfig, seriesAxisConfigs: oldSeriesAxisConfigs, ...otherProps } = config;
-  let groupAxisConfig = oldGroupAxisConfig;
-  if (groupAxisConfig !== void 0 && groupAxisConfig.focusedTickMarks !== void 0) {
-    groupAxisConfig = { ...groupAxisConfig, focusTickMarks: groupAxisConfig.focusedTickMarks };
-    delete groupAxisConfig.focusedTickMarks;
+  let groupAxisConfig: unknown = oldGroupAxisConfig;
+  if (isRecord(groupAxisConfig) && groupAxisConfig.focusedTickMarks !== void 0) {
+    const { focusedTickMarks, ...remainingGroupAxisConfig } = groupAxisConfig;
+    const migratedGroupAxisConfig = { ...remainingGroupAxisConfig, focusTickMarks: focusedTickMarks };
+    groupAxisConfig = migratedGroupAxisConfig;
   }
   let seriesAxisConfigs = oldSeriesAxisConfigs;
   if (seriesAxisConfigs !== void 0) {
     if (Array.isArray(seriesAxisConfigs)) {
-      if (seriesAxisConfigs.some(axisConfig => axisConfig.focusedTickMarks !== void 0)) {
-        seriesAxisConfigs = seriesAxisConfigs.map(axisConfig => {
+      if (seriesAxisConfigs.some(axisConfig => isRecord(axisConfig) && axisConfig.focusedTickMarks !== void 0)) {
+        seriesAxisConfigs = seriesAxisConfigs.map(item => {
+          let axisConfig = isRecord(item) ? item : {};
           if (axisConfig.focusedTickMarks !== void 0) {
             axisConfig = { ...axisConfig, focusTickMarks: axisConfig.focusedTickMarks };
             delete axisConfig.focusedTickMarks;
@@ -77,9 +80,10 @@ export function migrateConfig_1_0_2_TO_1_0_3(config) {
       }
     }
     else {
-      if (seriesAxisConfigs.focusedTickMarks !== void 0) {
-        seriesAxisConfigs = { ...seriesAxisConfigs, focusTickMarks: seriesAxisConfigs.focusedTickMarks };
-        delete seriesAxisConfigs.focusedTickMarks;
+      if (isRecord(seriesAxisConfigs) && seriesAxisConfigs.focusedTickMarks !== void 0) {
+        const { focusedTickMarks, ...remainingSeriesAxisConfig } = seriesAxisConfigs;
+        const migratedSeriesAxisConfigs = { ...remainingSeriesAxisConfig, focusTickMarks: focusedTickMarks };
+        seriesAxisConfigs = migratedSeriesAxisConfigs;
       }
     }
   }

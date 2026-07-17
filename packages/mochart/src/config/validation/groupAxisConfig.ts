@@ -3,6 +3,9 @@ import validators from './validators';
 import { AUTO, NONE, SCALE_ORDINAL, SCALE_LINEAR, TYPE_STRING, TYPE_NUMBER, TYPE_DATE } from '../core/constants';
 
 import getAxisValidators from './axisConfig';
+import type { GroupAxisConfig } from '../../types/config';
+
+type GroupAxisCondition = Pick<GroupAxisConfig, 'type' | 'scale'>;
 
 const typeStringSuffix = 'when type is ' + TYPE_STRING;
 const typeDateSuffix = 'when type is ' + TYPE_DATE;
@@ -12,16 +15,16 @@ const scaleLinearSuffix = 'when scale is ' + SCALE_LINEAR;
 const linearDateSuffix = 'when scale is ' + SCALE_LINEAR + ' and type is ' + TYPE_DATE;
 const linearNumberSuffix = 'when scale is ' + SCALE_LINEAR + ' and type is ' + TYPE_NUMBER;
 
-const typeStringRule = { condition: ({ type }) => type === TYPE_STRING, suffix: typeStringSuffix };
-const typeDateRule = { condition: ({ type }) => type === TYPE_DATE, suffix: typeDateSuffix };
-const typeNumberRule = { condition: ({ type }) => type === TYPE_NUMBER, suffix: typeNumberSuffix };
-const scaleOrdinalRule = { condition: ({ scale }) => scale === SCALE_ORDINAL, suffix: scaleOrdinalSuffix };
-const scaleLinearRule = { condition: ({ scale }) => scale === SCALE_LINEAR, suffix: scaleLinearSuffix };
-const linearDateRule = { condition: ({ scale, type }) => scale === SCALE_LINEAR && type === TYPE_DATE, suffix: linearDateSuffix };
-const linearNumberRule = { condition: ({ scale, type }) => scale === SCALE_LINEAR && type === TYPE_NUMBER, suffix: linearNumberSuffix };
+const typeStringRule = { condition: ({ type }: GroupAxisCondition) => type === TYPE_STRING, suffix: typeStringSuffix };
+const typeDateRule = { condition: ({ type }: GroupAxisCondition) => type === TYPE_DATE, suffix: typeDateSuffix };
+const typeNumberRule = { condition: ({ type }: GroupAxisCondition) => type === TYPE_NUMBER, suffix: typeNumberSuffix };
+const scaleOrdinalRule = { condition: ({ scale }: GroupAxisCondition) => scale === SCALE_ORDINAL, suffix: scaleOrdinalSuffix };
+const scaleLinearRule = { condition: ({ scale }: GroupAxisCondition) => scale === SCALE_LINEAR, suffix: scaleLinearSuffix };
+const linearDateRule = { condition: ({ scale, type }: GroupAxisCondition) => scale === SCALE_LINEAR && type === TYPE_DATE, suffix: linearDateSuffix };
+const linearNumberRule = { condition: ({ scale, type }: GroupAxisCondition) => scale === SCALE_LINEAR && type === TYPE_NUMBER, suffix: linearNumberSuffix };
 const defaultRule = { condition: () => true };
 
-export default function getValidators(config) {
+export default function getValidators(config: Partial<GroupAxisConfig>) {
   return {
     ...getAxisValidators(),
 

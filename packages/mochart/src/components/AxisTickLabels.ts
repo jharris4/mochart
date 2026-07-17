@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl, textEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -9,10 +8,35 @@ import { translate } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
 import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
 import Background from './Background';
+import type { El, TextEl } from '../render';
+import type { AxisConfigBase, GroupAxisConfig, SeriesAxisConfig } from '../types/config';
+import type { AxisTick } from '../types/data';
+import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
+import type { FocusPercentage } from '../types/animation';
+import type { TruncationDataValue } from '../utils/TextTruncation';
 
-const emptyArray = [];
+const emptyArray: string[] = [];
 
-function getTruncationChanged(sizeChanged, ticksChanged, oldProps, newProps) {
+type AxisDisplayConfig = AxisConfigBase &
+  Pick<GroupAxisConfig, 'scale'> &
+  Partial<Pick<GroupAxisConfig, 'tickLabelTruncationEnabled' | 'tickLabelTruncationValue' | 'tickLabelTruncationMinLength' | 'tickLabelTruncationMaxPercent'>> &
+  Partial<Pick<SeriesAxisConfig, 'useSeriesFocus'>>;
+
+interface AxisTickLabelsProps {
+  axisConfig: AxisDisplayConfig;
+  axisLayoutInfo: AxisLayoutInfo;
+  plotLayoutInfo: SpacingLayoutInfo;
+  axisTicks: AxisTick[];
+  tickSpacing: number | null;
+  tickLabelClipPathUniqueId?: string;
+  axisFocusPercentage: FocusPercentage;
+  seriesFocusPercentage: FocusPercentage;
+}
+interface AxisTickLabelsState { truncationData: TruncationDataValue }
+type SizeLabelEl = El & { textHandle: El; valueHandle: TextEl };
+interface TickLabelHandle { root: El; text: El; value: TextEl }
+
+function getTruncationChanged(sizeChanged: boolean, ticksChanged: boolean, oldProps: AxisTickLabelsProps, newProps: AxisTickLabelsProps): boolean {
   if (sizeChanged) {
     return true;
   }
@@ -36,12 +60,14 @@ function getTruncationChanged(sizeChanged, ticksChanged, oldProps, newProps) {
   }
 }
 
-export default class AxisTickLabels extends Renderer {
+export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTickLabelsState> {
   root = svgEl('g');
   background = this.slot(this.root);
   tickLabelsGroup = svgEl('g');
-  tickLabels = this.elList(this.tickLabelsGroup);
+  tickLabels = this.elList<AxisTick, TickLabelHandle>(this.tickLabelsGroup);
   sizeTickLabel = this.elSlot(this.tickLabelsGroup);
+  truncationData: TruncationDataValue = null;
+  checkTruncation = false;
 
   constructor() {
     super();
@@ -51,13 +77,13 @@ export default class AxisTickLabels extends Renderer {
   }
 
   willMount() {
-    this.checkTruncation = this.props.axisConfig.tickLabelTruncationEnabled;
+    this.checkTruncation = this.props.axisConfig.tickLabelTruncationEnabled ?? false;
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: AxisTickLabelsProps): void {
     const { axisConfig, axisLayoutInfo, plotLayoutInfo, axisTicks, tickSpacing } = nextProps;
 
-    const truncationEnabled = axisConfig.tickLabelTruncationEnabled;
+    const truncationEnabled = axisConfig.tickLabelTruncationEnabled ?? false;
     let truncationChanged = false;
     let integrityChanged = true;
     if (truncationEnabled) {
@@ -69,7 +95,7 @@ export default class AxisTickLabels extends Renderer {
       const ticksChanged = axisTicks !== this.props.axisTicks;
       truncationChanged = getTruncationChanged(sizeChanged, ticksChanged, this.props, nextProps);
       const axisTickCount = axisTicks !== null ? axisTicks.length : 0;
-      integrityChanged = this.truncationData !== null && axisTickCount === this.truncationData.length;
+      integrityChanged = Array.isArray(this.truncationData) && axisTickCount === this.truncationData.length;
     }
     const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData, integrityChanged);
 
@@ -104,17 +130,20 @@ export default class AxisTickLabels extends Renderer {
 
     const tickRotationTransform = tickLabelRotation === 0 ? null : 'rotate(' + tickLabelRotation + ')';
 
-    let tickLabels = getTruncatedText(axisConfig.tickLabelTruncationEnabled, axisConfig.tickLabelTruncationValue, axisTicks.map(tick => tick.label), truncationData);
+    const truncationEnabled = axisConfig.tickLabelTruncationEnabled ?? false;
+    const truncationValue = axisConfig.tickLabelTruncationValue ?? '';
+    const useSeriesFocus = axisConfig.useSeriesFocus ?? false;
+    let tickLabels = getTruncatedText(truncationEnabled, truncationValue, axisTicks.map(tick => String(tick.label)), truncationData);
 
-    const clipPath = axisConfig.tickLabelTruncationEnabled ? getClipPathReference(tickLabelClipPathUniqueId) : null;
+    const clipPath = truncationEnabled && tickLabelClipPathUniqueId ? getClipPathReference(tickLabelClipPathUniqueId) : null;
 
-    const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+    const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
       axisConfig.tickLabelStrokeColor, axisConfig.tickLabelFocusedStrokeColor, axisConfig.tickLabelDefocusedStrokeColor);
-    const fill = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+    const fill = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
       axisConfig.tickLabelFillColor, axisConfig.tickLabelFocusedFillColor, axisConfig.tickLabelDefocusedFillColor);
-    const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+    const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
       axisConfig.tickLabelStrokeOpacity, axisConfig.tickLabelFocusedStrokeOpacity, axisConfig.tickLabelDefocusedStrokeOpacity);
-    const fillOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+    const fillOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
       axisConfig.tickLabelFillOpacity, axisConfig.tickLabelFocusedFillOpacity, axisConfig.tickLabelDefocusedFillOpacity);
 
     this.root.set({ className: mochartCssClasses['axisTickLabels'] });
@@ -145,9 +174,9 @@ export default class AxisTickLabels extends Renderer {
       }
     });
 
-    if (axisConfig.scale === SCALE_ORDINAL && axisConfig.tickLabelTruncationEnabled) {
+    if (axisConfig.scale === SCALE_ORDINAL && truncationEnabled) {
       const sizeLabel = this.sizeTickLabel.set('size-label', () => {
-        const group = svgEl('g');
+        const group = svgEl('g') as SizeLabelEl;
         const text = svgEl('text');
         const value = textEl();
         text.append(value);
@@ -156,9 +185,10 @@ export default class AxisTickLabels extends Renderer {
         group.valueHandle = value;
         return group;
       });
-      sizeLabel.set({ className: mochartCssClasses['axisSizeTickLabel'] });
-      sizeLabel.textHandle.set({ style: hiddenStyle });
-      sizeLabel.valueHandle.set('W' + axisConfig.tickLabelTruncationValue);
+      const typedSizeLabel = sizeLabel as SizeLabelEl;
+      typedSizeLabel.set({ className: mochartCssClasses['axisSizeTickLabel'] });
+      typedSizeLabel.textHandle.set({ style: hiddenStyle });
+      typedSizeLabel.valueHandle.set('W' + truncationValue);
     }
     else {
       this.sizeTickLabel.set(null);
@@ -167,19 +197,19 @@ export default class AxisTickLabels extends Renderer {
 
   didUpdate() {
     if (this.checkTruncation) {
-      const domElements = this.tickLabelsGroup.node.querySelectorAll(getAxisTickLabelsCssSelector());
+      const domElements = this.tickLabelsGroup.node.querySelectorAll<SVGTextContentElement>(getAxisTickLabelsCssSelector());
 
       const { axisLayoutInfo, tickSpacing, axisConfig, plotLayoutInfo, axisTicks } = this.props;
       const { vertical } = axisLayoutInfo;
-      const { tickLabelTruncationValue } = axisConfig;
+      const tickLabelTruncationValue = axisConfig.tickLabelTruncationValue ?? '';
       let axisTickLabels = emptyArray; // optimization for when tick labels are not needed...
       if (this.state.truncationData === null) {
-        axisTickLabels = axisTicks.map(tick => tick.label);
+        axisTickLabels = axisTicks.map(tick => String(tick.label));
       }
-      let maxLength = tickSpacing;
+      let maxLength = tickSpacing ?? 0;
       if (!axisLayoutInfo.tickLabelParallel) {
-        maxLength = Math.max(axisConfig.tickLabelTruncationMinLength,
-          axisConfig.tickLabelTruncationMaxPercent * (vertical ? plotLayoutInfo.width : plotLayoutInfo.height));
+        maxLength = Math.max(axisConfig.tickLabelTruncationMinLength ?? 0,
+          (axisConfig.tickLabelTruncationMaxPercent ?? 0) * (vertical ? plotLayoutInfo.width : plotLayoutInfo.height));
       }
 
       const { checkTruncation, truncationData } = updateTruncation(tickLabelTruncationValue, this.state.truncationData, axisTickLabels, maxLength, domElements);

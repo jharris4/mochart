@@ -1,9 +1,17 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { NONE } from '../config/core/constants';
+import type { AxisConfigBase } from '../types/config';
+import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
 
-export default class AxisTitleClip extends Renderer {
+interface AxisTitleClipProps {
+  axisConfig: AxisConfigBase;
+  chartContentLayoutInfo: SpacingLayoutInfo;
+  axisLayoutInfo: AxisLayoutInfo;
+  axisTitleClipPathUniqueId: string;
+}
+
+export default class AxisTitleClip extends Renderer<AxisTitleClipProps> {
   root = svgEl('clipPath');
   rect = svgEl('rect');
 

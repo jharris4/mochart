@@ -1,12 +1,23 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate } from '../utils/utils';
 import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
 import { NONE } from '../config/core/constants';
+import type { PlotConfig, SeriesAxisConfig } from '../types/config';
+import type { LayoutInfo } from '../types/layout';
 
-export default class AxisBaseLine extends Renderer {
+interface AxisBaseLineProps {
+  seriesAxisConfig: SeriesAxisConfig;
+  basePercentage: number;
+  axisBaseLineClass: string;
+  plotConfig: PlotConfig;
+  seriesLayoutInfo: LayoutInfo;
+  axisFocusPercentage: number | null;
+  seriesFocusPercentage: number | null;
+}
+
+export default class AxisBaseLine extends Renderer<AxisBaseLineProps> {
   root = svgEl('g');
   inner = svgEl('g');
   line = svgEl('line');

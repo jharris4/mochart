@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl, textEl } from '../render';
 
 import { getSeriesLabelFormat } from '../utils/ValueFormat';
@@ -8,8 +7,13 @@ import { translate } from '../utils/utils';
 import { getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getFocusValue, getGroupFocusPercentage } from '../utils/FocusValue';
+import type { El, ElListAdapter, TextEl } from '../render';
+import type { ColorPaletteConfig, SeriesConfig } from '../types/config';
+import type { FocusData } from '../types/animation';
+import type { AxisScale, NullableDomain, SeriesPositionData, SeriesValueObject } from '../types/data';
+import type { LabelPosition } from '../config/core/constants';
 
-const getLabelPosition = (isAboveBase, hasBase, seriesConfig) => {
+const getLabelPosition = (isAboveBase: boolean, hasBase: boolean, seriesConfig: SeriesConfig): LabelPosition => {
   let { labelPosition } = seriesConfig;
   if (hasBase) {
     const { labelAboveBasePosition, labelBelowBasePosition } = seriesConfig;
@@ -23,33 +27,51 @@ const getLabelPosition = (isAboveBase, hasBase, seriesConfig) => {
   return labelPosition;
 };
 
-const getTextAnchor = (inverted, isAboveBase, position) => {
+const getTextAnchor = (inverted: boolean, isAboveBase: boolean, position: LabelPosition): 'middle' | 'start' | 'end' => {
   return (!inverted || position === LABEL_POSITION_CENTER) ? 'middle' :
     (position === LABEL_POSITION_INSIDE ? (isAboveBase ? 'end' : 'start') : (isAboveBase ? 'start' : 'end'));
 };
 
-const getDY = (inverted, isAboveBase, position) => {
+const getDY = (inverted: boolean, isAboveBase: boolean, position: LabelPosition): string => {
   return (inverted || position === LABEL_POSITION_CENTER) ? '0.35em' :
     (position === LABEL_POSITION_INSIDE ? (isAboveBase ? '1.35em' : '-0.65em') : (isAboveBase ? '-0.65em' : '1.35em'));
 };
 
-const labelAdapter = {
-  key: (label) => label.key,
+interface SeriesLabelData { key: string; attrs: Record<string, unknown>; text: string | number }
+interface SeriesLabelHandle { root: El; value: TextEl }
+
+const labelAdapter: ElListAdapter<SeriesLabelData, SeriesLabelHandle> = {
+  key: (label: SeriesLabelData) => label.key,
   create: () => {
     const root = svgEl('text');
     const value = textEl();
     root.append(value);
     return { root, value };
   },
-  update: (handle, label) => {
+  update: (handle: SeriesLabelHandle, label: SeriesLabelData) => {
     handle.root.set(label.attrs);
     handle.value.set(label.text);
   }
 };
 
-export default class SeriesLabels extends Renderer {
+interface SeriesLabelsProps {
+  colorPaletteConfig: ColorPaletteConfig;
+  seriesConfig: SeriesConfig;
+  seriesIndex: number;
+  rawSeriesAxisDomain: NullableDomain;
+  seriesAxisScale: AxisScale;
+  seriesPositionData: SeriesPositionData;
+  filteredValues: SeriesValueObject;
+  inverted: boolean;
+  focusData: FocusData;
+  onGroupEnter: (groupIndex: number) => void;
+  onGroupLeave: (groupIndex: number) => void;
+  onGroupClick: (groupIndex: number) => void;
+}
+
+export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
   root = svgEl('g');
-  labels = this.elList(this.root);
+  labels = this.elList<SeriesLabelData, SeriesLabelHandle>(this.root);
 
   create() {
     return this.root.node;
@@ -63,21 +85,23 @@ export default class SeriesLabels extends Renderer {
       const hasBase = seriesAxisConfig.base !== NONE;
       const domainMin = rawSeriesAxisDomain[0];
       const domainMax = rawSeriesAxisDomain[1];
-      const domainExtent = domainMax - domainMin;
-      const base = hasBase ? Math.min(Math.max(seriesAxisConfig.base, domainMin), domainMax) : domainMin;
 
-      if (domainMin !== null) {
-        let labels = [];
-        const { max: maxValues, min: minValues, label: labelValues } = filteredValues;
+      if (domainMin !== null && domainMax !== null) {
+        const domainExtent = domainMax - domainMin;
+        const base = hasBase ? Math.min(Math.max(seriesAxisConfig.base!, domainMin), domainMax) : domainMin;
+        let labels: SeriesLabelData[] = [];
+        const { max: maxValuesNullable, min: minValues, label: labelValuesNullable } = filteredValues;
+        const maxValues = maxValuesNullable!;
+        const labelValues = labelValuesNullable!;
         let labelStrokeColor, labelFillColor, labelStrokeWidth, labelStrokeOpacity, labelFillOpacity;
 
-        let withinPercentages = (seriesValue) => {
+        let withinPercentages = (_seriesValue: number, _minSeriesValue?: number | null) => {
           return true;
         };
 
         const { labelOffset } = seriesConfig;
 
-        let getOffset = (aboveBase) => {
+        let getOffset = (_aboveBase: boolean) => {
           return labelOffset;
         };
 
@@ -85,7 +109,7 @@ export default class SeriesLabels extends Renderer {
           const aboveBaseLabelOffset = seriesConfig.labelAboveBaseOffset === AUTO ? labelOffset : seriesConfig.labelAboveBaseOffset;
           const belowBaseLabelOffset = seriesConfig.labelBelowBaseOffset === AUTO ? -1 * labelOffset : seriesConfig.labelBelowBaseOffset;
 
-          getOffset = (aboveBase) => {
+          getOffset = (aboveBase: boolean) => {
             return aboveBase ? aboveBaseLabelOffset : belowBaseLabelOffset;
           };
         }
@@ -99,31 +123,31 @@ export default class SeriesLabels extends Renderer {
              labelBelowBaseMinPositionPercent !== NONE || labelBelowBaseMaxPositionPercent !== NONE)
           )) {
 
-          let minValue = null;
-          let maxValue = null;
-          let aboveBaseMinValue = null;
-          let aboveBaseMaxValue = null;
-          let belowBaseMinValue = null;
-          let belowBaseMaxValue = null;
+          let minValue: number | null = null;
+          let maxValue: number | null = null;
+          let aboveBaseMinValue: number | null = null;
+          let aboveBaseMaxValue: number | null = null;
+          let belowBaseMinValue: number | null = null;
+          let belowBaseMaxValue: number | null = null;
 
           if (hasBase) {
             if (labelAboveBaseMinPositionPercent !== NONE && !(labelAboveBaseMinPositionPercent === AUTO && labelMinPositionPercent === NONE)) {
-              let percent = labelAboveBaseMinPositionPercent === AUTO ? labelMinPositionPercent : labelAboveBaseMinPositionPercent;
+              const percent = (labelAboveBaseMinPositionPercent === AUTO ? labelMinPositionPercent : labelAboveBaseMinPositionPercent)!;
               aboveBaseMinValue = domainExtent === 0 ? (domainMin + 1) : (base + percent * domainExtent);
             }
             if (labelAboveBaseMaxPositionPercent !== NONE && !(labelAboveBaseMaxPositionPercent === AUTO && labelMaxPositionPercent === NONE)) {
-              let percent = labelAboveBaseMaxPositionPercent === AUTO ? labelMaxPositionPercent : labelAboveBaseMaxPositionPercent;
+              const percent = (labelAboveBaseMaxPositionPercent === AUTO ? labelMaxPositionPercent : labelAboveBaseMaxPositionPercent)!;
               aboveBaseMaxValue = domainExtent === 0 ? (domainMax - 1) : (domainMax - percent * domainExtent);
             }
             if (labelBelowBaseMinPositionPercent !== NONE && !(labelBelowBaseMinPositionPercent === AUTO && labelMinPositionPercent === NONE)) {
-              let percent = labelBelowBaseMinPositionPercent === AUTO ? labelMinPositionPercent : labelBelowBaseMinPositionPercent;
+              const percent = (labelBelowBaseMinPositionPercent === AUTO ? labelMinPositionPercent : labelBelowBaseMinPositionPercent)!;
               belowBaseMinValue = domainExtent === 0 ? (domainMin + 1) : (base - percent * domainExtent);
             }
             if (labelBelowBaseMaxPositionPercent !== NONE && !(labelBelowBaseMaxPositionPercent === AUTO && labelMaxPositionPercent === NONE)) {
-              let percent = labelBelowBaseMaxPositionPercent === AUTO ? labelMaxPositionPercent : labelBelowBaseMaxPositionPercent;
+              const percent = (labelBelowBaseMaxPositionPercent === AUTO ? labelMaxPositionPercent : labelBelowBaseMaxPositionPercent)!;
               belowBaseMaxValue = domainExtent === 0 ? (domainMax - 1) : (domainMin + percent * domainExtent);
             }
-            withinPercentages = (seriesValue) => {
+            withinPercentages = (seriesValue: number) => {
               if (seriesValue >= base) {
                 return (aboveBaseMinValue === null || seriesValue >= aboveBaseMinValue) && (aboveBaseMaxValue === null || seriesValue <= aboveBaseMaxValue);
               }
@@ -140,7 +164,7 @@ export default class SeriesLabels extends Renderer {
               maxValue = domainExtent === 0 ? domainMax - 1 : domainMax - labelMaxPositionPercent * domainExtent;
             }
 
-            withinPercentages = (seriesValue) => {
+            withinPercentages = (seriesValue: number) => {
               return (minValue === null || seriesValue >= minValue) && (maxValue === null || seriesValue <= maxValue);
             };
           }
@@ -152,7 +176,7 @@ export default class SeriesLabels extends Renderer {
 
           if (hasStack) {
             if (hasBase) {
-              withinPercentages = (maxSeriesValue, minSeriesValue) => {
+              withinPercentages = (maxSeriesValue: number, minSeriesValue?: number | null) => {
                 let valueMin = base;
                 if (minSeriesValue !== null && minSeriesValue !== void 0) {
                   valueMin = minSeriesValue;
@@ -161,7 +185,7 @@ export default class SeriesLabels extends Renderer {
               };
             }
             else {
-              withinPercentages = (maxSeriesValue, minSeriesValue) => {
+              withinPercentages = (maxSeriesValue: number, minSeriesValue?: number | null) => {
                 let valueMin = domainMin;
                 if (minSeriesValue !== null && minSeriesValue !== void 0) {
                   valueMin = minSeriesValue;
@@ -171,10 +195,12 @@ export default class SeriesLabels extends Renderer {
             }
           }
           else {
-            withinPercentages = (maxSeriesValue, minSeriesValue) => {
+            withinPercentages = (maxSeriesValue: number, minSeriesValue?: number | null) => {
               let valueMin = maxSeriesValue;
               if (minSeriesValue !== void 0) {
-                valueMin = minSeriesValue;
+                // Preserve the original numeric coercion: a null minimum
+                // represents the zero baseline for an unstacked value.
+                valueMin = minSeriesValue ?? 0;
               }
               return oldWithinPercentages(maxSeriesValue) && Math.abs(maxSeriesValue - valueMin) >= minAbsoluteValue;
             };
@@ -197,8 +223,8 @@ export default class SeriesLabels extends Renderer {
 
         for (let i = 0; i < length; i++) {
           let skipI = skipMissing ? skipGroupIndexMap[i] : i;
-          if (getDefined(null, i) && labelValues[skipI] !== void 0 && withinPercentages(maxValues[skipI], minValues ? minValues[skipI] : null)) {
-            aboveBase = !hasBase || maxValues[skipI] >= base;
+          if (getDefined(null, i) && labelValues[skipI] !== void 0 && withinPercentages(maxValues[skipI]!, minValues ? minValues[skipI] : null)) {
+            aboveBase = !hasBase || maxValues[skipI]! >= base;
             textAnchor = aboveBase ? aboveBaseTextAnchor : belowBaseTextAnchor;
             dy = aboveBase ? aboveBaseDY : belowBaseDY;
 
@@ -208,15 +234,15 @@ export default class SeriesLabels extends Renderer {
             labelStrokeWidth = getFocusValue(focusPercentage, seriesConfig.labelStrokeWidth, seriesConfig.labelFocusedStrokeWidth, seriesConfig.labelDefocusedStrokeWidth);
             labelStrokeOpacity = getFocusValue(focusPercentage, seriesConfig.labelStrokeOpacity, seriesConfig.labelFocusedStrokeOpacity, seriesConfig.labelDefocusedStrokeOpacity);
             labelFillOpacity = getFocusValue(focusPercentage, seriesConfig.labelFillOpacity, seriesConfig.labelFocusedFillOpacity, seriesConfig.labelDefocusedFillOpacity);
-            seriesPosition = getSeriesPosition(null, i) + getOffset(aboveBase);
-            x = inverted ? seriesPosition : getGroupPosition(null, i);
-            y = inverted ? getGroupPosition(null, i) : seriesPosition;
+            seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);
+            x = inverted ? seriesPosition : getGroupPosition(null, i)!;
+            y = inverted ? getGroupPosition(null, i)! : seriesPosition;
             labels.push({
               key: 'label-' + i,
               attrs: { className: mochartCssClasses['seriesLabel'] + i, transform: translate(x, y),
                 textAnchor, dy, stroke: labelStrokeColor, fill: labelFillColor, fillOpacity: labelFillOpacity, strokeOpacity: labelStrokeOpacity,
                 strokeWidth: labelStrokeWidth, onMouseEnter: () => onGroupEnter(i), onMouseLeave: () => onGroupLeave(i), onClick: () => onGroupClick(i) },
-              text: valueFormat(labelValues[skipI])
+              text: String(valueFormat(labelValues[skipI]!))
             });
           }
         }

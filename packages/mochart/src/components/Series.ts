@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl, ElList } from '../render';
 
 import { getSeriesPositionData } from '../utils/SeriesPositions';
@@ -15,28 +14,70 @@ import { getFocusValue, getGroupFocusPercentage } from '../utils/FocusValue';
 
 import SeriesMarkers from './SeriesMarkers';
 import SeriesLabels from './SeriesLabels';
+import type { El, ElListAdapter } from '../render';
+import type { ColorPaletteConfig, GroupAxisConfig, SeriesConfig } from '../types/config';
+import type { FocusData } from '../types/animation';
+import type { AxisScale, GroupAxisData, NullableDomain, SeriesDomainObject, SeriesPositionData, SeriesValueObject, StackData } from '../types/data';
+import type { LayoutInfo } from '../types/layout';
 
 const noOp = () => {};
+const noOpGroup = (_groupIndex: number) => {};
 
-const barAdapter = {
-  key: (bar) => bar.key,
+interface SeriesFocusUpdate {
+  seriesId?: string | null;
+  groupIndex?: number | null;
+}
+
+interface SeriesProps {
+  groupAxisConfig: GroupAxisConfig;
+  colorPaletteConfig: ColorPaletteConfig;
+  seriesConfig: SeriesConfig;
+  seriesIndex: number;
+  stackData: StackData;
+  seriesLayoutInfo: LayoutInfo;
+  focusData: FocusData | null;
+  groupValueData: GroupAxisData['valueData'];
+  seriesAxisScale: AxisScale;
+  rawSeriesAxisDomain: NullableDomain;
+  rawDomains: SeriesDomainObject;
+  filteredValues: SeriesValueObject;
+  gradientIdMap: Record<string, string>;
+  onFocus: (focus: SeriesFocusUpdate) => void;
+}
+
+interface SeriesState {
+  seriesPositionData: SeriesPositionData | null;
+  onSeriesEnter: () => void;
+  onSeriesLeave: () => void;
+  onSeriesClick: () => void;
+  onGroupEnter: (groupIndex: number) => void;
+  onGroupLeave: (groupIndex: number) => void;
+  onGroupClick: (groupIndex: number) => void;
+}
+
+interface BarData { key: string; attrs: Record<string, unknown> }
+interface BarHandle { root: El }
+
+const barAdapter: ElListAdapter<BarData, BarHandle> = {
+  key: (bar: BarData) => bar.key,
   create: () => ({ root: svgEl('path') }),
-  update: (handle, bar) => {
+  update: (handle: BarHandle, bar: BarData) => {
     handle.root.set(bar.attrs);
   }
 };
 
-export default class Series extends Renderer {
+export default class Series extends Renderer<SeriesProps, SeriesState> {
   root = svgEl('g');
   shape = this.elSlot(this.root);
   markers = this.slot(this.root);
   labels = this.slot(this.root);
   barsGroup = svgEl('g');
-  bars = new ElList(this.barsGroup.node, null);
+  bars = new ElList<BarData, BarHandle>(this.barsGroup.node, null);
 
   constructor() {
     super();
-    this.state = { onSeriesEnter: noOp, onSeriesLeave: noOp, onSeriesClick: noOp, onGroupEnter: noOp, onGroupLeave: noOp, onGroupClick: noOp };
+    this.state = { seriesPositionData: null, onSeriesEnter: noOp, onSeriesLeave: noOp, onSeriesClick: noOp,
+      onGroupEnter: noOpGroup, onGroupLeave: noOpGroup, onGroupClick: noOpGroup };
   }
 
   willMount() {
@@ -46,7 +87,7 @@ export default class Series extends Renderer {
     this.setState(state);
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: SeriesProps): void {
     const { groupAxisConfig, seriesConfig, focusData, onFocus, groupValueData, seriesAxisScale, filteredValues } = nextProps;
     let groupFocusChanged = false;
     let seriesFocusChanged = false;
@@ -73,12 +114,12 @@ export default class Series extends Renderer {
       }
     }
 
-    let state = {};
+    let state: Partial<SeriesState> = {};
     let updateState = false;
     if (groupAxisConfig !== this.props.groupAxisConfig || seriesConfig !== this.props.seriesConfig ||
       groupValueData !== this.props.groupValueData || seriesAxisScaleChanged || filteredValues !== this.props.filteredValues) {
       state = this.computeSeriesPositionData(nextProps);
-      seriesPositionData = state.seriesPositionData;
+      seriesPositionData = state.seriesPositionData ?? null;
       updateState = true;
     }
     if (seriesConfig !== this.props.seriesConfig || groupFocusChanged || seriesFocusChanged || onFocus !== this.props.onFocus) {
@@ -90,54 +131,54 @@ export default class Series extends Renderer {
     }
   }
 
-  buildEventListeners(props, seriesPositionData) {
+  buildEventListeners(props: SeriesProps, seriesPositionData: SeriesPositionData | null): Pick<SeriesState, 'onSeriesEnter' | 'onSeriesLeave' | 'onSeriesClick' | 'onGroupEnter' | 'onGroupLeave' | 'onGroupClick'> {
     const { seriesConfig, focusData, onFocus } = props;
     const seriesId = seriesConfig.id;
     const focusedGroupIndex = focusData ? focusData.focusedGroupIndex : -1;
     const focusedSeriesId = focusData ? focusData.focusedSeriesId : null;
     const skipGroupIndexMap = seriesPositionData ? seriesPositionData.skipGroupIndexMap : {};
-    const getGroupIndex = seriesConfig.skipMissing ? groupIndex => skipGroupIndexMap[groupIndex] : groupIndex => groupIndex;
+    const getGroupIndex = seriesConfig.skipMissing ? (groupIndex: number) => skipGroupIndexMap[groupIndex] : (groupIndex: number) => groupIndex;
 
     let onSeriesEnter = noOp;
     let onSeriesLeave = noOp;
     let onSeriesClick = noOp;
-    let onGroupEnter = noOp;
-    let onGroupLeave = noOp;
-    let onGroupClick = noOp;
+    let onGroupEnter = noOpGroup;
+    let onGroupLeave = noOpGroup;
+    let onGroupClick = noOpGroup;
 
     if (seriesConfig.focusOnMouseOver) {
       onSeriesEnter = () => { onFocus({ seriesId }); };
       onSeriesLeave = () => { onFocus({ seriesId: null }); };
       if (seriesConfig.focusGroupOnMouseOver) {
-        onGroupEnter = (groupIndex) => { onFocus({ seriesId, groupIndex: getGroupIndex(groupIndex) }); };
-        onGroupLeave = (groupIndex) => { onFocus({ seriesId: null, groupIndex: null }); };
+        onGroupEnter = (groupIndex: number) => { onFocus({ seriesId, groupIndex: getGroupIndex(groupIndex) }); };
+        onGroupLeave = (_groupIndex: number) => { onFocus({ seriesId: null, groupIndex: null }); };
       }
       else {
-        onGroupEnter = (groupIndex) => { onFocus({ seriesId }); };
-        onGroupLeave = (groupIndex) => { onFocus({ seriesId: null }); };
+        onGroupEnter = (_groupIndex: number) => { onFocus({ seriesId }); };
+        onGroupLeave = (_groupIndex: number) => { onFocus({ seriesId: null }); };
       }
     }
     else if (seriesConfig.focusGroupOnMouseOver) {
-      onGroupEnter = (groupIndex) => { onFocus({ groupIndex: getGroupIndex(groupIndex) }); };
-      onGroupLeave = (groupIndex) => { onFocus({ groupIndex: null }); };
+      onGroupEnter = (groupIndex: number) => { onFocus({ groupIndex: getGroupIndex(groupIndex) }); };
+      onGroupLeave = (_groupIndex: number) => { onFocus({ groupIndex: null }); };
     }
     if (seriesConfig.focusOnClick) {
       onSeriesClick = () => { onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId }); };
       if (seriesConfig.focusGroupOnClick) {
-        onGroupClick = (groupIndex) => { onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId, groupIndex: getGroupIndex(groupIndex) === focusedGroupIndex ? -1 : getGroupIndex(groupIndex) }); };
+        onGroupClick = (groupIndex: number) => { onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId, groupIndex: getGroupIndex(groupIndex) === focusedGroupIndex ? -1 : getGroupIndex(groupIndex) }); };
       }
       else {
-        onGroupClick = (groupIndex) => { onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId }); };
+        onGroupClick = (_groupIndex: number) => { onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId }); };
       }
     }
     else if (seriesConfig.focusGroupOnClick) {
-      onGroupClick = (groupIndex) => { onFocus({ groupIndex: getGroupIndex(groupIndex) === focusedGroupIndex ? -1 : getGroupIndex(groupIndex) }); };
+      onGroupClick = (groupIndex: number) => { onFocus({ groupIndex: getGroupIndex(groupIndex) === focusedGroupIndex ? -1 : getGroupIndex(groupIndex) }); };
     }
 
     return { onSeriesEnter, onSeriesLeave, onSeriesClick, onGroupEnter, onGroupLeave, onGroupClick };
   }
 
-  computeSeriesPositionData(props) {
+  computeSeriesPositionData(props: SeriesProps): Pick<SeriesState, 'seriesPositionData'> {
     const { groupAxisConfig, seriesConfig, groupValueData, seriesAxisScale, filteredValues, seriesLayoutInfo } = props;
     const seriesPositionData = filteredValues.plain !== null ? getSeriesPositionData(groupAxisConfig, seriesConfig, groupValueData, seriesAxisScale, filteredValues, seriesLayoutInfo) : null;
     return {
@@ -155,7 +196,7 @@ export default class Series extends Renderer {
 
     const seriesId = seriesConfig.id;
 
-    if (filteredValues.plain !== null) {
+    if (filteredValues.plain !== null && seriesPositionData !== null && focusData !== null) {
       const { inverted } = seriesLayoutInfo;
       let { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
@@ -172,7 +213,7 @@ export default class Series extends Renderer {
 
       if (seriesConfig.renderer === RENDERER_LINE) { // TODO - consider drawing a second line for range series...
         let lineGenerator = getLineGenerator(seriesConfig, seriesPositionData, inverted);
-        this.shape.set('line', () => svgEl('path')).set({
+        this.shape.set('line', () => svgEl('path'))!.set({
           d: lineGenerator(), className: mochartCssClasses['seriesLine'], strokeWidth: seriesStrokeWidth,
           stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor,
           onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
@@ -182,13 +223,13 @@ export default class Series extends Renderer {
           seriesFillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
         }
         let areaGenerator = getAreaGenerator(seriesConfig, seriesPositionData, inverted);
-        this.shape.set('area', () => svgEl('path')).set({
+        this.shape.set('area', () => svgEl('path'))!.set({
           d: areaGenerator(), className: mochartCssClasses['seriesArea'], strokeWidth: seriesStrokeWidth,
           stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor, fillOpacity: seriesFillOpacity,
           onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
       }
       else if (seriesConfig.renderer === RENDERER_BAR) {
-        let bars = [];
+        let bars: BarData[] = [];
         let columnGenerator = getColumnGenerator(seriesConfig, seriesPositionData, inverted, stackData);
         let barStrokeColor = seriesStrokeColor;
         let barFillColor = seriesFillColor;

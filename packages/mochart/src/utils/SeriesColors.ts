@@ -7,6 +7,9 @@ import {
   RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE
 } from '../config/core/constants';
 import { getFocusedDefocused } from './FocusValue';
+import type { FocusPercentage } from '../types/animation';
+import type { ColorPaletteConfig, SeriesColor, SeriesConfig } from '../types/config';
+import type { NumericValues, SeriesDomainObject, SeriesValueObject } from '../types/data';
 
 const colorLookupMap = {
   strokeColors: {
@@ -43,23 +46,35 @@ const colorLookupMap = {
       defocused: { paletteKey: 'labelDefocused', configKey: 'labelDefocusedFillColor' }
     }
   }
-};
+} as const;
 
-function getColor(fillOrStrokeKey, mapKey, colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex) {
+type FillOrStrokeKey = keyof typeof colorLookupMap;
+type ColorMapKey = keyof (typeof colorLookupMap)['strokeColors'];
+type FocusKey = 'normal' | 'focused' | 'defocused';
+type ColorArgs = [seriesIndex?: number, focusPercentage?: FocusPercentage, defaultColor?: SeriesColor | null, groupIndex?: number];
+type ColorInterpolator = (start: string, end: string) => (value: number) => string;
+interface ColorScale {
+  (value: number): string;
+  range(values: readonly (string | null)[]): ColorScale;
+  domain(values: readonly number[]): ColorScale;
+  interpolate(interpolator: ColorInterpolator): ColorScale;
+}
+
+function getColor(fillOrStrokeKey: FillOrStrokeKey, mapKey: ColorMapKey, colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, seriesIndex = 0, focusPercentage: FocusPercentage = null, defaultColor: SeriesColor | null = '', groupIndex?: number): SeriesColor | null {
   const { focused, defocused } = getFocusedDefocused(focusPercentage);
-  let focusKey = focused ? 'focused' : (defocused ? 'defocused' : 'normal');
+  let focusKey: FocusKey = focused ? 'focused' : (defocused ? 'defocused' : 'normal');
   let { configKey, paletteKey } = colorLookupMap[fillOrStrokeKey][mapKey][focusKey];
   for (let i = 0; i < 2; i++) {
-    if (seriesConfig[configKey] === COLOR_SERIES) {
+    if ((seriesConfig[configKey] as SeriesColor) === COLOR_SERIES) {
       mapKey = 'series';
       ({ configKey, paletteKey } = colorLookupMap[fillOrStrokeKey][mapKey][focusKey]);
     }
-    else if (seriesConfig[configKey] === COLOR_SAME) {
+    else if ((seriesConfig[configKey] as SeriesColor) === COLOR_SAME) {
       focusKey = 'normal';
       ({ configKey, paletteKey } = colorLookupMap[fillOrStrokeKey][mapKey][focusKey]);
     }
   }
-  const color = seriesConfig[configKey];
+  const color = seriesConfig[configKey] as SeriesColor;
   if (color === COLOR_SERIES_INDEX) {
     const colors = colorPaletteConfig[paletteKey][fillOrStrokeKey];
     return colors[seriesIndex % colors.length];
@@ -76,7 +91,7 @@ function getColor(fillOrStrokeKey, mapKey, colorPaletteConfig, seriesConfig, ser
   }
 }
 
-export function getSeriesOpacities(seriesConfig) {
+export function getSeriesOpacities(seriesConfig: SeriesConfig) {
   const { renderer } = seriesConfig;
   let opacity, focusedOpacity, defocusedOpacity;
   if (renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
@@ -109,7 +124,7 @@ export function getSeriesOpacities(seriesConfig) {
   };
 }
 
-export function getSeriesColor(colorPaletteConfig, seriesConfig, ...args: [seriesIndex?: any, focusPercentage?: any, defaultColor?: any, groupIndex?: any]) {
+export function getSeriesColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...args: ColorArgs): SeriesColor | null {
   const { renderer } = seriesConfig;
   if (renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
     return getSeriesFillColor(colorPaletteConfig, seriesConfig, ...args);
@@ -128,31 +143,31 @@ export function getSeriesColor(colorPaletteConfig, seriesConfig, ...args: [serie
   }
 }
 
-export function getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex) {
+export function getSeriesFillColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...[seriesIndex, focusPercentage, defaultColor, groupIndex]: ColorArgs): SeriesColor | null {
   return getColor('fillColors', 'series', colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex);
 }
 
-export function getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex) {
+export function getSeriesStrokeColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...[seriesIndex, focusPercentage, defaultColor, groupIndex]: ColorArgs): SeriesColor | null {
   return getColor('strokeColors', 'series', colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex);
 }
 
-export function getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex) {
+export function getSeriesMarkerFillColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...[seriesIndex, focusPercentage, defaultColor, groupIndex]: ColorArgs): SeriesColor | null {
   return getColor('fillColors', 'marker', colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex);
 }
 
-export function getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex) {
+export function getSeriesMarkerStrokeColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...[seriesIndex, focusPercentage, defaultColor, groupIndex]: ColorArgs): SeriesColor | null {
   return getColor('strokeColors', 'marker', colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex);
 }
 
-export function getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex) {
+export function getSeriesLabelFillColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...[seriesIndex, focusPercentage, defaultColor, groupIndex]: ColorArgs): SeriesColor | null {
   return getColor('fillColors', 'label', colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex);
 }
 
-export function getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex) {
+export function getSeriesLabelStrokeColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...[seriesIndex, focusPercentage, defaultColor, groupIndex]: ColorArgs): SeriesColor | null {
   return getColor('strokeColors', 'label', colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex);
 }
 
-function getColorInterpolator(seriesConfig) {
+function getColorInterpolator(seriesConfig: SeriesConfig): ColorInterpolator | null {
   let colorInterpolation = seriesConfig.colorInterpolation;
   if (colorInterpolation === COLOR_INTERPOLATION_RGB) {
     return interpolateRgb;
@@ -169,25 +184,27 @@ function getColorInterpolator(seriesConfig) {
   return null;
 }
 
-function buildScale(colorRange, colorDomain, interpolator) {
+function buildScale(colorRange: readonly (string | null)[], colorDomain: readonly number[], interpolator: ColorInterpolator | null): ColorScale {
   // TODO - handle colorDomain === [null, null]
-  return scaleLinear().range(colorRange).domain(colorDomain).interpolate(interpolator);
+  const colorScale = scaleLinear() as unknown as ColorScale;
+  colorScale.range(colorRange).domain(colorDomain);
+  return interpolator ? colorScale.interpolate(interpolator) : colorScale;
 }
 
-export function getSeriesColorGenerator(seriesConfig, focusPercentage, rawDomains, filteredValues) {
-  let colorValues = filteredValues.color;
+export function getSeriesColorGenerator(seriesConfig: SeriesConfig, _focusPercentage: FocusPercentage, rawDomains: SeriesDomainObject, filteredValues: SeriesValueObject): (index: number) => string {
+  const colorValues = filteredValues.color as NumericValues;
   let interpolator = getColorInterpolator(seriesConfig);
 
   if (seriesConfig.colorBase !== NONE) {
     const { colorBase } = seriesConfig;
     let aboveColorScale = buildScale([seriesConfig.colorBaseAboveMin, seriesConfig.colorBaseAboveMax],
-      [colorBase, Math.max(rawDomains.color[1], colorBase)], interpolator);
+      [colorBase, Math.max(rawDomains.color[1]!, colorBase)], interpolator);
     let belowColorScale = buildScale([seriesConfig.colorBaseBelowMin, seriesConfig.colorBaseBelowMax],
-      [Math.min(rawDomains.color[0], colorBase), colorBase], interpolator);
+      [Math.min(rawDomains.color[0]!, colorBase), colorBase], interpolator);
 
-    return function getColor(index) {
+    return function getColor(index: number) {
       // TODO - what if color property-value is undefined?!?!
-      let colorValue = colorValues[index];
+      const colorValue = colorValues[index]!;
       if (colorValue < colorBase) {
         return belowColorScale(colorValue);
       }
@@ -197,16 +214,16 @@ export function getSeriesColorGenerator(seriesConfig, focusPercentage, rawDomain
     }
   }
   else {
-    let colorScale = buildScale([seriesConfig.colorMin, seriesConfig.colorMax], rawDomains.color, interpolator);
-    return function getColor(index) {
+    let colorScale = buildScale([seriesConfig.colorMin, seriesConfig.colorMax], rawDomains.color as [number, number], interpolator);
+    return function getColor(index: number) {
       // TODO - what if color property-value is undefined?!?!
-      let colorValue = colorValues[index];
+      const colorValue = colorValues[index]!;
       return colorScale(colorValue);
     }
   }
 }
 
-export function getSeriesGradientColors(seriesConfig) {
+export function getSeriesGradientColors(seriesConfig: SeriesConfig): string[] | null {
   const { colorBase, colorMin, colorMax, colorBaseAboveMin, colorBaseAboveMax, colorBaseBelowMin, colorBaseBelowMax } = seriesConfig;
   let colors = null;
   if (colorBase === NONE && colorMin !== NONE && colorMax !== NONE) {

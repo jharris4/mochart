@@ -1,14 +1,36 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
-import { Renderer } from '../render';
+import { Renderer, Slot } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 
 import Axis from './Axis';
+import type { SeriesAxisConfig } from '../types/config';
+import type { AxisTick, SeriesAxisData } from '../types/data';
+import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
+
+interface SeriesAxisFocus { seriesAxisId: string | null }
+interface SeriesAxisProps {
+  front: boolean;
+  seriesAxisConfig: SeriesAxisConfig;
+  seriesAxisLayoutInfo: AxisLayoutInfo;
+  plotLayoutInfo: SpacingLayoutInfo;
+  focusPercentages: number[];
+  axisFocusPercentage: number | null;
+  seriesFocusPercentage: number | null;
+  seriesCount: number;
+  seriesAxisData: SeriesAxisData & { axisTickData: Record<string, AxisTick[]> };
+  titleClipPathUniqueId: string;
+  onFocus: (focus: SeriesAxisFocus) => void;
+}
+interface SeriesAxisState {
+  onSeriesAxisEnter: () => void;
+  onSeriesAxisLeave: () => void;
+  onSeriesAxisClick: () => void;
+}
 
 const noOp = () => {};
 
-export default class SeriesAxis extends Renderer {
-  axis = null;
+export default class SeriesAxis extends Renderer<SeriesAxisProps, SeriesAxisState> {
+  axis: Slot | null = null;
 
   constructor() {
     super();
@@ -20,7 +42,7 @@ export default class SeriesAxis extends Renderer {
     this.setState(state);
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: SeriesAxisProps): void {
     const { seriesAxisConfig, onFocus } = nextProps;
     if (seriesAxisConfig !== this.props.seriesAxisConfig || onFocus !== this.props.onFocus) {
       let state = this.buildEventListeners(nextProps);
@@ -28,7 +50,7 @@ export default class SeriesAxis extends Renderer {
     }
   }
 
-  buildEventListeners(props) {
+  buildEventListeners(props: SeriesAxisProps): SeriesAxisState {
     const { seriesAxisConfig, onFocus } = props;
     const seriesAxisId = seriesAxisConfig.id;
 
@@ -58,7 +80,7 @@ export default class SeriesAxis extends Renderer {
     const { onSeriesAxisEnter, onSeriesAxisLeave, onSeriesAxisClick } = this.state;
     if (seriesAxisConfig.alwaysVisible || seriesCount > 0) {
       const axisId = seriesAxisConfig.id;
-      this.axis.set(Axis, { front, axisClass: mochartCssClasses['seriesAxis'] + axisId, axisConfig: seriesAxisConfig,
+      this.axis!.set(Axis, { front, axisClass: mochartCssClasses['seriesAxis'] + axisId, axisConfig: seriesAxisConfig,
         axisLayoutInfo: seriesAxisLayoutInfo, plotLayoutInfo,
         focusPercentages, axisTicks: seriesAxisData.axisTickData[axisId],
         axisFocusPercentage, seriesFocusPercentage,
@@ -66,7 +88,7 @@ export default class SeriesAxis extends Renderer {
         onMouseLeave: onSeriesAxisLeave, onClick: onSeriesAxisClick });
     }
     else {
-      this.axis.set(null);
+      this.axis!.set(null);
     }
   }
 }

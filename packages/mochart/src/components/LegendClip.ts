@@ -1,7 +1,15 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
+import type { LegendConfig } from '../types/config';
+import type { SpacingLayoutInfo } from '../types/layout';
 
-export default class LegendClip extends Renderer {
+interface LegendClipProps {
+  legendConfig: LegendConfig;
+  chartContentLayoutInfo: SpacingLayoutInfo;
+  legendItemTextLayoutInfo: SpacingLayoutInfo;
+  legendClipPathUniqueId: string;
+}
+
+export default class LegendClip extends Renderer<LegendClipProps> {
   root = svgEl('clipPath');
   rect = svgEl('rect');
 

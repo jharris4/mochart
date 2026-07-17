@@ -1,11 +1,17 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
+import type { ElListAdapter } from '../render';
+import type { GradientStop, RadialGradientConfig } from '../types/config';
 
-function toPercent(aNumber) {
+interface RadialGradientProps {
+  uniqueId: string;
+  radialGradientConfig: RadialGradientConfig;
+}
+
+function toPercent(aNumber: number): string {
   return (aNumber * 100) + '%';
 }
 
-const stopAdapter = {
+const stopAdapter: ElListAdapter<GradientStop, { root: ReturnType<typeof svgEl> }> = {
   key: (stop, i) => i,
   create: () => ({ root: svgEl('stop') }),
   update: (handle, stop) => {
@@ -13,9 +19,9 @@ const stopAdapter = {
   }
 };
 
-export default class RadialGradient extends Renderer {
+export default class RadialGradient extends Renderer<RadialGradientProps> {
   root = svgEl('radialGradient');
-  stops = this.elList(this.root);
+  stops = this.elList<GradientStop>(this.root);
 
   create() {
     return this.root.node;
@@ -32,6 +38,6 @@ export default class RadialGradient extends Renderer {
       r: toPercent(radialGradientConfig.r),
       gradientTransform: 'rotate(' + radialGradientConfig.rotation + ')'
     });
-    this.stops.sync(radialGradientConfig.stops, stopAdapter);
+    this.stops.sync(radialGradientConfig.stops ?? [], stopAdapter);
   }
 }

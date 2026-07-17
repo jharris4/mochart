@@ -1,18 +1,31 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
+import type { El } from '../render';
 
 import { getCutoutRectanglePath } from '../utils/svgUtils';
+import type { MochartConfig } from '../types/config';
+import type { SpacingLayoutInfo } from '../types/layout';
 
-export default class TooltipClip extends Renderer {
+interface TooltipClipProps {
+  mochartConfig: MochartConfig;
+  tooltipVisible: boolean;
+  tooltipShown: boolean;
+  width: number;
+  height: number;
+  tooltipLayoutInfo: SpacingLayoutInfo;
+  chartContentLayoutInfo: SpacingLayoutInfo;
+  tooltipClipPathUniqueId: string;
+}
+
+export default class TooltipClip extends Renderer<TooltipClipProps> {
   root = svgEl('clipPath');
-  shape = null;
-  shapeTag = null;
+  shape: El | null = null;
+  shapeTag: 'path' | 'rect' | null = null;
 
   create() {
     return this.root.node;
   }
 
-  setShape(tag) {
+  setShape(tag: 'path' | 'rect'): El {
     if (this.shapeTag !== tag) {
       if (this.shape !== null) {
         this.root.node.removeChild(this.shape.node);
@@ -21,7 +34,7 @@ export default class TooltipClip extends Renderer {
       this.shapeTag = tag;
       this.root.append(this.shape);
     }
-    return this.shape;
+    return this.shape!;
   }
 
   sync() {

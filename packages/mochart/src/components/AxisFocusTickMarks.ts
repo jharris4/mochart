@@ -1,12 +1,24 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate } from '../utils/utils';
+import type { AxisConfigBase } from '../types/config';
+import type { AxisLayoutInfo } from '../types/layout';
 
-export default class AxisFocusTickMarks extends Renderer {
+interface AxisFocusTickMarksProps {
+  axisConfig: AxisConfigBase;
+  axisLayoutInfo: AxisLayoutInfo;
+  focusPercentages: number[];
+}
+
+interface FocusTickHandle {
+  root: ReturnType<typeof svgEl>;
+  line: ReturnType<typeof svgEl>;
+}
+
+export default class AxisFocusTickMarks extends Renderer<AxisFocusTickMarksProps> {
   root = svgEl('g');
-  ticks = this.elList(this.root);
+  ticks = this.elList<number, FocusTickHandle>(this.root);
 
   create() {
     return this.root.node;

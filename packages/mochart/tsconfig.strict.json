@@ -1,33 +1,11 @@
 {
-  // Strict-mode ratchet: files listed here (and everything they import) must
-  // pass `tsc --strict`. As more of src/ gets typed, add the new entry points
-  // below until this matches tsconfig.json and can replace it.
+  // Keep the entire package under strict checking while the base project
+  // remains compatible with the wider workspace configuration.
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "strict": true,
     "noImplicitAny": true,
     "noImplicitThis": true
   },
-  "include": [],
-  "files": [
-    "src/types/index.ts",
-    "src/config/core/constants.ts",
-    "src/animation/FocusAnimation.ts",
-    "src/animation/FocusAnimationData.ts",
-    "src/data/DataProvider.ts",
-    "src/data/constants.ts",
-    "src/render/index.ts",
-    "src/utils/utils.ts",
-    "src/utils/WithMutations.ts",
-    "src/layout/ChartLayout.ts",
-    "src/layout/GroupAxisLayout.ts",
-    "src/layout/LayoutInfo.ts",
-    "src/layout/LegendLayout.ts",
-    "src/layout/PlotLayout.ts",
-    "src/layout/RotatedLayoutInfo.ts",
-    "src/layout/SeriesAxisLayoutInfo.ts",
-    "src/layout/SpacingLayoutInfo.ts",
-    "src/layout/TitleLayout.ts",
-    "src/layout/TooltipLayout.ts"
-  ]
+  "include": ["src"]
 }

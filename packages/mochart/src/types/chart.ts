@@ -22,12 +22,31 @@ export interface ChartSeriesFilter {
   filteredSeriesIds: Record<string, boolean>;
 }
 
+export interface ChartDomAccessors {
+  getTitleTextDomElement(): SVGGraphicsElement | null;
+  getTitleTextRawDomElement(): SVGGraphicsElement | null;
+  getTitlePrefixDomElement(): SVGGraphicsElement | null;
+  getTitleSuffixDomElement(): SVGGraphicsElement | null;
+  getGroupAxisTicksDomElements(): NodeListOf<SVGGraphicsElement>;
+  getGroupAxisSizeTickDomElement(): SVGGraphicsElement | null;
+  getGroupAxisTitleDomElement(): SVGGraphicsElement | null;
+  getGroupAxisThresholdTitleDomElement(): SVGGraphicsElement | null;
+  getSeriesAxisTicksDomElementsForId(axisId: string): NodeListOf<SVGGraphicsElement>;
+  getSeriesAxisTitleDomElementForId(axisId: string): SVGGraphicsElement | null;
+  getSeriesAxisThresholdTitleDomElementForId(axisId: string): SVGGraphicsElement | null;
+  getLegendDomElement(): HTMLElement | null;
+  getLegendItemTextDomElements(): NodeListOf<SVGGraphicsElement>;
+  getLegendItemTextRawDomElements(): NodeListOf<SVGGraphicsElement>;
+  getTooltipDomElement(): HTMLElement | null;
+}
+
 export interface ChartFactoryContext {
   width?: number;
   height?: number;
   mochartConfig?: MochartConfig | null;
   dataProvider?: DataProvider | null;
   error?: unknown;
+  hasData?: boolean;
 }
 
 /** Content accepted from loading, error, and empty-state factories. */
@@ -55,8 +74,8 @@ export interface ChartFactories {
 }
 
 export interface BaseChartProps extends ChartCallbacks, ChartFactories {
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
   style?: string | Record<string, string | number | null | undefined>;
   loading?: boolean;
   error?: unknown;

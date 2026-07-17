@@ -91,8 +91,8 @@ function initMochartTween(): TweenEngine {
     };
   }
 
-  let _tweens: Record<number, Tween> = {};
-  let _pendingTweens: Record<number, Tween> = {};
+  let _tweens: Record<string, Tween> = {};
+  let _pendingTweens: Record<string, Tween> = {};
   let _nextTweenId = 0;
 
   const add = function(tween: Tween): void {

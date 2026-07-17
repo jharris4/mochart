@@ -14,6 +14,7 @@ import type {
   AxisTransitionData,
   ChartAnimationData,
   EmptyAxisDeltaData,
+  GroupDeltaData,
   ValueChangeData
 } from '../types/animation';
 
@@ -28,7 +29,7 @@ export function getChartAnimationData(
   oldChartData: AnimationChartData | null,
   newChartData: AnimationChartData
 ): ChartAnimationData {
-  let groupDeltaData: unknown;
+  let groupDeltaData: GroupDeltaData;
   let axisExpansionData: AxisTransitionData;
   let valueChangeData: ValueChangeData;
   let axisCollapseData: AxisTransitionData;

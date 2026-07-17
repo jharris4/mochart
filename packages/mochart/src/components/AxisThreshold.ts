@@ -1,11 +1,27 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import AxisThresholdLine from './AxisThresholdLine';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import type { ThresholdAxisConfig } from './AxisThresholdLine';
+import type { AxisLayoutInfo, LayoutInfo } from '../types/layout';
+import type { PlotConfig } from '../types/config';
 
-export default class AxisThreshold extends Renderer {
+interface AxisThresholdProps {
+  hidden: boolean;
+  front: boolean;
+  plotConfig: PlotConfig;
+  axisConfig: ThresholdAxisConfig;
+  axisLayoutInfo: AxisLayoutInfo;
+  seriesLayoutInfo: LayoutInfo;
+  axisDomain: [number | Date | null, number | Date | null];
+  vertical: boolean;
+  axisFocusPercentage: number | null;
+  seriesFocusPercentage: number | null;
+  axisThresholdClass: string;
+}
+
+export default class AxisThreshold extends Renderer<AxisThresholdProps> {
   root = svgEl('g');
   line = this.slot(this.root);
 
@@ -25,7 +41,7 @@ export default class AxisThreshold extends Renderer {
         thresholdTitleFillOpacity, thresholdTitleFocusedFillOpacity, thresholdTitleDefocusedFillOpacity,
         thresholdColor, thresholdFocusedColor, thresholdDefocusedColor,
         thresholdOpacity, thresholdFocusedOpacity, thresholdDefocusedOpacity,
-        useSeriesFocus
+        useSeriesFocus = false
       } = axisConfig;
 
       this.setPresent(true);

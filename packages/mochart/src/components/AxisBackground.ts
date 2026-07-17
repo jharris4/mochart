@@ -1,9 +1,15 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import Background from './Background';
+import type { AxisConfigBase } from '../types/config';
+import type { AxisLayoutInfo } from '../types/layout';
 
-export default class AxisBackground extends Renderer {
+interface AxisBackgroundProps {
+  axisConfig: AxisConfigBase;
+  axisLayoutInfo: AxisLayoutInfo;
+}
+
+export default class AxisBackground extends Renderer<AxisBackgroundProps> {
   root = svgEl('g');
   background = this.slot(this.root);
 

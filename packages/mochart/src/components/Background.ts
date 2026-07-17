@@ -1,10 +1,32 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import type { BackgroundStyle } from '../types/config';
+import type { SpacingLayoutInfo } from '../types/layout';
+import type { Bounds } from '../types/geometry';
 
-export default class Background extends Renderer {
-  static defaultProps = {
+type CssClassKey = keyof typeof mochartCssClasses;
+
+type BackgroundStyleKey = 'backgroundStyle' | 'tickLabelBackgroundStyle' | 'titleBackgroundStyle' | 'itemBackgroundStyle';
+
+interface BackgroundConfig {
+  backgroundStyle: BackgroundStyle;
+  tickLabelBackgroundStyle?: BackgroundStyle;
+  titleBackgroundStyle?: BackgroundStyle;
+  itemBackgroundStyle?: BackgroundStyle;
+}
+
+interface BackgroundProps {
+  config: BackgroundConfig;
+  configStyleKey?: BackgroundStyleKey;
+  classKey: CssClassKey;
+  spacingRelative: boolean;
+  spacingLayoutInfo: SpacingLayoutInfo | Bounds;
+  onClick?: () => void;
+}
+
+export default class Background extends Renderer<BackgroundProps> {
+  static defaultProps: Partial<BackgroundProps> = {
     configStyleKey: 'backgroundStyle'
   };
 
@@ -24,9 +46,10 @@ export default class Background extends Renderer {
   }
 
   sync() {
-    const { config, configStyleKey, classKey, spacingRelative, spacingLayoutInfo } = this.props;
-    const { marginBounds, marginRelativeBounds } = spacingLayoutInfo;
-    const bounds = spacingRelative ? marginRelativeBounds : marginBounds;
+    const { config, configStyleKey = 'backgroundStyle', classKey, spacingRelative, spacingLayoutInfo } = this.props;
+    const bounds = 'marginBounds' in spacingLayoutInfo
+      ? (spacingRelative ? spacingLayoutInfo.marginRelativeBounds : spacingLayoutInfo.marginBounds)
+      : spacingLayoutInfo;
     let { x, y, width, height } = bounds;
     const backgroundStyle = config[configStyleKey];
     const backgroundProps = backgroundStyle ? backgroundStyle : {};

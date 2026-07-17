@@ -17,8 +17,12 @@ import getSeriesGroupDefaults from './seriesGroupConfig';
 import getSeriesStackDefaults from './seriesStackConfig';
 import getTitleDefaults from './titleConfig';
 import getTooltipDefaults from './tooltipConfig';
+import type {
+  LinearGradientConfig, MochartInputConfig, RadialGradientConfig,
+  SeriesAxisConfig, SeriesConfig, SeriesGroupConfig, SeriesStackConfig
+} from '../../types/config';
 
-function getWithDefault(config, configAll, defaults) {
+function getWithDefault<T extends object>(config: unknown, configAll: unknown, defaults: T): T {
   return {
     ...defaults,
     ...(isObject(configAll) ? configAll : {}),
@@ -26,7 +30,7 @@ function getWithDefault(config, configAll, defaults) {
   };
 }
 
-function getOnlyIdWithDefaults(configs, configAll, defaults) {
+function getOnlyIdWithDefaults<T extends { id?: string }>(configs: unknown, configAll: unknown, defaults: T[]): string | null {
   if (Array.isArray(configs)) {
     if (configs.length === 1) {
       const only = getWithDefault(configs[0], configAll, defaults[0]);
@@ -47,36 +51,37 @@ function getOnlyIdWithDefaults(configs, configAll, defaults) {
   return NONE;
 }
 
-function getConfigCount(configs) {
+function getConfigCount(configs: unknown): number {
   return Array.isArray(configs) ? filterConfigs(configs).length : (filterConfig(configs) ? 1 : 0);
 }
 
-export function getDefaults(config) {
+export function getDefaults(config: MochartInputConfig | unknown): Record<string, unknown> {
   if (isObject(config)) {
-    const seriesAxisConfigs = getSeriesAxisListOrSingleDefaults(config, true);
-    const soleSeriesAxisId = getOnlyIdWithDefaults(config.seriesAxisConfigs, config.seriesAxisAllConfig, seriesAxisConfigs);
+    const inputConfig = config as MochartInputConfig;
+    const seriesAxisConfigs = getSeriesAxisListOrSingleDefaults(inputConfig, true);
+    const soleSeriesAxisId = getOnlyIdWithDefaults(inputConfig.seriesAxisConfigs, inputConfig.seriesAxisAllConfig, seriesAxisConfigs);
 
-    const seriesStackConfigs = getListOrSingleDefaults(config.seriesStackConfigs, config.seriesStackAllConfig, (aConfig, index) => getSeriesStackDefaults(aConfig, index, soleSeriesAxisId));
-    const soleSeriesStackId = getOnlyIdWithDefaults(config.seriesStackConfigs, config.seriesStackAllConfig, seriesStackConfigs);
+    const seriesStackConfigs = getListOrSingleDefaults<SeriesStackConfig>(inputConfig.seriesStackConfigs, inputConfig.seriesStackAllConfig, (aConfig, index) => getSeriesStackDefaults(aConfig, index, soleSeriesAxisId));
+    const soleSeriesStackId = getOnlyIdWithDefaults(inputConfig.seriesStackConfigs, inputConfig.seriesStackAllConfig, seriesStackConfigs);
 
-    const seriesGroupConfigs = getListOrSingleDefaults(config.seriesGroupConfigs, config.seriesGroupAllConfig, (aConfig, index) => getSeriesGroupDefaults(aConfig, index));
-    const soleSeriesGroupId = getOnlyIdWithDefaults(config.seriesGroupConfigs, config.seriesGroupAllConfig, seriesGroupConfigs);
+    const seriesGroupConfigs = getListOrSingleDefaults<SeriesGroupConfig>(inputConfig.seriesGroupConfigs, inputConfig.seriesGroupAllConfig, (aConfig, index) => getSeriesGroupDefaults(aConfig, index));
+    const soleSeriesGroupId = getOnlyIdWithDefaults(inputConfig.seriesGroupConfigs, inputConfig.seriesGroupAllConfig, seriesGroupConfigs);
 
-    const linearGradientConfigs = getListOrSingleDefaults(config.linearGradientConfigs, config.linearGradientAllConfig, (aConfig, index) => getLinearGradientDefaults(aConfig, index));
-    const soleLinearGradientConfigId = getOnlyIdWithDefaults(config.linearGradientConfigs, config.linearGradientAllConfig, linearGradientConfigs);
+    const linearGradientConfigs = getListOrSingleDefaults<LinearGradientConfig>(inputConfig.linearGradientConfigs, inputConfig.linearGradientAllConfig, (aConfig, index) => getLinearGradientDefaults(aConfig, index));
+    const soleLinearGradientConfigId = getOnlyIdWithDefaults(inputConfig.linearGradientConfigs, inputConfig.linearGradientAllConfig, linearGradientConfigs);
 
-    const radialGradientConfigs = getListOrSingleDefaults(config.radialGradientConfigs, config.radialGradientAllConfig, (aConfig, index) => getRadialGradientDefaults(aConfig, index));
-    const soleRadialGradientConfigId = getOnlyIdWithDefaults(config.radialGradientConfigs, config.radialGradientAllConfig, radialGradientConfigs);
+    const radialGradientConfigs = getListOrSingleDefaults<RadialGradientConfig>(inputConfig.radialGradientConfigs, inputConfig.radialGradientAllConfig, (aConfig, index) => getRadialGradientDefaults(aConfig, index));
+    const soleRadialGradientConfigId = getOnlyIdWithDefaults(inputConfig.radialGradientConfigs, inputConfig.radialGradientAllConfig, radialGradientConfigs);
 
     const soleGradientConfigId = soleLinearGradientConfigId ? soleLinearGradientConfigId : soleRadialGradientConfigId;
 
-    const seriesCount = getConfigCount(config.seriesConfigs);
+    const seriesCount = getConfigCount(inputConfig.seriesConfigs);
 
     const plotConfig = getPlotDefaults();
-    const plotConfigDefault = getWithDefault(config.plotConfig, null, plotConfig);
+    const plotConfigDefault = getWithDefault(inputConfig.plotConfig, null, plotConfig);
     const { inverted } = plotConfigDefault;
 
-    const seriesDefaults = (aConfig, index) =>
+    const seriesDefaults = (aConfig: Partial<SeriesConfig>, index: number) =>
       getSeriesDefaults(aConfig, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId);
 
     return {
@@ -84,13 +89,13 @@ export function getDefaults(config) {
       chartConfig: getChartDefaults(),
       colorPaletteConfig: getColorPaletteDefaults(),
       crosshairConfig: getCrosshairDefaults(),
-      groupAxisConfig: getGroupAxisDefaults(config.groupAxisConfig, inverted),
-      legendConfig: getLegendDefaults(config.legendConfig, seriesCount),
+      groupAxisConfig: getGroupAxisDefaults(inputConfig.groupAxisConfig, inverted),
+      legendConfig: getLegendDefaults(inputConfig.legendConfig, seriesCount),
       linearGradientConfigs,
       plotConfig,
       radialGradientConfigs,
       seriesAxisConfigs,
-      seriesConfigs: getListOrSingleDefaults(config.seriesConfigs, config.seriesAllConfig, seriesDefaults),
+      seriesConfigs: getListOrSingleDefaults<SeriesConfig>(inputConfig.seriesConfigs, inputConfig.seriesAllConfig, seriesDefaults),
       seriesGroupConfigs,
       seriesStackConfigs,
       titleConfig: getTitleDefaults(),
@@ -102,36 +107,36 @@ export function getDefaults(config) {
   }
 }
 
-function getSeriesAxisListOrSingleDefaults(config, singleDefaultIfEmpty = false) {
-  let configs = config.seriesAxisConfigs;
-  configs = (!Array.isArray(configs) && filterConfig(configs)) ? [configs] : filterConfigs(configs);
+function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDefaultIfEmpty = false): SeriesAxisConfig[] {
+  const rawConfigs = config.seriesAxisConfigs;
+  const configs = ((!Array.isArray(rawConfigs) && filterConfig(rawConfigs)) ? [rawConfigs] : filterConfigs(rawConfigs)) as Partial<SeriesAxisConfig>[];
   const allConfig = config.seriesAxisAllConfig;
   let stackConfigs = config.seriesStackConfigs || [];
   if (!Array.isArray(stackConfigs) && isObject(stackConfigs)) {
     stackConfigs = [stackConfigs];
   }
-  const stackMap = {};
+  const stackMap: Record<string, boolean> = {};
   for (let stackConfig of stackConfigs) {
     const { axis } = stackConfig;
     // Make sure the stackConfig.axis is never undefined. Use the first seriesConfig if necessary
     if (axis === void 0) {
-      stackMap[configs[0].id] = true;
+      stackMap[String(configs[0]?.id)] = true;
     }
     else {
       stackMap[axis] = true;
     }
   }
-  const getDefaults = (aConfig, index) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id]);
+  const getDefaults = (aConfig: Partial<SeriesAxisConfig>, index: number) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id!]);
   if (singleDefaultIfEmpty && configs.length === 0) {
-    return [getDefaults(configWithAll({}, allConfig), 0)];
+    return [getDefaults(configWithAll({}, allConfig) as Partial<SeriesAxisConfig>, 0) as SeriesAxisConfig];
   }
-  return configWithAll(configs, allConfig).map((config, i) => getDefaults(config, i));
+  return (configWithAll(configs, allConfig) as Partial<SeriesAxisConfig>[]).map((config, i) => getDefaults(config, i) as SeriesAxisConfig);
 }
 
-function getListOrSingleDefaults(configs, allConfig, getDefaults, singleDefaultIfEmpty = false) {
-  configs = (!Array.isArray(configs) && filterConfig(configs)) ? [configs] : filterConfigs(configs);
-  if (singleDefaultIfEmpty && configs.length === 0) {
-    return [getDefaults(configWithAll({}, allConfig), 0)];
+function getListOrSingleDefaults<T extends object>(configs: unknown, allConfig: unknown, getDefaults: (config: Partial<T>, index: number) => Partial<T>, singleDefaultIfEmpty = false): T[] {
+  const filteredConfigs = (!Array.isArray(configs) && filterConfig(configs)) ? [configs] : filterConfigs(configs);
+  if (singleDefaultIfEmpty && filteredConfigs.length === 0) {
+    return [getDefaults(configWithAll({}, allConfig) as Partial<T>, 0) as T];
   }
-  return configWithAll(configs, allConfig).map((config, i) => getDefaults(config, i));
+  return (configWithAll(filteredConfigs, allConfig) as Partial<T>[]).map((config, i) => getDefaults(config, i) as T);
 }

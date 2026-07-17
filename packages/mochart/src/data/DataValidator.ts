@@ -1,43 +1,42 @@
 import validators from 'valide';
 import { isDataProviderValid } from './ChartData';
 import { NONE, TYPE_DATE, TYPE_NUMBER } from '../config/core/constants';
+import type { MochartConfig } from '../types/config';
+import type { DataProvider, GroupValue } from '../types/data';
 
-function getDuplicates(values) {
-  let valueMap = {};
+function getDuplicates(values: readonly GroupValue[]): GroupValue[] {
+  let valueMap: Record<string, number> = {};
   for (let value of values) {
-    if (valueMap[value] === void 0) {
-      valueMap[value] = 1;
-    }
-    else {
-      valueMap[value] = valueMap[value] + 1;
-    }
+    const key = String(value);
+    valueMap[key] = (valueMap[key] ?? 0) + 1;
   }
-  let duplicates = [];
+  let duplicates: GroupValue[] = [];
   for (let value of values) {
-    if (valueMap[value] > 1) {
+    const key = String(value);
+    if (valueMap[key] > 1) {
       duplicates.push(value);
-      valueMap[value] = 1; // only push duplicates once
+      valueMap[key] = 1; // only push duplicates once
     }
   }
   return duplicates;
 }
 
-function checkProperty(dataErrors, dataProvider, groupValues, property) {
+function checkProperty(dataErrors: string[], dataProvider: DataProvider, groupValues: readonly GroupValue[], property: string): void {
   let numberValidator = validators.number().orEqual(void 0);
   if (groupValues.some((g, i) => !numberValidator(dataProvider.getSeriesValue(g, i, property)))) {
     dataErrors.push('series values must be numeric or undefined for property: ' + property);
   }
 }
 
-export function getDataErrors(mochartConfig, dataProvider) {
-  let dataErrors = [];
-  if (mochartConfig.validation.valid && isDataProviderValid(dataProvider)) {
+export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataProvider | null | undefined): string[] {
+  let dataErrors: string[] = [];
+  if (mochartConfig.validation.valid && dataProvider != null && isDataProviderValid(dataProvider)) {
     const { groupAxisConfig, seriesConfigs } = mochartConfig;
 
     let groupValues = dataProvider.getGroupValues();
     let numberValidator = validators.number();
     let stringValidator = validators.string();
-    let getGroupValue = null;
+    let getGroupValue: (index: number) => unknown;
     if (groupAxisConfig.displayProperty !== NONE) {
       if (groupValues.some(g => !(stringValidator(g) || numberValidator(g)))) {
         dataErrors.push('raw group values must be number or string when display property is set');
@@ -68,7 +67,7 @@ export function getDataErrors(mochartConfig, dataProvider) {
       }
     }
     for (let seriesConfig of seriesConfigs) {
-      checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.property);
+      checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.property!);
       if (seriesConfig.rangeProperty !== NONE) {
         checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.rangeProperty);
       }

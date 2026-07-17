@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -6,8 +5,20 @@ import { getAggregateSeriesFocusPercentage } from '../utils/FocusValue';
 
 import AxisBaseLine from './AxisBaseLine';
 import { NONE } from '../config/core/constants';
+import type { MochartConfig } from '../types/config';
+import type { SeriesData } from '../types/data';
+import type { FocusData } from '../types/animation';
+import type { LayoutInfo } from '../types/layout';
 
-export default class AxisBaseContainer extends Renderer {
+interface AxisBaseContainerProps {
+  front: boolean;
+  mochartConfig: MochartConfig;
+  seriesLayoutInfo: LayoutInfo;
+  focusData: FocusData;
+  seriesData: SeriesData;
+}
+
+export default class AxisBaseContainer extends Renderer<AxisBaseContainerProps> {
   root = svgEl('g');
   baseLines = this.rendererList(this.root);
 
@@ -33,8 +44,10 @@ export default class AxisBaseContainer extends Renderer {
       }
       const axisDomain = adjustForSuppression ? filteredDomains[id] : rawDomains[id];
       const axisFocusPercentage = seriesAxisFocusPercentages[id];
-      const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs, seriesFocusPercentages) : 0;
-      const basePercentage = base !== NONE && axisDomain[0] !== axisDomain[1] && base > axisDomain[0] && base < axisDomain[1] ? (base - axisDomain[0]) / (axisDomain[1] - axisDomain[0]) : 0;
+      const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
+      const domainMin = axisDomain[0];
+      const domainMax = axisDomain[1];
+      const basePercentage = base !== NONE && domainMin !== null && domainMax !== null && domainMin !== domainMax && base > domainMin && base < domainMax ? (base - domainMin) / (domainMax - domainMin) : 0;
 
       items.push({
         key: 'series-axis-' + id,

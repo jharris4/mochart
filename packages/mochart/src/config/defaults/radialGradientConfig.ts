@@ -1,11 +1,12 @@
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import type { RadialGradientConfig } from '../../types/config';
 
-export default function getDefaults(config, index) {
+export default function getDefaults(config: Partial<RadialGradientConfig> = {}, index: number): Partial<RadialGradientConfig> {
   let regularDefaults = getRegularDefaults();
   let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults, index));
+  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as RadialGradientConfig, index));
 
-  return { ...regularDefaults, ...conditionalDefaults };
+  return { ...regularDefaults, ...conditionalDefaults } as Partial<RadialGradientConfig>;
 }
 
 export function getRegularDefaults() {
@@ -19,7 +20,7 @@ export function getRegularDefaults() {
   };
 };
 
-export function getConditionalDefaults(configWithRegularDefaults, index) {
+export function getConditionalDefaults(configWithRegularDefaults: RadialGradientConfig, index: number) {
   return {
     id: conditionalDefault([
       { condition: (config, index) => true, suffix: 'radial gradient index', default: 'RG' + index, defaultText: 'RG${index}' },

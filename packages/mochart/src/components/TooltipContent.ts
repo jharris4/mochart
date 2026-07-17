@@ -1,5 +1,5 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, htmlEl, textEl } from '../render';
+import type { El, RendererItem, Slot, TextEl } from '../render';
 
 import { getGroupFormat, getSeriesFormats } from '../utils/ValueFormat';
 import { getSeriesText } from '../utils/TooltipFormat';
@@ -9,6 +9,64 @@ import { NONE } from '../config/core/constants';
 
 import TooltipControls from './TooltipControls';
 import SeriesColorIcon from './SeriesColorIcon';
+import type { ColorPaletteConfig, MochartConfig, SeriesConfig } from '../types/config';
+import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
+import type { GroupSeriesValueObject } from '../data/ChartData';
+
+type LineStyle = Record<string, string | number>;
+interface InternalFocus { groupIndex?: number | null; seriesId?: string | null }
+
+interface TooltipGroupLineProps {
+  lineStyle: LineStyle;
+  groupLabel: string;
+  groupText: string | number | Date;
+  onMouseEnter: (event: Event) => void;
+  onMouseLeave: (event: Event) => void;
+  onClick: (event: Event) => void;
+}
+
+interface TooltipSeriesLineProps {
+  mochartConfig: MochartConfig;
+  seriesConfig: SeriesConfig;
+  seriesIndex: number;
+  seriesIsFocused: boolean;
+  seriesIsDefocused: boolean;
+  seriesIsSuppressed: boolean;
+  seriesFocusPercentage: FocusPercentage;
+  colorPaletteConfig: ColorPaletteConfig;
+  svgUniqueId: string;
+  visible: boolean;
+  labelText: string;
+  valueText: string;
+  style: LineStyle;
+  onMouseEnter: (event: Event) => void;
+  onMouseLeave: (event: Event) => void;
+  onClick: (event: Event) => void;
+}
+
+interface TooltipContentProps {
+  mochartConfig: MochartConfig;
+  tooltipValueObject: GroupSeriesValueObject;
+  groupCount: number;
+  focusedGroupIndex: number;
+  focusedSeriesId: string | null;
+  visible: boolean;
+  tooltipGroupIndex: number;
+  updateTooltipGroupIndex: (groupIndex: number) => void;
+  minWidth?: number | null;
+  adjustForSuppression?: boolean;
+  svgUniqueId: string;
+  onFocus: (focus: InternalFocus) => void;
+  onSeriesFilter: (seriesId: string) => void;
+  onClose: () => void;
+  seriesAxisFocusPercentages: FocusPercentageMap;
+  seriesFocusPercentages: FocusPercentageMap;
+}
+
+interface TooltipContentState { mode: typeof MODE_FOCUS | typeof MODE_FILTER }
+
+type AlignedLineEl = El & { leftHandle: El; labelHandle: El; spacerHandle: El; valueHandle: El };
+type PlainLineEl = El & { textHandle: El };
 
 const itemPadding = 2;
 
@@ -28,7 +86,7 @@ const alignedLineStyle = {
   whiteSpace: 'nowrap'
 };
 
-class TooltipGroupLine extends Renderer {
+class TooltipGroupLine extends Renderer<TooltipGroupLineProps> {
   root = htmlEl('div');
   text = textEl();
 
@@ -41,23 +99,23 @@ class TooltipGroupLine extends Renderer {
     const { lineStyle, groupLabel, groupText, onMouseEnter, onMouseLeave, onClick } = this.props;
     this.root.set({ className: mochartCssClasses['tooltipGroupLine'], style: lineStyle,
       onMouseEnter, onMouseLeave, onClick });
-    this.text.set(groupLabel + groupText);
+    this.text.set(groupLabel + String(groupText));
   }
 }
 
-class TooltipSeriesLine extends Renderer {
+class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   root = htmlEl('div');
   line = this.elSlot(this.root);
-  icon = null;
-  labelValue = null;
-  valueValue = null;
+  iconSlot!: Slot;
+  labelValue: TextEl | null = null;
+  valueValue: TextEl | null = null;
 
   create() {
     return this.root.node;
   }
 
-  buildAlignedLine() {
-    const container = htmlEl('div');
+  buildAlignedLine(): AlignedLineEl {
+    const container = htmlEl('div') as AlignedLineEl;
     const left = htmlEl('span');
     this.iconSlot = this.slot(left);
     const label = htmlEl('span');
@@ -76,8 +134,8 @@ class TooltipSeriesLine extends Renderer {
     return container;
   }
 
-  buildPlainLine() {
-    const container = htmlEl('span');
+  buildPlainLine(): PlainLineEl {
+    const container = htmlEl('span') as PlainLineEl;
     this.iconSlot = this.slot(container);
     const text = htmlEl('span');
     this.labelValue = textEl();
@@ -98,33 +156,33 @@ class TooltipSeriesLine extends Renderer {
     const iconProps = {
       seriesContextConfig: tooltipConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
       focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,
-      svgUniqueId: svgUniqueId + '-tooltip', seriesShowColorProperty: 'showColorInTooltip',
+      svgUniqueId: svgUniqueId + '-tooltip', seriesShowColorProperty: 'showColorInTooltip' as const,
       seriesIsSuppressed, iconClassName: mochartCssClasses['tooltipLineIcon'],
       visible, renderHTML: true
     };
 
     if (tooltipConfig.alignValues) {
-      const container = this.line.set('aligned', () => this.buildAlignedLine());
+      const container = this.line.set('aligned', () => this.buildAlignedLine()) as AlignedLineEl;
       container.set({ style: alignedLineStyle });
       container.leftHandle.set({ style: { float: 'left' } });
       this.iconSlot.set(SeriesColorIcon, iconProps);
       container.labelHandle.set({ className: mochartCssClasses['tooltipLineLabel'] });
-      this.labelValue.set(labelText);
+      this.labelValue!.set(labelText);
       container.spacerHandle.set({ style: { float: 'left', width: 2, height: 4 } });
       container.valueHandle.set({ className: mochartCssClasses['tooltipLineValue'], style: { float: 'right' } });
-      this.valueValue.set(valueText);
+      this.valueValue!.set(valueText);
     }
     else {
-      const container = this.line.set('plain', () => this.buildPlainLine());
+      const container = this.line.set('plain', () => this.buildPlainLine()) as PlainLineEl;
       container.set({ className: mochartCssClasses['tooltipLineIcon'] });
       this.iconSlot.set(SeriesColorIcon, iconProps);
       container.textHandle.set({ className: mochartCssClasses['tooltipLineText'] });
-      this.labelValue.set(labelText + valueText);
+      this.labelValue!.set(labelText + valueText);
     }
   }
 }
 
-export default class TooltipContent extends Renderer {
+export default class TooltipContent extends Renderer<TooltipContentProps, TooltipContentState> {
   static defaultProps = {
     adjustForSuppression: true,
     minWidth: null
@@ -152,7 +210,7 @@ export default class TooltipContent extends Renderer {
     this.setState({ mode });
   }
 
-  onGroupMouseEnter = (event) => {
+  onGroupMouseEnter = (_event: Event) => {
     const { mochartConfig, tooltipGroupIndex, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
@@ -163,7 +221,7 @@ export default class TooltipContent extends Renderer {
     }
   }
 
-  onGroupMouseLeave = (event) => {
+  onGroupMouseLeave = (_event: Event) => {
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
@@ -174,7 +232,7 @@ export default class TooltipContent extends Renderer {
     }
   }
 
-  onGroupClick = (event) => {
+  onGroupClick = (event: Event) => {
     const { mochartConfig, tooltipGroupIndex, focusedGroupIndex, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
@@ -186,7 +244,7 @@ export default class TooltipContent extends Renderer {
     }
   }
 
-  onSeriesMouseEnter = (event, seriesId) => {
+  onSeriesMouseEnter = (_event: Event, seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
@@ -197,7 +255,7 @@ export default class TooltipContent extends Renderer {
     }
   }
 
-  onSeriesMouseLeave = (event) => {
+  onSeriesMouseLeave = (_event: Event) => {
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
@@ -208,7 +266,7 @@ export default class TooltipContent extends Renderer {
     }
   }
 
-  onSeriesClick = (event, seriesId) => {
+  onSeriesClick = (event: Event, seriesId: string) => {
     const { mode } = this.state;
     const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
     const { tooltipConfig } = mochartConfig;
@@ -231,7 +289,7 @@ export default class TooltipContent extends Renderer {
     }
   }
 
-  onClick = (event) => {
+  onClick = (event: Event) => {
     const { mochartConfig, onClose } = this.props;
     const { tooltipConfig } = mochartConfig;
     if (tooltipConfig.closeOnClick) {
@@ -250,7 +308,7 @@ export default class TooltipContent extends Renderer {
 
   sync() {
     const { mochartConfig, tooltipValueObject, groupCount, focusedGroupIndex, focusedSeriesId, visible, tooltipGroupIndex, updateTooltipGroupIndex,
-      minWidth, adjustForSuppression, svgUniqueId, onFocus, seriesAxisFocusPercentages, seriesFocusPercentages } = this.props;
+      minWidth = null, adjustForSuppression = true, svgUniqueId, onFocus, seriesAxisFocusPercentages, seriesFocusPercentages } = this.props;
     const { mode } = this.state;
 
     const { tooltipConfig, groupAxisConfig, seriesAxisConfigs, seriesConfigs, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
@@ -262,7 +320,7 @@ export default class TooltipContent extends Renderer {
     this.root.set({ className: mochartCssClasses['tooltipContent'], onClick: this.onClick });
     this.controlsContainer.set({ className: mochartCssClasses['tooltipControls'] });
     this.controls.set(TooltipControls, { mochartConfig, groupCount, updateTooltipGroupIndex,
-      tooltipGroupIndex, focusedGroupIndex, focusedSeriesId,
+      tooltipGroupIndex, focusedGroupIndex,
       onFocus, mode, toggleMode: this.toggleMode, minWidth });
     this.linesContainer.set({ className: mochartCssClasses['tooltipLines'], style: { clear: 'both' } });
 
@@ -274,16 +332,16 @@ export default class TooltipContent extends Renderer {
       ...lastLineStyle, paddingBottom: tooltipConfig.linePadding
     };
 
-    const tooltipLines = [];
+    const tooltipLines: RendererItem[] = [];
 
     const groupLabel = groupAxisConfig.valueLabel !== NONE ? groupAxisConfig.valueLabel + ": " : "";
     tooltipLines.push({
       key: 'group',
       ctor: TooltipGroupLine,
-      props: { lineStyle, groupLabel, groupText: groupFormat(groupText),
-        onMouseEnter: (event) => this.onGroupMouseEnter(event),
-        onMouseLeave: (event) => this.onGroupMouseLeave(event),
-        onClick: (event) => this.onGroupClick(event) }
+      props: { lineStyle, groupLabel, groupText: groupFormat(groupText!),
+        onMouseEnter: (event: Event) => this.onGroupMouseEnter(event),
+        onMouseLeave: (event: Event) => this.onGroupMouseLeave(event),
+        onClick: (event: Event) => this.onGroupClick(event) }
     });
 
     const valueFormats = getSeriesFormats(seriesConfigs, seriesAxisConfigs, axisDomains);
@@ -304,9 +362,9 @@ export default class TooltipContent extends Renderer {
             props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsSuppressed, seriesFocusPercentage,
               colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
               style: seriesIndex === seriesConfigs.length - 1 ? lastLineStyle : lineStyle,
-              onMouseEnter: (event) => this.onSeriesMouseEnter(event, seriesId),
-              onMouseLeave: (event) => this.onSeriesMouseLeave(event),
-              onClick: (event) => this.onSeriesClick(event, seriesId) }
+              onMouseEnter: (event: Event) => this.onSeriesMouseEnter(event, seriesId),
+              onMouseLeave: (event: Event) => this.onSeriesMouseLeave(event),
+              onClick: (event: Event) => this.onSeriesClick(event, seriesId) }
           });
         }
       }

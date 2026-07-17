@@ -1,9 +1,9 @@
 import { El } from './el';
-import type { Renderer, RendererClass } from './renderer';
+import type { ErasedRenderer, RendererClass } from './renderer';
 
 export type ListKey = string | number;
 
-/** A block managed by ElList: any handle object exposing its root El. */
+/** A block managed by ElList: a handle object exposing its root El. */
 export interface ElBlock {
   root: El;
 }
@@ -25,7 +25,7 @@ interface ElListEntry<H> {
  * matched by key, updated in place, created/removed as needed, then
  * reordered with minimal moves. All nodes live before the comment anchor.
  */
-export class ElList<T, H extends ElBlock = any> {
+export class ElList<T, H extends ElBlock = ElBlock> {
   readonly hostNode: Node;
   readonly anchor: Comment;
   private entries: ElListEntry<H>[] = [];
@@ -104,7 +104,7 @@ export interface RendererItem<P extends object = any> {
 interface RendererEntry {
   key: ListKey;
   ctor: RendererClass;
-  renderer: Renderer;
+  renderer: ErasedRenderer;
 }
 
 /**

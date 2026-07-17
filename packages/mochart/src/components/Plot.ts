@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -10,8 +9,45 @@ import AxisContainer from './AxisContainer';
 import AxisThresholdContainer from './AxisThresholdContainer';
 import SeriesContainer from './SeriesContainer';
 import Crosshair from './Crosshair';
+import type { MochartConfig } from '../types/config';
+import type { AxisData, ChartData, GroupAxisData, SeriesAxisData, StackData } from '../types/data';
+import type { FocusData } from '../types/animation';
+import type { AxisLayoutInfo, GroupAxisLayoutInfo, LayoutInfo, SpacingLayoutInfo } from '../types/layout';
+import type { Bounds } from '../types/geometry';
 
-class PlotFrontBack extends Renderer {
+interface InternalFocus {
+  seriesAxisId?: string | null;
+  seriesId?: string | null;
+  groupIndex?: number | null;
+}
+
+type CompleteAxisData = AxisData & { group: GroupAxisData; series: SeriesAxisData };
+
+interface PlotFrontBackProps {
+  front: boolean;
+  mochartConfig: MochartConfig;
+  groupAxisLayoutInfo: GroupAxisLayoutInfo;
+  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo | Bounds>;
+  seriesLayoutInfo: LayoutInfo;
+  plotLayoutInfo: SpacingLayoutInfo;
+  chartData: ChartData;
+  focusData: FocusData;
+  axisData: CompleteAxisData;
+  groupAxisTitleClipPathUniqueId: string;
+  groupAxisTickLabelClipPathUniqueId: string;
+  seriesAxisTitleClipPathUniqueIds: Record<string, string>;
+  onFocus: (focus: InternalFocus) => void;
+}
+
+interface PlotProps extends Omit<PlotFrontBackProps, 'front'> {
+  stackData: StackData;
+  groupValueData: GroupAxisData['valueData'];
+  gradientIdMap: Record<string, string>;
+  tooltipClipPathUniqueId: string;
+  shapeRef: (element: Element | null) => void;
+}
+
+class PlotFrontBack extends Renderer<PlotFrontBackProps> {
   root = svgEl('g');
   gridContainer = this.slot(this.root);
   baseContainer = this.slot(this.root);
@@ -24,7 +60,7 @@ class PlotFrontBack extends Renderer {
 
   sync() {
     const { front, mochartConfig, groupAxisLayoutInfo, seriesAxisLayoutInfos, seriesLayoutInfo, plotLayoutInfo,
-      chartData, focusData, axisData, groupValueData, groupAxisTitleClipPathUniqueId,
+      chartData, focusData, axisData, groupAxisTitleClipPathUniqueId,
       groupAxisTickLabelClipPathUniqueId, seriesAxisTitleClipPathUniqueIds, onFocus } = this.props;
     const { seriesData } = chartData;
 
@@ -34,10 +70,10 @@ class PlotFrontBack extends Renderer {
       seriesData, focusData, axisData });
 
     this.baseContainer.set(AxisBaseContainer, { front, mochartConfig, seriesLayoutInfo,
-      seriesData, focusData, axisData });
+      seriesData, focusData });
 
     this.axisContainer.set(AxisContainer, { front, mochartConfig, groupAxisLayoutInfo, seriesAxisLayoutInfos,
-      seriesLayoutInfo, plotLayoutInfo, seriesData, focusData, axisData, groupValueData,
+      plotLayoutInfo, seriesData, focusData, axisData,
       groupAxisTitleClipPathUniqueId, groupAxisTickLabelClipPathUniqueId,
       seriesAxisTitleClipPathUniqueIds, onFocus });
 
@@ -46,7 +82,7 @@ class PlotFrontBack extends Renderer {
   }
 }
 
-export default class Plot extends Renderer {
+export default class Plot extends Renderer<PlotProps> {
   root = svgEl('g');
   background = this.slot(this.root);
   back = this.slot(this.root);
@@ -63,10 +99,10 @@ export default class Plot extends Renderer {
       chartData, focusData, axisData, stackData, groupValueData, gradientIdMap, groupAxisTitleClipPathUniqueId,
       groupAxisTickLabelClipPathUniqueId, seriesAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, onFocus, shapeRef } = this.props;
     const { plotConfig } = mochartConfig;
-    const { groupFocusDomainPercentages, seriesFocusDomainPercentages } = focusData;
+    const { groupFocusDomainPercentages = [], seriesFocusDomainPercentages = [] } = focusData;
     const { series: seriesAxisData } = axisData;
 
-    const frontBackProps = (front) => ({
+    const frontBackProps = (front: boolean) => ({
       front,
       mochartConfig,
       groupAxisLayoutInfo,
@@ -76,7 +112,6 @@ export default class Plot extends Renderer {
       chartData,
       focusData,
       axisData,
-      groupValueData,
       groupAxisTitleClipPathUniqueId,
       groupAxisTickLabelClipPathUniqueId,
       seriesAxisTitleClipPathUniqueIds,

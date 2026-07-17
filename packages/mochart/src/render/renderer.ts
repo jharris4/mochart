@@ -3,6 +3,7 @@ import { El } from './el';
 import { Slot } from './slot';
 import { ElSlot } from './elslot';
 import { ElList, RendererList } from './list';
+import type { ElBlock } from './list';
 
 export type StateUpdate<P, S> = Partial<S> | ((state: S, props: P) => Partial<S> | null) | null;
 
@@ -54,7 +55,7 @@ function withDefaults<P extends object>(ctor: ConstructorWithDefaults<P>, props:
  * re-attach its root element (the old `render() { return false; }` case)
  * without losing its position among siblings.
  */
-export abstract class Renderer<P extends object = any, S extends object = any> {
+export abstract class Renderer<P extends object, S extends object = Record<string, never>> {
   props!: P;
   state: S;
 
@@ -292,10 +293,10 @@ export abstract class Renderer<P extends object = any, S extends object = any> {
   }
 
   /** A keyed list of element subtrees, anchored inside `host` (or in this renderer's own region when omitted). */
-  protected elList<T>(host?: El | Node): ElList<T> {
+  protected elList<T, H extends ElBlock = ElBlock>(host?: El | Node): ElList<T, H> {
     const created = host !== undefined
-      ? new ElList<T>(host instanceof El ? host.node : host, null)
-      : new ElList<T>(this.parentDom, this.anchor);
+      ? new ElList<T, H>(host instanceof El ? host.node : host, null)
+      : new ElList<T, H>(this.parentDom, this.anchor);
     this.regions.push(created);
     return created;
   }
@@ -339,3 +340,6 @@ export abstract class Renderer<P extends object = any, S extends object = any> {
     }
   }
 }
+
+/** Type-erased renderer used only by heterogeneous renderer containers. */
+export type ErasedRenderer = Renderer<any, any>;

@@ -1,16 +1,46 @@
 import { NONE, SCALE_ORDINAL } from '../config/core/constants';
 import { getValuesAtIndices, getMaxAbsoluteValue } from '../utils/utils';
 import { getNumericGroupValues } from '../data/GroupData';
+import type { GroupAxisConfig, MochartConfig } from '../types/config';
+import type { GroupAxisDomain, GroupData, GroupValue } from '../types/data';
+import type {
+  CompleteNumericArrayDelta,
+  GroupDeltaData,
+  GroupMergedIndicesData,
+  GroupMergedValuesData,
+  NumericArrayDelta,
+  OuterChangeCounts
+} from '../types/animation';
 
-export function getInitialGroupDeltaData(groupAxisConfig, newGroupData) {
-  let indices = newGroupData.values.raw.map((v, i) => i);
+type GroupMapKey = string;
+type GroupMapKeyAccessor = (value: GroupValue) => GroupMapKey;
+type GroupIndexMap = Record<GroupMapKey, number | undefined>;
+type GroupMergedValuesWithoutDisplay = Omit<GroupMergedValuesData, 'displayMerged'>;
+type ChartDataWithGroups = { groupData: GroupData };
+
+function groupMapKey(value: GroupValue): GroupMapKey {
+  return String(value);
+}
+
+function groupValueIsLess(left: GroupValue, right: GroupValue): boolean {
+  if (typeof left === 'string' && typeof right === 'string') {
+    return left < right;
+  }
+  const leftValue = left instanceof Date ? left.getTime() : Number(left);
+  const rightValue = right instanceof Date ? right.getTime() : Number(right);
+  return leftValue < rightValue;
+}
+
+export function getInitialGroupDeltaData(_groupAxisConfig: GroupAxisConfig, newGroupData: GroupData): GroupDeltaData {
+  const indices = newGroupData.values.raw.map((_value, index) => index);
   return {
     values: {
       old: [],
       merged: newGroupData.values.raw,
       added: newGroupData.values.raw,
       removed: [],
-      new: newGroupData.values.raw
+      new: newGroupData.values.raw,
+      displayMerged: newGroupData.values.display
     },
     indices: {
       old: [],
@@ -32,16 +62,18 @@ export function getInitialGroupDeltaData(groupAxisConfig, newGroupData) {
   };
 }
 
-export function getGroupDeltaData(groupAxisConfig, oldGroupData, newGroupData) {
+export function getGroupDeltaData(groupAxisConfig: GroupAxisConfig, oldGroupData: GroupData, newGroupData: GroupData): GroupDeltaData {
   // *** It is assumed that all rawGroup values are pre-sorted, unique, and not undefined
-  let getMapKey = (rawGroupValue) => rawGroupValue; // TODO - this is probably no longer needed?
-  let groupValuesOld = oldGroupData ? oldGroupData.values.raw : [];
-  let groupValuesNew = newGroupData ? newGroupData.values.raw : [];
+  const groupValuesOld = oldGroupData.values.raw;
+  const groupValuesNew = newGroupData.values.raw;
 
-  let mergedValuesData: any = getGroupMergedValuesData(groupValuesOld, groupValuesNew, groupAxisConfig.scale !== SCALE_ORDINAL, getMapKey);
-  let mergedIndicesData = getGroupMergedIndicesData(groupValuesOld, groupValuesNew, mergedValuesData, getMapKey);
-  let mergedOuterCounts = getGroupMergedOuterCountsData(mergedIndicesData);
-  mergedValuesData.displayMerged = getGroupMergedDisplayValues(groupAxisConfig, oldGroupData, newGroupData, mergedValuesData, mergedIndicesData);
+  const mergedValuesWithoutDisplay = getGroupMergedValuesData(groupValuesOld, groupValuesNew, groupAxisConfig.scale !== SCALE_ORDINAL, groupMapKey);
+  const mergedIndicesData = getGroupMergedIndicesData(groupValuesOld, groupValuesNew, mergedValuesWithoutDisplay, groupMapKey);
+  const mergedOuterCounts = getGroupMergedOuterCountsData(mergedIndicesData);
+  const mergedValuesData: GroupMergedValuesData = {
+    ...mergedValuesWithoutDisplay,
+    displayMerged: getGroupMergedDisplayValues(groupAxisConfig, oldGroupData, newGroupData, mergedValuesWithoutDisplay, mergedIndicesData)
+  };
 
   return {
     values: mergedValuesData,
@@ -50,29 +82,36 @@ export function getGroupDeltaData(groupAxisConfig, oldGroupData, newGroupData) {
   };
 }
 
-export function mergedIndexForNewIndex(groupDeltaData, newGroupIndex) {
+export function mergedIndexForNewIndex(groupDeltaData: GroupDeltaData, newGroupIndex: number): number {
   return groupDeltaData.indices.new[newGroupIndex];
 }
 
-export function oldIndexForNewIndex(groupDeltaData, newGroupIndex) {
+export function oldIndexForNewIndex(groupDeltaData: GroupDeltaData, newGroupIndex: number): number {
   return groupDeltaData.values.old.indexOf(groupDeltaData.values.new[newGroupIndex]);
 }
 
-export function newIndexForMergedIndex(groupDeltaData, mergedGroupIndex) {
+export function newIndexForMergedIndex(groupDeltaData: GroupDeltaData, mergedGroupIndex: number): number {
   return groupDeltaData.values.new.indexOf(groupDeltaData.values.merged[mergedGroupIndex]);
 }
 
-export function newIndexForOldIndex(groupDeltaData, oldGroupIndex) {
+export function newIndexForOldIndex(groupDeltaData: GroupDeltaData, oldGroupIndex: number): number {
   return groupDeltaData.values.new.indexOf(groupDeltaData.values.old[oldGroupIndex]);
 }
 
-function getGroupMergedDisplayValues(groupAxisConfig, oldGroupData, newGroupData, mergedValuesData, mergedIndicesData) {
-  let displayMerged = mergedValuesData.merged;
+function getGroupMergedDisplayValues(
+  groupAxisConfig: GroupAxisConfig,
+  oldGroupData: GroupData,
+  newGroupData: GroupData,
+  mergedValuesData: GroupMergedValuesWithoutDisplay,
+  mergedIndicesData: GroupMergedIndicesData
+): readonly GroupValue[] {
+  let displayMerged: readonly GroupValue[] = mergedValuesData.merged;
   if (groupAxisConfig.displayProperty !== NONE) {
     if (mergedIndicesData.removed.length > 0) {
-      displayMerged = mergedValuesData.merged.slice();
-      setValuesForIndices(displayMerged, oldGroupData.values.display, mergedIndicesData.old);
-      setValuesForIndices(displayMerged, newGroupData.values.display, mergedIndicesData.new);
+      const mutableDisplayMerged = mergedValuesData.merged.slice();
+      setValuesForIndices(mutableDisplayMerged, oldGroupData.values.display, mergedIndicesData.old);
+      setValuesForIndices(mutableDisplayMerged, newGroupData.values.display, mergedIndicesData.new);
+      displayMerged = mutableDisplayMerged;
     }
     else {
       displayMerged = newGroupData.values.display;
@@ -81,7 +120,7 @@ function getGroupMergedDisplayValues(groupAxisConfig, oldGroupData, newGroupData
   return displayMerged;
 }
 
-function setValuesForIndices(targetValues, sourceValues, indicesForValues) {
+function setValuesForIndices(targetValues: GroupValue[], sourceValues: readonly GroupValue[], indicesForValues: readonly number[]): void {
   if (sourceValues !== void 0) {
     let i, count = sourceValues.length;
     for (i=0; i<count; i++) {
@@ -90,8 +129,8 @@ function setValuesForIndices(targetValues, sourceValues, indicesForValues) {
   }
 }
 
-function getValueToNewIndexMap(values, newValues, getMapKey) {
-  let valueToNewIndexMap = {};
+function getValueToNewIndexMap(values: readonly GroupValue[], newValues: readonly GroupValue[], getMapKey: GroupMapKeyAccessor): GroupIndexMap {
+  const valueToNewIndexMap: GroupIndexMap = {};
   let i, count = values.length;
   for (i=0; i<count; i++) {
     valueToNewIndexMap[getMapKey(values[i])] = -1;
@@ -105,8 +144,8 @@ function getValueToNewIndexMap(values, newValues, getMapKey) {
   return valueToNewIndexMap;
 }
 
-function getValueToIndexMap(values, getMapKey) {
-  let valueToIndexMap = {};
+function getValueToIndexMap(values: readonly GroupValue[], getMapKey: GroupMapKeyAccessor): GroupIndexMap {
+  const valueToIndexMap: GroupIndexMap = {};
   let i, count = values.length;
   for (i=0; i<count; i++) {
     valueToIndexMap[getMapKey(values[i])] = i;
@@ -114,17 +153,26 @@ function getValueToIndexMap(values, getMapKey) {
   return valueToIndexMap;
 }
 
-function getMappedIndicesForValues(valueToIndexMap, values, getMapKey) {
-  let indices = [];
+function getMappedIndicesForValues(valueToIndexMap: GroupIndexMap, values: readonly GroupValue[], getMapKey: GroupMapKeyAccessor): number[] {
+  const indices: number[] = [];
   let i, count = values.length;
   for (i=0; i<count; i++) {
-    indices.push(valueToIndexMap[getMapKey(values[i])]);
+    const index = valueToIndexMap[getMapKey(values[i])];
+    if (index === undefined) {
+      throw new Error('Group value is missing from the merged index');
+    }
+    indices.push(index);
   }
   return indices;
 }
 
-function getValuesWithIndex(valueToIndexMap, values, index, getMapKey) {
-  let matchedValues = [];
+function getValuesWithIndex(
+  valueToIndexMap: GroupIndexMap,
+  values: readonly GroupValue[],
+  index: number | undefined,
+  getMapKey: GroupMapKeyAccessor
+): GroupValue[] {
+  const matchedValues: GroupValue[] = [];
   let i, count = values.length;
   for (i=0; i<count; i++) {
     if (valueToIndexMap[getMapKey(values[i])] === index) {
@@ -135,10 +183,10 @@ function getValuesWithIndex(valueToIndexMap, values, index, getMapKey) {
   return matchedValues;
 }
 
-export function getMergedNumericValues(groupAxisConfig, oldNumericValues, groupDeltaData) {
+export function getMergedNumericValues(groupAxisConfig: GroupAxisConfig, oldNumericValues: readonly number[], groupDeltaData: GroupDeltaData): number[] | null {
   if (groupAxisConfig.scale === SCALE_ORDINAL) {
     const mergedCount = groupDeltaData.values.merged.length;
-    let numericValues = [];
+    const numericValues: number[] = [];
     for (let i = 0; i < mergedCount; i++) {
       numericValues.push(i);
     }
@@ -154,11 +202,16 @@ export function getMergedNumericValues(groupAxisConfig, oldNumericValues, groupD
   }
 }
 
-function getGroupMergedValuesData(groupValuesOld, groupValuesNew, sort, getMapKey) {
-  let valueToNewIndexMap = getValueToNewIndexMap(groupValuesOld, groupValuesNew, getMapKey);
-  let added = getValuesWithIndex(valueToNewIndexMap, groupValuesNew, void 0, getMapKey);
-  let removed = getValuesWithIndex(valueToNewIndexMap, groupValuesOld, -1, getMapKey);
-  let merged = getGroupValuesMerged(groupValuesOld, groupValuesNew, removed, added, valueToNewIndexMap, sort, getMapKey);
+function getGroupMergedValuesData(
+  groupValuesOld: readonly GroupValue[],
+  groupValuesNew: readonly GroupValue[],
+  sort: boolean,
+  getMapKey: GroupMapKeyAccessor
+): GroupMergedValuesWithoutDisplay {
+  const valueToNewIndexMap = getValueToNewIndexMap(groupValuesOld, groupValuesNew, getMapKey);
+  const added = getValuesWithIndex(valueToNewIndexMap, groupValuesNew, void 0, getMapKey);
+  const removed = getValuesWithIndex(valueToNewIndexMap, groupValuesOld, -1, getMapKey);
+  const merged = getGroupValuesMerged(groupValuesOld, groupValuesNew, removed, added, valueToNewIndexMap, sort, getMapKey);
 
   return {
     old: groupValuesOld,
@@ -169,7 +222,7 @@ function getGroupMergedValuesData(groupValuesOld, groupValuesNew, sort, getMapKe
   };
 }
 
-function numbersAreAscending(values) {
+function numbersAreAscending(values: readonly number[]): boolean {
   let count = values.length;
   if (count > 1) {
     let last = values[0];
@@ -186,9 +239,14 @@ function numbersAreAscending(values) {
   return true;
 }
 
-function getGroupMergedIndicesData(groupValuesOld, groupValuesNew, mergedValuesData, getMapKey) {
-  let valueToIndexMap = getValueToIndexMap(mergedValuesData.merged, getMapKey);
-  let oldIndices = getMappedIndicesForValues(valueToIndexMap, groupValuesOld, getMapKey);
+function getGroupMergedIndicesData(
+  groupValuesOld: readonly GroupValue[],
+  groupValuesNew: readonly GroupValue[],
+  mergedValuesData: GroupMergedValuesWithoutDisplay,
+  getMapKey: GroupMapKeyAccessor
+): GroupMergedIndicesData {
+  const valueToIndexMap = getValueToIndexMap(mergedValuesData.merged, getMapKey);
+  const oldIndices = getMappedIndicesForValues(valueToIndexMap, groupValuesOld, getMapKey);
   return {
     old: oldIndices,
     new: getMappedIndicesForValues(valueToIndexMap, groupValuesNew, getMapKey),
@@ -198,37 +256,37 @@ function getGroupMergedIndicesData(groupValuesOld, groupValuesNew, mergedValuesD
   };
 }
 
-function getGroupMergedOuterCountsData(mergedIndicesData) {
+function getGroupMergedOuterCountsData(mergedIndicesData: GroupMergedIndicesData): GroupDeltaData['outerCounts'] {
   return {
     added: getGroupChangedOuterCountsData(mergedIndicesData.old, mergedIndicesData.added),
     removed: getGroupChangedOuterCountsData(mergedIndicesData.new, mergedIndicesData.removed)
   }
 }
 
-function getGroupChangedOuterCountsData(comparatorIndices, indices) {
+function getGroupChangedOuterCountsData(comparatorIndices: readonly number[], indices: readonly number[]): OuterChangeCounts {
   return {
     before: getBeforeCounts(comparatorIndices, indices),
     after: getAfterCounts(comparatorIndices, indices)
   };
 }
 
-export function hasGroupAdditions(groupDeltaData) {
+export function hasGroupAdditions(groupDeltaData: GroupDeltaData): boolean {
   return groupDeltaData.values.added.length > 0;
 }
 
-export function hasGroupRemovals(groupDeltaData) {
+export function hasGroupRemovals(groupDeltaData: GroupDeltaData): boolean {
   return groupDeltaData.values.removed.length > 0;
 }
 
-export function hasGroupReorder(groupDeltaData) {
+export function hasGroupReorder(groupDeltaData: GroupDeltaData): boolean {
   return groupDeltaData.indices.reordered;
 }
 
-export function hasNumericValueOffsets(groupAxisConfig, groupData) {
+export function hasNumericValueOffsets(groupAxisConfig: GroupAxisConfig, groupData: GroupData): boolean {
   return groupAxisConfig.scale === SCALE_ORDINAL && groupData.values.numeric.some((v, i) => v !== i);
 }
 
-export function getNumericValueOffsets(groupAxisConfig, groupData) {
+export function getNumericValueOffsets(groupAxisConfig: GroupAxisConfig, groupData: GroupData): number[] | null {
   if (groupAxisConfig.scale === SCALE_ORDINAL) {
     let offsets = groupData.values.numeric.map((v, i) => i - v);
     return offsets.some(o => o !== 0) ? offsets : null;
@@ -238,17 +296,24 @@ export function getNumericValueOffsets(groupAxisConfig, groupData) {
   }
 }
 
-export function getNumericValuesWithoutOffsets(groupData) {
-  return groupData.values.numeric.map((v, i) => i);
+export function getNumericValuesWithoutOffsets(groupData: GroupData): number[] {
+  return groupData.values.numeric.map((_value, index) => index);
 }
 
-export function hasGroupChanges(groupDeltaData) {
+export function hasGroupChanges(groupDeltaData: GroupDeltaData): boolean {
   return hasGroupAdditions(groupDeltaData) || hasGroupRemovals(groupDeltaData) || hasGroupReorder(groupDeltaData);
 }
 
-function getGroupValuesMerged(groupValuesOld, groupValuesNew, groupValuesRemoved, groupValuesAdded,
-                              oldGroupValueToNewIndexMap, sort, getMapKey) {
-  let groupValuesMerged;
+function getGroupValuesMerged(
+  groupValuesOld: readonly GroupValue[],
+  groupValuesNew: readonly GroupValue[],
+  groupValuesRemoved: readonly GroupValue[],
+  _groupValuesAdded: readonly GroupValue[],
+  oldGroupValueToNewIndexMap: GroupIndexMap,
+  sort: boolean,
+  getMapKey: GroupMapKeyAccessor
+): readonly GroupValue[] {
+  let groupValuesMerged: readonly GroupValue[];
   if (sort === false) {
     groupValuesMerged = getGroupValuesMergedOrdered(groupValuesRemoved, groupValuesNew, groupValuesOld, oldGroupValueToNewIndexMap, getMapKey);
   }
@@ -269,8 +334,8 @@ function getGroupValuesMerged(groupValuesOld, groupValuesNew, groupValuesRemoved
 }
 
 // Returns a merged list of group values for the inputs, where the result is sorted by value
-function getGroupValuesMergedSorted(groupValuesRemoved, groupValuesNew) {
-  let groupValuesMerged = [];
+function getGroupValuesMergedSorted(groupValuesRemoved: readonly GroupValue[], groupValuesNew: readonly GroupValue[]): GroupValue[] {
+  const groupValuesMerged: GroupValue[] = [];
   let removedLength = groupValuesRemoved.length;
   let newLength = groupValuesNew.length;
   let mergedLength = removedLength + newLength;
@@ -278,7 +343,7 @@ function getGroupValuesMergedSorted(groupValuesRemoved, groupValuesNew) {
   let newIndex = 0;
   for (let i = 0; i < mergedLength; i++) {
     if (removedIndex < removedLength && newIndex < newLength) {
-      if (groupValuesRemoved[removedIndex] < groupValuesNew[newIndex]) {
+      if (groupValueIsLess(groupValuesRemoved[removedIndex], groupValuesNew[newIndex])) {
         groupValuesMerged.push(groupValuesRemoved[removedIndex++]);
       }
       else {
@@ -296,22 +361,26 @@ function getGroupValuesMergedSorted(groupValuesRemoved, groupValuesNew) {
 }
 
 // Returns a merged list of group values for the inputs, where the result is a best effort to preserve group value ordering
-function getGroupValuesMergedOrdered(groupValuesRemoved, groupValuesNew, groupValuesOld, oldGroupValueToNewIndexMap, getMapKey) {
+function getGroupValuesMergedOrdered(
+  groupValuesRemoved: readonly GroupValue[],
+  groupValuesNew: readonly GroupValue[],
+  groupValuesOld: readonly GroupValue[],
+  oldGroupValueToNewIndexMap: GroupIndexMap,
+  getMapKey: GroupMapKeyAccessor
+): GroupValue[] {
 
   if (groupValuesRemoved.length === groupValuesOld.length) {
     return groupValuesOld.concat(groupValuesNew);
   }
 
-  let valueToOldIndexMap = getValueToNewIndexMap(groupValuesNew, groupValuesOld, getMapKey);
+  const oldNewIndices = getMappedIndicesForValues(oldGroupValueToNewIndexMap, groupValuesOld, getMapKey);
 
-  let oldNewIndices = getMappedIndicesForValues(oldGroupValueToNewIndexMap, groupValuesOld, getMapKey);
-
-  let groupValuesMerged = [];
+  const groupValuesMerged: GroupValue[] = [];
   // loop through the new indices of group values forwards, and then backwards, so we can find the closest non-removed
   // old-group value index for each group value that was removed.
   // If the closest non-removed index is before, add 0.5 from its index so the removed group will appear after it.
   // If the closest non-removed index is after, subtract 0.5 from its index so the removed group will appear before it.
-  let oldTargetIndices = [];
+  const oldTargetIndices: number[] = [];
   let foundIndex = -1;
   let oldLength = oldNewIndices.length;
   for (let i = 0; i < oldLength; i++) {
@@ -330,7 +399,7 @@ function getGroupValuesMergedOrdered(groupValuesRemoved, groupValuesNew, groupVa
     }
   }
 
-  let oldInsertIndices = [];
+  const oldInsertIndices: number[] = [];
   for (let i = 0; i < oldLength; i++) {
     if (oldNewIndices[i] === -1) {
       oldInsertIndices.push(oldTargetIndices[i]);
@@ -364,7 +433,7 @@ function getGroupValuesMergedOrdered(groupValuesRemoved, groupValuesNew, groupVa
   return groupValuesMerged;
 }
 
-function getBeforeCounts(comparatorIndices, indices) {
+function getBeforeCounts(comparatorIndices: readonly number[], indices: readonly number[]): number {
   let beforeCounts = 0;
   if (comparatorIndices.length > 0) {
     let firstComparatorIndex = comparatorIndices[0];
@@ -378,7 +447,7 @@ function getBeforeCounts(comparatorIndices, indices) {
   return beforeCounts;
 }
 
-function getAfterCounts(comparatorIndices, indices) {
+function getAfterCounts(comparatorIndices: readonly number[], indices: readonly number[]): number {
   let afterCounts = 0;
   if (comparatorIndices.length > 0) {
     let lastComparatorIndex = comparatorIndices[comparatorIndices.length-1];
@@ -392,8 +461,14 @@ function getAfterCounts(comparatorIndices, indices) {
   return afterCounts;
 }
 
-export function getExpansionGroupValueDeltaData(groupAxisConfig, groupDeltaData, prevChartData, newChartData, groupAxisDomain) {
-  let groupValueDeltaData = null;
+export function getExpansionGroupValueDeltaData(
+  groupAxisConfig: GroupAxisConfig,
+  groupDeltaData: GroupDeltaData,
+  prevChartData: ChartDataWithGroups,
+  _newChartData: ChartDataWithGroups,
+  groupAxisDomain: GroupAxisDomain
+): CompleteNumericArrayDelta | null {
+  let groupValueDeltaData: CompleteNumericArrayDelta | null = null;
   if (groupAxisConfig.scale === SCALE_ORDINAL)   {
     if (hasGroupAdditions(groupDeltaData)) {
       groupValueDeltaData = getOrdinalGroupValueDeltaData(prevChartData.groupData.values.numeric, groupDeltaData.indices.old, groupAxisDomain);
@@ -402,8 +477,14 @@ export function getExpansionGroupValueDeltaData(groupAxisConfig, groupDeltaData,
   return groupValueDeltaData;
 }
 
-export function getCollapseGroupValueDeltaData(groupAxisConfig, groupDeltaData, prevChartData, newChartData, groupAxisDomain) {
-  let groupValueDeltaData = null;
+export function getCollapseGroupValueDeltaData(
+  groupAxisConfig: GroupAxisConfig,
+  groupDeltaData: GroupDeltaData,
+  prevChartData: ChartDataWithGroups,
+  newChartData: ChartDataWithGroups,
+  groupAxisDomain: GroupAxisDomain
+): CompleteNumericArrayDelta | null {
+  let groupValueDeltaData: CompleteNumericArrayDelta | null = null;
   if (groupAxisConfig.scale === SCALE_ORDINAL) {
     if (hasGroupRemovals(groupDeltaData)) {
       groupValueDeltaData = getOrdinalGroupValueDeltaData(prevChartData.groupData.values.numeric, newChartData.groupData.values.numeric, groupAxisDomain);
@@ -412,8 +493,8 @@ export function getCollapseGroupValueDeltaData(groupAxisConfig, groupDeltaData, 
   return groupValueDeltaData;
 }
 
-function getOrdinalGroupValueDeltaData(oldNumericValues, newNumericValues, groupAxisDomain) {
-  let deltas = [];
+function getOrdinalGroupValueDeltaData(oldNumericValues: number[], newNumericValues: number[], groupAxisDomain: GroupAxisDomain): CompleteNumericArrayDelta {
+  const deltas: number[] = [];
   let i, count = oldNumericValues.length;
   for (i = 0; i < count; i++) {
     deltas.push(newNumericValues[i] - oldNumericValues[i]);
@@ -421,18 +502,23 @@ function getOrdinalGroupValueDeltaData(oldNumericValues, newNumericValues, group
   return {
     start: oldNumericValues,
     deltas,
-    deltaPercentage: getMaxAbsoluteValue(deltas) / groupAxisDomain[1],
+    deltaPercentage: getMaxAbsoluteValue(deltas) / Number(groupAxisDomain[1]),
     end: newNumericValues
   }
 }
 
-const noDelta = {
+const noDelta: NumericArrayDelta = {
   deltaPercentage: 0,
   deltaFactor: 0,
   deltas: []
 }
 
-export function createGroupOrderDeltaData(mochartConfig, startChartData, endChartData, ordinalGroupOrderOffets) {
+export function createGroupOrderDeltaData(
+  mochartConfig: MochartConfig,
+  startChartData: ChartDataWithGroups,
+  endChartData: ChartDataWithGroups,
+  ordinalGroupOrderOffets: number[] | null
+): NumericArrayDelta {
   const { groupAxisConfig } = mochartConfig;
   if (groupAxisConfig.scale !== SCALE_ORDINAL || ordinalGroupOrderOffets === null) {
     return noDelta;
@@ -441,13 +527,13 @@ export function createGroupOrderDeltaData(mochartConfig, startChartData, endChar
     return {
       start: startChartData.groupData.values.numeric,
       deltas: ordinalGroupOrderOffets,
-      deltaPercentage: getMaxAbsoluteValue(ordinalGroupOrderOffets) / endChartData.groupData.axisDomain[1],
+      deltaPercentage: getMaxAbsoluteValue(ordinalGroupOrderOffets) / Number(endChartData.groupData.axisDomain[1]),
       end: endChartData.groupData.values.numeric
     };
   }
 }
 
-export function setGroupOrderDeltaFactors(groupOrderDeltaData, deltaPercentage) {
+export function setGroupOrderDeltaFactors(groupOrderDeltaData: NumericArrayDelta, deltaPercentage: number): void {
   if (groupOrderDeltaData.deltaPercentage !== 0) {
     groupOrderDeltaData.deltaFactor = deltaPercentage / groupOrderDeltaData.deltaPercentage;
   }

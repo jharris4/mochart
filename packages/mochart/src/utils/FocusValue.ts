@@ -1,4 +1,7 @@
-export function getFocusValue(focusPercentage, normalValue, focusedValue, defocusedValue) {
+import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
+import type { SeriesConfig } from '../types/config';
+
+export function getFocusValue(focusPercentage: FocusPercentage, normalValue: number, focusedValue: number, defocusedValue: number): number {
   // TODO - this assumes that focusedValue >= normalValue >= defocusedValue. This should be validated or improved...
   if (focusPercentage === null || focusPercentage === 0) {
     return normalValue;
@@ -9,13 +12,14 @@ export function getFocusValue(focusPercentage, normalValue, focusedValue, defocu
   else if (focusPercentage > 0) {
     return normalValue + focusPercentage * (focusedValue - normalValue);
   }
+  return normalValue;
 }
 
-export function getGroupFocusPercentage(groupFocusPercentage, seriesFocusPercentage) {
+export function getGroupFocusPercentage(groupFocusPercentage: FocusPercentage, seriesFocusPercentage: FocusPercentage): FocusPercentage {
   return getCombinedFocusPercentage(groupFocusPercentage, seriesFocusPercentage);
 }
 
-function getCombinedFocusPercentage(percentageA, percentageB) {
+function getCombinedFocusPercentage(percentageA: FocusPercentage, percentageB: FocusPercentage): FocusPercentage {
   if (percentageA === null && percentageB === null) {
     return null;
   }
@@ -33,9 +37,9 @@ function getCombinedFocusPercentage(percentageA, percentageB) {
   }
 }
 
-export function getAggregateSeriesFocusPercentage(seriesConfigs, seriesFocusPercentages) {
-  let maxPercentage = null;
-  let seriesFocusPercentage;
+export function getAggregateSeriesFocusPercentage(seriesConfigs: SeriesConfig[], seriesFocusPercentages: FocusPercentageMap): FocusPercentage {
+  let maxPercentage: FocusPercentage = null;
+  let seriesFocusPercentage: FocusPercentage;
   for (let seriesConfig of seriesConfigs) {
     seriesFocusPercentage = seriesFocusPercentages[seriesConfig.id];
     if (seriesFocusPercentage !== null) {
@@ -47,14 +51,14 @@ export function getAggregateSeriesFocusPercentage(seriesConfigs, seriesFocusPerc
   return maxPercentage;
 }
 
-export function getFocusedDefocused(focusPercentage) {
+export function getFocusedDefocused(focusPercentage: FocusPercentage): { focused: boolean; defocused: boolean } {
   return {
-    focused: focusPercentage > 0,
-    defocused: focusPercentage < 0
+    focused: focusPercentage !== null && focusPercentage > 0,
+    defocused: focusPercentage !== null && focusPercentage < 0
   };
 }
 
-export function getFocusPercentageColor(focusPercentage, normalColor, focusedColor, defocusedColor) {
+export function getFocusPercentageColor(focusPercentage: FocusPercentage, normalColor: string, focusedColor: string, defocusedColor: string): string {
   const { focused, defocused } = getFocusedDefocused(focusPercentage);
   if (focused) {
     return focusedColor;
@@ -67,7 +71,7 @@ export function getFocusPercentageColor(focusPercentage, normalColor, focusedCol
   }
 }
 
-export function getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, normalColor, focusedColor, defocusedColor) {
+export function getAxisFocusColor(axisFocusPercentage: FocusPercentage | undefined, seriesFocusPercentage: FocusPercentage | undefined, useSeriesFocus: boolean, normalColor: string, focusedColor: string, defocusedColor: string): string {
   let color = normalColor;
   if (axisFocusPercentage !== void 0 && seriesFocusPercentage !== void 0) {
     if (axisFocusPercentage !== null) {
@@ -80,7 +84,7 @@ export function getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, us
   return color;
 }
 
-export function getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, normalOpacity, focusedOpacity, defocusedOpacity) {
+export function getAxisFocusOpacity(axisFocusPercentage: FocusPercentage | undefined, seriesFocusPercentage: FocusPercentage | undefined, useSeriesFocus: boolean, normalOpacity: number, focusedOpacity: number, defocusedOpacity: number): number {
   let opacity = normalOpacity;
   if (axisFocusPercentage !== void 0 && seriesFocusPercentage !== void 0 && !(axisFocusPercentage === null && seriesFocusPercentage === null)) {
     const percentage = useSeriesFocus ? getCombinedFocusPercentage(axisFocusPercentage, seriesFocusPercentage) : axisFocusPercentage;

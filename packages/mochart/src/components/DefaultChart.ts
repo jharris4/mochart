@@ -1,37 +1,43 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
-import { Renderer } from '../render';
+import { Renderer, Slot } from '../render';
 
 import { enhanceConfig } from '../config/helper';
 import { ArrayOfObjectsDataProvider } from '../data/DataProvider';
 import { getDataErrors } from '../data/DataValidator';
 import { default as ManagedChart } from './ManagedChart';
+import type { ChartEventPayload, ChartFocus, ChartSeriesFilter, DefaultChartProps } from '../types/chart';
+import type { MochartConfig, MochartInputConfig } from '../types/config';
+import type { DataProvider, DataRow } from '../types/data';
+import type { Bounds } from '../types/geometry';
 
-function isObject(v) {
+function isObject(v: unknown): v is Record<string, unknown> {
   return v !== null && v !== void 0 && typeof v === "object";
 }
 
-function getGroupProperty(config) {
-  let groupProperty = void 0;
+function getGroupProperty(config: MochartInputConfig | MochartConfig): string | undefined {
+  let groupProperty: string | undefined = void 0;
   if (isObject(config) && isObject(config.groupAxisConfig)) {
-    groupProperty = config.groupAxisConfig.property;
+    const property = config.groupAxisConfig.property;
+    groupProperty = typeof property === 'string' ? property : undefined;
   }
   return groupProperty;
 }
 
-function isArrayOfObjects(data) {
+function isArrayOfObjects(data: readonly unknown[]): data is readonly DataRow[] {
   return Array.isArray(data) && !data.some(v => !isObject(v));
 }
 
-function buildErrorDataProvider(error = 'Invalid Data') {
+function buildErrorDataProvider(error: unknown = 'Invalid Data'): DataProvider {
   return {
-    getError: () => error
+    getError: () => error,
+    getGroupValues: () => [],
+    getSeriesValue: () => undefined
   };
 }
 
-function buildDataProvider(mochartConfig, data) {
+function buildDataProvider(mochartConfig: MochartConfig, data: readonly unknown[]): DataProvider {
   const groupProperty = getGroupProperty(mochartConfig);
   if (groupProperty !== void 0 && isArrayOfObjects(data)) {
-    const dataProvider = new ArrayOfObjectsDataProvider(data, groupProperty);
+    const dataProvider = new ArrayOfObjectsDataProvider(data, groupProperty) as unknown as DataProvider;
     const dataErrors = getDataErrors(mochartConfig, dataProvider);
     if (dataErrors.length === 0) {
       return dataProvider;
@@ -45,18 +51,23 @@ function buildDataProvider(mochartConfig, data) {
   }
 }
 
-export default class DefaultChart extends Renderer {
+interface DefaultChartState {
+  mochartConfig: MochartConfig | null;
+  dataProvider: DataProvider | null;
+}
+
+export default class DefaultChart extends Renderer<DefaultChartProps, DefaultChartState> {
   static defaultProps = {
-    onChartClick: (eventPayload) => { },
-    onChartMouseEnter: (eventPayload) => { },
-    onChartMouseMove: (eventPayload) => { },
-    onChartMouseLeave: (eventPayload) => { },
-    onFocus: (focusData) => { },
-    onSeriesFilter: (filterData) => { },
-    onSeriesLayoutInfoChange: (bounds) => { }
+    onChartClick: (_eventPayload: ChartEventPayload) => { },
+    onChartMouseEnter: (_eventPayload: ChartEventPayload) => { },
+    onChartMouseMove: (_eventPayload: ChartEventPayload) => { },
+    onChartMouseLeave: (_eventPayload: ChartEventPayload) => { },
+    onFocus: (_focusData: ChartFocus) => { },
+    onSeriesFilter: (_filterData: ChartSeriesFilter) => { },
+    onSeriesLayoutInfoChange: (_bounds: Bounds) => { }
   };
 
-  chart = null;
+  chart: Slot | null = null;
 
   constructor() {
     super();
@@ -70,7 +81,7 @@ export default class DefaultChart extends Renderer {
     this.setState({ mochartConfig, dataProvider });
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: DefaultChartProps): void {
     const { config, data } = nextProps;
     const configChanged = config !== this.props.config;
     const dataChanged = data !== this.props.data;
@@ -82,7 +93,7 @@ export default class DefaultChart extends Renderer {
         mochartConfig = enhanceConfig(config);
       }
       if (dataChanged || groupPropertyChanged) {
-        dataProvider = buildDataProvider(mochartConfig, data);
+        dataProvider = buildDataProvider(mochartConfig!, data);
       }
       this.setState({ mochartConfig, dataProvider });
     }
@@ -98,7 +109,7 @@ export default class DefaultChart extends Renderer {
       onFocus, onSeriesFilter, onSeriesLayoutInfoChange,
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent } = this.props;
     const { mochartConfig, dataProvider } = this.state;
-    this.chart.set(ManagedChart, { mochartConfig, dataProvider, width, height,
+    this.chart!.set(ManagedChart, { mochartConfig: mochartConfig!, dataProvider: dataProvider!, width, height,
       onChartClick, onChartMouseEnter,
       onChartMouseMove, onChartMouseLeave,
       onFocus, onSeriesFilter, onSeriesLayoutInfoChange,

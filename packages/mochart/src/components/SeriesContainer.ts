@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { getSeriesConfigsOrderedByFocus } from '../data/FocusData';
@@ -6,8 +5,25 @@ import { mochartCssClasses } from '../utils/ChartDom';
 
 import SeriesBackground from './SeriesBackground';
 import Series from './Series';
+import type { MochartConfig } from '../types/config';
+import type { GroupAxisData, SeriesAxisData, SeriesData, StackData } from '../types/data';
+import type { FocusData } from '../types/animation';
+import type { LayoutInfo } from '../types/layout';
 
-export default class SeriesContainer extends Renderer {
+interface SeriesContainerProps {
+  mochartConfig: MochartConfig;
+  seriesLayoutInfo: LayoutInfo;
+  seriesData: SeriesData;
+  seriesAxisData: SeriesAxisData;
+  stackData: StackData;
+  focusData: FocusData;
+  groupValueData: GroupAxisData['valueData'];
+  gradientIdMap: Record<string, string>;
+  onFocus: (focus: { seriesId?: string | null; groupIndex?: number | null }) => void;
+  shapeRef: (element: Element | null) => void;
+}
+
+export default class SeriesContainer extends Renderer<SeriesContainerProps> {
   root = svgEl('g');
   background = this.slot(this.root);
   series = this.rendererList(this.root);
@@ -22,7 +38,7 @@ export default class SeriesContainer extends Renderer {
     const { groupAxisConfig, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
 
     const { raw, filtered } = seriesData;
-    const { values: rawValues, domains: rawDomains, axisDomains: rawSeriesAxisDomains } = raw;
+    const { domains: rawDomains, axisDomains: rawSeriesAxisDomains } = raw;
     const { values: filteredValues } = filtered;
 
     let orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
@@ -40,9 +56,9 @@ export default class SeriesContainer extends Renderer {
         props: { groupAxisConfig, colorPaletteConfig,
           seriesConfig, seriesIndex: index, stackData,
           seriesLayoutInfo, focusData, groupValueData,
-          seriesAxisScale: seriesAxisData.axisScales[axis],
-          rawSeriesAxisDomain: rawSeriesAxisDomains[axis], rawDomains: rawDomains[id],
-          rawValues: rawValues[id], filteredValues: filteredValues[id],
+          seriesAxisScale: seriesAxisData.axisScales[axis!],
+          rawSeriesAxisDomain: rawSeriesAxisDomains[axis!], rawDomains: rawDomains[id],
+          filteredValues: filteredValues[id],
           gradientIdMap, onFocus }
       };
     }));

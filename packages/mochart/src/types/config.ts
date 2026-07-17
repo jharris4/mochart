@@ -388,10 +388,8 @@ export interface SeriesAxisConfig extends AxisConfigBase {
 
 export interface SeriesCurve {
   type: CurveType;
-  /** Parameter for 'cardinal' curves. */
-  tension?: number;
-  /** Parameter for 'catmullRom' curves. */
-  alpha?: number;
+  /** Passed to the selected D3 curve's tension/alpha configurator. */
+  param?: number;
 }
 
 export interface SeriesConfig {
@@ -473,7 +471,7 @@ export interface SeriesConfig {
   colorMax: string | null;
   colorBaseAboveMin: string | null;
   colorBaseAboveMax: string | null;
-  colorBase: string | null;
+  colorBase: number | null;
   colorBaseBelowMin: string | null;
   colorBaseBelowMax: string | null;
   minMarkerSize: number;
@@ -506,7 +504,7 @@ export interface SeriesConfig {
   focusGroupOnClick: boolean;
   useAxisFocus: boolean;
   /** Back-references assigned by buildMochartConfig. */
-  seriesAxisConfig?: SeriesAxisConfig;
+  seriesAxisConfig: SeriesAxisConfig;
   seriesStackConfig?: SeriesStackConfig;
   seriesGroupConfig?: SeriesGroupConfig;
   linearGradientConfig?: LinearGradientConfig;

@@ -1,3 +1,10 @@
+import type {
+  AxisDomains as DataAxisDomains, ChartData, GroupData, GroupValue,
+  NumericValues as DataNumericValues, SeriesData, SeriesDataSet,
+  SeriesDomainObject as DataSeriesDomainObject, SeriesDomainObjects as DataSeriesDomainObjects,
+  SeriesValueObject as DataSeriesValueObject, SeriesValueObjects as DataSeriesValueObjects
+} from './data';
+
 export type FocusPercentage = number | null;
 export type FocusPercentageMap = Record<string, FocusPercentage>;
 
@@ -9,8 +16,8 @@ export interface FocusData {
   seriesAxisFocusPercentages: FocusPercentageMap;
   seriesFocusPercentages: FocusPercentageMap;
   groupFocusDomainPercentages?: number[];
-  seriesAxisFocusDomainPercentages?: Record<string, number[]>;
-  seriesFocusDomainPercentages?: Record<string, number[]>;
+  seriesAxisFocusDomainPercentages?: number[];
+  seriesFocusDomainPercentages?: number[];
   seriesAxisComputedFocusDomainPercentages?: Record<string, number[]>;
 }
 
@@ -45,40 +52,17 @@ export interface FocusAnimationData {
 export type NumericDomain = [number, number];
 export type DateDomain = [Date, Date];
 export type AxisDomain = NumericDomain | DateDomain;
-export type NumericValues = (number | undefined)[];
+export type NumericValues = DataNumericValues;
+export type SeriesValueObject = DataSeriesValueObject;
+export type SeriesValueObjects = DataSeriesValueObjects;
+export type SeriesDomainObject = DataSeriesDomainObject;
+export type SeriesDomainObjects = DataSeriesDomainObjects;
+export type AxisDomains = DataAxisDomains;
 
-export interface AnimationGroupData {
-  axisDomain: AxisDomain;
-  values: {
-    raw: unknown[];
-    display: unknown[];
-    parsed: unknown[];
-    numeric: number[];
-  };
-}
-
-export type SeriesValueObject = Record<string, NumericValues | string | null | undefined>;
-export type SeriesValueObjects = Record<string, SeriesValueObject>;
-export type SeriesDomainObject = Record<string, NumericDomain>;
-export type SeriesDomainObjects = Record<string, SeriesDomainObject>;
-export type AxisDomains = Record<string, NumericDomain>;
-
-export interface AnimationSeriesDataSet {
-  axisDomains: AxisDomains;
-  domains: SeriesDomainObjects;
-  values: SeriesValueObjects;
-}
-
-export interface AnimationSeriesData {
-  raw: AnimationSeriesDataSet;
-  filtered: AnimationSeriesDataSet;
-  [key: string]: unknown;
-}
-
-export interface AnimationChartData {
-  groupData: AnimationGroupData;
-  seriesData: AnimationSeriesData;
-}
+export type AnimationGroupData = GroupData;
+export type AnimationSeriesDataSet = SeriesDataSet;
+export type AnimationSeriesData = SeriesData;
+export type AnimationChartData = ChartData;
 
 export interface DomainDelta {
   deltaPercentage: number;
@@ -102,8 +86,8 @@ export interface SeriesDomainDeltaMap {
 
 export interface NumericValuesDelta {
   deltaPercentage: number;
-  deltas: number[];
-  deltaFactor: number;
+  deltas: number[] | null;
+  deltaFactor?: number;
   deltaCopied?: boolean;
 }
 
@@ -123,7 +107,7 @@ export interface NumericArrayDelta {
   deltas: number[];
   end?: number[];
   deltaPercentage: number;
-  deltaFactor: number;
+  deltaFactor?: number;
 }
 
 export interface CompleteNumericArrayDelta extends NumericArrayDelta {
@@ -172,8 +156,39 @@ export interface ValueChangeData {
 
 export interface ChartAnimationData {
   initialAnimation: boolean;
-  groupDeltaData: unknown;
+  groupDeltaData: GroupDeltaData;
   axisExpansionData: AxisTransitionData;
   valueChangeData: ValueChangeData;
   axisCollapseData: AxisTransitionData;
+}
+
+export interface GroupMergedValuesData {
+  old: readonly GroupValue[];
+  merged: readonly GroupValue[];
+  added: readonly GroupValue[];
+  removed: readonly GroupValue[];
+  new: readonly GroupValue[];
+  displayMerged: readonly GroupValue[];
+}
+
+export interface GroupMergedIndicesData {
+  old: number[];
+  new: number[];
+  added: number[];
+  removed: number[];
+  reordered: boolean;
+}
+
+export interface OuterChangeCounts {
+  before: number;
+  after: number;
+}
+
+export interface GroupDeltaData {
+  values: GroupMergedValuesData;
+  indices: GroupMergedIndicesData;
+  outerCounts: {
+    added: OuterChangeCounts;
+    removed: OuterChangeCounts;
+  };
 }

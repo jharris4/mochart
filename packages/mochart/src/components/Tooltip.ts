@@ -1,11 +1,34 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, htmlEl } from '../render';
 
 import TooltipContent from './TooltipContent';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import type { MochartConfig } from '../types/config';
+import type { FocusPercentageMap } from '../types/animation';
+import type { SpacingLayoutInfo } from '../types/layout';
+import type { Bounds } from '../types/geometry';
+import type { GroupSeriesValueObject } from '../data/ChartData';
 
-export default class Tooltip extends Renderer {
+interface TooltipProps {
+  mochartConfig: MochartConfig;
+  tooltipVisible: boolean;
+  tooltipGroupIndex: number;
+  svgUniqueId: string;
+  groupCount: number;
+  focusedGroupIndex: number;
+  tooltipBounds: Bounds | null;
+  tooltipValueObject: GroupSeriesValueObject;
+  focusedSeriesId: string | null;
+  seriesAxisFocusPercentages: FocusPercentageMap;
+  seriesFocusPercentages: FocusPercentageMap;
+  tooltipLayoutInfo: SpacingLayoutInfo;
+  onClose: () => void;
+  updateTooltipGroupIndex: (groupIndex: number) => void;
+  onFocus: (focus: { groupIndex?: number | null; seriesId?: string | null }) => void;
+  onSeriesFilter: (seriesId: string) => void;
+}
+
+export default class Tooltip extends Renderer<TooltipProps> {
   root = htmlEl('div');
   sizer = htmlEl('div');
   sizerContent = this.slot(this.sizer);

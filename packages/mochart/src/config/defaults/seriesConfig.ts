@@ -5,13 +5,14 @@ import {
 } from '../core/constants';
 
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import type { SeriesColor, SeriesConfig } from '../../types/config';
 
-export default function getDefaults(config, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId) {
+export default function getDefaults(config: Partial<SeriesConfig> = {}, index: number, soleSeriesAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null): Partial<SeriesConfig> {
   let regularDefaults = getRegularDefaults();
   let configWithRegularDefaults = {...regularDefaults, ...config};
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId));
+  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId));
 
-  return {...regularDefaults, ...conditionalDefaults};
+  return {...regularDefaults, ...conditionalDefaults} as Partial<SeriesConfig>;
 }
 
 export function getRegularDefaults() {
@@ -109,7 +110,7 @@ export function getRegularDefaults() {
   };
 }
 
-export function getConditionalDefaults(configWithRegularDefaults, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId) {
+export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig & { color?: SeriesColor }, index: number, soleSeriesAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null) {
   return {
     id: conditionalDefault([
       { condition: (config, index) => true, suffix: 'series index', default: 'S' + index, defaultText: 'S${index}' },

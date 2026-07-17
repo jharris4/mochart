@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl, textEl, Slot } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -9,11 +8,39 @@ import { onClickDisabled, centerTextY, translate, translateObject } from '../uti
 import { getClipPathReference } from '../utils/svgUtils';
 import { getSpacingWidth } from '../layout/SpacingLayoutInfo';
 import Background from './Background';
+import type { El, TextEl } from '../render';
+import type { BackgroundStyle, MochartConfig, TextStyle } from '../types/config';
+import type { SpacingLayoutInfo } from '../types/layout';
+import type { TruncationDataValue } from '../utils/TextTruncation';
 
-export default class Title extends Renderer {
+type TitleSectionKey = 'titlePrefix' | 'titleText' | 'titleTextRaw' | 'titleSuffix';
+type TitleBackgroundKey = 'titlePrefixBackground' | 'titleTextBackground' | 'titleSuffixBackground';
+interface TitleSection {
+  root: El;
+  backgroundSlot: Slot;
+  clipGroup: El;
+  text: El;
+  value: TextEl;
+}
+interface TitleProps {
+  mochartConfig: MochartConfig;
+  titleLayoutInfo: SpacingLayoutInfo;
+  titlePrefixLayoutInfo: SpacingLayoutInfo;
+  titleTextLayoutInfo: SpacingLayoutInfo;
+  titleTextRawLayoutInfo: SpacingLayoutInfo;
+  titleSuffixLayoutInfo: SpacingLayoutInfo;
+  titleClipPathUniqueId: string;
+  onClick?: () => void;
+}
+interface TitleState { truncationData: TruncationDataValue }
+
+export default class Title extends Renderer<TitleProps, TitleState> {
   root = svgEl('g');
   background = this.slot(this.root);
   wrapper = this.elSlot(this.root);
+  truncationData: TruncationDataValue = null;
+  checkTruncation = false;
+  sections: Partial<Record<TitleSectionKey, TitleSection>> = {};
 
   constructor() {
     super();
@@ -34,7 +61,7 @@ export default class Title extends Renderer {
     }
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: TitleProps): void {
     const { mochartConfig, titleLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo } = nextProps;
     const { titleConfig } = mochartConfig;
     const truncationEnabled = titleConfig.title !== NONE && titleConfig.truncationEnabled;
@@ -58,7 +85,7 @@ export default class Title extends Renderer {
   }
 
   /** One prefix/text/raw/suffix block: g[style] > [Background?, g[clipPath] > text]. Built once, reused. */
-  getSection(titleKey) {
+  getSection(titleKey: TitleSectionKey): TitleSection {
     let section = this.sections[titleKey];
     if (section === undefined) {
       const root = svgEl('g');
@@ -74,7 +101,7 @@ export default class Title extends Renderer {
     return section;
   }
 
-  syncSection(wrapperEl, titleKey, titleBackgroundKey, titleValue, titleSectionLayoutInfo, backgroundStyle, textStyle, visible, clipPath = null) {
+  syncSection(wrapperEl: El, titleKey: TitleSectionKey, titleBackgroundKey: TitleBackgroundKey, titleValue: string | null, titleSectionLayoutInfo: SpacingLayoutInfo, backgroundStyle: BackgroundStyle, textStyle: TextStyle, visible: boolean, clipPath: string | null = null): void {
     if (titleValue) {
       const section = this.getSection(titleKey);
       const { paddingBounds } = titleSectionLayoutInfo;
@@ -126,14 +153,14 @@ export default class Title extends Renderer {
       this.root.set({ className: mochartCssClasses['title'], transform: titleTransform, onClick: this.chartTitleClick });
       this.background.set(Background, { config: titleConfig, classKey: 'titleBackground', spacingRelative: true, spacingLayoutInfo: titleLayoutInfo });
 
-      let wrapperEl;
+      let wrapperEl: El;
       if (link) {
         const onLinkClick = linkDisabled ? onClickDisabled : null;
-        wrapperEl = this.wrapper.set('a', () => svgEl('a'));
+        wrapperEl = this.wrapper.set('a', () => svgEl('a'))!;
         wrapperEl.set({ href: link, onClick: onLinkClick, transform: titleSpacingTransform });
       }
       else {
-        wrapperEl = this.wrapper.set('g', () => svgEl('g'));
+        wrapperEl = this.wrapper.set('g', () => svgEl('g'))!;
         wrapperEl.set({ transform: titleSpacingTransform });
       }
 
@@ -162,13 +189,13 @@ export default class Title extends Renderer {
 
   refreshTruncation() {
     if (this.checkTruncation && this.present) {
-      const domElement = this.root.node.querySelector(getTitleTextCssSelector());
+      const domElement = this.root.node.querySelector<SVGTextContentElement>(getTitleTextCssSelector());
       const { mochartConfig, titleTextLayoutInfo } = this.props;
       const { titleConfig } = mochartConfig;
       const { width } = titleTextLayoutInfo;
       const { title, truncationValue, textMargin, textPadding } = titleConfig;
       const maxLength = Math.max(width - getSpacingWidth(textMargin, textPadding), 0);
-      const { checkTruncation, truncationData } = updateTruncation(truncationValue, this.state.truncationData, title, maxLength, domElement);
+      const { checkTruncation, truncationData } = updateTruncation(truncationValue, this.state.truncationData, title!, maxLength, domElement);
       if (checkTruncation) {
         this.setState({ truncationData });
         this.truncationData = truncationData;
@@ -178,8 +205,8 @@ export default class Title extends Renderer {
   }
 
   destroy(removeDom = true) {
-    for (const titleKey in this.sections) {
-      this.sections[titleKey].backgroundSlot.destroy(false);
+    for (const titleKey of Object.keys(this.sections) as TitleSectionKey[]) {
+      this.sections[titleKey]!.backgroundSlot.destroy(false);
     }
     super.destroy(removeDom);
   }

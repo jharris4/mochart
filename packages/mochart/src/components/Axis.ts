@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import AxisBackground from './AxisBackground';
@@ -10,9 +9,30 @@ import AxisFocusTickMarks from './AxisFocusTickMarks';
 import AxisFocusRange from './AxisFocusRange';
 
 import { translateObject } from '../utils/utils';
+import type { GroupAxisConfig, SeriesAxisConfig } from '../types/config';
+import type { AxisTick } from '../types/data';
+import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
 
-export default class Axis extends Renderer {
-  static defaultProps = {
+interface AxisProps {
+  front: boolean;
+  axisConfig: GroupAxisConfig | SeriesAxisConfig;
+  axisLayoutInfo: AxisLayoutInfo;
+  plotLayoutInfo: SpacingLayoutInfo;
+  axisClass: string;
+  axisTicks: AxisTick[];
+  axisFocusPercentage?: number | null;
+  seriesFocusPercentage?: number | null;
+  focusPercentages: number[];
+  tickSpacing?: number | null;
+  titleClipPathUniqueId: string;
+  tickLabelClipPathUniqueId?: string;
+  onMouseEnter?: (() => void) | null;
+  onMouseLeave?: (() => void) | null;
+  onClick?: (() => void) | null;
+}
+
+export default class Axis extends Renderer<AxisProps> {
+  static defaultProps: Partial<AxisProps> = {
     onMouseEnter: null,
     onMouseLeave: null,
     onClick: null
@@ -55,7 +75,7 @@ export default class Axis extends Renderer {
         this.lineSlot.set(null);
       }
       else {
-        this.lineSlot.set(AxisLine, { axisConfig, axisLayoutInfo, axisFocusPercentage, seriesFocusPercentage });
+        this.lineSlot.set(AxisLine, { axisConfig, axisLayoutInfo, axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null });
       }
 
       if (front !== focusRangeFront) {
@@ -69,7 +89,7 @@ export default class Axis extends Renderer {
         this.tickMarksSlot.set(null);
       }
       else {
-        this.tickMarksSlot.set(AxisTickMarks, { axisConfig, axisLayoutInfo, axisTicks, axisFocusPercentage, seriesFocusPercentage });
+        this.tickMarksSlot.set(AxisTickMarks, { axisConfig, axisLayoutInfo, axisTicks, axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null });
       }
 
       if (front !== tickLabelFront) {
@@ -77,16 +97,16 @@ export default class Axis extends Renderer {
       }
       else {
         this.tickLabelsSlot.set(AxisTickLabels, { axisLayoutInfo, plotLayoutInfo,
-          axisFocusPercentage, seriesFocusPercentage,
+          axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null,
           axisConfig, axisTicks,
-          tickSpacing, tickLabelClipPathUniqueId });
+          tickSpacing: tickSpacing ?? null, tickLabelClipPathUniqueId });
       }
 
       if (front !== titleFront) {
         this.titleSlot.set(null);
       }
       else {
-        this.titleSlot.set(AxisTitle, { axisConfig, axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage, seriesFocusPercentage });
+        this.titleSlot.set(AxisTitle, { axisConfig, axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null });
       }
 
       if (front !== focusTickMarksFront) {

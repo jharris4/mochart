@@ -1,15 +1,20 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { getSeriesGradientColors } from '../utils/SeriesColors';
+import type { SeriesConfig } from '../types/config';
 
-function toPercent(i, count) {
+interface SeriesColorGradientProps {
+  uniqueId: string;
+  seriesConfig: SeriesConfig;
+}
+
+function toPercent(i: number, count: number): string {
   return (count === 2 ? (i * 100) : (i * 25)) + '%';
 }
 
-export default class SeriesColorGradient extends Renderer {
+export default class SeriesColorGradient extends Renderer<SeriesColorGradientProps> {
   root = svgEl('linearGradient');
-  stops = this.elList(this.root);
+  stops = this.elList<string>(this.root);
 
   create() {
     return this.root.node;

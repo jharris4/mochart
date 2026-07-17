@@ -1,22 +1,40 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
-import { Renderer } from '../render';
+import { Renderer, Slot } from '../render';
 
 import { hasConfigStructureChange } from '../config/core/mochartConfig';
 import StaticChart from './StaticChart';
 import AnimatedChart from './AnimatedChart';
+import type { ChartEventPayload, ChartFocus, ChartSeriesFilter, ManagedChartProps } from '../types/chart';
+import type { Bounds } from '../types/geometry';
 
-export default class ManagedChart extends Renderer {
+interface ManagedChartState {
+  focusedGroupIndex: number;
+  focusedSeriesAxisId: string | null;
+  focusedSeriesId: string | null;
+  filteredSeriesIds: Record<string, boolean>;
+}
+
+interface InternalFocus {
+  seriesAxisId?: string | null;
+  seriesId?: string | null;
+  groupIndex?: number | null;
+}
+
+export default class ManagedChart extends Renderer<ManagedChartProps, ManagedChartState> {
   static defaultProps = {
-    onChartClick: (eventPayload) => {},
-    onChartMouseEnter: (eventPayload) => {},
-    onChartMouseMove: (eventPayload) => {},
-    onChartMouseLeave: (eventPayload) => {},
-    onFocus: (focusData) => {},
-    onSeriesFilter: (filterData) => {},
-    onSeriesLayoutInfoChange: (bounds) => {}
+    onChartClick: (_eventPayload: ChartEventPayload) => {},
+    onChartMouseEnter: (_eventPayload: ChartEventPayload) => {},
+    onChartMouseMove: (_eventPayload: ChartEventPayload) => {},
+    onChartMouseLeave: (_eventPayload: ChartEventPayload) => {},
+    onFocus: (_focusData: ChartFocus) => {},
+    onSeriesFilter: (_filterData: ChartSeriesFilter) => {},
+    onSeriesLayoutInfoChange: (_bounds: Bounds) => {}
   };
 
-  chart = null;
+  chart: Slot | null = null;
+  focusedGroupIndex: number;
+  focusedSeriesAxisId: string | null;
+  focusedSeriesId: string | null;
+  filteredSeriesIds: Record<string, boolean>;
 
   constructor() {
     super();
@@ -28,7 +46,7 @@ export default class ManagedChart extends Renderer {
       focusedSeriesId: this.focusedSeriesId, filteredSeriesIds: this.filteredSeriesIds };
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: ManagedChartProps): void {
     const { mochartConfig, dataProvider } = nextProps;
     const { mochartConfig: oldMochartConfig, dataProvider: oldDataProvider } = this.props;
     const { focusedSeriesAxisId: oldFocusedSeriesAxisId, focusedSeriesId: oldFocusedSeriesId,
@@ -68,16 +86,16 @@ export default class ManagedChart extends Renderer {
       this.setState({ focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex, filteredSeriesIds });
       if (focusChanged) {
         const { onFocus } = this.props;
-        onFocus({ focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex });
+        onFocus?.({ focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex });
       }
       if (seriesFilterChanged) {
         const { onSeriesFilter } = this.props;
-        onSeriesFilter({ filteredSeriesIds });
+        onSeriesFilter?.({ filteredSeriesIds });
       }
     }
   }
 
-  onFocus = (focusData = {}) => {
+  onFocus = (focusData: InternalFocus = {}): void => {
     const { seriesAxisId, seriesId, groupIndex } = focusData;
 
     if (seriesAxisId !== void 0) {
@@ -87,16 +105,16 @@ export default class ManagedChart extends Renderer {
       this.focusedSeriesId = seriesId;
     }
     if (groupIndex !== void 0) {
-      this.focusedGroupIndex = groupIndex;
+      this.focusedGroupIndex = groupIndex ?? -1;
     }
 
     const { focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex } = this;
     this.setState({ focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex });
     const { onFocus } = this.props;
-    onFocus({ focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex });
+    onFocus?.({ focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex });
   }
 
-  onSeriesFilter = (seriesId) => {
+  onSeriesFilter = (seriesId: string): void => {
     if (this.filteredSeriesIds[seriesId] === true) {
       delete this.filteredSeriesIds[seriesId];
     }
@@ -106,7 +124,7 @@ export default class ManagedChart extends Renderer {
     const filteredSeriesIds = { ...this.filteredSeriesIds };
     this.setState({ filteredSeriesIds });
     const { onSeriesFilter } = this.props;
-    onSeriesFilter({ filteredSeriesIds });
+    onSeriesFilter?.({ filteredSeriesIds });
   }
 
   create() {
@@ -121,7 +139,7 @@ export default class ManagedChart extends Renderer {
     } = this.props;
     const { filteredSeriesIds, focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex } = this.state;
     if (mochartConfig && mochartConfig.animationConfig.animate) {
-      this.chart.set(AnimatedChart, { mochartConfig, dataProvider, loading, error, width, height,
+      this.chart!.set(AnimatedChart, { mochartConfig, dataProvider, loading, error, width, height,
         focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex,
         filteredSeriesIds, onSeriesLayoutInfoChange,
         onFocus: this.onFocus, onSeriesFilter: this.onSeriesFilter,
@@ -132,7 +150,7 @@ export default class ManagedChart extends Renderer {
         getNoSeriesComponent });
     }
     else {
-      this.chart.set(StaticChart, { mochartConfig, dataProvider, loading, error, width, height,
+      this.chart!.set(StaticChart, { mochartConfig, dataProvider, loading, error, width, height,
         focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex,
         filteredSeriesIds, onSeriesLayoutInfoChange,
         onFocus: this.onFocus, onSeriesFilter: this.onSeriesFilter,

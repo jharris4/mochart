@@ -1,5 +1,5 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl, htmlEl } from '../render';
+import type { El, ElSlot, Slot } from '../render';
 
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
@@ -11,11 +11,42 @@ import { getSymbolGenerator } from '../utils/shapeUtils';
 import { translate } from '../utils/utils';
 import { getGradientReference } from '../utils/svgUtils';
 import { getFocusValue } from '../utils/FocusValue';
+import type { ColorPaletteConfig, LegendConfig, SeriesConfig, TooltipConfig } from '../types/config';
 
-export default class SeriesColorIcon extends Renderer {
+interface SeriesColorUniqueIds {
+  seriesColorGradientUniqueIds: Record<string, string>;
+  gradientIdMap: Record<string, string>;
+}
+
+interface SeriesColorIconProps {
+  visible?: boolean;
+  renderHTML: boolean;
+  seriesContextConfig: LegendConfig | TooltipConfig;
+  seriesShowColorProperty: 'showColorInLegend' | 'showColorInTooltip';
+  seriesConfig: SeriesConfig;
+  seriesIndex: number;
+  colorPaletteConfig: ColorPaletteConfig;
+  seriesIsSuppressed: boolean;
+  focused: boolean;
+  defocused: boolean;
+  focusPercentage: number | null;
+  iconClassName?: string | null;
+  svgUniqueId?: string;
+  uniqueIds?: SeriesColorUniqueIds;
+}
+
+export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
   static defaultProps = {
     visible: true
   };
+
+  span!: El;
+  svg!: El;
+  spacer!: El;
+  defs: El | null = null;
+  defsSlot!: ElSlot;
+  shapeSlot!: ElSlot;
+  defsGradientSlot!: Slot;
 
   // renderHTML is decided per call site and never changes for a mounted
   // instance, so the structure is chosen once at create() time.
@@ -61,7 +92,7 @@ export default class SeriesColorIcon extends Renderer {
         height: iconSize
       };
 
-      const gradientId = svgUniqueId + '-' + seriesConfig.id;
+      const gradientId = svgUniqueId! + '-' + seriesConfig.id;
 
       this.setPresent(true);
       this.span.set({ className: iconClassName, style: colorStyle });
@@ -81,7 +112,7 @@ export default class SeriesColorIcon extends Renderer {
     const showSeriesColor = showIconColors && seriesConfig[seriesShowColorProperty];
 
     if (showSeriesColor || showIconPlaceholders) {
-      const { seriesColorGradientUniqueIds, gradientIdMap } = uniqueIds;
+      const { seriesColorGradientUniqueIds, gradientIdMap } = uniqueIds!;
       const gradientId = seriesConfig.gradient !== NONE ? gradientIdMap[seriesConfig.gradient] : seriesColorGradientUniqueIds[seriesConfig.id];
       this.syncColorContent(showSeriesColor, gradientId, iconClassName);
     }
@@ -95,11 +126,11 @@ export default class SeriesColorIcon extends Renderer {
       this.defs = svgEl('defs');
       this.defsGradientSlot = this.slot(this.defs);
     }
-    this.defsSlot.set('defs', () => this.defs);
+    this.defsSlot.set('defs', () => this.defs!);
     return this.defsGradientSlot;
   }
 
-  syncColorDefs(gradientId) {
+  syncColorDefs(gradientId: string): void {
     const { seriesConfig, visible } = this.props;
 
     if (!visible) {
@@ -128,7 +159,7 @@ export default class SeriesColorIcon extends Renderer {
     }
   }
 
-  syncColorContent(showSeriesColor, gradientId, className) {
+  syncColorContent(showSeriesColor: boolean, gradientId: string, className: string | null | undefined): void {
     const {
       seriesContextConfig, seriesConfig, seriesIndex, colorPaletteConfig,
       seriesIsSuppressed, focused, focusPercentage, visible
@@ -147,7 +178,7 @@ export default class SeriesColorIcon extends Renderer {
     const halfBorderSize = iconBorderSize / 2.0;
     const shapeSize = iconSize - iconBorderSize;
     const gradientFillColor = getGradientReference(gradientId);
-    const seriesColor = getSeriesColor(colorPaletteConfig, seriesConfig, seriesIndex, focused, iconUnsuppressedColor);
+    const seriesColor = getSeriesColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, iconUnsuppressedColor);
 
     const stroke = iconBorderColor;
     const strokeWidth = (seriesIsSuppressed ? 1.5 : 1) * iconBorderSize;
@@ -165,12 +196,12 @@ export default class SeriesColorIcon extends Renderer {
     if (showIconShapes && markerShape !== NONE) {
       const symbolSize = shapeSize - 3;
       const halfSize = Math.floor(iconSize / 2.0);
-      let symbolGenerator = getSymbolGenerator(symbolSize, seriesConfig.markerShape);
+      let symbolGenerator = getSymbolGenerator(symbolSize, markerShape);
       let symbolTransform = translate(halfSize, halfSize);
-      this.shapeSlot.set('path', () => svgEl('path')).set({ d: symbolGenerator(), transform: symbolTransform, ...commonProps });
+      this.shapeSlot.set('path', () => svgEl('path'))!.set({ d: symbolGenerator(), transform: symbolTransform, ...commonProps });
     }
     else {
-      this.shapeSlot.set('rect', () => svgEl('rect')).set({ x: halfBorderSize, y: halfBorderSize, width: shapeSize, height: shapeSize, ...commonProps });
+      this.shapeSlot.set('rect', () => svgEl('rect'))!.set({ x: halfBorderSize, y: halfBorderSize, width: shapeSize, height: shapeSize, ...commonProps });
     }
   }
 }

@@ -3,9 +3,18 @@ import { line, area, curveMonotoneX, curveMonotoneY, curveBasis, curveCardinal,
 import { path } from 'd3-path';
 
 import { NONE, CAP_TYPE_POINT, CAP_TYPE_CURVE, CAP_TYPE_ROUND } from '../config/core/constants';
+import type { CurveFactory, ShapeGenerator } from 'd3-shape';
+import type { Path } from 'd3-path';
+import type { CapType, CurveType } from '../config/core/constants';
+import type { SeriesConfig, SeriesCurve } from '../types/config';
+import type { SeriesPositionData, StackData } from '../types/data';
+
+type Connector = (pathGenerator: Path, first: number, second: number, third: number, extent: number, offsetSign: number, offset: number, expand: boolean, size: number) => void;
+type OffsetInvertedCalculator = (first: number, second: number, third: number, extent: number, offsetSign: number, offset: number, expand: boolean, size: number) => { x: number; y: number; yOffset: number };
+type OffsetCalculator = (first: number, second: number, third: number, extent: number, offsetSign: number, offset: number, expand: boolean, size: number) => { x: number; y: number; xOffset: number };
 
 // 'linear', 'monotoneX', 'monotoneY', 'basis', 'bundle', 'cardinal', 'catmullRom', 'natural', 'step', 'stepBefore', 'stepAfter'
-const curveTypeToCurveMap = {
+const curveTypeToCurveMap: Record<CurveType, CurveFactory | null> = {
   linear: null, // this is the default, so no need to assign it!
   monotoneX: curveMonotoneX,
   monotoneY: curveMonotoneY,
@@ -18,7 +27,7 @@ const curveTypeToCurveMap = {
   stepAfter: curveStepAfter
 };
 
-const curveTypeToParamFunctionMap = {
+const curveTypeToParamFunctionMap: Record<CurveType, 'tension' | 'alpha' | null> = {
   linear: null,
   monotoneX: null,
   monotoneY: null,
@@ -31,21 +40,19 @@ const curveTypeToParamFunctionMap = {
   stepAfter: null
 };
 
-function applyCurve(generator, curveOption) {
+function applyCurve(generator: ShapeGenerator, curveOption: SeriesCurve): ShapeGenerator {
   let curve = curveTypeToCurveMap[curveOption.type];
   if (curve !== null) {
-    if (curveOption.param !== void 0) {
-      let curveParamFunction = curveTypeToParamFunctionMap[curveOption.type];
-      if (curveParamFunction !== null) {
-        curve = curve[curveParamFunction](curveOption.param);
-      }
+    const curveParamFunction = curveTypeToParamFunctionMap[curveOption.type];
+    if (curveParamFunction !== null && curveOption.param !== void 0) {
+      curve = curve[curveParamFunction]!(curveOption.param);
     }
     generator = generator.curve(curve);
   }
   return generator;
 }
 
-export function getLineGenerator(seriesConfig, seriesPositionData, inverted) {
+export function getLineGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
   let lineGenerator = applyCurve(line().defined(seriesPositionData.getDefined), seriesConfig.curve);
   if (inverted) {
     lineGenerator.x(seriesPositionData.getSeriesPosition).y(seriesPositionData.getGroupPosition);
@@ -56,7 +63,7 @@ export function getLineGenerator(seriesConfig, seriesPositionData, inverted) {
   return () => lineGenerator(seriesPositionData);
 }
 
-export function getAreaGenerator(seriesConfig, seriesPositionData, inverted) {
+export function getAreaGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
   let areaGenerator = applyCurve(area().defined(seriesPositionData.getDefined), seriesConfig.curve);
   if (inverted) {
     areaGenerator.y(seriesPositionData.getGroupPosition).x1(seriesPositionData.getCurrentSeriesPosition).x0(seriesPositionData.getPriorSeriesPosition);
@@ -80,7 +87,7 @@ const minFlatForRounded = 4;
  * y - the top y for the cap
  * yOffset - the height of the base of the cap
  */
-function getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, size) {
+const getXYOffsetInverted: OffsetInvertedCalculator = (x1, y1, x2, yExtent, offsetSign, offset, expand, size) => {
   let x = x2;
   let y = y1;
   let yOffset = yExtent;
@@ -92,7 +99,7 @@ function getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, si
     y = y1 + (yExtent - yOffset) / 2;
   }
   return { x, y, yOffset };
-}
+};
 
 /*
  * y1 - the outer y (cap when capped)
@@ -104,7 +111,7 @@ function getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, si
  * y - the base y for the cap
  * xOffset - the width of the base of the cap
  */
-function getXYOffset(x1, y1, y2, xExtent, offsetSign, offset, expand, size) {
+const getXYOffset: OffsetCalculator = (x1, y1, y2, xExtent, offsetSign, offset, expand, size) => {
   let x = x1;
   let y = y2;
   let xOffset = xExtent;
@@ -116,9 +123,9 @@ function getXYOffset(x1, y1, y2, xExtent, offsetSign, offset, expand, size) {
     x = x1 + (xExtent - xOffset) / 2;
   }
   return { x, y, xOffset };
-}
+};
 
-function connectPointInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) {
+const connectPointInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) => {
   let { x, y, yOffset } = getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, size);
   pathGenerator.moveTo(x, y);
 
@@ -130,9 +137,9 @@ function connectPointInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, of
     pathGenerator.lineTo(x2, y);
   }
   pathGenerator.closePath();
-}
+};
 
-function connectPoint(pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) {
+const connectPoint: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) => {
   let { x, y, xOffset } = getXYOffset(x1, y1, y2, xExtent, offsetSign, offset, expand, size);
   pathGenerator.moveTo(x, y);
 
@@ -144,9 +151,9 @@ function connectPoint(pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, ex
     pathGenerator.lineTo(x1, y2);
   }
   pathGenerator.closePath();
-}
+};
 
-function connectCurveInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) {
+const connectCurveInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) => {
   let { x, y, yOffset } = getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, size);
   pathGenerator.moveTo(x, y);
 
@@ -157,9 +164,9 @@ function connectCurveInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, of
     pathGenerator.lineTo(x2, y1);
   }
   pathGenerator.closePath();
-}
+};
 
-function connectCurve(pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) {
+const connectCurve: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) => {
   let { x, y, xOffset } = getXYOffset(x1, y1, y2, xExtent, offsetSign, offset, expand, size);
   pathGenerator.moveTo(x, y);
 
@@ -170,9 +177,9 @@ function connectCurve(pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, ex
     pathGenerator.lineTo(x1, y2);
   }
   pathGenerator.closePath();
-}
+};
 
-function connectRoundInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) {
+const connectRoundInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) => {
   if (yExtent <= minFlatForRounded) {
     connectNoneInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size);
     return;
@@ -198,9 +205,9 @@ function connectRoundInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, of
     pathGenerator.lineTo(x2, y1);
   }
   pathGenerator.closePath();
-}
+};
 
-function connectRound(pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) {
+const connectRound: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) => {
   if (xExtent <= minFlatForRounded) {
     connectNone(pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size);
     return;
@@ -226,17 +233,17 @@ function connectRound(pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, ex
     pathGenerator.lineTo(x1, y2);
   }
   pathGenerator.closePath();
-}
+};
 
-function connectNoneInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) {
+const connectNoneInverted: Connector = (pathGenerator, y1, x1, x2, yExtent) => {
   pathGenerator.rect(Math.min(x1, x2), y1, Math.abs(x1 - x2), yExtent);
-}
+};
 
-function connectNone(pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) {
+const connectNone: Connector = (pathGenerator, x1, y1, y2, xExtent) => {
   pathGenerator.rect(x1, Math.min(y1, y2), xExtent, Math.abs(y1 - y2));
-}
+};
 
-function getConnector(capType, inverted) {
+function getConnector(capType: CapType | null | undefined, inverted: boolean): Connector {
   switch (capType) {
     case CAP_TYPE_POINT:
       return inverted ? connectPointInverted : connectPoint;
@@ -249,9 +256,9 @@ function getConnector(capType, inverted) {
   }
 }
 
-export function getColumnGenerator(seriesConfig, seriesPositionData, inverted, stackData) {
-  let columnGenerator;
-  let pathGenerator;
+export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean, stackData: StackData): (index: number) => string {
+  let columnGenerator: (index: number) => string;
+  let pathGenerator: Path;
   let groupValueExtent = Math.max(minColumnSize, seriesPositionData.groupValueExtent);
 
   const { id, stack, capType, capSize, capExpand, capOnlyStackOuter, seriesStackConfig } = seriesConfig;
@@ -260,8 +267,8 @@ export function getColumnGenerator(seriesConfig, seriesPositionData, inverted, s
   const stackNegativeIds = stack ? stackData.filteredOuterNegativeSeriesIds[stack] : null;
 
   const columnCapType = capType !== NONE ? capType : outerCapType ? outerCapType : NONE;
-  const columnCapSize = capType !== NONE ? capSize : outerCapType ? outerCapSize : 0;
-  const columnCapExpand = capType !== NONE ? capExpand : outerCapType ? outerCapExpand : false;
+  const columnCapSize = capType !== NONE ? capSize : outerCapType ? (outerCapSize ?? 0) : 0;
+  const columnCapExpand = capType !== NONE ? capExpand : outerCapType ? (outerCapExpand ?? false) : false;
   const applyStackOuter = stack && (capType !== NONE && capOnlyStackOuter) || (capType === NONE && outerCapType && outerCapType !== NONE);
 
   let connector = getConnector(columnCapType, inverted);
@@ -273,18 +280,18 @@ export function getColumnGenerator(seriesConfig, seriesPositionData, inverted, s
   let seriesPriorPosition;
   let seriesCurrentPosition;
   let tempPosition, barCapSizeSign, barCapConnector;
-  columnGenerator = (i) => {
+  columnGenerator = (i: number) => {
     pathGenerator = path();
-    groupPosition = seriesPositionData.getOffsetGroupPosition(null, i);
+    groupPosition = seriesPositionData.getOffsetGroupPosition(null, i)!;
     seriesValueExtent = Math.max(minColumnSize, seriesPositionData.getSeriesExtent(null, i));
-    seriesPosition = seriesPositionData.getSeriesPosition(null, i);
-    seriesPriorPosition = seriesPositionData.getPriorSeriesPosition(null, i);
-    seriesCurrentPosition = seriesPositionData.getCurrentSeriesPosition(null, i);
+    seriesPosition = seriesPositionData.getSeriesPosition(null, i)!;
+    seriesPriorPosition = seriesPositionData.getPriorSeriesPosition(null, i)!;
+    seriesCurrentPosition = seriesPositionData.getCurrentSeriesPosition(null, i)!;
 
     barCapSizeSign = 1;
     barCapConnector = connector;
     if (applyStackOuter) {
-      barCapConnector = (stackPositiveIds[i] === id || stackNegativeIds[i] === id) ? connector : inverted ? connectNoneInverted : connectNone;
+      barCapConnector = (stackPositiveIds![i] === id || stackNegativeIds![i] === id) ? connector : inverted ? connectNoneInverted : connectNone;
     }
     if (seriesPriorPosition === seriesPosition) {
       tempPosition = seriesPriorPosition;

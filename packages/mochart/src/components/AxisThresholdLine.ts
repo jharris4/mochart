@@ -1,10 +1,45 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl, textEl } from '../render';
 
 import { translate, translateRotate } from '../utils/utils';
 import { NONE, SCALE_LINEAR, TYPE_NUMBER, TYPE_DATE } from '../config/core/constants';
+import type { El, TextEl } from '../render';
+import type { AxisConfigBase } from '../types/config';
+import type { DataType, Scale } from '../config/core/constants';
+import type { AxisLayoutInfo, LayoutInfo } from '../types/layout';
+import type { MarginPadding } from '../types/geometry';
 
-export default class AxisThresholdLine extends Renderer {
+type ThresholdTitleEl = El & { textHandle: El; valueHandle: TextEl };
+
+export type ThresholdAxisConfig = AxisConfigBase & {
+  scale: Scale;
+  type: DataType;
+  useSeriesFocus?: boolean;
+};
+
+interface AxisThresholdLineProps {
+  axisConfig: ThresholdAxisConfig;
+  threshold: number | null;
+  axisDomain: [number | Date | null, number | Date | null];
+  seriesLayoutInfo: LayoutInfo;
+  axisLayoutInfo: AxisLayoutInfo;
+  axisThresholdLineClass: string;
+  stroke: string;
+  strokeOpacity: number;
+  strokeWidth: number;
+  strokeDashArray: string | null;
+  vertical: boolean;
+  thresholdTitle: string | null;
+  thresholdTitleBefore: boolean;
+  thresholdTitleSnapToValue: boolean;
+  thresholdTitleMargin: MarginPadding;
+  thresholdTitlePadding: MarginPadding;
+  titleStroke: string;
+  titleStrokeOpacity: number;
+  titleFill: string;
+  titleFillOpacity: number;
+}
+
+export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> {
   root = svgEl('g');
   lineGroup = svgEl('g');
   line = svgEl('line');
@@ -19,10 +54,13 @@ export default class AxisThresholdLine extends Renderer {
   sync() {
     const { axisConfig, threshold, axisDomain } = this.props;
     const { scale, type } = axisConfig;
-    const thresholdValue = type === TYPE_DATE ? new Date(threshold) : threshold;
-    if (scale === SCALE_LINEAR && threshold !== NONE && axisDomain[0] !== axisDomain[1] && thresholdValue >= axisDomain[0] && thresholdValue <= axisDomain[1]) {
+    const thresholdValue = type === TYPE_DATE && threshold !== null ? new Date(threshold) : threshold;
+    const domainMin = axisDomain[0]?.valueOf();
+    const domainMax = axisDomain[1]?.valueOf();
+    const numericThreshold = thresholdValue?.valueOf();
+    if (scale === SCALE_LINEAR && threshold !== NONE && numericThreshold !== undefined && domainMin !== undefined && domainMax !== undefined && domainMin !== domainMax && numericThreshold >= domainMin && numericThreshold <= domainMax) {
       const { seriesLayoutInfo, axisThresholdLineClass, stroke, strokeOpacity, strokeWidth, strokeDashArray, vertical } = this.props;
-      const thresholdPercentage = type === TYPE_NUMBER ? (threshold - axisDomain[0]) / (axisDomain[1] - axisDomain[0]) : (thresholdValue.getTime() - axisDomain[0].getTime()) / (axisDomain[1].getTime() - axisDomain[0].getTime());
+      const thresholdPercentage = (numericThreshold - domainMin) / (domainMax - domainMin);
 
       let thresholdX = seriesLayoutInfo.x;
       let thresholdY = seriesLayoutInfo.y;
@@ -41,7 +79,10 @@ export default class AxisThresholdLine extends Renderer {
         let titleX = thresholdX;
         let titleY = thresholdY;
         let hidden = false;
-        let { width, height, paddingRelativeBounds } = thresholdTitleLayoutInfo;
+        const paddingRelativeBounds = 'paddingRelativeBounds' in thresholdTitleLayoutInfo
+          ? thresholdTitleLayoutInfo.paddingRelativeBounds
+          : thresholdTitleLayoutInfo;
+        let { width, height } = thresholdTitleLayoutInfo;
         let { x: paddingX, y: paddingY, height: paddingHeight } = paddingRelativeBounds;
 
         if (!vertical) {
@@ -131,7 +172,7 @@ export default class AxisThresholdLine extends Renderer {
           }
         }
         const titleGroup = this.title.set('title', () => {
-          const group = svgEl('g');
+          const group = svgEl('g') as ThresholdTitleEl;
           const text = svgEl('text');
           const value = textEl();
           text.append(value);
@@ -139,7 +180,7 @@ export default class AxisThresholdLine extends Renderer {
           group.textHandle = text;
           group.valueHandle = value;
           return group;
-        });
+        }) as ThresholdTitleEl;
         titleGroup.set({ transform: translate(titleX, titleY) });
         titleGroup.textHandle.set({ transform: translateRotate(paddingX, paddingY, vertical ? 0 : 90),
           fill: titleFill, fillOpacity: titleFillOpacity,

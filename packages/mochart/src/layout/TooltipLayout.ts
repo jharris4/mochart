@@ -5,18 +5,21 @@ import type { ChartLayoutInfo } from '../types/layout';
 
 const defaultLayout: Bounds = { x: 0, y: 0, width: 50, height: 50 };
 
-export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds: Size | null, layoutInfo: ChartLayoutInfo, groupValueData: { positions: number[] }, focusedGroupIndex: number,
-                                     tooltipGroupPercentage: number, tooltipSeriesPercentage: number): Bounds {
+export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds: null): Bounds;
+export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds: Size, layoutInfo: ChartLayoutInfo, groupValueData: { positions: number[] }, focusedGroupIndex: number,
+                                     tooltipGroupPercentage: number, tooltipSeriesPercentage: number): Bounds;
+export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds: Size | null, layoutInfo?: ChartLayoutInfo, groupValueData?: { positions: number[] }, focusedGroupIndex = -1,
+                                     tooltipGroupPercentage = 0, tooltipSeriesPercentage = 0): Bounds {
   if (tooltipBounds === null) {
     return defaultLayout;
   }
   const { tooltipConfig, plotConfig } = mochartConfig;
-  const { chartContentLayoutInfo, seriesLayoutInfo, containerLayoutInfo } = layoutInfo;
+  const { chartContentLayoutInfo, seriesLayoutInfo, containerLayoutInfo } = layoutInfo!;
   let { width, height } = tooltipBounds;
   const extraWidth = 2 * (tooltipConfig.borderWidth + tooltipConfig.padding);
   width+= extraWidth;
   height+= extraWidth;
-  const groupOffset = tooltipConfig.snapToGroup ? groupValueData.positions[focusedGroupIndex] : tooltipGroupPercentage * seriesLayoutInfo.groupExtent;
+  const groupOffset = tooltipConfig.snapToGroup ? groupValueData!.positions[focusedGroupIndex] : tooltipGroupPercentage * seriesLayoutInfo.groupExtent;
   const seriesOffset = tooltipSeriesPercentage * seriesLayoutInfo.seriesExtent;
 
   let tooltipLayoutInfo = {

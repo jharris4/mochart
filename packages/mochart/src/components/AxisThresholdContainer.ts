@@ -1,12 +1,26 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { getAggregateSeriesFocusPercentage } from '../utils/FocusValue';
 
 import AxisThreshold from './AxisThreshold';
+import type { MochartConfig, SeriesAxisConfig } from '../types/config';
+import type { ChartData } from '../types/data';
+import type { FocusData } from '../types/animation';
+import type { AxisLayoutInfo, GroupAxisLayoutInfo, LayoutInfo } from '../types/layout';
+import type { Bounds } from '../types/geometry';
 
-export default class AxisThresholdContainer extends Renderer {
+interface AxisThresholdContainerProps {
+  front: boolean;
+  mochartConfig: MochartConfig;
+  groupAxisLayoutInfo: GroupAxisLayoutInfo;
+  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo | Bounds>;
+  seriesLayoutInfo: LayoutInfo;
+  chartData: ChartData;
+  focusData: FocusData;
+}
+
+export default class AxisThresholdContainer extends Renderer<AxisThresholdContainerProps> {
   root = svgEl('g');
   groupThreshold = this.slot(this.root);
   seriesThresholds = this.rendererList(this.root);
@@ -32,15 +46,15 @@ export default class AxisThresholdContainer extends Renderer {
       hidden: false, seriesLayoutInfo, axisDomain: groupAxisDomain, vertical: inverted,
       axisFocusPercentage: null, seriesFocusPercentage: null, axisThresholdClass: mochartCssClasses['groupAxisThreshold'] });
 
-    this.seriesThresholds.sync(seriesAxisConfigs.map(axisConfig => {
+    this.seriesThresholds.sync(seriesAxisConfigs.map((axisConfig: SeriesAxisConfig) => {
       const { id, seriesConfigs, useSeriesFocus, adjustForSuppression } = axisConfig;
       const axisFocusPercentage = seriesAxisFocusPercentages[id];
-      const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs, seriesFocusPercentages) : 0;
+      const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
       const seriesAxisDomain = adjustForSuppression ? seriesAxisFilteredDomains[id] : seriesAxisRawDomains[id];
       return {
         key: 'series-axis-' + id,
         ctor: AxisThreshold,
-        props: { front, plotConfig, axisConfig, axisLayoutInfo: seriesAxisLayoutInfos[id],
+        props: { front, plotConfig, axisConfig, axisLayoutInfo: seriesAxisLayoutInfos[id] as AxisLayoutInfo,
           hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: seriesAxisDomain, vertical: !inverted,
           axisFocusPercentage, seriesFocusPercentage, axisThresholdClass: mochartCssClasses['seriesAxisThreshold'] + id }
       };

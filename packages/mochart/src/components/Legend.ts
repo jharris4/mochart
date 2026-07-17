@@ -1,5 +1,5 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl, textEl } from '../render';
+import type { RendererItem } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
@@ -10,29 +10,76 @@ import { getSeriesTitle } from '../utils/SeriesTitle';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import Background from './Background';
 import SeriesColorIcon from './SeriesColorIcon';
+import type { ColorPaletteConfig, LegendConfig, MochartConfig, SeriesConfig } from '../types/config';
+import type { SpacingLayoutInfo } from '../types/layout';
+import type { TruncationDataValue } from '../utils/TextTruncation';
+import type { FocusPercentageMap } from '../types/animation';
+
+interface LegendItemUniqueIds {
+  legendClipPathUniqueId: string;
+  seriesColorGradientUniqueIds: Record<string, string>;
+  gradientIdMap: Record<string, string>;
+}
+
+interface LegendProps {
+  mochartConfig: MochartConfig;
+  legendLayoutInfo: SpacingLayoutInfo;
+  legendItemTextLayoutInfo: SpacingLayoutInfo;
+  legendItemLayoutInfos: SpacingLayoutInfo[];
+  legendItemRawLayoutInfos: SpacingLayoutInfo[];
+  filteredFlags: Record<string, boolean>;
+  uniqueIds: LegendItemUniqueIds;
+  focusedSeriesId: string | null;
+  seriesAxisFocusPercentages: FocusPercentageMap;
+  seriesFocusPercentages: FocusPercentageMap;
+  onFocus: (focus: { seriesId: string | null }) => void;
+  onSeriesFilter: (seriesId: string) => void;
+}
+
+interface LegendItemProps {
+  legendConfig: LegendConfig;
+  seriesConfig: SeriesConfig;
+  legendLayoutInfo: SpacingLayoutInfo;
+  legendItemLayoutInfo: SpacingLayoutInfo;
+  legendItemRawLayoutInfo: SpacingLayoutInfo;
+  legendItemTextLayoutInfo: SpacingLayoutInfo;
+  uniqueIds: LegendItemUniqueIds;
+  clipPath: string | null;
+  colorPaletteConfig: ColorPaletteConfig;
+  seriesIndex: number;
+  seriesIsSuppressed: boolean;
+  seriesIsFocused: boolean;
+  seriesIsDefocused: boolean;
+  seriesFocusPercentage: number | null;
+  onClick: (seriesId: string) => void;
+  onMouseEnter: (seriesId: string) => void;
+  onMouseLeave: (seriesId: string) => void;
+}
+
+interface LegendItemState { truncationData: TruncationDataValue }
 
 const hiddenStyle = { visibility: 'hidden' };
 
-export default class Legend extends Renderer {
+export default class Legend extends Renderer<LegendProps> {
   root = svgEl('g');
   background = this.slot(this.root);
   items = this.rendererList(this.root);
 
-  legendItemMouseEnter = (seriesId) => {
+  legendItemMouseEnter = (seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
     if (mochartConfig.legendConfig.focusOnMouseOver) {
       onFocus({ seriesId });
     }
   }
 
-  legendItemMouseLeave = (seriesId) => {
+  legendItemMouseLeave = (seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
     if (mochartConfig.legendConfig.focusOnMouseOver) {
       onFocus({ seriesId: null });
     }
   }
 
-  legendItemClick = (seriesId) => {
+  legendItemClick = (seriesId: string) => {
     const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
     const seriesConfig = mochartConfig.seriesConfigsById[seriesId];
     const legendConfig = mochartConfig.legendConfig;
@@ -69,8 +116,8 @@ export default class Legend extends Renderer {
       this.root.set({ className: mochartCssClasses['legend'], transform });
       this.background.set(Background, { config: legendConfig, classKey: 'legendBackground', spacingRelative: true, spacingLayoutInfo: legendLayoutInfo });
 
-      const items = [];
-      seriesConfigs.forEach((seriesConfig, i) => {
+      const items: RendererItem<LegendItemProps>[] = [];
+      seriesConfigs.forEach((seriesConfig: SeriesConfig, i: number) => {
         const { id, showInLegend } = seriesConfig;
         if (showInLegend) {
           const seriesIndex = seriesConfigIndicesById[id];
@@ -100,7 +147,7 @@ export default class Legend extends Renderer {
   }
 }
 
-class LegendItem extends Renderer {
+class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   root = svgEl('g');
   background = this.slot(this.root);
   iconGroup = svgEl('g');
@@ -111,6 +158,8 @@ class LegendItem extends Renderer {
   textRawGroup = svgEl('g');
   textRaw = svgEl('text');
   textRawValue = textEl();
+  truncationData: TruncationDataValue = null;
+  checkTruncation = false;
 
   constructor() {
     super();
@@ -142,7 +191,7 @@ class LegendItem extends Renderer {
     }
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: LegendItemProps): void {
     const { legendConfig, seriesConfig, legendLayoutInfo, legendItemLayoutInfo, legendItemRawLayoutInfo } = nextProps;
     const truncationEnabled = legendConfig.truncationEnabled;
     const truncationChanged = truncationEnabled &&
@@ -206,7 +255,7 @@ class LegendItem extends Renderer {
 
   didUpdate() {
     if (this.checkTruncation) {
-      const domElement = this.root.node.querySelector(getLegendItemTextCssSelector());
+      const domElement = this.root.node.querySelector<SVGTextContentElement>(getLegendItemTextCssSelector());
       const { legendConfig, seriesConfig, legendItemTextLayoutInfo } = this.props;
       const { width } = legendItemTextLayoutInfo;
       const { truncationValue } = legendConfig;

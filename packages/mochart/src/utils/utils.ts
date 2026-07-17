@@ -1,7 +1,6 @@
 export const idAccessor = ({ id }: { id: string }): string => id;
 
-// T defaults to any so call sites in not-yet-typed files keep their old loose behavior.
-export function arrayToMap<T = any, V = T>(
+export function arrayToMap<T, V = T>(
   theArray: readonly T[],
   keyAccessor: (element: NoInfer<T>) => string,
   valueFormatter: (element: NoInfer<T>) => V = element => element as unknown as V

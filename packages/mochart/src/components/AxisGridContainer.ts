@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -6,8 +5,21 @@ import { getAggregateSeriesFocusPercentage } from '../utils/FocusValue';
 
 import GroupAxisGrid from './GroupAxisGrid';
 import SeriesAxisGrid from './SeriesAxisGrid';
+import type { MochartConfig } from '../types/config';
+import type { AxisData, GroupAxisData, SeriesAxisData, SeriesData } from '../types/data';
+import type { FocusData } from '../types/animation';
+import type { LayoutInfo } from '../types/layout';
 
-export default class AxisGridContainer extends Renderer {
+interface AxisGridContainerProps {
+  front: boolean;
+  mochartConfig: MochartConfig;
+  seriesLayoutInfo: LayoutInfo;
+  seriesData: SeriesData;
+  focusData: FocusData;
+  axisData: AxisData & { group: GroupAxisData; series: SeriesAxisData };
+}
+
+export default class AxisGridContainer extends Renderer<AxisGridContainerProps> {
   root = svgEl('g');
   groupGrid = this.slot(this.root);
   seriesGrids = this.rendererList(this.root);
@@ -39,7 +51,7 @@ export default class AxisGridContainer extends Renderer {
         continue;
       }
       const axisFocusPercentage = seriesAxisFocusPercentages[id];
-      const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs, seriesFocusPercentages) : 0;
+      const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
       items.push({
         key: 'series-axis-' + id,
         ctor: SeriesAxisGrid,

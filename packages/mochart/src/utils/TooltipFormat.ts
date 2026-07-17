@@ -1,8 +1,19 @@
 import { NONE } from '../config/core/constants';
 import { getSeriesLabel } from './SeriesTitle';
+import type { TooltipConfig, SeriesConfig } from '../types/config';
+import type { ChartData, SeriesDomainObjects, SeriesValueObject } from '../types/data';
+import type { ValueKey } from '../data/constants';
+import type { ValueFormatter } from './ValueFormat';
 
-function getSuppressedValueText(tooltipConfig, defaultValueText) {
-  let seriesValueText;
+type GroupSeriesValueObject = Partial<Record<ValueKey, number | null | undefined>>;
+interface GroupSeriesSlice {
+  axisBases: Record<string, number | null>;
+  raw: { values: Record<string, GroupSeriesValueObject>; domains: SeriesDomainObjects };
+  filtered: { values: Record<string, GroupSeriesValueObject>; domains: SeriesDomainObjects };
+}
+
+function getSuppressedValueText(tooltipConfig: TooltipConfig, defaultValueText: string): string {
+  let seriesValueText: string;
   if (tooltipConfig.suppressedValueText !== NONE) {
     seriesValueText = tooltipConfig.suppressedValueText;
   }
@@ -20,7 +31,7 @@ function getSuppressedValueText(tooltipConfig, defaultValueText) {
   return seriesValueText;
 }
 
-function getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, key) {
+function getValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, adjustForSuppression: boolean, valueFormat: ValueFormatter, series: GroupSeriesSlice, key: ValueKey): string | null {
   const { raw, filtered, axisBases } = series;
   const seriesId = seriesConfig.id;
   const seriesValueObject = raw.values[seriesId];
@@ -31,14 +42,14 @@ function getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFo
   if (seriesValueObject[key] !== void 0) {
     if (adjustForSuppression && tooltipConfig.adjustForSuppression) {
       if (hasFilterValue) {
-        seriesValueText = valueFormat(filterValueObject[key]);
+        seriesValueText = String(valueFormat(filterValueObject[key]!));
       }
       else {
-        seriesValueText = getSuppressedValueText(tooltipConfig, valueFormat(axisBases[seriesConfig.seriesAxisConfig.id]));
+        seriesValueText = getSuppressedValueText(tooltipConfig, String(valueFormat(axisBases[seriesConfig.seriesAxisConfig.id]!)));
       }
     }
     else {
-      seriesValueText = valueFormat(seriesValueObject[key]);
+      seriesValueText = String(valueFormat(seriesValueObject[key]!));
     }
   }
   else if (tooltipConfig.showMissingValues) {
@@ -52,7 +63,7 @@ function getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFo
   return seriesValueText;
 }
 
-export function getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForSuppression) {
+export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, valueFormat: ValueFormatter, series: GroupSeriesSlice, adjustForSuppression: boolean) {
   const labelText = getSeriesLabel(seriesConfig);
 
   const seriesValueText = getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'plain');
@@ -81,22 +92,31 @@ export function getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, 
   };
 }
 
-export function getSuppressedValue(chartData, seriesConfig, valueObject) {
+export function getSuppressedValue(chartData: ChartData, seriesConfig: SeriesConfig, valueObject: SeriesValueObject): SeriesValueObject {
   let newValueObject = valueObject;
   if (newValueObject.plain === null) {
     newValueObject = {
       plain: null,
       range: null,
-      marker: null
+      stack: null,
+      prior: null,
+      marker: null,
+      label: null,
+      color: null,
+      markerCopyKey: null,
+      labelCopyKey: null,
+      colorCopyKey: null,
+      min: null,
+      max: null
     };
     let base = chartData.seriesData.axisBases[seriesConfig.seriesAxisConfig.id];
-    newValueObject.plain = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? base : groupValue);
+    newValueObject.plain = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? (base ?? undefined) : undefined);
     if (seriesConfig.rangeProperty !== NONE && newValueObject.range === null) {
       newValueObject.range = newValueObject.plain;
     }
     if (seriesConfig.markerProperty !== NONE&& newValueObject.marker === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['marker'][0];
-      newValueObject.marker = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? base : groupValue);
+      newValueObject.marker = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? (base ?? undefined) : undefined);
     }
   }
   return newValueObject

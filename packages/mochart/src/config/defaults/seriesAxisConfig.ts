@@ -2,12 +2,13 @@ import { NONE, TYPE_NUMBER, SCALE_LINEAR } from '../core/constants';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import getAxisDefaults from './axisConfig';
+import type { SeriesAxisConfig } from '../../types/config';
 
-export default function getDefaults(config, index, hasStack) {
+export default function getDefaults(config: Partial<SeriesAxisConfig> = {}, index: number, hasStack: boolean): Partial<SeriesAxisConfig> {
   let regularDefaults = getRegularDefaults();
   let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults, index, hasStack));
-  return { ...regularDefaults, ...conditionalDefaults };
+  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesAxisConfig, index, hasStack));
+  return { ...regularDefaults, ...conditionalDefaults } as Partial<SeriesAxisConfig>;
 }
 
 export function getRegularDefaults() {
@@ -44,7 +45,7 @@ export function getRegularDefaults() {
   };
 }
 
-export function getConditionalDefaults(configWithRegularDefaults, index, hasStack) {
+export function getConditionalDefaults(configWithRegularDefaults: SeriesAxisConfig, index: number, hasStack: boolean) {
   return {
     base: conditionalDefault([
       { condition: (config, index) => hasStack, suffix: 'series axis has stacks', default: 0, defaultText: '0' },

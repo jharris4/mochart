@@ -1,16 +1,24 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import type { LayoutInfo } from '../types/layout';
 
-export default class SeriesBackground extends Renderer {
-  static defaultProps = {
+type ShapeRef = (element: Element | null) => void;
+
+interface SeriesBackgroundProps {
+  seriesLayoutInfo: LayoutInfo;
+  shapeRef?: ShapeRef | null;
+  chartTransform?: string | null;
+}
+
+export default class SeriesBackground extends Renderer<SeriesBackgroundProps> {
+  static defaultProps: Partial<SeriesBackgroundProps> = {
     chartTransform: null
   };
 
   root = svgEl('g');
   rect = svgEl('rect');
-  lastShapeRef = null;
+  lastShapeRef: ShapeRef | null = null;
 
   create() {
     this.root.append(this.rect);
@@ -18,7 +26,7 @@ export default class SeriesBackground extends Renderer {
   }
 
   sync() {
-    const { seriesLayoutInfo, shapeRef } = this.props;
+    const { seriesLayoutInfo, shapeRef = null } = this.props;
     this.root.set({ className: mochartCssClasses['seriesBackground'] });
     this.rect.set({ x: seriesLayoutInfo.x, y: seriesLayoutInfo.y, width: seriesLayoutInfo.width, height: seriesLayoutInfo.height,
       fillOpacity: '0', stroke: 'none' });

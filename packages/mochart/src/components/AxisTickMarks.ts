@@ -1,17 +1,32 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate } from '../utils/utils';
 import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import type { AxisTick } from '../types/data';
+import type { AxisConfigBase } from '../types/config';
+import type { AxisLayoutInfo } from '../types/layout';
 
 const hiddenStyle = {
   visibility: 'hidden'
 };
 
-export default class AxisTickMarks extends Renderer {
+interface AxisTickMarksProps {
+  axisConfig: AxisConfigBase & { useSeriesFocus?: boolean };
+  axisLayoutInfo: AxisLayoutInfo;
+  axisTicks: AxisTick[];
+  axisFocusPercentage: number | null;
+  seriesFocusPercentage: number | null;
+}
+
+interface TickMarkHandle {
+  root: ReturnType<typeof svgEl>;
+  line: ReturnType<typeof svgEl>;
+}
+
+export default class AxisTickMarks extends Renderer<AxisTickMarksProps> {
   root = svgEl('g');
-  ticks = this.elList(this.root);
+  ticks = this.elList<AxisTick, TickMarkHandle>(this.root);
 
   create() {
     return this.root.node;
@@ -26,9 +41,9 @@ export default class AxisTickMarks extends Renderer {
       let tickX = 0;
       let tickY = 0;
 
-      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
         axisConfig.tickMarkColor, axisConfig.tickMarkFocusedColor, axisConfig.tickMarkDefocusedColor);
-      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
         axisConfig.tickMarkOpacity, axisConfig.tickMarkFocusedOpacity, axisConfig.tickMarkDefocusedOpacity);
       const strokeWidth = axisConfig.tickMarkWidth;
 

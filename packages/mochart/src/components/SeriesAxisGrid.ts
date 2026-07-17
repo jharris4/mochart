@@ -1,12 +1,24 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
-import { Renderer } from '../render';
+import { Renderer, Slot } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 
 import AxisGrid from './AxisGrid';
+import type { PlotConfig, SeriesAxisConfig } from '../types/config';
+import type { SeriesAxisData } from '../types/data';
+import type { LayoutInfo } from '../types/layout';
 
-export default class SeriesAxisGrid extends Renderer {
-  grid = null;
+interface SeriesAxisGridProps {
+  plotConfig: PlotConfig;
+  seriesAxisConfig: SeriesAxisConfig;
+  seriesLayoutInfo: LayoutInfo;
+  axisFocusPercentage: number | null;
+  seriesFocusPercentage: number | null;
+  seriesCount: number;
+  seriesAxisData: SeriesAxisData;
+}
+
+export default class SeriesAxisGrid extends Renderer<SeriesAxisGridProps> {
+  grid: Slot | null = null;
 
   create() {
     this.grid = this.slot();
@@ -17,13 +29,13 @@ export default class SeriesAxisGrid extends Renderer {
     const { plotConfig, seriesAxisConfig, seriesLayoutInfo, axisFocusPercentage, seriesFocusPercentage, seriesCount, seriesAxisData } = this.props;
     if (seriesAxisConfig.alwaysVisible || seriesCount > 0) {
       const axisId = seriesAxisConfig.id;
-      this.grid.set(AxisGrid, { vertical: !plotConfig.inverted, axisConfig: seriesAxisConfig, seriesLayoutInfo,
+      this.grid!.set(AxisGrid, { vertical: !plotConfig.inverted, axisConfig: seriesAxisConfig, seriesLayoutInfo,
         axisGridClass: mochartCssClasses['seriesAxisGrid'] + axisId,
         axisFocusPercentage, seriesFocusPercentage,
         axisTicks: seriesAxisData.axisTickData[axisId] });
     }
     else {
-      this.grid.set(null);
+      this.grid!.set(null);
     }
   }
 }

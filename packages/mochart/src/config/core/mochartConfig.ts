@@ -1,6 +1,9 @@
 import { NONE } from './constants';
+import type { ConfigValidation, MochartConfig } from '../../types/config';
 
-export const sectionKeyAllMap = {
+type ConfigRecord = Record<string, unknown>;
+
+export const sectionKeyAllMap: Record<string, string> = {
   linearGradientConfigs: 'linearGradientAllConfig',
   radialGradientConfigs: 'radialGradientAllConfig',
   seriesAxisConfigs: 'seriesAxisAllConfig',
@@ -9,54 +12,53 @@ export const sectionKeyAllMap = {
   seriesStackConfigs: 'seriesStackAllConfig'
 };
 
-function isObject(v) {
+function isObject(v: unknown): v is ConfigRecord {
   return v !== null && v !== void 0 && typeof v === "object";
 }
 
-const shallowConfigListCopy = configs => {
+const shallowConfigListCopy = (configs: unknown): unknown => {
   return Array.isArray(configs) ? configs.map(config => isObject(config) ? ({...config}) : config) : configs;
 }
 
-const configsToIdMap = (configs, value = config => config) => {
-  const map = {};
+const configsToIdMap = <T>(configs: ConfigRecord[], value: (config: ConfigRecord) => T): Record<string, T> => {
+  const map: Record<string, T> = {};
   if (Array.isArray(configs)) {
     for (let config of configs) {
-      map[config.id] = value(config);
+      map[String(config.id)] = value(config);
     }
   }
   return map;
 };
 
-function isInteger(v) {
+function isInteger(v: unknown): v is number {
   return v !== void 0 && (typeof v === "number" || v instanceof Number) && isFinite(v as number) && (v as number) % 1 === 0;
 }
 
-function isString(v) {
+function isString(v: unknown): v is string {
   return v !== void 0 && (typeof v === "string" || v instanceof String);
 }
 
-function getOrder(v) {
+function getOrder(v: unknown): number {
   return isInteger(v) ? v : 0;
 }
 
-const orderComparator = (a, b) => (isObject(a) && isObject(b)) ? (getOrder(a.order) - getOrder(b.order)) : (isObject(a) ? -1 : (isObject(b) ? 1 : 0));
+const orderComparator = (a: unknown, b: unknown): number => (isObject(a) && isObject(b)) ? (getOrder(a.order) - getOrder(b.order)) : (isObject(a) ? -1 : (isObject(b) ? 1 : 0));
 
-const configsToOrderedList = configs => {
+const configsToOrderedList = (configs: ConfigRecord[]): ConfigRecord[] => {
   if (Array.isArray(configs)) {
     let ordered = configs.slice();
     ordered.sort(orderComparator);
     return ordered;
   }
-  else {
-    return configs;
-  }
+  return [];
 };
 
-const addToIdMap = (idMap, configs, key) => {
+const addToIdMap = (idMap: Record<string, ConfigRecord[]>, configs: ConfigRecord[], key: string): void => {
   if (Array.isArray(configs)) {
     for (let config of configs) {
-      if (isObject(config) && config[key] !== void 0 && config[key] !== NONE && idMap[config[key]] !== void 0) {
-        idMap[config[key]].push(config);
+      const reference = config[key];
+      if (isObject(config) && typeof reference === 'string' && reference !== NONE && idMap[reference] !== void 0) {
+        idMap[reference]!.push(config);
       }
     }
   }
@@ -64,41 +66,41 @@ const addToIdMap = (idMap, configs, key) => {
 
 const copyConfigKeys = ['seriesAxisConfigs', 'seriesStackConfigs', 'seriesGroupConfigs', 'seriesConfigs'];
 
-function shallowConfigCopy(config) {
-  const copies = {};
+function shallowConfigCopy(config: ConfigRecord): ConfigRecord {
+  const copies: ConfigRecord = {};
   for (let configKey of copyConfigKeys) {
     copies[configKey] = shallowConfigListCopy(config[configKey])
   }
   return copies;
 };
 
-const assignConfigReferences = (configs, referenceKey, referenceName, configMap, configDescriptor) => {
+const assignConfigReferences = (configs: ConfigRecord[], referenceKey: string, referenceName: string, configMap: Record<string, ConfigRecord>, configDescriptor: string): void => {
   if (Array.isArray(configs)) {
     for (let config of configs) {
       if (isObject(config) && config[referenceKey] !== void 0) {
         if (config[referenceName] !== void 0) {
           console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
         }
-        config[referenceName] = configMap[config[referenceKey]];
+        config[referenceName] = configMap[String(config[referenceKey])];
       }
     }
   }
 };
 
-const assignConfigListReferences = (configs, referenceName, configListMap, configDescriptor) => {
+const assignConfigListReferences = (configs: ConfigRecord[], referenceName: string, configListMap: Record<string, ConfigRecord[]>, configDescriptor: string): void => {
   if (Array.isArray(configs)) {
     for (let config of configs) {
       if (isObject(config)) {
         if (config[referenceName] !== void 0) {
           console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
         }
-        config[referenceName] = configListMap[config.id];
+        config[referenceName] = configListMap[String(config.id)];
       }
     }
   }
 };
 
-const assignConfigListIndexReferences = (configs, referenceName, listReferenceName, configDescriptor) => {
+const assignConfigListIndexReferences = (configs: ConfigRecord[], referenceName: string, listReferenceName: string, configDescriptor: string): void => {
   if (Array.isArray(configs)) {
     for (let config of configs) {
       if (isObject(config)) {
@@ -111,8 +113,8 @@ const assignConfigListIndexReferences = (configs, referenceName, listReferenceNa
   }
 }
 
-const arrayToIdIndexMap = configs => {
-  const map = {};
+const arrayToIdIndexMap = (configs: unknown): Record<string, number> => {
+  const map: Record<string, number> = {};
   if (Array.isArray(configs)) {
     const count = configs.length;
     let i, config;
@@ -126,7 +128,7 @@ const arrayToIdIndexMap = configs => {
   return map;
 }
 
-function validateValidation(validation) {
+function validateValidation(validation: unknown): asserts validation is ConfigValidation {
   if (!isObject(validation)) {
     throw new Error('mochartConfig validation must be an object: ');
   }
@@ -142,19 +144,19 @@ function validateValidation(validation) {
   }
 }
 
-export function filterConfigs(configs) {
+export function filterConfigs(configs: unknown): ConfigRecord[] {
   return Array.isArray(configs) ? configs.filter(filterConfig) : [];
 }
 
-export function filterConfig(config) {
+export function filterConfig(config: unknown): config is ConfigRecord {
   return isObject(config) && config.ignore !== true
 }
 
-function withoutUndefined(object) {
+function withoutUndefined(object: ConfigRecord): ConfigRecord {
   const keys = Object.keys(object);
   const keysFiltered = keys.filter(key => object[key] !== void 0);
   if (keysFiltered.length < keys.length) {
-    const clone = {};
+    const clone: ConfigRecord = {};
     for (let key of keysFiltered) {
       clone[key] = object[key];
     }
@@ -163,30 +165,31 @@ function withoutUndefined(object) {
   return object;
 }
 
-export function applyDefaults(configWithoutDefaults, defaults) {
+export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRecord): ConfigRecord {
   if (isObject(configWithoutDefaults)) {
     const config = { ...configWithoutDefaults };
     const sectionKeys = Object.keys(defaults);
-    let allSection, configSection, defaultsSection, listCount, i, aConfig, allKey;
+    let allSection: ConfigRecord, configSection: unknown, defaultsSection: unknown, listCount: number, i: number, aConfig: unknown, allKey: string | undefined;
     for (let sectionKey of sectionKeys) {
       allKey = sectionKeyAllMap[sectionKey];
-      allSection = allKey && isObject(config[allKey]) ? config[allKey] : {};
+      const possibleAllSection = allKey ? config[allKey] : undefined;
+      allSection = isObject(possibleAllSection) ? possibleAllSection : {};
       configSection = config[sectionKey];
       defaultsSection = defaults[sectionKey];
       if (Array.isArray(defaultsSection)) {
         if (Array.isArray(configSection)) {
-          configSection = filterConfigs(configSection);
-          listCount = configSection.length;
+          const filteredConfigSection = filterConfigs(configSection);
+          listCount = filteredConfigSection.length;
           for (i = 0; i < listCount; i++) {
-            aConfig = configSection[i];
-            if (isObject(aConfig)) {
-              configSection[i] = { ...withoutUndefined(defaultsSection[i]), ...allSection, ...aConfig };
+            aConfig = filteredConfigSection[i];
+            if (isObject(aConfig) && isObject(defaultsSection[i])) {
+              filteredConfigSection[i] = { ...withoutUndefined(defaultsSection[i]), ...allSection, ...aConfig };
             }
           }
-          config[sectionKey] = configSection;
+          config[sectionKey] = filteredConfigSection;
         }
         else if (isObject(configSection)) {
-          config[sectionKey] = [{ ...withoutUndefined(defaultsSection[0]), ...configSection }];
+          config[sectionKey] = [{ ...(isObject(defaultsSection[0]) ? withoutUndefined(defaultsSection[0]) : {}), ...configSection }];
         }
         else if (configSection === void 0) {
           config[sectionKey] = defaultsSection;
@@ -203,21 +206,19 @@ export function applyDefaults(configWithoutDefaults, defaults) {
     }
     return config;
   }
+  return {};
 }
 
-function applyAllConfig(configs, allConfig) {
+function applyAllConfig(configs: ConfigRecord[], allConfig: unknown): ConfigRecord[] {
   if (isObject(allConfig)) {
     if (Array.isArray(configs)) {
       configs = configs.map(config => isObject(config) ? {...allConfig, ...config} : allConfig);
-    }
-    else if (isObject(configs)) {
-      configs = {...allConfig, ...configs};
     }
   }
   return configs;
 }
 
-export default function buildMochartConfig(configWithoutDefaults, configDefaults, validation) {
+export default function buildMochartConfig(configWithoutDefaults: unknown, configDefaults: ConfigRecord, validation?: ConfigValidation): MochartConfig {
   if (validation === void 0) {
     validation = { valid: true, errors: [], warnings: [] };
   }
@@ -228,7 +229,7 @@ export default function buildMochartConfig(configWithoutDefaults, configDefaults
   if (!isObject(configWithoutDefaults)) {
     return {
       validation
-    };
+    } as MochartConfig;
   }
   else if (configWithoutDefaults.validation !== void 0) {
     console.warn('mochartConfig had a validation property that will be overriden');
@@ -236,7 +237,12 @@ export default function buildMochartConfig(configWithoutDefaults, configDefaults
 
   const config = applyDefaults(configWithoutDefaults, configDefaults);
   const shallowCopyConfig = shallowConfigCopy(config);
-  let { seriesAxisConfigs, seriesStackConfigs, seriesGroupConfigs, seriesConfigs, linearGradientConfigs, radialGradientConfigs } = config;
+  let seriesAxisConfigs = config.seriesAxisConfigs as ConfigRecord[];
+  let seriesStackConfigs = config.seriesStackConfigs as ConfigRecord[];
+  let seriesGroupConfigs = config.seriesGroupConfigs as ConfigRecord[];
+  let seriesConfigs = config.seriesConfigs as ConfigRecord[];
+  let linearGradientConfigs = config.linearGradientConfigs as ConfigRecord[];
+  let radialGradientConfigs = config.radialGradientConfigs as ConfigRecord[];
   const { seriesAxisAllConfig, seriesStackAllConfig, seriesGroupAllConfig, seriesAllConfig, linearGradientAllConfig, radialGradientAllConfig } = configWithoutDefaults;
 
   seriesAxisConfigs = applyAllConfig(seriesAxisConfigs, seriesAxisAllConfig);
@@ -246,20 +252,20 @@ export default function buildMochartConfig(configWithoutDefaults, configDefaults
   linearGradientConfigs = applyAllConfig(linearGradientConfigs, linearGradientAllConfig);
   radialGradientConfigs = applyAllConfig(radialGradientConfigs, radialGradientAllConfig);
 
-  const seriesAxisConfigsById = configsToIdMap(seriesAxisConfigs);
+  const seriesAxisConfigsById = configsToIdMap(seriesAxisConfigs, value => value);
   const seriesAxisConfigsOrdered = configsToOrderedList(seriesAxisConfigs);
   const seriesAxisSeriesConfigsById = configsToIdMap(seriesAxisConfigs, value => []);
 
-  const seriesStackConfigsById = configsToIdMap(seriesStackConfigs);
+  const seriesStackConfigsById = configsToIdMap(seriesStackConfigs, value => value);
   const seriesStackSeriesConfigsById = configsToIdMap(seriesStackConfigs, value => []);
 
-  const seriesGroupConfigsById = configsToIdMap(seriesGroupConfigs);
+  const seriesGroupConfigsById = configsToIdMap(seriesGroupConfigs, value => value);
   const seriesGroupSeriesConfigsById = configsToIdMap(seriesGroupConfigs, value => []);
 
-  const linearGradientConfigsById = configsToIdMap(linearGradientConfigs);
-  const radialGradientConfigsById = configsToIdMap(radialGradientConfigs);
+  const linearGradientConfigsById = configsToIdMap(linearGradientConfigs, value => value);
+  const radialGradientConfigsById = configsToIdMap(radialGradientConfigs, value => value);
 
-  const seriesConfigsById = configsToIdMap(seriesConfigs);
+  const seriesConfigsById = configsToIdMap(seriesConfigs, value => value);
   const seriesConfigsOrdered = configsToOrderedList(seriesConfigs);
 
   addToIdMap(seriesAxisSeriesConfigsById, seriesConfigsOrdered, 'axis');
@@ -297,10 +303,10 @@ export default function buildMochartConfig(configWithoutDefaults, configDefaults
     seriesConfigsById,
     seriesConfigIndicesById,
     validation,
-  };
+  } as unknown as MochartConfig;
 }
 
-export function hasConfigStructureChange(configOld, configNew) {
+export function hasConfigStructureChange(configOld: MochartConfig, configNew: MochartConfig): boolean {
   if (configOld.validation.valid !== configNew.validation.valid || !configNew.validation.valid) {
     return true;
   }
@@ -366,7 +372,7 @@ export function hasConfigStructureChange(configOld, configNew) {
   return false;
 }
 
-export function configWithAll(config, allConfig) {
+export function configWithAll(config: unknown, allConfig: unknown): unknown {
   if (isObject(allConfig)) {
     if (Array.isArray(config)) {
       return config.map(aConfig => configWithAll(aConfig, allConfig));

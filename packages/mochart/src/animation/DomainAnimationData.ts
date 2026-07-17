@@ -13,6 +13,12 @@ import { hasGroupAdditions, hasGroupRemovals, getExpansionGroupValueDeltaData, g
 import { mapMap } from '../utils/utils';
 
 import { SCALE_ORDINAL, SCALE_LINEAR, TYPE_DATE } from '../config/core/constants';
+import type { AxisDomains, ChartData, GroupAxisDomain, NullableDomain, SeriesDomainObject, SeriesDomainObjects } from '../types/data';
+import type { GroupAxisConfig, MochartConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type {
+  AxisDeltaData, CompleteNumericArrayDelta, DomainDelta, DomainDeltaMap, GroupDeltaData,
+  NumericDomain, SeriesDomainDelta, SeriesDomainDeltaMap
+} from '../types/animation';
 
 /**
  *
@@ -48,18 +54,22 @@ export const emptyAxisDeltaData = {
  *
  **/
 
-function getPositiveDomainDelta(fromDomain, toDomain) {
-  let domainDelta = [0,0];
-  if (toDomain[0] < fromDomain[0]) {
-    domainDelta[0] = toDomain[0] - fromDomain[0];
+function getPositiveDomainDelta(fromDomain: NullableDomain, toDomain: NullableDomain): NumericDomain {
+  let domainDelta: NumericDomain = [0,0];
+  const fromMin = fromDomain[0]!;
+  const fromMax = fromDomain[1]!;
+  const toMin = toDomain[0]!;
+  const toMax = toDomain[1]!;
+  if (toMin < fromMin) {
+    domainDelta[0] = toMin - fromMin;
   }
-  if (toDomain[1] > fromDomain[1]) {
-    domainDelta[1] = toDomain[1] - fromDomain[1];
+  if (toMax > fromMax) {
+    domainDelta[1] = toMax - fromMax;
   }
   return domainDelta;
 }
 
-function getPositiveDomainDeltaPercentage(domainDelta, domainExtent) {
+function getPositiveDomainDeltaPercentage(domainDelta: NumericDomain, domainExtent: number): number {
   if (domainDelta[0] < 0 || domainDelta[1] > 0) {
     let domainDeltaExtent = Math.abs(domainDelta[0]) + domainDelta[1];
     return domainDeltaExtent / (domainDeltaExtent + domainExtent);
@@ -69,12 +79,12 @@ function getPositiveDomainDeltaPercentage(domainDelta, domainExtent) {
   }
 }
 
-function getDomainExtentWithValueGetter(domain, getValue) {
+function getDomainExtentWithValueGetter(domain: GroupAxisDomain, getValue: (value: GroupAxisDomain[number]) => number): number {
   return getValue(domain[1]) - getValue(domain[0]);
 }
 
-export function getMaxAxisDomains(domains, otherDomains) {
-  let maxDomains = {};
+export function getMaxAxisDomains(domains: AxisDomains, otherDomains: AxisDomains): AxisDomains {
+  let maxDomains: AxisDomains = {};
   let axisIds = Object.keys(domains);
   for (let axisId of axisIds) {
     maxDomains[axisId] = getMaxDomain(domains[axisId], otherDomains[axisId]);
@@ -82,8 +92,8 @@ export function getMaxAxisDomains(domains, otherDomains) {
   return maxDomains;
 }
 
-function getMaxSeriesDomain(domainObject, otherDomainObject) {
-  let newDomainObject = {};
+function getMaxSeriesDomain(domainObject: SeriesDomainObject, otherDomainObject: SeriesDomainObject): SeriesDomainObject {
+  let newDomainObject: SeriesDomainObject = {};
   let i, length = domainKeys.length, key;
   for (i=0; i<length; i++) {
     key = domainKeys[i];
@@ -92,8 +102,8 @@ function getMaxSeriesDomain(domainObject, otherDomainObject) {
   return newDomainObject;
 }
 
-function getMaxSeriesDomains(domainObjects, otherDomainObjects) {
-  let newDomainObjects = {};
+function getMaxSeriesDomains(domainObjects: SeriesDomainObjects, otherDomainObjects: SeriesDomainObjects): SeriesDomainObjects {
+  let newDomainObjects: SeriesDomainObjects = {};
   let seriesIds = Object.keys(domainObjects);
   let i, count = domainObjects.length;
   for (let seriesId of seriesIds) {
@@ -102,16 +112,16 @@ function getMaxSeriesDomains(domainObjects, otherDomainObjects) {
   return newDomainObjects;
 }
 
-function copySeriesAxisDomains(seriesAxisDomains) {
-  return mapMap(seriesAxisDomains, x => copyDomain(x));
+function copySeriesAxisDomains(seriesAxisDomains: AxisDomains): AxisDomains {
+  return mapMap<NullableDomain, NullableDomain>(seriesAxisDomains, x => copyDomain(x));
 }
 
-function copySeriesDomains(seriesDomainObjects) {
+function copySeriesDomains(seriesDomainObjects: SeriesDomainObjects): SeriesDomainObjects {
   return mapMap(seriesDomainObjects, x => copySeriesDomain(x));
 }
 
-function copySeriesDomain(seriesDomainObject) {
-  let domainObject = {};
+function copySeriesDomain(seriesDomainObject: SeriesDomainObject): SeriesDomainObject {
+  let domainObject: SeriesDomainObject = {};
   for (let key of domainKeys) {
     domainObject[key] = copyDomain(seriesDomainObject[key]);
   }
@@ -124,16 +134,16 @@ function copySeriesDomain(seriesDomainObject) {
  *
  **/
 
-export function getTransitionAxisExpansionData(mochartConfig, prevChartData, newChartData, groupDeltaData) {
+export function getTransitionAxisExpansionData(mochartConfig: MochartConfig, prevChartData: ChartData, newChartData: ChartData, groupDeltaData: GroupDeltaData): AxisDeltaData {
   let finalChartData = prevChartData;
   let endChartData = prevChartData;
   let finalGroupData = prevChartData.groupData;
   let endGroupData = prevChartData.groupData;
   let finalGroupAxisDomain = prevChartData.groupData.axisDomain;
 
-  let groupValueDeltaData = null;
+  let groupValueDeltaData: CompleteNumericArrayDelta | null = null;
 
-  let startGroupAxisDomain, endGroupAxisDomain;
+  let startGroupAxisDomain: GroupAxisDomain, endGroupAxisDomain: GroupAxisDomain;
 
   const { groupAxisConfig, seriesAxisConfigs, seriesConfigs } = mochartConfig;
 
@@ -253,11 +263,11 @@ export function getTransitionAxisExpansionData(mochartConfig, prevChartData, new
     filteredSeriesAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, groupValueDeltaData);
 }
 
-export function getTransitionAxisCollapseData(mochartConfig, prevChartData, newChartData, groupDeltaData) {
+export function getTransitionAxisCollapseData(mochartConfig: MochartConfig, prevChartData: ChartData, newChartData: ChartData, groupDeltaData: GroupDeltaData): AxisDeltaData {
   let startGroupData = newChartData.groupData;
   let endGroupData = newChartData.groupData;
 
-  let groupValueDeltaData = null;
+  let groupValueDeltaData: CompleteNumericArrayDelta | null = null;
 
   let startGroupAxisDomain = copyDomain(prevChartData.groupData.axisDomain);
   let endGroupAxisDomain = copyDomain(newChartData.groupData.axisDomain);
@@ -315,7 +325,7 @@ export function getTransitionAxisCollapseData(mochartConfig, prevChartData, newC
     rawSeriesAxisDomainDeltas, filteredSeriesAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, groupValueDeltaData));
 }
 
-function adjustFilteredAxisDomainDeltas(seriesAxisConfigs, rawSeriesAxisDomainDeltas, filteredSeriesAxisDomainDeltas) {
+function adjustFilteredAxisDomainDeltas(seriesAxisConfigs: SeriesAxisConfig[], rawSeriesAxisDomainDeltas: DomainDeltaMap, filteredSeriesAxisDomainDeltas: DomainDeltaMap): void {
   if (filteredSeriesAxisDomainDeltas.deltaPercentage !== 0) {
     const { deltas: rawDeltas } = rawSeriesAxisDomainDeltas;
     const { deltas: filteredDeltas } = filteredSeriesAxisDomainDeltas;
@@ -324,9 +334,9 @@ function adjustFilteredAxisDomainDeltas(seriesAxisConfigs, rawSeriesAxisDomainDe
     let filteredDeltaPercentage;
 
     for (let axisConfig of seriesAxisConfigs) {
-      filteredDeltaPercentage = filteredDeltas[axisConfig.id].deltaPercentage;
+      filteredDeltaPercentage = filteredDeltas![axisConfig.id]!.deltaPercentage;
       if (filteredDeltaPercentage !== 0 && !axisConfig.adjustForSuppression) {
-        filteredDeltaPercentage = filteredDeltas[axisConfig.id].deltaPercentage = rawDeltas !== null ? rawDeltas[axisConfig.id].deltaPercentage : 0;
+        filteredDeltaPercentage = filteredDeltas![axisConfig.id]!.deltaPercentage = rawDeltas !== null ? rawDeltas[axisConfig.id]!.deltaPercentage : 0;
       }
       newDeltaPercentage = Math.max(newDeltaPercentage, filteredDeltaPercentage);
     }
@@ -339,9 +349,9 @@ function adjustFilteredAxisDomainDeltas(seriesAxisConfigs, rawSeriesAxisDomainDe
  * getAxisDeltaData functions
  *
  **/
-function getSeriesAxisDomainDeltas(fromSeriesAxisDomains, toSeriesAxisDomains, fromSeriesAxisDomainExtents) {
+function getSeriesAxisDomainDeltas(fromSeriesAxisDomains: AxisDomains, toSeriesAxisDomains: AxisDomains, fromSeriesAxisDomainExtents: Record<string, number>): DomainDeltaMap {
   let deltaPercentage = 0;
-  const deltas = {};
+  const deltas: Record<string, DomainDelta> = {};
 
   let axisDelta, axisDeltaPercentage;
   const seriesAxisIds = Object.keys(fromSeriesAxisDomains);
@@ -360,10 +370,10 @@ function getSeriesAxisDomainDeltas(fromSeriesAxisDomains, toSeriesAxisDomains, f
   };
 }
 
-function getGroupAxisDomainDelta(groupAxisConfig, fromGroupAxisDomain, toGroupAxisDomain) {
-  let delta = [0, 0];
+function getGroupAxisDomainDelta(groupAxisConfig: GroupAxisConfig, fromGroupAxisDomain: GroupAxisDomain, toGroupAxisDomain: GroupAxisDomain): DomainDelta {
+  let delta: NumericDomain = [0, 0];
 
-  let getValue = groupAxisConfig.type === TYPE_DATE && groupAxisConfig.scale === SCALE_LINEAR ? (groupValue) => groupValue === null ? null : groupValue.getTime() : (groupValue) => groupValue;
+  const getValue = (groupValue: GroupAxisDomain[number]): number => groupValue === null ? 0 : groupValue instanceof Date ? groupValue.getTime() : groupValue;
 
   if (getValue(toGroupAxisDomain[0]) < getValue(fromGroupAxisDomain[0])) {
     delta[0] = getValue(toGroupAxisDomain[0]) - getValue(fromGroupAxisDomain[0]);
@@ -380,8 +390,8 @@ function getGroupAxisDomainDelta(groupAxisConfig, fromGroupAxisDomain, toGroupAx
   }
 }
 
-function getOrdinalGroupValueDeltaData(oldNumericValues, newNumericValues) {
-  let deltas = [];
+function getOrdinalGroupValueDeltaData(oldNumericValues: number[], newNumericValues: number[]): Omit<CompleteNumericArrayDelta, 'deltaPercentage'> {
+  let deltas: number[] = [];
   let i, count = oldNumericValues.length;
   for (i=0; i<count; i++) {
     deltas.push(newNumericValues[i] - oldNumericValues[i]);
@@ -393,13 +403,13 @@ function getOrdinalGroupValueDeltaData(oldNumericValues, newNumericValues) {
   }
 }
 
-function getSeriesDomainDeltas(seriesConfigs, fromDomainObjects, toDomainObjects, fromAxisExtents) {
+function getSeriesDomainDeltas(seriesConfigs: SeriesConfig[], fromDomainObjects: SeriesDomainObjects, toDomainObjects: SeriesDomainObjects, fromAxisExtents: Record<string, number>): SeriesDomainDeltaMap {
   let deltaPercentage = 0;
-  let deltas = {};
+  let deltas: Record<string, SeriesDomainDelta> = {};
   let domainDelta, domainDeltaPercentage;
   for (let seriesConfig of seriesConfigs) {
     const { id } = seriesConfig;
-    domainDelta = getSeriesDomainDelta(fromDomainObjects[id], toDomainObjects[id], fromAxisExtents[seriesConfig.axis]);
+    domainDelta = getSeriesDomainDelta(fromDomainObjects[id]!, toDomainObjects[id]!, fromAxisExtents[seriesConfig.axis!]!);
     deltaPercentage = Math.max(deltaPercentage, domainDelta.deltaPercentage);
     deltas[id] = domainDelta;
   }
@@ -409,8 +419,8 @@ function getSeriesDomainDeltas(seriesConfigs, fromDomainObjects, toDomainObjects
   };
 }
 
-function getSeriesDomainDelta(fromDomainObject, toDomainObject, fromAxisExtent) {
-  let newDomainObject: any = {};
+function getSeriesDomainDelta(fromDomainObject: SeriesDomainObject, toDomainObject: SeriesDomainObject, fromAxisExtent: number): SeriesDomainDelta {
+  let newDomainObject = {} as SeriesDomainDelta;
   let deltaPercentage = 0;
   let key, domainDelta, domainDeltaPercentage;
   let i, length = domainKeys.length;
@@ -428,8 +438,8 @@ function getSeriesDomainDelta(fromDomainObject, toDomainObject, fromAxisExtent) 
   return newDomainObject;
 }
 
-function createAxisDeltaData(startChartData, endChartData, finalChartData, groupAxisDomainDelta, rawSeriesAxisDomainDeltas,
-                             filteredSeriesAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, groupValueDeltaData) {
+function createAxisDeltaData(startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, groupAxisDomainDelta: DomainDelta, rawSeriesAxisDomainDeltas: DomainDeltaMap,
+                             filteredSeriesAxisDomainDeltas: DomainDeltaMap, rawSeriesDomainDeltas: SeriesDomainDeltaMap, filteredSeriesDomainDeltas: SeriesDomainDeltaMap, groupValueDeltaData: CompleteNumericArrayDelta | null): AxisDeltaData {
   let deltaPercentage = Math.max(groupAxisDomainDelta.deltaPercentage, rawSeriesAxisDomainDeltas.deltaPercentage,
     filteredSeriesAxisDomainDeltas.deltaPercentage, rawSeriesDomainDeltas.deltaPercentage, groupValueDeltaData ? groupValueDeltaData.deltaPercentage : 0);
   setDeltaFactor(groupAxisDomainDelta, deltaPercentage);
@@ -465,7 +475,7 @@ function createAxisDeltaData(startChartData, endChartData, finalChartData, group
   };
 }
 
-function setDeltaFactor(deltaObject, deltaPercentage) {
+function setDeltaFactor(deltaObject: { deltaPercentage: number; deltaFactor?: number }, deltaPercentage: number): void {
   if (deltaObject.deltaPercentage === 0) {
     deltaObject.deltaFactor = 0;
   }
@@ -474,13 +484,13 @@ function setDeltaFactor(deltaObject, deltaPercentage) {
   }
 }
 
-function setGroupValueDeltaFactor(deltaObject, deltaPercentage) {
+function setGroupValueDeltaFactor(deltaObject: CompleteNumericArrayDelta | null, deltaPercentage: number): void {
   if (deltaObject) {
     setDeltaFactor(deltaObject, deltaPercentage);
   }
 }
 
-function setAxisDeltaFactors(axisDeltaObjectHolder, deltaPercentage) {
+function setAxisDeltaFactors(axisDeltaObjectHolder: DomainDeltaMap, deltaPercentage: number): void {
   if (axisDeltaObjectHolder.deltas !== null) {
     let axisDeltaObjects = axisDeltaObjectHolder.deltas;
     let axisIds = Object.keys(axisDeltaObjects);
@@ -490,7 +500,7 @@ function setAxisDeltaFactors(axisDeltaObjectHolder, deltaPercentage) {
   }
 }
 
-function setDomainDeltaFactors(domainDeltaObjectHolder, deltaPercentage) {
+function setDomainDeltaFactors(domainDeltaObjectHolder: SeriesDomainDeltaMap, deltaPercentage: number): void {
   if (domainDeltaObjectHolder.deltas !== null) {
     let domainDeltaObjects = domainDeltaObjectHolder.deltas;
     let seriesIds = Object.keys(domainDeltaObjects);
@@ -500,32 +510,29 @@ function setDomainDeltaFactors(domainDeltaObjectHolder, deltaPercentage) {
   }
 }
 
-function setDomainDeltaFactor(domainDeltaObject, deltaPercentage) {
+function setDomainDeltaFactor(domainDeltaObject: SeriesDomainDelta, deltaPercentage: number): void {
   setDeltaFactor(domainDeltaObject, deltaPercentage);
   for (let key of domainKeys) {
     setDeltaFactor(domainDeltaObject[key], deltaPercentage);
   }
 }
 
-function invertAxisDeltas(axisDeltaData) {
+function invertAxisDeltas(axisDeltaData: AxisDeltaData): AxisDeltaData {
   if (axisDeltaData.deltas.domain.axis.group.delta !== null) {
     invertDomainDeltas(axisDeltaData.deltas.domain.axis.group.delta);
-    if (axisDeltaData.deltas.values.group !== null) {
-      invertGroupValueDeltas(axisDeltaData.deltas.values.group);
-    }
   }
   let rawSeriesAxisDeltas = axisDeltaData.deltas.domain.axis.series.raw.deltas;
   if (rawSeriesAxisDeltas !== null) {
     let axisIds = Object.keys(rawSeriesAxisDeltas);
     for (let axisId of axisIds) {
-      invertDomainDeltas(rawSeriesAxisDeltas[axisId].delta);
+      invertDomainDeltas(rawSeriesAxisDeltas[axisId].delta!);
     }
   }
   let filteredSeriesAxisDeltas = axisDeltaData.deltas.domain.axis.series.filtered.deltas;
   if (filteredSeriesAxisDeltas !== null) {
     let axisIds = Object.keys(filteredSeriesAxisDeltas);
     for (let axisId of axisIds) {
-      invertDomainDeltas(filteredSeriesAxisDeltas[axisId].delta);
+      invertDomainDeltas(filteredSeriesAxisDeltas[axisId].delta!);
     }
   }
   let rawSeriesDomainDeltas = axisDeltaData.deltas.domain.series.raw.deltas;
@@ -539,41 +546,32 @@ function invertAxisDeltas(axisDeltaData) {
   return axisDeltaData;
 }
 
-function invertGroupValueDeltas(valueDeltas) {
-  let i, count = valueDeltas.length;
-  for (i=0; i<count; i++) {
-    if (valueDeltas[i] !== 0) {
-      valueDeltas[i] = -1 * valueDeltas[i];
-    }
-  }
-}
-
-function invertSeriesDomainDeltas(seriesDomainDeltas) {
+function invertSeriesDomainDeltas(seriesDomainDeltas: Record<string, SeriesDomainDelta>): void {
   let seriesIds = Object.keys(seriesDomainDeltas);
   for (let seriesId of seriesIds) {
     invertSeriesDomainDeltaObject(seriesDomainDeltas[seriesId]);
   }
 }
 
-function invertSeriesDomainDeltaObject(seriesDomainDeltaObject) {
+function invertSeriesDomainDeltaObject(seriesDomainDeltaObject: SeriesDomainDelta): void {
   for (let key of domainKeys) {
-    invertDomainDeltas(seriesDomainDeltaObject[key].delta);
+    invertDomainDeltas(seriesDomainDeltaObject[key].delta!);
   }
 }
 
-function invertDomainDeltas(domainDelta) {
+function invertDomainDeltas(domainDelta: NumericDomain): void {
   domainDelta[0] = domainDelta[0] === 0 ? 0 : -1 * domainDelta[0];
   domainDelta[1] = domainDelta[1] === 0 ? 0 : -1 * domainDelta[1];
 }
 
-function setAllBaseAxisDomainsForChanges(startAxisDomains, endAxisDomains) {
+function setAllBaseAxisDomainsForChanges(startAxisDomains: AxisDomains, endAxisDomains: AxisDomains): void {
   let axisIds = Object.keys(startAxisDomains);
   for (let axisId of axisIds) {
     setBaseDomainForChanges(startAxisDomains[axisId], endAxisDomains[axisId]);
   }
 }
 
-function setBaseDomainForChanges(startAxisDomain, endAxisDomain) {
+function setBaseDomainForChanges<T extends number | Date>(startAxisDomain: NullableDomain<T>, endAxisDomain: NullableDomain<T>): void {
   if (startAxisDomain[0] === null) {
     if (endAxisDomain[0] !== null) {
       startAxisDomain[0] = startAxisDomain[1] = endAxisDomain[0];
@@ -584,19 +582,19 @@ function setBaseDomainForChanges(startAxisDomain, endAxisDomain) {
   }
 }
 
-function setAllBaseSeriesDomainsForChanges(startDomainObjects, endDomainObjects) {
+function setAllBaseSeriesDomainsForChanges(startDomainObjects: SeriesDomainObjects, endDomainObjects: SeriesDomainObjects): void {
   let seriesIds = Object.keys(startDomainObjects);
   for (let seriesId of seriesIds) {
     setBaseSeriesDomainForChanges(startDomainObjects[seriesId], endDomainObjects[seriesId]);
   }
 }
 
-function setBaseSeriesDomainForChanges(startDomainObject, endDomainObject) {
+function setBaseSeriesDomainForChanges(startDomainObject: SeriesDomainObject, endDomainObject: SeriesDomainObject): void {
   for (let key of domainKeys) {
     setBaseKeyedSeriesDomainForChanges(startDomainObject, endDomainObject, key);
   }
 }
 
-function setBaseKeyedSeriesDomainForChanges(startDomainObject, endDomainObject, valueKey) {
+function setBaseKeyedSeriesDomainForChanges(startDomainObject: SeriesDomainObject, endDomainObject: SeriesDomainObject, valueKey: string): void {
   setBaseDomainForChanges(startDomainObject[valueKey], endDomainObject[valueKey]);
 }

@@ -1,12 +1,13 @@
 import { NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS } from '../core/constants';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
+import type { LegendConfig } from '../../types/config';
 
-export default function getDefaults(config, seriesCount) {
+export default function getDefaults(config: Partial<LegendConfig> = {}, seriesCount: number): Partial<LegendConfig> {
   let regularDefaults = getRegularDefaults();
   let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults, seriesCount));
+  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as LegendConfig, seriesCount));
 
-  return { ...regularDefaults, ...conditionalDefaults };
+  return { ...regularDefaults, ...conditionalDefaults } as Partial<LegendConfig>;
 }
 
 export function getRegularDefaults() {
@@ -37,7 +38,7 @@ export function getRegularDefaults() {
   };
 }
 
-export function getConditionalDefaults(configWithRegularDefaults, seriesCount) {
+export function getConditionalDefaults(configWithRegularDefaults: LegendConfig, seriesCount: number) {
   return {
     visible: conditionalDefault([
       { condition: (config, seriesCount) => seriesCount > 1, suffix: "when seriesConfigs.length is > 1", default: true },

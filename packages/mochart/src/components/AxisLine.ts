@@ -1,10 +1,18 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import type { AxisConfigBase } from '../types/config';
+import type { AxisLayoutInfo } from '../types/layout';
 
-export default class AxisLine extends Renderer {
+interface AxisLineProps {
+  axisConfig: AxisConfigBase & { useSeriesFocus?: boolean };
+  axisLayoutInfo: AxisLayoutInfo;
+  axisFocusPercentage: number | null;
+  seriesFocusPercentage: number | null;
+}
+
+export default class AxisLine extends Renderer<AxisLineProps> {
   root = svgEl('g');
   line = svgEl('line');
 
@@ -19,9 +27,9 @@ export default class AxisLine extends Renderer {
       const { axisLayoutInfo, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { axisLineX1, axisLineY1, axisLineX2, axisLineY2 } = axisLayoutInfo;
 
-      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
         axisConfig.axisLineColor, axisConfig.axisLineFocusedColor, axisConfig.axisLineDefocusedColor);
-      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
         axisConfig.axisLineOpacity, axisConfig.axisLineFocusedOpacity, axisConfig.axisLineDefocusedOpacity);
 
       this.setPresent(true);

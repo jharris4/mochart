@@ -1,6 +1,6 @@
 import { path } from 'd3-path';
 
-export function getCutoutRectanglePath(x, y, width, height, cx, cy, cwidth, cheight) {
+export function getCutoutRectanglePath(x: number, y: number, width: number, height: number, cx: number, cy: number, cwidth: number, cheight: number): string {
   let pathGenerator = path();
   pathGenerator.moveTo(x, y);
   pathGenerator.lineTo(x + width, y);
@@ -16,10 +16,10 @@ export function getCutoutRectanglePath(x, y, width, height, cx, cy, cwidth, chei
   return "" + pathGenerator;
 }
 
-export function getClipPathReference(clipPathId) {
+export function getClipPathReference(clipPathId: string): string {
   return `url(#${clipPathId})`;
 }
 
-export function getGradientReference(gradientId) {
+export function getGradientReference(gradientId: string): string {
   return `url(#${gradientId})`;
 }

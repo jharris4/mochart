@@ -116,15 +116,15 @@ function getGroupAxisThresholdTitleCssSelector() {
   return '.' + [mochartCssClasses['groupAxisThreshold'], mochartCssClasses['axisThreshold']].join(' .') + ' text';
 }
 
-function getSeriesAxisTickLabelsCssSelectorForId(axisId) {
+function getSeriesAxisTickLabelsCssSelectorForId(axisId: string) {
   return '.' + [mochartCssClasses['seriesAxis'].split(' ')[1] + axisId, mochartCssClasses['axisTickLabels']].join(' .') + ' text';
 }
 
-function getSeriesAxisTitleCssSelectorForId(axisId) {
+function getSeriesAxisTitleCssSelectorForId(axisId: string) {
   return '.' + [mochartCssClasses['seriesAxis'].split(' ')[1] + axisId, mochartCssClasses['axisTitle']].join(' .') + ' text';
 }
 
-function getSeriesAxisThresholdTitleCssSelectorForId(axisId) {
+function getSeriesAxisThresholdTitleCssSelectorForId(axisId: string) {
   return '.' + [mochartCssClasses['seriesAxisThreshold'].split(' ')[1] + axisId, mochartCssClasses['axisThreshold']].join(' .') + ' text';
 }
 
@@ -144,22 +144,23 @@ function getTooltipCssSelector() {
   return '.' + mochartCssClasses['tooltipSizer'];
 }
 
-export function getDomAccessors(chartElement) {
+export function getDomAccessors(chartElement: Element): ChartDomAccessors {
   return {
-    getTitleTextDomElement: () => chartElement.querySelector(getTitleTextCssSelector()),
-    getTitleTextRawDomElement: () => chartElement.querySelector(getTitleTextRawCssSelector()),
-    getTitlePrefixDomElement: () => chartElement.querySelector(getTitlePrefixCssSelector()),
-    getTitleSuffixDomElement: () => chartElement.querySelector(getTitleSuffixCssSelector()),
-    getGroupAxisTicksDomElements: () => chartElement.querySelectorAll(getGroupAxisTickLabelsCssSelector()),
-    getGroupAxisSizeTickDomElement: () => chartElement.querySelector(getGroupAxisSizeTickLabelCssSelector()),
-    getGroupAxisTitleDomElement: () => chartElement.querySelector(getGroupAxisTitleCssSelector()),
-    getGroupAxisThresholdTitleDomElement: () => chartElement.querySelector(getGroupAxisThresholdTitleCssSelector()),
-    getSeriesAxisTicksDomElementsForId: (axisId) => chartElement.querySelectorAll(getSeriesAxisTickLabelsCssSelectorForId(axisId)),
-    getSeriesAxisTitleDomElementForId: (axisId) => chartElement.querySelector(getSeriesAxisTitleCssSelectorForId(axisId)),
-    getSeriesAxisThresholdTitleDomElementForId: (axisId) => chartElement.querySelector(getSeriesAxisThresholdTitleCssSelectorForId(axisId)),
-    getLegendDomElement: () => chartElement.querySelector(getLegendCssSelector()),
-    getLegendItemTextDomElements: () => chartElement.querySelectorAll(getLegendItemTextsCssSelector()),
-    getLegendItemTextRawDomElements: () => chartElement.querySelectorAll(getLegendItemTextRawsCssSelector()),
-    getTooltipDomElement: () => chartElement.querySelector(getTooltipCssSelector())
+    getTitleTextDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitleTextCssSelector()),
+    getTitleTextRawDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitleTextRawCssSelector()),
+    getTitlePrefixDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitlePrefixCssSelector()),
+    getTitleSuffixDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitleSuffixCssSelector()),
+    getGroupAxisTicksDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getGroupAxisTickLabelsCssSelector()),
+    getGroupAxisSizeTickDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getGroupAxisSizeTickLabelCssSelector()),
+    getGroupAxisTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getGroupAxisTitleCssSelector()),
+    getGroupAxisThresholdTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getGroupAxisThresholdTitleCssSelector()),
+    getSeriesAxisTicksDomElementsForId: (axisId: string) => chartElement.querySelectorAll<SVGGraphicsElement>(getSeriesAxisTickLabelsCssSelectorForId(axisId)),
+    getSeriesAxisTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getSeriesAxisTitleCssSelectorForId(axisId)),
+    getSeriesAxisThresholdTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getSeriesAxisThresholdTitleCssSelectorForId(axisId)),
+    getLegendDomElement: () => chartElement.querySelector<HTMLElement>(getLegendCssSelector()),
+    getLegendItemTextDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getLegendItemTextsCssSelector()),
+    getLegendItemTextRawDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getLegendItemTextRawsCssSelector()),
+    getTooltipDomElement: () => chartElement.querySelector<HTMLElement>(getTooltipCssSelector())
   };
 }
+import type { ChartDomAccessors } from '../types/chart';

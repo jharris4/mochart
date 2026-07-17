@@ -588,7 +588,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
           extensionFunction.isEnum = validatorFunction.isEnum && validatorExtensionArgsToIsEnum[extensionKey](...args);
           if (extensionAllowedValues !== null) {
             if (typeValidators.array(validatorFunction.allowedValues)) {
-              extensionFunction.allowedValues = validatorFunction.allowedValues.concat(extensionAllowedValues);
+              extensionFunction.allowedValues = validatorFunction.allowedValues!.concat(extensionAllowedValues);
             } else {
               extensionFunction.allowedValues = extensionAllowedValues;
             }
@@ -657,7 +657,7 @@ const appendSuffix = (message: string, suffix?: string): string =>
   suffix !== void 0 ? message + " " + suffix : message;
 
 validators.conditional = (rules: ConditionalRule[], object: any): Validator => {
-  let matchedRule = rules.find(rule => rule.condition(object));
+  let matchedRule = rules.find(rule => rule.condition(object))!;
   let validatorFunction = ((v?: any) => matchedRule.validator(v)) as Validator;
   validatorFunction.validatorName = "conditional";
   validatorFunction.customName = null;

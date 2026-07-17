@@ -1,30 +1,34 @@
 import { getWithMutations } from '../utils/WithMutations';
 import { keyStack } from './constants';
+import type { MochartConfig, SeriesConfig, SeriesStackConfig } from '../types/config';
+import type { ChartData, NumericValues, StackData } from '../types/data';
 
-function assignIdIfPositive(seriesIds, seriesConfig, values) {
+type OuterSeriesIds = Record<string, (string | undefined)[]>;
+
+function assignIdIfPositive(seriesIds: (string | undefined)[], seriesConfig: SeriesConfig, values: NumericValues | null): void {
   const count = values ? values.length : 0;
   const { id } = seriesConfig;
   for (let i = 0; i < count; i++) {
-    if (values[i] > 0) {
+    if (values !== null && values[i] !== undefined && values[i]! > 0) {
       seriesIds[i] = id;
     }
   }
 }
 
-function assignIdIfNegative(seriesIds, seriesConfig, values) {
+function assignIdIfNegative(seriesIds: (string | undefined)[], seriesConfig: SeriesConfig, values: NumericValues | null): void {
   const count = values ? values.length : 0;
   const { id } = seriesConfig;
   for (let i = 0; i < count; i++) {
-    if (values[i] < 0) {
+    if (values !== null && values[i] !== undefined && values[i]! < 0) {
       seriesIds[i] = id;
     }
   }
 }
 
-function getStackOuterSeriesIds(seriesStackConfigs, groupCount) {
-  const stackOuterSeriesIds = {};
-  let outerSeriesIds;
-  const emptyGroupValues = [];
+function getStackOuterSeriesIds(seriesStackConfigs: SeriesStackConfig[], groupCount: number): OuterSeriesIds {
+  const stackOuterSeriesIds: OuterSeriesIds = {};
+  let outerSeriesIds: (string | undefined)[];
+  const emptyGroupValues: undefined[] = [];
   for (let i=0; i<groupCount; i++) {
     emptyGroupValues.push(void 0);
   }
@@ -35,7 +39,7 @@ function getStackOuterSeriesIds(seriesStackConfigs, groupCount) {
   return stackOuterSeriesIds;
 }
 
-export function getStackData(mochartConfig, chartData) {
+export function getStackData(mochartConfig: MochartConfig, chartData: ChartData): StackData {
   const { seriesStackConfigs } = mochartConfig;
   const { raw, filtered } = chartData.seriesData;
   const { values: rawValues } = raw;
@@ -48,7 +52,8 @@ export function getStackData(mochartConfig, chartData) {
   const filteredOuterNegativeSeriesIds = getStackOuterSeriesIds(seriesStackConfigs, groupValues.length);
   let stackPositiveIds, stackPositiveFilteredIds, stackNegativeIds, stackNegativeFilteredIds, id;
   for (let seriesStackConfig of seriesStackConfigs) {
-    const { id: stackId, seriesConfigs } = seriesStackConfig;
+    const { id: stackId } = seriesStackConfig;
+    const seriesConfigs = seriesStackConfig.seriesConfigs!;
     stackPositiveIds = outerPositiveSeriesIds[stackId];
     stackPositiveFilteredIds = filteredOuterPositiveSeriesIds[stackId];
     stackNegativeIds = outerNegativeSeriesIds[stackId];
@@ -69,6 +74,6 @@ export function getStackData(mochartConfig, chartData) {
   }
 }
 
-export function getStackDataWithMutations(stackData, mochartConfig, chartData) {
+export function getStackDataWithMutations(stackData: StackData | null, mochartConfig: MochartConfig, chartData: ChartData): StackData {
   return getWithMutations(stackData, getStackData(mochartConfig, chartData));
 }

@@ -1,5 +1,4 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
-import { Renderer } from '../render';
+import { Renderer, Slot } from '../render';
 
 import { hasConfigStructureChange } from '../config/core/mochartConfig';
 import { isDataProviderValid, getChartData } from '../data/ChartData';
@@ -10,22 +9,63 @@ import {
   hasGroupAdditions, hasGroupRemovals, hasGroupReorder } from '../animation/GroupAnimationData';
 import { getFocusAnimationData } from '../animation/FocusAnimationData';
 import { getChartTweenManager, dataTweenValueStart, dataTweenValueComplete } from '../animation/ChartTweens';
+import type { ChartTweenManager, DataTweenEvent } from '../animation/ChartTweens';
+import type { BaseChartProps, ChartEventPayload } from '../types/chart';
+import type { MochartConfig } from '../types/config';
+import type { ChartData, DataProvider } from '../types/data';
+import type { ChartAnimationData, FocusData } from '../types/animation';
+import type { Bounds } from '../types/geometry';
 
 import Chart from './Chart';
 
-export default class AnimatedChart extends Renderer {
+export interface InternalFocus {
+  seriesAxisId?: string | null;
+  seriesId?: string | null;
+  groupIndex?: number | null;
+}
+
+export interface AnimatedChartProps extends Omit<BaseChartProps, 'onFocus' | 'onSeriesFilter'> {
+  mochartConfig: MochartConfig;
+  dataProvider: DataProvider;
+  filteredSeriesIds: Record<string, boolean>;
+  focusedGroupIndex: number;
+  focusedSeriesAxisId: string | null;
+  focusedSeriesId: string | null;
+  standalone?: boolean;
+  onFocus: (focus: InternalFocus) => void;
+  onSeriesFilter: (seriesId: string) => void;
+}
+
+interface AnimatedChartState {
+  chartData: ChartData | null;
+  focusData: FocusData | null;
+}
+
+export default class AnimatedChart extends Renderer<AnimatedChartProps, AnimatedChartState> {
   static defaultProps = {
     standalone: true,
-    onSeriesLayoutInfoChange: (bounds) => {},
-    onFocus: (seriesId, groupIndex) => {},
-    onSeriesFilter: (seriesId) => {},
-    onChartClick: (point) => {},
-    onChartMouseEnter: (point) => {},
-    onChartMouseMove: (point) => {},
-    onChartMouseLeave: (point) => {}
+    onSeriesLayoutInfoChange: (_bounds: Bounds) => {},
+    onFocus: (_focus: InternalFocus) => {},
+    onSeriesFilter: (_seriesId: string) => {},
+    onChartClick: (_point: ChartEventPayload) => {},
+    onChartMouseEnter: (_point: ChartEventPayload) => {},
+    onChartMouseMove: (_point: ChartEventPayload) => {},
+    onChartMouseLeave: (_point: ChartEventPayload) => {}
   };
 
-  chart = null;
+  chart: Slot | null = null;
+  targetChartData: ChartData | null = null;
+  chartAnimationData: ChartAnimationData | null = null;
+  chartData: ChartData | null = null;
+  focusData: FocusData | null = null;
+  hasGroupAdditions = false;
+  hasGroupRemovals = false;
+  hasGroupReorder = false;
+  dataTweening = false;
+  valuesTweening = false;
+  valuesTweened = false;
+  focusTweening = false;
+  tweenManager: ChartTweenManager;
 
   constructor() {
     super();
@@ -37,7 +77,7 @@ export default class AnimatedChart extends Renderer {
     this.init(this.props);
   }
 
-  init(props) {
+  init(props: AnimatedChartProps): void {
     const { mochartConfig, dataProvider, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = props;
     this.targetChartData = null;
     this.chartAnimationData = null;
@@ -74,7 +114,7 @@ export default class AnimatedChart extends Renderer {
     this.tweenManager.cancelTweens();
   }
 
-  willReceiveProps(nextProps) {
+  willReceiveProps(nextProps: AnimatedChartProps): void {
     const { mochartConfig, dataProvider, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = nextProps;
 
     const configChanged = mochartConfig !== this.props.mochartConfig;
@@ -106,10 +146,10 @@ export default class AnimatedChart extends Renderer {
         if (focusGroupChanged || groupsChanged) {
           if (focusedGroupIndex >= 0 && this.dataTweening && !this.valuesTweened) {
             if (this.valuesTweening) {
-              this.startFocusTween(nextProps, mergedIndexForNewIndex(this.chartAnimationData.groupDeltaData, focusedGroupIndex));
+              this.startFocusTween(nextProps, mergedIndexForNewIndex(this.chartAnimationData!.groupDeltaData, focusedGroupIndex));
             }
             else {
-              this.startFocusTween(nextProps, oldIndexForNewIndex(this.chartAnimationData.groupDeltaData, focusedGroupIndex));
+              this.startFocusTween(nextProps, oldIndexForNewIndex(this.chartAnimationData!.groupDeltaData, focusedGroupIndex));
             }
           }
           else {
@@ -117,13 +157,13 @@ export default class AnimatedChart extends Renderer {
           }
         }
         else {
-          this.startFocusTween(nextProps, this.focusData.focusedGroupIndex);
+          this.startFocusTween(nextProps, this.focusData!.focusedGroupIndex);
         }
       }
     }
   }
 
-  startDataTween(props, chartAnimationData) {
+  startDataTween(props: AnimatedChartProps, chartAnimationData: ChartAnimationData): void {
     const { mochartConfig } = props;
 
     this.hasGroupAdditions = hasGroupAdditions(chartAnimationData.groupDeltaData);
@@ -153,11 +193,11 @@ export default class AnimatedChart extends Renderer {
     });
   }
 
-  startFocusTween(props, overrideFocusedGroupIndex) {
+  startFocusTween(props: AnimatedChartProps, overrideFocusedGroupIndex?: number): void {
     const { mochartConfig, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = props;
     let newFocusedGroupIndex = overrideFocusedGroupIndex !== void 0 ? overrideFocusedGroupIndex : focusedGroupIndex;
-    let focusData = getFocusDataWithMutations(this.focusData, getFocusData(mochartConfig, this.chartData, newFocusedGroupIndex, focusedSeriesAxisId, focusedSeriesId));
-    let focusAnimationData = getFocusAnimationData(mochartConfig, this.focusData, focusData);
+    let focusData = getFocusDataWithMutations(this.focusData!, getFocusData(mochartConfig, this.chartData!, newFocusedGroupIndex, focusedSeriesAxisId, focusedSeriesId));
+    let focusAnimationData = getFocusAnimationData(mochartConfig, this.focusData!, focusData);
     this.focusTweening = true;
     this.tweenManager.tweenFocus(mochartConfig, focusAnimationData, this.updateFocusData, {
       startCallback: () => {
@@ -169,47 +209,48 @@ export default class AnimatedChart extends Renderer {
     });
   }
 
-  updateChartData = (chartData, updateType) => {
+  updateChartData = (chartData: ChartData, updateType: DataTweenEvent): void => {
     const { mochartConfig, focusedGroupIndex } = this.props;
     this.chartData = chartData;
     if ((this.hasGroupAdditions || this.hasGroupReorder) && updateType === dataTweenValueStart) {
-      this.focusData = getFocusDataWithMutations(this.focusData, getFocusDataWithGroupChanges(
-        this.focusData, mochartConfig, chartData, this.chartAnimationData.groupDeltaData, true, this.focusTweening));
-      this.focusData = getFocusDataWithMutations(this.focusData, getFocusDataWithDomainPercentages(this.focusData, mochartConfig, chartData));
+      this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithGroupChanges(
+        this.focusData!, mochartConfig, chartData, this.chartAnimationData!.groupDeltaData, true, this.focusTweening));
+      this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithDomainPercentages(this.focusData!, mochartConfig, chartData));
       if (this.focusTweening || focusedGroupIndex >= 0) {
-        let newFocusedGroupIndex = focusedGroupIndex >= 0 ? mergedIndexForNewIndex(this.chartAnimationData.groupDeltaData, focusedGroupIndex) : -1;
+        let newFocusedGroupIndex = focusedGroupIndex >= 0 ? mergedIndexForNewIndex(this.chartAnimationData!.groupDeltaData, focusedGroupIndex) : -1;
         this.startFocusTween(this.props, newFocusedGroupIndex);
       }
     }
     else if (this.hasGroupRemovals && updateType === dataTweenValueComplete) {
-      this.focusData = getFocusDataWithMutations(this.focusData, getFocusDataWithGroupChanges(
-        this.focusData, mochartConfig, chartData, this.chartAnimationData.groupDeltaData, false, this.focusTweening));
-      this.focusData = getFocusDataWithMutations(this.focusData, getFocusDataWithDomainPercentages(this.focusData, mochartConfig, chartData));
-      if (this.focusTweening || focusedGroupIndex >= 0 && this.focusData.focusedGroupIndex !== focusedGroupIndex) {
+      this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithGroupChanges(
+        this.focusData!, mochartConfig, chartData, this.chartAnimationData!.groupDeltaData, false, this.focusTweening));
+      this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithDomainPercentages(this.focusData!, mochartConfig, chartData));
+      if (this.focusTweening || focusedGroupIndex >= 0 && this.focusData!.focusedGroupIndex !== focusedGroupIndex) {
         this.startFocusTween(this.props);
       }
     }
     else {
-      this.focusData = getFocusDataWithMutations(this.focusData, getFocusDataWithDomainPercentages(this.focusData, mochartConfig, chartData));
+      this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithDomainPercentages(this.focusData!, mochartConfig, chartData));
     }
     this.setState({ chartData: this.chartData, focusData: this.focusData });
   }
 
-  updateFocusData = (focusData) => {
+  updateFocusData = (focusData: FocusData): void => {
     const { mochartConfig } = this.props;
-    this.focusData = getFocusDataWithMutations(this.focusData, getFocusDataWithDomainPercentages(focusData, mochartConfig, this.chartData));
+    this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithDomainPercentages(focusData, mochartConfig, this.chartData!));
     this.setState({ focusData: this.focusData });
   }
 
-  onFocus = ({ seriesAxisId, seriesId, groupIndex }) => {
+  onFocus = ({ seriesAxisId, seriesId, groupIndex }: InternalFocus): void => {
     const { onFocus } = this.props;
     if (groupIndex !== void 0) {
-      if (groupIndex != -1 && this.dataTweening && !this.valuesTweened) {
+      groupIndex = groupIndex ?? -1;
+      if (groupIndex !== -1 && this.dataTweening && !this.valuesTweened) {
         if (this.valuesTweening) {
-          groupIndex = newIndexForMergedIndex(this.chartAnimationData.groupDeltaData, groupIndex);
+          groupIndex = newIndexForMergedIndex(this.chartAnimationData!.groupDeltaData, groupIndex);
         }
         else {
-          groupIndex = newIndexForOldIndex(this.chartAnimationData.groupDeltaData, groupIndex);
+          groupIndex = newIndexForOldIndex(this.chartAnimationData!.groupDeltaData, groupIndex);
         }
       }
     }
@@ -228,7 +269,7 @@ export default class AnimatedChart extends Renderer {
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent
     } = this.props;
     const { chartData, focusData } = this.state;
-    this.chart.set(Chart, { mochartConfig, dataProvider, loading, error, chartData, standalone,
+    this.chart!.set(Chart, { mochartConfig, dataProvider, loading, error, chartData, standalone,
       style, width, height, focusData, onFocus: this.onFocus, onSeriesFilter,
       onChartClick, onChartMouseEnter, onChartMouseMove,
       onChartMouseLeave, onTitleClick, onSeriesLayoutInfoChange,

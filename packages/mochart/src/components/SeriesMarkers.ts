@@ -1,4 +1,3 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -8,8 +7,17 @@ import { getSymbolGenerator } from '../utils/shapeUtils';
 import { getSeriesMarkerFillColor, getSeriesMarkerStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getFocusValue, getGroupFocusPercentage } from '../utils/FocusValue';
+import type { ElListAdapter, ElProps } from '../render';
+import type { ColorPaletteConfig, SeriesConfig } from '../types/config';
+import type { FocusData } from '../types/animation';
+import type { SeriesDomainObject, SeriesPositionData, SeriesValueObject } from '../types/data';
 
-const markerAdapter = {
+interface MarkerItem {
+  key: string;
+  attrs: ElProps;
+}
+
+const markerAdapter: ElListAdapter<MarkerItem, { root: ReturnType<typeof svgEl> }> = {
   key: (marker) => marker.key,
   create: () => ({ root: svgEl('path') }),
   update: (handle, marker) => {
@@ -17,9 +25,23 @@ const markerAdapter = {
   }
 };
 
-export default class SeriesMarkers extends Renderer {
+interface SeriesMarkersProps {
+  colorPaletteConfig: ColorPaletteConfig;
+  seriesConfig: SeriesConfig;
+  seriesIndex: number;
+  seriesPositionData: SeriesPositionData;
+  filteredValues: SeriesValueObject;
+  rawDomains: SeriesDomainObject;
+  inverted: boolean;
+  focusData: FocusData;
+  onGroupEnter: (groupIndex: number) => void;
+  onGroupLeave: (groupIndex: number) => void;
+  onGroupClick: (groupIndex: number) => void;
+}
+
+export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
   root = svgEl('g');
-  markers = this.elList(this.root);
+  markers = this.elList<MarkerItem>(this.root);
 
   create() {
     return this.root.node;
@@ -34,21 +56,22 @@ export default class SeriesMarkers extends Renderer {
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor, markerStrokeOpacity, markerFillOpacity, markerStrokeWidth;
       const { skipMissing, markerShape, markerShowMissing, markerSize, minMarkerSize } = seriesConfig;
-      let markers = [];
-      let markerSizes = null;
+      let markers: MarkerItem[] = [];
+      let markerSizes: Array<number | undefined> | null = null;
       if (seriesConfig.markerProperty !== NONE) {
         markerSizes = [];
-        let markerValues = filteredValues.marker;
+        let markerValues = filteredValues.marker!;
         let markerDomain = rawDomains.marker;
         // TODO - should use a linear scale here...
-        let markerMin = markerDomain[0];
-        let markerMax = markerDomain[1];
+        let markerMin = markerDomain[0]!;
+        let markerMax = markerDomain[1]!;
         let markerExtent = Math.max(1, (markerMax - markerMin));
         let markerSizeExtent = markerSize - minMarkerSize;
         let count = markerValues.length;
         for (let m = 0; m < count; m++) {
-          if (markerValues[m] !== void 0) {
-            markerSizes.push(minMarkerSize + (markerValues[m] - markerMin) / markerExtent * markerSizeExtent);
+          const markerValue = markerValues[m];
+          if (markerValue !== void 0) {
+            markerSizes.push(minMarkerSize + (markerValue - markerMin) / markerExtent * markerSizeExtent);
           }
           else if (!skipMissing) {
             markerSizes.push(void 0);
@@ -59,7 +82,7 @@ export default class SeriesMarkers extends Renderer {
       let symbolGenerator = getSymbolGenerator(markerSize, markerShape);
       let globalSymbol = symbolGenerator();
 
-      const { max } = filteredValues;
+      const max = filteredValues.max!;
 
       let focusPercentage;
 
@@ -76,15 +99,15 @@ export default class SeriesMarkers extends Renderer {
           markerFillOpacity = getFocusValue(focusPercentage, seriesConfig.markerFillOpacity, seriesConfig.markerFocusedFillOpacity, seriesConfig.markerDefocusedFillOpacity);
           let cx, cy;
           if (inverted) {
-            cx = getSeriesPosition(null, i);
-            cy = getGroupPosition(null, i);
+            cx = getSeriesPosition(null, i)!;
+            cy = getGroupPosition(null, i)!;
           }
           else {
-            cx = getGroupPosition(null, i);
-            cy = getSeriesPosition(null, i);
+            cx = getGroupPosition(null, i)!;
+            cy = getSeriesPosition(null, i)!;
           }
           let theSymbol = globalSymbol;
-          let currentMarkerSize = markerSize;
+          let currentMarkerSize: number | undefined = markerSize;
           if (markerSizes !== null) {
             currentMarkerSize = markerSizes[i];
             if (currentMarkerSize !== void 0) {

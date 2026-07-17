@@ -1,14 +1,22 @@
-export function conditionalDefault(rules, configWithRegularDefaults, ...extraArgs) {
-  let conditionalFunction: (() => any) & { rules?: any[] } = () => rules.find(rule => rule.condition(configWithRegularDefaults, ...extraArgs)).default;
+export interface ConditionalDefaultRule<C, E, T> {
+  condition: { bivarianceHack(config: C, extraArg: E): boolean }['bivarianceHack'];
+  suffix: string | null;
+  default: T;
+  defaultText?: string | null;
+}
+
+export function conditionalDefault<C, E, T>(rules: ConditionalDefaultRule<NoInfer<C>, NoInfer<E>, T>[], configWithRegularDefaults: C, extraArg: E): (() => T) & { rules?: ConditionalDefaultRule<C, E, T>[] } {
+  let conditionalFunction: (() => T) & { rules?: ConditionalDefaultRule<C, E, T>[] } = () => rules.find(rule => rule.condition(configWithRegularDefaults, extraArg))!.default;
   conditionalFunction.rules = rules;
   return conditionalFunction;
 }
 
-export function getActualDefaults(conditionalDefaults) {
+export function getActualDefaults<T extends Record<string, () => unknown>>(conditionalDefaults: T): { [K in keyof T]: ReturnType<T[K]> } {
   const keys = Object.keys(conditionalDefaults);
-  const actualDefaults = {};
+  const actualDefaults = {} as { [K in keyof T]: ReturnType<T[K]> };
   for (let key of keys) {
-    actualDefaults[key] = conditionalDefaults[key]();
+    const typedKey = key as keyof T;
+    actualDefaults[typedKey] = conditionalDefaults[typedKey]() as ReturnType<T[typeof typedKey]>;
   }
   return actualDefaults;
 }

@@ -1,9 +1,18 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { ANCHOR_END, ANCHOR_MIDDLE } from '../config/core/constants';
+import type { MochartConfig } from '../types/config';
+import type { GroupAxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
 
-export default class GroupAxisTickLabelClip extends Renderer {
+interface GroupAxisTickLabelClipProps {
+  mochartConfig: MochartConfig;
+  groupAxisLayoutInfo: GroupAxisLayoutInfo;
+  chartContentLayoutInfo: SpacingLayoutInfo;
+  groupAxisTickLabelClipPathUniqueId: string;
+  maxTickLabelLength: number;
+}
+
+export default class GroupAxisTickLabelClip extends Renderer<GroupAxisTickLabelClipProps> {
   root = svgEl('clipPath');
   rect = svgEl('rect');
 

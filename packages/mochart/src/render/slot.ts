@@ -1,4 +1,4 @@
-import type { Renderer, RendererClass } from './renderer';
+import type { ErasedRenderer, Renderer, RendererClass } from './renderer';
 
 /**
  * A single dynamic child position: holds one child renderer (or nothing).
@@ -9,7 +9,7 @@ import type { Renderer, RendererClass } from './renderer';
 export class Slot {
   readonly hostNode: Node;
   readonly anchor: Comment;
-  private current: Renderer | null = null;
+  private current: ErasedRenderer | null = null;
   private ctor: RendererClass | null = null;
 
   constructor(hostNode: Node, before: Node | null) {
@@ -39,7 +39,7 @@ export class Slot {
     this.current.mount(this.hostNode, this.anchor, props as P);
   }
 
-  get<R extends Renderer = Renderer>(): R | null {
+  get<R extends ErasedRenderer = ErasedRenderer>(): R | null {
     return this.current as R | null;
   }
 

@@ -2,13 +2,14 @@ import { AUTO, NONE, TYPE_STRING, SCALE_LINEAR, SCALE_ORDINAL, ELLIPSIS } from '
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import getAxisDefaults from './axisConfig';
+import type { GroupAxisConfig } from '../../types/config';
 
-export default function getDefaults(config, inverted) {
+export default function getDefaults(config: Partial<GroupAxisConfig> = {}, inverted: boolean): Partial<GroupAxisConfig> {
   let regularDefaults = getRegularDefaults();
   let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults, inverted));
+  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as GroupAxisConfig, inverted));
 
-  return { ...regularDefaults, ...conditionalDefaults };
+  return { ...regularDefaults, ...conditionalDefaults } as Partial<GroupAxisConfig>;
 }
 
 export function getRegularDefaults() {
@@ -42,7 +43,7 @@ export function getRegularDefaults() {
   };
 }
 
-export function getConditionalDefaults(configWithRegularDefaults, inverted) {
+export function getConditionalDefaults(configWithRegularDefaults: GroupAxisConfig, inverted: boolean) {
   return {
     before: conditionalDefault([
       { condition: (config, inverted) => inverted === true, suffix: "when plotConfig.inverted is true", default: true },

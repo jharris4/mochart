@@ -4,18 +4,21 @@ import {
   AUTO, NONE, RENDERERS, CURVE_TYPES, CAP_TYPES, LABEL_POSITIONS, COLOR_INTERPOLATIONS, MARKER_SHAPES,
   COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX
 } from '../core/constants';
+import type { SeriesConfig } from '../../types/config';
+
+type ColorCondition = Pick<SeriesConfig, 'colorProperty' | 'colorBase'>;
 
 const colorPropertySuffix = 'when colorProperty is not ' + NONE;
 const colorPropertyNoneSuffix = 'when colorProperty is ' + NONE;
 const colorBaseSuffix = 'when colorProperty is not ' + NONE + ' and colorBase is not ' + NONE;
 const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorBase is ' + NONE;
 
-const colorPropertyRule = { condition: ({ colorProperty }) => colorProperty !== NONE, suffix: colorPropertySuffix };
-const colorPropertyNoneRule = { condition: ({ colorProperty }) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };
-const colorBaseRule = { condition: ({ colorProperty, colorBase }) => colorProperty !== NONE && colorBase !== NONE, suffix: colorBaseSuffix };
-const colorBaseNoneRule = { condition: ({ colorProperty, colorBase }) => colorProperty !== NONE && colorBase === NONE, suffix: colorBaseNoneSuffix };
+const colorPropertyRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty !== NONE, suffix: colorPropertySuffix };
+const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };
+const colorBaseRule = { condition: ({ colorProperty, colorBase }: ColorCondition) => colorProperty !== NONE && colorBase !== NONE, suffix: colorBaseSuffix };
+const colorBaseNoneRule = { condition: ({ colorProperty, colorBase }: ColorCondition) => colorProperty !== NONE && colorBase === NONE, suffix: colorBaseNoneSuffix };
 
-export default function getValidators(config) {
+export default function getValidators(config: Partial<SeriesConfig>) {
   return {
     id: validators.string(),
     order: validators.number(),
@@ -131,7 +134,7 @@ export default function getValidators(config) {
     markerFillColor: validators.svgColor().orOneOf([COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX]),
     markerFocusedFillColor: validators.svgColor().orOneOf([COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX]),
     markerDefocusedFillColor: validators.svgColor().orOneOf([COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX]),
-    markerShape: validators.oneOf([NONE].concat(MARKER_SHAPES)),
+    markerShape: validators.oneOf([NONE, ...MARKER_SHAPES]),
     minMarkerSize: validators.numberMin(0),
     markerShowMissing: validators.boolean(),
     markerSize: validators.numberMin(0),

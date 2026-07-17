@@ -1,9 +1,17 @@
-function resetTruncationData(truncationData) {
+export interface TruncationData {
+  text: string;
+  truncatedText?: string;
+  lastText?: string;
+}
+
+export type TruncationDataValue = TruncationData | TruncationData[] | null;
+
+function resetTruncationData(truncationData: TruncationData): TruncationData {
   return { ...truncationData, lastText: void 0 };
 }
 
-export function prepareTruncation(truncationEnabled, truncationChanged, oldTruncationData, integrityChanged = true) {
-  let truncationData = null;
+export function prepareTruncation(truncationEnabled: boolean, truncationChanged: boolean, oldTruncationData: TruncationDataValue, integrityChanged = true) {
+  let truncationData: TruncationDataValue = null;
   let checkTruncation = truncationEnabled && (truncationChanged || oldTruncationData === null);
   if (truncationEnabled) {
     if (truncationChanged) {
@@ -21,12 +29,14 @@ export function prepareTruncation(truncationEnabled, truncationChanged, oldTrunc
   };
 }
 
-export function getTruncatedText(truncationEnabled, truncationValue, text, truncationData) {
+export function getTruncatedText(truncationEnabled: boolean, truncationValue: string, text: string, truncationData: TruncationDataValue): string;
+export function getTruncatedText(truncationEnabled: boolean, truncationValue: string, text: string[], truncationData: TruncationDataValue): string[];
+export function getTruncatedText(truncationEnabled: boolean, truncationValue: string, text: string | string[], truncationData: TruncationDataValue): string | string[] {
   if (truncationEnabled && truncationData !== null) {
     if (Array.isArray(text)) {
       let aTruncationData;
       text = text.map((aText, i) => {
-        aTruncationData = truncationData[i];
+        aTruncationData = (truncationData as TruncationData[])[i];
         if (aTruncationData.text !== aTruncationData.truncatedText) {
           aText = aTruncationData.truncatedText + truncationValue;
         }
@@ -34,27 +44,29 @@ export function getTruncatedText(truncationEnabled, truncationValue, text, trunc
       });
     }
     else {
-      if (truncationData.text !== truncationData.truncatedText) {
-        text = truncationData.truncatedText + truncationValue;
+      const singleTruncationData = truncationData as TruncationData;
+      if (singleTruncationData.text !== singleTruncationData.truncatedText) {
+        text = singleTruncationData.truncatedText + truncationValue;
       }
     }
   }
   return text;
 }
 
-export function updateTruncation(truncationValue, oldTruncationData, text, maxLength, domElement) {
-  let truncationData = oldTruncationData;
+export function updateTruncation(truncationValue: string, oldTruncationData: TruncationDataValue, text: string | string[], maxLength: number, domElement: SVGTextContentElement | ArrayLike<SVGTextContentElement> | null) {
+  let truncationData: TruncationDataValue = oldTruncationData;
   let needsTruncation = false;
   let checkTruncation = true;
   if (Array.isArray(text)) {
-    let newTruncationData = [];
+    const newTruncationData: TruncationData[] = [];
     if (truncationData === null) {
       truncationData = text.map(aText => ({ text: aText }));
     }
-    if (domElement.length > 0) {
+    const domElements = domElement as ArrayLike<SVGTextContentElement>;
+    if (domElements !== null && domElements.length > 0) {
       let aTruncateData;
-      for (let i = 0; i < domElement.length; i++) {
-        aTruncateData = truncateSVGText(domElement[i], maxLength, truncationValue, truncationData[i]);
+      for (let i = 0; i < domElements.length; i++) {
+        aTruncateData = truncateSVGText(domElements[i], maxLength, truncationValue, (truncationData as TruncationData[])[i]);
         if (aTruncateData.truncatedText !== aTruncateData.lastText) {
           needsTruncation = true;
         }
@@ -71,7 +83,7 @@ export function updateTruncation(truncationValue, oldTruncationData, text, maxLe
       truncationData = { text: text };
     }
     if (domElement !== null) {
-      truncationData = truncateSVGText(domElement, maxLength, truncationValue, truncationData);
+      truncationData = truncateSVGText(domElement as SVGTextContentElement, maxLength, truncationValue, truncationData as TruncationData);
       if (oldTruncationData === null || truncationData === null || truncationData.truncatedText !== truncationData.lastText) {
         needsTruncation = true;
       }
@@ -86,8 +98,8 @@ export function updateTruncation(truncationValue, oldTruncationData, text, maxLe
   };
 }
 
-export function truncateSVGText(textElement, maxTextLength, truncationText, truncationData) {
-  let { text, truncatedText, lastText } = truncationData;
+export function truncateSVGText(textElement: SVGTextContentElement, maxTextLength: number, _truncationText: string, truncationData: TruncationData): TruncationData {
+  let { text, truncatedText = text, lastText } = truncationData;
   if (text.length === 0) {
     return {
       text,
@@ -141,4 +153,5 @@ export function truncateSVGText(textElement, maxTextLength, truncationText, trun
       }
     }
   }
+  return truncationData;
 }

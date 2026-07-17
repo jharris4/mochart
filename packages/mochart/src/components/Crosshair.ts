@@ -1,17 +1,26 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { getClipPathReference } from '../utils/svgUtils';
+import type { MochartConfig } from '../types/config';
+import type { LayoutInfo } from '../types/layout';
 
-const emptyPercentages = [];
+const emptyPercentages: number[] = [];
 
-class Crosshair extends Renderer {
+interface CrosshairProps {
+  mochartConfig: MochartConfig;
+  seriesLayoutInfo: LayoutInfo;
+  groupPercentages: number[];
+  seriesPercentages: number[];
+  tooltipClipPathUniqueId: string;
+}
+
+class Crosshair extends Renderer<CrosshairProps> {
   root = svgEl('g');
   groupLinesGroup = svgEl('g');
   seriesLinesGroup = svgEl('g');
-  groupLines = this.elList(this.groupLinesGroup);
-  seriesLines = this.elList(this.seriesLinesGroup);
+  groupLines = this.elList<number>(this.groupLinesGroup);
+  seriesLines = this.elList<number>(this.seriesLinesGroup);
 
   create() {
     this.root.append(this.groupLinesGroup, this.seriesLinesGroup);
@@ -39,7 +48,7 @@ class Crosshair extends Renderer {
       this.seriesLinesGroup.set({ className: mochartCssClasses['crosshairSeriesLines'] });
 
       const lineAdapter = {
-        key: (percentage, i) => i,
+        key: (_percentage: number, i: number) => i,
         create: () => ({ root: svgEl('line') }),
         update: null
       };

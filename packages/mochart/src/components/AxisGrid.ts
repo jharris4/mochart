@@ -1,17 +1,34 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate } from '../utils/utils';
 import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import type { AxisTick } from '../types/data';
+import type { AxisConfigBase } from '../types/config';
+import type { LayoutInfo } from '../types/layout';
 
 const hiddenStyle = {
   visibility: 'hidden'
 };
 
-export default class AxisGrid extends Renderer {
+export interface AxisGridProps {
+  vertical: boolean;
+  axisConfig: AxisConfigBase & { useSeriesFocus?: boolean };
+  seriesLayoutInfo: LayoutInfo;
+  axisFocusPercentage?: number | null;
+  seriesFocusPercentage?: number | null;
+  axisGridClass: string;
+  axisTicks: AxisTick[];
+}
+
+interface GridLineHandle {
+  root: ReturnType<typeof svgEl>;
+  line: ReturnType<typeof svgEl>;
+}
+
+export default class AxisGrid extends Renderer<AxisGridProps> {
   root = svgEl('g');
-  lines = this.elList(this.root);
+  lines = this.elList<AxisTick, GridLineHandle>(this.root);
 
   create() {
     return this.root.node;
@@ -23,9 +40,9 @@ export default class AxisGrid extends Renderer {
       let tickX = 0;
       let tickY = 0;
 
-      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
         axisConfig.gridLineColor, axisConfig.gridLineFocusedColor, axisConfig.gridLineDefocusedColor);
-      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus,
+      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
         axisConfig.gridLineOpacity, axisConfig.gridLineFocusedOpacity, axisConfig.gridLineDefocusedOpacity);
       const strokeWidth = axisConfig.gridLineWidth;
       const strokeDashArray = axisConfig.gridLineDashArray;

@@ -1,14 +1,27 @@
-// @ts-nocheck — ported from the vdom implementation; add types when touched
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 
 import Axis from './Axis';
+import type { MochartConfig, SeriesAxisConfig } from '../types/config';
+import type { AxisTick } from '../types/data';
+import type { AxisLayoutInfo, GroupAxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
+import type { Bounds } from '../types/geometry';
 
-const emptyFocusPercentages = [];
-const emptyTicks = [];
+const emptyFocusPercentages: number[] = [];
+const emptyTicks: AxisTick[] = [];
 
-export default class PlotEmpty extends Renderer {
+interface PlotEmptyProps {
+  mochartConfig: MochartConfig;
+  groupAxisLayoutInfo: GroupAxisLayoutInfo;
+  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo | Bounds>;
+  plotLayoutInfo: SpacingLayoutInfo;
+  groupAxisTitleClipPathUniqueId: string;
+  groupAxisTickLabelClipPathUniqueId: string;
+  seriesAxisTitleClipPathUniqueIds: Record<string, string>;
+}
+
+export default class PlotEmpty extends Renderer<PlotEmptyProps> {
   root = svgEl('g');
   groupAxis = this.slot(this.root);
   seriesAxes = this.rendererList(this.root);
@@ -35,7 +48,7 @@ export default class PlotEmpty extends Renderer {
       titleClipPathUniqueId: groupAxisTitleClipPathUniqueId, tickLabelClipPathUniqueId: groupAxisTickLabelClipPathUniqueId,
       ...commonProps });
 
-    this.seriesAxes.sync(seriesAxisConfigs.map(axisConfig => {
+    this.seriesAxes.sync(seriesAxisConfigs.map((axisConfig: SeriesAxisConfig) => {
       const { id } = axisConfig;
       return {
         key: 'series-axis-' + id,
