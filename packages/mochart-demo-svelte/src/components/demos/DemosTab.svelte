@@ -1,7 +1,18 @@
-<script>
+<script lang="ts">
   import Icon from '../misc/Icon.svelte';
 
-  let { active = false, demoData, demoMode, demoId, onDemoModeChanged, onDemoChange } = $props();
+  import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
+
+  interface Props {
+    active?: boolean;
+    demoData: DemoData;
+    demoMode: DemoMode;
+    demoId: string;
+    onDemoModeChanged: OnDemoModeChanged;
+    onDemoChange: OnDemoChanged;
+  }
+
+  let { active = false, demoData, demoMode, demoId, onDemoModeChanged, onDemoChange }: Props = $props();
 
   let isTestMode = $state(false);
 

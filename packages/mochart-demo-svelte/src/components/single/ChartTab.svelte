@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { untrack } from 'svelte';
 
   import { hasConfigStructureChange } from 'mochart';
@@ -7,22 +7,31 @@
 
   import EditableChart from './EditableChart.svelte';
 
+  import type { DemoConfig, DataRow, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
+
+  interface Props {
+    config?: DemoConfig | null;
+    data?: DataRow[] | null;
+    dataError?: string | boolean | null;
+    active?: boolean;
+  }
+
   const minChartWidthForSecondChart = 480;
   const scrollWidthOffset = 20;
   const defaultChartCount = 1;
 
-  let { config = null, data = null, dataError = false, active = false } = $props();
+  let { config = null, data = null, dataError = false, active = false }: Props = $props();
 
   // Measured width of the tab (the react demo wrapped this tab in the
   // react-sizer HOC for the same purpose).
   let width = $state(0);
 
   let chartCount = $state(defaultChartCount);
-  let focusedSeriesAxisId = $state.raw(null);
-  let focusedSeriesId = $state.raw(null);
+  let focusedSeriesAxisId = $state.raw<string | null>(null);
+  let focusedSeriesId = $state.raw<string | null>(null);
   let focusedGroupIndex = $state(-1);
-  let filteredSeriesIds = $state.raw({});
-  let mochartDemoConfig = $state.raw(config ? buildMochartDemoConfig(config) : null);
+  let filteredSeriesIds = $state.raw<FilteredSeriesIds>({});
+  let mochartDemoConfig = $state.raw<MochartDemoConfig | null>(config ? buildMochartDemoConfig(config) : null);
 
   function resetFocusAndFiltered() {
     focusedSeriesAxisId = null;
@@ -45,8 +54,10 @@
       if (nextDataError || nextConfig !== previousConfig) {
         let configChanged = false;
         if (nextConfig !== previousConfig) {
-          const nextDemoConfig = buildMochartDemoConfig(nextConfig);
-          configChanged = hasConfigStructureChange(mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
+          const nextDemoConfig = nextConfig ? buildMochartDemoConfig(nextConfig) : null;
+          if (nextDemoConfig && mochartDemoConfig) {
+            configChanged = hasConfigStructureChange(mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
+          }
           mochartDemoConfig = nextDemoConfig;
         }
         if (nextDataError || configChanged) {
@@ -54,11 +65,11 @@
         }
       }
       else if (nextData !== previousData) {
-        const { configValidation, mochartConfig } = mochartDemoConfig;
-        const { valid } = configValidation;
-        if (!previousDataError && previousData && nextData && valid) {
+        const { configValidation, mochartConfig } = mochartDemoConfig ?? {};
+        const valid = configValidation?.valid ?? false;
+        if (!previousDataError && previousData && nextData && valid && mochartConfig) {
           if (focusedGroupIndex >= 0) {
-            const { property } = mochartConfig.groupAxisConfig;
+            const property = mochartConfig.groupAxisConfig.property ?? '';
             const groupValue = previousData[focusedGroupIndex][property];
             let newFocusedGroupIndex = -1;
             let i, count = nextData.length;
@@ -81,7 +92,7 @@
     });
   });
 
-  function onFocus(focusData = {}) {
+  function onFocus(focusData: FocusData = {}) {
     const { seriesAxisId, seriesId, groupIndex } = focusData;
     if (seriesAxisId !== void 0) {
       focusedSeriesAxisId = seriesAxisId;
@@ -95,7 +106,7 @@
   }
 
   // The chart owns filter toggling now and reports the whole map.
-  function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }) {
+  function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }) {
     filteredSeriesIds = { ...nextFilteredSeriesIds };
   }
 
@@ -114,7 +125,7 @@
       {#if mochartDemoConfig && width > 0}
         {#each { length: adjustedChartCount } as _, i (i)}
           <EditableChart chartCount={chartCount} showChartCountControls={allowedChartCount > 1 && i === 0}
-            width={chartWidth} {mochartDemoConfig} {data} {dataError}
+            width={chartWidth} {mochartDemoConfig} data={data ?? []} {dataError}
             isActive={active} {filteredSeriesIds} {focusedGroupIndex}
             {focusedSeriesAxisId} {focusedSeriesId} {onChartCountToggle}
             {onFocus} {onSeriesFilter} />

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { untrack } from 'svelte';
 
   import buildMochartDemoConfig from '../../config/mochartDemoConfig';
@@ -7,12 +7,25 @@
   import RandomContent from './RandomContent.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
 
+  import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
+
+  interface Props {
+    demoData: DemoData;
+    demoMode: DemoMode;
+    initialDemoId: string;
+    onDemoModeChanged: OnDemoModeChanged;
+    onDemoChanged: OnDemoChanged;
+    randomId: number;
+    incrementRandomId: () => void;
+    decrementRandomId: () => void;
+  }
+
   const eventKeyChart = 1;
   const eventKeyDemo = 2;
   const eventKeyConfig = 3;
   const eventKeyData = 4;
 
-  function getActiveKeyForInitialDemoId(initialDemoId) {
+  function getActiveKeyForInitialDemoId(initialDemoId: string): number {
     return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
   }
 
@@ -25,9 +38,9 @@
     randomId,
     incrementRandomId,
     decrementRandomId
-  } = $props();
+  }: Props = $props();
 
-  function buildStateForDemo(demoId) {
+  function buildStateForDemo(demoId: string) {
     const config = demoData.demoObjectMap[demoId].config;
     return {
       mochartDemoConfig: buildMochartDemoConfig(config),
@@ -61,12 +74,12 @@
     });
   });
 
-  function onDemoChange(nextDemoId) {
+  function onDemoChange(nextDemoId: string) {
     demoId = nextDemoId;
     onDemoChanged(nextDemoId);
   }
 
-  function handleSelect(nextActiveKey) {
+  function handleSelect(nextActiveKey: number) {
     activeKey = nextActiveKey;
   }
 
@@ -109,7 +122,7 @@
                   {onDemoModeChanged} {onDemoChange} />
       </div>
     {:else}
-      <RandomContent {demoData} {mochartDemoConfig} initialRandomConfig={randomConfig}
+      <RandomContent {demoData} mochartDemoConfig={mochartDemoConfig!} initialRandomConfig={randomConfig!}
                      {demoMode} {initialDemoId} {demoId}
                      {onDemoModeChanged} {onDemoChange} {activeKey}
                      eventKeys={{ eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData }}

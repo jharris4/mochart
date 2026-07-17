@@ -1,12 +1,20 @@
-<script>
+<script lang="ts">
   import { untrack, onDestroy } from 'svelte';
 
   import { ArrayOfObjectsDataProvider } from 'mochart';
+  import type { MochartConfig } from 'mochart';
   import { Chart } from 'mochart-svelte';
 
   import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 
   import ChartsControls from './ChartsControls.svelte';
+
+  import type { Demo, DataRow, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
+
+  interface Props {
+    demoObject: Demo;
+    active?: boolean;
+  }
 
   const scrollWidthOffset = 20;
 
@@ -15,7 +23,7 @@
 
   const defaultRate = 2000;
 
-  function getChartDataCount(data, currentDataCount, i) {
+  function getChartDataCount(data: DataRow[], currentDataCount: number, i: number): number {
     const dataCount = data.length;
     let chartDataCount = (dataCount + currentDataCount - i) % dataCount;
     if (chartDataCount === 0) {
@@ -24,10 +32,10 @@
     return chartDataCount;
   }
 
-  function getDataProvidersForDataCount(mochartConfig, data, chartCount, currentDataCount) {
-    const dataProviders = [];
+  function getDataProvidersForDataCount(mochartConfig: MochartConfig, data: DataRow[], chartCount: number, currentDataCount: number): ChartDataProviderLike[] {
+    const dataProviders: ChartDataProviderLike[] = [];
     let i, chartDataCount;
-    const groupProperty = mochartConfig.groupAxisConfig.property;
+    const groupProperty = mochartConfig.groupAxisConfig.property ?? '';
     for (i = 0; i < chartCount; i++) {
       chartDataCount = getChartDataCount(data, currentDataCount, i);
       dataProviders.push(new ArrayOfObjectsDataProvider(data.slice(0, chartDataCount), groupProperty));
@@ -35,9 +43,9 @@
     return dataProviders;
   }
 
-  let { demoObject, active = false } = $props();
+  let { demoObject, active = false }: Props = $props();
 
-  let intervalId = null;
+  let intervalId: ReturnType<typeof setInterval> | null = null;
 
   let playing = $state(false);
   let chartRows = $state(defaultChartRows);
@@ -49,11 +57,11 @@
   let currentDataCount = $state(demoObject.data.length);
   let dataProviders = $state.raw(getDataProvidersForDataCount(
     mochartDemoConfig.mochartConfig, demoObject.data, defaultChartRows * defaultChartCols, demoObject.data.length));
-  let focusedGroupIndices = $state.raw(dataProviders.map(() => -1));
+  let focusedGroupIndices = $state.raw<number[]>(dataProviders.map(() => -1));
   let focusedGroupIndex = $state(-1);
-  let focusedSeriesAxisId = $state.raw(null);
-  let focusedSeriesId = $state.raw(null);
-  let filteredSeriesIds = $state.raw({});
+  let focusedSeriesAxisId = $state.raw<string | null>(null);
+  let focusedSeriesId = $state.raw<string | null>(null);
+  let filteredSeriesIds = $state.raw<FilteredSeriesIds>({});
 
   function initFocusAndFiltered() {
     focusedGroupIndex = -1;
@@ -86,18 +94,18 @@
     });
   });
 
-  function onRateChange(nextRate) {
+  function onRateChange(nextRate: number) {
     rate = nextRate;
   }
 
-  function onRowsChange(nextChartRows) {
+  function onRowsChange(nextChartRows: number) {
     chartRows = nextChartRows;
     currentDataCount = dataCount;
     dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
     focusedGroupIndices = getFocusedGroupIndices(dataProviders);
   }
 
-  function onColsChange(nextChartCols) {
+  function onColsChange(nextChartCols: number) {
     chartCols = nextChartCols;
     currentDataCount = dataCount;
     dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
@@ -116,10 +124,10 @@
     focusedGroupIndices = getFocusedGroupIndices(dataProviders);
   }
 
-  function getFocusedGroupIndices(nextDataProviders) {
+  function getFocusedGroupIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
     const { mochartConfig } = mochartDemoConfig;
     if (focusedGroupIndex >= 0) {
-      const groupValue = data[focusedGroupIndex][mochartConfig.groupAxisConfig.property];
+      const groupValue = data[focusedGroupIndex][mochartConfig.groupAxisConfig.property ?? ''];
       return getFocusedGroupIndicesForValue(nextDataProviders, groupValue);
     }
     else {
@@ -127,7 +135,7 @@
     }
   }
 
-  function getFocusedGroupIndicesForValue(nextDataProviders, groupValue) {
+  function getFocusedGroupIndicesForValue(nextDataProviders: ChartDataProviderLike[], groupValue: unknown): number[] {
     let count, i;
     return nextDataProviders.map(dataProvider => {
       let chartGroupIndex = -1;
@@ -154,7 +162,9 @@
   }
 
   function onStopClick() {
-    clearInterval(intervalId);
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+    }
     intervalId = null;
     playing = false;
   }
@@ -166,16 +176,16 @@
     }
   });
 
-  function onChartFocus(chartIndex, focusData) {
+  function onChartFocus(chartIndex: number, focusData: { focusedSeriesAxisId?: string | null; focusedSeriesId?: string | null; focusedGroupIndex?: number }) {
     const { focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId } = focusData;
     let groupIndex = focusData.focusedGroupIndex;
     const { mochartConfig } = mochartDemoConfig;
     let nextFocusedGroupIndices = focusedGroupIndices;
-    if (groupIndex >= 0) {
+    if (groupIndex !== void 0 && groupIndex >= 0) {
       const groupValue = dataProviders[chartIndex].getGroupValues()[groupIndex];
       let i, count = data.length;
       for (i = 0; i < count; i++) {
-        if (data[i][mochartConfig.groupAxisConfig.property] === groupValue) {
+        if (data[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
           groupIndex = i;
           break;
         }
@@ -200,7 +210,7 @@
   }
 
   // The chart owns filter toggling now and reports the whole map.
-  function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }) {
+  function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }) {
     filteredSeriesIds = { ...nextFilteredSeriesIds };
   }
 

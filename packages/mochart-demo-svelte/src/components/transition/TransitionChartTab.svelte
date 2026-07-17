@@ -1,12 +1,21 @@
-<script>
+<script lang="ts">
   import { untrack } from 'svelte';
 
   import { Chart } from 'mochart-svelte';
+  import type { MochartConfig } from 'mochart';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
 
-  let { active = false, mochartConfig, dataProviders } = $props();
+  import type { ChartDataProviderLike } from '../../types';
+
+  interface Props {
+    active?: boolean;
+    mochartConfig: MochartConfig;
+    dataProviders: ChartDataProviderLike[];
+  }
+
+  let { active = false, mochartConfig, dataProviders }: Props = $props();
 
   let dataProviderIndex = $state(0);
 

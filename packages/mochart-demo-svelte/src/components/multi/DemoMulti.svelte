@@ -1,16 +1,26 @@
-<script>
+<script lang="ts">
   import DemosTab from '../demos/DemosTab.svelte';
   import ChartsTab from './ChartsTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
 
+  import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
+
+  interface Props {
+    demoData: DemoData;
+    demoMode: DemoMode;
+    initialDemoId: string;
+    onDemoModeChanged: OnDemoModeChanged;
+    onDemoChanged: OnDemoChanged;
+  }
+
   const eventKeyChart = 1;
   const eventKeyDemo = 2;
 
-  function getActiveKeyForInitialDemoId(initialDemoId) {
+  function getActiveKeyForInitialDemoId(initialDemoId: string): number {
     return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
   }
 
-  let { demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged } = $props();
+  let { demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged }: Props = $props();
 
   let demoId = $state(initialDemoId);
   let activeKey = $state(getActiveKeyForInitialDemoId(initialDemoId));
@@ -24,12 +34,12 @@
     }
   });
 
-  function onDemoChange(nextDemoId) {
+  function onDemoChange(nextDemoId: string) {
     demoId = nextDemoId;
     onDemoChanged(nextDemoId);
   }
 
-  function handleSelect(nextActiveKey) {
+  function handleSelect(nextActiveKey: number) {
     activeKey = nextActiveKey;
   }
 

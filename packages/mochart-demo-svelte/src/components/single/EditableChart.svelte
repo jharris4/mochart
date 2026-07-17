@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { untrack, onDestroy } from 'svelte';
 
   import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'mochart';
@@ -6,6 +6,41 @@
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
+
+  import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
+
+  // Mutable working rows are keyed by config-driven property names, so their
+  // value type is intentionally loose.
+  type Row = Record<string, any>;
+
+  interface Props {
+    width: number;
+    mochartDemoConfig: MochartDemoConfig;
+    data: Row[];
+    dataError?: string | boolean | null;
+    isActive: boolean;
+    chartCount: number;
+    showChartCountControls: boolean;
+    filteredSeriesIds: FilteredSeriesIds;
+    focusedGroupIndex: number;
+    focusedSeriesAxisId?: string | null;
+    focusedSeriesId?: string | null;
+    onFocus: (focusData: FocusData) => void;
+    onSeriesFilter: (filterData: { filteredSeriesIds: FilteredSeriesIds }) => void;
+    onChartCountToggle: () => void;
+  }
+
+  interface EditableDataProvider {
+    getGroupValues?: (...args: any[]) => any;
+    getSeriesValue?: (...args: any[]) => any;
+    getError?: (...args: any[]) => any;
+  }
+
+  interface FocusPayload {
+    seriesAxisId?: string | null;
+    seriesId?: string | null;
+    groupIndex?: number;
+  }
 
   const emptyGroupText = "Select Group(s)";
 
@@ -24,15 +59,15 @@
     onFocus,
     onSeriesFilter,
     onChartCountToggle
-  } = $props();
+  }: Props = $props();
 
   // Working copies of the demo data; mutated in place by the group/series
   // editing controls (same pattern as the react demo's instance fields).
-  let filteredData = null;
-  let removedData = null;
-  let sequenceId = null;
+  let filteredData: Row[] = [];
+  let removedData: Row[] = [];
+  let sequenceId: ReturnType<typeof setInterval> | null = null;
 
-  let dataProvider = $state.raw(null);
+  let dataProvider = $state.raw<EditableDataProvider | null>(null);
   let groupIndex = $state(-1);
   let groupValuesText = $state("");
   let seriesIndex = $state(0);
@@ -42,10 +77,10 @@
   let filteredFocusedGroupIndex = $state(-1);
   let orderChanged = $state(false);
 
-  function getFilteredFocusedGroupIndex(nextFilteredData) {
+  function getFilteredFocusedGroupIndex(nextFilteredData: Row[]): number {
     let nextFilteredFocusedGroupIndex = -1;
     if (focusedGroupIndex >= 0) {
-      const { groupProperty } = mochartDemoConfig;
+      const groupProperty = mochartDemoConfig.groupProperty ?? '';
       const groupValue = data[focusedGroupIndex][groupProperty];
       let i, count = nextFilteredData.length;
       for (i = 0; i < count; i++) {
@@ -58,7 +93,12 @@
     return nextFilteredFocusedGroupIndex;
   }
 
-  function updateFilteredDataState(nextState, nextFilteredData, nextRemovedData, resetGroupIndex = true) {
+  function updateFilteredDataState(
+    nextState: { orderChanged?: boolean; groupIndex?: number; seriesIndex?: number; groupValuesText?: string; seriesValuesText?: string },
+    nextFilteredData: Row[],
+    nextRemovedData: Row[],
+    resetGroupIndex = true
+  ) {
     filteredData = nextFilteredData;
     removedData = nextRemovedData;
     if (resetGroupIndex === true) {
@@ -67,7 +107,7 @@
     }
     filteredFocusedGroupIndex = dataError ? -1 : getFilteredFocusedGroupIndex(nextFilteredData);
     if (!dataError && mochartDemoConfig.mochartConfig.validation.valid) {
-      dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, mochartDemoConfig.mochartConfig.groupAxisConfig.property);
+      dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, mochartDemoConfig.mochartConfig.groupAxisConfig.property ?? '');
     }
     else if (dataError) {
       dataProvider = { getError: () => dataError };
@@ -140,16 +180,16 @@
 
   // mochart's ManagedChart reports focus with the new payload shape; adapt it
   // to the { seriesAxisId, seriesId, groupIndex } shape this demo tracks.
-  function onChartFocus({ focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId, focusedGroupIndex: chartGroupIndex }) {
+  function onChartFocus({ focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId, focusedGroupIndex: chartGroupIndex }: { focusedSeriesAxisId?: string | null; focusedSeriesId?: string | null; focusedGroupIndex?: number }) {
     onLocalFocus({ seriesAxisId, seriesId, groupIndex: chartGroupIndex });
   }
 
-  function onLocalFocus({ seriesAxisId, seriesId, groupIndex: nextGroupIndex }) {
+  function onLocalFocus({ seriesAxisId, seriesId, groupIndex: nextGroupIndex }: FocusPayload) {
     if (nextGroupIndex !== void 0) {
       const nextFilteredFocusedGroupIndex = nextGroupIndex;
       let newFocusedGroupIndex = -1;
       if (nextFilteredFocusedGroupIndex >= 0) {
-        const { groupProperty } = mochartDemoConfig;
+        const groupProperty = mochartDemoConfig.groupProperty ?? '';
         const groupValue = filteredData[nextFilteredFocusedGroupIndex][groupProperty];
         let i, count = data.length;
         for (i = 0; i < count; i++) {
@@ -167,15 +207,15 @@
     }
   }
 
-  function onChartClick({ groupIndex: clickedGroupIndex }) {
-    const { groupProperty } = mochartDemoConfig;
+  function onChartClick({ groupIndex: clickedGroupIndex }: { groupIndex: number }) {
+    const groupProperty = mochartDemoConfig.groupProperty ?? '';
     const clickedGroupValue = "" + filteredData[clickedGroupIndex][groupProperty];
     if (selectionMode === 'series') {
       groupIndex = clickedGroupIndex;
       seriesValuesText = getSeriesValuesText(mochartDemoConfig, filteredData, clickedGroupIndex, seriesIndex);
     }
     else if (selectionMode === 'group') {
-      const dataGroupValues = [];
+      const dataGroupValues: any[] = [];
       let i, count = filteredData.length;
       for (i = 0; i < count; i++) {
         dataGroupValues.push(filteredData[i][groupProperty]);
@@ -198,8 +238,8 @@
   }
 
   function selectAllGroups() {
-    const { groupProperty } = mochartDemoConfig;
-    const allGroupValues = [];
+    const groupProperty = mochartDemoConfig.groupProperty ?? '';
+    const allGroupValues: any[] = [];
     let i, count = data.length;
     for (i = 0; i < count; i++) {
       allGroupValues.push(data[i][groupProperty]);
@@ -208,8 +248,8 @@
   }
 
   function resetGroups() {
-    const { groupProperty } = mochartDemoConfig;
-    const groupToObjectMap = {};
+    const groupProperty = mochartDemoConfig.groupProperty ?? '';
+    const groupToObjectMap: Record<string, Row> = {};
     removedData.forEach(removedObject => {
       groupToObjectMap[removedObject[groupProperty]] = removedObject;
     });
@@ -254,18 +294,18 @@
   function addGroups() {
     const oldFilteredData = filteredData;
     const oldRemovedData = removedData;
-    const { groupProperty } = mochartDemoConfig;
+    const groupProperty = mochartDemoConfig.groupProperty ?? '';
     const groupValuesToAdd = groupValuesText === emptyGroupText ? [] : groupValuesText.split(",");
-    const groupValueToAddMap = {};
+    const groupValueToAddMap: Record<string, boolean> = {};
     groupValuesToAdd.forEach(groupValueToAdd => {
       groupValueToAddMap[groupValueToAdd] = true;
     });
-    const removedMap = {};
+    const removedMap: Record<string, Row> = {};
     oldRemovedData.forEach(removedObject => {
       removedMap[removedObject[groupProperty]] = removedObject;
     });
     let i, fi, count = data.length, filteredCount = oldFilteredData.length;
-    const nextFilteredData = [];
+    const nextFilteredData: Row[] = [];
     for (i = 0, fi = 0; i < count; i++) {
       if (fi < filteredCount) {
         if (data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
@@ -284,7 +324,7 @@
         delete removedMap[data[i][groupProperty]];
       }
     }
-    const nextRemovedData = [];
+    const nextRemovedData: Row[] = [];
     oldRemovedData.forEach(removedObject => {
       if (removedMap[removedObject[groupProperty]] !== void 0) {
         nextRemovedData.push(removedMap[removedObject[groupProperty]]);
@@ -296,14 +336,14 @@
   function removeGroups() {
     const oldFilteredData = filteredData;
     const nextRemovedData = removedData;
-    const { groupProperty } = mochartDemoConfig;
+    const groupProperty = mochartDemoConfig.groupProperty ?? '';
     const groupValuesToRemove = groupValuesText === emptyGroupText ? [] : groupValuesText.split(",");
-    const groupValueToRemoveMap = {};
+    const groupValueToRemoveMap: Record<string, boolean> = {};
     groupValuesToRemove.forEach(groupValueToRemove => {
       groupValueToRemoveMap[groupValueToRemove] = true;
     });
     let i, count = oldFilteredData.length;
-    const nextFilteredData = [];
+    const nextFilteredData: Row[] = [];
     for (i = 0; i < count; i++) {
       if (groupValueToRemoveMap[oldFilteredData[i][groupProperty]] !== true) {
         nextFilteredData.push(oldFilteredData[i]);
@@ -318,17 +358,17 @@
   function startAddSequence() {
     const oldFilteredData = filteredData;
     const oldRemovedData = removedData;
-    const { groupProperty } = mochartDemoConfig;
+    const groupProperty = mochartDemoConfig.groupProperty ?? '';
     const groupValuesToAdd = groupValuesText === emptyGroupText ? [] : groupValuesText.split(",");
-    const groupValueToAddMap = {};
+    const groupValueToAddMap: Record<string, boolean> = {};
     groupValuesToAdd.forEach(groupValueToAdd => {
       groupValueToAddMap[groupValueToAdd] = true;
     });
-    const removedIndexMap = {};
+    const removedIndexMap: Record<string, number> = {};
     oldRemovedData.forEach((removedObject, removedIndex) => {
       removedIndexMap[removedObject[groupProperty]] = removedIndex;
     });
-    const groupObjectsToAdd = [];
+    const groupObjectsToAdd: { removedIndex: number; dataIndex: number }[] = [];
     let i, fi, count = data.length, filteredCount = oldFilteredData.length;
     for (i = 0, fi = 0; i < count; i++) {
       if (fi < filteredCount) {
@@ -370,17 +410,17 @@
   function startRemoveSequence() {
     const oldFilteredData = filteredData;
     const oldRemovedData = removedData;
-    const { groupProperty } = mochartDemoConfig;
+    const groupProperty = mochartDemoConfig.groupProperty ?? '';
     const groupValuesToRemove = groupValuesText === emptyGroupText ? [] : groupValuesText.split(",");
-    const groupValueToRemoveMap = {};
+    const groupValueToRemoveMap: Record<string, boolean> = {};
     groupValuesToRemove.forEach(groupValueToRemove => {
       groupValueToRemoveMap[groupValueToRemove] = true;
     });
-    const removedIndexMap = {};
+    const removedIndexMap: Record<string, number> = {};
     oldRemovedData.forEach((removedObject, removedIndex) => {
       removedIndexMap[removedObject[groupProperty]] = removedIndex;
     });
-    const groupObjectsToRemove = [];
+    const groupObjectsToRemove: { removedIndex: number; dataIndex: number }[] = [];
     let i, fi, ri, count = data.length, filteredCount = oldFilteredData.length;
     for (i = 0, fi = 0, ri = 0; i < count && fi < filteredCount; i++) {
       if (data[i][groupProperty] === oldFilteredData[fi][groupProperty]) {
@@ -440,14 +480,14 @@
     }
   }
 
-  function getSeriesValuesText({ mochartConfig }, currentFilteredData, currentGroupIndex, currentSeriesIndex) {
+  function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentGroupIndex: number, currentSeriesIndex: number): string {
     const dataObject = currentFilteredData[currentGroupIndex];
     const { seriesConfigs } = mochartConfig;
     if (seriesConfigs.length > 0) {
       const seriesConfig = seriesConfigs[currentSeriesIndex];
       const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-      const seriesValuesTextObject = {};
-      seriesValuesTextObject['p'] = dataObject[property];
+      const seriesValuesTextObject: Record<string, unknown> = {};
+      seriesValuesTextObject['p'] = dataObject[property!];
       if (rangeProperty !== NONE) {
         seriesValuesTextObject['r'] = dataObject[rangeProperty];
       }
@@ -476,7 +516,7 @@
         const dataObject = JSON.parse(seriesValuesText);
         const seriesConfig = seriesConfigs[seriesIndex];
         const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-        filteredDataObject[property] = dataObject['p'];
+        filteredDataObject[property!] = dataObject['p'];
         if (rangeProperty !== NONE) {
           filteredDataObject[rangeProperty] = dataObject['r'];
         }
@@ -498,12 +538,13 @@
   }
 
   function resetSeriesChanges() {
-    const { mochartConfig, groupProperty } = mochartDemoConfig;
+    const { mochartConfig } = mochartDemoConfig;
+    const groupProperty = mochartDemoConfig.groupProperty ?? '';
     const { seriesConfigs } = mochartConfig;
     if (seriesConfigs.length > 0) {
       const filteredDataObject = filteredData[groupIndex];
       const filteredGroupValue = filteredDataObject[groupProperty];
-      let i, count = data.length, dataObject = null;
+      let i, count = data.length, dataObject: Row | null = null;
       for (i = 0; i < count; i++) {
         if (data[i][groupProperty] === filteredGroupValue) {
           dataObject = data[i];
@@ -511,18 +552,18 @@
       }
       const seriesConfig = seriesConfigs[seriesIndex];
       const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-      filteredDataObject[property] = dataObject[property];
+      filteredDataObject[property!] = dataObject![property!];
       if (rangeProperty !== NONE) {
-        filteredDataObject[rangeProperty] = dataObject[rangeProperty];
+        filteredDataObject[rangeProperty] = dataObject![rangeProperty];
       }
       if (markerProperty !== NONE) {
-        filteredDataObject[markerProperty] = dataObject[markerProperty];
+        filteredDataObject[markerProperty] = dataObject![markerProperty];
       }
       if (labelProperty !== NONE) {
-        filteredDataObject[labelProperty] = dataObject[labelProperty];
+        filteredDataObject[labelProperty] = dataObject![labelProperty];
       }
       if (colorProperty !== NONE) {
-        filteredDataObject[colorProperty] = dataObject[colorProperty];
+        filteredDataObject[colorProperty] = dataObject![colorProperty];
       }
       updateFilteredDataState({ seriesValuesText: getSeriesValuesText(mochartDemoConfig, filteredData, groupIndex, seriesIndex) }, filteredData, removedData, false);
     }
@@ -535,9 +576,9 @@
   const chartDataError = $derived(!!(dataProvider && dataProvider.getError && dataProvider.getError()));
   const configError = $derived(!mochartDemoConfig.valid);
   const error = $derived(chartDataError || configError);
-  const filteredGroupValues = $derived(error ? [] : dataProvider.getGroupValues());
+  const filteredGroupValues = $derived<any[]>(error || !dataProvider?.getGroupValues ? [] : dataProvider.getGroupValues());
   const selectedGroupValues = $derived((error || groupValuesText === emptyGroupText) ? [] : groupValuesText.split(','));
-  const filteredGroupMap = $derived(filteredGroupValues.reduce((map, group) => { map[group] = true; return map; }, {}));
+  const filteredGroupMap = $derived(filteredGroupValues.reduce<Record<string, boolean>>((map, group) => { map[group] = true; return map; }, {}));
   const disableRemove = $derived(orderChanged || !selectedGroupValues.some(group => filteredGroupMap[group]));
   const disableAdd = $derived(orderChanged || !selectedGroupValues.some(group => !filteredGroupMap[group]));
 

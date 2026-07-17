@@ -1,10 +1,25 @@
-<script>
+<script lang="ts">
   import { untrack, onDestroy } from 'svelte';
 
   import { Chart } from 'mochart-svelte';
+  import type { MochartConfig } from 'mochart';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
+
+  import type { DemoDataProvider } from '../../types';
+
+  interface Props {
+    active?: boolean;
+    mochartConfig: MochartConfig;
+    dataProvider: DemoDataProvider | null;
+    onRandomizeBack: () => void;
+    onRandomizeNext: () => void;
+    applyReuse: boolean;
+    toggleApplyReuse: () => void;
+  }
+
+  type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
 
   const defaultRate = 2000;
 
@@ -16,9 +31,9 @@
     onRandomizeNext,
     applyReuse,
     toggleApplyReuse
-  } = $props();
+  }: Props = $props();
 
-  let intervalId = null;
+  let intervalId: ReturnType<typeof setInterval> | null = null;
 
   let playing = $state(false);
   let rate = $state(defaultRate);
@@ -41,13 +56,15 @@
   }
 
   function onStopClick() {
-    clearInterval(intervalId);
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+    }
     intervalId = null;
     playing = false;
   }
 
-  function rateChanged(event) {
-    let nextRateText = event.target.value;
+  function rateChanged(event: InputEvent) {
+    let nextRateText: any = event.currentTarget.value;
     if (!isNaN(parseFloat(nextRateText)) && isFinite(nextRateText)) {
       nextRateText = +nextRateText;
       if (nextRateText >= 5 && nextRateText <= 60000) {

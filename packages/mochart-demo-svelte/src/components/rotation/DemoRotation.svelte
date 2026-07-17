@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import merge from 'lodash.merge';
 
   const minWidth = 400;
@@ -62,9 +62,9 @@
     ]
   };
 
-  const configs = [];
+  const configs: Record<string, any>[] = [];
 
-  function addConfig(title, inverted, before, collapsed, rotation, anchor = "auto") {
+  function addConfig(title: string, inverted: boolean, before: boolean, collapsed: boolean, rotation: number, anchor = "auto") {
     const configOverride = {
       "titleConfig": {
         "title": title
@@ -146,7 +146,7 @@
   addConfig("E8", false, true, false, 90, "end");
 </script>
 
-<script>
+<script lang="ts">
   import { DefaultChart } from 'mochart-svelte';
 
   let innerWidth = $state(window.innerWidth);

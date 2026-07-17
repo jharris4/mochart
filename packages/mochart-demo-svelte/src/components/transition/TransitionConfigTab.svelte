@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { untrack } from 'svelte';
 
   import validators from 'movalid';
@@ -9,10 +9,19 @@
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
 
+  import type { TransitionConfig } from '../../types';
+
+  interface Props {
+    active?: boolean;
+    transitionConfig: TransitionConfig;
+    onUpdate: (config: TransitionConfig) => void;
+    onReset: () => void;
+  }
+
   const objectValidator = validators.object();
   const arrayValidator = validators.array();
 
-  function formatConfig(transitionConfig) {
+  function formatConfig(transitionConfig: TransitionConfig): string {
     if (transitionConfig && objectValidator(transitionConfig)) {
       let configText = '{}';
       let dataText = '[]';
@@ -23,8 +32,8 @@
       }
       if (transitionConfig.data && arrayValidator(transitionConfig.data)) {
         const dataArray = transitionConfig.data;
-        const dataTexts = [];
-        let aDataText;
+        const dataTexts: string[] = [];
+        let aDataText: string;
         for (const data of dataArray) {
           if (data && arrayValidator(data)) {
             aDataText = JSON.stringify(data).replace(/},{/g, '},\n\t\t\t{').replace(/,/g, ', ');
@@ -38,11 +47,11 @@
       return '{\n' + '\t"config": ' + configText + ',\n\t"data": ' + dataText + '\n}';
     }
     else {
-      return transitionConfig;
+      return String(transitionConfig);
     }
   }
 
-  let { active = false, transitionConfig, onUpdate, onReset } = $props();
+  let { active = false, transitionConfig, onUpdate, onReset }: Props = $props();
 
   let configText = $state(formatConfig(transitionConfig));
 
@@ -57,7 +66,7 @@
     });
   });
 
-  function onTextChange(nextConfigText) {
+  function onTextChange(nextConfigText: string) {
     configText = nextConfigText;
   }
 
@@ -70,7 +79,7 @@
           const { configValidation } = mochartDemoConfig;
           const { valid, errors, warnings } = configValidation;
           if (valid) {
-            if (arrayValidator(newConfig.data) && !newConfig.data.some(aData => !arrayValidator(aData))) {
+            if (arrayValidator(newConfig.data) && !newConfig.data.some((aData: unknown) => !arrayValidator(aData))) {
               onUpdate(newConfig);
             }
             else {

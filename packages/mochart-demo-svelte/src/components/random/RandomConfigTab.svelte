@@ -1,11 +1,21 @@
-<script>
+<script lang="ts">
   import { untrack } from 'svelte';
 
   import validators from 'movalid';
+  import type { Validator } from 'movalid';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
+
+  import type { RandomConfigWithValid } from '../../types';
+
+  interface Props {
+    active?: boolean;
+    randomConfig: RandomConfigWithValid;
+    onUpdate: (config: RandomConfigWithValid) => void;
+    onReset: () => void;
+  }
 
   const configValidator = {
     error: {
@@ -21,27 +31,27 @@
         stepPercentage: validators.numberMinMax(0, 1)
       },
       number: {
-        rangeValidator: o => o.min <= o.max,
+        rangeValidator: (o: any) => o.min <= o.max,
         min: validators.number(),
         max: validators.number(),
         interval: validators.numberMin(0.001)
       },
       date: {
-        rangeValidator: o => new Date(o.min) <= new Date(o.max),
+        rangeValidator: (o: any) => new Date(o.min).getTime() <= new Date(o.max).getTime(),
         min: validators.dateAny(),
         max: validators.dateAny(),
         interval: validators.integerMin(1),
         intervalUnit: validators.oneOf(['second', 'minute', 'hour', 'day'])
       },
       string: {
-        rangeValidator: o => o.minLength <= o.maxLength,
+        rangeValidator: (o: any) => o.minLength <= o.maxLength,
         minLength: validators.integerMin(1),
         maxLength: validators.integerMax(20)
       }
     },
     series: {
       number: {
-        rangeValidator: o => o.min <= o.max,
+        rangeValidator: (o: any) => o.min <= o.max,
         min: validators.number(),
         max: validators.number(),
         limitToAxisConfig: validators.boolean()
@@ -56,13 +66,13 @@
     }
   };
 
-  function addErrorMessage(errorMessages, config, prefix, validator) {
+  function addErrorMessage(errorMessages: string[], config: any, prefix: string, validator: Validator) {
     if (!validator(config)) {
       errorMessages.push(prefix + validator.getErrorMessage(config));
     }
   }
 
-  function addErrorMessages(errorMessages, config, prefix, validatorObject) {
+  function addErrorMessages(errorMessages: string[], config: any, prefix: string, validatorObject: Record<string, any>) {
     const objectValidator = validators.object();
     if (objectValidator(config)) {
       const validatorKeys = Object.keys(validatorObject);
@@ -86,9 +96,9 @@
     }
   }
 
-  function validateConfig(randomConfig) {
+  function validateConfig(randomConfig: any): boolean {
     const objectValidator = validators.object();
-    const errorMessages = [];
+    const errorMessages: string[] = [];
     if (objectValidator(randomConfig)) {
       const errorPrefix = 'error - ';
       addErrorMessages(errorMessages, randomConfig.error, errorPrefix, configValidator.error);
@@ -167,11 +177,11 @@
     return errorMessages.length === 0;
   }
 
-  function formatConfig(config) {
+  function formatConfig(config: RandomConfigWithValid): string {
     return JSON.stringify({ error: config.error, group: config.group, series: config.series }, null, '\t');
   }
 
-  let { active = false, randomConfig, onUpdate, onReset } = $props();
+  let { active = false, randomConfig, onUpdate, onReset }: Props = $props();
 
   let configText = $state(formatConfig(randomConfig));
 
@@ -186,7 +196,7 @@
     });
   });
 
-  function onTextChange(nextConfigText) {
+  function onTextChange(nextConfigText: string) {
     configText = nextConfigText;
   }
 

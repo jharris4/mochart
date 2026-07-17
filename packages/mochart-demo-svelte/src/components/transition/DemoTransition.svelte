@@ -1,10 +1,12 @@
-<script>
+<script lang="ts">
   import { ArrayOfObjectsDataProvider } from 'mochart';
 
   import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 
   import TransitionChartTab from './TransitionChartTab.svelte';
   import TransitionConfigTab from './TransitionConfigTab.svelte';
+
+  import type { TransitionConfig, ChartDataProviderLike } from '../../types';
 
   const eventKeyChart = 1;
   const eventKeyConfig = 2;
@@ -78,29 +80,27 @@
     ]
   };
 
-  function getMochartConfig(transitionConfig) {
+  function getMochartConfig(transitionConfig: TransitionConfig) {
     return buildMochartDemoConfig(transitionConfig.config).mochartConfig;
   }
 
-  function getDataProviders(transitionConfig) {
+  function getDataProviders(transitionConfig: TransitionConfig): ChartDataProviderLike[] {
     // TODO - this doesn't handle group display property or extra series properties...
     const groupProperty = transitionConfig.config.groupAxisConfig.property;
-    const seriesProperties = transitionConfig.config.seriesConfigs.map(seriesConfig => seriesConfig.property);
-    const groupIsDate = false; // TODO - implement this
-    return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, groupProperty, seriesProperties, groupIsDate));
+    return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, groupProperty));
   }
 
   let activeKey = $state(eventKeyChart);
 
-  let transitionConfig = $state.raw(defaultTransitionConfig);
+  let transitionConfig = $state.raw<TransitionConfig>(defaultTransitionConfig);
   let mochartConfig = $state.raw(getMochartConfig(defaultTransitionConfig));
   let dataProviders = $state.raw(getDataProviders(defaultTransitionConfig));
 
-  function handleSelect(nextActiveKey) {
+  function handleSelect(nextActiveKey: number) {
     activeKey = nextActiveKey;
   }
 
-  function onUpdateConfig(nextTransitionConfig) {
+  function onUpdateConfig(nextTransitionConfig: TransitionConfig) {
     transitionConfig = nextTransitionConfig;
     mochartConfig = getMochartConfig(nextTransitionConfig);
     dataProviders = getDataProviders(nextTransitionConfig);

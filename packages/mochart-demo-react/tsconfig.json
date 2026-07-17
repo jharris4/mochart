@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "paths": {
+      "react-sizer": ["./src/shims/react-sizer.tsx"],
+      "react-fontawesome": ["./src/shims/react-fontawesome.tsx"]
+    },
+    "types": ["vite/client"]
+  },
+  "include": ["src", "main"]
+}

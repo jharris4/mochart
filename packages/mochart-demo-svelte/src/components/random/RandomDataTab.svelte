@@ -1,13 +1,18 @@
-<script>
+<script lang="ts">
   import { untrack } from 'svelte';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
 
-  function formatData(dataJSON) {
+  interface Props {
+    active?: boolean;
+    data: unknown;
+  }
+
+  function formatData(dataJSON: unknown): string {
     return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
   }
 
-  let { active = false, data } = $props();
+  let { active = false, data }: Props = $props();
 
   let dataText = $state(formatData(data));
 

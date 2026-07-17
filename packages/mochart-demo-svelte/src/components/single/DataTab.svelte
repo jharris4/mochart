@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
   import { untrack } from 'svelte';
 
   import { ArrayOfObjectsDataProvider, getDataErrors } from 'mochart';
+  import type { DataProvider } from 'mochart';
 
   import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 
@@ -9,19 +10,30 @@
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
 
-  function formatData(dataJSON) {
+  import type { DemoConfig, DataRow } from '../../types';
+
+  interface Props {
+    active?: boolean;
+    config: DemoConfig;
+    data: DataRow[];
+    onDataChange: (data: DataRow[]) => void;
+    onDataError: (errorMessage: string) => void;
+    onDataReset: () => void;
+  }
+
+  function formatData(dataJSON: unknown): string {
     return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
   }
 
-  function isObject(v) {
+  function isObject(v: unknown): boolean {
     return v !== null && v !== void 0 && typeof v === "object";
   }
 
-  function isArrayOfObjects(candidate) {
+  function isArrayOfObjects(candidate: unknown): boolean {
     return Array.isArray(candidate) && !candidate.some(v => !isObject(v));
   }
 
-  let { active = false, config, data, onDataChange, onDataError, onDataReset } = $props();
+  let { active = false, config, data, onDataChange, onDataError, onDataReset }: Props = $props();
 
   let dataText = $state(formatData(data));
 
@@ -36,7 +48,7 @@
     });
   });
 
-  function onTextChange(nextDataText) {
+  function onTextChange(nextDataText: string) {
     dataText = nextDataText;
   }
 
@@ -52,7 +64,7 @@
       if (isArrayOfObjects(parsedData)) {
         const { mochartConfig } = buildMochartDemoConfig(config);
         if (mochartConfig.validation.valid) {
-          const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.groupAxisConfig.property));
+          const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.groupAxisConfig.property ?? '') as unknown as DataProvider);
           if (dataErrors.length > 0) {
             console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
             error = 'Invalid Data Content';
@@ -75,7 +87,7 @@
       }
     }
     catch (error) {
-      console.warn('Invalid Data JSON: ' + error);
+      console.warn('Invalid Data JSON: ' + String(error));
       alert('Invalid Data JSON');
       onDataError('Invalid Data ');
     }

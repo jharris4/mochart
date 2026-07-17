@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { getPath, navigate } from './router.svelte.js';
 
   import demoData from './demos';
@@ -9,11 +9,21 @@
   import DemoTransition from '../src/components/transition/DemoTransition.svelte';
   import DemoRotation from '../src/components/rotation/DemoRotation.svelte';
 
+  import type { DemoMode } from '../src/types';
+
+  interface Route {
+    redirect?: string;
+    notFound?: string;
+    mode?: string;
+    demoId?: string;
+    randomId?: string;
+  }
+
   const { demoIds, demoObjectMap } = demoData;
   const initialDemoId = demoIds[0];
 
   // Same routes as the react demo (react-router 7), resolved by hand.
-  const route = $derived.by(() => {
+  const route = $derived.by((): Route => {
     const path = getPath();
     const segments = path.split('/').filter(segment => segment.length > 0);
     if (segments.length === 0) {
@@ -44,11 +54,11 @@
     }
   });
 
-  function getBasePathForMode(demoMode) {
+  function getBasePathForMode(demoMode: string): string {
     return '/' + demoMode;
   }
 
-  function onDemoModeChanged(nextDemoMode, nextDemoId) {
+  function onDemoModeChanged(nextDemoMode: DemoMode, nextDemoId?: string) {
     if (nextDemoMode === 'transition' || nextDemoMode === 'rotation') {
       navigate(getBasePathForMode(nextDemoMode));
     }
@@ -57,15 +67,15 @@
     }
   }
 
-  function makeOnDemoChanged(demoMode) {
-    return (nextDemoId) => {
+  function makeOnDemoChanged(demoMode: string) {
+    return (nextDemoId: string) => {
       navigate(`${getBasePathForMode(demoMode)}/${nextDemoId}`);
     };
   }
 
   const demoId = $derived(route.demoId !== void 0 ? route.demoId : initialDemoId);
   const isKnownDemo = $derived(demoId === 'demos' || demoObjectMap[demoId] !== void 0);
-  const randomId = $derived(+route.randomId);
+  const randomId = $derived(Number(route.randomId));
   const isValidRandomId = $derived(randomId > Number.MIN_SAFE_INTEGER && randomId < Number.MAX_SAFE_INTEGER);
 
   function incrementRandomId() {

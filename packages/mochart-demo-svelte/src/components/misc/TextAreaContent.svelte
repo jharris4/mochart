@@ -1,9 +1,14 @@
-<script>
-  let { value, onChange } = $props();
+<script lang="ts">
+  interface Props {
+    value: string;
+    onChange: (value: string) => void;
+  }
+
+  let { value, onChange }: Props = $props();
 </script>
 
 <div class="text-area-content">
-  <textarea {value} oninput={(event) => onChange(event.target.value)}></textarea>
+  <textarea {value} oninput={(event) => onChange(event.currentTarget.value)}></textarea>
 </div>
 
 <style>

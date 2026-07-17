@@ -1,35 +1,47 @@
-<script>
+<script lang="ts">
   import DemosTab from '../demos/DemosTab.svelte';
   import ChartTab from './ChartTab.svelte';
   import ConfigTab from './ConfigTab.svelte';
   import DataTab from './DataTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
 
+  import type { DemoData, DemoMode, DemoConfig, DataRow, OnDemoModeChanged, OnDemoChanged } from '../../types';
+
+  interface Props {
+    demoData: DemoData;
+    demoMode: DemoMode;
+    initialDemoId: string;
+    onDemoModeChanged: OnDemoModeChanged;
+    onDemoChanged: OnDemoChanged;
+  }
+
+  type DataError = string | boolean | null;
+
   const eventKeyChart = 1;
   const eventKeyConfig = 2;
   const eventKeyData = 3;
   const eventKeyDemo = 4;
 
-  function getActiveKeyForInitialDemoId(initialDemoId) {
+  function getActiveKeyForInitialDemoId(initialDemoId: string): number {
     return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
   }
 
-  let { demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged } = $props();
+  let { demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged }: Props = $props();
 
   let activeKey = $state(getActiveKeyForInitialDemoId(initialDemoId));
 
   // Config/data edits made on the Config/Data tabs stay "pending" until the
   // Chart tab is shown again (so the chart animates one combined change).
   let demoId = $state(initialDemoId);
-  let pendingConfig = $state.raw(null);
-  let pendingData = $state.raw(null);
-  let pendingDataError = $state.raw(false);
-  let config = $state.raw(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null);
-  let data = $state.raw(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null);
-  let dataError = $state.raw(false);
-  let viewingConfig = $state.raw(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null);
-  let viewingData = $state.raw(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null);
-  let viewingDataError = $state.raw(false);
+  let pendingConfig = $state.raw<DemoConfig | null>(null);
+  let pendingData = $state.raw<DataRow[] | null>(null);
+  let pendingDataError = $state.raw<DataError>(false);
+  let config = $state.raw<DemoConfig | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null);
+  let data = $state.raw<DataRow[] | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null);
+  let dataError = $state.raw<DataError>(false);
+  let viewingConfig = $state.raw<DemoConfig | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null);
+  let viewingData = $state.raw<DataRow[] | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null);
+  let viewingDataError = $state.raw<DataError>(false);
 
   function chartShown() {
     if (pendingConfig !== null || pendingData !== null || pendingDataError !== null) {
@@ -48,7 +60,7 @@
     }
   }
 
-  function handleSelect(nextActiveKey) {
+  function handleSelect(nextActiveKey: number) {
     const previousActiveKey = activeKey;
     activeKey = nextActiveKey;
     if (nextActiveKey === eventKeyChart && previousActiveKey !== eventKeyChart) {
@@ -82,7 +94,7 @@
     }
   });
 
-  function onConfigChange(nextPendingConfig) {
+  function onConfigChange(nextPendingConfig: DemoConfig) {
     pendingConfig = nextPendingConfig;
   }
 
@@ -92,12 +104,12 @@
     config = resetConfig;
   }
 
-  function onDataChange(nextPendingData) {
+  function onDataChange(nextPendingData: DataRow[]) {
     pendingData = nextPendingData;
     pendingDataError = false;
   }
 
-  function onDataError(errorMessage) {
+  function onDataError(errorMessage: string) {
     pendingDataError = errorMessage;
   }
 
@@ -107,7 +119,7 @@
     pendingDataError = false;
   }
 
-  function onDemoChange(nextDemoId) {
+  function onDemoChange(nextDemoId: string) {
     onDemoChanged(nextDemoId);
   }
 </script>
@@ -159,10 +171,10 @@
           <ChartTab active={activeKey === eventKeyChart} config={viewingConfig} data={viewingData} dataError={viewingDataError} />
         </ErrorTab>
         <ErrorTab active={activeKey === eventKeyConfig}>
-          <ConfigTab active={activeKey === eventKeyConfig} {config} {onConfigChange} {onConfigReset} />
+          <ConfigTab active={activeKey === eventKeyConfig} config={config!} {onConfigChange} {onConfigReset} />
         </ErrorTab>
         <ErrorTab active={activeKey === eventKeyData}>
-          <DataTab active={activeKey === eventKeyData} config={viewingConfig} {data}
+          <DataTab active={activeKey === eventKeyData} config={viewingConfig!} data={data!}
                    {onDataChange} {onDataError} {onDataReset} />
         </ErrorTab>
       </div>

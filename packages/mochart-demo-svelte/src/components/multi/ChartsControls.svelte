@@ -1,6 +1,20 @@
-<script>
+<script lang="ts">
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
+
+  interface Props {
+    playing: boolean;
+    onRowsChange: (rows: number) => void;
+    onColsChange: (cols: number) => void;
+    onStepBackwardClick: () => void;
+    onStepForwardClick: () => void;
+    onPlayBackwardClick: () => void;
+    onPlayForwardClick: () => void;
+    onStopClick: () => void;
+    onRateChange: (rate: number) => void;
+  }
+
+  type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
 
   const defaultChartRows = 2;
   const defaultChartCols = 2;
@@ -16,14 +30,16 @@
     onPlayForwardClick,
     onStopClick,
     onRateChange
-  } = $props();
+  }: Props = $props();
 
   let rateText = $state('' + defaultRate);
   let rowsText = $state('' + defaultChartRows);
   let colsText = $state('' + defaultChartCols);
 
-  function rowsChanged(event) {
-    let rows = event.target.value;
+  // Input values arrive as strings and are coerced to numbers in place, so the
+  // working variable is intentionally loose (matching the original demo).
+  function rowsChanged(event: InputEvent) {
+    let rows: any = event.currentTarget.value;
     if (!isNaN(parseFloat(rows)) && isFinite(rows)) {
       rows = +rows;
       if (rows >= 1 && rows <= 4) {
@@ -33,8 +49,8 @@
     rowsText = rows;
   }
 
-  function colsChanged(event) {
-    let cols = event.target.value;
+  function colsChanged(event: InputEvent) {
+    let cols: any = event.currentTarget.value;
     if (!isNaN(parseFloat(cols)) && isFinite(cols)) {
       cols = +cols;
       if (cols >= 1 && cols <= 4) {
@@ -44,8 +60,8 @@
     colsText = cols;
   }
 
-  function rateChanged(event) {
-    let rate = event.target.value;
+  function rateChanged(event: InputEvent) {
+    let rate: any = event.currentTarget.value;
     if (!isNaN(parseFloat(rate)) && isFinite(rate)) {
       rate = +rate;
       if (rate >= 5 && rate <= 60000) {
