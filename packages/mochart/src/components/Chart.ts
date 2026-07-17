@@ -28,20 +28,14 @@ import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
 import { translateObject } from '../utils/utils';
 import { getSeriesGradientColors } from '../utils/SeriesColors';
-import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload } from '../types/chart';
+import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, InternalFocus } from '../types/chart';
 import type { LinearGradientConfig, MochartConfig, RadialGradientConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
 import type { AxisData, ChartData, DataProvider, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { ChartLayoutInfo, ChartTextBoundsData, LayoutInfo } from '../types/layout';
 import type { Bounds, Size } from '../types/geometry';
 
-interface InternalFocus {
-  seriesAxisId?: string | null;
-  seriesId?: string | null;
-  groupIndex?: number | null;
-}
-
-interface ChartProps {
+export interface ChartProps {
   mochartConfig: MochartConfig;
   dataProvider: DataProvider;
   chartData: ChartData | null;
@@ -376,7 +370,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
-  setStateWithLayoutInfo(props: ChartProps, state: ChartStateUpdate & { layoutInfo: ChartLayoutInfo | null }, callback?: () => void): void {
+  /**
+   * Finalize a state delta that carries a new layoutInfo: reuse unchanged
+   * layout identities, notify onSeriesLayoutInfoChange when the series area
+   * moved, and refresh the tooltip layout. Returns the delta for the caller
+   * to merge (derive) or setState (post-commit).
+   */
+  applyLayoutInfo(props: ChartProps, state: ChartStateUpdate & { layoutInfo: ChartLayoutInfo | null }): ChartStateUpdate {
     if (state.layoutInfo !== null) {
       state.layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, state.layoutInfo);
       if (this.state.layoutInfo !== state.layoutInfo) {
@@ -394,7 +394,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       state.tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
         this.getTooltipLayoutInfo(props, state));
     }
-    this.setState(state, callback);
+    return state;
   }
 
   getTooltipLayoutInfo(props: ChartProps, state: ChartStateUpdate): Bounds {
@@ -446,11 +446,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     return { uniqueIds };
   }
 
-  willMount() {
-    this.init(this.props, true);
-  }
-
-  init(props: ChartProps, warn = false): void {
+  init(props: ChartProps, warn = false): ChartStateUpdate {
     const { mochartConfig, chartData, width, height, standalone } = props;
     let newState = getInitialState();
     if (mochartConfig) {
@@ -469,23 +465,19 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           axisData = getAxisData(mochartConfig, layoutInfo, chartData);
           stackData = getStackData(mochartConfig, chartData);
         }
-        this.setStateWithLayoutInfo(props, { ...newState, layoutInfo, axisData, stackData, chartTextBoundsData, ...uniqueIdState });
+        return this.applyLayoutInfo(props, { ...newState, layoutInfo, axisData, stackData, chartTextBoundsData, ...uniqueIdState });
       }
-      else {
-        if (warn && standalone) {
-          if (errors.length > 0) {
-            console.warn('mochart config had error messages: ', errors.join('\n'));
-          }
-          if (warnings.length > 0) {
-            console.warn('mochart config had warning messages: ', warnings.join('\n'));
-          }
+      if (warn && standalone) {
+        if (errors.length > 0) {
+          console.warn('mochart config had error messages: ', errors.join('\n'));
         }
-        this.setState(newState);
+        if (warnings.length > 0) {
+          console.warn('mochart config had warning messages: ', warnings.join('\n'));
+        }
       }
+      return newState;
     }
-    else {
-      this.setState(newState);
-    }
+    return newState;
   }
 
   calculateTooltipTextSize = () => {
@@ -511,7 +503,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (chartData) {
         newState.axisData = getAxisDataWithMutations(this.state.axisData, mochartConfig, newState.layoutInfo, chartData);
       }
-      this.setStateWithLayoutInfo(this.props, { ...newState, layoutInfo: newState.layoutInfo });
+      this.setState(this.applyLayoutInfo(this.props, { ...newState, layoutInfo: newState.layoutInfo }));
     }
   }
 
@@ -554,7 +546,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
             }
           }
         }
-        this.setStateWithLayoutInfo(this.props, { ...newState, layoutInfo });
+        this.setState(this.applyLayoutInfo(this.props, { ...newState, layoutInfo }));
       }
     }
     return newState;
@@ -574,31 +566,34 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
-  willReceiveProps(nextProps: ChartProps): void {
+  derive(nextProps: ChartProps, _state: ChartState, prevProps: ChartProps | null): ChartStateUpdate | null {
+    if (prevProps === null) {
+      return this.init(nextProps, true);
+    }
     const { mochartConfig, chartData, width, height } = nextProps;
 
-    const dataChanged = chartData !== this.props.chartData;
-    const sizeChanged = width !== this.props.width || height !== this.props.height;
-    const mochartConfigChanged = mochartConfig !== this.props.mochartConfig;
-    const mochartConfigStructureChanged = mochartConfigChanged && (!mochartConfig || hasConfigStructureChange(this.props.mochartConfig, mochartConfig));
+    const dataChanged = chartData !== prevProps.chartData;
+    const sizeChanged = width !== prevProps.width || height !== prevProps.height;
+    const mochartConfigChanged = mochartConfig !== prevProps.mochartConfig;
+    const mochartConfigStructureChanged = mochartConfigChanged && (!mochartConfig || hasConfigStructureChange(prevProps.mochartConfig, mochartConfig));
 
     if (mochartConfigChanged || dataChanged || sizeChanged) {
       if (!mochartConfig || mochartConfigStructureChanged || (dataChanged && chartData === null)) {
-        this.init(nextProps, mochartConfigStructureChanged);
+        return this.init(nextProps, mochartConfigStructureChanged);
       }
       else if (mochartConfig.validation.valid) {
         const { chartTextBoundsData, axisData: oldAxisData, stackData: oldStackData } = this.state;
         let { uniqueIds, layoutInfo, axisData, stackData } = this.state;
 
-        const groupAxisChanged = chartData === null || this.props.chartData === null || this.props.chartData.groupData !== chartData.groupData;
-        const seriesAxisChanged = chartData === null || this.props.chartData === null || this.props.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
-          this.props.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains;
+        const groupAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.groupData !== chartData.groupData;
+        const seriesAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
+          prevProps.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains;
         // TODO - what about if seriesData.axisSeriesCounts changes? how should that be handled?
         // layout reads chartData only through seriesData.axisSeriesCounts (ChartDataForLayout),
         // so value-tween frames that keep that identity can keep the current layout
         const layoutInputsChanged = mochartConfigChanged || sizeChanged || this.state.layoutInfo === null ||
-          chartData === null || this.props.chartData === null ||
-          chartData.seriesData.axisSeriesCounts !== this.props.chartData.seriesData.axisSeriesCounts;
+          chartData === null || prevProps.chartData === null ||
+          chartData.seriesData.axisSeriesCounts !== prevProps.chartData.seriesData.axisSeriesCounts;
         if (layoutInputsChanged) {
           layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
           layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, layoutInfo);
@@ -621,10 +616,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
             stackData = getStackDataWithMutations(oldStackData, mochartConfig, chartData);
           }
 
-          if (dataChanged && this.props.chartData !== null) {
+          if (dataChanged && prevProps.chartData !== null) {
             let { tooltipGroupIndex, tooltipValueObject } = this.state;
             if (tooltipGroupIndex >= 0) {
-              let oldGroupValues = this.props.chartData.groupData.values.raw;
+              let oldGroupValues = prevProps.chartData.groupData.values.raw;
               let newGroupValues = chartData.groupData.values.raw;
               if (oldGroupValues && newGroupValues) {
                 let groupValue = oldGroupValues[tooltipGroupIndex];
@@ -644,19 +639,20 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         }
         const { tooltipVisible, tooltipGroupIndex, tooltipGroupPercentage, tooltipSeriesPercentage, tooltipValueObject } = tooltipStateSource;
         const newState = { uniqueIds, layoutInfo, axisData, stackData, tooltipVisible, tooltipGroupIndex, tooltipGroupPercentage, tooltipSeriesPercentage, tooltipValueObject };
-        this.setStateWithLayoutInfo(nextProps, newState);
+        return this.applyLayoutInfo(nextProps, newState);
       }
       else {
-        this.setState(getInitialState());
+        return getInitialState();
       }
     }
+    return null;
   }
 
-  didMount() {
-    this.calculateTextSizes();
-  }
-
-  didUpdate(prevProps: ChartProps, prevState: ChartState): void {
+  measure(prevProps: ChartProps | null, prevState: ChartState | null): void {
+    if (prevProps === null || prevState === null) {
+      this.calculateTextSizes();
+      return;
+    }
     const { mochartConfig: newMochartConfig } = this.props;
     if (newMochartConfig) {
       const { validation } = newMochartConfig;

@@ -37,17 +37,15 @@ export default class SeriesAxis extends Renderer<SeriesAxisProps, SeriesAxisStat
     this.state = { onSeriesAxisEnter: noOp, onSeriesAxisLeave: noOp, onSeriesAxisClick: noOp };
   }
 
-  willMount() {
-    let state = this.buildEventListeners(this.props);
-    this.setState(state);
-  }
-
-  willReceiveProps(nextProps: SeriesAxisProps): void {
-    const { seriesAxisConfig, onFocus } = nextProps;
-    if (seriesAxisConfig !== this.props.seriesAxisConfig || onFocus !== this.props.onFocus) {
-      let state = this.buildEventListeners(nextProps);
-      this.setState(state);
+  derive(props: SeriesAxisProps, _state: SeriesAxisState, prevProps: SeriesAxisProps | null): Partial<SeriesAxisState> | null {
+    if (prevProps === null) {
+      return this.buildEventListeners(props);
     }
+    const { seriesAxisConfig, onFocus } = props;
+    if (seriesAxisConfig !== prevProps.seriesAxisConfig || onFocus !== prevProps.onFocus) {
+      return this.buildEventListeners(props);
+    }
+    return null;
   }
 
   buildEventListeners(props: SeriesAxisProps): SeriesAxisState {

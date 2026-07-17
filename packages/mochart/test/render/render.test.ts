@@ -102,8 +102,10 @@ class Leaf extends Renderer<LeafProps> {
     this.text.set(this.props.label);
   }
 
-  didMount() {
-    this.props.calls?.push('leaf didMount, attached: ' + this.root.node.isConnected);
+  measure(prevProps: LeafProps | null) {
+    if (prevProps === null) {
+      this.props.calls?.push('leaf measure, attached: ' + this.root.node.isConnected);
+    }
   }
 }
 
@@ -120,8 +122,10 @@ class Wrapper extends Renderer<{ label: string; calls: string[] }> {
     this.child.set(Leaf, { label: this.props.label, calls: this.props.calls });
   }
 
-  didMount() {
-    this.props.calls.push('wrapper didMount');
+  measure(prevProps: { label: string; calls: string[] } | null) {
+    if (prevProps === null) {
+      this.props.calls.push('wrapper measure');
+    }
   }
 }
 
@@ -141,25 +145,25 @@ describe('Renderer', () => {
     expect(markup(parent)).toBe('<text class="leaf">hi</text>');
   });
 
-  it('runs child didMount before parent didMount, after DOM attach', () => {
+  it('runs child measure before parent measure, after DOM attach', () => {
     const parent = host();
     const calls: string[] = [];
     const wrapper = new Wrapper();
     wrapper.mount(parent, null, { label: 'x', calls });
-    expect(calls).toEqual(['leaf didMount, attached: true', 'wrapper didMount']);
+    expect(calls).toEqual(['leaf measure, attached: true', 'wrapper measure']);
     expect(markup(parent)).toBe('<text class="leaf">x</text>');
   });
 
-  it('merges setState without re-render during willReceiveProps', () => {
+  it('merges derived state into the same sync as the triggering update', () => {
     class Stateful extends Renderer<{ v: number }, { doubled: number }> {
       root = htmlEl('span');
       text = textEl();
       syncCount = 0;
-      willMount() {
-        this.setState({ doubled: this.props.v * 2 });
-      }
-      willReceiveProps(next: { v: number }) {
-        this.setState({ doubled: next.v * 2 });
+      derive(props: { v: number }, state: { doubled: number }, prevProps: { v: number } | null) {
+        if (prevProps !== null && props.v === prevProps.v) {
+          return null;
+        }
+        return { doubled: props.v * 2 };
       }
       create() {
         this.root.append(this.text);
@@ -177,7 +181,7 @@ describe('Renderer', () => {
     expect(r.syncCount).toBe(1);
     r.update({ v: 5 });
     expect(markup(parent)).toBe('<span>10</span>');
-    expect(r.syncCount).toBe(2); // willReceiveProps merge + update produced a single sync
+    expect(r.syncCount).toBe(2); // derive + update produced a single sync
   });
 
   it('setState outside lifecycle syncs immediately and defers callbacks until after the DOM is written', () => {
@@ -224,7 +228,7 @@ describe('Renderer', () => {
     expect(markup(parent)).toBe('<b></b><u></u>');
   });
 
-  it('destroy runs willUnmount depth-first and removes all DOM including pass-through children', () => {
+  it('destroy runs dispose depth-first and removes all DOM including pass-through children', () => {
     const parent = host();
     const calls: string[] = [];
     class Inner extends Renderer<{ calls: string[] }> {
@@ -233,8 +237,8 @@ describe('Renderer', () => {
         return this.root.node;
       }
       sync() {}
-      willUnmount() {
-        this.props.calls.push('inner willUnmount');
+      dispose() {
+        this.props.calls.push('inner dispose');
       }
     }
     class Outer extends Renderer<{ calls: string[] }> {
@@ -246,15 +250,15 @@ describe('Renderer', () => {
       sync() {
         this.child.set(Inner, { calls: this.props.calls });
       }
-      willUnmount() {
-        this.props.calls.push('outer willUnmount');
+      dispose() {
+        this.props.calls.push('outer dispose');
       }
     }
     const r = new Outer();
     r.mount(parent, null, { calls });
     expect(markup(parent)).toBe('<em></em>');
     r.destroy();
-    expect(calls).toEqual(['outer willUnmount', 'inner willUnmount']);
+    expect(calls).toEqual(['outer dispose', 'inner dispose']);
     expect(parent.innerHTML).toBe('');
   });
 });
@@ -383,7 +387,7 @@ describe('RendererList (via Renderer.rendererList)', () => {
       sync() {
         this.text.set(this.props.label);
       }
-      willUnmount() {
+      dispose() {
         destroyed.push(this.props.id);
       }
     }

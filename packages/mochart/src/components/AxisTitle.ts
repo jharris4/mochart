@@ -38,24 +38,24 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
     this.checkTruncation = false;
   }
 
-  willMount() {
-    this.checkTruncation = this.props.axisConfig.titleTruncationEnabled;
-  }
-
-  willReceiveProps(nextProps: AxisTitleProps): void {
-    const { axisConfig, axisLayoutInfo } = nextProps;
+  derive(props: AxisTitleProps, _state: AxisTitleState, prevProps: AxisTitleProps | null): Partial<AxisTitleState> | null {
+    if (prevProps === null) {
+      this.checkTruncation = props.axisConfig.titleTruncationEnabled;
+      return null;
+    }
+    const { axisConfig, axisLayoutInfo } = props;
     const truncationEnabled = axisConfig.title !== NONE && axisConfig.titleTruncationEnabled;
-    const truncationChanged = truncationEnabled && layoutInfoExtentChanged(this.props.axisLayoutInfo, axisLayoutInfo);
-    if (this.props.axisConfig.title !== axisConfig.title) {
+    const truncationChanged = truncationEnabled && layoutInfoExtentChanged(prevProps.axisLayoutInfo, axisLayoutInfo);
+    if (prevProps.axisConfig.title !== axisConfig.title) {
       this.truncationData = null;
     }
     const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData);
 
-    this.setState({ truncationData });
     this.truncationData = truncationData;
     if (this.checkTruncation === false && checkTruncation === true) {
       this.checkTruncation = true;
     }
+    return { truncationData };
   }
 
   create() {
@@ -101,7 +101,11 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
     }
   }
 
-  didUpdate() {
+  measure(prevProps: AxisTitleProps | null) {
+    if (prevProps === null) {
+      // truncation is only rechecked after updates; the initial sync renders untruncated
+      return;
+    }
     if (this.checkTruncation && this.present) {
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getAxisTitleCssSelector());
       const { axisConfig, axisLayoutInfo } = this.props;

@@ -44,16 +44,20 @@ function withDefaults<P extends object>(ctor: ConstructorWithDefaults<P>, props:
 /**
  * Base class for retained-mode chart components.
  *
- * Keeps the lifecycle contract of the old vdom PureComponent — willMount,
- * willReceiveProps (setState merges without re-render), shallow-equal
- * skipping of unchanged subtrees, didMount/didUpdate deferred until the DOM
- * is fully written — but rendering is imperative: `create()` builds the
- * static DOM once, `sync()` writes the dynamic parts directly. No vnode
- * allocation, no tree diffing.
+ * `create()` builds the static DOM once, `sync()` writes the dynamic parts
+ * directly from props/state. Subtrees whose props and state are shallow-equal
+ * are skipped. No vnode allocation, no tree diffing.
+ *
+ * Optional hooks around that core:
+ * - `derive(props, state, prevProps)` computes derived state before a sync;
+ *   it returns a state delta instead of calling setState.
+ * - `measure(prevProps, prevState)` runs post-commit, once the DOM is fully
+ *   written, for code that reads layout (text measurement, truncation).
+ * - `dispose()` releases externally owned resources on destroy.
  *
  * Every renderer owns a comment anchor in its parent so it can detach and
- * re-attach its root element (the old `render() { return false; }` case)
- * without losing its position among siblings.
+ * re-attach its root element (see setPresent) without losing its position
+ * among siblings.
  */
 export abstract class Renderer<P extends object, S extends object = Record<string, never>> {
   props!: P;
@@ -66,9 +70,6 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
   present = false;
 
   _unmounted = false;
-  /** while true (willMount/willReceiveProps), setState merges without re-rendering */
-  _mergeState = false;
-  _nextState: S | null = null;
   _stateCallbacks: (() => void)[] = [];
   private regions: ChildRegion[] = [];
 
@@ -76,13 +77,21 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
     this.state = {} as S;
   }
 
-  // optional lifecycle hooks, mirroring what the vdom components used
-  willMount?(): void;
-  didMount?(): void;
-  willReceiveProps?(nextProps: P): void;
+  /**
+   * Compute derived state from props. Runs before every sync, including the
+   * first (`prevProps === null` on mount). Return the state delta to merge,
+   * or null when nothing derived changes.
+   */
+  derive?(props: P, state: S, prevProps: P | null): Partial<S> | null;
+  /** Override the default shallow-equal skip check. */
   shouldSync?(nextProps: P, nextState: S): boolean;
-  didUpdate?(prevProps: P, prevState: S): void;
-  willUnmount?(): void;
+  /**
+   * Post-commit hook for DOM measurement. Runs after the DOM is fully
+   * written; `prevProps`/`prevState` are null on the run after mount.
+   */
+  measure?(prevProps: P | null, prevState: S | null): void;
+  /** Release externally owned resources (tweens, refs). DOM removal is handled by destroy(). */
+  dispose?(): void;
 
   /** Build the renderer's static DOM (once). Return the root node, or null for pass-through renderers. */
   protected abstract create(): Node | null;
@@ -96,11 +105,11 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
       this.anchor = document.createComment('');
       parentDom.insertBefore(this.anchor, before);
       this.props = withDefaults(this.constructor as ConstructorWithDefaults<P>, props);
-      if (this.willMount) {
-        this._mergeState = true;
-        this.willMount();
-        this._mergeState = false;
-        this.adoptPendingState();
+      if (this.derive) {
+        const delta = this.derive(this.props, this.state, null);
+        if (delta !== null && delta !== undefined) {
+          this.state = { ...this.state, ...delta };
+        }
       }
       this.element = this.create();
       if (this.element !== null) {
@@ -108,10 +117,10 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
         this.present = true;
       }
       this.sync();
-      if (this.didMount) {
+      if (this.measure) {
         enqueue(() => {
           if (!this._unmounted) {
-            this.didMount!();
+            this.measure!(null, null);
           }
         });
       }
@@ -129,14 +138,15 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
     beginWork();
     try {
       const nextProps = withDefaults(this.constructor as ConstructorWithDefaults<P>, props);
-      if (this.willReceiveProps && nextProps !== this.props) {
-        this._mergeState = true;
-        this.willReceiveProps(nextProps);
-        this._mergeState = false;
+      let nextState = this.state;
+      if (this.derive && nextProps !== this.props) {
+        const delta = this.derive(nextProps, this.state, this.props);
+        if (delta !== null && delta !== undefined) {
+          nextState = { ...this.state, ...delta };
+        }
       }
       const prevProps = this.props;
       const prevState = this.state;
-      const nextState = this._nextState !== null ? this._nextState : this.state;
 
       let skip: boolean;
       if (this.shouldSync) {
@@ -148,11 +158,10 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
 
       this.props = nextProps;
       this.state = nextState;
-      this._nextState = null;
 
       if (!skip) {
         this.sync();
-        this.queueDidUpdate(prevProps, prevState);
+        this.queueMeasure(prevProps, prevState);
       }
       this.drainStateCallbacks();
     }
@@ -162,52 +171,35 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
   }
 
   setState(update: StateUpdate<P, S>, callback?: () => void): void {
-    const base = this._nextState !== null ? this._nextState : this.state;
-    const partial = typeof update === 'function' ? update(base, this.props) : update;
+    if (this._unmounted) {
+      return;
+    }
+    const partial = typeof update === 'function' ? update(this.state, this.props) : update;
     if (partial == null && !callback) {
       return;
     }
-    this._nextState = partial == null ? base : { ...base, ...partial };
+    const nextState = partial == null ? this.state : { ...this.state, ...partial };
     if (callback) {
       this._stateCallbacks.push(callback);
     }
-    if (!this._mergeState && !this._unmounted) {
-      this.syncFromState(false);
-    }
-  }
-
-  forceSync(callback?: () => void): void {
-    if (callback) {
-      this._stateCallbacks.push(callback);
-    }
-    if (!this._unmounted) {
-      this.syncFromState(true);
-    }
-  }
-
-  private syncFromState(force: boolean): void {
     beginWork();
     try {
       const prevProps = this.props;
       const prevState = this.state;
-      const nextState = this._nextState !== null ? this._nextState : this.state;
 
-      let skip = false;
-      if (!force) {
-        if (this.shouldSync) {
-          skip = this.shouldSync(this.props, nextState) === false;
-        }
-        else {
-          skip = shallowEqual(prevState, nextState);
-        }
+      let skip: boolean;
+      if (this.shouldSync) {
+        skip = this.shouldSync(this.props, nextState) === false;
+      }
+      else {
+        skip = shallowEqual(prevState, nextState);
       }
 
       this.state = nextState;
-      this._nextState = null;
 
       if (!skip) {
         this.sync();
-        this.queueDidUpdate(prevProps, prevState);
+        this.queueMeasure(prevProps, prevState);
       }
       this.drainStateCallbacks();
     }
@@ -216,20 +208,13 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
     }
   }
 
-  private queueDidUpdate(prevProps: P, prevState: S): void {
-    if (this.didUpdate) {
+  private queueMeasure(prevProps: P, prevState: S): void {
+    if (this.measure) {
       enqueue(() => {
         if (!this._unmounted) {
-          this.didUpdate!(prevProps, prevState);
+          this.measure!(prevProps, prevState);
         }
       });
-    }
-  }
-
-  private adoptPendingState(): void {
-    if (this._nextState !== null) {
-      this.state = this._nextState;
-      this._nextState = null;
     }
   }
 
@@ -243,7 +228,7 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
     }
   }
 
-  /** Attach/detach the root element while keeping its sibling position (the `render() -> false` case). */
+  /** Attach/detach the root element while keeping its sibling position. */
   protected setPresent(present: boolean): void {
     if (this.element === null || present === this.present) {
       return;
@@ -317,8 +302,8 @@ export abstract class Renderer<P extends object, S extends object = Record<strin
     beginWork();
     try {
       this._unmounted = true;
-      if (this.willUnmount) {
-        this.willUnmount();
+      if (this.dispose) {
+        this.dispose();
       }
       for (const region of this.regions) {
         // regions hosted inside our own element are discarded wholesale with it

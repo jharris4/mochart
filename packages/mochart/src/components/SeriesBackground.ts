@@ -41,7 +41,7 @@ export default class SeriesBackground extends Renderer<SeriesBackgroundProps> {
     }
   }
 
-  willUnmount() {
+  dispose() {
     if (this.lastShapeRef) {
       this.lastShapeRef(null);
       this.lastShapeRef = null;

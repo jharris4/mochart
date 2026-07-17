@@ -2,8 +2,7 @@ import { Renderer, htmlEl, textEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import type { MochartConfig } from '../types/config';
-
-interface InternalFocus { groupIndex?: number | null }
+import type { InternalFocus } from '../types/chart';
 
 interface TooltipControlsProps {
   mochartConfig: MochartConfig;

@@ -18,6 +18,13 @@ export interface ChartFocus {
   focusedGroupIndex: number;
 }
 
+/** Partial focus update raised from inside the chart (undefined = leave unchanged, null = clear). */
+export interface InternalFocus {
+  seriesAxisId?: string | null;
+  seriesId?: string | null;
+  groupIndex?: number | null;
+}
+
 export interface ChartSeriesFilter {
   filteredSeriesIds: Record<string, boolean>;
 }

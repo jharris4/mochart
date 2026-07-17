@@ -76,32 +76,32 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     this.checkTruncation = false;
   }
 
-  willMount() {
-    this.checkTruncation = this.props.axisConfig.tickLabelTruncationEnabled ?? false;
-  }
-
-  willReceiveProps(nextProps: AxisTickLabelsProps): void {
-    const { axisConfig, axisLayoutInfo, plotLayoutInfo, axisTicks, tickSpacing } = nextProps;
+  derive(props: AxisTickLabelsProps, _state: AxisTickLabelsState, prevProps: AxisTickLabelsProps | null): Partial<AxisTickLabelsState> | null {
+    if (prevProps === null) {
+      this.checkTruncation = props.axisConfig.tickLabelTruncationEnabled ?? false;
+      return null;
+    }
+    const { axisConfig, axisLayoutInfo, plotLayoutInfo, axisTicks, tickSpacing } = props;
 
     const truncationEnabled = axisConfig.tickLabelTruncationEnabled ?? false;
     let truncationChanged = false;
     let integrityChanged = true;
     if (truncationEnabled) {
-      const sizeChanged = layoutInfoExtentChanged(this.props.axisLayoutInfo, axisLayoutInfo) ||
-        layoutInfoExtentChanged(this.props.plotLayoutInfo, plotLayoutInfo) ||
-        axisLayoutInfo.totalTitleSize !== this.props.axisLayoutInfo.totalTitleSize || axisLayoutInfo.totalTickLabelSize !== this.props.axisLayoutInfo.totalTickLabelSize ||
-        axisLayoutInfo.tickLabelParallel !== this.props.axisLayoutInfo.tickLabelParallel ||
-        tickSpacing !== this.props.tickSpacing;
-      const ticksChanged = axisTicks !== this.props.axisTicks;
-      truncationChanged = getTruncationChanged(sizeChanged, ticksChanged, this.props, nextProps);
+      const sizeChanged = layoutInfoExtentChanged(prevProps.axisLayoutInfo, axisLayoutInfo) ||
+        layoutInfoExtentChanged(prevProps.plotLayoutInfo, plotLayoutInfo) ||
+        axisLayoutInfo.totalTitleSize !== prevProps.axisLayoutInfo.totalTitleSize || axisLayoutInfo.totalTickLabelSize !== prevProps.axisLayoutInfo.totalTickLabelSize ||
+        axisLayoutInfo.tickLabelParallel !== prevProps.axisLayoutInfo.tickLabelParallel ||
+        tickSpacing !== prevProps.tickSpacing;
+      const ticksChanged = axisTicks !== prevProps.axisTicks;
+      truncationChanged = getTruncationChanged(sizeChanged, ticksChanged, prevProps, props);
       const axisTickCount = axisTicks !== null ? axisTicks.length : 0;
       integrityChanged = Array.isArray(this.truncationData) && axisTickCount === this.truncationData.length;
     }
     const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData, integrityChanged);
 
-    this.setState({ truncationData });
     this.truncationData = truncationData;
     this.checkTruncation = checkTruncation;
+    return { truncationData };
   }
 
   create() {
@@ -195,7 +195,11 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     }
   }
 
-  didUpdate() {
+  measure(prevProps: AxisTickLabelsProps | null) {
+    if (prevProps === null) {
+      // truncation is only rechecked after updates; the initial sync renders untruncated
+      return;
+    }
     if (this.checkTruncation) {
       const domElements = this.tickLabelsGroup.node.querySelectorAll<SVGTextContentElement>(getAxisTickLabelsCssSelector());
 

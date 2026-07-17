@@ -80,29 +80,27 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       onGroupEnter: noOpGroup, onGroupLeave: noOpGroup, onGroupClick: noOpGroup };
   }
 
-  willMount() {
-    let state = this.computeSeriesPositionData(this.props);
-    const { seriesPositionData } = state;
-    state = { ...state, ...this.buildEventListeners(this.props, seriesPositionData) };
-    this.setState(state);
-  }
-
-  willReceiveProps(nextProps: SeriesProps): void {
-    const { groupAxisConfig, seriesConfig, focusData, onFocus, groupValueData, seriesAxisScale, filteredValues } = nextProps;
+  derive(props: SeriesProps, state: SeriesState, prevProps: SeriesProps | null): Partial<SeriesState> | null {
+    if (prevProps === null) {
+      let initial = this.computeSeriesPositionData(props);
+      const { seriesPositionData } = initial;
+      return { ...initial, ...this.buildEventListeners(props, seriesPositionData) };
+    }
+    const { groupAxisConfig, seriesConfig, focusData, onFocus, groupValueData, seriesAxisScale, filteredValues } = props;
     let groupFocusChanged = false;
     let seriesFocusChanged = false;
-    let { seriesPositionData } = this.state;
-    if (focusData !== this.props.focusData) {
-      if (focusData === null || this.props.focusData === null) {
+    let { seriesPositionData } = state;
+    if (focusData !== prevProps.focusData) {
+      if (focusData === null || prevProps.focusData === null) {
         groupFocusChanged = true;
         seriesFocusChanged = true;
       }
       else {
-        groupFocusChanged = focusData.focusedGroupIndex !== this.props.focusData.focusedGroupIndex;
-        seriesFocusChanged = focusData.focusedSeriesId !== this.props.focusData.focusedSeriesId;
+        groupFocusChanged = focusData.focusedGroupIndex !== prevProps.focusData.focusedGroupIndex;
+        seriesFocusChanged = focusData.focusedSeriesId !== prevProps.focusData.focusedSeriesId;
       }
     }
-    let oldSeriesAxisScale = this.props.seriesAxisScale;
+    let oldSeriesAxisScale = prevProps.seriesAxisScale;
     let seriesAxisScaleChanged = false;
     if (seriesAxisScale !== oldSeriesAxisScale) {
       if (seriesAxisScale === null || oldSeriesAxisScale === null) {
@@ -114,21 +112,19 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       }
     }
 
-    let state: Partial<SeriesState> = {};
+    let delta: Partial<SeriesState> = {};
     let updateState = false;
-    if (groupAxisConfig !== this.props.groupAxisConfig || seriesConfig !== this.props.seriesConfig ||
-      groupValueData !== this.props.groupValueData || seriesAxisScaleChanged || filteredValues !== this.props.filteredValues) {
-      state = this.computeSeriesPositionData(nextProps);
-      seriesPositionData = state.seriesPositionData ?? null;
+    if (groupAxisConfig !== prevProps.groupAxisConfig || seriesConfig !== prevProps.seriesConfig ||
+      groupValueData !== prevProps.groupValueData || seriesAxisScaleChanged || filteredValues !== prevProps.filteredValues) {
+      delta = this.computeSeriesPositionData(props);
+      seriesPositionData = delta.seriesPositionData ?? null;
       updateState = true;
     }
-    if (seriesConfig !== this.props.seriesConfig || groupFocusChanged || seriesFocusChanged || onFocus !== this.props.onFocus) {
-      state = { ...state, ...this.buildEventListeners(nextProps, seriesPositionData) };
+    if (seriesConfig !== prevProps.seriesConfig || groupFocusChanged || seriesFocusChanged || onFocus !== prevProps.onFocus) {
+      delta = { ...delta, ...this.buildEventListeners(props, seriesPositionData) };
       updateState = true;
     }
-    if (updateState) {
-      this.setState(state);
-    }
+    return updateState ? delta : null;
   }
 
   buildEventListeners(props: SeriesProps, seriesPositionData: SeriesPositionData | null): Pick<SeriesState, 'onSeriesEnter' | 'onSeriesLeave' | 'onSeriesClick' | 'onGroupEnter' | 'onGroupLeave' | 'onGroupClick'> {

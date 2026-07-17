@@ -1,26 +1,10 @@
-import ManagedChart from './components/ManagedChart';
-import DefaultChart from './components/DefaultChart';
-import type { Renderer, RendererClass } from './render';
+import { ChartController } from './chart/ChartController';
+import { DefaultChartInput } from './chart/DefaultChartInput';
 import type { DefaultChartProps, ManagedChartProps } from './types/chart';
 
 export interface ChartHandle<TProps extends object = ManagedChartProps> {
   update(nextProps: Partial<TProps>): void;
   destroy(): void;
-}
-
-function mountChart<TProps extends object>(ctor: RendererClass<TProps>, container: Element, props: TProps): ChartHandle<TProps> {
-  let currentProps = { ...props };
-  const chart: Renderer<TProps> = new ctor();
-  chart.mount(container, null, currentProps);
-  return {
-    update(nextProps: Partial<TProps>) {
-      currentProps = { ...currentProps, ...nextProps };
-      chart.update(currentProps);
-    },
-    destroy() {
-      chart.destroy();
-    }
-  };
 }
 
 /**
@@ -30,7 +14,17 @@ function mountChart<TProps extends object>(ctor: RendererClass<TProps>, containe
  * attributes that actually changed; there is no vdom.
  */
 export function createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps> {
-  return mountChart(ManagedChart, container, props);
+  let currentProps = { ...props };
+  const controller = new ChartController(container, currentProps);
+  return {
+    update(nextProps: Partial<ManagedChartProps>) {
+      currentProps = { ...currentProps, ...nextProps };
+      controller.update(currentProps);
+    },
+    destroy() {
+      controller.destroy();
+    }
+  };
 }
 
 /**
@@ -38,5 +32,24 @@ export function createChart(container: Element, props: ManagedChartProps): Chart
  * (enhanced internally) and a plain array-of-objects `data`.
  */
 export function createDefaultChart(container: Element, props: DefaultChartProps): ChartHandle<DefaultChartProps> {
-  return mountChart(DefaultChart, container, props);
+  let currentProps = { ...props };
+  const input = new DefaultChartInput();
+  input.start(currentProps);
+  const controller = new ChartController(container, toManagedProps(currentProps, input));
+  return {
+    update(nextProps: Partial<DefaultChartProps>) {
+      const prevProps = currentProps;
+      currentProps = { ...currentProps, ...nextProps };
+      input.update(prevProps, currentProps);
+      controller.update(toManagedProps(currentProps, input));
+    },
+    destroy() {
+      controller.destroy();
+    }
+  };
+}
+
+function toManagedProps(props: DefaultChartProps, input: DefaultChartInput): ManagedChartProps {
+  const { config: _config, data: _data, ...rest } = props;
+  return { ...rest, mochartConfig: input.mochartConfig!, dataProvider: input.dataProvider! };
 }

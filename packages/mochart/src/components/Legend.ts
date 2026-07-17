@@ -168,10 +168,6 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
     this.checkTruncation = false;
   }
 
-  willMount() {
-    this.checkTruncation = this.props.legendConfig.truncationEnabled;
-  }
-
   onClick = () => {
     const { onClick, seriesConfig } = this.props;
     onClick(seriesConfig.id);
@@ -191,22 +187,26 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
     }
   }
 
-  willReceiveProps(nextProps: LegendItemProps): void {
-    const { legendConfig, seriesConfig, legendLayoutInfo, legendItemLayoutInfo, legendItemRawLayoutInfo } = nextProps;
+  derive(props: LegendItemProps, _state: LegendItemState, prevProps: LegendItemProps | null): Partial<LegendItemState> | null {
+    if (prevProps === null) {
+      this.checkTruncation = props.legendConfig.truncationEnabled;
+      return null;
+    }
+    const { legendConfig, seriesConfig, legendLayoutInfo, legendItemLayoutInfo, legendItemRawLayoutInfo } = props;
     const truncationEnabled = legendConfig.truncationEnabled;
     const truncationChanged = truncationEnabled &&
-      (layoutInfoExtentChanged(this.props.legendItemLayoutInfo, legendItemLayoutInfo) || layoutInfoExtentChanged(this.props.legendItemRawLayoutInfo, legendItemRawLayoutInfo));
-    const seriesTitleChanged = this.props.seriesConfig.title !== seriesConfig.title;
+      (layoutInfoExtentChanged(prevProps.legendItemLayoutInfo, legendItemLayoutInfo) || layoutInfoExtentChanged(prevProps.legendItemRawLayoutInfo, legendItemRawLayoutInfo));
+    const seriesTitleChanged = prevProps.seriesConfig.title !== seriesConfig.title;
     const truncationFinished = legendItemLayoutInfo.width === legendItemRawLayoutInfo.width && legendLayoutInfo.default !== true;
     if (seriesTitleChanged || truncationFinished) {
       this.truncationData = null;
     }
     const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData);
-    this.setState({ truncationData });
     this.truncationData = truncationData;
     if (this.checkTruncation === false && checkTruncation === true) {
       this.checkTruncation = true;
     }
+    return { truncationData };
   }
 
   create() {
@@ -253,7 +253,11 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
     this.textRawValue.set(seriesLabel);
   }
 
-  didUpdate() {
+  measure(prevProps: LegendItemProps | null) {
+    if (prevProps === null) {
+      // truncation is only rechecked after updates; the initial sync renders untruncated
+      return;
+    }
     if (this.checkTruncation) {
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getLegendItemTextCssSelector());
       const { legendConfig, seriesConfig, legendItemTextLayoutInfo } = this.props;

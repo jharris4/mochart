@@ -10,16 +10,11 @@ import AxisThresholdContainer from './AxisThresholdContainer';
 import SeriesContainer from './SeriesContainer';
 import Crosshair from './Crosshair';
 import type { MochartConfig } from '../types/config';
+import type { InternalFocus } from '../types/chart';
 import type { AxisData, ChartData, GroupAxisData, SeriesAxisData, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { AxisLayoutInfo, GroupAxisLayoutInfo, LayoutInfo, SpacingLayoutInfo } from '../types/layout';
 import type { Bounds } from '../types/geometry';
-
-interface InternalFocus {
-  seriesAxisId?: string | null;
-  seriesId?: string | null;
-  groupIndex?: number | null;
-}
 
 type CompleteAxisData = AxisData & { group: GroupAxisData; series: SeriesAxisData };
 

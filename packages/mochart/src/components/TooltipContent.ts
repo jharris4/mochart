@@ -10,11 +10,11 @@ import { NONE } from '../config/core/constants';
 import TooltipControls from './TooltipControls';
 import SeriesColorIcon from './SeriesColorIcon';
 import type { ColorPaletteConfig, MochartConfig, SeriesConfig } from '../types/config';
+import type { InternalFocus } from '../types/chart';
 import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
 import type { GroupSeriesValueObject } from '../data/ChartData';
 
 type LineStyle = Record<string, string | number>;
-interface InternalFocus { groupIndex?: number | null; seriesId?: string | null }
 
 interface TooltipGroupLineProps {
   lineStyle: LineStyle;

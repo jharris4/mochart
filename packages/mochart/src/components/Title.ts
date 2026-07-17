@@ -50,10 +50,6 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     this.sections = {};
   }
 
-  willMount() {
-    this.checkTruncation = this.props.mochartConfig.titleConfig.truncationEnabled;
-  }
-
   chartTitleClick = () => {
     const { onClick } = this.props;
     if (onClick) {
@@ -61,23 +57,27 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     }
   }
 
-  willReceiveProps(nextProps: TitleProps): void {
-    const { mochartConfig, titleLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo } = nextProps;
+  derive(props: TitleProps, _state: TitleState, prevProps: TitleProps | null): Partial<TitleState> | null {
+    if (prevProps === null) {
+      this.checkTruncation = props.mochartConfig.titleConfig.truncationEnabled;
+      return null;
+    }
+    const { mochartConfig, titleLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo } = props;
     const { titleConfig } = mochartConfig;
     const truncationEnabled = titleConfig.title !== NONE && titleConfig.truncationEnabled;
     const truncationChanged = truncationEnabled &&
-      (layoutInfoExtentChanged(this.props.titleTextLayoutInfo, titleTextLayoutInfo) || layoutInfoExtentChanged(this.props.titleTextRawLayoutInfo, titleTextRawLayoutInfo));
-    const titleChanged = this.props.mochartConfig.titleConfig.title !== titleConfig.title;
+      (layoutInfoExtentChanged(prevProps.titleTextLayoutInfo, titleTextLayoutInfo) || layoutInfoExtentChanged(prevProps.titleTextRawLayoutInfo, titleTextRawLayoutInfo));
+    const titleChanged = prevProps.mochartConfig.titleConfig.title !== titleConfig.title;
     const truncationFinished = titleTextLayoutInfo.width === titleTextRawLayoutInfo.width && titleLayoutInfo.default !== true;
     if (titleChanged || truncationFinished) {
       this.truncationData = null;
     }
     const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData);
-    this.setState({ truncationData });
     this.truncationData = truncationData;
     if (this.checkTruncation === false && checkTruncation === true) {
       this.checkTruncation = true;
     }
+    return { truncationData };
   }
 
   create() {
@@ -179,11 +179,7 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     }
   }
 
-  didMount() {
-    this.refreshTruncation();
-  }
-
-  didUpdate() {
+  measure() {
     this.refreshTruncation();
   }
 
