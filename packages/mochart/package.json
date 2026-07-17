@@ -19,13 +19,14 @@
     "url": "https://github.com/jharris4/mochart.git"
   },
   "type": "module",
-  "main": "src/index.ts",
-  "module": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "./dist/mochart.js",
+  "module": "./dist/mochart.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/types/index.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/mochart.js"
     }
   },
   "files": [
@@ -42,7 +43,9 @@
     "valide": "^1.0.10"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && npm run build:types",
+    "build:types": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/tsconfig.json"
   },

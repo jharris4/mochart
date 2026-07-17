@@ -1,6 +1,9 @@
 import type { ChartHandle } from 'mochart';
 
-export type CreateChartFn = (container: Element, props: Record<string, any>) => ChartHandle;
+// `create` is used for both createChart (ManagedChartProps) and
+// createDefaultChart (DefaultChartProps); the host passes props through
+// opaquely, so it is intentionally typed loosely rather than per-chart.
+export type CreateChartFn = (container: Element, props: any) => ChartHandle<any>;
 
 export interface HostHandle {
   update(props: Record<string, any>): void;
