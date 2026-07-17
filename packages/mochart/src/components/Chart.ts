@@ -113,7 +113,7 @@ let chartInstanceCounter = 1;
 
 // The getXxxComponent factory props return a DOM Node (or string). The
 // defaults below build plain DOM; custom factories from the host app must do
-// the same now that the vdom is gone.
+// the same.
 function buildMessageDiv(style: Record<string, string | number | null | undefined>, message: string): Node {
   const el = htmlEl('div');
   el.set({ style });

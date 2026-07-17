@@ -76,9 +76,7 @@ function eventProxy(this: ElementWithListeners, event: Event): void {
 /**
  * Write a single prop to a DOM element, diffing against the previously set
  * value. Handles style objects, className, onXxx event listeners, boolean
- * attributes, and SVG camelCase -> kebab-case conversion. This is the exact
- * attribute contract the old mochart-vdom used, so markup produced by the
- * retained renderer stays byte-identical.
+ * attributes, and SVG camelCase -> kebab-case conversion.
  */
 export function setProperty(dom: Element, name: string, oldValue: unknown, newValue: unknown, isSvg: boolean): void {
   if (name === 'children' || name === 'key' || name === 'ref') {
