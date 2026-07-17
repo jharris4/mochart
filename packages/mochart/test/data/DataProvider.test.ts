@@ -1,0 +1,64 @@
+import { describe, it, expect } from 'vitest';
+import { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from '../../src/data/DataProvider';
+
+describe('ArrayOfObjectsDataProvider', () => {
+  const rows = [
+    { month: 'Jan', sales: 10, costs: 4 },
+    { month: 'Feb', sales: 20, costs: 8 },
+    { month: 'Mar', sales: 30, costs: 12 }
+  ];
+
+  it('returns group values in row order', () => {
+    const provider = new ArrayOfObjectsDataProvider(rows, 'month');
+    expect(provider.getGroupValues()).toEqual(['Jan', 'Feb', 'Mar']);
+  });
+
+  it('looks up a series value by group value regardless of index', () => {
+    const provider = new ArrayOfObjectsDataProvider(rows, 'month');
+    // the index argument is ignored: lookup is keyed on the group value
+    expect(provider.getSeriesValue('Feb', 0, 'sales')).toBe(20);
+    expect(provider.getSeriesValue('Feb', 99, 'costs')).toBe(8);
+  });
+
+  it('coerces non-string group values to string keys', () => {
+    const numericRows = [
+      { year: 2020, value: 1 },
+      { year: 2021, value: 2 }
+    ];
+    const provider = new ArrayOfObjectsDataProvider(numericRows, 'year');
+    expect(provider.getGroupValues()).toEqual([2020, 2021]);
+    expect(provider.getSeriesValue(2021, 1, 'value')).toBe(2);
+  });
+
+  it('keeps the last row when group values collide', () => {
+    const dupes = [
+      { month: 'Jan', sales: 10 },
+      { month: 'Jan', sales: 99 }
+    ];
+    const provider = new ArrayOfObjectsDataProvider(dupes, 'month');
+    // getGroupValues preserves every raw value...
+    expect(provider.getGroupValues()).toEqual(['Jan', 'Jan']);
+    // ...but the row map is keyed by group value, so the later row wins
+    expect(provider.getSeriesValue('Jan', 0, 'sales')).toBe(99);
+  });
+});
+
+describe('ObjectOfArraysDataProvider', () => {
+  const data = {
+    month: ['Jan', 'Feb', 'Mar'],
+    sales: [10, 20, 30],
+    costs: [4, 8, 12]
+  };
+
+  it('returns the group column as group values', () => {
+    const provider = new ObjectOfArraysDataProvider(data, 'month');
+    expect(provider.getGroupValues()).toEqual(['Jan', 'Feb', 'Mar']);
+  });
+
+  it('looks up a series value by group index', () => {
+    const provider = new ObjectOfArraysDataProvider(data, 'month');
+    // this provider keys on the index argument, not the group value
+    expect(provider.getSeriesValue('Feb', 1, 'sales')).toBe(20);
+    expect(provider.getSeriesValue('ignored', 2, 'costs')).toBe(12);
+  });
+});
