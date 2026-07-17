@@ -4,76 +4,107 @@ import {
   getReferenceMessage,
   getCommonReferenceMessage,
   allValidator
-} from './src/config/validation/mochartConfig';
-import getSectionDescriptions from './src/config/docs/mochartConfig';
-import { sectionKeyAllMap } from './src/config/core/mochartConfig';
+} from '../src/config/validation/mochartConfig';
+import getSectionDescriptions from '../src/config/docs/mochartConfig';
+import { sectionKeyAllMap } from '../src/config/core/mochartConfig';
 
-import getAnimationDefaults from './src/config/defaults/animationConfig';
-import getAnimationValidators from './src/config/validation/animationConfig';
-import getAnimationDescriptions from './src/config/docs/animationConfig';
+import getAnimationDefaults from '../src/config/defaults/animationConfig';
+import getAnimationValidators from '../src/config/validation/animationConfig';
+import getAnimationDescriptions from '../src/config/docs/animationConfig';
 
-import getChartDefaults from './src/config/defaults/chartConfig';
-import getChartValidators from './src/config/validation/chartConfig';
-import getChartDescriptions from './src/config/docs/chartConfig';
+import getChartDefaults from '../src/config/defaults/chartConfig';
+import getChartValidators from '../src/config/validation/chartConfig';
+import getChartDescriptions from '../src/config/docs/chartConfig';
 
-import getColorPaletteDefaults from './src/config/defaults/colorPaletteConfig';
-import getColorPaletteValidators from './src/config/validation/colorPaletteConfig';
-import getColorPaletteDescriptions from './src/config/docs/colorPaletteConfig';
+import getColorPaletteDefaults from '../src/config/defaults/colorPaletteConfig';
+import getColorPaletteValidators from '../src/config/validation/colorPaletteConfig';
+import getColorPaletteDescriptions from '../src/config/docs/colorPaletteConfig';
 
-import getCrosshairDefaults from './src/config/defaults/crosshairConfig';
-import getCrosshairValidators from './src/config/validation/crosshairConfig';
-import getCrosshairDescriptions from './src/config/docs/crosshairConfig';
+import getCrosshairDefaults from '../src/config/defaults/crosshairConfig';
+import getCrosshairValidators from '../src/config/validation/crosshairConfig';
+import getCrosshairDescriptions from '../src/config/docs/crosshairConfig';
 
-import { getRegularDefaults as getGroupAxisRegularDefaults, getConditionalDefaults as getGroupAxisConditionalDefaults } from './src/config/defaults/groupAxisConfig';
-import getGroupAxisValidators from './src/config/validation/groupAxisConfig';
-import getGroupAxisDescriptions from './src/config/docs/groupAxisConfig';
+import { getRegularDefaults as getGroupAxisRegularDefaults, getConditionalDefaults as getGroupAxisConditionalDefaults } from '../src/config/defaults/groupAxisConfig';
+import getGroupAxisValidators from '../src/config/validation/groupAxisConfig';
+import getGroupAxisDescriptions from '../src/config/docs/groupAxisConfig';
 
-import { getRegularDefaults as getLegendRegularDefaults, getConditionalDefaults as getLegendConditionalDefaults } from './src/config/defaults/legendConfig';
-import getLegendValidators from './src/config/validation/legendConfig';
-import getLegendDescriptions from './src/config/docs/legendConfig';
+import { getRegularDefaults as getLegendRegularDefaults, getConditionalDefaults as getLegendConditionalDefaults } from '../src/config/defaults/legendConfig';
+import getLegendValidators from '../src/config/validation/legendConfig';
+import getLegendDescriptions from '../src/config/docs/legendConfig';
 
-import { getRegularDefaults as getLinearGradientRegularDefaults, getConditionalDefaults as getLinearGradientConditionalDefaults } from './src/config/defaults/linearGradientConfig';
-import getLinearGradientValidators from './src/config/validation/linearGradientConfig';
-import getLinearGradientDescriptions from './src/config/docs/linearGradientConfig';
+import { getRegularDefaults as getLinearGradientRegularDefaults, getConditionalDefaults as getLinearGradientConditionalDefaults } from '../src/config/defaults/linearGradientConfig';
+import getLinearGradientValidators from '../src/config/validation/linearGradientConfig';
+import getLinearGradientDescriptions from '../src/config/docs/linearGradientConfig';
 
-import getPlotDefaults from './src/config/defaults/plotConfig';
-import getPlotValidators from './src/config/validation/plotConfig';
-import getPlotDescriptions from './src/config/docs/plotConfig';
+import getPlotDefaults from '../src/config/defaults/plotConfig';
+import getPlotValidators from '../src/config/validation/plotConfig';
+import getPlotDescriptions from '../src/config/docs/plotConfig';
 
-import { getRegularDefaults as getRadialGradientRegularDefaults, getConditionalDefaults as getRadialGradientConditionalDefaults } from './src/config/defaults/radialGradientConfig';
-import getRadialGradientValidators from './src/config/validation/radialGradientConfig';
-import getRadialGradientDescriptions from './src/config/docs/radialGradientConfig';
+import { getRegularDefaults as getRadialGradientRegularDefaults, getConditionalDefaults as getRadialGradientConditionalDefaults } from '../src/config/defaults/radialGradientConfig';
+import getRadialGradientValidators from '../src/config/validation/radialGradientConfig';
+import getRadialGradientDescriptions from '../src/config/docs/radialGradientConfig';
 
-import { getRegularDefaults as getSeriesAxisRegularDefaults, getConditionalDefaults as getSeriesAxisConditionalDefaults } from './src/config/defaults/seriesAxisConfig';
-import getSeriesAxisValidators from './src/config/validation/seriesAxisConfig';
-import getSeriesAxisDescriptions from './src/config/docs/seriesAxisConfig';
+import { getRegularDefaults as getSeriesAxisRegularDefaults, getConditionalDefaults as getSeriesAxisConditionalDefaults } from '../src/config/defaults/seriesAxisConfig';
+import getSeriesAxisValidators from '../src/config/validation/seriesAxisConfig';
+import getSeriesAxisDescriptions from '../src/config/docs/seriesAxisConfig';
 
-import { getRegularDefaults as getSeriesRegularDefaults, getConditionalDefaults as getSeriesConditionalDefaults } from './src/config/defaults/seriesConfig';
-import getSeriesValidators from './src/config/validation/seriesConfig';
-import getSeriesDescriptions from './src/config/docs/seriesConfig';
+import { getRegularDefaults as getSeriesRegularDefaults, getConditionalDefaults as getSeriesConditionalDefaults } from '../src/config/defaults/seriesConfig';
+import getSeriesValidators from '../src/config/validation/seriesConfig';
+import getSeriesDescriptions from '../src/config/docs/seriesConfig';
 
-import { getRegularDefaults as getSeriesGroupRegularDefaults, getConditionalDefaults as getSeriesGroupConditionalDefaults } from './src/config/defaults/seriesGroupConfig';
-import getSeriesGroupValidators from './src/config/validation/seriesGroupConfig';
-import getSeriesGroupDescriptions from './src/config/docs/seriesGroupConfig';
+import { getRegularDefaults as getSeriesGroupRegularDefaults, getConditionalDefaults as getSeriesGroupConditionalDefaults } from '../src/config/defaults/seriesGroupConfig';
+import getSeriesGroupValidators from '../src/config/validation/seriesGroupConfig';
+import getSeriesGroupDescriptions from '../src/config/docs/seriesGroupConfig';
 
-import { getRegularDefaults as getSeriesStackRegularDefaults, getConditionalDefaults as getSeriesStackConditionalDefaults } from './src/config/defaults/seriesStackConfig';
-import getSeriesStackValidators from './src/config/validation/seriesStackConfig';
-import getSeriesStackDescriptions from './src/config/docs/seriesStackConfig';
+import { getRegularDefaults as getSeriesStackRegularDefaults, getConditionalDefaults as getSeriesStackConditionalDefaults } from '../src/config/defaults/seriesStackConfig';
+import getSeriesStackValidators from '../src/config/validation/seriesStackConfig';
+import getSeriesStackDescriptions from '../src/config/docs/seriesStackConfig';
 
-import getTitleDefaults from './src/config/defaults/titleConfig';
-import getTitleValidators from './src/config/validation/titleConfig';
-import getTitleDescriptions from './src/config/docs/titleConfig';
+import getTitleDefaults from '../src/config/defaults/titleConfig';
+import getTitleValidators from '../src/config/validation/titleConfig';
+import getTitleDescriptions from '../src/config/docs/titleConfig';
 
-import getTooltipDefaults from './src/config/defaults/tooltipConfig';
-import getTooltipValidators from './src/config/validation/tooltipConfig';
-import getTooltipDescriptions from './src/config/docs/tooltipConfig';
+import getTooltipDefaults from '../src/config/defaults/tooltipConfig';
+import getTooltipValidators from '../src/config/validation/tooltipConfig';
+import getTooltipDescriptions from '../src/config/docs/tooltipConfig';
 
 import validators from 'movalid';
+import type { Validator } from 'movalid';
+
+import type { ConditionalDefaultRule } from '../src/config/defaults/conditionalDefault';
+import type {
+  GroupAxisConfig,
+  LegendConfig,
+  LinearGradientConfig,
+  RadialGradientConfig,
+  SeriesAxisConfig,
+  SeriesConfig,
+  SeriesGroupConfig,
+  SeriesStackConfig
+} from '../src/types/config';
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-function generateDocs(filename) {
+type Stream = fs.WriteStream;
+type ValidatorMap = Record<string, Validator>;
+type Defaults = Record<string, unknown>;
+type Descriptions = Record<string, string>;
+type SectionMessages = Record<string, string[]>;
+type AnyRule = ConditionalDefaultRule<unknown, unknown, unknown>;
+type ConditionalDefaults = Record<string, { rules?: AnyRule[] } | undefined>;
+
+type SectionReference = { section: string | string[]; key: string; commonKey?: string };
+interface SectionValidatorInfo {
+  validator: Validator;
+  uniqueKeys?: string[];
+  references?: Record<string, SectionReference>;
+  commonReferences?: Record<string, SectionReference>;
+}
+type SectionValidatorMap = Record<string, SectionValidatorInfo>;
+
+function generateDocs(filename: string) {
 
   const dir = path.dirname(filename);
   if (!fs.existsSync(dir)) {
@@ -88,15 +119,15 @@ function generateDocs(filename) {
     generateSectionDocs(stream, 'Chart Config', 'chartConfig', getChartDefaults(), getChartValidators(), getChartDescriptions(), mochartConfigSectionValidators.chartConfig);
     generateSectionDocs(stream, 'Color Palette Config', 'colorPaletteConfig', getColorPaletteDefaults(), getColorPaletteValidators(), getColorPaletteDescriptions(), mochartConfigSectionValidators.colorPaletteConfig);
     generateSectionDocs(stream, 'Crosshair Config', 'crosshairConfig', getCrosshairDefaults(), getCrosshairValidators(), getCrosshairDescriptions(), mochartConfigSectionValidators.crosshairConfig);
-    generateConditionalSectionDocs(stream, 'Group Axis Config', 'groupAxisConfig', getGroupAxisRegularDefaults(), getGroupAxisConditionalDefaults(), getGroupAxisValidators({}), getGroupAxisDescriptions(), mochartConfigSectionValidators.groupAxisConfig);
-    generateConditionalSectionDocs(stream, 'Legend Config', 'legendConfig', getLegendRegularDefaults(), getLegendConditionalDefaults(), getLegendValidators(), getLegendDescriptions(), mochartConfigSectionValidators.legendConfig);
-    generateConditionalSectionDocs(stream, 'Linear Gradient Config', 'linearGradientConfigs', getLinearGradientRegularDefaults(), getLinearGradientConditionalDefaults(), getLinearGradientValidators(), getLinearGradientDescriptions(), mochartConfigSectionValidators.linearGradientConfigs);
+    generateConditionalSectionDocs(stream, 'Group Axis Config', 'groupAxisConfig', getGroupAxisRegularDefaults(), getGroupAxisConditionalDefaults({} as GroupAxisConfig, false), getGroupAxisValidators({}), getGroupAxisDescriptions(), mochartConfigSectionValidators.groupAxisConfig);
+    generateConditionalSectionDocs(stream, 'Legend Config', 'legendConfig', getLegendRegularDefaults(), getLegendConditionalDefaults({} as LegendConfig, 0), getLegendValidators(), getLegendDescriptions(), mochartConfigSectionValidators.legendConfig);
+    generateConditionalSectionDocs(stream, 'Linear Gradient Config', 'linearGradientConfigs', getLinearGradientRegularDefaults(), getLinearGradientConditionalDefaults({} as LinearGradientConfig, 0), getLinearGradientValidators(), getLinearGradientDescriptions(), mochartConfigSectionValidators.linearGradientConfigs);
     generateSectionDocs(stream, 'Plot Config', 'plotConfig', getPlotDefaults(), getPlotValidators(), getPlotDescriptions(), mochartConfigSectionValidators.plotConfig);
-    generateConditionalSectionDocs(stream, 'Radial Gradient Config', 'radialGradientConfigs', getRadialGradientRegularDefaults(), getRadialGradientConditionalDefaults(), getRadialGradientValidators(), getRadialGradientDescriptions(), mochartConfigSectionValidators.radialGradientConfigs);
-    generateConditionalSectionDocs(stream, 'Series Axis Config', 'seriesAxisConfigs', getSeriesAxisRegularDefaults(), getSeriesAxisConditionalDefaults(), getSeriesAxisValidators({}), getSeriesAxisDescriptions(), mochartConfigSectionValidators.seriesAxisConfigs);
-    generateConditionalSectionDocs(stream, 'Series Config', 'seriesConfigs', getSeriesRegularDefaults(), getSeriesConditionalDefaults(), getSeriesValidators({}), getSeriesDescriptions(), mochartConfigSectionValidators.seriesConfigs);
-    generateConditionalSectionDocs(stream, 'Series Group Config', 'seriesGroupConfigs', getSeriesGroupRegularDefaults(), getSeriesGroupConditionalDefaults(), getSeriesGroupValidators(), getSeriesGroupDescriptions(), mochartConfigSectionValidators.seriesGroupConfigs);
-    generateConditionalSectionDocs(stream, 'Series Stack Config', 'seriesStackConfigs', getSeriesStackRegularDefaults(), getSeriesStackConditionalDefaults(), getSeriesStackValidators(), getSeriesStackDescriptions(), mochartConfigSectionValidators.seriesStackConfigs);
+    generateConditionalSectionDocs(stream, 'Radial Gradient Config', 'radialGradientConfigs', getRadialGradientRegularDefaults(), getRadialGradientConditionalDefaults({} as RadialGradientConfig, 0), getRadialGradientValidators(), getRadialGradientDescriptions(), mochartConfigSectionValidators.radialGradientConfigs);
+    generateConditionalSectionDocs(stream, 'Series Axis Config', 'seriesAxisConfigs', getSeriesAxisRegularDefaults(), getSeriesAxisConditionalDefaults({} as SeriesAxisConfig, 0, false), getSeriesAxisValidators(), getSeriesAxisDescriptions(), mochartConfigSectionValidators.seriesAxisConfigs);
+    generateConditionalSectionDocs(stream, 'Series Config', 'seriesConfigs', getSeriesRegularDefaults(), getSeriesConditionalDefaults({} as SeriesConfig, 0, null, null, null, null), getSeriesValidators({}), getSeriesDescriptions(), mochartConfigSectionValidators.seriesConfigs);
+    generateConditionalSectionDocs(stream, 'Series Group Config', 'seriesGroupConfigs', getSeriesGroupRegularDefaults(), getSeriesGroupConditionalDefaults({} as SeriesGroupConfig, 0), getSeriesGroupValidators(), getSeriesGroupDescriptions(), mochartConfigSectionValidators.seriesGroupConfigs);
+    generateConditionalSectionDocs(stream, 'Series Stack Config', 'seriesStackConfigs', getSeriesStackRegularDefaults(), getSeriesStackConditionalDefaults({} as SeriesStackConfig, 0, null), getSeriesStackValidators(), getSeriesStackDescriptions(), mochartConfigSectionValidators.seriesStackConfigs);
     generateSectionDocs(stream, 'Title Config', 'titleConfig', getTitleDefaults(), getTitleValidators(), getTitleDescriptions(), mochartConfigSectionValidators.titleConfig);
     generateSectionDocs(stream, 'Tooltip Config', 'tooltipConfig', getTooltipDefaults(), getTooltipValidators(), getTooltipDescriptions(), mochartConfigSectionValidators.tooltipConfig);
     generateFooter(stream);
@@ -108,7 +139,7 @@ function generateDocs(filename) {
   });
 }
 
-function generateHeader(stream) {
+function generateHeader(stream: Stream) {
   stream.write('<html>\n');
   stream.write('<head>\n');
   stream.write('<title>Mochart Config Docs</title>\n');
@@ -124,12 +155,12 @@ function generateHeader(stream) {
   stream.write('<body>\n');
 }
 
-function generateFooter(stream) {
+function generateFooter(stream: Stream) {
   stream.write('</body>\n');
   stream.write('</html>');
 }
 
-function generateAllSectionDocs(stream) {
+function generateAllSectionDocs(stream: Stream) {
   stream.write('<div>\n');
   stream.write('<h2>' + 'Mochart Config' + '</h2>\n');
   generateAllKeyHeader(stream);
@@ -142,7 +173,7 @@ function generateAllSectionDocs(stream) {
   stream.write('</div>\n');
 }
 
-function generateAllKeyHeader(stream) {
+function generateAllKeyHeader(stream: Stream) {
   stream.write('<table>\n');
   stream.write('<thead>\n');
   stream.write('<tr>\n');
@@ -151,11 +182,11 @@ function generateAllKeyHeader(stream) {
   stream.write('</thead>\n');
 }
 
-function generateAllKeyFooter(stream) {
+function generateAllKeyFooter(stream: Stream) {
   stream.write('</table>\n')
 }
 
-function generateKeySectionDocs(stream, sectionKey, sectionDescriptions, sectionValidators) {
+function generateKeySectionDocs(stream: Stream, sectionKey: string, sectionDescriptions: Descriptions, sectionValidators: SectionValidatorMap) {
   stream.write('<tr>\n');
   if (sectionKeyAllMap[sectionKey]) {
     const allKey = sectionKeyAllMap[sectionKey];
@@ -170,7 +201,7 @@ function generateKeySectionDocs(stream, sectionKey, sectionDescriptions, section
   stream.write('</tr>\n');
 }
 
-function getDefaultFromValidator(validator) {
+function getDefaultFromValidator(validator: Validator) {
   if (validator.validatorName === 'object') {
     return '{}';
   }
@@ -182,7 +213,7 @@ function getDefaultFromValidator(validator) {
   }
 }
 
-function createLink(id) {
+function createLink(id: string) {
   if (id === 'version') {
     return '';
   }
@@ -191,16 +222,16 @@ function createLink(id) {
   }
 }
 
-function generateSectionHeader(stream, title, id) {
+function generateSectionHeader(stream: Stream, title: string, id: string) {
   stream.write('<div id="' + id + '">\n');
   stream.write('<h2>' + title + '</h2>\n');
 }
 
-function generateSectionFooter(stream) {
+function generateSectionFooter(stream: Stream) {
   stream.write('</div>\n');
 }
 
-function safeAdd(map, key, value) {
+function safeAdd(map: SectionMessages, key: string, value: string) {
   let theArray = map[key];
   if (!theArray) {
     map[key] = theArray = [];
@@ -208,30 +239,32 @@ function safeAdd(map, key, value) {
   theArray.push(value);
 }
 
-function getSectionKeyValidators(sectionValidator) {
-  const sectionKeyValidators = {};
+function getSectionKeyValidators(sectionValidator: SectionValidatorInfo): SectionMessages {
+  const sectionKeyValidators: SectionMessages = {};
   if (sectionValidator.uniqueKeys) {
     sectionValidator.uniqueKeys.forEach(uniqueKey => {
       safeAdd(sectionKeyValidators, uniqueKey, getUniqueMessage());
     });
   }
-  if (sectionValidator.references) {
-    Object.keys(sectionValidator.references).forEach(referenceKey => {
-      const reference = sectionValidator.references[referenceKey];
+  const references = sectionValidator.references;
+  if (references) {
+    Object.keys(references).forEach(referenceKey => {
+      const reference = references[referenceKey]!;
       safeAdd(sectionKeyValidators, referenceKey, getReferenceMessage(reference.section, reference.key));
     });
   }
-  if (sectionValidator.commonReferences) {
-    Object.keys(sectionValidator.commonReferences).forEach(commonReferenceKey => {
-      const commonReference = sectionValidator.commonReferences[commonReferenceKey];
+  const commonReferences = sectionValidator.commonReferences;
+  if (commonReferences) {
+    Object.keys(commonReferences).forEach(commonReferenceKey => {
+      const commonReference = commonReferences[commonReferenceKey]!;
       safeAdd(sectionKeyValidators, commonReferenceKey, getCommonReferenceMessage(
-        commonReference.section, commonReference.key, commonReference.commonKey));
+        commonReference.section, commonReference.key, commonReference.commonKey!));
     });
   }
   return sectionKeyValidators;
 }
 
-function arrayEqual(a, b) {
+function arrayEqual(a: string[], b: string[]) {
   return a.length === b.length && a.filter((ae, i) => ae === b[i]);
 }
 
@@ -241,15 +274,15 @@ const noChange = {
   removed: []
 }
 
-function getAddedRemoved(a, b, whitelist = {}) {
+function getAddedRemoved(a: Defaults, b: Defaults, whitelist: Record<string, boolean> = {}) {
   const aKeys = Object.keys(a);
   const bKeys = Object.keys(b);
   if (arrayEqual(aKeys.sort(), bKeys.sort())) {
     return noChange;
   }
   else {
-    const added = [];
-    const removed = [];
+    const added: string[] = [];
+    const removed: string[] = [];
     for (let aKey of aKeys) {
       if (b[aKey] === void 0 && whitelist[aKey] !== true) {
         removed.push(aKey);
@@ -269,7 +302,7 @@ function getAddedRemoved(a, b, whitelist = {}) {
   }
 }
 
-const missingDefaultWhitelist = {
+const missingDefaultWhitelist: Record<string, Record<string, boolean>> = {
   groupAxisConfig: {
     property: true
   },
@@ -284,7 +317,7 @@ const missingDefaultWhitelist = {
   }
 }
 
-function checkKeyIntegrity(id, defaults, validators, descriptions) {
+function checkKeyIntegrity(id: string, defaults: Defaults, validators: ValidatorMap, descriptions: Descriptions) {
   const validatorDefaultAddedRemoved = getAddedRemoved(validators, defaults, missingDefaultWhitelist[id]);
   const validatorDescriptionAddedRemoved = getAddedRemoved(validators, descriptions);
   if (validatorDefaultAddedRemoved.hasChanges) {
@@ -299,7 +332,7 @@ function checkKeyIntegrity(id, defaults, validators, descriptions) {
   }
 }
 
-function generateSectionDocs(stream, title, id, defaults, validators, descriptions, sectionValidator) {
+function generateSectionDocs(stream: Stream, title: string, id: string, defaults: Defaults, validators: ValidatorMap, descriptions: Descriptions, sectionValidator: SectionValidatorInfo) {
   generateSectionHeader(stream, title, id);
   checkKeyIntegrity(id, defaults, validators, descriptions);
   const keys = Object.keys(validators).sort();
@@ -312,7 +345,7 @@ function generateSectionDocs(stream, title, id, defaults, validators, descriptio
   generateSectionFooter(stream);
 }
 
-function generateConditionalSectionDocs(stream, title, id, regularDefaults, conditionalDefaults, validators, descriptions, sectionValidator) {
+function generateConditionalSectionDocs(stream: Stream, title: string, id: string, regularDefaults: Defaults, conditionalDefaults: ConditionalDefaults, validators: ValidatorMap, descriptions: Descriptions, sectionValidator: SectionValidatorInfo) {
   generateSectionHeader(stream, title, id);
   checkKeyIntegrity(id, {...regularDefaults, ...conditionalDefaults}, validators, descriptions);
   const keys = Object.keys(validators).sort();
@@ -325,7 +358,7 @@ function generateConditionalSectionDocs(stream, title, id, regularDefaults, cond
   generateSectionFooter(stream);
 }
 
-function generateKeyHeader(stream) {
+function generateKeyHeader(stream: Stream) {
   stream.write('<table>\n');
   stream.write('<thead>\n');
   stream.write('<tr>\n');
@@ -334,36 +367,36 @@ function generateKeyHeader(stream) {
   stream.write('</thead>\n');
 }
 
-function generateTags(stream, tag, contents) {
+function generateTags(stream: Stream, tag: string, contents: string[]) {
   contents.forEach(content => {
     stream.write('<' + tag + '>' + content + '</' + tag + '>');
   });
   stream.write('\n');
 }
 
-function generateKeyFooter(stream) {
+function generateKeyFooter(stream: Stream) {
   stream.write('</table>\n')
 }
 
-function generateLink(content, id) {
+function generateLink(content: string, id: string) {
   return '<a href="#' + id + '">' + content + '</a>';
 }
 
-function generateKeyDocs(stream, id, key, defaults, validators, descriptions, sectionKeyValidators) {
+function generateKeyDocs(stream: Stream, id: string, key: string, defaults: Defaults, validators: ValidatorMap, descriptions: Descriptions, sectionKeyValidators: SectionMessages) {
   const keyId = id + '.' + key;
   stream.write('<tr id="' + keyId + '">\n');
   generateTags(stream, 'td', [generateLink(key, keyId), descriptions[key], generateValidatorDoc(validators[key], sectionKeyValidators[key]), generateDefaultDoc(defaults[key])]);
   stream.write('</tr>\n');
 }
 
-function generateConditionalKeyDocs(stream, id, key, regularDefaults, conditionalDefaults, validators, descriptions, sectionKeyValidators) {
+function generateConditionalKeyDocs(stream: Stream, id: string, key: string, regularDefaults: Defaults, conditionalDefaults: ConditionalDefaults, validators: ValidatorMap, descriptions: Descriptions, sectionKeyValidators: SectionMessages) {
   const keyId = id + '.' + key;
   stream.write('<tr id="' + keyId + '">\n');
   generateTags(stream, 'td', [generateLink(key, keyId), descriptions[key], generateValidatorDoc(validators[key], sectionKeyValidators[key]), generateConditionalDefaultDoc(regularDefaults[key], conditionalDefaults[key])]);
   stream.write('</tr>\n');
 }
 
-function generateValidatorDoc(validator, sectionMessages) {
+function generateValidatorDoc(validator: Validator, sectionMessages: string[] | undefined): string {
   // TODO add better handling of defaults!!!
   const validatorMessages = validator.errorMessages.filter(message => message !== 'should be any value');
   let messages = validatorMessages;
@@ -378,23 +411,23 @@ function generateValidatorDoc(validator, sectionMessages) {
   }
 }
 
-function generateDefaultDoc(theDefault) {
+function generateDefaultDoc(theDefault: unknown): string {
   return '<div>' + formatDefault(theDefault) + '</div>\n';
 }
 
-function generateConditionalDefaultDoc(regularDefault, conditionalDefault) {
+function generateConditionalDefaultDoc(regularDefault: unknown, conditionalDefault: { rules?: AnyRule[] } | undefined): string {
   return conditionalDefault ? generateComplexDefaultDoc(conditionalDefault) : generateDefaultDoc(regularDefault);
 }
 
-function generateComplexDefaultDoc(conditionalDefault) {
-  return conditionalDefault.rules.filter(rule => rule.suffix !== null).map(rule => {
+function generateComplexDefaultDoc(conditionalDefault: { rules?: AnyRule[] }): string {
+  return (conditionalDefault.rules ?? []).filter(rule => rule.suffix !== null).map(rule => {
     return '<div>' + (rule.defaultText ? rule.defaultText : formatDefault(rule.default)) + ' (' + rule.suffix + ')' + '</div>\n';
   }).join('');
 }
 
 const colorValidator = validators.color();
 
-function formatDefault(theDefault) {
+function formatDefault(theDefault: any): string | number | boolean | null {
   if (theDefault === undefined) {
     return '';
   }
@@ -419,12 +452,18 @@ function formatDefault(theDefault) {
   }
 }
 
-function outputColors(colors) {
+function outputColors(colors: string[]): string {
   return colors.map(color => outputColor(color)).join('');
 }
 
-function outputColor(color) {
+function outputColor(color: string): string {
   return '<span class="colorIcon" style="background-color: ' + color + '"></span>';
 }
 
 export default generateDocs;
+
+const runDirectly = process.argv[1] === fileURLToPath(import.meta.url);
+if (runDirectly) {
+  const outputFile = process.argv[2] ?? 'mochart-docs.html';
+  generateDocs(outputFile);
+}

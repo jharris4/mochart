@@ -47,9 +47,11 @@
     "build:types": "tsc -p tsconfig.build.json",
     "prepack": "npm run build",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/tsconfig.json && tsc --noEmit -p scripts/tsconfig.json",
+    "generate-docs": "tsx scripts/generator.ts mochart-docs.html"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1"
+    "@types/node": "^26.1.1",
+    "tsx": "^4.20.6"
   }
 }
