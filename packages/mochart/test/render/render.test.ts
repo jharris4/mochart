@@ -107,7 +107,7 @@ class Leaf extends Renderer<LeafProps> {
 }
 
 class Wrapper extends Renderer<{ label: string; calls: string[] }> {
-  child!: ReturnType<Renderer['slot']>;
+  child!: ReturnType<Renderer<object>['slot']>;
 
   create() {
     // pass-through renderer: no element of its own
@@ -237,7 +237,7 @@ describe('Renderer', () => {
       }
     }
     class Outer extends Renderer<{ calls: string[] }> {
-      child!: ReturnType<Renderer['slot']>;
+      child!: ReturnType<Renderer<object>['slot']>;
       create() {
         this.child = this.slot();
         return null;
@@ -320,7 +320,7 @@ describe('RendererList (via Renderer.rendererList)', () => {
     }
     class ListHost extends Renderer<{ rows: Row[] }> {
       root = htmlEl('div');
-      list!: ReturnType<Renderer['rendererList']>;
+      list!: ReturnType<Renderer<object>['rendererList']>;
       create() {
         this.list = this.rendererList(this.root);
         return this.root.node;

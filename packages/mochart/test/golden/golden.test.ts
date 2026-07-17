@@ -15,6 +15,11 @@ import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { MochartConfig, MochartInputConfig, DataProvider } from '../../src';
+
+interface Demo { id: string; config: string; data: string }
+/** Rows are decoded from arbitrary demo JSON, so values are intentionally loose. */
+type Row = Record<string, any>;
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const demosDir = path.resolve(here, '../../../mochart-demo/demos');
@@ -28,7 +33,7 @@ const MAX_FRAMES = 500;
 // demo assets, indexed by basename (configs live in nested folders too)
 // ---------------------------------------------------------------------------
 
-function indexJsonFilesByBasename(dir, map = {}) {
+function indexJsonFilesByBasename(dir: string, map: Record<string, string> = {}): Record<string, string> {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -44,9 +49,9 @@ function indexJsonFilesByBasename(dir, map = {}) {
 const demosJson = JSON.parse(fs.readFileSync(path.join(demosDir, 'demos.json'), 'utf8'));
 const configPaths = indexJsonFilesByBasename(path.join(demosDir, 'config'));
 const dataPaths = indexJsonFilesByBasename(path.join(demosDir, 'data'));
-const allDemos = [...demosJson.demos, ...demosJson.testDemos];
+const allDemos: Demo[] = [...demosJson.demos, ...demosJson.testDemos];
 
-function loadJson(filePath) {
+function loadJson(filePath: string): any {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
@@ -54,13 +59,15 @@ function loadJson(filePath) {
 // library loading — fake timers must be installed before the import
 // ---------------------------------------------------------------------------
 
-let mochart;
+let mochart: typeof import('../../src');
 
 beforeAll(async () => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
   // documented default-bounds fallbacks. Both renderer implementations see the
   // same shims, so snapshots stay comparable.
-  const svgProto = globalThis.SVGElement.prototype;
+  // Cast: these text-measurement methods live on SVGTextContentElement in the
+  // DOM lib, not the SVGElement base prototype we shim here.
+  const svgProto = globalThis.SVGElement.prototype as any;
   if (typeof svgProto.getComputedTextLength !== 'function') {
     svgProto.getComputedTextLength = () => 0;
   }
@@ -71,8 +78,9 @@ beforeAll(async () => {
     svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
   }
   if (typeof globalThis.requestAnimationFrame !== 'function') {
-    globalThis.requestAnimationFrame = (callback) => setTimeout(() => callback(performance.now()), FRAME_MS);
-    globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
+      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
+    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
   }
   vi.useFakeTimers({
     toFake: [
@@ -80,7 +88,7 @@ beforeAll(async () => {
       'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
     ]
   });
-  mochart = await import('../../src/index.ts');
+  mochart = await import('../../src');
 });
 
 afterEach(() => {
@@ -102,7 +110,7 @@ function runFrames(maxFrames = MAX_FRAMES) {
   return frames;
 }
 
-function advanceFrames(count) {
+function advanceFrames(count: number) {
   for (let i = 0; i < count && vi.getTimerCount() > 0; i++) {
     vi.advanceTimersByTime(FRAME_MS);
   }
@@ -121,7 +129,7 @@ const uniqueIdPattern = new RegExp('(' + UNIQUE_ID_PREFIXES.join('|') + ')(\\d+)
  * nodes (the vdom renders empty children as comment nodes; the retained
  * renderer uses comments as internal anchors — neither affects rendering).
  */
-function normalizeHtml(html) {
+function normalizeHtml(html: string) {
   return html
     .replace(uniqueIdPattern, '$1N')
     .replace(/ data-mochart-version="[^"]*"/g, '')
@@ -129,35 +137,38 @@ function normalizeHtml(html) {
     .replace(/></g, '>\n<');
 }
 
-function snapshotFile(demoId, stage) {
+function snapshotFile(demoId: string, stage: string) {
   return path.join(here, '__snapshots__', `${demoId}--${stage}.html`);
 }
 
-async function expectSnapshot(container, demoId, stage) {
+async function expectSnapshot(container: HTMLElement, demoId: string, stage: string) {
   await expect(normalizeHtml(container.innerHTML)).toMatchFileSnapshot(snapshotFile(demoId, stage));
 }
 
-function buildMochartConfig(configBasename, { animate = true } = {}) {
+function buildMochartConfig(configBasename: string, { animate = true }: { animate?: boolean } = {}): MochartConfig {
   const raw = loadJson(configPaths[configBasename]);
-  const migrated = mochart.migrateConfig(raw);
+  const migrated = mochart.migrateConfig(raw) as Record<string, any>;
   migrated.animationConfig = { ...(migrated.animationConfig || {}), animate };
-  return mochart.enhanceConfig(migrated);
+  return mochart.enhanceConfig(migrated as MochartInputConfig);
 }
 
-function getGroupProperty(mochartConfig) {
+function getGroupProperty(mochartConfig: MochartConfig): string | undefined {
   return mochartConfig.groupAxisConfig ? mochartConfig.groupAxisConfig.property : undefined;
 }
 
-function getSeriesProperties(mochartConfig) {
-  return (mochartConfig.seriesConfigs || []).map((seriesConfig) => seriesConfig.property).filter(Boolean);
+function getSeriesProperties(mochartConfig: MochartConfig): string[] {
+  return (mochartConfig.seriesConfigs || [])
+    .map((seriesConfig) => seriesConfig.property)
+    .filter((property): property is string => Boolean(property));
 }
 
-function makeProvider(mochartConfig, rows) {
-  return new mochart.ArrayOfObjectsDataProvider(rows, getGroupProperty(mochartConfig));
+function makeProvider(mochartConfig: MochartConfig, rows: Row[]): DataProvider {
+  // every demo config defines a group property; the optionality is only for malformed input
+  return new mochart.ArrayOfObjectsDataProvider(rows, getGroupProperty(mochartConfig)!) as unknown as DataProvider;
 }
 
 /** Deterministic stand-in for the demo app's "randomize values" button. */
-function transformValues(mochartConfig, rows) {
+function transformValues(mochartConfig: MochartConfig, rows: Row[]): Row[] {
   const seriesProperties = getSeriesProperties(mochartConfig);
   return rows.map((row, rowIndex) => {
     const next = { ...row };
@@ -171,7 +182,7 @@ function transformValues(mochartConfig, rows) {
 }
 
 /** Deterministic version of the demo app's "add group" button. */
-function addGroupRow(mochartConfig, rows) {
+function addGroupRow(mochartConfig: MochartConfig, rows: Row[]): Row[] {
   const groupProperty = getGroupProperty(mochartConfig);
   if (!groupProperty || rows.length === 0) {
     return rows;
@@ -199,7 +210,7 @@ function addGroupRow(mochartConfig, rows) {
   return [...rows, row];
 }
 
-function removeGroupRow(rows) {
+function removeGroupRow(rows: Row[]): Row[] {
   if (rows.length <= 2) {
     return rows;
   }

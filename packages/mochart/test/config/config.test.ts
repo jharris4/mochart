@@ -1,10 +1,15 @@
 import { enhanceConfig } from '../../src';
+import type { MochartInputConfig } from '../../src';
 
 const VERSION_STRING = "1.0.3";
 
+// enhanceConfig validates untrusted input at runtime, so these tests
+// deliberately feed malformed values that the static type would reject.
+const enhance = (config: unknown) => enhanceConfig(config as MochartInputConfig);
+
 describe('config validation', () => {
   it('should validate a null config', () => {
-    const mochartConfig = enhanceConfig(null);
+    const mochartConfig = enhance(null);
     expect(mochartConfig).toEqual({
       validation: {
         valid: false,
@@ -15,7 +20,7 @@ describe('config validation', () => {
   });
 
   it('should validate a string config', () => {
-    const mochartConfig = enhanceConfig("a");
+    const mochartConfig = enhance("a");
     expect(mochartConfig).toEqual({
       validation: {
         valid: false,
@@ -26,7 +31,7 @@ describe('config validation', () => {
   });
 
   it('should validate an empty object config', () => {
-    const mochartConfig = enhanceConfig({});
+    const mochartConfig = enhance({});
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
@@ -38,7 +43,7 @@ describe('config validation', () => {
   });
 
   it('should validate a minimal valid config object', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -52,7 +57,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with extra properties', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -69,7 +74,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with extra properties in a section', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p",
@@ -86,7 +91,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with a single empty series', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -105,7 +110,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with an empty all section', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -122,7 +127,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with a string all section', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -139,7 +144,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with a non empty all section', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -156,7 +161,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with an invalid all section and empty list section', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -175,7 +180,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with an invalid all section and non empty valid list section', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -198,7 +203,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with an invalid all section and non empty invalid list section', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
@@ -222,7 +227,7 @@ describe('config validation', () => {
   });
 
   it('should validate a config object with an all section that specifies unique keys', () => {
-    const mochartConfig = enhanceConfig({
+    const mochartConfig = enhance({
       version: VERSION_STRING,
       groupAxisConfig: {
         property: "p"
