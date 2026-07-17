@@ -1,6 +1,6 @@
 {
   "name": "mochart-demo-react",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "React demo gallery for the mochart charting library",
   "private": true,
   "type": "module",
