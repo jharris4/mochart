@@ -502,6 +502,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       const { mochartConfig, chartData } = this.props;
       const newState = this.calculateTextSizes(false);
       if (newState.layoutInfo == null) {
+        // measurements were unchanged; push any tooltip remeasure through on its own
+        if (newState.tooltipBounds !== undefined) {
+          this.setState(newState);
+        }
         return;
       }
       if (chartData) {
@@ -517,8 +521,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       const { mochartConfig, chartData, width, height } = this.props;
       const domAccessors = getDomAccessors(this.chartRef);
       let chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
-      let layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
-      newState = { chartTextBoundsData, layoutInfo };
+      chartTextBoundsData = getChartTextBoundsDataWithMutations(this.state.chartTextBoundsData, chartTextBoundsData);
+      let layoutInfo = this.state.layoutInfo;
+      if (chartTextBoundsData !== this.state.chartTextBoundsData || layoutInfo === null) {
+        layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
+        newState = { chartTextBoundsData, layoutInfo };
+      }
       const { tooltipVisible } = this.state;
       if (tooltipVisible) {
         let { tooltipBounds } = this.state;
@@ -528,7 +536,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         newState.tooltipBounds = tooltipBounds;
         newState.tooltipLayoutInfo = tooltipLayoutInfo;
       }
-      if (setState === true) {
+      if (setState === true && (newState.layoutInfo !== undefined || newState.tooltipBounds !== undefined)) {
         const { layoutInfo: oldLayoutInfo, axisData: oldAxisData } = this.state;
         const groupExtentChanged = oldLayoutInfo === null || oldLayoutInfo.seriesLayoutInfo.groupExtent !== layoutInfo.seriesLayoutInfo.groupExtent;
         const seriesExtentChanged = oldLayoutInfo === null || oldLayoutInfo.seriesLayoutInfo.seriesExtent !== layoutInfo.seriesLayoutInfo.seriesExtent;
@@ -586,20 +594,27 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         const seriesAxisChanged = chartData === null || this.props.chartData === null || this.props.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
           this.props.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains;
         // TODO - what about if seriesData.axisSeriesCounts changes? how should that be handled?
-        layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
-        layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, layoutInfo);
+        // layout reads chartData only through seriesData.axisSeriesCounts (ChartDataForLayout),
+        // so value-tween frames that keep that identity can keep the current layout
+        const layoutInputsChanged = mochartConfigChanged || sizeChanged || this.state.layoutInfo === null ||
+          chartData === null || this.props.chartData === null ||
+          chartData.seriesData.axisSeriesCounts !== this.props.chartData.seriesData.axisSeriesCounts;
+        if (layoutInputsChanged) {
+          layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
+          layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, layoutInfo);
+        }
 
         let tooltipStateSource: ChartState | ReturnType<typeof getInitialTooltipState> = this.state;
         if (chartData !== null) {
           if (oldAxisData === null || mochartConfigChanged || sizeChanged || (groupAxisChanged && seriesAxisChanged)) {
-            axisData = getAxisDataWithMutations(oldAxisData, mochartConfig, layoutInfo, chartData);
+            axisData = getAxisDataWithMutations(oldAxisData, mochartConfig, layoutInfo!, chartData);
           }
           else {
             if (groupAxisChanged) {
-              axisData = getAxisDataForGroupChange(axisData!, mochartConfig, layoutInfo, chartData);
+              axisData = getAxisDataForGroupChange(axisData!, mochartConfig, layoutInfo!, chartData);
             }
             else if (seriesAxisChanged) {
-              axisData = getAxisDataForSeriesChange(axisData!, mochartConfig, layoutInfo, chartData);
+              axisData = getAxisDataForSeriesChange(axisData!, mochartConfig, layoutInfo!, chartData);
             }
           }
           if (mochartConfigChanged || dataChanged) {
@@ -669,20 +684,21 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
           const sizeChanged = width !== this.props.width || height !== this.props.height;
           const mochartConfigChanged = mochartConfig !== newMochartConfig;
-          const mochartConfigStructureChanged = mochartConfigChanged && hasConfigStructureChange(mochartConfig, newMochartConfig);
-          let groupAxisChanged = this.props.chartData === null || this.props.chartData.groupData !== chartData.groupData;
-          let seriesAxisChanged = this.props.chartData === null || this.props.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
-            this.props.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains;
+          const axisDataChanged = oldAxisData !== axisData;
+          // rendered chart text comes from the config (titles, legend) and from
+          // axisData (tick labels); a data change that keeps both identities cannot
+          // change any measured text, so value-tween frames skip the DOM remeasure.
+          // hasDefault keeps retrying bounds that could not be measured yet.
+          const textMayHaveChanged = axisDataChanged || this.state.chartTextBoundsData.hasDefault === true;
 
-          if (mochartConfigStructureChanged || dataChanged || sizeChanged) {
+          if (mochartConfigChanged || sizeChanged || (dataChanged && textMayHaveChanged)) {
             this.calculateInitialTextSizes();
-          }
-          else if (oldAxisData !== axisData && (mochartConfigChanged || (groupAxisChanged && seriesAxisChanged))) {
-            this.calculateTextSizes();
           }
 
           if (tooltipVisible) {
-            if (!oldTooltipVisible || oldTooltipGroupIndex !== tooltipGroupIndex) {
+            // dataChanged: an open tooltip renders the new values, so its bounds
+            // need remeasuring even when the chart text is untouched
+            if (dataChanged || !oldTooltipVisible || oldTooltipGroupIndex !== tooltipGroupIndex) {
               this.calculateTooltipTextSize();
             }
           }
