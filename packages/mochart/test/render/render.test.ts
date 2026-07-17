@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { svgEl, htmlEl, textEl, Renderer, ElList, El } from '../../src/render';
+import { setProperty } from '../../src/render/dom';
 
 function host(): HTMLElement {
   const div = document.createElement('div');
@@ -255,6 +256,49 @@ describe('Renderer', () => {
     r.destroy();
     expect(calls).toEqual(['outer willUnmount', 'inner willUnmount']);
     expect(parent.innerHTML).toBe('');
+  });
+});
+
+describe('setProperty', () => {
+  it('ignores the reserved children, key and ref props', () => {
+    const div = document.createElement('div');
+    setProperty(div, 'children', undefined, 'x', false);
+    setProperty(div, 'key', undefined, 'x', false);
+    setProperty(div, 'ref', undefined, 'x', false);
+    expect(div.attributes.length).toBe(0);
+  });
+
+  it('skips writes when the value is unchanged', () => {
+    const div = document.createElement('div');
+    const spy = vi.spyOn(div, 'setAttribute');
+    setProperty(div, 'title', 'same', 'same', false);
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('writes form element value, checked and selected as properties', () => {
+    const input = document.createElement('input');
+    setProperty(input, 'value', undefined, 'abc', false);
+    expect(input.value).toBe('abc');
+    expect(input.getAttribute('value')).toBeNull();
+
+    setProperty(input, 'value', 'abc', null, false);
+    expect(input.value).toBe('');
+
+    input.type = 'checkbox';
+    setProperty(input, 'checked', undefined, true, false);
+    expect(input.checked).toBe(true);
+  });
+
+  it('removes attributes for null and false, writes empty string for true', () => {
+    const div = document.createElement('div');
+    setProperty(div, 'hidden', undefined, true, false);
+    expect(div.getAttribute('hidden')).toBe('');
+    setProperty(div, 'hidden', true, false, false);
+    expect(div.hasAttribute('hidden')).toBe(false);
+    setProperty(div, 'title', undefined, 'x', false);
+    setProperty(div, 'title', 'x', null, false);
+    expect(div.hasAttribute('title')).toBe(false);
   });
 });
 
