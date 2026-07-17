@@ -17,16 +17,23 @@
     "url": "https://github.com/jharris4/valide.git"
   },
   "type": "module",
-  "main": "src/validators.ts",
-  "module": "src/validators.ts",
-  "types": "src/validators.ts",
+  "main": "./dist/validators.js",
+  "module": "./dist/validators.js",
+  "types": "./dist/validators.d.ts",
   "exports": {
     ".": {
-      "types": "./src/validators.ts",
-      "default": "./src/validators.ts"
+      "types": "./dist/validators.d.ts",
+      "development": "./src/validators.ts",
+      "default": "./dist/validators.js"
     }
   },
+  "files": [
+    "src",
+    "dist"
+  ],
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   }
