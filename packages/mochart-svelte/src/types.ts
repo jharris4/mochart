@@ -1,5 +1,3 @@
-import type { Component } from 'svelte';
-
 /** Placeholder factories return a DOM Node or string — mochart has no vdom. */
 export type NodeFactory = (...args: any[]) => Node | string;
 
@@ -43,6 +41,3 @@ export interface DefaultChartProps extends BaseChartProps {
   config: any;
   data: any[];
 }
-
-export declare const Chart: Component<ChartProps>;
-export declare const DefaultChart: Component<DefaultChartProps>;

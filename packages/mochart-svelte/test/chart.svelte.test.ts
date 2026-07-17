@@ -1,14 +1,14 @@
-// The `.svelte.test.js` name lets the svelte plugin compile this file so the
+// The `.svelte.test.ts` name lets the svelte plugin compile this file so the
 // `$state` rune is available for driving prop updates.
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { mount, unmount, flushSync } from 'svelte';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
-import { Chart, DefaultChart } from '../src/index.js';
+import { Chart, DefaultChart } from '../src/index';
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
   // documented default-bounds fallbacks (same shims as the golden tests).
-  const svgProto = globalThis.SVGElement.prototype;
+  const svgProto = globalThis.SVGElement.prototype as any;
   if (typeof svgProto.getComputedTextLength !== 'function') {
     svgProto.getComputedTextLength = () => 0;
   }
@@ -20,7 +20,7 @@ beforeAll(() => {
   }
 });
 
-function rawConfig() {
+function rawConfig(): any {
   return {
     version: '1.0.3',
     titleConfig: { title: 'Test Chart' },
@@ -59,13 +59,13 @@ describe('Chart', () => {
     flushSync();
     const svg = el.querySelector('svg');
     expect(svg).not.toBeNull();
-    expect(svg.getAttribute('width')).toBe('400');
-    expect(svg.getAttribute('height')).toBe('300');
+    expect(svg!.getAttribute('width')).toBe('400');
+    expect(svg!.getAttribute('height')).toBe('300');
     expect(el.textContent).toContain('Test Chart');
 
     props.width = 500;
     flushSync();
-    expect(el.querySelector('svg').getAttribute('width')).toBe('500');
+    expect(el.querySelector('svg')!.getAttribute('width')).toBe('500');
 
     unmount(instance);
     flushSync();
@@ -76,9 +76,10 @@ describe('Chart', () => {
 
 describe('Chart auto-sizing', () => {
   it('tracks the container size when width/height are omitted', () => {
-    const observed = [];
+    const observed: Array<{ callback: ResizeObserverCallback }> = [];
     class FakeResizeObserver {
-      constructor(callback) {
+      callback: ResizeObserverCallback;
+      constructor(callback: ResizeObserverCallback) {
         this.callback = callback;
       }
       observe() {
@@ -87,31 +88,31 @@ describe('Chart auto-sizing', () => {
       disconnect() {}
       unobserve() {}
     }
-    globalThis.ResizeObserver = FakeResizeObserver;
+    globalThis.ResizeObserver = FakeResizeObserver as unknown as typeof ResizeObserver;
     const rectSpy = vi
       .spyOn(Element.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ width: 320.7, height: 240.2 });
+      .mockReturnValue({ width: 320.7, height: 240.2 } as DOMRect);
     try {
       const el = target();
       const props = $state({ config: rawConfig(), data: rows });
       const instance = mount(DefaultChart, { target: el, props });
       flushSync();
       const svg = el.querySelector('svg');
-      expect(svg.getAttribute('width')).toBe('320');
-      expect(svg.getAttribute('height')).toBe('240');
+      expect(svg!.getAttribute('width')).toBe('320');
+      expect(svg!.getAttribute('height')).toBe('240');
 
-      rectSpy.mockReturnValue({ width: 500, height: 400 });
+      rectSpy.mockReturnValue({ width: 500, height: 400 } as DOMRect);
       for (const { callback } of observed) {
-        callback([], undefined);
+        callback([], undefined as unknown as ResizeObserver);
       }
-      expect(svg.getAttribute('width')).toBe('500');
-      expect(svg.getAttribute('height')).toBe('400');
+      expect(svg!.getAttribute('width')).toBe('500');
+      expect(svg!.getAttribute('height')).toBe('400');
 
       unmount(instance);
       el.remove();
     } finally {
       rectSpy.mockRestore();
-      delete globalThis.ResizeObserver;
+      delete (globalThis as any).ResizeObserver;
     }
   });
 });

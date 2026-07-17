@@ -1,14 +1,26 @@
-/**
- * @typedef {{ update(props: Record<string, any>): void, destroy(): void }} HostHandle
- * @typedef {(container: Element, props: Record<string, any>) => { update(props: Record<string, any>): void, destroy(): void }} CreateChartFn
- */
+import type { ChartHandle } from 'mochart';
 
-function measure(container) {
+// `create` is used for both createChart (Chart) and createDefaultChart
+// (DefaultChart); the host passes props through opaquely, so it is
+// intentionally typed loosely rather than per-chart.
+export type CreateChartFn = (container: Element, props: any) => ChartHandle<any>;
+
+export interface HostHandle {
+  update(props: Record<string, any>): void;
+  destroy(): void;
+}
+
+interface Size {
+  width: number;
+  height: number;
+}
+
+function measure(container: HTMLElement): Size {
   const rect = container.getBoundingClientRect();
   return { width: Math.floor(rect.width), height: Math.floor(rect.height) };
 }
 
-function withSize(props, measured) {
+function withSize(props: Record<string, any>, measured: Size): Record<string, any> {
   return {
     ...props,
     width: props.width === undefined ? measured.width : props.width,
@@ -20,18 +32,13 @@ function withSize(props, measured) {
  * Mounts a chart into `container` and keeps it sized: explicit `width`/`height`
  * props always win; whichever dimension is omitted tracks the container's own
  * size (via ResizeObserver, where available).
- *
- * @param {CreateChartFn} create
- * @param {HTMLElement} container
- * @param {Record<string, any>} props
- * @returns {HostHandle}
  */
-export function mountChartHost(create, container, props) {
+export function mountChartHost(create: CreateChartFn, container: HTMLElement, props: Record<string, any>): HostHandle {
   let lastProps = props;
   let measured = measure(container);
   const chart = create(container, withSize(props, measured));
 
-  let observer = null;
+  let observer: ResizeObserver | null = null;
   if (typeof ResizeObserver !== 'undefined') {
     observer = new ResizeObserver(() => {
       const next = measure(container);
@@ -47,7 +54,7 @@ export function mountChartHost(create, container, props) {
   }
 
   return {
-    update(nextProps) {
+    update(nextProps: Record<string, any>) {
       lastProps = nextProps;
       chart.update(withSize(nextProps, measured));
     },

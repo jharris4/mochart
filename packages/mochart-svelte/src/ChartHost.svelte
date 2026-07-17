@@ -1,14 +1,21 @@
-<script>
+<script lang="ts">
   // Internal component shared by Chart and DefaultChart: mounts the chart via
   // `create` into the div below, pushes prop changes through the chart handle,
   // and destroys the chart when the component is destroyed.
   import { onMount } from 'svelte';
-  import { mountChartHost } from './host.js';
+  import { mountChartHost } from './host';
+  import type { CreateChartFn, HostHandle } from './host';
+  import type { BaseChartProps } from './types';
 
-  let { create, class: className = undefined, style = undefined, ...chartProps } = $props();
+  type ChartHostProps = BaseChartProps & {
+    create: CreateChartFn;
+    [key: string]: any;
+  };
 
-  let container;
-  let host = null;
+  let { create, class: className = undefined, style = undefined, ...chartProps }: ChartHostProps = $props();
+
+  let container: HTMLDivElement;
+  let host: HostHandle | null = null;
   let firstSync = true;
 
   onMount(() => {
@@ -16,7 +23,7 @@
     return () => {
       const current = host;
       host = null;
-      current.destroy();
+      current?.destroy();
     };
   });
 

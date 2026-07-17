@@ -20,17 +20,19 @@
     "url": "https://github.com/jharris4/mochart.git"
   },
   "type": "module",
-  "svelte": "./src/index.js",
-  "types": "./src/index.d.ts",
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.d.ts",
-      "svelte": "./src/index.js",
-      "default": "./src/index.js"
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "files": [
-    "src"
+    "src",
+    "dist"
   ],
   "dependencies": {
     "mochart": "^1.0.74"
@@ -39,10 +41,16 @@
     "svelte": "^5.0.0"
   },
   "devDependencies": {
+    "@sveltejs/package": "^2.5.8",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
-    "svelte": "^5.56.5"
+    "svelte": "^5.56.5",
+    "svelte-check": "^4.1.4",
+    "typescript": "^6.0.3"
   },
   "scripts": {
-    "test": "vitest run"
+    "build": "svelte-package -i src -o dist",
+    "prepack": "npm run build",
+    "test": "vitest run",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json"
   }
 }
