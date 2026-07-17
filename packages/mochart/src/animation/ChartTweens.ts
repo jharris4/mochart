@@ -64,6 +64,10 @@ export interface ChartTweenManager {
   cancelTweens(): void;
 }
 
+// Upper bound on same-frame chain cascades in the engine update loop; real
+// chains are at most a few steps deep (expand -> value -> collapse).
+const MAX_UPDATE_PASSES = 100;
+
 interface DataTweenStep {
   onStart: VoidCallback;
   onUpdate: (percentage: number) => void;
@@ -78,18 +82,14 @@ const MochartTween: TweenEngine & {
 } = initMochartTween();
 
 function initMochartTween(): TweenEngine {
-  let now: () => number;
-  if (typeof (window) !== 'undefined' && window.performance !== void 0 && window.performance.now !== void 0) {
-    now = window.performance.now.bind(window.performance);
-  }
-  else if (Date.now !== void 0) {
-    now = Date.now;
-  }
-  else {
-    now = function () {
-      return new Date().getTime();
-    };
-  }
+  // Resolved per call rather than bound at import so that clocks installed
+  // after this module loads (e.g. test fake timers) are honored.
+  const now = function(): number {
+    if (typeof (window) !== 'undefined' && window.performance !== void 0 && window.performance.now !== void 0) {
+      return window.performance.now();
+    }
+    return Date.now();
+  };
 
   let _tweens: Record<string, Tween> = {};
   let _pendingTweens: Record<string, Tween> = {};
@@ -114,7 +114,10 @@ function initMochartTween(): TweenEngine {
 
     time = time !== void 0 ? time : now();
 
-    while (tweenIds.length > 0) {
+    // A cascade this deep within one frame means a zero-duration chain cycle;
+    // defer the remainder to the next frame instead of hanging the loop.
+    let passes = 0;
+    while (tweenIds.length > 0 && ++passes <= MAX_UPDATE_PASSES) {
 			_pendingTweens = {};
 
       for (let tweenId of tweenIds) {
@@ -135,7 +138,6 @@ function initMochartTween(): TweenEngine {
     let onStartCallbackFired = false;
     let onStartCallback: VoidCallback | null = null;
     let onUpdateCallback: ((percentage: number) => void) | null = null;
-    let onStopCallback: VoidCallback | null = null;
     let onCompleteCallback: VoidCallback | null = null;
     let chainedTweens: Tween[] = [];
 
@@ -168,6 +170,8 @@ function initMochartTween(): TweenEngine {
 		  }
 
       if (percentage === 1) {
+        isPlaying = false;
+
         if (onCompleteCallback !== null) {
 					onCompleteCallback();
 				}
@@ -193,16 +197,13 @@ function initMochartTween(): TweenEngine {
       return tween;
     }
 
+    // Always cascades into chained tweens, even after this tween has already
+    // completed — stopping the head of a chain must halt whichever step is
+    // currently running.
     const stop = function(): Tween {
-      if (!isPlaying) {
-        return tween;
-      }
-
-      remove(tween);
-      isPlaying = false;
-
-      if (onStopCallback !== null) {
-        onStopCallback();
+      if (isPlaying) {
+        remove(tween);
+        isPlaying = false;
       }
 
       stopChainedTweens();
@@ -221,11 +222,6 @@ function initMochartTween(): TweenEngine {
 
     const onComplete = function(callback: VoidCallback): Tween {
       onCompleteCallback = callback;
-      return tween;
-    }
-
-    const onStop = function(callback: VoidCallback): Tween {
-      onStopCallback = callback;
       return tween;
     }
 
@@ -256,7 +252,7 @@ if (MochartTween._requestRaf === void 0) {
   MochartTween._animationId = null;
   MochartTween._rafCallback = function(ts: number): void {
     if (!ts) {
-      ts = +(new Date());
+      ts = MochartTween.now();
     }
     if (MochartTween.update(ts)) {
       MochartTween._animationId = requestAnimationFrame(MochartTween._rafCallback!);
@@ -270,16 +266,6 @@ if (MochartTween._requestRaf === void 0) {
       MochartTween._animationId = requestAnimationFrame(MochartTween._rafCallback!);
     }
   };
-}
-
-function startTween(tween: Tween): void {
-  if (MochartTween.now === Date.now) {
-    // Fix for older versions of Safari
-    requestAnimationFrame((time) => { tween.start(time); });
-  }
-  else {
-    tween.start();
-  }
 }
 
 export function getChartTweenManager(): ChartTweenManager {
@@ -299,7 +285,7 @@ export function getChartTweenManager(): ChartTweenManager {
 
       });
       // TODO, defer start until after next raf callback?!
-      startTween(focusTween);
+      focusTween.start();
       MochartTween._requestRaf!();
     },
     cancelFocusTween: () => {
@@ -323,7 +309,7 @@ export function getChartTweenManager(): ChartTweenManager {
         startValueChangeCallback
       });
       if (dataTween !== null) {
-        startTween(dataTween);
+        dataTween.start();
       }
       else {
         completeCallback();
@@ -398,7 +384,7 @@ function buildDataTween(
     if (start !== null && final !== null && start !== final) {
       tweenData.push({
         onStart: () => { updateCallback(start, dataTweenExpandStart); },
-        onUpdate: (percentage) => { updateCallback(final, dataTweenExpandUpdate); },
+        onUpdate: () => { updateCallback(final, dataTweenExpandUpdate); },
         onComplete: () => { updateCallback(final, dataTweenExpandComplete); },
         duration: 0
       });
@@ -417,7 +403,7 @@ function buildDataTween(
     if (start !== null && final !== null && start !== final) {
       tweenData.push({
         onStart: () => { updateCallback(start, dataTweenValueStart); },
-        onUpdate: (percentage) => { updateCallback(final, dataTweenValueUpdate); },
+        onUpdate: () => { updateCallback(final, dataTweenValueUpdate); },
         onComplete: () => { updateCallback(final, dataTweenValueComplete); },
         duration: 0
       });
@@ -438,9 +424,9 @@ function buildDataTween(
     const { start, final } = axisCollapseData;
     if (start !== null && final !== null && start !== final) {
       tweenData.push({
-        onStart: () => { updateCallback(start, dataTweenExpandStart); },
-        onUpdate: (percentage) => { updateCallback(final, dataTweenExpandUpdate); },
-        onComplete: () => { updateCallback(final, dataTweenExpandComplete); },
+        onStart: () => { updateCallback(start, dataTweenCollapseStart); },
+        onUpdate: () => { updateCallback(final, dataTweenCollapseUpdate); },
+        onComplete: () => { updateCallback(final, dataTweenCollapseComplete); },
         duration: 0
       });
     }
@@ -449,7 +435,7 @@ function buildDataTween(
   let lastTween: Tween | null = null;
   for (let i=0; i<tweenData.length; i++) {
     let newTween = MochartTween.create(tweenData[i].duration);
-    if (i == 0) {
+    if (i === 0) {
       newTween.onStart(() => {
         tweenData[i].onStart();
         startCallback();

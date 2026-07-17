@@ -5,8 +5,6 @@
  *
  * Unlike the other suites these shims return non-zero sizes, so measured
  * bounds are real (hasDefault false) and the remeasure-retry path stays quiet.
- * Fake timers must be installed BEFORE the library is imported because
- * ChartTweens binds performance.now at module scope.
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import type { ChartHandle } from '../../src/createChart';

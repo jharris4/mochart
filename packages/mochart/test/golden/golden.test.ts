@@ -3,10 +3,8 @@
  *
  * Every demo config from packages/mochart-demo/demos is rendered through the
  * public createChart() API in jsdom. Animations are driven deterministically
- * on a fake clock (requestAnimationFrame + performance.now are faked BEFORE
- * the library is imported, because ChartTweens binds performance.now at
- * module scope). The resulting DOM is normalized and compared against the
- * golden files in ./__snapshots__.
+ * on a fake clock (requestAnimationFrame + performance.now). The resulting
+ * DOM is normalized and compared against the golden files in ./__snapshots__.
  *
  * The goldens were captured from the mochart-vdom implementation and act as
  * the equivalence oracle for the retained-mode (vdom-free) renderer.

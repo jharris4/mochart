@@ -1,0 +1,344 @@
+/**
+ * Unit tests for the tween engine and ChartTweenManager: phase sequencing,
+ * event identity, duration scaling, delays and cancellation. The data/focus
+ * interpolators are mocked (their math is covered by ChartAnimation.test.ts
+ * and FocusAnimation.test.ts), so fixtures only need the fields the tween
+ * builder itself reads. Tweens run deterministically on a fake clock.
+ */
+import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import {
+  getChartTweenManager,
+  dataTweenExpandStart, dataTweenExpandUpdate, dataTweenExpandComplete,
+  dataTweenValueStart, dataTweenValueUpdate, dataTweenValueComplete,
+  dataTweenCollapseStart, dataTweenCollapseUpdate, dataTweenCollapseComplete
+} from '../../src/animation/ChartTweens';
+import { getChartDataForAxisDelta, getChartDataForValueDelta } from '../../src/animation/ChartAnimation';
+import { getFocusDataForPercent } from '../../src/animation/FocusAnimation';
+import type { ChartTweenManager, DataTweenEvent } from '../../src/animation/ChartTweens';
+import type { MochartConfig } from '../../src/types/config';
+import type {
+  AnimationChartData, ChartAnimationData, FocusAnimationData, FocusData
+} from '../../src/types/animation';
+
+vi.mock('../../src/animation/ChartAnimation', () => ({
+  getChartDataForAxisDelta: vi.fn((_config: unknown, _data: unknown, expand: boolean, percentage: number) =>
+    ({ interpolated: expand ? 'expand' : 'collapse', percentage })),
+  getChartDataForValueDelta: vi.fn((_config: unknown, _data: unknown, percentage: number) =>
+    ({ interpolated: 'value', percentage }))
+}));
+
+vi.mock('../../src/animation/FocusAnimation', () => ({
+  getFocusDataForPercent: vi.fn((_data: unknown, percentage: number) =>
+    ({ interpolated: 'focus', percentage }))
+}));
+
+const FRAME_MS = 16;
+const MAX_FRAMES = 500;
+
+interface Sentinel { phase: string; edge: string; }
+const sentinel = (phase: string, edge: string): Sentinel => ({ phase, edge });
+
+function phaseData(deltaPercentage: number, start: unknown, final: unknown) {
+  return { deltaPercentage, start, final };
+}
+
+const settled = sentinel('none', 'settled');
+
+function makeAnimationData(overrides: Partial<Record<'axisExpansionData' | 'valueChangeData' | 'axisCollapseData', unknown>> & { initialAnimation?: boolean } = {}): ChartAnimationData {
+  return {
+    initialAnimation: false,
+    axisExpansionData: phaseData(0, settled, settled),
+    valueChangeData: phaseData(0, settled, settled),
+    axisCollapseData: phaseData(0, settled, settled),
+    ...overrides
+  } as unknown as ChartAnimationData;
+}
+
+function makeConfig(overrides: Record<string, number> = {}): MochartConfig {
+  return {
+    animationConfig: {
+      expansionDuration: 100,
+      valueChangeDuration: 100,
+      initialDuration: 300,
+      collapseDuration: 100,
+      focusDuration: 100,
+      ...overrides
+    }
+  } as unknown as MochartConfig;
+}
+
+interface RecordedEvent { event: DataTweenEvent; data: unknown; }
+
+function makeRecorder() {
+  const events: RecordedEvent[] = [];
+  const record = (data: AnimationChartData, event: DataTweenEvent): void => {
+    events.push({ event, data });
+  };
+  return { events, record };
+}
+
+/** Collapse consecutive duplicate events down to the distinct sequence. */
+function eventSequence(events: RecordedEvent[]): DataTweenEvent[] {
+  return events.map(({ event }) => event).filter((event, i, all) => i === 0 || all[i - 1] !== event);
+}
+
+let managers: ChartTweenManager[] = [];
+
+function makeManager(): ChartTweenManager {
+  const manager = getChartTweenManager();
+  managers.push(manager);
+  return manager;
+}
+
+/** Advance the fake clock frame by frame until all tweens/timers settle. */
+function runFrames(maxFrames = MAX_FRAMES): number {
+  let frames = 0;
+  while (vi.getTimerCount() > 0 && frames < maxFrames) {
+    vi.advanceTimersByTime(FRAME_MS);
+    frames++;
+  }
+  return frames;
+}
+
+beforeAll(() => {
+  if (typeof globalThis.requestAnimationFrame !== 'function') {
+    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
+      setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
+    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
+  }
+  vi.useFakeTimers({
+    toFake: [
+      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
+      'requestAnimationFrame', 'cancelAnimationFrame', 'performance', 'Date'
+    ]
+  });
+});
+
+afterEach(() => {
+  for (const manager of managers) {
+    manager.cancelTweens();
+  }
+  managers = [];
+  // let the shared raf loop wind down so the next test starts from idle
+  runFrames();
+  vi.clearAllMocks();
+});
+
+describe('tweenData', () => {
+  it('runs expand, value and collapse phases in order with phase-correct events', () => {
+    const manager = makeManager();
+    const { events, record } = makeRecorder();
+    const expandStart = sentinel('expand', 'start');
+    const expandFinal = sentinel('expand', 'final');
+    const valueStart = sentinel('value', 'start');
+    const valueFinal = sentinel('value', 'final');
+    const collapseStart = sentinel('collapse', 'start');
+    const collapseFinal = sentinel('collapse', 'final');
+    const startCallback = vi.fn();
+    const completeCallback = vi.fn();
+    const startValueChangeCallback = vi.fn();
+    const completeValueChangeCallback = vi.fn();
+
+    manager.tweenData(makeConfig(), makeAnimationData({
+      axisExpansionData: phaseData(1, expandStart, expandFinal),
+      valueChangeData: phaseData(1, valueStart, valueFinal),
+      axisCollapseData: phaseData(1, collapseStart, collapseFinal)
+    }), record, { startCallback, completeCallback, startValueChangeCallback, completeValueChangeCallback });
+    runFrames();
+
+    expect(eventSequence(events)).toEqual([
+      dataTweenExpandStart, dataTweenExpandUpdate, dataTweenExpandComplete,
+      dataTweenValueStart, dataTweenValueUpdate, dataTweenValueComplete,
+      dataTweenCollapseStart, dataTweenCollapseUpdate, dataTweenCollapseComplete
+    ]);
+    expect(events[0]!.data).toBe(expandStart);
+    expect(events.find(({ event }) => event === dataTweenExpandComplete)!.data).toBe(expandFinal);
+    expect(events.find(({ event }) => event === dataTweenValueStart)!.data).toBe(valueStart);
+    expect(events.find(({ event }) => event === dataTweenValueComplete)!.data).toBe(valueFinal);
+    expect(events.find(({ event }) => event === dataTweenCollapseStart)!.data).toBe(collapseStart);
+    expect(events[events.length - 1]!.data).toBe(collapseFinal);
+    // intermediate frames come from the interpolators, not DOM-facing state
+    expect(vi.mocked(getChartDataForAxisDelta)).toHaveBeenCalledWith(expect.anything(), expect.anything(), true, expect.any(Number));
+    expect(vi.mocked(getChartDataForAxisDelta)).toHaveBeenCalledWith(expect.anything(), expect.anything(), false, expect.any(Number));
+    expect(vi.mocked(getChartDataForValueDelta)).toHaveBeenCalled();
+    expect(startCallback).toHaveBeenCalledTimes(1);
+    expect(completeCallback).toHaveBeenCalledTimes(1);
+    expect(startValueChangeCallback).toHaveBeenCalledTimes(1);
+    expect(startValueChangeCallback).toHaveBeenCalledWith(valueStart);
+    expect(completeValueChangeCallback).toHaveBeenCalledTimes(1);
+    expect(completeValueChangeCallback).toHaveBeenCalledWith(valueFinal);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('emits phase-correct events from the zero-delta fallback steps', () => {
+    const manager = makeManager();
+    const { events, record } = makeRecorder();
+    const expandStart = sentinel('expand', 'start');
+    const expandFinal = sentinel('expand', 'final');
+    const valueStart = sentinel('value', 'start');
+    const valueFinal = sentinel('value', 'final');
+    const collapseStart = sentinel('collapse', 'start');
+    const collapseFinal = sentinel('collapse', 'final');
+    const completeCallback = vi.fn();
+
+    manager.tweenData(makeConfig(), makeAnimationData({
+      axisExpansionData: phaseData(0, expandStart, expandFinal),
+      valueChangeData: phaseData(0, valueStart, valueFinal),
+      axisCollapseData: phaseData(0, collapseStart, collapseFinal)
+    }), record, { completeCallback });
+    runFrames();
+
+    expect(events.map(({ event }) => event)).toEqual([
+      dataTweenExpandStart, dataTweenExpandUpdate, dataTweenExpandComplete,
+      dataTweenValueStart, dataTweenValueUpdate, dataTweenValueComplete,
+      dataTweenCollapseStart, dataTweenCollapseUpdate, dataTweenCollapseComplete
+    ]);
+    expect(events.map(({ data }) => data)).toEqual([
+      expandStart, expandFinal, expandFinal,
+      valueStart, valueFinal, valueFinal,
+      collapseStart, collapseFinal, collapseFinal
+    ]);
+    expect(completeCallback).toHaveBeenCalledTimes(1);
+    // zero-delta steps jump straight to final; nothing to interpolate
+    expect(vi.mocked(getChartDataForAxisDelta)).not.toHaveBeenCalled();
+    expect(vi.mocked(getChartDataForValueDelta)).not.toHaveBeenCalled();
+  });
+
+  it('invokes completeCallback immediately when there is nothing to animate', () => {
+    const manager = makeManager();
+    const { events, record } = makeRecorder();
+    const completeCallback = vi.fn();
+    const startCallback = vi.fn();
+
+    manager.tweenData(makeConfig(), makeAnimationData(), record, { startCallback, completeCallback });
+
+    expect(completeCallback).toHaveBeenCalledTimes(1);
+    runFrames();
+    expect(events).toEqual([]);
+    expect(startCallback).not.toHaveBeenCalled();
+  });
+
+  it('cancelDataTween mid-chain halts the step that is currently running', () => {
+    const manager = makeManager();
+    const { events, record } = makeRecorder();
+    const completeCallback = vi.fn();
+
+    manager.tweenData(makeConfig(), makeAnimationData({
+      axisExpansionData: phaseData(1, sentinel('expand', 'start'), sentinel('expand', 'final')),
+      valueChangeData: phaseData(1, sentinel('value', 'start'), sentinel('value', 'final'))
+    }), record, { completeCallback });
+
+    // 8 frames = 128ms: the 100ms expand phase is done, the value phase is running
+    for (let frame = 0; frame < 8; frame++) {
+      vi.advanceTimersByTime(FRAME_MS);
+    }
+    expect(events.some(({ event }) => event === dataTweenValueUpdate)).toBe(true);
+    expect(completeCallback).not.toHaveBeenCalled();
+
+    manager.cancelDataTween();
+    const eventCount = events.length;
+    runFrames();
+
+    expect(events.length).toBe(eventCount);
+    expect(events.some(({ event }) => event === dataTweenValueComplete)).toBe(false);
+    expect(completeCallback).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('starting a new data tween replaces the running one without double completion', () => {
+    const manager = makeManager();
+    const { events, record } = makeRecorder();
+    const firstComplete = vi.fn();
+    const secondComplete = vi.fn();
+    const secondFinal = sentinel('value2', 'final');
+
+    manager.tweenData(makeConfig(), makeAnimationData({
+      valueChangeData: phaseData(1, sentinel('value1', 'start'), sentinel('value1', 'final'))
+    }), record, { completeCallback: firstComplete });
+    vi.advanceTimersByTime(FRAME_MS * 2);
+
+    manager.tweenData(makeConfig(), makeAnimationData({
+      valueChangeData: phaseData(1, sentinel('value2', 'start'), secondFinal)
+    }), record, { completeCallback: secondComplete });
+    runFrames();
+
+    expect(firstComplete).not.toHaveBeenCalled();
+    expect(secondComplete).toHaveBeenCalledTimes(1);
+    expect(events[events.length - 1]!.event).toBe(dataTweenValueComplete);
+    expect(events[events.length - 1]!.data).toBe(secondFinal);
+  });
+
+  it('scales the phase duration by deltaPercentage', () => {
+    const manager = makeManager();
+    const completeCallback = vi.fn();
+    const startTime = performance.now();
+    let completeTime = 0;
+
+    manager.tweenData(makeConfig({ valueChangeDuration: 200 }), makeAnimationData({
+      valueChangeData: phaseData(0.5, sentinel('value', 'start'), sentinel('value', 'final'))
+    }), () => {}, { completeCallback: () => { completeTime = performance.now(); completeCallback(); } });
+    runFrames();
+
+    expect(completeCallback).toHaveBeenCalledTimes(1);
+    const elapsed = completeTime - startTime;
+    expect(elapsed).toBeGreaterThanOrEqual(100);
+    expect(elapsed).toBeLessThan(200);
+  });
+
+  it('uses initialDuration instead of valueChangeDuration for the initial animation', () => {
+    const manager = makeManager();
+    const startTime = performance.now();
+    let completeTime = 0;
+
+    manager.tweenData(makeConfig({ valueChangeDuration: 100, initialDuration: 300 }), makeAnimationData({
+      initialAnimation: true,
+      valueChangeData: phaseData(1, sentinel('value', 'start'), sentinel('value', 'final'))
+    }), () => {}, { completeCallback: () => { completeTime = performance.now(); } });
+    runFrames();
+
+    expect(completeTime - startTime).toBeGreaterThanOrEqual(300);
+  });
+});
+
+describe('tweenFocus', () => {
+  function makeFocusData(deltaPercentage = 1): { animationData: FocusAnimationData; start: Sentinel; final: Sentinel } {
+    const start = sentinel('focus', 'start');
+    const final = sentinel('focus', 'final');
+    const animationData = { deltaPercentage, start, final } as unknown as FocusAnimationData;
+    return { animationData, start, final };
+  }
+
+  it('tweens focus from start through interpolated frames to final', () => {
+    const manager = makeManager();
+    const updates: unknown[] = [];
+    const startCallback = vi.fn();
+    const completeCallback = vi.fn();
+    const { animationData, start, final } = makeFocusData();
+
+    manager.tweenFocus(makeConfig(), animationData, (focusData: FocusData) => { updates.push(focusData); }, { startCallback, completeCallback });
+    runFrames();
+
+    expect(updates[0]).toBe(start);
+    expect(updates[updates.length - 1]).toBe(final);
+    expect(vi.mocked(getFocusDataForPercent)).toHaveBeenCalled();
+    expect(updates.length).toBeGreaterThan(2);
+    expect(startCallback).toHaveBeenCalledTimes(1);
+    expect(completeCallback).toHaveBeenCalledTimes(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('never fires callbacks when canceled within its start delay', () => {
+    const manager = makeManager();
+    const updateCallback = vi.fn();
+    const startCallback = vi.fn();
+    const completeCallback = vi.fn();
+
+    manager.tweenFocus(makeConfig(), makeFocusData().animationData, updateCallback, { startCallback, completeCallback });
+    manager.cancelFocusTween();
+    runFrames();
+
+    expect(updateCallback).not.toHaveBeenCalled();
+    expect(startCallback).not.toHaveBeenCalled();
+    expect(completeCallback).not.toHaveBeenCalled();
+  });
+});

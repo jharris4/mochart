@@ -1,8 +1,7 @@
 /**
  * Interaction tests against the animated chart (animate: true): tooltip focus
- * tweens and data tweens driven deterministically on a fake clock. Fake
- * timers must be installed BEFORE the library is imported because ChartTweens
- * binds performance.now at module scope (same technique as the golden suite).
+ * tweens and data tweens driven deterministically on a fake clock (same
+ * technique as the golden suite).
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
