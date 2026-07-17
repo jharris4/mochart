@@ -22,7 +22,7 @@
   "scripts": {
     "dev": "npm run dev -w mochart-demo",
     "build": "npm run build -w mochart-demo",
-    "build:libs": "npm run build -w valide && npm run build -w mochart && npm run build -w mochart-svelte",
+    "build:libs": "npm run build -w valide && npm run build -w mochart && npm run build -w mochart-react && npm run build -w mochart-svelte",
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"
