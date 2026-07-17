@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { createApp, h, nextTick, reactive } from 'vue';
+import { createApp, defineComponent, h, markRaw, nextTick, reactive } from 'vue';
 import type { App } from 'vue';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
 import { Chart, DefaultChart } from '../src/index';
@@ -109,6 +109,39 @@ describe('Chart auto-sizing', () => {
       rectSpy.mockRestore();
       delete (globalThis as any).ResizeObserver;
     }
+  });
+});
+
+describe('placeholder components', () => {
+  it('renders loadingComponent with the chart context, updates it, and removes it', async () => {
+    const Loading = markRaw(
+      defineComponent({
+        name: 'Loading',
+        props: { width: Number, height: Number },
+        setup: (props) => () => h('div', `Loading ${props.width}x${props.height}`)
+      })
+    );
+    const { el, app, state } = mountWith(Chart, {
+      mochartConfig: null,
+      dataProvider: null,
+      loading: true,
+      loadingComponent: Loading,
+      width: 400,
+      height: 300
+    });
+
+    expect(el.textContent).toContain('Loading 400x300');
+
+    state.width = 500;
+    await nextTick();
+    expect(el.textContent).toContain('Loading 500x300');
+
+    state.loading = false;
+    await nextTick();
+    expect(el.textContent).not.toContain('Loading');
+
+    app.unmount();
+    el.remove();
   });
 });
 

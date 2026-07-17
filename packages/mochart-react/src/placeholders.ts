@@ -1,0 +1,81 @@
+import { createElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import type { Root } from 'react-dom/client';
+import type { PlaceholderComponent, PlaceholderProps } from './types';
+
+// Maps the wrapper's component props to the core's DOM-factory prop names.
+const FACTORY_PROP_NAMES: Record<string, string> = {
+  loadingComponent: 'getLoadingComponent',
+  errorComponent: 'getErrorComponent',
+  noDataComponent: 'getNoDataComponent',
+  noSizeComponent: 'getNoSizeComponent',
+  noSeriesComponent: 'getNoSeriesComponent'
+};
+
+interface PlaceholderSlot {
+  component: PlaceholderComponent;
+  container: HTMLDivElement;
+  root: Root;
+  factory: (context: PlaceholderProps) => Node;
+}
+
+export interface PlaceholderAdapter {
+  transform(props: Record<string, any>): Record<string, any>;
+  destroy(): void;
+}
+
+/**
+ * Adapts placeholder component props into the DOM-node factories the core
+ * expects: each slot keeps one persistent React root whose container div is
+ * returned from the factory, so repeat factory calls re-render in place. The
+ * factory identity is stable per slot; component changes flow through
+ * `transform` and take effect on the next factory call.
+ */
+export function createPlaceholderAdapter(): PlaceholderAdapter {
+  const slots = new Map<string, PlaceholderSlot>();
+
+  function getSlot(propName: string, component: PlaceholderComponent): PlaceholderSlot {
+    let slot = slots.get(propName);
+    if (!slot) {
+      const container = document.createElement('div');
+      // The container is a neutral wrapper; the placeholder component owns layout.
+      container.style.display = 'contents';
+      slot = {
+        component,
+        container,
+        root: createRoot(container),
+        factory: (context: PlaceholderProps) => {
+          const current = slots.get(propName)!;
+          current.root.render(createElement(current.component, context));
+          return current.container;
+        }
+      };
+      slots.set(propName, slot);
+    }
+    slot.component = component;
+    return slot;
+  }
+
+  return {
+    transform(props: Record<string, any>): Record<string, any> {
+      const out = { ...props };
+      for (const propName of Object.keys(FACTORY_PROP_NAMES)) {
+        const component = out[propName] as PlaceholderComponent | undefined;
+        delete out[propName];
+        if (component) {
+          out[FACTORY_PROP_NAMES[propName]] = getSlot(propName, component).factory;
+        }
+      }
+      return out;
+    },
+    destroy(): void {
+      for (const slot of slots.values()) {
+        const { root } = slot;
+        // Host destroy runs inside a React effect cleanup, where React forbids
+        // synchronously unmounting another root — defer past the commit.
+        queueMicrotask(() => root.unmount());
+      }
+      slots.clear();
+    }
+  };
+}

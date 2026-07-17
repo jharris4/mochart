@@ -1,4 +1,5 @@
 import type { ChartHandle } from 'mochart';
+import { createPlaceholderAdapter } from './placeholders';
 
 // `create` is used for both createChart (Chart) and createDefaultChart
 // (DefaultChart); the host passes props through opaquely, so it is
@@ -34,9 +35,10 @@ function withSize(props: Record<string, any>, measured: Size): Record<string, an
  * size (via ResizeObserver, where available).
  */
 export function mountChartHost(create: CreateChartFn, container: HTMLElement, props: Record<string, any>): HostHandle {
-  let lastProps = props;
+  const placeholders = createPlaceholderAdapter();
+  let lastProps = placeholders.transform(props);
   let measured = measure(container);
-  const chart = create(container, withSize(props, measured));
+  const chart = create(container, withSize(lastProps, measured));
 
   let observer: ResizeObserver | null = null;
   if (typeof ResizeObserver !== 'undefined') {
@@ -55,8 +57,8 @@ export function mountChartHost(create: CreateChartFn, container: HTMLElement, pr
 
   return {
     update(nextProps: Record<string, any>) {
-      lastProps = nextProps;
-      chart.update(withSize(nextProps, measured));
+      lastProps = placeholders.transform(nextProps);
+      chart.update(withSize(lastProps, measured));
     },
     destroy() {
       if (observer) {
@@ -64,6 +66,7 @@ export function mountChartHost(create: CreateChartFn, container: HTMLElement, pr
         observer = null;
       }
       chart.destroy();
+      placeholders.destroy();
     }
   };
 }

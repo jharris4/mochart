@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import type { NodeFactory } from './types';
+import type { PlaceholderComponent } from './types';
 
 // Runtime prop declarations shared by Chart and DefaultChart. Declaring the
 // `on*` callbacks as props keeps them out of fallthrough attrs (they go to the
@@ -7,7 +7,8 @@ import type { NodeFactory } from './types';
 const anyProp = { type: null as unknown as PropType<any>, default: undefined };
 const requiredAnyProp = { type: null as unknown as PropType<any>, required: true as const };
 const callbackProp = { type: Function as PropType<(payload: any) => void>, default: undefined };
-const factoryProp = { type: Function as PropType<NodeFactory>, default: undefined };
+// Components are options objects or (functional) render functions.
+const placeholderProp = { type: [Object, Function] as PropType<PlaceholderComponent>, default: undefined };
 
 export const baseChartProps = {
   /** Explicit pixel width; omit to track the container element's width. */
@@ -22,11 +23,11 @@ export const baseChartProps = {
   onFocus: callbackProp,
   onSeriesFilter: callbackProp,
   onSeriesLayoutInfoChange: callbackProp,
-  getLoadingComponent: factoryProp,
-  getErrorComponent: factoryProp,
-  getNoDataComponent: factoryProp,
-  getNoSizeComponent: factoryProp,
-  getNoSeriesComponent: factoryProp
+  loadingComponent: placeholderProp,
+  errorComponent: placeholderProp,
+  noDataComponent: placeholderProp,
+  noSizeComponent: placeholderProp,
+  noSeriesComponent: placeholderProp
 };
 
 export const chartProps = {

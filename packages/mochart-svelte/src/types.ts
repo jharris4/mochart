@@ -1,5 +1,17 @@
-/** Placeholder factories return a DOM Node or string — mochart has no vdom. */
-export type NodeFactory = (...args: any[]) => Node | string;
+import type { Component } from 'svelte';
+
+/** Props mochart passes to placeholder components (loading, error, and empty states). */
+export interface PlaceholderProps {
+  width?: number;
+  height?: number;
+  mochartConfig?: any;
+  dataProvider?: any;
+  error?: any;
+  hasData?: boolean;
+}
+
+/** A Svelte component rendered for one of the chart's placeholder states. */
+export type PlaceholderComponent = Component<PlaceholderProps>;
 
 export interface ChartCallbackProps {
   onChartClick?: (eventPayload: any) => void;
@@ -10,11 +22,11 @@ export interface ChartCallbackProps {
   onFocus?: (focusData: any) => void;
   onSeriesFilter?: (filterData: any) => void;
   onSeriesLayoutInfoChange?: (bounds: any) => void;
-  getLoadingComponent?: NodeFactory;
-  getErrorComponent?: NodeFactory;
-  getNoDataComponent?: NodeFactory;
-  getNoSizeComponent?: NodeFactory;
-  getNoSeriesComponent?: NodeFactory;
+  loadingComponent?: PlaceholderComponent;
+  errorComponent?: PlaceholderComponent;
+  noDataComponent?: PlaceholderComponent;
+  noSizeComponent?: PlaceholderComponent;
+  noSeriesComponent?: PlaceholderComponent;
 }
 
 export interface BaseChartProps extends ChartCallbackProps {

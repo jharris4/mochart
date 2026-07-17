@@ -4,6 +4,7 @@ import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { mount, unmount, flushSync } from 'svelte';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
 import { Chart, DefaultChart } from '../src/index';
+import Loading from './Loading.svelte';
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
@@ -114,6 +115,36 @@ describe('Chart auto-sizing', () => {
       rectSpy.mockRestore();
       delete (globalThis as any).ResizeObserver;
     }
+  });
+});
+
+describe('placeholder components', () => {
+  it('renders loadingComponent with the chart context, updates it, and removes it', () => {
+    const el = target();
+    const props = $state({
+      mochartConfig: null as any,
+      dataProvider: null as any,
+      loading: true,
+      loadingComponent: Loading,
+      width: 400,
+      height: 300
+    });
+
+    const instance = mount(Chart, { target: el, props });
+    flushSync();
+    expect(el.textContent).toContain('Loading 400x300');
+
+    props.width = 500;
+    flushSync();
+    expect(el.textContent).toContain('Loading 500x300');
+
+    props.loading = false;
+    flushSync();
+    expect(el.textContent).not.toContain('Loading');
+
+    unmount(instance);
+    flushSync();
+    el.remove();
   });
 });
 

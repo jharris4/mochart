@@ -124,6 +124,48 @@ describe('Chart auto-sizing', () => {
   });
 });
 
+describe('placeholder components', () => {
+  it('renders loadingComponent with the chart context, updates it, and removes it', () => {
+    const { container, root } = host();
+    function Loading({ width, height }: { width?: number; height?: number }) {
+      return <div>Loading {width}x{height}</div>;
+    }
+
+    act(() => {
+      root.render(
+        <Chart mochartConfig={null} dataProvider={null} loading loadingComponent={Loading} width={400} height={300} />
+      );
+    });
+    expect(container.textContent).toContain('Loading 400x300');
+
+    act(() => {
+      root.render(
+        <Chart mochartConfig={null} dataProvider={null} loading loadingComponent={Loading} width={500} height={300} />
+      );
+    });
+    expect(container.textContent).toContain('Loading 500x300');
+
+    act(() => {
+      root.render(
+        <Chart
+          mochartConfig={null}
+          dataProvider={null}
+          loading={false}
+          loadingComponent={Loading}
+          width={500}
+          height={300}
+        />
+      );
+    });
+    expect(container.textContent).not.toContain('Loading');
+
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
+});
+
 describe('DefaultChart', () => {
   it('enhances a raw config, renders data rows as bars, and updates on data change', () => {
     const { container, root } = host();

@@ -1,7 +1,8 @@
 export { default as Chart } from './Chart.svelte';
 export { default as DefaultChart } from './DefaultChart.svelte';
 export type {
-  NodeFactory,
+  PlaceholderProps,
+  PlaceholderComponent,
   ChartCallbackProps,
   BaseChartProps,
   ChartProps,

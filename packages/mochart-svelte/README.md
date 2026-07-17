@@ -64,6 +64,7 @@ follows it:
 Both components accept the chart callbacks (`onChartClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
 `onFocus`, `onSeriesFilter`, `onSeriesLayoutInfoChange`) and the placeholder
-factories (`getLoadingComponent`, `getErrorComponent`, `getNoDataComponent`,
-`getNoSizeComponent`, `getNoSeriesComponent`). Factories return a **DOM Node
-or string** — mochart renders without a vdom.
+components (`loadingComponent`, `errorComponent`, `noDataComponent`,
+`noSizeComponent`, `noSeriesComponent`). Each placeholder prop takes a
+**Svelte component** that receives the chart context (`width`, `height`,
+`error`, …) as props and is rendered while the chart is in that state.
