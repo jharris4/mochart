@@ -64,6 +64,23 @@ describe('getChartDataForValueDelta', () => {
   });
 });
 
+describe('getChartDataForValueDelta with an undefined hole', () => {
+  // group 1 animates from a defined 0 to an undefined (missing) value
+  const cad = getChartAnimationData(
+    config,
+    chartDataFor([{ g: 0, a: 0 }, { g: 1, a: 0 }]),
+    chartDataFor([{ g: 0, a: 10 }, { g: 1 }])
+  );
+
+  it('interpolates the defined point and holds the vanishing point at its start', () => {
+    // group 0 tweens 0 -> 10 as usual; group 1 has no end value, so its delta
+    // is zero and it holds at the start value rather than becoming undefined
+    expect(plain(getChartDataForValueDelta(config, cad, 0))).toEqual([0, 0]);
+    expect(plain(getChartDataForValueDelta(config, cad, 0.5))).toEqual([5, 0]);
+    expect(plain(getChartDataForValueDelta(config, cad, 1))).toEqual([10, 0]);
+  });
+});
+
 describe('getChartDataForAxisDelta (group added)', () => {
   const cad = getChartAnimationData(
     config,

@@ -42,6 +42,19 @@ describe('getStackData', () => {
     expect(stackData.outerNegativeSeriesIds.SS0).toEqual([undefined, undefined]);
   });
 
+  it('skips undefined stack values via the positive/negative guards', () => {
+    // group 0: only a (S0) has a value -> S0 is the outer positive, b is a hole
+    // group 1: only b (S1) has a value -> S1 is the outer positive, a is a hole
+    const { config, chartData } = stackedSetup([
+      { g: 0, a: 5 },
+      { g: 1, b: 3 }
+    ]);
+    const stackData = getStackData(config, chartData);
+    expect(stackData.outerPositiveSeriesIds.SS0).toEqual(['S0', 'S1']);
+    // no negative contributors anywhere
+    expect(stackData.outerNegativeSeriesIds.SS0).toEqual([undefined, undefined]);
+  });
+
   it('mirrors raw ids into the filtered ids when nothing is filtered', () => {
     const { config, chartData } = stackedSetup([
       { g: 0, a: 5, b: 3 }

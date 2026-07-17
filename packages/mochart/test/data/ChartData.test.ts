@@ -103,3 +103,30 @@ describe('getGroupSeriesValueObject', () => {
     expect(obj).toHaveProperty('series');
   });
 });
+
+describe('undefined series values', () => {
+  function makeHoledChartData() {
+    const config = makeConfig({
+      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
+      seriesConfigs: [{ property: 'a' }]
+    });
+    // group 1 has no value for property "a"
+    const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10 }, { g: 1 }, { g: 2, a: 30 }], 'g');
+    const seriesId = config.seriesConfigs[0].id;
+    return { chartData: getChartData(config, provider, {}), seriesId };
+  }
+
+  it('carries a missing value through as an undefined hole (not null or 0)', () => {
+    const { chartData, seriesId } = makeHoledChartData();
+    const plain = chartData.seriesData.raw.values[seriesId].plain!;
+    expect(plain).toEqual([10, undefined, 30]);
+    // the slot exists but holds undefined
+    expect(1 in plain).toBe(true);
+    expect(plain[1]).toBeUndefined();
+  });
+
+  it('excludes the undefined hole from the series domain', () => {
+    const { chartData, seriesId } = makeHoledChartData();
+    expect(chartData.seriesData.raw.domains[seriesId].plain).toEqual([10, 30]);
+  });
+});
