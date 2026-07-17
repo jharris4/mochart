@@ -114,16 +114,16 @@ export default class DefaultChart extends Renderer<DefaultChartProps, DefaultCha
   }
 
   sync() {
-    const { width, height, onChartClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave,
-      onFocus, onSeriesFilter, onSeriesLayoutInfoChange,
-      getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent } = this.props;
+    const { loading, error, style, width, height, onChartClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave,
+      onTitleClick, onFocus, onSeriesFilter, onSeriesLayoutInfoChange,
+      getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent } = this.props;
     const { mochartConfig, dataProvider } = this.state;
-    this.chart!.set(ManagedChart, { mochartConfig: mochartConfig!, dataProvider: dataProvider!, width, height,
+    this.chart!.set(ManagedChart, { mochartConfig: mochartConfig!, dataProvider: dataProvider!, loading, error, style, width, height,
       onChartClick, onChartMouseEnter,
       onChartMouseMove, onChartMouseLeave,
-      onFocus, onSeriesFilter, onSeriesLayoutInfoChange,
+      onTitleClick, onFocus, onSeriesFilter, onSeriesLayoutInfoChange,
       getLoadingComponent, getErrorComponent,
       getNoDataComponent, getNoSizeComponent,
-      getNoSeriesComponent });
+      getNoSeriesComponent, getConfigErrorComponent });
   }
 }

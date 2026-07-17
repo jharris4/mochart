@@ -164,6 +164,33 @@ describe('placeholder components', () => {
     });
     container.remove();
   });
+
+  it('renders configErrorComponent when the config fails validation', () => {
+    const { container, root } = host();
+    const mochartConfig = enhanceConfig({ ...rawConfig(), unknownExtra: 1 });
+    expect(mochartConfig.validation.valid).toBe(false);
+    function ConfigError({ width, height }: { width?: number; height?: number }) {
+      return <div>Bad config {width}x{height}</div>;
+    }
+
+    act(() => {
+      root.render(
+        <Chart
+          mochartConfig={mochartConfig}
+          dataProvider={new ArrayOfObjectsDataProvider(rows, 'name')}
+          configErrorComponent={ConfigError}
+          width={400}
+          height={300}
+        />
+      );
+    });
+    expect(container.textContent).toContain('Bad config 400x300');
+
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
 });
 
 describe('DefaultChart', () => {
@@ -188,6 +215,40 @@ describe('DefaultChart', () => {
       root.unmount();
     });
     expect(container.querySelector('svg')).toBeNull();
+    container.remove();
+  });
+
+  it('accepts the loading prop and renders loadingComponent over the chart', () => {
+    const { container, root } = host();
+    function Loading({ width, height }: { width?: number; height?: number }) {
+      return <div>Loading {width}x{height}</div>;
+    }
+
+    act(() => {
+      root.render(
+        <DefaultChart config={rawConfig()} data={rows} loading loadingComponent={Loading} width={400} height={300} />
+      );
+    });
+    // the loading overlay factory receives the plot-area bounds, not the outer size
+    expect(container.textContent).toContain('Loading');
+
+    act(() => {
+      root.render(
+        <DefaultChart
+          config={rawConfig()}
+          data={rows}
+          loading={false}
+          loadingComponent={Loading}
+          width={400}
+          height={300}
+        />
+      );
+    });
+    expect(container.textContent).not.toContain('Loading');
+
+    act(() => {
+      root.unmount();
+    });
     container.remove();
   });
 });

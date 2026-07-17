@@ -5,6 +5,7 @@ import { mount, unmount, flushSync } from 'svelte';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
 import { Chart, DefaultChart } from '../src/index';
 import Loading from './Loading.svelte';
+import ConfigError from './ConfigError.svelte';
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
@@ -146,6 +147,29 @@ describe('placeholder components', () => {
     flushSync();
     el.remove();
   });
+
+  it('renders configErrorComponent when the config fails validation', () => {
+    const el = target();
+    const mochartConfig = enhanceConfig({ ...rawConfig(), unknownExtra: 1 });
+    expect(mochartConfig.validation.valid).toBe(false);
+
+    const instance = mount(Chart, {
+      target: el,
+      props: {
+        mochartConfig,
+        dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+        configErrorComponent: ConfigError,
+        width: 400,
+        height: 300
+      }
+    });
+    flushSync();
+    expect(el.textContent).toContain('Bad config 400x300');
+
+    unmount(instance);
+    flushSync();
+    el.remove();
+  });
 });
 
 describe('DefaultChart', () => {
@@ -171,6 +195,31 @@ describe('DefaultChart', () => {
     unmount(instance);
     flushSync();
     expect(el.querySelector('svg')).toBeNull();
+    el.remove();
+  });
+
+  it('accepts the loading prop and renders loadingComponent over the chart', () => {
+    const el = target();
+    const props = $state({
+      config: rawConfig(),
+      data: rows,
+      loading: true,
+      loadingComponent: Loading,
+      width: 400,
+      height: 300
+    });
+
+    const instance = mount(DefaultChart, { target: el, props });
+    flushSync();
+    // the loading overlay factory receives the plot-area bounds, not the outer size
+    expect(el.textContent).toContain('Loading');
+
+    props.loading = false;
+    flushSync();
+    expect(el.textContent).not.toContain('Loading');
+
+    unmount(instance);
+    flushSync();
     el.remove();
   });
 });

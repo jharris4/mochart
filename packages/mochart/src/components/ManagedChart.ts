@@ -134,12 +134,12 @@ export default class ManagedChart extends Renderer<ManagedChartProps, ManagedCha
 
   sync() {
     const {
-      mochartConfig, dataProvider, loading, error, width, height, onChartClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick,
-      onSeriesLayoutInfoChange, getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent
+      mochartConfig, dataProvider, loading, error, style, width, height, onChartClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick,
+      onSeriesLayoutInfoChange, getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent
     } = this.props;
     const { filteredSeriesIds, focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex } = this.state;
     if (mochartConfig && mochartConfig.animationConfig.animate) {
-      this.chart!.set(AnimatedChart, { mochartConfig, dataProvider, loading, error, width, height,
+      this.chart!.set(AnimatedChart, { mochartConfig, dataProvider, loading, error, style, width, height,
         focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex,
         filteredSeriesIds, onSeriesLayoutInfoChange,
         onFocus: this.onFocus, onSeriesFilter: this.onSeriesFilter,
@@ -147,10 +147,10 @@ export default class ManagedChart extends Renderer<ManagedChartProps, ManagedCha
         onChartMouseMove, onChartMouseLeave, onTitleClick,
         getLoadingComponent, getErrorComponent,
         getNoDataComponent, getNoSizeComponent,
-        getNoSeriesComponent });
+        getNoSeriesComponent, getConfigErrorComponent });
     }
     else {
-      this.chart!.set(StaticChart, { mochartConfig, dataProvider, loading, error, width, height,
+      this.chart!.set(StaticChart, { mochartConfig, dataProvider, loading, error, style, width, height,
         focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex,
         filteredSeriesIds, onSeriesLayoutInfoChange,
         onFocus: this.onFocus, onSeriesFilter: this.onSeriesFilter,
@@ -158,7 +158,7 @@ export default class ManagedChart extends Renderer<ManagedChartProps, ManagedCha
         onChartMouseMove, onChartMouseLeave, onTitleClick,
         getLoadingComponent, getErrorComponent,
         getNoDataComponent, getNoSizeComponent,
-        getNoSeriesComponent });
+        getNoSeriesComponent, getConfigErrorComponent });
     }
   }
 }

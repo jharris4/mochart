@@ -143,6 +143,30 @@ describe('placeholder components', () => {
     app.unmount();
     el.remove();
   });
+
+  it('renders configErrorComponent when the config fails validation', () => {
+    const mochartConfig = enhanceConfig({ ...rawConfig(), unknownExtra: 1 });
+    expect(mochartConfig.validation.valid).toBe(false);
+    const ConfigError = markRaw(
+      defineComponent({
+        name: 'ConfigError',
+        props: { width: Number, height: Number },
+        setup: (props) => () => h('div', `Bad config ${props.width}x${props.height}`)
+      })
+    );
+    const { el, app } = mountWith(Chart, {
+      mochartConfig: markRaw(mochartConfig),
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      configErrorComponent: ConfigError,
+      width: 400,
+      height: 300
+    });
+
+    expect(el.textContent).toContain('Bad config 400x300');
+
+    app.unmount();
+    el.remove();
+  });
 });
 
 describe('DefaultChart', () => {
@@ -164,6 +188,34 @@ describe('DefaultChart', () => {
 
     app.unmount();
     expect(el.querySelector('svg')).toBeNull();
+    el.remove();
+  });
+
+  it('accepts the loading prop and renders loadingComponent over the chart', async () => {
+    const Loading = markRaw(
+      defineComponent({
+        name: 'Loading',
+        props: { width: Number, height: Number },
+        setup: (props) => () => h('div', `Loading ${props.width}x${props.height}`)
+      })
+    );
+    const { el, app, state } = mountWith(DefaultChart, {
+      config: rawConfig(),
+      data: rows,
+      loading: true,
+      loadingComponent: Loading,
+      width: 400,
+      height: 300
+    });
+
+    // the loading overlay factory receives the plot-area bounds, not the outer size
+    expect(el.textContent).toContain('Loading');
+
+    state.loading = false;
+    await nextTick();
+    expect(el.textContent).not.toContain('Loading');
+
+    app.unmount();
     el.remove();
   });
 });

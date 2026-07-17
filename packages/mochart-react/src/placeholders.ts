@@ -9,7 +9,8 @@ const FACTORY_PROP_NAMES: Record<string, string> = {
   errorComponent: 'getErrorComponent',
   noDataComponent: 'getNoDataComponent',
   noSizeComponent: 'getNoSizeComponent',
-  noSeriesComponent: 'getNoSeriesComponent'
+  noSeriesComponent: 'getNoSeriesComponent',
+  configErrorComponent: 'getConfigErrorComponent'
 };
 
 interface PlaceholderSlot {

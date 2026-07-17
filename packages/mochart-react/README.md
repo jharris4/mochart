@@ -63,6 +63,8 @@ Both components accept the chart callbacks (`onChartClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
 `onFocus`, `onSeriesFilter`, `onSeriesLayoutInfoChange`) and the placeholder
 components (`loadingComponent`, `errorComponent`, `noDataComponent`,
-`noSizeComponent`, `noSeriesComponent`). Each placeholder prop takes a
-**React component** that receives the chart context (`width`, `height`,
-`error`, …) as props and is rendered while the chart is in that state.
+`noSizeComponent`, `noSeriesComponent`, `configErrorComponent`). Each
+placeholder prop takes a **React component** that receives the chart context
+(`width`, `height`, `error`, …) as props and is rendered while the chart is in
+that state. Both components also accept `loading` and `error` to force the
+loading or error state.

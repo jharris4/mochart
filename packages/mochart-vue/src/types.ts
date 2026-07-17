@@ -27,6 +27,7 @@ export interface ChartCallbackProps {
   noDataComponent?: PlaceholderComponent;
   noSizeComponent?: PlaceholderComponent;
   noSeriesComponent?: PlaceholderComponent;
+  configErrorComponent?: PlaceholderComponent;
 }
 
 // `class`/`style` are not listed here: in Vue they are fallthrough attrs and
@@ -36,14 +37,14 @@ export interface BaseChartProps extends ChartCallbackProps {
   width?: number;
   /** Explicit pixel height; omit to track the container element's height. */
   height?: number;
+  loading?: boolean;
+  error?: any;
 }
 
 /** Props for `Chart`: a pre-enhanced config plus a data provider. */
 export interface ChartProps extends BaseChartProps {
   mochartConfig: any;
   dataProvider: any;
-  loading?: boolean;
-  error?: any;
 }
 
 /** Props for `DefaultChart`: a raw config plus a plain array-of-objects dataset. */

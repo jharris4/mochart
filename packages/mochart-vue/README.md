@@ -70,6 +70,7 @@ Both components accept the chart callbacks (`onChartClick`,
 `onFocus`, `onSeriesFilter`, `onSeriesLayoutInfoChange` — usable as
 `@chart-click` etc. in templates) and the placeholder components
 (`loadingComponent`, `errorComponent`, `noDataComponent`, `noSizeComponent`,
-`noSeriesComponent`). Each placeholder prop takes a **Vue component** that
-receives the chart context (`width`, `height`, `error`, …) as props and is
-rendered while the chart is in that state.
+`noSeriesComponent`, `configErrorComponent`). Each placeholder prop takes a
+**Vue component** that receives the chart context (`width`, `height`, `error`,
+…) as props and is rendered while the chart is in that state. Both components
+also accept `loading` and `error` to force the loading or error state.

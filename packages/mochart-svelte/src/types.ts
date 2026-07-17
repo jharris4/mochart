@@ -27,6 +27,7 @@ export interface ChartCallbackProps {
   noDataComponent?: PlaceholderComponent;
   noSizeComponent?: PlaceholderComponent;
   noSeriesComponent?: PlaceholderComponent;
+  configErrorComponent?: PlaceholderComponent;
 }
 
 export interface BaseChartProps extends ChartCallbackProps {
@@ -38,14 +39,14 @@ export interface BaseChartProps extends ChartCallbackProps {
   class?: string;
   /** Style applied to the container div the chart mounts into. */
   style?: string;
+  loading?: boolean;
+  error?: any;
 }
 
 /** Props for `Chart`: a pre-enhanced config plus a data provider. */
 export interface ChartProps extends BaseChartProps {
   mochartConfig: any;
   dataProvider: any;
-  loading?: boolean;
-  error?: any;
 }
 
 /** Props for `DefaultChart`: a raw config plus a plain array-of-objects dataset. */

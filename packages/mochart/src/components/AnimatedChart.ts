@@ -266,7 +266,7 @@ export default class AnimatedChart extends Renderer<AnimatedChartProps, Animated
     const {
       mochartConfig, dataProvider, loading, error, width, height, style, standalone, onSeriesLayoutInfoChange, onSeriesFilter,
       onChartClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick,
-      getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent
+      getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent
     } = this.props;
     const { chartData, focusData } = this.state;
     this.chart!.set(Chart, { mochartConfig, dataProvider, loading, error, chartData, standalone,
@@ -274,6 +274,6 @@ export default class AnimatedChart extends Renderer<AnimatedChartProps, Animated
       onChartClick, onChartMouseEnter, onChartMouseMove,
       onChartMouseLeave, onTitleClick, onSeriesLayoutInfoChange,
       getLoadingComponent, getErrorComponent,
-      getNoDataComponent, getNoSizeComponent, getNoSeriesComponent });
+      getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent });
   }
 }

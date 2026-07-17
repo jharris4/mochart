@@ -27,15 +27,16 @@ export const baseChartProps = {
   errorComponent: placeholderProp,
   noDataComponent: placeholderProp,
   noSizeComponent: placeholderProp,
-  noSeriesComponent: placeholderProp
+  noSeriesComponent: placeholderProp,
+  configErrorComponent: placeholderProp,
+  loading: { type: Boolean, default: undefined },
+  error: anyProp
 };
 
 export const chartProps = {
   ...baseChartProps,
   mochartConfig: requiredAnyProp,
-  dataProvider: requiredAnyProp,
-  loading: { type: Boolean, default: undefined },
-  error: anyProp
+  dataProvider: requiredAnyProp
 };
 
 export const defaultChartProps = {
