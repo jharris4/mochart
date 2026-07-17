@@ -427,7 +427,7 @@ function generateComplexDefaultDoc(conditionalDefault: { rules?: AnyRule[] }): s
 
 const colorValidator = validators.color();
 
-function formatDefault(theDefault: any): string | number | boolean | null {
+function formatDefault(theDefault: unknown): string | number | boolean | null {
   if (theDefault === undefined) {
     return '';
   }
@@ -435,20 +435,21 @@ function formatDefault(theDefault: any): string | number | boolean | null {
     return null;
   }
   else if (colorValidator(theDefault)) {
-    return outputColor(theDefault);
+    return outputColor(theDefault as string);
   }
   else if (Array.isArray(theDefault) && !theDefault.some(aValue => !colorValidator(aValue))) {
-    return outputColors(theDefault);
+    return outputColors(theDefault as string[]);
   }
   else if (typeof theDefault === "object") {
-    let keys = Object.keys(theDefault);
-    return '{\n' + keys.map(key => key + ': ' + formatDefault(theDefault[key])).join('\n') + '}\n';
+    const record = theDefault as Record<string, unknown>;
+    let keys = Object.keys(record);
+    return '{\n' + keys.map(key => key + ': ' + formatDefault(record[key])).join('\n') + '}\n';
   }
   else if (typeof theDefault === "string") {
     return '\"' + theDefault + '\"';
   }
   else {
-    return theDefault;
+    return theDefault as number | boolean;
   }
 }
 
