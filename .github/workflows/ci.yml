@@ -35,6 +35,16 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
+      # Cloudflare Pages serves from the domain root, so rebuild with base /.
+      - name: Build Cloudflare Pages site
+        run: npm run build:pages
+        env:
+          PAGES_BASE: /
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-site
+          path: site
+          include-hidden-files: true
 
   deploy:
     # Deploys are opt-in until the repo is public: GitHub Pages is unavailable
@@ -54,3 +64,33 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-cloudflare:
+    # Requires two repo secrets (CLOUDFLARE_API_TOKEN with the "Cloudflare
+    # Pages: Edit" permission, and CLOUDFLARE_ACCOUNT_ID) plus the repo
+    # variable ENABLE_CLOUDFLARE_DEPLOY=true under Settings > Secrets and
+    # variables > Actions.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_CLOUDFLARE_DEPLOY == 'true'
+    needs: build-test
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_PROJECT: mochart
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cloudflare-site
+          path: site
+      # Idempotent bootstrap: fails harmlessly once the project exists.
+      - name: Create Pages project if missing
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create ${{ env.CLOUDFLARE_PROJECT }} --production-branch=main
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name=${{ env.CLOUDFLARE_PROJECT }} --branch=main

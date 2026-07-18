@@ -95,8 +95,18 @@ for (const demo of demos) {
   cpSync(join(rootDir, 'packages', demo.pkg, 'dist'), join(siteDir, demo.slug), { recursive: true });
 }
 
+// Cloudflare Pages honors _redirects with 200 rewrites, so deep links into the
+// history-routed demos get real 200 responses there. GitHub Pages ignores the
+// file and falls back to the 404.html trick below.
+function redirectsFile() {
+  return demos.filter((demo) => demo.historyRouting)
+    .map((demo) => `${base}${demo.slug}/* ${base}${demo.slug}/index.html 200`)
+    .join('\n') + '\n';
+}
+
 writeFileSync(join(siteDir, 'index.html'), landingPage());
 writeFileSync(join(siteDir, '404.html'), notFoundPage());
+writeFileSync(join(siteDir, '_redirects'), redirectsFile());
 // Without this GitHub Pages runs the site through Jekyll, which drops files.
 writeFileSync(join(siteDir, '.nojekyll'), '');
 
