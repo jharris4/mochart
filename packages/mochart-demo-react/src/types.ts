@@ -16,6 +16,31 @@ export interface FocusData {
   groupIndex?: number;
 }
 
+/** The transition demo's config bundle: one config plus a sequence of datasets. */
+export interface TransitionConfig {
+  config: Record<string, any>;
+  data: Record<string, any>[][];
+}
+
+/** Loose structural view of a data provider as consumed by the demo charts. */
+export interface ChartDataProviderLike {
+  getGroupValues: () => readonly any[];
+  getSeriesValue?: (...args: any[]) => any;
+  getError?: (...args: any[]) => any;
+}
+
+/**
+ * The duck-typed data provider produced by the random generator and consumed
+ * by the chart / getDataErrors. `getError` marks the error/invalid variants.
+ */
+export interface DemoDataProvider {
+  getGroupValues: () => GroupValue[];
+  getSeriesValue?: (groupValue: GroupValue, groupIndex: number, seriesProperty: string) => unknown;
+  getError?: () => string;
+  groupValues?: GroupValue[];
+  seriesValues?: Record<string, (number | undefined)[]>;
+}
+
 /** The demo mode routes exposed by the gallery. */
 export type DemoMode = 'single' | 'multi' | 'random' | 'transition' | 'rotation';
 
@@ -27,15 +52,6 @@ export type OnDemoChanged = (nextDemoId: string) => void;
 
 /** The random config plus the validity flag the random editor tracks. */
 export type RandomConfigWithValid = RandomConfig & { valid: boolean };
-
-/** Props shared by the top-level demo-mode components (single/multi/random). */
-export interface DemoTabProps {
-  demoData: DemoData;
-  initialDemoId: string;
-  demoMode: DemoMode;
-  onDemoModeChanged: OnDemoModeChanged;
-  onDemoChanged: OnDemoChanged;
-}
 
 /**
  * The derived config bundle returned by buildMochartDemoConfig — the built
@@ -53,27 +69,11 @@ export interface MochartDemoConfig {
   seriesCount: number;
 }
 
-/**
- * The duck-typed data provider produced by the random generator and consumed
- * by the chart / getDataErrors. `getError` marks the error/invalid variants.
- */
-export interface DemoDataProvider {
-  getGroupValues: () => GroupValue[];
-  getSeriesValue?: (groupValue: GroupValue, groupIndex: number, seriesProperty: string) => unknown;
-  getError?: () => string;
-  groupValues?: GroupValue[];
-  seriesValues?: Record<string, (number | undefined)[]>;
-}
-
-/** The transition demo's config bundle: one config plus a sequence of datasets. */
-export interface TransitionConfig {
-  config: Record<string, any>;
-  data: Record<string, any>[][];
-}
-
-/** Loose structural view of a data provider as consumed by the demo charts. */
-export interface ChartDataProviderLike {
-  getGroupValues: () => readonly any[];
-  getSeriesValue?: (...args: any[]) => any;
-  getError?: (...args: any[]) => any;
+/** Props shared by the top-level demo-mode components (single/multi/random). */
+export interface DemoTabProps {
+  demoData: DemoData;
+  initialDemoId: string;
+  demoMode: DemoMode;
+  onDemoModeChanged: OnDemoModeChanged;
+  onDemoChanged: OnDemoChanged;
 }
