@@ -7,14 +7,23 @@ A Vite app that renders every demo chart from JSON config/data pairs, with
 live controls to exercise mochart's animations: randomize values, add/remove
 groups, and autoplay.
 
+## Install
+
+This repo uses npm workspaces; install once from the repo root:
+
+```sh
+npm install
+```
+
 ## Run
 
 From the repo root:
 
 ```sh
-npm run dev        # vite dev server
+npm run dev        # vite dev server on http://localhost:5173
 npm run build      # production build to dist/
-npm run preview    # preview the production build
+npm run preview    # preview the production build on http://localhost:4173
+npm run test:e2e   # playwright end-to-end tests (see e2e/)
 ```
 
 ## Adding a demo

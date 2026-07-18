@@ -1,0 +1,7 @@
+import { defineConfig } from 'vite';
+
+// Each demo gallery pins its own port so they can run side by side.
+export default defineConfig({
+  server: { port: 5173 },
+  preview: { port: 4173 }
+});
