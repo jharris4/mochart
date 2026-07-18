@@ -6,20 +6,8 @@ import {
 } from 'mochart';
 import type { ChartHandle } from 'mochart';
 import { exportPNG, exportSVG } from 'mochart-export';
-import demosJson from '../demos/demos.json';
-
-// eagerly bundle every demo config + dataset + random spec, keyed by basename
-const configModules = import.meta.glob('../demos/config/**/*.json', { eager: true, import: 'default' });
-const dataModules = import.meta.glob('../demos/data/**/*.json', { eager: true, import: 'default' });
-const randomModules = import.meta.glob('../demos/random/**/*.json', { eager: true, import: 'default' });
-
-interface DemoEntry {
-  id: string;
-  title: string;
-  config: string;
-  data: string;
-  random?: string;
-}
+import demoData from 'mochart-demo-data';
+import type { Demo } from 'mochart-demo-data';
 
 interface SeriesBounds {
   min: number;
@@ -27,21 +15,9 @@ interface SeriesBounds {
   round: boolean;
 }
 
-const byBasename = (modules: Record<string, any>) => {
-  const map: Record<string, any> = {};
-  for (const path in modules) {
-    map[path.split('/').pop() as string] = modules[path];
-  }
-  return map;
-};
-
-const configs = byBasename(configModules);
-const datasets = byBasename(dataModules);
-const randomSpecs = byBasename(randomModules);
-
-const demoSections: { section: string; entries: DemoEntry[] }[] = [
-  { section: 'Demos', entries: (demosJson as any).demos },
-  { section: 'Test Demos', entries: (demosJson as any).testDemos }
+const demoSections: { section: string; entries: Demo[] }[] = [
+  { section: 'Demos', entries: demoData.demoIds.map((id) => demoData.demoObjectMap[id]) },
+  { section: 'Test Demos', entries: demoData.testDemoIds.map((id) => demoData.demoObjectMap[id]) }
 ];
 
 const demoList = document.getElementById('demo-list') as HTMLDivElement;
@@ -57,7 +33,7 @@ const exportPngButton = document.getElementById('export-png') as HTMLButtonEleme
 const exportSvgButton = document.getElementById('export-svg') as HTMLButtonElement;
 
 let chart: ChartHandle | null = null;
-let currentDemo: DemoEntry | null = null;
+let currentDemo: Demo | null = null;
 let mochartConfig: any = null;
 let groupProperty: string | undefined;
 let seriesProperties: string[] = [];
@@ -108,28 +84,20 @@ function makeDataProvider(): any {
   return new ArrayOfObjectsDataProvider(currentData, groupProperty);
 }
 
-function mountDemo(demo: DemoEntry): void {
+function mountDemo(demo: Demo): void {
   currentDemo = demo;
   demoTitle.textContent = demo.title;
   stopAutoplay();
 
-  const rawConfig = configs[demo.config];
-  const rawData = datasets[demo.data];
-  if (!rawConfig || !rawData) {
-    showErrors(['missing demo assets: ' + demo.config + ' / ' + demo.data]);
-    return;
-  }
-
-  const config = migrateConfig(JSON.parse(JSON.stringify(rawConfig)));
+  const config = migrateConfig(JSON.parse(JSON.stringify(demo.config)));
   mochartConfig = enhanceConfig(config);
   const { valid, errors, warnings } = mochartConfig.validation;
   showErrors(valid ? [] : [...errors, ...warnings]);
 
   groupProperty = mochartConfig.groupAxisConfig ? mochartConfig.groupAxisConfig.property : undefined;
-  const randomSpec = (demo.random && randomSpecs[demo.random]) || randomSpecs['default-random.json'];
-  seriesBounds = computeSeriesBounds(mochartConfig, randomSpec);
+  seriesBounds = computeSeriesBounds(mochartConfig, demo.random);
   seriesProperties = Object.keys(seriesBounds);
-  originalData = rawData as any[];
+  originalData = demo.data as any[];
   currentData = originalData.map((row) => ({ ...row }));
   groupCounter = 0;
 

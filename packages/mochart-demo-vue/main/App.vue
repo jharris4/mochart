@@ -3,7 +3,7 @@ import { computed, watchEffect } from 'vue';
 
 import { getPath, navigate } from './router';
 
-import demoData from './demos';
+import demoData from 'mochart-demo-data';
 
 import DemoSingle from '../src/components/single/DemoSingle.vue';
 import DemoMulti from '../src/components/multi/DemoMulti.vue';

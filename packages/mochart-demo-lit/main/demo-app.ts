@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 
 import { getPath, navigate, subscribe } from './router';
 
-import demoData from './demos';
+import demoData from 'mochart-demo-data';
 
 import { LightElement } from '../src/components/misc/LightElement';
 import '../src/components/single/demo-single';

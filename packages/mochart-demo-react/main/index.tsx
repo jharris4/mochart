@@ -7,7 +7,7 @@ import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/solid.min.css';
 import './demo.css';
 
-import demoData from './demos';
+import demoData from 'mochart-demo-data';
 
 import DemoSingle from '../src/components/single/DemoSingle';
 import DemoMulti from '../src/components/multi/DemoMulti';

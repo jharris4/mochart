@@ -1,0 +1,18 @@
+{
+  "name": "mochart-demo-data",
+  "version": "1.0.0",
+  "description": "Shared demo configs, datasets, and random specs for the mochart demo apps",
+  "private": true,
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "exports": {
+    ".": "./src/index.ts",
+    "./demos.json": "./src/demos.json"
+  },
+  "dependencies": {
+    "mochart": "^1.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

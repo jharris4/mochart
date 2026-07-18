@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getPath, navigate } from './router.svelte.js';
 
-  import demoData from './demos';
+  import demoData from 'mochart-demo-data';
 
   import DemoSingle from '../src/components/single/DemoSingle.svelte';
   import DemoMulti from '../src/components/multi/DemoMulti.svelte';

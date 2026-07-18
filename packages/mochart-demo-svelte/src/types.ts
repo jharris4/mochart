@@ -1,7 +1,7 @@
-import type { ConfigValidation, MochartConfig, MochartInputConfig } from 'mochart';
+import type { ConfigValidation, MochartConfig } from 'mochart';
+import type { RandomConfig } from 'mochart-demo-data';
 
-/** A single data row in a demo's data set. */
-export type DataRow = Record<string, unknown>;
+export type { DataRow, Demo, DemoConfig, DemoData, RandomConfig } from 'mochart-demo-data';
 
 /** A value on the group axis of a generated data set. */
 export type GroupValue = number | string;
@@ -50,51 +50,8 @@ export type OnDemoModeChanged = (nextDemoMode: DemoMode, nextDemoId?: string) =>
 /** Navigate to a different demo within the current mode. */
 export type OnDemoChanged = (nextDemoId: string) => void;
 
-/** The random-generation config (see mochart-demo/demos/random/*.json). */
-export interface RandomConfig {
-  error: { probability: number };
-  group: {
-    count: number;
-    order: { sort: boolean };
-    missing: { probability: number };
-    reuse: { globalPercentage: number; stepPercentage: number };
-    number: { min: number; max: number; interval: number };
-    string: { minLength: number; maxLength: number };
-    date: {
-      min: string;
-      max: string;
-      interval: number;
-      intervalUnit: 'second' | 'minute' | 'hour' | 'day' | string;
-    };
-  };
-  series: {
-    number: { min: number; max: number; round: boolean; limitToAxisConfig: boolean };
-    missing: { probability: number };
-    reuse: { global: boolean; step: boolean };
-  };
-}
-
 /** The random config plus the validity flag the random editor tracks. */
 export type RandomConfigWithValid = RandomConfig & { valid: boolean };
-
-/** A single demo entry assembled from its config/data/random JSON. */
-export interface Demo {
-  id: string;
-  title: string;
-  config: MochartInputConfig & Record<string, unknown>;
-  data: DataRow[];
-  random: RandomConfig;
-}
-
-/** A demo's editable chart config (the input config plus arbitrary edits). */
-export type DemoConfig = Demo['config'];
-
-/** The assembled collection of demos loaded at startup. */
-export interface DemoData {
-  demoIds: string[];
-  demoObjectMap: Record<string, Demo>;
-  testDemoIds: string[];
-}
 
 /**
  * The derived config bundle returned by buildMochartDemoConfig — the built

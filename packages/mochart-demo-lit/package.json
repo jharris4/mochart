@@ -11,6 +11,7 @@
     "lit": "^3.3.0",
     "lodash.merge": "^4.6.2",
     "mochart": "^1.0.0",
+    "mochart-demo-data": "^1.0.0",
     "mochart-export": "^1.0.0",
     "mochart-lit": "^1.0.0",
     "movalid": "^1.0.0",
