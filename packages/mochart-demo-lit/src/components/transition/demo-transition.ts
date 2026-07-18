@@ -1,105 +1,23 @@
 import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { ArrayOfObjectsDataProvider } from '@mochart/core';
-import type { MochartConfig } from '@mochart/core';
-
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, defaultTransitionConfig, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import './transition-chart-tab';
 import './transition-config-tab';
 
-import type { TransitionConfig, ChartDataProviderLike } from '../../types';
+import type { TransitionConfig } from '../../types';
 
 const eventKeyChart = 1;
 const eventKeyConfig = 2;
-
-const defaultTransitionConfig = {
-  "config": {
-    "version": "1.0.0",
-    "animationConfig": {
-      "initialDuration": 1000,
-      "expansionDuration": 3000,
-      "valueChangeDuration": 3000,
-      "collapseDuration": 3000
-    },
-    "groupAxisConfig": {
-      "property": "timestamp",
-      "type": "string",
-      "scale": "ordinal",
-      "valueLabel": "Date",
-      "dateUTC": false
-    },
-    "legendConfig": {
-      "visible": true
-    },
-    "seriesAxisConfigs": [
-      {
-        "id": "SA0",
-        "min": 0
-      }
-    ],
-    "seriesStackConfigs": [{
-      "id": "SS0",
-      "axis": "SA0"
-    }],
-    "seriesConfigs": [
-      {
-        "axis": "SA0",
-        "stack": "SS0",
-        "property": "count",
-        "title": "Count",
-        "renderer": "bar",
-        "markerShape": null,
-        "valueFormat": ",d"
-      }
-    ]
-  },
-  "data": [
-    [
-      { "timestamp": "aaa", "count": 50 },
-      { "timestamp": "bbb", "count": 48 },
-      { "timestamp": "ccc", "count": 28 },
-      { "timestamp": "ddd", "count": 27 },
-      { "timestamp": "eee", "count": 25 },
-      { "timestamp": "fff", "count": 22 }
-    ],
-    [
-      { "timestamp": "ccc", "count": 45 },
-      { "timestamp": "bbb", "count": 42 },
-      { "timestamp": "ddd", "count": 27 },
-      { "timestamp": "eee", "count": 25 },
-      { "timestamp": "fff", "count": 22 },
-      { "timestamp": "ggg", "count": 20 }
-    ],
-    [
-      { "timestamp": "bbb", "count": 42 },
-      { "timestamp": "ccc", "count": 45 },
-      { "timestamp": "ddd", "count": 27 },
-      { "timestamp": "eee", "count": 25 },
-      { "timestamp": "fff", "count": 22 },
-      { "timestamp": "ggg", "count": 20 }
-    ]
-  ]
-};
-
-function getMochartConfig(transitionConfig: TransitionConfig): MochartConfig {
-  return buildMochartDemoConfig(transitionConfig.config).mochartConfig;
-}
-
-function getDataProviders(transitionConfig: TransitionConfig): ChartDataProviderLike[] {
-  // TODO - this doesn't handle group display property or extra series properties...
-  const groupProperty = transitionConfig.config.groupAxisConfig.property;
-  return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, groupProperty));
-}
 
 @customElement('demo-transition')
 export class DemoTransition extends LightElement {
   @state() private activeKey = eventKeyChart;
   @state() private transitionConfig: TransitionConfig = defaultTransitionConfig;
-  @state() private mochartConfig = getMochartConfig(defaultTransitionConfig);
-  @state() private dataProviders = getDataProviders(defaultTransitionConfig);
+  @state() private mochartConfig = getTransitionMochartConfig(defaultTransitionConfig);
+  @state() private dataProviders = getTransitionDataProviders(defaultTransitionConfig);
 
   private handleSelect(nextActiveKey: number): void {
     this.activeKey = nextActiveKey;
@@ -107,14 +25,14 @@ export class DemoTransition extends LightElement {
 
   private onUpdateConfig = (nextTransitionConfig: TransitionConfig): void => {
     this.transitionConfig = nextTransitionConfig;
-    this.mochartConfig = getMochartConfig(nextTransitionConfig);
-    this.dataProviders = getDataProviders(nextTransitionConfig);
+    this.mochartConfig = getTransitionMochartConfig(nextTransitionConfig);
+    this.dataProviders = getTransitionDataProviders(nextTransitionConfig);
   };
 
   private onResetConfig = (): void => {
     this.transitionConfig = defaultTransitionConfig;
-    this.mochartConfig = getMochartConfig(defaultTransitionConfig);
-    this.dataProviders = getDataProviders(defaultTransitionConfig);
+    this.mochartConfig = getTransitionMochartConfig(defaultTransitionConfig);
+    this.dataProviders = getTransitionDataProviders(defaultTransitionConfig);
   };
 
   override render(): unknown {

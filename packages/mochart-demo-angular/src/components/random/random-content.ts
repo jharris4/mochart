@@ -4,13 +4,13 @@ import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { generateChartDataProvider } from './RandomGenerator';
-
 import { DemosTab } from '../demos/demos-tab';
 import { RandomChartTab } from './random-chart-tab';
 import { RandomConfigTab } from './random-config-tab';
 import { RandomDataTab } from './random-data-tab';
 import { ErrorTab } from '../misc/error-tab';
+
+import { generateChartDataProvider } from '@mochart/demo-common';
 
 import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
 

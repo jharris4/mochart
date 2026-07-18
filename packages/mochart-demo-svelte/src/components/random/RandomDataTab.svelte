@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { formatData } from '@mochart/demo-common';
+
   import { untrack } from 'svelte';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
@@ -6,10 +8,6 @@
   interface Props {
     active?: boolean;
     data: unknown;
-  }
-
-  function formatData(dataJSON: unknown): string {
-    return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
   }
 
   let { active = false, data }: Props = $props();

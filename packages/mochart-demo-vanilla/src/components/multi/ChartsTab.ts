@@ -1,14 +1,12 @@
-import { ArrayOfObjectsDataProvider } from '@mochart/core';
-import type { MochartConfig } from '@mochart/core';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, getDataProvidersForDataCount } from '@mochart/demo-common';
 
 import { el, observeSize, setActiveClass } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 import type { ChartHostHandle } from '../misc/chartHost';
 import { chartsControls } from './ChartsControls';
 
-import type { Demo, DataRow, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
+import type { Demo, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
 
 export interface ChartsTabProps {
   demoObject: Demo;
@@ -26,26 +24,6 @@ const scrollWidthOffset = 20;
 const defaultChartRows = 2;
 const defaultChartCols = 2;
 const defaultRate = 2000;
-
-function getChartDataCount(data: DataRow[], currentDataCount: number, i: number): number {
-  const dataCount = data.length;
-  let chartDataCount = (dataCount + currentDataCount - i) % dataCount;
-  if (chartDataCount === 0) {
-    chartDataCount = dataCount;
-  }
-  return chartDataCount;
-}
-
-function getDataProvidersForDataCount(mochartConfig: MochartConfig, data: DataRow[], chartCount: number, currentDataCount: number): ChartDataProviderLike[] {
-  const dataProviders: ChartDataProviderLike[] = [];
-  let i, chartDataCount;
-  const groupProperty = mochartConfig.groupAxisConfig.property ?? '';
-  for (i = 0; i < chartCount; i++) {
-    chartDataCount = getChartDataCount(data, currentDataCount, i);
-    dataProviders.push(new ArrayOfObjectsDataProvider(data.slice(0, chartDataCount), groupProperty));
-  }
-  return dataProviders;
-}
 
 export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   let demoObject = props.demoObject;

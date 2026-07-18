@@ -1,13 +1,11 @@
+import { formatData } from '@mochart/demo-common';
+
 import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
 import { LightElement } from '../misc/LightElement';
 import { textAreaContent } from '../misc/templates';
-
-function formatData(dataJSON: unknown): string {
-  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
-}
 
 @customElement('random-data-tab')
 export class RandomDataTab extends LightElement {

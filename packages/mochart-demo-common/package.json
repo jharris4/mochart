@@ -9,8 +9,15 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "lodash.merge": "^4.6.2",
     "@mochart/core": "^1.0.0",
-    "@mochart/demo-data": "^1.0.0"
+    "@mochart/demo-data": "^1.0.0",
+    "@mochart/movalid": "^1.0.0",
+    "seedrandom": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/lodash.merge": "^4.6.9",
+    "@types/seedrandom": "^3.0.8"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

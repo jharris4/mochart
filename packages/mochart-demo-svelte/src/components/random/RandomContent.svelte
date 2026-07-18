@@ -4,13 +4,15 @@
   import { NONE, getDataErrors } from '@mochart/core';
   import type { MochartConfig, DataProvider } from '@mochart/core';
 
-  import { generateChartDataProvider } from './RandomGenerator';
+  
 
   import DemosTab from '../demos/DemosTab.svelte';
   import RandomChartTab from './RandomChartTab.svelte';
   import RandomConfigTab from './RandomConfigTab.svelte';
   import RandomDataTab from './RandomDataTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
+
+  import { generateChartDataProvider } from '@mochart/demo-common';
 
   import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
 

@@ -1,10 +1,8 @@
+import { formatData } from '@mochart/demo-common';
+
 import React, { useState, useRef } from 'react';
 
 import TextAreaContent from '../misc/TextAreaContent';
-
-function formatData(dataJSON: unknown): string {
-  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
-}
 
 interface Props {
   active?: boolean;

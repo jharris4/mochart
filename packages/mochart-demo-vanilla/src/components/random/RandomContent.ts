@@ -1,8 +1,6 @@
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { generateChartDataProvider } from './RandomGenerator';
-
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
 import { demosTab } from '../demos/DemosTab';
@@ -13,6 +11,8 @@ import { randomConfigTab } from './RandomConfigTab';
 import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
+
+import { generateChartDataProvider } from '@mochart/demo-common';
 
 import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
 

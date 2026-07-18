@@ -1,8 +1,8 @@
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 
-import type { DemoConfig, MochartDemoConfig } from '../../types';
+import type { DemoConfig } from '../../types';
 
 export interface ConfigTabProps {
   active?: boolean;
@@ -15,46 +15,6 @@ export interface ConfigTabHandle {
   el: HTMLElement;
   setActive(active: boolean): void;
   setConfig(config: DemoConfig): void;
-}
-
-// The with/without-defaults config views the editor toggles between. Config
-// sections are intentionally loose (`any`) — they are arbitrary user JSON.
-interface DemoConfigView {
-  configWithDefaults: Record<string, any>;
-  configWithoutDefaults: Record<string, any>;
-}
-
-const slowAnimationConfig = {
-  "animate": true,
-  "initialDuration": 5000,
-  "expansionDuration": 3000,
-  "valueChangeDuration": 5000,
-  "collapseDuration": 3000,
-  "focusDuration": 2500
-};
-
-function formatConfig(config: unknown): string {
-  return JSON.stringify(config, null, '\t');
-}
-
-function formatMochartDemoConfig(demoConfig: DemoConfigView, showDefaults: boolean): string {
-  const { configWithDefaults, configWithoutDefaults } = demoConfig;
-  return formatConfig(showDefaults ? configWithDefaults : configWithoutDefaults);
-}
-
-function copyDemoConfig(demoConfig: DemoConfigView | MochartDemoConfig): DemoConfigView {
-  const { configWithDefaults, configWithoutDefaults } = demoConfig;
-  return JSON.parse(JSON.stringify({ configWithDefaults, configWithoutDefaults }));
-}
-
-function parseConfig(configText: string): DemoConfig | null {
-  try {
-    return JSON.parse(configText);
-  }
-  catch (error) {
-    console.warn('Invalid Chart Config JSON: ' + configText);
-    return null;
-  }
 }
 
 export function configTab(props: ConfigTabProps): ConfigTabHandle {
@@ -114,38 +74,6 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
       errorMessage = 'Invalid JSON';
     }
     sync();
-  }
-
-  function toggleConfigProperty(currentDemoConfig: DemoConfigView, section: string, key: string, defaultValue: unknown): DemoConfigView {
-    let { configWithDefaults, configWithoutDefaults } = currentDemoConfig;
-    configWithDefaults = { ...configWithDefaults };
-    configWithoutDefaults = { ...configWithoutDefaults };
-    const sectionConfig = configWithoutDefaults[section];
-    if (!sectionConfig) {
-      configWithoutDefaults[section] = { [key]: defaultValue };
-      configWithDefaults[section] = { ...configWithDefaults[section], [key]: defaultValue };
-    }
-    else {
-      configWithoutDefaults[section] = { ...sectionConfig, [key]: !sectionConfig[key] };
-      configWithDefaults[section] = { ...configWithDefaults[section], [key]: !sectionConfig[key] };
-    }
-    return { configWithDefaults, configWithoutDefaults };
-  }
-
-  function toggleConfigSection(currentMochartDemoConfig: MochartDemoConfig, currentDemoConfig: DemoConfigView, section: string, defaultSection: unknown): DemoConfigView {
-    let { configWithDefaults, configWithoutDefaults } = currentDemoConfig;
-    configWithDefaults = { ...configWithDefaults };
-    configWithoutDefaults = { ...configWithoutDefaults };
-    const sectionConfig = configWithoutDefaults[section];
-    if (!sectionConfig) {
-      configWithoutDefaults[section] = defaultSection;
-      configWithDefaults[section] = defaultSection;
-    }
-    else {
-      configWithoutDefaults[section] = configWithoutDefaults[section] === defaultSection ? currentMochartDemoConfig.configWithoutDefaults[section] : defaultSection;
-      configWithDefaults[section] = configWithDefaults[section] === defaultSection ? currentMochartDemoConfig.configWithDefaults[section] : defaultSection;
-    }
-    return { configWithDefaults, configWithoutDefaults };
   }
 
   function toggleConfigInverted(): void {

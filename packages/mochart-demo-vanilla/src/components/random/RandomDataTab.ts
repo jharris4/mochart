@@ -1,3 +1,5 @@
+import { formatData } from '@mochart/demo-common';
+
 import { el, setActiveClass, textAreaContent } from '../misc/dom';
 
 export interface RandomDataTabProps {
@@ -9,10 +11,6 @@ export interface RandomDataTabHandle {
   el: HTMLElement;
   setActive(active: boolean): void;
   setData(data: unknown): void;
-}
-
-function formatData(dataJSON: unknown): string {
-  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
 }
 
 export function randomDataTab(props: RandomDataTabProps): RandomDataTabHandle {

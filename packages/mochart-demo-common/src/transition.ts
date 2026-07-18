@@ -1,0 +1,166 @@
+import validators from '@mochart/movalid';
+
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
+
+import buildMochartDemoConfig from './mochartDemoConfig';
+
+import type { TransitionConfig, ChartDataProviderLike } from './types';
+
+const objectValidator = validators.object();
+const arrayValidator = validators.array();
+
+export const defaultTransitionConfig: TransitionConfig = {
+  "config": {
+    "version": "1.0.0",
+    "animationConfig": {
+      "initialDuration": 1000,
+      "expansionDuration": 3000,
+      "valueChangeDuration": 3000,
+      "collapseDuration": 3000
+    },
+    "groupAxisConfig": {
+      "property": "timestamp",
+      "type": "string",
+      "scale": "ordinal",
+      "valueLabel": "Date",
+      "dateUTC": false
+    },
+    "legendConfig": {
+      "visible": true
+    },
+    "seriesAxisConfigs": [
+      {
+        "id": "SA0",
+        "min": 0
+      }
+    ],
+    "seriesStackConfigs": [{
+      "id": "SS0",
+      "axis": "SA0"
+    }],
+    "seriesConfigs": [
+      {
+        "axis": "SA0",
+        "stack": "SS0",
+        "property": "count",
+        "title": "Count",
+        "renderer": "bar",
+        "markerShape": null,
+        "valueFormat": ",d"
+      }
+    ]
+  },
+  "data": [
+    [
+      { "timestamp": "aaa", "count": 50 },
+      { "timestamp": "bbb", "count": 48 },
+      { "timestamp": "ccc", "count": 28 },
+      { "timestamp": "ddd", "count": 27 },
+      { "timestamp": "eee", "count": 25 },
+      { "timestamp": "fff", "count": 22 }
+    ],
+    [
+      { "timestamp": "ccc", "count": 45 },
+      { "timestamp": "bbb", "count": 42 },
+      { "timestamp": "ddd", "count": 27 },
+      { "timestamp": "eee", "count": 25 },
+      { "timestamp": "fff", "count": 22 },
+      { "timestamp": "ggg", "count": 20 }
+    ],
+    [
+      { "timestamp": "bbb", "count": 42 },
+      { "timestamp": "ccc", "count": 45 },
+      { "timestamp": "ddd", "count": 27 },
+      { "timestamp": "eee", "count": 25 },
+      { "timestamp": "fff", "count": 22 },
+      { "timestamp": "ggg", "count": 20 }
+    ]
+  ]
+};
+
+export function getTransitionMochartConfig(transitionConfig: TransitionConfig): MochartConfig {
+  return buildMochartDemoConfig(transitionConfig.config).mochartConfig;
+}
+
+export function getTransitionDataProviders(transitionConfig: TransitionConfig): ChartDataProviderLike[] {
+  // TODO - this doesn't handle group display property or extra series properties...
+  const groupProperty = transitionConfig.config.groupAxisConfig.property;
+  return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, groupProperty));
+}
+
+export function formatTransitionConfig(transitionConfig: TransitionConfig): string {
+  if (transitionConfig && objectValidator(transitionConfig)) {
+    let configText = '{}';
+    let dataText = '[]';
+    if (transitionConfig.config && objectValidator(transitionConfig.config)) {
+      configText = JSON.stringify(transitionConfig.config, null, '\t');
+      configText = configText.replace(/\n\t/g, '\n\t\t');
+      configText = configText.replace(/\n}/g, '\n\t}');
+    }
+    if (transitionConfig.data && arrayValidator(transitionConfig.data)) {
+      const dataArray = transitionConfig.data;
+      const dataTexts: string[] = [];
+      let aDataText: string;
+      for (const data of dataArray) {
+        if (data && arrayValidator(data)) {
+          aDataText = JSON.stringify(data).replace(/},{/g, '},\n\t\t\t{').replace(/,/g, ', ');
+          aDataText = aDataText.replace(/\[{/, '[\n\t\t\t{');
+          aDataText = aDataText.replace(/}\]/, '}\n\t\t]');
+          dataTexts.push(aDataText);
+        }
+      }
+      dataText = '[\n\t\t' + dataTexts.join(',\n\t\t') + '\n\t]';
+    }
+    return '{\n' + '\t"config": ' + configText + ',\n\t"data": ' + dataText + '\n}';
+  }
+  else {
+    return String(transitionConfig);
+  }
+}
+
+export type TransitionConfigEditResult = { ok: true; config: TransitionConfig } | { ok: false; errorMessage: string };
+
+/** Parse + validate a transition-config edit for Apply. */
+export function applyTransitionConfigEdit(configText: string): TransitionConfigEditResult {
+  try {
+    const newConfig = JSON.parse(configText);
+    if (objectValidator(newConfig)) {
+      if (objectValidator(newConfig.config)) {
+        const mochartDemoConfig = buildMochartDemoConfig(newConfig.config);
+        const { configValidation } = mochartDemoConfig;
+        const { valid, errors, warnings } = configValidation;
+        if (valid) {
+          if (arrayValidator(newConfig.data) && !newConfig.data.some((aData: unknown) => !arrayValidator(aData))) {
+            return { ok: true, config: newConfig };
+          }
+          else {
+            console.warn('Invalid Transition Config, data should be an array of arrays: ', newConfig.data);
+            return { ok: false, errorMessage: '"data" should be an array of arrays' };
+          }
+        }
+        else {
+          if (errors.length > 0) {
+            console.warn('errors: ', errors);
+          }
+          if (warnings.length > 0) {
+            console.warn('warnings: ', warnings);
+          }
+          return { ok: false, errorMessage: 'Invalid chart config — details in the browser console' };
+        }
+      }
+      else {
+        console.warn('Invalid Transition Config, config should be an object: ', newConfig.config);
+        return { ok: false, errorMessage: '"config" should be an object' };
+      }
+    }
+    else {
+      console.warn('Invalid Transition Config, should be an object: ', configText);
+      return { ok: false, errorMessage: 'Transition config should be an object' };
+    }
+  }
+  catch (error) {
+    console.warn('Invalid Transition Config JSON: ', configText);
+    return { ok: false, errorMessage: 'Invalid JSON' };
+  }
+}

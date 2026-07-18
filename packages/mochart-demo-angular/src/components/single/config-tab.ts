@@ -1,53 +1,15 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+
+import type { DemoConfigView } from '@mochart/demo-common';
 
 import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { Icon } from '../misc/icon';
 
 import type { DemoConfig, MochartDemoConfig } from '../../types';
-
-// The with/without-defaults config views the editor toggles between. Config
-// sections are intentionally loose (`any`) — they are arbitrary user JSON.
-interface DemoConfigView {
-  configWithDefaults: Record<string, any>;
-  configWithoutDefaults: Record<string, any>;
-}
-
-const slowAnimationConfig = {
-  "animate": true,
-  "initialDuration": 5000,
-  "expansionDuration": 3000,
-  "valueChangeDuration": 5000,
-  "collapseDuration": 3000,
-  "focusDuration": 2500
-};
-
-function formatConfig(config: unknown): string {
-  return JSON.stringify(config, null, '\t');
-}
-
-function formatMochartDemoConfig(demoConfig: DemoConfigView, showDefaults: boolean): string {
-  const { configWithDefaults, configWithoutDefaults } = demoConfig;
-  return formatConfig(showDefaults ? configWithDefaults : configWithoutDefaults);
-}
-
-function copyDemoConfig(demoConfig: DemoConfigView | MochartDemoConfig): DemoConfigView {
-  const { configWithDefaults, configWithoutDefaults } = demoConfig;
-  return JSON.parse(JSON.stringify({ configWithDefaults, configWithoutDefaults }));
-}
-
-function parseConfig(configText: string): DemoConfig | null {
-  try {
-    return JSON.parse(configText);
-  }
-  catch (error) {
-    console.warn('Invalid Chart Config JSON: ' + configText);
-    return null;
-  }
-}
 
 @Component({
   selector: 'app-config-tab',
@@ -160,55 +122,13 @@ export class ConfigTab implements OnInit, OnChanges {
     this.updateShowDefaults(!this.showDefaults());
   };
 
-  private toggleConfigProperty(currentDemoConfig: DemoConfigView | null, section: string, key: string, defaultValue: unknown): DemoConfigView | undefined {
-    if (currentDemoConfig) {
-      let { configWithDefaults, configWithoutDefaults } = currentDemoConfig;
-      configWithDefaults = { ...configWithDefaults };
-      configWithoutDefaults = { ...configWithoutDefaults };
-      const sectionConfig = configWithoutDefaults[section];
-      if (!sectionConfig) {
-        configWithoutDefaults[section] = { [key]: defaultValue };
-        configWithDefaults[section] = { ...configWithDefaults[section], [key]: defaultValue };
-      }
-      else {
-        configWithoutDefaults[section] = { ...sectionConfig, [key]: !sectionConfig[key] };
-        configWithDefaults[section] = { ...configWithDefaults[section], [key]: !sectionConfig[key] };
-      }
-      return {
-        configWithDefaults, configWithoutDefaults
-      };
-    }
-    return undefined;
-  }
-
-  private toggleConfigSection(currentMochartDemoConfig: MochartDemoConfig | null, currentDemoConfig: DemoConfigView | null, section: string, defaultSection: unknown): DemoConfigView | undefined {
-    if (currentMochartDemoConfig && currentDemoConfig) {
-      let { configWithDefaults, configWithoutDefaults } = currentDemoConfig;
-      configWithDefaults = { ...configWithDefaults };
-      configWithoutDefaults = { ...configWithoutDefaults };
-      const sectionConfig = configWithoutDefaults[section];
-      if (!sectionConfig) {
-        configWithoutDefaults[section] = defaultSection;
-        configWithDefaults[section] = defaultSection;
-      }
-      else {
-        configWithoutDefaults[section] = configWithoutDefaults[section] === defaultSection ? currentMochartDemoConfig.configWithoutDefaults[section] : defaultSection;
-        configWithDefaults[section] = configWithDefaults[section] === defaultSection ? currentMochartDemoConfig.configWithDefaults[section] : defaultSection;
-      }
-      return {
-        configWithDefaults, configWithoutDefaults
-      };
-    }
-    return undefined;
-  }
-
   toggleConfigInverted = (): void => {
-    this.demoConfig.set(this.toggleConfigProperty(this.demoConfig(), 'plotConfig', 'inverted', true) ?? this.demoConfig());
+    this.demoConfig.set(toggleConfigProperty(this.demoConfig()!, 'plotConfig', 'inverted', true));
     this.configText.set(formatMochartDemoConfig(this.demoConfig()!, this.showDefaults()));
   };
 
   toggleConfigAnimationSlow = (): void => {
-    this.demoConfig.set(this.toggleConfigSection(this.mochartDemoConfig(), this.demoConfig(), 'animationConfig', slowAnimationConfig) ?? this.demoConfig());
+    this.demoConfig.set(toggleConfigSection(this.mochartDemoConfig()!, this.demoConfig()!, 'animationConfig', slowAnimationConfig));
     this.configText.set(formatMochartDemoConfig(this.demoConfig()!, this.showDefaults()));
   };
 

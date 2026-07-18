@@ -5,14 +5,14 @@ import type { PropertyValues } from 'lit';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { generateChartDataProvider } from './RandomGenerator';
-
 import { LightElement } from '../misc/LightElement';
 import '../demos/demos-tab';
 import './random-chart-tab';
 import './random-config-tab';
 import './random-data-tab';
 import '../misc/error-tab';
+
+import { generateChartDataProvider } from '@mochart/demo-common';
 
 import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
 

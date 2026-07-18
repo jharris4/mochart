@@ -1,11 +1,9 @@
+import { formatData } from '@mochart/demo-common';
+
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { TextAreaContent } from '../misc/text-area-content';
-
-function formatData(dataJSON: unknown): string {
-  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
-}
 
 @Component({
   selector: 'app-random-data-tab',

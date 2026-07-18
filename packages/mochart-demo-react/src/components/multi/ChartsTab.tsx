@@ -3,11 +3,10 @@ import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 import sizer from 'react-sizer';
 
-import { ArrayOfObjectsDataProvider } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, getDataProvidersForDataCount } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
@@ -19,25 +18,6 @@ const defaultChartRows = 2;
 const defaultChartCols = 2;
 
 const defaultRate = 2000;
-
-function getChartDataCount(data: DataRow[], currentDataCount: number, i: number): number {
-  const dataCount = data.length;
-  let chartDataCount = (dataCount + currentDataCount - i) % dataCount;
-  if (chartDataCount === 0) {
-    chartDataCount = dataCount;
-  }
-  return chartDataCount;
-}
-
-function getDataProvidersForDataCount(mochartConfig: MochartConfig, data: DataRow[], chartCount: number, currentDataCount: number): ChartDataProviderLike[] {
-  const dataProviders: ChartDataProviderLike[] = [];
-  const groupProperty = mochartConfig.groupAxisConfig.property ?? '';
-  for (let i = 0; i < chartCount; i++) {
-    const chartDataCount = getChartDataCount(data, currentDataCount, i);
-    dataProviders.push(new ArrayOfObjectsDataProvider(data.slice(0, chartDataCount), groupProperty));
-  }
-  return dataProviders;
-}
 
 interface Props {
   demoObject: Demo;

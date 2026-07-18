@@ -25,6 +25,7 @@ gaps between segments mid-transition.
 | [@mochart/demo-vanilla](packages/mochart-demo-vanilla/README.md) | Full-featured demo gallery in plain TypeScript (private) — the no-framework peer of the framework demo apps. |
 | [@mochart/demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the Playwright e2e suite. |
 | [@mochart/demo-data](packages/mochart-demo-data/README.md) | Shared demo configs, datasets, and random specs (private) used by every demo app. |
+| [@mochart/demo-common](packages/mochart-demo-common/README.md) | Shared framework-agnostic demo logic (private) — config/data editing helpers, random data generator, and shared types used by every demo app. |
 | [@mochart/benchmark](packages/mochart-benchmark/README.md) | Performance benchmark harness (private) — measures mount/update/frame-time cost of generated charts at configurable sizes. |
 | [@mochart/movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
@@ -33,7 +34,8 @@ Each wrapper framework also has a full-featured demo gallery —
 `@mochart/demo-svelte`, and `@mochart/demo-vue` (all private) — with
 single/multi/random/transition/rotation
 demo modes; `@mochart/demo-vanilla` is the same gallery in plain TypeScript.
-All of them share the demo configs from `@mochart/demo-data`.
+All of them share the demo configs from `@mochart/demo-data` and the
+framework-agnostic demo logic from `@mochart/demo-common`.
 There are also build-free static HTML examples in
 [packages/mochart/example](packages/mochart/example/README.md).
 

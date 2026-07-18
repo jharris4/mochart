@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { formatData } from '@mochart/demo-common';
+
 import { ref, watch } from 'vue';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
@@ -6,10 +8,6 @@ import TextAreaContent from '../misc/TextAreaContent.vue';
 interface Props {
   active?: boolean;
   data: unknown;
-}
-
-function formatData(dataJSON: unknown): string {
-  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
 }
 
 const props = withDefaults(defineProps<Props>(), {

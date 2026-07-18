@@ -2,47 +2,12 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import validators from '@mochart/movalid';
-
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, buildMochartDemoConfig, formatTransitionConfig } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
 import type { TransitionConfig } from '../../types';
-
-const objectValidator = validators.object();
-const arrayValidator = validators.array();
-
-function formatConfig(transitionConfig: TransitionConfig): string {
-  if (transitionConfig && objectValidator(transitionConfig)) {
-    let configText = '{}';
-    let dataText = '[]';
-    if (transitionConfig.config && objectValidator(transitionConfig.config)) {
-      configText = JSON.stringify(transitionConfig.config, null, '\t');
-      configText = configText.replace(/\n\t/g, '\n\t\t');
-      configText = configText.replace(/\n}/g, '\n\t}');
-    }
-    if (transitionConfig.data && arrayValidator(transitionConfig.data)) {
-      const dataArray = transitionConfig.data;
-      const dataTexts: string[] = [];
-      let aDataText: string;
-      for (const data of dataArray) {
-        if (data && arrayValidator(data)) {
-          aDataText = JSON.stringify(data).replace(/},{/g, '},\n\t\t\t{').replace(/,/g, ', ');
-          aDataText = aDataText.replace(/\[{/, '[\n\t\t\t{');
-          aDataText = aDataText.replace(/}\]/, '}\n\t\t]');
-          dataTexts.push(aDataText);
-        }
-      }
-      dataText = '[\n\t\t' + dataTexts.join(',\n\t\t') + '\n\t]';
-    }
-    return '{\n' + '\t"config": ' + configText + ',\n\t"data": ' + dataText + '\n}';
-  }
-  else {
-    return String(transitionConfig);
-  }
-}
 
 interface Props {
   active: boolean;
@@ -52,56 +17,23 @@ interface Props {
 }
 
 export default function TransitionConfigTab({ active, transitionConfig, onUpdate, onReset }: Props) {
-  const [configText, setConfigText] = useState(() => formatConfig(transitionConfig));
+  const [configText, setConfigText] = useState(() => formatTransitionConfig(transitionConfig));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const prevTransitionConfig = useRef(transitionConfig);
   if (prevTransitionConfig.current !== transitionConfig) {
     prevTransitionConfig.current = transitionConfig;
-    setConfigText(formatConfig(transitionConfig));
+    setConfigText(formatTransitionConfig(transitionConfig));
   }
 
   const onUpdateClick = () => {
-    try {
-      const newConfig = JSON.parse(configText);
-      if (objectValidator(newConfig)) {
-        if (objectValidator(newConfig.config)) {
-          const mochartDemoConfig = buildMochartDemoConfig(newConfig.config);
-          const { configValidation } = mochartDemoConfig;
-          const { valid, errors, warnings } = configValidation;
-          if (valid) {
-            if (arrayValidator(newConfig.data) && !newConfig.data.some((aData: unknown) => !arrayValidator(aData))) {
-              setErrorMessage(null);
-              onUpdate(newConfig);
-            }
-            else {
-              console.warn('Invalid Transition Config, data should be an array of arrays: ', newConfig.data);
-              setErrorMessage('"data" should be an array of arrays');
-            }
-          }
-          else {
-            if (errors.length > 0) {
-              console.warn('errors: ', errors);
-            }
-            if (warnings.length > 0) {
-              console.warn('warnings: ', warnings);
-            }
-            setErrorMessage('Invalid chart config — details in the browser console');
-          }
-        }
-        else {
-          console.warn('Invalid Transition Config, config should be an object: ', newConfig.config);
-          setErrorMessage('"config" should be an object');
-        }
-      }
-      else {
-        console.warn('Invalid Transition Config, should be an object: ', configText);
-        setErrorMessage('Transition config should be an object');
-      }
+    const result = applyTransitionConfigEdit(configText);
+    if (result.ok) {
+      setErrorMessage(null);
+      onUpdate(result.config);
     }
-    catch (error) {
-      console.warn('Invalid Transition Config JSON: ', configText);
-      setErrorMessage('Invalid JSON');
+    else {
+      setErrorMessage(result.errorMessage);
     }
   };
 

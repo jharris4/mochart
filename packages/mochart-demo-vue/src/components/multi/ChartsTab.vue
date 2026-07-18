@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 
-import { ArrayOfObjectsDataProvider } from '@mochart/core';
-import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/vue';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, getDataProvidersForDataCount } from '@mochart/demo-common';
 
 import ChartsControls from './ChartsControls.vue';
 import { useElementSize } from '../misc/useElementSize';
 
-import type { Demo, DataRow, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
+import type { Demo, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
 
 interface Props {
   demoObject: Demo;
@@ -23,26 +21,6 @@ const defaultChartRows = 2;
 const defaultChartCols = 2;
 
 const defaultRate = 2000;
-
-function getChartDataCount(data: DataRow[], currentDataCount: number, i: number): number {
-  const dataCount = data.length;
-  let chartDataCount = (dataCount + currentDataCount - i) % dataCount;
-  if (chartDataCount === 0) {
-    chartDataCount = dataCount;
-  }
-  return chartDataCount;
-}
-
-function getDataProvidersForDataCount(mochartConfig: MochartConfig, data: DataRow[], chartCount: number, currentDataCount: number): ChartDataProviderLike[] {
-  const dataProviders: ChartDataProviderLike[] = [];
-  let i, chartDataCount;
-  const groupProperty = mochartConfig.groupAxisConfig.property ?? '';
-  for (i = 0; i < chartCount; i++) {
-    chartDataCount = getChartDataCount(data, currentDataCount, i);
-    dataProviders.push(new ArrayOfObjectsDataProvider(data.slice(0, chartDataCount), groupProperty));
-  }
-  return dataProviders;
-}
 
 const props = withDefaults(defineProps<Props>(), {
   active: false

@@ -3,7 +3,7 @@ import seedrandom from 'seedrandom';
 import { NONE, AUTO, TYPE_DATE, TYPE_NUMBER, TYPE_STRING, SCALE_ORDINAL } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 
-import type { RandomConfig, GroupValue, DemoDataProvider } from '../../types';
+import type { RandomConfig, GroupValue, DemoDataProvider } from './types';
 
 const globalId = 'global';
 
