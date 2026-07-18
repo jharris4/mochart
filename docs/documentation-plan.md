@@ -92,9 +92,10 @@ generated artifact instead of each re-walking the config modules.
       link.
 - [x] Recipes (first three, proving the live-chart pattern): stacked bars,
       dual value axes, date axis.
-- [ ] Remaining recipes: grouped series, horizontal (inverted) charts,
-      thresholds & ranges, gradients, markers & labels, custom tooltip
-      formatting — follow-up.
+- [x] Remaining recipes: grouped series, horizontal (inverted) charts,
+      thresholds & ranges, gradients, markers & labels, tooltip formatting —
+      each with a live chart, the validated example config, and a "how it
+      works" section linking into the reference.
 - [x] Config reference pages rendered from `config-reference.json` at build
       time via a dynamic route (`reference/[section].md` + paths loader), one
       page per section with stable `#sectionId.propertyKey` anchors, color

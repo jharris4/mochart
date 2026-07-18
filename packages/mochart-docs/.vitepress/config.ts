@@ -80,8 +80,14 @@ function guideSidebar() {
       text: 'Recipes',
       items: [
         { text: 'Stacked bars', link: '/recipes/stacked-bars' },
+        { text: 'Grouped series', link: '/recipes/grouped-series' },
         { text: 'Dual value axes', link: '/recipes/dual-axes' },
-        { text: 'Date axis', link: '/recipes/date-axis' }
+        { text: 'Date axis', link: '/recipes/date-axis' },
+        { text: 'Horizontal charts', link: '/recipes/horizontal-bars' },
+        { text: 'Thresholds and ranges', link: '/recipes/thresholds-ranges' },
+        { text: 'Gradients', link: '/recipes/gradients' },
+        { text: 'Markers and labels', link: '/recipes/markers-labels' },
+        { text: 'Tooltip formatting', link: '/recipes/tooltip-formatting' }
       ]
     }
   ];
