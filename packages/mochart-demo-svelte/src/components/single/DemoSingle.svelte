@@ -28,18 +28,26 @@
 
   let { demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged }: Props = $props();
 
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs everything when the routed demo changes.
+  // svelte-ignore state_referenced_locally
   let activeKey = $state(getActiveKeyForInitialDemoId(initialDemoId));
 
   // Config/data edits made on the Config/Data tabs stay "pending" until the
   // Chart tab is shown again (so the chart animates one combined change).
+  // svelte-ignore state_referenced_locally
   let demoId = $state(initialDemoId);
   let pendingConfig = $state.raw<DemoConfig | null>(null);
   let pendingData = $state.raw<DataRow[] | null>(null);
   let pendingDataError = $state.raw<DataError>(false);
+  // svelte-ignore state_referenced_locally
   let config = $state.raw<DemoConfig | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null);
+  // svelte-ignore state_referenced_locally
   let data = $state.raw<DataRow[] | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null);
   let dataError = $state.raw<DataError>(false);
+  // svelte-ignore state_referenced_locally
   let viewingConfig = $state.raw<DemoConfig | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null);
+  // svelte-ignore state_referenced_locally
   let viewingData = $state.raw<DataRow[] | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null);
   let viewingDataError = $state.raw<DataError>(false);
 
@@ -70,6 +78,7 @@
 
   // When the routed demo changes, reload its config/data (and promote them
   // straight to the visible chart, matching the react demo's lifecycle).
+  // svelte-ignore state_referenced_locally
   let previousInitialDemoId = initialDemoId;
   $effect.pre(() => {
     if (initialDemoId !== previousInitialDemoId) {

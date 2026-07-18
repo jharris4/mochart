@@ -60,10 +60,16 @@
 
   let showDefaults = $state(false);
   let errorMessage = $state<string | null>(null);
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs on later prop changes.
+  // svelte-ignore state_referenced_locally
   let mochartDemoConfig = $state.raw(buildMochartDemoConfig(config));
+  // svelte-ignore state_referenced_locally
   let demoConfig = $state.raw(copyDemoConfig(mochartDemoConfig));
+  // svelte-ignore state_referenced_locally
   let configText = $state(formatMochartDemoConfig(demoConfig, false));
 
+  // svelte-ignore state_referenced_locally
   let previousConfig = config;
   $effect.pre(() => {
     const nextConfig = config;

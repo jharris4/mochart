@@ -22,9 +22,14 @@
 
   let { demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged }: Props = $props();
 
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs everything when the routed demo changes.
+  // svelte-ignore state_referenced_locally
   let demoId = $state(initialDemoId);
+  // svelte-ignore state_referenced_locally
   let activeKey = $state(getActiveKeyForInitialDemoId(initialDemoId));
 
+  // svelte-ignore state_referenced_locally
   let previousInitialDemoId = initialDemoId;
   $effect.pre(() => {
     if (initialDemoId !== previousInitialDemoId) {

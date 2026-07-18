@@ -148,9 +148,15 @@
 
   initData();
 
+  // Props intentionally seed the previous-value snapshots with their initial
+  // value only; the $effect.pre below re-syncs on later prop changes.
+  // svelte-ignore state_referenced_locally
   let previousData = data;
+  // svelte-ignore state_referenced_locally
   let previousDataError = dataError;
+  // svelte-ignore state_referenced_locally
   let previousMochartDemoConfig = mochartDemoConfig;
+  // svelte-ignore state_referenced_locally
   let previousFocusedGroupIndex = focusedGroupIndex;
   $effect.pre(() => {
     const nextData = data;

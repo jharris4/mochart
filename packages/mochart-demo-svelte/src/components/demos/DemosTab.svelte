@@ -86,16 +86,15 @@
   </div>
   <div class="mochart-demo-list-container">
     <div class="mochart-demo-list">
-      <ul class="list-group">
+      <div class="list-group">
         {#each theDemoIds as currentDemoId (currentDemoId)}
-          <li class={"list-group-item" + (currentDemoId === demoId ? " active" : "")}
-              onclick={() => onDemoChange(currentDemoId)}
-              onkeydown={(event) => { if (event.key === 'Enter' || event.key === ' ') { onDemoChange(currentDemoId); } }}
-              role="button" tabindex="0">
+          <button type="button"
+                  class={"list-group-item list-group-item-action" + (currentDemoId === demoId ? " active" : "")}
+                  onclick={() => onDemoChange(currentDemoId)}>
             {demoData.demoObjectMap[currentDemoId].title}
-          </li>
+          </button>
         {/each}
-      </ul>
+      </div>
     </div>
   </div>
 </div>

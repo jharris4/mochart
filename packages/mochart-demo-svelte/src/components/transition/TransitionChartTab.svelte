@@ -21,7 +21,11 @@
   let dataProviderIndex = $state(0);
   let chartSizerElement = $state<HTMLDivElement | null>(null);
 
+  // Props intentionally seed the previous-value snapshots with their initial
+  // value only; the $effect.pre below re-syncs on later prop changes.
+  // svelte-ignore state_referenced_locally
   let previousMochartConfig = mochartConfig;
+  // svelte-ignore state_referenced_locally
   let previousDataProviders = dataProviders;
   $effect.pre(() => {
     const nextMochartConfig = mochartConfig;

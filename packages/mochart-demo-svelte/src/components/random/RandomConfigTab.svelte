@@ -183,9 +183,13 @@
 
   let { active = false, randomConfig, onUpdate, onReset }: Props = $props();
 
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs on later prop changes.
+  // svelte-ignore state_referenced_locally
   let configText = $state(formatConfig(randomConfig));
   let errorMessage = $state<string | null>(null);
 
+  // svelte-ignore state_referenced_locally
   let previousRandomConfig = randomConfig;
   $effect.pre(() => {
     const nextRandomConfig = randomConfig;

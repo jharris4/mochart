@@ -30,7 +30,7 @@ export default function MochartDemosTab({ active, demoData, demoMode, demoId, on
   const demoListGroupItems = theDemoIds.map(currentDemoId => {
     const demoObject = demoObjectMap[currentDemoId];
     return (
-      <ListGroupItem key={'demo-' + currentDemoId} active={currentDemoId === demoId} onClick={() => onDemoChange(currentDemoId)}>{demoObject.title}</ListGroupItem>
+      <ListGroupItem key={'demo-' + currentDemoId} tag="button" type="button" action active={currentDemoId === demoId} onClick={() => onDemoChange(currentDemoId)}>{demoObject.title}</ListGroupItem>
     );
   });
 
@@ -80,7 +80,7 @@ export default function MochartDemosTab({ active, demoData, demoMode, demoId, on
       </div>
       <div className="mochart-demo-list-container">
         <div className="mochart-demo-list">
-          <ListGroup>
+          <ListGroup tag="div">
             {demoListGroupItems}
           </ListGroup>
         </div>

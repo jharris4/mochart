@@ -53,8 +53,12 @@
     decrementRandomId
   }: Props = $props();
 
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs everything when the inputs change.
+  // svelte-ignore state_referenced_locally
   const { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData } = eventKeys;
 
+  // svelte-ignore state_referenced_locally
   let randomConfig = $state.raw<RandomConfigWithValid>(initialRandomConfig);
   let dataProvider = $state.raw<DemoDataProvider | null>(null);
   let data = $state.raw<unknown>(null);
@@ -137,13 +141,19 @@
     }
   }
 
+  // svelte-ignore state_referenced_locally
   if (initialDemoId !== 'demos') {
+    // svelte-ignore state_referenced_locally
     updateDataProvider(initialRandomConfig);
   }
 
+  // svelte-ignore state_referenced_locally
   let previousInitialDemoId = initialDemoId;
+  // svelte-ignore state_referenced_locally
   let previousInitialRandomConfig = initialRandomConfig;
+  // svelte-ignore state_referenced_locally
   let previousMochartDemoConfig = mochartDemoConfig;
+  // svelte-ignore state_referenced_locally
   let previousRandomId = randomId;
   $effect.pre(() => {
     const nextInitialDemoId = initialDemoId;

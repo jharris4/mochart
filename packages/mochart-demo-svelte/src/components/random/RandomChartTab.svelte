@@ -42,6 +42,8 @@
   let rate = $state(defaultRate);
   let rateText = $state('' + defaultRate);
 
+  // Intentional initial-value capture; the $effect.pre below re-syncs it.
+  // svelte-ignore state_referenced_locally
   let previousActive = active;
   $effect.pre(() => {
     const nextActive = active;

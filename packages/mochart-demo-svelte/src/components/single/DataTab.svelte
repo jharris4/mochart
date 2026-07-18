@@ -35,9 +35,13 @@
 
   let { active = false, config, data, onDataChange, onDataError, onDataReset }: Props = $props();
 
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs on later prop changes.
+  // svelte-ignore state_referenced_locally
   let dataText = $state(formatData(data));
   let errorMessage = $state<string | null>(null);
 
+  // svelte-ignore state_referenced_locally
   let previousData = data;
   $effect.pre(() => {
     const nextData = data;

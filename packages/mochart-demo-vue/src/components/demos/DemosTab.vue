@@ -89,15 +89,13 @@ function onTestModeToggle() {
     </div>
     <div class="mochart-demo-list-container">
       <div class="mochart-demo-list">
-        <ul class="list-group">
-          <li v-for="currentDemoId in theDemoIds" :key="currentDemoId"
-              :class="'list-group-item' + (currentDemoId === props.demoId ? ' active' : '')"
-              role="button" tabindex="0"
-              @click="props.onDemoChange(currentDemoId)"
-              @keydown="(event) => { if (event.key === 'Enter' || event.key === ' ') { props.onDemoChange(currentDemoId); } }">
+        <div class="list-group">
+          <button v-for="currentDemoId in theDemoIds" :key="currentDemoId" type="button"
+                  :class="'list-group-item list-group-item-action' + (currentDemoId === props.demoId ? ' active' : '')"
+                  @click="props.onDemoChange(currentDemoId)">
             {{ props.demoData.demoObjectMap[currentDemoId].title }}
-          </li>
-        </ul>
+          </button>
+        </div>
       </div>
     </div>
   </div>

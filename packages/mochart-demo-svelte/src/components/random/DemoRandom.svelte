@@ -48,13 +48,19 @@
     };
   }
 
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs everything when the routed demo changes.
+  // svelte-ignore state_referenced_locally
   const initialState = initialDemoId !== 'demos' ? buildStateForDemo(initialDemoId) : { mochartDemoConfig: null, randomConfig: null };
 
+  // svelte-ignore state_referenced_locally
   let demoId = $state(initialDemoId);
+  // svelte-ignore state_referenced_locally
   let activeKey = $state(getActiveKeyForInitialDemoId(initialDemoId));
   let mochartDemoConfig = $state.raw(initialState.mochartDemoConfig);
   let randomConfig = $state.raw(initialState.randomConfig);
 
+  // svelte-ignore state_referenced_locally
   let previousInitialDemoId = initialDemoId;
   $effect.pre(() => {
     const nextInitialDemoId = initialDemoId;

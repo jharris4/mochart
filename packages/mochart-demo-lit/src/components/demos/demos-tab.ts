@@ -84,19 +84,14 @@ export class DemosTab extends LightElement {
       </div>
       <div class="mochart-demo-list-container">
         <div class="mochart-demo-list">
-          <ul class="list-group">
-            ${repeat(theDemoIds, currentDemoId => currentDemoId, currentDemoId => html`<li
-                class=${'list-group-item' + (currentDemoId === this.demoId ? ' active' : '')}
-                role="button" tabindex="0"
-                @click=${() => this.onDemoChange(currentDemoId)}
-                @keydown=${(event: KeyboardEvent) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    this.onDemoChange(currentDemoId);
-                  }
-                }}>
+          <div class="list-group">
+            ${repeat(theDemoIds, currentDemoId => currentDemoId, currentDemoId => html`<button
+                type="button"
+                class=${'list-group-item list-group-item-action' + (currentDemoId === this.demoId ? ' active' : '')}
+                @click=${() => this.onDemoChange(currentDemoId)}>
               ${this.demoData.demoObjectMap[currentDemoId].title}
-            </li>`)}
-          </ul>
+            </button>`)}
+          </div>
         </div>
       </div>
     </div>`;

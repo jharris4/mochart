@@ -65,23 +65,18 @@ export function demosTab(props: DemosTabProps): DemosTabHandle {
     renderList();
   });
 
-  const list = el('ul', { className: 'list-group' });
+  const list = el('div', { className: 'list-group' });
 
   function renderList(): void {
     const theDemoIds = isTestMode ? demoData.testDemoIds : demoData.demoIds;
     list.replaceChildren();
     for (const currentDemoId of theDemoIds) {
-      const item = el('li', {
-        className: 'list-group-item' + (currentDemoId === demoId ? ' active' : ''),
-        attrs: { role: 'button', tabindex: '0' },
+      const item = el('button', {
+        className: 'list-group-item list-group-item-action' + (currentDemoId === demoId ? ' active' : ''),
+        attrs: { type: 'button' },
         text: demoData.demoObjectMap[currentDemoId].title
       });
       item.addEventListener('click', () => onDemoChange(currentDemoId));
-      item.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          onDemoChange(currentDemoId);
-        }
-      });
       list.append(item);
     }
   }

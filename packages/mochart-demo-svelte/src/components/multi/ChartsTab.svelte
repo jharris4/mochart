@@ -51,12 +51,20 @@
   let chartRows = $state(defaultChartRows);
   let chartCols = $state(defaultChartCols);
   let rate = $state(defaultRate);
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs everything when the demo changes.
+  // svelte-ignore state_referenced_locally
   let mochartDemoConfig = $state.raw(buildMochartDemoConfig(demoObject.config));
+  // svelte-ignore state_referenced_locally
   let data = $state.raw(demoObject.data);
+  // svelte-ignore state_referenced_locally
   let dataCount = $state(demoObject.data.length);
+  // svelte-ignore state_referenced_locally
   let currentDataCount = $state(demoObject.data.length);
+  // svelte-ignore state_referenced_locally
   let dataProviders = $state.raw(getDataProvidersForDataCount(
     mochartDemoConfig.mochartConfig, demoObject.data, defaultChartRows * defaultChartCols, demoObject.data.length));
+  // svelte-ignore state_referenced_locally
   let focusedGroupIndices = $state.raw<number[]>(dataProviders.map(() => -1));
   let focusedGroupIndex = $state(-1);
   let focusedSeriesAxisId = $state.raw<string | null>(null);
@@ -70,7 +78,9 @@
     filteredSeriesIds = {};
   }
 
+  // svelte-ignore state_referenced_locally
   let previousDemoObject = demoObject;
+  // svelte-ignore state_referenced_locally
   let previousActive = active;
   $effect.pre(() => {
     const nextDemoObject = demoObject;

@@ -14,8 +14,12 @@
 
   let { active = false, data }: Props = $props();
 
+  // Props intentionally seed local state with their initial value only; the
+  // $effect.pre below re-syncs on later prop changes.
+  // svelte-ignore state_referenced_locally
   let dataText = $state(formatData(data));
 
+  // svelte-ignore state_referenced_locally
   let previousData = data;
   $effect.pre(() => {
     const nextData = data;
