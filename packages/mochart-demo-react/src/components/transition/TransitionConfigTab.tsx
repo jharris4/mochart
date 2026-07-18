@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
@@ -53,6 +53,7 @@ interface Props {
 
 export default function TransitionConfigTab({ active, transitionConfig, onUpdate, onReset }: Props) {
   const [configText, setConfigText] = useState(() => formatConfig(transitionConfig));
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const prevTransitionConfig = useRef(transitionConfig);
   if (prevTransitionConfig.current !== transitionConfig) {
@@ -70,11 +71,12 @@ export default function TransitionConfigTab({ active, transitionConfig, onUpdate
           const { valid, errors, warnings } = configValidation;
           if (valid) {
             if (arrayValidator(newConfig.data) && !newConfig.data.some((aData: unknown) => !arrayValidator(aData))) {
+              setErrorMessage(null);
               onUpdate(newConfig);
             }
             else {
               console.warn('Invalid Transition Config, data should be an array of arrays: ', newConfig.data);
-              alert('Invalid Transition Data, should be an array of arrays');
+              setErrorMessage('"data" should be an array of arrays');
             }
           }
           else {
@@ -84,40 +86,53 @@ export default function TransitionConfigTab({ active, transitionConfig, onUpdate
             if (warnings.length > 0) {
               console.warn('warnings: ', warnings);
             }
-            alert('Invalid Chart Config, mochart config was not valid');
+            setErrorMessage('Invalid chart config — details in the browser console');
           }
         }
         else {
           console.warn('Invalid Transition Config, config should be an object: ', newConfig.config);
-          alert('Invalid Chart Config, should be an object');
+          setErrorMessage('"config" should be an object');
         }
       }
       else {
         console.warn('Invalid Transition Config, should be an object: ', configText);
-        alert('Invalid Transition Config, should be an object');
+        setErrorMessage('Transition config should be an object');
       }
     }
     catch (error) {
       console.warn('Invalid Transition Config JSON: ', configText);
-      alert('Invalid Transition Config JSON');
+      setErrorMessage('Invalid JSON');
     }
   };
+
+  const jsonError = useMemo(() => {
+    try {
+      JSON.parse(configText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  }, [configText]);
+  const footerError = jsonError ?? errorMessage;
 
   return (
     <div className={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
       <div className="mochart-demo-tab-content">
-        <TextAreaContent value={configText} onChange={setConfigText} />
+        <TextAreaContent value={configText} onChange={(text: string) => { setConfigText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
         <ButtonToolbar>
-          <ButtonWithTooltip id="config-reset" tooltipText="Reset" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore the original transition config" tooltipPlacement="top-start"
             onClick={onReset} aria-label="Reset">
-            <FontAwesome size="lg" fixedWidth={true} name="undo" />
+            <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-apply" tooltipText="Apply" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
+            tooltipText="Apply this config to the transition charts" tooltipPlacement="top-start"
             onClick={onUpdateClick} aria-label="Apply">
             <FontAwesome size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
+          {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
         </ButtonToolbar>
       </div>
     </div>

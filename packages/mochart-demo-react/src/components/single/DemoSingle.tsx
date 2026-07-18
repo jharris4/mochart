@@ -22,6 +22,9 @@ function getActiveKeyForInitialDemoId(initialDemoId: string): number {
 
 export default function MochartDemoSingle({ demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged }: DemoTabProps) {
   const [activeKey, setActiveKey] = useState(() => getActiveKeyForInitialDemoId(initialDemoId));
+  // Applied config/data edits are held until the Chart tab is shown; badge the
+  // Chart tab so it's visible that something is waiting there.
+  const [hasPending, setHasPending] = useState(false);
 
   // Reset the active tab whenever the routed demo changes (matches the old
   // UNSAFE_componentWillReceiveProps behavior via the render-phase reset pattern).
@@ -43,8 +46,10 @@ export default function MochartDemoSingle({ demoData, demoMode, initialDemoId, o
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
-              Chart
+            <NavLink active={activeKey === eventKeyChart}
+              title={hasPending && activeKey !== eventKeyChart ? "Applied changes are waiting — switch here to see them" : void 0}
+              onClick={() => { handleSelect(eventKeyChart); }}>
+              Chart{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
             </NavLink>
           </NavItem>
           <NavItem>
@@ -60,13 +65,14 @@ export default function MochartDemoSingle({ demoData, demoMode, initialDemoId, o
         </Nav>
       </div>
       <MochartDemoContent activeKey={activeKey} demoData={demoData} demoMode={demoMode} initialDemoId={initialDemoId}
-        onDemoModeChanged={onDemoModeChanged} onDemoChanged={onDemoChanged} />
+        onDemoModeChanged={onDemoModeChanged} onDemoChanged={onDemoChanged} onPendingChanged={setHasPending} />
     </div>
   );
 }
 
 interface ContentProps extends DemoTabProps {
   activeKey: number;
+  onPendingChanged: (hasPending: boolean) => void;
 }
 
 interface ContentState {
@@ -83,7 +89,7 @@ interface ContentState {
 }
 
 function MochartDemoContent(props: ContentProps) {
-  const { initialDemoId, activeKey, demoData, demoMode, onDemoModeChanged, onDemoChanged } = props;
+  const { initialDemoId, activeKey, demoData, demoMode, onDemoModeChanged, onDemoChanged, onPendingChanged } = props;
 
   const [state, setState] = useState<ContentState>(() => {
     let initialConfig: DemoConfig | null = null;
@@ -146,6 +152,13 @@ function MochartDemoContent(props: ContentProps) {
       });
     }
   }, [activeKey, initialDemoId]);
+
+  // Report whether config/data edits are queued so the parent can badge the
+  // Chart tab.
+  const { pendingConfig: reportPendingConfig, pendingData: reportPendingData } = state;
+  useEffect(() => {
+    onPendingChanged(reportPendingConfig !== null || reportPendingData !== null);
+  }, [onPendingChanged, reportPendingConfig, reportPendingData]);
 
   const onConfigChange = (pendingConfig: DemoConfig) => setState(prev => ({ ...prev, pendingConfig }));
 

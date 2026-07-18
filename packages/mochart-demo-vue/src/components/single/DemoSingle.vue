@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 
 import DemosTab from '../demos/DemosTab.vue';
 import ChartTab from './ChartTab.vue';
@@ -120,6 +120,11 @@ function onDataReset() {
 function onDemoChange(nextDemoId: string) {
   props.onDemoChanged(nextDemoId);
 }
+
+// Applied config/data edits are held until the Chart tab is shown; badge the
+// Chart tab so it's visible that something is waiting there.
+const hasPendingChanges = computed(() =>
+  activeKey.value !== eventKeyChart && (pendingConfig.value !== null || pendingData.value !== null));
 </script>
 
 <template>
@@ -134,8 +139,9 @@ function onDemoChange(nextDemoId: string) {
         </li>
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
+                  :title="hasPendingChanges ? 'Applied changes are waiting — switch here to see them' : void 0"
                   @click="handleSelect(eventKeyChart)">
-            Chart
+            Chart<span v-if="hasPendingChanges" class="mochart-pending-badge" aria-hidden="true"></span>
           </button>
         </li>
         <li class="nav-item">

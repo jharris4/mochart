@@ -78,31 +78,36 @@ onBeforeUnmount(() => {
         <div class="form-group">
           <div class="btn-toolbar" role="toolbar">
             <div class="btn-group">
-              <ButtonWithTooltip id="randomize-back" :disabled="playing" tooltip-text="Randomize Back" tooltip-placement="top-start"
+              <ButtonWithTooltip id="randomize-back" :disabled="playing" label="Back"
+                                 tooltip-text="Go back to the previous random dataset" tooltip-placement="top-start"
                                  :on-click="props.onRandomizeBack" aria-label="Randomize Back">
-                <Icon size="lg" :fixed-width="true" name="random" flip="horizontal" />
+                <Icon size="lg" :fixed-width="true" name="dice" flip="horizontal" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="randomize-next" :disabled="playing" tooltip-text="Randomize Next" tooltip-placement="top-start"
+              <ButtonWithTooltip id="randomize-next" :disabled="playing" label="Randomize"
+                                 tooltip-text="Generate the next random dataset" tooltip-placement="top-start"
                                  :on-click="props.onRandomizeNext" aria-label="Randomize Next">
-                <Icon size="lg" :fixed-width="true" name="random" />
+                <Icon size="lg" :fixed-width="true" name="dice" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="play" :disabled="playing" tooltip-text="Play Randomize" tooltip-placement="top-start"
+              <ButtonWithTooltip id="play" :disabled="playing" tooltip-text="Keep generating random datasets at the interval" tooltip-placement="top-start"
                                  :on-click="onPlayClick" aria-label="Play Randomize">
                 <Icon size="lg" :fixed-width="true" name="play" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="stop" :disabled="!playing" tooltip-text="Stop" tooltip-placement="top-start"
+              <ButtonWithTooltip id="stop" :disabled="!playing" tooltip-text="Stop generating" tooltip-placement="top-start"
                                  :on-click="onStopClick" aria-label="Stop">
                 <Icon size="lg" :fixed-width="true" name="stop" />
               </ButtonWithTooltip>
             </div>
             <div class="form-group">
-              <input :disabled="playing" type="text" class="form-control" :value="rateText" maxlength="4" size="4" @input="rateChanged" />
+              <label class="form-control-plaintext" for="random-rate">Interval (ms):</label>
+              <input id="random-rate" :disabled="playing" type="number" min="5" max="60000" step="100" class="form-control" :value="rateText"
+                     aria-label="Randomize interval in milliseconds" @input="rateChanged" />
             </div>
           </div>
           <div class="btn-toolbar ml-2" role="toolbar">
             <div class="btn-group">
-              <ButtonWithTooltip id="reuse" :disabled="playing" tooltip-text="Reuse" tooltip-placement="top-start"
-                                 :on-click="props.toggleApplyReuse" aria-label="Reuse" :color="props.applyReuse ? 'primary' : 'secondary'">
+              <ButtonWithTooltip id="reuse" :disabled="playing" label="Reuse" :pressed="props.applyReuse"
+                                 tooltip-text="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltip-placement="top-start"
+                                 :on-click="props.toggleApplyReuse" aria-label="Reuse">
                 <Icon size="lg" :fixed-width="true" name="recycle" />
               </ButtonWithTooltip>
             </div>

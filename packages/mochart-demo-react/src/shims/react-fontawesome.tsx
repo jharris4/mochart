@@ -1,8 +1,9 @@
 import React from 'react';
 
 /**
- * Minimal replacement for the old `react-fontawesome` component (Font Awesome 4
- * css classes). Relies on the `font-awesome` package's css being imported.
+ * Minimal replacement for the old `react-fontawesome` component, emitting Font
+ * Awesome 6 solid css classes. Relies on the `@fortawesome/fontawesome-free`
+ * css being imported.
  */
 interface FontAwesomeProps extends React.HTMLAttributes<HTMLSpanElement> {
   name: string;
@@ -19,7 +20,7 @@ interface FontAwesomeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 export default function FontAwesome(props: FontAwesomeProps) {
   const { name, size, fixedWidth, spin, pulse, flip, rotate, stack, inverse, border, className, ...rest } = props;
-  const classes = ['fa', `fa-${name}`];
+  const classes = ['fa-solid', `fa-${name}`];
   if (size) classes.push(`fa-${size}`);
   if (fixedWidth) classes.push('fa-fw');
   if (spin) classes.push('fa-spin');

@@ -63,38 +63,40 @@ export class ChartsControls extends LightElement {
     return html`<div class="multi-controls">
       <form class="form-inline">
         <div class="form-group">
-          <input ?disabled=${this.playing} type="text" class="form-control" .value=${'' + this.rowsText} maxlength="3" size="3" @input=${this.rowsChanged} />
-          <span class="form-control-plaintext">x</span>
-          <input ?disabled=${this.playing} type="text" class="form-control" .value=${'' + this.colsText} maxlength="3" size="3" @input=${this.colsChanged} />
+          <label class="form-control-plaintext" for="grid-rows">Grid:</label>
+          <input id="grid-rows" ?disabled=${this.playing} type="number" min="1" max="4" class="form-control" .value=${'' + this.rowsText} aria-label="Grid rows" @input=${this.rowsChanged} />
+          <span class="form-control-plaintext">&times;</span>
+          <input id="grid-cols" ?disabled=${this.playing} type="number" min="1" max="4" class="form-control" .value=${'' + this.colsText} aria-label="Grid columns" @input=${this.colsChanged} />
         </div>
         <div class="form-group">
           <div class="btn-toolbar" role="toolbar">
             <div class="btn-group">
               ${buttonWithTooltip(
-                { id: 'step-back', disabled: this.playing, tooltipText: 'Step Backward', tooltipPlacement: 'top-start', onClick: this.onStepBackwardClick, ariaLabel: 'Step Backward' },
-                icon({ size: 'lg', fixedWidth: true, name: 'step-backward' })
+                { id: 'step-back', disabled: this.playing, tooltipText: 'Step all charts one dataset backward', tooltipPlacement: 'top-start', onClick: this.onStepBackwardClick, ariaLabel: 'Step Backward' },
+                icon({ size: 'lg', fixedWidth: true, name: 'backward-step' })
               )}
               ${buttonWithTooltip(
-                { id: 'step-forward', disabled: this.playing, tooltipText: 'Step Forward', tooltipPlacement: 'top-start', onClick: this.onStepForwardClick, ariaLabel: 'Step Forward' },
-                icon({ size: 'lg', fixedWidth: true, name: 'step-forward' })
+                { id: 'step-forward', disabled: this.playing, tooltipText: 'Step all charts one dataset forward', tooltipPlacement: 'top-start', onClick: this.onStepForwardClick, ariaLabel: 'Step Forward' },
+                icon({ size: 'lg', fixedWidth: true, name: 'forward-step' })
               )}
               ${buttonWithTooltip(
-                { id: 'play-backward', disabled: this.playing, tooltipText: 'Play Backward', tooltipPlacement: 'top-start', onClick: this.onPlayBackwardClick, ariaLabel: 'Play Backward' },
+                { id: 'play-backward', disabled: this.playing, tooltipText: 'Play backward through the datasets at the interval', tooltipPlacement: 'top-start', onClick: this.onPlayBackwardClick, ariaLabel: 'Play Backward' },
                 icon({ size: 'lg', fixedWidth: true, name: 'play', flip: 'horizontal' })
               )}
               ${buttonWithTooltip(
-                { id: 'play-forward', disabled: this.playing, tooltipText: 'Play Forward', tooltipPlacement: 'top-start', onClick: this.onPlayForwardClick, ariaLabel: 'Play Forward' },
+                { id: 'play-forward', disabled: this.playing, tooltipText: 'Play forward through the datasets at the interval', tooltipPlacement: 'top-start', onClick: this.onPlayForwardClick, ariaLabel: 'Play Forward' },
                 icon({ size: 'lg', fixedWidth: true, name: 'play' })
               )}
               ${buttonWithTooltip(
-                { id: 'stop', disabled: !this.playing, tooltipText: 'Stop', tooltipPlacement: 'top-start', onClick: this.onStopClick, ariaLabel: 'Stop' },
+                { id: 'stop', disabled: !this.playing, tooltipText: 'Stop playback', tooltipPlacement: 'top-start', onClick: this.onStopClick, ariaLabel: 'Stop' },
                 icon({ size: 'lg', fixedWidth: true, name: 'stop' })
               )}
             </div>
           </div>
         </div>
         <div class="form-group">
-          <input ?disabled=${this.playing} type="text" class="form-control" .value=${'' + this.rateText} maxlength="4" size="4" @input=${this.rateChanged} />
+          <label class="form-control-plaintext" for="multi-rate">Interval (ms):</label>
+          <input id="multi-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label="Playback interval in milliseconds" @input=${this.rateChanged} />
         </div>
       </form>
     </div>`;

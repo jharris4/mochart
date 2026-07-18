@@ -81,30 +81,31 @@ export class RandomChartTab extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'randomize-back', disabled: this.playing, tooltipText: 'Randomize Back', tooltipPlacement: 'top-start', onClick: this.onRandomizeBack, ariaLabel: 'Randomize Back' },
-                  icon({ size: 'lg', fixedWidth: true, name: 'random', flip: 'horizontal' })
+                  { id: 'randomize-back', disabled: this.playing, label: 'Back', tooltipText: 'Go back to the previous random dataset', tooltipPlacement: 'top-start', onClick: this.onRandomizeBack, ariaLabel: 'Randomize Back' },
+                  icon({ size: 'lg', fixedWidth: true, name: 'dice', flip: 'horizontal' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'randomize-next', disabled: this.playing, tooltipText: 'Randomize Next', tooltipPlacement: 'top-start', onClick: this.onRandomizeNext, ariaLabel: 'Randomize Next' },
-                  icon({ size: 'lg', fixedWidth: true, name: 'random' })
+                  { id: 'randomize-next', disabled: this.playing, label: 'Randomize', tooltipText: 'Generate the next random dataset', tooltipPlacement: 'top-start', onClick: this.onRandomizeNext, ariaLabel: 'Randomize Next' },
+                  icon({ size: 'lg', fixedWidth: true, name: 'dice' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'play', disabled: this.playing, tooltipText: 'Play Randomize', tooltipPlacement: 'top-start', onClick: this.onPlayClick, ariaLabel: 'Play Randomize' },
+                  { id: 'play', disabled: this.playing, tooltipText: 'Keep generating random datasets at the interval', tooltipPlacement: 'top-start', onClick: this.onPlayClick, ariaLabel: 'Play Randomize' },
                   icon({ size: 'lg', fixedWidth: true, name: 'play' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'stop', disabled: !this.playing, tooltipText: 'Stop', tooltipPlacement: 'top-start', onClick: this.onStopClick, ariaLabel: 'Stop' },
+                  { id: 'stop', disabled: !this.playing, tooltipText: 'Stop generating', tooltipPlacement: 'top-start', onClick: this.onStopClick, ariaLabel: 'Stop' },
                   icon({ size: 'lg', fixedWidth: true, name: 'stop' })
                 )}
               </div>
               <div class="form-group">
-                <input ?disabled=${this.playing} type="text" class="form-control" .value=${'' + this.rateText} maxlength="4" size="4" @input=${this.rateChanged} />
+                <label class="form-control-plaintext" for="random-rate">Interval (ms):</label>
+                <input id="random-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label="Randomize interval in milliseconds" @input=${this.rateChanged} />
               </div>
             </div>
             <div class="btn-toolbar ml-2" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'reuse', disabled: this.playing, tooltipText: 'Reuse', tooltipPlacement: 'top-start', onClick: this.toggleApplyReuse, ariaLabel: 'Reuse', color: this.applyReuse ? 'primary' : 'secondary' },
+                  { id: 'reuse', disabled: this.playing, label: 'Reuse', pressed: this.applyReuse, tooltipText: "Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets", tooltipPlacement: 'top-start', onClick: this.toggleApplyReuse, ariaLabel: 'Reuse' },
                   icon({ size: 'lg', fixedWidth: true, name: 'recycle' })
                 )}
               </div>

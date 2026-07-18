@@ -171,10 +171,21 @@ function getData(mochartConfig: MochartConfig, groupValues: GroupValue[], series
   return data;
 }
 
-function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: number, randomConfig: RandomConfigWithValid | null): Pick<ContentState, 'dataProvider' | 'data' | 'randomConfig'> {
+// With reuse off, the generator gets a config whose reuse settings are
+// neutralized, so every dataset is generated independently.
+function withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithValid {
+  return {
+    ...config,
+    group: { ...config.group, reuse: { globalPercentage: 0, stepPercentage: 0 } },
+    series: { ...config.series, reuse: { global: false, step: false } }
+  };
+}
+
+function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: number, randomConfig: RandomConfigWithValid | null, applyReuse: boolean): Pick<ContentState, 'dataProvider' | 'data' | 'randomConfig'> {
   const { mochartConfig } = mochartDemoConfig;
   if (randomConfig && randomConfig.valid) {
-    const dataProvider = generateChartDataProvider(mochartConfig, randomConfig, randomId);
+    const generatorConfig = applyReuse ? randomConfig : withReuseNeutralized(randomConfig);
+    const dataProvider = generateChartDataProvider(mochartConfig, generatorConfig, randomId);
     const { groupValues = [], seriesValues = {} } = dataProvider;
     const data = getData(mochartConfig, groupValues, seriesValues);
     const dataErrors = getDataErrors(mochartConfig, dataProvider as unknown as DataProvider);
@@ -205,9 +216,10 @@ function RandomMochartDemoContent(props: ContentProps) {
   const { initialDemoId, demoData, mochartDemoConfig, initialRandomConfig, demoMode, demoId, onDemoModeChanged, onDemoChange, activeKey, randomId, incrementRandomId, decrementRandomId } = props;
 
   const [state, setState] = useState<ContentState>(() => {
-    const base: ContentState = { randomConfig: null, dataProvider: null, data: null, applyReuse: false };
+    // Reuse defaults on to match the generator's historical behavior.
+    const base: ContentState = { randomConfig: null, dataProvider: null, data: null, applyReuse: true };
     if (initialDemoId !== 'demos' && mochartDemoConfig) {
-      return { ...base, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig) };
+      return { ...base, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig, base.applyReuse) };
     }
     return base;
   });
@@ -220,25 +232,40 @@ function RandomMochartDemoContent(props: ContentProps) {
       prev.current = { initialDemoId, initialRandomConfig, mochartDemoConfig, randomId };
       if (initialDemoId !== p.initialDemoId || initialRandomConfig !== p.initialRandomConfig || mochartDemoConfig !== p.mochartDemoConfig) {
         if (mochartDemoConfig) {
-          setState(s => ({ ...s, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig) }));
+          setState(s => ({ ...s, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig, s.applyReuse) }));
         }
       }
       else if (randomId !== p.randomId) {
         if (mochartDemoConfig) {
-          setState(s => ({ ...s, ...computeProviderState(mochartDemoConfig, randomId, s.randomConfig) }));
+          setState(s => ({ ...s, ...computeProviderState(mochartDemoConfig, randomId, s.randomConfig, s.applyReuse) }));
         }
       }
     }
   }
 
-  const toggleApplyReuse = () => setState(prevState => ({ ...prevState, applyReuse: !prevState.applyReuse }));
+  // Toggling reuse regenerates immediately so the effect is visible.
+  const toggleApplyReuse = () => setState(prevState => {
+    const applyReuse = !prevState.applyReuse;
+    if (mochartDemoConfig) {
+      return { ...prevState, applyReuse, ...computeProviderState(mochartDemoConfig, randomId, prevState.randomConfig, applyReuse) };
+    }
+    return { ...prevState, applyReuse };
+  });
 
   const onRandomizeBack = () => decrementRandomId();
   const onRandomizeNext = () => incrementRandomId();
 
-  const onUpdateConfig = (randomConfig: RandomConfigWithValid) => setState(prevState => ({ ...prevState, randomConfig }));
+  // Regenerate immediately so Apply/Reset on the Random Config tab visibly
+  // take effect instead of waiting for the next randomize.
+  const onUpdateConfig = (randomConfig: RandomConfigWithValid) => setState(prevState =>
+    mochartDemoConfig
+      ? { ...prevState, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, prevState.applyReuse) }
+      : { ...prevState, randomConfig });
 
-  const onResetConfig = () => setState(prevState => ({ ...prevState, randomConfig: initialRandomConfig }));
+  const onResetConfig = () => setState(prevState =>
+    mochartDemoConfig
+      ? { ...prevState, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig, prevState.applyReuse) }
+      : { ...prevState, randomConfig: initialRandomConfig });
 
   const { randomConfig, dataProvider, data, applyReuse } = state;
 

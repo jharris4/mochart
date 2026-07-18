@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-// Font Awesome 4 icon (css classes only), the Vue equivalent of the
-// react demo's react-fontawesome shim. Relies on the `font-awesome`
-// package's css being imported.
+// Font Awesome 6 solid icon (css classes only), the Vue equivalent of the
+// react demo's react-fontawesome shim. Relies on the
+// `@fortawesome/fontawesome-free` css being imported.
 interface Props {
   name: string;
   size?: string;
@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const classes = computed(() => {
-  const list = ['fa', `fa-${props.name}`];
+  const list = ['fa-solid', `fa-${props.name}`];
   if (props.size) {
     list.push(`fa-${props.size}`);
   }

@@ -42,11 +42,24 @@ export class RandomContent extends LightElement {
   @state() private randomConfig!: RandomConfigWithValid;
   @state() private dataProvider: DemoDataProvider | null = null;
   @state() private data: unknown = null;
-  @state() private applyReuse = false;
+  // Reuse defaults on to match the generator's historical behavior (the
+  // config's reuse settings were always applied before the toggle worked).
+  @state() private applyReuse = true;
 
   private toggleApplyReuse = (): void => {
     this.applyReuse = !this.applyReuse;
+    this.updateDataProvider();
   };
+
+  // With reuse off, the generator gets a config whose reuse settings are
+  // neutralized, so every dataset is generated independently.
+  private withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithValid {
+    return {
+      ...config,
+      group: { ...config.group, reuse: { globalPercentage: 0, stepPercentage: 0 } },
+      series: { ...config.series, reuse: { global: false, step: false } }
+    };
+  }
 
   private getData(mochartConfig: MochartConfig, groupValues: GroupValue[], seriesValues: Record<string, (number | undefined)[]>) {
     const { groupAxisConfig } = mochartConfig;
@@ -74,7 +87,8 @@ export class RandomContent extends LightElement {
     const nextRandomConfig = forcedRandomConfig !== void 0 ? forcedRandomConfig : this.randomConfig;
 
     if (nextRandomConfig.valid) {
-      const nextDataProvider = generateChartDataProvider(mochartConfig, nextRandomConfig, this.randomId);
+      const generatorConfig = this.applyReuse ? nextRandomConfig : this.withReuseNeutralized(nextRandomConfig);
+      const nextDataProvider = generateChartDataProvider(mochartConfig, generatorConfig, this.randomId);
       const { groupValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = this.getData(mochartConfig, groupValues, seriesValues);
       const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
@@ -131,12 +145,14 @@ export class RandomContent extends LightElement {
     this.incrementRandomId();
   };
 
+  // Regenerate immediately so Apply/Reset on the Random Config tab visibly
+  // take effect instead of waiting for the next randomize.
   private onUpdateConfig = (nextRandomConfig: RandomConfigWithValid): void => {
-    this.randomConfig = nextRandomConfig;
+    this.updateDataProvider(nextRandomConfig);
   };
 
   private onResetConfig = (): void => {
-    this.randomConfig = this.initialRandomConfig;
+    this.updateDataProvider(this.initialRandomConfig);
   };
 
   override render(): unknown {

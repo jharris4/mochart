@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import validators from 'movalid';
 
@@ -56,6 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const configText = ref(formatConfig(props.transitionConfig));
+const errorMessage = ref<string | null>(null);
 
 watch(() => props.transitionConfig, (nextTransitionConfig) => {
   configText.value = formatConfig(nextTransitionConfig);
@@ -63,6 +64,7 @@ watch(() => props.transitionConfig, (nextTransitionConfig) => {
 
 function onTextChange(nextConfigText: string) {
   configText.value = nextConfigText;
+  errorMessage.value = null;
 }
 
 function onUpdateClick() {
@@ -75,11 +77,12 @@ function onUpdateClick() {
         const { valid, errors, warnings } = configValidation;
         if (valid) {
           if (arrayValidator(newConfig.data) && !newConfig.data.some((aData: unknown) => !arrayValidator(aData))) {
+            errorMessage.value = null;
             props.onUpdate(newConfig);
           }
           else {
             console.warn('Invalid Transition Config, data should be an array of arrays: ', newConfig.data);
-            alert('Invalid Transition Data, should be an array of arrays');
+            errorMessage.value = '"data" should be an array of arrays';
           }
         }
         else {
@@ -89,24 +92,35 @@ function onUpdateClick() {
           if (warnings.length > 0) {
             console.warn('warnings: ', warnings);
           }
-          alert('Invalid Chart Config, mochart config was not valid');
+          errorMessage.value = 'Invalid chart config — details in the browser console';
         }
       }
       else {
         console.warn('Invalid Transition Config, config should be an object: ', newConfig.config);
-        alert('Invalid Chart Config, should be an object');
+        errorMessage.value = '"config" should be an object';
       }
     }
     else {
       console.warn('Invalid Transition Config, should be an object: ', configText.value);
-      alert('Invalid Transition Config, should be an object');
+      errorMessage.value = 'Transition config should be an object';
     }
   }
   catch (error) {
     console.warn('Invalid Transition Config JSON: ', configText.value);
-    alert('Invalid Transition Config JSON');
+    errorMessage.value = 'Invalid JSON';
   }
 }
+
+const jsonError = computed(() => {
+  try {
+    JSON.parse(configText.value);
+    return null;
+  }
+  catch (error) {
+    return 'Invalid JSON';
+  }
+});
+const footerError = computed(() => jsonError.value ?? errorMessage.value);
 </script>
 
 <template>
@@ -116,14 +130,16 @@ function onUpdateClick() {
     </div>
     <div class="mochart-demo-tab-footer">
       <div class="btn-toolbar" role="toolbar">
-        <ButtonWithTooltip id="config-reset" tooltip-text="Reset" tooltip-placement="top-start"
+        <ButtonWithTooltip id="config-reset" label="Reset" tooltip-text="Restore the original transition config" tooltip-placement="top-start"
                            :on-click="props.onReset" aria-label="Reset">
-          <Icon size="lg" :fixed-width="true" name="undo" />
+          <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-apply" tooltip-text="Apply" tooltip-placement="top-start"
+        <ButtonWithTooltip id="config-apply" label="Apply" :disabled="jsonError !== null"
+                           tooltip-text="Apply this config to the transition charts" tooltip-placement="top-start"
                            :on-click="onUpdateClick" aria-label="Apply">
           <Icon size="lg" :fixed-width="true" name="check" />
         </ButtonWithTooltip>
+        <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>
       </div>
     </div>
   </div>

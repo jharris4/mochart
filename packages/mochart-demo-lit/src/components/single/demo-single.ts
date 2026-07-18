@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
@@ -35,8 +35,9 @@ export class DemoSingle extends LightElement {
   @state() private demoId = '';
   // Config/data edits made on the Config/Data tabs stay "pending" until the
   // Chart tab is shown again (so the chart animates one combined change).
-  private pendingConfig: DemoConfig | null = null;
-  private pendingData: DataRow[] | null = null;
+  // pendingConfig/pendingData are reactive so the Chart tab badge updates.
+  @state() private pendingConfig: DemoConfig | null = null;
+  @state() private pendingData: DataRow[] | null = null;
   private pendingDataError: DataError = false;
   @state() private config: DemoConfig | null = null;
   @state() private data: DataRow[] | null = null;
@@ -136,11 +137,19 @@ export class DemoSingle extends LightElement {
     this.onDemoChanged(nextDemoId);
   };
 
+  // Applied config/data edits are held until the Chart tab is shown; badge the
+  // Chart tab so it's visible that something is waiting there.
+  private get hasPendingChanges(): boolean {
+    return this.activeKey !== eventKeyChart && (this.pendingConfig !== null || this.pendingData !== null);
+  }
+
   private renderTab(eventKey: number, label: string): unknown {
+    const badge = eventKey === eventKeyChart && this.hasPendingChanges;
     return html`<li class="nav-item">
       <button type="button" class=${'nav-link' + (this.activeKey === eventKey ? ' active' : '')}
+              title=${badge ? 'Applied changes are waiting — switch here to see them' : nothing}
               @click=${() => this.handleSelect(eventKey)}>
-        ${label}
+        ${label}${badge ? html`<span class="mochart-pending-badge" aria-hidden="true"></span>` : nothing}
       </button>
     </li>`;
   }

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
@@ -35,6 +35,7 @@ interface Props {
 
 export default function MochartDataTab({ active, config = null, data = null, onDataChange, onDataError, onDataReset }: Props) {
   const [dataText, setDataText] = useState(() => formatData(data));
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Reformat when the incoming data changes.
   const prevData = useRef(data);
@@ -45,6 +46,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
 
   const resetData = () => {
     setDataText(formatData(data));
+    setErrorMessage(null);
     onDataReset();
   };
 
@@ -71,34 +73,49 @@ export default function MochartDataTab({ active, config = null, data = null, onD
         error = 'Invalid Data';
       }
       if (error) {
+        setErrorMessage(error + ' — details in the browser console');
         onDataError(error);
       }
       else {
+        setErrorMessage(null);
         onDataChange(parsedData);
       }
     }
     catch (error) {
       console.warn('Invalid Data JSON: ' + String(error));
-      alert('Invalid Data JSON');
+      setErrorMessage('Invalid JSON');
       onDataError('Invalid Data ');
     }
   };
 
+  const jsonError = useMemo(() => {
+    try {
+      JSON.parse(dataText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  }, [dataText]);
+  const footerError = jsonError ?? errorMessage;
+
   return (
     <div className={"mochart-demo-tab-container col data" + (active ? " active" : "")}>
       <div className="mochart-demo-tab-content">
-        <TextAreaContent value={dataText} onChange={setDataText} />
+        <TextAreaContent value={dataText} onChange={(text: string) => { setDataText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
         <ButtonToolbar>
-          <ButtonWithTooltip id="data-reset" tooltipText="Reset" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="data-reset" label="Reset" tooltipText="Restore this demo's original data" tooltipPlacement="top-start"
             onClick={resetData} aria-label="Reset">
-            <FontAwesome size="lg" fixedWidth={true} name="undo" />
+            <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="data-apply" tooltipText="Apply" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="data-apply" label="Apply" disabled={jsonError !== null}
+            tooltipText="Apply this data — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
             onClick={applyData} aria-label="Apply">
             <FontAwesome size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
+          {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
         </ButtonToolbar>
       </div>
     </div>

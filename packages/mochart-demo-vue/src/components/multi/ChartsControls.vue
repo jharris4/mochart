@@ -66,30 +66,33 @@ function rateChanged(event: Event) {
   <div class="multi-controls">
     <form class="form-inline">
       <div class="form-group">
-        <input :disabled="props.playing" type="text" class="form-control" :value="rowsText" maxlength="3" size="3" @input="rowsChanged" />
-        <span class="form-control-plaintext">x</span>
-        <input :disabled="props.playing" type="text" class="form-control" :value="colsText" maxlength="3" size="3" @input="colsChanged" />
+        <label class="form-control-plaintext" for="grid-rows">Grid:</label>
+        <input id="grid-rows" :disabled="props.playing" type="number" min="1" max="4" class="form-control" :value="rowsText"
+               aria-label="Grid rows" @input="rowsChanged" />
+        <span class="form-control-plaintext">&times;</span>
+        <input id="grid-cols" :disabled="props.playing" type="number" min="1" max="4" class="form-control" :value="colsText"
+               aria-label="Grid columns" @input="colsChanged" />
       </div>
       <div class="form-group">
         <div class="btn-toolbar" role="toolbar">
           <div class="btn-group">
-            <ButtonWithTooltip id="step-back" :disabled="props.playing" tooltip-text="Step Backward" tooltip-placement="top-start"
+            <ButtonWithTooltip id="step-back" :disabled="props.playing" tooltip-text="Step all charts one dataset backward" tooltip-placement="top-start"
                                :on-click="props.onStepBackwardClick" aria-label="Step Backward">
-              <Icon size="lg" :fixed-width="true" name="step-backward" />
+              <Icon size="lg" :fixed-width="true" name="backward-step" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="step-forward" :disabled="props.playing" tooltip-text="Step Forward" tooltip-placement="top-start"
+            <ButtonWithTooltip id="step-forward" :disabled="props.playing" tooltip-text="Step all charts one dataset forward" tooltip-placement="top-start"
                                :on-click="props.onStepForwardClick" aria-label="Step Forward">
-              <Icon size="lg" :fixed-width="true" name="step-forward" />
+              <Icon size="lg" :fixed-width="true" name="forward-step" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="play-backward" :disabled="props.playing" tooltip-text="Play Backward" tooltip-placement="top-start"
+            <ButtonWithTooltip id="play-backward" :disabled="props.playing" tooltip-text="Play backward through the datasets at the interval" tooltip-placement="top-start"
                                :on-click="props.onPlayBackwardClick" aria-label="Play Backward">
               <Icon size="lg" :fixed-width="true" name="play" flip="horizontal" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="play-forward" :disabled="props.playing" tooltip-text="Play Forward" tooltip-placement="top-start"
+            <ButtonWithTooltip id="play-forward" :disabled="props.playing" tooltip-text="Play forward through the datasets at the interval" tooltip-placement="top-start"
                                :on-click="props.onPlayForwardClick" aria-label="Play Forward">
               <Icon size="lg" :fixed-width="true" name="play" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="stop" :disabled="!props.playing" tooltip-text="Stop" tooltip-placement="top-start"
+            <ButtonWithTooltip id="stop" :disabled="!props.playing" tooltip-text="Stop playback" tooltip-placement="top-start"
                                :on-click="props.onStopClick" aria-label="Stop">
               <Icon size="lg" :fixed-width="true" name="stop" />
             </ButtonWithTooltip>
@@ -97,7 +100,9 @@ function rateChanged(event: Event) {
         </div>
       </div>
       <div class="form-group">
-        <input :disabled="props.playing" type="text" class="form-control" :value="rateText" maxlength="4" size="4" @input="rateChanged" />
+        <label class="form-control-plaintext" for="multi-rate">Interval (ms):</label>
+        <input id="multi-rate" :disabled="props.playing" type="number" min="5" max="60000" step="100" class="form-control" :value="rateText"
+               aria-label="Playback interval in milliseconds" @input="rateChanged" />
       </div>
     </form>
   </div>

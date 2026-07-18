@@ -13,6 +13,14 @@ interface Props {
   onDemoChange: OnDemoChanged;
 }
 
+const modeCaptions: Record<string, string> = {
+  single: 'Single: one chart with editable config, data, groups and series — pick a demo below.',
+  multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
+  random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
+  transition: 'Transition: animates a chart between datasets — pick a demo below.',
+  rotation: 'Rotation: a grid of every chart config variation.'
+};
+
 export default function MochartDemosTab({ active, demoData, demoMode, demoId, onDemoModeChanged, onDemoChange }: Props) {
   const [isTestMode, setIsTestMode] = useState(false);
 
@@ -39,31 +47,36 @@ export default function MochartDemosTab({ active, demoData, demoMode, demoId, on
           </FormGroup>
           <FormGroup>
             <ButtonToolbar>
-              <Button disabled={isSingle} onClick={() => { onDemoModeChanged('single', demoId); }} color={isSingle ? "primary" : void 0}>
-                <FontAwesome size="lg" name="edit" /> Single
+              <Button disabled={isSingle} title="One chart with editable config, data, groups and series"
+                onClick={() => { onDemoModeChanged('single', demoId); }} color={isSingle ? "primary" : void 0}>
+                <FontAwesome size="lg" name="pen-to-square" /> Single
               </Button>
-              <Button disabled={isMulti} onClick={() => { onDemoModeChanged('multi', demoId); }} color={isMulti ? "primary" : void 0}>
+              <Button disabled={isMulti} title="A grid of charts stepping through datasets together"
+                onClick={() => { onDemoModeChanged('multi', demoId); }} color={isMulti ? "primary" : void 0}>
                 <FontAwesome size="lg" name="window-restore" /> Multi
               </Button>
-              <Button disabled={isRandom} onClick={() => { onDemoModeChanged('random', demoId); }} color={isRandom ? "primary" : void 0}>
-                <FontAwesome size="lg" name="random" /> Random
+              <Button disabled={isRandom} title="A chart fed by a seeded random data generator"
+                onClick={() => { onDemoModeChanged('random', demoId); }} color={isRandom ? "primary" : void 0}>
+                <FontAwesome size="lg" name="shuffle" /> Random
               </Button>
-              <Button onClick={() => { onDemoModeChanged('transition', demoId); }}>
-                <FontAwesome size="lg" name="exchange" /> Transition
+              <Button title="Animate a chart between two datasets" onClick={() => { onDemoModeChanged('transition', demoId); }}>
+                <FontAwesome size="lg" name="right-left" /> Transition
               </Button>
-              <Button onClick={() => { onDemoModeChanged('rotation', demoId); }}>
+              <Button title="A grid of chart config variations" onClick={() => { onDemoModeChanged('rotation', demoId); }}>
                 <FontAwesome size="lg" name="repeat" /> Rotation
               </Button>
             </ButtonToolbar>
           </FormGroup>
           <FormGroup style={{ marginLeft: 10 }}>
             <ButtonToolbar>
-              <Button disabled={false} onClick={() => setIsTestMode(mode => !mode)} color={isTestMode ? "primary" : void 0}>
-                <FontAwesome size="lg" name="edit" /> Test Demos
+              <Button aria-pressed={isTestMode} title="Show the test demos (intentionally invalid configs for exercising error handling)"
+                onClick={() => setIsTestMode(mode => !mode)} color={isTestMode ? "primary" : void 0}>
+                <FontAwesome size="lg" name="flask" /> Test Demos
               </Button>
             </ButtonToolbar>
           </FormGroup>
         </Form>
+        {modeCaptions[demoMode] ? <div className="mochart-demo-caption">{modeCaptions[demoMode]}</div> : null}
       </div>
       <div className="mochart-demo-list-container">
         <div className="mochart-demo-list">

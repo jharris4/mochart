@@ -21,7 +21,7 @@
     multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
     random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
     transition: 'Transition: animates a chart between datasets — pick a demo below.',
-    rotation: 'Rotation: cycles automatically through all the demos.'
+    rotation: 'Rotation: a grid of every chart config variation.'
   };
 
   const theDemoIds = $derived(isTestMode ? demoData.testDemoIds : demoData.demoIds);

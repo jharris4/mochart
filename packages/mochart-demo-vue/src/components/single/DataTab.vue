@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { ArrayOfObjectsDataProvider, getDataErrors } from 'mochart';
 import type { DataProvider } from 'mochart';
@@ -38,6 +38,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const dataText = ref(formatData(props.data));
+const errorMessage = ref<string | null>(null);
 
 watch(() => props.data, (nextData) => {
   dataText.value = formatData(nextData);
@@ -45,10 +46,12 @@ watch(() => props.data, (nextData) => {
 
 function onTextChange(nextDataText: string) {
   dataText.value = nextDataText;
+  errorMessage.value = null;
 }
 
 function resetData() {
   dataText.value = formatData(props.data);
+  errorMessage.value = null;
   props.onDataReset();
 }
 
@@ -75,18 +78,31 @@ function applyData() {
       error = 'Invalid Data';
     }
     if (error) {
+      errorMessage.value = error + ' — details in the browser console';
       props.onDataError(error);
     }
     else {
+      errorMessage.value = null;
       props.onDataChange(parsedData);
     }
   }
   catch (error) {
     console.warn('Invalid Data JSON: ' + String(error));
-    alert('Invalid Data JSON');
+    errorMessage.value = 'Invalid JSON';
     props.onDataError('Invalid Data ');
   }
 }
+
+const jsonError = computed(() => {
+  try {
+    JSON.parse(dataText.value);
+    return null;
+  }
+  catch (error) {
+    return 'Invalid JSON';
+  }
+});
+const footerError = computed(() => jsonError.value ?? errorMessage.value);
 </script>
 
 <template>
@@ -96,14 +112,16 @@ function applyData() {
     </div>
     <div class="mochart-demo-tab-footer">
       <div class="btn-toolbar" role="toolbar">
-        <ButtonWithTooltip id="data-reset" tooltip-text="Reset" tooltip-placement="top-start"
+        <ButtonWithTooltip id="data-reset" label="Reset" tooltip-text="Restore this demo's original data" tooltip-placement="top-start"
                            :on-click="resetData" aria-label="Reset">
-          <Icon size="lg" :fixed-width="true" name="undo" />
+          <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="data-apply" tooltip-text="Apply" tooltip-placement="top-start"
+        <ButtonWithTooltip id="data-apply" label="Apply" :disabled="jsonError !== null"
+                           tooltip-text="Apply this data — the chart updates when you return to the Chart tab" tooltip-placement="top-start"
                            :on-click="applyData" aria-label="Apply">
           <Icon size="lg" :fixed-width="true" name="check" />
         </ButtonWithTooltip>
+        <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>
       </div>
     </div>
   </div>

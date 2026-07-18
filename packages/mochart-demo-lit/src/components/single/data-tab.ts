@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
@@ -34,6 +34,7 @@ export class DataTab extends LightElement {
   @property({ attribute: false }) onDataReset!: () => void;
 
   @state() private dataText = '';
+  @state() private errorMessage: string | null = null;
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (changed.has('data')) {
@@ -43,10 +44,12 @@ export class DataTab extends LightElement {
 
   private onTextChange = (nextDataText: string): void => {
     this.dataText = nextDataText;
+    this.errorMessage = null;
   };
 
   private resetData = (): void => {
     this.dataText = formatData(this.data);
+    this.errorMessage = null;
     this.onDataReset();
   };
 
@@ -73,20 +76,34 @@ export class DataTab extends LightElement {
         error = 'Invalid Data';
       }
       if (error) {
+        this.errorMessage = error + ' — details in the browser console';
         this.onDataError(error);
       }
       else {
+        this.errorMessage = null;
         this.onDataChange(parsedData);
       }
     }
     catch (error) {
       console.warn('Invalid Data JSON: ' + String(error));
-      alert('Invalid Data JSON');
+      this.errorMessage = 'Invalid JSON';
       this.onDataError('Invalid Data ');
     }
   };
 
+  private get jsonError(): string | null {
+    try {
+      JSON.parse(this.dataText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  }
+
   override render(): unknown {
+    const jsonError = this.jsonError;
+    const footerError = jsonError ?? this.errorMessage;
     return html`<div class=${'mochart-demo-tab-container col data' + (this.active ? ' active' : '')}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.dataText, onChange: this.onTextChange })}
@@ -94,13 +111,14 @@ export class DataTab extends LightElement {
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
           ${buttonWithTooltip(
-            { id: 'data-reset', tooltipText: 'Reset', tooltipPlacement: 'top-start', onClick: this.resetData, ariaLabel: 'Reset' },
-            icon({ size: 'lg', fixedWidth: true, name: 'undo' })
+            { id: 'data-reset', label: 'Reset', tooltipText: "Restore this demo's original data", tooltipPlacement: 'top-start', onClick: this.resetData, ariaLabel: 'Reset' },
+            icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
           )}
           ${buttonWithTooltip(
-            { id: 'data-apply', tooltipText: 'Apply', tooltipPlacement: 'top-start', onClick: this.applyData, ariaLabel: 'Apply' },
+            { id: 'data-apply', label: 'Apply', disabled: jsonError !== null, tooltipText: 'Apply this data — the chart updates when you return to the Chart tab', tooltipPlacement: 'top-start', onClick: this.applyData, ariaLabel: 'Apply' },
             icon({ size: 'lg', fixedWidth: true, name: 'check' })
           )}
+          ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}
         </div>
       </div>
     </div>`;

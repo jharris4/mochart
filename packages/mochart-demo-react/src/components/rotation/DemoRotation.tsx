@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import merge from 'lodash.merge';
 
 import { DefaultChart } from 'mochart-react';
@@ -148,22 +148,31 @@ addConfig("D8", false, true, false, -90, "end");
 addConfig("E8", false, true, false, 90, "end");
 
 export default function DemoRotation() {
-  const [size, setSize] = useState(() => ({ width: window.innerWidth, height: window.innerHeight }));
+  // Columns are sized from the card's measured width (not the window) so the
+  // grid stays inside the padded shell.
+  const chartsRef = useRef<HTMLDivElement | null>(null);
+  const [chartsWidth, setChartsWidth] = useState(0);
 
   useEffect(() => {
-    const onResize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener('resize', onResize);
-    onResize();
-    return () => window.removeEventListener('resize', onResize);
+    const el = chartsRef.current;
+    if (!el) {
+      return;
+    }
+    const measure = () => setChartsWidth(el.clientWidth);
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    measure();
+    return () => observer.disconnect();
   }, []);
 
-  const { width } = size;
-  const cols = Math.floor(width / minWidth);
-  const colWidth = Math.floor(width / cols);
+  const cols = Math.max(1, Math.floor(chartsWidth / minWidth));
+  const colWidth = Math.floor(chartsWidth / cols);
 
   return (
     <div className="rotation-container">
-      {configs.map((config, i) => <DemoRotationChart key={i} data={data} config={config} i={i} cols={cols} colWidth={colWidth} />)}
+      <div className="rotation-charts" ref={chartsRef}>
+        {colWidth > 0 ? configs.map((config, i) => <DemoRotationChart key={i} data={data} config={config} i={i} cols={cols} colWidth={colWidth} />) : null}
+      </div>
     </div>
   );
 }

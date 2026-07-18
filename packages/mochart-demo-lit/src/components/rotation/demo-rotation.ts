@@ -9,31 +9,41 @@ import { configs, data, minWidth } from './rotationConfigs';
 
 @customElement('demo-rotation')
 export class DemoRotation extends LightElement {
-  @state() private innerWidth = window.innerWidth;
+  // Columns are sized from the card's measured width (not the window) so the
+  // grid stays inside the padded shell.
+  @state() private chartsWidth = 0;
 
-  private onWindowResize = (): void => {
-    this.innerWidth = window.innerWidth;
-  };
+  private resizeObserver: ResizeObserver | null = null;
 
-  override connectedCallback(): void {
-    super.connectedCallback();
-    window.addEventListener('resize', this.onWindowResize);
+  override firstUpdated(): void {
+    const el = this.querySelector('.rotation-charts');
+    if (el) {
+      const measure = (): void => { this.chartsWidth = el.clientWidth; };
+      this.resizeObserver = new ResizeObserver(measure);
+      this.resizeObserver.observe(el);
+      measure();
+    }
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
-    window.removeEventListener('resize', this.onWindowResize);
+    if (this.resizeObserver !== null) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
   }
 
   override render(): unknown {
-    const cols = Math.floor(this.innerWidth / minWidth);
-    const colWidth = Math.floor(this.innerWidth / cols);
+    const cols = Math.max(1, Math.floor(this.chartsWidth / minWidth));
+    const colWidth = Math.floor(this.chartsWidth / cols);
     return html`<div class="rotation-container">
-      ${configs.map((config, i) => html`<div
-          class=${'rotation-chart rotation-chart-' + i}
-          style=${`left: ${(i % cols) * colWidth}px; top: ${Math.floor(i / cols) * colWidth}px; width: ${colWidth}px; height: ${colWidth}px;`}>
-        ${defaultChart({ config, data, width: colWidth, height: colWidth })}
-      </div>`)}
+      <div class="rotation-charts">
+        ${colWidth > 0 ? configs.map((config, i) => html`<div
+            class=${'rotation-chart rotation-chart-' + i}
+            style=${`left: ${(i % cols) * colWidth}px; top: ${Math.floor(i / cols) * colWidth}px; width: ${colWidth}px; height: ${colWidth}px;`}>
+          ${defaultChart({ config, data, width: colWidth, height: colWidth })}
+        </div>`) : null}
+      </div>
     </div>`;
   }
 }

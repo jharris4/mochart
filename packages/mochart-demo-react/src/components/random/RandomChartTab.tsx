@@ -78,31 +78,36 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
           <FormGroup>
             <ButtonToolbar>
               <ButtonGroup>
-                <ButtonWithTooltip id="randomize-back" disabled={playing} tooltipText="Randomize Back" tooltipPlacement="top-start"
+                <ButtonWithTooltip id="randomize-back" disabled={playing} label="Back"
+                  tooltipText="Go back to the previous random dataset" tooltipPlacement="top-start"
                   onClick={onRandomizeBack} aria-label="Randomize Back">
-                  <FontAwesome size="lg" fixedWidth={true} name="random" flip={'horizontal'} />
+                  <FontAwesome size="lg" fixedWidth={true} name="dice" flip={'horizontal'} />
                 </ButtonWithTooltip>
-                <ButtonWithTooltip id="randomize-next" disabled={playing} tooltipText="Randomize Next" tooltipPlacement="top-start"
+                <ButtonWithTooltip id="randomize-next" disabled={playing} label="Randomize"
+                  tooltipText="Generate the next random dataset" tooltipPlacement="top-start"
                   onClick={onRandomizeNext} aria-label="Randomize Next">
-                  <FontAwesome size="lg" fixedWidth={true} name="random" />
+                  <FontAwesome size="lg" fixedWidth={true} name="dice" />
                 </ButtonWithTooltip>
-                <ButtonWithTooltip id="play" disabled={playing} tooltipText="Play Randomize" tooltipPlacement="top-start"
+                <ButtonWithTooltip id="play" disabled={playing} tooltipText="Keep generating random datasets at the interval" tooltipPlacement="top-start"
                   onClick={onPlayClick} aria-label="Play Randomize">
                   <FontAwesome size="lg" fixedWidth={true} name="play" />
                 </ButtonWithTooltip>
-                <ButtonWithTooltip id="stop" disabled={!playing} tooltipText="Stop" tooltipPlacement="top-start"
+                <ButtonWithTooltip id="stop" disabled={!playing} tooltipText="Stop generating" tooltipPlacement="top-start"
                   onClick={onStopClick} aria-label="Stop">
                   <FontAwesome size="lg" fixedWidth={true} name="stop" />
                 </ButtonWithTooltip>
               </ButtonGroup>
               <FormGroup>
-                <Input disabled={playing} type="text" value={rateText} maxLength={4} size={4} onChange={rateChanged} />
+                <label className="form-control-plaintext" htmlFor="random-rate">Interval (ms):</label>
+                <Input id="random-rate" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
+                  onChange={rateChanged} aria-label="Randomize interval in milliseconds" />
               </FormGroup>
             </ButtonToolbar>
             <ButtonToolbar className="ml-2">
               <ButtonGroup>
-                <ButtonWithTooltip id="reuse" disabled={playing} tooltipText="Reuse" tooltipPlacement="top-start"
-                  onClick={toggleApplyReuse} aria-label="Reuse" color={applyReuse ? 'primary' : void 0}>
+                <ButtonWithTooltip id="reuse" disabled={playing} label="Reuse" pressed={applyReuse}
+                  tooltipText="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltipPlacement="top-start"
+                  onClick={toggleApplyReuse} aria-label="Reuse">
                   <FontAwesome size="lg" fixedWidth={true} name="recycle" />
                 </ButtonWithTooltip>
               </ButtonGroup>

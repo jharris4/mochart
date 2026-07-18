@@ -13,11 +13,11 @@ interface IconProps {
 }
 
 /**
- * Font Awesome 4 icon (css classes only), same as the Vue demo's Icon
- * component. Relies on the `font-awesome` package's css being imported.
+ * Font Awesome 6 solid icon (css classes only), same as the Vue demo's Icon
+ * component. Relies on the `@fortawesome/fontawesome-free` css being imported.
  */
 export function icon({ name, size, fixedWidth, flip }: IconProps): TemplateResult {
-  const list = ['fa', `fa-${name}`];
+  const list = ['fa-solid', `fa-${name}`];
   if (size) {
     list.push(`fa-${size}`);
   }
@@ -38,6 +38,10 @@ interface ButtonWithTooltipProps {
   onClick: () => void;
   color?: string;
   ariaLabel?: string;
+  // `label` renders visible text beside the icon; `pressed` marks the button
+  // as a toggle (aria-pressed + active styling).
+  label?: string;
+  pressed?: boolean;
 }
 
 /**
@@ -46,13 +50,14 @@ interface ButtonWithTooltipProps {
  * tooltipPlacement is accepted for call-site parity but unused.
  */
 export function buttonWithTooltip(
-  { id, tooltipText, disabled = false, onClick, color = 'secondary', ariaLabel }: ButtonWithTooltipProps,
+  { id, tooltipText, disabled = false, onClick, color = 'secondary', ariaLabel, label, pressed }: ButtonWithTooltipProps,
   children: unknown
 ): TemplateResult {
   return html`<span class="button-with-tooltip">
-    <button id=${id} type="button" class=${`btn btn-${color}`} ?disabled=${disabled}
-            title=${tooltipText ?? nothing} aria-label=${ariaLabel ?? nothing} @click=${() => onClick()}>
-      ${children}
+    <button id=${id} type="button" class=${`btn btn-${color}` + (pressed ? ' active' : '')} ?disabled=${disabled}
+            title=${tooltipText ?? nothing} aria-label=${ariaLabel ?? nothing}
+            aria-pressed=${pressed === void 0 ? nothing : String(pressed)} @click=${() => onClick()}>
+      ${children}${label ? html`<span class="btn-label">${label}</span>` : nothing}
     </button>
   </span>`;
 }

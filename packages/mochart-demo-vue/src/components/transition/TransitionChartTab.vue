@@ -59,13 +59,13 @@ function onStepForward() {
         <div class="form-group">
           <div class="btn-toolbar" role="toolbar">
             <div class="btn-group">
-              <ButtonWithTooltip id="transition-back" tooltip-text="Step Backward" tooltip-placement="top-start"
+              <ButtonWithTooltip id="transition-back" label="Back" tooltip-text="Transition to the previous dataset" tooltip-placement="top-start"
                                  :on-click="onStepBack" aria-label="Step Backward">
-                <Icon size="lg" :fixed-width="true" name="step-backward" />
+                <Icon size="lg" :fixed-width="true" name="backward-step" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="transition-forward" tooltip-text="Step Forward" tooltip-placement="top-start"
+              <ButtonWithTooltip id="transition-forward" label="Next" tooltip-text="Transition to the next dataset" tooltip-placement="top-start"
                                  :on-click="onStepForward" aria-label="Step Forward">
-                <Icon size="lg" :fixed-width="true" name="step-forward" />
+                <Icon size="lg" :fixed-width="true" name="forward-step" />
               </ButtonWithTooltip>
             </div>
           </div>

@@ -44,10 +44,23 @@ const { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData } = props.even
 const randomConfig = shallowRef<RandomConfigWithValid>(props.initialRandomConfig);
 const dataProvider = shallowRef<DemoDataProvider | null>(null);
 const data = shallowRef<unknown>(null);
-const applyReuse = ref(false);
+// Reuse defaults on to match the generator's historical behavior (the
+// config's reuse settings were always applied before the toggle worked).
+const applyReuse = ref(true);
 
 function toggleApplyReuse() {
   applyReuse.value = !applyReuse.value;
+  updateDataProvider();
+}
+
+// With reuse off, the generator gets a config whose reuse settings are
+// neutralized, so every dataset is generated independently.
+function withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithValid {
+  return {
+    ...config,
+    group: { ...config.group, reuse: { globalPercentage: 0, stepPercentage: 0 } },
+    series: { ...config.series, reuse: { global: false, step: false } }
+  };
 }
 
 function getData(mochartConfig: MochartConfig, groupValues: GroupValue[], seriesValues: Record<string, (number | undefined)[]>) {
@@ -76,7 +89,8 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
   const nextRandomConfig = forcedRandomConfig !== void 0 ? forcedRandomConfig : randomConfig.value;
 
   if (nextRandomConfig.valid) {
-    const nextDataProvider = generateChartDataProvider(mochartConfig, nextRandomConfig, props.randomId);
+    const generatorConfig = applyReuse.value ? nextRandomConfig : withReuseNeutralized(nextRandomConfig);
+    const nextDataProvider = generateChartDataProvider(mochartConfig, generatorConfig, props.randomId);
     const { groupValues = [], seriesValues = {} } = nextDataProvider;
     const nextData = getData(mochartConfig, groupValues, seriesValues);
     const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
@@ -135,12 +149,14 @@ function onRandomizeNext() {
   props.incrementRandomId();
 }
 
+// Regenerate immediately so Apply/Reset on the Random Config tab visibly
+// take effect instead of waiting for the next randomize.
 function onUpdateConfig(nextRandomConfig: RandomConfigWithValid) {
-  randomConfig.value = nextRandomConfig;
+  updateDataProvider(nextRandomConfig);
 }
 
 function onResetConfig() {
-  randomConfig.value = props.initialRandomConfig;
+  updateDataProvider(props.initialRandomConfig);
 }
 </script>
 

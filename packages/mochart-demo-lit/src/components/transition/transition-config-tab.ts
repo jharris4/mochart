@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
@@ -52,6 +52,7 @@ export class TransitionConfigTab extends LightElement {
   @property({ attribute: false }) onReset!: () => void;
 
   @state() private configText = '';
+  @state() private errorMessage: string | null = null;
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (changed.has('transitionConfig')) {
@@ -61,6 +62,7 @@ export class TransitionConfigTab extends LightElement {
 
   private onTextChange = (nextConfigText: string): void => {
     this.configText = nextConfigText;
+    this.errorMessage = null;
   };
 
   private onUpdateClick = (): void => {
@@ -73,11 +75,12 @@ export class TransitionConfigTab extends LightElement {
           const { valid, errors, warnings } = configValidation;
           if (valid) {
             if (arrayValidator(newConfig.data) && !newConfig.data.some((aData: unknown) => !arrayValidator(aData))) {
+              this.errorMessage = null;
               this.onUpdate(newConfig);
             }
             else {
               console.warn('Invalid Transition Config, data should be an array of arrays: ', newConfig.data);
-              alert('Invalid Transition Data, should be an array of arrays');
+              this.errorMessage = '"data" should be an array of arrays';
             }
           }
           else {
@@ -87,26 +90,38 @@ export class TransitionConfigTab extends LightElement {
             if (warnings.length > 0) {
               console.warn('warnings: ', warnings);
             }
-            alert('Invalid Chart Config, mochart config was not valid');
+            this.errorMessage = 'Invalid chart config — details in the browser console';
           }
         }
         else {
           console.warn('Invalid Transition Config, config should be an object: ', newConfig.config);
-          alert('Invalid Chart Config, should be an object');
+          this.errorMessage = '"config" should be an object';
         }
       }
       else {
         console.warn('Invalid Transition Config, should be an object: ', this.configText);
-        alert('Invalid Transition Config, should be an object');
+        this.errorMessage = 'Transition config should be an object';
       }
     }
     catch (error) {
       console.warn('Invalid Transition Config JSON: ', this.configText);
-      alert('Invalid Transition Config JSON');
+      this.errorMessage = 'Invalid JSON';
     }
   };
 
+  private get jsonError(): string | null {
+    try {
+      JSON.parse(this.configText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  }
+
   override render(): unknown {
+    const jsonError = this.jsonError;
+    const footerError = jsonError ?? this.errorMessage;
     return html`<div class=${'mochart-demo-tab-container col config' + (this.active ? ' active' : '')}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
@@ -114,13 +129,14 @@ export class TransitionConfigTab extends LightElement {
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
           ${buttonWithTooltip(
-            { id: 'config-reset', tooltipText: 'Reset', tooltipPlacement: 'top-start', onClick: () => this.onReset(), ariaLabel: 'Reset' },
-            icon({ size: 'lg', fixedWidth: true, name: 'undo' })
+            { id: 'config-reset', label: 'Reset', tooltipText: 'Restore the original transition config', tooltipPlacement: 'top-start', onClick: () => this.onReset(), ariaLabel: 'Reset' },
+            icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
           )}
           ${buttonWithTooltip(
-            { id: 'config-apply', tooltipText: 'Apply', tooltipPlacement: 'top-start', onClick: this.onUpdateClick, ariaLabel: 'Apply' },
+            { id: 'config-apply', label: 'Apply', disabled: jsonError !== null, tooltipText: 'Apply this config to the transition charts', tooltipPlacement: 'top-start', onClick: this.onUpdateClick, ariaLabel: 'Apply' },
             icon({ size: 'lg', fixedWidth: true, name: 'check' })
           )}
+          ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}
         </div>
       </div>
     </div>`;

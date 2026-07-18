@@ -16,11 +16,15 @@ interface Props {
   disabled?: boolean;
   onClick?: () => void;
   color?: string;
+  // `label` renders visible text beside the icon; `pressed` marks the button
+  // as a toggle (aria-pressed + active styling).
+  label?: string;
+  pressed?: boolean;
   [key: string]: unknown;
 }
 
 export default function ButtonWithTooltip(props: Props) {
-  const { children, tooltipText, tooltipPlacement, id, disabled, onClick, ...buttonProps } = props;
+  const { children, tooltipText, tooltipPlacement, id, disabled, onClick, label, pressed, ...buttonProps } = props;
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const toggle = () => setTooltipOpen(open => !open);
@@ -42,8 +46,9 @@ export default function ButtonWithTooltip(props: Props) {
 
   return (
     <span className="button-with-tooltip">
-      <Button id={id} disabled={disabled} onClick={handleClick} {...(buttonProps as Record<string, unknown>)}>
-        {children}
+      <Button id={id} disabled={disabled} onClick={handleClick} active={pressed === true}
+        aria-pressed={pressed === void 0 ? void 0 : pressed} {...(buttonProps as Record<string, unknown>)}>
+        {children}{label ? <span className="btn-label">{label}</span> : null}
       </Button>
       {tooltip}
     </span>

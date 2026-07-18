@@ -354,30 +354,33 @@ function MultiMochartControls({ playing, onRowsChange, onColsChange, onStepBackw
     <div className="multi-controls">
       <Form inline>
         <FormGroup>
-          <Input disabled={playing} type="text" value={rowsText} maxLength={3} size={3} onChange={rowsChanged} />
-          <span className="form-control-plaintext">x</span>
-          <Input disabled={playing} type="text" value={colsText} maxLength={3} size={3} onChange={colsChanged} />
+          <label className="form-control-plaintext" htmlFor="grid-rows">Grid:</label>
+          <Input id="grid-rows" disabled={playing} type="number" min={1} max={4} value={rowsText}
+            onChange={rowsChanged} aria-label="Grid rows" />
+          <span className="form-control-plaintext">&times;</span>
+          <Input id="grid-cols" disabled={playing} type="number" min={1} max={4} value={colsText}
+            onChange={colsChanged} aria-label="Grid columns" />
         </FormGroup>
         <FormGroup>
           <ButtonToolbar>
             <ButtonGroup>
-              <ButtonWithTooltip id="step-back" disabled={playing} tooltipText="Step Backward" tooltipPlacement="top-start"
+              <ButtonWithTooltip id="step-back" disabled={playing} tooltipText="Step all charts one dataset backward" tooltipPlacement="top-start"
                 onClick={onStepBackwardClick} aria-label="Step Backward">
-                <FontAwesome size="lg" fixedWidth={true} name="step-backward" />
+                <FontAwesome size="lg" fixedWidth={true} name="backward-step" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="step-forward" disabled={playing} tooltipText="Step Forward" tooltipPlacement="top-start"
+              <ButtonWithTooltip id="step-forward" disabled={playing} tooltipText="Step all charts one dataset forward" tooltipPlacement="top-start"
                 onClick={onStepForwardClick} aria-label="Step Forward">
-                <FontAwesome size="lg" fixedWidth={true} name="step-forward" />
+                <FontAwesome size="lg" fixedWidth={true} name="forward-step" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="play-backward" disabled={playing} tooltipText="Play Backward" tooltipPlacement="top-start"
+              <ButtonWithTooltip id="play-backward" disabled={playing} tooltipText="Play backward through the datasets at the interval" tooltipPlacement="top-start"
                 onClick={onPlayBackwardClick} aria-label="Play Backward">
                 <FontAwesome size="lg" fixedWidth={true} name="play" flip="horizontal" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="play-forward" disabled={playing} tooltipText="Play Forward" tooltipPlacement="top-start"
+              <ButtonWithTooltip id="play-forward" disabled={playing} tooltipText="Play forward through the datasets at the interval" tooltipPlacement="top-start"
                 onClick={onPlayForwardClick} aria-label="Play Forward">
                 <FontAwesome size="lg" fixedWidth={true} name="play" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="stop" disabled={!playing} tooltipText="Stop" tooltipPlacement="top-start"
+              <ButtonWithTooltip id="stop" disabled={!playing} tooltipText="Stop playback" tooltipPlacement="top-start"
                 onClick={onStopClick} aria-label="Stop">
                 <FontAwesome size="lg" fixedWidth={true} name="stop" />
               </ButtonWithTooltip>
@@ -385,7 +388,9 @@ function MultiMochartControls({ playing, onRowsChange, onColsChange, onStepBackw
           </ButtonToolbar>
         </FormGroup>
         <FormGroup>
-          <Input disabled={playing} type="text" value={rateText} maxLength={4} size={4} onChange={rateChanged} />
+          <label className="form-control-plaintext" htmlFor="multi-rate">Interval (ms):</label>
+          <Input id="multi-rate" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
+            onChange={rateChanged} aria-label="Playback interval in milliseconds" />
         </FormGroup>
       </Form>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
@@ -45,7 +45,6 @@ function parseConfig(configText: string): DemoConfig | null {
   }
   catch (error) {
     console.warn('Invalid Chart Config JSON: ' + configText);
-    alert('Invalid Chart Config JSON');
     return null;
   }
 }
@@ -72,6 +71,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   };
 
   const [state, setState] = useState<ConfigTabState>(() => build(config));
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Rebuild when the incoming config changes.
   const prevConfig = useRef(config);
@@ -93,6 +93,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
       const { valid } = configValidation;
       if (valid) {
         setState(prev => ({ ...prev, showDefaults, configText: formatMochartDemoConfig(mochartDemoConfig, showDefaults) }));
+        setErrorMessage(null);
       }
       else {
         const { errors, warnings } = configValidation;
@@ -102,13 +103,12 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
         if (warnings.length > 0) {
           console.warn('warnings: ', warnings);
         }
-        alert('Invalid Chart Config');
+        setErrorMessage('Invalid chart config — details in the browser console');
       }
     }
     catch (error) {
-      console.log('**** error', error);
       console.warn('Invalid Chart Config JSON: ' + state.configText);
-      alert('Invalid Chart Config JSON');
+      setErrorMessage('Invalid JSON');
     }
   };
 
@@ -165,40 +165,59 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
     }
   };
 
-  const { demoConfig, configText } = state;
+  const { demoConfig, configText, showDefaults } = state;
   const { configWithDefaults } = demoConfig;
   const { inverted } = configWithDefaults.plotConfig;
 
-  const invertedIcon = inverted ? 'caret-square-o-up' : 'caret-square-o-right';
-  const slowIcon = configWithDefaults.animationConfig === slowAnimationConfig ? 'hourglass' : 'hourglass-end';
+  const invertedIcon = inverted ? 'chart-bar' : 'chart-column';
+  const slow = configWithDefaults.animationConfig === slowAnimationConfig;
+  const slowIcon = slow ? 'hourglass' : 'hourglass-end';
+
+  // Live JSON validity — disables Apply and shows an inline hint while the
+  // editor holds unparseable text.
+  const jsonError = useMemo(() => {
+    try {
+      JSON.parse(configText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  }, [configText]);
+  const footerError = jsonError ?? errorMessage;
 
   return (
     <div className={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
       <div className="mochart-demo-tab-content">
-        <TextAreaContent value={configText} onChange={(text: string) => setState(prev => ({ ...prev, configText: text }))} />
+        <TextAreaContent value={configText} onChange={(text: string) => { setState(prev => ({ ...prev, configText: text })); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
         <ButtonToolbar>
-          <ButtonWithTooltip id="config-reset" tooltipText="Reset" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore this demo's original config" tooltipPlacement="top-start"
             onClick={resetConfig} aria-label="Reset">
-            <FontAwesome size="lg" fixedWidth={true} name="undo" />
+            <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-defaults" tooltipText="Toggle Defaults" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="config-defaults" label="Defaults" pressed={showDefaults}
+            tooltipText="Show or hide the default config values merged into the JSON" tooltipPlacement="top-start"
             onClick={toggleConfigDefaults} aria-label="Toggle Defaults">
-            <FontAwesome size="lg" fixedWidth={true} name="crosshairs" />
+            <FontAwesome size="lg" fixedWidth={true} name={showDefaults ? 'eye' : 'eye-slash'} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-inverted" tooltipText="Toggle Inverted" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="config-inverted" label="Invert" pressed={!!inverted}
+            tooltipText="Swap the chart between vertical and horizontal orientation" tooltipPlacement="top-start"
             onClick={toggleConfigInverted} aria-label="Toggle Inverted">
             <FontAwesome size="lg" fixedWidth={true} name={invertedIcon} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-animate-slow" tooltipText="Toggle Slow" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="config-animate-slow" label="Slow" pressed={slow}
+            tooltipText="Slow all animations down so transitions are easy to watch" tooltipPlacement="top-start"
             onClick={toggleConfigAnimationSlow} aria-label="Toggle Slow">
             <FontAwesome size="lg" fixedWidth={true} name={slowIcon} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-apply" tooltipText="Apply" tooltipPlacement="top-start"
+          <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
+            tooltipText="Apply this config — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
             onClick={applyConfig} aria-label="Apply">
             <FontAwesome size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
+          {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
         </ButtonToolbar>
       </div>
     </div>

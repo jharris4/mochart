@@ -61,12 +61,12 @@ export class TransitionChartTab extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'transition-back', tooltipText: 'Step Backward', tooltipPlacement: 'top-start', onClick: this.onStepBack, ariaLabel: 'Step Backward' },
-                  icon({ size: 'lg', fixedWidth: true, name: 'step-backward' })
+                  { id: 'transition-back', label: 'Back', tooltipText: 'Transition to the previous dataset', tooltipPlacement: 'top-start', onClick: this.onStepBack, ariaLabel: 'Step Backward' },
+                  icon({ size: 'lg', fixedWidth: true, name: 'backward-step' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'transition-forward', tooltipText: 'Step Forward', tooltipPlacement: 'top-start', onClick: this.onStepForward, ariaLabel: 'Step Forward' },
-                  icon({ size: 'lg', fixedWidth: true, name: 'step-forward' })
+                  { id: 'transition-forward', label: 'Next', tooltipText: 'Transition to the next dataset', tooltipPlacement: 'top-start', onClick: this.onStepForward, ariaLabel: 'Step Forward' },
+                  icon({ size: 'lg', fixedWidth: true, name: 'forward-step' })
                 )}
               </div>
             </div>

@@ -582,49 +582,53 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div v-if="props.showChartCountControls" class="btn-group">
-                    <ButtonWithTooltip id="edit-chart-count" :tooltip-text="(props.chartCount === 2 ? 'Hide' : 'Show') + ' 2nd Chart'" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-chart-count" label="2nd Chart" :pressed="props.chartCount === 2"
+                                       :tooltip-text="(props.chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data'" tooltip-placement="right"
                                        :on-click="props.onChartCountToggle" aria-label="Toggle Chart Count">
                       <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
                     </ButtonWithTooltip>
                   </div>
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-mode" :tooltip-text="selectionMode === 'group' ? 'Enter Single Group Mode' : 'Enter Multi Group Mode'" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? 'Edit Series' : 'Edit Groups'"
+                                       :tooltip-text="selectionMode === 'group'
+                                         ? 'Switch to editing one group at a time (step groups/series, change values)'
+                                         : 'Switch to editing the set of groups (add, remove, reorder)'" tooltip-placement="right"
                                        :on-click="onModeToggle" aria-label="Toggle Mode">
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
                   </div>
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" tooltip-text="Reset Groups" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" label="Reset" tooltip-text="Restore the original group set and order" tooltip-placement="right"
                                        :on-click="resetGroups" aria-label="Reset Groups">
-                      <Icon size="lg" :fixed-width="true" name="undo" />
+                      <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-reverse-groups" :disabled="error || sequencePlaying" tooltip-text="Reverse Groups" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-reverse-groups" :disabled="error || sequencePlaying" label="Reverse" tooltip-text="Reverse the order of the groups" tooltip-placement="right"
                                        :on-click="reverseGroups" aria-label="Reverse Groups">
-                      <Icon size="lg" :fixed-width="true" name="exchange" />
+                      <Icon size="lg" :fixed-width="true" name="right-left" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-add-groups" :disabled="error || sequencePlaying || disableAdd" tooltip-text="Add Selected Groups" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-add-groups" :disabled="error || sequencePlaying || disableAdd" label="Add" tooltip-text="Add the groups selected in the input to the chart" tooltip-placement="right"
                                        :on-click="addGroups" aria-label="Add Selected Groups">
                       <Icon size="lg" :fixed-width="true" name="plus" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-remove-groups" :disabled="error || sequencePlaying || disableRemove" tooltip-text="Remove Selected Groups" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-remove-groups" :disabled="error || sequencePlaying || disableRemove" label="Remove" tooltip-text="Remove the groups selected in the input from the chart" tooltip-placement="right"
                                        :on-click="removeGroups" aria-label="Remove Selected Groups">
                       <Icon size="lg" :fixed-width="true" name="minus" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-play-add" :disabled="error || sequencePlaying || disableAdd" tooltip-text="Play Add Selected Groups" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-play-add" :disabled="error || sequencePlaying || disableAdd" tooltip-text="Animate adding the selected groups one at a time" tooltip-placement="right"
                                        :on-click="startAddSequence" aria-label="Play Add Selected Groups">
                       <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="plus" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-play-remove" :disabled="error || sequencePlaying || disableRemove" tooltip-text="Play Remove Selected Groups" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-play-remove" :disabled="error || sequencePlaying || disableRemove" tooltip-text="Animate removing the selected groups one at a time" tooltip-placement="right"
                                        :on-click="startRemoveSequence" aria-label="Play Remove Selected Groups">
                       <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="minus" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-stop" :disabled="error || !sequencePlaying" tooltip-text="Stop Selected Group Sequence" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-stop" :disabled="error || !sequencePlaying" tooltip-text="Stop the add/remove animation" tooltip-placement="right"
                                        :on-click="stopSequence" aria-label="Stop Selected Group Sequence">
                       <Icon size="lg" :fixed-width="true" name="stop" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-select-all" :disabled="error || sequencePlaying" tooltip-text="Select All Groups" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-select-all" :disabled="error || sequencePlaying" label="Select All" tooltip-text="Put every group into the selection input" tooltip-placement="right"
                                        :on-click="selectAllGroups" aria-label="Select All Groups">
-                      <Icon size="lg" :fixed-width="true" name="magnet" />
+                      <Icon size="lg" :fixed-width="true" name="check-double" />
                     </ButtonWithTooltip>
                   </div>
                 </div>
@@ -643,13 +647,17 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div v-if="props.showChartCountControls" class="btn-group">
-                    <ButtonWithTooltip id="edit-chart-count" :tooltip-text="(props.chartCount === 2 ? 'Hide' : 'Show') + ' 2nd Chart'" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-chart-count" label="2nd Chart" :pressed="props.chartCount === 2"
+                                       :tooltip-text="(props.chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data'" tooltip-placement="right"
                                        :on-click="props.onChartCountToggle" aria-label="Toggle Chart Count">
                       <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
                     </ButtonWithTooltip>
                   </div>
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-mode" :tooltip-text="selectionMode === 'group' ? 'Enter Single Group Mode' : 'Enter Multi Group Mode'" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? 'Edit Series' : 'Edit Groups'"
+                                       :tooltip-text="selectionMode === 'group'
+                                         ? 'Switch to editing one group at a time (step groups/series, change values)'
+                                         : 'Switch to editing the set of groups (add, remove, reorder)'" tooltip-placement="right"
                                        :on-click="onModeToggle" aria-label="Toggle Mode">
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
@@ -659,7 +667,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-group-decrease" :disabled="error || groupOrderControlsDisabled || isFirstGroup" tooltip-text="Decrease Group Order" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-group-decrease" :disabled="error || groupOrderControlsDisabled || isFirstGroup" tooltip-text="Move the focused group one position earlier" tooltip-placement="right"
                                        :on-click="decreaseGroupOrder" aria-label="Decrease Group Order">
                       <Icon size="lg" :fixed-width="true" name="arrow-left" />
                     </ButtonWithTooltip>
@@ -672,7 +680,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-group-increase" :disabled="error || groupOrderControlsDisabled || isLastGroup" tooltip-text="Increase Group Order" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-group-increase" :disabled="error || groupOrderControlsDisabled || isLastGroup" tooltip-text="Move the focused group one position later" tooltip-placement="right"
                                        :on-click="increaseGroupOrder" aria-label="Increase Group Order">
                       <Icon size="lg" :fixed-width="true" name="arrow-right" />
                     </ButtonWithTooltip>
@@ -682,7 +690,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-previous-series" :disabled="error || seriesControlsDisabled || !hasPrevSeries" tooltip-text="Previous Series" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-previous-series" :disabled="error || seriesControlsDisabled || !hasPrevSeries" tooltip-text="Edit the previous series" tooltip-placement="right"
                                        :on-click="prevSeries" aria-label="Previous Series">
                       <Icon size="lg" :fixed-width="true" name="chevron-down" />
                     </ButtonWithTooltip>
@@ -695,7 +703,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-next-series" :disabled="error || seriesControlsDisabled || !hasNextSeries" tooltip-text="Next Series" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-next-series" :disabled="error || seriesControlsDisabled || !hasNextSeries" tooltip-text="Edit the next series" tooltip-placement="right"
                                        :on-click="nextSeries" aria-label="Next Series">
                       <Icon size="lg" :fixed-width="true" name="chevron-up" />
                     </ButtonWithTooltip>
@@ -703,7 +711,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
                   <div class="btn-group">
                     <ButtonWithTooltip id="edit-reset-series" :disabled="error || seriesControlsDisabled" tooltip-text="Reset Series Changes" tooltip-placement="right"
                                        :on-click="resetSeriesChanges" aria-label="Reset Series Changes">
-                      <Icon size="lg" :fixed-width="true" name="undo" />
+                      <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
                     </ButtonWithTooltip>
                     <ButtonWithTooltip id="edit-apply-series" :disabled="error || seriesControlsDisabled" tooltip-text="Apply Series Changes" tooltip-placement="right"
                                        :on-click="applySeriesChanges" aria-label="Apply Series Changes">

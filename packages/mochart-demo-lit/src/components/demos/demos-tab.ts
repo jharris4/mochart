@@ -7,6 +7,14 @@ import { icon } from '../misc/templates';
 
 import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
 
+const modeCaptions: Record<string, string> = {
+  single: 'Single: one chart with editable config, data, groups and series — pick a demo below.',
+  multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
+  random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
+  transition: 'Transition: animates a chart between datasets — pick a demo below.',
+  rotation: 'Rotation: a grid of every chart config variation.'
+};
+
 @customElement('demos-tab')
 export class DemosTab extends LightElement {
   @property({ attribute: false }) active = false;
@@ -36,22 +44,27 @@ export class DemosTab extends LightElement {
           <div class="form-group">
             <div class="btn-toolbar" role="toolbar">
               <button type="button" class=${'btn btn-' + (isSingle ? 'primary' : 'secondary')} ?disabled=${isSingle}
+                      title="One chart with editable config, data, groups and series"
                       @click=${() => this.onDemoModeChanged('single', this.demoId)}>
-                ${icon({ size: 'lg', name: 'edit' })} Single
+                ${icon({ size: 'lg', name: 'pen-to-square' })} Single
               </button>
               <button type="button" class=${'btn btn-' + (isMulti ? 'primary' : 'secondary')} ?disabled=${isMulti}
+                      title="A grid of charts stepping through datasets together"
                       @click=${() => this.onDemoModeChanged('multi', this.demoId)}>
                 ${icon({ size: 'lg', name: 'window-restore' })} Multi
               </button>
               <button type="button" class=${'btn btn-' + (isRandom ? 'primary' : 'secondary')} ?disabled=${isRandom}
+                      title="A chart fed by a seeded random data generator"
                       @click=${() => this.onDemoModeChanged('random', this.demoId)}>
-                ${icon({ size: 'lg', name: 'random' })} Random
+                ${icon({ size: 'lg', name: 'shuffle' })} Random
               </button>
               <button type="button" class="btn btn-secondary"
+                      title="Animate a chart between two datasets"
                       @click=${() => this.onDemoModeChanged('transition', this.demoId)}>
-                ${icon({ size: 'lg', name: 'exchange' })} Transition
+                ${icon({ size: 'lg', name: 'right-left' })} Transition
               </button>
               <button type="button" class="btn btn-secondary"
+                      title="A grid of chart config variations"
                       @click=${() => this.onDemoModeChanged('rotation', this.demoId)}>
                 ${icon({ size: 'lg', name: 'repeat' })} Rotation
               </button>
@@ -59,13 +72,15 @@ export class DemosTab extends LightElement {
           </div>
           <div class="form-group" style="margin-left: 10px;">
             <div class="btn-toolbar" role="toolbar">
-              <button type="button" class=${'btn btn-' + (this.isTestMode ? 'primary' : 'secondary')}
+              <button type="button" class=${'btn btn-' + (this.isTestMode ? 'primary' : 'secondary')} aria-pressed=${String(this.isTestMode)}
+                      title="Show the test demos (intentionally invalid configs for exercising error handling)"
                       @click=${this.onTestModeToggle}>
-                ${icon({ size: 'lg', name: 'edit' })} Test Demos
+                ${icon({ size: 'lg', name: 'flask' })} Test Demos
               </button>
             </div>
           </div>
         </form>
+        ${modeCaptions[this.demoMode] ? html`<div class="mochart-demo-caption">${modeCaptions[this.demoMode]}</div>` : null}
       </div>
       <div class="mochart-demo-list-container">
         <div class="mochart-demo-list">

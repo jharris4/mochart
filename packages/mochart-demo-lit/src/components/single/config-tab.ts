@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
@@ -45,7 +45,6 @@ function parseConfig(configText: string): DemoConfig | null {
   }
   catch (error) {
     console.warn('Invalid Chart Config JSON: ' + configText);
-    alert('Invalid Chart Config JSON');
     return null;
   }
 }
@@ -101,6 +100,7 @@ export class ConfigTab extends LightElement {
   @state() private mochartDemoConfig!: MochartDemoConfig;
   @state() private demoConfig!: DemoConfigView;
   @state() private configText = '';
+  @state() private errorMessage: string | null = null;
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (changed.has('config')) {
@@ -112,6 +112,7 @@ export class ConfigTab extends LightElement {
 
   private onTextChange = (nextConfigText: string): void => {
     this.configText = nextConfigText;
+    this.errorMessage = null;
   };
 
   private resetConfig = (): void => {
@@ -127,6 +128,7 @@ export class ConfigTab extends LightElement {
       if (valid) {
         this.showDefaults = nextShowDefaults;
         this.configText = formatMochartDemoConfig(newMochartDemoConfig, nextShowDefaults);
+        this.errorMessage = null;
       }
       else {
         const { errors, warnings } = configValidation;
@@ -136,13 +138,12 @@ export class ConfigTab extends LightElement {
         if (warnings.length > 0) {
           console.warn('warnings: ', warnings);
         }
-        alert('Invalid Chart Config');
+        this.errorMessage = 'Invalid chart config — details in the browser console';
       }
     }
     catch (error) {
-      console.log('**** error', error);
       console.warn('Invalid Chart Config JSON: ' + this.configText);
-      alert('Invalid Chart Config JSON');
+      this.errorMessage = 'Invalid JSON';
     }
   }
 
@@ -167,10 +168,25 @@ export class ConfigTab extends LightElement {
     }
   };
 
+  // Live JSON validity — disables Apply and shows an inline hint while the
+  // editor holds unparseable text.
+  private get jsonError(): string | null {
+    try {
+      JSON.parse(this.configText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  }
+
   override render(): unknown {
     const inverted = this.demoConfig.configWithDefaults.plotConfig.inverted;
-    const invertedIcon = inverted ? 'caret-square-o-up' : 'caret-square-o-right';
-    const slowIcon = this.demoConfig.configWithDefaults.animationConfig === slowAnimationConfig ? 'hourglass' : 'hourglass-end';
+    const invertedIcon = inverted ? 'chart-bar' : 'chart-column';
+    const slow = this.demoConfig.configWithDefaults.animationConfig === slowAnimationConfig;
+    const slowIcon = slow ? 'hourglass' : 'hourglass-end';
+    const jsonError = this.jsonError;
+    const footerError = jsonError ?? this.errorMessage;
     return html`<div class=${'mochart-demo-tab-container col config' + (this.active ? ' active' : '')}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
@@ -178,25 +194,26 @@ export class ConfigTab extends LightElement {
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
           ${buttonWithTooltip(
-            { id: 'config-reset', tooltipText: 'Reset', tooltipPlacement: 'top-start', onClick: this.resetConfig, ariaLabel: 'Reset' },
-            icon({ size: 'lg', fixedWidth: true, name: 'undo' })
+            { id: 'config-reset', label: 'Reset', tooltipText: "Restore this demo's original config", tooltipPlacement: 'top-start', onClick: this.resetConfig, ariaLabel: 'Reset' },
+            icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
           )}
           ${buttonWithTooltip(
-            { id: 'config-defaults', tooltipText: 'Toggle Defaults', tooltipPlacement: 'top-start', onClick: this.toggleConfigDefaults, ariaLabel: 'Toggle Defaults' },
-            icon({ size: 'lg', fixedWidth: true, name: 'crosshairs' })
+            { id: 'config-defaults', label: 'Defaults', pressed: this.showDefaults, tooltipText: 'Show or hide the default config values merged into the JSON', tooltipPlacement: 'top-start', onClick: this.toggleConfigDefaults, ariaLabel: 'Toggle Defaults' },
+            icon({ size: 'lg', fixedWidth: true, name: this.showDefaults ? 'eye' : 'eye-slash' })
           )}
           ${buttonWithTooltip(
-            { id: 'config-inverted', tooltipText: 'Toggle Inverted', tooltipPlacement: 'top-start', onClick: this.toggleConfigInverted, ariaLabel: 'Toggle Inverted' },
+            { id: 'config-inverted', label: 'Invert', pressed: !!inverted, tooltipText: 'Swap the chart between vertical and horizontal orientation', tooltipPlacement: 'top-start', onClick: this.toggleConfigInverted, ariaLabel: 'Toggle Inverted' },
             icon({ size: 'lg', fixedWidth: true, name: invertedIcon })
           )}
           ${buttonWithTooltip(
-            { id: 'config-animate-slow', tooltipText: 'Toggle Slow', tooltipPlacement: 'top-start', onClick: this.toggleConfigAnimationSlow, ariaLabel: 'Toggle Slow' },
+            { id: 'config-animate-slow', label: 'Slow', pressed: slow, tooltipText: 'Slow all animations down so transitions are easy to watch', tooltipPlacement: 'top-start', onClick: this.toggleConfigAnimationSlow, ariaLabel: 'Toggle Slow' },
             icon({ size: 'lg', fixedWidth: true, name: slowIcon })
           )}
           ${buttonWithTooltip(
-            { id: 'config-apply', tooltipText: 'Apply', tooltipPlacement: 'top-start', onClick: this.applyConfig, ariaLabel: 'Apply' },
+            { id: 'config-apply', label: 'Apply', disabled: jsonError !== null, tooltipText: 'Apply this config — the chart updates when you return to the Chart tab', tooltipPlacement: 'top-start', onClick: this.applyConfig, ariaLabel: 'Apply' },
             icon({ size: 'lg', fixedWidth: true, name: 'check' })
           )}
+          ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}
         </div>
       </div>
     </div>`;
