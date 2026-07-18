@@ -5,7 +5,7 @@ import { ArrayOfObjectsDataProvider } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/angular';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { ChartsControls } from './charts-controls';
 import { createElementSize } from '../misc/element-size';

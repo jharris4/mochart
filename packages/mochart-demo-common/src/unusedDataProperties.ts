@@ -1,6 +1,6 @@
 import type { MochartConfig } from '@mochart/core';
 
-import type { DataRow } from '../types';
+import type { DataRow } from './types';
 
 /**
  * The set of data properties the chart config actually reads, or null when the

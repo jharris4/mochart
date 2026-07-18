@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ArrayOfObjectsDataProvider } from '@mochart/core';
 
-  import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+  import { buildMochartDemoConfig } from '@mochart/demo-common';
 
   import TransitionChartTab from './TransitionChartTab.svelte';
   import TransitionConfigTab from './TransitionConfigTab.svelte';

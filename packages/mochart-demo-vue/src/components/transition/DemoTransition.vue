@@ -3,7 +3,7 @@ import { ref, shallowRef } from 'vue';
 
 import { ArrayOfObjectsDataProvider } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import TransitionChartTab from './TransitionChartTab.vue';
 import TransitionConfigTab from './TransitionConfigTab.vue';

@@ -4,7 +4,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { ArrayOfObjectsDataProvider } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import './transition-chart-tab';

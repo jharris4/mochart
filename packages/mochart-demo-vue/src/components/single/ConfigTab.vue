@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';

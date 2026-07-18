@@ -1,4 +1,4 @@
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
 import { demosTab } from '../demos/DemosTab';

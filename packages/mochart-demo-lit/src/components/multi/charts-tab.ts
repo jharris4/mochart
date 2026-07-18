@@ -7,7 +7,7 @@ import { ArrayOfObjectsDataProvider } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 import { chart } from '@mochart/lit';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { ElementSizeController } from '../misc/ElementSizeController';

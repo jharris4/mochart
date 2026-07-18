@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';

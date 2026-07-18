@@ -5,7 +5,7 @@ import type { PropertyValues } from 'lit';
 
 import { hasConfigStructureChange } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { ElementSizeController } from '../misc/ElementSizeController';

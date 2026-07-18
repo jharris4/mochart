@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 
 import { ArrayOfObjectsDataProvider } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { TransitionChartTab } from './transition-chart-tab';
 import { TransitionConfigTab } from './transition-config-tab';

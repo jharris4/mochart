@@ -1,6 +1,6 @@
 import { migrateConfig, buildMochartConfig, getDefaults, applyDefaults, sectionKeyAllMap, validateConfig } from '@mochart/core';
 
-import type { MochartDemoConfig } from '../types';
+import type { MochartDemoConfig } from './types';
 
 type ConfigRecord = Record<string, unknown>;
 

@@ -4,7 +4,7 @@ import { Nav, NavItem, NavLink } from 'reactstrap';
 import { ArrayOfObjectsDataProvider } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import TransitionMochartChartTab from './TransitionChartTab';
 import TransitionMochartConfigTab from './TransitionConfigTab';

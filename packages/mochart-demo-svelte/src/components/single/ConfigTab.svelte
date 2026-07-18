@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+  import { buildMochartDemoConfig } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';

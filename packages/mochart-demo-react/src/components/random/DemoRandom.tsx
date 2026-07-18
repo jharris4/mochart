@@ -4,7 +4,7 @@ import { Nav, NavItem, NavLink } from 'reactstrap';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 import { generateChartDataProvider } from './RandomGenerator';
 
 import MochartDemosTab from '../demos/DemosTab';

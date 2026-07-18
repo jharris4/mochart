@@ -3,7 +3,7 @@ import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import validators from '@mochart/movalid';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';

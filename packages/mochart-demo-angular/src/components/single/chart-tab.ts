@@ -3,7 +3,7 @@ import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from 
 
 import { hasConfigStructureChange } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { EditableChart } from './editable-chart';
 import { createElementSize } from '../misc/element-size';

@@ -1,6 +1,6 @@
 import validators from '@mochart/movalid';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 

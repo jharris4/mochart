@@ -3,7 +3,7 @@
 
   import validators from '@mochart/movalid';
 
-  import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+  import { buildMochartDemoConfig } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';

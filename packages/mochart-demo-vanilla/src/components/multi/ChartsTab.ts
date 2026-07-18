@@ -1,7 +1,7 @@
 import { ArrayOfObjectsDataProvider } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { el, observeSize, setActiveClass } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';

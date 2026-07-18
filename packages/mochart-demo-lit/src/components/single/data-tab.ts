@@ -2,30 +2,13 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { ArrayOfObjectsDataProvider, getDataErrors } from '@mochart/core';
-import type { DataProvider } from '@mochart/core';
-
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
-import { collectUsedDataProperties, filterDataProperties, restoreHiddenDataProperties } from '../../config/unusedDataProperties';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import type { ParsedFullData } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
 
 import type { DemoConfig, DataRow } from '../../types';
-
-function formatData(dataJSON: unknown): string {
-  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
-}
-
-function isObject(v: unknown): boolean {
-  return v !== null && v !== void 0 && typeof v === "object";
-}
-
-function isArrayOfObjects(candidate: unknown): boolean {
-  return Array.isArray(candidate) && !candidate.some(v => !isObject(v));
-}
-
-type ParsedFullData = { full: DataRow[] } | { error: 'json' | 'data' };
 
 @customElement('data-tab')
 export class DataTab extends LightElement {
@@ -53,7 +36,7 @@ export class DataTab extends LightElement {
       // Re-filter for the changed config, keeping any (valid) unapplied edits.
       // The data branch below renders the initial view instead.
       if (!changed.has('data') && !this.showUnused) {
-        const parsed = this.parseFullData();
+        const parsed = this.parseCurrentFullData();
         if (!('error' in parsed)) {
           this.renderView(parsed.full);
         }
@@ -67,24 +50,11 @@ export class DataTab extends LightElement {
   private renderView(fullRows: DataRow[]): void {
     this.fullData = fullRows;
     this.viewUsedProperties = this.showUnused ? null : this.usedProperties;
-    this.dataText = formatData(this.viewUsedProperties === null ? fullRows : filterDataProperties(fullRows, this.viewUsedProperties));
+    this.dataText = formatDataView(fullRows, this.viewUsedProperties);
   }
 
-  // Parse the textarea back to a full dataset, restoring any properties the
-  // filtered view hid.
-  private parseFullData(): ParsedFullData {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(this.dataText);
-    }
-    catch (error) {
-      return { error: 'json' };
-    }
-    if (!isArrayOfObjects(parsed)) {
-      return { error: 'data' };
-    }
-    const rows = parsed as DataRow[];
-    return { full: this.viewUsedProperties === null ? rows : restoreHiddenDataProperties(rows, this.fullData, this.viewUsedProperties) };
+  private parseCurrentFullData(): ParsedFullData {
+    return parseFullData(this.dataText, this.fullData, this.viewUsedProperties);
   }
 
   private onTextChange = (nextDataText: string): void => {
@@ -99,7 +69,7 @@ export class DataTab extends LightElement {
   };
 
   private toggleShowUnused = (): void => {
-    const parsed = this.parseFullData();
+    const parsed = this.parseCurrentFullData();
     if ('error' in parsed) {
       this.errorMessage = parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects';
       return;
@@ -110,57 +80,20 @@ export class DataTab extends LightElement {
   };
 
   private applyData = (): void => {
-    const parsed = this.parseFullData();
-    if ('error' in parsed) {
-      if (parsed.error === 'json') {
-        console.warn('Invalid Data JSON');
-        this.errorMessage = 'Invalid JSON';
-        this.onDataError('Invalid Data ');
-      }
-      else {
-        console.warn('Invalid Data - should be an array of objects');
-        this.errorMessage = 'Invalid Data — details in the browser console';
-        this.onDataError('Invalid Data');
-      }
-      return;
-    }
-    const parsedData = parsed.full;
-    let error = null;
-    const { mochartConfig } = buildMochartDemoConfig(this.config);
-    if (mochartConfig.validation.valid) {
-      const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.groupAxisConfig.property ?? '') as unknown as DataProvider);
-      if (dataErrors.length > 0) {
-        console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
-        error = 'Invalid Data Content';
-      }
-    }
-    else {
-      console.warn('Could not validate data since mochart config was not valid');
-      error = 'Invalid Config & Data';
-    }
-    if (error) {
-      this.errorMessage = error + ' — details in the browser console';
-      this.onDataError(error);
-    }
-    else {
+    const result = applyDataEdit(this.dataText, this.fullData, this.viewUsedProperties, this.config);
+    if (result.ok) {
       this.errorMessage = null;
-      this.fullData = parsedData;
-      this.onDataChange(parsedData);
+      this.fullData = result.data;
+      this.onDataChange(result.data);
+    }
+    else {
+      this.errorMessage = result.errorMessage;
+      this.onDataError(result.callbackError);
     }
   };
 
-  private get jsonError(): string | null {
-    try {
-      JSON.parse(this.dataText);
-      return null;
-    }
-    catch (error) {
-      return 'Invalid JSON';
-    }
-  }
-
   override render(): unknown {
-    const jsonError = this.jsonError;
+    const jsonError = getJsonError(this.dataText);
     const footerError = jsonError ?? this.errorMessage;
     return html`<div class=${'mochart-demo-tab-container col data' + (this.active ? ' active' : '')}>
       <div class="mochart-demo-tab-content">

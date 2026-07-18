@@ -1,6 +1,6 @@
 import { ArrayOfObjectsDataProvider } from '@mochart/core';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
 import { transitionChartTab } from './TransitionChartTab';

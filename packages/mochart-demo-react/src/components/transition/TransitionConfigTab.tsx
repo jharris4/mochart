@@ -4,7 +4,7 @@ import FontAwesome from 'react-fontawesome';
 
 import validators from '@mochart/movalid';
 
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { buildMochartDemoConfig } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';

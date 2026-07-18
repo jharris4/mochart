@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import { ArrayOfObjectsDataProvider, getDataErrors } from '@mochart/core';
-import type { DataProvider } from '@mochart/core';
-
-import buildMochartDemoConfig from '../../config/mochartDemoConfig';
-import { collectUsedDataProperties, filterDataProperties, restoreHiddenDataProperties } from '../../config/unusedDataProperties';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -21,20 +17,6 @@ interface Props {
   onDataError: (errorMessage: string) => void;
   onDataReset: () => void;
 }
-
-function formatData(dataJSON: unknown): string {
-  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
-}
-
-function isObject(v: unknown): boolean {
-  return v !== null && v !== void 0 && typeof v === "object";
-}
-
-function isArrayOfObjects(candidate: unknown): boolean {
-  return Array.isArray(candidate) && !candidate.some(v => !isObject(v));
-}
-
-type ParsedFullData = { full: DataRow[] } | { error: 'json' | 'data' };
 
 const props = withDefaults(defineProps<Props>(), {
   active: false
@@ -55,24 +37,11 @@ const errorMessage = ref<string | null>(null);
 function renderView(fullRows: DataRow[]): void {
   fullData = fullRows;
   viewUsedProperties = showUnused.value ? null : usedProperties.value;
-  dataText.value = formatData(viewUsedProperties === null ? fullRows : filterDataProperties(fullRows, viewUsedProperties));
+  dataText.value = formatDataView(fullRows, viewUsedProperties);
 }
 
-// Parse the textarea back to a full dataset, restoring any properties the
-// filtered view hid.
-function parseFullData(): ParsedFullData {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(dataText.value);
-  }
-  catch (error) {
-    return { error: 'json' };
-  }
-  if (!isArrayOfObjects(parsed)) {
-    return { error: 'data' };
-  }
-  const rows = parsed as DataRow[];
-  return { full: viewUsedProperties === null ? rows : restoreHiddenDataProperties(rows, fullData, viewUsedProperties) };
+function parseCurrentFullData(): ReturnType<typeof parseFullData> {
+  return parseFullData(dataText.value, fullData, viewUsedProperties);
 }
 
 renderView(props.data);
@@ -84,7 +53,7 @@ watch(() => props.data, (nextData) => {
 // Re-filter when the applied config changes, keeping any (valid) unapplied edits.
 watch(() => props.config, () => {
   if (!showUnused.value) {
-    const parsed = parseFullData();
+    const parsed = parseCurrentFullData();
     if (!('error' in parsed)) {
       renderView(parsed.full);
     }
@@ -103,7 +72,7 @@ function resetData() {
 }
 
 function toggleShowUnused() {
-  const parsed = parseFullData();
+  const parsed = parseCurrentFullData();
   if ('error' in parsed) {
     errorMessage.value = parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects';
     return;
@@ -114,54 +83,19 @@ function toggleShowUnused() {
 }
 
 function applyData() {
-  const parsed = parseFullData();
-  if ('error' in parsed) {
-    if (parsed.error === 'json') {
-      console.warn('Invalid Data JSON');
-      errorMessage.value = 'Invalid JSON';
-      props.onDataError('Invalid Data ');
-    }
-    else {
-      console.warn('Invalid Data - should be an array of objects');
-      errorMessage.value = 'Invalid Data — details in the browser console';
-      props.onDataError('Invalid Data');
-    }
-    return;
-  }
-  const parsedData = parsed.full;
-  let error = null;
-  const { mochartConfig } = buildMochartDemoConfig(props.config);
-  if (mochartConfig.validation.valid) {
-    const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.groupAxisConfig.property ?? '') as unknown as DataProvider);
-    if (dataErrors.length > 0) {
-      console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
-      error = 'Invalid Data Content';
-    }
-  }
-  else {
-    console.warn('Could not validate data since mochart config was not valid');
-    error = 'Invalid Config & Data';
-  }
-  if (error) {
-    errorMessage.value = error + ' — details in the browser console';
-    props.onDataError(error);
-  }
-  else {
+  const result = applyDataEdit(dataText.value, fullData, viewUsedProperties, props.config);
+  if (result.ok) {
     errorMessage.value = null;
-    fullData = parsedData;
-    props.onDataChange(parsedData);
+    fullData = result.data;
+    props.onDataChange(result.data);
+  }
+  else {
+    errorMessage.value = result.errorMessage;
+    props.onDataError(result.callbackError);
   }
 }
 
-const jsonError = computed(() => {
-  try {
-    JSON.parse(dataText.value);
-    return null;
-  }
-  catch (error) {
-    return 'Invalid JSON';
-  }
-});
+const jsonError = computed(() => getJsonError(dataText.value));
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
 </script>
 

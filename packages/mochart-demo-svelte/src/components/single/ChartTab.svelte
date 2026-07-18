@@ -3,7 +3,7 @@
 
   import { hasConfigStructureChange } from '@mochart/core';
 
-  import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+  import { buildMochartDemoConfig } from '@mochart/demo-common';
 
   import EditableChart from './EditableChart.svelte';
 

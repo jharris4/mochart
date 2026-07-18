@@ -5,7 +5,7 @@
   import type { MochartConfig } from '@mochart/core';
   import { Chart } from '@mochart/svelte';
 
-  import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+  import { buildMochartDemoConfig } from '@mochart/demo-common';
 
   import ChartsControls from './ChartsControls.svelte';
 

@@ -8,6 +8,7 @@
     "main",
     "../mochart/src",
     "../mochart-angular/src",
+    "../mochart-demo-common/src",
     "../mochart-demo-data/src",
     "../mochart-export/src",
     "../movalid/src"
