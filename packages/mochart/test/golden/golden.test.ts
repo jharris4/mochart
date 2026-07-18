@@ -143,10 +143,14 @@ async function expectSnapshot(container: HTMLElement, demoId: string, stage: str
   await expect(normalizeHtml(container.innerHTML)).toMatchFileSnapshot(snapshotFile(demoId, stage));
 }
 
-function buildMochartConfig(configBasename: string, { animate = true }: { animate?: boolean } = {}): MochartConfig {
+function buildMochartConfig(
+  configBasename: string,
+  { animate = true, mutate }: { animate?: boolean; mutate?: (raw: Record<string, any>) => void } = {}
+): MochartConfig {
   const raw = loadJson(configPaths[configBasename]);
   const migrated = mochart.migrateConfig(raw) as Record<string, any>;
   migrated.animationConfig = { ...(migrated.animationConfig || {}), animate };
+  mutate?.(migrated);
   return mochart.enhanceConfig(migrated as MochartInputConfig);
 }
 
@@ -288,3 +292,114 @@ describe.each(allDemos)('demo: $id', (demo) => {
     expect(container.innerHTML).toBe('');
   });
 });
+
+// ---------------------------------------------------------------------------
+// config updates on a live chart — exercises Chart.derive's incremental vs
+// full-rebuild branches and ChartController's animate-toggle source swap,
+// which the per-demo suites above never reach (they only update data)
+// ---------------------------------------------------------------------------
+
+describe('config updates on a mounted chart', () => {
+  const demo = allDemos.find((aDemo) => aDemo.id === 'grouped')!;
+
+  function mountGrouped(mochartConfig: MochartConfig, rows: Row[]) {
+    const container = createContainer();
+    const chart = mochart.createChart(container, {
+      mochartConfig,
+      dataProvider: makeProvider(mochartConfig, rows),
+      width: WIDTH,
+      height: HEIGHT
+    });
+    runFrames();
+    return { container, chart };
+  }
+
+  it('applies a non-structural config change incrementally (title, series title, renderer)', async () => {
+    const mochartConfig = buildMochartConfig(demo.config);
+    const rows = loadJson(dataPaths[demo.data]);
+    const { container, chart } = mountGrouped(mochartConfig, rows);
+
+    const changedConfig = buildMochartConfig(demo.config, {
+      mutate: (raw) => {
+        raw.titleConfig.title = 'Updated Title';
+        raw.seriesConfigs[1].title = 'Renamed Series';
+        raw.seriesAllConfig.renderer = 'line';
+      }
+    });
+    // renderer/title changes must take the incremental derive path, not a rebuild
+    expect(mochart.hasConfigStructureChange(mochartConfig, changedConfig)).toBe(false);
+
+    chart.update({ mochartConfig: changedConfig });
+    advanceFrames(3);
+    await expectSnapshot(container, demo.id, 'config-nonstructural-mid-tween');
+    runFrames();
+    await expectSnapshot(container, demo.id, 'config-nonstructural-settled');
+
+    chart.destroy();
+    expect(container.innerHTML).toBe('');
+  });
+
+  it('rebuilds on a structural config change (series removed, then restored)', async () => {
+    const mochartConfig = buildMochartConfig(demo.config);
+    const rows = loadJson(dataPaths[demo.data]);
+    const { container, chart } = mountGrouped(mochartConfig, rows);
+    const initialHtml = normalizeHtml(container.innerHTML);
+
+    const removedConfig = buildMochartConfig(demo.config, {
+      mutate: (raw) => {
+        raw.seriesConfigs.pop();
+      }
+    });
+    expect(mochart.hasConfigStructureChange(mochartConfig, removedConfig)).toBe(true);
+
+    chart.update({ mochartConfig: removedConfig });
+    runFrames();
+    await expectSnapshot(container, demo.id, 'config-series-removed');
+
+    // restoring the original config rebuilds back to the exact initial DOM
+    const restoredConfig = buildMochartConfig(demo.config);
+    expect(mochart.hasConfigStructureChange(removedConfig, restoredConfig)).toBe(true);
+
+    chart.update({ mochartConfig: restoredConfig });
+    runFrames();
+    expect(normalizeHtml(container.innerHTML)).toBe(initialHtml);
+
+    chart.destroy();
+    expect(container.innerHTML).toBe('');
+  });
+
+  it('swaps the data source when animate is toggled at runtime', async () => {
+    const animatedConfig = buildMochartConfig(demo.config);
+    const staticConfig = buildMochartConfig(demo.config, { animate: false });
+    const rows = loadJson(dataPaths[demo.data]);
+    const { container, chart } = mountGrouped(animatedConfig, rows);
+
+    // animate off + new data: the static source applies synchronously, no tween
+    const changedRows = transformValues(staticConfig, rows);
+    chart.update({ mochartConfig: staticConfig, dataProvider: makeProvider(staticConfig, changedRows) });
+    const appliedHtml = normalizeHtml(container.innerHTML);
+    runFrames();
+    expect(normalizeHtml(container.innerHTML)).toBe(appliedHtml);
+    await expectSnapshot(container, demo.id, 'config-animate-off');
+
+    // animate back on with unchanged data settles to the same DOM — modulo
+    // empty style="" residue, which the animated settle strips but the static
+    // path leaves in place (the goldens keep the artifact, so normalize only here)
+    const stripEmptyStyles = (html: string) => html.replace(/ style=""/g, '');
+    chart.update({ mochartConfig: animatedConfig });
+    runFrames();
+    expect(stripEmptyStyles(normalizeHtml(container.innerHTML))).toBe(stripEmptyStyles(appliedHtml));
+
+    // and the next data change tweens again
+    const tweenedRows = transformValues(animatedConfig, changedRows);
+    chart.update({ dataProvider: makeProvider(animatedConfig, tweenedRows) });
+    advanceFrames(3);
+    await expectSnapshot(container, demo.id, 'config-animate-on-mid-tween');
+    runFrames();
+    await expectSnapshot(container, demo.id, 'config-animate-on-settled');
+
+    chart.destroy();
+    expect(container.innerHTML).toBe('');
+  });
+});
+
