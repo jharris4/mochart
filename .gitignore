@@ -1,12 +1,10 @@
-**.DS_store
+.DS_Store
 node_modules
 coverage
 .idea
 .vscode
 dist
 /site
-lib
-es
 .svelte-kit
 test-results
 playwright-report
