@@ -1,0 +1,34 @@
+// Alternate dataset adds groups and a much larger maximum, so animating to it
+// plays axis expansion before the value change — and animating back plays the
+// value change before axis contraction.
+import type { MochartInputConfig } from '@mochart/core';
+
+export const config: MochartInputConfig = {
+  version: '1.0.0',
+  titleConfig: { title: 'Weekly Orders' },
+  groupAxisConfig: { property: 'week', type: 'string', scale: 'ordinal' },
+  seriesAllConfig: { renderer: 'bar' },
+  seriesConfigs: [{ property: 'orders', title: 'Orders' }],
+  animationConfig: {
+    expansionDuration: 900,
+    valueChangeDuration: 900,
+    collapseDuration: 900
+  }
+};
+
+export const data = [
+  { week: 'W1', orders: 14 },
+  { week: 'W2', orders: 11 },
+  { week: 'W3', orders: 17 },
+  { week: 'W4', orders: 13 }
+];
+
+export const altData = [
+  { week: 'W1', orders: 21 },
+  { week: 'W2', orders: 26 },
+  { week: 'W3', orders: 35 },
+  { week: 'W4', orders: 42 },
+  { week: 'W5', orders: 58 },
+  { week: 'W6', orders: 74 },
+  { week: 'W7', orders: 66 }
+];

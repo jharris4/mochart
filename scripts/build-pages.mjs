@@ -1,13 +1,14 @@
-// Assembles the GitHub Pages site in site/: builds every demo gallery with a
-// sub-path base, copies each dist into site/<slug>/, and adds the landing page
-// plus the 404.html that lets history-routed demo URLs survive a hard refresh
-// (GitHub Pages has no rewrites, so 404.html stashes the requested URL in
-// sessionStorage and redirects to the demo's index.html, which restores it).
+// Assembles the GitHub Pages site in site/: builds the @mochart/docs
+// VitePress site as the site root, builds every demo gallery with a sub-path
+// base and copies each dist into site/<slug>/, then injects the demo
+// deep-link redirect into the docs' 404.html (GitHub Pages has no rewrites,
+// so 404.html stashes the requested URL in sessionStorage and redirects to
+// the demo's index.html, which restores it; non-demo paths keep the docs 404).
 //
 // Usage: node scripts/build-pages.mjs
 // The base path defaults to /mochart/ and can be overridden with PAGES_BASE.
 import { execSync } from 'node:child_process';
-import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -26,47 +27,12 @@ const demos = [
   { slug: 'vue', pkg: '@mochart/demo-vue', title: 'Vue', detail: 'vue reactivity router', historyRouting: true }
 ];
 
-function landingPage() {
-  const items = demos.map((demo) =>
-    `      <li><a href="${demo.slug}/">${demo.title}</a> <span class="detail">— ${demo.detail}</span></li>`
-  ).join('\n');
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>mochart demos</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; line-height: 1.6; }
-    h1 { margin-bottom: 0.25rem; }
-    li { margin: 0.5rem 0; }
-    .detail { color: #666; }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>mochart</h1>
-    <p>Demo galleries for the mochart charting library, one per binding.</p>
-    <ul>
-${items}
-    </ul>
-    <p><a href="https://github.com/jharris4/mochart">github.com/jharris4/mochart</a></p>
-  </main>
-</body>
-</html>
-`;
-}
-
-function notFoundPage() {
+function demoRedirectScript() {
   const historySlugs = demos.filter((demo) => demo.historyRouting).map((demo) => demo.slug);
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>mochart demos</title>
-  <script>
+  return `<script>
     // Deep link into a history-routed demo: stash the requested URL and load
     // the demo's index.html, which restores it via history.replaceState.
+    // Non-demo paths fall through to the docs site's own 404 page.
     (function () {
       var base = ${JSON.stringify(base)};
       var historyDemos = ${JSON.stringify(historySlugs)};
@@ -76,20 +42,22 @@ function notFoundPage() {
         if (historyDemos.indexOf(slug) !== -1) {
           sessionStorage.setItem('mochart:redirect', path + location.search + location.hash);
           location.replace(base + slug + '/');
-          return;
         }
       }
-      location.replace(base);
     })();
-  </script>
-</head>
-<body>Redirecting&hellip;</body>
-</html>
-`;
+  </script>`;
 }
 
 rmSync(siteDir, { recursive: true, force: true });
 mkdirSync(siteDir);
+
+// The docs site is the site root; its config reads PAGES_BASE itself.
+execSync('npm run build -w @mochart/docs', {
+  cwd: rootDir,
+  stdio: 'inherit',
+  env: { ...process.env, PAGES_BASE: base }
+});
+cpSync(join(rootDir, 'packages', 'mochart-docs', '.vitepress', 'dist'), siteDir, { recursive: true });
 
 for (const demo of demos) {
   // Package directories keep the unscoped mochart-* names.
@@ -100,15 +68,20 @@ for (const demo of demos) {
 
 // Cloudflare Pages honors _redirects with 200 rewrites, so deep links into the
 // history-routed demos get real 200 responses there. GitHub Pages ignores the
-// file and falls back to the 404.html trick below.
+// file and falls back to the 404.html script injected below.
 function redirectsFile() {
   return demos.filter((demo) => demo.historyRouting)
     .map((demo) => `${base}${demo.slug}/* ${base}${demo.slug}/index.html 200`)
     .join('\n') + '\n';
 }
 
-writeFileSync(join(siteDir, 'index.html'), landingPage());
-writeFileSync(join(siteDir, '404.html'), notFoundPage());
+const notFoundPath = join(siteDir, '404.html');
+const notFoundHtml = readFileSync(notFoundPath, 'utf8');
+if (!notFoundHtml.includes('</head>')) {
+  throw new Error('docs 404.html has no </head> to inject the demo redirect into');
+}
+writeFileSync(notFoundPath, notFoundHtml.replace('</head>', demoRedirectScript() + '</head>'));
+
 writeFileSync(join(siteDir, '_redirects'), redirectsFile());
 // Without this GitHub Pages runs the site through Jekyll, which drops files.
 writeFileSync(join(siteDir, '.nojekyll'), '');

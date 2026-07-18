@@ -1,0 +1,93 @@
+// Renders one config section of the reference model to a markdown page.
+// Used by reference/[section].paths.ts at build time.
+
+import type { DefaultValue, PropertyDoc, SectionDoc } from './model';
+
+function renderDefaultValue(value: DefaultValue): string {
+  switch (value.kind) {
+    case 'color':
+      return colorChip(value.color) + ' `' + value.color + '`';
+    case 'colors':
+      return value.colors.map(colorChip).join('');
+    case 'literal':
+      return '`' + value.text + '`';
+    case 'none':
+      return 'none';
+  }
+}
+
+function colorChip(color: string): string {
+  return '<span class="color-chip" style="background-color: ' + color + '" title="' + color + '"></span>';
+}
+
+function renderRules(rules: string[]): string {
+  return rules.map(rule => '`' + rule + '`').join('; ');
+}
+
+function renderProperty(sectionId: string, property: PropertyDoc): string {
+  const lines: string[] = [];
+  lines.push('### ' + property.key + ' {#' + sectionId + '.' + property.key + '}');
+  lines.push('');
+  lines.push(upperFirst(property.description) + '.');
+  lines.push('');
+  if (property.details) {
+    lines.push(property.details);
+    lines.push('');
+  }
+  if (property.conditionalDefaults) {
+    const [soleConditional] = property.conditionalDefaults;
+    if (property.conditionalDefaults.length === 1 && soleConditional !== undefined) {
+      lines.push('- **Default:** ' + renderDefaultValue(soleConditional.value) + ' — ' + soleConditional.condition);
+    }
+    else {
+      lines.push('- **Default:**');
+      for (const conditional of property.conditionalDefaults) {
+        lines.push('  - ' + renderDefaultValue(conditional.value) + ' — ' + conditional.condition);
+      }
+    }
+  }
+  else {
+    lines.push('- **Default:** ' + renderDefaultValue(property.default ?? { kind: 'none' }));
+  }
+  lines.push('- **Validation:** ' + renderRules(property.rules));
+  lines.push('');
+  return lines.join('\n');
+}
+
+function upperFirst(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+export function renderSectionPage(section: SectionDoc): string {
+  const lines: string[] = [];
+  lines.push('# ' + section.title);
+  lines.push('');
+  lines.push(upperFirst(section.description) + '.');
+  lines.push('');
+  if (section.shape === 'array') {
+    lines.push(
+      '`' + section.id + '` is a list section: it takes an array of config objects' +
+      ' (a single object is also accepted and treated as a one-entry array).'
+    );
+    if (section.allKey) {
+      lines.push(
+        ' Values shared by every entry can be set once in `' + section.allKey + '`;' +
+        ' a value set on an individual entry wins over the shared one.'
+      );
+    }
+    lines.push('');
+  }
+  lines.push(
+    'Every property is optional' +
+    (section.id === 'seriesConfigs' || section.id === 'groupAxisConfig' ? ' except `property`' : '') +
+    ' and falls back to its default. Property anchors are stable: link to any entry as' +
+    ' `#' + section.id + '.propertyName`.'
+  );
+  lines.push('');
+  lines.push('## Properties');
+  lines.push('');
+  for (const property of section.properties) {
+    lines.push(renderProperty(section.id, property));
+  }
+  return lines.join('\n');
+}

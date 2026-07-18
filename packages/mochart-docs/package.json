@@ -1,0 +1,32 @@
+{
+  "name": "@mochart/docs",
+  "version": "1.0.0",
+  "description": "Documentation site for the mochart charting library",
+  "private": true,
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Jon Harris",
+    "url": "https://github.com/jharris4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jharris4/mochart.git"
+  },
+  "type": "module",
+  "scripts": {
+    "gen": "tsx ../mochart/scripts/generator.ts",
+    "dev": "npm run gen && vitepress dev --port 5181",
+    "build": "npm run gen && vitepress build",
+    "preview": "vitepress preview",
+    "test": "tsx scripts/checkExamples.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@mochart/core": "^1.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6",
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.13"
+  }
+}

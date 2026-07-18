@@ -1,0 +1,47 @@
+/* Live chart examples render on a light card in both color themes — the
+   chart's default palette and text colors are designed for light surfaces. */
+.live-chart {
+  margin: 16px 0;
+}
+
+.live-chart-host {
+  background-color: #ffffff;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.live-chart-controls {
+  margin-top: 8px;
+}
+
+.live-chart-controls button {
+  border: 1px solid var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+  border-radius: 6px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.live-chart-controls button:hover {
+  background-color: var(--vp-c-brand-1);
+  color: var(--vp-c-white);
+}
+
+/* Color swatches in the generated config reference. */
+.color-chip {
+  display: inline-block;
+  vertical-align: middle;
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 3px;
+}
+
+/* Generated reference pages: tighten the per-property meta lists. */
+.vp-doc h3 code {
+  font-size: 0.95em;
+}

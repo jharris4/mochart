@@ -27,6 +27,7 @@ gaps between segments mid-transition.
 | [@mochart/demo-data](packages/mochart-demo-data/README.md) | Shared demo configs, datasets, and random specs (private) used by every demo app. |
 | [@mochart/demo-common](packages/mochart-demo-common/README.md) | Shared framework-agnostic demo logic (private) — config/data editing helpers, random data generator, and shared types used by every demo app. |
 | [@mochart/benchmark](packages/mochart-benchmark/README.md) | Performance benchmark harness (private) — measures mount/update/frame-time cost of generated charts at configurable sizes. |
+| [@mochart/docs](packages/mochart-docs/README.md) | Documentation site (private) — VitePress guide, recipes with live charts, and a config reference generated from the library's own validators and defaults. |
 | [@mochart/movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
 Each wrapper framework also has a full-featured demo gallery —
@@ -55,6 +56,7 @@ Run from the repo root:
 ```sh
 npm run dev         # dev server for the demo gallery (@mochart/demo-vanilla)
 npm run dev:basic   # dev server for the minimal harness (@mochart/demo-basic)
+npm run dev:docs    # dev server for the documentation site (@mochart/docs)
 npm run build       # build the demo gallery
 npm test            # run tests in every workspace that has them
 npm run typecheck   # typecheck every workspace that has a typecheck script
