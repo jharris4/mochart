@@ -5,6 +5,7 @@ import { ArrayOfObjectsDataProvider, getDataErrors } from '@mochart/core';
 import type { DataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+import { collectUsedDataProperties, filterDataProperties, restoreHiddenDataProperties } from '../../config/unusedDataProperties';
 
 import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
@@ -24,6 +25,8 @@ function isArrayOfObjects(candidate: unknown): boolean {
   return Array.isArray(candidate) && !candidate.some(v => !isObject(v));
 }
 
+type ParsedFullData = { full: DataRow[] } | { error: 'json' | 'data' };
+
 @Component({
   selector: 'app-data-tab',
   imports: [TextAreaContent, ButtonWithTooltip, Icon],
@@ -38,6 +41,11 @@ function isArrayOfObjects(candidate: unknown): boolean {
           <app-button-with-tooltip id="data-reset" label="Reset" tooltipText="Restore this demo's original data" tooltipPlacement="top-start"
                                    [onClick]="resetData" aria-label="Reset">
             <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
+          </app-button-with-tooltip>
+          <app-button-with-tooltip id="data-unused" label="Unused" [pressed]="showUnused()"
+                                   tooltipText="Show or hide data properties the chart config does not use" tooltipPlacement="top-start"
+                                   [onClick]="toggleShowUnused" aria-label="Toggle Unused">
+            <app-icon size="lg" [fixedWidth]="true" [name]="showUnused() ? 'eye' : 'eye-slash'" />
           </app-button-with-tooltip>
           <app-button-with-tooltip id="data-apply" label="Apply" [disabled]="jsonError !== null"
                                    tooltipText="Apply this data — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
@@ -62,16 +70,60 @@ export class DataTab implements OnInit, OnChanges {
 
   dataText = signal('');
   errorMessage = signal<string | null>(null);
+  // Data properties the chart config does not read are hidden by default; the
+  // Unused button toggles them. fullData is the complete dataset backing the
+  // textarea, viewUsedProperties the used-set its current content was rendered
+  // with (null when every property is shown).
+  showUnused = signal(false);
+  private fullData: DataRow[] = [];
+  private usedProperties: Set<string> | null = null;
+  private viewUsedProperties: Set<string> | null = null;
 
   ngOnInit(): void {
-    this.dataText.set(formatData(this.data));
+    this.usedProperties = collectUsedDataProperties(buildMochartDemoConfig(this.config).mochartConfig);
+    this.renderView(this.data);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    const configChange = changes['config'];
+    if (configChange && !configChange.firstChange) {
+      this.usedProperties = collectUsedDataProperties(buildMochartDemoConfig(this.config).mochartConfig);
+      // Re-filter for the changed config, keeping any (valid) unapplied edits.
+      // The data branch below re-renders instead when data changed too.
+      if (!changes['data'] && !this.showUnused()) {
+        const parsed = this.parseFullData();
+        if (!('error' in parsed)) {
+          this.renderView(parsed.full);
+        }
+      }
+    }
     const dataChange = changes['data'];
     if (dataChange && !dataChange.firstChange) {
-      this.dataText.set(formatData(this.data));
+      this.renderView(this.data);
     }
+  }
+
+  private renderView(fullRows: DataRow[]): void {
+    this.fullData = fullRows;
+    this.viewUsedProperties = this.showUnused() ? null : this.usedProperties;
+    this.dataText.set(formatData(this.viewUsedProperties === null ? fullRows : filterDataProperties(fullRows, this.viewUsedProperties)));
+  }
+
+  // Parse the textarea back to a full dataset, restoring any properties the
+  // filtered view hid.
+  private parseFullData(): ParsedFullData {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(this.dataText());
+    }
+    catch (error) {
+      return { error: 'json' };
+    }
+    if (!isArrayOfObjects(parsed)) {
+      return { error: 'data' };
+    }
+    const rows = parsed as DataRow[];
+    return { full: this.viewUsedProperties === null ? rows : restoreHiddenDataProperties(rows, this.fullData, this.viewUsedProperties) };
   }
 
   onTextChange = (nextDataText: string): void => {
@@ -80,46 +132,59 @@ export class DataTab implements OnInit, OnChanges {
   };
 
   resetData = (): void => {
-    this.dataText.set(formatData(this.data));
+    this.renderView(this.data);
     this.errorMessage.set(null);
     this.onDataReset();
   };
 
+  toggleShowUnused = (): void => {
+    const parsed = this.parseFullData();
+    if ('error' in parsed) {
+      this.errorMessage.set(parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects');
+      return;
+    }
+    this.showUnused.set(!this.showUnused());
+    this.errorMessage.set(null);
+    this.renderView(parsed.full);
+  };
+
   applyData = (): void => {
-    try {
-      const parsedData = JSON.parse(this.dataText());
-      let error = null;
-      if (isArrayOfObjects(parsedData)) {
-        const { mochartConfig } = buildMochartDemoConfig(this.config);
-        if (mochartConfig.validation.valid) {
-          const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.groupAxisConfig.property ?? '') as unknown as DataProvider);
-          if (dataErrors.length > 0) {
-            console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
-            error = 'Invalid Data Content';
-          }
-        }
-        else {
-          console.warn('Could not validate data since mochart config was not valid');
-          error = 'Invalid Config & Data';
-        }
+    const parsed = this.parseFullData();
+    if ('error' in parsed) {
+      if (parsed.error === 'json') {
+        console.warn('Invalid Data JSON');
+        this.errorMessage.set('Invalid JSON');
+        this.onDataError('Invalid Data ');
       }
       else {
         console.warn('Invalid Data - should be an array of objects');
-        error = 'Invalid Data';
+        this.errorMessage.set('Invalid Data — details in the browser console');
+        this.onDataError('Invalid Data');
       }
-      if (error) {
-        this.errorMessage.set(error + ' — details in the browser console');
-        this.onDataError(error);
-      }
-      else {
-        this.errorMessage.set(null);
-        this.onDataChange(parsedData);
+      return;
+    }
+    const parsedData = parsed.full;
+    let error = null;
+    const { mochartConfig } = buildMochartDemoConfig(this.config);
+    if (mochartConfig.validation.valid) {
+      const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.groupAxisConfig.property ?? '') as unknown as DataProvider);
+      if (dataErrors.length > 0) {
+        console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
+        error = 'Invalid Data Content';
       }
     }
-    catch (error) {
-      console.warn('Invalid Data JSON: ' + String(error));
-      this.errorMessage.set('Invalid JSON');
-      this.onDataError('Invalid Data ');
+    else {
+      console.warn('Could not validate data since mochart config was not valid');
+      error = 'Invalid Config & Data';
+    }
+    if (error) {
+      this.errorMessage.set(error + ' — details in the browser console');
+      this.onDataError(error);
+    }
+    else {
+      this.errorMessage.set(null);
+      this.fullData = parsedData;
+      this.onDataChange(parsedData);
     }
   };
 
