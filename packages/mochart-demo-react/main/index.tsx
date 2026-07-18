@@ -107,7 +107,7 @@ function BackBar({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: 4 }}>
+      <div style={{ padding: '14px 18px 0' }}>
         <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate('/single/demos')}>&larr; Back to demos</button>
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>

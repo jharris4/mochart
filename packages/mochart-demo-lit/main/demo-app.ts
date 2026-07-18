@@ -108,7 +108,7 @@ export class DemoApp extends LightElement {
     // them a way back to the main demo gallery.
     if (route.mode === 'transition' || route.mode === 'rotation') {
       return html`<div style="height: 100%; display: flex; flex-direction: column;">
-        <div style="padding: 4px;">
+        <div style="padding: 14px 18px 0;">
           <button type="button" class="btn btn-secondary btn-sm" @click=${() => navigate('/single/demos')}>&larr; Back to demos</button>
         </div>
         <div style="flex: 1; min-height: 0;">
