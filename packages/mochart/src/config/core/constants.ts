@@ -1,4 +1,4 @@
-export const CONFIG_VERSION = '1.0.3';
+export const CONFIG_VERSION = '1.0.0';
 
 export const AUTO = 'auto';
 export const NONE = null;

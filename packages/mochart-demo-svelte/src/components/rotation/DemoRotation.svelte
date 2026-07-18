@@ -19,7 +19,7 @@
   ];
 
   const baseConfig = {
-    "version": "1.0.3",
+    "version": "1.0.0",
     "chartConfig": {
       "margin": { "top": 10, "right": 10, "bottom": 10, "left": 10 }
     },

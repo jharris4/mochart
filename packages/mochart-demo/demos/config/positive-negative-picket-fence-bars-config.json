@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.0",
   "titleConfig": {
     "title": "Pos/Neg Picket Fence Bars"
   },
@@ -9,6 +9,7 @@
   "animationConfig": {
     "animate": true,
     "expansionDuration": 300,
+    "initialDuration": 3000,
     "valueChangeDuration": 3000,
     "collapseDuration": 300,
     "focusDuration": 500

@@ -1,11 +1,12 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.0",
   "titleConfig": {
     "title": "Ordinal Dates"
   },
   "animationConfig": {
     "animate": true,
     "expansionDuration": 300,
+    "initialDuration": 300,
     "valueChangeDuration": 300,
     "collapseDuration": 300,
     "focusDuration": 500

@@ -11,7 +11,7 @@ import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 
-const VERSION = '1.0.3';
+const VERSION = '1.0.0';
 const WIDTH = 800;
 const HEIGHT = 600;
 const FRAME_MS = 16;

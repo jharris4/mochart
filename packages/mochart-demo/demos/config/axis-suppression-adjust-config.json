@@ -1,10 +1,11 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.0",
   "titleConfig": {
     "title": "Axis Adjusted for Suppression"
   },
   "animationConfig": {
     "expansionDuration": 2000,
+    "initialDuration": 2000,
     "valueChangeDuration": 2000,
     "collapseDuration": 2000
   },

@@ -50,7 +50,7 @@ export function makeConfig(type: ScenarioType, seriesCount: number, options: Sce
   }
   return {
     // current CONFIG_VERSION; configs are generated in current shape, no migration
-    version: '1.0.3',
+    version: '1.0.0',
     titleConfig: { title: 'Benchmark' },
     animationConfig: {
       animate: options.animate,

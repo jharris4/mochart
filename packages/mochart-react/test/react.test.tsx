@@ -29,7 +29,7 @@ beforeAll(() => {
 
 function rawConfig(): any {
   return {
-    version: '1.0.3',
+    version: '1.0.0',
     titleConfig: { title: 'Test Chart' },
     groupAxisConfig: { property: 'name', type: 'string', scale: 'ordinal' },
     seriesAllConfig: { renderer: 'bar' },

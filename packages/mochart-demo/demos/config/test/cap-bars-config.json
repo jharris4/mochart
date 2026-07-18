@@ -1,11 +1,12 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.0",
   "titleConfig": {
     "title": "Capped Bars"
   },
   "animationConfig": {
     "animate": true,
     "expansionDuration": 1500,
+    "initialDuration": 8000,
     "valueChangeDuration": 8000,
     "collapseDuration": 1500,
     "focusDuration": 800

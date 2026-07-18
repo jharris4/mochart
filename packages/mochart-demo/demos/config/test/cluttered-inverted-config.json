@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.0",
   "plotConfig": {
     "inverted": true
   },
@@ -9,6 +9,7 @@
   "animationConfig": {
     "animate": true,
     "expansionDuration": 1000,
+    "initialDuration": 1000,
     "valueChangeDuration": 1000,
     "collapseDuration": 1000,
     "focusDuration": 1000

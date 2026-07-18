@@ -6,7 +6,7 @@ import validateConfig, {
 } from '../../src/config/validation/mochartConfig';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 
-const V = '1.0.3';
+const V = '1.0.0';
 
 // Run the raw validator (input + derived defaults) the way enhanceConfig does,
 // and return just the errors for assertion.

@@ -1,7 +1,7 @@
 import { enhanceConfig } from '../../src';
 import type { MochartInputConfig } from '../../src';
 
-const VERSION_STRING = "1.0.3";
+const VERSION_STRING = "1.0.0";
 
 // enhanceConfig validates untrusted input at runtime, so these tests
 // deliberately feed malformed values that the static type would reject.

@@ -2,7 +2,7 @@ import { enhanceConfig } from '../../src';
 import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
 import type { MochartConfig, MochartInputConfig } from '../../src';
 
-const VERSION = '1.0.3';
+const VERSION = '1.0.0';
 
 /**
  * Builds a fully-defaulted, validated MochartConfig from a partial input.

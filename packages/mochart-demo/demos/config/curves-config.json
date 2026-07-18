@@ -1,11 +1,12 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.0",
   "titleConfig": {
     "title": "Curved Lines"
   },
   "animationConfig": {
     "animate": true,
     "expansionDuration": 500,
+    "initialDuration": 500,
     "valueChangeDuration": 500,
     "collapseDuration": 500,
     "focusDuration": 700

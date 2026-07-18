@@ -16,7 +16,7 @@ const eventKeyConfig = 2;
 
 const defaultTransitionConfig: TransitionConfig = {
   "config": {
-    "version": "1.0.2",
+    "version": "1.0.0",
     "animationConfig": {
       "initialDuration": 1000,
       "expansionDuration": 3000,

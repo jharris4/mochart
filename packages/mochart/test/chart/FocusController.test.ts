@@ -11,7 +11,7 @@ import type { ChartFocus, ChartSeriesFilter } from '../../src/types/chart';
 import type { DataProvider } from '../../src/types/data';
 import type { MochartInputConfig } from '../../src/types/config';
 
-const VERSION = '1.0.3';
+const VERSION = '1.0.0';
 
 function makeConfig(overrides: Record<string, unknown> = {}) {
   return enhanceConfig({

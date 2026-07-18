@@ -8,7 +8,7 @@ import { isDataProviderValid } from '../../src/data/ChartData';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 
-const VERSION = '1.0.3';
+const VERSION = '1.0.0';
 
 /** config whose single series reads numeric values — valid against `rows` */
 function salesConfig(): MochartInputConfig {
