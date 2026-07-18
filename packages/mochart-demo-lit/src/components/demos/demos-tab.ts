@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 
@@ -85,7 +85,10 @@ export class DemosTab extends LightElement {
                 type="button"
                 class=${'list-group-item list-group-item-action' + (currentDemoId === this.demoId ? ' active' : '')}
                 @click=${() => this.onDemoChange(currentDemoId)}>
-              ${this.demoData.demoObjectMap[currentDemoId].title}
+              <span class="mochart-demo-item-title">${this.demoData.demoObjectMap[currentDemoId].title}</span>
+              ${this.demoData.demoObjectMap[currentDemoId].description !== void 0
+                ? html`<span class="mochart-demo-item-description">${this.demoData.demoObjectMap[currentDemoId].description}</span>`
+                : nothing}
             </button>`)}
           </div>
         </div>

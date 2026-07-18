@@ -7,7 +7,7 @@ import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConf
 import type { DemoConfigView } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
+import { textAreaContent, buttonWithTooltip, docsLinks, icon } from '../misc/templates';
 
 import type { DemoConfig, MochartDemoConfig } from '../../types';
 
@@ -137,6 +137,7 @@ export class ConfigTab extends LightElement {
           )}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}
         </div>
+        ${docsLinks(this.demoConfig.configWithoutDefaults)}
       </div>
     </div>`;
   }

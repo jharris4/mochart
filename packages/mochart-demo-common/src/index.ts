@@ -42,3 +42,5 @@ export { demoText } from './demoText';
 
 export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, shareHashPrefix } from './shareState';
 export type { ShareState } from './shareState';
+
+export { getDocsBaseUrl, getReferenceSectionIds, getReferenceSectionUrl } from './docsLinks';

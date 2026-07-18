@@ -5,6 +5,7 @@
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
+  import DocsLinks from '../misc/DocsLinks.svelte';
   import Icon from '../misc/Icon.svelte';
 
   import type { DemoConfig } from '../../types';
@@ -156,5 +157,6 @@
         <span class="mochart-demo-footer-error" role="alert">{footerError}</span>
       {/if}
     </div>
+    <DocsLinks config={demoConfig.configWithoutDefaults} />
   </div>
 </div>

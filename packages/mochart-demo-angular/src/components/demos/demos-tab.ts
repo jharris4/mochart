@@ -69,7 +69,10 @@ const modeCaptions = demoText.demosTab.modeCaptions;
               <button type="button"
                       [class]="'list-group-item list-group-item-action' + (currentDemoId === demoId ? ' active' : '')"
                       (click)="onDemoChange(currentDemoId)">
-                {{ demoData.demoObjectMap[currentDemoId].title }}
+                <span class="mochart-demo-item-title">{{ demoData.demoObjectMap[currentDemoId].title }}</span>
+                @if (demoData.demoObjectMap[currentDemoId].description !== undefined) {
+                  <span class="mochart-demo-item-description">{{ demoData.demoObjectMap[currentDemoId].description }}</span>
+                }
               </button>
             }
           </div>

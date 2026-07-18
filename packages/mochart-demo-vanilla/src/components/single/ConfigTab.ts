@@ -1,4 +1,4 @@
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 
@@ -129,6 +129,28 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   const footerError = el('span', { className: 'mochart-demo-footer-error', attrs: { role: 'alert' } });
   footerError.hidden = true;
 
+  // Links into the generated config reference for the sections the edited
+  // config actually uses.
+  const docsLinks = el('div', { className: 'mochart-demo-docs-links' });
+
+  function syncDocsLinks(): void {
+    const sectionIds = getReferenceSectionIds(demoConfig.configWithoutDefaults);
+    docsLinks.replaceChildren();
+    if (sectionIds.length === 0) {
+      return;
+    }
+    docsLinks.append(el('span', { text: demoText.docsLinks.label + ' ' }));
+    sectionIds.forEach((sectionId, index) => {
+      if (index > 0) {
+        docsLinks.append(' · ');
+      }
+      docsLinks.append(el('a', {
+        attrs: { href: getReferenceSectionUrl(sectionId), title: demoText.docsLinks.tooltipPrefix + sectionId },
+        text: sectionId
+      }));
+    });
+  }
+
   const container = el('div', {
     className: 'mochart-demo-tab-container col config' + (props.active ? ' active' : '')
   }, [
@@ -136,7 +158,8 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     el('div', { className: 'mochart-demo-tab-footer' }, [
       el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
         resetButton.el, defaultsButton.el, invertedButton.el, slowButton.el, applyButton.el, footerError
-      ])
+      ]),
+      docsLinks
     ])
   ]);
 
@@ -159,6 +182,8 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     const slow = demoConfig.configWithDefaults.animationConfig === slowAnimationConfig;
     slowButton.setPressed(slow);
     slowButton.setContent([icon(slow ? 'hourglass' : 'hourglass-end', { size: 'lg', fixedWidth: true })]);
+
+    syncDocsLinks();
   }
   sync();
 

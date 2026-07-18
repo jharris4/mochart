@@ -89,7 +89,8 @@ function onTestModeToggle() {
           <button v-for="currentDemoId in theDemoIds" :key="currentDemoId" type="button"
                   :class="'list-group-item list-group-item-action' + (currentDemoId === props.demoId ? ' active' : '')"
                   @click="props.onDemoChange(currentDemoId)">
-            {{ props.demoData.demoObjectMap[currentDemoId].title }}
+            <span class="mochart-demo-item-title">{{ props.demoData.demoObjectMap[currentDemoId].title }}</span>
+            <span v-if="props.demoData.demoObjectMap[currentDemoId].description !== undefined" class="mochart-demo-item-description">{{ props.demoData.demoObjectMap[currentDemoId].description }}</span>
           </button>
         </div>
       </div>

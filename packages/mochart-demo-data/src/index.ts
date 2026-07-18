@@ -22,10 +22,11 @@ function getModule(modules: ModuleMap, dir: string, file: string): unknown {
 const { demos, testDemos } = demosJson as { demos: DemoManifestEntry[]; testDemos: DemoManifestEntry[] };
 
 function buildDemo(entry: DemoManifestEntry, configModuleMap: ModuleMap, configDir: string): Demo {
-  const { id, title, config, data, random } = entry;
+  const { id, title, description, config, data, random } = entry;
   return {
     id,
     title,
+    description,
     config: Object.assign({}, getModule(configModuleMap, configDir, config) as DemoConfig),
     data: (getModule(dataModules, './data/', data) as DataRow[]).slice(),
     random: Object.assign({}, getModule(randomModules, './random/', random) as RandomConfig)

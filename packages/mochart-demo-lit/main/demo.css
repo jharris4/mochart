@@ -617,3 +617,25 @@ html, body {
     height: 100%;
     resize: none;
 }
+
+/* Demo list blurbs and config-tab reference links */
+.mochart-demo-item-title {
+  display: block;
+  font-weight: 600;
+}
+
+.mochart-demo-item-description {
+  display: block;
+  font-size: 0.85em;
+  color: #6c757d;
+}
+
+.list-group-item.active .mochart-demo-item-description {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mochart-demo-docs-links {
+  font-size: 0.85em;
+  color: #6c757d;
+  padding: 4px 2px 0;
+}

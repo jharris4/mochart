@@ -7,13 +7,14 @@ import type { DemoConfigView } from '@mochart/demo-common';
 
 import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
+import { DocsLinks } from '../misc/docs-links';
 import { Icon } from '../misc/icon';
 
 import type { DemoConfig, MochartDemoConfig } from '../../types';
 
 @Component({
   selector: 'app-config-tab',
-  imports: [TextAreaContent, ButtonWithTooltip, Icon],
+  imports: [TextAreaContent, ButtonWithTooltip, DocsLinks, Icon],
   styles: [':host { display: contents; }'],
   template: `
     <div [class]="'mochart-demo-tab-container col config' + (active ? ' active' : '')">
@@ -50,6 +51,7 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
             <span class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>
           }
         </div>
+        <app-docs-links [config]="demoConfig()?.configWithoutDefaults" />
       </div>
     </div>
   `

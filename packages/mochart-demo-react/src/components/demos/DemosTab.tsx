@@ -26,7 +26,10 @@ export default function MochartDemosTab({ active, demoData, demoMode, demoId, on
   const demoListGroupItems = theDemoIds.map(currentDemoId => {
     const demoObject = demoObjectMap[currentDemoId];
     return (
-      <ListGroupItem key={'demo-' + currentDemoId} tag="button" type="button" action active={currentDemoId === demoId} onClick={() => onDemoChange(currentDemoId)}>{demoObject.title}</ListGroupItem>
+      <ListGroupItem key={'demo-' + currentDemoId} tag="button" type="button" action active={currentDemoId === demoId} onClick={() => onDemoChange(currentDemoId)}>
+        <span className="mochart-demo-item-title">{demoObject.title}</span>
+        {demoObject.description !== undefined ? <span className="mochart-demo-item-description">{demoObject.description}</span> : null}
+      </ListGroupItem>
     );
   });
 

@@ -67,11 +67,16 @@ export function demosTab(props: DemosTabProps): DemosTabHandle {
     const theDemoIds = isTestMode ? demoData.testDemoIds : demoData.demoIds;
     list.replaceChildren();
     for (const currentDemoId of theDemoIds) {
+      const demo = demoData.demoObjectMap[currentDemoId];
       const item = el('button', {
         className: 'list-group-item list-group-item-action' + (currentDemoId === demoId ? ' active' : ''),
-        attrs: { type: 'button' },
-        text: demoData.demoObjectMap[currentDemoId].title
-      });
+        attrs: { type: 'button' }
+      }, [
+        el('span', { className: 'mochart-demo-item-title', text: demo.title }),
+        demo.description !== undefined
+          ? el('span', { className: 'mochart-demo-item-description', text: demo.description })
+          : null
+      ]);
       item.addEventListener('click', () => onDemoChange(currentDemoId));
       list.append(item);
     }

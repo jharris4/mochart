@@ -57,6 +57,10 @@ export const demoText = {
     png: { label: 'PNG', tooltip: 'Download the chart as a PNG image', aria: 'Export PNG' },
     svg: { label: 'SVG', tooltip: 'Download the chart as an SVG image', aria: 'Export SVG' }
   },
+  docsLinks: {
+    label: 'Reference:',
+    tooltipPrefix: 'Open the config reference for '
+  },
   shareButton: {
     label: 'Share',
     tooltip: 'Copy a link to this chart with the current config and data',

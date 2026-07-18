@@ -166,6 +166,7 @@
     {
       "id": "stacked",
       "title": "Stacked",
+      "description": "Two stacks \u2014 bars on one value axis, areas on another \u2014 showing how stacked series animate as one gapless unit through every transition.",
       "config": "stacked-config.json",
       "data": "mixed-groups-positive-values-data.json",
       "random": "default-random.json"
@@ -173,6 +174,7 @@
     {
       "id": "grouped",
       "title": "Grouped",
+      "description": "Five bar series sharing one value axis, laid out side by side within each group slot.",
       "config": "grouped-config.json",
       "data": "mixed-groups-positive-values-data.json",
       "random": "default-random.json"
@@ -180,6 +182,7 @@
     {
       "id": "grouped-multi-axis",
       "title": "Grouped Across Axes",
+      "description": "Two bar series grouped side by side while each scales against its own value axis.",
       "config": "grouped-multi-axis-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
@@ -187,6 +190,7 @@
     {
       "id": "stacked-grouped",
       "title": "Stacked & Grouped",
+      "description": "Stacking and grouping composed: four series in two stacks, and the stacks placed side by side within each group.",
       "config": "stacked-grouped-config.json",
       "data": "mixed-groups-positive-values-data.json",
       "random": "positive-random.json"
@@ -194,6 +198,7 @@
     {
       "id": "color-base-property",
       "title": "Color and Base Property",
+      "description": "A bar series colored per value from a data property (colorProperty), interpolating around a base value.",
       "config": "color-property-base-bars-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
@@ -201,6 +206,7 @@
     {
       "id": "axis-supression",
       "title": "Axis Suppression Adjustment",
+      "description": "Stacked bars plus a line on a second value axis, with the axis suppression adjustments that keep the layout stable as legend filtering hides series.",
       "config": "axis-suppression-adjust-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "positive-random.json"
@@ -208,6 +214,7 @@
     {
       "id": "axis-multiple",
       "title": "Multiple Axes",
+      "description": "Eight line series over a linear date axis, spread across four separate value axes.",
       "config": "multiple-axes-config.json",
       "data": "sales-data.json",
       "random": "default-random.json"
@@ -215,6 +222,7 @@
     {
       "id": "truncated-text",
       "title": "Truncated Text",
+      "description": "Long chart, axis, legend, and tick text handled with the truncation settings.",
       "config": "truncated-text-config.json",
       "data": "long-group-string-values-data.json",
       "random": "default-random.json"
@@ -222,6 +230,7 @@
     {
       "id": "label-property-pos-neg",
       "title": "Positive Negative Labels",
+      "description": "An inverted (horizontal) bar chart with per-bar value labels from labelProperty, spanning positive and negative values.",
       "config": "series-label-property-pos-neg-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
@@ -229,6 +238,7 @@
     {
       "id": "label-property-stacked",
       "title": "Stacked Labels",
+      "description": "Stacked areas over a linear numeric group axis with value labels on every segment.",
       "config": "series-label-property-stacked-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "positive-random.json"
@@ -236,6 +246,7 @@
     {
       "id": "christmas",
       "title": "Christmas Tree Bars",
+      "description": "A holiday novelty: one bar series styled into a christmas tree, showing how far config styling alone can go.",
       "config": "christmas-tree-bars-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
@@ -243,6 +254,7 @@
     {
       "id": "currency-pos-neg",
       "title": "Positive Negative Currency",
+      "description": "Area and line series mixing positive and negative currency values over a date axis, one series per value axis.",
       "config": "positive-negative-currency-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
@@ -250,6 +262,7 @@
     {
       "id": "ticks-rotated",
       "title": "Rotated Ticks",
+      "description": "A date group axis with tick labels rotated 90 degrees to fit dense categories.",
       "config": "rotated-ticks-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
@@ -257,6 +270,7 @@
     {
       "id": "range",
       "title": "Range",
+      "description": "A low/high band drawn from rangeProperty behind a line with markers.",
       "config": "range-config.json",
       "data": "range-data.json",
       "random": "positive-random.json"
@@ -264,6 +278,7 @@
     {
       "id": "range-pos-neg",
       "title": "Positive Negative Range",
+      "description": "Range areas and floating bars spanning positive-to-negative bounds via rangeProperty.",
       "config": "range-mixed-config.json",
       "data": "range-mixed-data.json",
       "random": "default-random.json"
@@ -271,6 +286,7 @@
     {
       "id": "bubble",
       "title": "Bubble Chart",
+      "description": "A bubble chart: renderer 'none' with markers sized per value through markerProperty.",
       "config": "bubble-config.json",
       "data": "bubble-data.json",
       "random": "default-random.json"
@@ -278,6 +294,7 @@
     {
       "id": "picket",
       "title": "Picket Fence Bars",
+      "description": "Bar series with pointed caps forming a picket-fence profile, over rotated date tick labels.",
       "config": "picket-fence-bars-config.json",
       "data": "monthly-data.json",
       "random": "positive-random.json"
@@ -285,6 +302,7 @@
     {
       "id": "picket-pos-neg",
       "title": "Pos/Neg Picket Fence Bars",
+      "description": "Picket-fence caps on bars extending above and below the base, one series per direction on two value axes.",
       "config": "positive-negative-picket-fence-bars-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
@@ -292,6 +310,7 @@
     {
       "id": "curved",
       "title": "Curved Lines",
+      "description": "Line and area series drawn with different d3 curve types over a linear date axis.",
       "config": "curves-config.json",
       "data": "curves-data.json",
       "random": "default-random.json"
@@ -299,6 +318,7 @@
     {
       "id": "gradients",
       "title": "Gradients",
+      "description": "Areas and bars filled with linear and radial gradients referenced by id.",
       "config": "gradients-config.json",
       "data": "mixed-groups-positive-values-data.json",
       "random": "positive-random.json"
@@ -306,6 +326,7 @@
     {
       "id": "missing",
       "title": "Missing Values",
+      "description": "Three series with missing (undefined) values showing the skipMissing and showMissingAtBase treatments side by side.",
       "config": "missing-config.json",
       "data": "missing-data.json",
       "random": "undefined-random.json"
@@ -313,10 +334,10 @@
     {
       "id": "missing-stacked",
       "title": "Missing Pos/Neg Stacked Values",
+      "description": "A stack with missing positive and negative values \u2014 segments stay coherent while the stack animates.",
       "config": "missing-stacked-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
     }
   ]
 }
-

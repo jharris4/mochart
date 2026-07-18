@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 
 import { exportPNG, exportSVG } from '@mochart/export';
-import { demoText } from '@mochart/demo-common';
+import { demoText, getReferenceSectionIds, getReferenceSectionUrl } from '@mochart/demo-common';
 
 // Stateless building blocks kept as plain lit-html template functions rather
 // than custom elements — the natural Lit altitude for the Vue demo's Icon /
@@ -109,5 +109,20 @@ export function exportButtons({ idPrefix, getContainer, disabled = false }: Expo
       { id: idPrefix + '-export-svg', disabled, label: demoText.exportButtons.svg.label, tooltipText: demoText.exportButtons.svg.tooltip, tooltipPlacement: 'top-start', onClick: onExportSvg, ariaLabel: demoText.exportButtons.svg.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'file-code' })
     )}
+  </div>`;
+}
+
+/**
+ * Links into the documentation site's config reference for the sections the
+ * edited config actually uses (see demo-common docsLinks).
+ */
+export function docsLinks(config: Record<string, unknown> | null | undefined): unknown {
+  const sectionIds = getReferenceSectionIds(config);
+  if (sectionIds.length === 0) {
+    return nothing;
+  }
+  return html`<div class="mochart-demo-docs-links">
+    <span>${demoText.docsLinks.label} </span>
+    ${sectionIds.map((sectionId, index) => html`${index > 0 ? ' · ' : nothing}<a href=${getReferenceSectionUrl(sectionId)} title=${demoText.docsLinks.tooltipPrefix + sectionId}>${sectionId}</a>`)}
   </div>`;
 }

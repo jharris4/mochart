@@ -5,6 +5,7 @@ import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConf
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
+import DocsLinks from '../misc/DocsLinks.vue';
 import Icon from '../misc/Icon.vue';
 
 import type { DemoConfig } from '../../types';
@@ -142,6 +143,7 @@ const footerError = computed(() => jsonError.value ?? errorMessage.value);
         </ButtonWithTooltip>
         <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>
       </div>
+      <DocsLinks :config="demoConfig.configWithoutDefaults" />
     </div>
   </div>
 </template>

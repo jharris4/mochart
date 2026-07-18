@@ -34,6 +34,8 @@ export interface RandomConfig {
 export interface DemoManifestEntry {
   id: string;
   title: string;
+  /** One or two sentences on what the demo showcases. */
+  description?: string;
   config: string;
   data: string;
   random: string;
@@ -43,6 +45,8 @@ export interface DemoManifestEntry {
 export interface Demo {
   id: string;
   title: string;
+  /** One or two sentences on what the demo showcases. */
+  description?: string;
   config: DemoConfig;
   data: DataRow[];
   random: RandomConfig;

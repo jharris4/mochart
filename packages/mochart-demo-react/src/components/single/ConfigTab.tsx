@@ -8,6 +8,7 @@ import type { DemoConfigView } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
+import DocsLinks from '../misc/DocsLinks';
 
 import type { DemoConfig, MochartDemoConfig } from '../../types';
 
@@ -147,6 +148,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
         </ButtonToolbar>
+        <DocsLinks config={state.demoConfig.configWithoutDefaults} />
       </div>
     </div>
   );
