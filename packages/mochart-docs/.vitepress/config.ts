@@ -39,6 +39,7 @@ export default defineConfig({
       '/recipes/': guideSidebar(),
       '/reference/': [
         { text: 'Overview', link: '/reference/' },
+        { text: 'API', link: '/reference/api' },
         { text: 'Config sections', items: referenceItems }
       ]
     },

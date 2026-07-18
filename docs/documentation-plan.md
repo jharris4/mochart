@@ -107,7 +107,10 @@ generated artifact instead of each re-walking the config modules.
       validation requires `version` — every README quick start was broken;
       all fixed, along with pre-rename `npm install mochart-*` commands and
       stale `1.0.3` versions in the static HTML examples.
-- [ ] API reference for the public exports (`src/index.ts`) — follow-up.
+- [x] API reference page (`reference/api`): the entry points, `ChartHandle`,
+      data providers, config helpers, constants, styling hooks, and a brief
+      map of the advanced exports; handwritten, consistent with the Phase 3
+      JSDoc.
 - [x] Wire into `scripts/build-pages.mjs`: the docs site IS the site root
       (bare landing page deleted); demos stay at `/<slug>/`; the demo
       deep-link redirect is injected into VitePress's 404.html;

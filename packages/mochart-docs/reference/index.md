@@ -1,5 +1,8 @@
 # Config Reference
 
+Looking for the functions and classes instead? See the
+[API reference](/reference/api).
+
 A mochart config is a plain object made of per-concern sections. Every
 section — and every property inside one — is optional and falls back to a
 sensible default, so a minimal config only names the data properties to plot
