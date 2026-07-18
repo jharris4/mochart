@@ -12,7 +12,7 @@ legend); the HTML tooltip is never included.
 ## Install
 
 ```sh
-npm install mochart-export
+npm install @mochart/export
 ```
 
 ## Usage

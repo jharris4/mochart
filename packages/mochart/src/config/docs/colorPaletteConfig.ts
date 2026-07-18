@@ -11,3 +11,8 @@ export default function getDescriptions() {
     labelDefocused: 'the color palette to use for defocused series labels that are colored by series or group index'
   };
 }
+export function getDetails() {
+  return {
+    series: 'The fallback coloring for series that do not set explicit colors: each series takes the palette entry for its series index (or its group index, for series configured to color by group index). The focused/defocused variants apply while another element has focus.'
+  };
+}

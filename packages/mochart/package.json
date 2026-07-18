@@ -49,7 +49,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/tsconfig.json && tsc --noEmit -p scripts/tsconfig.json",
-    "generate-docs": "tsx scripts/generator.ts mochart-docs.html"
+    "generate-docs": "tsx scripts/generator.ts"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

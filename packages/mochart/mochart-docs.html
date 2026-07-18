@@ -35,7 +35,7 @@ table thead td { border-bottom-width: 2px; }
 <td>groupAxisConfig</td><td>Configure the chart group axis content and styling</td><td>should be an object</td><td>{}</td><td><a href="#groupAxisConfig">Details</a></td>
 </tr>
 <tr>
-<td>id</td><td>undefined</td><td>should be any value</td><td></td><td><a href="#id">Details</a></td>
+<td>id</td><td>An optional identifier for the config (any value, not interpreted by the chart)</td><td>should be any value</td><td></td><td></td>
 </tr>
 <tr>
 <td>legendConfig</td><td>Configure the chart legend which itemizes the series</td><td>should be an object</td><td>{}</td><td><a href="#legendConfig">Details</a></td>
@@ -68,7 +68,7 @@ table thead td { border-bottom-width: 2px; }
 <td>tooltipConfig</td><td>Configure the chart tooltip styling and behavior</td><td>should be an object</td><td>{}</td><td><a href="#tooltipConfig">Details</a></td>
 </tr>
 <tr>
-<td>version</td><td>The version of the configuration format</td><td>should be equal to "1.0.3"</td><td></td><td></td>
+<td>version</td><td>The version of the configuration format</td><td>should be equal to "1.0.0"</td><td></td><td></td>
 </tr>
 </table>
 </div>
@@ -81,27 +81,27 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="animationConfig.animate">
-<td><a href="#animationConfig.animate">animate</a></td><td>whether all animation should be enabled or disabled</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#animationConfig.animate">animate</a></td><td>whether all animation should be enabled or disabled<br/><br/>The master switch for staged animation. When `false`, config, data, and size changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum).</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="animationConfig.collapseDuration">
-<td><a href="#animationConfig.collapseDuration">collapseDuration</a></td><td>the maximum duration for the axis collapse animation phase when new data is removed from the chart</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animationConfig.collapseDuration">collapseDuration</a></td><td>the maximum duration for the axis collapse animation phase when new data is removed from the chart<br/><br/>Duration (in milliseconds) of the axis contraction phase, which plays last when the settled data needs smaller axis domains.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animationConfig.expansionDuration">
-<td><a href="#animationConfig.expansionDuration">expansionDuration</a></td><td>the maximum duration for the axis expansion animation phase when new data is added to the chart</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animationConfig.expansionDuration">expansionDuration</a></td><td>the maximum duration for the axis expansion animation phase when new data is added to the chart<br/><br/>Duration (in milliseconds) of the axis expansion phase, which plays first when an update needs larger axis domains (new groups or larger values) so incoming data has room to land.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animationConfig.focusDuration">
-<td><a href="#animationConfig.focusDuration">focusDuration</a></td><td>the duration of animation showing the transition between focus on a specific series or group value</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animationConfig.focusDuration">focusDuration</a></td><td>the duration of animation showing the transition between focus on a specific series or group value<br/><br/>Duration (in milliseconds) of focus transitions — the emphasis change between focused/defocused styling when a series or group gains or loses focus via hover, click, or the legend.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animationConfig.initialDuration">
-<td><a href="#animationConfig.initialDuration">initialDuration</a></td><td>the maximum duration for the initial animation when chart data is first loaded</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animationConfig.initialDuration">initialDuration</a></td><td>the maximum duration for the initial animation when chart data is first loaded<br/><br/>Duration (in milliseconds) of the first render animation when the chart mounts with data.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animationConfig.valueChangeDuration">
-<td><a href="#animationConfig.valueChangeDuration">valueChangeDuration</a></td><td>the maximum duration for the value change animation phase when data in the chart changes</td><td>should be a number >= to 0</td><td><div>1000</div>
+<td><a href="#animationConfig.valueChangeDuration">valueChangeDuration</a></td><td>the maximum duration for the value change animation phase when data in the chart changes<br/><br/>Duration (in milliseconds) of the value change phase, which tweens values to their new positions and also plays group transitions (groups added/removed/reordered) and series transitions (series added, removed, or filtered via the legend).</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 </table>
@@ -115,31 +115,15 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="chartConfig.backgroundStyle">
-<td><a href="#chartConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the chart background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#chartConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the chart background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="chartConfig.margin">
-<td><a href="#chartConfig.margin">margin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the chart</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 2
-right: 2
-bottom: 2
-left: 2}
-</div>
+<td><a href="#chartConfig.margin">margin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the chart</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 2, right: 2, bottom: 2, left: 2 }</div>
 </td>
 </tr>
 <tr id="chartConfig.padding">
-<td><a href="#chartConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the chart</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 3
-right: 3
-bottom: 3
-left: 3}
-</div>
+<td><a href="#chartConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the chart</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 3, right: 3, bottom: 3, left: 3 }</div>
 </td>
 </tr>
 </table>
@@ -153,66 +137,39 @@ left: 3}
 </tr>
 </thead>
 <tr id="colorPaletteConfig.label">
-<td><a href="#colorPaletteConfig.label">label</a></td><td>the color palette to use for series labels that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.label">label</a></td><td>the color palette to use for series labels that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 <tr id="colorPaletteConfig.labelDefocused">
-<td><a href="#colorPaletteConfig.labelDefocused">labelDefocused</a></td><td>the color palette to use for defocused series labels that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.labelDefocused">labelDefocused</a></td><td>the color palette to use for defocused series labels that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 <tr id="colorPaletteConfig.labelFocused">
-<td><a href="#colorPaletteConfig.labelFocused">labelFocused</a></td><td>the color palette to use for focused series labels that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.labelFocused">labelFocused</a></td><td>the color palette to use for focused series labels that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 <tr id="colorPaletteConfig.marker">
-<td><a href="#colorPaletteConfig.marker">marker</a></td><td>the color palette to use for series markers that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.marker">marker</a></td><td>the color palette to use for series markers that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 <tr id="colorPaletteConfig.markerDefocused">
-<td><a href="#colorPaletteConfig.markerDefocused">markerDefocused</a></td><td>the color palette to use for defocused series markers that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.markerDefocused">markerDefocused</a></td><td>the color palette to use for defocused series markers that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 <tr id="colorPaletteConfig.markerFocused">
-<td><a href="#colorPaletteConfig.markerFocused">markerFocused</a></td><td>the color palette to use for focused series markers that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.markerFocused">markerFocused</a></td><td>the color palette to use for focused series markers that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 <tr id="colorPaletteConfig.series">
-<td><a href="#colorPaletteConfig.series">series</a></td><td>the color palette to use for series shapes that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.series">series</a></td><td>the color palette to use for series shapes that are colored by series or group index<br/><br/>The fallback coloring for series that do not set explicit colors: each series takes the palette entry for its series index (or its group index, for series configured to color by group index). The focused/defocused variants apply while another element has focus.</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 <tr id="colorPaletteConfig.seriesDefocused">
-<td><a href="#colorPaletteConfig.seriesDefocused">seriesDefocused</a></td><td>the color palette to use for defocused series shapes that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.seriesDefocused">seriesDefocused</a></td><td>the color palette to use for defocused series shapes that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 <tr id="colorPaletteConfig.seriesFocused">
-<td><a href="#colorPaletteConfig.seriesFocused">seriesFocused</a></td><td>the color palette to use for focused series shapes that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{
-strokeColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>
-fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><span class="colorIcon" style="background-color: #ff7f0e"></span><span class="colorIcon" style="background-color: #2ca02c"></span><span class="colorIcon" style="background-color: #d62728"></span><span class="colorIcon" style="background-color: #9467bd"></span><span class="colorIcon" style="background-color: #8c564b"></span><span class="colorIcon" style="background-color: #e377c2"></span><span class="colorIcon" style="background-color: #7f7f7f"></span><span class="colorIcon" style="background-color: #bcbd22"></span><span class="colorIcon" style="background-color: #17becf"></span><span class="colorIcon" style="background-color: #aec7e8"></span><span class="colorIcon" style="background-color: #ffbb78"></span><span class="colorIcon" style="background-color: #98df8a"></span><span class="colorIcon" style="background-color: #ff9896"></span><span class="colorIcon" style="background-color: #c5b0d5"></span><span class="colorIcon" style="background-color: #c49c94"></span><span class="colorIcon" style="background-color: #f7b6d2"></span><span class="colorIcon" style="background-color: #c7c7c7"></span><span class="colorIcon" style="background-color: #dbdb8d"></span><span class="colorIcon" style="background-color: #9edae5"></span>}
-</div>
+<td><a href="#colorPaletteConfig.seriesFocused">seriesFocused</a></td><td>the color palette to use for focused series shapes that are colored by series or group index</td><td>should be an object with properties [ "strokeColors", "fillColors" ] all of which should be a non-empty array with elements that should be a valid color</td><td><div>{ strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }</div>
 </td>
 </tr>
 </table>
@@ -316,13 +273,7 @@ fillColors: <span class="colorIcon" style="background-color: #1f77b4"></span><sp
 </td>
 </tr>
 <tr id="groupAxisConfig.backgroundStyle">
-<td><a href="#groupAxisConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: <span class="colorIcon" style="background-color: #000000"></span>
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#groupAxisConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.before">
@@ -339,7 +290,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.displayProperty">
-<td><a href="#groupAxisConfig.displayProperty">displayProperty</a></td><td>the property to retrieve from the data provider for the group display values (use null for none)</td><td>should be a defined value or equal to null</td><td><div>null</div>
+<td><a href="#groupAxisConfig.displayProperty">displayProperty</a></td><td>the property to retrieve from the data provider for the group display values (use null for none)<br/><br/>When set, this property’s value is used wherever the group value is displayed (tick labels, tooltip), while `property` still drives positioning — useful for pre-formatted or friendly labels.</td><td>should be a defined value or equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.focusRange">
@@ -451,10 +402,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.groupPadding">
-<td><a href="#groupAxisConfig.groupPadding">groupPadding</a></td><td>the padding percentages (0 - 1) of the group extent for all group values (outer) and grouped series (inner)</td><td>should be an object with properties [ "inner", "outer" ] all of which should be a number >= to 0 and <= 1</td><td><div>{
-inner: 0.1
-outer: 0.1}
-</div>
+<td><a href="#groupAxisConfig.groupPadding">groupPadding</a></td><td>the padding percentages (0 - 1) of the group extent for all group values (outer) and grouped series (inner)</td><td>should be an object with properties [ "inner", "outer" ] all of which should be a number >= to 0 and <= 1</td><td><div>{ inner: 0.1, outer: 0.1 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.marginInner">
@@ -518,11 +466,11 @@ outer: 0.1}
 </td>
 </tr>
 <tr id="groupAxisConfig.property">
-<td><a href="#groupAxisConfig.property">property</a></td><td>the property to retrieve from the data provider for the group values</td><td>should be a defined value</td><td><div></div>
+<td><a href="#groupAxisConfig.property">property</a></td><td>the property to retrieve from the data provider for the group values<br/><br/>The chart reads this property from each entry of the data provider to get the group (category) value. It is required — the only group axis property without a default.</td><td>should be a defined value</td><td><div></div>
 </td>
 </tr>
 <tr id="groupAxisConfig.scale">
-<td><a href="#groupAxisConfig.scale">scale</a></td><td>the scale to use for the displayed group values (ordinal, linear)</td><td><p>should be equal to "ordinal" when type is string</p>
+<td><a href="#groupAxisConfig.scale">scale</a></td><td>the scale to use for the displayed group values (ordinal, linear)<br/><br/>`ordinal` places the groups at evenly spaced positions in data order regardless of their values; `linear` positions `number`/`date` group values proportionally along the axis, so uneven spacing in the data shows as uneven spacing in the chart.</td><td><p>should be equal to "ordinal" when type is string</p>
 <p>should be one of [ "linear", "ordinal" ]</p>
 </td><td><div>"ordinal"</div>
 </td>
@@ -585,13 +533,7 @@ outer: 0.1}
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleBackgroundStyle">
-<td><a href="#groupAxisConfig.thresholdTitleBackgroundStyle">thresholdTitleBackgroundStyle</a></td><td>the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: <span class="colorIcon" style="background-color: #000000"></span>
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#groupAxisConfig.thresholdTitleBackgroundStyle">thresholdTitleBackgroundStyle</a></td><td>the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleBefore">
@@ -603,7 +545,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleDefocusedFillOpacity">
-<td><a href="#groupAxisConfig.thresholdTitleDefocusedFillOpacity">thresholdTitleDefocusedFillOpacity</a></td><td>undefined</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.thresholdTitleDefocusedFillOpacity">thresholdTitleDefocusedFillOpacity</a></td><td>the fill opacity (0 - 1) of the defocused threshold title text</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleDefocusedStrokeColor">
@@ -611,7 +553,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleDefocusedStrokeOpacity">
-<td><a href="#groupAxisConfig.thresholdTitleDefocusedStrokeOpacity">thresholdTitleDefocusedStrokeOpacity</a></td><td>undefined</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.thresholdTitleDefocusedStrokeOpacity">thresholdTitleDefocusedStrokeOpacity</a></td><td>the stroke opacity (0 - 1) of the defocused threshold title text</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFillColor">
@@ -627,7 +569,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFocusedFillOpacity">
-<td><a href="#groupAxisConfig.thresholdTitleFocusedFillOpacity">thresholdTitleFocusedFillOpacity</a></td><td>undefined</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.thresholdTitleFocusedFillOpacity">thresholdTitleFocusedFillOpacity</a></td><td>the fill opacity (0 - 1) of the focused threshold title text</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFocusedStrokeColor">
@@ -635,25 +577,15 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFocusedStrokeOpacity">
-<td><a href="#groupAxisConfig.thresholdTitleFocusedStrokeOpacity">thresholdTitleFocusedStrokeOpacity</a></td><td>undefined</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.thresholdTitleFocusedStrokeOpacity">thresholdTitleFocusedStrokeOpacity</a></td><td>the stroke opacity (0 - 1) of the focused threshold title text</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleMargin">
-<td><a href="#groupAxisConfig.thresholdTitleMargin">thresholdTitleMargin</a></td><td>The margin (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#groupAxisConfig.thresholdTitleMargin">thresholdTitleMargin</a></td><td>The margin (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitlePadding">
-<td><a href="#groupAxisConfig.thresholdTitlePadding">thresholdTitlePadding</a></td><td>The padding (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#groupAxisConfig.thresholdTitlePadding">thresholdTitlePadding</a></td><td>The padding (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleSnapToValue">
@@ -681,13 +613,7 @@ left: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelBackgroundStyle">
-<td><a href="#groupAxisConfig.tickLabelBackgroundStyle">tickLabelBackgroundStyle</a></td><td>the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: <span class="colorIcon" style="background-color: #000000"></span>
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#groupAxisConfig.tickLabelBackgroundStyle">tickLabelBackgroundStyle</a></td><td>the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelDefocusedFillColor">
@@ -853,13 +779,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.titleBackgroundStyle">
-<td><a href="#groupAxisConfig.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: <span class="colorIcon" style="background-color: #000000"></span>
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#groupAxisConfig.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.titleDefocusedFillColor">
@@ -947,7 +867,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="groupAxisConfig.type">
-<td><a href="#groupAxisConfig.type">type</a></td><td>the type of the displayed group values (number, date, string)</td><td>should be one of [ "number", "date", "string" ]</td><td><div>"string"</div>
+<td><a href="#groupAxisConfig.type">type</a></td><td>the type of the displayed group values (number, date, string)<br/><br/>How group values are interpreted: `string` for labels, `number` for numeric values, and `date` for date values (`dateUTC` controls their timezone handling). The type drives parsing, tick label formatting, and which `scale` options make sense.</td><td>should be one of [ "number", "date", "string" ]</td><td><div>"string"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.valueFormat">
@@ -992,25 +912,19 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="legendConfig.backgroundStyle">
-<td><a href="#legendConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the legend background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#legendConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the legend background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="legendConfig.filterOnClick">
-<td><a href="#legendConfig.filterOnClick">filterOnClick</a></td><td>whether to suppress a series when the series icon or title is clicked</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#legendConfig.filterOnClick">filterOnClick</a></td><td>whether to suppress a series when the series icon or title is clicked<br/><br/>When `true`, clicking a legend item toggles its series out of (and back into) the chart, playing the staged series transition; the item stays in the legend so it can be restored. `onSeriesFilter` reports every change.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="legendConfig.focusOnClick">
-<td><a href="#legendConfig.focusOnClick">focusOnClick</a></td><td>whether to focus a series when the series icon or title is clicked</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#legendConfig.focusOnClick">focusOnClick</a></td><td>whether to focus a series when the series icon or title is clicked<br/><br/>When `true`, clicking a legend item focuses its series (see `focusOnMouseOver`). Combine with `filterOnClick` deliberately — with both enabled a click filters and focuses.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="legendConfig.focusOnMouseOver">
-<td><a href="#legendConfig.focusOnMouseOver">focusOnMouseOver</a></td><td>whether to focus a series when the mouse is moved over the series icon or title</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#legendConfig.focusOnMouseOver">focusOnMouseOver</a></td><td>whether to focus a series when the mouse is moved over the series icon or title<br/><br/>When `true`, hovering a legend item focuses its series: the series gets its focused styling and every other series gets its defocused styling. `onFocus` reports focus changes.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="legendConfig.iconBorderColor">
@@ -1038,49 +952,23 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="legendConfig.itemBackgroundStyle">
-<td><a href="#legendConfig.itemBackgroundStyle">itemBackgroundStyle</a></td><td>the styles to apply to the legend item backgrounds (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#legendConfig.itemBackgroundStyle">itemBackgroundStyle</a></td><td>the styles to apply to the legend item backgrounds (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="legendConfig.itemMargin">
-<td><a href="#legendConfig.itemMargin">itemMargin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the legend items</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 1
-right: 1
-bottom: 1
-left: 1}
-</div>
+<td><a href="#legendConfig.itemMargin">itemMargin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the legend items</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 1, right: 1, bottom: 1, left: 1 }</div>
 </td>
 </tr>
 <tr id="legendConfig.itemPadding">
-<td><a href="#legendConfig.itemPadding">itemPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the legend items</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 1
-right: 1
-bottom: 1
-left: 1}
-</div>
+<td><a href="#legendConfig.itemPadding">itemPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the legend items</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 1, right: 1, bottom: 1, left: 1 }</div>
 </td>
 </tr>
 <tr id="legendConfig.margin">
-<td><a href="#legendConfig.margin">margin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the legend</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 5
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#legendConfig.margin">margin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the legend</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 5, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="legendConfig.padding">
-<td><a href="#legendConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the legend</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#legendConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the legend</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="legendConfig.position">
@@ -1163,13 +1051,7 @@ left: 0}
 </tr>
 </thead>
 <tr id="plotConfig.backgroundStyle">
-<td><a href="#plotConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the plot background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#plotConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the plot background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="plotConfig.inverted">
@@ -1177,21 +1059,11 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="plotConfig.margin">
-<td><a href="#plotConfig.margin">margin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the plot</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#plotConfig.margin">margin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the plot</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="plotConfig.padding">
-<td><a href="#plotConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the plot</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#plotConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the plot</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 </table>
@@ -1309,17 +1181,11 @@ left: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.backgroundStyle">
-<td><a href="#seriesAxisConfigs.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: <span class="colorIcon" style="background-color: #000000"></span>
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#seriesAxisConfigs.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.base">
-<td><a href="#seriesAxisConfigs.base">base</a></td><td>the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)</td><td>should be a number or be equal to null</td><td><div>0 (series axis has stacks)</div>
+<td><a href="#seriesAxisConfigs.base">base</a></td><td>the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)<br/><br/>The value that bars and areas grow from, and the resting position shapes animate from/to when series enter or leave. With mixed positive/negative data the base separates the two directions.</td><td>should be a number or be equal to null</td><td><div>0 (series axis has stacks)</div>
 <div>null (series axis has no stacks)</div>
 </td>
 </tr>
@@ -1484,7 +1350,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.id">
-<td><a href="#seriesAxisConfigs.id">id</a></td><td>the unique identifier for the series axis so it can be referenced by series that belong to it</td><td><p>should be a string</p>
+<td><a href="#seriesAxisConfigs.id">id</a></td><td>the unique identifier for the series axis so it can be referenced by series that belong to it<br/><br/>Referenced by `seriesConfigs.axis` (and `seriesStackConfigs.axis`) to assign series to this axis. With a single axis the ids can be omitted everywhere.</td><td><p>should be a string</p>
 <p>should be unique</p>
 </td><td><div>SA${index} (series axis index)</div>
 </td>
@@ -1498,7 +1364,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.max">
-<td><a href="#seriesAxisConfigs.max">max</a></td><td>the forced maximum numeric value for the axis (use "auto" to compute from the values)</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
+<td><a href="#seriesAxisConfigs.max">max</a></td><td>the forced maximum numeric value for the axis (use "auto" to compute from the values)<br/><br/>With `"auto"` the maximum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead.</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.maxMarginPercent">
@@ -1514,7 +1380,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.min">
-<td><a href="#seriesAxisConfigs.min">min</a></td><td>the forced minimum numeric value for the axis (use "auto" to compute from the values)</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
+<td><a href="#seriesAxisConfigs.min">min</a></td><td>the forced minimum numeric value for the axis (use "auto" to compute from the values)<br/><br/>With `"auto"` the minimum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead.</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.minMarginPercent">
@@ -1552,11 +1418,11 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.softMax">
-<td><a href="#seriesAxisConfigs.softMax">softMax</a></td><td>the forced maximum numeric value for the axis to be used if no data value is greater than this value (use null to disable)</td><td>should be a number or be equal to null</td><td><div>null</div>
+<td><a href="#seriesAxisConfigs.softMax">softMax</a></td><td>the forced maximum numeric value for the axis to be used if no data value is greater than this value (use null to disable)<br/><br/>An upper bound that only applies while no data value is above it — the axis covers at least this value, but real data larger than it still expands the domain. Unlike `max`, it never clips data.</td><td>should be a number or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.softMin">
-<td><a href="#seriesAxisConfigs.softMin">softMin</a></td><td>the forced minimum numeric value for the axis to be used if no data value is less than this value (use null to disable)</td><td>should be a number or be equal to null</td><td><div>null</div>
+<td><a href="#seriesAxisConfigs.softMin">softMin</a></td><td>the forced minimum numeric value for the axis to be used if no data value is less than this value (use null to disable)<br/><br/>A lower bound that only applies while no data value is below it — the axis covers at least this value, but real data smaller than it still expands the domain. Unlike `min`, it never clips data.</td><td>should be a number or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.threshold">
@@ -1600,13 +1466,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleBackgroundStyle">
-<td><a href="#seriesAxisConfigs.thresholdTitleBackgroundStyle">thresholdTitleBackgroundStyle</a></td><td>the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: <span class="colorIcon" style="background-color: #000000"></span>
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleBackgroundStyle">thresholdTitleBackgroundStyle</a></td><td>the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleBefore">
@@ -1618,7 +1478,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleDefocusedFillOpacity">
-<td><a href="#seriesAxisConfigs.thresholdTitleDefocusedFillOpacity">thresholdTitleDefocusedFillOpacity</a></td><td>undefined</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleDefocusedFillOpacity">thresholdTitleDefocusedFillOpacity</a></td><td>the fill opacity (0 - 1) of the defocused threshold title text</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleDefocusedStrokeColor">
@@ -1626,7 +1486,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleDefocusedStrokeOpacity">
-<td><a href="#seriesAxisConfigs.thresholdTitleDefocusedStrokeOpacity">thresholdTitleDefocusedStrokeOpacity</a></td><td>undefined</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleDefocusedStrokeOpacity">thresholdTitleDefocusedStrokeOpacity</a></td><td>the stroke opacity (0 - 1) of the defocused threshold title text</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFillColor">
@@ -1642,7 +1502,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFocusedFillOpacity">
-<td><a href="#seriesAxisConfigs.thresholdTitleFocusedFillOpacity">thresholdTitleFocusedFillOpacity</a></td><td>undefined</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleFocusedFillOpacity">thresholdTitleFocusedFillOpacity</a></td><td>the fill opacity (0 - 1) of the focused threshold title text</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFocusedStrokeColor">
@@ -1650,25 +1510,15 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFocusedStrokeOpacity">
-<td><a href="#seriesAxisConfigs.thresholdTitleFocusedStrokeOpacity">thresholdTitleFocusedStrokeOpacity</a></td><td>undefined</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleFocusedStrokeOpacity">thresholdTitleFocusedStrokeOpacity</a></td><td>the stroke opacity (0 - 1) of the focused threshold title text</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleMargin">
-<td><a href="#seriesAxisConfigs.thresholdTitleMargin">thresholdTitleMargin</a></td><td>The margin (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleMargin">thresholdTitleMargin</a></td><td>The margin (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitlePadding">
-<td><a href="#seriesAxisConfigs.thresholdTitlePadding">thresholdTitlePadding</a></td><td>The padding (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#seriesAxisConfigs.thresholdTitlePadding">thresholdTitlePadding</a></td><td>The padding (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleSnapToValue">
@@ -1696,13 +1546,7 @@ left: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelBackgroundStyle">
-<td><a href="#seriesAxisConfigs.tickLabelBackgroundStyle">tickLabelBackgroundStyle</a></td><td>the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: <span class="colorIcon" style="background-color: #000000"></span>
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#seriesAxisConfigs.tickLabelBackgroundStyle">tickLabelBackgroundStyle</a></td><td>the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelDefocusedFillColor">
@@ -1846,13 +1690,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleBackgroundStyle">
-<td><a href="#seriesAxisConfigs.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: <span class="colorIcon" style="background-color: #000000"></span>
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#seriesAxisConfigs.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleDefocusedFillColor">
@@ -1969,7 +1807,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesConfigs.axis">
-<td><a href="#seriesConfigs.axis">axis</a></td><td>the unique identifier of the axis that the series belongs to</td><td><p>should be a string</p>
+<td><a href="#seriesConfigs.axis">axis</a></td><td>the unique identifier of the axis that the series belongs to<br/><br/>Assigns the series to the value axis in `seriesAxisConfigs` whose `id` matches. With a single configured axis this can be omitted — it defaults to that axis id.</td><td><p>should be a string</p>
 <p>should equal the id property of one of the seriesAxisConfigs</p>
 </td><td><div>sole axis id (series axis)</div>
 </td>
@@ -1987,7 +1825,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesConfigs.capType">
-<td><a href="#seriesConfigs.capType">capType</a></td><td>the type (point, curve, round, use null for none) of cap to use when drawing caps on a bar series</td><td>should be one of [ "point", "curve", "round" ] or be equal to null</td><td><div>null</div>
+<td><a href="#seriesConfigs.capType">capType</a></td><td>the type (point, curve, round, use null for none) of cap to use when drawing caps on a bar series<br/><br/>Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.</td><td>should be one of [ "point", "curve", "round" ] or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="seriesConfigs.colorBase">
@@ -2060,9 +1898,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="seriesConfigs.curve">
-<td><a href="#seriesConfigs.curve">curve</a></td><td>the d3 curve type and param to use when drawing the series shape</td><td>should be an object with exact properties { type: should be one of [ "linear", "monotoneX", "monotoneY", "basis", "cardinal", "catmullRom", "natural", "step", "stepBefore", "stepAfter" ], param: should be a number >= to 0 and <= 1 or be equal to undefined }</td><td><div>{
-type: "linear"}
-</div>
+<td><a href="#seriesConfigs.curve">curve</a></td><td>the d3 curve type and param to use when drawing the series shape<br/><br/>Only affects the `line` and `area` renderers. `type` selects the d3-shape curve (`linear`, `monotoneX`, `natural`, `step`, `cardinal`, `catmullRom`, …) and `param` is passed to the curve’s tension/alpha configurator for the curve types that take one.</td><td>should be an object with exact properties { type: should be one of [ "linear", "monotoneX", "monotoneY", "basis", "cardinal", "catmullRom", "natural", "step", "stepBefore", "stepAfter" ], param: should be a number >= to 0 and <= 1 or be equal to undefined }</td><td><div>{ type: "linear" }</div>
 </td>
 </tr>
 <tr id="seriesConfigs.defocusedFillColor">
@@ -2157,7 +1993,7 @@ type: "linear"}
 </td>
 </tr>
 <tr id="seriesConfigs.group">
-<td><a href="#seriesConfigs.group">group</a></td><td>the unique identifier of the series group that the series belongs to (use null for none)</td><td><p>should be a string or be equal to null</p>
+<td><a href="#seriesConfigs.group">group</a></td><td>the unique identifier of the series group that the series belongs to (use null for none)<br/><br/>Series sharing the same group id (an `id` from `seriesGroupConfigs`) are laid out side by side within each group slot — grouped/clustered bars. Defaults to the sole group id when exactly one group is configured; use `null` to opt a series out.</td><td><p>should be a string or be equal to null</p>
 <p>should equal the id property of one of the seriesGroupConfigs</p>
 </td><td><div>sole group id (series group)</div>
 </td>
@@ -2382,15 +2218,15 @@ type: "linear"}
 </td>
 </tr>
 <tr id="seriesConfigs.property">
-<td><a href="#seriesConfigs.property">property</a></td><td>the property to retrieve from the data provider for the series values</td><td>should be a defined value</td><td><div></div>
+<td><a href="#seriesConfigs.property">property</a></td><td>the property to retrieve from the data provider for the series values<br/><br/>The chart reads this property from each group of the data provider to get the series value — it is the only series property without a default, so every series must set it. Use `getDataErrors` to check a dataset against the configured properties.</td><td>should be a defined value</td><td><div></div>
 </td>
 </tr>
 <tr id="seriesConfigs.rangeProperty">
-<td><a href="#seriesConfigs.rangeProperty">rangeProperty</a></td><td>the property to retrieve from the data provider for the secondary series values (use null for none)</td><td>should be a defined value or equal to null</td><td><div>null</div>
+<td><a href="#seriesConfigs.rangeProperty">rangeProperty</a></td><td>the property to retrieve from the data provider for the secondary series values (use null for none)<br/><br/>When set, the series shape spans from the `rangeProperty` value to the `property` value instead of starting at the axis base — producing floating bars or a banded (low/high) area.</td><td>should be a defined value or equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="seriesConfigs.renderer">
-<td><a href="#seriesConfigs.renderer">renderer</a></td><td>the shape renderer to use when drawing the series shape (line, area, bar, none)</td><td>should be one of [ "bar", "line", "area", "none" ]</td><td><div>"line"</div>
+<td><a href="#seriesConfigs.renderer">renderer</a></td><td>the shape renderer to use when drawing the series shape (line, area, bar, none)<br/><br/>`bar` draws a rectangle per group value, `line` connects the values with a path, `area` fills between the value line and the series axis base, and `none` draws no shape. Different series in the same chart can use different renderers, e.g. bars with a line overlay.</td><td>should be one of [ "bar", "line", "area", "none" ]</td><td><div>"line"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.showColorInLegend">
@@ -2412,15 +2248,15 @@ type: "linear"}
 </td>
 </tr>
 <tr id="seriesConfigs.showMissingAtBase">
-<td><a href="#seriesConfigs.showMissingAtBase">showMissingAtBase</a></td><td>whether to use the series axis base value for missing values when drawing the shape for this series</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#seriesConfigs.showMissingAtBase">showMissingAtBase</a></td><td>whether to use the series axis base value for missing values when drawing the shape for this series<br/><br/>An alternative missing-value treatment: instead of leaving a gap, missing values are drawn at the series axis base value.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="seriesConfigs.skipMissing">
-<td><a href="#seriesConfigs.skipMissing">skipMissing</a></td><td>whether to skip undefined values when drawing the shape for this series</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#seriesConfigs.skipMissing">skipMissing</a></td><td>whether to skip undefined values when drawing the shape for this series<br/><br/>When `true`, groups whose value is missing (`undefined`) are left out of the shape, so lines and areas connect directly between the neighbouring defined values; when `false` the shape breaks at the gap.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="seriesConfigs.stack">
-<td><a href="#seriesConfigs.stack">stack</a></td><td>the unique identifier of the series stack that the series belongs to (use null for none)</td><td><p>should be a string or be equal to null</p>
+<td><a href="#seriesConfigs.stack">stack</a></td><td>the unique identifier of the series stack that the series belongs to (use null for none)<br/><br/>Series sharing the same stack id (an `id` from `seriesStackConfigs`) are drawn stacked on one another and animate as a single unit, so the stack stays gapless mid-transition. Defaults to the sole stack id when exactly one stack is configured; use `null` to opt a series out.</td><td><p>should be a string or be equal to null</p>
 <p>should equal the id property of one of the seriesStackConfigs</p>
 <p>should equal the id property of one of the seriesStackConfigs that has the same axis property</p>
 </td><td><div>sole stack id (series stack)</div>
@@ -2461,7 +2297,7 @@ type: "linear"}
 </td>
 </tr>
 <tr id="seriesConfigs.valueFormat">
-<td><a href="#seriesConfigs.valueFormat">valueFormat</a></td><td>the d3 format string to be applied to the series value when displayed in the tooltip (use null for none, use "auto" to derive from data ("auto" will use the series axis tick label format if it is set))</td><td>should be a valid number format or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<td><a href="#seriesConfigs.valueFormat">valueFormat</a></td><td>the d3 format string to be applied to the series value when displayed in the tooltip (use null for none, use "auto" to derive from data ("auto" will use the series axis tick label format if it is set))<br/><br/>A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the series axis `tickLabelFormat` when that is set.</td><td>should be a valid number format or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.valueLabel">
@@ -2503,13 +2339,13 @@ type: "linear"}
 </tr>
 </thead>
 <tr id="seriesStackConfigs.axis">
-<td><a href="#seriesStackConfigs.axis">axis</a></td><td>the unqiue identifier of the series axis that the series stack belongs to</td><td><p>should be a string</p>
+<td><a href="#seriesStackConfigs.axis">axis</a></td><td>the unique identifier of the series axis that the series stack belongs to</td><td><p>should be a string</p>
 <p>should equal the id property of one of the seriesAxisConfigs</p>
 </td><td><div>first axis id (series axis)</div>
 </td>
 </tr>
 <tr id="seriesStackConfigs.id">
-<td><a href="#seriesStackConfigs.id">id</a></td><td>the unique identifier for the series stack so it can be referenced by series that belong to it</td><td><p>should be a string</p>
+<td><a href="#seriesStackConfigs.id">id</a></td><td>the unique identifier for the series stack so it can be referenced by series that belong to it<br/><br/>Referenced by `seriesConfigs.stack` to place series in this stack. Stacked series draw on top of one another and animate as a single gapless unit — each segment’s baseline follows the tweened top of the segment below it throughout a transition.</td><td><p>should be a string</p>
 <p>should be unique</p>
 </td><td><div>SS${index} (series stack index)</div>
 </td>
@@ -2523,7 +2359,7 @@ type: "linear"}
 </td>
 </tr>
 <tr id="seriesStackConfigs.outerCapType">
-<td><a href="#seriesStackConfigs.outerCapType">outerCapType</a></td><td>the type (point, curve, round, use null for none) of cap for series that are an outer series of the stack</td><td>should be one of [ "point", "curve", "round" ] or be equal to null</td><td><div>null</div>
+<td><a href="#seriesStackConfigs.outerCapType">outerCapType</a></td><td>the type (point, curve, round, use null for none) of cap for series that are an outer series of the stack<br/><br/>Caps only the outer end of the whole stack rather than every segment; pairs with `seriesConfigs.capOnlyStackOuter`.</td><td>should be one of [ "point", "curve", "round" ] or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 </table>
@@ -2545,13 +2381,7 @@ type: "linear"}
 </td>
 </tr>
 <tr id="titleConfig.backgroundStyle">
-<td><a href="#titleConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#titleConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.link">
@@ -2563,21 +2393,11 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="titleConfig.margin">
-<td><a href="#titleConfig.margin">margin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the title</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 5
-left: 0}
-</div>
+<td><a href="#titleConfig.margin">margin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the title</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 5, left: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.padding">
-<td><a href="#titleConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the title</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 5
-left: 0}
-</div>
+<td><a href="#titleConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the title</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 5, left: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.position">
@@ -2585,97 +2405,43 @@ left: 0}
 </td>
 </tr>
 <tr id="titleConfig.prefixBackgroundStyle">
-<td><a href="#titleConfig.prefixBackgroundStyle">prefixBackgroundStyle</a></td><td>the styles to apply to the title prefix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#titleConfig.prefixBackgroundStyle">prefixBackgroundStyle</a></td><td>the styles to apply to the title prefix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.prefixMargin">
-<td><a href="#titleConfig.prefixMargin">prefixMargin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the title prefix</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 5
-bottom: 0
-left: 0}
-</div>
+<td><a href="#titleConfig.prefixMargin">prefixMargin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the title prefix</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 5, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.prefixPadding">
-<td><a href="#titleConfig.prefixPadding">prefixPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the title prefix</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 5
-bottom: 0
-left: 0}
-</div>
+<td><a href="#titleConfig.prefixPadding">prefixPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the title prefix</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 5, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.prefixTextStyle">
-<td><a href="#titleConfig.prefixTextStyle">prefixTextStyle</a></td><td>the styles to apply to the title prefix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: null
-strokeWidth: null
-fill: null
-fillOpacity: null}
-</div>
+<td><a href="#titleConfig.prefixTextStyle">prefixTextStyle</a></td><td>the styles to apply to the title prefix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }</div>
 </td>
 </tr>
 <tr id="titleConfig.suffixBackgroundStyle">
-<td><a href="#titleConfig.suffixBackgroundStyle">suffixBackgroundStyle</a></td><td>the styles to apply to the title suffix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#titleConfig.suffixBackgroundStyle">suffixBackgroundStyle</a></td><td>the styles to apply to the title suffix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.suffixMargin">
-<td><a href="#titleConfig.suffixMargin">suffixMargin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the title suffix</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 5}
-</div>
+<td><a href="#titleConfig.suffixMargin">suffixMargin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the title suffix</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 5 }</div>
 </td>
 </tr>
 <tr id="titleConfig.suffixPadding">
-<td><a href="#titleConfig.suffixPadding">suffixPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the title suffix</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 5}
-</div>
+<td><a href="#titleConfig.suffixPadding">suffixPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the title suffix</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 5 }</div>
 </td>
 </tr>
 <tr id="titleConfig.suffixTextStyle">
-<td><a href="#titleConfig.suffixTextStyle">suffixTextStyle</a></td><td>the styles to apply to the title suffix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: null
-strokeWidth: null
-fill: null
-fillOpacity: null}
-</div>
+<td><a href="#titleConfig.suffixTextStyle">suffixTextStyle</a></td><td>the styles to apply to the title suffix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }</div>
 </td>
 </tr>
 <tr id="titleConfig.textMargin">
-<td><a href="#titleConfig.textMargin">textMargin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the title text</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#titleConfig.textMargin">textMargin</a></td><td>the margin (in pixels) for the top, right, bottom and left sides of the title text</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.textPadding">
-<td><a href="#titleConfig.textPadding">textPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the title text</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{
-top: 0
-right: 0
-bottom: 0
-left: 0}
-</div>
+<td><a href="#titleConfig.textPadding">textPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the title text</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.title">
@@ -2683,13 +2449,7 @@ left: 0}
 </td>
 </tr>
 <tr id="titleConfig.titleBackgroundStyle">
-<td><a href="#titleConfig.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the title text background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: 0
-strokeWidth: null
-fill: null
-fillOpacity: 0}
-</div>
+<td><a href="#titleConfig.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the title text background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.titlePrefix">
@@ -2701,13 +2461,7 @@ fillOpacity: 0}
 </td>
 </tr>
 <tr id="titleConfig.titleTextStyle">
-<td><a href="#titleConfig.titleTextStyle">titleTextStyle</a></td><td>the styles to apply to the title text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{
-stroke: null
-strokeOpacity: null
-strokeWidth: null
-fill: null
-fillOpacity: null}
-</div>
+<td><a href="#titleConfig.titleTextStyle">titleTextStyle</a></td><td>the styles to apply to the title text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }</div>
 </td>
 </tr>
 <tr id="titleConfig.truncationEnabled">

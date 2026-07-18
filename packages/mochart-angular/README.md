@@ -10,7 +10,7 @@ axis contraction, and gapless stacked transitions — no extra wiring needed.
 ## Install
 
 ```sh
-npm install mochart-angular @angular/core
+npm install @mochart/angular @angular/core
 ```
 
 ## Usage
@@ -29,6 +29,7 @@ import { DefaultChart } from '@mochart/angular';
 })
 export class Revenue {
   config = {
+    version: '1.0.0',
     titleConfig: { title: 'Revenue' },
     groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
     seriesAllConfig: { renderer: 'bar' },

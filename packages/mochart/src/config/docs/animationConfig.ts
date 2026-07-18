@@ -8,3 +8,14 @@ export default function getDescriptions() {
     focusDuration: 'the duration of animation showing the transition between focus on a specific series or group value'
   };
 }
+
+export function getDetails() {
+  return {
+    animate: 'The master switch for staged animation. When `false`, config, data, and size changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum).',
+    initialDuration: 'Duration (in milliseconds) of the first render animation when the chart mounts with data.',
+    expansionDuration: 'Duration (in milliseconds) of the axis expansion phase, which plays first when an update needs larger axis domains (new groups or larger values) so incoming data has room to land.',
+    valueChangeDuration: 'Duration (in milliseconds) of the value change phase, which tweens values to their new positions and also plays group transitions (groups added/removed/reordered) and series transitions (series added, removed, or filtered via the legend).',
+    collapseDuration: 'Duration (in milliseconds) of the axis contraction phase, which plays last when the settled data needs smaller axis domains.',
+    focusDuration: 'Duration (in milliseconds) of focus transitions — the emphasis change between focused/defocused styling when a series or group gains or loses focus via hover, click, or the legend.'
+  };
+}

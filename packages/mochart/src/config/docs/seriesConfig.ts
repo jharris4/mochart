@@ -110,3 +110,18 @@ export default function getDescriptions() {
     animateBaseFromAdjacent: 'whether to animate leading/trailing series position values from their adjacent values (true) or from the base value (false)'
   };
 }
+export function getDetails() {
+  return {
+    property: 'The chart reads this property from each group of the data provider to get the series value — it is the only series property without a default, so every series must set it. Use `getDataErrors` to check a dataset against the configured properties.',
+    renderer: '`bar` draws a rectangle per group value, `line` connects the values with a path, `area` fills between the value line and the series axis base, and `none` draws no shape. Different series in the same chart can use different renderers, e.g. bars with a line overlay.',
+    rangeProperty: 'When set, the series shape spans from the `rangeProperty` value to the `property` value instead of starting at the axis base — producing floating bars or a banded (low/high) area.',
+    axis: 'Assigns the series to the value axis in `seriesAxisConfigs` whose `id` matches. With a single configured axis this can be omitted — it defaults to that axis id.',
+    stack: 'Series sharing the same stack id (an `id` from `seriesStackConfigs`) are drawn stacked on one another and animate as a single unit, so the stack stays gapless mid-transition. Defaults to the sole stack id when exactly one stack is configured; use `null` to opt a series out.',
+    group: 'Series sharing the same group id (an `id` from `seriesGroupConfigs`) are laid out side by side within each group slot — grouped/clustered bars. Defaults to the sole group id when exactly one group is configured; use `null` to opt a series out.',
+    curve: 'Only affects the `line` and `area` renderers. `type` selects the d3-shape curve (`linear`, `monotoneX`, `natural`, `step`, `cardinal`, `catmullRom`, …) and `param` is passed to the curve’s tension/alpha configurator for the curve types that take one.',
+    skipMissing: 'When `true`, groups whose value is missing (`undefined`) are left out of the shape, so lines and areas connect directly between the neighbouring defined values; when `false` the shape breaks at the gap.',
+    showMissingAtBase: 'An alternative missing-value treatment: instead of leaving a gap, missing values are drawn at the series axis base value.',
+    valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the series axis `tickLabelFormat` when that is set.',
+    capType: 'Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.'
+  };
+}

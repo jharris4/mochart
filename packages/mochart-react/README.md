@@ -10,7 +10,7 @@ axis contraction, and gapless stacked transitions — no extra wiring needed.
 ## Install
 
 ```sh
-npm install mochart-react react
+npm install @mochart/react react
 ```
 
 ## Usage
@@ -22,6 +22,7 @@ array-of-objects dataset:
 import { DefaultChart } from '@mochart/react';
 
 const config = {
+  version: '1.0.0',
   titleConfig: { title: 'Revenue' },
   groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
   seriesAllConfig: { renderer: 'bar' },

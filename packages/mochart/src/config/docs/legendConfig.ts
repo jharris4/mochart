@@ -26,3 +26,10 @@ export default function getDescriptions() {
     filterOnClick: 'whether to suppress a series when the series icon or title is clicked'
   };
 }
+export function getDetails() {
+  return {
+    filterOnClick: 'When `true`, clicking a legend item toggles its series out of (and back into) the chart, playing the staged series transition; the item stays in the legend so it can be restored. `onSeriesFilter` reports every change.',
+    focusOnMouseOver: 'When `true`, hovering a legend item focuses its series: the series gets its focused styling and every other series gets its defocused styling. `onFocus` reports focus changes.',
+    focusOnClick: 'When `true`, clicking a legend item focuses its series (see `focusOnMouseOver`). Combine with `filterOnClick` deliberately — with both enabled a click filters and focuses.'
+  };
+}

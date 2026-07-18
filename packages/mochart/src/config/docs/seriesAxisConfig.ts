@@ -29,3 +29,13 @@ export default function getDescriptions() {
     useSeriesFocus: 'whether to show the axis as focused when any series belonging to is focused',
   };
 }
+export function getDetails() {
+  return {
+    id: 'Referenced by `seriesConfigs.axis` (and `seriesStackConfigs.axis`) to assign series to this axis. With a single axis the ids can be omitted everywhere.',
+    min: 'With `"auto"` the minimum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead.',
+    max: 'With `"auto"` the maximum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead.',
+    softMin: 'A lower bound that only applies while no data value is below it — the axis covers at least this value, but real data smaller than it still expands the domain. Unlike `min`, it never clips data.',
+    softMax: 'An upper bound that only applies while no data value is above it — the axis covers at least this value, but real data larger than it still expands the domain. Unlike `max`, it never clips data.',
+    base: 'The value that bars and areas grow from, and the resting position shapes animate from/to when series enter or leave. With mixed positive/negative data the base separates the two directions.'
+  };
+}

@@ -12,7 +12,7 @@ axis contraction, and gapless stacked transitions — no extra wiring needed.
 ## Install
 
 ```sh
-npm install mochart-lit lit-html
+npm install @mochart/lit lit-html
 ```
 
 ## Usage
@@ -25,6 +25,7 @@ import { html, render } from 'lit-html';
 import { defaultChart } from '@mochart/lit';
 
 const config = {
+  version: '1.0.0',
   titleConfig: { title: 'Revenue' },
   groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
   seriesAllConfig: { renderer: 'bar' },

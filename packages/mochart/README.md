@@ -57,7 +57,7 @@ stack.
 ## Install
 
 ```sh
-npm install mochart
+npm install @mochart/core
 ```
 
 ## Quick start
@@ -69,6 +69,7 @@ plain array-of-objects dataset:
 import { createDefaultChart } from '@mochart/core';
 
 const config = {
+  version: '1.0.0',
   titleConfig: { title: 'Revenue' },
   groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
   seriesAllConfig: { renderer: 'bar' },
@@ -129,9 +130,13 @@ property is optional and falls back to a sensible default:
 | `plotConfig` | plot area (e.g. `inverted` for horizontal charts) |
 | `chartConfig` / `colorPaletteConfig` / `linearGradientConfigs` / `radialGradientConfigs` | chart-wide style, palette, and gradient definitions |
 
-The full property-by-property reference can be generated from the validation
-schema with `npm run generate-docs -w @mochart/core`, which writes
-[mochart-docs.html](mochart-docs.html).
+The full property-by-property reference is generated from the validation
+schema: `npm run generate-docs -w @mochart/core` writes
+[mochart-docs.html](mochart-docs.html) plus
+`generated/config-reference.json`, the structured model that the
+[@mochart/docs](../mochart-docs/README.md) site renders into its config
+reference pages. The command fails if the descriptions, validators, and
+defaults ever disagree on a section's keys.
 
 ### Config helpers
 
@@ -221,7 +226,7 @@ npm run build -w @mochart/core          # bundle to dist/ with vite
 npm test -w @mochart/core               # vitest (includes golden snapshot tests)
 npm run test:coverage -w @mochart/core  # vitest with v8 coverage
 npm run typecheck -w @mochart/core
-npm run generate-docs -w @mochart/core  # regenerate mochart-docs.html
+npm run generate-docs -w @mochart/core  # regenerate mochart-docs.html + generated/config-reference.json
 ```
 
 The golden snapshot tests in `test/golden/` render whole charts (initial

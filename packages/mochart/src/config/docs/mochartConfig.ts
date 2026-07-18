@@ -1,6 +1,7 @@
 export default function getDescriptions() {
   return {
     version: 'The version of the configuration format',
+    id: 'An optional identifier for the config (any value, not interpreted by the chart)',
     animationConfig: 'Configure the chart animation settings',
     chartConfig: 'Configure general settings of the chart',
     colorPaletteConfig: 'Configure the color palettes to use for collections of series',

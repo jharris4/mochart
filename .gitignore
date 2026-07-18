@@ -4,6 +4,8 @@ coverage
 .idea
 .vscode
 dist
+generated
+.vitepress/cache
 /site
 .svelte-kit
 test-results
