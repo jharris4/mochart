@@ -18,7 +18,7 @@ const modeCaptions: Record<string, string> = {
   multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
   random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
   transition: 'Transition: animates a chart between datasets — pick a demo below.',
-  rotation: 'Rotation: a grid of every chart config variation.'
+  rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
 };
 
 export default function MochartDemosTab({ active, demoData, demoMode, demoId, onDemoModeChanged, onDemoChange }: Props) {
@@ -62,14 +62,14 @@ export default function MochartDemosTab({ active, demoData, demoMode, demoId, on
               <Button title="Animate a chart between two datasets" onClick={() => { onDemoModeChanged('transition', demoId); }}>
                 <FontAwesome size="lg" name="right-left" /> Transition
               </Button>
-              <Button title="A grid of chart config variations" onClick={() => { onDemoModeChanged('rotation', demoId); }}>
+              <Button title="A grid of charts showing different tick label rotations" onClick={() => { onDemoModeChanged('rotation', demoId); }}>
                 <FontAwesome size="lg" name="repeat" /> Rotation
               </Button>
             </ButtonToolbar>
           </FormGroup>
           <FormGroup style={{ marginLeft: 10 }}>
             <ButtonToolbar>
-              <Button aria-pressed={isTestMode} title="Show the test demos (intentionally invalid configs for exercising error handling)"
+              <Button aria-pressed={isTestMode} title="Show the test demos (showcasing less used features)"
                 onClick={() => setIsTestMode(mode => !mode)} color={isTestMode ? "primary" : void 0}>
                 <FontAwesome size="lg" name="flask" /> Test Demos
               </Button>

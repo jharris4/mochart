@@ -25,7 +25,7 @@ const modeCaptions: Record<string, string> = {
   multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
   random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
   transition: 'Transition: animates a chart between datasets — pick a demo below.',
-  rotation: 'Rotation: a grid of every chart config variation.'
+  rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
 };
 
 const theDemoIds = computed(() => isTestMode.value ? props.demoData.testDemoIds : props.demoData.demoIds);
@@ -69,7 +69,7 @@ function onTestModeToggle() {
               <Icon size="lg" name="right-left" /> Transition
             </button>
             <button type="button" class="btn btn-secondary"
-                    title="A grid of chart config variations"
+                    title="A grid of charts showing different tick label rotations"
                     @click="props.onDemoModeChanged('rotation', props.demoId)">
               <Icon size="lg" name="repeat" /> Rotation
             </button>
@@ -78,7 +78,7 @@ function onTestModeToggle() {
         <div class="form-group" style="margin-left: 10px;">
           <div class="btn-toolbar" role="toolbar">
             <button type="button" :class="'btn btn-' + (isTestMode ? 'primary' : 'secondary')" :aria-pressed="isTestMode"
-                    title="Show the test demos (intentionally invalid configs for exercising error handling)"
+                    title="Show the test demos (showcasing less used features)"
                     @click="onTestModeToggle">
               <Icon size="lg" name="flask" /> Test Demos
             </button>

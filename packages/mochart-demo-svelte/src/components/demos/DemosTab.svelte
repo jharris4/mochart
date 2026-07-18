@@ -21,7 +21,7 @@
     multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
     random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
     transition: 'Transition: animates a chart between datasets — pick a demo below.',
-    rotation: 'Rotation: a grid of every chart config variation.'
+    rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
   };
 
   const theDemoIds = $derived(isTestMode ? demoData.testDemoIds : demoData.demoIds);
@@ -64,7 +64,7 @@
             <Icon size="lg" name="right-left" /> Transition
           </button>
           <button type="button" class="btn btn-secondary"
-                  title="A grid of charts with different types of tick label rotations applied"
+                  title="A grid of charts showing different tick label rotations"
                   onclick={() => onDemoModeChanged('rotation', demoId)}>
             <Icon size="lg" name="repeat" /> Rotation
           </button>

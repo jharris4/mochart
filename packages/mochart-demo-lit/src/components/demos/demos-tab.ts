@@ -12,7 +12,7 @@ const modeCaptions: Record<string, string> = {
   multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
   random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
   transition: 'Transition: animates a chart between datasets — pick a demo below.',
-  rotation: 'Rotation: a grid of every chart config variation.'
+  rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
 };
 
 @customElement('demos-tab')
@@ -64,7 +64,7 @@ export class DemosTab extends LightElement {
                 ${icon({ size: 'lg', name: 'right-left' })} Transition
               </button>
               <button type="button" class="btn btn-secondary"
-                      title="A grid of chart config variations"
+                      title="A grid of charts showing different tick label rotations"
                       @click=${() => this.onDemoModeChanged('rotation', this.demoId)}>
                 ${icon({ size: 'lg', name: 'repeat' })} Rotation
               </button>
@@ -73,7 +73,7 @@ export class DemosTab extends LightElement {
           <div class="form-group" style="margin-left: 10px;">
             <div class="btn-toolbar" role="toolbar">
               <button type="button" class=${'btn btn-' + (this.isTestMode ? 'primary' : 'secondary')} aria-pressed=${String(this.isTestMode)}
-                      title="Show the test demos (intentionally invalid configs for exercising error handling)"
+                      title="Show the test demos (showcasing less used features)"
                       @click=${this.onTestModeToggle}>
                 ${icon({ size: 'lg', name: 'flask' })} Test Demos
               </button>
