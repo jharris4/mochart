@@ -354,11 +354,19 @@ html, body {
     border-top: 1px solid var(--demo-border);
     margin-top: 8px;
 }
-.mochart-demo-text-area-container {
+/* The react demo measures the editor pane with react-sizer and sets explicit
+   pixel sizes on the textarea; plain css sizing does the same job here. */
+.text-area-content {
     display: flex;
     flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
 }
 .text-area-content textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
     font-family: var(--demo-mono);
     font-size: 13px;
     line-height: 1.5;
