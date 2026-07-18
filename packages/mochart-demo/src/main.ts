@@ -7,15 +7,23 @@ import {
 import type { ChartHandle } from 'mochart';
 import demosJson from '../demos/demos.json';
 
-// eagerly bundle every demo config + dataset, keyed by basename
+// eagerly bundle every demo config + dataset + random spec, keyed by basename
 const configModules = import.meta.glob('../demos/config/**/*.json', { eager: true, import: 'default' });
 const dataModules = import.meta.glob('../demos/data/**/*.json', { eager: true, import: 'default' });
+const randomModules = import.meta.glob('../demos/random/**/*.json', { eager: true, import: 'default' });
 
 interface DemoEntry {
   id: string;
   title: string;
   config: string;
   data: string;
+  random?: string;
+}
+
+interface SeriesBounds {
+  min: number;
+  max: number;
+  round: boolean;
 }
 
 const byBasename = (modules: Record<string, any>) => {
@@ -28,6 +36,7 @@ const byBasename = (modules: Record<string, any>) => {
 
 const configs = byBasename(configModules);
 const datasets = byBasename(dataModules);
+const randomSpecs = byBasename(randomModules);
 
 const demoSections: { section: string; entries: DemoEntry[] }[] = [
   { section: 'Demos', entries: (demosJson as any).demos },
@@ -49,6 +58,7 @@ let currentDemo: DemoEntry | null = null;
 let mochartConfig: any = null;
 let groupProperty: string | undefined;
 let seriesProperties: string[] = [];
+let seriesBounds: Record<string, SeriesBounds> = {};
 let originalData: any[] = [];
 let currentData: any[] = [];
 let autoplayTimer: number | null = null;
@@ -57,6 +67,35 @@ let groupCounter = 0;
 function showErrors(messages: string[]): void {
   errorsPane.hidden = messages.length === 0;
   errorsPane.textContent = messages.join('\n');
+}
+
+// Per-property value bounds from the demo's random spec, clamped to the
+// series axis config (when limitToAxisConfig) so random values never land
+// outside a fixed axis range.
+function computeSeriesBounds(config: any, randomSpec: any): Record<string, SeriesBounds> {
+  const numberSpec = randomSpec?.series?.number ?? {};
+  const { min = -500, max = 500, round = true, limitToAxisConfig = true } = numberSpec;
+  const bounds: Record<string, SeriesBounds> = {};
+  for (const seriesConfig of config.seriesConfigs || []) {
+    const axisConfig = seriesConfig.seriesAxisConfig || {};
+    for (const key of ['property', 'rangeProperty']) {
+      const property = seriesConfig[key];
+      if (!property) {
+        continue;
+      }
+      bounds[property] = {
+        min: limitToAxisConfig && typeof axisConfig.min === 'number' ? axisConfig.min : min,
+        max: limitToAxisConfig && typeof axisConfig.max === 'number' ? axisConfig.max : max,
+        round
+      };
+    }
+  }
+  return bounds;
+}
+
+function randomValue({ min, max, round }: SeriesBounds): number {
+  const value = min + Math.random() * (max - min);
+  return round ? Math.round(value) : value;
 }
 
 function makeDataProvider(): any {
@@ -84,9 +123,9 @@ function mountDemo(demo: DemoEntry): void {
   showErrors(valid ? [] : [...errors, ...warnings]);
 
   groupProperty = mochartConfig.groupAxisConfig ? mochartConfig.groupAxisConfig.property : undefined;
-  seriesProperties = (mochartConfig.seriesConfigs || [])
-    .map((seriesConfig: any) => seriesConfig.property)
-    .filter(Boolean);
+  const randomSpec = (demo.random && randomSpecs[demo.random]) || randomSpecs['default-random.json'];
+  seriesBounds = computeSeriesBounds(mochartConfig, randomSpec);
+  seriesProperties = Object.keys(seriesBounds);
   originalData = rawData as any[];
   currentData = originalData.map((row) => ({ ...row }));
   groupCounter = 0;
@@ -115,10 +154,8 @@ function randomizeValues(): void {
   currentData = currentData.map((row) => {
     const next = { ...row };
     for (const property of seriesProperties) {
-      const value = next[property];
-      if (typeof value === 'number') {
-        const magnitude = Math.max(10, Math.abs(value));
-        next[property] = Math.round(value + (Math.random() - 0.5) * magnitude);
+      if (typeof next[property] === 'number') {
+        next[property] = randomValue(seriesBounds[property]);
       }
     }
     return next;
@@ -148,7 +185,7 @@ function addGroup(): void {
   const row: any = { ...template, [groupProperty]: nextGroupValue() };
   for (const property of seriesProperties) {
     if (typeof row[property] === 'number') {
-      row[property] = Math.round((Math.random() - 0.3) * 100);
+      row[property] = randomValue(seriesBounds[property]);
     }
   }
   currentData = [...currentData, row];

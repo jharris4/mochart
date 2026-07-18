@@ -13,12 +13,14 @@ the **movalid** validation library it uses for config validation.
 | [mochart-svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
 | [mochart-vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
 | [mochart-lit](packages/mochart-lit/README.md) | lit-html directives wrapping mochart. |
-| [mochart-demo](packages/mochart-demo/README.md) | Demo gallery app (private) — browse every chart config with live data controls. |
+| [mochart-demo](packages/mochart-demo/README.md) | Minimal demo gallery app (private) — browse every chart config with live data controls; home of the shared demo configs and the Playwright e2e suite. |
 | [movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
-The demo gallery is also ported to each wrapper framework —
+Each wrapper framework also has a full-featured demo gallery —
 `mochart-demo-react`, `mochart-demo-svelte`, `mochart-demo-vue`, and
-`mochart-demo-lit` (all private) share the demo configs from `mochart-demo`.
+`mochart-demo-lit` (all private) — with single/multi/random/transition/rotation
+demo modes; they share the demo configs from `mochart-demo`, which is a
+smaller vanilla-TS harness of the same demos.
 There are also build-free static HTML examples in
 [packages/mochart/example](packages/mochart/example/README.md).
 

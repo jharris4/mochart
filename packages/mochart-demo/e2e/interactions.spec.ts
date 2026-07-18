@@ -63,6 +63,44 @@ test('toolbar add/remove group updates the group axis', async ({ page }) => {
   await expect(ticks).toHaveCount(initialCount);
 });
 
+// Waits until two bar-geometry samples taken 250ms apart match, i.e. the
+// update animation has settled. The gap between samples matters: back-to-back
+// samples can match before the animation's first frame.
+async function waitForSettledBars(page: Page): Promise<void> {
+  await expect.poll(async () => {
+    const before = await barGeometry(page);
+    await page.waitForTimeout(250);
+    return before === await barGeometry(page);
+  }).toBe(true);
+}
+
+function barOverflow(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const plot = document.querySelector('.mochart-plot-background')!.getBoundingClientRect();
+    let overflow = 0;
+    for (const bar of document.querySelectorAll('.mochart-series-bar')) {
+      const box = bar.getBoundingClientRect();
+      overflow = Math.max(overflow, plot.top - box.top, box.bottom - plot.bottom);
+    }
+    return overflow;
+  });
+}
+
+test('randomized values stay within a fixed series axis range', async ({ page }) => {
+  // the christmas demo pins the series axis at min 0 with all-positive data,
+  // so any randomized value below 0 renders outside the plot; navigate via
+  // the sidebar because the app only reads the location hash at startup
+  await page.locator('#demo-list button', { hasText: 'Christmas Tree Bars' }).click();
+  await expect(page.locator('#demo-title')).toHaveText('Christmas Tree Bars');
+  await expect(page.locator('.mochart-series-bar').first()).toBeAttached();
+
+  for (let i = 0; i < 8; i++) {
+    await page.click('#randomize');
+    await waitForSettledBars(page);
+    expect(await barOverflow(page)).toBeLessThanOrEqual(1);
+  }
+});
+
 test('randomize changes bar geometry and reset restores group count', async ({ page }) => {
   const ticks = page.locator(groupTickLabels);
   const initialTicks = await ticks.count();

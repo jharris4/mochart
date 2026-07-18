@@ -3,9 +3,18 @@
 Demo gallery for the [mochart](../mochart/README.md) charting library
 (private, not published).
 
-A Vite app that renders every demo chart from JSON config/data pairs, with
-live controls to exercise mochart's animations: randomize values, add/remove
-groups, and autoplay.
+A minimal vanilla-TypeScript Vite app that renders every demo chart from JSON
+config/data pairs, with live controls to exercise mochart's animations:
+randomize values (kept within each demo's random spec and axis range),
+add/remove groups, and autoplay.
+
+The full-featured galleries live in the framework packages
+([mochart-demo-react](../mochart-demo-react/README.md),
+[mochart-demo-svelte](../mochart-demo-svelte/README.md),
+[mochart-demo-vue](../mochart-demo-vue/README.md),
+[mochart-demo-lit](../mochart-demo-lit/README.md)) — they share this
+package's demo configs. This app is the smallest harness around the same
+demos and hosts the Playwright e2e suite.
 
 ## Install
 

@@ -1,11 +1,13 @@
 # mochart-demo-lit
 
-Lit port of the [mochart-demo](../mochart-demo/README.md) gallery, built on
+Lit demo gallery for [mochart](../mochart/README.md), built on
 [mochart-lit](../mochart-lit/README.md) (private, not published).
 
-Renders the same demo charts as the vanilla gallery — the JSON config/data
-pairs are shared from `mochart-demo` — with live controls to randomize values,
-add/remove groups, and autoplay.
+The full-featured demo app: browse every demo chart in single, multi,
+transition, and rotation modes, or generate whole random datasets in random
+mode. The JSON demo configs and datasets are shared from
+[mochart-demo](../mochart-demo/README.md), a smaller vanilla-TS harness of
+the same demos.
 
 ## Install
 
