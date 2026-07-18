@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { demoText } from '@mochart/demo-common';
+import { consumeShareState, demoText } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 
@@ -54,10 +54,13 @@ export class DemoSingle extends LightElement {
     }
     const initialDemoId = this.initialDemoId;
     if (!this.hasUpdated) {
+      // A share link carries edited config/data in the URL hash; it overrides
+      // the demo's own config/data for the initial mount only.
+      const sharedState = initialDemoId !== 'demos' ? consumeShareState() : null;
       this.activeKey = getActiveKeyForInitialDemoId(initialDemoId);
       this.demoId = initialDemoId;
-      this.config = initialDemoId !== 'demos' ? this.demoData.demoObjectMap[initialDemoId].config : null;
-      this.data = initialDemoId !== 'demos' ? this.demoData.demoObjectMap[initialDemoId].data : null;
+      this.config = initialDemoId !== 'demos' ? (sharedState?.config ?? this.demoData.demoObjectMap[initialDemoId].config) : null;
+      this.data = initialDemoId !== 'demos' ? (sharedState?.data ?? this.demoData.demoObjectMap[initialDemoId].data) : null;
       this.dataError = false;
       this.viewingConfig = this.config;
       this.viewingData = this.data;

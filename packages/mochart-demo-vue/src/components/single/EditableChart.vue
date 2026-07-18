@@ -8,6 +8,7 @@ import { demoText } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import ExportButtons from '../misc/ExportButtons.vue';
+import ShareButton from '../misc/ShareButton.vue';
 import Icon from '../misc/Icon.vue';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
@@ -24,6 +25,8 @@ interface Props {
   isActive: boolean;
   chartCount: number;
   showChartCountControls: boolean;
+  /** Set on the chart instance that should render the share button. */
+  showShareButton?: boolean;
   filteredSeriesIds: FilteredSeriesIds;
   focusedGroupIndex: number;
   focusedSeriesAxisId?: string | null;
@@ -602,6 +605,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
                     </ButtonWithTooltip>
                   </div>
                   <ExportButtons id-prefix="edit" :disabled="!!error" :get-container="() => chartContentElement" />
+                  <ShareButton v-if="props.showShareButton" id-prefix="edit" :get-share-state="() => ({ config: props.mochartDemoConfig.config, data: props.data })" />
                   <div class="btn-group">
                     <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" :label="demoText.editableChart.resetGroups.label" :tooltip-text="demoText.editableChart.resetGroups.tooltip" tooltip-placement="right"
                                        :on-click="resetGroups" :aria-label="demoText.editableChart.resetGroups.aria">
@@ -668,6 +672,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
                     </ButtonWithTooltip>
                   </div>
                   <ExportButtons id-prefix="edit" :disabled="!!error" :get-container="() => chartContentElement" />
+                  <ShareButton v-if="props.showShareButton" id-prefix="edit" :get-share-state="() => ({ config: props.mochartDemoConfig.config, data: props.data })" />
                 </div>
               </div>
               <div class="form-group">

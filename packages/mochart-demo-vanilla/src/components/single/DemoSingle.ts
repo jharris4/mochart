@@ -1,4 +1,4 @@
-import { demoText } from '@mochart/demo-common';
+import { consumeShareState, demoText } from '@mochart/demo-common';
 
 import { el, errorTab, setActiveClass } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
@@ -44,14 +44,22 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
   let initialDemoId = props.initialDemoId;
   let activeKey = getActiveKeyForInitialDemoId(initialDemoId);
 
+  // A share link carries edited config/data in the URL hash; it overrides
+  // the demo's own config/data for the initial mount only.
+  const sharedState = initialDemoId !== 'demos' ? consumeShareState() : null;
+
   // Config/data edits made on the Config/Data tabs stay "pending" until the
   // Chart tab is shown again (so the chart animates one combined change).
   let demoId = initialDemoId;
   let pendingConfig: DemoConfig | null = null;
   let pendingData: DataRow[] | null = null;
   let pendingDataError: DataError = false;
-  let config: DemoConfig | null = initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null;
-  let data: DataRow[] | null = initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null;
+  let config: DemoConfig | null = initialDemoId !== 'demos'
+    ? (sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config)
+    : null;
+  let data: DataRow[] | null = initialDemoId !== 'demos'
+    ? (sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data)
+    : null;
   let dataError: DataError = false;
   let viewingConfig: DemoConfig | null = config;
   let viewingData: DataRow[] | null = data;

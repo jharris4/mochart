@@ -126,7 +126,7 @@ export class ChartTab extends LightElement {
         <div class="editable-charts">
           ${this.mochartDemoConfig && width > 0
             ? chartIndices.map(i => html`<editable-chart
-                .chartCount=${this.chartCount} .showChartCountControls=${allowedChartCount > 1 && i === 1}
+                .chartCount=${this.chartCount} .showChartCountControls=${allowedChartCount > 1 && i === 1} .showShareButton=${i === 1}
                 .width=${chartWidth} .mochartDemoConfig=${this.mochartDemoConfig!} .data=${this.data ?? []} .dataError=${this.dataError}
                 .isActive=${this.active} .filteredSeriesIds=${this.filteredSeriesIds} .focusedGroupIndex=${this.focusedGroupIndex}
                 .focusedSeriesAxisId=${this.focusedSeriesAxisId} .focusedSeriesId=${this.focusedSeriesId} .onChartCountToggle=${this.onChartCountToggle}

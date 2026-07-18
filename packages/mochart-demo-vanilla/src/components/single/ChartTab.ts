@@ -126,6 +126,7 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
         isActive: active,
         chartCount,
         showChartCountControls,
+        showShareButton: charts.length === 0,
         filteredSeriesIds,
         focusedGroupIndex,
         focusedSeriesAxisId,

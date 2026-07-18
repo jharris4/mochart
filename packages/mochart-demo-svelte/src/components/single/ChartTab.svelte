@@ -130,7 +130,7 @@
     <div class="editable-charts">
       {#if mochartDemoConfig && width > 0}
         {#each { length: adjustedChartCount } as _, i (i)}
-          <EditableChart chartCount={chartCount} showChartCountControls={allowedChartCount > 1 && i === 0}
+          <EditableChart chartCount={chartCount} showChartCountControls={allowedChartCount > 1 && i === 0} showShareButton={i === 0}
             width={chartWidth} {mochartDemoConfig} data={data ?? []} {dataError}
             isActive={active} {filteredSeriesIds} {focusedGroupIndex}
             {focusedSeriesAxisId} {focusedSeriesId} {onChartCountToggle}

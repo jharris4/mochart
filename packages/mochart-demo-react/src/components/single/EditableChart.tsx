@@ -10,6 +10,7 @@ import { demoText } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import ExportButtons from '../misc/ExportButtons';
+import ShareButton from '../misc/ShareButton';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -43,6 +44,8 @@ interface Props {
   isActive?: boolean;
   chartCount: number;
   showChartCountControls: boolean;
+  /** Set on the chart instance that should render the share button. */
+  showShareButton?: boolean;
   filteredSeriesIds: FilteredSeriesIds;
   focusedGroupIndex: number;
   focusedSeriesAxisId?: string | null;
@@ -639,7 +642,7 @@ export default function EditableChart(props: Props) {
   };
 
   const {
-    width, chartCount, showChartCountControls, onChartCountToggle, focusedSeriesAxisId, focusedSeriesId, onSeriesFilter
+    width, chartCount, showChartCountControls, showShareButton, onChartCountToggle, focusedSeriesAxisId, focusedSeriesId, onSeriesFilter
   } = props;
   const {
     sequencePlaying, selectionMode, dataProvider, groupValuesText, groupIndex, seriesIndex, seriesValuesText, orderChanged
@@ -671,6 +674,14 @@ export default function EditableChart(props: Props) {
       getContainer={() => chartContentRef.current} />
   );
 
+  const shareControlContent = showShareButton ? (
+    <ShareButton key="shareControls" idPrefix="edit"
+      getShareState={() => {
+        const { mochartDemoConfig, data } = propsRef.current;
+        return { config: mochartDemoConfig.config, data };
+      }} />
+  ) : null;
+
   let commonControlContent: React.ReactNode;
   if (showChartCountControls) {
     commonControlContent = [
@@ -682,11 +693,12 @@ export default function EditableChart(props: Props) {
         </ButtonWithTooltip>
       </ButtonGroup>,
       modeControlContent,
-      exportControlContent
+      exportControlContent,
+      shareControlContent
     ];
   }
   else {
-    commonControlContent = [modeControlContent, exportControlContent];
+    commonControlContent = [modeControlContent, exportControlContent, shareControlContent];
   }
 
   let controlContent: React.ReactNode;

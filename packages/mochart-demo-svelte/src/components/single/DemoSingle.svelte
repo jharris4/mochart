@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { demoText } from '@mochart/demo-common';
+  import { consumeShareState, demoText } from '@mochart/demo-common';
 
   import DemosTab from '../demos/DemosTab.svelte';
   import ChartTab from './ChartTab.svelte';
@@ -35,6 +35,11 @@
   // svelte-ignore state_referenced_locally
   let activeKey = $state(getActiveKeyForInitialDemoId(initialDemoId));
 
+  // A share link carries edited config/data in the URL hash; it overrides
+  // the demo's own config/data for the initial mount only.
+  // svelte-ignore state_referenced_locally
+  const sharedState = initialDemoId !== 'demos' ? consumeShareState() : null;
+
   // Config/data edits made on the Config/Data tabs stay "pending" until the
   // Chart tab is shown again (so the chart animates one combined change).
   // svelte-ignore state_referenced_locally
@@ -43,14 +48,14 @@
   let pendingData = $state.raw<DataRow[] | null>(null);
   let pendingDataError = $state.raw<DataError>(false);
   // svelte-ignore state_referenced_locally
-  let config = $state.raw<DemoConfig | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null);
+  let config = $state.raw<DemoConfig | null>(initialDemoId !== 'demos' ? (sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config) : null);
   // svelte-ignore state_referenced_locally
-  let data = $state.raw<DataRow[] | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null);
+  let data = $state.raw<DataRow[] | null>(initialDemoId !== 'demos' ? (sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data) : null);
   let dataError = $state.raw<DataError>(false);
   // svelte-ignore state_referenced_locally
-  let viewingConfig = $state.raw<DemoConfig | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].config : null);
+  let viewingConfig = $state.raw<DemoConfig | null>(initialDemoId !== 'demos' ? (sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config) : null);
   // svelte-ignore state_referenced_locally
-  let viewingData = $state.raw<DataRow[] | null>(initialDemoId !== 'demos' ? demoData.demoObjectMap[initialDemoId].data : null);
+  let viewingData = $state.raw<DataRow[] | null>(initialDemoId !== 'demos' ? (sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data) : null);
   let viewingDataError = $state.raw<DataError>(false);
 
   function chartShown() {

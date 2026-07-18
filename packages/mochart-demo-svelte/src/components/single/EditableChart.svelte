@@ -7,6 +7,7 @@
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import ExportButtons from '../misc/ExportButtons.svelte';
+  import ShareButton from '../misc/ShareButton.svelte';
   import Icon from '../misc/Icon.svelte';
 
   import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
@@ -23,6 +24,8 @@
     isActive: boolean;
     chartCount: number;
     showChartCountControls: boolean;
+    /** Set on the chart instance that should render the share button. */
+    showShareButton?: boolean;
     filteredSeriesIds: FilteredSeriesIds;
     focusedGroupIndex: number;
     focusedSeriesAxisId?: string | null;
@@ -54,6 +57,7 @@
     isActive,
     chartCount,
     showChartCountControls,
+    showShareButton = false,
     filteredSeriesIds,
     focusedGroupIndex,
     focusedSeriesAxisId = null,
@@ -620,6 +624,9 @@
     </ButtonWithTooltip>
   </div>
   <ExportButtons idPrefix="edit" disabled={!!error} getContainer={() => chartContentElement} />
+  {#if showShareButton}
+    <ShareButton idPrefix="edit" getShareState={() => ({ config: mochartDemoConfig.config, data })} />
+  {/if}
 {/snippet}
 
 <div class="editable-mochart-chart">

@@ -164,7 +164,7 @@ function MochartChartTab({ width, config = null, data = null, dataError = false,
 
     for (let i = 0; i < adjustedChartCount; i++) {
       charts.push(
-        <EditableChart key={'chart-' + i} chartCount={chartCount} showChartCountControls={allowedChartCount > 1 && i === 0}
+        <EditableChart key={'chart-' + i} chartCount={chartCount} showChartCountControls={allowedChartCount > 1 && i === 0} showShareButton={i === 0}
           width={chartWidth} mochartDemoConfig={mochartDemoConfig} data={data ?? []} dataError={dataError}
           isActive={active} filteredSeriesIds={filteredSeriesIds} focusedGroupIndex={focusedGroupIndex}
           focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId} onChartCountToggle={onChartCountToggle}

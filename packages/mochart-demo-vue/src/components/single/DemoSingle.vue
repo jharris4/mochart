@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue';
 
-import { demoText } from '@mochart/demo-common';
+import { consumeShareState, demoText } from '@mochart/demo-common';
 
 import DemosTab from '../demos/DemosTab.vue';
 import ChartTab from './ChartTab.vue';
@@ -34,17 +34,21 @@ const props = defineProps<Props>();
 
 const activeKey = ref(getActiveKeyForInitialDemoId(props.initialDemoId));
 
+// A share link carries edited config/data in the URL hash; it overrides the
+// demo's own config/data for the initial mount only.
+const sharedState = props.initialDemoId !== 'demos' ? consumeShareState() : null;
+
 // Config/data edits made on the Config/Data tabs stay "pending" until the
 // Chart tab is shown again (so the chart animates one combined change).
 const demoId = ref(props.initialDemoId);
 const pendingConfig = shallowRef<DemoConfig | null>(null);
 const pendingData = shallowRef<DataRow[] | null>(null);
 const pendingDataError = shallowRef<DataError>(false);
-const config = shallowRef<DemoConfig | null>(props.initialDemoId !== 'demos' ? props.demoData.demoObjectMap[props.initialDemoId].config : null);
-const data = shallowRef<DataRow[] | null>(props.initialDemoId !== 'demos' ? props.demoData.demoObjectMap[props.initialDemoId].data : null);
+const config = shallowRef<DemoConfig | null>(props.initialDemoId !== 'demos' ? (sharedState?.config ?? props.demoData.demoObjectMap[props.initialDemoId].config) : null);
+const data = shallowRef<DataRow[] | null>(props.initialDemoId !== 'demos' ? (sharedState?.data ?? props.demoData.demoObjectMap[props.initialDemoId].data) : null);
 const dataError = shallowRef<DataError>(false);
-const viewingConfig = shallowRef<DemoConfig | null>(props.initialDemoId !== 'demos' ? props.demoData.demoObjectMap[props.initialDemoId].config : null);
-const viewingData = shallowRef<DataRow[] | null>(props.initialDemoId !== 'demos' ? props.demoData.demoObjectMap[props.initialDemoId].data : null);
+const viewingConfig = shallowRef<DemoConfig | null>(props.initialDemoId !== 'demos' ? (sharedState?.config ?? props.demoData.demoObjectMap[props.initialDemoId].config) : null);
+const viewingData = shallowRef<DataRow[] | null>(props.initialDemoId !== 'demos' ? (sharedState?.data ?? props.demoData.demoObjectMap[props.initialDemoId].data) : null);
 const viewingDataError = shallowRef<DataError>(false);
 
 function chartShown() {

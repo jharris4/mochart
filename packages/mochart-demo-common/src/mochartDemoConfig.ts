@@ -7,8 +7,14 @@ type ConfigRecord = Record<string, unknown>;
 export default function buildMochartDemoConfig(config: ConfigRecord): MochartDemoConfig {
   config = migrateConfig(config);
   const configDefaults = getDefaults(config);
-  const configWithDefaults = applyDefaults(config, configDefaults);
-  const configWithoutDefaults = withoutDefaults(configWithDefaults, configDefaults);
+  // buildMochartConfig wires back-references into the section objects it is
+  // given, and applyDefaults reuses default section objects when the config
+  // has none of its own — so the editor views get their own defaults graph,
+  // or a config without e.g. seriesAxisConfigs would produce a circular
+  // (non-serializable) configWithDefaults.
+  const viewDefaults = getDefaults(config);
+  const configWithDefaults = applyDefaults(config, viewDefaults);
+  const configWithoutDefaults = withoutDefaults(configWithDefaults, viewDefaults);
   const configValidation = validateConfig(config, configDefaults);
   const mochartConfig = buildMochartConfig(config, configDefaults, configValidation);
 

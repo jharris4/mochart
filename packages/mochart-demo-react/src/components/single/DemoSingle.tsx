@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 
-import { demoText } from '@mochart/demo-common';
+import { consumeShareState, demoText } from '@mochart/demo-common';
 
 import MochartDemosTab from '../demos/DemosTab';
 import MochartChartTab from './ChartTab';
@@ -97,8 +97,11 @@ function MochartDemoContent(props: ContentProps) {
     let initialConfig: DemoConfig | null = null;
     let initialData: DataRow[] | null = null;
     if (initialDemoId !== 'demos') {
-      initialConfig = demoData.demoObjectMap[initialDemoId].config;
-      initialData = demoData.demoObjectMap[initialDemoId].data;
+      // A share link carries edited config/data in the URL hash; it overrides
+      // the demo's own config/data for the initial mount only.
+      const sharedState = consumeShareState();
+      initialConfig = sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config;
+      initialData = sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data;
     }
     return {
       demoId: initialDemoId,

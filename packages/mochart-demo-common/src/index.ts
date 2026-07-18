@@ -39,3 +39,6 @@ export { getChartDataCount, getDataProvidersForDataCount } from './multiCharts';
 export { rotationData, rotationConfigs } from './rotationConfigs';
 
 export { demoText } from './demoText';
+
+export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, shareHashPrefix } from './shareState';
+export type { ShareState } from './shareState';

@@ -7,6 +7,7 @@ import { Chart } from '@mochart/angular';
 import { demoText } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
+import { ShareButton } from '../misc/share-button';
 import { ExportButtons } from '../misc/export-buttons';
 import { Icon } from '../misc/icon';
 
@@ -33,7 +34,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
 
 @Component({
   selector: 'app-editable-chart',
-  imports: [Chart, ButtonWithTooltip, ExportButtons, Icon],
+  imports: [Chart, ButtonWithTooltip, ExportButtons, ShareButton, Icon],
   styles: [':host { display: contents; }'],
   template: `
     <div class="editable-mochart-chart">
@@ -72,6 +73,9 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                         </app-button-with-tooltip>
                       </div>
                       <app-export-buttons idPrefix="edit" [disabled]="!!error" [getContainer]="getChartContent" />
+                      @if (showShareButton) {
+                        <app-share-button idPrefix="edit" [getShareState]="getShareState" />
+                      }
                       <div class="btn-group">
                         <app-button-with-tooltip id="edit-reset-groups" [disabled]="error || sequencePlaying()" [label]="text.resetGroups.label" [tooltipText]="text.resetGroups.tooltip" tooltipPlacement="right"
                                                  [onClick]="resetGroups" [aria-label]="text.resetGroups.aria">
@@ -142,6 +146,9 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                         </app-button-with-tooltip>
                       </div>
                       <app-export-buttons idPrefix="edit" [disabled]="!!error" [getContainer]="getChartContent" />
+                      @if (showShareButton) {
+                        <app-share-button idPrefix="edit" [getShareState]="getShareState" />
+                      }
                     </div>
                   </div>
                   <div class="form-group">
@@ -221,10 +228,14 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   @Input({ required: true }) width!: number;
   @Input({ required: true }) mochartDemoConfig!: MochartDemoConfig;
   @Input({ required: true }) data!: Row[];
+
+  getShareState = (): { config: Record<string, unknown>; data: Row[] } => ({ config: this.mochartDemoConfig.config, data: this.data });
   @Input() dataError: string | boolean | null = false;
   @Input({ required: true }) isActive!: boolean;
   @Input({ required: true }) chartCount!: number;
   @Input({ required: true }) showChartCountControls!: boolean;
+  /** Set on the chart instance that should render the share button. */
+  @Input() showShareButton = false;
   @Input({ required: true }) filteredSeriesIds!: FilteredSeriesIds;
   @Input({ required: true }) focusedGroupIndex!: number;
   @Input() focusedSeriesAxisId: string | null = null;

@@ -24,7 +24,7 @@ const defaultChartCount = 1;
         <div class="editable-charts">
           @if (mochartDemoConfig() && width() > 0) {
             @for (i of chartIndexes; track i) {
-              <app-editable-chart [chartCount]="chartCount()" [showChartCountControls]="allowedChartCount > 1 && i === 1"
+              <app-editable-chart [chartCount]="chartCount()" [showChartCountControls]="allowedChartCount > 1 && i === 1" [showShareButton]="i === 1"
                                   [width]="chartWidth" [mochartDemoConfig]="mochartDemoConfig()!" [data]="data ?? []" [dataError]="dataError"
                                   [isActive]="active" [filteredSeriesIds]="filteredSeriesIds()" [focusedGroupIndex]="focusedGroupIndex()"
                                   [focusedSeriesAxisId]="focusedSeriesAxisId()" [focusedSeriesId]="focusedSeriesId()" [onChartCountToggle]="onChartCountToggle"

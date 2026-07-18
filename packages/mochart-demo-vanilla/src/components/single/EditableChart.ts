@@ -2,9 +2,12 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 
 import { demoText } from '@mochart/demo-common';
 
+import type { ShareState } from '@mochart/demo-common';
+
 import { buttonWithTooltip, el, icon } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 import { exportButtons } from '../misc/ExportButtons';
+import { shareButton } from '../misc/ShareButton';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -20,6 +23,8 @@ export interface EditableChartProps {
   isActive: boolean;
   chartCount: number;
   showChartCountControls: boolean;
+  /** Set on the chart instance that should render the share button. */
+  showShareButton?: boolean;
   filteredSeriesIds: FilteredSeriesIds;
   focusedGroupIndex: number;
   focusedSeriesAxisId?: string | null;
@@ -581,10 +586,14 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     content: [icon('bullseye', { size: 'lg', fixedWidth: true })]
   });
   const exportGroup = exportButtons('edit', () => chartContentElement);
+  const shareGroup = props.showShareButton
+    ? shareButton('edit', (): ShareState => ({ config: mochartDemoConfig.config, data }))
+    : null;
   const commonControls = [
     ...(chartCountButton ? [el('div', { className: 'btn-group' }, [chartCountButton.el])] : []),
     el('div', { className: 'btn-group' }, [modeButton.el]),
-    exportGroup.el
+    exportGroup.el,
+    ...(shareGroup ? [shareGroup.el] : [])
   ];
 
   // Group-mode panel

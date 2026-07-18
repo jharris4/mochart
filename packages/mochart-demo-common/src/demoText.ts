@@ -57,6 +57,12 @@ export const demoText = {
     png: { label: 'PNG', tooltip: 'Download the chart as a PNG image', aria: 'Export PNG' },
     svg: { label: 'SVG', tooltip: 'Download the chart as an SVG image', aria: 'Export SVG' }
   },
+  shareButton: {
+    label: 'Share',
+    tooltip: 'Copy a link to this chart with the current config and data',
+    tooltipCopied: 'Link copied',
+    aria: 'Copy Share Link'
+  },
   editableChart: {
     emptyGroupText: 'Select Group(s)',
     selectAGroupText: 'Select a Group',

@@ -123,7 +123,7 @@ const chartWidth = computed(() => Math.floor((width.value - scrollWidthOffset) /
       <div class="editable-charts">
         <template v-if="mochartDemoConfig && width > 0">
           <EditableChart v-for="i in adjustedChartCount" :key="i"
-                         :chart-count="chartCount" :show-chart-count-controls="allowedChartCount > 1 && i === 1"
+                         :chart-count="chartCount" :show-chart-count-controls="allowedChartCount > 1 && i === 1" :show-share-button="i === 1"
                          :width="chartWidth" :mochart-demo-config="mochartDemoConfig" :data="props.data ?? []" :data-error="props.dataError"
                          :is-active="props.active" :filtered-series-ids="filteredSeriesIds" :focused-group-index="focusedGroupIndex"
                          :focused-series-axis-id="focusedSeriesAxisId" :focused-series-id="focusedSeriesId" :on-chart-count-toggle="onChartCountToggle"

@@ -8,6 +8,7 @@ import { demoText } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
+import '../misc/share-button';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -65,6 +66,8 @@ export class EditableChart extends LightElement {
   @property({ attribute: false }) isActive = false;
   @property({ attribute: false }) chartCount = 1;
   @property({ attribute: false }) showChartCountControls = false;
+  /** Set on the chart instance that should render the share button. */
+  @property({ attribute: false }) showShareButton = false;
   @property({ attribute: false }) filteredSeriesIds: FilteredSeriesIds = {};
   @property({ attribute: false }) focusedGroupIndex = -1;
   @property({ attribute: false }) focusedSeriesAxisId: string | null = null;
@@ -570,6 +573,13 @@ export class EditableChart extends LightElement {
     return exportButtons({ idPrefix: 'edit', getContainer: () => this.querySelector('.editable-chart-content') });
   }
 
+  private renderShareButton(): unknown {
+    if (!this.showShareButton) {
+      return nothing;
+    }
+    return html`<share-button .idPrefix=${'edit'} .getShareState=${() => ({ config: this.mochartDemoConfig.config, data: this.data })}></share-button>`;
+  }
+
   private renderGroupControls(error: boolean, disableAdd: boolean, disableRemove: boolean): unknown {
     return html`<div class="chart-controls-container">
       <div class="chart-controls-buttons">
@@ -579,6 +589,7 @@ export class EditableChart extends LightElement {
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
               ${this.renderExportButtons()}
+              ${this.renderShareButton()}
               <div class="btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-reset-groups', disabled: error || this.sequencePlaying, label: demoText.editableChart.resetGroups.label, tooltipText: demoText.editableChart.resetGroups.tooltip, tooltipPlacement: 'right', onClick: this.resetGroups, ariaLabel: demoText.editableChart.resetGroups.aria },
@@ -642,6 +653,7 @@ export class EditableChart extends LightElement {
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
               ${this.renderExportButtons()}
+              ${this.renderShareButton()}
             </div>
           </div>
           <div class="form-group">

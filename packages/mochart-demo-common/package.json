@@ -20,6 +20,7 @@
     "@types/seedrandom": "^3.0.8"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   }
 }
