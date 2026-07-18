@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { svgEl, htmlEl, textEl, Renderer, ElList, El } from '../../src/render';
+import { svgEl, htmlEl, textEl, Renderer, ElList, ElSlot, shallowEqual, El } from '../../src/render';
 import { setProperty } from '../../src/render/dom';
 
 function host(): HTMLElement {
@@ -303,6 +303,41 @@ describe('setProperty', () => {
     setProperty(div, 'title', 'x', null, false);
     expect(div.hasAttribute('title')).toBe(false);
   });
+
+  it('accepts style strings via cssText and transitions between string and object styles', () => {
+    const div = document.createElement('div');
+    setProperty(div, 'style', undefined, 'width: 10px; color: red;', false);
+    expect(div.style.width).toBe('10px');
+    expect(div.style.color).toBe('red');
+
+    // string -> object: the cssText is cleared before the object is applied
+    setProperty(div, 'style', 'width: 10px; color: red;', { height: 5 }, false);
+    expect(div.style.width).toBe('');
+    expect(div.style.color).toBe('');
+    expect(div.style.height).toBe('5px');
+
+    // null-valued style properties clear back to empty
+    setProperty(div, 'style', { height: 5 }, { height: null }, false);
+    expect(div.style.height).toBe('');
+  });
+});
+
+describe('shallowEqual', () => {
+  it('compares own keys and values one level deep', () => {
+    expect(shallowEqual({ a: 1 }, { a: 1 })).toBe(true);
+    expect(shallowEqual({ a: 1 }, { a: 2 })).toBe(false);
+    expect(shallowEqual({ a: 1 }, { a: 1, b: 2 })).toBe(false);
+    expect(shallowEqual({ a: 1, b: 2 }, { a: 1 })).toBe(false);
+    const same = { x: 1 };
+    expect(shallowEqual(same, same)).toBe(true);
+  });
+
+  it('treats non-objects as equal only by identity', () => {
+    expect(shallowEqual(1, 1)).toBe(true);
+    expect(shallowEqual(1, 2)).toBe(false);
+    expect(shallowEqual(null, {})).toBe(false);
+    expect(shallowEqual({}, null)).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -463,5 +498,206 @@ describe('RendererList (via Renderer.rendererList)', () => {
     finally {
       warn.mockRestore();
     }
+  });
+
+  it('replaces the renderer when the same key comes back with a different class', () => {
+    const events: string[] = [];
+    class ItemA extends Renderer<{ label: string }> {
+      root = htmlEl('p');
+      text = textEl();
+      create() {
+        this.root.append(this.text);
+        return this.root.node;
+      }
+      sync() {
+        this.text.set(this.props.label);
+      }
+      dispose() {
+        events.push('a dispose');
+      }
+    }
+    class ItemB extends ItemA {
+      root = htmlEl('q');
+      override dispose() {
+        events.push('b dispose');
+      }
+    }
+    class ListHost extends Renderer<{ ctor: typeof ItemA }> {
+      root = htmlEl('div');
+      list!: ReturnType<Renderer<object>['rendererList']>;
+      create() {
+        this.list = this.rendererList(this.root);
+        return this.root.node;
+      }
+      sync() {
+        this.list.sync([{ key: 'same', ctor: this.props.ctor, props: { label: 'x' } }]);
+      }
+    }
+
+    const parent = host();
+    const r = new ListHost();
+    r.mount(parent, null, { ctor: ItemA });
+    expect(markup(parent)).toBe('<div><p>x</p></div>');
+
+    r.update({ ctor: ItemB });
+    expect(markup(parent)).toBe('<div><q>x</q></div>');
+    expect(events).toEqual(['a dispose']);
+    r.destroy();
+  });
+});
+
+describe('Slot', () => {
+  class SlotA extends Renderer<{ label: string }> {
+    root = htmlEl('p');
+    text = textEl();
+    create() {
+      this.root.append(this.text);
+      return this.root.node;
+    }
+    sync() {
+      this.text.set(this.props.label);
+    }
+  }
+  class SlotB extends SlotA {
+    root = htmlEl('q');
+  }
+  class SlotHost extends Renderer<{ ctor: typeof SlotA | null }> {
+    root = htmlEl('div');
+    child!: ReturnType<Renderer<object>['slot']>;
+    create() {
+      this.child = this.slot(this.root);
+      return this.root.node;
+    }
+    sync() {
+      this.child.set(this.props.ctor, { label: 'x' });
+    }
+  }
+
+  it('destroys and remounts on class change, clears on null, exposes the current renderer', () => {
+    const parent = host();
+    const r = new SlotHost();
+    r.mount(parent, null, { ctor: SlotA });
+    expect(markup(parent)).toBe('<div><p>x</p></div>');
+    expect(r.child.get()).toBeInstanceOf(SlotA);
+
+    r.update({ ctor: SlotB });
+    expect(markup(parent)).toBe('<div><q>x</q></div>');
+    expect(r.child.get()).toBeInstanceOf(SlotB);
+
+    r.update({ ctor: null });
+    expect(markup(parent)).toBe('<div></div>');
+    expect(r.child.get()).toBeNull();
+    r.destroy();
+    expect(parent.innerHTML).toBe('');
+  });
+});
+
+describe('ElSlot', () => {
+  it('reuses the element for an unchanged key, swaps on key change and clears on null', () => {
+    const parent = host();
+    const slot = new ElSlot(parent, null);
+
+    const rect = slot.set('rect', () => svgEl('rect'))!;
+    rect.set({ width: 5 });
+    expect(markup(parent)).toBe('<rect width="5"></rect>');
+
+    // same key: init is not called again, the same El comes back
+    const again = slot.set('rect', () => {
+      throw new Error('should not init for an unchanged key');
+    });
+    expect(again).toBe(rect);
+
+    const circle = slot.set('circle', () => svgEl('circle'))!;
+    expect(circle).not.toBe(rect);
+    expect(markup(parent)).toBe('<circle></circle>');
+
+    slot.set(null);
+    expect(markup(parent)).toBe('');
+
+    slot.set('rect', () => svgEl('rect'));
+    slot.destroy(true);
+    expect(parent.innerHTML).toBe('');
+  });
+});
+
+describe('Renderer edge cases', () => {
+  it('honors a shouldSync override in both update and setState', () => {
+    class Gated extends Renderer<{ v: number }, { s: number }> {
+      root = htmlEl('span');
+      state = { s: 0 };
+      syncCount = 0;
+      shouldSync(nextProps: { v: number }, nextState: { s: number }) {
+        return nextProps.v + nextState.s > 0;
+      }
+      create() {
+        return this.root.node;
+      }
+      sync() {
+        this.syncCount++;
+      }
+    }
+    const parent = host();
+    const r = new Gated();
+    r.mount(parent, null, { v: 1 });
+    expect(r.syncCount).toBe(1);
+
+    r.update({ v: -1 });
+    expect(r.syncCount).toBe(1); // gated off
+
+    r.setState({ s: 2 });
+    expect(r.syncCount).toBe(2); // -1 + 2 > 0
+
+    r.setState({ s: 0 });
+    expect(r.syncCount).toBe(2); // gated off again
+    r.destroy();
+  });
+
+  it('setState with a functional updater returning null skips the sync but still runs the callback', () => {
+    class Quiet extends Renderer<object, { n: number }> {
+      root = htmlEl('span');
+      state = { n: 1 };
+      syncCount = 0;
+      create() {
+        return this.root.node;
+      }
+      sync() {
+        this.syncCount++;
+      }
+    }
+    const parent = host();
+    const r = new Quiet();
+    r.mount(parent, null, {});
+    expect(r.syncCount).toBe(1);
+
+    let called = false;
+    r.setState(() => null, () => { called = true; });
+    expect(r.syncCount).toBe(1);
+    expect(called).toBe(true);
+
+    r.setState(() => null);
+    expect(r.syncCount).toBe(1);
+    r.destroy();
+  });
+
+  it('ignores update and setState after destroy, and destroy is idempotent', () => {
+    class Plain extends Renderer<{ v: number }> {
+      root = htmlEl('span');
+      syncCount = 0;
+      create() {
+        return this.root.node;
+      }
+      sync() {
+        this.syncCount++;
+      }
+    }
+    const parent = host();
+    const r = new Plain();
+    r.mount(parent, null, { v: 1 });
+    r.destroy();
+    r.destroy();
+    r.update({ v: 2 });
+    r.setState({});
+    expect(r.syncCount).toBe(1);
+    expect(parent.innerHTML).toBe('');
   });
 });
