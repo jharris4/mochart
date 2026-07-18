@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 
-import { NONE, getDataErrors } from 'mochart';
-import type { MochartConfig, DataProvider } from 'mochart';
+import { NONE, getDataErrors } from '@mochart/core';
+import type { MochartConfig, DataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 import { generateChartDataProvider } from './RandomGenerator';

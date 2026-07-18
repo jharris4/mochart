@@ -1,4 +1,4 @@
-import { migrateConfig, buildMochartConfig, getDefaults, applyDefaults, sectionKeyAllMap, validateConfig } from 'mochart';
+import { migrateConfig, buildMochartConfig, getDefaults, applyDefaults, sectionKeyAllMap, validateConfig } from '@mochart/core';
 
 import type { MochartDemoConfig } from '../types';
 

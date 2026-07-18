@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { html, nothing, render } from 'lit-html';
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart, defaultChart } from '../src/index';
 import type { PlaceholderProps } from '../src/index';
 

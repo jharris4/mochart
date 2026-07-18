@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, shallowRef } from 'vue';
 
-import { ArrayOfObjectsDataProvider } from 'mochart';
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

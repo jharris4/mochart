@@ -1,8 +1,8 @@
 import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { ArrayOfObjectsDataProvider } from 'mochart';
-import type { MochartConfig } from 'mochart';
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

@@ -1,5 +1,5 @@
 {
-  "name": "movalid",
+  "name": "@mochart/movalid",
   "version": "1.0.0",
   "description": "Simple yet powerful TypeScript validators",
   "keywords": [

@@ -3,8 +3,8 @@ import { ButtonToolbar, ButtonGroup, Form, FormGroup, Input } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 import sizer from 'react-sizer';
 
-import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'mochart';
-import { Chart } from 'mochart-react';
+import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { Chart } from '@mochart/react';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import ExportButtons from '../misc/ExportButtons';

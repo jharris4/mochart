@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import merge from 'lodash.merge';
 
-import { DefaultChart } from 'mochart-react';
+import { DefaultChart } from '@mochart/react';
 
 const minWidth = 400;
 

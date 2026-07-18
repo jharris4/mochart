@@ -1,4 +1,4 @@
-import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'mochart';
+import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 
 import { buttonWithTooltip, el, icon } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';

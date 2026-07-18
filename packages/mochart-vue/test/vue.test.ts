@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { createApp, defineComponent, h, markRaw, nextTick, reactive } from 'vue';
 import type { App } from 'vue';
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
 
 beforeAll(() => {

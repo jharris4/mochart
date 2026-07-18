@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import validators from 'movalid';
+import validators from '@mochart/movalid';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

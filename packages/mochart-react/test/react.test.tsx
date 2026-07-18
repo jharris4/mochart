@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
 
 declare global {

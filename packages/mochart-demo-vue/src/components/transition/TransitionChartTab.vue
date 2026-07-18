@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { Chart } from 'mochart-vue';
-import type { MochartConfig } from 'mochart';
+import { Chart } from '@mochart/vue';
+import type { MochartConfig } from '@mochart/core';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import ExportButtons from '../misc/ExportButtons.vue';

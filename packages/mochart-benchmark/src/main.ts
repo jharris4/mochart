@@ -1,5 +1,5 @@
-import { createChart, enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
-import type { ChartHandle } from 'mochart';
+import { createChart, enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { ChartHandle } from '@mochart/core';
 import {
   makeConfig, makeData, randomizeData, scenarioLabel, scenarioSize, scenarioPoints,
   SUITE_ROWS, DASHBOARD_SERIES, DASHBOARD_GROUPS

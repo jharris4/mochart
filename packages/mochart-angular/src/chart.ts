@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { createChart } from 'mochart';
+import { createChart } from '@mochart/core';
 import { BaseChart } from './base-chart';
 import type { CreateChartFn } from './host';
 

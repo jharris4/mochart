@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 
-import { hasConfigStructureChange } from 'mochart';
+import { hasConfigStructureChange } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

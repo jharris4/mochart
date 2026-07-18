@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import validators from 'movalid';
+import validators from '@mochart/movalid';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

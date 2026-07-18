@@ -2,8 +2,8 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { ArrayOfObjectsDataProvider, getDataErrors } from 'mochart';
-import type { DataProvider } from 'mochart';
+import { ArrayOfObjectsDataProvider, getDataErrors } from '@mochart/core';
+import type { DataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

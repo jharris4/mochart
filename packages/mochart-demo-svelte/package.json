@@ -1,5 +1,5 @@
 {
-  "name": "mochart-demo-svelte",
+  "name": "@mochart/demo-svelte",
   "version": "1.0.0",
   "description": "Svelte demo gallery for the mochart charting library",
   "private": true,
@@ -9,11 +9,11 @@
     "bootstrap": "^5.3.3",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "lodash.merge": "^4.6.2",
-    "mochart": "^1.0.0",
-    "mochart-demo-data": "^1.0.0",
-    "mochart-export": "^1.0.0",
-    "mochart-svelte": "^1.0.0",
-    "movalid": "^1.0.0",
+    "@mochart/core": "^1.0.0",
+    "@mochart/demo-data": "^1.0.0",
+    "@mochart/export": "^1.0.0",
+    "@mochart/svelte": "^1.0.0",
+    "@mochart/movalid": "^1.0.0",
     "seedrandom": "^3.0.5",
     "svelte": "^5.56.5"
   },

@@ -1,12 +1,12 @@
-# mochart-demo-basic
+# @mochart/demo-basic
 
 Minimal no-framework demo harness for the
-[mochart](../mochart/README.md) charting library (private, not published,
+[@mochart/core](../mochart/README.md) charting library (private, not published,
 not deployed to the demo site).
 
 **Role:** this package is deliberately small — a single-file vanilla-TypeScript
 Vite app that renders every demo chart from the shared
-[mochart-demo-data](../mochart-demo-data/README.md) configs, with a flat DOM,
+[@mochart/demo-data](../mochart-demo-data/README.md) configs, with a flat DOM,
 stable element ids, and hash routing. That makes it two things:
 
 1. The smallest possible integration example — closer to what you'd paste
@@ -23,12 +23,12 @@ axis contraction sequence — and autoplay. The stacked demos show the gapless
 stacked transitions.
 
 The full-featured galleries live in the peer packages:
-[mochart-demo-angular](../mochart-demo-angular/README.md),
-[mochart-demo-lit](../mochart-demo-lit/README.md),
-[mochart-demo-react](../mochart-demo-react/README.md),
-[mochart-demo-svelte](../mochart-demo-svelte/README.md),
-[mochart-demo-vanilla](../mochart-demo-vanilla/README.md) (no framework), and
-[mochart-demo-vue](../mochart-demo-vue/README.md).
+[@mochart/demo-angular](../mochart-demo-angular/README.md),
+[@mochart/demo-lit](../mochart-demo-lit/README.md),
+[@mochart/demo-react](../mochart-demo-react/README.md),
+[@mochart/demo-svelte](../mochart-demo-svelte/README.md),
+[@mochart/demo-vanilla](../mochart-demo-vanilla/README.md) (no framework), and
+[@mochart/demo-vue](../mochart-demo-vue/README.md).
 
 ## Install
 
@@ -51,6 +51,6 @@ Or from this package: `npm run dev`, `npm run build`, `npm run preview`.
 
 ## Adding a demo
 
-Demos live in the shared [mochart-demo-data](../mochart-demo-data/README.md)
+Demos live in the shared [@mochart/demo-data](../mochart-demo-data/README.md)
 package — add the config/data/random JSON there and every demo app (including
 this one) picks it up.

@@ -1,4 +1,4 @@
-import type { ChartHandle } from 'mochart';
+import type { ChartHandle } from '@mochart/core';
 import { createPlaceholderAdapter } from './placeholders.svelte.js';
 
 // `create` is used for both createChart (Chart) and createDefaultChart

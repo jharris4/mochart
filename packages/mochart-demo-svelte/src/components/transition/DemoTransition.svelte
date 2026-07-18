@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrayOfObjectsDataProvider } from 'mochart';
+  import { ArrayOfObjectsDataProvider } from '@mochart/core';
 
   import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

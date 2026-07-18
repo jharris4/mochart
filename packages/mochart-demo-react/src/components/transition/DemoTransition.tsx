@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 
-import { ArrayOfObjectsDataProvider } from 'mochart';
-import type { MochartConfig } from 'mochart';
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

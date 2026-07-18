@@ -3,9 +3,9 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { ref } from 'lit/directives/ref.js';
 import type { PropertyValues } from 'lit';
 
-import { ArrayOfObjectsDataProvider } from 'mochart';
-import type { MochartConfig } from 'mochart';
-import { chart } from 'mochart-lit';
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
+import { chart } from '@mochart/lit';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

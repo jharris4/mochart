@@ -2,7 +2,7 @@
 // `$state` rune is available for driving prop updates.
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { mount, unmount, flushSync } from 'svelte';
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
 import Loading from './Loading.svelte';
 import ConfigError from './ConfigError.svelte';

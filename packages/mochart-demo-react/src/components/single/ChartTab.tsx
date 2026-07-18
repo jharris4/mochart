@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import sizer from 'react-sizer';
 
-import { hasConfigStructureChange } from 'mochart';
+import { hasConfigStructureChange } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 
-import { Chart } from 'mochart-angular';
-import type { MochartConfig } from 'mochart';
+import { Chart } from '@mochart/angular';
+import type { MochartConfig } from '@mochart/core';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { ExportButtons } from '../misc/export-buttons';

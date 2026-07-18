@@ -147,7 +147,7 @@
 </script>
 
 <script lang="ts">
-  import { DefaultChart } from 'mochart-svelte';
+  import { DefaultChart } from '@mochart/svelte';
 
   // Columns are sized from the card's measured width (not the window) so the
   // grid stays inside the padded shell.

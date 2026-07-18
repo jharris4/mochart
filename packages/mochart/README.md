@@ -1,4 +1,4 @@
-# mochart
+# @mochart/core
 
 Animated interactive SVG charting library with zero framework dependencies.
 
@@ -19,7 +19,7 @@ and series filtering out of the box.
 - **Extras**: axis thresholds and ranges, linear/radial gradients, series
   markers and labels, stacked and grouped series
 - **Config validation**: configs are validated with
-  [movalid](../movalid/README.md), producing human-readable error messages
+  [@mochart/movalid](../movalid/README.md), producing human-readable error messages
 
 ## Staged animation
 
@@ -66,7 +66,7 @@ npm install mochart
 plain array-of-objects dataset:
 
 ```js
-import { createDefaultChart } from 'mochart';
+import { createDefaultChart } from '@mochart/core';
 
 const config = {
   titleConfig: { title: 'Revenue' },
@@ -95,7 +95,7 @@ chart.destroy();
 enhancement and data providers themselves:
 
 ```js
-import { createChart, enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
+import { createChart, enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 
 const mochartConfig = enhanceConfig(config);
 const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');
@@ -130,7 +130,7 @@ property is optional and falls back to a sensible default:
 | `chartConfig` / `colorPaletteConfig` / `linearGradientConfigs` / `radialGradientConfigs` | chart-wide style, palette, and gradient definitions |
 
 The full property-by-property reference can be generated from the validation
-schema with `npm run generate-docs -w mochart`, which writes
+schema with `npm run generate-docs -w @mochart/core`, which writes
 [mochart-docs.html](mochart-docs.html).
 
 ### Config helpers
@@ -199,11 +199,11 @@ Available factories: `getLoadingComponent`, `getErrorComponent`,
 
 ## Framework wrappers
 
-- [mochart-angular](../mochart-angular/README.md) — Angular components
-- [mochart-lit](../mochart-lit/README.md) — lit-html directives
-- [mochart-react](../mochart-react/README.md) — React components
-- [mochart-svelte](../mochart-svelte/README.md) — Svelte 5 components
-- [mochart-vue](../mochart-vue/README.md) — Vue 3 components
+- [@mochart/angular](../mochart-angular/README.md) — Angular components
+- [@mochart/lit](../mochart-lit/README.md) — lit-html directives
+- [@mochart/react](../mochart-react/README.md) — React components
+- [@mochart/svelte](../mochart-svelte/README.md) — Svelte 5 components
+- [@mochart/vue](../mochart-vue/README.md) — Vue 3 components
 
 Each wrapper adds automatic container sizing (omit `width`/`height` to track
 the container) on top of the same chart props.
@@ -212,16 +212,16 @@ the container) on top of the same chart props.
 
 Build-free static HTML examples (script tag and ES module) live in
 [example/](example/README.md). The full demo gallery is the
-[mochart-demo-vanilla](../mochart-demo-vanilla/README.md) package.
+[@mochart/demo-vanilla](../mochart-demo-vanilla/README.md) package.
 
 ## Development
 
 ```sh
-npm run build -w mochart          # bundle to dist/ with vite
-npm test -w mochart               # vitest (includes golden snapshot tests)
-npm run test:coverage -w mochart  # vitest with v8 coverage
-npm run typecheck -w mochart
-npm run generate-docs -w mochart  # regenerate mochart-docs.html
+npm run build -w @mochart/core          # bundle to dist/ with vite
+npm test -w @mochart/core               # vitest (includes golden snapshot tests)
+npm run test:coverage -w @mochart/core  # vitest with v8 coverage
+npm run typecheck -w @mochart/core
+npm run generate-docs -w @mochart/core  # regenerate mochart-docs.html
 ```
 
 The golden snapshot tests in `test/golden/` render whole charts (initial

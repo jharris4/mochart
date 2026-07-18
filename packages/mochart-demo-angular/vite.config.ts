@@ -11,7 +11,7 @@ export default defineConfig({
       // Compile the binding from source together with the app: its published
       // dist ships partial-Ivy declarations, and the plugin's linker skips
       // workspace-symlinked packages (they resolve outside node_modules).
-      'mochart-angular': fileURLToPath(new URL('../mochart-angular/src/index.ts', import.meta.url))
+      '@mochart/angular': fileURLToPath(new URL('../mochart-angular/src/index.ts', import.meta.url))
     }
   },
   // The angular plugin compiles with AOT against tsconfig.app.json (its

@@ -1,5 +1,5 @@
 {
-  "name": "mochart-demo-data",
+  "name": "@mochart/demo-data",
   "version": "1.0.0",
   "description": "Shared demo configs, datasets, and random specs for the mochart demo apps",
   "private": true,
@@ -10,7 +10,7 @@
     "./demos.json": "./src/demos.json"
   },
   "dependencies": {
-    "mochart": "^1.0.0"
+    "@mochart/core": "^1.0.0"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

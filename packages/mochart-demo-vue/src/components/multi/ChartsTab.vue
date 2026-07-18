@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 
-import { ArrayOfObjectsDataProvider } from 'mochart';
-import type { MochartConfig } from 'mochart';
-import { Chart } from 'mochart-vue';
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
+import { Chart } from '@mochart/vue';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

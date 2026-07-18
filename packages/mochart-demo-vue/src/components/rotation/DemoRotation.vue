@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
-import { DefaultChart } from 'mochart-vue';
+import { DefaultChart } from '@mochart/vue';
 
 import { configs, data, minWidth } from './rotationConfigs';
 

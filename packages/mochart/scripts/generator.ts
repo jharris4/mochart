@@ -68,8 +68,8 @@ import getTooltipDefaults from '../src/config/defaults/tooltipConfig';
 import getTooltipValidators from '../src/config/validation/tooltipConfig';
 import getTooltipDescriptions from '../src/config/docs/tooltipConfig';
 
-import validators from 'movalid';
-import type { Validator } from 'movalid';
+import validators from '@mochart/movalid';
+import type { Validator } from '@mochart/movalid';
 
 import type { ConditionalDefaultRule } from '../src/config/defaults/conditionalDefault';
 import type {

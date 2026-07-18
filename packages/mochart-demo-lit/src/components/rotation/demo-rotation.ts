@@ -1,7 +1,7 @@
 import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { defaultChart } from 'mochart-lit';
+import { defaultChart } from '@mochart/lit';
 
 import { LightElement } from '../misc/LightElement';
 

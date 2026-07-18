@@ -1,4 +1,4 @@
-import type { MochartInputConfig } from 'mochart';
+import type { MochartInputConfig } from '@mochart/core';
 
 /** A single data row in a demo's data set. */
 export type DataRow = Record<string, unknown>;

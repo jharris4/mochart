@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import validators from 'movalid';
-import type { Validator } from 'movalid';
+import validators from '@mochart/movalid';
+import type { Validator } from '@mochart/movalid';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';

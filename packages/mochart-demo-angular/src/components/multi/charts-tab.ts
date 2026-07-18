@@ -1,9 +1,9 @@
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 
-import { ArrayOfObjectsDataProvider } from 'mochart';
-import type { MochartConfig } from 'mochart';
-import { Chart } from 'mochart-angular';
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
+import { Chart } from '@mochart/angular';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

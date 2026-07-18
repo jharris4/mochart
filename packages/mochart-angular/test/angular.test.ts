@@ -6,7 +6,7 @@ import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { Component, Input, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
 
 beforeAll(() => {

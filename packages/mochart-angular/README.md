@@ -1,6 +1,6 @@
-# mochart-angular
+# @mochart/angular
 
-Angular components for the [mochart](https://github.com/jharris4/mochart) charting library.
+Angular components for the [@mochart/core](https://github.com/jharris4/mochart) charting library.
 
 Input changes get mochart's
 [staged animations](https://github.com/jharris4/mochart/tree/main/packages/mochart#staged-animation)
@@ -20,7 +20,7 @@ array-of-objects dataset:
 
 ```ts
 import { Component } from '@angular/core';
-import { DefaultChart } from 'mochart-angular';
+import { DefaultChart } from '@mochart/angular';
 
 @Component({
   selector: 'app-revenue',
@@ -47,8 +47,8 @@ and data providers themselves:
 
 ```ts
 import { Component } from '@angular/core';
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
-import { Chart } from 'mochart-angular';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { Chart } from '@mochart/angular';
 
 @Component({
   selector: 'app-revenue',

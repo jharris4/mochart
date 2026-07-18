@@ -2,8 +2,8 @@ import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { NONE, getDataErrors } from 'mochart';
-import type { MochartConfig, DataProvider } from 'mochart';
+import { NONE, getDataErrors } from '@mochart/core';
+import type { MochartConfig, DataProvider } from '@mochart/core';
 
 import { generateChartDataProvider } from './RandomGenerator';
 

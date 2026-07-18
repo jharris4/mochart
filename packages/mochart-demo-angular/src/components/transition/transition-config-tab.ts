@@ -1,7 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import validators from 'movalid';
+import validators from '@mochart/movalid';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

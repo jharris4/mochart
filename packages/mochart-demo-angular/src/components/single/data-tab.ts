@@ -1,8 +1,8 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { ArrayOfObjectsDataProvider, getDataErrors } from 'mochart';
-import type { DataProvider } from 'mochart';
+import { ArrayOfObjectsDataProvider, getDataErrors } from '@mochart/core';
+import type { DataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

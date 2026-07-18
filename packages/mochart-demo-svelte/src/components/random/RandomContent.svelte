@@ -1,8 +1,8 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { NONE, getDataErrors } from 'mochart';
-  import type { MochartConfig, DataProvider } from 'mochart';
+  import { NONE, getDataErrors } from '@mochart/core';
+  import type { MochartConfig, DataProvider } from '@mochart/core';
 
   import { generateChartDataProvider } from './RandomGenerator';
 

@@ -1,5 +1,5 @@
 {
-  "name": "mochart-lit",
+  "name": "@mochart/lit",
   "version": "1.0.0",
   "description": "lit-html directives for the mochart charting library",
   "keywords": [
@@ -36,7 +36,7 @@
     "dist"
   ],
   "dependencies": {
-    "mochart": "^1.0.0"
+    "@mochart/core": "^1.0.0"
   },
   "peerDependencies": {
     "lit-html": "^3.0.0"

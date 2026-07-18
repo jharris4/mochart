@@ -1,5 +1,5 @@
 import { defineComponent, h } from 'vue';
-import { createChart } from 'mochart';
+import { createChart } from '@mochart/core';
 import { useChartHost } from './useChartHost';
 import { chartProps } from './props';
 

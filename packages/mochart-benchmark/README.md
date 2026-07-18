@@ -1,6 +1,6 @@
-# mochart-benchmark
+# @mochart/benchmark
 
-Performance benchmark harness for the [mochart](../mochart/README.md)
+Performance benchmark harness for the [@mochart/core](../mochart/README.md)
 charting library (private, not published).
 
 A minimal vanilla-TypeScript Vite app that mounts generated charts at
@@ -22,9 +22,9 @@ npm install
 From the repo root:
 
 ```sh
-npm run dev -w mochart-benchmark       # vite dev server on http://localhost:5178
-npm run build -w mochart-benchmark     # production build to dist/
-npm run preview -w mochart-benchmark   # preview the production build on http://localhost:4178
+npm run dev -w @mochart/benchmark       # vite dev server on http://localhost:5178
+npm run build -w @mochart/benchmark     # production build to dist/
+npm run preview -w @mochart/benchmark   # preview the production build on http://localhost:4178
 ```
 
 Benchmark in a regular headed browser with the machine otherwise idle;

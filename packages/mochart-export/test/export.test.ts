@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
-import { createDefaultChart, mochartCssClasses } from 'mochart';
-import type { ChartHandle, DefaultChartProps } from 'mochart';
+import { createDefaultChart, mochartCssClasses } from '@mochart/core';
+import type { ChartHandle, DefaultChartProps } from '@mochart/core';
 import { findChartSvg, getChartSvgText, exportSVG, exportPNG } from '../src/index';
 
 beforeAll(() => {

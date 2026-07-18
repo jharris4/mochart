@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { exportPNG, exportSVG } from 'mochart-export';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import ButtonWithTooltip from './ButtonWithTooltip.vue';
 import Icon from './Icon.vue';

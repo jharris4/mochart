@@ -4,7 +4,7 @@ Static HTML examples that use mochart without any build tooling of their own.
 They load the self-contained bundles from `../dist`, so build the library first:
 
 ```sh
-npm run build -w mochart
+npm run build -w @mochart/core
 ```
 
 - **example.html** — classic `<script>` tag using `dist/mochart.iife.js` (global `mochart`).

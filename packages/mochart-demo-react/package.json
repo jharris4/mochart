@@ -1,5 +1,5 @@
 {
-  "name": "mochart-demo-react",
+  "name": "@mochart/demo-react",
   "version": "1.0.0",
   "description": "React demo gallery for the mochart charting library",
   "private": true,
@@ -9,16 +9,16 @@
     "bootstrap": "^5.3.3",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "lodash.merge": "^4.6.2",
-    "mochart": "^1.0.0",
-    "mochart-demo-data": "^1.0.0",
-    "mochart-export": "^1.0.0",
-    "mochart-react": "^1.0.0",
+    "@mochart/core": "^1.0.0",
+    "@mochart/demo-data": "^1.0.0",
+    "@mochart/export": "^1.0.0",
+    "@mochart/react": "^1.0.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router": "^7.0.0",
     "reactstrap": "^9.2.3",
     "seedrandom": "^3.0.5",
-    "movalid": "^1.0.0"
+    "@mochart/movalid": "^1.0.0"
   },
   "devDependencies": {
     "@types/lodash.merge": "^4.6.9",

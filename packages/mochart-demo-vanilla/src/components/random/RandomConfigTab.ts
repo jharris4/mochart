@@ -1,5 +1,5 @@
-import validators from 'movalid';
-import type { Validator } from 'movalid';
+import validators from '@mochart/movalid';
+import type { Validator } from '@mochart/movalid';
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 

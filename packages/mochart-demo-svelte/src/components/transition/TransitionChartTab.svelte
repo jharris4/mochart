@@ -1,8 +1,8 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { Chart } from 'mochart-svelte';
-  import type { MochartConfig } from 'mochart';
+  import { Chart } from '@mochart/svelte';
+  import type { MochartConfig } from '@mochart/core';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import ExportButtons from '../misc/ExportButtons.svelte';

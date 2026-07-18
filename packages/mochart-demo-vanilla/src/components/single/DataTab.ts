@@ -1,5 +1,5 @@
-import { ArrayOfObjectsDataProvider, getDataErrors } from 'mochart';
-import type { DataProvider } from 'mochart';
+import { ArrayOfObjectsDataProvider, getDataErrors } from '@mochart/core';
+import type { DataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

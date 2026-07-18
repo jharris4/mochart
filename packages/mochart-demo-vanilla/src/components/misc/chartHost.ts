@@ -2,8 +2,8 @@
 // mochart-svelte/src/host.ts): mounts a chart into a container div and keeps
 // it sized. Explicit `width`/`height` props always win; whichever dimension is
 // omitted tracks the container's own size via ResizeObserver.
-import { createChart, createDefaultChart } from 'mochart';
-import type { ChartHandle } from 'mochart';
+import { createChart, createDefaultChart } from '@mochart/core';
+import type { ChartHandle } from '@mochart/core';
 
 import { el } from './dom';
 

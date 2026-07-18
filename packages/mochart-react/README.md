@@ -1,6 +1,6 @@
-# mochart-react
+# @mochart/react
 
-React components for the [mochart](https://github.com/jharris4/mochart) charting library.
+React components for the [@mochart/core](https://github.com/jharris4/mochart) charting library.
 
 Prop changes get mochart's
 [staged animations](https://github.com/jharris4/mochart/tree/main/packages/mochart#staged-animation)
@@ -19,7 +19,7 @@ npm install mochart-react react
 array-of-objects dataset:
 
 ```tsx
-import { DefaultChart } from 'mochart-react';
+import { DefaultChart } from '@mochart/react';
 
 const config = {
   titleConfig: { title: 'Revenue' },
@@ -42,8 +42,8 @@ export function Revenue() {
 and data providers themselves:
 
 ```tsx
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
-import { Chart } from 'mochart-react';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { Chart } from '@mochart/react';
 
 const mochartConfig = enhanceConfig(config);
 const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');

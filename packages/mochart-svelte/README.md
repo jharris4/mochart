@@ -1,6 +1,6 @@
-# mochart-svelte
+# @mochart/svelte
 
-Svelte 5 components for the [mochart](https://github.com/jharris4/mochart) charting library.
+Svelte 5 components for the [@mochart/core](https://github.com/jharris4/mochart) charting library.
 
 Prop changes get mochart's
 [staged animations](https://github.com/jharris4/mochart/tree/main/packages/mochart#staged-animation)
@@ -20,7 +20,7 @@ array-of-objects dataset:
 
 ```svelte
 <script>
-  import { DefaultChart } from 'mochart-svelte';
+  import { DefaultChart } from '@mochart/svelte';
 
   const config = {
     titleConfig: { title: 'Revenue' },
@@ -43,8 +43,8 @@ and data providers themselves:
 
 ```svelte
 <script>
-  import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
-  import { Chart } from 'mochart-svelte';
+  import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
+  import { Chart } from '@mochart/svelte';
 
   const mochartConfig = enhanceConfig(config);
   const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');

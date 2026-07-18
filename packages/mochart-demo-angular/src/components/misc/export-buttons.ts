@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { exportPNG, exportSVG } from 'mochart-export';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { ButtonWithTooltip } from './button-with-tooltip';
 import { Icon } from './icon';

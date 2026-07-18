@@ -1,8 +1,8 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import validators from 'movalid';
-  import type { Validator } from 'movalid';
+  import validators from '@mochart/movalid';
+  import type { Validator } from '@mochart/movalid';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';

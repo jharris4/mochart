@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { hasConfigStructureChange } from 'mochart';
+  import { hasConfigStructureChange } from '@mochart/core';
 
   import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

@@ -2,8 +2,8 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import validators from 'movalid';
-import type { Validator } from 'movalid';
+import validators from '@mochart/movalid';
+import type { Validator } from '@mochart/movalid';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';

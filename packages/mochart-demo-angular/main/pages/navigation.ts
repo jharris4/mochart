@@ -1,6 +1,6 @@
 import type { Router } from '@angular/router';
 
-import demoData from 'mochart-demo-data';
+import demoData from '@mochart/demo-data';
 
 import type { DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../src/types';
 

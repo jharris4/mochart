@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { exportPNG, exportSVG } from 'mochart-export';
+  import { exportPNG, exportSVG } from '@mochart/export';
 
   import ButtonWithTooltip from './ButtonWithTooltip.svelte';
   import Icon from './Icon.svelte';

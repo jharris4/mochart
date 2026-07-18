@@ -1,4 +1,4 @@
-import validators from 'movalid';
+import validators from '@mochart/movalid';
 import { isDataProviderValid } from './ChartData';
 import { NONE, TYPE_DATE, TYPE_NUMBER } from '../config/core/constants';
 import type { MochartConfig } from '../types/config';

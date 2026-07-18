@@ -2,7 +2,7 @@
 
 Monorepo for **mochart**, an animated interactive SVG charting library with
 zero framework dependencies, plus its framework wrappers, demo gallery, and
-the **movalid** validation library it uses for config validation.
+the **@mochart/movalid** validation library it uses for config validation.
 
 What sets mochart apart is its
 [staged animation](packages/mochart/README.md#staged-animation) model: updates
@@ -15,25 +15,25 @@ gaps between segments mid-transition.
 
 | Package | Description |
 | --- | --- |
-| [mochart](packages/mochart/README.md) | The core charting library — animated, interactive SVG charts rendered with a retained-mode renderer (no vdom, no framework). |
-| [mochart-angular](packages/mochart-angular/README.md) | Angular components wrapping mochart. |
-| [mochart-lit](packages/mochart-lit/README.md) | lit-html directives wrapping mochart. |
-| [mochart-react](packages/mochart-react/README.md) | React components wrapping mochart. |
-| [mochart-svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
-| [mochart-vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
-| [mochart-export](packages/mochart-export/README.md) | SVG and PNG image export for rendered mochart charts. |
-| [mochart-demo-vanilla](packages/mochart-demo-vanilla/README.md) | Full-featured demo gallery in plain TypeScript (private) — the no-framework peer of the framework demo apps. |
-| [mochart-demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the Playwright e2e suite. |
-| [mochart-demo-data](packages/mochart-demo-data/README.md) | Shared demo configs, datasets, and random specs (private) used by every demo app. |
-| [mochart-benchmark](packages/mochart-benchmark/README.md) | Performance benchmark harness (private) — measures mount/update/frame-time cost of generated charts at configurable sizes. |
-| [movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
+| [@mochart/core](packages/mochart/README.md) | The core charting library — animated, interactive SVG charts rendered with a retained-mode renderer (no vdom, no framework). |
+| [@mochart/angular](packages/mochart-angular/README.md) | Angular components wrapping mochart. |
+| [@mochart/lit](packages/mochart-lit/README.md) | lit-html directives wrapping mochart. |
+| [@mochart/react](packages/mochart-react/README.md) | React components wrapping mochart. |
+| [@mochart/svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
+| [@mochart/vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
+| [@mochart/export](packages/mochart-export/README.md) | SVG and PNG image export for rendered mochart charts. |
+| [@mochart/demo-vanilla](packages/mochart-demo-vanilla/README.md) | Full-featured demo gallery in plain TypeScript (private) — the no-framework peer of the framework demo apps. |
+| [@mochart/demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the Playwright e2e suite. |
+| [@mochart/demo-data](packages/mochart-demo-data/README.md) | Shared demo configs, datasets, and random specs (private) used by every demo app. |
+| [@mochart/benchmark](packages/mochart-benchmark/README.md) | Performance benchmark harness (private) — measures mount/update/frame-time cost of generated charts at configurable sizes. |
+| [@mochart/movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
 Each wrapper framework also has a full-featured demo gallery —
-`mochart-demo-angular`, `mochart-demo-lit`, `mochart-demo-react`,
-`mochart-demo-svelte`, and `mochart-demo-vue` (all private) — with
+`@mochart/demo-angular`, `@mochart/demo-lit`, `@mochart/demo-react`,
+`@mochart/demo-svelte`, and `@mochart/demo-vue` (all private) — with
 single/multi/random/transition/rotation
-demo modes; `mochart-demo-vanilla` is the same gallery in plain TypeScript.
-All of them share the demo configs from `mochart-demo-data`.
+demo modes; `@mochart/demo-vanilla` is the same gallery in plain TypeScript.
+All of them share the demo configs from `@mochart/demo-data`.
 There are also build-free static HTML examples in
 [packages/mochart/example](packages/mochart/example/README.md).
 
@@ -43,7 +43,7 @@ This repo uses npm workspaces:
 
 ```sh
 npm install
-npm run dev        # start the demo gallery (mochart-demo-vanilla) with vite
+npm run dev        # start the demo gallery (@mochart/demo-vanilla) with vite
 ```
 
 ## Scripts
@@ -51,14 +51,14 @@ npm run dev        # start the demo gallery (mochart-demo-vanilla) with vite
 Run from the repo root:
 
 ```sh
-npm run dev         # dev server for the demo gallery (mochart-demo-vanilla)
-npm run dev:basic   # dev server for the minimal harness (mochart-demo-basic)
+npm run dev         # dev server for the demo gallery (@mochart/demo-vanilla)
+npm run dev:basic   # dev server for the minimal harness (@mochart/demo-basic)
 npm run build       # build the demo gallery
 npm test            # run tests in every workspace that has them
 npm run typecheck   # typecheck every workspace that has a typecheck script
 ```
 
-Target a single package with `-w`, e.g. `npm test -w mochart`.
+Target a single package with `-w`, e.g. `npm test -w @mochart/core`.
 
 ## License
 

@@ -1,5 +1,5 @@
 {
-  "name": "mochart-export",
+  "name": "@mochart/export",
   "version": "1.0.0",
   "description": "SVG and PNG image export for the mochart charting library",
   "keywords": [
@@ -35,7 +35,7 @@
     "dist"
   ],
   "dependencies": {
-    "mochart": "^1.0.0"
+    "@mochart/core": "^1.0.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

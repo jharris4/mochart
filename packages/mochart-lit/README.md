@@ -1,7 +1,7 @@
-# mochart-lit
+# @mochart/lit
 
 [lit-html](https://lit.dev/docs/libraries/standalone-templates/) directives for
-the [mochart](https://github.com/jharris4/mochart) charting library. Works in
+the [@mochart/core](https://github.com/jharris4/mochart) charting library. Works in
 standalone lit-html templates and inside `LitElement` render methods alike.
 
 Re-renders get mochart's
@@ -22,7 +22,7 @@ array-of-objects dataset:
 
 ```js
 import { html, render } from 'lit-html';
-import { defaultChart } from 'mochart-lit';
+import { defaultChart } from '@mochart/lit';
 
 const config = {
   titleConfig: { title: 'Revenue' },
@@ -43,8 +43,8 @@ render(html`${defaultChart({ config, data, width: 640, height: 400 })}`, documen
 and data providers themselves:
 
 ```js
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
-import { chart } from 'mochart-lit';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { chart } from '@mochart/lit';
 
 const mochartConfig = enhanceConfig(config);
 const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');

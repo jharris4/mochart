@@ -1,4 +1,4 @@
-import demoData from 'mochart-demo-data';
+import demoData from '@mochart/demo-data';
 
 import { getPath, navigate, onNavigate } from './router';
 

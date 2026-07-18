@@ -1,7 +1,7 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 
-import { exportPNG, exportSVG } from 'mochart-export';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 // Stateless building blocks kept as plain lit-html template functions rather
 // than custom elements — the natural Lit altitude for the Vue demo's Icon /

@@ -1,4 +1,4 @@
-import demosJson from 'mochart-demo-data/demos.json' with { type: 'json' };
+import demosJson from '@mochart/demo-data/demos.json' with { type: 'json' };
 import type { DemoEntry } from './helpers';
 import { test, expect, openDemo } from './helpers';
 

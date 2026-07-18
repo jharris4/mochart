@@ -1,7 +1,7 @@
 import { noChange } from 'lit-html';
 import { AsyncDirective, directive, PartType } from 'lit-html/async-directive.js';
 import type { ChildPart, PartInfo } from 'lit-html/async-directive.js';
-import { createChart, createDefaultChart } from 'mochart';
+import { createChart, createDefaultChart } from '@mochart/core';
 import { mountChartHost } from './host';
 import type { CreateChartFn, HostHandle } from './host';
 import type { ChartProps, DefaultChartProps } from './types';

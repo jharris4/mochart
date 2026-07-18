@@ -2,7 +2,7 @@ import React from 'react';
 import { ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import { exportPNG, exportSVG } from 'mochart-export';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import ButtonWithTooltip from './ButtonWithTooltip';
 

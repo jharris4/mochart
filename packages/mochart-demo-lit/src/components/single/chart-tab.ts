@@ -3,7 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { ref } from 'lit/directives/ref.js';
 import type { PropertyValues } from 'lit';
 
-import { hasConfigStructureChange } from 'mochart';
+import { hasConfigStructureChange } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

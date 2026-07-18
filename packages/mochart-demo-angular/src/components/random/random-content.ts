@@ -1,8 +1,8 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { NONE, getDataErrors } from 'mochart';
-import type { MochartConfig, DataProvider } from 'mochart';
+import { NONE, getDataErrors } from '@mochart/core';
+import type { MochartConfig, DataProvider } from '@mochart/core';
 
 import { generateChartDataProvider } from './RandomGenerator';
 

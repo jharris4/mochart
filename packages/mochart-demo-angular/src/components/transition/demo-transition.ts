@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { ArrayOfObjectsDataProvider } from 'mochart';
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

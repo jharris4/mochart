@@ -1,4 +1,4 @@
-import { createChart } from 'mochart';
+import { createChart } from '@mochart/core';
 import type { ReactElement } from 'react';
 import { useChartHost } from './useChartHost';
 import type { ChartProps } from './types';

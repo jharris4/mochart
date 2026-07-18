@@ -1,7 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
-import demoData from 'mochart-demo-data';
+import demoData from '@mochart/demo-data';
 
 import { DemoMulti } from '../../src/components/multi/demo-multi';
 import { createDemoNavigation, isKnownDemo } from './navigation';

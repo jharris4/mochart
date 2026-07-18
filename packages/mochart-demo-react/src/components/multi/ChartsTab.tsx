@@ -3,9 +3,9 @@ import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 import sizer from 'react-sizer';
 
-import { ArrayOfObjectsDataProvider } from 'mochart';
-import type { MochartConfig } from 'mochart';
-import { Chart } from 'mochart-react';
+import { ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
+import { Chart } from '@mochart/react';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

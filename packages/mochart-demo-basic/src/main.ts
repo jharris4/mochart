@@ -3,11 +3,11 @@ import {
   migrateConfig,
   enhanceConfig,
   ArrayOfObjectsDataProvider
-} from 'mochart';
-import type { ChartHandle } from 'mochart';
-import { exportPNG, exportSVG } from 'mochart-export';
-import demoData from 'mochart-demo-data';
-import type { Demo } from 'mochart-demo-data';
+} from '@mochart/core';
+import type { ChartHandle } from '@mochart/core';
+import { exportPNG, exportSVG } from '@mochart/export';
+import demoData from '@mochart/demo-data';
+import type { Demo } from '@mochart/demo-data';
 
 interface SeriesBounds {
   min: number;

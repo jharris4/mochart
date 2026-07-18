@@ -1,4 +1,4 @@
-# movalid
+# @mochart/movalid
 
 Simple yet powerful TypeScript validators with chainable extensions and
 human-readable error messages.
@@ -7,13 +7,13 @@ Every validator is a factory: calling `validators.number()` returns a plain
 predicate function `(value) => boolean` that also carries metadata —
 `errorMessage`, `getErrorMessage(value)`, `allowedValues`, `rangeValues`,
 `nestedValues`, and `isEnum` — so callers can both check values and report
-readable errors. [mochart](../mochart/README.md) uses it for config
+readable errors. [@mochart/core](../mochart/README.md) uses it for config
 validation.
 
 ## Usage
 
 ```js
-import validators from 'movalid';
+import validators from '@mochart/movalid';
 
 const isRenderer = validators.oneOf(['bar', 'line', 'area']).orEqual(undefined);
 
@@ -52,7 +52,7 @@ All are called as `validators.name(...args)`:
 The bare type predicates are also exported directly for convenience:
 
 ```js
-import { typeValidators, customTypeValidators } from 'movalid';
+import { typeValidators, customTypeValidators } from '@mochart/movalid';
 typeValidators.string('hi'); // true
 ```
 
@@ -76,7 +76,7 @@ const size = validators.numberMin(0).orEqual('auto').withMessage('should be a si
 ## Development
 
 ```sh
-npm test -w movalid
+npm test -w @mochart/movalid
 ```
 
 ## License

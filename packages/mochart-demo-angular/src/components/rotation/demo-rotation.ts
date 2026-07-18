@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import type { AfterViewInit, OnDestroy } from '@angular/core';
 
-import { DefaultChart } from 'mochart-angular';
+import { DefaultChart } from '@mochart/angular';
 
 import { configs, data, minWidth } from './rotationConfigs';
 

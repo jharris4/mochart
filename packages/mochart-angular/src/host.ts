@@ -1,4 +1,4 @@
-import type { ChartHandle } from 'mochart';
+import type { ChartHandle } from '@mochart/core';
 import type { PlaceholderAdapter } from './placeholders';
 
 // `create` is used for both createChart (Chart) and createDefaultChart

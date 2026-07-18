@@ -1,8 +1,8 @@
 <script lang="ts">
   import { untrack, onDestroy } from 'svelte';
 
-  import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'mochart';
-  import { Chart } from 'mochart-svelte';
+  import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+  import { Chart } from '@mochart/svelte';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import ExportButtons from '../misc/ExportButtons.svelte';

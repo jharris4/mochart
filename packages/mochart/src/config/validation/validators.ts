@@ -1,4 +1,4 @@
-import validators from 'movalid';
+import validators from '@mochart/movalid';
 import { NONE, MARGIN_KEYS, PADDING_KEYS } from '../core/constants';
 
 const dashArrayRegexp = /(\d+)(,\s*\d+)*/;

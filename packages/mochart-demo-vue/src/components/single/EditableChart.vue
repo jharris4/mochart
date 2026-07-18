@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 
-import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'mochart';
-import { Chart } from 'mochart-vue';
+import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { Chart } from '@mochart/vue';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import ExportButtons from '../misc/ExportButtons.vue';

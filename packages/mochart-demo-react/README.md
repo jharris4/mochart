@@ -1,12 +1,12 @@
-# mochart-demo-react
+# @mochart/demo-react
 
-React demo gallery for [mochart](../mochart/README.md), built on
-[mochart-react](../mochart-react/README.md) (private, not published).
+React demo gallery for [@mochart/core](../mochart/README.md), built on
+[@mochart/react](../mochart-react/README.md) (private, not published).
 
 The full-featured demo app: browse every demo chart in single, multi,
 transition, and rotation modes, or generate whole random datasets in random
 mode. The JSON demo configs and datasets are shared from
-[mochart-demo-data](../mochart-demo-data/README.md); [mochart-demo-basic](../mochart-demo-basic/README.md)
+[@mochart/demo-data](../mochart-demo-data/README.md); [@mochart/demo-basic](../mochart-demo-basic/README.md)
 is a smaller no-framework harness of the same demos that hosts the e2e suite.
 
 ## Install
@@ -22,9 +22,9 @@ npm install
 From the repo root:
 
 ```sh
-npm run dev -w mochart-demo-react       # vite dev server on http://localhost:5174
-npm run build -w mochart-demo-react     # production build to dist/
-npm run preview -w mochart-demo-react   # preview the production build on http://localhost:4174
+npm run dev -w @mochart/demo-react       # vite dev server on http://localhost:5174
+npm run build -w @mochart/demo-react     # production build to dist/
+npm run preview -w @mochart/demo-react   # preview the production build on http://localhost:4174
 ```
 
 Or run the same scripts with `npm run dev` etc. from this directory.

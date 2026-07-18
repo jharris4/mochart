@@ -1,4 +1,4 @@
-import type { MochartConfig } from 'mochart';
+import type { MochartConfig } from '@mochart/core';
 
 import { buttonWithTooltip, el, icon, setActiveClass } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';

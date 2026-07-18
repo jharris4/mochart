@@ -1,8 +1,8 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import validators from 'movalid';
-import type { Validator } from 'movalid';
+import validators from '@mochart/movalid';
+import type { Validator } from '@mochart/movalid';
 
 import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';

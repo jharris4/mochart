@@ -18,12 +18,12 @@ const rawBase = process.env.PAGES_BASE !== void 0 ? process.env.PAGES_BASE : '/m
 const base = rawBase.endsWith('/') ? rawBase : rawBase + '/';
 
 const demos = [
-  { slug: 'angular', pkg: 'mochart-demo-angular', title: 'Angular', detail: 'angular router, zoneless', historyRouting: true },
-  { slug: 'lit', pkg: 'mochart-demo-lit', title: 'Lit', detail: 'lit-html directive router', historyRouting: true },
-  { slug: 'react', pkg: 'mochart-demo-react', title: 'React', detail: 'react-router 7', historyRouting: true },
-  { slug: 'svelte', pkg: 'mochart-demo-svelte', title: 'Svelte', detail: 'svelte 5 runes router', historyRouting: true },
-  { slug: 'vanilla', pkg: 'mochart-demo-vanilla', title: 'Vanilla TypeScript', detail: 'no framework, history router', historyRouting: true },
-  { slug: 'vue', pkg: 'mochart-demo-vue', title: 'Vue', detail: 'vue reactivity router', historyRouting: true }
+  { slug: 'angular', pkg: '@mochart/demo-angular', title: 'Angular', detail: 'angular router, zoneless', historyRouting: true },
+  { slug: 'lit', pkg: '@mochart/demo-lit', title: 'Lit', detail: 'lit-html directive router', historyRouting: true },
+  { slug: 'react', pkg: '@mochart/demo-react', title: 'React', detail: 'react-router 7', historyRouting: true },
+  { slug: 'svelte', pkg: '@mochart/demo-svelte', title: 'Svelte', detail: 'svelte 5 runes router', historyRouting: true },
+  { slug: 'vanilla', pkg: '@mochart/demo-vanilla', title: 'Vanilla TypeScript', detail: 'no framework, history router', historyRouting: true },
+  { slug: 'vue', pkg: '@mochart/demo-vue', title: 'Vue', detail: 'vue reactivity router', historyRouting: true }
 ];
 
 function landingPage() {
@@ -92,8 +92,10 @@ rmSync(siteDir, { recursive: true, force: true });
 mkdirSync(siteDir);
 
 for (const demo of demos) {
+  // Package directories keep the unscoped mochart-* names.
+  const pkgDir = demo.pkg.replace('@mochart/', 'mochart-');
   execSync(`npm run build -w ${demo.pkg} -- --base=${base}${demo.slug}/`, { cwd: rootDir, stdio: 'inherit' });
-  cpSync(join(rootDir, 'packages', demo.pkg, 'dist'), join(siteDir, demo.slug), { recursive: true });
+  cpSync(join(rootDir, 'packages', pkgDir, 'dist'), join(siteDir, demo.slug), { recursive: true });
 }
 
 // Cloudflare Pages honors _redirects with 200 rewrites, so deep links into the

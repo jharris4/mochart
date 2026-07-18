@@ -1,7 +1,7 @@
-# mochart-export
+# @mochart/export
 
 SVG and PNG image export for the
-[mochart](https://github.com/jharris4/mochart) charting library. Give it any
+[@mochart/core](https://github.com/jharris4/mochart) charting library. Give it any
 element containing a rendered chart and it downloads the chart as a
 standalone image — computed styles inlined, crosshair stripped, and an
 optional solid background painted beneath the chart.
@@ -18,7 +18,7 @@ npm install mochart-export
 ## Usage
 
 ```js
-import { exportSVG, exportPNG } from 'mochart-export';
+import { exportSVG, exportPNG } from '@mochart/export';
 
 // element can be the chart's container, the div.mochart-chart root itself,
 // or the chart <svg> element
@@ -50,7 +50,7 @@ await exportPNG(element, {
 ### Lower-level helpers
 
 ```js
-import { findChartSvg, getChartSvgText } from 'mochart-export';
+import { findChartSvg, getChartSvgText } from '@mochart/export';
 
 const svgElement = findChartSvg(element); // SVGSVGElement | null
 const svgMarkup = getChartSvgText(element, { transparent: true }); // string | null

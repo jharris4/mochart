@@ -1,4 +1,4 @@
-import { exportPNG, exportSVG } from 'mochart-export';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { buttonWithTooltip, el, icon } from './dom';
 import type { ButtonHandle } from './dom';

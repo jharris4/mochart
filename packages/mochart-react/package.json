@@ -1,5 +1,5 @@
 {
-  "name": "mochart-react",
+  "name": "@mochart/react",
   "version": "1.0.0",
   "description": "React components for the mochart charting library",
   "keywords": [
@@ -35,7 +35,7 @@
     "dist"
   ],
   "dependencies": {
-    "mochart": "^1.0.0"
+    "@mochart/core": "^1.0.0"
   },
   "peerDependencies": {
     "react": ">=18",

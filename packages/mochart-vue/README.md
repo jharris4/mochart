@@ -1,6 +1,6 @@
-# mochart-vue
+# @mochart/vue
 
-Vue 3 components for the [mochart](https://github.com/jharris4/mochart) charting library.
+Vue 3 components for the [@mochart/core](https://github.com/jharris4/mochart) charting library.
 
 Prop changes get mochart's
 [staged animations](https://github.com/jharris4/mochart/tree/main/packages/mochart#staged-animation)
@@ -20,7 +20,7 @@ array-of-objects dataset:
 
 ```vue
 <script setup>
-import { DefaultChart } from 'mochart-vue';
+import { DefaultChart } from '@mochart/vue';
 
 const config = {
   titleConfig: { title: 'Revenue' },
@@ -45,8 +45,8 @@ and data providers themselves:
 
 ```vue
 <script setup>
-import { enhanceConfig, ArrayOfObjectsDataProvider } from 'mochart';
-import { Chart } from 'mochart-vue';
+import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { Chart } from '@mochart/vue';
 
 const mochartConfig = enhanceConfig(config);
 const dataProvider = new ArrayOfObjectsDataProvider(data, 'month');

@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 
-import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'mochart';
-import { Chart } from 'mochart-angular';
+import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { Chart } from '@mochart/angular';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { ExportButtons } from '../misc/export-buttons';

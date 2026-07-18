@@ -1,14 +1,14 @@
 {
-  "name": "mochart-demo-basic",
+  "name": "@mochart/demo-basic",
   "version": "1.0.0",
   "description": "Minimal no-framework demo harness for the mochart charting library",
   "private": true,
   "type": "module",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "mochart": "^1.0.0",
-    "mochart-demo-data": "^1.0.0",
-    "mochart-export": "^1.0.0"
+    "@mochart/core": "^1.0.0",
+    "@mochart/demo-data": "^1.0.0",
+    "@mochart/export": "^1.0.0"
   },
   "scripts": {
     "dev": "vite",

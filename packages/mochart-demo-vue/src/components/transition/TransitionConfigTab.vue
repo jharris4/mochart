@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import validators from 'movalid';
+import validators from '@mochart/movalid';
 
 import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

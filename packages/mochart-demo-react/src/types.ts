@@ -1,7 +1,7 @@
-import type { ConfigValidation, MochartConfig } from 'mochart';
-import type { DemoData, RandomConfig } from 'mochart-demo-data';
+import type { ConfigValidation, MochartConfig } from '@mochart/core';
+import type { DemoData, RandomConfig } from '@mochart/demo-data';
 
-export type { DataRow, Demo, DemoConfig, DemoData, RandomConfig } from 'mochart-demo-data';
+export type { DataRow, Demo, DemoConfig, DemoData, RandomConfig } from '@mochart/demo-data';
 
 /** A value on the group axis of a generated data set. */
 export type GroupValue = number | string;

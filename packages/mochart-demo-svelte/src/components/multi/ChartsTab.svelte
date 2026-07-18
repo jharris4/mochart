@@ -1,9 +1,9 @@
 <script lang="ts">
   import { untrack, onDestroy } from 'svelte';
 
-  import { ArrayOfObjectsDataProvider } from 'mochart';
-  import type { MochartConfig } from 'mochart';
-  import { Chart } from 'mochart-svelte';
+  import { ArrayOfObjectsDataProvider } from '@mochart/core';
+  import type { MochartConfig } from '@mochart/core';
+  import { Chart } from '@mochart/svelte';
 
   import buildMochartDemoConfig from '../../config/mochartDemoConfig';
 

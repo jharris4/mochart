@@ -2,8 +2,8 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'mochart';
-import { chart } from 'mochart-lit';
+import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { chart } from '@mochart/lit';
 
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';

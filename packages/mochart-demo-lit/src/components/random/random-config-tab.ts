@@ -2,8 +2,8 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import validators from 'movalid';
-import type { Validator } from 'movalid';
+import validators from '@mochart/movalid';
+import type { Validator } from '@mochart/movalid';
 
 import { LightElement } from '../misc/LightElement';
 import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
