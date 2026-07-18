@@ -144,4 +144,16 @@ describe('FocusController focus handling', () => {
     expect(controller.toggleSeriesFilter('S1').filteredSeriesIds).toEqual({ S0: true, S1: true });
     expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S1: true });
   });
+
+  it('never mutates a previously returned filter snapshot', () => {
+    const { controller } = makeHarness();
+
+    const first = controller.toggleSeriesFilter('S0').filteredSeriesIds;
+    const second = controller.toggleSeriesFilter('S1').filteredSeriesIds;
+    controller.toggleSeriesFilter('S0');
+
+    expect(first).toEqual({ S0: true });
+    expect(second).toEqual({ S0: true, S1: true });
+    expect(controller.filteredSeriesIds).toEqual({ S1: true });
+  });
 });

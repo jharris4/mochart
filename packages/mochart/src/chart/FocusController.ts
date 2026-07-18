@@ -99,13 +99,15 @@ export class FocusController {
 
   /** Toggle a series in/out of the filtered set. */
   toggleSeriesFilter(seriesId: string): ChartSeriesFilter {
-    if (this.filteredSeriesIds[seriesId] === true) {
-      delete this.filteredSeriesIds[seriesId];
+    // copy before mutating so snapshots handed to host callbacks stay frozen
+    const filteredSeriesIds = { ...this.filteredSeriesIds };
+    if (filteredSeriesIds[seriesId] === true) {
+      delete filteredSeriesIds[seriesId];
     }
     else {
-      this.filteredSeriesIds[seriesId] = true;
+      filteredSeriesIds[seriesId] = true;
     }
-    this.filteredSeriesIds = { ...this.filteredSeriesIds };
-    return { filteredSeriesIds: this.filteredSeriesIds };
+    this.filteredSeriesIds = filteredSeriesIds;
+    return { filteredSeriesIds };
   }
 }
