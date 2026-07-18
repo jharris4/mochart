@@ -22,7 +22,8 @@ const demos = [
   { slug: 'react', pkg: 'mochart-demo-react', title: 'React', detail: 'react-router 7', historyRouting: true },
   { slug: 'svelte', pkg: 'mochart-demo-svelte', title: 'Svelte', detail: 'svelte 5 runes router', historyRouting: true },
   { slug: 'vue', pkg: 'mochart-demo-vue', title: 'Vue', detail: 'vue reactivity router', historyRouting: true },
-  { slug: 'lit', pkg: 'mochart-demo-lit', title: 'Lit', detail: 'lit-html directive router', historyRouting: true }
+  { slug: 'lit', pkg: 'mochart-demo-lit', title: 'Lit', detail: 'lit-html directive router', historyRouting: true },
+  { slug: 'angular', pkg: 'mochart-demo-angular', title: 'Angular', detail: 'angular router, zoneless', historyRouting: true }
 ];
 
 function landingPage() {

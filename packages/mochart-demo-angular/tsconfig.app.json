@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false
+  },
+  "include": [
+    "src",
+    "main",
+    "../mochart/src",
+    "../mochart-angular/src",
+    "../mochart-demo-data/src",
+    "../mochart-export/src",
+    "../movalid/src"
+  ]
+}

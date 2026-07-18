@@ -24,7 +24,7 @@
     "dev:basic": "npm run dev -w mochart-demo-basic",
     "build": "npm run build -w mochart-demo-vanilla",
     "build:pages": "node scripts/build-pages.mjs",
-    "build:libs": "npm run build -w movalid && npm run build -w mochart && npm run build -w mochart-export && npm run build -w mochart-react && npm run build -w mochart-svelte && npm run build -w mochart-vue && npm run build -w mochart-lit",
+    "build:libs": "npm run build -w movalid && npm run build -w mochart && npm run build -w mochart-export && npm run build -w mochart-react && npm run build -w mochart-svelte && npm run build -w mochart-vue && npm run build -w mochart-lit && npm run build -w mochart-angular",
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",
     "test:e2e": "npm run test:e2e -w mochart-demo-basic",

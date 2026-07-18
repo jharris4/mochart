@@ -20,6 +20,7 @@ gaps between segments mid-transition.
 | [mochart-svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
 | [mochart-vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
 | [mochart-lit](packages/mochart-lit/README.md) | lit-html directives wrapping mochart. |
+| [mochart-angular](packages/mochart-angular/README.md) | Angular components wrapping mochart. |
 | [mochart-export](packages/mochart-export/README.md) | SVG and PNG image export for rendered mochart charts. |
 | [mochart-demo-vanilla](packages/mochart-demo-vanilla/README.md) | Full-featured demo gallery in plain TypeScript (private) — the no-framework peer of the framework demo apps. |
 | [mochart-demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the Playwright e2e suite. |
@@ -28,8 +29,9 @@ gaps between segments mid-transition.
 | [movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
 Each wrapper framework also has a full-featured demo gallery —
-`mochart-demo-react`, `mochart-demo-svelte`, `mochart-demo-vue`, and
-`mochart-demo-lit` (all private) — with single/multi/random/transition/rotation
+`mochart-demo-react`, `mochart-demo-svelte`, `mochart-demo-vue`,
+`mochart-demo-lit`, and `mochart-demo-angular` (all private) — with
+single/multi/random/transition/rotation
 demo modes; `mochart-demo-vanilla` is the same gallery in plain TypeScript.
 All of them share the demo configs from `mochart-demo-data`.
 There are also build-free static HTML examples in

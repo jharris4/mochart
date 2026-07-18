@@ -1,0 +1,40 @@
+import { Component, Input, signal } from '@angular/core';
+import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
+
+import { TextAreaContent } from '../misc/text-area-content';
+
+function formatData(dataJSON: unknown): string {
+  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
+}
+
+@Component({
+  selector: 'app-random-data-tab',
+  imports: [TextAreaContent],
+  styles: [':host { display: contents; }'],
+  template: `
+    <div [class]="'mochart-demo-tab-container col data' + (active ? ' active' : '')">
+      <div class="mochart-demo-tab-content">
+        <app-text-area-content [value]="dataText()" [onChange]="noop" />
+      </div>
+    </div>
+  `
+})
+export class RandomDataTab implements OnInit, OnChanges {
+  @Input() active = false;
+  @Input({ required: true }) data: unknown;
+
+  dataText = signal('');
+
+  noop = (): void => {};
+
+  ngOnInit(): void {
+    this.dataText.set(formatData(this.data));
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const dataChange = changes['data'];
+    if (dataChange && !dataChange.firstChange) {
+      this.dataText.set(formatData(this.data));
+    }
+  }
+}
