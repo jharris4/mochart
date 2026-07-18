@@ -47,8 +47,8 @@ const defaultTransitionConfig: TransitionConfig = {
       {
         "axis": "SA0",
         "stack": "SS0",
-        "property": "listenerCount",
-        "title": "Listener Count",
+        "property": "count",
+        "title": "Count",
         "renderer": "bar",
         "markerShape": null,
         "valueFormat": ",d"
@@ -57,28 +57,28 @@ const defaultTransitionConfig: TransitionConfig = {
   },
   "data": [
     [
-      { "timestamp": "aaa", "classicCount": 0, "listenerCount": 50 },
-      { "timestamp": "bbb", "classicCount": 0, "listenerCount": 48 },
-      { "timestamp": "ccc", "classicCount": 0, "listenerCount": 28 },
-      { "timestamp": "ddd", "classicCount": 0, "listenerCount": 27 },
-      { "timestamp": "eee", "classicCount": 1, "listenerCount": 25 },
-      { "timestamp": "fff", "classicCount": 0, "listenerCount": 22 }
+      { "timestamp": "aaa", "count": 50 },
+      { "timestamp": "bbb", "count": 48 },
+      { "timestamp": "ccc", "count": 28 },
+      { "timestamp": "ddd", "count": 27 },
+      { "timestamp": "eee", "count": 25 },
+      { "timestamp": "fff", "count": 22 }
     ],
     [
-      { "timestamp": "ccc", "classicCount": 0, "listenerCount": 45 },
-      { "timestamp": "bbb", "classicCount": 0, "listenerCount": 42 },
-      { "timestamp": "ddd", "classicCount": 0, "listenerCount": 27 },
-      { "timestamp": "eee", "classicCount": 1, "listenerCount": 25 },
-      { "timestamp": "fff", "classicCount": 0, "listenerCount": 22 },
-      { "timestamp": "ggg", "classicCount": 0, "listenerCount": 20 }
+      { "timestamp": "ccc", "count": 45 },
+      { "timestamp": "bbb", "count": 42 },
+      { "timestamp": "ddd", "count": 27 },
+      { "timestamp": "eee", "count": 25 },
+      { "timestamp": "fff", "count": 22 },
+      { "timestamp": "ggg", "count": 20 }
     ],
     [
-      { "timestamp": "bbb", "classicCount": 0, "listenerCount": 42 },
-      { "timestamp": "ccc", "classicCount": 0, "listenerCount": 45 },
-      { "timestamp": "ddd", "classicCount": 0, "listenerCount": 27 },
-      { "timestamp": "eee", "classicCount": 1, "listenerCount": 25 },
-      { "timestamp": "fff", "classicCount": 0, "listenerCount": 22 },
-      { "timestamp": "ggg", "classicCount": 0, "listenerCount": 20 }
+      { "timestamp": "bbb", "count": 42 },
+      { "timestamp": "ccc", "count": 45 },
+      { "timestamp": "ddd", "count": 27 },
+      { "timestamp": "eee", "count": 25 },
+      { "timestamp": "fff", "count": 22 },
+      { "timestamp": "ggg", "count": 20 }
     ]
   ]
 };
