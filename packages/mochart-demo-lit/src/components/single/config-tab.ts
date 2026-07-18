@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig, copyDemoConfig, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -60,12 +60,12 @@ export class ConfigTab extends LightElement {
         if (warnings.length > 0) {
           console.warn('warnings: ', warnings);
         }
-        this.errorMessage = 'Invalid chart config — details in the browser console';
+        this.errorMessage = demoText.errors.invalidChartConfig;
       }
     }
     catch (error) {
       console.warn('Invalid Chart Config JSON: ' + this.configText);
-      this.errorMessage = 'Invalid JSON';
+      this.errorMessage = demoText.errors.invalidJson;
     }
   }
 
@@ -98,7 +98,7 @@ export class ConfigTab extends LightElement {
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }
 
@@ -116,23 +116,23 @@ export class ConfigTab extends LightElement {
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
           ${buttonWithTooltip(
-            { id: 'config-reset', label: 'Reset', tooltipText: "Restore this demo's original config", tooltipPlacement: 'top-start', onClick: this.resetConfig, ariaLabel: 'Reset' },
+            { id: 'config-reset', label: demoText.configTab.reset.label, tooltipText: demoText.configTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: this.resetConfig, ariaLabel: demoText.configTab.reset.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
           )}
           ${buttonWithTooltip(
-            { id: 'config-defaults', label: 'Defaults', pressed: this.showDefaults, tooltipText: 'Show or hide the default config values merged into the JSON', tooltipPlacement: 'top-start', onClick: this.toggleConfigDefaults, ariaLabel: 'Toggle Defaults' },
+            { id: 'config-defaults', label: demoText.configTab.defaults.label, pressed: this.showDefaults, tooltipText: demoText.configTab.defaults.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigDefaults, ariaLabel: demoText.configTab.defaults.aria },
             icon({ size: 'lg', fixedWidth: true, name: this.showDefaults ? 'eye' : 'eye-slash' })
           )}
           ${buttonWithTooltip(
-            { id: 'config-inverted', label: 'Invert', pressed: !!inverted, tooltipText: 'Swap the chart between vertical and horizontal orientation', tooltipPlacement: 'top-start', onClick: this.toggleConfigInverted, ariaLabel: 'Toggle Inverted' },
+            { id: 'config-inverted', label: demoText.configTab.invert.label, pressed: !!inverted, tooltipText: demoText.configTab.invert.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigInverted, ariaLabel: demoText.configTab.invert.aria },
             icon({ size: 'lg', fixedWidth: true, name: invertedIcon })
           )}
           ${buttonWithTooltip(
-            { id: 'config-animate-slow', label: 'Slow', pressed: slow, tooltipText: 'Slow all animations down so transitions are easy to watch', tooltipPlacement: 'top-start', onClick: this.toggleConfigAnimationSlow, ariaLabel: 'Toggle Slow' },
+            { id: 'config-animate-slow', label: demoText.configTab.slow.label, pressed: slow, tooltipText: demoText.configTab.slow.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigAnimationSlow, ariaLabel: demoText.configTab.slow.aria },
             icon({ size: 'lg', fixedWidth: true, name: slowIcon })
           )}
           ${buttonWithTooltip(
-            { id: 'config-apply', label: 'Apply', disabled: jsonError !== null, tooltipText: 'Apply this config — the chart updates when you return to the Chart tab', tooltipPlacement: 'top-start', onClick: this.applyConfig, ariaLabel: 'Apply' },
+            { id: 'config-apply', label: demoText.configTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.configTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.applyConfig, ariaLabel: demoText.configTab.apply.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'check' })
           )}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}

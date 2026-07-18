@@ -1,3 +1,5 @@
+import { demoText } from '@mochart/demo-common';
+
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
 import { demosTab } from '../demos/DemosTab';
@@ -73,8 +75,8 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
     return { li: el('li', { className: 'nav-item' }, [button]), button };
   }
 
-  const demoNav = navItem('Demos', eventKeyDemo);
-  const chartNav = navItem('Chart', eventKeyChart);
+  const demoNav = navItem(demoText.tabs.demos, eventKeyDemo);
+  const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
 
   const contentPane = el('div', { className: 'mochart-demo-content-pane' });
   const container = el('div', { className: 'mochart-demo-container multi' }, [

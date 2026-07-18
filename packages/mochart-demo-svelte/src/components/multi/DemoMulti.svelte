@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { demoText } from '@mochart/demo-common';
+
   import DemosTab from '../demos/DemosTab.svelte';
   import ChartsTab from './ChartsTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
@@ -57,13 +59,13 @@
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyDemo ? " active" : "")}
                 onclick={() => handleSelect(eventKeyDemo)}>
-          Demos
+          {demoText.tabs.demos}
         </button>
       </li>
       <li class="nav-item" style={isDemos ? "display: none;" : void 0}>
         <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
                 onclick={() => handleSelect(eventKeyChart)}>
-          Chart
+          {demoText.tabs.chart}
         </button>
       </li>
     </ul>

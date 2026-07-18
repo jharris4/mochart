@@ -4,6 +4,8 @@ import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Chart } from '@mochart/angular';
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { ExportButtons } from '../misc/export-buttons';
 import { Icon } from '../misc/icon';
@@ -25,12 +27,12 @@ import type { ChartDataProviderLike } from '../../types';
           <div class="form-group">
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
-                <app-button-with-tooltip id="transition-back" label="Back" tooltipText="Transition to the previous dataset" tooltipPlacement="top-start"
-                                         [onClick]="onStepBack" aria-label="Step Backward">
+                <app-button-with-tooltip id="transition-back" [label]="text.back.label" [tooltipText]="text.back.tooltip" tooltipPlacement="top-start"
+                                         [onClick]="onStepBack" [aria-label]="text.back.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="backward-step" />
                 </app-button-with-tooltip>
-                <app-button-with-tooltip id="transition-forward" label="Next" tooltipText="Transition to the next dataset" tooltipPlacement="top-start"
-                                         [onClick]="onStepForward" aria-label="Step Forward">
+                <app-button-with-tooltip id="transition-forward" [label]="text.next.label" [tooltipText]="text.next.tooltip" tooltipPlacement="top-start"
+                                         [onClick]="onStepForward" [aria-label]="text.next.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="forward-step" />
                 </app-button-with-tooltip>
               </div>
@@ -43,6 +45,8 @@ import type { ChartDataProviderLike } from '../../types';
   `
 })
 export class TransitionChartTab implements OnChanges {
+  readonly text = demoText.transitionChartTab;
+
   @Input() active = false;
   @Input({ required: true }) mochartConfig!: MochartConfig;
   @Input({ required: true }) dataProviders!: ChartDataProviderLike[];

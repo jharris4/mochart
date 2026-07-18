@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { demoText } from '@mochart/demo-common';
   import { exportPNG, exportSVG } from '@mochart/export';
 
   import ButtonWithTooltip from './ButtonWithTooltip.svelte';
@@ -30,14 +31,14 @@
 </script>
 
 <div class="btn-group">
-  <ButtonWithTooltip id={idPrefix + "-export-png"} {disabled} label="PNG"
-                     tooltipText="Download the chart as a PNG image" tooltipPlacement="top-start"
-                     onClick={onExportPng} aria-label="Export PNG">
+  <ButtonWithTooltip id={idPrefix + "-export-png"} {disabled} label={demoText.exportButtons.png.label}
+                     tooltipText={demoText.exportButtons.png.tooltip} tooltipPlacement="top-start"
+                     onClick={onExportPng} aria-label={demoText.exportButtons.png.aria}>
     <Icon size="lg" fixedWidth={true} name="file-image" />
   </ButtonWithTooltip>
-  <ButtonWithTooltip id={idPrefix + "-export-svg"} {disabled} label="SVG"
-                     tooltipText="Download the chart as an SVG image" tooltipPlacement="top-start"
-                     onClick={onExportSvg} aria-label="Export SVG">
+  <ButtonWithTooltip id={idPrefix + "-export-svg"} {disabled} label={demoText.exportButtons.svg.label}
+                     tooltipText={demoText.exportButtons.svg.tooltip} tooltipPlacement="top-start"
+                     onClick={onExportSvg} aria-label={demoText.exportButtons.svg.aria}>
     <Icon size="lg" fixedWidth={true} name="file-code" />
   </ButtonWithTooltip>
 </div>

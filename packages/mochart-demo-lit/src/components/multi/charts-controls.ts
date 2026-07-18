@@ -1,6 +1,8 @@
 import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
+import { demoText } from '@mochart/demo-common';
+
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, icon } from '../misc/templates';
 
@@ -63,40 +65,40 @@ export class ChartsControls extends LightElement {
     return html`<div class="multi-controls">
       <form class="form-inline">
         <div class="form-group">
-          <label class="form-control-plaintext" for="grid-rows">Grid:</label>
-          <input id="grid-rows" ?disabled=${this.playing} type="number" min="1" max="4" class="form-control" .value=${'' + this.rowsText} aria-label="Grid rows" @input=${this.rowsChanged} />
+          <label class="form-control-plaintext" for="grid-rows">${demoText.multiChartsTab.gridLabel}</label>
+          <input id="grid-rows" ?disabled=${this.playing} type="number" min="1" max="4" class="form-control" .value=${'' + this.rowsText} aria-label=${demoText.multiChartsTab.gridRowsAria} @input=${this.rowsChanged} />
           <span class="form-control-plaintext">&times;</span>
-          <input id="grid-cols" ?disabled=${this.playing} type="number" min="1" max="4" class="form-control" .value=${'' + this.colsText} aria-label="Grid columns" @input=${this.colsChanged} />
+          <input id="grid-cols" ?disabled=${this.playing} type="number" min="1" max="4" class="form-control" .value=${'' + this.colsText} aria-label=${demoText.multiChartsTab.gridColsAria} @input=${this.colsChanged} />
         </div>
         <div class="form-group">
           <div class="btn-toolbar" role="toolbar">
             <div class="btn-group">
               ${buttonWithTooltip(
-                { id: 'step-back', disabled: this.playing, tooltipText: 'Step all charts one dataset backward', tooltipPlacement: 'top-start', onClick: this.onStepBackwardClick, ariaLabel: 'Step Backward' },
+                { id: 'step-back', disabled: this.playing, tooltipText: demoText.multiChartsTab.stepBackward.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepBackwardClick, ariaLabel: demoText.multiChartsTab.stepBackward.aria },
                 icon({ size: 'lg', fixedWidth: true, name: 'backward-step' })
               )}
               ${buttonWithTooltip(
-                { id: 'step-forward', disabled: this.playing, tooltipText: 'Step all charts one dataset forward', tooltipPlacement: 'top-start', onClick: this.onStepForwardClick, ariaLabel: 'Step Forward' },
+                { id: 'step-forward', disabled: this.playing, tooltipText: demoText.multiChartsTab.stepForward.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepForwardClick, ariaLabel: demoText.multiChartsTab.stepForward.aria },
                 icon({ size: 'lg', fixedWidth: true, name: 'forward-step' })
               )}
               ${buttonWithTooltip(
-                { id: 'play-backward', disabled: this.playing, tooltipText: 'Play backward through the datasets at the interval', tooltipPlacement: 'top-start', onClick: this.onPlayBackwardClick, ariaLabel: 'Play Backward' },
+                { id: 'play-backward', disabled: this.playing, tooltipText: demoText.multiChartsTab.playBackward.tooltip, tooltipPlacement: 'top-start', onClick: this.onPlayBackwardClick, ariaLabel: demoText.multiChartsTab.playBackward.aria },
                 icon({ size: 'lg', fixedWidth: true, name: 'play', flip: 'horizontal' })
               )}
               ${buttonWithTooltip(
-                { id: 'play-forward', disabled: this.playing, tooltipText: 'Play forward through the datasets at the interval', tooltipPlacement: 'top-start', onClick: this.onPlayForwardClick, ariaLabel: 'Play Forward' },
+                { id: 'play-forward', disabled: this.playing, tooltipText: demoText.multiChartsTab.playForward.tooltip, tooltipPlacement: 'top-start', onClick: this.onPlayForwardClick, ariaLabel: demoText.multiChartsTab.playForward.aria },
                 icon({ size: 'lg', fixedWidth: true, name: 'play' })
               )}
               ${buttonWithTooltip(
-                { id: 'stop', disabled: !this.playing, tooltipText: 'Stop playback', tooltipPlacement: 'top-start', onClick: this.onStopClick, ariaLabel: 'Stop' },
+                { id: 'stop', disabled: !this.playing, tooltipText: demoText.multiChartsTab.stop.tooltip, tooltipPlacement: 'top-start', onClick: this.onStopClick, ariaLabel: demoText.multiChartsTab.stop.aria },
                 icon({ size: 'lg', fixedWidth: true, name: 'stop' })
               )}
             </div>
           </div>
         </div>
         <div class="form-group">
-          <label class="form-control-plaintext" for="multi-rate">Interval (ms):</label>
-          <input id="multi-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label="Playback interval in milliseconds" @input=${this.rateChanged} />
+          <label class="form-control-plaintext" for="multi-rate">${demoText.multiChartsTab.intervalLabel}</label>
+          <input id="multi-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label=${demoText.multiChartsTab.intervalAria} @input=${this.rateChanged} />
         </div>
       </form>
     </div>`;

@@ -4,6 +4,8 @@ import { onBeforeUnmount, ref, watch } from 'vue';
 import { Chart } from '@mochart/vue';
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import ExportButtons from '../misc/ExportButtons.vue';
 import Icon from '../misc/Icon.vue';
@@ -80,37 +82,37 @@ onBeforeUnmount(() => {
         <div class="form-group">
           <div class="btn-toolbar" role="toolbar">
             <div class="btn-group">
-              <ButtonWithTooltip id="randomize-back" :disabled="playing" label="Back"
-                                 tooltip-text="Go back to the previous random dataset" tooltip-placement="top-start"
-                                 :on-click="props.onRandomizeBack" aria-label="Randomize Back">
+              <ButtonWithTooltip id="randomize-back" :disabled="playing" :label="demoText.randomChartTab.back.label"
+                                 :tooltip-text="demoText.randomChartTab.back.tooltip" tooltip-placement="top-start"
+                                 :on-click="props.onRandomizeBack" :aria-label="demoText.randomChartTab.back.aria">
                 <Icon size="lg" :fixed-width="true" name="dice" flip="horizontal" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="randomize-next" :disabled="playing" label="Randomize"
-                                 tooltip-text="Generate the next random dataset" tooltip-placement="top-start"
-                                 :on-click="props.onRandomizeNext" aria-label="Randomize Next">
+              <ButtonWithTooltip id="randomize-next" :disabled="playing" :label="demoText.randomChartTab.randomize.label"
+                                 :tooltip-text="demoText.randomChartTab.randomize.tooltip" tooltip-placement="top-start"
+                                 :on-click="props.onRandomizeNext" :aria-label="demoText.randomChartTab.randomize.aria">
                 <Icon size="lg" :fixed-width="true" name="dice" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="play" :disabled="playing" tooltip-text="Keep generating random datasets at the interval" tooltip-placement="top-start"
-                                 :on-click="onPlayClick" aria-label="Play Randomize">
+              <ButtonWithTooltip id="play" :disabled="playing" :tooltip-text="demoText.randomChartTab.play.tooltip" tooltip-placement="top-start"
+                                 :on-click="onPlayClick" :aria-label="demoText.randomChartTab.play.aria">
                 <Icon size="lg" :fixed-width="true" name="play" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="stop" :disabled="!playing" tooltip-text="Stop generating" tooltip-placement="top-start"
-                                 :on-click="onStopClick" aria-label="Stop">
+              <ButtonWithTooltip id="stop" :disabled="!playing" :tooltip-text="demoText.randomChartTab.stop.tooltip" tooltip-placement="top-start"
+                                 :on-click="onStopClick" :aria-label="demoText.randomChartTab.stop.aria">
                 <Icon size="lg" :fixed-width="true" name="stop" />
               </ButtonWithTooltip>
             </div>
             <div class="form-group">
-              <label class="form-control-plaintext" for="random-rate">Interval (ms):</label>
+              <label class="form-control-plaintext" for="random-rate">{{ demoText.randomChartTab.intervalLabel }}</label>
               <input id="random-rate" :disabled="playing" type="number" min="5" max="60000" step="100" class="form-control" :value="rateText"
-                     aria-label="Randomize interval in milliseconds" @input="rateChanged" />
+                     :aria-label="demoText.randomChartTab.intervalAria" @input="rateChanged" />
             </div>
           </div>
           <div class="btn-toolbar ml-2" role="toolbar">
             <ExportButtons id-prefix="random" :get-container="() => chartSizerElement" />
             <div class="btn-group">
-              <ButtonWithTooltip id="reuse" :disabled="playing" label="Reuse" :pressed="props.applyReuse"
-                                 tooltip-text="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltip-placement="top-start"
-                                 :on-click="props.toggleApplyReuse" aria-label="Reuse">
+              <ButtonWithTooltip id="reuse" :disabled="playing" :label="demoText.randomChartTab.reuse.label" :pressed="props.applyReuse"
+                                 :tooltip-text="demoText.randomChartTab.reuse.tooltip" tooltip-placement="top-start"
+                                 :on-click="props.toggleApplyReuse" :aria-label="demoText.randomChartTab.reuse.aria">
                 <Icon size="lg" :fixed-width="true" name="recycle" />
               </ButtonWithTooltip>
             </div>

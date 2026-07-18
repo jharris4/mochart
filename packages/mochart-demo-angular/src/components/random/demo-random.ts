@@ -1,7 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 
 import { DemosTab } from '../demos/demos-tab';
 import { RandomContent } from './random-content';
@@ -28,25 +28,25 @@ function getActiveKeyForInitialDemoId(initialDemoId: string): number {
           <li class="nav-item">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyDemo ? ' active' : '')"
                     (click)="handleSelect(eventKeys.eventKeyDemo)">
-              Demos
+              {{ text.demos }}
             </button>
           </li>
           <li class="nav-item" [style.display]="isDemos ? 'none' : null">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyChart ? ' active' : '')"
                     (click)="handleSelect(eventKeys.eventKeyChart)">
-              Chart
+              {{ text.chart }}
             </button>
           </li>
           <li class="nav-item" [style.display]="isDemos ? 'none' : null">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyConfig ? ' active' : '')"
                     (click)="handleSelect(eventKeys.eventKeyConfig)">
-              Random Config
+              {{ text.randomConfig }}
             </button>
           </li>
           <li class="nav-item" [style.display]="isDemos ? 'none' : null">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyData ? ' active' : '')"
                     (click)="handleSelect(eventKeys.eventKeyData)">
-              Data
+              {{ text.data }}
             </button>
           </li>
         </ul>
@@ -77,6 +77,8 @@ export class DemoRandom implements OnInit, OnChanges {
   @Input({ required: true }) randomId!: number;
   @Input({ required: true }) incrementRandomId!: () => void;
   @Input({ required: true }) decrementRandomId!: () => void;
+
+  readonly text = demoText.tabs;
 
   readonly eventKeys = { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData };
 

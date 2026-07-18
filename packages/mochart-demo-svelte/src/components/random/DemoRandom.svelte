@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { buildMochartDemoConfig } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 
   import DemosTab from '../demos/DemosTab.svelte';
   import RandomContent from './RandomContent.svelte';
@@ -98,25 +98,25 @@
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyDemo ? " active" : "")}
                 onclick={() => handleSelect(eventKeyDemo)}>
-          Demos
+          {demoText.tabs.demos}
         </button>
       </li>
       <li class="nav-item" style={isDemos ? "display: none;" : void 0}>
         <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
                 onclick={() => handleSelect(eventKeyChart)}>
-          Chart
+          {demoText.tabs.chart}
         </button>
       </li>
       <li class="nav-item" style={isDemos ? "display: none;" : void 0}>
         <button type="button" class={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")}
                 onclick={() => handleSelect(eventKeyConfig)}>
-          Random Config
+          {demoText.tabs.randomConfig}
         </button>
       </li>
       <li class="nav-item" style={isDemos ? "display: none;" : void 0}>
         <button type="button" class={"nav-link" + (activeKey === eventKeyData ? " active" : "")}
                 onclick={() => handleSelect(eventKeyData)}>
-          Data
+          {demoText.tabs.data}
         </button>
       </li>
     </ul>

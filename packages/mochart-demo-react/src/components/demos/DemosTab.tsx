@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ListGroup, ListGroupItem, Form, FormGroup, ButtonToolbar, Button } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
+import { demoText } from '@mochart/demo-common';
+
 import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
 
 interface Props {
@@ -13,13 +15,7 @@ interface Props {
   onDemoChange: OnDemoChanged;
 }
 
-const modeCaptions: Record<string, string> = {
-  single: 'Single: one chart with editable config, data, groups and series — pick a demo below.',
-  multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
-  random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
-  transition: 'Transition: animates a chart between datasets — pick a demo below.',
-  rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
-};
+const modeCaptions: Record<string, string> = demoText.demosTab.modeCaptions;
 
 export default function MochartDemosTab({ active, demoData, demoMode, demoId, onDemoModeChanged, onDemoChange }: Props) {
   const [isTestMode, setIsTestMode] = useState(false);
@@ -43,35 +39,35 @@ export default function MochartDemosTab({ active, demoData, demoMode, demoId, on
       <div className="mochart-demo-modes-container">
         <Form inline>
           <FormGroup>
-            <span className="form-control-plaintext">Demo Mode:&nbsp;</span>
+            <span className="form-control-plaintext">{demoText.demosTab.demoModeLabel}&nbsp;</span>
           </FormGroup>
           <FormGroup>
             <ButtonToolbar>
-              <Button disabled={isSingle} title="One chart with editable config, data, groups and series"
+              <Button disabled={isSingle} title={demoText.demosTab.modes.single.title}
                 onClick={() => { onDemoModeChanged('single', demoId); }} color={isSingle ? "primary" : void 0}>
-                <FontAwesome size="lg" name="pen-to-square" /> Single
+                <FontAwesome size="lg" name="pen-to-square" /> {demoText.demosTab.modes.single.label}
               </Button>
-              <Button disabled={isMulti} title="A grid of charts stepping through datasets together"
+              <Button disabled={isMulti} title={demoText.demosTab.modes.multi.title}
                 onClick={() => { onDemoModeChanged('multi', demoId); }} color={isMulti ? "primary" : void 0}>
-                <FontAwesome size="lg" name="window-restore" /> Multi
+                <FontAwesome size="lg" name="window-restore" /> {demoText.demosTab.modes.multi.label}
               </Button>
-              <Button disabled={isRandom} title="A chart fed by a seeded random data generator"
+              <Button disabled={isRandom} title={demoText.demosTab.modes.random.title}
                 onClick={() => { onDemoModeChanged('random', demoId); }} color={isRandom ? "primary" : void 0}>
-                <FontAwesome size="lg" name="shuffle" /> Random
+                <FontAwesome size="lg" name="shuffle" /> {demoText.demosTab.modes.random.label}
               </Button>
-              <Button title="Animate a chart between two datasets" onClick={() => { onDemoModeChanged('transition', demoId); }}>
-                <FontAwesome size="lg" name="right-left" /> Transition
+              <Button title={demoText.demosTab.modes.transition.title} onClick={() => { onDemoModeChanged('transition', demoId); }}>
+                <FontAwesome size="lg" name="right-left" /> {demoText.demosTab.modes.transition.label}
               </Button>
-              <Button title="A grid of charts showing different tick label rotations" onClick={() => { onDemoModeChanged('rotation', demoId); }}>
-                <FontAwesome size="lg" name="repeat" /> Rotation
+              <Button title={demoText.demosTab.modes.rotation.title} onClick={() => { onDemoModeChanged('rotation', demoId); }}>
+                <FontAwesome size="lg" name="repeat" /> {demoText.demosTab.modes.rotation.label}
               </Button>
             </ButtonToolbar>
           </FormGroup>
           <FormGroup style={{ marginLeft: 10 }}>
             <ButtonToolbar>
-              <Button aria-pressed={isTestMode} title="Show the test demos (showcasing less used features)"
+              <Button aria-pressed={isTestMode} title={demoText.demosTab.testDemos.title}
                 onClick={() => setIsTestMode(mode => !mode)} color={isTestMode ? "primary" : void 0}>
-                <FontAwesome size="lg" name="flask" /> Test Demos
+                <FontAwesome size="lg" name="flask" /> {demoText.demosTab.testDemos.label}
               </Button>
             </ButtonToolbar>
           </FormGroup>

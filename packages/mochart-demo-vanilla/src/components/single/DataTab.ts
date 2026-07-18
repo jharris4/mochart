@@ -1,4 +1,4 @@
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 
@@ -60,7 +60,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   function updateShowUnused(nextShowUnused: boolean): void {
     const parsed = parseCurrentFullData();
     if ('error' in parsed) {
-      errorMessage = parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects';
+      errorMessage = parsed.error === 'json' ? demoText.errors.invalidJson : demoText.errors.invalidDataArray;
       sync();
       return;
     }
@@ -86,20 +86,20 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   }
 
   const resetButton = buttonWithTooltip({
-    id: 'data-reset', label: 'Reset', ariaLabel: 'Reset',
-    tooltipText: "Restore this demo's original data",
+    id: 'data-reset', label: demoText.dataTab.reset.label, ariaLabel: demoText.dataTab.reset.aria,
+    tooltipText: demoText.dataTab.reset.tooltip,
     onClick: resetData,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const unusedButton = buttonWithTooltip({
-    id: 'data-unused', label: 'Unused', pressed: showUnused, ariaLabel: 'Toggle Unused',
-    tooltipText: 'Show or hide data properties the chart config does not use',
+    id: 'data-unused', label: demoText.dataTab.unused.label, pressed: showUnused, ariaLabel: demoText.dataTab.unused.aria,
+    tooltipText: demoText.dataTab.unused.tooltip,
     onClick: () => updateShowUnused(!showUnused),
     content: [icon('eye-slash', { size: 'lg', fixedWidth: true })]
   });
   const applyButton = buttonWithTooltip({
-    id: 'data-apply', label: 'Apply', ariaLabel: 'Apply',
-    tooltipText: 'Apply this data — the chart updates when you return to the Chart tab',
+    id: 'data-apply', label: demoText.dataTab.apply.label, ariaLabel: demoText.dataTab.apply.aria,
+    tooltipText: demoText.dataTab.apply.tooltip,
     onClick: applyData,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });

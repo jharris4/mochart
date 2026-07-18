@@ -1,5 +1,5 @@
 
-import { applyTransitionConfigEdit, buildMochartDemoConfig, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 
@@ -35,7 +35,7 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }
 
@@ -52,14 +52,14 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
   }
 
   const resetButton = buttonWithTooltip({
-    id: 'config-reset', label: 'Reset', ariaLabel: 'Reset',
-    tooltipText: 'Restore the original transition config',
+    id: 'config-reset', label: demoText.transitionConfigTab.reset.label, ariaLabel: demoText.transitionConfigTab.reset.aria,
+    tooltipText: demoText.transitionConfigTab.reset.tooltip,
     onClick: onReset,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const applyButton = buttonWithTooltip({
-    id: 'config-apply', label: 'Apply', ariaLabel: 'Apply',
-    tooltipText: 'Apply this config to the transition charts',
+    id: 'config-apply', label: demoText.transitionConfigTab.apply.label, ariaLabel: demoText.transitionConfigTab.apply.aria,
+    tooltipText: demoText.transitionConfigTab.apply.tooltip,
     onClick: onUpdateClick,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });

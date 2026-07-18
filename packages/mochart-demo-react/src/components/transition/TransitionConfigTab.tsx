@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import { applyTransitionConfigEdit, buildMochartDemoConfig, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -43,7 +43,7 @@ export default function TransitionConfigTab({ active, transitionConfig, onUpdate
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }, [configText]);
   const footerError = jsonError ?? errorMessage;
@@ -55,13 +55,13 @@ export default function TransitionConfigTab({ active, transitionConfig, onUpdate
       </div>
       <div className="mochart-demo-tab-footer">
         <ButtonToolbar>
-          <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore the original transition config" tooltipPlacement="top-start"
-            onClick={onReset} aria-label="Reset">
+          <ButtonWithTooltip id="config-reset" label={demoText.transitionConfigTab.reset.label} tooltipText={demoText.transitionConfigTab.reset.tooltip} tooltipPlacement="top-start"
+            onClick={onReset} aria-label={demoText.transitionConfigTab.reset.aria}>
             <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
-            tooltipText="Apply this config to the transition charts" tooltipPlacement="top-start"
-            onClick={onUpdateClick} aria-label="Apply">
+          <ButtonWithTooltip id="config-apply" label={demoText.transitionConfigTab.apply.label} disabled={jsonError !== null}
+            tooltipText={demoText.transitionConfigTab.apply.tooltip} tooltipPlacement="top-start"
+            onClick={onUpdateClick} aria-label={demoText.transitionConfigTab.apply.aria}>
             <FontAwesome size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}

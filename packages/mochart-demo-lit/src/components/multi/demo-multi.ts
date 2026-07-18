@@ -2,6 +2,8 @@ import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
+import { demoText } from '@mochart/demo-common';
+
 import { LightElement } from '../misc/LightElement';
 
 import '../demos/demos-tab';
@@ -54,13 +56,13 @@ export class DemoMulti extends LightElement {
           <li class="nav-item">
             <button type="button" class=${'nav-link' + (this.activeKey === eventKeyDemo ? ' active' : '')}
                     @click=${() => this.handleSelect(eventKeyDemo)}>
-              Demos
+              ${demoText.tabs.demos}
             </button>
           </li>
           <li class="nav-item" style=${isDemos ? 'display: none;' : ''}>
             <button type="button" class=${'nav-link' + (this.activeKey === eventKeyChart ? ' active' : '')}
                     @click=${() => this.handleSelect(eventKeyChart)}>
-              Chart
+              ${demoText.tabs.chart}
             </button>
           </li>
         </ul>

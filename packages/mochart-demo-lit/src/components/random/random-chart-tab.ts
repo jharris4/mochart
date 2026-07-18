@@ -5,6 +5,8 @@ import type { PropertyValues } from 'lit';
 import { chart } from '@mochart/lit';
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
 
@@ -81,32 +83,32 @@ export class RandomChartTab extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'randomize-back', disabled: this.playing, label: 'Back', tooltipText: 'Go back to the previous random dataset', tooltipPlacement: 'top-start', onClick: this.onRandomizeBack, ariaLabel: 'Randomize Back' },
+                  { id: 'randomize-back', disabled: this.playing, label: demoText.randomChartTab.back.label, tooltipText: demoText.randomChartTab.back.tooltip, tooltipPlacement: 'top-start', onClick: this.onRandomizeBack, ariaLabel: demoText.randomChartTab.back.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'dice', flip: 'horizontal' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'randomize-next', disabled: this.playing, label: 'Randomize', tooltipText: 'Generate the next random dataset', tooltipPlacement: 'top-start', onClick: this.onRandomizeNext, ariaLabel: 'Randomize Next' },
+                  { id: 'randomize-next', disabled: this.playing, label: demoText.randomChartTab.randomize.label, tooltipText: demoText.randomChartTab.randomize.tooltip, tooltipPlacement: 'top-start', onClick: this.onRandomizeNext, ariaLabel: demoText.randomChartTab.randomize.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'dice' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'play', disabled: this.playing, tooltipText: 'Keep generating random datasets at the interval', tooltipPlacement: 'top-start', onClick: this.onPlayClick, ariaLabel: 'Play Randomize' },
+                  { id: 'play', disabled: this.playing, tooltipText: demoText.randomChartTab.play.tooltip, tooltipPlacement: 'top-start', onClick: this.onPlayClick, ariaLabel: demoText.randomChartTab.play.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'play' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'stop', disabled: !this.playing, tooltipText: 'Stop generating', tooltipPlacement: 'top-start', onClick: this.onStopClick, ariaLabel: 'Stop' },
+                  { id: 'stop', disabled: !this.playing, tooltipText: demoText.randomChartTab.stop.tooltip, tooltipPlacement: 'top-start', onClick: this.onStopClick, ariaLabel: demoText.randomChartTab.stop.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'stop' })
                 )}
               </div>
               <div class="form-group">
-                <label class="form-control-plaintext" for="random-rate">Interval (ms):</label>
-                <input id="random-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label="Randomize interval in milliseconds" @input=${this.rateChanged} />
+                <label class="form-control-plaintext" for="random-rate">${demoText.randomChartTab.intervalLabel}</label>
+                <input id="random-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label=${demoText.randomChartTab.intervalAria} @input=${this.rateChanged} />
               </div>
             </div>
             <div class="btn-toolbar ml-2" role="toolbar">
               ${exportButtons({ idPrefix: 'random', getContainer: () => this.querySelector('.random-chart-sizer') })}
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'reuse', disabled: this.playing, label: 'Reuse', pressed: this.applyReuse, tooltipText: "Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets", tooltipPlacement: 'top-start', onClick: this.toggleApplyReuse, ariaLabel: 'Reuse' },
+                  { id: 'reuse', disabled: this.playing, label: demoText.randomChartTab.reuse.label, pressed: this.applyReuse, tooltipText: demoText.randomChartTab.reuse.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleApplyReuse, ariaLabel: demoText.randomChartTab.reuse.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'recycle' })
                 )}
               </div>

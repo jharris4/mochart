@@ -4,6 +4,8 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart } from '@mochart/vue';
 
+import { demoText } from '@mochart/demo-common';
+
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import ExportButtons from '../misc/ExportButtons.vue';
 import Icon from '../misc/Icon.vue';
@@ -43,7 +45,7 @@ interface FocusPayload {
   groupIndex?: number;
 }
 
-const emptyGroupText = "Select Group(s)";
+const emptyGroupText = demoText.editableChart.emptyGroupText;
 
 const props = withDefaults(defineProps<Props>(), {
   dataError: false,
@@ -94,7 +96,7 @@ function updateFilteredDataState(
   removedData = nextRemovedData;
   if (resetGroupIndex === true) {
     groupIndex.value = -1;
-    seriesValuesText.value = "Select a Group";
+    seriesValuesText.value = demoText.editableChart.selectAGroupText;
   }
   filteredFocusedGroupIndex.value = props.dataError ? -1 : getFilteredFocusedGroupIndex(nextFilteredData);
   if (!props.dataError && props.mochartDemoConfig.mochartConfig.validation.valid) {
@@ -584,53 +586,53 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div v-if="props.showChartCountControls" class="btn-group">
-                    <ButtonWithTooltip id="edit-chart-count" label="2nd Chart" :pressed="props.chartCount === 2"
-                                       :tooltip-text="(props.chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data'" tooltip-placement="right"
-                                       :on-click="props.onChartCountToggle" aria-label="Toggle Chart Count">
+                    <ButtonWithTooltip id="edit-chart-count" :label="demoText.editableChart.secondChart.label" :pressed="props.chartCount === 2"
+                                       :tooltip-text="props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow" tooltip-placement="right"
+                                       :on-click="props.onChartCountToggle" :aria-label="demoText.editableChart.secondChart.aria">
                       <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
                     </ButtonWithTooltip>
                   </div>
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? 'Edit Series' : 'Edit Groups'"
+                    <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups"
                                        :tooltip-text="selectionMode === 'group'
-                                         ? 'Switch to editing one group at a time (step groups/series, change values)'
-                                         : 'Switch to editing the set of groups (add, remove, reorder)'" tooltip-placement="right"
-                                       :on-click="onModeToggle" aria-label="Toggle Mode">
+                                         ? demoText.editableChart.editMode.tooltipToSeries
+                                         : demoText.editableChart.editMode.tooltipToGroups" tooltip-placement="right"
+                                       :on-click="onModeToggle" :aria-label="demoText.editableChart.editMode.aria">
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
                   </div>
                   <ExportButtons id-prefix="edit" :disabled="!!error" :get-container="() => chartContentElement" />
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" label="Reset" tooltip-text="Restore the original group set and order" tooltip-placement="right"
-                                       :on-click="resetGroups" aria-label="Reset Groups">
+                    <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" :label="demoText.editableChart.resetGroups.label" :tooltip-text="demoText.editableChart.resetGroups.tooltip" tooltip-placement="right"
+                                       :on-click="resetGroups" :aria-label="demoText.editableChart.resetGroups.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-reverse-groups" :disabled="error || sequencePlaying" label="Reverse" tooltip-text="Reverse the order of the groups" tooltip-placement="right"
-                                       :on-click="reverseGroups" aria-label="Reverse Groups">
+                    <ButtonWithTooltip id="edit-reverse-groups" :disabled="error || sequencePlaying" :label="demoText.editableChart.reverseGroups.label" :tooltip-text="demoText.editableChart.reverseGroups.tooltip" tooltip-placement="right"
+                                       :on-click="reverseGroups" :aria-label="demoText.editableChart.reverseGroups.aria">
                       <Icon size="lg" :fixed-width="true" name="right-left" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-add-groups" :disabled="error || sequencePlaying || disableAdd" label="Add" tooltip-text="Add the groups selected in the input to the chart" tooltip-placement="right"
-                                       :on-click="addGroups" aria-label="Add Selected Groups">
+                    <ButtonWithTooltip id="edit-add-groups" :disabled="error || sequencePlaying || disableAdd" :label="demoText.editableChart.addGroups.label" :tooltip-text="demoText.editableChart.addGroups.tooltip" tooltip-placement="right"
+                                       :on-click="addGroups" :aria-label="demoText.editableChart.addGroups.aria">
                       <Icon size="lg" :fixed-width="true" name="plus" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-remove-groups" :disabled="error || sequencePlaying || disableRemove" label="Remove" tooltip-text="Remove the groups selected in the input from the chart" tooltip-placement="right"
-                                       :on-click="removeGroups" aria-label="Remove Selected Groups">
+                    <ButtonWithTooltip id="edit-remove-groups" :disabled="error || sequencePlaying || disableRemove" :label="demoText.editableChart.removeGroups.label" :tooltip-text="demoText.editableChart.removeGroups.tooltip" tooltip-placement="right"
+                                       :on-click="removeGroups" :aria-label="demoText.editableChart.removeGroups.aria">
                       <Icon size="lg" :fixed-width="true" name="minus" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-play-add" :disabled="error || sequencePlaying || disableAdd" tooltip-text="Animate adding the selected groups one at a time" tooltip-placement="right"
-                                       :on-click="startAddSequence" aria-label="Play Add Selected Groups">
+                    <ButtonWithTooltip id="edit-play-add" :disabled="error || sequencePlaying || disableAdd" :tooltip-text="demoText.editableChart.playAddGroups.tooltip" tooltip-placement="right"
+                                       :on-click="startAddSequence" :aria-label="demoText.editableChart.playAddGroups.aria">
                       <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="plus" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-play-remove" :disabled="error || sequencePlaying || disableRemove" tooltip-text="Animate removing the selected groups one at a time" tooltip-placement="right"
-                                       :on-click="startRemoveSequence" aria-label="Play Remove Selected Groups">
+                    <ButtonWithTooltip id="edit-play-remove" :disabled="error || sequencePlaying || disableRemove" :tooltip-text="demoText.editableChart.playRemoveGroups.tooltip" tooltip-placement="right"
+                                       :on-click="startRemoveSequence" :aria-label="demoText.editableChart.playRemoveGroups.aria">
                       <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="minus" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-stop" :disabled="error || !sequencePlaying" tooltip-text="Stop the add/remove animation" tooltip-placement="right"
-                                       :on-click="stopSequence" aria-label="Stop Selected Group Sequence">
+                    <ButtonWithTooltip id="edit-stop" :disabled="error || !sequencePlaying" :tooltip-text="demoText.editableChart.stopSequence.tooltip" tooltip-placement="right"
+                                       :on-click="stopSequence" :aria-label="demoText.editableChart.stopSequence.aria">
                       <Icon size="lg" :fixed-width="true" name="stop" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-select-all" :disabled="error || sequencePlaying" label="Select All" tooltip-text="Put every group into the selection input" tooltip-placement="right"
-                                       :on-click="selectAllGroups" aria-label="Select All Groups">
+                    <ButtonWithTooltip id="edit-select-all" :disabled="error || sequencePlaying" :label="demoText.editableChart.selectAllGroups.label" :tooltip-text="demoText.editableChart.selectAllGroups.tooltip" tooltip-placement="right"
+                                       :on-click="selectAllGroups" :aria-label="demoText.editableChart.selectAllGroups.aria">
                       <Icon size="lg" :fixed-width="true" name="check-double" />
                     </ButtonWithTooltip>
                   </div>
@@ -650,18 +652,18 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div v-if="props.showChartCountControls" class="btn-group">
-                    <ButtonWithTooltip id="edit-chart-count" label="2nd Chart" :pressed="props.chartCount === 2"
-                                       :tooltip-text="(props.chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data'" tooltip-placement="right"
-                                       :on-click="props.onChartCountToggle" aria-label="Toggle Chart Count">
+                    <ButtonWithTooltip id="edit-chart-count" :label="demoText.editableChart.secondChart.label" :pressed="props.chartCount === 2"
+                                       :tooltip-text="props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow" tooltip-placement="right"
+                                       :on-click="props.onChartCountToggle" :aria-label="demoText.editableChart.secondChart.aria">
                       <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
                     </ButtonWithTooltip>
                   </div>
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? 'Edit Series' : 'Edit Groups'"
+                    <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups"
                                        :tooltip-text="selectionMode === 'group'
-                                         ? 'Switch to editing one group at a time (step groups/series, change values)'
-                                         : 'Switch to editing the set of groups (add, remove, reorder)'" tooltip-placement="right"
-                                       :on-click="onModeToggle" aria-label="Toggle Mode">
+                                         ? demoText.editableChart.editMode.tooltipToSeries
+                                         : demoText.editableChart.editMode.tooltipToGroups" tooltip-placement="right"
+                                       :on-click="onModeToggle" :aria-label="demoText.editableChart.editMode.aria">
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
                   </div>
@@ -671,21 +673,21 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-group-decrease" :disabled="error || groupOrderControlsDisabled || isFirstGroup" tooltip-text="Move the focused group one position earlier" tooltip-placement="right"
-                                       :on-click="decreaseGroupOrder" aria-label="Decrease Group Order">
+                    <ButtonWithTooltip id="edit-group-decrease" :disabled="error || groupOrderControlsDisabled || isFirstGroup" :tooltip-text="demoText.editableChart.decreaseGroupOrder.tooltip" tooltip-placement="right"
+                                       :on-click="decreaseGroupOrder" :aria-label="demoText.editableChart.decreaseGroupOrder.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-left" />
                     </ButtonWithTooltip>
                   </div>
                 </div>
               </div>
               <div class="form-group">
-                <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ 'Group: ' + groupIndex }}</span>
+                <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ demoText.editableChart.groupIndexPrefix + groupIndex }}</span>
               </div>
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-group-increase" :disabled="error || groupOrderControlsDisabled || isLastGroup" tooltip-text="Move the focused group one position later" tooltip-placement="right"
-                                       :on-click="increaseGroupOrder" aria-label="Increase Group Order">
+                    <ButtonWithTooltip id="edit-group-increase" :disabled="error || groupOrderControlsDisabled || isLastGroup" :tooltip-text="demoText.editableChart.increaseGroupOrder.tooltip" tooltip-placement="right"
+                                       :on-click="increaseGroupOrder" :aria-label="demoText.editableChart.increaseGroupOrder.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-right" />
                     </ButtonWithTooltip>
                   </div>
@@ -694,31 +696,31 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-previous-series" :disabled="error || seriesControlsDisabled || !hasPrevSeries" tooltip-text="Edit the previous series" tooltip-placement="right"
-                                       :on-click="prevSeries" aria-label="Previous Series">
+                    <ButtonWithTooltip id="edit-previous-series" :disabled="error || seriesControlsDisabled || !hasPrevSeries" :tooltip-text="demoText.editableChart.previousSeries.tooltip" tooltip-placement="right"
+                                       :on-click="prevSeries" :aria-label="demoText.editableChart.previousSeries.aria">
                       <Icon size="lg" :fixed-width="true" name="chevron-down" />
                     </ButtonWithTooltip>
                   </div>
                 </div>
               </div>
               <div class="form-group">
-                <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ 'Series: ' + seriesIndex }}</span>
+                <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ demoText.editableChart.seriesIndexPrefix + seriesIndex }}</span>
               </div>
               <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-next-series" :disabled="error || seriesControlsDisabled || !hasNextSeries" tooltip-text="Edit the next series" tooltip-placement="right"
-                                       :on-click="nextSeries" aria-label="Next Series">
+                    <ButtonWithTooltip id="edit-next-series" :disabled="error || seriesControlsDisabled || !hasNextSeries" :tooltip-text="demoText.editableChart.nextSeries.tooltip" tooltip-placement="right"
+                                       :on-click="nextSeries" :aria-label="demoText.editableChart.nextSeries.aria">
                       <Icon size="lg" :fixed-width="true" name="chevron-up" />
                     </ButtonWithTooltip>
                   </div>
                   <div class="btn-group">
-                    <ButtonWithTooltip id="edit-reset-series" :disabled="error || seriesControlsDisabled" tooltip-text="Reset Series Changes" tooltip-placement="right"
-                                       :on-click="resetSeriesChanges" aria-label="Reset Series Changes">
+                    <ButtonWithTooltip id="edit-reset-series" :disabled="error || seriesControlsDisabled" :tooltip-text="demoText.editableChart.resetSeries.tooltip" tooltip-placement="right"
+                                       :on-click="resetSeriesChanges" :aria-label="demoText.editableChart.resetSeries.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
                     </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-apply-series" :disabled="error || seriesControlsDisabled" tooltip-text="Apply Series Changes" tooltip-placement="right"
-                                       :on-click="applySeriesChanges" aria-label="Apply Series Changes">
+                    <ButtonWithTooltip id="edit-apply-series" :disabled="error || seriesControlsDisabled" :tooltip-text="demoText.editableChart.applySeries.tooltip" tooltip-placement="right"
+                                       :on-click="applySeriesChanges" :aria-label="demoText.editableChart.applySeries.aria">
                       <Icon size="lg" :fixed-width="true" name="check" />
                     </ButtonWithTooltip>
                   </div>

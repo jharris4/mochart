@@ -1,4 +1,4 @@
-import { buildMochartDemoConfig, copyDemoConfig, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 
@@ -38,7 +38,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }
 
@@ -66,12 +66,12 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
         if (warnings.length > 0) {
           console.warn('warnings: ', warnings);
         }
-        errorMessage = 'Invalid chart config — details in the browser console';
+        errorMessage = demoText.errors.invalidChartConfig;
       }
     }
     catch (error) {
       console.warn('Invalid Chart Config JSON: ' + getConfigText());
-      errorMessage = 'Invalid JSON';
+      errorMessage = demoText.errors.invalidJson;
     }
     sync();
   }
@@ -96,32 +96,32 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   }
 
   const resetButton = buttonWithTooltip({
-    id: 'config-reset', label: 'Reset', ariaLabel: 'Reset',
-    tooltipText: "Restore this demo's original config",
+    id: 'config-reset', label: demoText.configTab.reset.label, ariaLabel: demoText.configTab.reset.aria,
+    tooltipText: demoText.configTab.reset.tooltip,
     onClick: () => onConfigReset(),
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const defaultsButton = buttonWithTooltip({
-    id: 'config-defaults', label: 'Defaults', pressed: showDefaults, ariaLabel: 'Toggle Defaults',
-    tooltipText: 'Show or hide the default config values merged into the JSON',
+    id: 'config-defaults', label: demoText.configTab.defaults.label, pressed: showDefaults, ariaLabel: demoText.configTab.defaults.aria,
+    tooltipText: demoText.configTab.defaults.tooltip,
     onClick: () => updateShowDefaults(!showDefaults),
     content: [icon('eye-slash', { size: 'lg', fixedWidth: true })]
   });
   const invertedButton = buttonWithTooltip({
-    id: 'config-inverted', label: 'Invert', pressed: false, ariaLabel: 'Toggle Inverted',
-    tooltipText: 'Swap the chart between vertical and horizontal orientation',
+    id: 'config-inverted', label: demoText.configTab.invert.label, pressed: false, ariaLabel: demoText.configTab.invert.aria,
+    tooltipText: demoText.configTab.invert.tooltip,
     onClick: toggleConfigInverted,
     content: [icon('chart-column', { size: 'lg', fixedWidth: true })]
   });
   const slowButton = buttonWithTooltip({
-    id: 'config-animate-slow', label: 'Slow', pressed: false, ariaLabel: 'Toggle Slow',
-    tooltipText: 'Slow all animations down so transitions are easy to watch',
+    id: 'config-animate-slow', label: demoText.configTab.slow.label, pressed: false, ariaLabel: demoText.configTab.slow.aria,
+    tooltipText: demoText.configTab.slow.tooltip,
     onClick: toggleConfigAnimationSlow,
     content: [icon('hourglass-end', { size: 'lg', fixedWidth: true })]
   });
   const applyButton = buttonWithTooltip({
-    id: 'config-apply', label: 'Apply', ariaLabel: 'Apply',
-    tooltipText: 'Apply this config — the chart updates when you return to the Chart tab',
+    id: 'config-apply', label: demoText.configTab.apply.label, ariaLabel: demoText.configTab.apply.aria,
+    tooltipText: demoText.configTab.apply.tooltip,
     onClick: applyConfig,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });

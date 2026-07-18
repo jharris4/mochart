@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { applyTransitionConfigEdit, buildMochartDemoConfig, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
@@ -47,7 +47,7 @@ export class TransitionConfigTab extends LightElement {
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }
 
@@ -61,11 +61,11 @@ export class TransitionConfigTab extends LightElement {
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
           ${buttonWithTooltip(
-            { id: 'config-reset', label: 'Reset', tooltipText: 'Restore the original transition config', tooltipPlacement: 'top-start', onClick: () => this.onReset(), ariaLabel: 'Reset' },
+            { id: 'config-reset', label: demoText.transitionConfigTab.reset.label, tooltipText: demoText.transitionConfigTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: () => this.onReset(), ariaLabel: demoText.transitionConfigTab.reset.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
           )}
           ${buttonWithTooltip(
-            { id: 'config-apply', label: 'Apply', disabled: jsonError !== null, tooltipText: 'Apply this config to the transition charts', tooltipPlacement: 'top-start', onClick: this.onUpdateClick, ariaLabel: 'Apply' },
+            { id: 'config-apply', label: demoText.transitionConfigTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.transitionConfigTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.onUpdateClick, ariaLabel: demoText.transitionConfigTab.apply.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'check' })
           )}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}

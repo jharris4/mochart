@@ -37,3 +37,5 @@ export type { TransitionConfigEditResult } from './transition';
 export { getChartDataCount, getDataProvidersForDataCount } from './multiCharts';
 
 export { rotationData, rotationConfigs } from './rotationConfigs';
+
+export { demoText } from './demoText';

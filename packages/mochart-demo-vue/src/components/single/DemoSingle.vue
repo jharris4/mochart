@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue';
 
+import { demoText } from '@mochart/demo-common';
+
 import DemosTab from '../demos/DemosTab.vue';
 import ChartTab from './ChartTab.vue';
 import ConfigTab from './ConfigTab.vue';
@@ -134,26 +136,26 @@ const hasPendingChanges = computed(() =>
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyDemo ? ' active' : '')"
                   @click="handleSelect(eventKeyDemo)">
-            Demos
+            {{ demoText.tabs.demos }}
           </button>
         </li>
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
-                  :title="hasPendingChanges ? 'Applied changes are waiting — switch here to see them' : void 0"
+                  :title="hasPendingChanges ? demoText.tabs.chartPendingTitle : void 0"
                   @click="handleSelect(eventKeyChart)">
-            Chart<span v-if="hasPendingChanges" class="mochart-pending-badge" aria-hidden="true"></span>
+            {{ demoText.tabs.chart }}<span v-if="hasPendingChanges" class="mochart-pending-badge" aria-hidden="true"></span>
           </button>
         </li>
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
                   @click="handleSelect(eventKeyConfig)">
-            Config
+            {{ demoText.tabs.config }}
           </button>
         </li>
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyData ? ' active' : '')"
                   @click="handleSelect(eventKeyData)">
-            Data
+            {{ demoText.tabs.data }}
           </button>
         </li>
       </ul>

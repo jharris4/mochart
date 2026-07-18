@@ -1,6 +1,8 @@
 import React, { Component, type ErrorInfo, type ReactElement } from 'react';
 import { Alert } from 'reactstrap';
 
+import { demoText } from '@mochart/demo-common';
+
 interface Props {
   active: boolean;
   // The single child receives `active` injected via cloneElement.
@@ -30,7 +32,7 @@ export default class ErrorTab extends Component<Props, State> {
       return (
         <div className={"mochart-demo-tab-container error" + (active ? " active" : "")}>
           <Alert color="danger" className="text-center mochart-demo-error-message">
-            An Error Occurred
+            {demoText.errors.errorOccurred}
           </Alert>
         </div>
       );

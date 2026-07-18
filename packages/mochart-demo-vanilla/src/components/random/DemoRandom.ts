@@ -1,4 +1,4 @@
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
 import { demosTab } from '../demos/DemosTab';
@@ -101,10 +101,10 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
     return { li: el('li', { className: 'nav-item' }, [button]), button };
   }
 
-  const demoNav = navItem('Demos', eventKeyDemo);
-  const chartNav = navItem('Chart', eventKeyChart);
-  const configNav = navItem('Random Config', eventKeyConfig);
-  const dataNav = navItem('Data', eventKeyData);
+  const demoNav = navItem(demoText.tabs.demos, eventKeyDemo);
+  const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
+  const configNav = navItem(demoText.tabs.randomConfig, eventKeyConfig);
+  const dataNav = navItem(demoText.tabs.data, eventKeyData);
 
   const contentPane = el('div', { className: 'mochart-demo-content-pane' });
   const container = el('div', { className: 'mochart-demo-container multi' }, [

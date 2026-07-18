@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { buildMochartDemoConfig, defaultTransitionConfig, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { TransitionChartTab } from './transition-chart-tab';
 import { TransitionConfigTab } from './transition-config-tab';
@@ -21,13 +21,13 @@ const eventKeyConfig = 2;
           <li class="nav-item">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeyChart ? ' active' : '')"
                     (click)="handleSelect(eventKeyChart)">
-              Chart
+              {{ text.chart }}
             </button>
           </li>
           <li class="nav-item">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeyConfig ? ' active' : '')"
                     (click)="handleSelect(eventKeyConfig)">
-              Transition Config
+              {{ text.transitionConfig }}
             </button>
           </li>
         </ul>
@@ -43,6 +43,8 @@ const eventKeyConfig = 2;
   `
 })
 export class DemoTransition {
+  readonly text = demoText.tabs;
+
   readonly eventKeyChart = eventKeyChart;
   readonly eventKeyConfig = eventKeyConfig;
 

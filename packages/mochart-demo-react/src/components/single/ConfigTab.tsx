@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import { buildMochartDemoConfig, copyDemoConfig, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -65,12 +65,12 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
         if (warnings.length > 0) {
           console.warn('warnings: ', warnings);
         }
-        setErrorMessage('Invalid chart config — details in the browser console');
+        setErrorMessage(demoText.errors.invalidChartConfig);
       }
     }
     catch (error) {
       console.warn('Invalid Chart Config JSON: ' + state.configText);
-      setErrorMessage('Invalid JSON');
+      setErrorMessage(demoText.errors.invalidJson);
     }
   };
 
@@ -109,7 +109,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }, [configText]);
   const footerError = jsonError ?? errorMessage;
@@ -121,28 +121,28 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
       </div>
       <div className="mochart-demo-tab-footer">
         <ButtonToolbar>
-          <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore this demo's original config" tooltipPlacement="top-start"
-            onClick={resetConfig} aria-label="Reset">
+          <ButtonWithTooltip id="config-reset" label={demoText.configTab.reset.label} tooltipText={demoText.configTab.reset.tooltip} tooltipPlacement="top-start"
+            onClick={resetConfig} aria-label={demoText.configTab.reset.aria}>
             <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-defaults" label="Defaults" pressed={showDefaults}
-            tooltipText="Show or hide the default config values merged into the JSON" tooltipPlacement="top-start"
-            onClick={toggleConfigDefaults} aria-label="Toggle Defaults">
+          <ButtonWithTooltip id="config-defaults" label={demoText.configTab.defaults.label} pressed={showDefaults}
+            tooltipText={demoText.configTab.defaults.tooltip} tooltipPlacement="top-start"
+            onClick={toggleConfigDefaults} aria-label={demoText.configTab.defaults.aria}>
             <FontAwesome size="lg" fixedWidth={true} name={showDefaults ? 'eye' : 'eye-slash'} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-inverted" label="Invert" pressed={!!inverted}
-            tooltipText="Swap the chart between vertical and horizontal orientation" tooltipPlacement="top-start"
-            onClick={toggleConfigInverted} aria-label="Toggle Inverted">
+          <ButtonWithTooltip id="config-inverted" label={demoText.configTab.invert.label} pressed={!!inverted}
+            tooltipText={demoText.configTab.invert.tooltip} tooltipPlacement="top-start"
+            onClick={toggleConfigInverted} aria-label={demoText.configTab.invert.aria}>
             <FontAwesome size="lg" fixedWidth={true} name={invertedIcon} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-animate-slow" label="Slow" pressed={slow}
-            tooltipText="Slow all animations down so transitions are easy to watch" tooltipPlacement="top-start"
-            onClick={toggleConfigAnimationSlow} aria-label="Toggle Slow">
+          <ButtonWithTooltip id="config-animate-slow" label={demoText.configTab.slow.label} pressed={slow}
+            tooltipText={demoText.configTab.slow.tooltip} tooltipPlacement="top-start"
+            onClick={toggleConfigAnimationSlow} aria-label={demoText.configTab.slow.aria}>
             <FontAwesome size="lg" fixedWidth={true} name={slowIcon} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
-            tooltipText="Apply this config — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
-            onClick={applyConfig} aria-label="Apply">
+          <ButtonWithTooltip id="config-apply" label={demoText.configTab.apply.label} disabled={jsonError !== null}
+            tooltipText={demoText.configTab.apply.tooltip} tooltipPlacement="top-start"
+            onClick={applyConfig} aria-label={demoText.configTab.apply.aria}>
             <FontAwesome size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}

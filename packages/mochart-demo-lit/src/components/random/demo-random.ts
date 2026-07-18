@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import '../demos/demos-tab';
@@ -91,10 +91,10 @@ export class DemoRandom extends LightElement {
     return html`<div class="mochart-demo-container multi">
       <div class="mochart-demo-tabs-container">
         <ul class="nav nav-tabs">
-          ${this.renderTab(eventKeyDemo, 'Demos', false)}
-          ${this.renderTab(eventKeyChart, 'Chart', isDemos)}
-          ${this.renderTab(eventKeyConfig, 'Random Config', isDemos)}
-          ${this.renderTab(eventKeyData, 'Data', isDemos)}
+          ${this.renderTab(eventKeyDemo, demoText.tabs.demos, false)}
+          ${this.renderTab(eventKeyChart, demoText.tabs.chart, isDemos)}
+          ${this.renderTab(eventKeyConfig, demoText.tabs.randomConfig, isDemos)}
+          ${this.renderTab(eventKeyData, demoText.tabs.data, isDemos)}
         </ul>
       </div>
       <div class="mochart-demo-content-pane">

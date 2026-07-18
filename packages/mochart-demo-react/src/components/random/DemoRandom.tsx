@@ -4,7 +4,7 @@ import { Nav, NavItem, NavLink } from 'reactstrap';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { buildMochartDemoConfig, generateChartDataProvider } from '@mochart/demo-common';
+import { buildMochartDemoConfig, demoText, generateChartDataProvider } from '@mochart/demo-common';
 
 import MochartDemosTab from '../demos/DemosTab';
 import RandomMochartChartTab from './RandomChartTab';
@@ -97,22 +97,22 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
         <Nav tabs>
           <NavItem>
             <NavLink active={activeKey === eventKeyDemo} onClick={() => { handleSelect(eventKeyDemo); }}>
-              Demos
+              {demoText.tabs.demos}
             </NavLink>
           </NavItem>
           <NavItem style={nonDemoNavItemStyle}>
             <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
-              Chart
+              {demoText.tabs.chart}
             </NavLink>
           </NavItem>
           <NavItem style={nonDemoNavItemStyle}>
             <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
-              Random Config
+              {demoText.tabs.randomConfig}
             </NavLink>
           </NavItem>
           <NavItem style={nonDemoNavItemStyle}>
             <NavLink active={activeKey === eventKeyData} onClick={() => { handleSelect(eventKeyData); }}>
-              Data
+              {demoText.tabs.data}
             </NavLink>
           </NavItem>
         </Nav>
@@ -193,8 +193,8 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
       console.warn('group values: ', groupValues);
       console.warn('series values: ', seriesValues);
       return {
-        dataProvider: { getGroupValues: () => [], getError: () => 'Error creating DataProvider' },
-        data: { error: 'Error creating DataProvider' },
+        dataProvider: { getGroupValues: () => [], getError: () => demoText.errors.creatingDataProvider },
+        data: { error: demoText.errors.creatingDataProvider },
         randomConfig
       };
     }
@@ -204,8 +204,8 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
   }
   else {
     return {
-      dataProvider: { getGroupValues: () => [], getError: () => 'Invalid Random Config' },
-      data: { error: 'Invalid Random Config' },
+      dataProvider: { getGroupValues: () => [], getError: () => demoText.errors.invalidRandomConfig },
+      data: { error: demoText.errors.invalidRandomConfig },
       randomConfig
     };
   }

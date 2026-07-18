@@ -2,6 +2,7 @@ import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 
 import { exportPNG, exportSVG } from '@mochart/export';
+import { demoText } from '@mochart/demo-common';
 
 // Stateless building blocks kept as plain lit-html template functions rather
 // than custom elements — the natural Lit altitude for the Vue demo's Icon /
@@ -101,11 +102,11 @@ export function exportButtons({ idPrefix, getContainer, disabled = false }: Expo
   };
   return html`<div class="btn-group">
     ${buttonWithTooltip(
-      { id: idPrefix + '-export-png', disabled, label: 'PNG', tooltipText: 'Download the chart as a PNG image', tooltipPlacement: 'top-start', onClick: onExportPng, ariaLabel: 'Export PNG' },
+      { id: idPrefix + '-export-png', disabled, label: demoText.exportButtons.png.label, tooltipText: demoText.exportButtons.png.tooltip, tooltipPlacement: 'top-start', onClick: onExportPng, ariaLabel: demoText.exportButtons.png.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'file-image' })
     )}
     ${buttonWithTooltip(
-      { id: idPrefix + '-export-svg', disabled, label: 'SVG', tooltipText: 'Download the chart as an SVG image', tooltipPlacement: 'top-start', onClick: onExportSvg, ariaLabel: 'Export SVG' },
+      { id: idPrefix + '-export-svg', disabled, label: demoText.exportButtons.svg.label, tooltipText: demoText.exportButtons.svg.tooltip, tooltipPlacement: 'top-start', onClick: onExportSvg, ariaLabel: demoText.exportButtons.svg.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'file-code' })
     )}
   </div>`;

@@ -3,7 +3,7 @@ import { Nav, NavItem, NavLink } from 'reactstrap';
 
 import type { MochartConfig } from '@mochart/core';
 
-import { buildMochartDemoConfig, defaultTransitionConfig, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import TransitionMochartChartTab from './TransitionChartTab';
 import TransitionMochartConfigTab from './TransitionConfigTab';
@@ -24,12 +24,12 @@ export default function MochartDemoTransition() {
         <Nav tabs>
           <NavItem>
             <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
-              Chart
+              {demoText.tabs.chart}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
-              Transition Config
+              {demoText.tabs.transitionConfig}
             </NavLink>
           </NavItem>
         </Nav>

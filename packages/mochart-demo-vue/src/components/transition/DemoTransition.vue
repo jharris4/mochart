@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, shallowRef } from 'vue';
 
-import { buildMochartDemoConfig, defaultTransitionConfig, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import TransitionChartTab from './TransitionChartTab.vue';
 import TransitionConfigTab from './TransitionConfigTab.vue';
@@ -41,13 +41,13 @@ function onResetConfig() {
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
                   @click="handleSelect(eventKeyChart)">
-            Chart
+            {{ demoText.tabs.chart }}
           </button>
         </li>
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
                   @click="handleSelect(eventKeyConfig)">
-            Transition Config
+            {{ demoText.tabs.transitionConfig }}
           </button>
         </li>
       </ul>

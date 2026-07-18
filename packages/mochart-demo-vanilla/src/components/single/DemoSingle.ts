@@ -1,3 +1,5 @@
+import { demoText } from '@mochart/demo-common';
+
 import { el, errorTab, setActiveClass } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
 import { demosTab } from '../demos/DemosTab';
@@ -143,10 +145,10 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
     return { li: el('li', { className: 'nav-item' }, [button]), button };
   }
 
-  const demoNav = navItem('Demos', eventKeyDemo);
-  const chartNav = navItem('Chart', eventKeyChart);
-  const configNav = navItem('Config', eventKeyConfig);
-  const dataNav = navItem('Data', eventKeyData);
+  const demoNav = navItem(demoText.tabs.demos, eventKeyDemo);
+  const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
+  const configNav = navItem(demoText.tabs.config, eventKeyConfig);
+  const dataNav = navItem(demoText.tabs.data, eventKeyData);
 
   const contentPane = el('div', { className: 'mochart-demo-content-pane' });
   const container = el('div', { className: 'mochart-demo-container' }, [
@@ -217,7 +219,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
     chartNav.button.classList.toggle('active', activeKey === eventKeyChart);
     configNav.button.classList.toggle('active', activeKey === eventKeyConfig);
     dataNav.button.classList.toggle('active', activeKey === eventKeyData);
-    chartNav.button.title = hasPendingChanges ? 'Applied changes are waiting — switch here to see them' : '';
+    chartNav.button.title = hasPendingChanges ? demoText.tabs.chartPendingTitle : '';
     if (hasPendingChanges) {
       if (pendingBadge.parentElement === null) {
         chartNav.button.append(pendingBadge);

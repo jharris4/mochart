@@ -1,5 +1,5 @@
 
-import { buildMochartDemoConfig, defaultTransitionConfig, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
 import { transitionChartTab } from './TransitionChartTab';
@@ -56,8 +56,8 @@ export function demoTransition(): DemoTransitionHandle {
     return { li: el('li', { className: 'nav-item' }, [button]), button };
   }
 
-  const chartNav = navItem('Chart', eventKeyChart);
-  const configNav = navItem('Transition Config', eventKeyConfig);
+  const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
+  const configNav = navItem(demoText.tabs.transitionConfig, eventKeyConfig);
 
   const container = el('div', { className: 'mochart-demo-container multi' }, [
     el('div', { className: 'mochart-demo-tabs-container' }, [

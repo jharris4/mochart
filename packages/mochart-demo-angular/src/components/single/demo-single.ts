@@ -1,6 +1,8 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { DemosTab } from '../demos/demos-tab';
 import { ChartTab } from './chart-tab';
 import { ConfigTab } from './config-tab';
@@ -31,26 +33,26 @@ function getActiveKeyForInitialDemoId(initialDemoId: string): number {
           <li class="nav-item">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeyDemo ? ' active' : '')"
                     (click)="handleSelect(eventKeyDemo)">
-              Demos
+              {{ text.demos }}
             </button>
           </li>
           <li class="nav-item">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeyChart ? ' active' : '')"
-                    [attr.title]="hasPendingChanges ? 'Applied changes are waiting — switch here to see them' : null"
+                    [attr.title]="hasPendingChanges ? text.chartPendingTitle : null"
                     (click)="handleSelect(eventKeyChart)">
-              Chart@if (hasPendingChanges) {<span class="mochart-pending-badge" aria-hidden="true"></span>}
+              {{ text.chart }}@if (hasPendingChanges) {<span class="mochart-pending-badge" aria-hidden="true"></span>}
             </button>
           </li>
           <li class="nav-item">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeyConfig ? ' active' : '')"
                     (click)="handleSelect(eventKeyConfig)">
-              Config
+              {{ text.config }}
             </button>
           </li>
           <li class="nav-item">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeyData ? ' active' : '')"
                     (click)="handleSelect(eventKeyData)">
-              Data
+              {{ text.data }}
             </button>
           </li>
         </ul>
@@ -91,6 +93,8 @@ export class DemoSingle implements OnInit, OnChanges {
   @Input({ required: true }) initialDemoId!: string;
   @Input({ required: true }) onDemoModeChanged!: OnDemoModeChanged;
   @Input({ required: true }) onDemoChanged!: OnDemoChanged;
+
+  readonly text = demoText.tabs;
 
   readonly eventKeyChart = eventKeyChart;
   readonly eventKeyConfig = eventKeyConfig;

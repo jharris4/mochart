@@ -1,7 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, copyDemoConfig, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -22,28 +22,28 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
-          <app-button-with-tooltip id="config-reset" label="Reset" tooltipText="Restore this demo's original config" tooltipPlacement="top-start"
-                                   [onClick]="resetConfig" aria-label="Reset">
+          <app-button-with-tooltip id="config-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="resetConfig" [aria-label]="text.reset.aria">
             <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
           </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-defaults" label="Defaults" [pressed]="showDefaults()"
-                                   tooltipText="Show or hide the default config values merged into the JSON" tooltipPlacement="top-start"
-                                   [onClick]="toggleConfigDefaults" aria-label="Toggle Defaults">
+          <app-button-with-tooltip id="config-defaults" [label]="text.defaults.label" [pressed]="showDefaults()"
+                                   [tooltipText]="text.defaults.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="toggleConfigDefaults" [aria-label]="text.defaults.aria">
             <app-icon size="lg" [fixedWidth]="true" [name]="showDefaults() ? 'eye' : 'eye-slash'" />
           </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-inverted" label="Invert" [pressed]="!!inverted"
-                                   tooltipText="Swap the chart between vertical and horizontal orientation" tooltipPlacement="top-start"
-                                   [onClick]="toggleConfigInverted" aria-label="Toggle Inverted">
+          <app-button-with-tooltip id="config-inverted" [label]="text.invert.label" [pressed]="!!inverted"
+                                   [tooltipText]="text.invert.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="toggleConfigInverted" [aria-label]="text.invert.aria">
             <app-icon size="lg" [fixedWidth]="true" [name]="invertedIcon" />
           </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-animate-slow" label="Slow" [pressed]="slow"
-                                   tooltipText="Slow all animations down so transitions are easy to watch" tooltipPlacement="top-start"
-                                   [onClick]="toggleConfigAnimationSlow" aria-label="Toggle Slow">
+          <app-button-with-tooltip id="config-animate-slow" [label]="text.slow.label" [pressed]="slow"
+                                   [tooltipText]="text.slow.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="toggleConfigAnimationSlow" [aria-label]="text.slow.aria">
             <app-icon size="lg" [fixedWidth]="true" [name]="slowIcon" />
           </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-apply" label="Apply" [disabled]="jsonError !== null"
-                                   tooltipText="Apply this config — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
-                                   [onClick]="applyConfig" aria-label="Apply">
+          <app-button-with-tooltip id="config-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
+                                   [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="applyConfig" [aria-label]="text.apply.aria">
             <app-icon size="lg" [fixedWidth]="true" name="check" />
           </app-button-with-tooltip>
           @if (footerError) {
@@ -59,6 +59,8 @@ export class ConfigTab implements OnInit, OnChanges {
   @Input({ required: true }) config!: DemoConfig;
   @Input({ required: true }) onConfigChange!: (config: DemoConfig) => void;
   @Input({ required: true }) onConfigReset!: () => void;
+
+  readonly text = demoText.configTab;
 
   showDefaults = signal(false);
   errorMessage = signal<string | null>(null);
@@ -109,12 +111,12 @@ export class ConfigTab implements OnInit, OnChanges {
         if (warnings.length > 0) {
           console.warn('warnings: ', warnings);
         }
-        this.errorMessage.set('Invalid chart config — details in the browser console');
+        this.errorMessage.set(demoText.errors.invalidChartConfig);
       }
     }
     catch (error) {
       console.warn('Invalid Chart Config JSON: ' + this.configText());
-      this.errorMessage.set('Invalid JSON');
+      this.errorMessage.set(demoText.errors.invalidJson);
     }
   }
 
@@ -163,7 +165,7 @@ export class ConfigTab implements OnInit, OnChanges {
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }
 

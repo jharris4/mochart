@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import { applyTransitionConfigEdit, buildMochartDemoConfig, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -49,7 +49,7 @@ const jsonError = computed(() => {
     return null;
   }
   catch (error) {
-    return 'Invalid JSON';
+    return demoText.errors.invalidJson;
   }
 });
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
@@ -62,13 +62,13 @@ const footerError = computed(() => jsonError.value ?? errorMessage.value);
     </div>
     <div class="mochart-demo-tab-footer">
       <div class="btn-toolbar" role="toolbar">
-        <ButtonWithTooltip id="config-reset" label="Reset" tooltip-text="Restore the original transition config" tooltip-placement="top-start"
-                           :on-click="props.onReset" aria-label="Reset">
+        <ButtonWithTooltip id="config-reset" :label="demoText.transitionConfigTab.reset.label" :tooltip-text="demoText.transitionConfigTab.reset.tooltip" tooltip-placement="top-start"
+                           :on-click="props.onReset" :aria-label="demoText.transitionConfigTab.reset.aria">
           <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-apply" label="Apply" :disabled="jsonError !== null"
-                           tooltip-text="Apply this config to the transition charts" tooltip-placement="top-start"
-                           :on-click="onUpdateClick" aria-label="Apply">
+        <ButtonWithTooltip id="config-apply" :label="demoText.transitionConfigTab.apply.label" :disabled="jsonError !== null"
+                           :tooltip-text="demoText.transitionConfigTab.apply.tooltip" tooltip-placement="top-start"
+                           :on-click="onUpdateClick" :aria-label="demoText.transitionConfigTab.apply.aria">
           <Icon size="lg" :fixed-width="true" name="check" />
         </ButtonWithTooltip>
         <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>

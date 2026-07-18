@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 
+import { demoText } from '@mochart/demo-common';
+
 import MochartDemosTab from '../demos/DemosTab';
 import MochartChartTab from './ChartTab';
 import MochartDataTab from './DataTab';
@@ -42,24 +44,24 @@ export default function MochartDemoSingle({ demoData, demoMode, initialDemoId, o
         <Nav tabs>
           <NavItem>
             <NavLink active={activeKey === eventKeyDemo} onClick={() => { handleSelect(eventKeyDemo); }}>
-              Demos
+              {demoText.tabs.demos}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink active={activeKey === eventKeyChart}
-              title={hasPending && activeKey !== eventKeyChart ? "Applied changes are waiting — switch here to see them" : void 0}
+              title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : void 0}
               onClick={() => { handleSelect(eventKeyChart); }}>
-              Chart{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
+              {demoText.tabs.chart}{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
-              Config
+              {demoText.tabs.config}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink active={activeKey === eventKeyData} onClick={() => { handleSelect(eventKeyData); }}>
-              Data
+              {demoText.tabs.data}
             </NavLink>
           </NavItem>
         </Nav>

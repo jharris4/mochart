@@ -4,6 +4,7 @@ import type { PropertyValues } from 'lit';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart } from '@mochart/lit';
+import { demoText } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
@@ -26,7 +27,7 @@ interface FocusPayload {
   groupIndex?: number;
 }
 
-const emptyGroupText = "Select Group(s)";
+const emptyGroupText = demoText.editableChart.emptyGroupText;
 
 function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentGroupIndex: number, currentSeriesIndex: number): string {
   const dataObject = currentFilteredData[currentGroupIndex];
@@ -114,7 +115,7 @@ export class EditableChart extends LightElement {
     this.removedData = nextRemovedData;
     if (resetGroupIndex === true) {
       this.groupIndex = -1;
-      this.seriesValuesText = "Select a Group";
+      this.seriesValuesText = demoText.editableChart.selectAGroupText;
     }
     this.filteredFocusedGroupIndex = this.dataError ? -1 : this.getFilteredFocusedGroupIndex(nextFilteredData);
     if (!this.dataError && this.mochartDemoConfig.mochartConfig.validation.valid) {
@@ -550,7 +551,7 @@ export class EditableChart extends LightElement {
     }
     return html`<div class="btn-group">
       ${buttonWithTooltip(
-        { id: 'edit-chart-count', label: '2nd Chart', pressed: this.chartCount === 2, tooltipText: (this.chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data', tooltipPlacement: 'right', onClick: this.onChartCountToggle, ariaLabel: 'Toggle Chart Count' },
+        { id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: this.chartCount === 2, tooltipText: this.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow, tooltipPlacement: 'right', onClick: this.onChartCountToggle, ariaLabel: demoText.editableChart.secondChart.aria },
         icon({ size: 'lg', fixedWidth: true, name: this.chartCount === 2 ? 'window-maximize' : 'window-restore' })
       )}
     </div>`;
@@ -559,7 +560,7 @@ export class EditableChart extends LightElement {
   private renderModeToggle(): unknown {
     return html`<div class="btn-group">
       ${buttonWithTooltip(
-        { id: 'edit-mode', label: this.selectionMode === 'group' ? 'Edit Series' : 'Edit Groups', tooltipText: this.selectionMode === 'group' ? 'Switch to editing one group at a time (step groups/series, change values)' : 'Switch to editing the set of groups (add, remove, reorder)', tooltipPlacement: 'right', onClick: this.onModeToggle, ariaLabel: 'Toggle Mode' },
+        { id: 'edit-mode', label: this.selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups, tooltipText: this.selectionMode === 'group' ? demoText.editableChart.editMode.tooltipToSeries : demoText.editableChart.editMode.tooltipToGroups, tooltipPlacement: 'right', onClick: this.onModeToggle, ariaLabel: demoText.editableChart.editMode.aria },
         icon({ size: 'lg', fixedWidth: true, name: this.selectionMode === 'group' ? 'bullseye' : 'sliders' })
       )}
     </div>`;
@@ -580,35 +581,35 @@ export class EditableChart extends LightElement {
               ${this.renderExportButtons()}
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-reset-groups', disabled: error || this.sequencePlaying, label: 'Reset', tooltipText: 'Restore the original group set and order', tooltipPlacement: 'right', onClick: this.resetGroups, ariaLabel: 'Reset Groups' },
+                  { id: 'edit-reset-groups', disabled: error || this.sequencePlaying, label: demoText.editableChart.resetGroups.label, tooltipText: demoText.editableChart.resetGroups.tooltip, tooltipPlacement: 'right', onClick: this.resetGroups, ariaLabel: demoText.editableChart.resetGroups.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'edit-reverse-groups', disabled: error || this.sequencePlaying, label: 'Reverse', tooltipText: 'Reverse the order of the groups', tooltipPlacement: 'right', onClick: this.reverseGroups, ariaLabel: 'Reverse Groups' },
+                  { id: 'edit-reverse-groups', disabled: error || this.sequencePlaying, label: demoText.editableChart.reverseGroups.label, tooltipText: demoText.editableChart.reverseGroups.tooltip, tooltipPlacement: 'right', onClick: this.reverseGroups, ariaLabel: demoText.editableChart.reverseGroups.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'right-left' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'edit-add-groups', disabled: error || this.sequencePlaying || disableAdd, label: 'Add', tooltipText: 'Add the groups selected in the input to the chart', tooltipPlacement: 'right', onClick: this.addGroups, ariaLabel: 'Add Selected Groups' },
+                  { id: 'edit-add-groups', disabled: error || this.sequencePlaying || disableAdd, label: demoText.editableChart.addGroups.label, tooltipText: demoText.editableChart.addGroups.tooltip, tooltipPlacement: 'right', onClick: this.addGroups, ariaLabel: demoText.editableChart.addGroups.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'plus' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'edit-remove-groups', disabled: error || this.sequencePlaying || disableRemove, label: 'Remove', tooltipText: 'Remove the groups selected in the input from the chart', tooltipPlacement: 'right', onClick: this.removeGroups, ariaLabel: 'Remove Selected Groups' },
+                  { id: 'edit-remove-groups', disabled: error || this.sequencePlaying || disableRemove, label: demoText.editableChart.removeGroups.label, tooltipText: demoText.editableChart.removeGroups.tooltip, tooltipPlacement: 'right', onClick: this.removeGroups, ariaLabel: demoText.editableChart.removeGroups.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'minus' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'edit-play-add', disabled: error || this.sequencePlaying || disableAdd, tooltipText: 'Animate adding the selected groups one at a time', tooltipPlacement: 'right', onClick: this.startAddSequence, ariaLabel: 'Play Add Selected Groups' },
+                  { id: 'edit-play-add', disabled: error || this.sequencePlaying || disableAdd, tooltipText: demoText.editableChart.playAddGroups.tooltip, tooltipPlacement: 'right', onClick: this.startAddSequence, ariaLabel: demoText.editableChart.playAddGroups.aria },
                   html`${icon({ size: 'lg', name: 'play' })}<span style="padding-right: 2px;"></span>${icon({ size: 'lg', name: 'plus' })}`
                 )}
                 ${buttonWithTooltip(
-                  { id: 'edit-play-remove', disabled: error || this.sequencePlaying || disableRemove, tooltipText: 'Animate removing the selected groups one at a time', tooltipPlacement: 'right', onClick: this.startRemoveSequence, ariaLabel: 'Play Remove Selected Groups' },
+                  { id: 'edit-play-remove', disabled: error || this.sequencePlaying || disableRemove, tooltipText: demoText.editableChart.playRemoveGroups.tooltip, tooltipPlacement: 'right', onClick: this.startRemoveSequence, ariaLabel: demoText.editableChart.playRemoveGroups.aria },
                   html`${icon({ size: 'lg', name: 'play' })}<span style="padding-right: 2px;"></span>${icon({ size: 'lg', name: 'minus' })}`
                 )}
                 ${buttonWithTooltip(
-                  { id: 'edit-stop', disabled: error || !this.sequencePlaying, tooltipText: 'Stop the add/remove animation', tooltipPlacement: 'right', onClick: this.stopSequence, ariaLabel: 'Stop Selected Group Sequence' },
+                  { id: 'edit-stop', disabled: error || !this.sequencePlaying, tooltipText: demoText.editableChart.stopSequence.tooltip, tooltipPlacement: 'right', onClick: this.stopSequence, ariaLabel: demoText.editableChart.stopSequence.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'stop' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'edit-select-all', disabled: error || this.sequencePlaying, label: 'Select All', tooltipText: 'Put every group into the selection input', tooltipPlacement: 'right', onClick: this.selectAllGroups, ariaLabel: 'Select All Groups' },
+                  { id: 'edit-select-all', disabled: error || this.sequencePlaying, label: demoText.editableChart.selectAllGroups.label, tooltipText: demoText.editableChart.selectAllGroups.tooltip, tooltipPlacement: 'right', onClick: this.selectAllGroups, ariaLabel: demoText.editableChart.selectAllGroups.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'check-double' })
                 )}
               </div>
@@ -647,20 +648,20 @@ export class EditableChart extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-group-decrease', disabled: error || groupOrderControlsDisabled || isFirstGroup, tooltipText: 'Move the focused group one position earlier', tooltipPlacement: 'right', onClick: this.decreaseGroupOrder, ariaLabel: 'Decrease Group Order' },
+                  { id: 'edit-group-decrease', disabled: error || groupOrderControlsDisabled || isFirstGroup, tooltipText: demoText.editableChart.decreaseGroupOrder.tooltip, tooltipPlacement: 'right', onClick: this.decreaseGroupOrder, ariaLabel: demoText.editableChart.decreaseGroupOrder.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-left' })
                 )}
               </div>
             </div>
           </div>
           <div class="form-group">
-            <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">${'Group: ' + this.groupIndex}</span>
+            <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">${demoText.editableChart.groupIndexPrefix + this.groupIndex}</span>
           </div>
           <div class="form-group">
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-group-increase', disabled: error || groupOrderControlsDisabled || isLastGroup, tooltipText: 'Move the focused group one position later', tooltipPlacement: 'right', onClick: this.increaseGroupOrder, ariaLabel: 'Increase Group Order' },
+                  { id: 'edit-group-increase', disabled: error || groupOrderControlsDisabled || isLastGroup, tooltipText: demoText.editableChart.increaseGroupOrder.tooltip, tooltipPlacement: 'right', onClick: this.increaseGroupOrder, ariaLabel: demoText.editableChart.increaseGroupOrder.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-right' })
                 )}
               </div>
@@ -670,30 +671,30 @@ export class EditableChart extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-previous-series', disabled: error || seriesControlsDisabled || !hasPrevSeries, tooltipText: 'Edit the previous series', tooltipPlacement: 'right', onClick: this.prevSeries, ariaLabel: 'Previous Series' },
+                  { id: 'edit-previous-series', disabled: error || seriesControlsDisabled || !hasPrevSeries, tooltipText: demoText.editableChart.previousSeries.tooltip, tooltipPlacement: 'right', onClick: this.prevSeries, ariaLabel: demoText.editableChart.previousSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-down' })
                 )}
               </div>
             </div>
           </div>
           <div class="form-group">
-            <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">${'Series: ' + this.seriesIndex}</span>
+            <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">${demoText.editableChart.seriesIndexPrefix + this.seriesIndex}</span>
           </div>
           <div class="form-group">
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-next-series', disabled: error || seriesControlsDisabled || !hasNextSeries, tooltipText: 'Edit the next series', tooltipPlacement: 'right', onClick: this.nextSeries, ariaLabel: 'Next Series' },
+                  { id: 'edit-next-series', disabled: error || seriesControlsDisabled || !hasNextSeries, tooltipText: demoText.editableChart.nextSeries.tooltip, tooltipPlacement: 'right', onClick: this.nextSeries, ariaLabel: demoText.editableChart.nextSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-up' })
                 )}
               </div>
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-reset-series', disabled: error || seriesControlsDisabled, label: 'Reset', tooltipText: "Discard the edits to this series' values", tooltipPlacement: 'right', onClick: this.resetSeriesChanges, ariaLabel: 'Reset Series Changes' },
+                  { id: 'edit-reset-series', disabled: error || seriesControlsDisabled, label: demoText.editableChart.resetSeries.label, tooltipText: demoText.editableChart.resetSeries.tooltip, tooltipPlacement: 'right', onClick: this.resetSeriesChanges, ariaLabel: demoText.editableChart.resetSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'edit-apply-series', disabled: error || seriesControlsDisabled, label: 'Apply', tooltipText: 'Apply the edited series values to the chart', tooltipPlacement: 'right', onClick: this.applySeriesChanges, ariaLabel: 'Apply Series Changes' },
+                  { id: 'edit-apply-series', disabled: error || seriesControlsDisabled, label: demoText.editableChart.applySeries.label, tooltipText: demoText.editableChart.applySeries.tooltip, tooltipPlacement: 'right', onClick: this.applySeriesChanges, ariaLabel: demoText.editableChart.applySeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'check' })
                 )}
               </div>

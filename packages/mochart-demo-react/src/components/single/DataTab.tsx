@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -68,7 +68,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
   const toggleShowUnused = () => {
     const parsed = parseCurrentFullData(dataText);
     if ('error' in parsed) {
-      setErrorMessage(parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects');
+      setErrorMessage(parsed.error === 'json' ? demoText.errors.invalidJson : demoText.errors.invalidDataArray);
       return;
     }
     const nextShowUnused = !showUnused;
@@ -100,18 +100,18 @@ export default function MochartDataTab({ active, config = null, data = null, onD
       </div>
       <div className="mochart-demo-tab-footer">
         <ButtonToolbar>
-          <ButtonWithTooltip id="data-reset" label="Reset" tooltipText="Restore this demo's original data" tooltipPlacement="top-start"
-            onClick={resetData} aria-label="Reset">
+          <ButtonWithTooltip id="data-reset" label={demoText.dataTab.reset.label} tooltipText={demoText.dataTab.reset.tooltip} tooltipPlacement="top-start"
+            onClick={resetData} aria-label={demoText.dataTab.reset.aria}>
             <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="data-unused" label="Unused" pressed={showUnused}
-            tooltipText="Show or hide data properties the chart config does not use" tooltipPlacement="top-start"
-            onClick={toggleShowUnused} aria-label="Toggle Unused">
+          <ButtonWithTooltip id="data-unused" label={demoText.dataTab.unused.label} pressed={showUnused}
+            tooltipText={demoText.dataTab.unused.tooltip} tooltipPlacement="top-start"
+            onClick={toggleShowUnused} aria-label={demoText.dataTab.unused.aria}>
             <FontAwesome size="lg" fixedWidth={true} name={showUnused ? 'eye' : 'eye-slash'} />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="data-apply" label="Apply" disabled={jsonError !== null}
-            tooltipText="Apply this data — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
-            onClick={applyData} aria-label="Apply">
+          <ButtonWithTooltip id="data-apply" label={demoText.dataTab.apply.label} disabled={jsonError !== null}
+            tooltipText={demoText.dataTab.apply.tooltip} tooltipPlacement="top-start"
+            onClick={applyData} aria-label={demoText.dataTab.apply.aria}>
             <FontAwesome size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}

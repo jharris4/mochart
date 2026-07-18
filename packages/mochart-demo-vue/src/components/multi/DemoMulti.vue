@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
+import { demoText } from '@mochart/demo-common';
+
 import DemosTab from '../demos/DemosTab.vue';
 import ChartsTab from './ChartsTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
@@ -51,13 +53,13 @@ const isDemos = computed(() => props.initialDemoId === 'demos');
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyDemo ? ' active' : '')"
                   @click="handleSelect(eventKeyDemo)">
-            Demos
+            {{ demoText.tabs.demos }}
           </button>
         </li>
         <li class="nav-item" :style="isDemos ? 'display: none;' : void 0">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
                   @click="handleSelect(eventKeyChart)">
-            Chart
+            {{ demoText.tabs.chart }}
           </button>
         </li>
       </ul>

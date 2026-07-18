@@ -1,5 +1,7 @@
 import { exportPNG, exportSVG } from '@mochart/export';
 
+import { demoText } from '@mochart/demo-common';
+
 import { buttonWithTooltip, el, icon } from './dom';
 import type { ButtonHandle } from './dom';
 
@@ -18,9 +20,9 @@ export function exportButtons(
   const png: ButtonHandle = buttonWithTooltip({
     id: idPrefix + '-export-png',
     disabled,
-    label: 'PNG',
-    tooltipText: 'Download the chart as a PNG image',
-    ariaLabel: 'Export PNG',
+    label: demoText.exportButtons.png.label,
+    tooltipText: demoText.exportButtons.png.tooltip,
+    ariaLabel: demoText.exportButtons.png.aria,
     onClick: () => {
       const container = getContainer();
       if (container) {
@@ -32,9 +34,9 @@ export function exportButtons(
   const svg: ButtonHandle = buttonWithTooltip({
     id: idPrefix + '-export-svg',
     disabled,
-    label: 'SVG',
-    tooltipText: 'Download the chart as an SVG image',
-    ariaLabel: 'Export SVG',
+    label: demoText.exportButtons.svg.label,
+    tooltipText: demoText.exportButtons.svg.tooltip,
+    ariaLabel: demoText.exportButtons.svg.aria,
     onClick: () => {
       const container = getContainer();
       if (container) {

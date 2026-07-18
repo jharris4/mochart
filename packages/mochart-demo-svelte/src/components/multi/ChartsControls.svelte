@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { demoText } from '@mochart/demo-common';
+
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
 
@@ -75,43 +77,43 @@
 <div class="multi-controls">
   <form class="form-inline">
     <div class="form-group">
-      <label class="form-control-plaintext" for="grid-rows">Grid:</label>
+      <label class="form-control-plaintext" for="grid-rows">{demoText.multiChartsTab.gridLabel}</label>
       <input id="grid-rows" disabled={playing} type="number" min="1" max="4" class="form-control" value={rowsText}
-             oninput={rowsChanged} aria-label="Grid rows" />
+             oninput={rowsChanged} aria-label={demoText.multiChartsTab.gridRowsAria} />
       <span class="form-control-plaintext">&times;</span>
       <input id="grid-cols" disabled={playing} type="number" min="1" max="4" class="form-control" value={colsText}
-             oninput={colsChanged} aria-label="Grid columns" />
+             oninput={colsChanged} aria-label={demoText.multiChartsTab.gridColsAria} />
     </div>
     <div class="form-group">
       <div class="btn-toolbar" role="toolbar">
         <div class="btn-group">
-          <ButtonWithTooltip id="step-back" disabled={playing} tooltipText="Step all charts one dataset backward" tooltipPlacement="top-start"
-                             onClick={onStepBackwardClick} aria-label="Step Backward">
+          <ButtonWithTooltip id="step-back" disabled={playing} tooltipText={demoText.multiChartsTab.stepBackward.tooltip} tooltipPlacement="top-start"
+                             onClick={onStepBackwardClick} aria-label={demoText.multiChartsTab.stepBackward.aria}>
             <Icon size="lg" fixedWidth={true} name="backward-step" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="step-forward" disabled={playing} tooltipText="Step all charts one dataset forward" tooltipPlacement="top-start"
-                             onClick={onStepForwardClick} aria-label="Step Forward">
+          <ButtonWithTooltip id="step-forward" disabled={playing} tooltipText={demoText.multiChartsTab.stepForward.tooltip} tooltipPlacement="top-start"
+                             onClick={onStepForwardClick} aria-label={demoText.multiChartsTab.stepForward.aria}>
             <Icon size="lg" fixedWidth={true} name="forward-step" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="play-backward" disabled={playing} tooltipText="Play backward through the datasets at the interval" tooltipPlacement="top-start"
-                             onClick={onPlayBackwardClick} aria-label="Play Backward">
+          <ButtonWithTooltip id="play-backward" disabled={playing} tooltipText={demoText.multiChartsTab.playBackward.tooltip} tooltipPlacement="top-start"
+                             onClick={onPlayBackwardClick} aria-label={demoText.multiChartsTab.playBackward.aria}>
             <Icon size="lg" fixedWidth={true} name="play" flip="horizontal" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="play-forward" disabled={playing} tooltipText="Play forward through the datasets at the interval" tooltipPlacement="top-start"
-                             onClick={onPlayForwardClick} aria-label="Play Forward">
+          <ButtonWithTooltip id="play-forward" disabled={playing} tooltipText={demoText.multiChartsTab.playForward.tooltip} tooltipPlacement="top-start"
+                             onClick={onPlayForwardClick} aria-label={demoText.multiChartsTab.playForward.aria}>
             <Icon size="lg" fixedWidth={true} name="play" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="stop" disabled={!playing} tooltipText="Stop playback" tooltipPlacement="top-start"
-                             onClick={onStopClick} aria-label="Stop">
+          <ButtonWithTooltip id="stop" disabled={!playing} tooltipText={demoText.multiChartsTab.stop.tooltip} tooltipPlacement="top-start"
+                             onClick={onStopClick} aria-label={demoText.multiChartsTab.stop.aria}>
             <Icon size="lg" fixedWidth={true} name="stop" />
           </ButtonWithTooltip>
         </div>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-control-plaintext" for="multi-rate">Interval (ms):</label>
+      <label class="form-control-plaintext" for="multi-rate">{demoText.multiChartsTab.intervalLabel}</label>
       <input id="multi-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="form-control" value={rateText}
-             oninput={rateChanged} aria-label="Playback interval in milliseconds" />
+             oninput={rateChanged} aria-label={demoText.multiChartsTab.intervalAria} />
     </div>
   </form>
 </div>

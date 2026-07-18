@@ -1,7 +1,7 @@
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 
-import { formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -35,7 +35,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }
 
@@ -43,25 +43,25 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
     try {
       const newConfig = JSON.parse(textArea.getValue());
       newConfig.valid = validateRandomConfig(newConfig);
-      errorMessage = newConfig.valid ? null : 'Config has invalid values — details in the browser console';
+      errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       onUpdate(newConfig);
     }
     catch (error) {
       console.warn('Invalid Random Config JSON: ' + textArea.getValue());
-      errorMessage = 'Invalid JSON';
+      errorMessage = demoText.errors.invalidJson;
     }
     sync();
   }
 
   const resetButton = buttonWithTooltip({
-    id: 'config-reset', label: 'Reset', ariaLabel: 'Reset',
-    tooltipText: 'Restore the original random generator config',
+    id: 'config-reset', label: demoText.randomConfigTab.reset.label, ariaLabel: demoText.randomConfigTab.reset.aria,
+    tooltipText: demoText.randomConfigTab.reset.tooltip,
     onClick: onReset,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const applyButton = buttonWithTooltip({
-    id: 'config-apply', label: 'Apply', ariaLabel: 'Apply',
-    tooltipText: 'Apply this generator config to the random chart',
+    id: 'config-apply', label: demoText.randomConfigTab.apply.label, ariaLabel: demoText.randomConfigTab.apply.aria,
+    tooltipText: demoText.randomConfigTab.apply.tooltip,
     onClick: onUpdateClick,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });

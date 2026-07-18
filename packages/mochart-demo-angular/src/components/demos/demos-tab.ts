@@ -1,16 +1,12 @@
 import { Component, Input, signal } from '@angular/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { Icon } from '../misc/icon';
 
 import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
 
-const modeCaptions: Record<string, string> = {
-  single: 'Single: one chart with editable config, data, groups and series — pick a demo below.',
-  multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
-  random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
-  transition: 'Transition: animates a chart between datasets — pick a demo below.',
-  rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
-};
+const modeCaptions = demoText.demosTab.modeCaptions;
 
 @Component({
   selector: 'app-demos-tab',
@@ -21,43 +17,43 @@ const modeCaptions: Record<string, string> = {
       <div class="mochart-demo-modes-container">
         <form class="form-inline">
           <div class="form-group">
-            <span class="form-control-plaintext">Demo Mode:&nbsp;</span>
+            <span class="form-control-plaintext">{{ text.demoModeLabel }}&nbsp;</span>
           </div>
           <div class="form-group">
             <div class="btn-toolbar" role="toolbar">
               <button type="button" [class]="'btn btn-' + (isSingle ? 'primary' : 'secondary')" [disabled]="isSingle"
-                      title="One chart with editable config, data, groups and series"
+                      [title]="text.modes.single.title"
                       (click)="onDemoModeChanged('single', demoId)">
-                <app-icon size="lg" name="pen-to-square" /> Single
+                <app-icon size="lg" name="pen-to-square" /> {{ text.modes.single.label }}
               </button>
               <button type="button" [class]="'btn btn-' + (isMulti ? 'primary' : 'secondary')" [disabled]="isMulti"
-                      title="A grid of charts stepping through datasets together"
+                      [title]="text.modes.multi.title"
                       (click)="onDemoModeChanged('multi', demoId)">
-                <app-icon size="lg" name="window-restore" /> Multi
+                <app-icon size="lg" name="window-restore" /> {{ text.modes.multi.label }}
               </button>
               <button type="button" [class]="'btn btn-' + (isRandom ? 'primary' : 'secondary')" [disabled]="isRandom"
-                      title="A chart fed by a seeded random data generator"
+                      [title]="text.modes.random.title"
                       (click)="onDemoModeChanged('random', demoId)">
-                <app-icon size="lg" name="shuffle" /> Random
+                <app-icon size="lg" name="shuffle" /> {{ text.modes.random.label }}
               </button>
               <button type="button" class="btn btn-secondary"
-                      title="Animate a chart between two datasets"
+                      [title]="text.modes.transition.title"
                       (click)="onDemoModeChanged('transition', demoId)">
-                <app-icon size="lg" name="right-left" /> Transition
+                <app-icon size="lg" name="right-left" /> {{ text.modes.transition.label }}
               </button>
               <button type="button" class="btn btn-secondary"
-                      title="A grid of charts showing different tick label rotations"
+                      [title]="text.modes.rotation.title"
                       (click)="onDemoModeChanged('rotation', demoId)">
-                <app-icon size="lg" name="repeat" /> Rotation
+                <app-icon size="lg" name="repeat" /> {{ text.modes.rotation.label }}
               </button>
             </div>
           </div>
           <div class="form-group" style="margin-left: 10px;">
             <div class="btn-toolbar" role="toolbar">
               <button type="button" [class]="'btn btn-' + (isTestMode() ? 'primary' : 'secondary')" [attr.aria-pressed]="isTestMode()"
-                      title="Show the test demos (showcasing less used features)"
+                      [title]="text.testDemos.title"
                       (click)="onTestModeToggle()">
-                <app-icon size="lg" name="flask" /> Test Demos
+                <app-icon size="lg" name="flask" /> {{ text.testDemos.label }}
               </button>
             </div>
           </div>
@@ -83,6 +79,8 @@ const modeCaptions: Record<string, string> = {
   `
 })
 export class DemosTab {
+  readonly text = demoText.demosTab;
+
   @Input() active = false;
   @Input({ required: true }) demoData!: DemoData;
   @Input({ required: true }) demoMode!: DemoMode;

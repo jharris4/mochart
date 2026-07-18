@@ -1,3 +1,5 @@
+import { demoText } from '@mochart/demo-common';
+
 import { el, icon, setActiveClass } from '../misc/dom';
 
 import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
@@ -17,13 +19,7 @@ export interface DemosTabHandle {
   setDemoId(demoId: string): void;
 }
 
-const modeCaptions: Record<string, string> = {
-  single: 'Single: one chart with editable config, data, groups and series — pick a demo below.',
-  multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
-  random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
-  transition: 'Transition: animates a chart between datasets — pick a demo below.',
-  rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
-};
+const modeCaptions: Record<string, string> = demoText.demosTab.modeCaptions;
 
 export function demosTab(props: DemosTabProps): DemosTabHandle {
   const { demoData, demoMode, onDemoModeChanged, onDemoChange } = props;
@@ -54,10 +50,10 @@ export function demosTab(props: DemosTabProps): DemosTabHandle {
     className: 'btn btn-secondary',
     attrs: {
       type: 'button',
-      title: 'Show the test demos (showcasing less used features)',
+      title: demoText.demosTab.testDemos.title,
       'aria-pressed': 'false'
     }
-  }, [icon('flask', { size: 'lg' }), ' Test Demos']);
+  }, [icon('flask', { size: 'lg' }), ' ' + demoText.demosTab.testDemos.label]);
   testModeButton.addEventListener('click', () => {
     isTestMode = !isTestMode;
     testModeButton.className = 'btn btn-' + (isTestMode ? 'primary' : 'secondary');
@@ -90,20 +86,20 @@ export function demosTab(props: DemosTabProps): DemosTabHandle {
     el('div', { className: 'mochart-demo-modes-container' }, [
       el('form', { className: 'form-inline' }, [
         el('div', { className: 'form-group' }, [
-          el('span', { className: 'form-control-plaintext', text: 'Demo Mode: ' })
+          el('span', { className: 'form-control-plaintext', text: demoText.demosTab.demoModeLabel + '\u00A0' })
         ]),
         el('div', { className: 'form-group' }, [
           el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-            modeButton(isSingle, 'One chart with editable config, data, groups and series',
-              'pen-to-square', 'Single', () => onDemoModeChanged('single', demoId)),
-            modeButton(isMulti, 'A grid of charts stepping through datasets together',
-              'window-restore', 'Multi', () => onDemoModeChanged('multi', demoId)),
-            modeButton(isRandom, 'A chart fed by a seeded random data generator',
-              'shuffle', 'Random', () => onDemoModeChanged('random', demoId)),
-            modeButton(false, 'Animate a chart between two datasets',
-              'right-left', 'Transition', () => onDemoModeChanged('transition', demoId)),
-            modeButton(false, 'A grid of charts showing different tick label rotations',
-              'repeat', 'Rotation', () => onDemoModeChanged('rotation', demoId))
+            modeButton(isSingle, demoText.demosTab.modes.single.title,
+              'pen-to-square', demoText.demosTab.modes.single.label, () => onDemoModeChanged('single', demoId)),
+            modeButton(isMulti, demoText.demosTab.modes.multi.title,
+              'window-restore', demoText.demosTab.modes.multi.label, () => onDemoModeChanged('multi', demoId)),
+            modeButton(isRandom, demoText.demosTab.modes.random.title,
+              'shuffle', demoText.demosTab.modes.random.label, () => onDemoModeChanged('random', demoId)),
+            modeButton(false, demoText.demosTab.modes.transition.title,
+              'right-left', demoText.demosTab.modes.transition.label, () => onDemoModeChanged('transition', demoId)),
+            modeButton(false, demoText.demosTab.modes.rotation.title,
+              'repeat', demoText.demosTab.modes.rotation.label, () => onDemoModeChanged('rotation', demoId))
           ])
         ]),
         el('div', { className: 'form-group', style: 'margin-left: 10px;' }, [

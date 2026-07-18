@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 
 import DemosTab from '../demos/DemosTab.vue';
 import RandomContent from './RandomContent.vue';
@@ -78,25 +78,25 @@ const isDemos = computed(() => props.initialDemoId === 'demos');
         <li class="nav-item">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyDemo ? ' active' : '')"
                   @click="handleSelect(eventKeyDemo)">
-            Demos
+            {{ demoText.tabs.demos }}
           </button>
         </li>
         <li class="nav-item" :style="isDemos ? 'display: none;' : void 0">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
                   @click="handleSelect(eventKeyChart)">
-            Chart
+            {{ demoText.tabs.chart }}
           </button>
         </li>
         <li class="nav-item" :style="isDemos ? 'display: none;' : void 0">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
                   @click="handleSelect(eventKeyConfig)">
-            Random Config
+            {{ demoText.tabs.randomConfig }}
           </button>
         </li>
         <li class="nav-item" :style="isDemos ? 'display: none;' : void 0">
           <button type="button" :class="'nav-link' + (activeKey === eventKeyData ? ' active' : '')"
                   @click="handleSelect(eventKeyData)">
-            Data
+            {{ demoText.tabs.data }}
           </button>
         </li>
       </ul>

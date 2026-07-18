@@ -5,6 +5,8 @@ import type { PropertyValues } from 'lit';
 import { chart } from '@mochart/lit';
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
 
@@ -61,11 +63,11 @@ export class TransitionChartTab extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
                 ${buttonWithTooltip(
-                  { id: 'transition-back', label: 'Back', tooltipText: 'Transition to the previous dataset', tooltipPlacement: 'top-start', onClick: this.onStepBack, ariaLabel: 'Step Backward' },
+                  { id: 'transition-back', label: demoText.transitionChartTab.back.label, tooltipText: demoText.transitionChartTab.back.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepBack, ariaLabel: demoText.transitionChartTab.back.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'backward-step' })
                 )}
                 ${buttonWithTooltip(
-                  { id: 'transition-forward', label: 'Next', tooltipText: 'Transition to the next dataset', tooltipPlacement: 'top-start', onClick: this.onStepForward, ariaLabel: 'Step Forward' },
+                  { id: 'transition-forward', label: demoText.transitionChartTab.next.label, tooltipText: demoText.transitionChartTab.next.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepForward, ariaLabel: demoText.transitionChartTab.next.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'forward-step' })
                 )}
               </div>

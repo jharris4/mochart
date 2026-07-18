@@ -1,5 +1,7 @@
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { buttonWithTooltip, el, icon, setActiveClass } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 import { exportButtons } from '../misc/ExportButtons';
@@ -60,7 +62,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
 
   const rateInput = el('input', {
     id: 'random-rate', className: 'form-control',
-    attrs: { type: 'number', min: '5', max: '60000', step: '100', 'aria-label': 'Randomize interval in milliseconds' }
+    attrs: { type: 'number', min: '5', max: '60000', step: '100', 'aria-label': demoText.randomChartTab.intervalAria }
   });
   rateInput.value = '' + defaultRate;
   rateInput.addEventListener('input', () => {
@@ -74,32 +76,32 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   });
 
   const backButton = buttonWithTooltip({
-    id: 'randomize-back', label: 'Back', ariaLabel: 'Randomize Back',
-    tooltipText: 'Go back to the previous random dataset',
+    id: 'randomize-back', label: demoText.randomChartTab.back.label, ariaLabel: demoText.randomChartTab.back.aria,
+    tooltipText: demoText.randomChartTab.back.tooltip,
     onClick: onRandomizeBack,
     content: [icon('dice', { size: 'lg', fixedWidth: true, flip: 'horizontal' })]
   });
   const nextButton = buttonWithTooltip({
-    id: 'randomize-next', label: 'Randomize', ariaLabel: 'Randomize Next',
-    tooltipText: 'Generate the next random dataset',
+    id: 'randomize-next', label: demoText.randomChartTab.randomize.label, ariaLabel: demoText.randomChartTab.randomize.aria,
+    tooltipText: demoText.randomChartTab.randomize.tooltip,
     onClick: onRandomizeNext,
     content: [icon('dice', { size: 'lg', fixedWidth: true })]
   });
   const playButton = buttonWithTooltip({
-    id: 'play', ariaLabel: 'Play Randomize',
-    tooltipText: 'Keep generating random datasets at the interval',
+    id: 'play', ariaLabel: demoText.randomChartTab.play.aria,
+    tooltipText: demoText.randomChartTab.play.tooltip,
     onClick: onPlayClick,
     content: [icon('play', { size: 'lg', fixedWidth: true })]
   });
   const stopButton = buttonWithTooltip({
-    id: 'stop', disabled: true, ariaLabel: 'Stop',
-    tooltipText: 'Stop generating',
+    id: 'stop', disabled: true, ariaLabel: demoText.randomChartTab.stop.aria,
+    tooltipText: demoText.randomChartTab.stop.tooltip,
     onClick: onStopClick,
     content: [icon('stop', { size: 'lg', fixedWidth: true })]
   });
   const reuseButton = buttonWithTooltip({
-    id: 'reuse', label: 'Reuse', pressed: applyReuse, ariaLabel: 'Reuse',
-    tooltipText: "Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets",
+    id: 'reuse', label: demoText.randomChartTab.reuse.label, pressed: applyReuse, ariaLabel: demoText.randomChartTab.reuse.aria,
+    tooltipText: demoText.randomChartTab.reuse.tooltip,
     onClick: toggleApplyReuse,
     content: [icon('recycle', { size: 'lg', fixedWidth: true })]
   });
@@ -115,7 +117,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
           el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
             el('div', { className: 'btn-group' }, [backButton.el, nextButton.el, playButton.el, stopButton.el]),
             el('div', { className: 'form-group' }, [
-              el('label', { className: 'form-control-plaintext', attrs: { for: 'random-rate' }, text: 'Interval (ms):' }),
+              el('label', { className: 'form-control-plaintext', attrs: { for: 'random-rate' }, text: demoText.randomChartTab.intervalLabel }),
               rateInput
             ])
           ]),

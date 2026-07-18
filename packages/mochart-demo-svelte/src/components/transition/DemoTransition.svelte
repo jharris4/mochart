@@ -1,6 +1,6 @@
 <script lang="ts">
 
-  import { buildMochartDemoConfig, defaultTransitionConfig, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
   import TransitionChartTab from './TransitionChartTab.svelte';
   import TransitionConfigTab from './TransitionConfigTab.svelte';
@@ -39,13 +39,13 @@
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
                 onclick={() => handleSelect(eventKeyChart)}>
-          Chart
+          {demoText.tabs.chart}
         </button>
       </li>
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")}
                 onclick={() => handleSelect(eventKeyConfig)}>
-          Transition Config
+          {demoText.tabs.transitionConfig}
         </button>
       </li>
     </ul>

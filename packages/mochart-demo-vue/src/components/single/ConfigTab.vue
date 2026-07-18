@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig, copyDemoConfig, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -60,12 +60,12 @@ function updateShowDefaults(nextShowDefaults: boolean) {
       if (warnings.length > 0) {
         console.warn('warnings: ', warnings);
       }
-      errorMessage.value = 'Invalid chart config — details in the browser console';
+      errorMessage.value = demoText.errors.invalidChartConfig;
     }
   }
   catch (error) {
     console.warn('Invalid Chart Config JSON: ' + configText.value);
-    errorMessage.value = 'Invalid JSON';
+    errorMessage.value = demoText.errors.invalidJson;
   }
 }
 
@@ -103,7 +103,7 @@ const jsonError = computed(() => {
     return null;
   }
   catch (error) {
-    return 'Invalid JSON';
+    return demoText.errors.invalidJson;
   }
 });
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
@@ -116,28 +116,28 @@ const footerError = computed(() => jsonError.value ?? errorMessage.value);
     </div>
     <div class="mochart-demo-tab-footer">
       <div class="btn-toolbar" role="toolbar">
-        <ButtonWithTooltip id="config-reset" label="Reset" tooltip-text="Restore this demo's original config" tooltip-placement="top-start"
-                           :on-click="resetConfig" aria-label="Reset">
+        <ButtonWithTooltip id="config-reset" :label="demoText.configTab.reset.label" :tooltip-text="demoText.configTab.reset.tooltip" tooltip-placement="top-start"
+                           :on-click="resetConfig" :aria-label="demoText.configTab.reset.aria">
           <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-defaults" label="Defaults" :pressed="showDefaults"
-                           tooltip-text="Show or hide the default config values merged into the JSON" tooltip-placement="top-start"
-                           :on-click="toggleConfigDefaults" aria-label="Toggle Defaults">
+        <ButtonWithTooltip id="config-defaults" :label="demoText.configTab.defaults.label" :pressed="showDefaults"
+                           :tooltip-text="demoText.configTab.defaults.tooltip" tooltip-placement="top-start"
+                           :on-click="toggleConfigDefaults" :aria-label="demoText.configTab.defaults.aria">
           <Icon size="lg" :fixed-width="true" :name="showDefaults ? 'eye' : 'eye-slash'" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-inverted" label="Invert" :pressed="!!inverted"
-                           tooltip-text="Swap the chart between vertical and horizontal orientation" tooltip-placement="top-start"
-                           :on-click="toggleConfigInverted" aria-label="Toggle Inverted">
+        <ButtonWithTooltip id="config-inverted" :label="demoText.configTab.invert.label" :pressed="!!inverted"
+                           :tooltip-text="demoText.configTab.invert.tooltip" tooltip-placement="top-start"
+                           :on-click="toggleConfigInverted" :aria-label="demoText.configTab.invert.aria">
           <Icon size="lg" :fixed-width="true" :name="invertedIcon" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-animate-slow" label="Slow" :pressed="slow"
-                           tooltip-text="Slow all animations down so transitions are easy to watch" tooltip-placement="top-start"
-                           :on-click="toggleConfigAnimationSlow" aria-label="Toggle Slow">
+        <ButtonWithTooltip id="config-animate-slow" :label="demoText.configTab.slow.label" :pressed="slow"
+                           :tooltip-text="demoText.configTab.slow.tooltip" tooltip-placement="top-start"
+                           :on-click="toggleConfigAnimationSlow" :aria-label="demoText.configTab.slow.aria">
           <Icon size="lg" :fixed-width="true" :name="slowIcon" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-apply" label="Apply" :disabled="jsonError !== null"
-                           tooltip-text="Apply this config — the chart updates when you return to the Chart tab" tooltip-placement="top-start"
-                           :on-click="applyConfig" aria-label="Apply">
+        <ButtonWithTooltip id="config-apply" :label="demoText.configTab.apply.label" :disabled="jsonError !== null"
+                           :tooltip-text="demoText.configTab.apply.tooltip" tooltip-placement="top-start"
+                           :on-click="applyConfig" :aria-label="demoText.configTab.apply.aria">
           <Icon size="lg" :fixed-width="true" name="check" />
         </ButtonWithTooltip>
         <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>

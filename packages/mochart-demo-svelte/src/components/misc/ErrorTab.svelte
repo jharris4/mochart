@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
+  import { demoText } from '@mochart/demo-common';
+
   // Error-boundary equivalent of the react ErrorTab. Unlike the react
   // version (which cloned its child to inject `active`), children here
   // receive their `active` prop directly at the call site.
@@ -18,7 +20,7 @@
   {#snippet failed()}
     <div class={"mochart-demo-tab-container error" + (active ? " active" : "")}>
       <div class="alert alert-danger text-center mochart-demo-error-message" role="alert">
-        An Error Occurred
+        {demoText.errors.errorOccurred}
       </div>
     </div>
   {/snippet}

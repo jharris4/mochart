@@ -4,6 +4,8 @@ import type { OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { Chart } from '@mochart/angular';
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { ExportButtons } from '../misc/export-buttons';
 import { Icon } from '../misc/icon';
@@ -27,37 +29,37 @@ const defaultRate = 2000;
           <div class="form-group">
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group">
-                <app-button-with-tooltip id="randomize-back" [disabled]="playing()" label="Back"
-                                         tooltipText="Go back to the previous random dataset" tooltipPlacement="top-start"
-                                         [onClick]="onRandomizeBack" aria-label="Randomize Back">
+                <app-button-with-tooltip id="randomize-back" [disabled]="playing()" [label]="text.back.label"
+                                         [tooltipText]="text.back.tooltip" tooltipPlacement="top-start"
+                                         [onClick]="onRandomizeBack" [aria-label]="text.back.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="dice" flip="horizontal" />
                 </app-button-with-tooltip>
-                <app-button-with-tooltip id="randomize-next" [disabled]="playing()" label="Randomize"
-                                         tooltipText="Generate the next random dataset" tooltipPlacement="top-start"
-                                         [onClick]="onRandomizeNext" aria-label="Randomize Next">
+                <app-button-with-tooltip id="randomize-next" [disabled]="playing()" [label]="text.randomize.label"
+                                         [tooltipText]="text.randomize.tooltip" tooltipPlacement="top-start"
+                                         [onClick]="onRandomizeNext" [aria-label]="text.randomize.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="dice" />
                 </app-button-with-tooltip>
-                <app-button-with-tooltip id="play" [disabled]="playing()" tooltipText="Keep generating random datasets at the interval" tooltipPlacement="top-start"
-                                         [onClick]="onPlayClick" aria-label="Play Randomize">
+                <app-button-with-tooltip id="play" [disabled]="playing()" [tooltipText]="text.play.tooltip" tooltipPlacement="top-start"
+                                         [onClick]="onPlayClick" [aria-label]="text.play.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="play" />
                 </app-button-with-tooltip>
-                <app-button-with-tooltip id="stop" [disabled]="!playing()" tooltipText="Stop generating" tooltipPlacement="top-start"
-                                         [onClick]="onStopClick" aria-label="Stop">
+                <app-button-with-tooltip id="stop" [disabled]="!playing()" [tooltipText]="text.stop.tooltip" tooltipPlacement="top-start"
+                                         [onClick]="onStopClick" [aria-label]="text.stop.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="stop" />
                 </app-button-with-tooltip>
               </div>
               <div class="form-group">
-                <label class="form-control-plaintext" for="random-rate">Interval (ms):</label>
+                <label class="form-control-plaintext" for="random-rate">{{ text.intervalLabel }}</label>
                 <input id="random-rate" [disabled]="playing()" type="number" min="5" max="60000" step="100" class="form-control" [value]="rateText()"
-                       aria-label="Randomize interval in milliseconds" (input)="rateChanged($event)" />
+                       [attr.aria-label]="text.intervalAria" (input)="rateChanged($event)" />
               </div>
             </div>
             <div class="btn-toolbar ml-2" role="toolbar">
               <app-export-buttons idPrefix="random" [getContainer]="getChartSizer" />
               <div class="btn-group">
-                <app-button-with-tooltip id="reuse" [disabled]="playing()" label="Reuse" [pressed]="applyReuse"
-                                         tooltipText="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltipPlacement="top-start"
-                                         [onClick]="toggleApplyReuse" aria-label="Reuse">
+                <app-button-with-tooltip id="reuse" [disabled]="playing()" [label]="text.reuse.label" [pressed]="applyReuse"
+                                         [tooltipText]="text.reuse.tooltip" tooltipPlacement="top-start"
+                                         [onClick]="toggleApplyReuse" [aria-label]="text.reuse.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="recycle" />
                 </app-button-with-tooltip>
               </div>
@@ -69,6 +71,8 @@ const defaultRate = 2000;
   `
 })
 export class RandomChartTab implements OnChanges, OnDestroy {
+  readonly text = demoText.randomChartTab;
+
   @Input() active = false;
   @Input({ required: true }) mochartConfig!: MochartConfig;
   @Input({ required: true }) dataProvider!: DemoDataProvider | null;

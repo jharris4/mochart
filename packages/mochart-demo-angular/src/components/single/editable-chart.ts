@@ -4,6 +4,8 @@ import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart } from '@mochart/angular';
 
+import { demoText } from '@mochart/demo-common';
+
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { ExportButtons } from '../misc/export-buttons';
 import { Icon } from '../misc/icon';
@@ -26,7 +28,8 @@ interface FocusPayload {
   groupIndex?: number;
 }
 
-const emptyGroupText = 'Select Group(s)';
+const emptyGroupText = demoText.editableChart.emptyGroupText;
+const selectAGroupText = demoText.editableChart.selectAGroupText;
 
 @Component({
   selector: 'app-editable-chart',
@@ -52,54 +55,54 @@ const emptyGroupText = 'Select Group(s)';
                     <div class="btn-toolbar" role="toolbar">
                       @if (showChartCountControls) {
                         <div class="btn-group">
-                          <app-button-with-tooltip id="edit-chart-count" label="2nd Chart" [pressed]="chartCount === 2"
-                                                   [tooltipText]="(chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data'" tooltipPlacement="right"
-                                                   [onClick]="onChartCountToggle" aria-label="Toggle Chart Count">
+                          <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
+                                                   [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
+                                                   [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
                             <app-icon size="lg" [fixedWidth]="true" [name]="chartCount === 2 ? 'window-maximize' : 'window-restore'" />
                           </app-button-with-tooltip>
                         </div>
                       }
                       <div class="btn-group">
-                        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? 'Edit Series' : 'Edit Groups'"
+                        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToGroups"
                                                  [tooltipText]="selectionMode() === 'group'
-                                                   ? 'Switch to editing one group at a time (step groups/series, change values)'
-                                                   : 'Switch to editing the set of groups (add, remove, reorder)'" tooltipPlacement="right"
-                                                 [onClick]="onModeToggle" aria-label="Toggle Mode">
+                                                   ? text.editMode.tooltipToSeries
+                                                   : text.editMode.tooltipToGroups" tooltipPlacement="right"
+                                                 [onClick]="onModeToggle" [aria-label]="text.editMode.aria">
                           <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
                         </app-button-with-tooltip>
                       </div>
                       <app-export-buttons idPrefix="edit" [disabled]="!!error" [getContainer]="getChartContent" />
                       <div class="btn-group">
-                        <app-button-with-tooltip id="edit-reset-groups" [disabled]="error || sequencePlaying()" label="Reset" tooltipText="Restore the original group set and order" tooltipPlacement="right"
-                                                 [onClick]="resetGroups" aria-label="Reset Groups">
+                        <app-button-with-tooltip id="edit-reset-groups" [disabled]="error || sequencePlaying()" [label]="text.resetGroups.label" [tooltipText]="text.resetGroups.tooltip" tooltipPlacement="right"
+                                                 [onClick]="resetGroups" [aria-label]="text.resetGroups.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
                         </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-reverse-groups" [disabled]="error || sequencePlaying()" label="Reverse" tooltipText="Reverse the order of the groups" tooltipPlacement="right"
-                                                 [onClick]="reverseGroups" aria-label="Reverse Groups">
+                        <app-button-with-tooltip id="edit-reverse-groups" [disabled]="error || sequencePlaying()" [label]="text.reverseGroups.label" [tooltipText]="text.reverseGroups.tooltip" tooltipPlacement="right"
+                                                 [onClick]="reverseGroups" [aria-label]="text.reverseGroups.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="right-left" />
                         </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-add-groups" [disabled]="error || sequencePlaying() || disableAdd" label="Add" tooltipText="Add the groups selected in the input to the chart" tooltipPlacement="right"
-                                                 [onClick]="addGroups" aria-label="Add Selected Groups">
+                        <app-button-with-tooltip id="edit-add-groups" [disabled]="error || sequencePlaying() || disableAdd" [label]="text.addGroups.label" [tooltipText]="text.addGroups.tooltip" tooltipPlacement="right"
+                                                 [onClick]="addGroups" [aria-label]="text.addGroups.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="plus" />
                         </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-remove-groups" [disabled]="error || sequencePlaying() || disableRemove" label="Remove" tooltipText="Remove the groups selected in the input from the chart" tooltipPlacement="right"
-                                                 [onClick]="removeGroups" aria-label="Remove Selected Groups">
+                        <app-button-with-tooltip id="edit-remove-groups" [disabled]="error || sequencePlaying() || disableRemove" [label]="text.removeGroups.label" [tooltipText]="text.removeGroups.tooltip" tooltipPlacement="right"
+                                                 [onClick]="removeGroups" [aria-label]="text.removeGroups.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="minus" />
                         </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-play-add" [disabled]="error || sequencePlaying() || disableAdd" tooltipText="Animate adding the selected groups one at a time" tooltipPlacement="right"
-                                                 [onClick]="startAddSequence" aria-label="Play Add Selected Groups">
+                        <app-button-with-tooltip id="edit-play-add" [disabled]="error || sequencePlaying() || disableAdd" [tooltipText]="text.playAddGroups.tooltip" tooltipPlacement="right"
+                                                 [onClick]="startAddSequence" [aria-label]="text.playAddGroups.aria">
                           <app-icon size="lg" name="play" /><span style="padding-right: 2px;"></span><app-icon size="lg" name="plus" />
                         </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-play-remove" [disabled]="error || sequencePlaying() || disableRemove" tooltipText="Animate removing the selected groups one at a time" tooltipPlacement="right"
-                                                 [onClick]="startRemoveSequence" aria-label="Play Remove Selected Groups">
+                        <app-button-with-tooltip id="edit-play-remove" [disabled]="error || sequencePlaying() || disableRemove" [tooltipText]="text.playRemoveGroups.tooltip" tooltipPlacement="right"
+                                                 [onClick]="startRemoveSequence" [aria-label]="text.playRemoveGroups.aria">
                           <app-icon size="lg" name="play" /><span style="padding-right: 2px;"></span><app-icon size="lg" name="minus" />
                         </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-stop" [disabled]="error || !sequencePlaying()" tooltipText="Stop the add/remove animation" tooltipPlacement="right"
-                                                 [onClick]="stopSequence" aria-label="Stop Selected Group Sequence">
+                        <app-button-with-tooltip id="edit-stop" [disabled]="error || !sequencePlaying()" [tooltipText]="text.stopSequence.tooltip" tooltipPlacement="right"
+                                                 [onClick]="stopSequence" [aria-label]="text.stopSequence.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="stop" />
                         </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-select-all" [disabled]="error || sequencePlaying()" label="Select All" tooltipText="Put every group into the selection input" tooltipPlacement="right"
-                                                 [onClick]="selectAllGroups" aria-label="Select All Groups">
+                        <app-button-with-tooltip id="edit-select-all" [disabled]="error || sequencePlaying()" [label]="text.selectAllGroups.label" [tooltipText]="text.selectAllGroups.tooltip" tooltipPlacement="right"
+                                                 [onClick]="selectAllGroups" [aria-label]="text.selectAllGroups.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="check-double" />
                         </app-button-with-tooltip>
                       </div>
@@ -122,19 +125,19 @@ const emptyGroupText = 'Select Group(s)';
                     <div class="btn-toolbar" role="toolbar">
                       @if (showChartCountControls) {
                         <div class="btn-group">
-                          <app-button-with-tooltip id="edit-chart-count" label="2nd Chart" [pressed]="chartCount === 2"
-                                                   [tooltipText]="(chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data'" tooltipPlacement="right"
-                                                   [onClick]="onChartCountToggle" aria-label="Toggle Chart Count">
+                          <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
+                                                   [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
+                                                   [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
                             <app-icon size="lg" [fixedWidth]="true" [name]="chartCount === 2 ? 'window-maximize' : 'window-restore'" />
                           </app-button-with-tooltip>
                         </div>
                       }
                       <div class="btn-group">
-                        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? 'Edit Series' : 'Edit Groups'"
+                        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToGroups"
                                                  [tooltipText]="selectionMode() === 'group'
-                                                   ? 'Switch to editing one group at a time (step groups/series, change values)'
-                                                   : 'Switch to editing the set of groups (add, remove, reorder)'" tooltipPlacement="right"
-                                                 [onClick]="onModeToggle" aria-label="Toggle Mode">
+                                                   ? text.editMode.tooltipToSeries
+                                                   : text.editMode.tooltipToGroups" tooltipPlacement="right"
+                                                 [onClick]="onModeToggle" [aria-label]="text.editMode.aria">
                           <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
                         </app-button-with-tooltip>
                       </div>
@@ -144,21 +147,21 @@ const emptyGroupText = 'Select Group(s)';
                   <div class="form-group">
                     <div class="btn-toolbar" role="toolbar">
                       <div class="btn-group">
-                        <app-button-with-tooltip id="edit-group-decrease" [disabled]="error || groupOrderControlsDisabled || isFirstGroup" tooltipText="Move the focused group one position earlier" tooltipPlacement="right"
-                                                 [onClick]="decreaseGroupOrder" aria-label="Decrease Group Order">
+                        <app-button-with-tooltip id="edit-group-decrease" [disabled]="error || groupOrderControlsDisabled || isFirstGroup" [tooltipText]="text.decreaseGroupOrder.tooltip" tooltipPlacement="right"
+                                                 [onClick]="decreaseGroupOrder" [aria-label]="text.decreaseGroupOrder.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-left" />
                         </app-button-with-tooltip>
                       </div>
                     </div>
                   </div>
                   <div class="form-group">
-                    <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ 'Group: ' + groupIndex() }}</span>
+                    <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ text.groupIndexPrefix + groupIndex() }}</span>
                   </div>
                   <div class="form-group">
                     <div class="btn-toolbar" role="toolbar">
                       <div class="btn-group">
-                        <app-button-with-tooltip id="edit-group-increase" [disabled]="error || groupOrderControlsDisabled || isLastGroup" tooltipText="Move the focused group one position later" tooltipPlacement="right"
-                                                 [onClick]="increaseGroupOrder" aria-label="Increase Group Order">
+                        <app-button-with-tooltip id="edit-group-increase" [disabled]="error || groupOrderControlsDisabled || isLastGroup" [tooltipText]="text.increaseGroupOrder.tooltip" tooltipPlacement="right"
+                                                 [onClick]="increaseGroupOrder" [aria-label]="text.increaseGroupOrder.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-right" />
                         </app-button-with-tooltip>
                       </div>
@@ -167,31 +170,31 @@ const emptyGroupText = 'Select Group(s)';
                   <div class="form-group">
                     <div class="btn-toolbar" role="toolbar">
                       <div class="btn-group">
-                        <app-button-with-tooltip id="edit-previous-series" [disabled]="error || seriesControlsDisabled || !hasPrevSeries" tooltipText="Edit the previous series" tooltipPlacement="right"
-                                                 [onClick]="prevSeries" aria-label="Previous Series">
+                        <app-button-with-tooltip id="edit-previous-series" [disabled]="error || seriesControlsDisabled || !hasPrevSeries" [tooltipText]="text.previousSeries.tooltip" tooltipPlacement="right"
+                                                 [onClick]="prevSeries" [aria-label]="text.previousSeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-down" />
                         </app-button-with-tooltip>
                       </div>
                     </div>
                   </div>
                   <div class="form-group">
-                    <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ 'Series: ' + seriesIndex() }}</span>
+                    <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ text.seriesIndexPrefix + seriesIndex() }}</span>
                   </div>
                   <div class="form-group">
                     <div class="btn-toolbar" role="toolbar">
                       <div class="btn-group">
-                        <app-button-with-tooltip id="edit-next-series" [disabled]="error || seriesControlsDisabled || !hasNextSeries" tooltipText="Edit the next series" tooltipPlacement="right"
-                                                 [onClick]="nextSeries" aria-label="Next Series">
+                        <app-button-with-tooltip id="edit-next-series" [disabled]="error || seriesControlsDisabled || !hasNextSeries" [tooltipText]="text.nextSeries.tooltip" tooltipPlacement="right"
+                                                 [onClick]="nextSeries" [aria-label]="text.nextSeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-up" />
                         </app-button-with-tooltip>
                       </div>
                       <div class="btn-group">
-                        <app-button-with-tooltip id="edit-reset-series" [disabled]="error || seriesControlsDisabled" tooltipText="Reset Series Changes" tooltipPlacement="right"
-                                                 [onClick]="resetSeriesChanges" aria-label="Reset Series Changes">
+                        <app-button-with-tooltip id="edit-reset-series" [disabled]="error || seriesControlsDisabled" [tooltipText]="text.resetSeries.tooltip" tooltipPlacement="right"
+                                                 [onClick]="resetSeriesChanges" [aria-label]="text.resetSeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
                         </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-apply-series" [disabled]="error || seriesControlsDisabled" tooltipText="Apply Series Changes" tooltipPlacement="right"
-                                                 [onClick]="applySeriesChanges" aria-label="Apply Series Changes">
+                        <app-button-with-tooltip id="edit-apply-series" [disabled]="error || seriesControlsDisabled" [tooltipText]="text.applySeries.tooltip" tooltipPlacement="right"
+                                                 [onClick]="applySeriesChanges" [aria-label]="text.applySeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="check" />
                         </app-button-with-tooltip>
                       </div>
@@ -213,6 +216,8 @@ const emptyGroupText = 'Select Group(s)';
   `
 })
 export class EditableChart implements OnInit, OnChanges, OnDestroy {
+  readonly text = demoText.editableChart;
+
   @Input({ required: true }) width!: number;
   @Input({ required: true }) mochartDemoConfig!: MochartDemoConfig;
   @Input({ required: true }) data!: Row[];
@@ -274,7 +279,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     this.removedData = nextRemovedData;
     if (resetGroupIndex === true) {
       this.groupIndex.set(-1);
-      this.seriesValuesText.set('Select a Group');
+      this.seriesValuesText.set(selectAGroupText);
     }
     this.filteredFocusedGroupIndex.set(this.dataError ? -1 : this.getFilteredFocusedGroupIndex(nextFilteredData));
     if (!this.dataError && this.mochartDemoConfig.mochartConfig.validation.valid) {

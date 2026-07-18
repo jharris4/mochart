@@ -4,6 +4,8 @@
   import { Chart } from '@mochart/svelte';
   import type { MochartConfig } from '@mochart/core';
 
+  import { demoText } from '@mochart/demo-common';
+
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import ExportButtons from '../misc/ExportButtons.svelte';
   import Icon from '../misc/Icon.svelte';
@@ -72,12 +74,12 @@
       <div class="form-group">
         <div class="btn-toolbar" role="toolbar">
           <div class="btn-group">
-            <ButtonWithTooltip id="transition-back" label="Back" tooltipText="Transition to the previous dataset" tooltipPlacement="top-start"
-                               onClick={onStepBack} aria-label="Step Backward">
+            <ButtonWithTooltip id="transition-back" label={demoText.transitionChartTab.back.label} tooltipText={demoText.transitionChartTab.back.tooltip} tooltipPlacement="top-start"
+                               onClick={onStepBack} aria-label={demoText.transitionChartTab.back.aria}>
               <Icon size="lg" fixedWidth={true} name="backward-step" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="transition-forward" label="Next" tooltipText="Transition to the next dataset" tooltipPlacement="top-start"
-                               onClick={onStepForward} aria-label="Step Forward">
+            <ButtonWithTooltip id="transition-forward" label={demoText.transitionChartTab.next.label} tooltipText={demoText.transitionChartTab.next.tooltip} tooltipPlacement="top-start"
+                               onClick={onStepForward} aria-label={demoText.transitionChartTab.next.aria}>
               <Icon size="lg" fixedWidth={true} name="forward-step" />
             </ButtonWithTooltip>
           </div>

@@ -4,6 +4,8 @@ import { ref, watch } from 'vue';
 import { Chart } from '@mochart/vue';
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import ExportButtons from '../misc/ExportButtons.vue';
 import Icon from '../misc/Icon.vue';
@@ -61,12 +63,12 @@ function onStepForward() {
         <div class="form-group">
           <div class="btn-toolbar" role="toolbar">
             <div class="btn-group">
-              <ButtonWithTooltip id="transition-back" label="Back" tooltip-text="Transition to the previous dataset" tooltip-placement="top-start"
-                                 :on-click="onStepBack" aria-label="Step Backward">
+              <ButtonWithTooltip id="transition-back" :label="demoText.transitionChartTab.back.label" :tooltip-text="demoText.transitionChartTab.back.tooltip" tooltip-placement="top-start"
+                                 :on-click="onStepBack" :aria-label="demoText.transitionChartTab.back.aria">
                 <Icon size="lg" :fixed-width="true" name="backward-step" />
               </ButtonWithTooltip>
-              <ButtonWithTooltip id="transition-forward" label="Next" tooltip-text="Transition to the next dataset" tooltip-placement="top-start"
-                                 :on-click="onStepForward" aria-label="Step Forward">
+              <ButtonWithTooltip id="transition-forward" :label="demoText.transitionChartTab.next.label" :tooltip-text="demoText.transitionChartTab.next.tooltip" tooltip-placement="top-start"
+                                 :on-click="onStepForward" :aria-label="demoText.transitionChartTab.next.aria">
                 <Icon size="lg" :fixed-width="true" name="forward-step" />
               </ButtonWithTooltip>
             </div>

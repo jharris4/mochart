@@ -10,7 +10,7 @@ import RandomConfigTab from './RandomConfigTab.vue';
 import RandomDataTab from './RandomDataTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import { generateChartDataProvider } from '@mochart/demo-common';
+import { demoText, generateChartDataProvider } from '@mochart/demo-common';
 
 import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
 
@@ -100,9 +100,9 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
       console.warn('series values: ', seriesValues);
       dataProvider.value = {
         getGroupValues: () => [],
-        getError: () => 'Error creating DataProvider'
+        getError: () => demoText.errors.creatingDataProvider
       };
-      data.value = { error: 'Error creating DataProvider' };
+      data.value = { error: demoText.errors.creatingDataProvider };
       randomConfig.value = nextRandomConfig;
     }
     else {
@@ -114,10 +114,10 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
   else {
     dataProvider.value = {
       getGroupValues: () => [],
-      getError: () => 'Invalid Random Config'
+      getError: () => demoText.errors.invalidRandomConfig
     };
     data.value = {
-      error: 'Invalid Random Config'
+      error: demoText.errors.invalidRandomConfig
     };
     randomConfig.value = nextRandomConfig;
   }

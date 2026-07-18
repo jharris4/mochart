@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 
+import { demoText } from '@mochart/demo-common';
+
 import MochartDemosTab from '../demos/DemosTab';
 import MultiMochartChartsTab from './ChartsTab';
 import ErrorTab from '../misc/ErrorTab';
@@ -41,12 +43,12 @@ export default function MochartDemoMulti({ demoData, demoMode, initialDemoId, on
         <Nav tabs>
           <NavItem>
             <NavLink active={activeKey === eventKeyDemo} onClick={() => { handleSelect(eventKeyDemo); }}>
-              Demos
+              {demoText.tabs.demos}
             </NavLink>
           </NavItem>
           <NavItem style={nonDemoNavItemStyle}>
             <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
-              Chart
+              {demoText.tabs.chart}
             </NavLink>
           </NavItem>
         </Nav>

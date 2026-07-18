@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -74,7 +74,7 @@ function resetData() {
 function toggleShowUnused() {
   const parsed = parseCurrentFullData();
   if ('error' in parsed) {
-    errorMessage.value = parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects';
+    errorMessage.value = parsed.error === 'json' ? demoText.errors.invalidJson : demoText.errors.invalidDataArray;
     return;
   }
   showUnused.value = !showUnused.value;
@@ -106,18 +106,18 @@ const footerError = computed(() => jsonError.value ?? errorMessage.value);
     </div>
     <div class="mochart-demo-tab-footer">
       <div class="btn-toolbar" role="toolbar">
-        <ButtonWithTooltip id="data-reset" label="Reset" tooltip-text="Restore this demo's original data" tooltip-placement="top-start"
-                           :on-click="resetData" aria-label="Reset">
+        <ButtonWithTooltip id="data-reset" :label="demoText.dataTab.reset.label" :tooltip-text="demoText.dataTab.reset.tooltip" tooltip-placement="top-start"
+                           :on-click="resetData" :aria-label="demoText.dataTab.reset.aria">
           <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="data-unused" label="Unused" :pressed="showUnused"
-                           tooltip-text="Show or hide data properties the chart config does not use" tooltip-placement="top-start"
-                           :on-click="toggleShowUnused" aria-label="Toggle Unused">
+        <ButtonWithTooltip id="data-unused" :label="demoText.dataTab.unused.label" :pressed="showUnused"
+                           :tooltip-text="demoText.dataTab.unused.tooltip" tooltip-placement="top-start"
+                           :on-click="toggleShowUnused" :aria-label="demoText.dataTab.unused.aria">
           <Icon size="lg" :fixed-width="true" :name="showUnused ? 'eye' : 'eye-slash'" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="data-apply" label="Apply" :disabled="jsonError !== null"
-                           tooltip-text="Apply this data — the chart updates when you return to the Chart tab" tooltip-placement="top-start"
-                           :on-click="applyData" aria-label="Apply">
+        <ButtonWithTooltip id="data-apply" :label="demoText.dataTab.apply.label" :disabled="jsonError !== null"
+                           :tooltip-text="demoText.dataTab.apply.tooltip" tooltip-placement="top-start"
+                           :on-click="applyData" :aria-label="demoText.dataTab.apply.aria">
           <Icon size="lg" :fixed-width="true" name="check" />
         </ButtonWithTooltip>
         <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>

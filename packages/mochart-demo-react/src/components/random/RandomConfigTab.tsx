@@ -5,7 +5,7 @@ import FontAwesome from 'react-fontawesome';
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
-import { formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -30,12 +30,12 @@ export default function RandomMochartConfigTab({ active, randomConfig, onUpdate,
     try {
       const newConfig = JSON.parse(configText);
       newConfig.valid = validateRandomConfig(newConfig);
-      setErrorMessage(newConfig.valid ? null : 'Config has invalid values — details in the browser console');
+      setErrorMessage(newConfig.valid ? null : demoText.errors.invalidRandomConfigValues);
       onUpdate(newConfig);
     }
     catch (error) {
       console.warn('Invalid Random Config JSON: ' + configText);
-      setErrorMessage('Invalid JSON');
+      setErrorMessage(demoText.errors.invalidJson);
     }
   };
 
@@ -45,7 +45,7 @@ export default function RandomMochartConfigTab({ active, randomConfig, onUpdate,
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }, [configText]);
   const footerError = jsonError ?? errorMessage;
@@ -57,13 +57,13 @@ export default function RandomMochartConfigTab({ active, randomConfig, onUpdate,
       </div>
       <div className="mochart-demo-tab-footer">
         <ButtonToolbar>
-          <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore the original random generator config" tooltipPlacement="top-start"
-            onClick={onReset} aria-label="Reset">
+          <ButtonWithTooltip id="config-reset" label={demoText.randomConfigTab.reset.label} tooltipText={demoText.randomConfigTab.reset.tooltip} tooltipPlacement="top-start"
+            onClick={onReset} aria-label={demoText.randomConfigTab.reset.aria}>
             <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
-          <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
-            tooltipText="Apply this generator config to the random chart" tooltipPlacement="top-start"
-            onClick={onUpdateClick} aria-label="Apply">
+          <ButtonWithTooltip id="config-apply" label={demoText.randomConfigTab.apply.label} disabled={jsonError !== null}
+            tooltipText={demoText.randomConfigTab.apply.tooltip} tooltipPlacement="top-start"
+            onClick={onUpdateClick} aria-label={demoText.randomConfigTab.apply.aria}>
             <FontAwesome size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}

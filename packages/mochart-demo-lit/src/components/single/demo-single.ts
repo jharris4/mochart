@@ -2,6 +2,8 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
+import { demoText } from '@mochart/demo-common';
+
 import { LightElement } from '../misc/LightElement';
 
 import '../demos/demos-tab';
@@ -147,7 +149,7 @@ export class DemoSingle extends LightElement {
     const badge = eventKey === eventKeyChart && this.hasPendingChanges;
     return html`<li class="nav-item">
       <button type="button" class=${'nav-link' + (this.activeKey === eventKey ? ' active' : '')}
-              title=${badge ? 'Applied changes are waiting — switch here to see them' : nothing}
+              title=${badge ? demoText.tabs.chartPendingTitle : nothing}
               @click=${() => this.handleSelect(eventKey)}>
         ${label}${badge ? html`<span class="mochart-pending-badge" aria-hidden="true"></span>` : nothing}
       </button>
@@ -160,10 +162,10 @@ export class DemoSingle extends LightElement {
     return html`<div class="mochart-demo-container">
       <div class="mochart-demo-tabs-container">
         <ul class="nav nav-tabs">
-          ${this.renderTab(eventKeyDemo, 'Demos')}
-          ${this.renderTab(eventKeyChart, 'Chart')}
-          ${this.renderTab(eventKeyConfig, 'Config')}
-          ${this.renderTab(eventKeyData, 'Data')}
+          ${this.renderTab(eventKeyDemo, demoText.tabs.demos)}
+          ${this.renderTab(eventKeyChart, demoText.tabs.chart)}
+          ${this.renderTab(eventKeyConfig, demoText.tabs.config)}
+          ${this.renderTab(eventKeyData, demoText.tabs.data)}
         </ul>
       </div>
       ${this.initialDemoId === 'demos'

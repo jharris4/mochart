@@ -1,5 +1,7 @@
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { buttonWithTooltip, el, icon } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 import { exportButtons } from '../misc/ExportButtons';
@@ -55,7 +57,7 @@ interface FocusPayload {
   groupIndex?: number;
 }
 
-const emptyGroupText = 'Select Group(s)';
+const emptyGroupText = demoText.editableChart.emptyGroupText;
 
 export function editableChart(props: EditableChartProps): EditableChartHandle {
   const { onFocus, onSeriesFilter, onChartCountToggle, showChartCountControls } = props;
@@ -109,7 +111,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     removedData = nextRemovedData;
     if (resetGroupIndex === true) {
       groupIndex = -1;
-      seriesValuesText = 'Select a Group';
+      seriesValuesText = demoText.editableChart.selectAGroupText;
     }
     filteredFocusedGroupIndex = dataError ? -1 : getFilteredFocusedGroupIndex(nextFilteredData);
     void filteredFocusedGroupIndex;
@@ -567,14 +569,14 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // Common controls shared by both panels; moved into whichever panel is
   // visible (the framework demos render them per-branch instead).
   const chartCountButton = showChartCountControls ? buttonWithTooltip({
-    id: 'edit-chart-count', label: '2nd Chart', pressed: chartCount === 2, ariaLabel: 'Toggle Chart Count',
-    tooltipText: (chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data',
+    id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: chartCount === 2, ariaLabel: demoText.editableChart.secondChart.aria,
+    tooltipText: chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow,
     onClick: onChartCountToggle,
     content: [icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]
   }) : null;
   const modeButton = buttonWithTooltip({
-    id: 'edit-mode', label: 'Edit Series', ariaLabel: 'Toggle Mode',
-    tooltipText: 'Switch to editing one group at a time (step groups/series, change values)',
+    id: 'edit-mode', label: demoText.editableChart.editMode.labelToSeries, ariaLabel: demoText.editableChart.editMode.aria,
+    tooltipText: demoText.editableChart.editMode.tooltipToSeries,
     onClick: onModeToggle,
     content: [icon('bullseye', { size: 'lg', fixedWidth: true })]
   });
@@ -587,50 +589,50 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Group-mode panel
   const resetGroupsButton = buttonWithTooltip({
-    id: 'edit-reset-groups', label: 'Reset', ariaLabel: 'Reset Groups',
-    tooltipText: 'Restore the original group set and order',
+    id: 'edit-reset-groups', label: demoText.editableChart.resetGroups.label, ariaLabel: demoText.editableChart.resetGroups.aria,
+    tooltipText: demoText.editableChart.resetGroups.tooltip,
     onClick: resetGroups,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const reverseGroupsButton = buttonWithTooltip({
-    id: 'edit-reverse-groups', label: 'Reverse', ariaLabel: 'Reverse Groups',
-    tooltipText: 'Reverse the order of the groups',
+    id: 'edit-reverse-groups', label: demoText.editableChart.reverseGroups.label, ariaLabel: demoText.editableChart.reverseGroups.aria,
+    tooltipText: demoText.editableChart.reverseGroups.tooltip,
     onClick: reverseGroups,
     content: [icon('right-left', { size: 'lg', fixedWidth: true })]
   });
   const addGroupsButton = buttonWithTooltip({
-    id: 'edit-add-groups', label: 'Add', ariaLabel: 'Add Selected Groups',
-    tooltipText: 'Add the groups selected in the input to the chart',
+    id: 'edit-add-groups', label: demoText.editableChart.addGroups.label, ariaLabel: demoText.editableChart.addGroups.aria,
+    tooltipText: demoText.editableChart.addGroups.tooltip,
     onClick: addGroups,
     content: [icon('plus', { size: 'lg', fixedWidth: true })]
   });
   const removeGroupsButton = buttonWithTooltip({
-    id: 'edit-remove-groups', label: 'Remove', ariaLabel: 'Remove Selected Groups',
-    tooltipText: 'Remove the groups selected in the input from the chart',
+    id: 'edit-remove-groups', label: demoText.editableChart.removeGroups.label, ariaLabel: demoText.editableChart.removeGroups.aria,
+    tooltipText: demoText.editableChart.removeGroups.tooltip,
     onClick: removeGroups,
     content: [icon('minus', { size: 'lg', fixedWidth: true })]
   });
   const playAddButton = buttonWithTooltip({
-    id: 'edit-play-add', ariaLabel: 'Play Add Selected Groups',
-    tooltipText: 'Animate adding the selected groups one at a time',
+    id: 'edit-play-add', ariaLabel: demoText.editableChart.playAddGroups.aria,
+    tooltipText: demoText.editableChart.playAddGroups.tooltip,
     onClick: startAddSequence,
     content: [icon('play', { size: 'lg' }), el('span', { style: 'padding-right: 2px;' }), icon('plus', { size: 'lg' })]
   });
   const playRemoveButton = buttonWithTooltip({
-    id: 'edit-play-remove', ariaLabel: 'Play Remove Selected Groups',
-    tooltipText: 'Animate removing the selected groups one at a time',
+    id: 'edit-play-remove', ariaLabel: demoText.editableChart.playRemoveGroups.aria,
+    tooltipText: demoText.editableChart.playRemoveGroups.tooltip,
     onClick: startRemoveSequence,
     content: [icon('play', { size: 'lg' }), el('span', { style: 'padding-right: 2px;' }), icon('minus', { size: 'lg' })]
   });
   const stopButton = buttonWithTooltip({
-    id: 'edit-stop', ariaLabel: 'Stop Selected Group Sequence',
-    tooltipText: 'Stop the add/remove animation',
+    id: 'edit-stop', ariaLabel: demoText.editableChart.stopSequence.aria,
+    tooltipText: demoText.editableChart.stopSequence.tooltip,
     onClick: stopSequence,
     content: [icon('stop', { size: 'lg', fixedWidth: true })]
   });
   const selectAllButton = buttonWithTooltip({
-    id: 'edit-select-all', label: 'Select All', ariaLabel: 'Select All Groups',
-    tooltipText: 'Put every group into the selection input',
+    id: 'edit-select-all', label: demoText.editableChart.selectAllGroups.label, ariaLabel: demoText.editableChart.selectAllGroups.aria,
+    tooltipText: demoText.editableChart.selectAllGroups.tooltip,
     onClick: selectAllGroups,
     content: [icon('check-double', { size: 'lg', fixedWidth: true })]
   });
@@ -660,38 +662,38 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Series-mode panel
   const groupDecreaseButton = buttonWithTooltip({
-    id: 'edit-group-decrease', ariaLabel: 'Decrease Group Order',
-    tooltipText: 'Move the focused group one position earlier',
+    id: 'edit-group-decrease', ariaLabel: demoText.editableChart.decreaseGroupOrder.aria,
+    tooltipText: demoText.editableChart.decreaseGroupOrder.tooltip,
     onClick: decreaseGroupOrder,
     content: [icon('arrow-left', { size: 'lg', fixedWidth: true })]
   });
   const groupIncreaseButton = buttonWithTooltip({
-    id: 'edit-group-increase', ariaLabel: 'Increase Group Order',
-    tooltipText: 'Move the focused group one position later',
+    id: 'edit-group-increase', ariaLabel: demoText.editableChart.increaseGroupOrder.aria,
+    tooltipText: demoText.editableChart.increaseGroupOrder.tooltip,
     onClick: increaseGroupOrder,
     content: [icon('arrow-right', { size: 'lg', fixedWidth: true })]
   });
   const previousSeriesButton = buttonWithTooltip({
-    id: 'edit-previous-series', ariaLabel: 'Previous Series',
-    tooltipText: 'Edit the previous series',
+    id: 'edit-previous-series', ariaLabel: demoText.editableChart.previousSeries.aria,
+    tooltipText: demoText.editableChart.previousSeries.tooltip,
     onClick: prevSeries,
     content: [icon('chevron-down', { size: 'lg', fixedWidth: true })]
   });
   const nextSeriesButton = buttonWithTooltip({
-    id: 'edit-next-series', ariaLabel: 'Next Series',
-    tooltipText: 'Edit the next series',
+    id: 'edit-next-series', ariaLabel: demoText.editableChart.nextSeries.aria,
+    tooltipText: demoText.editableChart.nextSeries.tooltip,
     onClick: nextSeries,
     content: [icon('chevron-up', { size: 'lg', fixedWidth: true })]
   });
   const resetSeriesButton = buttonWithTooltip({
-    id: 'edit-reset-series', label: 'Reset', ariaLabel: 'Reset Series Changes',
-    tooltipText: "Discard the edits to this series' values",
+    id: 'edit-reset-series', label: demoText.editableChart.resetSeries.label, ariaLabel: demoText.editableChart.resetSeries.aria,
+    tooltipText: demoText.editableChart.resetSeries.tooltip,
     onClick: resetSeriesChanges,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const applySeriesButton = buttonWithTooltip({
-    id: 'edit-apply-series', label: 'Apply', ariaLabel: 'Apply Series Changes',
-    tooltipText: 'Apply the edited series values to the chart',
+    id: 'edit-apply-series', label: demoText.editableChart.applySeries.label, ariaLabel: demoText.editableChart.applySeries.aria,
+    tooltipText: demoText.editableChart.applySeries.tooltip,
     onClick: applySeriesChanges,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });
@@ -780,14 +782,14 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       seriesCommonToolbar.append(...commonControls);
     }
 
-    modeButton.setLabel(groupMode ? 'Edit Series' : 'Edit Groups');
+    modeButton.setLabel(groupMode ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups);
     modeButton.setTooltip(groupMode
-      ? 'Switch to editing one group at a time (step groups/series, change values)'
-      : 'Switch to editing the set of groups (add, remove, reorder)');
+      ? demoText.editableChart.editMode.tooltipToSeries
+      : demoText.editableChart.editMode.tooltipToGroups);
     modeButton.setContent([icon(groupMode ? 'bullseye' : 'sliders', { size: 'lg', fixedWidth: true })]);
     if (chartCountButton) {
       chartCountButton.setPressed(chartCount === 2);
-      chartCountButton.setTooltip((chartCount === 2 ? 'Hide the' : 'Show a') + ' second chart sharing the same data');
+      chartCountButton.setTooltip(chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow);
       chartCountButton.setContent([icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]);
     }
     exportGroup.setDisabled(!!error);
@@ -811,8 +813,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     nextSeriesButton.setDisabled(error || seriesControlsDisabled || !hasNextSeries);
     resetSeriesButton.setDisabled(error || seriesControlsDisabled);
     applySeriesButton.setDisabled(error || seriesControlsDisabled);
-    groupIndexLabel.textContent = 'Group: ' + groupIndex;
-    seriesIndexLabel.textContent = 'Series: ' + seriesIndex;
+    groupIndexLabel.textContent = demoText.editableChart.groupIndexPrefix + groupIndex;
+    seriesIndexLabel.textContent = demoText.editableChart.seriesIndexPrefix + seriesIndex;
     seriesInput.disabled = error || seriesControlsDisabled;
     if (seriesInput.value !== seriesValuesText) {
       seriesInput.value = seriesValuesText;

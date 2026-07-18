@@ -5,7 +5,7 @@ import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import Icon from '../misc/Icon.vue';
 
-import { formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -36,12 +36,12 @@ function onUpdateClick() {
   try {
     const newConfig = JSON.parse(configText.value);
     newConfig.valid = validateRandomConfig(newConfig);
-    errorMessage.value = newConfig.valid ? null : 'Config has invalid values — details in the browser console';
+    errorMessage.value = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
     props.onUpdate(newConfig);
   }
   catch (error) {
     console.warn('Invalid Random Config JSON: ' + configText.value);
-    errorMessage.value = 'Invalid JSON';
+    errorMessage.value = demoText.errors.invalidJson;
   }
 }
 
@@ -51,7 +51,7 @@ const jsonError = computed(() => {
     return null;
   }
   catch (error) {
-    return 'Invalid JSON';
+    return demoText.errors.invalidJson;
   }
 });
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
@@ -64,13 +64,13 @@ const footerError = computed(() => jsonError.value ?? errorMessage.value);
     </div>
     <div class="mochart-demo-tab-footer">
       <div class="btn-toolbar" role="toolbar">
-        <ButtonWithTooltip id="config-reset" label="Reset" tooltip-text="Restore the original random generator config" tooltip-placement="top-start"
-                           :on-click="props.onReset" aria-label="Reset">
+        <ButtonWithTooltip id="config-reset" :label="demoText.randomConfigTab.reset.label" :tooltip-text="demoText.randomConfigTab.reset.tooltip" tooltip-placement="top-start"
+                           :on-click="props.onReset" :aria-label="demoText.randomConfigTab.reset.aria">
           <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
         </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-apply" label="Apply" :disabled="jsonError !== null"
-                           tooltip-text="Apply this generator config to the random chart" tooltip-placement="top-start"
-                           :on-click="onUpdateClick" aria-label="Apply">
+        <ButtonWithTooltip id="config-apply" :label="demoText.randomConfigTab.apply.label" :disabled="jsonError !== null"
+                           :tooltip-text="demoText.randomConfigTab.apply.tooltip" tooltip-placement="top-start"
+                           :on-click="onUpdateClick" :aria-label="demoText.randomConfigTab.apply.aria">
           <Icon size="lg" :fixed-width="true" name="check" />
         </ButtonWithTooltip>
         <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>

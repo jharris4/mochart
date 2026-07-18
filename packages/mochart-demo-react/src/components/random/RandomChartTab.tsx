@@ -6,6 +6,8 @@ import sizer from 'react-sizer';
 import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import ExportButtons from '../misc/ExportButtons';
 
@@ -80,37 +82,37 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
           <FormGroup>
             <ButtonToolbar>
               <ButtonGroup>
-                <ButtonWithTooltip id="randomize-back" disabled={playing} label="Back"
-                  tooltipText="Go back to the previous random dataset" tooltipPlacement="top-start"
-                  onClick={onRandomizeBack} aria-label="Randomize Back">
+                <ButtonWithTooltip id="randomize-back" disabled={playing} label={demoText.randomChartTab.back.label}
+                  tooltipText={demoText.randomChartTab.back.tooltip} tooltipPlacement="top-start"
+                  onClick={onRandomizeBack} aria-label={demoText.randomChartTab.back.aria}>
                   <FontAwesome size="lg" fixedWidth={true} name="dice" flip={'horizontal'} />
                 </ButtonWithTooltip>
-                <ButtonWithTooltip id="randomize-next" disabled={playing} label="Randomize"
-                  tooltipText="Generate the next random dataset" tooltipPlacement="top-start"
-                  onClick={onRandomizeNext} aria-label="Randomize Next">
+                <ButtonWithTooltip id="randomize-next" disabled={playing} label={demoText.randomChartTab.randomize.label}
+                  tooltipText={demoText.randomChartTab.randomize.tooltip} tooltipPlacement="top-start"
+                  onClick={onRandomizeNext} aria-label={demoText.randomChartTab.randomize.aria}>
                   <FontAwesome size="lg" fixedWidth={true} name="dice" />
                 </ButtonWithTooltip>
-                <ButtonWithTooltip id="play" disabled={playing} tooltipText="Keep generating random datasets at the interval" tooltipPlacement="top-start"
-                  onClick={onPlayClick} aria-label="Play Randomize">
+                <ButtonWithTooltip id="play" disabled={playing} tooltipText={demoText.randomChartTab.play.tooltip} tooltipPlacement="top-start"
+                  onClick={onPlayClick} aria-label={demoText.randomChartTab.play.aria}>
                   <FontAwesome size="lg" fixedWidth={true} name="play" />
                 </ButtonWithTooltip>
-                <ButtonWithTooltip id="stop" disabled={!playing} tooltipText="Stop generating" tooltipPlacement="top-start"
-                  onClick={onStopClick} aria-label="Stop">
+                <ButtonWithTooltip id="stop" disabled={!playing} tooltipText={demoText.randomChartTab.stop.tooltip} tooltipPlacement="top-start"
+                  onClick={onStopClick} aria-label={demoText.randomChartTab.stop.aria}>
                   <FontAwesome size="lg" fixedWidth={true} name="stop" />
                 </ButtonWithTooltip>
               </ButtonGroup>
               <FormGroup>
-                <label className="form-control-plaintext" htmlFor="random-rate">Interval (ms):</label>
+                <label className="form-control-plaintext" htmlFor="random-rate">{demoText.randomChartTab.intervalLabel}</label>
                 <Input id="random-rate" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
-                  onChange={rateChanged} aria-label="Randomize interval in milliseconds" />
+                  onChange={rateChanged} aria-label={demoText.randomChartTab.intervalAria} />
               </FormGroup>
             </ButtonToolbar>
             <ButtonToolbar className="ml-2">
               <ExportButtons idPrefix="random" getContainer={() => chartSizerRef.current} />
               <ButtonGroup>
-                <ButtonWithTooltip id="reuse" disabled={playing} label="Reuse" pressed={applyReuse}
-                  tooltipText="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltipPlacement="top-start"
-                  onClick={toggleApplyReuse} aria-label="Reuse">
+                <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
+                  tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
+                  onClick={toggleApplyReuse} aria-label={demoText.randomChartTab.reuse.aria}>
                   <FontAwesome size="lg" fixedWidth={true} name="recycle" />
                 </ButtonWithTooltip>
               </ButtonGroup>

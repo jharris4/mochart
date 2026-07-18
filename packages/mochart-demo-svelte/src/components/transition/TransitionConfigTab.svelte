@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { applyTransitionConfigEdit, buildMochartDemoConfig, formatTransitionConfig } from '@mochart/demo-common';
+  import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -58,7 +58,7 @@
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   });
   const footerError = $derived(jsonError ?? errorMessage);
@@ -70,13 +70,13 @@
   </div>
   <div class="mochart-demo-tab-footer">
     <div class="btn-toolbar" role="toolbar">
-      <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore the original transition config" tooltipPlacement="top-start"
-                         onClick={onReset} aria-label="Reset">
+      <ButtonWithTooltip id="config-reset" label={demoText.transitionConfigTab.reset.label} tooltipText={demoText.transitionConfigTab.reset.tooltip} tooltipPlacement="top-start"
+                         onClick={onReset} aria-label={demoText.transitionConfigTab.reset.aria}>
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
-                         tooltipText="Apply this config to the transition charts" tooltipPlacement="top-start"
-                         onClick={onUpdateClick} aria-label="Apply">
+      <ButtonWithTooltip id="config-apply" label={demoText.transitionConfigTab.apply.label} disabled={jsonError !== null}
+                         tooltipText={demoText.transitionConfigTab.apply.tooltip} tooltipPlacement="top-start"
+                         onClick={onUpdateClick} aria-label={demoText.transitionConfigTab.apply.aria}>
         <Icon size="lg" fixedWidth={true} name="check" />
       </ButtonWithTooltip>
       {#if footerError}

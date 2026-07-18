@@ -1,5 +1,7 @@
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { buttonWithTooltip, el, icon, setActiveClass } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 import { exportButtons } from '../misc/ExportButtons';
@@ -49,14 +51,14 @@ export function transitionChartTab(props: TransitionChartTabProps): TransitionCh
   }
 
   const backButton = buttonWithTooltip({
-    id: 'transition-back', label: 'Back', ariaLabel: 'Step Backward',
-    tooltipText: 'Transition to the previous dataset',
+    id: 'transition-back', label: demoText.transitionChartTab.back.label, ariaLabel: demoText.transitionChartTab.back.aria,
+    tooltipText: demoText.transitionChartTab.back.tooltip,
     onClick: onStepBack,
     content: [icon('backward-step', { size: 'lg', fixedWidth: true })]
   });
   const forwardButton = buttonWithTooltip({
-    id: 'transition-forward', label: 'Next', ariaLabel: 'Step Forward',
-    tooltipText: 'Transition to the next dataset',
+    id: 'transition-forward', label: demoText.transitionChartTab.next.label, ariaLabel: demoText.transitionChartTab.next.aria,
+    tooltipText: demoText.transitionChartTab.next.tooltip,
     onClick: onStepForward,
     content: [icon('forward-step', { size: 'lg', fixedWidth: true })]
   });

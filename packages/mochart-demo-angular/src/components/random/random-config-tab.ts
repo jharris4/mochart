@@ -5,7 +5,7 @@ import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { Icon } from '../misc/icon';
 
-import { formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -20,13 +20,13 @@ import type { RandomConfigWithValid } from '../../types';
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
-          <app-button-with-tooltip id="config-reset" label="Reset" tooltipText="Restore the original random generator config" tooltipPlacement="top-start"
-                                   [onClick]="onReset" aria-label="Reset">
+          <app-button-with-tooltip id="config-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="onReset" [aria-label]="text.reset.aria">
             <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
           </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-apply" label="Apply" [disabled]="jsonError !== null"
-                                   tooltipText="Apply this generator config to the random chart" tooltipPlacement="top-start"
-                                   [onClick]="onUpdateClick" aria-label="Apply">
+          <app-button-with-tooltip id="config-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
+                                   [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="onUpdateClick" [aria-label]="text.apply.aria">
             <app-icon size="lg" [fixedWidth]="true" name="check" />
           </app-button-with-tooltip>
           @if (footerError) {
@@ -42,6 +42,8 @@ export class RandomConfigTab implements OnInit, OnChanges {
   @Input({ required: true }) randomConfig!: RandomConfigWithValid;
   @Input({ required: true }) onUpdate!: (config: RandomConfigWithValid) => void;
   @Input({ required: true }) onReset!: () => void;
+
+  readonly text = demoText.randomConfigTab;
 
   configText = signal('');
   errorMessage = signal<string | null>(null);
@@ -66,12 +68,12 @@ export class RandomConfigTab implements OnInit, OnChanges {
     try {
       const newConfig = JSON.parse(this.configText());
       newConfig.valid = validateRandomConfig(newConfig);
-      this.errorMessage.set(newConfig.valid ? null : 'Config has invalid values — details in the browser console');
+      this.errorMessage.set(newConfig.valid ? null : demoText.errors.invalidRandomConfigValues);
       this.onUpdate(newConfig);
     }
     catch (error) {
       console.warn('Invalid Random Config JSON: ' + this.configText());
-      this.errorMessage.set('Invalid JSON');
+      this.errorMessage.set(demoText.errors.invalidJson);
     }
   };
 
@@ -81,7 +83,7 @@ export class RandomConfigTab implements OnInit, OnChanges {
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }
 

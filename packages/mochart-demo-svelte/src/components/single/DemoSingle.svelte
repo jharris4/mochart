@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { demoText } from '@mochart/demo-common';
+
   import DemosTab from '../demos/DemosTab.svelte';
   import ChartTab from './ChartTab.svelte';
   import ConfigTab from './ConfigTab.svelte';
@@ -143,26 +145,26 @@
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyDemo ? " active" : "")}
                 onclick={() => handleSelect(eventKeyDemo)}>
-          Demos
+          {demoText.tabs.demos}
         </button>
       </li>
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
-                title={hasPendingChanges ? "Applied changes are waiting — switch here to see them" : void 0}
+                title={hasPendingChanges ? demoText.tabs.chartPendingTitle : void 0}
                 onclick={() => handleSelect(eventKeyChart)}>
-          Chart{#if hasPendingChanges}<span class="mochart-pending-badge" aria-hidden="true"></span>{/if}
+          {demoText.tabs.chart}{#if hasPendingChanges}<span class="mochart-pending-badge" aria-hidden="true"></span>{/if}
         </button>
       </li>
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")}
                 onclick={() => handleSelect(eventKeyConfig)}>
-          Config
+          {demoText.tabs.config}
         </button>
       </li>
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyData ? " active" : "")}
                 onclick={() => handleSelect(eventKeyData)}>
-          Data
+          {demoText.tabs.data}
         </button>
       </li>
     </ul>

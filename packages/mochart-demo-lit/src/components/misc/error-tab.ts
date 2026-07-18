@@ -1,6 +1,8 @@
 import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
+import { demoText } from '@mochart/demo-common';
+
 import { LightElement } from './LightElement';
 
 /**
@@ -21,7 +23,7 @@ export class ErrorTab extends LightElement {
     if (this.failed) {
       return html`<div class=${'mochart-demo-tab-container error' + (this.active ? ' active' : '')}>
         <div class="alert alert-danger text-center mochart-demo-error-message" role="alert">
-          An Error Occurred
+          ${demoText.errors.errorOccurred}
         </div>
       </div>`;
     }

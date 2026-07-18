@@ -1,7 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { applyTransitionConfigEdit, buildMochartDemoConfig, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
 import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
@@ -20,13 +20,13 @@ import type { TransitionConfig } from '../../types';
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
-          <app-button-with-tooltip id="config-reset" label="Reset" tooltipText="Restore the original transition config" tooltipPlacement="top-start"
-                                   [onClick]="onReset" aria-label="Reset">
+          <app-button-with-tooltip id="config-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="onReset" [aria-label]="text.reset.aria">
             <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
           </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-apply" label="Apply" [disabled]="jsonError !== null"
-                                   tooltipText="Apply this config to the transition charts" tooltipPlacement="top-start"
-                                   [onClick]="onUpdateClick" aria-label="Apply">
+          <app-button-with-tooltip id="config-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
+                                   [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="onUpdateClick" [aria-label]="text.apply.aria">
             <app-icon size="lg" [fixedWidth]="true" name="check" />
           </app-button-with-tooltip>
           @if (footerError) {
@@ -42,6 +42,8 @@ export class TransitionConfigTab implements OnInit, OnChanges {
   @Input({ required: true }) transitionConfig!: TransitionConfig;
   @Input({ required: true }) onUpdate!: (config: TransitionConfig) => void;
   @Input({ required: true }) onReset!: () => void;
+
+  readonly text = demoText.transitionConfigTab;
 
   configText = signal('');
   errorMessage = signal<string | null>(null);
@@ -79,7 +81,7 @@ export class TransitionConfigTab implements OnInit, OnChanges {
       return null;
     }
     catch (error) {
-      return 'Invalid JSON';
+      return demoText.errors.invalidJson;
     }
   }
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+  import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -92,7 +92,7 @@
   function toggleShowUnused() {
     const parsed = parseCurrentFullData();
     if ('error' in parsed) {
-      errorMessage = parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects';
+      errorMessage = parsed.error === 'json' ? demoText.errors.invalidJson : demoText.errors.invalidDataArray;
       return;
     }
     showUnused = !showUnused;
@@ -123,18 +123,18 @@
   </div>
   <div class="mochart-demo-tab-footer">
     <div class="btn-toolbar" role="toolbar">
-      <ButtonWithTooltip id="data-reset" label="Reset" tooltipText="Restore this demo's original data" tooltipPlacement="top-start"
-                         onClick={resetData} aria-label="Reset">
+      <ButtonWithTooltip id="data-reset" label={demoText.dataTab.reset.label} tooltipText={demoText.dataTab.reset.tooltip} tooltipPlacement="top-start"
+                         onClick={resetData} aria-label={demoText.dataTab.reset.aria}>
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="data-unused" label="Unused" pressed={showUnused}
-                         tooltipText="Show or hide data properties the chart config does not use" tooltipPlacement="top-start"
-                         onClick={toggleShowUnused} aria-label="Toggle Unused">
+      <ButtonWithTooltip id="data-unused" label={demoText.dataTab.unused.label} pressed={showUnused}
+                         tooltipText={demoText.dataTab.unused.tooltip} tooltipPlacement="top-start"
+                         onClick={toggleShowUnused} aria-label={demoText.dataTab.unused.aria}>
         <Icon size="lg" fixedWidth={true} name={showUnused ? 'eye' : 'eye-slash'} />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="data-apply" label="Apply" disabled={jsonError !== null}
-                         tooltipText="Apply this data — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
-                         onClick={applyData} aria-label="Apply">
+      <ButtonWithTooltip id="data-apply" label={demoText.dataTab.apply.label} disabled={jsonError !== null}
+                         tooltipText={demoText.dataTab.apply.tooltip} tooltipPlacement="top-start"
+                         onClick={applyData} aria-label={demoText.dataTab.apply.aria}>
         <Icon size="lg" fixedWidth={true} name="check" />
       </ButtonWithTooltip>
       {#if footerError}

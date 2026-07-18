@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onErrorCaptured, ref } from 'vue';
 
+import { demoText } from '@mochart/demo-common';
+
 // Error-boundary equivalent of the react ErrorTab. Unlike the react
 // version (which cloned its child to inject `active`), children here
 // receive their `active` prop directly at the call site.
@@ -22,7 +24,7 @@ onErrorCaptured((error) => {
 <template>
   <div v-if="failed" :class="'mochart-demo-tab-container error' + (props.active ? ' active' : '')">
     <div class="alert alert-danger text-center mochart-demo-error-message" role="alert">
-      An Error Occurred
+      {{ demoText.errors.errorOccurred }}
     </div>
   </div>
   <slot v-else></slot>

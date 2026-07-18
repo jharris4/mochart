@@ -1,3 +1,5 @@
+import { demoText } from '@mochart/demo-common';
+
 import { buttonWithTooltip, el, icon } from '../misc/dom';
 
 export interface ChartsControlsProps {
@@ -23,7 +25,7 @@ const defaultRate = 2000;
 export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle {
   const rowsInput = el('input', {
     id: 'grid-rows', className: 'form-control',
-    attrs: { type: 'number', min: '1', max: '4', 'aria-label': 'Grid rows' }
+    attrs: { type: 'number', min: '1', max: '4', 'aria-label': demoText.multiChartsTab.gridRowsAria }
   });
   rowsInput.value = '' + defaultChartRows;
   rowsInput.addEventListener('input', () => {
@@ -38,7 +40,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
 
   const colsInput = el('input', {
     id: 'grid-cols', className: 'form-control',
-    attrs: { type: 'number', min: '1', max: '4', 'aria-label': 'Grid columns' }
+    attrs: { type: 'number', min: '1', max: '4', 'aria-label': demoText.multiChartsTab.gridColsAria }
   });
   colsInput.value = '' + defaultChartCols;
   colsInput.addEventListener('input', () => {
@@ -53,7 +55,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
 
   const rateInput = el('input', {
     id: 'multi-rate', className: 'form-control',
-    attrs: { type: 'number', min: '5', max: '60000', step: '100', 'aria-label': 'Playback interval in milliseconds' }
+    attrs: { type: 'number', min: '5', max: '60000', step: '100', 'aria-label': demoText.multiChartsTab.intervalAria }
   });
   rateInput.value = '' + defaultRate;
   rateInput.addEventListener('input', () => {
@@ -67,32 +69,32 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
   });
 
   const stepBackButton = buttonWithTooltip({
-    id: 'step-back', ariaLabel: 'Step Backward',
-    tooltipText: 'Step all charts one dataset backward',
+    id: 'step-back', ariaLabel: demoText.multiChartsTab.stepBackward.aria,
+    tooltipText: demoText.multiChartsTab.stepBackward.tooltip,
     onClick: props.onStepBackwardClick,
     content: [icon('backward-step', { size: 'lg', fixedWidth: true })]
   });
   const stepForwardButton = buttonWithTooltip({
-    id: 'step-forward', ariaLabel: 'Step Forward',
-    tooltipText: 'Step all charts one dataset forward',
+    id: 'step-forward', ariaLabel: demoText.multiChartsTab.stepForward.aria,
+    tooltipText: demoText.multiChartsTab.stepForward.tooltip,
     onClick: props.onStepForwardClick,
     content: [icon('forward-step', { size: 'lg', fixedWidth: true })]
   });
   const playBackwardButton = buttonWithTooltip({
-    id: 'play-backward', ariaLabel: 'Play Backward',
-    tooltipText: 'Play backward through the datasets at the interval',
+    id: 'play-backward', ariaLabel: demoText.multiChartsTab.playBackward.aria,
+    tooltipText: demoText.multiChartsTab.playBackward.tooltip,
     onClick: props.onPlayBackwardClick,
     content: [icon('play', { size: 'lg', fixedWidth: true, flip: 'horizontal' })]
   });
   const playForwardButton = buttonWithTooltip({
-    id: 'play-forward', ariaLabel: 'Play Forward',
-    tooltipText: 'Play forward through the datasets at the interval',
+    id: 'play-forward', ariaLabel: demoText.multiChartsTab.playForward.aria,
+    tooltipText: demoText.multiChartsTab.playForward.tooltip,
     onClick: props.onPlayForwardClick,
     content: [icon('play', { size: 'lg', fixedWidth: true })]
   });
   const stopButton = buttonWithTooltip({
-    id: 'stop', disabled: true, ariaLabel: 'Stop',
-    tooltipText: 'Stop playback',
+    id: 'stop', disabled: true, ariaLabel: demoText.multiChartsTab.stop.aria,
+    tooltipText: demoText.multiChartsTab.stop.tooltip,
     onClick: props.onStopClick,
     content: [icon('stop', { size: 'lg', fixedWidth: true })]
   });
@@ -100,7 +102,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
   const container = el('div', { className: 'multi-controls' }, [
     el('form', { className: 'form-inline' }, [
       el('div', { className: 'form-group' }, [
-        el('label', { className: 'form-control-plaintext', attrs: { for: 'grid-rows' }, text: 'Grid:' }),
+        el('label', { className: 'form-control-plaintext', attrs: { for: 'grid-rows' }, text: demoText.multiChartsTab.gridLabel }),
         rowsInput,
         el('span', { className: 'form-control-plaintext', text: '×' }),
         colsInput
@@ -113,7 +115,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
         ])
       ]),
       el('div', { className: 'form-group' }, [
-        el('label', { className: 'form-control-plaintext', attrs: { for: 'multi-rate' }, text: 'Interval (ms):' }),
+        el('label', { className: 'form-control-plaintext', attrs: { for: 'multi-rate' }, text: demoText.multiChartsTab.intervalLabel }),
         rateInput
       ])
     ])

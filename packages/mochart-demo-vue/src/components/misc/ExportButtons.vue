@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { exportPNG, exportSVG } from '@mochart/export';
 
+import { demoText } from '@mochart/demo-common';
+
 import ButtonWithTooltip from './ButtonWithTooltip.vue';
 import Icon from './Icon.vue';
 
@@ -33,14 +35,14 @@ function onExportSvg() {
 
 <template>
   <div class="btn-group">
-    <ButtonWithTooltip :id="props.idPrefix + '-export-png'" :disabled="props.disabled" label="PNG"
-                       tooltip-text="Download the chart as a PNG image" tooltip-placement="top-start"
-                       :on-click="onExportPng" aria-label="Export PNG">
+    <ButtonWithTooltip :id="props.idPrefix + '-export-png'" :disabled="props.disabled" :label="demoText.exportButtons.png.label"
+                       :tooltip-text="demoText.exportButtons.png.tooltip" tooltip-placement="top-start"
+                       :on-click="onExportPng" :aria-label="demoText.exportButtons.png.aria">
       <Icon size="lg" :fixed-width="true" name="file-image" />
     </ButtonWithTooltip>
-    <ButtonWithTooltip :id="props.idPrefix + '-export-svg'" :disabled="props.disabled" label="SVG"
-                       tooltip-text="Download the chart as an SVG image" tooltip-placement="top-start"
-                       :on-click="onExportSvg" aria-label="Export SVG">
+    <ButtonWithTooltip :id="props.idPrefix + '-export-svg'" :disabled="props.disabled" :label="demoText.exportButtons.svg.label"
+                       :tooltip-text="demoText.exportButtons.svg.tooltip" tooltip-placement="top-start"
+                       :on-click="onExportSvg" :aria-label="demoText.exportButtons.svg.aria">
       <Icon size="lg" :fixed-width="true" name="file-code" />
     </ButtonWithTooltip>
   </div>

@@ -6,6 +6,8 @@ import sizer from 'react-sizer';
 import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import ExportButtons from '../misc/ExportButtons';
 
@@ -50,12 +52,12 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
           <FormGroup>
             <ButtonToolbar>
               <ButtonGroup>
-                <ButtonWithTooltip id="transition-back" label="Back" tooltipText="Transition to the previous dataset" tooltipPlacement="top-start"
-                  onClick={onStepBack} aria-label="Step Backward">
+                <ButtonWithTooltip id="transition-back" label={demoText.transitionChartTab.back.label} tooltipText={demoText.transitionChartTab.back.tooltip} tooltipPlacement="top-start"
+                  onClick={onStepBack} aria-label={demoText.transitionChartTab.back.aria}>
                   <FontAwesome size="lg" fixedWidth={true} name="backward-step" />
                 </ButtonWithTooltip>
-                <ButtonWithTooltip id="transition-forward" label="Next" tooltipText="Transition to the next dataset" tooltipPlacement="top-start"
-                  onClick={onStepForward} aria-label="Step Forward">
+                <ButtonWithTooltip id="transition-forward" label={demoText.transitionChartTab.next.label} tooltipText={demoText.transitionChartTab.next.tooltip} tooltipPlacement="top-start"
+                  onClick={onStepForward} aria-label={demoText.transitionChartTab.next.aria}>
                   <FontAwesome size="lg" fixedWidth={true} name="forward-step" />
                 </ButtonWithTooltip>
               </ButtonGroup>

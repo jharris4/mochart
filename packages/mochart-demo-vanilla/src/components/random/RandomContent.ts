@@ -12,7 +12,7 @@ import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
 
-import { generateChartDataProvider } from '@mochart/demo-common';
+import { demoText, generateChartDataProvider } from '@mochart/demo-common';
 
 import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
 
@@ -116,9 +116,9 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
         console.warn('series values: ', seriesValues);
         dataProvider = {
           getGroupValues: () => [],
-          getError: () => 'Error creating DataProvider'
+          getError: () => demoText.errors.creatingDataProvider
         };
-        data = { error: 'Error creating DataProvider' };
+        data = { error: demoText.errors.creatingDataProvider };
         randomConfig = nextRandomConfig;
       }
       else {
@@ -130,10 +130,10 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
     else {
       dataProvider = {
         getGroupValues: () => [],
-        getError: () => 'Invalid Random Config'
+        getError: () => demoText.errors.invalidRandomConfig
       };
       data = {
-        error: 'Invalid Random Config'
+        error: demoText.errors.invalidRandomConfig
       };
       randomConfig = nextRandomConfig;
     }

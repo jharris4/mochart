@@ -1,7 +1,7 @@
 import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { buildMochartDemoConfig, defaultTransitionConfig, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import './transition-chart-tab';
@@ -42,13 +42,13 @@ export class DemoTransition extends LightElement {
           <li class="nav-item">
             <button type="button" class=${'nav-link' + (this.activeKey === eventKeyChart ? ' active' : '')}
                     @click=${() => this.handleSelect(eventKeyChart)}>
-              Chart
+              ${demoText.tabs.chart}
             </button>
           </li>
           <li class="nav-item">
             <button type="button" class=${'nav-link' + (this.activeKey === eventKeyConfig ? ' active' : '')}
                     @click=${() => this.handleSelect(eventKeyConfig)}>
-              Transition Config
+              ${demoText.tabs.transitionConfig}
             </button>
           </li>
         </ul>

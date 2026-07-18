@@ -1,7 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { TextAreaContent } from '../misc/text-area-content';
@@ -21,18 +21,18 @@ import type { DemoConfig, DataRow } from '../../types';
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
-          <app-button-with-tooltip id="data-reset" label="Reset" tooltipText="Restore this demo's original data" tooltipPlacement="top-start"
-                                   [onClick]="resetData" aria-label="Reset">
+          <app-button-with-tooltip id="data-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="resetData" [aria-label]="text.reset.aria">
             <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
           </app-button-with-tooltip>
-          <app-button-with-tooltip id="data-unused" label="Unused" [pressed]="showUnused()"
-                                   tooltipText="Show or hide data properties the chart config does not use" tooltipPlacement="top-start"
-                                   [onClick]="toggleShowUnused" aria-label="Toggle Unused">
+          <app-button-with-tooltip id="data-unused" [label]="text.unused.label" [pressed]="showUnused()"
+                                   [tooltipText]="text.unused.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="toggleShowUnused" [aria-label]="text.unused.aria">
             <app-icon size="lg" [fixedWidth]="true" [name]="showUnused() ? 'eye' : 'eye-slash'" />
           </app-button-with-tooltip>
-          <app-button-with-tooltip id="data-apply" label="Apply" [disabled]="jsonError !== null"
-                                   tooltipText="Apply this data — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
-                                   [onClick]="applyData" aria-label="Apply">
+          <app-button-with-tooltip id="data-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
+                                   [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
+                                   [onClick]="applyData" [aria-label]="text.apply.aria">
             <app-icon size="lg" [fixedWidth]="true" name="check" />
           </app-button-with-tooltip>
           @if (footerError) {
@@ -50,6 +50,8 @@ export class DataTab implements OnInit, OnChanges {
   @Input({ required: true }) onDataChange!: (data: DataRow[]) => void;
   @Input({ required: true }) onDataError!: (errorMessage: string) => void;
   @Input({ required: true }) onDataReset!: () => void;
+
+  readonly text = demoText.dataTab;
 
   dataText = signal('');
   errorMessage = signal<string | null>(null);
@@ -110,7 +112,7 @@ export class DataTab implements OnInit, OnChanges {
   toggleShowUnused = (): void => {
     const parsed = this.parseCurrentFullData();
     if ('error' in parsed) {
-      this.errorMessage.set(parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects');
+      this.errorMessage.set(parsed.error === 'json' ? demoText.errors.invalidJson : demoText.errors.invalidDataArray);
       return;
     }
     this.showUnused.set(!this.showUnused());

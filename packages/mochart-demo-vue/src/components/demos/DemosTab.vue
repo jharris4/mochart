@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
+import { demoText } from '@mochart/demo-common';
+
 import Icon from '../misc/Icon.vue';
 
 import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
@@ -20,13 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const isTestMode = ref(false);
 
-const modeCaptions: Record<string, string> = {
-  single: 'Single: one chart with editable config, data, groups and series — pick a demo below.',
-  multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
-  random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
-  transition: 'Transition: animates a chart between datasets — pick a demo below.',
-  rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
-};
+const modeCaptions: Record<string, string> = demoText.demosTab.modeCaptions;
 
 const theDemoIds = computed(() => isTestMode.value ? props.demoData.testDemoIds : props.demoData.demoIds);
 const isSingle = computed(() => props.demoMode === 'single');
@@ -44,43 +40,43 @@ function onTestModeToggle() {
     <div class="mochart-demo-modes-container">
       <form class="form-inline">
         <div class="form-group">
-          <span class="form-control-plaintext">Demo Mode:&nbsp;</span>
+          <span class="form-control-plaintext">{{ demoText.demosTab.demoModeLabel }}&nbsp;</span>
         </div>
         <div class="form-group">
           <div class="btn-toolbar" role="toolbar">
             <button type="button" :class="'btn btn-' + (isSingle ? 'primary' : 'secondary')" :disabled="isSingle"
-                    title="One chart with editable config, data, groups and series"
+                    :title="demoText.demosTab.modes.single.title"
                     @click="props.onDemoModeChanged('single', props.demoId)">
-              <Icon size="lg" name="pen-to-square" /> Single
+              <Icon size="lg" name="pen-to-square" /> {{ demoText.demosTab.modes.single.label }}
             </button>
             <button type="button" :class="'btn btn-' + (isMulti ? 'primary' : 'secondary')" :disabled="isMulti"
-                    title="A grid of charts stepping through datasets together"
+                    :title="demoText.demosTab.modes.multi.title"
                     @click="props.onDemoModeChanged('multi', props.demoId)">
-              <Icon size="lg" name="window-restore" /> Multi
+              <Icon size="lg" name="window-restore" /> {{ demoText.demosTab.modes.multi.label }}
             </button>
             <button type="button" :class="'btn btn-' + (isRandom ? 'primary' : 'secondary')" :disabled="isRandom"
-                    title="A chart fed by a seeded random data generator"
+                    :title="demoText.demosTab.modes.random.title"
                     @click="props.onDemoModeChanged('random', props.demoId)">
-              <Icon size="lg" name="shuffle" /> Random
+              <Icon size="lg" name="shuffle" /> {{ demoText.demosTab.modes.random.label }}
             </button>
             <button type="button" class="btn btn-secondary"
-                    title="Animate a chart between two datasets"
+                    :title="demoText.demosTab.modes.transition.title"
                     @click="props.onDemoModeChanged('transition', props.demoId)">
-              <Icon size="lg" name="right-left" /> Transition
+              <Icon size="lg" name="right-left" /> {{ demoText.demosTab.modes.transition.label }}
             </button>
             <button type="button" class="btn btn-secondary"
-                    title="A grid of charts showing different tick label rotations"
+                    :title="demoText.demosTab.modes.rotation.title"
                     @click="props.onDemoModeChanged('rotation', props.demoId)">
-              <Icon size="lg" name="repeat" /> Rotation
+              <Icon size="lg" name="repeat" /> {{ demoText.demosTab.modes.rotation.label }}
             </button>
           </div>
         </div>
         <div class="form-group" style="margin-left: 10px;">
           <div class="btn-toolbar" role="toolbar">
             <button type="button" :class="'btn btn-' + (isTestMode ? 'primary' : 'secondary')" :aria-pressed="isTestMode"
-                    title="Show the test demos (showcasing less used features)"
+                    :title="demoText.demosTab.testDemos.title"
                     @click="onTestModeToggle">
-              <Icon size="lg" name="flask" /> Test Demos
+              <Icon size="lg" name="flask" /> {{ demoText.demosTab.testDemos.label }}
             </button>
           </div>
         </div>

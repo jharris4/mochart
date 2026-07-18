@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -71,7 +71,7 @@ export class DataTab extends LightElement {
   private toggleShowUnused = (): void => {
     const parsed = this.parseCurrentFullData();
     if ('error' in parsed) {
-      this.errorMessage = parsed.error === 'json' ? 'Invalid JSON' : 'Invalid Data — should be an array of objects';
+      this.errorMessage = parsed.error === 'json' ? demoText.errors.invalidJson : demoText.errors.invalidDataArray;
       return;
     }
     this.showUnused = !this.showUnused;
@@ -102,15 +102,15 @@ export class DataTab extends LightElement {
       <div class="mochart-demo-tab-footer">
         <div class="btn-toolbar" role="toolbar">
           ${buttonWithTooltip(
-            { id: 'data-reset', label: 'Reset', tooltipText: "Restore this demo's original data", tooltipPlacement: 'top-start', onClick: this.resetData, ariaLabel: 'Reset' },
+            { id: 'data-reset', label: demoText.dataTab.reset.label, tooltipText: demoText.dataTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: this.resetData, ariaLabel: demoText.dataTab.reset.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
           )}
           ${buttonWithTooltip(
-            { id: 'data-unused', label: 'Unused', pressed: this.showUnused, tooltipText: 'Show or hide data properties the chart config does not use', tooltipPlacement: 'top-start', onClick: this.toggleShowUnused, ariaLabel: 'Toggle Unused' },
+            { id: 'data-unused', label: demoText.dataTab.unused.label, pressed: this.showUnused, tooltipText: demoText.dataTab.unused.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleShowUnused, ariaLabel: demoText.dataTab.unused.aria },
             icon({ size: 'lg', fixedWidth: true, name: this.showUnused ? 'eye' : 'eye-slash' })
           )}
           ${buttonWithTooltip(
-            { id: 'data-apply', label: 'Apply', disabled: jsonError !== null, tooltipText: 'Apply this data — the chart updates when you return to the Chart tab', tooltipPlacement: 'top-start', onClick: this.applyData, ariaLabel: 'Apply' },
+            { id: 'data-apply', label: demoText.dataTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.dataTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.applyData, ariaLabel: demoText.dataTab.apply.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'check' })
           )}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}

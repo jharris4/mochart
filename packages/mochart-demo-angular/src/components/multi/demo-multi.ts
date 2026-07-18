@@ -1,6 +1,8 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
+import { demoText } from '@mochart/demo-common';
+
 import { DemosTab } from '../demos/demos-tab';
 import { ChartsTab } from './charts-tab';
 import { ErrorTab } from '../misc/error-tab';
@@ -25,13 +27,13 @@ function getActiveKeyForInitialDemoId(initialDemoId: string): number {
           <li class="nav-item">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeyDemo ? ' active' : '')"
                     (click)="handleSelect(eventKeyDemo)">
-              Demos
+              {{ text.demos }}
             </button>
           </li>
           <li class="nav-item" [style.display]="isDemos ? 'none' : null">
             <button type="button" [class]="'nav-link' + (activeKey() === eventKeyChart ? ' active' : '')"
                     (click)="handleSelect(eventKeyChart)">
-              Chart
+              {{ text.chart }}
             </button>
           </li>
         </ul>
@@ -63,6 +65,8 @@ export class DemoMulti implements OnInit, OnChanges {
   @Input({ required: true }) initialDemoId!: string;
   @Input({ required: true }) onDemoModeChanged!: OnDemoModeChanged;
   @Input({ required: true }) onDemoChanged!: OnDemoChanged;
+
+  readonly text = demoText.tabs;
 
   readonly eventKeyChart = eventKeyChart;
   readonly eventKeyDemo = eventKeyDemo;

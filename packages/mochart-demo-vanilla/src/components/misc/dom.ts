@@ -3,6 +3,8 @@
 // factory functions returning DOM elements plus targeted update methods —
 // there is deliberately no vdom, reactivity, or template layer here.
 
+import { demoText } from '@mochart/demo-common';
+
 export type Child = Node | string | null | undefined;
 
 export interface ElOptions {
@@ -211,7 +213,7 @@ export function errorTab(create: () => HTMLElement, active: boolean): ErrorTabHa
       el('div', {
         className: 'alert alert-danger text-center mochart-demo-error-message',
         attrs: { role: 'alert' },
-        text: 'An Error Occurred'
+        text: demoText.errors.errorOccurred
       })
     ]);
     container.replaceChildren(failedPane);
