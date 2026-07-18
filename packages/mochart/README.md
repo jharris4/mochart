@@ -199,11 +199,11 @@ Available factories: `getLoadingComponent`, `getErrorComponent`,
 
 ## Framework wrappers
 
+- [mochart-angular](../mochart-angular/README.md) — Angular components
+- [mochart-lit](../mochart-lit/README.md) — lit-html directives
 - [mochart-react](../mochart-react/README.md) — React components
 - [mochart-svelte](../mochart-svelte/README.md) — Svelte 5 components
 - [mochart-vue](../mochart-vue/README.md) — Vue 3 components
-- [mochart-lit](../mochart-lit/README.md) — lit-html directives
-- [mochart-angular](../mochart-angular/README.md) — Angular components
 
 Each wrapper adds automatic container sizing (omit `width`/`height` to track
 the container) on top of the same chart props.

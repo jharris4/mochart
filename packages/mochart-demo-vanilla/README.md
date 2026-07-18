@@ -5,10 +5,11 @@ charting library (private, not published).
 
 The full-featured demo app in plain TypeScript — no framework, no vdom, no
 reactivity layer. It is a feature-for-feature peer of the framework galleries
-([mochart-demo-react](../mochart-demo-react/README.md),
+([mochart-demo-angular](../mochart-demo-angular/README.md),
+[mochart-demo-lit](../mochart-demo-lit/README.md),
+[mochart-demo-react](../mochart-demo-react/README.md),
 [mochart-demo-svelte](../mochart-demo-svelte/README.md),
-[mochart-demo-vue](../mochart-demo-vue/README.md),
-[mochart-demo-lit](../mochart-demo-lit/README.md)): browse every demo chart in
+[mochart-demo-vue](../mochart-demo-vue/README.md)): browse every demo chart in
 single, multi, random, transition, and rotation modes, edit configs and data
 as JSON, and export charts as SVG/PNG. Comparing this package with a framework
 port shows exactly what the mochart bindings do for you.

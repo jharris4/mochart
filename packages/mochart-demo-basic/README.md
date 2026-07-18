@@ -23,11 +23,12 @@ axis contraction sequence — and autoplay. The stacked demos show the gapless
 stacked transitions.
 
 The full-featured galleries live in the peer packages:
-[mochart-demo-vanilla](../mochart-demo-vanilla/README.md) (no framework),
+[mochart-demo-angular](../mochart-demo-angular/README.md),
+[mochart-demo-lit](../mochart-demo-lit/README.md),
 [mochart-demo-react](../mochart-demo-react/README.md),
 [mochart-demo-svelte](../mochart-demo-svelte/README.md),
-[mochart-demo-vue](../mochart-demo-vue/README.md), and
-[mochart-demo-lit](../mochart-demo-lit/README.md).
+[mochart-demo-vanilla](../mochart-demo-vanilla/README.md) (no framework), and
+[mochart-demo-vue](../mochart-demo-vue/README.md).
 
 ## Install
 
