@@ -129,6 +129,14 @@ html, body {
 
 /* Tab panes are stacked on top of each other with the -100% margin trick;
    the active one is ordered last and shown. */
+/* The panes borrow Bootstrap's .row/.col class names purely as layout hints;
+   zero the grid gutters so Bootstrap's negative .row margins and .row > *
+   child padding don't skew the stacked panes. */
+.mochart-demo-tab-container.row,
+.mochart-demo-tab-container.col {
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+}
 .mochart-demo-tab-container {
     display: flex;
     flex: 1 1 auto;
@@ -287,15 +295,29 @@ html, body {
     width: 100%;
 }
 
+/* Rotation shows every chart config in one scrolling grid; give it the same
+   shell treatment as the other demos (bg padding + white card). The charts
+   are absolutely positioned inside .rotation-charts. */
 .rotation-container {
-    display: block;
-    position: relative;
+    display: flex;
     max-width: 100%;
     width: 100%;
     max-height: 100%;
     height: 100%;
+    padding: 14px 18px 18px;
+    background: var(--demo-bg);
+    overflow: hidden;
+}
+.rotation-charts {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     background: var(--demo-surface);
+    border: 1px solid var(--demo-border);
+    border-radius: var(--demo-radius-lg);
+    box-shadow: var(--demo-shadow);
 }
 .rotation-chart {
     position: absolute;
