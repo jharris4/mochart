@@ -4,6 +4,7 @@ coverage
 .idea
 .vscode
 dist
+/site
 lib
 es
 .svelte-kit

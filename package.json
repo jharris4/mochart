@@ -22,6 +22,7 @@
   "scripts": {
     "dev": "npm run dev -w mochart-demo",
     "build": "npm run build -w mochart-demo",
+    "build:pages": "node scripts/build-pages.mjs",
     "build:libs": "npm run build -w movalid && npm run build -w mochart && npm run build -w mochart-react && npm run build -w mochart-svelte && npm run build -w mochart-vue && npm run build -w mochart-lit",
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",
