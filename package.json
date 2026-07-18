@@ -20,13 +20,14 @@
     "react-dom": "^19.2.7"
   },
   "scripts": {
-    "dev": "npm run dev -w mochart-demo",
-    "build": "npm run build -w mochart-demo",
+    "dev": "npm run dev -w mochart-demo-vanilla",
+    "dev:basic": "npm run dev -w mochart-demo-basic",
+    "build": "npm run build -w mochart-demo-vanilla",
     "build:pages": "node scripts/build-pages.mjs",
     "build:libs": "npm run build -w movalid && npm run build -w mochart && npm run build -w mochart-export && npm run build -w mochart-react && npm run build -w mochart-svelte && npm run build -w mochart-vue && npm run build -w mochart-lit",
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",
-    "test:e2e": "npm run test:e2e -w mochart-demo",
+    "test:e2e": "npm run test:e2e -w mochart-demo-basic",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {

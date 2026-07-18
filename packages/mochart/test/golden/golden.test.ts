@@ -1,7 +1,7 @@
 /**
  * Golden DOM snapshot tests for the full chart rendering pipeline.
  *
- * Every demo config from packages/mochart-demo/demos is rendered through the
+ * Every demo config from packages/mochart-demo-data/src is rendered through the
  * public createChart() API in jsdom. Animations are driven deterministically
  * on a fake clock (requestAnimationFrame + performance.now). The resulting
  * DOM is normalized and compared against the golden files in ./__snapshots__.
@@ -20,7 +20,7 @@ interface Demo { id: string; config: string; data: string }
 type Row = Record<string, any>;
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const demosDir = path.resolve(here, '../../../mochart-demo/demos');
+const demosDir = path.resolve(here, '../../../mochart-demo-data/src');
 
 const WIDTH = 800;
 const HEIGHT = 600;

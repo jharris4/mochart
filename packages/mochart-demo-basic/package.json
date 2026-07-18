@@ -1,7 +1,7 @@
 {
-  "name": "mochart-demo",
+  "name": "mochart-demo-basic",
   "version": "1.0.0",
-  "description": "Demo gallery for the mochart charting library",
+  "description": "Minimal no-framework demo harness for the mochart charting library",
   "private": true,
   "type": "module",
   "license": "BSD-3-Clause",

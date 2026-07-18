@@ -18,7 +18,7 @@ const rawBase = process.env.PAGES_BASE !== void 0 ? process.env.PAGES_BASE : '/m
 const base = rawBase.endsWith('/') ? rawBase : rawBase + '/';
 
 const demos = [
-  { slug: 'plain', pkg: 'mochart-demo', title: 'Plain TypeScript', detail: 'no framework, hash routing', historyRouting: false },
+  { slug: 'vanilla', pkg: 'mochart-demo-vanilla', title: 'Vanilla TypeScript', detail: 'no framework, history router', historyRouting: true },
   { slug: 'react', pkg: 'mochart-demo-react', title: 'React', detail: 'react-router 7', historyRouting: true },
   { slug: 'svelte', pkg: 'mochart-demo-svelte', title: 'Svelte', detail: 'svelte 5 runes router', historyRouting: true },
   { slug: 'vue', pkg: 'mochart-demo-vue', title: 'Vue', detail: 'vue reactivity router', historyRouting: true },

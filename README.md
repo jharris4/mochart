@@ -21,15 +21,17 @@ gaps between segments mid-transition.
 | [mochart-vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
 | [mochart-lit](packages/mochart-lit/README.md) | lit-html directives wrapping mochart. |
 | [mochart-export](packages/mochart-export/README.md) | SVG and PNG image export for rendered mochart charts. |
-| [mochart-demo](packages/mochart-demo/README.md) | Minimal demo gallery app (private) — browse every chart config with live data controls; home of the shared demo configs and the Playwright e2e suite. |
+| [mochart-demo-vanilla](packages/mochart-demo-vanilla/README.md) | Full-featured demo gallery in plain TypeScript (private) — the no-framework peer of the framework demo apps. |
+| [mochart-demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the Playwright e2e suite. |
+| [mochart-demo-data](packages/mochart-demo-data/README.md) | Shared demo configs, datasets, and random specs (private) used by every demo app. |
 | [mochart-benchmark](packages/mochart-benchmark/README.md) | Performance benchmark harness (private) — measures mount/update/frame-time cost of generated charts at configurable sizes. |
 | [movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
 Each wrapper framework also has a full-featured demo gallery —
 `mochart-demo-react`, `mochart-demo-svelte`, `mochart-demo-vue`, and
 `mochart-demo-lit` (all private) — with single/multi/random/transition/rotation
-demo modes; they share the demo configs from `mochart-demo`, which is a
-smaller vanilla-TS harness of the same demos.
+demo modes; `mochart-demo-vanilla` is the same gallery in plain TypeScript.
+All of them share the demo configs from `mochart-demo-data`.
 There are also build-free static HTML examples in
 [packages/mochart/example](packages/mochart/example/README.md).
 
@@ -39,7 +41,7 @@ This repo uses npm workspaces:
 
 ```sh
 npm install
-npm run dev        # start the demo gallery (mochart-demo) with vite
+npm run dev        # start the demo gallery (mochart-demo-vanilla) with vite
 ```
 
 ## Scripts
@@ -47,7 +49,8 @@ npm run dev        # start the demo gallery (mochart-demo) with vite
 Run from the repo root:
 
 ```sh
-npm run dev         # dev server for the demo gallery
+npm run dev         # dev server for the demo gallery (mochart-demo-vanilla)
+npm run dev:basic   # dev server for the minimal harness (mochart-demo-basic)
 npm run build       # build the demo gallery
 npm test            # run tests in every workspace that has them
 npm run typecheck   # typecheck every workspace that has a typecheck script

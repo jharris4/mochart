@@ -6,8 +6,8 @@ Lit demo gallery for [mochart](../mochart/README.md), built on
 The full-featured demo app: browse every demo chart in single, multi,
 transition, and rotation modes, or generate whole random datasets in random
 mode. The JSON demo configs and datasets are shared from
-[mochart-demo](../mochart-demo/README.md), a smaller vanilla-TS harness of
-the same demos.
+[mochart-demo-data](../mochart-demo-data/README.md); [mochart-demo-basic](../mochart-demo-basic/README.md)
+is a smaller no-framework harness of the same demos that hosts the e2e suite.
 
 ## Install
 

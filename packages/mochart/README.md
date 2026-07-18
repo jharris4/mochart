@@ -211,7 +211,7 @@ the container) on top of the same chart props.
 
 Build-free static HTML examples (script tag and ES module) live in
 [example/](example/README.md). The full demo gallery is the
-[mochart-demo](../mochart-demo/README.md) package.
+[mochart-demo-vanilla](../mochart-demo-vanilla/README.md) package.
 
 ## Development
 

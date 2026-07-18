@@ -1,0 +1,6 @@
+**.DS_store
+node_modules
+.idea
+dist
+bundle-analyzer
+local-config.js
