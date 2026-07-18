@@ -358,6 +358,8 @@ html, body {
    ============================================================ */
 .mochart-demo-modes-container {
     display: flex;
+    flex-flow: column;
+    gap: 8px;
     flex: none;
     width: 100%;
     min-width: 100%;
@@ -461,6 +463,28 @@ html, body {
     --bs-btn-border-radius: var(--demo-radius);
     font-weight: 500;
 }
+.button-with-tooltip .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+/* FA6's .fa-lg collapses its line box (line-height: 0.05em), which makes
+   icon-only buttons shorter than labeled ones. 1.25em x 1.2 = the same 1.5em
+   line box as the button text, so all buttons come out the same height. */
+.btn .fa-solid.fa-lg {
+    line-height: 1.2;
+}
+/* Pressed state for toggle buttons (aria-pressed) — accent-tinted so the
+   on/off state is legible at a glance. */
+.btn-secondary.active {
+    --bs-btn-active-bg: var(--demo-accent-soft);
+    --bs-btn-active-border-color: var(--demo-accent);
+    --bs-btn-active-color: var(--demo-accent-text);
+}
+/* Compact numeric inputs in control strips */
+.mochart-demo-content input[type="number"].form-control {
+    width: 6.5em;
+}
 .btn-secondary {
     --bs-btn-color: #2c3648;
     --bs-btn-bg: var(--demo-surface);
@@ -533,4 +557,25 @@ html, body {
 
 .nav-link:hover {
     cursor: pointer;
+}
+
+/* ============================================================
+   Tier 2 feedback: pending badge, inline errors, captions
+   ============================================================ */
+.mochart-pending-badge {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--demo-accent);
+    margin-left: 6px;
+    vertical-align: middle;
+}
+.mochart-demo-footer-error {
+    color: #b42318;
+    font-weight: 500;
+}
+.mochart-demo-caption {
+    color: var(--demo-text-muted);
+    font-size: 13px;
 }

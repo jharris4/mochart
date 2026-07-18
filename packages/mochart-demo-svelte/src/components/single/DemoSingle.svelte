@@ -122,6 +122,10 @@
   function onDemoChange(nextDemoId: string) {
     onDemoChanged(nextDemoId);
   }
+
+  // Applied config/data edits are held until the Chart tab is shown; badge the
+  // Chart tab so it's visible that something is waiting there.
+  const hasPendingChanges = $derived(activeKey !== eventKeyChart && (pendingConfig !== null || pendingData !== null));
 </script>
 
 <div class="mochart-demo-container">
@@ -135,8 +139,9 @@
       </li>
       <li class="nav-item">
         <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
+                title={hasPendingChanges ? "Applied changes are waiting — switch here to see them" : void 0}
                 onclick={() => handleSelect(eventKeyChart)}>
-          Chart
+          Chart{#if hasPendingChanges}<span class="mochart-pending-badge" aria-hidden="true"></span>{/if}
         </button>
       </li>
       <li class="nav-item">

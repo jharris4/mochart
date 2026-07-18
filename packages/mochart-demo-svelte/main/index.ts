@@ -1,7 +1,8 @@
 import { mount } from 'svelte';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'font-awesome/css/font-awesome.min.css';
+import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
+import '@fortawesome/fontawesome-free/css/solid.min.css';
 import './demo.css';
 
 import App from './App.svelte';

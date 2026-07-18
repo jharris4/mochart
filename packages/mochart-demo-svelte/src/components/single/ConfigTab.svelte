@@ -52,7 +52,6 @@
     }
     catch (error) {
       console.warn('Invalid Chart Config JSON: ' + configText);
-      alert('Invalid Chart Config JSON');
       return null;
     }
   }
@@ -60,6 +59,7 @@
   let { active = false, config, onConfigChange, onConfigReset }: Props = $props();
 
   let showDefaults = $state(false);
+  let errorMessage = $state<string | null>(null);
   let mochartDemoConfig = $state.raw(buildMochartDemoConfig(config));
   let demoConfig = $state.raw(copyDemoConfig(mochartDemoConfig));
   let configText = $state(formatMochartDemoConfig(demoConfig, false));
@@ -79,6 +79,7 @@
 
   function onTextChange(nextConfigText: string) {
     configText = nextConfigText;
+    errorMessage = null;
   }
 
   function resetConfig() {
@@ -94,6 +95,7 @@
       if (valid) {
         showDefaults = nextShowDefaults;
         configText = formatMochartDemoConfig(newMochartDemoConfig, nextShowDefaults);
+        errorMessage = null;
       }
       else {
         const { errors, warnings } = configValidation;
@@ -103,13 +105,12 @@
         if (warnings.length > 0) {
           console.warn('warnings: ', warnings);
         }
-        alert('Invalid Chart Config');
+        errorMessage = 'Invalid chart config — details in the browser console';
       }
     }
     catch (error) {
-      console.log('**** error', error);
       console.warn('Invalid Chart Config JSON: ' + configText);
-      alert('Invalid Chart Config JSON');
+      errorMessage = 'Invalid JSON';
     }
   }
 
@@ -174,9 +175,23 @@
     }
   }
 
+  // Live JSON validity — disables Apply and shows an inline hint while the
+  // editor holds unparseable text.
+  const jsonError = $derived.by(() => {
+    try {
+      JSON.parse(configText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  });
+  const footerError = $derived(jsonError ?? errorMessage);
+
   const inverted = $derived(demoConfig.configWithDefaults.plotConfig.inverted);
-  const invertedIcon = $derived(inverted ? 'caret-square-o-up' : 'caret-square-o-right');
-  const slowIcon = $derived(demoConfig.configWithDefaults.animationConfig === slowAnimationConfig ? 'hourglass' : 'hourglass-end');
+  const invertedIcon = $derived(inverted ? 'chart-bar' : 'chart-column');
+  const slow = $derived(demoConfig.configWithDefaults.animationConfig === slowAnimationConfig);
+  const slowIcon = $derived(slow ? 'hourglass' : 'hourglass-end');
 </script>
 
 <div class={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
@@ -185,26 +200,33 @@
   </div>
   <div class="mochart-demo-tab-footer">
     <div class="btn-toolbar" role="toolbar">
-      <ButtonWithTooltip id="config-reset" tooltipText="Reset" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore this demo's original config" tooltipPlacement="top-start"
                          onClick={resetConfig} aria-label="Reset">
-        <Icon size="lg" fixedWidth={true} name="undo" />
+        <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-defaults" tooltipText="Toggle Defaults" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-defaults" label="Defaults" pressed={showDefaults}
+                         tooltipText="Show or hide the default config values merged into the JSON" tooltipPlacement="top-start"
                          onClick={toggleConfigDefaults} aria-label="Toggle Defaults">
-        <Icon size="lg" fixedWidth={true} name="crosshairs" />
+        <Icon size="lg" fixedWidth={true} name={showDefaults ? 'eye' : 'eye-slash'} />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-inverted" tooltipText="Toggle Inverted" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-inverted" label="Invert" pressed={inverted}
+                         tooltipText="Swap the chart between vertical and horizontal orientation" tooltipPlacement="top-start"
                          onClick={toggleConfigInverted} aria-label="Toggle Inverted">
         <Icon size="lg" fixedWidth={true} name={invertedIcon} />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-animate-slow" tooltipText="Toggle Slow" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-animate-slow" label="Slow" pressed={slow}
+                         tooltipText="Slow all animations down so transitions are easy to watch" tooltipPlacement="top-start"
                          onClick={toggleConfigAnimationSlow} aria-label="Toggle Slow">
         <Icon size="lg" fixedWidth={true} name={slowIcon} />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-apply" tooltipText="Apply" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
+                         tooltipText="Apply this config — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
                          onClick={applyConfig} aria-label="Apply">
         <Icon size="lg" fixedWidth={true} name="check" />
       </ButtonWithTooltip>
+      {#if footerError}
+        <span class="mochart-demo-footer-error" role="alert">{footerError}</span>
+      {/if}
     </div>
   </div>
 </div>

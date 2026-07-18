@@ -66,13 +66,13 @@
       <div class="form-group">
         <div class="btn-toolbar" role="toolbar">
           <div class="btn-group">
-            <ButtonWithTooltip id="transition-back" tooltipText="Step Backward" tooltipPlacement="top-start"
+            <ButtonWithTooltip id="transition-back" label="Back" tooltipText="Transition to the previous dataset" tooltipPlacement="top-start"
                                onClick={onStepBack} aria-label="Step Backward">
-              <Icon size="lg" fixedWidth={true} name="step-backward" />
+              <Icon size="lg" fixedWidth={true} name="backward-step" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="transition-forward" tooltipText="Step Forward" tooltipPlacement="top-start"
+            <ButtonWithTooltip id="transition-forward" label="Next" tooltipText="Transition to the next dataset" tooltipPlacement="top-start"
                                onClick={onStepForward} aria-label="Step Forward">
-              <Icon size="lg" fixedWidth={true} name="step-forward" />
+              <Icon size="lg" fixedWidth={true} name="forward-step" />
             </ButtonWithTooltip>
           </div>
         </div>

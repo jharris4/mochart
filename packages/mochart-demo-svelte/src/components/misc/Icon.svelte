@@ -1,7 +1,7 @@
 <script lang="ts">
-  // Font Awesome 4 icon (css classes only), the Svelte equivalent of the
-  // react demo's react-fontawesome shim. Relies on the `font-awesome`
-  // package's css being imported.
+  // Font Awesome 6 solid icon (css classes only), the Svelte equivalent of the
+  // react demo's react-fontawesome shim. Relies on the
+  // `@fortawesome/fontawesome-free` css being imported.
   interface Props {
     name: string;
     size?: string;
@@ -12,12 +12,12 @@
   let { name, size = void 0, fixedWidth = false, flip = void 0 }: Props = $props();
 
   const classes = $derived.by(() => {
-    const list = ['fa', `fa-${name}`];
+    const list = ['fa-solid', `fa-${name}`];
     if (size) {
       list.push(`fa-${size}`);
     }
     if (fixedWidth) {
-      list.push('fa-fw');
+      list.push(`fa-fw`);
     }
     if (flip) {
       list.push(`fa-flip-${flip}`);

@@ -54,6 +54,7 @@
   let { active = false, transitionConfig, onUpdate, onReset }: Props = $props();
 
   let configText = $state(formatConfig(transitionConfig));
+  let errorMessage = $state<string | null>(null);
 
   let previousTransitionConfig = transitionConfig;
   $effect.pre(() => {
@@ -68,6 +69,7 @@
 
   function onTextChange(nextConfigText: string) {
     configText = nextConfigText;
+    errorMessage = null;
   }
 
   function onUpdateClick() {
@@ -80,11 +82,12 @@
           const { valid, errors, warnings } = configValidation;
           if (valid) {
             if (arrayValidator(newConfig.data) && !newConfig.data.some((aData: unknown) => !arrayValidator(aData))) {
+              errorMessage = null;
               onUpdate(newConfig);
             }
             else {
               console.warn('Invalid Transition Config, data should be an array of arrays: ', newConfig.data);
-              alert('Invalid Transition Data, should be an array of arrays');
+              errorMessage = '"data" should be an array of arrays';
             }
           }
           else {
@@ -94,24 +97,35 @@
             if (warnings.length > 0) {
               console.warn('warnings: ', warnings);
             }
-            alert('Invalid Chart Config, mochart config was not valid');
+            errorMessage = 'Invalid chart config — details in the browser console';
           }
         }
         else {
           console.warn('Invalid Transition Config, config should be an object: ', newConfig.config);
-          alert('Invalid Chart Config, should be an object');
+          errorMessage = '"config" should be an object';
         }
       }
       else {
         console.warn('Invalid Transition Config, should be an object: ', configText);
-        alert('Invalid Transition Config, should be an object');
+        errorMessage = 'Transition config should be an object';
       }
     }
     catch (error) {
       console.warn('Invalid Transition Config JSON: ', configText);
-      alert('Invalid Transition Config JSON');
+      errorMessage = 'Invalid JSON';
     }
   }
+
+  const jsonError = $derived.by(() => {
+    try {
+      JSON.parse(configText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  });
+  const footerError = $derived(jsonError ?? errorMessage);
 </script>
 
 <div class={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
@@ -120,14 +134,18 @@
   </div>
   <div class="mochart-demo-tab-footer">
     <div class="btn-toolbar" role="toolbar">
-      <ButtonWithTooltip id="config-reset" tooltipText="Reset" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore the original transition config" tooltipPlacement="top-start"
                          onClick={onReset} aria-label="Reset">
-        <Icon size="lg" fixedWidth={true} name="undo" />
+        <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-apply" tooltipText="Apply" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
+                         tooltipText="Apply this config to the transition charts" tooltipPlacement="top-start"
                          onClick={onUpdateClick} aria-label="Apply">
         <Icon size="lg" fixedWidth={true} name="check" />
       </ButtonWithTooltip>
+      {#if footerError}
+        <span class="mochart-demo-footer-error" role="alert">{footerError}</span>
+      {/if}
     </div>
   </div>
 </div>

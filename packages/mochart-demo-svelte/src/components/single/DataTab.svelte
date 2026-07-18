@@ -36,6 +36,7 @@
   let { active = false, config, data, onDataChange, onDataError, onDataReset }: Props = $props();
 
   let dataText = $state(formatData(data));
+  let errorMessage = $state<string | null>(null);
 
   let previousData = data;
   $effect.pre(() => {
@@ -50,10 +51,12 @@
 
   function onTextChange(nextDataText: string) {
     dataText = nextDataText;
+    errorMessage = null;
   }
 
   function resetData() {
     dataText = formatData(data);
+    errorMessage = null;
     onDataReset();
   }
 
@@ -80,18 +83,31 @@
         error = 'Invalid Data';
       }
       if (error) {
+        errorMessage = error + ' — details in the browser console';
         onDataError(error);
       }
       else {
+        errorMessage = null;
         onDataChange(parsedData);
       }
     }
     catch (error) {
       console.warn('Invalid Data JSON: ' + String(error));
-      alert('Invalid Data JSON');
+      errorMessage = 'Invalid JSON';
       onDataError('Invalid Data ');
     }
   }
+
+  const jsonError = $derived.by(() => {
+    try {
+      JSON.parse(dataText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  });
+  const footerError = $derived(jsonError ?? errorMessage);
 </script>
 
 <div class={"mochart-demo-tab-container col data" + (active ? " active" : "")}>
@@ -100,14 +116,18 @@
   </div>
   <div class="mochart-demo-tab-footer">
     <div class="btn-toolbar" role="toolbar">
-      <ButtonWithTooltip id="data-reset" tooltipText="Reset" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="data-reset" label="Reset" tooltipText="Restore this demo's original data" tooltipPlacement="top-start"
                          onClick={resetData} aria-label="Reset">
-        <Icon size="lg" fixedWidth={true} name="undo" />
+        <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="data-apply" tooltipText="Apply" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="data-apply" label="Apply" disabled={jsonError !== null}
+                         tooltipText="Apply this data — the chart updates when you return to the Chart tab" tooltipPlacement="top-start"
                          onClick={applyData} aria-label="Apply">
         <Icon size="lg" fixedWidth={true} name="check" />
       </ButtonWithTooltip>
+      {#if footerError}
+        <span class="mochart-demo-footer-error" role="alert">{footerError}</span>
+      {/if}
     </div>
   </div>
 </div>

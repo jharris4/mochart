@@ -92,31 +92,36 @@
       <div class="form-group">
         <div class="btn-toolbar" role="toolbar">
           <div class="btn-group">
-            <ButtonWithTooltip id="randomize-back" disabled={playing} tooltipText="Randomize Back" tooltipPlacement="top-start"
+            <ButtonWithTooltip id="randomize-back" disabled={playing} label="Back"
+                               tooltipText="Go back to the previous random dataset" tooltipPlacement="top-start"
                                onClick={onRandomizeBack} aria-label="Randomize Back">
-              <Icon size="lg" fixedWidth={true} name="random" flip="horizontal" />
+              <Icon size="lg" fixedWidth={true} name="dice" flip="horizontal" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="randomize-next" disabled={playing} tooltipText="Randomize Next" tooltipPlacement="top-start"
+            <ButtonWithTooltip id="randomize-next" disabled={playing} label="Randomize"
+                               tooltipText="Generate the next random dataset" tooltipPlacement="top-start"
                                onClick={onRandomizeNext} aria-label="Randomize Next">
-              <Icon size="lg" fixedWidth={true} name="random" />
+              <Icon size="lg" fixedWidth={true} name="dice" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="play" disabled={playing} tooltipText="Play Randomize" tooltipPlacement="top-start"
+            <ButtonWithTooltip id="play" disabled={playing} tooltipText="Keep generating random datasets at the interval" tooltipPlacement="top-start"
                                onClick={onPlayClick} aria-label="Play Randomize">
               <Icon size="lg" fixedWidth={true} name="play" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="stop" disabled={!playing} tooltipText="Stop" tooltipPlacement="top-start"
+            <ButtonWithTooltip id="stop" disabled={!playing} tooltipText="Stop generating" tooltipPlacement="top-start"
                                onClick={onStopClick} aria-label="Stop">
               <Icon size="lg" fixedWidth={true} name="stop" />
             </ButtonWithTooltip>
           </div>
           <div class="form-group">
-            <input disabled={playing} type="text" class="form-control" value={rateText} maxlength="4" size="4" oninput={rateChanged} />
+            <label class="form-control-plaintext" for="random-rate">Interval (ms):</label>
+            <input id="random-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="form-control" value={rateText}
+                   oninput={rateChanged} aria-label="Randomize interval in milliseconds" />
           </div>
         </div>
         <div class="btn-toolbar ml-2" role="toolbar">
           <div class="btn-group">
-            <ButtonWithTooltip id="reuse" disabled={playing} tooltipText="Reuse" tooltipPlacement="top-start"
-                               onClick={toggleApplyReuse} aria-label="Reuse" color={applyReuse ? 'primary' : 'secondary'}>
+            <ButtonWithTooltip id="reuse" disabled={playing} label="Reuse" pressed={applyReuse}
+                               tooltipText="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltipPlacement="top-start"
+                               onClick={toggleApplyReuse} aria-label="Reuse">
               <Icon size="lg" fixedWidth={true} name="recycle" />
             </ButtonWithTooltip>
           </div>

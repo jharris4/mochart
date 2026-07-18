@@ -184,6 +184,7 @@
   let { active = false, randomConfig, onUpdate, onReset }: Props = $props();
 
   let configText = $state(formatConfig(randomConfig));
+  let errorMessage = $state<string | null>(null);
 
   let previousRandomConfig = randomConfig;
   $effect.pre(() => {
@@ -198,19 +199,32 @@
 
   function onTextChange(nextConfigText: string) {
     configText = nextConfigText;
+    errorMessage = null;
   }
 
   function onUpdateClick() {
     try {
       const newConfig = JSON.parse(configText);
       newConfig.valid = validateConfig(newConfig);
+      errorMessage = newConfig.valid ? null : 'Config has invalid values — details in the browser console';
       onUpdate(newConfig);
     }
     catch (error) {
       console.warn('Invalid Random Config JSON: ' + configText);
-      alert('Invalid Random Config JSON');
+      errorMessage = 'Invalid JSON';
     }
   }
+
+  const jsonError = $derived.by(() => {
+    try {
+      JSON.parse(configText);
+      return null;
+    }
+    catch (error) {
+      return 'Invalid JSON';
+    }
+  });
+  const footerError = $derived(jsonError ?? errorMessage);
 </script>
 
 <div class={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
@@ -219,14 +233,18 @@
   </div>
   <div class="mochart-demo-tab-footer">
     <div class="btn-toolbar" role="toolbar">
-      <ButtonWithTooltip id="config-reset" tooltipText="Reset" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-reset" label="Reset" tooltipText="Restore the original random generator config" tooltipPlacement="top-start"
                          onClick={onReset} aria-label="Reset">
-        <Icon size="lg" fixedWidth={true} name="undo" />
+        <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-apply" tooltipText="Apply" tooltipPlacement="top-start"
+      <ButtonWithTooltip id="config-apply" label="Apply" disabled={jsonError !== null}
+                         tooltipText="Apply this generator config to the random chart" tooltipPlacement="top-start"
                          onClick={onUpdateClick} aria-label="Apply">
         <Icon size="lg" fixedWidth={true} name="check" />
       </ButtonWithTooltip>
+      {#if footerError}
+        <span class="mochart-demo-footer-error" role="alert">{footerError}</span>
+      {/if}
     </div>
   </div>
 </div>
