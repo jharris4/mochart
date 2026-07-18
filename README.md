@@ -4,6 +4,13 @@ Monorepo for **mochart**, an animated interactive SVG charting library with
 zero framework dependencies, plus its framework wrappers, demo gallery, and
 the **movalid** validation library it uses for config validation.
 
+What sets mochart apart is its
+[staged animation](packages/mochart/README.md#staged-animation) model: updates
+play as axis expansion → value change (including group and series
+transitions) → axis contraction, so only one kind of change is in motion at a
+time, and stacked series animate as a single unit so the stack never shows
+gaps between segments mid-transition.
+
 ## Packages
 
 | Package | Description |

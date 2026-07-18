@@ -11,13 +11,48 @@ and series filtering out of the box.
 
 - **Renderers**: `bar`, `line`, and `area` series, mixable in one chart
 - **Scales**: ordinal, linear, and date group axes (via d3-scale)
-- **Animation**: tweened transitions for data, domain, and focus changes
+- **Animation**: [staged transitions](#staged-animation) — axis expansion,
+  value change (with group and series transitions), axis contraction — and
+  gapless stacked animation
 - **Interaction**: crosshair, tooltip, legend with series filtering, click and
   hover callbacks
 - **Extras**: axis thresholds and ranges, linear/radial gradients, series
   markers and labels, stacked and grouped series
 - **Config validation**: configs are validated with
   [movalid](../movalid/README.md), producing human-readable error messages
+
+## Staged animation
+
+Most charting libraries tween every element straight to its final position in
+a single step, which makes updates that change both the data and the axis
+domains hard to follow. mochart instead splits each update into sequential
+phases, so only one kind of change is in motion at a time:
+
+1. **Axis expansion** — if the new data needs more room (new groups, larger
+   values), the axis domains grow first and the existing shapes reflow into
+   the wider domains, so incoming data has a place to land.
+2. **Value change** — values tween to their new positions. This phase also
+   plays **group transitions** (groups added, removed, or reordered are merged
+   into one display sequence so old and new groups animate coherently) and
+   **series transitions** (series added, removed, or filtered via the legend).
+3. **Axis contraction** — once the values settle, the axis domains collapse to
+   fit the remaining data.
+
+Phases that a given update doesn't need are skipped, and each phase's duration
+scales with the size of its change, so small updates stay snappy while large
+ones use the full configured duration. The per-phase durations
+(`expansionDuration`, `valueChangeDuration`, `collapseDuration`, plus
+`initialDuration` for first load and `focusDuration` for hover/focus
+transitions) are set in `animationConfig`.
+
+### Gapless stacked animation
+
+Stacked series animate as a single unit: throughout a transition, each
+segment's baseline is derived from the tweened top of the segment below it,
+rather than each segment tweening independently toward its final position. The
+stack therefore stays contiguous for the whole animation — no gaps or overlaps
+between segments — even while series are being added to or removed from the
+stack.
 
 ## Install
 

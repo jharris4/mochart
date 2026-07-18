@@ -4,9 +4,12 @@ Demo gallery for the [mochart](../mochart/README.md) charting library
 (private, not published).
 
 A minimal vanilla-TypeScript Vite app that renders every demo chart from JSON
-config/data pairs, with live controls to exercise mochart's animations:
+config/data pairs, with live controls to exercise mochart's
+[staged animations](../mochart/README.md#staged-animation):
 randomize values (kept within each demo's random spec and axis range),
-add/remove groups, and autoplay.
+add/remove groups — which plays the full axis expansion → value change →
+axis contraction sequence — and autoplay. The stacked demos show the gapless
+stacked transitions.
 
 The full-featured galleries live in the framework packages
 ([mochart-demo-react](../mochart-demo-react/README.md),
