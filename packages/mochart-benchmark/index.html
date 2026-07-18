@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mochart benchmark</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>mochart benchmark</h1>
+        <span class="spacer"></span>
+        <span id="fps-meter" title="Live frame rate">-- fps</span>
+      </header>
+      <div id="controls">
+        <label>Scenario
+          <select id="scenario">
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+            <option value="line-markers">Line + markers</option>
+            <option value="area">Area</option>
+            <option value="dashboard">Dashboard</option>
+          </select>
+        </label>
+        <label>Series <input id="series" type="number" min="1" max="100" value="10" /></label>
+        <label>Groups <input id="groups" type="number" min="2" max="10000" value="200" /></label>
+        <label>Charts <input id="charts" type="number" min="1" max="100" value="24" disabled /></label>
+        <label class="check"><input id="animate" type="checkbox" checked /> Animate</label>
+        <label class="check"><input id="legend" type="checkbox" /> Legend</label>
+        <button id="mount" title="Mount the selected scenario and measure mount time">Mount</button>
+        <button id="randomize" title="Run 5 randomize updates and measure update time">Update &times;5</button>
+        <button id="stress" title="Randomize continuously for 5 seconds and measure frame times">Stress 5s</button>
+        <span class="divider"></span>
+        <button id="suite" title="Run the full benchmark matrix">Run suite</button>
+        <button id="copy" title="Copy the results table as markdown">Copy results</button>
+      </div>
+      <div id="stats">
+        <span id="status">Idle</span>
+        <span class="spacer"></span>
+        <span class="stat">points <b id="stat-points">&ndash;</b></span>
+        <span class="stat">nodes <b id="stat-nodes">&ndash;</b></span>
+        <span class="stat">mount <b id="stat-mount">&ndash;</b></span>
+        <span class="stat">settle <b id="stat-settle">&ndash;</b></span>
+        <span class="stat">update <b id="stat-update">&ndash;</b></span>
+      </div>
+      <div id="chart-host"></div>
+      <div id="results" hidden>
+        <table id="results-table">
+          <thead>
+            <tr>
+              <th>scenario</th><th>series&times;groups</th><th>points</th><th>nodes</th>
+              <th>mount ms</th><th>settle ms</th><th>update ms</th>
+              <th>fps</th><th>frame p95 ms</th><th>frame max ms</th><th>&gt;33ms</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

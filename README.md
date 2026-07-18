@@ -20,7 +20,9 @@ gaps between segments mid-transition.
 | [mochart-svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
 | [mochart-vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
 | [mochart-lit](packages/mochart-lit/README.md) | lit-html directives wrapping mochart. |
+| [mochart-export](packages/mochart-export/README.md) | SVG and PNG image export for rendered mochart charts. |
 | [mochart-demo](packages/mochart-demo/README.md) | Minimal demo gallery app (private) — browse every chart config with live data controls; home of the shared demo configs and the Playwright e2e suite. |
+| [mochart-benchmark](packages/mochart-benchmark/README.md) | Performance benchmark harness (private) — measures mount/update/frame-time cost of generated charts at configurable sizes. |
 | [movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
 Each wrapper framework also has a full-featured demo gallery —

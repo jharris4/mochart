@@ -1,0 +1,174 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  color: #24292f;
+  background: #f6f8fa;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: #24292f;
+  color: #fff;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+#fps-meter {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, monospace;
+}
+
+#controls,
+#stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 16px;
+  background: #fff;
+  border-bottom: 1px solid #d0d7de;
+}
+
+#controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #57606a;
+}
+
+#controls input[type='number'] {
+  width: 70px;
+  padding: 3px 6px;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+}
+
+#controls select {
+  padding: 3px 6px;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+}
+
+#controls button {
+  padding: 4px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  background: #f6f8fa;
+  cursor: pointer;
+}
+
+#controls button:hover:not(:disabled) {
+  background: #eaeef2;
+}
+
+#controls button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.divider {
+  width: 1px;
+  align-self: stretch;
+  background: #d0d7de;
+}
+
+#stats {
+  font-variant-numeric: tabular-nums;
+}
+
+#stats .stat {
+  color: #57606a;
+}
+
+#stats .stat b {
+  color: #24292f;
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+}
+
+#status {
+  color: #0969da;
+}
+
+#chart-host {
+  flex: 1;
+  min-height: 240px;
+  padding: 12px;
+  overflow: auto;
+}
+
+#chart-host .cell {
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  height: 100%;
+}
+
+#chart-host.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+
+#chart-host.grid .cell {
+  height: 220px;
+}
+
+#results {
+  max-height: 40vh;
+  overflow: auto;
+  border-top: 1px solid #d0d7de;
+  background: #fff;
+}
+
+#results table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+#results th,
+#results td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #eaeef2;
+  text-align: right;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+#results th:first-child,
+#results td:first-child,
+#results th:nth-child(2),
+#results td:nth-child(2) {
+  text-align: left;
+}
+
+#results thead th {
+  position: sticky;
+  top: 0;
+  background: #f6f8fa;
+  color: #57606a;
+}
