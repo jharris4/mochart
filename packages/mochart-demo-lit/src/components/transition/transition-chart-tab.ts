@@ -1,0 +1,84 @@
+import { html } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import type { PropertyValues } from 'lit';
+
+import { chart } from 'mochart-lit';
+import type { MochartConfig } from 'mochart';
+
+import { LightElement } from '../misc/LightElement';
+import { buttonWithTooltip, icon } from '../misc/templates';
+
+import type { ChartDataProviderLike } from '../../types';
+
+@customElement('transition-chart-tab')
+export class TransitionChartTab extends LightElement {
+  @property({ attribute: false }) active = false;
+  @property({ attribute: false }) mochartConfig!: MochartConfig;
+  @property({ attribute: false }) dataProviders: ChartDataProviderLike[] = [];
+
+  @state() private dataProviderIndex = 0;
+
+  override willUpdate(changed: PropertyValues<this>): void {
+    if (this.hasUpdated && (changed.has('mochartConfig') || changed.has('dataProviders'))) {
+      this.dataProviderIndex = 0;
+    }
+  }
+
+  private onStepBack = (): void => {
+    if (this.dataProviders.length > 1) {
+      if (this.dataProviderIndex === 0) {
+        this.dataProviderIndex = this.dataProviders.length - 1;
+      }
+      else {
+        this.dataProviderIndex--;
+      }
+    }
+  };
+
+  private onStepForward = (): void => {
+    if (this.dataProviders.length > 1) {
+      if (this.dataProviderIndex === this.dataProviders.length - 1) {
+        this.dataProviderIndex = 0;
+      }
+      else {
+        this.dataProviderIndex++;
+      }
+    }
+  };
+
+  override render(): unknown {
+    return html`<div class=${'mochart-demo-tab-container col chart' + (this.active ? ' active' : '')}>
+      <div class="transition-chart-sizer">
+        ${chart({
+          style: 'flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;',
+          mochartConfig: this.mochartConfig,
+          dataProvider: this.dataProviders[this.dataProviderIndex]
+        })}
+      </div>
+      <div class="transition-controls">
+        <form class="form-inline">
+          <div class="form-group">
+            <div class="btn-toolbar" role="toolbar">
+              <div class="btn-group">
+                ${buttonWithTooltip(
+                  { id: 'transition-back', tooltipText: 'Step Backward', tooltipPlacement: 'top-start', onClick: this.onStepBack, ariaLabel: 'Step Backward' },
+                  icon({ size: 'lg', fixedWidth: true, name: 'step-backward' })
+                )}
+                ${buttonWithTooltip(
+                  { id: 'transition-forward', tooltipText: 'Step Forward', tooltipPlacement: 'top-start', onClick: this.onStepForward, ariaLabel: 'Step Forward' },
+                  icon({ size: 'lg', fixedWidth: true, name: 'step-forward' })
+                )}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>`;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'transition-chart-tab': TransitionChartTab;
+  }
+}

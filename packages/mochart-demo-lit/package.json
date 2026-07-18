@@ -1,0 +1,29 @@
+{
+  "name": "mochart-demo-lit",
+  "version": "1.0.0",
+  "description": "Lit demo gallery for the mochart charting library",
+  "private": true,
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "font-awesome": "^4.7.0",
+    "lit": "^3.3.0",
+    "lodash.merge": "^4.6.2",
+    "mochart": "^1.0.0",
+    "mochart-lit": "^1.0.0",
+    "movalid": "^1.0.0",
+    "seedrandom": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/lodash.merge": "^4.6.9",
+    "@types/seedrandom": "^3.0.8",
+    "typescript": "^6.0.3"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  }
+}

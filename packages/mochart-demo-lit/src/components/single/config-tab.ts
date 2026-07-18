@@ -1,0 +1,210 @@
+import { html } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import type { PropertyValues } from 'lit';
+
+import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+
+import { LightElement } from '../misc/LightElement';
+import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
+
+import type { DemoConfig, MochartDemoConfig } from '../../types';
+
+// The with/without-defaults config views the editor toggles between. Config
+// sections are intentionally loose (`any`) — they are arbitrary user JSON.
+interface DemoConfigView {
+  configWithDefaults: Record<string, any>;
+  configWithoutDefaults: Record<string, any>;
+}
+
+const slowAnimationConfig = {
+  "animate": true,
+  "initialDuration": 5000,
+  "expansionDuration": 3000,
+  "valueChangeDuration": 5000,
+  "collapseDuration": 3000,
+  "focusDuration": 2500
+};
+
+function formatConfig(config: unknown): string {
+  return JSON.stringify(config, null, '\t');
+}
+
+function formatMochartDemoConfig(demoConfig: DemoConfigView, showDefaults: boolean): string {
+  const { configWithDefaults, configWithoutDefaults } = demoConfig;
+  return formatConfig(showDefaults ? configWithDefaults : configWithoutDefaults);
+}
+
+function copyDemoConfig(demoConfig: DemoConfigView | MochartDemoConfig): DemoConfigView {
+  const { configWithDefaults, configWithoutDefaults } = demoConfig;
+  return JSON.parse(JSON.stringify({ configWithDefaults, configWithoutDefaults }));
+}
+
+function parseConfig(configText: string): DemoConfig | null {
+  try {
+    return JSON.parse(configText);
+  }
+  catch (error) {
+    console.warn('Invalid Chart Config JSON: ' + configText);
+    alert('Invalid Chart Config JSON');
+    return null;
+  }
+}
+
+function toggleConfigProperty(currentDemoConfig: DemoConfigView | undefined, section: string, key: string, defaultValue: unknown): DemoConfigView | undefined {
+  if (currentDemoConfig) {
+    let { configWithDefaults, configWithoutDefaults } = currentDemoConfig;
+    configWithDefaults = { ...configWithDefaults };
+    configWithoutDefaults = { ...configWithoutDefaults };
+    const sectionConfig = configWithoutDefaults[section];
+    if (!sectionConfig) {
+      configWithoutDefaults[section] = { [key]: defaultValue };
+      configWithDefaults[section] = { ...configWithDefaults[section], [key]: defaultValue };
+    }
+    else {
+      configWithoutDefaults[section] = { ...sectionConfig, [key]: !sectionConfig[key] };
+      configWithDefaults[section] = { ...configWithDefaults[section], [key]: !sectionConfig[key] };
+    }
+    return {
+      configWithDefaults, configWithoutDefaults
+    };
+  }
+}
+
+function toggleConfigSection(currentMochartDemoConfig: MochartDemoConfig, currentDemoConfig: DemoConfigView | undefined, section: string, defaultSection: unknown): DemoConfigView | undefined {
+  if (currentMochartDemoConfig && currentDemoConfig) {
+    let { configWithDefaults, configWithoutDefaults } = currentDemoConfig;
+    configWithDefaults = { ...configWithDefaults };
+    configWithoutDefaults = { ...configWithoutDefaults };
+    const sectionConfig = configWithoutDefaults[section];
+    if (!sectionConfig) {
+      configWithoutDefaults[section] = defaultSection;
+      configWithDefaults[section] = defaultSection;
+    }
+    else {
+      configWithoutDefaults[section] = configWithoutDefaults[section] === defaultSection ? currentMochartDemoConfig.configWithoutDefaults[section] : defaultSection;
+      configWithDefaults[section] = configWithDefaults[section] === defaultSection ? currentMochartDemoConfig.configWithDefaults[section] : defaultSection;
+    }
+    return {
+      configWithDefaults, configWithoutDefaults
+    };
+  }
+}
+
+@customElement('config-tab')
+export class ConfigTab extends LightElement {
+  @property({ attribute: false }) active = false;
+  @property({ attribute: false }) config!: DemoConfig;
+  @property({ attribute: false }) onConfigChange!: (config: DemoConfig) => void;
+  @property({ attribute: false }) onConfigReset!: () => void;
+
+  @state() private showDefaults = false;
+  @state() private mochartDemoConfig!: MochartDemoConfig;
+  @state() private demoConfig!: DemoConfigView;
+  @state() private configText = '';
+
+  override willUpdate(changed: PropertyValues<this>): void {
+    if (changed.has('config')) {
+      this.mochartDemoConfig = buildMochartDemoConfig(this.config);
+      this.demoConfig = copyDemoConfig(this.mochartDemoConfig);
+      this.configText = formatMochartDemoConfig(this.demoConfig, this.hasUpdated ? this.showDefaults : false);
+    }
+  }
+
+  private onTextChange = (nextConfigText: string): void => {
+    this.configText = nextConfigText;
+  };
+
+  private resetConfig = (): void => {
+    this.onConfigReset();
+  };
+
+  private updateShowDefaults(nextShowDefaults: boolean): void {
+    try {
+      const newConfig = JSON.parse(this.configText);
+      const newMochartDemoConfig = buildMochartDemoConfig(newConfig);
+      const { configValidation } = newMochartDemoConfig;
+      const { valid } = configValidation;
+      if (valid) {
+        this.showDefaults = nextShowDefaults;
+        this.configText = formatMochartDemoConfig(newMochartDemoConfig, nextShowDefaults);
+      }
+      else {
+        const { errors, warnings } = configValidation;
+        if (errors.length > 0) {
+          console.warn('errors: ', errors);
+        }
+        if (warnings.length > 0) {
+          console.warn('warnings: ', warnings);
+        }
+        alert('Invalid Chart Config');
+      }
+    }
+    catch (error) {
+      console.log('**** error', error);
+      console.warn('Invalid Chart Config JSON: ' + this.configText);
+      alert('Invalid Chart Config JSON');
+    }
+  }
+
+  private toggleConfigDefaults = (): void => {
+    this.updateShowDefaults(!this.showDefaults);
+  };
+
+  private toggleConfigInverted = (): void => {
+    this.demoConfig = toggleConfigProperty(this.demoConfig, 'plotConfig', 'inverted', true) ?? this.demoConfig;
+    this.configText = formatMochartDemoConfig(this.demoConfig, this.showDefaults);
+  };
+
+  private toggleConfigAnimationSlow = (): void => {
+    this.demoConfig = toggleConfigSection(this.mochartDemoConfig, this.demoConfig, 'animationConfig', slowAnimationConfig) ?? this.demoConfig;
+    this.configText = formatMochartDemoConfig(this.demoConfig, this.showDefaults);
+  };
+
+  private applyConfig = (): void => {
+    const newConfig = parseConfig(this.configText);
+    if (newConfig !== null) {
+      this.onConfigChange(newConfig);
+    }
+  };
+
+  override render(): unknown {
+    const inverted = this.demoConfig.configWithDefaults.plotConfig.inverted;
+    const invertedIcon = inverted ? 'caret-square-o-up' : 'caret-square-o-right';
+    const slowIcon = this.demoConfig.configWithDefaults.animationConfig === slowAnimationConfig ? 'hourglass' : 'hourglass-end';
+    return html`<div class=${'mochart-demo-tab-container col config' + (this.active ? ' active' : '')}>
+      <div class="mochart-demo-tab-content">
+        ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
+      </div>
+      <div class="mochart-demo-tab-footer">
+        <div class="btn-toolbar" role="toolbar">
+          ${buttonWithTooltip(
+            { id: 'config-reset', tooltipText: 'Reset', tooltipPlacement: 'top-start', onClick: this.resetConfig, ariaLabel: 'Reset' },
+            icon({ size: 'lg', fixedWidth: true, name: 'undo' })
+          )}
+          ${buttonWithTooltip(
+            { id: 'config-defaults', tooltipText: 'Toggle Defaults', tooltipPlacement: 'top-start', onClick: this.toggleConfigDefaults, ariaLabel: 'Toggle Defaults' },
+            icon({ size: 'lg', fixedWidth: true, name: 'crosshairs' })
+          )}
+          ${buttonWithTooltip(
+            { id: 'config-inverted', tooltipText: 'Toggle Inverted', tooltipPlacement: 'top-start', onClick: this.toggleConfigInverted, ariaLabel: 'Toggle Inverted' },
+            icon({ size: 'lg', fixedWidth: true, name: invertedIcon })
+          )}
+          ${buttonWithTooltip(
+            { id: 'config-animate-slow', tooltipText: 'Toggle Slow', tooltipPlacement: 'top-start', onClick: this.toggleConfigAnimationSlow, ariaLabel: 'Toggle Slow' },
+            icon({ size: 'lg', fixedWidth: true, name: slowIcon })
+          )}
+          ${buttonWithTooltip(
+            { id: 'config-apply', tooltipText: 'Apply', tooltipPlacement: 'top-start', onClick: this.applyConfig, ariaLabel: 'Apply' },
+            icon({ size: 'lg', fixedWidth: true, name: 'check' })
+          )}
+        </div>
+      </div>
+    </div>`;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'config-tab': ConfigTab;
+  }
+}

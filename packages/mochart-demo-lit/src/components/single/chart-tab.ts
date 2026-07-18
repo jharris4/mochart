@@ -1,0 +1,145 @@
+import { html } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import { ref } from 'lit/directives/ref.js';
+import type { PropertyValues } from 'lit';
+
+import { hasConfigStructureChange } from 'mochart';
+
+import buildMochartDemoConfig from '../../config/mochartDemoConfig';
+
+import { LightElement } from '../misc/LightElement';
+import { ElementSizeController } from '../misc/ElementSizeController';
+import './editable-chart';
+
+import type { DemoConfig, DataRow, MochartDemoConfig, FocusData, FilteredSeriesIds } from '../../types';
+
+const minChartWidthForSecondChart = 480;
+const scrollWidthOffset = 20;
+const defaultChartCount = 1;
+
+@customElement('chart-tab')
+export class ChartTab extends LightElement {
+  @property({ attribute: false }) config: DemoConfig | null = null;
+  @property({ attribute: false }) data: DataRow[] | null = null;
+  @property({ attribute: false }) dataError: string | boolean | null = false;
+  @property({ attribute: false }) active = false;
+
+  // Measured width of the tab (the react demo wrapped this tab in the
+  // react-sizer HOC for the same purpose).
+  private size = new ElementSizeController(this);
+
+  @state() private chartCount = defaultChartCount;
+  @state() private focusedSeriesAxisId: string | null = null;
+  @state() private focusedSeriesId: string | null = null;
+  @state() private focusedGroupIndex = -1;
+  @state() private filteredSeriesIds: FilteredSeriesIds = {};
+  @state() private mochartDemoConfig: MochartDemoConfig | null = null;
+
+  private resetFocusAndFiltered(): void {
+    this.focusedSeriesAxisId = null;
+    this.focusedSeriesId = null;
+    this.focusedGroupIndex = -1;
+    this.filteredSeriesIds = {};
+  }
+
+  // Mirror the react lifecycle: a config change rebuilds the demo config and
+  // resets focus/filter state when the structure changed (or on data errors);
+  // a data change remaps the focused group index onto the new data.
+  override willUpdate(changed: PropertyValues<this>): void {
+    if (!this.hasUpdated) {
+      this.mochartDemoConfig = this.config ? buildMochartDemoConfig(this.config) : null;
+      return;
+    }
+    if (!changed.has('config') && !changed.has('data') && !changed.has('dataError')) {
+      return;
+    }
+    const previousConfig = changed.has('config') ? (changed.get('config') as DemoConfig | null) : this.config;
+    const previousData = changed.has('data') ? (changed.get('data') as DataRow[] | null) : this.data;
+    const previousDataError = changed.has('dataError') ? (changed.get('dataError') as string | boolean | null) : this.dataError;
+    if (this.dataError || this.config !== previousConfig) {
+      let configChanged = false;
+      if (this.config !== previousConfig) {
+        const nextDemoConfig = this.config ? buildMochartDemoConfig(this.config) : null;
+        if (nextDemoConfig && this.mochartDemoConfig) {
+          configChanged = hasConfigStructureChange(this.mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
+        }
+        this.mochartDemoConfig = nextDemoConfig;
+      }
+      if (this.dataError || configChanged) {
+        this.resetFocusAndFiltered();
+      }
+    }
+    else if (this.data !== previousData) {
+      const { configValidation, mochartConfig } = this.mochartDemoConfig ?? {};
+      const valid = configValidation?.valid ?? false;
+      if (!previousDataError && previousData && this.data && valid && mochartConfig) {
+        if (this.focusedGroupIndex >= 0) {
+          const property = mochartConfig.groupAxisConfig.property ?? '';
+          const groupValue = previousData[this.focusedGroupIndex][property];
+          let newFocusedGroupIndex = -1;
+          let i, count = this.data.length;
+          for (i = 0; i < count; i++) {
+            if (this.data[i][property] === groupValue) {
+              newFocusedGroupIndex = i;
+              break;
+            }
+          }
+          this.focusedGroupIndex = newFocusedGroupIndex;
+        }
+      }
+      else {
+        this.resetFocusAndFiltered();
+      }
+    }
+  }
+
+  private onFocus = (focusData: FocusData = {}): void => {
+    const { seriesAxisId, seriesId, groupIndex } = focusData;
+    if (seriesAxisId !== void 0) {
+      this.focusedSeriesAxisId = seriesAxisId;
+    }
+    if (seriesId !== void 0) {
+      this.focusedSeriesId = seriesId;
+    }
+    if (groupIndex !== void 0) {
+      this.focusedGroupIndex = groupIndex;
+    }
+  };
+
+  // The chart owns filter toggling now and reports the whole map.
+  private onSeriesFilter = ({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }): void => {
+    this.filteredSeriesIds = { ...nextFilteredSeriesIds };
+  };
+
+  private onChartCountToggle = (): void => {
+    this.chartCount = this.chartCount === 1 ? 2 : 1;
+  };
+
+  override render(): unknown {
+    const width = this.size.width;
+    const allowedChartCount = Math.floor(width / 2) > minChartWidthForSecondChart ? 2 : 1;
+    const adjustedChartCount = Math.min(this.chartCount, allowedChartCount);
+    const chartWidth = Math.floor((width - scrollWidthOffset) / adjustedChartCount);
+    const chartIndices = Array.from({ length: adjustedChartCount }, (unused, index) => index + 1);
+    return html`<div ${ref(this.size.attach)} class=${'mochart-demo-tab-container row chart' + (this.active ? ' active' : '')}>
+      <div class="editable-charts-sizer">
+        <div class="editable-charts">
+          ${this.mochartDemoConfig && width > 0
+            ? chartIndices.map(i => html`<editable-chart
+                .chartCount=${this.chartCount} .showChartCountControls=${allowedChartCount > 1 && i === 1}
+                .width=${chartWidth} .mochartDemoConfig=${this.mochartDemoConfig!} .data=${this.data ?? []} .dataError=${this.dataError}
+                .isActive=${this.active} .filteredSeriesIds=${this.filteredSeriesIds} .focusedGroupIndex=${this.focusedGroupIndex}
+                .focusedSeriesAxisId=${this.focusedSeriesAxisId} .focusedSeriesId=${this.focusedSeriesId} .onChartCountToggle=${this.onChartCountToggle}
+                .onFocus=${this.onFocus} .onSeriesFilter=${this.onSeriesFilter}></editable-chart>`)
+            : null}
+        </div>
+      </div>
+    </div>`;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'chart-tab': ChartTab;
+  }
+}
