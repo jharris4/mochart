@@ -156,10 +156,19 @@ export interface GroupValueObject {
  * accessors. Series values remain unknown until the chart config selects and
  * validates a property.
  */
+/**
+ * The interface charts read data through. `ArrayOfObjectsDataProvider` and
+ * `ObjectOfArraysDataProvider` cover the common dataset shapes; implement
+ * this to read straight from an existing store without copying.
+ */
 export interface DataProvider<TGroupValue = GroupValue, TSeriesValue = unknown> {
+  /** The group (category) values, one per group, in display order. */
   getGroupValues(): readonly TGroupValue[];
+  /** The value of `seriesProperty` for the given group (numeric or undefined for series values). */
   getSeriesValue(groupValue: TGroupValue, groupIndex: number, seriesProperty: string): TSeriesValue;
+  /** When set and truthy, the chart shows its error state. */
   getError?(): unknown;
+  /** When set and true, the chart shows its loading state. */
   getLoading?(): boolean;
 }
 

@@ -226,8 +226,15 @@ npm run build -w @mochart/core          # bundle to dist/ with vite
 npm test -w @mochart/core               # vitest (includes golden snapshot tests)
 npm run test:coverage -w @mochart/core  # vitest with v8 coverage
 npm run typecheck -w @mochart/core
-npm run generate-docs -w @mochart/core  # regenerate mochart-docs.html + generated/config-reference.json
+npm run generate-docs -w @mochart/core   # regenerate mochart-docs.html + generated/config-reference.json
+npm run generate-jsdoc -w @mochart/core  # regenerate the JSDoc on src/types/config.ts from the config docs
 ```
+
+The JSDoc on the config interfaces in `src/types/config.ts` is generated
+from the same descriptions/validators/defaults as the config reference, so
+IDE hovers document every config property; a test
+(`test/config/jsdocSync.test.ts`) fails when the file drifts from the
+sources.
 
 The golden snapshot tests in `test/golden/` render whole charts (initial
 mount, static update, mid-tween, and settled states) and compare serialized

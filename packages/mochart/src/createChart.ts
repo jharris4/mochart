@@ -2,8 +2,14 @@ import { ChartController } from './chart/ChartController';
 import { DefaultChartInput } from './chart/DefaultChartInput';
 import type { DefaultChartProps, ManagedChartProps } from './types/chart';
 
+/** Handle returned by `createChart`/`createDefaultChart` for a mounted chart. */
 export interface ChartHandle<TProps extends object = ManagedChartProps> {
+  /**
+   * Merge new props into the chart. Config, data, and size changes animate
+   * through the staged animation phases when animation is enabled.
+   */
   update(nextProps: Partial<TProps>): void;
+  /** Cancel running tweens and remove the chart's DOM from the container. */
   destroy(): void;
 }
 

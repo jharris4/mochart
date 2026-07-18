@@ -115,14 +115,18 @@ generated artifact instead of each re-walking the config modules.
 
 ## Phase 3 — IDE hover docs from the same source
 
-- [ ] Codegen JSDoc onto the config types in `src/types/config.ts` from the
-      Phase 1 model (description + default + allowed values). Prefer a
-      generate-and-check approach: a script rewrites the doc comments in
-      place, CI fails if running it produces a diff — same ratchet pattern as
-      the golden tests.
-- [ ] Document the non-config public API surface by hand (`ChartHandle`,
-      callbacks, data providers, factory props) — small, stable, worth prose.
-- [ ] Verify the JSDoc survives into `dist/*.d.ts` for all export conditions.
+- [x] Codegen JSDoc onto the config types: `scripts/generateJsdoc.ts`
+      rewrites doc comments on every model-covered property (description +
+      details + defaults, incl. conditional defaults and merged
+      group/series-axis defaults on `AxisConfigBase`), leaving uncovered
+      members untouched. `npm run generate-jsdoc -w @mochart/core`; the
+      ratchet is `test/config/jsdocSync.test.ts`, which fails when the file
+      drifts from the model.
+- [x] Hand-documented the non-config public API surface: `ChartHandle`,
+      `createChart`/`createDefaultChart` props, callbacks, state factories,
+      event payloads, and the `DataProvider` interface.
+- [x] Verified the JSDoc survives into `dist/types/*.d.ts` (the `types`
+      export condition; the `development` condition serves `src` directly).
 
 ## Phase 4 — Demos that teach
 
