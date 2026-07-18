@@ -2,6 +2,7 @@
 // Used by reference/[section].paths.ts at build time.
 
 import type { DefaultValue, PropertyDoc, SectionDoc } from './model';
+import type { UsageIndex } from './usageIndex';
 
 function renderDefaultValue(value: DefaultValue): string {
   switch (value.kind) {
@@ -24,7 +25,17 @@ function renderRules(rules: string[]): string {
   return rules.map(rule => '`' + rule + '`').join('; ');
 }
 
-function renderProperty(sectionId: string, property: PropertyDoc): string {
+function renderUsage(key: string, usage: UsageIndex): string | null {
+  const links = usage.perProperty[key];
+  if (links === undefined || links.length === 0) {
+    return null;
+  }
+  const rendered = links.map(link => '[' + link.text + '](' + link.link + ')').join(' · ');
+  const extra = usage.overflow[key];
+  return '- **Used in:** ' + rendered + (extra !== undefined ? ' · +' + extra + ' more' : '');
+}
+
+function renderProperty(sectionId: string, property: PropertyDoc, usage: UsageIndex): string {
   const lines: string[] = [];
   lines.push('### ' + property.key + ' {#' + sectionId + '.' + property.key + '}');
   lines.push('');
@@ -50,6 +61,10 @@ function renderProperty(sectionId: string, property: PropertyDoc): string {
     lines.push('- **Default:** ' + renderDefaultValue(property.default ?? { kind: 'none' }));
   }
   lines.push('- **Validation:** ' + renderRules(property.rules));
+  const usageLine = renderUsage(sectionId + '.' + property.key, usage);
+  if (usageLine !== null) {
+    lines.push(usageLine);
+  }
   lines.push('');
   return lines.join('\n');
 }
@@ -58,7 +73,7 @@ function upperFirst(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-export function renderSectionPage(section: SectionDoc): string {
+export function renderSectionPage(section: SectionDoc, usage: UsageIndex): string {
   const lines: string[] = [];
   lines.push('# ' + section.title);
   lines.push('');
@@ -87,7 +102,7 @@ export function renderSectionPage(section: SectionDoc): string {
   lines.push('## Properties');
   lines.push('');
   for (const property of section.properties) {
-    lines.push(renderProperty(section.id, property));
+    lines.push(renderProperty(section.id, property, usage));
   }
   return lines.join('\n');
 }

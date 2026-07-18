@@ -140,10 +140,13 @@ generated artifact instead of each re-walking the config modules.
       base demo) in the URL hash in `@mochart/demo-common`, so docs pages and
       users can deep-link a specific chart state. All six galleries get it
       for free if it lives in the shared layer.
-- [ ] Cross-linking, both directions:
-      - Reference pages link each recipe/demo that exercises the property.
-      - Demo config editors link section/property names to the reference
-        anchors (`site/docs/reference/<section>#<section>.<key>`).
+- [x] Cross-linking, both directions:
+      - Reference pages: a build-time usage index scans the docs example
+        configs and the demo-data configs and renders capped "Used in" links
+        per property (guide/recipe pages first, then vanilla-gallery demos).
+      - Demo config editors: the Config tab footer links each reference
+        section the edited config uses to its generated reference page
+        (derived from the config keys, so no curation needed).
 - [ ] Per-demo blurbs: one or two sentences per demo config in
       `@mochart/demo-data` (next to the JSON, surfaced by all galleries and
       reusable as recipe intro text).
