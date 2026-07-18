@@ -6,7 +6,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'moch
 import { chart } from 'mochart-lit';
 
 import { LightElement } from '../misc/LightElement';
-import { buttonWithTooltip, icon } from '../misc/templates';
+import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -565,6 +565,10 @@ export class EditableChart extends LightElement {
     </div>`;
   }
 
+  private renderExportButtons(): unknown {
+    return exportButtons({ idPrefix: 'edit', getContainer: () => this.querySelector('.editable-chart-content') });
+  }
+
   private renderGroupControls(error: boolean, disableAdd: boolean, disableRemove: boolean): unknown {
     return html`<div class="chart-controls-container">
       <div class="chart-controls-buttons">
@@ -573,6 +577,7 @@ export class EditableChart extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
+              ${this.renderExportButtons()}
               <div class="btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-reset-groups', disabled: error || this.sequencePlaying, label: 'Reset', tooltipText: 'Restore the original group set and order', tooltipPlacement: 'right', onClick: this.resetGroups, ariaLabel: 'Reset Groups' },
@@ -635,6 +640,7 @@ export class EditableChart extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
+              ${this.renderExportButtons()}
             </div>
           </div>
           <div class="form-group">

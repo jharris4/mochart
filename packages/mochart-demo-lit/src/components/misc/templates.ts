@@ -1,6 +1,8 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 
+import { exportPNG, exportSVG } from 'mochart-export';
+
 // Stateless building blocks kept as plain lit-html template functions rather
 // than custom elements — the natural Lit altitude for the Vue demo's Icon /
 // ButtonWithTooltip / TextAreaContent components.
@@ -71,5 +73,40 @@ interface TextAreaContentProps {
 export function textAreaContent({ value, onChange }: TextAreaContentProps): TemplateResult {
   return html`<div class="text-area-content">
     <textarea .value=${value} @input=${(event: Event) => onChange((event.currentTarget as HTMLTextAreaElement).value)}></textarea>
+  </div>`;
+}
+
+interface ExportButtonsProps {
+  idPrefix: string;
+  getContainer: () => Element | null;
+  disabled?: boolean;
+}
+
+/**
+ * Download buttons for the chart found inside the container element
+ * (mochart-export locates the chart svg itself).
+ */
+export function exportButtons({ idPrefix, getContainer, disabled = false }: ExportButtonsProps): TemplateResult {
+  const onExportPng = () => {
+    const container = getContainer();
+    if (container) {
+      void exportPNG(container);
+    }
+  };
+  const onExportSvg = () => {
+    const container = getContainer();
+    if (container) {
+      exportSVG(container);
+    }
+  };
+  return html`<div class="btn-group">
+    ${buttonWithTooltip(
+      { id: idPrefix + '-export-png', disabled, label: 'PNG', tooltipText: 'Download the chart as a PNG image', tooltipPlacement: 'top-start', onClick: onExportPng, ariaLabel: 'Export PNG' },
+      icon({ size: 'lg', fixedWidth: true, name: 'file-image' })
+    )}
+    ${buttonWithTooltip(
+      { id: idPrefix + '-export-svg', disabled, label: 'SVG', tooltipText: 'Download the chart as an SVG image', tooltipPlacement: 'top-start', onClick: onExportSvg, ariaLabel: 'Export SVG' },
+      icon({ size: 'lg', fixedWidth: true, name: 'file-code' })
+    )}
   </div>`;
 }

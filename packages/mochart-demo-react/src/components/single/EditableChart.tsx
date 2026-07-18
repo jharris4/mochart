@@ -7,6 +7,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'moch
 import { Chart } from 'mochart-react';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
+import ExportButtons from '../misc/ExportButtons';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -96,6 +97,7 @@ export default function EditableChart(props: Props) {
   propsRef.current = props;
 
   // Non-reactive working copies (the old instance fields).
+  const chartContentRef = useRef<HTMLDivElement>(null);
   const filteredDataRef = useRef<Row[]>([]);
   const removedDataRef = useRef<Row[]>([]);
   const sequenceIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -662,6 +664,11 @@ export default function EditableChart(props: Props) {
     </ButtonGroup>
   );
 
+  const exportControlContent = (
+    <ExportButtons key="exportControls" idPrefix="edit" disabled={error}
+      getContainer={() => chartContentRef.current} />
+  );
+
   let commonControlContent: React.ReactNode;
   if (showChartCountControls) {
     commonControlContent = [
@@ -672,11 +679,12 @@ export default function EditableChart(props: Props) {
           <FontAwesome size="lg" fixedWidth={true} name={chartCount === 2 ? "window-maximize" : "window-restore"} />
         </ButtonWithTooltip>
       </ButtonGroup>,
-      modeControlContent
+      modeControlContent,
+      exportControlContent
     ];
   }
   else {
-    commonControlContent = modeControlContent;
+    commonControlContent = [modeControlContent, exportControlContent];
   }
 
   let controlContent: React.ReactNode;
@@ -845,7 +853,7 @@ export default function EditableChart(props: Props) {
   return (
     <div className="editable-mochart-chart">
       <div className="editable-chart-container">
-        <div className="editable-chart-content">
+        <div className="editable-chart-content" ref={chartContentRef}>
           {chartContent}
         </div>
         <div className="editable-chart-controls">

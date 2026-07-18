@@ -5,6 +5,7 @@ import {
   ArrayOfObjectsDataProvider
 } from 'mochart';
 import type { ChartHandle } from 'mochart';
+import { exportPNG, exportSVG } from 'mochart-export';
 import demosJson from '../demos/demos.json';
 
 // eagerly bundle every demo config + dataset + random spec, keyed by basename
@@ -52,6 +53,8 @@ const addGroupButton = document.getElementById('add-group') as HTMLButtonElement
 const removeGroupButton = document.getElementById('remove-group') as HTMLButtonElement;
 const autoplayButton = document.getElementById('autoplay') as HTMLButtonElement;
 const resetButton = document.getElementById('reset') as HTMLButtonElement;
+const exportPngButton = document.getElementById('export-png') as HTMLButtonElement;
+const exportSvgButton = document.getElementById('export-svg') as HTMLButtonElement;
 
 let chart: ChartHandle | null = null;
 let currentDemo: DemoEntry | null = null;
@@ -238,6 +241,8 @@ function toggleAutoplay(): void {
 }
 
 randomizeButton.addEventListener('click', randomizeValues);
+exportPngButton.addEventListener('click', () => { exportPNG(chartHost); });
+exportSvgButton.addEventListener('click', () => { exportSVG(chartHost); });
 addGroupButton.addEventListener('click', addGroup);
 removeGroupButton.addEventListener('click', removeGroup);
 autoplayButton.addEventListener('click', toggleAutoplay);

@@ -5,6 +5,7 @@ import { Chart } from 'mochart-vue';
 import type { MochartConfig } from 'mochart';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
+import ExportButtons from '../misc/ExportButtons.vue';
 import Icon from '../misc/Icon.vue';
 
 import type { DemoDataProvider } from '../../types';
@@ -28,6 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
 let intervalId: ReturnType<typeof setInterval> | null = null;
 
 const playing = ref(false);
+const chartSizerElement = ref<HTMLDivElement | null>(null);
 const rate = ref(defaultRate);
 const rateText = ref('' + defaultRate);
 
@@ -69,7 +71,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div :class="'mochart-demo-tab-container col chart' + (props.active ? ' active' : '')">
-    <div class="random-chart-sizer">
+    <div class="random-chart-sizer" ref="chartSizerElement">
       <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
              :mochart-config="props.mochartConfig" :data-provider="props.dataProvider" />
     </div>
@@ -104,6 +106,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <div class="btn-toolbar ml-2" role="toolbar">
+            <ExportButtons id-prefix="random" :get-container="() => chartSizerElement" />
             <div class="btn-group">
               <ButtonWithTooltip id="reuse" :disabled="playing" label="Reuse" :pressed="props.applyReuse"
                                  tooltip-text="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltip-placement="top-start"

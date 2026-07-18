@@ -5,6 +5,7 @@ import { Chart } from 'mochart-vue';
 import type { MochartConfig } from 'mochart';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
+import ExportButtons from '../misc/ExportButtons.vue';
 import Icon from '../misc/Icon.vue';
 
 import type { ChartDataProviderLike } from '../../types';
@@ -20,6 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const dataProviderIndex = ref(0);
+const chartSizerElement = ref<HTMLDivElement | null>(null);
 
 watch(() => [props.mochartConfig, props.dataProviders] as const, () => {
   dataProviderIndex.value = 0;
@@ -50,7 +52,7 @@ function onStepForward() {
 
 <template>
   <div :class="'mochart-demo-tab-container col chart' + (props.active ? ' active' : '')">
-    <div class="transition-chart-sizer">
+    <div class="transition-chart-sizer" ref="chartSizerElement">
       <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
              :mochart-config="props.mochartConfig" :data-provider="props.dataProviders[dataProviderIndex]" />
     </div>
@@ -68,6 +70,7 @@ function onStepForward() {
                 <Icon size="lg" :fixed-width="true" name="forward-step" />
               </ButtonWithTooltip>
             </div>
+            <ExportButtons id-prefix="transition" :get-container="() => chartSizerElement" />
           </div>
         </div>
       </form>

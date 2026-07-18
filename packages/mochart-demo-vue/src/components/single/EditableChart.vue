@@ -5,6 +5,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from 'moch
 import { Chart } from 'mochart-vue';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
+import ExportButtons from '../misc/ExportButtons.vue';
 import Icon from '../misc/Icon.vue';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
@@ -57,6 +58,7 @@ let removedData: Row[] = [];
 let sequenceId: ReturnType<typeof setInterval> | null = null;
 
 const dataProvider = shallowRef<EditableDataProvider | null>(null);
+const chartContentElement = ref<HTMLDivElement | null>(null);
 const groupIndex = ref(-1);
 const groupValuesText = ref("");
 const seriesIndex = ref(0);
@@ -567,7 +569,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
 <template>
   <div class="editable-mochart-chart">
     <div class="editable-chart-container">
-      <div class="editable-chart-content">
+      <div class="editable-chart-content" ref="chartContentElement">
         <!-- ManagedChart (behind mochart-vue's Chart) picks animated vs static
              from the config and owns focus/filter state internally. Width is
              explicit; height tracks the container. -->
@@ -597,6 +599,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
                   </div>
+                  <ExportButtons id-prefix="edit" :disabled="!!error" :get-container="() => chartContentElement" />
                   <div class="btn-group">
                     <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" label="Reset" tooltip-text="Restore the original group set and order" tooltip-placement="right"
                                        :on-click="resetGroups" aria-label="Reset Groups">
@@ -662,6 +665,7 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
                   </div>
+                  <ExportButtons id-prefix="edit" :disabled="!!error" :get-container="() => chartContentElement" />
                 </div>
               </div>
               <div class="form-group">

@@ -6,7 +6,8 @@
   "type": "module",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "mochart": "^1.0.0"
+    "mochart": "^1.0.0",
+    "mochart-export": "^1.0.0"
   },
   "scripts": {
     "dev": "vite",

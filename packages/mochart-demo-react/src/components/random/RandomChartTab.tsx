@@ -7,6 +7,7 @@ import { Chart } from 'mochart-react';
 import type { MochartConfig } from 'mochart';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
+import ExportButtons from '../misc/ExportButtons';
 
 import type { DemoDataProvider } from '../../types';
 
@@ -24,6 +25,7 @@ interface Props {
 
 export default function RandomMochartChartsTab({ active, mochartConfig, dataProvider, onRandomizeBack, onRandomizeNext, applyReuse, toggleApplyReuse }: Props) {
   const intervalIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const chartSizerRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
   const [rate, setRate] = useState(defaultRate);
   const [rateText, setRateText] = useState<string | number>('' + defaultRate);
@@ -70,7 +72,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
 
   return (
     <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
-      <div className="random-chart-sizer">
+      <div className="random-chart-sizer" ref={chartSizerRef}>
         <SizerManagedChart mochartConfig={mochartConfig} dataProvider={dataProvider} />
       </div>
       <div className="random-controls">
@@ -104,6 +106,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
               </FormGroup>
             </ButtonToolbar>
             <ButtonToolbar className="ml-2">
+              <ExportButtons idPrefix="random" getContainer={() => chartSizerRef.current} />
               <ButtonGroup>
                 <ButtonWithTooltip id="reuse" disabled={playing} label="Reuse" pressed={applyReuse}
                   tooltipText="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltipPlacement="top-start"

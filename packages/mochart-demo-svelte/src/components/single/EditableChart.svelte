@@ -5,6 +5,7 @@
   import { Chart } from 'mochart-svelte';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
+  import ExportButtons from '../misc/ExportButtons.svelte';
   import Icon from '../misc/Icon.svelte';
 
   import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
@@ -60,6 +61,8 @@
     onSeriesFilter,
     onChartCountToggle
   }: Props = $props();
+
+  let chartContentElement = $state<HTMLDivElement | null>(null);
 
   // Working copies of the demo data; mutated in place by the group/series
   // editing controls (same pattern as the react demo's instance fields).
@@ -609,11 +612,12 @@
       <Icon size="lg" fixedWidth={true} name={selectionMode === 'group' ? "bullseye" : "sliders"} />
     </ButtonWithTooltip>
   </div>
+  <ExportButtons idPrefix="edit" disabled={!!error} getContainer={() => chartContentElement} />
 {/snippet}
 
 <div class="editable-mochart-chart">
   <div class="editable-chart-container">
-    <div class="editable-chart-content">
+    <div class="editable-chart-content" bind:this={chartContentElement}>
       <!-- ManagedChart (behind mochart-svelte's Chart) picks animated vs static
            from the config and owns focus/filter state internally. Width is
            explicit; height tracks the container. -->

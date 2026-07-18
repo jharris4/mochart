@@ -6,7 +6,7 @@ import { chart } from 'mochart-lit';
 import type { MochartConfig } from 'mochart';
 
 import { LightElement } from '../misc/LightElement';
-import { buttonWithTooltip, icon } from '../misc/templates';
+import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
 
 import type { DemoDataProvider } from '../../types';
 
@@ -103,6 +103,7 @@ export class RandomChartTab extends LightElement {
               </div>
             </div>
             <div class="btn-toolbar ml-2" role="toolbar">
+              ${exportButtons({ idPrefix: 'random', getContainer: () => this.querySelector('.random-chart-sizer') })}
               <div class="btn-group">
                 ${buttonWithTooltip(
                   { id: 'reuse', disabled: this.playing, label: 'Reuse', pressed: this.applyReuse, tooltipText: "Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets", tooltipPlacement: 'top-start', onClick: this.toggleApplyReuse, ariaLabel: 'Reuse' },

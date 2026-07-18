@@ -5,6 +5,7 @@
   import type { MochartConfig } from 'mochart';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
+  import ExportButtons from '../misc/ExportButtons.svelte';
   import Icon from '../misc/Icon.svelte';
 
   import type { DemoDataProvider } from '../../types';
@@ -34,6 +35,8 @@
   }: Props = $props();
 
   let intervalId: ReturnType<typeof setInterval> | null = null;
+
+  let chartSizerElement = $state<HTMLDivElement | null>(null);
 
   let playing = $state(false);
   let rate = $state(defaultRate);
@@ -83,7 +86,7 @@
 </script>
 
 <div class={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
-  <div class="random-chart-sizer">
+  <div class="random-chart-sizer" bind:this={chartSizerElement}>
     <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
            {mochartConfig} {dataProvider} />
   </div>
@@ -118,6 +121,7 @@
           </div>
         </div>
         <div class="btn-toolbar ml-2" role="toolbar">
+          <ExportButtons idPrefix="random" getContainer={() => chartSizerElement} />
           <div class="btn-group">
             <ButtonWithTooltip id="reuse" disabled={playing} label="Reuse" pressed={applyReuse}
                                tooltipText="Keep part of the data the same between randomizations (the config's reuse settings), so transitions animate with continuity — off generates fully independent datasets" tooltipPlacement="top-start"
