@@ -136,10 +136,12 @@ generated artifact instead of each re-walking the config modules.
 
 ## Phase 4 — Demos that teach
 
-- [ ] Shareable state: encode the edited config/data (or a diff from the
-      base demo) in the URL hash in `@mochart/demo-common`, so docs pages and
-      users can deep-link a specific chart state. All six galleries get it
-      for free if it lives in the shared layer.
+- [x] Shareable state: demo-common's shareState module encodes the edited
+      config/data as a base64url payload in the URL hash; every gallery has
+      a Share button (next to the export buttons) and consumes the payload
+      on mount. Building this surfaced and fixed a latent circular-reference
+      bug in buildMochartDemoConfig for configs without explicit
+      seriesAxisConfigs.
 - [x] Cross-linking, both directions:
       - Reference pages: a build-time usage index scans the docs example
         configs and the demo-data configs and renders capped "Used in" links
@@ -147,9 +149,11 @@ generated artifact instead of each re-walking the config modules.
       - Demo config editors: the Config tab footer links each reference
         section the edited config uses to its generated reference page
         (derived from the config keys, so no curation needed).
-- [ ] Per-demo blurbs: one or two sentences per demo config in
-      `@mochart/demo-data` (next to the JSON, surfaced by all galleries and
-      reusable as recipe intro text).
+- [x] Per-demo blurbs: all 22 demos carry a description in demos.json,
+      rendered under the title in every gallery's Demos list.
+- [x] Docs → demo hand-off: every live chart on the docs site has an "Open
+      in demo" link that deep-links the vanilla gallery with that chart's
+      exact config/data as a share payload.
 - [ ] Optional, later: a dedicated "playground" page in the docs site — the
       vanilla single-demo editor embedded with a config picker. Only worth it
       if the shareable-URL + cross-link combination proves insufficient.

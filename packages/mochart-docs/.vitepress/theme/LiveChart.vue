@@ -2,7 +2,9 @@
 // Mounts a live mochart chart from a raw config + dataset. The chart module
 // is imported on mount so pages stay SSR-safe, and the chart width tracks the
 // container so examples stay responsive.
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+
+import { encodeShareState, shareHashPrefix } from '@mochart/demo-common';
 
 interface ChartHandle {
   update(props: Record<string, unknown>): void;
@@ -14,9 +16,23 @@ const props = withDefaults(defineProps<{
   data: Record<string, unknown>[];
   altData?: Record<string, unknown>[];
   height?: number;
+  demoLink?: boolean;
 }>(), {
   altData: undefined,
-  height: 320
+  height: 320,
+  demoLink: true
+});
+
+// Deep link into the vanilla gallery with this chart's config/data as the
+// share payload (see demo-common shareState). The host demo route is
+// arbitrary — the payload overrides its config and data. Resolves only on
+// the assembled site, where the galleries sit next to the docs.
+const demoUrl = computed(() => {
+  if (!props.demoLink) {
+    return null;
+  }
+  const payload = encodeShareState({ config: props.config, data: props.data });
+  return import.meta.env.BASE_URL + 'vanilla/single/stacked/' + shareHashPrefix + payload;
 });
 
 const host = ref<HTMLElement | null>(null);
@@ -61,10 +77,15 @@ function toggle() {
 <template>
   <div class="live-chart">
     <div ref="host" class="live-chart-host" :style="{ height: height + 'px' }" />
-    <div v-if="altData" class="live-chart-controls">
-      <button type="button" @click="toggle">
+    <div v-if="altData || demoUrl" class="live-chart-controls">
+      <button v-if="altData" type="button" @click="toggle">
         {{ showingAlt ? 'Animate back' : 'Animate to new data' }}
       </button>
+      <!-- target=_self keeps VitePress's SPA router from intercepting the
+           navigation into the (non-VitePress) demo gallery. -->
+      <a v-if="demoUrl" class="live-chart-demo-link" :href="demoUrl" target="_self" title="Open this chart in the demo gallery's editor">
+        Open in demo ↗
+      </a>
     </div>
   </div>
 </template>

@@ -22,7 +22,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@mochart/core": "^1.0.0"
+    "@mochart/core": "^1.0.0",
+    "@mochart/demo-common": "^1.0.0"
   },
   "devDependencies": {
     "tsx": "^4.20.6",
