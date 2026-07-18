@@ -12,8 +12,10 @@ npm install @mochart/core
 ```
 
 Using a framework? Install its binding instead and get automatic container
-sizing on top of the same API: `@mochart/angular`, `@mochart/lit`,
-`@mochart/react`, `@mochart/svelte`, or `@mochart/vue`.
+sizing on top of the same API:
+[Angular](/guide/frameworks/angular), [Lit](/guide/frameworks/lit),
+[React](/guide/frameworks/react), [Svelte](/guide/frameworks/svelte), or
+[Vue](/guide/frameworks/vue).
 
 ## Your first chart
 

@@ -86,8 +86,10 @@ generated artifact instead of each re-walking the config modules.
 - [x] Guide content (first milestone): getting started + core concepts (the
       config model, data providers, staged animation, interaction, chart
       states), all with live charts where they help.
-- [ ] One page per framework binding (adapted from binding READMEs) —
-      follow-up.
+- [x] One page per framework binding (guide/frameworks/, adapted from the
+      binding READMEs): install, quick start in the framework's idiom,
+      container-based sizing, callbacks/state placeholders, demo gallery
+      link.
 - [x] Recipes (first three, proving the live-chart pattern): stacked bars,
       dual value axes, date axis.
 - [ ] Remaining recipes: grouped series, horizontal (inverted) charts,

@@ -67,6 +67,16 @@ function guideSidebar() {
       ]
     },
     {
+      text: 'Frameworks',
+      items: [
+        { text: 'Angular', link: '/guide/frameworks/angular' },
+        { text: 'Lit', link: '/guide/frameworks/lit' },
+        { text: 'React', link: '/guide/frameworks/react' },
+        { text: 'Svelte', link: '/guide/frameworks/svelte' },
+        { text: 'Vue', link: '/guide/frameworks/vue' }
+      ]
+    },
+    {
       text: 'Recipes',
       items: [
         { text: 'Stacked bars', link: '/recipes/stacked-bars' },
