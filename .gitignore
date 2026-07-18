@@ -7,3 +7,5 @@ dist
 lib
 es
 .svelte-kit
+test-results
+playwright-report

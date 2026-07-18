@@ -1,0 +1,78 @@
+import type { Page } from '@playwright/test';
+import { test, expect, openDemo } from './helpers';
+
+const groupTickLabels = '.mochart-group-axis .mochart-axis-tick-label';
+
+function barGeometry(page: Page): Promise<string> {
+  return page.evaluate(() => Array.from(document.querySelectorAll('.mochart-series-bar'))
+    .map((bar) => bar.getAttribute('d'))
+    .join('|'));
+}
+
+async function hoverPlotCenter(page: Page): Promise<void> {
+  const box = await page.locator('.mochart-plot-background').boundingBox();
+  if (!box) {
+    throw new Error('plot background has no bounding box');
+  }
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 5 });
+}
+
+test.beforeEach(async ({ page }) => {
+  await openDemo(page, 'stacked');
+  await expect(page.locator('.mochart-series-bar').first()).toBeAttached();
+});
+
+test('clicking the plot opens a tooltip and crosshair with one line per series', async ({ page }) => {
+  const crosshairLines = page.locator('.mochart-crosshair .crosshair-line');
+  await expect(crosshairLines).toHaveCount(0);
+
+  await hoverPlotCenter(page);
+  const box = await page.locator('.mochart-plot-background').boundingBox();
+  await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
+
+  const tooltip = page.locator('.mochart-tooltip');
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip).toContainText('Group');
+  const seriesCount = await page.locator('.mochart-series').count();
+  await expect(page.locator('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+    .toHaveCount(seriesCount);
+  await expect(crosshairLines.first()).toBeAttached();
+});
+
+test('clicking a legend item filters the series out and back in', async ({ page }) => {
+  const series = page.locator('.mochart-series');
+  const initialCount = await series.count();
+  expect(initialCount).toBeGreaterThan(1);
+
+  const firstLegendItem = page.locator('.mochart-legend-item').first();
+  await firstLegendItem.click();
+  await expect(series).toHaveCount(initialCount - 1);
+
+  await firstLegendItem.click();
+  await expect(series).toHaveCount(initialCount);
+});
+
+test('toolbar add/remove group updates the group axis', async ({ page }) => {
+  const ticks = page.locator(groupTickLabels);
+  const initialCount = await ticks.count();
+
+  await page.click('#add-group');
+  await expect(ticks).toHaveCount(initialCount + 1);
+
+  await page.click('#remove-group');
+  await expect(ticks).toHaveCount(initialCount);
+});
+
+test('randomize changes bar geometry and reset restores group count', async ({ page }) => {
+  const ticks = page.locator(groupTickLabels);
+  const initialTicks = await ticks.count();
+  const initialGeometry = await barGeometry(page);
+
+  await page.click('#randomize');
+  await expect.poll(() => barGeometry(page)).not.toBe(initialGeometry);
+
+  await page.click('#add-group');
+  await expect(ticks).toHaveCount(initialTicks + 1);
+  await page.click('#reset');
+  await expect(ticks).toHaveCount(initialTicks);
+});

@@ -25,9 +25,11 @@
     "build:libs": "npm run build -w movalid && npm run build -w mochart && npm run build -w mochart-react && npm run build -w mochart-svelte && npm run build -w mochart-vue && npm run build -w mochart-lit",
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e -w mochart-demo",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "jsdom": "^29.1.1",
     "playwright-core": "^1.61.1",
     "typescript": "^6.0.3",
