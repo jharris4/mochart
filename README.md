@@ -11,9 +11,14 @@ the **movalid** validation library it uses for config validation.
 | [mochart](packages/mochart/README.md) | The core charting library — animated, interactive SVG charts rendered with a retained-mode renderer (no vdom, no framework). |
 | [mochart-react](packages/mochart-react/README.md) | React components wrapping mochart. |
 | [mochart-svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
+| [mochart-vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
+| [mochart-lit](packages/mochart-lit/README.md) | lit-html directives wrapping mochart. |
 | [mochart-demo](packages/mochart-demo/README.md) | Demo gallery app (private) — browse every chart config with live data controls. |
 | [movalid](packages/movalid/README.md) | Simple yet powerful chainable JavaScript validators with human-readable error messages. |
 
+The demo gallery is also ported to each wrapper framework —
+`mochart-demo-react`, `mochart-demo-svelte`, `mochart-demo-vue`, and
+`mochart-demo-lit` (all private) share the demo configs from `mochart-demo`.
 There are also build-free static HTML examples in
 [packages/mochart/example](packages/mochart/example/README.md).
 
