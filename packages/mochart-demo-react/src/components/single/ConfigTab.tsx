@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from '../misc/Icon';
 
 import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
@@ -124,27 +124,27 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
         <ButtonToolbar>
           <ButtonWithTooltip id="config-reset" label={demoText.configTab.reset.label} tooltipText={demoText.configTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={resetConfig} aria-label={demoText.configTab.reset.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
+            <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
           <ButtonWithTooltip id="config-defaults" label={demoText.configTab.defaults.label} pressed={showDefaults}
             tooltipText={demoText.configTab.defaults.tooltip} tooltipPlacement="top-start"
             onClick={toggleConfigDefaults} aria-label={demoText.configTab.defaults.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name={showDefaults ? 'eye' : 'eye-slash'} />
+            <Icon size="lg" fixedWidth={true} name={showDefaults ? 'eye' : 'eye-slash'} />
           </ButtonWithTooltip>
           <ButtonWithTooltip id="config-inverted" label={demoText.configTab.invert.label} pressed={!!inverted}
             tooltipText={demoText.configTab.invert.tooltip} tooltipPlacement="top-start"
             onClick={toggleConfigInverted} aria-label={demoText.configTab.invert.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name={invertedIcon} />
+            <Icon size="lg" fixedWidth={true} name={invertedIcon} />
           </ButtonWithTooltip>
           <ButtonWithTooltip id="config-animate-slow" label={demoText.configTab.slow.label} pressed={slow}
             tooltipText={demoText.configTab.slow.tooltip} tooltipPlacement="top-start"
             onClick={toggleConfigAnimationSlow} aria-label={demoText.configTab.slow.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name={slowIcon} />
+            <Icon size="lg" fixedWidth={true} name={slowIcon} />
           </ButtonWithTooltip>
           <ButtonWithTooltip id="config-apply" label={demoText.configTab.apply.label} disabled={jsonError !== null}
             tooltipText={demoText.configTab.apply.tooltip} tooltipPlacement="top-start"
             onClick={applyConfig} aria-label={demoText.configTab.apply.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name="check" />
+            <Icon size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
         </ButtonToolbar>

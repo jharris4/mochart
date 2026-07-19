@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from '../misc/Icon';
 
 import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 
@@ -102,17 +102,17 @@ export default function MochartDataTab({ active, config = null, data = null, onD
         <ButtonToolbar>
           <ButtonWithTooltip id="data-reset" label={demoText.dataTab.reset.label} tooltipText={demoText.dataTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={resetData} aria-label={demoText.dataTab.reset.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
+            <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
           <ButtonWithTooltip id="data-unused" label={demoText.dataTab.unused.label} pressed={showUnused}
             tooltipText={demoText.dataTab.unused.tooltip} tooltipPlacement="top-start"
             onClick={toggleShowUnused} aria-label={demoText.dataTab.unused.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name={showUnused ? 'eye' : 'eye-slash'} />
+            <Icon size="lg" fixedWidth={true} name={showUnused ? 'eye' : 'eye-slash'} />
           </ButtonWithTooltip>
           <ButtonWithTooltip id="data-apply" label={demoText.dataTab.apply.label} disabled={jsonError !== null}
             tooltipText={demoText.dataTab.apply.tooltip} tooltipPlacement="top-start"
             onClick={applyData} aria-label={demoText.dataTab.apply.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name="check" />
+            <Icon size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
         </ButtonToolbar>

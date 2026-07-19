@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Form, FormGroup, ButtonToolbar, ButtonGroup } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from '../misc/Icon';
 
 import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
@@ -55,11 +55,11 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
               <ButtonGroup>
                 <ButtonWithTooltip id="transition-back" label={demoText.transitionChartTab.back.label} tooltipText={demoText.transitionChartTab.back.tooltip} tooltipPlacement="top-start"
                   onClick={onStepBack} aria-label={demoText.transitionChartTab.back.aria}>
-                  <FontAwesome size="lg" fixedWidth={true} name="backward-step" />
+                  <Icon size="lg" fixedWidth={true} name="backward-step" />
                 </ButtonWithTooltip>
                 <ButtonWithTooltip id="transition-forward" label={demoText.transitionChartTab.next.label} tooltipText={demoText.transitionChartTab.next.tooltip} tooltipPlacement="top-start"
                   onClick={onStepForward} aria-label={demoText.transitionChartTab.next.aria}>
-                  <FontAwesome size="lg" fixedWidth={true} name="forward-step" />
+                  <Icon size="lg" fixedWidth={true} name="forward-step" />
                 </ButtonWithTooltip>
               </ButtonGroup>
               <ExportButtons idPrefix="transition" getContainer={() => chartSizerRef.current} />

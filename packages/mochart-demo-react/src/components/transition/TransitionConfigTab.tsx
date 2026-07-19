@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from '../misc/Icon';
 
 import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
@@ -57,12 +57,12 @@ export default function TransitionConfigTab({ active, transitionConfig, onUpdate
         <ButtonToolbar>
           <ButtonWithTooltip id="config-reset" label={demoText.transitionConfigTab.reset.label} tooltipText={demoText.transitionConfigTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={onReset} aria-label={demoText.transitionConfigTab.reset.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
+            <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
           <ButtonWithTooltip id="config-apply" label={demoText.transitionConfigTab.apply.label} disabled={jsonError !== null}
             tooltipText={demoText.transitionConfigTab.apply.tooltip} tooltipPlacement="top-start"
             onClick={onUpdateClick} aria-label={demoText.transitionConfigTab.apply.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name="check" />
+            <Icon size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
         </ButtonToolbar>

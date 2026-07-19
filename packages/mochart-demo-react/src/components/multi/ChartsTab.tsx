@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from '../misc/Icon';
 
 import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
@@ -349,23 +349,23 @@ function MultiMochartControls({ playing, onRowsChange, onColsChange, onStepBackw
             <ButtonGroup>
               <ButtonWithTooltip id="step-back" disabled={playing} tooltipText={demoText.multiChartsTab.stepBackward.tooltip} tooltipPlacement="top-start"
                 onClick={onStepBackwardClick} aria-label={demoText.multiChartsTab.stepBackward.aria}>
-                <FontAwesome size="lg" fixedWidth={true} name="backward-step" />
+                <Icon size="lg" fixedWidth={true} name="backward-step" />
               </ButtonWithTooltip>
               <ButtonWithTooltip id="step-forward" disabled={playing} tooltipText={demoText.multiChartsTab.stepForward.tooltip} tooltipPlacement="top-start"
                 onClick={onStepForwardClick} aria-label={demoText.multiChartsTab.stepForward.aria}>
-                <FontAwesome size="lg" fixedWidth={true} name="forward-step" />
+                <Icon size="lg" fixedWidth={true} name="forward-step" />
               </ButtonWithTooltip>
               <ButtonWithTooltip id="play-backward" disabled={playing} tooltipText={demoText.multiChartsTab.playBackward.tooltip} tooltipPlacement="top-start"
                 onClick={onPlayBackwardClick} aria-label={demoText.multiChartsTab.playBackward.aria}>
-                <FontAwesome size="lg" fixedWidth={true} name="play" flip="horizontal" />
+                <Icon size="lg" fixedWidth={true} name="play" flip="horizontal" />
               </ButtonWithTooltip>
               <ButtonWithTooltip id="play-forward" disabled={playing} tooltipText={demoText.multiChartsTab.playForward.tooltip} tooltipPlacement="top-start"
                 onClick={onPlayForwardClick} aria-label={demoText.multiChartsTab.playForward.aria}>
-                <FontAwesome size="lg" fixedWidth={true} name="play" />
+                <Icon size="lg" fixedWidth={true} name="play" />
               </ButtonWithTooltip>
               <ButtonWithTooltip id="stop" disabled={!playing} tooltipText={demoText.multiChartsTab.stop.tooltip} tooltipPlacement="top-start"
                 onClick={onStopClick} aria-label={demoText.multiChartsTab.stop.aria}>
-                <FontAwesome size="lg" fixedWidth={true} name="stop" />
+                <Icon size="lg" fixedWidth={true} name="stop" />
               </ButtonWithTooltip>
             </ButtonGroup>
           </ButtonToolbar>

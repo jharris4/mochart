@@ -1,6 +1,6 @@
 import React from 'react';
 import { ButtonGroup } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from './Icon';
 
 import { exportPNG, exportSVG } from '@mochart/export';
 
@@ -36,12 +36,12 @@ export default function ExportButtons({ idPrefix, getContainer, disabled = false
       <ButtonWithTooltip id={idPrefix + "-export-png"} disabled={disabled} label={demoText.exportButtons.png.label}
         tooltipText={demoText.exportButtons.png.tooltip} tooltipPlacement="top-start"
         onClick={onExportPng} aria-label={demoText.exportButtons.png.aria}>
-        <FontAwesome size="lg" fixedWidth={true} name="file-image" />
+        <Icon size="lg" fixedWidth={true} name="file-image" />
       </ButtonWithTooltip>
       <ButtonWithTooltip id={idPrefix + "-export-svg"} disabled={disabled} label={demoText.exportButtons.svg.label}
         tooltipText={demoText.exportButtons.svg.tooltip} tooltipPlacement="top-start"
         onClick={onExportSvg} aria-label={demoText.exportButtons.svg.aria}>
-        <FontAwesome size="lg" fixedWidth={true} name="file-code" />
+        <Icon size="lg" fixedWidth={true} name="file-code" />
       </ButtonWithTooltip>
     </ButtonGroup>
   );

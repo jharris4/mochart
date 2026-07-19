@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from '../misc/Icon';
 
 import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
@@ -86,20 +86,20 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
                 <ButtonWithTooltip id="randomize-back" disabled={playing} label={demoText.randomChartTab.back.label}
                   tooltipText={demoText.randomChartTab.back.tooltip} tooltipPlacement="top-start"
                   onClick={onRandomizeBack} aria-label={demoText.randomChartTab.back.aria}>
-                  <FontAwesome size="lg" fixedWidth={true} name="dice" flip={'horizontal'} />
+                  <Icon size="lg" fixedWidth={true} name="dice" flip={'horizontal'} />
                 </ButtonWithTooltip>
                 <ButtonWithTooltip id="randomize-next" disabled={playing} label={demoText.randomChartTab.randomize.label}
                   tooltipText={demoText.randomChartTab.randomize.tooltip} tooltipPlacement="top-start"
                   onClick={onRandomizeNext} aria-label={demoText.randomChartTab.randomize.aria}>
-                  <FontAwesome size="lg" fixedWidth={true} name="dice" />
+                  <Icon size="lg" fixedWidth={true} name="dice" />
                 </ButtonWithTooltip>
                 <ButtonWithTooltip id="play" disabled={playing} tooltipText={demoText.randomChartTab.play.tooltip} tooltipPlacement="top-start"
                   onClick={onPlayClick} aria-label={demoText.randomChartTab.play.aria}>
-                  <FontAwesome size="lg" fixedWidth={true} name="play" />
+                  <Icon size="lg" fixedWidth={true} name="play" />
                 </ButtonWithTooltip>
                 <ButtonWithTooltip id="stop" disabled={!playing} tooltipText={demoText.randomChartTab.stop.tooltip} tooltipPlacement="top-start"
                   onClick={onStopClick} aria-label={demoText.randomChartTab.stop.aria}>
-                  <FontAwesome size="lg" fixedWidth={true} name="stop" />
+                  <Icon size="lg" fixedWidth={true} name="stop" />
                 </ButtonWithTooltip>
               </ButtonGroup>
               <FormGroup>
@@ -114,7 +114,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
                 <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
                   tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
                   onClick={toggleApplyReuse} aria-label={demoText.randomChartTab.reuse.aria}>
-                  <FontAwesome size="lg" fixedWidth={true} name="recycle" />
+                  <Icon size="lg" fixedWidth={true} name="recycle" />
                 </ButtonWithTooltip>
               </ButtonGroup>
             </ButtonToolbar>

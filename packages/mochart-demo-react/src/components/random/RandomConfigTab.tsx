@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { ButtonToolbar } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from '../misc/Icon';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -59,12 +59,12 @@ export default function RandomMochartConfigTab({ active, randomConfig, onUpdate,
         <ButtonToolbar>
           <ButtonWithTooltip id="config-reset" label={demoText.randomConfigTab.reset.label} tooltipText={demoText.randomConfigTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={onReset} aria-label={demoText.randomConfigTab.reset.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name="arrow-rotate-left" />
+            <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
           </ButtonWithTooltip>
           <ButtonWithTooltip id="config-apply" label={demoText.randomConfigTab.apply.label} disabled={jsonError !== null}
             tooltipText={demoText.randomConfigTab.apply.tooltip} tooltipPlacement="top-start"
             onClick={onUpdateClick} aria-label={demoText.randomConfigTab.apply.aria}>
-            <FontAwesome size="lg" fixedWidth={true} name="check" />
+            <Icon size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
         </ButtonToolbar>

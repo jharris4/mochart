@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { ButtonToolbar, Button } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from './Icon';
 
 import { demoText, switchableDemoModes } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
@@ -33,7 +33,7 @@ export function ModeSwitcher({ demoMode, onModeChanged }: ModeSwitcherProps) {
           return (
             <Button key={mode} disabled={current} title={title} color={current ? 'primary' : void 0}
               onClick={() => { onModeChanged(mode); }}>
-              <FontAwesome size="lg" name={modeIcons[mode]} /> {label}
+              <Icon size="lg" name={modeIcons[mode]} /> {label}
             </Button>
           );
         })}
@@ -53,7 +53,7 @@ export function SiteRootButton({ siteRootUrl }: { siteRootUrl?: string }) {
   return (
     <a className="btn btn-secondary mochart-demo-site-root-button" href={siteRootUrl}
       title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>
-      <FontAwesome name="house" /> {demoText.siteRootLink.shortLabel}
+      <Icon name="house" /> {demoText.siteRootLink.shortLabel}
     </a>
   );
 }
@@ -62,7 +62,7 @@ export function BackToDemosButton({ onBackToDemos }: { onBackToDemos: OnBackToDe
   return (
     <Button className="mochart-demo-back-button" title={demoText.backToDemos.tooltip}
       aria-label={demoText.backToDemos.aria} onClick={() => { onBackToDemos(); }}>
-      <FontAwesome name="chevron-left" /> {demoText.backToDemos.label}
+      <Icon name="chevron-left" /> {demoText.backToDemos.label}
     </Button>
   );
 }

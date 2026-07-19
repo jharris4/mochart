@@ -1,6 +1,6 @@
 import React from 'react';
 import { ListGroup, ListGroupItem } from 'reactstrap';
-import FontAwesome from 'react-fontawesome';
+import Icon from '../misc/Icon';
 
 import { getGallerySections } from '@mochart/demo-common';
 import type { GalleryItem, GallerySection } from '@mochart/demo-common';
@@ -32,7 +32,7 @@ function GalleryListItem({ item, onOpenDemo, onOpenPage }: { item: GalleryItem }
           onOpenPage(item.mode);
         }
       }}>
-      {item.kind === 'page' ? <FontAwesome fixedWidth name={pageIcons[item.mode]} /> : null}
+      {item.kind === 'page' ? <Icon fixedWidth name={pageIcons[item.mode]} /> : null}
       <span className="mochart-demo-item-title">{item.title}</span>
       {item.description !== void 0 ? <span className="mochart-demo-item-description">{item.description}</span> : null}
     </ListGroupItem>
@@ -67,7 +67,7 @@ function GallerySectionView({ section, onOpenDemo, onOpenPage }: { section: Gall
   return (
     <details className="mochart-demo-gallery-section">
       <summary className="mochart-demo-gallery-section-header">
-        <FontAwesome fixedWidth name="flask" />
+        <Icon fixedWidth name="flask" />
         {header}
       </summary>
       {list}
