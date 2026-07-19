@@ -76,7 +76,11 @@ function toggle() {
 
 <template>
   <div class="live-chart">
-    <div ref="host" class="live-chart-host" :style="{ height: height + 'px' }" />
+    <!-- The card carries the padding/border; the chart measures the unpadded
+         host, so clientWidth is the true content width. -->
+    <div class="live-chart-card">
+      <div ref="host" class="live-chart-host" :style="{ height: height + 'px' }" />
+    </div>
     <div v-if="altData || demoUrl" class="live-chart-controls">
       <button v-if="altData" type="button" @click="toggle">
         {{ showingAlt ? 'Animate back' : 'Animate to new data' }}

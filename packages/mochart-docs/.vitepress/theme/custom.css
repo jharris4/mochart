@@ -4,11 +4,14 @@
   margin: 16px 0;
 }
 
-.live-chart-host {
+.live-chart-card {
   background-color: #ffffff;
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   padding: 8px;
+  /* The chart's HTML overlays (tooltip, legend text) inherit `color` and have
+     light backgrounds; pin a dark text color so dark mode stays readable. */
+  color: #3c3c43;
 }
 
 .live-chart-controls {
