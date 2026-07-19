@@ -64,6 +64,13 @@ npm run typecheck   # typecheck every workspace that has a typecheck script
 
 Target a single package with `-w`, e.g. `npm test -w @mochart/core`.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how the repo fits together — the
+config metadata pipeline that feeds validation, the generated docs, and IDE
+hovers; the golden snapshot tests; the demo gallery conventions; and how the
+documentation site is assembled and deployed.
+
 ## License
 
 BSD-3-Clause
