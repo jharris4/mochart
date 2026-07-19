@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
-import sizer from 'react-sizer';
 
 import { hasConfigStructureChange } from '@mochart/core';
 
 import { buildMochartDemoConfig } from '@mochart/demo-common';
 
+import { useElementSize } from '../misc/useElementSize';
 import EditableChart from './EditableChart';
 
 import type { DemoConfig, DataRow, MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
@@ -14,7 +14,6 @@ const scrollWidthOffset = 20;
 const defaultChartCount = 1;
 
 interface Props {
-  width: number;
   config?: DemoConfig | null;
   data?: DataRow[] | null;
   dataError?: string | boolean | null;
@@ -37,7 +36,11 @@ interface ChartTabState {
   mochartDemoConfig: MochartDemoConfig | null;
 }
 
-function MochartChartTab({ width, config = null, data = null, dataError = false, active }: Props) {
+export default function MochartChartTab({ config = null, data = null, dataError = false, active }: Props) {
+  // Measured width of the tab (the old code wrapped this tab in a sizer HOC
+  // for the same purpose).
+  const { elementRef, width } = useElementSize();
+
   // Authoritative focus/filter values (the old instance fields), mirrored to
   // state for rendering.
   const focus = useRef<FocusState>({
@@ -157,7 +160,7 @@ function MochartChartTab({ width, config = null, data = null, dataError = false,
   const { chartCount, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId, mochartDemoConfig } = state;
 
   const charts: React.ReactNode[] = [];
-  if (mochartDemoConfig) {
+  if (mochartDemoConfig && width > 0) {
     const allowedChartCount = Math.floor(width / 2) > minChartWidthForSecondChart ? 2 : 1;
     const adjustedChartCount = Math.min(chartCount, allowedChartCount);
     const chartWidth = Math.floor((width - scrollWidthOffset) / adjustedChartCount);
@@ -174,7 +177,7 @@ function MochartChartTab({ width, config = null, data = null, dataError = false,
   }
 
   return (
-    <div className={"mochart-demo-tab-container row chart" + (active ? " active" : "")}>
+    <div ref={elementRef} className={"mochart-demo-tab-container row chart" + (active ? " active" : "")}>
       <div className="editable-charts-sizer">
         <div className="editable-charts">
           {charts}
@@ -183,7 +186,3 @@ function MochartChartTab({ width, config = null, data = null, dataError = false,
     </div>
   );
 }
-
-const SizerMochartChartTab = sizer()(MochartChartTab);
-
-export default SizerMochartChartTab;

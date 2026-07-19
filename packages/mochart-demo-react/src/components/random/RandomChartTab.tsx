@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
-import sizer from 'react-sizer';
 
 import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
@@ -75,7 +74,9 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
   return (
     <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
       <div className="random-chart-sizer" ref={chartSizerRef}>
-        <SizerManagedChart mochartConfig={mochartConfig} dataProvider={dataProvider} />
+        {/* Chart self-measures when width/height are omitted. */}
+        <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}
+          mochartConfig={mochartConfig} dataProvider={dataProvider} />
       </div>
       <div className="random-controls">
         <Form inline>
@@ -123,5 +124,3 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
     </div>
   );
 }
-
-const SizerManagedChart = sizer()(Chart);

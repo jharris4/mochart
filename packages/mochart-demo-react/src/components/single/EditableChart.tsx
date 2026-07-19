@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ButtonToolbar, ButtonGroup, Form, FormGroup, Input } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
-import sizer from 'react-sizer';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart } from '@mochart/react';
@@ -13,10 +12,6 @@ import ExportButtons from '../misc/ExportButtons';
 import ShareButton from '../misc/ShareButton';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
-
-// Width comes from the parent as an explicit prop; the sizer only measures
-// the available height (the old code used the same widthProp trick).
-const SizerChart = sizer({ widthProp: 'dontwantwidth' })(Chart);
 
 const emptyGroupText = demoText.editableChart.emptyGroupText;
 
@@ -859,8 +854,11 @@ export default function EditableChart(props: Props) {
   // ManagedChart (behind mochart-react's Chart) picks animated vs static from
   // the config and owns focus/filter state internally now.
   const { mochartConfig } = mochartDemoConfig;
+  // Width comes from the parent as an explicit prop; Chart self-measures the
+  // available height (the old code used a sizer HOC for the same purpose).
   const chartContent = (
-    <SizerChart width={width} mochartConfig={mochartConfig} dataProvider={dataProvider}
+    <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}
+      width={width} mochartConfig={mochartConfig} dataProvider={dataProvider}
       onFocus={onChartFocus} onSeriesFilter={onSeriesFilter} onChartClick={onChartClick} />
   );
 

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
-import sizer from 'react-sizer';
 
 import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
@@ -9,6 +8,7 @@ import { Chart } from '@mochart/react';
 import { buildMochartDemoConfig, demoText, getDataProvidersForDataCount } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
+import { useElementSize } from '../misc/useElementSize';
 
 import type { Demo, DataRow, MochartDemoConfig, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
 
@@ -222,13 +222,18 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   const { filteredSeriesIds, focusedGroupIndices, focusedSeriesAxisId, focusedSeriesId, playing, mochartDemoConfig, dataProviders, chartRows, chartCols } = state;
   const { mochartConfig } = mochartDemoConfig;
 
+  // Measured size of the charts grid (the old code wrapped it in a sizer HOC).
+  const { elementRef: gridRef, width: gridWidth, height: gridHeight } = useElementSize();
+
   return (
     <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
-      <div className="multi-charts-sizer">
-        <SizerMultiMochartCharts mochartConfig={mochartConfig} dataProviders={dataProviders}
-          chartRows={chartRows} chartCols={chartCols} filteredSeriesIds={filteredSeriesIds}
-          focusedGroupIndices={focusedGroupIndices} focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId}
-          onSeriesFilter={onSeriesFilter} onChartFocus={onChartFocus} />
+      <div className="multi-charts-sizer" ref={gridRef}>
+        {gridWidth > 0 ?
+          <MultiMochartCharts width={gridWidth} height={gridHeight} mochartConfig={mochartConfig} dataProviders={dataProviders}
+            chartRows={chartRows} chartCols={chartCols} filteredSeriesIds={filteredSeriesIds}
+            focusedGroupIndices={focusedGroupIndices} focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId}
+            onSeriesFilter={onSeriesFilter} onChartFocus={onChartFocus} />
+          : null}
       </div>
       <MultiMochartControls playing={playing} onRowsChange={onRowsChange} onColsChange={onColsChange}
         onStepBackwardClick={onStepBackwardClick} onStepForwardClick={onStepForwardClick}
@@ -275,8 +280,6 @@ function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chart
     </div>
   );
 }
-
-const SizerMultiMochartCharts = sizer()(MultiMochartCharts);
 
 interface ControlsProps {
   playing: boolean;

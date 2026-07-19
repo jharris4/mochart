@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Form, FormGroup, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import FontAwesome from 'react-fontawesome';
-import sizer from 'react-sizer';
 
 import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
@@ -45,7 +44,9 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
   return (
     <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
       <div className="transition-chart-sizer" ref={chartSizerRef}>
-        <SizerManagedChart mochartConfig={mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
+        {/* Chart self-measures when width/height are omitted. */}
+        <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}
+          mochartConfig={mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
       </div>
       <div className="transition-controls">
         <Form inline>
@@ -69,5 +70,3 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
     </div>
   );
 }
-
-const SizerManagedChart = sizer()(Chart);

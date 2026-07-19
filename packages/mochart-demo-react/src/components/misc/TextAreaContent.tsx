@@ -1,21 +1,16 @@
 import React from 'react';
-import sizer from 'react-sizer';
 
 interface Props {
-  width: number;
-  height: number;
   value: string;
   onChange: (value: string) => void;
 }
 
-function TextAreaContent({ width, height, value, onChange }: Props) {
+// The old code measured this pane with a sizer HOC and set explicit pixel
+// sizes on the textarea; plain css sizing does the same job now.
+export default function TextAreaContent({ value, onChange }: Props) {
   return (
     <div className="text-area-content">
-      <textarea value={value} onChange={(event) => onChange(event.target.value)} style={{ width, height }}></textarea>
+      <textarea value={value} onChange={(event) => onChange(event.target.value)}></textarea>
     </div>
   );
 }
-
-const SizerTextAreaContent = sizer()(TextAreaContent);
-
-export default SizerTextAreaContent;

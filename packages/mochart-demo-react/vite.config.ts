@@ -9,8 +9,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // Ancient deps replaced with tiny local shims.
-      'react-sizer': fileURLToPath(new URL('./src/shims/react-sizer.tsx', import.meta.url)),
+      // Ancient dep replaced with a tiny local shim.
       'react-fontawesome': fileURLToPath(new URL('./src/shims/react-fontawesome.tsx', import.meta.url))
     }
   }
