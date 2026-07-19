@@ -3,27 +3,22 @@ import { Nav, NavItem, NavLink } from 'reactstrap';
 
 import { consumeShareState, demoText } from '@mochart/demo-common';
 
-import MochartDemosTab from '../demos/DemosTab';
 import MochartChartTab from './ChartTab';
 import MochartDataTab from './DataTab';
 import MochartConfigTab from './ConfigTab';
 import ErrorTab from '../misc/ErrorTab';
+import { ModeSwitcher, SiteRootButton, BackToDemosButton } from '../misc/ModeSwitcher';
 
 import type { DemoTabProps, DemoConfig, DataRow } from '../../types';
 
 const eventKeyChart = 1;
 const eventKeyConfig = 2;
 const eventKeyData = 3;
-const eventKeyDemo = 4;
 
 type DataError = string | boolean | null;
 
-function getActiveKeyForInitialDemoId(initialDemoId: string): number {
-  return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
-}
-
-export default function MochartDemoSingle({ demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged }: DemoTabProps) {
-  const [activeKey, setActiveKey] = useState(() => getActiveKeyForInitialDemoId(initialDemoId));
+export default function MochartDemoSingle({ demoData, initialDemoId, siteRootUrl, onModeChanged, onBackToDemos }: DemoTabProps) {
+  const [activeKey, setActiveKey] = useState(eventKeyChart);
   // Applied config/data edits are held until the Chart tab is shown; badge the
   // Chart tab so it's visible that something is waiting there.
   const [hasPending, setHasPending] = useState(false);
@@ -33,7 +28,7 @@ export default function MochartDemoSingle({ demoData, demoMode, initialDemoId, o
   const prevInitialDemoId = useRef(initialDemoId);
   if (prevInitialDemoId.current !== initialDemoId) {
     prevInitialDemoId.current = initialDemoId;
-    setActiveKey(getActiveKeyForInitialDemoId(initialDemoId));
+    setActiveKey(eventKeyChart);
   }
 
   const handleSelect = (nextActiveKey: number) => setActiveKey(nextActiveKey);
@@ -41,38 +36,40 @@ export default function MochartDemoSingle({ demoData, demoMode, initialDemoId, o
   return (
     <div className="mochart-demo-container">
       <div className="mochart-demo-tabs-container">
-        <Nav tabs>
-          <NavItem>
-            <NavLink active={activeKey === eventKeyDemo} onClick={() => { handleSelect(eventKeyDemo); }}>
-              {demoText.tabs.demos}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink active={activeKey === eventKeyChart}
-              title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : void 0}
-              onClick={() => { handleSelect(eventKeyChart); }}>
-              {demoText.tabs.chart}{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
-              {demoText.tabs.config}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink active={activeKey === eventKeyData} onClick={() => { handleSelect(eventKeyData); }}>
-              {demoText.tabs.data}
-            </NavLink>
-          </NavItem>
-        </Nav>
+        <div className="mochart-demo-nav-group">
+          <SiteRootButton siteRootUrl={siteRootUrl} />
+          <BackToDemosButton onBackToDemos={onBackToDemos} />
+          <Nav tabs>
+            <NavItem>
+              <NavLink active={activeKey === eventKeyChart}
+                title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : void 0}
+                onClick={() => { handleSelect(eventKeyChart); }}>
+                {demoText.tabs.chart}{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
+                {demoText.tabs.config}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink active={activeKey === eventKeyData} onClick={() => { handleSelect(eventKeyData); }}>
+                {demoText.tabs.data}
+              </NavLink>
+            </NavItem>
+          </Nav>
+        </div>
+        <ModeSwitcher demoMode="single" onModeChanged={onModeChanged} />
       </div>
-      <MochartDemoContent activeKey={activeKey} demoData={demoData} demoMode={demoMode} initialDemoId={initialDemoId}
-        onDemoModeChanged={onDemoModeChanged} onDemoChanged={onDemoChanged} onPendingChanged={setHasPending} />
+      <MochartDemoContent activeKey={activeKey} demoData={demoData} initialDemoId={initialDemoId}
+        onPendingChanged={setHasPending} />
     </div>
   );
 }
 
-interface ContentProps extends DemoTabProps {
+interface ContentProps {
+  demoData: DemoTabProps['demoData'];
+  initialDemoId: string;
   activeKey: number;
   onPendingChanged: (hasPending: boolean) => void;
 }
@@ -82,27 +79,23 @@ interface ContentState {
   pendingConfig: DemoConfig | null;
   pendingData: DataRow[] | null;
   pendingDataError: DataError;
-  config: DemoConfig | null;
-  data: DataRow[] | null;
+  config: DemoConfig;
+  data: DataRow[];
   dataError: DataError;
-  viewingConfig: DemoConfig | null;
-  viewingData: DataRow[] | null;
+  viewingConfig: DemoConfig;
+  viewingData: DataRow[];
   viewingDataError: DataError;
 }
 
 function MochartDemoContent(props: ContentProps) {
-  const { initialDemoId, activeKey, demoData, demoMode, onDemoModeChanged, onDemoChanged, onPendingChanged } = props;
+  const { initialDemoId, activeKey, demoData, onPendingChanged } = props;
 
   const [state, setState] = useState<ContentState>(() => {
-    let initialConfig: DemoConfig | null = null;
-    let initialData: DataRow[] | null = null;
-    if (initialDemoId !== 'demos') {
-      // A share link carries edited config/data in the URL hash; it overrides
-      // the demo's own config/data for the initial mount only.
-      const sharedState = consumeShareState();
-      initialConfig = sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config;
-      initialData = sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data;
-    }
+    // A share link carries edited config/data in the URL hash; it overrides
+    // the demo's own config/data for the initial mount only.
+    const sharedState = consumeShareState();
+    const initialConfig = sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config;
+    const initialData = sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data;
     return {
       demoId: initialDemoId,
       pendingConfig: null,
@@ -117,18 +110,15 @@ function MochartDemoContent(props: ContentProps) {
     };
   });
 
-  // Reload the demo's config/data when the routed demo changes.
+  // Reload the demo's config/data when the routed demo changes; the pending
+  // config/data are promoted straight to the chart by the effect below (the
+  // parent resets the active tab back to Chart at the same time).
   const prevInitialDemoId = useRef(initialDemoId);
   if (prevInitialDemoId.current !== initialDemoId) {
     prevInitialDemoId.current = initialDemoId;
-    if (initialDemoId === 'demos') {
-      setState(prev => ({ ...prev, demoId: initialDemoId, config: null, data: null, dataError: null, viewingConfig: null, viewingData: null }));
-    }
-    else {
-      const config = demoData.demoObjectMap[initialDemoId].config;
-      const data = demoData.demoObjectMap[initialDemoId].data;
-      setState(prev => ({ ...prev, demoId: initialDemoId, config, data, dataError: null, pendingConfig: config, pendingData: data }));
-    }
+    const config = demoData.demoObjectMap[initialDemoId].config;
+    const data = demoData.demoObjectMap[initialDemoId].data;
+    setState(prev => ({ ...prev, demoId: initialDemoId, config, data, dataError: null, pendingConfig: config, pendingData: data }));
   }
 
   // Promote pending config/data edits to the visible chart when the Chart tab
@@ -182,40 +172,22 @@ function MochartDemoContent(props: ContentProps) {
     setState(prev => ({ ...prev, pendingData: resetData, pendingDataError: false }));
   };
 
-  const onDemoChange = (demoId: string) => onDemoChanged(demoId);
+  const { viewingConfig, viewingData, viewingDataError, config, data } = state;
 
-  const { viewingConfig, viewingData, viewingDataError, config, data, demoId } = state;
-
-  if (initialDemoId === 'demos') {
-    return (
-      <div className="mochart-demo-content-pane">
-        <div className="mochart-demo-content single-tab">
-          <MochartDemosTab active={activeKey === eventKeyDemo} demoData={demoData} demoMode={demoMode} demoId={demoId}
-            onDemoModeChanged={onDemoModeChanged} onDemoChange={onDemoChange} />
-        </div>
+  return (
+    <div className="mochart-demo-content-pane">
+      <div className="mochart-demo-content">
+        <ErrorTab active={activeKey === eventKeyChart}>
+          <MochartChartTab config={viewingConfig} data={viewingData} dataError={viewingDataError} />
+        </ErrorTab>
+        <ErrorTab active={activeKey === eventKeyConfig}>
+          <MochartConfigTab config={config} onConfigChange={onConfigChange} onConfigReset={onConfigReset} />
+        </ErrorTab>
+        <ErrorTab active={activeKey === eventKeyData}>
+          <MochartDataTab config={viewingConfig} data={data} onDataChange={onDataChange}
+            onDataError={onDataError} onDataReset={onDataReset} />
+        </ErrorTab>
       </div>
-    );
-  }
-  else {
-    return (
-      <div className="mochart-demo-content-pane">
-        <div className="mochart-demo-content">
-          <ErrorTab active={activeKey === eventKeyDemo}>
-            <MochartDemosTab demoData={demoData} demoMode={demoMode} demoId={demoId}
-              onDemoModeChanged={onDemoModeChanged} onDemoChange={onDemoChange} />
-          </ErrorTab>
-          <ErrorTab active={activeKey === eventKeyChart}>
-            <MochartChartTab config={viewingConfig} data={viewingData} dataError={viewingDataError} />
-          </ErrorTab>
-          <ErrorTab active={activeKey === eventKeyConfig}>
-            <MochartConfigTab config={config} onConfigChange={onConfigChange} onConfigReset={onConfigReset} />
-          </ErrorTab>
-          <ErrorTab active={activeKey === eventKeyData}>
-            <MochartDataTab config={viewingConfig} data={data} onDataChange={onDataChange}
-              onDataError={onDataError} onDataReset={onDataReset} />
-          </ErrorTab>
-        </div>
-      </div>
-    );
-  }
+    </div>
+  );
 }

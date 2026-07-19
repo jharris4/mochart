@@ -1,14 +1,18 @@
 import { html } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 
 import { defaultChart } from '@mochart/lit';
 
 import { LightElement } from '../misc/LightElement';
+import { backToDemosButton, siteRootButton } from '../misc/mode-switcher';
 
 import { configs, data, minWidth } from './rotationConfigs';
 
 @customElement('demo-rotation')
 export class DemoRotation extends LightElement {
+  @property({ attribute: false }) siteRootUrl: string | undefined = void 0;
+  @property({ attribute: false }) onBackToDemos!: () => void;
+
   // Columns are sized from the card's measured width (not the window) so the
   // grid stays inside the padded shell.
   @state() private chartsWidth = 0;
@@ -36,7 +40,13 @@ export class DemoRotation extends LightElement {
   override render(): unknown {
     const cols = Math.max(1, Math.floor(this.chartsWidth / minWidth));
     const colWidth = Math.floor(this.chartsWidth / cols);
-    return html`<div class="rotation-container">
+    return html`<div class="mochart-demo-container">
+      <div class="mochart-demo-tabs-container">
+        <div class="mochart-demo-nav-group">
+          ${siteRootButton(this.siteRootUrl)}
+          ${backToDemosButton(this.onBackToDemos)}
+        </div>
+      </div>
       <div class="rotation-charts">
         ${colWidth > 0 ? configs.map((config, i) => html`<div
             class=${'rotation-chart rotation-chart-' + i}

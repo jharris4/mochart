@@ -1,9 +1,10 @@
 import { html } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 
 import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
+import { backToDemosButton, siteRootButton } from '../misc/mode-switcher';
 import './transition-chart-tab';
 import './transition-config-tab';
 
@@ -14,6 +15,9 @@ const eventKeyConfig = 2;
 
 @customElement('demo-transition')
 export class DemoTransition extends LightElement {
+  @property({ attribute: false }) siteRootUrl: string | undefined = void 0;
+  @property({ attribute: false }) onBackToDemos!: () => void;
+
   @state() private activeKey = eventKeyChart;
   @state() private transitionConfig: TransitionConfig = defaultTransitionConfig;
   @state() private mochartConfig = getTransitionMochartConfig(defaultTransitionConfig);
@@ -38,20 +42,20 @@ export class DemoTransition extends LightElement {
   override render(): unknown {
     return html`<div class="mochart-demo-container multi">
       <div class="mochart-demo-tabs-container">
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <button type="button" class=${'nav-link' + (this.activeKey === eventKeyChart ? ' active' : '')}
-                    @click=${() => this.handleSelect(eventKeyChart)}>
-              ${demoText.tabs.chart}
-            </button>
-          </li>
-          <li class="nav-item">
-            <button type="button" class=${'nav-link' + (this.activeKey === eventKeyConfig ? ' active' : '')}
-                    @click=${() => this.handleSelect(eventKeyConfig)}>
-              ${demoText.tabs.transitionConfig}
-            </button>
-          </li>
-        </ul>
+        <div class="mochart-demo-nav-group">
+          ${siteRootButton(this.siteRootUrl)}
+          ${backToDemosButton(this.onBackToDemos)}
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <button type="button" class=${'nav-link' + (this.activeKey === eventKeyChart ? ' active' : '')}
+                      @click=${() => this.handleSelect(eventKeyChart)}>${demoText.tabs.chart}</button>
+            </li>
+            <li class="nav-item">
+              <button type="button" class=${'nav-link' + (this.activeKey === eventKeyConfig ? ' active' : '')}
+                      @click=${() => this.handleSelect(eventKeyConfig)}>${demoText.tabs.transitionConfig}</button>
+            </li>
+          </ul>
+        </div>
       </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">

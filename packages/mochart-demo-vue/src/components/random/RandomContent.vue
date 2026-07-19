@@ -4,7 +4,6 @@ import { ref, shallowRef, watch } from 'vue';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import DemosTab from '../demos/DemosTab.vue';
 import RandomChartTab from './RandomChartTab.vue';
 import RandomConfigTab from './RandomConfigTab.vue';
 import RandomDataTab from './RandomDataTab.vue';
@@ -12,24 +11,17 @@ import ErrorTab from '../misc/ErrorTab.vue';
 
 import { demoText, generateChartDataProvider } from '@mochart/demo-common';
 
-import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
 interface EventKeys {
   eventKeyChart: number;
-  eventKeyDemo: number;
   eventKeyConfig: number;
   eventKeyData: number;
 }
 
 interface Props {
-  demoData: DemoData;
   mochartDemoConfig: MochartDemoConfig;
   initialRandomConfig: RandomConfigWithValid;
-  demoMode: DemoMode;
-  initialDemoId: string;
-  demoId: string;
-  onDemoModeChanged: OnDemoModeChanged;
-  onDemoChange: OnDemoChanged;
   activeKey: number;
   eventKeys: EventKeys;
   randomId: number;
@@ -39,7 +31,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData } = props.eventKeys;
+const { eventKeyChart, eventKeyConfig, eventKeyData } = props.eventKeys;
 
 const randomConfig = shallowRef<RandomConfigWithValid>(props.initialRandomConfig);
 const dataProvider = shallowRef<DemoDataProvider | null>(null);
@@ -123,15 +115,13 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
   }
 }
 
-if (props.initialDemoId !== 'demos') {
-  updateDataProvider(props.initialRandomConfig);
-}
+updateDataProvider(props.initialRandomConfig);
 
 watch(
-  () => [props.initialDemoId, props.initialRandomConfig, props.mochartDemoConfig, props.randomId] as const,
-  ([nextInitialDemoId, nextInitialRandomConfig, nextMochartDemoConfig, nextRandomId],
-   [previousInitialDemoId, previousInitialRandomConfig, previousMochartDemoConfig, previousRandomId]) => {
-    if (nextInitialDemoId !== previousInitialDemoId || nextInitialRandomConfig !== previousInitialRandomConfig ||
+  () => [props.initialRandomConfig, props.mochartDemoConfig, props.randomId] as const,
+  ([nextInitialRandomConfig, nextMochartDemoConfig, nextRandomId],
+   [previousInitialRandomConfig, previousMochartDemoConfig, previousRandomId]) => {
+    if (nextInitialRandomConfig !== previousInitialRandomConfig ||
         nextMochartDemoConfig !== previousMochartDemoConfig) {
       updateDataProvider(nextInitialRandomConfig);
     }
@@ -162,10 +152,6 @@ function onResetConfig() {
 
 <template>
   <div class="mochart-demo-content">
-    <ErrorTab :active="props.activeKey === eventKeyDemo">
-      <DemosTab :active="props.activeKey === eventKeyDemo" :demo-data="props.demoData" :demo-mode="props.demoMode" :demo-id="props.demoId"
-                :on-demo-mode-changed="props.onDemoModeChanged" :on-demo-change="props.onDemoChange" />
-    </ErrorTab>
     <ErrorTab :active="props.activeKey === eventKeyChart">
       <RandomChartTab :active="props.activeKey === eventKeyChart" :mochart-config="props.mochartDemoConfig.mochartConfig" :data-provider="dataProvider"
                       :on-randomize-back="onRandomizeBack" :on-randomize-next="onRandomizeNext"

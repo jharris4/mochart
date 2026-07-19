@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, Input, signal } from '@angular/core';
 
 import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { TransitionChartTab } from './transition-chart-tab';
 import { TransitionConfigTab } from './transition-config-tab';
+import { BackToDemosButton, SiteRootButton } from '../misc/mode-switcher';
 
 import type { TransitionConfig } from '../../types';
 
@@ -12,25 +13,31 @@ const eventKeyConfig = 2;
 
 @Component({
   selector: 'app-demo-transition',
-  imports: [TransitionChartTab, TransitionConfigTab],
+  imports: [TransitionChartTab, TransitionConfigTab, BackToDemosButton, SiteRootButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container multi">
       <div class="mochart-demo-tabs-container">
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <button type="button" [class]="'nav-link' + (activeKey() === eventKeyChart ? ' active' : '')"
-                    (click)="handleSelect(eventKeyChart)">
-              {{ text.chart }}
-            </button>
-          </li>
-          <li class="nav-item">
-            <button type="button" [class]="'nav-link' + (activeKey() === eventKeyConfig ? ' active' : '')"
-                    (click)="handleSelect(eventKeyConfig)">
-              {{ text.transitionConfig }}
-            </button>
-          </li>
-        </ul>
+        <div class="mochart-demo-nav-group">
+          @if (siteRootUrl !== undefined) {
+            <a appSiteRootButton [href]="siteRootUrl"></a>
+          }
+          <button appBackToDemosButton (click)="onBackToDemos()"></button>
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <button type="button" [class]="'nav-link' + (activeKey() === eventKeyChart ? ' active' : '')"
+                      (click)="handleSelect(eventKeyChart)">
+                {{ text.chart }}
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" [class]="'nav-link' + (activeKey() === eventKeyConfig ? ' active' : '')"
+                      (click)="handleSelect(eventKeyConfig)">
+                {{ text.transitionConfig }}
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
@@ -43,6 +50,9 @@ const eventKeyConfig = 2;
   `
 })
 export class DemoTransition {
+  @Input() siteRootUrl?: string;
+  @Input({ required: true }) onBackToDemos!: () => void;
+
   readonly text = demoText.tabs;
 
   readonly eventKeyChart = eventKeyChart;

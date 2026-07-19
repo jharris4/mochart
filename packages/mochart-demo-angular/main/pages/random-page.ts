@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import demoData from '@mochart/demo-data';
 
 import { DemoRandom } from '../../src/components/random/demo-random';
-import { createDemoNavigation, isKnownDemo } from './navigation';
+import { createDemoNavigation, isKnownDemo, navigate, siteRootUrl } from './navigation';
 
 @Component({
   selector: 'app-random-page',
@@ -16,8 +16,8 @@ import { createDemoNavigation, isKnownDemo } from './navigation';
     } @else if (!isValidRandomId) {
       <div>Bad random id: {{ randomId }}</div>
     } @else {
-      <app-demo-random [demoData]="demoData" [initialDemoId]="demoId" [demoMode]="'random'"
-                       [onDemoModeChanged]="nav.onDemoModeChanged" [onDemoChanged]="onDemoChanged"
+      <app-demo-random [demoData]="demoData" [initialDemoId]="demoId" [siteRootUrl]="siteRootUrl"
+                       [onModeChanged]="onModeChanged" [onBackToDemos]="nav.onBackToDemos"
                        [randomId]="randomIdNumber" [incrementRandomId]="incrementRandomId" [decrementRandomId]="decrementRandomId" />
     }
   `
@@ -28,9 +28,10 @@ export class RandomPage {
   @Input({ required: true }) randomId!: string;
 
   readonly demoData = demoData;
+  readonly siteRootUrl = siteRootUrl;
   private readonly router = inject(Router);
   readonly nav = createDemoNavigation(this.router);
-  readonly onDemoChanged = this.nav.makeOnDemoChanged('random');
+  readonly onModeChanged = this.nav.makeOnModeChanged(() => this.demoId);
 
   get knownDemo(): boolean {
     return isKnownDemo(this.demoId);
@@ -45,10 +46,10 @@ export class RandomPage {
   }
 
   incrementRandomId = (): void => {
-    void this.router.navigate(['/random', this.demoId, Math.floor(this.randomIdNumber) + 1]);
+    navigate(this.router, ['/random', this.demoId, Math.floor(this.randomIdNumber) + 1]);
   };
 
   decrementRandomId = (): void => {
-    void this.router.navigate(['/random', this.demoId, Math.floor(this.randomIdNumber) - 1]);
+    navigate(this.router, ['/random', this.demoId, Math.floor(this.randomIdNumber) - 1]);
   };
 }

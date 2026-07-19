@@ -3,17 +3,23 @@ import { Nav, NavItem, NavLink } from 'reactstrap';
 
 import type { MochartConfig } from '@mochart/core';
 
-import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import TransitionMochartChartTab from './TransitionChartTab';
 import TransitionMochartConfigTab from './TransitionConfigTab';
+import { SiteRootButton, BackToDemosButton } from '../misc/ModeSwitcher';
 
-import type { TransitionConfig, ChartDataProviderLike } from '../../types';
+import type { TransitionConfig, ChartDataProviderLike, OnBackToDemos } from '../../types';
 
 const eventKeyChart = 1;
 const eventKeyConfig = 2;
 
-export default function MochartDemoTransition() {
+interface DemoTransitionProps {
+  siteRootUrl?: string;
+  onBackToDemos: OnBackToDemos;
+}
+
+export default function MochartDemoTransition({ siteRootUrl, onBackToDemos }: DemoTransitionProps) {
   const [activeKey, setActiveKey] = useState(eventKeyChart);
 
   const handleSelect = (nextActiveKey: number) => setActiveKey(nextActiveKey);
@@ -21,18 +27,22 @@ export default function MochartDemoTransition() {
   return (
     <div className="mochart-demo-container multi">
       <div className="mochart-demo-tabs-container">
-        <Nav tabs>
-          <NavItem>
-            <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
-              {demoText.tabs.chart}
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
-              {demoText.tabs.transitionConfig}
-            </NavLink>
-          </NavItem>
-        </Nav>
+        <div className="mochart-demo-nav-group">
+          <SiteRootButton siteRootUrl={siteRootUrl} />
+          <BackToDemosButton onBackToDemos={onBackToDemos} />
+          <Nav tabs>
+            <NavItem>
+              <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
+                {demoText.tabs.chart}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
+                {demoText.tabs.transitionConfig}
+              </NavLink>
+            </NavItem>
+          </Nav>
+        </div>
       </div>
       <div className="mochart-demo-content-pane">
         <TransitionMochartDemoContent activeKey={activeKey} />

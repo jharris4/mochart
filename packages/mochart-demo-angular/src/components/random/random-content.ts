@@ -4,7 +4,6 @@ import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { DemosTab } from '../demos/demos-tab';
 import { RandomChartTab } from './random-chart-tab';
 import { RandomConfigTab } from './random-config-tab';
 import { RandomDataTab } from './random-data-tab';
@@ -12,25 +11,20 @@ import { ErrorTab } from '../misc/error-tab';
 
 import { demoText, generateChartDataProvider } from '@mochart/demo-common';
 
-import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
 interface EventKeys {
   eventKeyChart: number;
-  eventKeyDemo: number;
   eventKeyConfig: number;
   eventKeyData: number;
 }
 
 @Component({
   selector: 'app-random-content',
-  imports: [DemosTab, RandomChartTab, RandomConfigTab, RandomDataTab, ErrorTab],
+  imports: [RandomChartTab, RandomConfigTab, RandomDataTab, ErrorTab],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-content">
-      <app-error-tab [active]="activeKey === eventKeys.eventKeyDemo">
-        <app-demos-tab [active]="activeKey === eventKeys.eventKeyDemo" [demoData]="demoData" [demoMode]="demoMode" [demoId]="demoId"
-                       [onDemoModeChanged]="onDemoModeChanged" [onDemoChange]="onDemoChange" />
-      </app-error-tab>
       <app-error-tab [active]="activeKey === eventKeys.eventKeyChart">
         <app-random-chart-tab [active]="activeKey === eventKeys.eventKeyChart" [mochartConfig]="mochartDemoConfig.mochartConfig" [dataProvider]="dataProvider()"
                               [onRandomizeBack]="onRandomizeBack" [onRandomizeNext]="onRandomizeNext"
@@ -46,14 +40,8 @@ interface EventKeys {
   `
 })
 export class RandomContent implements OnInit, OnChanges {
-  @Input({ required: true }) demoData!: DemoData;
   @Input({ required: true }) mochartDemoConfig!: MochartDemoConfig;
   @Input({ required: true }) initialRandomConfig!: RandomConfigWithValid;
-  @Input({ required: true }) demoMode!: DemoMode;
-  @Input({ required: true }) initialDemoId!: string;
-  @Input({ required: true }) demoId!: string;
-  @Input({ required: true }) onDemoModeChanged!: OnDemoModeChanged;
-  @Input({ required: true }) onDemoChange!: OnDemoChanged;
   @Input({ required: true }) activeKey!: number;
   @Input({ required: true }) eventKeys!: EventKeys;
   @Input({ required: true }) randomId!: number;
@@ -69,9 +57,7 @@ export class RandomContent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.randomConfig.set(this.initialRandomConfig);
-    if (this.initialDemoId !== 'demos') {
-      this.updateDataProvider(this.initialRandomConfig);
-    }
+    this.updateDataProvider(this.initialRandomConfig);
   }
 
   toggleApplyReuse = (): void => {
@@ -149,11 +135,13 @@ export class RandomContent implements OnInit, OnChanges {
     }
   }
 
+  // A change to the generator inputs is a demo change (regenerate from the
+  // demo's initial config); a randomId change alone is a randomize step.
   ngOnChanges(changes: SimpleChanges): void {
     if (Object.values(changes).some(change => change.firstChange)) {
       return;
     }
-    if (changes['initialDemoId'] || changes['initialRandomConfig'] || changes['mochartDemoConfig']) {
+    if (changes['initialRandomConfig'] || changes['mochartDemoConfig']) {
       this.updateDataProvider(this.initialRandomConfig);
     }
     else if (changes['randomId']) {

@@ -4,9 +4,18 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { DefaultChart } from '@mochart/react';
 
+import { SiteRootButton, BackToDemosButton } from '../misc/ModeSwitcher';
+
+import type { OnBackToDemos } from '../../types';
+
 const minWidth = 400;
 
-export default function DemoRotation() {
+interface DemoRotationProps {
+  siteRootUrl?: string;
+  onBackToDemos: OnBackToDemos;
+}
+
+export default function DemoRotation({ siteRootUrl, onBackToDemos }: DemoRotationProps) {
   // Columns are sized from the card's measured width (not the window) so the
   // grid stays inside the padded shell.
   const chartsRef = useRef<HTMLDivElement | null>(null);
@@ -28,7 +37,13 @@ export default function DemoRotation() {
   const colWidth = Math.floor(chartsWidth / cols);
 
   return (
-    <div className="rotation-container">
+    <div className="mochart-demo-container">
+      <div className="mochart-demo-tabs-container">
+        <div className="mochart-demo-nav-group">
+          <SiteRootButton siteRootUrl={siteRootUrl} />
+          <BackToDemosButton onBackToDemos={onBackToDemos} />
+        </div>
+      </div>
       <div className="rotation-charts" ref={chartsRef}>
         {colWidth > 0 ? configs.map((config, i) => <DemoRotationChart key={i} data={data} config={config} i={i} cols={cols} colWidth={colWidth} />) : null}
       </div>

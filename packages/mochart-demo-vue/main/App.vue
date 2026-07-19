@@ -1,45 +1,63 @@
 <script setup lang="ts">
 import { computed, watchEffect } from 'vue';
 
-import { getPath, navigate } from './router';
+import { navigate, getPath } from './router';
 
 import demoData from '@mochart/demo-data';
 
-import { demoText } from '@mochart/demo-common';
+import type { SwitchableDemoMode } from '@mochart/demo-common';
 
+import GalleryPage from '../src/components/gallery/GalleryPage.vue';
 import DemoSingle from '../src/components/single/DemoSingle.vue';
 import DemoMulti from '../src/components/multi/DemoMulti.vue';
 import DemoRandom from '../src/components/random/DemoRandom.vue';
 import DemoTransition from '../src/components/transition/DemoTransition.vue';
 import DemoRotation from '../src/components/rotation/DemoRotation.vue';
 
-import type { DemoMode } from '../src/types';
-
 interface Route {
   redirect?: string;
   notFound?: string;
+  gallery?: boolean;
   mode?: string;
   demoId?: string;
   randomId?: string;
 }
 
 const { demoIds, demoObjectMap } = demoData;
-const initialDemoId = demoIds[0];
 
 // The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
 // link back to it; standalone dev/build leaves it unset and no link renders.
-const siteRootUrl = import.meta.env.VITE_SITE_ROOT as string | undefined;
+// Every view places the link itself (top-left, before its own navigation).
+// For styling/debugging without a site build, `?siteRoot` forces the button
+// (linking to `/`), and `?siteRoot=<url>` points it at a specific target.
+function getDebugSiteRootUrl(): string | undefined {
+  const param = new URLSearchParams(window.location.search).get('siteRoot');
+  if (param === null) {
+    return void 0;
+  }
+  return param === '' ? '/' : param;
+}
 
-// Same routes as the react demo (react-router 7), resolved by hand.
+const siteRootUrl = (import.meta.env.VITE_SITE_ROOT as string | undefined) ?? getDebugSiteRootUrl();
+
+// The gallery at /demos is the landing route; a demo is always viewed at
+// /<mode>/<demoId>. The legacy scheme used a 'demos' pseudo-demo-id for the
+// list ("/single/demos"), so those URLs redirect to the gallery.
 const route = computed((): Route => {
   const path = getPath();
   const segments = path.split('/').filter(segment => segment.length > 0);
   if (segments.length === 0) {
-    return { redirect: '/single/demos' };
+    return { redirect: '/demos' };
   }
   const [mode, demoId, randomId] = segments;
+  if (mode === 'demos' && segments.length === 1) {
+    return { gallery: true };
+  }
+  if ((mode === 'single' || mode === 'multi' || mode === 'random') && demoId === 'demos') {
+    return { redirect: '/demos' };
+  }
   if ((mode === 'single' || mode === 'multi' || mode === 'random') && segments.length === 1) {
-    return { redirect: `/${mode}/demos` };
+    return { redirect: '/demos' };
   }
   if ((mode === 'single' || mode === 'multi') && segments.length === 2) {
     return { mode, demoId };
@@ -62,71 +80,73 @@ watchEffect(() => {
   }
 });
 
-function getBasePathForMode(demoMode: string): string {
-  return '/' + demoMode;
+function onBackToDemos() {
+  navigate('/demos');
 }
 
-function onDemoModeChanged(nextDemoMode: DemoMode, nextDemoId?: string) {
-  if (nextDemoMode === 'transition' || nextDemoMode === 'rotation') {
-    navigate(getBasePathForMode(nextDemoMode));
+function onOpenDemo(nextDemoId: string) {
+  navigate(`/single/${nextDemoId}`);
+}
+
+function onOpenPage(mode: 'transition' | 'rotation') {
+  navigate(`/${mode}`);
+}
+
+// Switching mode keeps the current demo; the demo id comes from the URL so
+// the switcher stays correct after any navigation.
+function onModeChanged(nextDemoMode: SwitchableDemoMode) {
+  const currentDemoId = route.value.demoId;
+  if (currentDemoId === void 0) {
+    navigate('/demos');
+  }
+  else if (nextDemoMode === 'random') {
+    navigate(`/random/${currentDemoId}/0`);
   }
   else {
-    navigate(`${getBasePathForMode(nextDemoMode)}/${nextDemoId !== void 0 ? nextDemoId : initialDemoId}`);
+    navigate(`/${nextDemoMode}/${currentDemoId}`);
   }
 }
 
-function makeOnDemoChanged(demoMode: string) {
-  return (nextDemoId: string) => {
-    navigate(`${getBasePathForMode(demoMode)}/${nextDemoId}`);
-  };
-}
-
-const demoId = computed(() => route.value.demoId !== void 0 ? route.value.demoId : initialDemoId);
-const isKnownDemo = computed(() => demoId.value === 'demos' || demoObjectMap[demoId.value] !== void 0);
+const demoId = computed(() => route.value.demoId !== void 0 ? route.value.demoId : demoIds[0]);
+const isKnownDemo = computed(() => demoObjectMap[demoId.value] !== void 0);
 const randomId = computed(() => Number(route.value.randomId));
 const isValidRandomId = computed(() => randomId.value > Number.MIN_SAFE_INTEGER && randomId.value < Number.MAX_SAFE_INTEGER);
 
+// The randomize buttons read the demo id / random id from the current URL so
+// they stay correct after any navigation.
 function incrementRandomId() {
-  navigate(`${getBasePathForMode('random')}/${demoId.value}/${Math.floor(randomId.value) + 1}`);
+  navigate(`/random/${demoId.value}/${Math.floor(randomId.value) + 1}`);
 }
 
 function decrementRandomId() {
-  navigate(`${getBasePathForMode('random')}/${demoId.value}/${Math.floor(randomId.value) - 1}`);
+  navigate(`/random/${demoId.value}/${Math.floor(randomId.value) - 1}`);
 }
 </script>
 
 <template>
-  <a v-if="siteRootUrl !== void 0" class="btn btn-secondary btn-sm"
-     style="position: fixed; top: 14px; right: 18px; z-index: 1030;"
-     :href="siteRootUrl" :title="demoText.siteRootLink.tooltip" :aria-label="demoText.siteRootLink.aria">{{ demoText.siteRootLink.label }}</a>
   <template v-if="route.redirect !== void 0">
     <!-- redirecting -->
   </template>
   <div v-else-if="route.notFound !== void 0">No route found matching {{ route.notFound }}</div>
-  <!-- The transition/rotation demos have no navigation of their own, so give
-       them a way back to the main demo gallery. -->
-  <div v-else-if="route.mode === 'transition' || route.mode === 'rotation'"
-       style="height: 100%; display: flex; flex-direction: column;">
-    <div style="padding: 14px 18px 0;">
-      <button type="button" class="btn btn-secondary btn-sm" @click="navigate('/single/demos')">&larr; Back to demos</button>
-    </div>
-    <div style="flex: 1; min-height: 0;">
-      <DemoTransition v-if="route.mode === 'transition'" />
-      <DemoRotation v-else />
-    </div>
-  </div>
+  <GalleryPage v-else-if="route.gallery === true"
+               :demo-data="demoData" :site-root-url="siteRootUrl"
+               :on-open-demo="onOpenDemo" :on-open-page="onOpenPage" />
+  <DemoTransition v-else-if="route.mode === 'transition'"
+                  :site-root-url="siteRootUrl" :on-back-to-demos="onBackToDemos" />
+  <DemoRotation v-else-if="route.mode === 'rotation'"
+                :site-root-url="siteRootUrl" :on-back-to-demos="onBackToDemos" />
   <div v-else-if="!isKnownDemo">No demo found for id: {{ demoId }}</div>
   <DemoSingle v-else-if="route.mode === 'single'"
-              :demo-data="demoData" :initial-demo-id="demoId" demo-mode="single"
-              :on-demo-mode-changed="onDemoModeChanged" :on-demo-changed="makeOnDemoChanged('single')" />
+              :demo-data="demoData" :initial-demo-id="demoId" :site-root-url="siteRootUrl"
+              :on-mode-changed="onModeChanged" :on-back-to-demos="onBackToDemos" />
   <DemoMulti v-else-if="route.mode === 'multi'"
-             :demo-data="demoData" :initial-demo-id="demoId" demo-mode="multi"
-             :on-demo-mode-changed="onDemoModeChanged" :on-demo-changed="makeOnDemoChanged('multi')" />
+             :demo-data="demoData" :initial-demo-id="demoId" :site-root-url="siteRootUrl"
+             :on-mode-changed="onModeChanged" :on-back-to-demos="onBackToDemos" />
   <template v-else-if="route.mode === 'random'">
     <div v-if="!isValidRandomId">Bad random id: {{ route.randomId }}</div>
     <DemoRandom v-else
-                :demo-data="demoData" :initial-demo-id="demoId" demo-mode="random"
-                :on-demo-mode-changed="onDemoModeChanged" :on-demo-changed="makeOnDemoChanged('random')"
+                :demo-data="demoData" :initial-demo-id="demoId" :site-root-url="siteRootUrl"
+                :on-mode-changed="onModeChanged" :on-back-to-demos="onBackToDemos"
                 :random-id="randomId" :increment-random-id="incrementRandomId" :decrement-random-id="decrementRandomId" />
   </template>
 </template>

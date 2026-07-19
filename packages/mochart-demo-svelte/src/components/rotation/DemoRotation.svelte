@@ -7,6 +7,16 @@
 <script lang="ts">
   import { DefaultChart } from '@mochart/svelte';
 
+  import BackToDemosButton from '../misc/BackToDemosButton.svelte';
+  import SiteRootButton from '../misc/SiteRootButton.svelte';
+
+  interface Props {
+    siteRootUrl?: string;
+    onBackToDemos: () => void;
+  }
+
+  let { siteRootUrl = void 0, onBackToDemos }: Props = $props();
+
   // Columns are sized from the card's measured width (not the window) so the
   // grid stays inside the padded shell.
   let chartsWidth = $state(0);
@@ -15,7 +25,13 @@
   const colWidth = $derived(Math.floor(chartsWidth / cols));
 </script>
 
-<div class="rotation-container">
+<div class="mochart-demo-container">
+  <div class="mochart-demo-tabs-container">
+    <div class="mochart-demo-nav-group">
+      <SiteRootButton {siteRootUrl} />
+      <BackToDemosButton {onBackToDemos} />
+    </div>
+  </div>
   <div class="rotation-charts" bind:clientWidth={chartsWidth}>
     {#if colWidth > 0}
       {#each configs as config, i (i)}

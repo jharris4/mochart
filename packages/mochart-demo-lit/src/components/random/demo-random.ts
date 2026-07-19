@@ -3,29 +3,25 @@ import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
 import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
+import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import '../demos/demos-tab';
+import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
 import './random-content';
 
-import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { DemoData, MochartDemoConfig, RandomConfigWithValid } from '../../types';
 
 const eventKeyChart = 1;
-const eventKeyDemo = 2;
-const eventKeyConfig = 3;
-const eventKeyData = 4;
-
-function getActiveKeyForInitialDemoId(initialDemoId: string): number {
-  return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
-}
+const eventKeyConfig = 2;
+const eventKeyData = 3;
 
 @customElement('demo-random')
 export class DemoRandom extends LightElement {
   @property({ attribute: false }) demoData!: DemoData;
-  @property({ attribute: false }) demoMode!: DemoMode;
   @property({ attribute: false }) initialDemoId!: string;
-  @property({ attribute: false }) onDemoModeChanged!: OnDemoModeChanged;
-  @property({ attribute: false }) onDemoChanged!: OnDemoChanged;
+  @property({ attribute: false }) siteRootUrl: string | undefined = void 0;
+  @property({ attribute: false }) onModeChanged!: (nextDemoMode: SwitchableDemoMode) => void;
+  @property({ attribute: false }) onBackToDemos!: () => void;
   @property({ attribute: false }) randomId = 0;
   @property({ attribute: false }) incrementRandomId!: () => void;
   @property({ attribute: false }) decrementRandomId!: () => void;
@@ -43,72 +39,49 @@ export class DemoRandom extends LightElement {
     };
   }
 
+  // The demo's derived config state rebuilds only when the routed demo
+  // changes; a randomId-only change flows through to random-content untouched.
   override willUpdate(changed: PropertyValues<this>): void {
     if (!changed.has('initialDemoId')) {
       return;
     }
-    if (!this.hasUpdated) {
-      const initialState = this.initialDemoId !== 'demos' ? this.buildStateForDemo(this.initialDemoId) : { mochartDemoConfig: null, randomConfig: null };
-      this.demoId = this.initialDemoId;
-      this.activeKey = getActiveKeyForInitialDemoId(this.initialDemoId);
-      this.mochartDemoConfig = initialState.mochartDemoConfig;
-      this.randomConfig = initialState.randomConfig;
-      return;
-    }
-    if (this.initialDemoId !== 'demos') {
-      const nextState = this.buildStateForDemo(this.initialDemoId);
-      this.demoId = this.initialDemoId;
-      this.activeKey = getActiveKeyForInitialDemoId(this.initialDemoId);
-      this.mochartDemoConfig = nextState.mochartDemoConfig;
-      this.randomConfig = nextState.randomConfig;
-    }
-    else {
-      this.demoId = this.initialDemoId;
-      this.activeKey = getActiveKeyForInitialDemoId(this.initialDemoId);
-    }
+    const nextState = this.buildStateForDemo(this.initialDemoId);
+    this.demoId = this.initialDemoId;
+    this.activeKey = eventKeyChart;
+    this.mochartDemoConfig = nextState.mochartDemoConfig;
+    this.randomConfig = nextState.randomConfig;
   }
-
-  private onDemoChange = (nextDemoId: string): void => {
-    this.demoId = nextDemoId;
-    this.onDemoChanged(nextDemoId);
-  };
 
   private handleSelect(nextActiveKey: number): void {
     this.activeKey = nextActiveKey;
   }
 
-  private renderTab(eventKey: number, label: string, hidden: boolean): unknown {
-    return html`<li class="nav-item" style=${hidden ? 'display: none;' : ''}>
+  private renderTab(eventKey: number, label: string): unknown {
+    return html`<li class="nav-item">
       <button type="button" class=${'nav-link' + (this.activeKey === eventKey ? ' active' : '')}
-              @click=${() => this.handleSelect(eventKey)}>
-        ${label}
-      </button>
+              @click=${() => this.handleSelect(eventKey)}>${label}</button>
     </li>`;
   }
 
   override render(): unknown {
-    const isDemos = this.initialDemoId === 'demos';
     return html`<div class="mochart-demo-container multi">
       <div class="mochart-demo-tabs-container">
-        <ul class="nav nav-tabs">
-          ${this.renderTab(eventKeyDemo, demoText.tabs.demos, false)}
-          ${this.renderTab(eventKeyChart, demoText.tabs.chart, isDemos)}
-          ${this.renderTab(eventKeyConfig, demoText.tabs.randomConfig, isDemos)}
-          ${this.renderTab(eventKeyData, demoText.tabs.data, isDemos)}
-        </ul>
+        <div class="mochart-demo-nav-group">
+          ${siteRootButton(this.siteRootUrl)}
+          ${backToDemosButton(this.onBackToDemos)}
+          <ul class="nav nav-tabs">
+            ${this.renderTab(eventKeyChart, demoText.tabs.chart)}
+            ${this.renderTab(eventKeyConfig, demoText.tabs.randomConfig)}
+            ${this.renderTab(eventKeyData, demoText.tabs.data)}
+          </ul>
+        </div>
+        ${modeSwitcher({ demoMode: 'random', onModeChanged: this.onModeChanged })}
       </div>
       <div class="mochart-demo-content-pane">
-        ${isDemos
-          ? html`<div class="mochart-demo-content single-tab">
-              <demos-tab .active=${this.activeKey === eventKeyDemo} .demoData=${this.demoData} .demoMode=${this.demoMode} .demoId=${this.demoId}
-                  .onDemoModeChanged=${this.onDemoModeChanged} .onDemoChange=${this.onDemoChange}></demos-tab>
-            </div>`
-          : html`<random-content
-              .demoData=${this.demoData} .mochartDemoConfig=${this.mochartDemoConfig!} .initialRandomConfig=${this.randomConfig!}
-              .demoMode=${this.demoMode} .initialDemoId=${this.initialDemoId} .demoId=${this.demoId}
-              .onDemoModeChanged=${this.onDemoModeChanged} .onDemoChange=${this.onDemoChange} .activeKey=${this.activeKey}
-              .eventKeys=${{ eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData }}
-              .randomId=${this.randomId} .incrementRandomId=${this.incrementRandomId} .decrementRandomId=${this.decrementRandomId}></random-content>`}
+        <random-content
+            .mochartDemoConfig=${this.mochartDemoConfig!} .initialRandomConfig=${this.randomConfig!}
+            .activeKey=${this.activeKey} .eventKeys=${{ eventKeyChart, eventKeyConfig, eventKeyData }}
+            .randomId=${this.randomId} .incrementRandomId=${this.incrementRandomId} .decrementRandomId=${this.decrementRandomId}></random-content>
       </div>
     </div>`;
   }

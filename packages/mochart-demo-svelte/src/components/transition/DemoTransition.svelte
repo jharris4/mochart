@@ -4,8 +4,17 @@
 
   import TransitionChartTab from './TransitionChartTab.svelte';
   import TransitionConfigTab from './TransitionConfigTab.svelte';
+  import BackToDemosButton from '../misc/BackToDemosButton.svelte';
+  import SiteRootButton from '../misc/SiteRootButton.svelte';
 
   import type { TransitionConfig } from '../../types';
+
+  interface Props {
+    siteRootUrl?: string;
+    onBackToDemos: () => void;
+  }
+
+  let { siteRootUrl = void 0, onBackToDemos }: Props = $props();
 
   const eventKeyChart = 1;
   const eventKeyConfig = 2;
@@ -35,20 +44,24 @@
 
 <div class="mochart-demo-container multi">
   <div class="mochart-demo-tabs-container">
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
-                onclick={() => handleSelect(eventKeyChart)}>
-          {demoText.tabs.chart}
-        </button>
-      </li>
-      <li class="nav-item">
-        <button type="button" class={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")}
-                onclick={() => handleSelect(eventKeyConfig)}>
-          {demoText.tabs.transitionConfig}
-        </button>
-      </li>
-    </ul>
+    <div class="mochart-demo-nav-group">
+      <SiteRootButton {siteRootUrl} />
+      <BackToDemosButton {onBackToDemos} />
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
+                  onclick={() => handleSelect(eventKeyChart)}>
+            {demoText.tabs.chart}
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")}
+                  onclick={() => handleSelect(eventKeyConfig)}>
+            {demoText.tabs.transitionConfig}
+          </button>
+        </li>
+      </ul>
+    </div>
   </div>
   <div class="mochart-demo-content-pane">
     <div class="mochart-demo-content">

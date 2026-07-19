@@ -5,37 +5,44 @@ import { getPath, navigate, subscribe } from './router';
 
 import demoData from '@mochart/demo-data';
 
-import { demoText } from '@mochart/demo-common';
+import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../src/components/misc/LightElement';
+import '../src/components/gallery/gallery-page';
 import '../src/components/single/demo-single';
 import '../src/components/multi/demo-multi';
 import '../src/components/random/demo-random';
 import '../src/components/transition/demo-transition';
 import '../src/components/rotation/demo-rotation';
 
-import type { DemoMode } from '../src/types';
-
 interface Route {
   redirect?: string;
   notFound?: string;
+  gallery?: boolean;
   mode?: string;
   demoId?: string;
   randomId?: string;
 }
 
-const { demoIds, demoObjectMap } = demoData;
-const initialDemoId = demoIds[0];
+const { demoObjectMap } = demoData;
 
-// Same routes as the react demo (react-router 7), resolved by hand.
-function getRoute(path: string): Route {
+// The gallery at /demos is the landing route; a demo is always viewed at
+// /<mode>/<demoId>. The legacy scheme used a 'demos' pseudo-demo-id for the
+// list ("/single/demos"), so those URLs redirect to the gallery.
+function resolveRoute(path: string): Route {
   const segments = path.split('/').filter(segment => segment.length > 0);
   if (segments.length === 0) {
-    return { redirect: '/single/demos' };
+    return { redirect: '/demos' };
   }
   const [mode, demoId, randomId] = segments;
+  if (mode === 'demos' && segments.length === 1) {
+    return { gallery: true };
+  }
+  if ((mode === 'single' || mode === 'multi' || mode === 'random') && demoId === 'demos') {
+    return { redirect: '/demos' };
+  }
   if ((mode === 'single' || mode === 'multi' || mode === 'random') && segments.length === 1) {
-    return { redirect: `/${mode}/demos` };
+    return { redirect: '/demos' };
   }
   if ((mode === 'single' || mode === 'multi') && segments.length === 2) {
     return { mode, demoId };
@@ -52,13 +59,20 @@ function getRoute(path: string): Route {
   return { notFound: path };
 }
 
-function getBasePathForMode(demoMode: string): string {
-  return '/' + demoMode;
-}
-
 // The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
 // link back to it; standalone dev/build leaves it unset and no link renders.
-const siteRootUrl = import.meta.env.VITE_SITE_ROOT as string | undefined;
+// Every view places the link itself (top-left, before its own navigation).
+// For styling/debugging without a site build, `?siteRoot` forces the button
+// (linking to `/`), and `?siteRoot=<url>` points it at a specific target.
+function getDebugSiteRootUrl(): string | undefined {
+  const param = new URLSearchParams(window.location.search).get('siteRoot');
+  if (param === null) {
+    return void 0;
+  }
+  return param === '' ? '/' : param;
+}
+
+const siteRootUrl = (import.meta.env.VITE_SITE_ROOT as string | undefined) ?? getDebugSiteRootUrl();
 
 @customElement('demo-app')
 export class DemoApp extends LightElement {
@@ -80,37 +94,42 @@ export class DemoApp extends LightElement {
   }
 
   override updated(): void {
-    const route = getRoute(this.path);
+    const route = resolveRoute(this.path);
     if (route.redirect !== void 0) {
       navigate(route.redirect, { replace: true });
     }
   }
 
-  private onDemoModeChanged = (nextDemoMode: DemoMode, nextDemoId?: string): void => {
-    if (nextDemoMode === 'transition' || nextDemoMode === 'rotation') {
-      navigate(getBasePathForMode(nextDemoMode));
+  private onBackToDemos = (): void => {
+    navigate('/demos');
+  };
+
+  // Switching mode keeps the current demo; the demo id comes from the URL so
+  // the switcher stays correct after any navigation.
+  private onModeChanged = (nextDemoMode: SwitchableDemoMode): void => {
+    const route = resolveRoute(getPath());
+    const demoId = route.demoId;
+    if (demoId === void 0) {
+      navigate('/demos');
+    }
+    else if (nextDemoMode === 'random') {
+      navigate(`/random/${demoId}/0`);
     }
     else {
-      navigate(`${getBasePathForMode(nextDemoMode)}/${nextDemoId !== void 0 ? nextDemoId : initialDemoId}`);
+      navigate(`/${nextDemoMode}/${demoId}`);
     }
   };
 
-  private makeOnDemoChanged(demoMode: string): (nextDemoId: string) => void {
-    return (nextDemoId: string) => {
-      navigate(`${getBasePathForMode(demoMode)}/${nextDemoId}`);
-    };
-  }
+  private onOpenDemo = (demoId: string): void => {
+    navigate(`/single/${demoId}`);
+  };
+
+  private onOpenPage = (mode: 'transition' | 'rotation'): void => {
+    navigate(`/${mode}`);
+  };
 
   override render(): unknown {
-    const siteRootLink = siteRootUrl !== void 0
-      ? html`<a class="btn btn-secondary btn-sm" style="position: fixed; top: 14px; right: 18px; z-index: 1030;"
-          href=${siteRootUrl} title=${demoText.siteRootLink.tooltip} aria-label=${demoText.siteRootLink.aria}>${demoText.siteRootLink.label}</a>`
-      : null;
-    return html`${siteRootLink}${this.renderView()}`;
-  }
-
-  private renderView(): unknown {
-    const route = getRoute(this.path);
+    const route = resolveRoute(this.path);
     if (route.redirect !== void 0) {
       // redirecting (in updated())
       return null;
@@ -118,46 +137,43 @@ export class DemoApp extends LightElement {
     if (route.notFound !== void 0) {
       return html`<div>No route found matching ${route.notFound}</div>`;
     }
-    // The transition/rotation demos have no navigation of their own, so give
-    // them a way back to the main demo gallery.
-    if (route.mode === 'transition' || route.mode === 'rotation') {
-      return html`<div style="height: 100%; display: flex; flex-direction: column;">
-        <div style="padding: 14px 18px 0;">
-          <button type="button" class="btn btn-secondary btn-sm" @click=${() => navigate('/single/demos')}>&larr; Back to demos</button>
-        </div>
-        <div style="flex: 1; min-height: 0;">
-          ${route.mode === 'transition'
-            ? html`<demo-transition></demo-transition>`
-            : html`<demo-rotation></demo-rotation>`}
-        </div>
-      </div>`;
+    if (route.gallery === true) {
+      return html`<gallery-page .demoData=${demoData} .siteRootUrl=${siteRootUrl}
+          .onOpenDemo=${this.onOpenDemo} .onOpenPage=${this.onOpenPage}></gallery-page>`;
     }
-    const demoId = route.demoId !== void 0 ? route.demoId : initialDemoId;
-    const isKnownDemo = demoId === 'demos' || demoObjectMap[demoId] !== void 0;
-    if (!isKnownDemo) {
+    if (route.mode === 'transition') {
+      return html`<demo-transition .siteRootUrl=${siteRootUrl} .onBackToDemos=${this.onBackToDemos}></demo-transition>`;
+    }
+    if (route.mode === 'rotation') {
+      return html`<demo-rotation .siteRootUrl=${siteRootUrl} .onBackToDemos=${this.onBackToDemos}></demo-rotation>`;
+    }
+    const demoId = route.demoId!;
+    if (demoObjectMap[demoId] === void 0) {
       return html`<div>No demo found for id: ${demoId}</div>`;
     }
     if (route.mode === 'single') {
-      return html`<demo-single .demoData=${demoData} .initialDemoId=${demoId} .demoMode=${'single' as DemoMode}
-          .onDemoModeChanged=${this.onDemoModeChanged} .onDemoChanged=${this.makeOnDemoChanged('single')}></demo-single>`;
+      return html`<demo-single .demoData=${demoData} .initialDemoId=${demoId} .siteRootUrl=${siteRootUrl}
+          .onModeChanged=${this.onModeChanged} .onBackToDemos=${this.onBackToDemos}></demo-single>`;
     }
     if (route.mode === 'multi') {
-      return html`<demo-multi .demoData=${demoData} .initialDemoId=${demoId} .demoMode=${'multi' as DemoMode}
-          .onDemoModeChanged=${this.onDemoModeChanged} .onDemoChanged=${this.makeOnDemoChanged('multi')}></demo-multi>`;
+      return html`<demo-multi .demoData=${demoData} .initialDemoId=${demoId} .siteRootUrl=${siteRootUrl}
+          .onModeChanged=${this.onModeChanged} .onBackToDemos=${this.onBackToDemos}></demo-multi>`;
     }
     const randomId = Number(route.randomId);
     const isValidRandomId = randomId > Number.MIN_SAFE_INTEGER && randomId < Number.MAX_SAFE_INTEGER;
     if (!isValidRandomId) {
       return html`<div>Bad random id: ${route.randomId}</div>`;
     }
+    // The randomize buttons read the demo id / random id from the routed URL;
+    // the closures are rebuilt on every render, so they stay current.
     const incrementRandomId = (): void => {
-      navigate(`${getBasePathForMode('random')}/${demoId}/${Math.floor(randomId) + 1}`);
+      navigate(`/random/${demoId}/${Math.floor(randomId) + 1}`);
     };
     const decrementRandomId = (): void => {
-      navigate(`${getBasePathForMode('random')}/${demoId}/${Math.floor(randomId) - 1}`);
+      navigate(`/random/${demoId}/${Math.floor(randomId) - 1}`);
     };
-    return html`<demo-random .demoData=${demoData} .initialDemoId=${demoId} .demoMode=${'random' as DemoMode}
-        .onDemoModeChanged=${this.onDemoModeChanged} .onDemoChanged=${this.makeOnDemoChanged('random')}
+    return html`<demo-random .demoData=${demoData} .initialDemoId=${demoId} .siteRootUrl=${siteRootUrl}
+        .onModeChanged=${this.onModeChanged} .onBackToDemos=${this.onBackToDemos}
         .randomId=${randomId} .incrementRandomId=${incrementRandomId} .decrementRandomId=${decrementRandomId}></demo-random>`;
   }
 }

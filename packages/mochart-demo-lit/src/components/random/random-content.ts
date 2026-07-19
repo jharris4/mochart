@@ -6,7 +6,6 @@ import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
 import { LightElement } from '../misc/LightElement';
-import '../demos/demos-tab';
 import './random-chart-tab';
 import './random-config-tab';
 import './random-data-tab';
@@ -14,25 +13,18 @@ import '../misc/error-tab';
 
 import { demoText, generateChartDataProvider } from '@mochart/demo-common';
 
-import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
 interface EventKeys {
   eventKeyChart: number;
-  eventKeyDemo: number;
   eventKeyConfig: number;
   eventKeyData: number;
 }
 
 @customElement('random-content')
 export class RandomContent extends LightElement {
-  @property({ attribute: false }) demoData!: DemoData;
   @property({ attribute: false }) mochartDemoConfig!: MochartDemoConfig;
   @property({ attribute: false }) initialRandomConfig!: RandomConfigWithValid;
-  @property({ attribute: false }) demoMode!: DemoMode;
-  @property({ attribute: false }) initialDemoId!: string;
-  @property({ attribute: false }) demoId!: string;
-  @property({ attribute: false }) onDemoModeChanged!: OnDemoModeChanged;
-  @property({ attribute: false }) onDemoChange!: OnDemoChanged;
   @property({ attribute: false }) activeKey = 0;
   @property({ attribute: false }) eventKeys!: EventKeys;
   @property({ attribute: false }) randomId = 0;
@@ -124,12 +116,12 @@ export class RandomContent extends LightElement {
   override willUpdate(changed: PropertyValues<this>): void {
     if (!this.hasUpdated) {
       this.randomConfig = this.initialRandomConfig;
-      if (this.initialDemoId !== 'demos') {
-        this.updateDataProvider(this.initialRandomConfig);
-      }
+      this.updateDataProvider(this.initialRandomConfig);
       return;
     }
-    if (changed.has('initialDemoId') || changed.has('initialRandomConfig') || changed.has('mochartDemoConfig')) {
+    // A demo change arrives as new config objects (and resets the random
+    // config); a randomId-only change regenerates from the edited config.
+    if (changed.has('initialRandomConfig') || changed.has('mochartDemoConfig')) {
       this.updateDataProvider(this.initialRandomConfig);
     }
     else if (changed.has('randomId')) {
@@ -156,11 +148,8 @@ export class RandomContent extends LightElement {
   };
 
   override render(): unknown {
-    const { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData } = this.eventKeys;
+    const { eventKeyChart, eventKeyConfig, eventKeyData } = this.eventKeys;
     return html`<div class="mochart-demo-content">
-      <error-tab .active=${this.activeKey === eventKeyDemo} .content=${() =>
-        html`<demos-tab .active=${this.activeKey === eventKeyDemo} .demoData=${this.demoData} .demoMode=${this.demoMode} .demoId=${this.demoId}
-            .onDemoModeChanged=${this.onDemoModeChanged} .onDemoChange=${this.onDemoChange}></demos-tab>`}></error-tab>
       <error-tab .active=${this.activeKey === eventKeyChart} .content=${() =>
         html`<random-chart-tab .active=${this.activeKey === eventKeyChart} .mochartConfig=${this.mochartDemoConfig.mochartConfig} .dataProvider=${this.dataProvider}
             .onRandomizeBack=${this.onRandomizeBack} .onRandomizeNext=${this.onRandomizeNext}

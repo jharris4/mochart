@@ -2,21 +2,24 @@
 import { computed, ref, shallowRef, watch } from 'vue';
 
 import { consumeShareState, demoText } from '@mochart/demo-common';
+import type { SwitchableDemoMode } from '@mochart/demo-common';
 
-import DemosTab from '../demos/DemosTab.vue';
+import BackToDemosButton from '../misc/BackToDemosButton.vue';
+import ModeSwitcher from '../misc/ModeSwitcher.vue';
+import SiteRootButton from '../misc/SiteRootButton.vue';
 import ChartTab from './ChartTab.vue';
 import ConfigTab from './ConfigTab.vue';
 import DataTab from './DataTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import type { DemoData, DemoMode, DemoConfig, DataRow, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { DemoData, DemoConfig, DataRow } from '../../types';
 
 interface Props {
   demoData: DemoData;
-  demoMode: DemoMode;
   initialDemoId: string;
-  onDemoModeChanged: OnDemoModeChanged;
-  onDemoChanged: OnDemoChanged;
+  siteRootUrl?: string;
+  onModeChanged: (nextDemoMode: SwitchableDemoMode) => void;
+  onBackToDemos: () => void;
 }
 
 type DataError = string | boolean | null;
@@ -24,19 +27,14 @@ type DataError = string | boolean | null;
 const eventKeyChart = 1;
 const eventKeyConfig = 2;
 const eventKeyData = 3;
-const eventKeyDemo = 4;
-
-function getActiveKeyForInitialDemoId(initialDemoId: string): number {
-  return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
-}
 
 const props = defineProps<Props>();
 
-const activeKey = ref(getActiveKeyForInitialDemoId(props.initialDemoId));
+const activeKey = ref(eventKeyChart);
 
 // A share link carries edited config/data in the URL hash; it overrides the
 // demo's own config/data for the initial mount only.
-const sharedState = props.initialDemoId !== 'demos' ? consumeShareState() : null;
+const sharedState = consumeShareState();
 
 // Config/data edits made on the Config/Data tabs stay "pending" until the
 // Chart tab is shown again (so the chart animates one combined change).
@@ -44,11 +42,10 @@ const demoId = ref(props.initialDemoId);
 const pendingConfig = shallowRef<DemoConfig | null>(null);
 const pendingData = shallowRef<DataRow[] | null>(null);
 const pendingDataError = shallowRef<DataError>(false);
-const config = shallowRef<DemoConfig | null>(props.initialDemoId !== 'demos' ? (sharedState?.config ?? props.demoData.demoObjectMap[props.initialDemoId].config) : null);
-const data = shallowRef<DataRow[] | null>(props.initialDemoId !== 'demos' ? (sharedState?.data ?? props.demoData.demoObjectMap[props.initialDemoId].data) : null);
-const dataError = shallowRef<DataError>(false);
-const viewingConfig = shallowRef<DemoConfig | null>(props.initialDemoId !== 'demos' ? (sharedState?.config ?? props.demoData.demoObjectMap[props.initialDemoId].config) : null);
-const viewingData = shallowRef<DataRow[] | null>(props.initialDemoId !== 'demos' ? (sharedState?.data ?? props.demoData.demoObjectMap[props.initialDemoId].data) : null);
+const config = shallowRef<DemoConfig>(sharedState?.config ?? props.demoData.demoObjectMap[props.initialDemoId].config);
+const data = shallowRef<DataRow[]>(sharedState?.data ?? props.demoData.demoObjectMap[props.initialDemoId].data);
+const viewingConfig = shallowRef<DemoConfig>(config.value);
+const viewingData = shallowRef<DataRow[]>(data.value);
 const viewingDataError = shallowRef<DataError>(false);
 
 function chartShown() {
@@ -76,26 +73,16 @@ function handleSelect(nextActiveKey: number) {
   }
 }
 
-// When the routed demo changes, reload its config/data (and promote them
-// straight to the visible chart, matching the react demo's lifecycle).
+// When the routed demo changes (history navigation between two demos), reload
+// its config/data and promote them straight to the visible chart.
 watch(() => props.initialDemoId, (initialDemoId) => {
-  activeKey.value = getActiveKeyForInitialDemoId(initialDemoId);
+  activeKey.value = eventKeyChart;
   demoId.value = initialDemoId;
-  if (initialDemoId === 'demos') {
-    config.value = null;
-    data.value = null;
-    dataError.value = null;
-    viewingConfig.value = null;
-    viewingData.value = null;
-  }
-  else {
-    config.value = props.demoData.demoObjectMap[initialDemoId].config;
-    data.value = props.demoData.demoObjectMap[initialDemoId].data;
-    dataError.value = null;
-    pendingConfig.value = config.value;
-    pendingData.value = data.value;
-    chartShown();
-  }
+  config.value = props.demoData.demoObjectMap[initialDemoId].config;
+  data.value = props.demoData.demoObjectMap[initialDemoId].data;
+  pendingConfig.value = config.value;
+  pendingData.value = data.value;
+  chartShown();
 });
 
 function onConfigChange(nextPendingConfig: DemoConfig) {
@@ -123,10 +110,6 @@ function onDataReset() {
   pendingDataError.value = false;
 }
 
-function onDemoChange(nextDemoId: string) {
-  props.onDemoChanged(nextDemoId);
-}
-
 // Applied config/data edits are held until the Chart tab is shown; badge the
 // Chart tab so it's visible that something is waiting there.
 const hasPendingChanges = computed(() =>
@@ -136,54 +119,43 @@ const hasPendingChanges = computed(() =>
 <template>
   <div class="mochart-demo-container">
     <div class="mochart-demo-tabs-container">
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <button type="button" :class="'nav-link' + (activeKey === eventKeyDemo ? ' active' : '')"
-                  @click="handleSelect(eventKeyDemo)">
-            {{ demoText.tabs.demos }}
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
-                  :title="hasPendingChanges ? demoText.tabs.chartPendingTitle : void 0"
-                  @click="handleSelect(eventKeyChart)">
-            {{ demoText.tabs.chart }}<span v-if="hasPendingChanges" class="mochart-pending-badge" aria-hidden="true"></span>
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
-                  @click="handleSelect(eventKeyConfig)">
-            {{ demoText.tabs.config }}
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" :class="'nav-link' + (activeKey === eventKeyData ? ' active' : '')"
-                  @click="handleSelect(eventKeyData)">
-            {{ demoText.tabs.data }}
-          </button>
-        </li>
-      </ul>
-    </div>
-    <div v-if="props.initialDemoId === 'demos'" class="mochart-demo-content-pane">
-      <div class="mochart-demo-content single-tab">
-        <DemosTab :active="activeKey === eventKeyDemo" :demo-data="props.demoData" :demo-mode="props.demoMode" :demo-id="demoId"
-                  :on-demo-mode-changed="props.onDemoModeChanged" :on-demo-change="onDemoChange" />
+      <div class="mochart-demo-nav-group">
+        <SiteRootButton :site-root-url="props.siteRootUrl" />
+        <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
+                    :title="hasPendingChanges ? demoText.tabs.chartPendingTitle : void 0"
+                    @click="handleSelect(eventKeyChart)">
+              {{ demoText.tabs.chart }}<span v-if="hasPendingChanges" class="mochart-pending-badge" aria-hidden="true"></span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
+                    @click="handleSelect(eventKeyConfig)">
+              {{ demoText.tabs.config }}
+            </button>
+          </li>
+          <li class="nav-item">
+            <button type="button" :class="'nav-link' + (activeKey === eventKeyData ? ' active' : '')"
+                    @click="handleSelect(eventKeyData)">
+              {{ demoText.tabs.data }}
+            </button>
+          </li>
+        </ul>
       </div>
+      <ModeSwitcher demo-mode="single" :on-mode-changed="props.onModeChanged" />
     </div>
-    <div v-else class="mochart-demo-content-pane">
+    <div class="mochart-demo-content-pane">
       <div class="mochart-demo-content">
-        <ErrorTab :active="activeKey === eventKeyDemo">
-          <DemosTab :active="activeKey === eventKeyDemo" :demo-data="props.demoData" :demo-mode="props.demoMode" :demo-id="demoId"
-                    :on-demo-mode-changed="props.onDemoModeChanged" :on-demo-change="onDemoChange" />
-        </ErrorTab>
         <ErrorTab :active="activeKey === eventKeyChart">
           <ChartTab :active="activeKey === eventKeyChart" :config="viewingConfig" :data="viewingData" :data-error="viewingDataError" />
         </ErrorTab>
         <ErrorTab :active="activeKey === eventKeyConfig">
-          <ConfigTab :active="activeKey === eventKeyConfig" :config="config!" :on-config-change="onConfigChange" :on-config-reset="onConfigReset" />
+          <ConfigTab :active="activeKey === eventKeyConfig" :config="config" :on-config-change="onConfigChange" :on-config-reset="onConfigReset" />
         </ErrorTab>
         <ErrorTab :active="activeKey === eventKeyData">
-          <DataTab :active="activeKey === eventKeyData" :config="viewingConfig!" :data="data!"
+          <DataTab :active="activeKey === eventKeyData" :config="viewingConfig" :data="data"
                    :on-data-change="onDataChange" :on-data-error="onDataError" :on-data-reset="onDataReset" />
         </ErrorTab>
       </div>

@@ -3,10 +3,19 @@ import { ref, shallowRef } from 'vue';
 
 import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
+import BackToDemosButton from '../misc/BackToDemosButton.vue';
+import SiteRootButton from '../misc/SiteRootButton.vue';
 import TransitionChartTab from './TransitionChartTab.vue';
 import TransitionConfigTab from './TransitionConfigTab.vue';
 
 import type { TransitionConfig } from '../../types';
+
+interface Props {
+  siteRootUrl?: string;
+  onBackToDemos: () => void;
+}
+
+const props = defineProps<Props>();
 
 const eventKeyChart = 1;
 const eventKeyConfig = 2;
@@ -37,20 +46,24 @@ function onResetConfig() {
 <template>
   <div class="mochart-demo-container multi">
     <div class="mochart-demo-tabs-container">
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
-                  @click="handleSelect(eventKeyChart)">
-            {{ demoText.tabs.chart }}
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
-                  @click="handleSelect(eventKeyConfig)">
-            {{ demoText.tabs.transitionConfig }}
-          </button>
-        </li>
-      </ul>
+      <div class="mochart-demo-nav-group">
+        <SiteRootButton :site-root-url="props.siteRootUrl" />
+        <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
+                    @click="handleSelect(eventKeyChart)">
+              {{ demoText.tabs.chart }}
+            </button>
+          </li>
+          <li class="nav-item">
+            <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
+                    @click="handleSelect(eventKeyConfig)">
+              {{ demoText.tabs.transitionConfig }}
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="mochart-demo-content-pane">
       <div class="mochart-demo-content">

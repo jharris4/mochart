@@ -3,7 +3,17 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { DefaultChart } from '@mochart/vue';
 
+import BackToDemosButton from '../misc/BackToDemosButton.vue';
+import SiteRootButton from '../misc/SiteRootButton.vue';
+
 import { configs, data, minWidth } from './rotationConfigs';
+
+interface Props {
+  siteRootUrl?: string;
+  onBackToDemos: () => void;
+}
+
+const props = defineProps<Props>();
 
 // Columns are sized from the card's measured width (not the window) so the
 // grid stays inside the padded shell.
@@ -34,7 +44,13 @@ const colWidth = computed(() => Math.floor(chartsWidth.value / cols.value));
 </script>
 
 <template>
-  <div class="rotation-container">
+  <div class="mochart-demo-container">
+    <div class="mochart-demo-tabs-container">
+      <div class="mochart-demo-nav-group">
+        <SiteRootButton :site-root-url="props.siteRootUrl" />
+        <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
+      </div>
+    </div>
     <div ref="chartsElement" class="rotation-charts">
       <template v-if="colWidth > 0">
         <div v-for="(config, i) in configs" :key="i"

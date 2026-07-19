@@ -4,9 +4,6 @@
   import { NONE, getDataErrors } from '@mochart/core';
   import type { MochartConfig, DataProvider } from '@mochart/core';
 
-  
-
-  import DemosTab from '../demos/DemosTab.svelte';
   import RandomChartTab from './RandomChartTab.svelte';
   import RandomConfigTab from './RandomConfigTab.svelte';
   import RandomDataTab from './RandomDataTab.svelte';
@@ -14,24 +11,17 @@
 
   import { demoText, generateChartDataProvider } from '@mochart/demo-common';
 
-  import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
+  import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
   interface EventKeys {
     eventKeyChart: number;
-    eventKeyDemo: number;
     eventKeyConfig: number;
     eventKeyData: number;
   }
 
   interface Props {
-    demoData: DemoData;
     mochartDemoConfig: MochartDemoConfig;
     initialRandomConfig: RandomConfigWithValid;
-    demoMode: DemoMode;
-    initialDemoId: string;
-    demoId: string;
-    onDemoModeChanged: OnDemoModeChanged;
-    onDemoChange: OnDemoChanged;
     activeKey: number;
     eventKeys: EventKeys;
     randomId: number;
@@ -40,14 +30,8 @@
   }
 
   let {
-    demoData,
     mochartDemoConfig,
     initialRandomConfig,
-    demoMode,
-    initialDemoId,
-    demoId,
-    onDemoModeChanged,
-    onDemoChange,
     activeKey,
     eventKeys,
     randomId,
@@ -58,7 +42,7 @@
   // Props intentionally seed local state with their initial value only; the
   // $effect.pre below re-syncs everything when the inputs change.
   // svelte-ignore state_referenced_locally
-  const { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData } = eventKeys;
+  const { eventKeyChart, eventKeyConfig, eventKeyData } = eventKeys;
 
   // svelte-ignore state_referenced_locally
   let randomConfig = $state.raw<RandomConfigWithValid>(initialRandomConfig);
@@ -144,13 +128,10 @@
   }
 
   // svelte-ignore state_referenced_locally
-  if (initialDemoId !== 'demos') {
-    // svelte-ignore state_referenced_locally
-    updateDataProvider(initialRandomConfig);
-  }
+  updateDataProvider(initialRandomConfig);
 
-  // svelte-ignore state_referenced_locally
-  let previousInitialDemoId = initialDemoId;
+  // The routed demo changing swaps both config references at once; a
+  // randomize step only changes randomId — regenerate accordingly.
   // svelte-ignore state_referenced_locally
   let previousInitialRandomConfig = initialRandomConfig;
   // svelte-ignore state_referenced_locally
@@ -158,14 +139,12 @@
   // svelte-ignore state_referenced_locally
   let previousRandomId = randomId;
   $effect.pre(() => {
-    const nextInitialDemoId = initialDemoId;
     const nextInitialRandomConfig = initialRandomConfig;
     const nextMochartDemoConfig = mochartDemoConfig;
     const nextRandomId = randomId;
     untrack(() => {
-      if (nextInitialDemoId !== previousInitialDemoId || nextInitialRandomConfig !== previousInitialRandomConfig ||
+      if (nextInitialRandomConfig !== previousInitialRandomConfig ||
           nextMochartDemoConfig !== previousMochartDemoConfig) {
-        previousInitialDemoId = nextInitialDemoId;
         previousInitialRandomConfig = nextInitialRandomConfig;
         previousMochartDemoConfig = nextMochartDemoConfig;
         previousRandomId = nextRandomId;
@@ -198,10 +177,6 @@
 </script>
 
 <div class="mochart-demo-content">
-  <ErrorTab active={activeKey === eventKeyDemo}>
-    <DemosTab active={activeKey === eventKeyDemo} {demoData} {demoMode} {demoId}
-              {onDemoModeChanged} {onDemoChange} />
-  </ErrorTab>
   <ErrorTab active={activeKey === eventKeyChart}>
     <RandomChartTab active={activeKey === eventKeyChart} mochartConfig={mochartDemoConfig.mochartConfig} {dataProvider}
                     {onRandomizeBack} {onRandomizeNext}

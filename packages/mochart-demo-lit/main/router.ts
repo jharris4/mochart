@@ -52,7 +52,9 @@ export function subscribe(listener: () => void): () => void {
 }
 
 export function navigate(to: string, { replace = false }: { replace?: boolean } = {}): void {
-  const url = normalizedBase + to;
+  // Carry query params (e.g. the ?siteRoot debug switch) across navigations;
+  // routes themselves only ever use the pathname.
+  const url = normalizedBase + to + window.location.search;
   if (replace) {
     window.history.replaceState(null, '', url);
   }

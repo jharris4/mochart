@@ -23,8 +23,7 @@ export const demoText = {
     invalidRandomConfig: 'Invalid Random Config',
     creatingDataProvider: 'Error creating DataProvider'
   },
-  // The standalone demo gallery page (the landing route). The demosTab block
-  // below is the older in-view demo list still used by the framework demos.
+  // The standalone demo gallery page (the landing route).
   gallery: {
     sections: {
       demos: 'Demos',
@@ -45,24 +44,6 @@ export const demoText = {
       multi: { label: 'Multi', title: 'A grid of charts stepping through datasets together' },
       random: { label: 'Random', title: 'A chart fed by a seeded random data generator' }
     }
-  },
-  demosTab: {
-    demoModeLabel: 'Demo Mode:',
-    modes: {
-      single: { label: 'Single', title: 'One chart with editable config, data, groups and series' },
-      multi: { label: 'Multi', title: 'A grid of charts stepping through datasets together' },
-      random: { label: 'Random', title: 'A chart fed by a seeded random data generator' },
-      transition: { label: 'Transition', title: 'Animate a chart between two datasets' },
-      rotation: { label: 'Rotation', title: 'A grid of charts showing different tick label rotations' }
-    },
-    testDemos: { label: 'Test Demos', title: 'Show the test demos (showcasing less used features)' },
-    modeCaptions: {
-      single: 'Single: one chart with editable config, data, groups and series — pick a demo below.',
-      multi: 'Multi: a grid of charts stepping through generated datasets together — pick a demo below.',
-      random: 'Random: a chart fed by a seeded random data generator — pick a demo below.',
-      transition: 'Transition: animates a chart between datasets — pick a demo below.',
-      rotation: 'Rotation: a grid of charts showing different tick label rotations — pick a demo below.'
-    } as Record<string, string>
   },
   configTab: {
     reset: { label: 'Reset', tooltip: "Restore this demo's original config", aria: 'Reset' },
@@ -85,8 +66,7 @@ export const demoText = {
     tooltipPrefix: 'Open the config reference for '
   },
   siteRootLink: {
-    label: '← Mochart',
-    // In-layout button variant (icon + text) used by the gallery navigation.
+    // Rendered as an icon + text button in every view's navigation row.
     shortLabel: 'Mochart',
     tooltip: 'Back to the Mochart site',
     aria: 'Back to the Mochart site'

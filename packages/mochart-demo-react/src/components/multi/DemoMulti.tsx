@@ -1,96 +1,36 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 
 import { demoText } from '@mochart/demo-common';
 
-import MochartDemosTab from '../demos/DemosTab';
 import MultiMochartChartsTab from './ChartsTab';
 import ErrorTab from '../misc/ErrorTab';
+import { ModeSwitcher, SiteRootButton, BackToDemosButton } from '../misc/ModeSwitcher';
 
-import type { DemoData, DemoMode, DemoTabProps, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { DemoTabProps } from '../../types';
 
-const eventKeyChart = 1;
-const eventKeyDemo = 2;
-
-function getActiveKeyForInitialDemoId(initialDemoId: string): number {
-  return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
-}
-
-export default function MochartDemoMulti({ demoData, demoMode, initialDemoId, onDemoModeChanged, onDemoChanged }: DemoTabProps) {
-  const [demoId, setDemoId] = useState(initialDemoId);
-  const [activeKey, setActiveKey] = useState(() => getActiveKeyForInitialDemoId(initialDemoId));
-
-  const prevInitialDemoId = useRef(initialDemoId);
-  if (prevInitialDemoId.current !== initialDemoId) {
-    prevInitialDemoId.current = initialDemoId;
-    setActiveKey(getActiveKeyForInitialDemoId(initialDemoId));
-    setDemoId(initialDemoId);
-  }
-
-  const onDemoChange = (nextDemoId: string) => {
-    setDemoId(nextDemoId);
-    onDemoChanged(nextDemoId);
-  };
-
-  const handleSelect = (nextActiveKey: number) => setActiveKey(nextActiveKey);
-
-  const isDemos = initialDemoId === 'demos';
-  const nonDemoNavItemStyle: React.CSSProperties | undefined = isDemos ? { display: 'none' } : undefined;
-
+export default function MochartDemoMulti({ demoData, initialDemoId, siteRootUrl, onModeChanged, onBackToDemos }: DemoTabProps) {
   return (
     <div className="mochart-demo-container multi">
       <div className="mochart-demo-tabs-container">
-        <Nav tabs>
-          <NavItem>
-            <NavLink active={activeKey === eventKeyDemo} onClick={() => { handleSelect(eventKeyDemo); }}>
-              {demoText.tabs.demos}
-            </NavLink>
-          </NavItem>
-          <NavItem style={nonDemoNavItemStyle}>
-            <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
-              {demoText.tabs.chart}
-            </NavLink>
-          </NavItem>
-        </Nav>
+        <div className="mochart-demo-nav-group">
+          <SiteRootButton siteRootUrl={siteRootUrl} />
+          <BackToDemosButton onBackToDemos={onBackToDemos} />
+          <Nav tabs>
+            <NavItem>
+              <NavLink active>{demoText.tabs.chart}</NavLink>
+            </NavItem>
+          </Nav>
+        </div>
+        <ModeSwitcher demoMode="multi" onModeChanged={onModeChanged} />
       </div>
       <div className="mochart-demo-content-pane">
-        <MultiMochartDemoContent demoData={demoData} demoMode={demoMode} initialDemoId={initialDemoId} demoId={demoId}
-          onDemoModeChanged={onDemoModeChanged} onDemoChange={onDemoChange} activeKey={activeKey} />
+        <div className="mochart-demo-content">
+          <ErrorTab active>
+            <MultiMochartChartsTab demoObject={demoData.demoObjectMap[initialDemoId]} />
+          </ErrorTab>
+        </div>
       </div>
     </div>
   );
-}
-
-interface ContentProps {
-  demoData: DemoData;
-  demoMode: DemoMode;
-  initialDemoId: string;
-  demoId: string;
-  onDemoModeChanged: OnDemoModeChanged;
-  onDemoChange: OnDemoChanged;
-  activeKey: number;
-}
-
-function MultiMochartDemoContent({ initialDemoId, demoData, demoMode, demoId, onDemoModeChanged, onDemoChange, activeKey }: ContentProps) {
-  if (initialDemoId === 'demos') {
-    return (
-      <div className="mochart-demo-content single-tab">
-        <MochartDemosTab demoData={demoData} demoMode={demoMode} demoId={demoId} onDemoModeChanged={onDemoModeChanged}
-          onDemoChange={onDemoChange} active={activeKey === eventKeyDemo} />
-      </div>
-    );
-  }
-  else {
-    return (
-      <div className="mochart-demo-content">
-        <ErrorTab active={activeKey === eventKeyDemo}>
-          <MochartDemosTab demoData={demoData} demoMode={demoMode} demoId={demoId} onDemoModeChanged={onDemoModeChanged}
-            onDemoChange={onDemoChange} />
-        </ErrorTab>
-        <ErrorTab active={activeKey === eventKeyChart}>
-          <MultiMochartChartsTab demoObject={demoData.demoObjectMap[demoId]} />
-        </ErrorTab>
-      </div>
-    );
-  }
 }

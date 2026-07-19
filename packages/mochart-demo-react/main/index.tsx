@@ -9,22 +9,22 @@ import './demo.css';
 
 import demoData from '@mochart/demo-data';
 
-import { demoText } from '@mochart/demo-common';
+import type { SwitchableDemoMode } from '@mochart/demo-common';
 
+import GalleryPage from '../src/components/gallery/GalleryPage';
 import DemoSingle from '../src/components/single/DemoSingle';
 import DemoMulti from '../src/components/multi/DemoMulti';
 import DemoRandom from '../src/components/random/DemoRandom';
 import DemoTransition from '../src/components/transition/DemoTransition';
 import DemoRotation from '../src/components/rotation/DemoRotation';
 
-import type { DemoMode, DemoTabProps } from '../src/types';
+import type { DemoTabProps } from '../src/types';
 
 interface DemoWindowConfig {
   routerBasePath?: string;
 }
 
-const { demoIds, demoObjectMap } = demoData;
-const initialDemoId = demoIds[0];
+const { demoObjectMap } = demoData;
 
 let routerBasePath = '/';
 
@@ -35,58 +35,94 @@ if (config !== void 0) {
   }
 }
 
+// The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
+// link back to it; standalone dev/build leaves it unset and no link renders.
+// Every view places the link itself (top-left, before its own navigation).
+// For styling/debugging without a site build, `?siteRoot` forces the button
+// (linking to `/`), and `?siteRoot=<url>` points it at a specific target.
+function getDebugSiteRootUrl(): string | undefined {
+  const param = new URLSearchParams(window.location.search).get('siteRoot');
+  if (param === null) {
+    return void 0;
+  }
+  return param === '' ? '/' : param;
+}
+
+const siteRootUrl = (import.meta.env.VITE_SITE_ROOT as string | undefined) ?? getDebugSiteRootUrl();
+
 function RouteNotFound() {
   const location = useLocation();
   return <div>No route found{location && location.pathname ? ' matching ' + location.pathname : ''}</div>;
 }
 
-function getBasePathForMode(demoMode: string) {
-  return '/' + demoMode;
-}
-
-function useDemoNavigation(demoMode: DemoMode) {
+// Query params (e.g. the ?siteRoot debug switch) are carried across every
+// navigation; routes themselves only ever use the pathname.
+function useDemoNavigate() {
   const navigate = useNavigate();
-  const onDemoModeChanged = (nextDemoMode: DemoMode, nextDemoId?: string) => {
-    if (nextDemoMode === 'transition' || nextDemoMode === 'rotation') {
-      navigate(getBasePathForMode(nextDemoMode));
-    }
-    else {
-      navigate(`${getBasePathForMode(nextDemoMode)}/${nextDemoId !== void 0 ? nextDemoId : initialDemoId}`);
-    }
-  };
-  const onDemoChanged = (nextDemoId: string) => {
-    navigate(`${getBasePathForMode(demoMode)}/${nextDemoId}`);
-  };
-  return { onDemoModeChanged, onDemoChanged };
+  const { search } = useLocation();
+  return (pathname: string, options: { replace?: boolean } = {}) => navigate({ pathname, search }, options);
 }
 
-interface DemoModeRouteProps {
-  Component: React.ComponentType<DemoTabProps>;
-  demoMode: DemoMode;
-}
-
-function DemoModeRoute({ Component, demoMode }: DemoModeRouteProps) {
-  const params = useParams();
-  const nav = useDemoNavigation(demoMode);
-  const demoId = params.demoId !== void 0 ? params.demoId : initialDemoId;
-  if (demoId !== 'demos' && demoObjectMap[demoId] === void 0) {
-    return <div>No demo found for id: {demoId}</div>;
-  }
-  return <Component demoData={demoData} initialDemoId={demoId} demoMode={demoMode}
-    onDemoModeChanged={nav.onDemoModeChanged} onDemoChanged={nav.onDemoChanged} />;
+/** Redirect (replace-style) that preserves the current query string. */
+function RedirectWithSearch({ to }: { to: string }) {
+  const { search } = useLocation();
+  return <Navigate to={{ pathname: to, search }} replace />;
 }
 
 function RandomRedirect() {
   const { demoId } = useParams();
-  return <Navigate to={`/random/${demoId}/0`} replace />;
+  return <RedirectWithSearch to={`/random/${demoId}/0`} />;
+}
+
+function GalleryRoute() {
+  const demoNavigate = useDemoNavigate();
+  return <GalleryPage demoData={demoData} siteRootUrl={siteRootUrl}
+    onOpenDemo={demoId => demoNavigate(`/single/${demoId}`)}
+    onOpenPage={mode => demoNavigate(`/${mode}`)} />;
+}
+
+// The gallery at /demos is the landing route; a demo is always viewed at
+// /<mode>/<demoId>. Switching mode keeps the current demo.
+function useDemoNavigation(demoId: string) {
+  const demoNavigate = useDemoNavigate();
+  const onModeChanged = (nextDemoMode: SwitchableDemoMode) => {
+    if (nextDemoMode === 'random') {
+      demoNavigate(`/random/${demoId}/0`);
+    }
+    else {
+      demoNavigate(`/${nextDemoMode}/${demoId}`);
+    }
+  };
+  const onBackToDemos = () => demoNavigate('/demos');
+  return { onModeChanged, onBackToDemos };
+}
+
+function useBackToDemos() {
+  const demoNavigate = useDemoNavigate();
+  return () => demoNavigate('/demos');
+}
+
+interface DemoModeRouteProps {
+  Component: React.ComponentType<DemoTabProps>;
+}
+
+function DemoModeRoute({ Component }: DemoModeRouteProps) {
+  const params = useParams();
+  const demoId = params.demoId!;
+  const nav = useDemoNavigation(demoId);
+  if (demoObjectMap[demoId] === void 0) {
+    return <div>No demo found for id: {demoId}</div>;
+  }
+  return <Component demoData={demoData} initialDemoId={demoId} siteRootUrl={siteRootUrl}
+    onModeChanged={nav.onModeChanged} onBackToDemos={nav.onBackToDemos} />;
 }
 
 function RandomRoute() {
   const params = useParams();
-  const navigate = useNavigate();
-  const nav = useDemoNavigation('random');
-  const demoId = params.demoId !== void 0 ? params.demoId : initialDemoId;
-  if (demoId !== 'demos' && demoObjectMap[demoId] === void 0) {
+  const demoNavigate = useDemoNavigate();
+  const demoId = params.demoId!;
+  const nav = useDemoNavigation(demoId);
+  if (demoObjectMap[demoId] === void 0) {
     return <div>No demo found for id: {demoId}</div>;
   }
   const randomId = Number(params.randomId);
@@ -94,54 +130,50 @@ function RandomRoute() {
     return <div>Bad random id: {params.randomId}</div>;
   }
   const incrementRandomId = () => {
-    navigate(`${getBasePathForMode('random')}/${demoId}/${Math.floor(randomId) + 1}`);
+    demoNavigate(`/random/${demoId}/${Math.floor(randomId) + 1}`);
   };
   const decrementRandomId = () => {
-    navigate(`${getBasePathForMode('random')}/${demoId}/${Math.floor(randomId) - 1}`);
+    demoNavigate(`/random/${demoId}/${Math.floor(randomId) - 1}`);
   };
-  return <DemoRandom demoData={demoData} initialDemoId={demoId} demoMode="random"
-    onDemoModeChanged={nav.onDemoModeChanged} onDemoChanged={nav.onDemoChanged}
+  return <DemoRandom demoData={demoData} initialDemoId={demoId} siteRootUrl={siteRootUrl}
+    onModeChanged={nav.onModeChanged} onBackToDemos={nav.onBackToDemos}
     randomId={randomId} incrementRandomId={incrementRandomId} decrementRandomId={decrementRandomId} />;
 }
 
-// The transition/rotation demos have no navigation of their own, so give them
-// a way back to the main demo gallery.
-function BackBar({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-  return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '14px 18px 0' }}>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate('/single/demos')}>&larr; Back to demos</button>
-      </div>
-      <div style={{ flex: 1, minHeight: 0 }}>
-        {children}
-      </div>
-    </div>
-  );
+function TransitionRoute() {
+  const onBackToDemos = useBackToDemos();
+  return <DemoTransition siteRootUrl={siteRootUrl} onBackToDemos={onBackToDemos} />;
 }
 
-// Same routes as the old webpack/react-router 5 build, minus code splitting.
+function RotationRoute() {
+  const onBackToDemos = useBackToDemos();
+  return <DemoRotation siteRootUrl={siteRootUrl} onBackToDemos={onBackToDemos} />;
+}
+
+// The legacy scheme used a 'demos' pseudo-demo-id for the in-view demo list
+// ("/single/demos"), so those URLs redirect to the gallery landing route.
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/single/demos" replace />} />
-      <Route path="/single" element={<Navigate to="/single/demos" replace />} />
-      <Route path="/multi" element={<Navigate to="/multi/demos" replace />} />
-      <Route path="/random" element={<Navigate to="/random/demos" replace />} />
-      <Route path="/single/:demoId" element={<DemoModeRoute Component={DemoSingle} demoMode="single" />} />
-      <Route path="/multi/:demoId" element={<DemoModeRoute Component={DemoMulti} demoMode="multi" />} />
+      <Route path="/" element={<RedirectWithSearch to="/demos" />} />
+      <Route path="/demos" element={<GalleryRoute />} />
+      <Route path="/single" element={<RedirectWithSearch to="/demos" />} />
+      <Route path="/multi" element={<RedirectWithSearch to="/demos" />} />
+      <Route path="/random" element={<RedirectWithSearch to="/demos" />} />
+      <Route path="/single/demos" element={<RedirectWithSearch to="/demos" />} />
+      <Route path="/multi/demos" element={<RedirectWithSearch to="/demos" />} />
+      <Route path="/random/demos" element={<RedirectWithSearch to="/demos" />} />
+      <Route path="/random/demos/:randomId" element={<RedirectWithSearch to="/demos" />} />
+      <Route path="/single/:demoId" element={<DemoModeRoute Component={DemoSingle} />} />
+      <Route path="/multi/:demoId" element={<DemoModeRoute Component={DemoMulti} />} />
       <Route path="/random/:demoId" element={<RandomRedirect />} />
       <Route path="/random/:demoId/:randomId" element={<RandomRoute />} />
-      <Route path="/transition" element={<BackBar><DemoTransition /></BackBar>} />
-      <Route path="/rotation" element={<BackBar><DemoRotation /></BackBar>} />
+      <Route path="/transition" element={<TransitionRoute />} />
+      <Route path="/rotation" element={<RotationRoute />} />
       <Route path="*" element={<RouteNotFound />} />
     </Routes>
   );
 }
-
-// The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
-// link back to it; standalone dev/build leaves it unset and no link renders.
-const siteRootUrl = import.meta.env.VITE_SITE_ROOT as string | undefined;
 
 const rootElement = document.getElementById('root');
 if (rootElement === null) {
@@ -149,15 +181,7 @@ if (rootElement === null) {
 }
 
 createRoot(rootElement).render(
-  <>
-    {siteRootUrl !== void 0
-      ? <a className="btn btn-secondary btn-sm" style={{ position: 'fixed', top: 14, right: 18, zIndex: 1030 }}
-          href={siteRootUrl} title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>
-          {demoText.siteRootLink.label}
-        </a>
-      : null}
-    <BrowserRouter basename={routerBasePath}>
-      <App />
-    </BrowserRouter>
-  </>
+  <BrowserRouter basename={routerBasePath}>
+    <App />
+  </BrowserRouter>
 );

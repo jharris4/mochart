@@ -2,39 +2,36 @@
   import { untrack } from 'svelte';
 
   import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
+  import type { SwitchableDemoMode } from '@mochart/demo-common';
 
-  import DemosTab from '../demos/DemosTab.svelte';
   import RandomContent from './RandomContent.svelte';
-  import ErrorTab from '../misc/ErrorTab.svelte';
+  import BackToDemosButton from '../misc/BackToDemosButton.svelte';
+  import ModeSwitcher from '../misc/ModeSwitcher.svelte';
+  import SiteRootButton from '../misc/SiteRootButton.svelte';
 
-  import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '../../types';
+  import type { DemoData } from '../../types';
 
   interface Props {
     demoData: DemoData;
-    demoMode: DemoMode;
     initialDemoId: string;
-    onDemoModeChanged: OnDemoModeChanged;
-    onDemoChanged: OnDemoChanged;
+    siteRootUrl?: string;
+    onModeChanged: (nextDemoMode: SwitchableDemoMode) => void;
+    onBackToDemos: () => void;
     randomId: number;
     incrementRandomId: () => void;
     decrementRandomId: () => void;
   }
 
   const eventKeyChart = 1;
-  const eventKeyDemo = 2;
-  const eventKeyConfig = 3;
-  const eventKeyData = 4;
-
-  function getActiveKeyForInitialDemoId(initialDemoId: string): number {
-    return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
-  }
+  const eventKeyConfig = 2;
+  const eventKeyData = 3;
 
   let {
     demoData,
-    demoMode,
     initialDemoId,
-    onDemoModeChanged,
-    onDemoChanged,
+    siteRootUrl = void 0,
+    onModeChanged,
+    onBackToDemos,
     randomId,
     incrementRandomId,
     decrementRandomId
@@ -51,12 +48,9 @@
   // Props intentionally seed local state with their initial value only; the
   // $effect.pre below re-syncs everything when the routed demo changes.
   // svelte-ignore state_referenced_locally
-  const initialState = initialDemoId !== 'demos' ? buildStateForDemo(initialDemoId) : { mochartDemoConfig: null, randomConfig: null };
+  const initialState = buildStateForDemo(initialDemoId);
 
-  // svelte-ignore state_referenced_locally
-  let demoId = $state(initialDemoId);
-  // svelte-ignore state_referenced_locally
-  let activeKey = $state(getActiveKeyForInitialDemoId(initialDemoId));
+  let activeKey = $state(eventKeyChart);
   let mochartDemoConfig = $state.raw(initialState.mochartDemoConfig);
   let randomConfig = $state.raw(initialState.randomConfig);
 
@@ -65,74 +59,52 @@
   $effect.pre(() => {
     const nextInitialDemoId = initialDemoId;
     untrack(() => {
-      if (nextInitialDemoId !== 'demos' && nextInitialDemoId !== previousInitialDemoId) {
+      if (nextInitialDemoId !== previousInitialDemoId) {
+        previousInitialDemoId = nextInitialDemoId;
         const nextState = buildStateForDemo(nextInitialDemoId);
-        demoId = nextInitialDemoId;
-        activeKey = getActiveKeyForInitialDemoId(nextInitialDemoId);
+        activeKey = eventKeyChart;
         mochartDemoConfig = nextState.mochartDemoConfig;
         randomConfig = nextState.randomConfig;
       }
-      else if (nextInitialDemoId !== previousInitialDemoId) {
-        demoId = nextInitialDemoId;
-        activeKey = getActiveKeyForInitialDemoId(nextInitialDemoId);
-      }
-      previousInitialDemoId = nextInitialDemoId;
     });
   });
-
-  function onDemoChange(nextDemoId: string) {
-    demoId = nextDemoId;
-    onDemoChanged(nextDemoId);
-  }
 
   function handleSelect(nextActiveKey: number) {
     activeKey = nextActiveKey;
   }
-
-  const isDemos = $derived(initialDemoId === 'demos');
 </script>
 
 <div class="mochart-demo-container multi">
   <div class="mochart-demo-tabs-container">
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <button type="button" class={"nav-link" + (activeKey === eventKeyDemo ? " active" : "")}
-                onclick={() => handleSelect(eventKeyDemo)}>
-          {demoText.tabs.demos}
-        </button>
-      </li>
-      <li class="nav-item" style={isDemos ? "display: none;" : void 0}>
-        <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
-                onclick={() => handleSelect(eventKeyChart)}>
-          {demoText.tabs.chart}
-        </button>
-      </li>
-      <li class="nav-item" style={isDemos ? "display: none;" : void 0}>
-        <button type="button" class={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")}
-                onclick={() => handleSelect(eventKeyConfig)}>
-          {demoText.tabs.randomConfig}
-        </button>
-      </li>
-      <li class="nav-item" style={isDemos ? "display: none;" : void 0}>
-        <button type="button" class={"nav-link" + (activeKey === eventKeyData ? " active" : "")}
-                onclick={() => handleSelect(eventKeyData)}>
-          {demoText.tabs.data}
-        </button>
-      </li>
-    </ul>
+    <div class="mochart-demo-nav-group">
+      <SiteRootButton {siteRootUrl} />
+      <BackToDemosButton {onBackToDemos} />
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
+                  onclick={() => handleSelect(eventKeyChart)}>
+            {demoText.tabs.chart}
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")}
+                  onclick={() => handleSelect(eventKeyConfig)}>
+            {demoText.tabs.randomConfig}
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class={"nav-link" + (activeKey === eventKeyData ? " active" : "")}
+                  onclick={() => handleSelect(eventKeyData)}>
+            {demoText.tabs.data}
+          </button>
+        </li>
+      </ul>
+    </div>
+    <ModeSwitcher demoMode="random" {onModeChanged} />
   </div>
   <div class="mochart-demo-content-pane">
-    {#if isDemos}
-      <div class="mochart-demo-content single-tab">
-        <DemosTab active={activeKey === eventKeyDemo} {demoData} {demoMode} {demoId}
-                  {onDemoModeChanged} {onDemoChange} />
-      </div>
-    {:else}
-      <RandomContent {demoData} mochartDemoConfig={mochartDemoConfig!} initialRandomConfig={randomConfig!}
-                     {demoMode} {initialDemoId} {demoId}
-                     {onDemoModeChanged} {onDemoChange} {activeKey}
-                     eventKeys={{ eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData }}
-                     {randomId} {incrementRandomId} {decrementRandomId} />
-    {/if}
+    <RandomContent {mochartDemoConfig} initialRandomConfig={randomConfig}
+                   {activeKey} eventKeys={{ eventKeyChart, eventKeyConfig, eventKeyData }}
+                   {randomId} {incrementRandomId} {decrementRandomId} />
   </div>
 </div>

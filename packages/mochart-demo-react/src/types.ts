@@ -1,17 +1,23 @@
-import type { DemoData, DemoMode, OnDemoModeChanged, OnDemoChanged } from '@mochart/demo-common';
+import type { DemoData, SwitchableDemoMode } from '@mochart/demo-common';
 
 export type {
   DataRow, Demo, DemoConfig, DemoData, RandomConfig,
   GroupValue, FilteredSeriesIds, FocusData, TransitionConfig,
-  ChartDataProviderLike, DemoDataProvider, DemoMode,
-  OnDemoModeChanged, OnDemoChanged, RandomConfigWithValid, MochartDemoConfig
+  ChartDataProviderLike, DemoDataProvider, DemoMode, SwitchableDemoMode,
+  RandomConfigWithValid, MochartDemoConfig
 } from '@mochart/demo-common';
+
+/** Switch the current demo to another of the single/multi/random modes. */
+export type OnModeChanged = (nextDemoMode: SwitchableDemoMode) => void;
+
+/** Navigate back to the demo gallery landing page. */
+export type OnBackToDemos = () => void;
 
 /** Props shared by the top-level demo-mode components (single/multi/random). */
 export interface DemoTabProps {
   demoData: DemoData;
   initialDemoId: string;
-  demoMode: DemoMode;
-  onDemoModeChanged: OnDemoModeChanged;
-  onDemoChanged: OnDemoChanged;
+  siteRootUrl?: string;
+  onModeChanged: OnModeChanged;
+  onBackToDemos: OnBackToDemos;
 }

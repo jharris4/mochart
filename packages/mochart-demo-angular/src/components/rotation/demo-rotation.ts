@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import type { AfterViewInit, OnDestroy } from '@angular/core';
 
 import { DefaultChart } from '@mochart/angular';
@@ -6,6 +6,7 @@ import { DefaultChart } from '@mochart/angular';
 import { configs, data, minWidth } from './rotationConfigs';
 
 import { createElementSize } from '../misc/element-size';
+import { BackToDemosButton, SiteRootButton } from '../misc/mode-switcher';
 
 /**
  * Columns are sized from the card's measured width (not the window) so the
@@ -13,10 +14,18 @@ import { createElementSize } from '../misc/element-size';
  */
 @Component({
   selector: 'app-demo-rotation',
-  imports: [DefaultChart],
+  imports: [DefaultChart, BackToDemosButton, SiteRootButton],
   styles: [':host { display: contents; }'],
   template: `
-    <div class="rotation-container">
+    <div class="mochart-demo-container">
+      <div class="mochart-demo-tabs-container">
+        <div class="mochart-demo-nav-group">
+          @if (siteRootUrl !== undefined) {
+            <a appSiteRootButton [href]="siteRootUrl"></a>
+          }
+          <button appBackToDemosButton (click)="onBackToDemos()"></button>
+        </div>
+      </div>
       <div #charts class="rotation-charts">
         @if (colWidth > 0) {
           @for (config of configs; track $index; let i = $index) {
@@ -32,6 +41,9 @@ import { createElementSize } from '../misc/element-size';
 })
 export class DemoRotation implements AfterViewInit, OnDestroy {
   @ViewChild('charts', { static: true }) chartsElement!: ElementRef<HTMLDivElement>;
+
+  @Input() siteRootUrl?: string;
+  @Input({ required: true }) onBackToDemos!: () => void;
 
   readonly configs = configs;
   readonly data = data;

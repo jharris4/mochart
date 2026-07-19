@@ -3,86 +3,72 @@ import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 
-import { DemosTab } from '../demos/demos-tab';
 import { RandomContent } from './random-content';
+import { BackToDemosButton, ModeSwitcher, SiteRootButton } from '../misc/mode-switcher';
 
-import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { DemoData, MochartDemoConfig, RandomConfigWithValid, SwitchableDemoMode } from '../../types';
 
 const eventKeyChart = 1;
-const eventKeyDemo = 2;
-const eventKeyConfig = 3;
-const eventKeyData = 4;
-
-function getActiveKeyForInitialDemoId(initialDemoId: string): number {
-  return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
-}
+const eventKeyConfig = 2;
+const eventKeyData = 3;
 
 @Component({
   selector: 'app-demo-random',
-  imports: [DemosTab, RandomContent],
+  imports: [RandomContent, BackToDemosButton, ModeSwitcher, SiteRootButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container multi">
       <div class="mochart-demo-tabs-container">
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyDemo ? ' active' : '')"
-                    (click)="handleSelect(eventKeys.eventKeyDemo)">
-              {{ text.demos }}
-            </button>
-          </li>
-          <li class="nav-item" [style.display]="isDemos ? 'none' : null">
-            <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyChart ? ' active' : '')"
-                    (click)="handleSelect(eventKeys.eventKeyChart)">
-              {{ text.chart }}
-            </button>
-          </li>
-          <li class="nav-item" [style.display]="isDemos ? 'none' : null">
-            <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyConfig ? ' active' : '')"
-                    (click)="handleSelect(eventKeys.eventKeyConfig)">
-              {{ text.randomConfig }}
-            </button>
-          </li>
-          <li class="nav-item" [style.display]="isDemos ? 'none' : null">
-            <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyData ? ' active' : '')"
-                    (click)="handleSelect(eventKeys.eventKeyData)">
-              {{ text.data }}
-            </button>
-          </li>
-        </ul>
+        <div class="mochart-demo-nav-group">
+          @if (siteRootUrl !== undefined) {
+            <a appSiteRootButton [href]="siteRootUrl"></a>
+          }
+          <button appBackToDemosButton (click)="onBackToDemos()"></button>
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyChart ? ' active' : '')"
+                      (click)="handleSelect(eventKeys.eventKeyChart)">
+                {{ text.chart }}
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyConfig ? ' active' : '')"
+                      (click)="handleSelect(eventKeys.eventKeyConfig)">
+                {{ text.randomConfig }}
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" [class]="'nav-link' + (activeKey() === eventKeys.eventKeyData ? ' active' : '')"
+                      (click)="handleSelect(eventKeys.eventKeyData)">
+                {{ text.data }}
+              </button>
+            </li>
+          </ul>
+        </div>
+        <app-mode-switcher [demoMode]="'random'" [onModeChanged]="onModeChanged" />
       </div>
       <div class="mochart-demo-content-pane">
-        @if (isDemos) {
-          <div class="mochart-demo-content single-tab">
-            <app-demos-tab [active]="activeKey() === eventKeys.eventKeyDemo" [demoData]="demoData" [demoMode]="demoMode" [demoId]="demoId()"
-                           [onDemoModeChanged]="onDemoModeChanged" [onDemoChange]="onDemoChange" />
-          </div>
-        } @else {
-          <app-random-content [demoData]="demoData" [mochartDemoConfig]="mochartDemoConfig()!" [initialRandomConfig]="randomConfig()!"
-                              [demoMode]="demoMode" [initialDemoId]="initialDemoId" [demoId]="demoId()"
-                              [onDemoModeChanged]="onDemoModeChanged" [onDemoChange]="onDemoChange" [activeKey]="activeKey()"
-                              [eventKeys]="eventKeys"
-                              [randomId]="randomId" [incrementRandomId]="incrementRandomId" [decrementRandomId]="decrementRandomId" />
-        }
+        <app-random-content [mochartDemoConfig]="mochartDemoConfig()!" [initialRandomConfig]="randomConfig()!"
+                            [activeKey]="activeKey()" [eventKeys]="eventKeys"
+                            [randomId]="randomId" [incrementRandomId]="incrementRandomId" [decrementRandomId]="decrementRandomId" />
       </div>
     </div>
   `
 })
 export class DemoRandom implements OnInit, OnChanges {
   @Input({ required: true }) demoData!: DemoData;
-  @Input({ required: true }) demoMode!: DemoMode;
   @Input({ required: true }) initialDemoId!: string;
-  @Input({ required: true }) onDemoModeChanged!: OnDemoModeChanged;
-  @Input({ required: true }) onDemoChanged!: OnDemoChanged;
+  @Input() siteRootUrl?: string;
+  @Input({ required: true }) onModeChanged!: (nextDemoMode: SwitchableDemoMode) => void;
+  @Input({ required: true }) onBackToDemos!: () => void;
   @Input({ required: true }) randomId!: number;
   @Input({ required: true }) incrementRandomId!: () => void;
   @Input({ required: true }) decrementRandomId!: () => void;
 
   readonly text = demoText.tabs;
 
-  readonly eventKeys = { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData };
+  readonly eventKeys = { eventKeyChart, eventKeyConfig, eventKeyData };
 
-  demoId = signal('');
   activeKey = signal(eventKeyChart);
   mochartDemoConfig = signal<MochartDemoConfig | null>(null);
   randomConfig = signal<RandomConfigWithValid | null>(null);
@@ -96,44 +82,25 @@ export class DemoRandom implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.demoId.set(this.initialDemoId);
-    this.activeKey.set(getActiveKeyForInitialDemoId(this.initialDemoId));
-    if (this.initialDemoId !== 'demos') {
-      const initialState = this.buildStateForDemo(this.initialDemoId);
-      this.mochartDemoConfig.set(initialState.mochartDemoConfig);
-      this.randomConfig.set(initialState.randomConfig);
-    }
+    const initialState = this.buildStateForDemo(this.initialDemoId);
+    this.mochartDemoConfig.set(initialState.mochartDemoConfig);
+    this.randomConfig.set(initialState.randomConfig);
   }
 
+  // When the routed demo changes, rebuild the generator state (RandomContent
+  // distinguishes a demo change from a randomId step via its own inputs).
   ngOnChanges(changes: SimpleChanges): void {
     const initialDemoIdChange = changes['initialDemoId'];
     if (!initialDemoIdChange || initialDemoIdChange.firstChange) {
       return;
     }
-    const nextInitialDemoId = this.initialDemoId;
-    if (nextInitialDemoId !== 'demos') {
-      const nextState = this.buildStateForDemo(nextInitialDemoId);
-      this.demoId.set(nextInitialDemoId);
-      this.activeKey.set(getActiveKeyForInitialDemoId(nextInitialDemoId));
-      this.mochartDemoConfig.set(nextState.mochartDemoConfig);
-      this.randomConfig.set(nextState.randomConfig);
-    }
-    else {
-      this.demoId.set(nextInitialDemoId);
-      this.activeKey.set(getActiveKeyForInitialDemoId(nextInitialDemoId));
-    }
+    const nextState = this.buildStateForDemo(this.initialDemoId);
+    this.activeKey.set(eventKeyChart);
+    this.mochartDemoConfig.set(nextState.mochartDemoConfig);
+    this.randomConfig.set(nextState.randomConfig);
   }
-
-  onDemoChange = (nextDemoId: string): void => {
-    this.demoId.set(nextDemoId);
-    this.onDemoChanged(nextDemoId);
-  };
 
   handleSelect(nextActiveKey: number): void {
     this.activeKey.set(nextActiveKey);
-  }
-
-  get isDemos(): boolean {
-    return this.initialDemoId === 'demos';
   }
 }
