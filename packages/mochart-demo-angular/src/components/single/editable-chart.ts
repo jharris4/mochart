@@ -3,12 +3,12 @@ import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart } from '@mochart/angular';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
-import { ShareButton } from '../misc/share-button';
-import { ExportButtons } from '../misc/export-buttons';
+import { ExportShareMenu } from '../misc/export-share-menu';
 import { Icon } from '../misc/icon';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
@@ -34,7 +34,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
 
 @Component({
   selector: 'app-editable-chart',
-  imports: [Chart, ButtonWithTooltip, ExportButtons, ShareButton, Icon],
+  imports: [Chart, ButtonWithTooltip, ExportShareMenu, Icon],
   styles: [':host { display: contents; }'],
   template: `
     <div class="editable-mochart-chart">
@@ -72,10 +72,6 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                           <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
                         </app-button-with-tooltip>
                       </div>
-                      <app-export-buttons idPrefix="edit" [disabled]="!!error" [getContainer]="getChartContent" />
-                      @if (showShareButton) {
-                        <app-share-button idPrefix="edit" [getShareState]="getShareState" />
-                      }
                       <div class="btn-group">
                         <app-button-with-tooltip id="edit-reset-groups" [disabled]="error || sequencePlaying()" [label]="text.resetGroups.label" [tooltipText]="text.resetGroups.tooltip" tooltipPlacement="right"
                                                  [onClick]="resetGroups" [aria-label]="text.resetGroups.aria">
@@ -120,6 +116,11 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                          [value]="groupValuesText()" (input)="onGroupValuesInput($event)" />
                 </form>
               </span>
+              <span class="chart-controls-menu">
+                <app-export-share-menu idPrefix="edit" [disabled]="error"
+                                       [exportPng]="onExportPng" [exportSvg]="onExportSvg"
+                                       [getShareState]="showShareButton ? getShareState : undefined" />
+              </span>
             </div>
           } @else {
             <div class="chart-controls-container">
@@ -145,10 +146,6 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                           <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
                         </app-button-with-tooltip>
                       </div>
-                      <app-export-buttons idPrefix="edit" [disabled]="!!error" [getContainer]="getChartContent" />
-                      @if (showShareButton) {
-                        <app-share-button idPrefix="edit" [getShareState]="getShareState" />
-                      }
                     </div>
                   </div>
                   <div class="form-group">
@@ -215,6 +212,11 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                          [value]="seriesValuesText()" (input)="onSeriesValuesInput($event)" />
                 </form>
               </span>
+              <span class="chart-controls-menu">
+                <app-export-share-menu idPrefix="edit" [disabled]="error"
+                                       [exportPng]="onExportPng" [exportSvg]="onExportSvg"
+                                       [getShareState]="showShareButton ? getShareState : undefined" />
+              </span>
             </div>
           }
         </div>
@@ -229,7 +231,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   @Input({ required: true }) mochartDemoConfig!: MochartDemoConfig;
   @Input({ required: true }) data!: Row[];
 
-  getShareState = (): { config: Record<string, unknown>; data: Row[] } => ({ config: this.mochartDemoConfig.config, data: this.data });
+  getShareState = (): { mode: 'single'; config: Record<string, unknown>; data: Row[] } => ({ mode: 'single', config: this.mochartDemoConfig.config, data: this.data });
   @Input() dataError: string | boolean | null = false;
   @Input({ required: true }) isActive!: boolean;
   @Input({ required: true }) chartCount!: number;
@@ -263,6 +265,20 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   orderChanged = signal(false);
 
   getChartContent = (): Element | null => this.chartContentElement?.nativeElement ?? null;
+
+  onExportPng = (): void => {
+    const container = this.getChartContent();
+    if (container) {
+      void exportPNG(container);
+    }
+  };
+
+  onExportSvg = (): void => {
+    const container = this.getChartContent();
+    if (container) {
+      exportSVG(container);
+    }
+  };
 
   private getFilteredFocusedGroupIndex(nextFilteredData: Row[]): number {
     let nextFilteredFocusedGroupIndex = -1;

@@ -42,6 +42,18 @@ export interface ExportPngOptions extends ExportSvgOptions {
   scale?: number;
 }
 
+export interface StitchOptions extends ExportSvgOptions {
+  /** Number of columns in the tiled grid; rows are derived from the count. */
+  cols: number;
+  /** Gap in pixels between tiles (both axes). Defaults to 0. */
+  gap?: number;
+}
+
+export interface StitchPngOptions extends StitchOptions {
+  /** Rasterization scale relative to the tiled grid's pixel size. */
+  scale?: number;
+}
+
 /**
  * Find the chart svg for an element that is the chart root
  * (div.mochart-chart), any ancestor of it, or the svg itself.
@@ -119,27 +131,91 @@ export function getChartSvgText(element: Element, options: ExportSvgOptions = {}
   return svgElement ? getSvgText(svgElement, options) : null;
 }
 
-function getSvgText(svgElement: SVGSVGElement, options: ExportSvgOptions): string {
-  const { transparent = false, backgroundColor = '#ffffff' } = options;
+function makeBackgroundRect(width: number, height: number, backgroundColor: string): SVGRectElement {
+  const backgroundRect = document.createElementNS(SVG_NS, 'rect') as SVGRectElement;
+  backgroundRect.setAttribute('width', String(width));
+  backgroundRect.setAttribute('height', String(height));
+  backgroundRect.style.setProperty('fill', backgroundColor);
+  backgroundRect.style.setProperty('fill-opacity', '1');
+  return backgroundRect;
+}
+
+/**
+ * Clone a live chart svg with its computed presentation styles inlined and the
+ * crosshair removed, so it serializes/renders the same off-page. No background
+ * is painted here — callers add one to the (possibly composed) outer svg.
+ */
+function cloneChartSvg(svgElement: SVGSVGElement): SVGSVGElement {
   const svgCloneElement = svgElement.cloneNode(true) as SVGSVGElement;
   inlineComputedStyles(svgCloneElement, svgElement);
-
-  if (!transparent) {
-    const { width, height } = getSvgSize(svgElement);
-    const backgroundRect = document.createElementNS(SVG_NS, 'rect');
-    backgroundRect.setAttribute('width', String(width));
-    backgroundRect.setAttribute('height', String(height));
-    backgroundRect.style.setProperty('fill', backgroundColor);
-    backgroundRect.style.setProperty('fill-opacity', '1');
-    svgCloneElement.insertBefore(backgroundRect, svgCloneElement.firstChild);
-  }
-
-  // remove the crosshair from the svg if it is present
   for (const crosshairElement of svgCloneElement.querySelectorAll('.' + crosshairClass)) {
     crosshairElement.parentNode?.removeChild(crosshairElement);
   }
+  return svgCloneElement;
+}
+
+function getSvgText(svgElement: SVGSVGElement, options: ExportSvgOptions): string {
+  const { transparent = false, backgroundColor = '#ffffff' } = options;
+  const svgCloneElement = cloneChartSvg(svgElement);
+
+  if (!transparent) {
+    const { width, height } = getSvgSize(svgElement);
+    svgCloneElement.insertBefore(makeBackgroundRect(width, height, backgroundColor), svgCloneElement.firstChild);
+  }
 
   return new XMLSerializer().serializeToString(svgCloneElement);
+}
+
+/**
+ * Compose several live chart svgs into one standalone svg, tiling them left to
+ * right, top to bottom into `cols` columns. Every tile is sized to the largest
+ * chart so the grid stays aligned. Returns null when no chart svg is found.
+ */
+function getStitchedSvgText(elements: Element[], options: StitchOptions): string | null {
+  const { transparent = false, backgroundColor = '#ffffff', cols, gap = 0 } = options;
+  const charts: { svg: SVGSVGElement; width: number; height: number }[] = [];
+  for (const element of elements) {
+    const svg = findChartSvg(element);
+    if (svg) {
+      const { width, height } = getSvgSize(svg);
+      charts.push({ svg, width, height });
+    }
+  }
+  if (charts.length === 0) {
+    return null;
+  }
+  const columns = Math.max(1, Math.floor(cols));
+  const rows = Math.ceil(charts.length / columns);
+  const cellWidth = charts.reduce((max, chart) => Math.max(max, chart.width), 0);
+  const cellHeight = charts.reduce((max, chart) => Math.max(max, chart.height), 0);
+  const totalWidth = columns * cellWidth + (columns - 1) * gap;
+  const totalHeight = rows * cellHeight + (rows - 1) * gap;
+
+  const outer = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
+  outer.setAttribute('xmlns', SVG_NS);
+  outer.setAttribute('width', String(totalWidth));
+  outer.setAttribute('height', String(totalHeight));
+  outer.setAttribute('viewBox', '0 0 ' + totalWidth + ' ' + totalHeight);
+
+  if (!transparent) {
+    outer.appendChild(makeBackgroundRect(totalWidth, totalHeight, backgroundColor));
+  }
+
+  charts.forEach((chart, index) => {
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+    // Center each chart within its (max-sized) cell so uneven sizes stay tidy.
+    const x = col * (cellWidth + gap) + (cellWidth - chart.width) / 2;
+    const y = row * (cellHeight + gap) + (cellHeight - chart.height) / 2;
+    const clone = cloneChartSvg(chart.svg);
+    clone.setAttribute('x', String(x));
+    clone.setAttribute('y', String(y));
+    clone.setAttribute('width', String(chart.width));
+    clone.setAttribute('height', String(chart.height));
+    outer.appendChild(clone);
+  });
+
+  return new XMLSerializer().serializeToString(outer);
 }
 
 function saveBlob(blob: Blob, filename: string): void {
@@ -169,22 +245,9 @@ export function exportSVG(element: Element, options: ExportSvgOptions = {}): boo
   return true;
 }
 
-/**
- * Download the chart found in (or at) `element` as a png file, rasterized
- * through an offscreen canvas. Resolves to true when a chart svg was found
- * and the download was started.
- */
-export function exportPNG(element: Element, options: ExportPngOptions = {}): Promise<boolean> {
-  const svgElement = findChartSvg(element);
-  if (!svgElement) {
-    return Promise.resolve(false);
-  }
-  const { scale = 2 } = options;
-  const filename = getFilename(svgElement, options);
-  const svgText = getSvgText(svgElement, options);
-  const { width, height } = getSvgSize(svgElement);
-
-  return new Promise<boolean>((resolve, reject) => {
+/** Rasterize standalone svg markup to a png blob via an offscreen canvas. */
+function rasterizeSvgText(svgText: string, width: number, height: number, scale: number): Promise<Blob> {
+  return new Promise<Blob>((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
@@ -201,8 +264,7 @@ export function exportPNG(element: Element, options: ExportPngOptions = {}): Pro
           reject(new Error('mochart-export: could not encode the chart canvas as png'));
           return;
         }
-        saveBlob(blob, filename + '.png');
-        resolve(true);
+        resolve(blob);
       });
     };
     img.onerror = () => {
@@ -210,4 +272,84 @@ export function exportPNG(element: Element, options: ExportPngOptions = {}): Pro
     };
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
   });
+}
+
+/**
+ * Download the chart found in (or at) `element` as a png file, rasterized
+ * through an offscreen canvas. Resolves to true when a chart svg was found
+ * and the download was started.
+ */
+export function exportPNG(element: Element, options: ExportPngOptions = {}): Promise<boolean> {
+  const svgElement = findChartSvg(element);
+  if (!svgElement) {
+    return Promise.resolve(false);
+  }
+  const { scale = 2 } = options;
+  const filename = getFilename(svgElement, options);
+  const svgText = getSvgText(svgElement, options);
+  const { width, height } = getSvgSize(svgElement);
+  return rasterizeSvgText(svgText, width, height, scale).then((blob) => {
+    saveBlob(blob, filename + '.png');
+    return true;
+  });
+}
+
+function getStitchedFilename(elements: Element[], options: StitchOptions): string {
+  if (options.filename) {
+    return options.filename;
+  }
+  for (const element of elements) {
+    const svg = findChartSvg(element);
+    if (svg) {
+      return getFilename(svg, options);
+    }
+  }
+  return options.filenamePrefix ? options.filenamePrefix + 'export' : 'export';
+}
+
+function getStitchedSize(svgText: string): { width: number; height: number } {
+  const widthMatch = /\bwidth="([\d.]+)"/.exec(svgText);
+  const heightMatch = /\bheight="([\d.]+)"/.exec(svgText);
+  return {
+    width: widthMatch ? parseFloat(widthMatch[1]) : 0,
+    height: heightMatch ? parseFloat(heightMatch[1]) : 0
+  };
+}
+
+/**
+ * Download several charts tiled into one svg file (see getStitchedSvgText for
+ * the layout). Returns true when at least one chart svg was found.
+ */
+export function exportChartsSVG(elements: Element[], options: StitchOptions): boolean {
+  const svgText = getStitchedSvgText(elements, options);
+  if (svgText === null) {
+    return false;
+  }
+  const filename = getStitchedFilename(elements, options);
+  const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+  saveBlob(blob, filename + '.svg');
+  return true;
+}
+
+/**
+ * Download several charts tiled into one png file, rasterized through an
+ * offscreen canvas. Resolves to true when at least one chart svg was found.
+ */
+export function exportChartsPNG(elements: Element[], options: StitchPngOptions): Promise<boolean> {
+  const svgText = getStitchedSvgText(elements, options);
+  if (svgText === null) {
+    return Promise.resolve(false);
+  }
+  const { scale = 2 } = options;
+  const filename = getStitchedFilename(elements, options);
+  const { width, height } = getStitchedSize(svgText);
+  return rasterizeSvgText(svgText, width, height, scale).then((blob) => {
+    saveBlob(blob, filename + '.png');
+    return true;
+  });
+}
+
+/** Serialize several charts tiled into one standalone svg string (no download). */
+export function getStitchedChartsSvgText(elements: Element[], options: StitchOptions): string | null {
+  return getStitchedSvgText(elements, options);
 }

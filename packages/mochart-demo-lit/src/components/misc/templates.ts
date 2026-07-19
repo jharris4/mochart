@@ -1,7 +1,6 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 
-import { exportPNG, exportSVG } from '@mochart/export';
 import { demoText, getReferenceSectionIds, getReferenceSectionUrl } from '@mochart/demo-common';
 
 // Stateless building blocks kept as plain lit-html template functions rather
@@ -74,41 +73,6 @@ interface TextAreaContentProps {
 export function textAreaContent({ value, onChange }: TextAreaContentProps): TemplateResult {
   return html`<div class="text-area-content">
     <textarea .value=${value} @input=${(event: Event) => onChange((event.currentTarget as HTMLTextAreaElement).value)}></textarea>
-  </div>`;
-}
-
-interface ExportButtonsProps {
-  idPrefix: string;
-  getContainer: () => Element | null;
-  disabled?: boolean;
-}
-
-/**
- * Download buttons for the chart found inside the container element
- * (mochart-export locates the chart svg itself).
- */
-export function exportButtons({ idPrefix, getContainer, disabled = false }: ExportButtonsProps): TemplateResult {
-  const onExportPng = () => {
-    const container = getContainer();
-    if (container) {
-      void exportPNG(container);
-    }
-  };
-  const onExportSvg = () => {
-    const container = getContainer();
-    if (container) {
-      exportSVG(container);
-    }
-  };
-  return html`<div class="btn-group">
-    ${buttonWithTooltip(
-      { id: idPrefix + '-export-png', disabled, label: demoText.exportButtons.png.label, tooltipText: demoText.exportButtons.png.tooltip, tooltipPlacement: 'top-start', onClick: onExportPng, ariaLabel: demoText.exportButtons.png.aria },
-      icon({ size: 'lg', fixedWidth: true, name: 'file-image' })
-    )}
-    ${buttonWithTooltip(
-      { id: idPrefix + '-export-svg', disabled, label: demoText.exportButtons.svg.label, tooltipText: demoText.exportButtons.svg.tooltip, tooltipPlacement: 'top-start', onClick: onExportSvg, ariaLabel: demoText.exportButtons.svg.aria },
-      icon({ size: 'lg', fixedWidth: true, name: 'file-code' })
-    )}
   </div>`;
 }
 

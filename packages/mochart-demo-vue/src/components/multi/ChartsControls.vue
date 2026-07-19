@@ -2,12 +2,17 @@
 import { ref } from 'vue';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
+import ExportShareMenu from '../misc/ExportShareMenu.vue';
 import Icon from '../misc/Icon.vue';
 
 interface Props {
   playing: boolean;
+  initialRows: number;
+  initialCols: number;
+  initialRate: number;
   onRowsChange: (rows: number) => void;
   onColsChange: (cols: number) => void;
   onStepBackwardClick: () => void;
@@ -16,17 +21,17 @@ interface Props {
   onPlayForwardClick: () => void;
   onStopClick: () => void;
   onRateChange: (rate: number) => void;
+  exportPng: () => void;
+  exportSvg: () => void;
+  getShareState: () => ShareState;
 }
-
-const defaultChartRows = 2;
-const defaultChartCols = 2;
-const defaultRate = 2000;
 
 const props = defineProps<Props>();
 
-const rateText = ref('' + defaultRate);
-const rowsText = ref('' + defaultChartRows);
-const colsText = ref('' + defaultChartCols);
+// Seed the inputs from the (possibly share-restored) initial values.
+const rateText = ref('' + props.initialRate);
+const rowsText = ref('' + props.initialRows);
+const colsText = ref('' + props.initialCols);
 
 // Input values arrive as strings and are coerced to numbers in place, so the
 // working variable is intentionally loose (matching the original demo).
@@ -105,6 +110,11 @@ function rateChanged(event: Event) {
         <label class="form-control-plaintext" for="multi-rate">{{ demoText.multiChartsTab.intervalLabel }}</label>
         <input id="multi-rate" :disabled="props.playing" type="number" min="5" max="60000" step="100" class="form-control" :value="rateText"
                :aria-label="demoText.multiChartsTab.intervalAria" @input="rateChanged" />
+      </div>
+      <div class="form-group">
+        <div class="btn-toolbar" role="toolbar">
+          <ExportShareMenu id-prefix="multi" :export-png="props.exportPng" :export-svg="props.exportSvg" :get-share-state="props.getShareState" />
+        </div>
       </div>
     </form>
   </div>

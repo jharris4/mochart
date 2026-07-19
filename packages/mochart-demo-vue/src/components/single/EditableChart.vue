@@ -3,12 +3,13 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart } from '@mochart/vue';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
-import ExportButtons from '../misc/ExportButtons.vue';
-import ShareButton from '../misc/ShareButton.vue';
+import ExportShareMenu from '../misc/ExportShareMenu.vue';
 import Icon from '../misc/Icon.vue';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
@@ -569,6 +570,26 @@ const isFirstGroup = computed(() => groupIndex.value === 0);
 const isLastGroup = computed(() => groupIndex.value === filteredGroupValues.value.length - 1);
 const hasPrevSeries = computed(() => seriesIndex.value > 0);
 const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig.seriesCount - 1);
+
+// The export/share menu sits at the far right of the controls row. Share is
+// only offered on the chart flagged for it (the first, when two are shown).
+function onExportPng() {
+  const container = chartContentElement.value;
+  if (container) {
+    void exportPNG(container);
+  }
+}
+
+function onExportSvg() {
+  const container = chartContentElement.value;
+  if (container) {
+    exportSVG(container);
+  }
+}
+
+function getSingleShareState(): ShareState {
+  return { mode: 'single', config: props.mochartDemoConfig.config, data: props.data };
+}
 </script>
 
 <template>
@@ -604,8 +625,6 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
                   </div>
-                  <ExportButtons id-prefix="edit" :disabled="!!error" :get-container="() => chartContentElement" />
-                  <ShareButton v-if="props.showShareButton" id-prefix="edit" :get-share-state="() => ({ config: props.mochartDemoConfig.config, data: props.data })" />
                   <div class="btn-group">
                     <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" :label="demoText.editableChart.resetGroups.label" :tooltip-text="demoText.editableChart.resetGroups.tooltip" tooltip-placement="right"
                                        :on-click="resetGroups" :aria-label="demoText.editableChart.resetGroups.aria">
@@ -649,6 +668,11 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
               <input type="text" class="form-control" :disabled="error || sequencePlaying" v-model="groupValuesText" />
             </form>
           </span>
+          <span class="chart-controls-menu">
+            <ExportShareMenu id-prefix="edit" :disabled="error"
+                             :export-png="onExportPng" :export-svg="onExportSvg"
+                             :get-share-state="props.showShareButton ? getSingleShareState : void 0" />
+          </span>
         </div>
         <div v-else class="chart-controls-container">
           <div class="chart-controls-buttons">
@@ -671,8 +695,6 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
                   </div>
-                  <ExportButtons id-prefix="edit" :disabled="!!error" :get-container="() => chartContentElement" />
-                  <ShareButton v-if="props.showShareButton" id-prefix="edit" :get-share-state="() => ({ config: props.mochartDemoConfig.config, data: props.data })" />
                 </div>
               </div>
               <div class="form-group">
@@ -737,6 +759,11 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
             <form class="form-inline">
               <input type="text" class="form-control" :disabled="error || seriesControlsDisabled" v-model="seriesValuesText" />
             </form>
+          </span>
+          <span class="chart-controls-menu">
+            <ExportShareMenu id-prefix="edit" :disabled="error"
+                             :export-png="onExportPng" :export-svg="onExportSvg"
+                             :get-share-state="props.showShareButton ? getSingleShareState : void 0" />
           </span>
         </div>
       </div>

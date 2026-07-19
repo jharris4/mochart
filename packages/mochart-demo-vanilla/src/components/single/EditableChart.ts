@@ -1,4 +1,5 @@
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
 
@@ -6,8 +7,7 @@ import type { ShareState } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
-import { exportButtons } from '../misc/ExportButtons';
-import { shareButton } from '../misc/ShareButton';
+import { exportShareMenu } from '../misc/ExportShareMenu';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -585,15 +585,21 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     onClick: onModeToggle,
     content: [icon('bullseye', { size: 'lg', fixedWidth: true })]
   });
-  const exportGroup = exportButtons('edit', () => chartContentElement);
-  const shareGroup = props.showShareButton
-    ? shareButton('edit', (): ShareState => ({ config: mochartDemoConfig.config, data }))
-    : null;
+  // The export/share menu sits at the far right of the controls row (past the
+  // group/series input). Share is only offered on the chart flagged for it
+  // (the first, when two are shown).
+  const exportShareMenuHandle = exportShareMenu({
+    idPrefix: 'edit',
+    exportPng: () => { void exportPNG(chartContentElement); },
+    exportSvg: () => { exportSVG(chartContentElement); },
+    getShareState: props.showShareButton
+      ? (): ShareState => ({ mode: 'single', config: mochartDemoConfig.config, data })
+      : undefined
+  });
+  const menuSpan = el('span', { className: 'chart-controls-menu' }, [exportShareMenuHandle.el]);
   const commonControls = [
     ...(chartCountButton ? [el('div', { className: 'btn-group' }, [chartCountButton.el])] : []),
-    el('div', { className: 'btn-group' }, [modeButton.el]),
-    exportGroup.el,
-    ...(shareGroup ? [shareGroup.el] : [])
+    el('div', { className: 'btn-group' }, [modeButton.el])
   ];
 
   // Group-mode panel
@@ -791,6 +797,13 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       seriesCommonToolbar.append(...commonControls);
     }
 
+    // Keep the export/share menu as the last child of the visible panel (after
+    // its input), so it stays pinned to the far right of the active row.
+    const activePanel = groupMode ? groupPanel : seriesPanel;
+    if (menuSpan.parentElement !== activePanel) {
+      activePanel.append(menuSpan);
+    }
+
     modeButton.setLabel(groupMode ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups);
     modeButton.setTooltip(groupMode
       ? demoText.editableChart.editMode.tooltipToSeries
@@ -801,7 +814,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       chartCountButton.setTooltip(chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow);
       chartCountButton.setContent([icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]);
     }
-    exportGroup.setDisabled(!!error);
+    exportShareMenuHandle.setDisabled(!!error);
 
     resetGroupsButton.setDisabled(error || sequencePlaying);
     reverseGroupsButton.setDisabled(error || sequencePlaying);
@@ -878,6 +891,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     },
     destroy() {
       stopSequenceInternal();
+      exportShareMenuHandle.destroy();
       chartHost.destroy();
     }
   };

@@ -2,8 +2,10 @@
   import { untrack, onDestroy } from 'svelte';
 
   import { Chart } from '@mochart/svelte';
+  import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-  import { buildMochartDemoConfig, getDataProvidersForDataCount } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+  import type { ShareState } from '@mochart/demo-common';
 
   import ChartsControls from './ChartsControls.svelte';
 
@@ -23,12 +25,26 @@
 
   let { demoObject, active = false }: Props = $props();
 
+  function clampGrid(value: number): number {
+    return Math.min(4, Math.max(1, Math.round(value)));
+  }
+
   let intervalId: ReturnType<typeof setInterval> | null = null;
+  let gridElement = $state<HTMLDivElement | null>(null);
+
+  // A share link restores the grid size, playback step and interval; otherwise
+  // start on the defaults / full data set.
+  const sharedState = consumeShareState('multi');
+  const shared = sharedState && sharedState.mode === 'multi' ? sharedState : null;
+
+  const initialChartRows = shared ? clampGrid(shared.rows) : defaultChartRows;
+  const initialChartCols = shared ? clampGrid(shared.cols) : defaultChartCols;
+  const initialRate = shared ? shared.interval : defaultRate;
 
   let playing = $state(false);
-  let chartRows = $state(defaultChartRows);
-  let chartCols = $state(defaultChartCols);
-  let rate = $state(defaultRate);
+  let chartRows = $state(initialChartRows);
+  let chartCols = $state(initialChartCols);
+  let rate = $state(initialRate);
   // Props intentionally seed local state with their initial value only; the
   // $effect.pre below re-syncs everything when the demo changes.
   // svelte-ignore state_referenced_locally
@@ -37,11 +53,14 @@
   let data = $state.raw(demoObject.data);
   // svelte-ignore state_referenced_locally
   let dataCount = $state(demoObject.data.length);
+  // A shared step seeks the playback position; otherwise start on the full set.
   // svelte-ignore state_referenced_locally
-  let currentDataCount = $state(demoObject.data.length);
+  let currentDataCount = $state(shared && demoObject.data.length > 0
+    ? ((Math.round(shared.step) % demoObject.data.length) + demoObject.data.length) % demoObject.data.length
+    : demoObject.data.length);
   // svelte-ignore state_referenced_locally
   let dataProviders = $state.raw(getDataProvidersForDataCount(
-    mochartDemoConfig.mochartConfig, demoObject.data, defaultChartRows * defaultChartCols, demoObject.data.length));
+    mochartDemoConfig.mochartConfig, demoObject.data, initialChartRows * initialChartCols, currentDataCount));
   // svelte-ignore state_referenced_locally
   let focusedGroupIndices = $state.raw<number[]>(dataProviders.map(() => -1));
   let focusedGroupIndex = $state(-1);
@@ -202,6 +221,30 @@
     filteredSeriesIds = { ...nextFilteredSeriesIds };
   }
 
+  // The whole grid exports as one tiled image; share captures the grid size,
+  // playback step and interval so the link restores the same view.
+  function getChartContainers(): Element[] {
+    return gridElement ? Array.from(gridElement.querySelectorAll('.multi-mochart-chart')) : [];
+  }
+
+  function onExportPng() {
+    const containers = getChartContainers();
+    if (containers.length > 0) {
+      void exportChartsPNG(containers, { cols: chartCols });
+    }
+  }
+
+  function onExportSvg() {
+    const containers = getChartContainers();
+    if (containers.length > 0) {
+      exportChartsSVG(containers, { cols: chartCols });
+    }
+  }
+
+  function getShareState(): ShareState {
+    return { mode: 'multi', rows: chartRows, cols: chartCols, step: currentDataCount, interval: rate };
+  }
+
   // Measured size of the charts grid.
   let gridWidth = $state(0);
   let gridHeight = $state(0);
@@ -211,7 +254,7 @@
 </script>
 
 <div class={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
-  <div class="multi-charts-sizer" bind:clientWidth={gridWidth} bind:clientHeight={gridHeight}>
+  <div class="multi-charts-sizer" bind:this={gridElement} bind:clientWidth={gridWidth} bind:clientHeight={gridHeight}>
     {#if gridWidth > 0}
       <div class="multi-charts">
         {#each dataProviders as dataProvider, i (i)}
@@ -224,8 +267,10 @@
       </div>
     {/if}
   </div>
-  <ChartsControls {playing} {onRowsChange} {onColsChange}
+  <ChartsControls {playing} initialRows={initialChartRows} initialCols={initialChartCols} {initialRate}
+                  {onRowsChange} {onColsChange}
                   {onStepBackwardClick} {onStepForwardClick}
                   {onPlayBackwardClick} {onPlayForwardClick}
-                  {onStopClick} {onRateChange} />
+                  {onStopClick} {onRateChange}
+                  exportPng={onExportPng} exportSvg={onExportSvg} {getShareState} />
 </div>

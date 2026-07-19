@@ -11,7 +11,7 @@ import './random-config-tab';
 import './random-data-tab';
 import '../misc/error-tab';
 
-import { demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -37,6 +37,9 @@ export class RandomContent extends LightElement {
   // Reuse defaults on to match the generator's historical behavior (the
   // config's reuse settings were always applied before the toggle worked).
   @state() private applyReuse = true;
+  // Restored from a share link (the interval seeds the chart tab's rate);
+  // undefined for a normal mount, where the default rate applies.
+  private initialRate: number | undefined = void 0;
 
   private toggleApplyReuse = (): void => {
     this.applyReuse = !this.applyReuse;
@@ -115,8 +118,21 @@ export class RandomContent extends LightElement {
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (!this.hasUpdated) {
-      this.randomConfig = this.initialRandomConfig;
-      this.updateDataProvider(this.initialRandomConfig);
+      // A share link restores the generator config, reuse toggle and interval
+      // (the step comes from the randomId in the URL path). Consume it once.
+      const shared = consumeShareState('random');
+      const sharedRandom = shared && shared.mode === 'random' ? shared : null;
+      if (sharedRandom) {
+        this.applyReuse = sharedRandom.applyReuse;
+        this.initialRate = sharedRandom.interval;
+        const restored: RandomConfigWithValid = { ...sharedRandom.randomConfig, valid: true };
+        this.randomConfig = restored;
+        this.updateDataProvider(restored);
+      }
+      else {
+        this.randomConfig = this.initialRandomConfig;
+        this.updateDataProvider(this.initialRandomConfig);
+      }
       return;
     }
     // A demo change arrives as new config objects (and resets the random
@@ -152,6 +168,7 @@ export class RandomContent extends LightElement {
     return html`<div class="mochart-demo-content">
       <error-tab .active=${this.activeKey === eventKeyChart} .content=${() =>
         html`<random-chart-tab .active=${this.activeKey === eventKeyChart} .mochartConfig=${this.mochartDemoConfig.mochartConfig} .dataProvider=${this.dataProvider}
+            .randomConfig=${this.randomConfig} .initialRate=${this.initialRate}
             .onRandomizeBack=${this.onRandomizeBack} .onRandomizeNext=${this.onRandomizeNext}
             .applyReuse=${this.applyReuse} .toggleApplyReuse=${this.toggleApplyReuse}></random-chart-tab>`}></error-tab>
       <error-tab .active=${this.activeKey === eventKeyConfig} .content=${() =>

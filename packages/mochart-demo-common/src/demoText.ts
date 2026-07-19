@@ -61,6 +61,10 @@ export const demoText = {
     png: { label: 'PNG', tooltip: 'Download the chart as a PNG image', aria: 'Export PNG' },
     svg: { label: 'SVG', tooltip: 'Download the chart as an SVG image', aria: 'Export SVG' }
   },
+  // The collapsed export/share menu at the end of each mode's controls row.
+  exportShareMenu: {
+    trigger: { tooltip: 'Export or share this chart', aria: 'Export and share' }
+  },
   docsLinks: {
     label: 'Reference:',
     tooltipPrefix: 'Open the config reference for '

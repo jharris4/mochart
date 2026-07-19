@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import { consumeShareState, demoText } from '@mochart/demo-common';
+import { consumeSingleShareState, demoText } from '@mochart/demo-common';
 
 import MochartChartTab from './ChartTab';
 import MochartDataTab from './DataTab';
@@ -92,9 +92,9 @@ function MochartDemoContent(props: ContentProps) {
   const [state, setState] = useState<ContentState>(() => {
     // A share link carries edited config/data in the URL hash; it overrides
     // the demo's own config/data for the initial mount only.
-    const sharedState = consumeShareState();
-    const initialConfig = sharedState?.config ?? demoData.demoObjectMap[initialDemoId].config;
-    const initialData = sharedState?.data ?? demoData.demoObjectMap[initialDemoId].data;
+    const shared = consumeSingleShareState();
+    const initialConfig = shared?.config ?? demoData.demoObjectMap[initialDemoId].config;
+    const initialData = shared?.data ?? demoData.demoObjectMap[initialDemoId].data;
     return {
       demoId: initialDemoId,
       pendingConfig: null,

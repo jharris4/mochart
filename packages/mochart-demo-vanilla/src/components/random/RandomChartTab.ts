@@ -1,17 +1,21 @@
 import type { MochartConfig } from '@mochart/core';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
-import { exportButtons } from '../misc/ExportButtons';
+import { exportShareMenu } from '../misc/ExportShareMenu';
 
-import type { DemoDataProvider } from '../../types';
+import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
 export interface RandomChartTabProps {
   active?: boolean;
   mochartConfig: MochartConfig;
   dataProvider: DemoDataProvider | null;
+  randomConfig: RandomConfigWithValid;
+  initialRate?: number;
   onRandomizeBack: () => void;
   onRandomizeNext: () => void;
   applyReuse: boolean;
@@ -21,7 +25,7 @@ export interface RandomChartTabProps {
 export interface RandomChartTabHandle {
   el: HTMLElement;
   setActive(active: boolean): void;
-  update(next: { mochartConfig: MochartConfig; dataProvider: DemoDataProvider | null; applyReuse: boolean }): void;
+  update(next: { mochartConfig: MochartConfig; dataProvider: DemoDataProvider | null; applyReuse: boolean; randomConfig: RandomConfigWithValid }): void;
   destroy(): void;
 }
 
@@ -34,10 +38,12 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   let mochartConfig = props.mochartConfig;
   let dataProvider = props.dataProvider;
   let applyReuse = props.applyReuse;
+  let randomConfig = props.randomConfig;
 
   let intervalId: ReturnType<typeof setInterval> | null = null;
   let playing = false;
-  let rate = defaultRate;
+  // A share link restores the interval; otherwise start on the default.
+  let rate = props.initialRate ?? defaultRate;
 
   const chartHost = mountChart(
     { mochartConfig, dataProvider },
@@ -64,7 +70,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     id: 'random-rate', className: 'form-control',
     attrs: { type: 'number', min: '5', max: '60000', step: '100', 'aria-label': demoText.randomChartTab.intervalAria }
   });
-  rateInput.value = '' + defaultRate;
+  rateInput.value = '' + (props.initialRate ?? defaultRate);
   rateInput.addEventListener('input', () => {
     const nextRateText = rateInput.value;
     if (!isNaN(parseFloat(nextRateText)) && isFinite(+nextRateText)) {
@@ -105,7 +111,14 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     onClick: toggleApplyReuse,
     content: [icon('recycle', { size: 'lg', fixedWidth: true })]
   });
-  const exportGroup = exportButtons('random', () => chartSizer);
+  // Share captures the generator config, the reuse toggle and the interval; the
+  // step comes from the /random/:demoId/:randomId path already in the URL.
+  const menu = exportShareMenu({
+    idPrefix: 'random',
+    exportPng: () => { void exportPNG(chartSizer); },
+    exportSvg: () => { exportSVG(chartSizer); },
+    getShareState: (): ShareState => ({ mode: 'random', randomConfig, applyReuse, interval: rate })
+  });
 
   const container = el('div', {
     className: 'mochart-demo-tab-container col chart' + (active ? ' active' : '')
@@ -122,8 +135,8 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
             ])
           ]),
           el('div', { className: 'btn-toolbar ml-2', attrs: { role: 'toolbar' } }, [
-            exportGroup.el,
-            el('div', { className: 'btn-group' }, [reuseButton.el])
+            el('div', { className: 'btn-group' }, [reuseButton.el]),
+            menu.el
           ])
         ])
       ])
@@ -150,13 +163,14 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
         onStopClick();
       }
     },
-    update(next: { mochartConfig: MochartConfig; dataProvider: DemoDataProvider | null; applyReuse: boolean }) {
+    update(next: { mochartConfig: MochartConfig; dataProvider: DemoDataProvider | null; applyReuse: boolean; randomConfig: RandomConfigWithValid }) {
       if (next.mochartConfig !== mochartConfig || next.dataProvider !== dataProvider) {
         mochartConfig = next.mochartConfig;
         dataProvider = next.dataProvider;
         chartHost.update({ mochartConfig, dataProvider });
       }
       applyReuse = next.applyReuse;
+      randomConfig = next.randomConfig;
       sync();
     },
     destroy() {
@@ -164,6 +178,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
         clearInterval(intervalId);
         intervalId = null;
       }
+      menu.destroy();
       chartHost.destroy();
     }
   };

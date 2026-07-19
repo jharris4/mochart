@@ -3,12 +3,12 @@ import Icon from '../misc/Icon';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart } from '@mochart/react';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
-import ExportButtons from '../misc/ExportButtons';
-import ShareButton from '../misc/ShareButton';
+import ExportShareMenu from '../misc/ExportShareMenu';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -663,18 +663,35 @@ export default function EditableChart(props: Props) {
     </div>
   );
 
-  const exportControlContent = (
-    <ExportButtons key="exportControls" idPrefix="edit" disabled={error}
-      getContainer={() => chartContentRef.current} />
+  const onExportPng = () => {
+    const container = chartContentRef.current;
+    if (container) {
+      void exportPNG(container);
+    }
+  };
+
+  const onExportSvg = () => {
+    const container = chartContentRef.current;
+    if (container) {
+      exportSVG(container);
+    }
+  };
+
+  // The export/share menu sits at the end of the controls row. Share is only
+  // offered on the chart flagged for it (the first, when two are shown).
+  const exportShareControlContent = (
+    <ExportShareMenu key="exportShareControls" idPrefix="edit" disabled={error}
+      exportPng={onExportPng} exportSvg={onExportSvg}
+      getShareState={showShareButton ? () => {
+        const { mochartDemoConfig, data } = propsRef.current;
+        return { mode: 'single', config: mochartDemoConfig.config, data };
+      } : void 0} />
   );
 
-  const shareControlContent = showShareButton ? (
-    <ShareButton key="shareControls" idPrefix="edit"
-      getShareState={() => {
-        const { mochartDemoConfig, data } = propsRef.current;
-        return { config: mochartDemoConfig.config, data };
-      }} />
-  ) : null;
+  // Pushed to the far right of the controls row (past the group/series input).
+  const exportShareRightContent = (
+    <span className="chart-controls-menu">{exportShareControlContent}</span>
+  );
 
   let commonControlContent: React.ReactNode;
   if (showChartCountControls) {
@@ -686,13 +703,11 @@ export default function EditableChart(props: Props) {
           <Icon size="lg" fixedWidth={true} name={chartCount === 2 ? "window-maximize" : "window-restore"} />
         </ButtonWithTooltip>
       </div>,
-      modeControlContent,
-      exportControlContent,
-      shareControlContent
+      modeControlContent
     ];
   }
   else {
-    commonControlContent = [modeControlContent, exportControlContent, shareControlContent];
+    commonControlContent = [modeControlContent];
   }
 
   let controlContent: React.ReactNode;
@@ -755,6 +770,7 @@ export default function EditableChart(props: Props) {
             <input type="text" className="form-control" disabled={error || sequencePlaying} value={groupValuesText} onChange={groupValuesChanged} />
           </form>
         </span>
+        {exportShareRightContent}
       </div>
     );
   }
@@ -846,6 +862,7 @@ export default function EditableChart(props: Props) {
             <input type="text" className="form-control" disabled={error || seriesControlsDisabled} value={seriesValuesText} onChange={seriesValuesChanged} />
           </form>
         </span>
+        {exportShareRightContent}
       </div>
     );
   }

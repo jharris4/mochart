@@ -10,7 +10,7 @@ import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
 
-import { demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -50,12 +50,20 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
   let randomId = props.randomId;
   let activeKey = props.activeKey;
 
-  let randomConfig: RandomConfigWithValid = initialRandomConfig;
+  // A share link restores the generator config, reuse toggle and interval (the
+  // step comes from the randomId in the URL path). Consume it once at mount.
+  const shared = consumeShareState('random');
+  const sharedRandom = shared && shared.mode === 'random' ? shared : null;
+
+  let randomConfig: RandomConfigWithValid = sharedRandom
+    ? { ...sharedRandom.randomConfig, valid: true }
+    : initialRandomConfig;
   let dataProvider: DemoDataProvider | null = null;
   let data: unknown = null;
   // Reuse defaults on to match the generator's historical behavior (the
   // config's reuse settings were always applied before the toggle worked).
-  let applyReuse = true;
+  let applyReuse = sharedRandom ? sharedRandom.applyReuse : true;
+  const initialRate = sharedRandom ? sharedRandom.interval : undefined;
 
   // With reuse off, the generator gets a config whose reuse settings are
   // neutralized, so every dataset is generated independently.
@@ -151,6 +159,8 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
     active: activeKey === eventKeyChart,
     mochartConfig: mochartDemoConfig.mochartConfig,
     dataProvider,
+    randomConfig,
+    initialRate,
     onRandomizeBack: decrementRandomId,
     onRandomizeNext: incrementRandomId,
     applyReuse,
@@ -179,13 +189,15 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
     chartBoundary.guard(() => chart.update({
       mochartConfig: mochartDemoConfig.mochartConfig,
       dataProvider,
-      applyReuse
+      applyReuse,
+      randomConfig
     }));
     configBoundary.guard(() => config.setRandomConfig(randomConfig));
     dataBoundary.guard(() => dataView.setData(data));
   }
 
-  updateDataProvider(initialRandomConfig);
+  // Seed from the (possibly share-restored) config rather than the demo default.
+  updateDataProvider(randomConfig);
 
   return {
     el: container,

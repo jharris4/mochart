@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
+import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 
 import { Chart } from '@mochart/angular';
@@ -7,18 +7,17 @@ import type { MochartConfig } from '@mochart/core';
 import { demoText } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
-import { ExportButtons } from '../misc/export-buttons';
 import { Icon } from '../misc/icon';
 
 import type { ChartDataProviderLike } from '../../types';
 
 @Component({
   selector: 'app-transition-chart-tab',
-  imports: [Chart, ButtonWithTooltip, ExportButtons, Icon],
+  imports: [Chart, ButtonWithTooltip, Icon],
   styles: [':host { display: contents; }'],
   template: `
     <div [class]="'mochart-demo-tab-container col chart' + (active ? ' active' : '')">
-      <div class="transition-chart-sizer" #chartSizer>
+      <div class="transition-chart-sizer">
         <mochart-chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                        [mochartConfig]="mochartConfig" [dataProvider]="dataProviders[dataProviderIndex()]" />
       </div>
@@ -36,7 +35,6 @@ import type { ChartDataProviderLike } from '../../types';
                   <app-icon size="lg" [fixedWidth]="true" name="forward-step" />
                 </app-button-with-tooltip>
               </div>
-              <app-export-buttons idPrefix="transition" [getContainer]="getChartSizer" />
             </div>
           </div>
         </form>
@@ -51,11 +49,7 @@ export class TransitionChartTab implements OnChanges {
   @Input({ required: true }) mochartConfig!: MochartConfig;
   @Input({ required: true }) dataProviders!: ChartDataProviderLike[];
 
-  @ViewChild('chartSizer', { static: true }) chartSizerElement!: ElementRef<HTMLDivElement>;
-
   dataProviderIndex = signal(0);
-
-  getChartSizer = (): Element | null => this.chartSizerElement?.nativeElement ?? null;
 
   ngOnChanges(changes: SimpleChanges): void {
     const mochartConfigChange = changes['mochartConfig'];

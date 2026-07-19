@@ -7,7 +7,6 @@ import type { MochartConfig } from '@mochart/core';
 import { demoText } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
-import ExportButtons from '../misc/ExportButtons';
 
 import type { ChartDataProviderLike } from '../../types';
 
@@ -19,7 +18,6 @@ interface Props {
 
 export default function TransitionChartTab({ active, mochartConfig, dataProviders }: Props) {
   const [dataProviderIndex, setDataProviderIndex] = useState(0);
-  const chartSizerRef = useRef<HTMLDivElement>(null);
 
   // Reset to the first dataset when the config/datasets change.
   const prev = useRef({ mochartConfig, dataProviders });
@@ -42,7 +40,7 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
 
   return (
     <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
-      <div className="transition-chart-sizer" ref={chartSizerRef}>
+      <div className="transition-chart-sizer">
         {/* Chart self-measures when width/height are omitted. */}
         <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}
           mochartConfig={mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
@@ -61,7 +59,6 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
                   <Icon size="lg" fixedWidth={true} name="forward-step" />
                 </ButtonWithTooltip>
               </div>
-              <ExportButtons idPrefix="transition" getContainer={() => chartSizerRef.current} />
             </div>
           </div>
         </form>

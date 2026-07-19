@@ -2,8 +2,10 @@
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 
 import { Chart } from '@mochart/vue';
+import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { buildMochartDemoConfig, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import ChartsControls from './ChartsControls.vue';
 import { useElementSize } from '../misc/useElementSize';
@@ -22,22 +24,39 @@ const defaultChartCols = 2;
 
 const defaultRate = 2000;
 
+function clampGrid(value: number): number {
+  return Math.min(4, Math.max(1, Math.round(value)));
+}
+
 const props = withDefaults(defineProps<Props>(), {
   active: false
 });
 
 let intervalId: ReturnType<typeof setInterval> | null = null;
 
+// A share link restores the grid size, playback step and interval.
+const sharedState = consumeShareState('multi');
+const shared = sharedState && sharedState.mode === 'multi' ? sharedState : null;
+
+const initialDataCount = props.demoObject.data.length;
+const initialRows = shared ? clampGrid(shared.rows) : defaultChartRows;
+const initialCols = shared ? clampGrid(shared.cols) : defaultChartCols;
+const initialRate = shared ? shared.interval : defaultRate;
+// A shared step seeks the playback position; otherwise start on the full set.
+const initialCurrentDataCount = shared && initialDataCount > 0
+  ? ((Math.round(shared.step) % initialDataCount) + initialDataCount) % initialDataCount
+  : initialDataCount;
+
 const playing = ref(false);
-const chartRows = ref(defaultChartRows);
-const chartCols = ref(defaultChartCols);
-const rate = ref(defaultRate);
+const chartRows = ref(initialRows);
+const chartCols = ref(initialCols);
+const rate = ref(initialRate);
 const mochartDemoConfig = shallowRef(buildMochartDemoConfig(props.demoObject.config));
 const data = shallowRef(props.demoObject.data);
-const dataCount = ref(props.demoObject.data.length);
-const currentDataCount = ref(props.demoObject.data.length);
+const dataCount = ref(initialDataCount);
+const currentDataCount = ref(initialCurrentDataCount);
 const dataProviders = shallowRef(getDataProvidersForDataCount(
-  mochartDemoConfig.value.mochartConfig, props.demoObject.data, defaultChartRows * defaultChartCols, props.demoObject.data.length));
+  mochartDemoConfig.value.mochartConfig, props.demoObject.data, initialRows * initialCols, initialCurrentDataCount));
 const focusedGroupIndices = shallowRef<number[]>(dataProviders.value.map(() => -1));
 const focusedGroupIndex = ref(-1);
 const focusedSeriesAxisId = shallowRef<string | null>(null);
@@ -195,6 +214,31 @@ const { elementRef: gridRef, width: gridWidth, height: gridHeight } = useElement
 
 const chartWidth = computed(() => Math.floor((gridWidth.value - scrollWidthOffset) / chartCols.value));
 const chartHeight = computed(() => Math.floor(gridHeight.value / chartRows.value));
+
+// The whole grid exports as one tiled image; share captures the grid size,
+// playback step and interval so the link restores the same view.
+function getChartContainers(): Element[] {
+  const grid = gridRef.value;
+  return grid ? Array.from(grid.querySelectorAll('.multi-mochart-chart')) : [];
+}
+
+function onExportPng() {
+  const containers = getChartContainers();
+  if (containers.length > 0) {
+    void exportChartsPNG(containers, { cols: chartCols.value });
+  }
+}
+
+function onExportSvg() {
+  const containers = getChartContainers();
+  if (containers.length > 0) {
+    exportChartsSVG(containers, { cols: chartCols.value });
+  }
+}
+
+function getMultiShareState(): ShareState {
+  return { mode: 'multi', rows: chartRows.value, cols: chartCols.value, step: currentDataCount.value, interval: rate.value };
+}
 </script>
 
 <template>
@@ -208,9 +252,11 @@ const chartHeight = computed(() => Math.floor(gridHeight.value / chartRows.value
         </div>
       </div>
     </div>
-    <ChartsControls :playing="playing" :on-rows-change="onRowsChange" :on-cols-change="onColsChange"
+    <ChartsControls :playing="playing" :initial-rows="initialRows" :initial-cols="initialCols" :initial-rate="initialRate"
+                    :on-rows-change="onRowsChange" :on-cols-change="onColsChange"
                     :on-step-backward-click="onStepBackwardClick" :on-step-forward-click="onStepForwardClick"
                     :on-play-backward-click="onPlayBackwardClick" :on-play-forward-click="onPlayForwardClick"
-                    :on-stop-click="onStopClick" :on-rate-change="onRateChange" />
+                    :on-stop-click="onStopClick" :on-rate-change="onRateChange"
+                    :export-png="onExportPng" :export-svg="onExportSvg" :get-share-state="getMultiShareState" />
   </div>
 </template>

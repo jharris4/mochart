@@ -1,7 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { consumeShareState, demoText } from '@mochart/demo-common';
+import { consumeSingleShareState, demoText } from '@mochart/demo-common';
 
 import { ChartTab } from './chart-tab';
 import { ConfigTab } from './config-tab';
@@ -103,7 +103,7 @@ export class DemoSingle implements OnInit, OnChanges {
     this.demoId.set(initialDemoId);
     // A share link carries edited config/data in the URL hash; it overrides
     // the demo's own config/data for the initial mount only.
-    const sharedState = consumeShareState();
+    const sharedState = consumeSingleShareState();
     const config = sharedState?.config ?? this.demoData.demoObjectMap[initialDemoId].config;
     const data = sharedState?.data ?? this.demoData.demoObjectMap[initialDemoId].data;
     this.config.set(config);

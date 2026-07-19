@@ -3,7 +3,8 @@ import { describe, it, expect } from 'vitest';
 import { encodeShareState, decodeShareState } from '../src/shareState';
 import type { ShareState } from '../src/shareState';
 
-const state: ShareState = {
+const singleState: ShareState = {
+  mode: 'single',
   config: {
     version: '1.0.0',
     titleConfig: { title: 'Ünïcode — dashes & “quotes”' },
@@ -17,29 +18,53 @@ const state: ShareState = {
   ]
 };
 
+const multiState: ShareState = { mode: 'multi', rows: 2, cols: 3, step: 5, interval: 1500 };
+
+const randomState = {
+  mode: 'random',
+  randomConfig: { group: { count: 10 }, series: {} },
+  applyReuse: false,
+  interval: 2000
+} as unknown as ShareState;
+
 describe('shareState codec', () => {
-  it('round-trips config and data', () => {
-    const decoded = decodeShareState(encodeShareState(state));
-    expect(decoded).toEqual(state);
+  it('round-trips single-mode config and data', () => {
+    const decoded = decodeShareState(encodeShareState(singleState));
+    expect(decoded).toEqual(singleState);
+  });
+
+  it('round-trips multi-mode view state', () => {
+    expect(decodeShareState(encodeShareState(multiState))).toEqual(multiState);
+  });
+
+  it('round-trips random-mode generator state', () => {
+    expect(decodeShareState(encodeShareState(randomState))).toEqual(randomState);
   });
 
   it('produces URL-safe output', () => {
-    const encoded = encodeShareState(state);
+    const encoded = encodeShareState(singleState);
     expect(encoded).toMatch(/^[A-Za-z0-9_-]+$/);
   });
 
   it('returns null for malformed payloads', () => {
     expect(decodeShareState('not base64!!!')).toBeNull();
     expect(decodeShareState(btoa('not json'))).toBeNull();
-    expect(decodeShareState(btoa('"just a string"'))).toBeNull();
-    expect(decodeShareState(btoa('{"config": 5, "data": []}'))).toBeNull();
-    expect(decodeShareState(btoa('{"config": {}, "data": {}}'))).toBeNull();
-    expect(decodeShareState(btoa('{"config": {}, "data": [1, 2]}'))).toBeNull();
     expect(decodeShareState('')).toBeNull();
   });
 
-  it('accepts an empty dataset', () => {
-    const empty: ShareState = { config: { version: '1.0.0' }, data: [] };
+  it('returns null for payloads with an unknown or missing mode', () => {
+    expect(decodeShareState(encodeShareState({ config: {}, data: [] } as unknown as ShareState))).toBeNull();
+    expect(decodeShareState(encodeShareState({ mode: 'bogus' } as unknown as ShareState))).toBeNull();
+  });
+
+  it('returns null for a single payload with the wrong shape', () => {
+    expect(decodeShareState(encodeShareState({ mode: 'single', config: 5, data: [] } as unknown as ShareState))).toBeNull();
+    expect(decodeShareState(encodeShareState({ mode: 'single', config: {}, data: {} } as unknown as ShareState))).toBeNull();
+    expect(decodeShareState(encodeShareState({ mode: 'single', config: {}, data: [1, 2] } as unknown as ShareState))).toBeNull();
+  });
+
+  it('accepts an empty single dataset', () => {
+    const empty: ShareState = { mode: 'single', config: { version: '1.0.0' }, data: [] };
     expect(decodeShareState(encodeShareState(empty))).toEqual(empty);
   });
 });

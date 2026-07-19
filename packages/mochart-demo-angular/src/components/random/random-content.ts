@@ -9,7 +9,7 @@ import { RandomConfigTab } from './random-config-tab';
 import { RandomDataTab } from './random-data-tab';
 import { ErrorTab } from '../misc/error-tab';
 
-import { demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -27,6 +27,7 @@ interface EventKeys {
     <div class="mochart-demo-content">
       <app-error-tab [active]="activeKey === eventKeys.eventKeyChart">
         <app-random-chart-tab [active]="activeKey === eventKeys.eventKeyChart" [mochartConfig]="mochartDemoConfig.mochartConfig" [dataProvider]="dataProvider()"
+                              [randomConfig]="randomConfig()!" [initialRate]="initialRate()"
                               [onRandomizeBack]="onRandomizeBack" [onRandomizeNext]="onRandomizeNext"
                               [applyReuse]="applyReuse()" [toggleApplyReuse]="toggleApplyReuse" />
       </app-error-tab>
@@ -54,10 +55,26 @@ export class RandomContent implements OnInit, OnChanges {
   // Reuse defaults on to match the generator's historical behavior (the
   // config's reuse settings were always applied before the toggle worked).
   applyReuse = signal(true);
+  // A share link restores the interval (the step comes from the randomId in
+  // the URL path); undefined leaves the chart tab on its default rate.
+  initialRate = signal<number | undefined>(undefined);
 
   ngOnInit(): void {
-    this.randomConfig.set(this.initialRandomConfig);
-    this.updateDataProvider(this.initialRandomConfig);
+    // A share link restores the generator config, reuse toggle and interval;
+    // consume it once at mount, else fall back to the demo's own config.
+    const shared = consumeShareState('random');
+    const initialShared = shared !== null && shared.mode === 'random' ? shared : null;
+    if (initialShared) {
+      this.applyReuse.set(initialShared.applyReuse);
+      this.initialRate.set(initialShared.interval);
+      const restored: RandomConfigWithValid = { ...initialShared.randomConfig, valid: true };
+      this.randomConfig.set(restored);
+      this.updateDataProvider(restored);
+    }
+    else {
+      this.randomConfig.set(this.initialRandomConfig);
+      this.updateDataProvider(this.initialRandomConfig);
+    }
   }
 
   toggleApplyReuse = (): void => {

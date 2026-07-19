@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { consumeShareState, demoText } from '@mochart/demo-common';
+  import { consumeSingleShareState, demoText } from '@mochart/demo-common';
   import type { SwitchableDemoMode } from '@mochart/demo-common';
 
   import ChartTab from './ChartTab.svelte';
@@ -32,7 +32,7 @@
 
   // A share link carries edited config/data in the URL hash; it overrides
   // the demo's own config/data for the initial mount only.
-  const sharedState = consumeShareState();
+  const sharedState = consumeSingleShareState();
 
   // Config/data edits made on the Config/Data tabs stay "pending" until the
   // Chart tab is shown again (so the chart animates one combined change).

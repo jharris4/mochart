@@ -3,10 +3,13 @@ import Icon from '../misc/Icon';
 
 import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
+import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { buildMochartDemoConfig, demoText, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
+import ExportShareMenu from '../misc/ExportShareMenu';
 import { useElementSize } from '../misc/useElementSize';
 
 import type { Demo, DataRow, MochartDemoConfig, FilteredSeriesIds, ChartDataProviderLike } from '../../types';
@@ -40,12 +43,19 @@ interface ChartsTabState {
   focusedGroupIndices: number[];
 }
 
-function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, rate: number): ChartsTabState {
+function clampGrid(value: number): number {
+  return Math.min(4, Math.max(1, Math.round(value)));
+}
+
+function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, rate: number, step?: number): ChartsTabState {
   const mochartDemoConfig = buildMochartDemoConfig(demoObject.config);
   const { mochartConfig } = mochartDemoConfig;
   const data = demoObject.data;
   const dataCount = data.length;
-  const currentDataCount = dataCount;
+  // A shared step seeks the playback position; otherwise start on the full set.
+  const currentDataCount = step !== void 0 && dataCount > 0
+    ? ((Math.round(step) % dataCount) + dataCount) % dataCount
+    : dataCount;
   const dataProviders = getDataProvidersForDataCount(mochartConfig, data, chartRows * chartCols, currentDataCount);
   const focusedGroupIndices = dataProviders.map(() => -1);
   return {
@@ -69,7 +79,18 @@ function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, ra
 export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   const intervalIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [state, setState] = useState<ChartsTabState>(() => buildInitial(demoObject, defaultChartRows, defaultChartCols, defaultRate));
+  // A share link restores the grid size, playback step and interval.
+  const [state, setState] = useState<ChartsTabState>(() => {
+    const sharedState = consumeShareState('multi');
+    const shared = sharedState && sharedState.mode === 'multi' ? sharedState : null;
+    return buildInitial(
+      demoObject,
+      shared ? clampGrid(shared.rows) : defaultChartRows,
+      shared ? clampGrid(shared.cols) : defaultChartCols,
+      shared ? shared.interval : defaultRate,
+      shared ? shared.step : void 0
+    );
+  });
 
   // Rebuild when the demo changes.
   const prevDemoObject = useRef(demoObject);
@@ -224,6 +245,31 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   // Measured size of the charts grid (the old code wrapped it in a sizer HOC).
   const { elementRef: gridRef, width: gridWidth, height: gridHeight } = useElementSize();
 
+  // The whole grid exports as one tiled image; share captures the grid size,
+  // playback step and interval so the link restores the same view.
+  const getChartContainers = (): Element[] => {
+    const grid = gridRef.current;
+    return grid ? Array.from(grid.querySelectorAll('.multi-mochart-chart')) : [];
+  };
+
+  const onExportPng = () => {
+    const containers = getChartContainers();
+    if (containers.length > 0) {
+      void exportChartsPNG(containers, { cols: state.chartCols });
+    }
+  };
+
+  const onExportSvg = () => {
+    const containers = getChartContainers();
+    if (containers.length > 0) {
+      exportChartsSVG(containers, { cols: state.chartCols });
+    }
+  };
+
+  const getShareState = (): ShareState => ({
+    mode: 'multi', rows: state.chartRows, cols: state.chartCols, step: state.currentDataCount, interval: state.rate
+  });
+
   return (
     <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
       <div className="multi-charts-sizer" ref={gridRef}>
@@ -234,10 +280,12 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
             onSeriesFilter={onSeriesFilter} onChartFocus={onChartFocus} />
           : null}
       </div>
-      <MultiMochartControls playing={playing} onRowsChange={onRowsChange} onColsChange={onColsChange}
+      <MultiMochartControls playing={playing} initialRows={chartRows} initialCols={chartCols} initialRate={state.rate}
+        onRowsChange={onRowsChange} onColsChange={onColsChange}
         onStepBackwardClick={onStepBackwardClick} onStepForwardClick={onStepForwardClick}
         onPlayBackwardClick={onPlayBackwardClick} onPlayForwardClick={onPlayForwardClick}
-        onStopClick={onStopClick} onRateChange={onRateChange} />
+        onStopClick={onStopClick} onRateChange={onRateChange}
+        exportPng={onExportPng} exportSvg={onExportSvg} getShareState={getShareState} />
     </div>
   );
 }
@@ -282,6 +330,9 @@ function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chart
 
 interface ControlsProps {
   playing: boolean;
+  initialRows: number;
+  initialCols: number;
+  initialRate: number;
   onRowsChange: (rows: number) => void;
   onColsChange: (cols: number) => void;
   onStepBackwardClick: () => void;
@@ -290,12 +341,16 @@ interface ControlsProps {
   onPlayForwardClick: () => void;
   onStopClick: () => void;
   onRateChange: (rate: number) => void;
+  exportPng: () => void;
+  exportSvg: () => void;
+  getShareState: () => ShareState;
 }
 
-function MultiMochartControls({ playing, onRowsChange, onColsChange, onStepBackwardClick, onStepForwardClick, onPlayBackwardClick, onPlayForwardClick, onStopClick, onRateChange }: ControlsProps) {
-  const [rateText, setRateText] = useState<string | number>(defaultRate);
-  const [rowsText, setRowsText] = useState<string | number>(defaultChartRows);
-  const [colsText, setColsText] = useState<string | number>(defaultChartCols);
+function MultiMochartControls({ playing, initialRows, initialCols, initialRate, onRowsChange, onColsChange, onStepBackwardClick, onStepForwardClick, onPlayBackwardClick, onPlayForwardClick, onStopClick, onRateChange, exportPng, exportSvg, getShareState }: ControlsProps) {
+  // Seed the inputs from the (possibly share-restored) initial values.
+  const [rateText, setRateText] = useState<string | number>(initialRate);
+  const [rowsText, setRowsText] = useState<string | number>(initialRows);
+  const [colsText, setColsText] = useState<string | number>(initialCols);
 
   // Input values arrive as strings and are coerced to numbers in place, so the
   // working variable is intentionally loose (matching the original demo).
@@ -373,6 +428,11 @@ function MultiMochartControls({ playing, onRowsChange, onColsChange, onStepBackw
           <label className="form-control-plaintext" htmlFor="multi-rate">{demoText.multiChartsTab.intervalLabel}</label>
           <input id="multi-rate" className="form-control" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
             onChange={rateChanged} aria-label={demoText.multiChartsTab.intervalAria} />
+        </div>
+        <div className="form-group">
+          <div className="btn-toolbar" role="toolbar">
+            <ExportShareMenu idPrefix="multi" exportPng={exportPng} exportSvg={exportSvg} getShareState={getShareState} />
+          </div>
         </div>
       </form>
     </div>

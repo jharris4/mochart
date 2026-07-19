@@ -1,22 +1,24 @@
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
-import type { OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 
 import { Chart } from '@mochart/angular';
 import type { MochartConfig } from '@mochart/core';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
-import { ExportButtons } from '../misc/export-buttons';
+import { ExportShareMenu } from '../misc/export-share-menu';
 import { Icon } from '../misc/icon';
 
-import type { DemoDataProvider } from '../../types';
+import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
 const defaultRate = 2000;
 
 @Component({
   selector: 'app-random-chart-tab',
-  imports: [Chart, ButtonWithTooltip, ExportButtons, Icon],
+  imports: [Chart, ButtonWithTooltip, ExportShareMenu, Icon],
   styles: [':host { display: contents; }'],
   template: `
     <div [class]="'mochart-demo-tab-container col chart' + (active ? ' active' : '')">
@@ -55,7 +57,6 @@ const defaultRate = 2000;
               </div>
             </div>
             <div class="btn-toolbar ml-2" role="toolbar">
-              <app-export-buttons idPrefix="random" [getContainer]="getChartSizer" />
               <div class="btn-group">
                 <app-button-with-tooltip id="reuse" [disabled]="playing()" [label]="text.reuse.label" [pressed]="applyReuse"
                                          [tooltipText]="text.reuse.tooltip" tooltipPlacement="top-start"
@@ -63,6 +64,7 @@ const defaultRate = 2000;
                   <app-icon size="lg" [fixedWidth]="true" name="recycle" />
                 </app-button-with-tooltip>
               </div>
+              <app-export-share-menu idPrefix="random" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
             </div>
           </div>
         </form>
@@ -70,12 +72,14 @@ const defaultRate = 2000;
     </div>
   `
 })
-export class RandomChartTab implements OnChanges, OnDestroy {
+export class RandomChartTab implements OnInit, OnChanges, OnDestroy {
   readonly text = demoText.randomChartTab;
 
   @Input() active = false;
   @Input({ required: true }) mochartConfig!: MochartConfig;
   @Input({ required: true }) dataProvider!: DemoDataProvider | null;
+  @Input({ required: true }) randomConfig!: RandomConfigWithValid;
+  @Input() initialRate?: number;
   @Input({ required: true }) onRandomizeBack!: () => void;
   @Input({ required: true }) onRandomizeNext!: () => void;
   @Input({ required: true }) applyReuse!: boolean;
@@ -90,6 +94,34 @@ export class RandomChartTab implements OnChanges, OnDestroy {
   rateText = signal('' + defaultRate);
 
   getChartSizer = (): Element | null => this.chartSizerElement?.nativeElement ?? null;
+
+  onExportPng = (): void => {
+    const container = this.getChartSizer();
+    if (container) {
+      void exportPNG(container);
+    }
+  };
+
+  onExportSvg = (): void => {
+    const container = this.getChartSizer();
+    if (container) {
+      exportSVG(container);
+    }
+  };
+
+  // Share captures the generator config, the reuse toggle and the interval; the
+  // step comes from the /random/:demoId/:randomId path already in the URL.
+  getShareState = (): ShareState => ({
+    mode: 'random', randomConfig: this.randomConfig, applyReuse: this.applyReuse, interval: this.rate()
+  });
+
+  ngOnInit(): void {
+    // A share link restores the interval; otherwise keep the default.
+    if (this.initialRate !== undefined) {
+      this.rate.set(this.initialRate);
+      this.rateText.set('' + this.initialRate);
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     const activeChange = changes['active'];

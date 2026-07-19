@@ -1,10 +1,13 @@
 import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import type { PropertyValues } from 'lit';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, icon } from '../misc/templates';
+import '../misc/export-share-menu';
 
 const defaultChartRows = 2;
 const defaultChartCols = 2;
@@ -13,6 +16,10 @@ const defaultRate = 2000;
 @customElement('charts-controls')
 export class ChartsControls extends LightElement {
   @property({ attribute: false }) playing = false;
+  // Seed values from the (possibly share-restored) grid size and interval.
+  @property({ attribute: false }) initialRows = defaultChartRows;
+  @property({ attribute: false }) initialCols = defaultChartCols;
+  @property({ attribute: false }) initialRate = defaultRate;
   @property({ attribute: false }) onRowsChange!: (rows: number) => void;
   @property({ attribute: false }) onColsChange!: (cols: number) => void;
   @property({ attribute: false }) onStepBackwardClick!: () => void;
@@ -21,10 +28,21 @@ export class ChartsControls extends LightElement {
   @property({ attribute: false }) onPlayForwardClick!: () => void;
   @property({ attribute: false }) onStopClick!: () => void;
   @property({ attribute: false }) onRateChange!: (rate: number) => void;
+  @property({ attribute: false }) exportPng!: () => void;
+  @property({ attribute: false }) exportSvg!: () => void;
+  @property({ attribute: false }) getShareState!: () => ShareState;
 
   @state() private rateText = '' + defaultRate;
   @state() private rowsText = '' + defaultChartRows;
   @state() private colsText = '' + defaultChartCols;
+
+  override willUpdate(changed: PropertyValues<this>): void {
+    if (!this.hasUpdated) {
+      this.rowsText = '' + this.initialRows;
+      this.colsText = '' + this.initialCols;
+      this.rateText = '' + this.initialRate;
+    }
+  }
 
   // Input values arrive as strings and are coerced to numbers in place, so the
   // working variable is intentionally loose (matching the original demo).
@@ -99,6 +117,11 @@ export class ChartsControls extends LightElement {
         <div class="form-group">
           <label class="form-control-plaintext" for="multi-rate">${demoText.multiChartsTab.intervalLabel}</label>
           <input id="multi-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label=${demoText.multiChartsTab.intervalAria} @input=${this.rateChanged} />
+        </div>
+        <div class="form-group">
+          <div class="btn-toolbar" role="toolbar">
+            <export-share-menu .idPrefix=${'multi'} .exportPng=${this.exportPng} .exportSvg=${this.exportSvg} .getShareState=${this.getShareState}></export-share-menu>
+          </div>
         </div>
       </form>
     </div>`;

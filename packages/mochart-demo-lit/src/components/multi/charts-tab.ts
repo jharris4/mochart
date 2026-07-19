@@ -4,8 +4,10 @@ import { ref } from 'lit/directives/ref.js';
 import type { PropertyValues } from 'lit';
 
 import { chart } from '@mochart/lit';
+import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { buildMochartDemoConfig, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { ElementSizeController } from '../misc/ElementSizeController';
@@ -17,6 +19,10 @@ const scrollWidthOffset = 20;
 
 const defaultChartRows = 2;
 const defaultChartCols = 2;
+
+function clampGrid(value: number): number {
+  return Math.min(4, Math.max(1, Math.round(value)));
+}
 
 @customElement('charts-tab')
 export class ChartsTab extends LightElement {
@@ -50,20 +56,33 @@ export class ChartsTab extends LightElement {
     this.filteredSeriesIds = {};
   }
 
-  private initForDemoObject(): void {
+  // A shared `step` seeks the playback position; otherwise start on the full set.
+  private initForDemoObject(step?: number): void {
     this.mochartDemoConfig = buildMochartDemoConfig(this.demoObject.config);
     this.initFocusAndFiltered();
     this.playing = false;
     this.data = this.demoObject.data;
     this.dataCount = this.data.length;
-    this.currentDataCount = this.dataCount;
+    this.currentDataCount = step !== void 0 && this.dataCount > 0
+      ? ((Math.round(step) % this.dataCount) + this.dataCount) % this.dataCount
+      : this.dataCount;
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedGroupIndices = this.dataProviders.map(() => -1);
   }
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (!this.hasUpdated) {
-      this.initForDemoObject();
+      // A share link restores the grid size, playback step and interval.
+      const shared = consumeShareState('multi');
+      const sharedMulti = shared && shared.mode === 'multi' ? shared : null;
+      let step: number | undefined;
+      if (sharedMulti) {
+        this.chartRows = clampGrid(sharedMulti.rows);
+        this.chartCols = clampGrid(sharedMulti.cols);
+        this.rate = sharedMulti.interval;
+        step = sharedMulti.step;
+      }
+      this.initForDemoObject(step);
       return;
     }
     if (changed.has('demoObject')) {
@@ -73,6 +92,30 @@ export class ChartsTab extends LightElement {
       this.onStopClick();
     }
   }
+
+  // The whole grid exports as one tiled image; share captures the grid size,
+  // playback step and interval so the link restores the same view.
+  private getChartContainers(): Element[] {
+    return Array.from(this.querySelectorAll('.multi-mochart-chart'));
+  }
+
+  private onExportPng = (): void => {
+    const containers = this.getChartContainers();
+    if (containers.length > 0) {
+      void exportChartsPNG(containers, { cols: this.chartCols });
+    }
+  };
+
+  private onExportSvg = (): void => {
+    const containers = this.getChartContainers();
+    if (containers.length > 0) {
+      exportChartsSVG(containers, { cols: this.chartCols });
+    }
+  };
+
+  private getShareState = (): ShareState => ({
+    mode: 'multi', rows: this.chartRows, cols: this.chartCols, step: this.currentDataCount, interval: this.rate
+  });
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
@@ -215,10 +258,12 @@ export class ChartsTab extends LightElement {
             </div>`
           : null}
       </div>
-      <charts-controls .playing=${this.playing} .onRowsChange=${this.onRowsChange} .onColsChange=${this.onColsChange}
+      <charts-controls .playing=${this.playing} .initialRows=${this.chartRows} .initialCols=${this.chartCols} .initialRate=${this.rate}
+          .onRowsChange=${this.onRowsChange} .onColsChange=${this.onColsChange}
           .onStepBackwardClick=${this.onStepBackwardClick} .onStepForwardClick=${this.onStepForwardClick}
           .onPlayBackwardClick=${this.onPlayBackwardClick} .onPlayForwardClick=${this.onPlayForwardClick}
-          .onStopClick=${this.onStopClick} .onRateChange=${this.onRateChange}></charts-controls>
+          .onStopClick=${this.onStopClick} .onRateChange=${this.onRateChange}
+          .exportPng=${this.onExportPng} .exportSvg=${this.onExportSvg} .getShareState=${this.getShareState}></charts-controls>
     </div>`;
   }
 }

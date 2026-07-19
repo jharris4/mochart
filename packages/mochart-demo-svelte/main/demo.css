@@ -318,6 +318,12 @@ html, body {
 .chart-controls-input input {
     width: 100%;
 }
+/* Export/share menu sits at the far right of the single-mode controls row. */
+.chart-controls-menu {
+    display: flex;
+    flex: none;
+    margin-left: auto;
+}
 
 /* Rotation shows every chart config in one scrolling grid. It lives inside
    the standard .mochart-demo-container shell (nav row + card); the charts

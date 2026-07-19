@@ -3,19 +3,23 @@ import { onBeforeUnmount, ref, watch } from 'vue';
 
 import { Chart } from '@mochart/vue';
 import type { MochartConfig } from '@mochart/core';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
-import ExportButtons from '../misc/ExportButtons.vue';
+import ExportShareMenu from '../misc/ExportShareMenu.vue';
 import Icon from '../misc/Icon.vue';
 
-import type { DemoDataProvider } from '../../types';
+import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
 interface Props {
   active?: boolean;
   mochartConfig: MochartConfig;
   dataProvider: DemoDataProvider | null;
+  randomConfig: RandomConfigWithValid;
+  initialRate?: number;
   onRandomizeBack: () => void;
   onRandomizeNext: () => void;
   applyReuse: boolean;
@@ -25,15 +29,17 @@ interface Props {
 const defaultRate = 2000;
 
 const props = withDefaults(defineProps<Props>(), {
-  active: false
+  active: false,
+  initialRate: void 0
 });
 
 let intervalId: ReturnType<typeof setInterval> | null = null;
 
 const playing = ref(false);
 const chartSizerElement = ref<HTMLDivElement | null>(null);
-const rate = ref(defaultRate);
-const rateText = ref('' + defaultRate);
+// A share link restores the interval; otherwise start on the default.
+const rate = ref(props.initialRate ?? defaultRate);
+const rateText = ref('' + (props.initialRate ?? defaultRate));
 
 watch(() => props.active, () => {
   onStopClick();
@@ -69,6 +75,26 @@ onBeforeUnmount(() => {
     intervalId = null;
   }
 });
+
+function onExportPng() {
+  const container = chartSizerElement.value;
+  if (container) {
+    void exportPNG(container);
+  }
+}
+
+function onExportSvg() {
+  const container = chartSizerElement.value;
+  if (container) {
+    exportSVG(container);
+  }
+}
+
+// Share captures the generator config, the reuse toggle and the interval; the
+// step comes from the /random/:demoId/:randomId path already in the URL.
+function getRandomShareState(): ShareState {
+  return { mode: 'random', randomConfig: props.randomConfig, applyReuse: props.applyReuse, interval: rate.value };
+}
 </script>
 
 <template>
@@ -108,7 +134,6 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <div class="btn-toolbar ml-2" role="toolbar">
-            <ExportButtons id-prefix="random" :get-container="() => chartSizerElement" />
             <div class="btn-group">
               <ButtonWithTooltip id="reuse" :disabled="playing" :label="demoText.randomChartTab.reuse.label" :pressed="props.applyReuse"
                                  :tooltip-text="demoText.randomChartTab.reuse.tooltip" tooltip-placement="top-start"
@@ -116,6 +141,7 @@ onBeforeUnmount(() => {
                 <Icon size="lg" :fixed-width="true" name="recycle" />
               </ButtonWithTooltip>
             </div>
+            <ExportShareMenu id-prefix="random" :export-png="onExportPng" :export-svg="onExportSvg" :get-share-state="getRandomShareState" />
           </div>
         </div>
       </form>

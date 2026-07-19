@@ -9,7 +9,7 @@
   import RandomDataTab from './RandomDataTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
 
-  import { demoText, generateChartDataProvider } from '@mochart/demo-common';
+  import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
 
   import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -44,13 +44,21 @@
   // svelte-ignore state_referenced_locally
   const { eventKeyChart, eventKeyConfig, eventKeyData } = eventKeys;
 
+  // A share link restores the generator config, reuse toggle and interval (the
+  // step comes from the randomId in the URL path). Consume it once at mount.
+  const sharedState = consumeShareState('random');
+  const shared = sharedState && sharedState.mode === 'random' ? sharedState : null;
   // svelte-ignore state_referenced_locally
-  let randomConfig = $state.raw<RandomConfigWithValid>(initialRandomConfig);
+  const initialResolvedRandomConfig: RandomConfigWithValid = shared ? { ...shared.randomConfig, valid: true } : initialRandomConfig;
+  const initialRate = shared ? shared.interval : void 0;
+
+  // svelte-ignore state_referenced_locally
+  let randomConfig = $state.raw<RandomConfigWithValid>(initialResolvedRandomConfig);
   let dataProvider = $state.raw<DemoDataProvider | null>(null);
   let data = $state.raw<unknown>(null);
   // Reuse defaults on to match the generator's historical behavior (the
   // config's reuse settings were always applied before the toggle worked).
-  let applyReuse = $state(true);
+  let applyReuse = $state(shared ? shared.applyReuse : true);
 
   function toggleApplyReuse() {
     applyReuse = !applyReuse;
@@ -128,7 +136,7 @@
   }
 
   // svelte-ignore state_referenced_locally
-  updateDataProvider(initialRandomConfig);
+  updateDataProvider(initialResolvedRandomConfig);
 
   // The routed demo changing swaps both config references at once; a
   // randomize step only changes randomId — regenerate accordingly.
@@ -179,6 +187,7 @@
 <div class="mochart-demo-content">
   <ErrorTab active={activeKey === eventKeyChart}>
     <RandomChartTab active={activeKey === eventKeyChart} mochartConfig={mochartDemoConfig.mochartConfig} {dataProvider}
+                    {randomConfig} {initialRate}
                     {onRandomizeBack} {onRandomizeNext}
                     {applyReuse} {toggleApplyReuse} />
   </ErrorTab>

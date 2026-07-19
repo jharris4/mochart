@@ -9,7 +9,7 @@ import RandomConfigTab from './RandomConfigTab.vue';
 import RandomDataTab from './RandomDataTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import { demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -33,12 +33,19 @@ const props = defineProps<Props>();
 
 const { eventKeyChart, eventKeyConfig, eventKeyData } = props.eventKeys;
 
-const randomConfig = shallowRef<RandomConfigWithValid>(props.initialRandomConfig);
+// A share link restores the generator config, reuse toggle and interval (the
+// step comes from the randomId in the URL path). Consume it once at mount.
+const sharedState = consumeShareState('random');
+const initialShared = sharedState && sharedState.mode === 'random' ? sharedState : null;
+const initialRate = initialShared ? initialShared.interval : void 0;
+
+const randomConfig = shallowRef<RandomConfigWithValid>(
+  initialShared ? { ...initialShared.randomConfig, valid: true } : props.initialRandomConfig);
 const dataProvider = shallowRef<DemoDataProvider | null>(null);
 const data = shallowRef<unknown>(null);
 // Reuse defaults on to match the generator's historical behavior (the
 // config's reuse settings were always applied before the toggle worked).
-const applyReuse = ref(true);
+const applyReuse = ref(initialShared ? initialShared.applyReuse : true);
 
 function toggleApplyReuse() {
   applyReuse.value = !applyReuse.value;
@@ -115,7 +122,7 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
   }
 }
 
-updateDataProvider(props.initialRandomConfig);
+updateDataProvider(randomConfig.value);
 
 watch(
   () => [props.initialRandomConfig, props.mochartDemoConfig, props.randomId] as const,
@@ -154,6 +161,7 @@ function onResetConfig() {
   <div class="mochart-demo-content">
     <ErrorTab :active="props.activeKey === eventKeyChart">
       <RandomChartTab :active="props.activeKey === eventKeyChart" :mochart-config="props.mochartDemoConfig.mochartConfig" :data-provider="dataProvider"
+                      :random-config="randomConfig" :initial-rate="initialRate"
                       :on-randomize-back="onRandomizeBack" :on-randomize-next="onRandomizeNext"
                       :apply-reuse="applyReuse" :toggle-apply-reuse="toggleApplyReuse" />
     </ErrorTab>

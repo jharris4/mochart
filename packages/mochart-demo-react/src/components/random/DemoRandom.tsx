@@ -3,7 +3,8 @@ import React, { useState, useRef } from 'react';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { buildMochartDemoConfig, demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import RandomMochartChartTab from './RandomChartTab';
 import RandomMochartConfigTab from './RandomConfigTab';
@@ -176,10 +177,19 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
 function RandomMochartDemoContent(props: ContentProps) {
   const { initialDemoId, mochartDemoConfig, initialRandomConfig, activeKey, randomId, incrementRandomId, decrementRandomId } = props;
 
+  // A share link restores the generator config, reuse toggle and interval (the
+  // step comes from the randomId in the URL path). Consume it once at mount.
+  const initialSharedRef = useRef<ShareState | null | undefined>(void 0);
+  if (initialSharedRef.current === void 0) {
+    initialSharedRef.current = consumeShareState('random');
+  }
+  const initialShared = initialSharedRef.current && initialSharedRef.current.mode === 'random' ? initialSharedRef.current : null;
+
   const [state, setState] = useState<ContentState>(() => {
     // Reuse defaults on to match the generator's historical behavior.
-    const applyReuse = true;
-    return { applyReuse, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig, applyReuse) };
+    const applyReuse = initialShared ? initialShared.applyReuse : true;
+    const randomConfig: RandomConfigWithValid = initialShared ? { ...initialShared.randomConfig, valid: true } : initialRandomConfig;
+    return { applyReuse, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, applyReuse) };
   });
 
   // Regenerate the data provider when the demo/config/randomId changes. A demo
@@ -223,6 +233,7 @@ function RandomMochartDemoContent(props: ContentProps) {
     <div className="mochart-demo-content">
       <ErrorTab active={activeKey === eventKeyChart}>
         <RandomMochartChartTab mochartConfig={mochartConfig} dataProvider={dataProvider}
+          randomConfig={randomConfig} initialRate={initialShared ? initialShared.interval : void 0}
           onRandomizeBack={onRandomizeBack} onRandomizeNext={onRandomizeNext}
           applyReuse={applyReuse} toggleApplyReuse={toggleApplyReuse} />
       </ErrorTab>

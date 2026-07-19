@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router';
+
+import { shareHashPrefix } from '@mochart/demo-common';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
@@ -63,6 +65,24 @@ function useDemoNavigate() {
   return (pathname: string, options: { replace?: boolean } = {}) => navigate({ pathname, search }, options);
 }
 
+// A share link's payload lives in the URL hash; the mounted view decodes it on
+// its first render (consumeShareState). React Router owns the location and
+// re-asserts the hash-bearing URL during mount, so clearing it must go through
+// the router — do it once, after the child has consumed the payload. Replacing
+// only the hash keeps the same route, so the view isn't remounted and its
+// restored state survives.
+function useClearShareHash() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const cleared = useRef(false);
+  useEffect(() => {
+    if (!cleared.current && location.hash.startsWith(shareHashPrefix)) {
+      cleared.current = true;
+      navigate({ pathname: location.pathname, search: location.search, hash: '' }, { replace: true });
+    }
+  }, [location, navigate]);
+}
+
 /** Redirect (replace-style) that preserves the current query string. */
 function RedirectWithSearch({ to }: { to: string }) {
   const { search } = useLocation();
@@ -110,6 +130,7 @@ function DemoModeRoute({ Component }: DemoModeRouteProps) {
   const params = useParams();
   const demoId = params.demoId!;
   const nav = useDemoNavigation(demoId);
+  useClearShareHash();
   if (demoObjectMap[demoId] === void 0) {
     return <div>No demo found for id: {demoId}</div>;
   }
@@ -122,6 +143,7 @@ function RandomRoute() {
   const demoNavigate = useDemoNavigate();
   const demoId = params.demoId!;
   const nav = useDemoNavigation(demoId);
+  useClearShareHash();
   if (demoObjectMap[demoId] === void 0) {
     return <div>No demo found for id: {demoId}</div>;
   }

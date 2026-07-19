@@ -8,7 +8,7 @@ import type { MochartConfig } from '@mochart/core';
 import { demoText } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
+import { buttonWithTooltip, icon } from '../misc/templates';
 
 import type { ChartDataProviderLike } from '../../types';
 
@@ -71,7 +71,6 @@ export class TransitionChartTab extends LightElement {
                   icon({ size: 'lg', fixedWidth: true, name: 'forward-step' })
                 )}
               </div>
-              ${exportButtons({ idPrefix: 'transition', getContainer: () => this.querySelector('.transition-chart-sizer') })}
             </div>
           </div>
         </form>

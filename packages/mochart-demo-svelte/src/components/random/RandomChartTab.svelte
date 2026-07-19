@@ -3,19 +3,23 @@
 
   import { Chart } from '@mochart/svelte';
   import type { MochartConfig } from '@mochart/core';
+  import { exportPNG, exportSVG } from '@mochart/export';
 
   import { demoText } from '@mochart/demo-common';
+  import type { ShareState } from '@mochart/demo-common';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
-  import ExportButtons from '../misc/ExportButtons.svelte';
+  import ExportShareMenu from '../misc/ExportShareMenu.svelte';
   import Icon from '../misc/Icon.svelte';
 
-  import type { DemoDataProvider } from '../../types';
+  import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
   interface Props {
     active?: boolean;
     mochartConfig: MochartConfig;
     dataProvider: DemoDataProvider | null;
+    randomConfig: RandomConfigWithValid;
+    initialRate?: number;
     onRandomizeBack: () => void;
     onRandomizeNext: () => void;
     applyReuse: boolean;
@@ -30,6 +34,8 @@
     active = false,
     mochartConfig,
     dataProvider,
+    randomConfig,
+    initialRate = void 0,
     onRandomizeBack,
     onRandomizeNext,
     applyReuse,
@@ -41,8 +47,11 @@
   let chartSizerElement = $state<HTMLDivElement | null>(null);
 
   let playing = $state(false);
-  let rate = $state(defaultRate);
-  let rateText = $state('' + defaultRate);
+  // A share link restores the interval; otherwise start on the default.
+  // svelte-ignore state_referenced_locally
+  let rate = $state(initialRate ?? defaultRate);
+  // svelte-ignore state_referenced_locally
+  let rateText = $state('' + (initialRate ?? defaultRate));
 
   // Intentional initial-value capture; the $effect.pre below re-syncs it.
   // svelte-ignore state_referenced_locally
@@ -79,6 +88,24 @@
       }
     }
     rateText = nextRateText;
+  }
+
+  function onExportPng() {
+    if (chartSizerElement) {
+      void exportPNG(chartSizerElement);
+    }
+  }
+
+  function onExportSvg() {
+    if (chartSizerElement) {
+      exportSVG(chartSizerElement);
+    }
+  }
+
+  // Share captures the generator config, the reuse toggle and the interval; the
+  // step comes from the /random/:demoId/:randomId path already in the URL.
+  function getShareState(): ShareState {
+    return { mode: 'random', randomConfig, applyReuse, interval: rate };
   }
 
   onDestroy(() => {
@@ -125,7 +152,6 @@
           </div>
         </div>
         <div class="btn-toolbar ml-2" role="toolbar">
-          <ExportButtons idPrefix="random" getContainer={() => chartSizerElement} />
           <div class="btn-group">
             <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
                                tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
@@ -133,6 +159,7 @@
               <Icon size="lg" fixedWidth={true} name="recycle" />
             </ButtonWithTooltip>
           </div>
+          <ExportShareMenu idPrefix="random" exportPng={onExportPng} exportSvg={onExportSvg} {getShareState} />
         </div>
       </div>
     </form>

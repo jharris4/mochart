@@ -4,7 +4,6 @@ import { demoText } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
-import { exportButtons } from '../misc/ExportButtons';
 
 import type { ChartDataProviderLike } from '../../types';
 
@@ -62,7 +61,6 @@ export function transitionChartTab(props: TransitionChartTabProps): TransitionCh
     onClick: onStepForward,
     content: [icon('forward-step', { size: 'lg', fixedWidth: true })]
   });
-  const exportGroup = exportButtons('transition', () => chartSizer);
 
   const container = el('div', {
     className: 'mochart-demo-tab-container col chart' + (props.active ? ' active' : '')
@@ -72,8 +70,7 @@ export function transitionChartTab(props: TransitionChartTabProps): TransitionCh
       el('form', { className: 'form-inline' }, [
         el('div', { className: 'form-group' }, [
           el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-            el('div', { className: 'btn-group' }, [backButton.el, forwardButton.el]),
-            exportGroup.el
+            el('div', { className: 'btn-group' }, [backButton.el, forwardButton.el])
           ])
         ])
       ])

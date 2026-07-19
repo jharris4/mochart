@@ -4,13 +4,16 @@ import type { PropertyValues } from 'lit';
 
 import { chart } from '@mochart/lit';
 import type { MochartConfig } from '@mochart/core';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
+import { buttonWithTooltip, icon } from '../misc/templates';
+import '../misc/export-share-menu';
 
-import type { DemoDataProvider } from '../../types';
+import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
 const defaultRate = 2000;
 
@@ -19,6 +22,8 @@ export class RandomChartTab extends LightElement {
   @property({ attribute: false }) active = false;
   @property({ attribute: false }) mochartConfig!: MochartConfig;
   @property({ attribute: false }) dataProvider: DemoDataProvider | null = null;
+  @property({ attribute: false }) randomConfig!: RandomConfigWithValid;
+  @property({ attribute: false }) initialRate: number | undefined = void 0;
   @property({ attribute: false }) onRandomizeBack!: () => void;
   @property({ attribute: false }) onRandomizeNext!: () => void;
   @property({ attribute: false }) applyReuse = false;
@@ -31,6 +36,13 @@ export class RandomChartTab extends LightElement {
   @state() private rateText = '' + defaultRate;
 
   override willUpdate(changed: PropertyValues<this>): void {
+    if (!this.hasUpdated) {
+      // A share link restores the interval; otherwise start on the default.
+      if (this.initialRate !== void 0) {
+        this.rate = this.initialRate;
+        this.rateText = '' + this.initialRate;
+      }
+    }
     if (this.hasUpdated && changed.has('active')) {
       this.onStopClick();
     }
@@ -67,6 +79,12 @@ export class RandomChartTab extends LightElement {
     }
     this.rateText = nextRateText;
   };
+
+  // Share captures the generator config, the reuse toggle and the interval; the
+  // step comes from the /random/:demoId/:randomId path already in the URL.
+  private getShareState = (): ShareState => ({
+    mode: 'random', randomConfig: this.randomConfig, applyReuse: this.applyReuse, interval: this.rate
+  });
 
   override render(): unknown {
     return html`<div class=${'mochart-demo-tab-container col chart' + (this.active ? ' active' : '')}>
@@ -105,13 +123,16 @@ export class RandomChartTab extends LightElement {
               </div>
             </div>
             <div class="btn-toolbar ml-2" role="toolbar">
-              ${exportButtons({ idPrefix: 'random', getContainer: () => this.querySelector('.random-chart-sizer') })}
               <div class="btn-group">
                 ${buttonWithTooltip(
                   { id: 'reuse', disabled: this.playing, label: demoText.randomChartTab.reuse.label, pressed: this.applyReuse, tooltipText: demoText.randomChartTab.reuse.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleApplyReuse, ariaLabel: demoText.randomChartTab.reuse.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'recycle' })
                 )}
               </div>
+              <export-share-menu .idPrefix=${'random'}
+                .exportPng=${() => { const container = this.querySelector('.random-chart-sizer'); if (container) { void exportPNG(container); } }}
+                .exportSvg=${() => { const container = this.querySelector('.random-chart-sizer'); if (container) { exportSVG(container); } }}
+                .getShareState=${this.getShareState}></export-share-menu>
             </div>
           </div>
         </form>

@@ -1,6 +1,8 @@
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon } from '../misc/dom';
+import { exportShareMenu } from '../misc/ExportShareMenu';
 
 export interface ChartsControlsProps {
   onRowsChange: (rows: number) => void;
@@ -11,11 +13,19 @@ export interface ChartsControlsProps {
   onPlayForwardClick: () => void;
   onStopClick: () => void;
   onRateChange: (rate: number) => void;
+  // Seed the inputs from the (possibly share-restored) initial values.
+  initialRows?: number;
+  initialCols?: number;
+  initialRate?: number;
+  exportPng: () => void;
+  exportSvg: () => void;
+  getShareState: () => ShareState;
 }
 
 export interface ChartsControlsHandle {
   el: HTMLElement;
   setPlaying(playing: boolean): void;
+  destroy(): void;
 }
 
 const defaultChartRows = 2;
@@ -27,7 +37,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
     id: 'grid-rows', className: 'form-control',
     attrs: { type: 'number', min: '1', max: '4', 'aria-label': demoText.multiChartsTab.gridRowsAria }
   });
-  rowsInput.value = '' + defaultChartRows;
+  rowsInput.value = '' + (props.initialRows ?? defaultChartRows);
   rowsInput.addEventListener('input', () => {
     const rows = rowsInput.value;
     if (!isNaN(parseFloat(rows)) && isFinite(+rows)) {
@@ -42,7 +52,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
     id: 'grid-cols', className: 'form-control',
     attrs: { type: 'number', min: '1', max: '4', 'aria-label': demoText.multiChartsTab.gridColsAria }
   });
-  colsInput.value = '' + defaultChartCols;
+  colsInput.value = '' + (props.initialCols ?? defaultChartCols);
   colsInput.addEventListener('input', () => {
     const cols = colsInput.value;
     if (!isNaN(parseFloat(cols)) && isFinite(+cols)) {
@@ -57,7 +67,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
     id: 'multi-rate', className: 'form-control',
     attrs: { type: 'number', min: '5', max: '60000', step: '100', 'aria-label': demoText.multiChartsTab.intervalAria }
   });
-  rateInput.value = '' + defaultRate;
+  rateInput.value = '' + (props.initialRate ?? defaultRate);
   rateInput.addEventListener('input', () => {
     const rate = rateInput.value;
     if (!isNaN(parseFloat(rate)) && isFinite(+rate)) {
@@ -99,6 +109,13 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
     content: [icon('stop', { size: 'lg', fixedWidth: true })]
   });
 
+  const menu = exportShareMenu({
+    idPrefix: 'multi',
+    exportPng: props.exportPng,
+    exportSvg: props.exportSvg,
+    getShareState: props.getShareState
+  });
+
   const container = el('div', { className: 'multi-controls' }, [
     el('form', { className: 'form-inline' }, [
       el('div', { className: 'form-group' }, [
@@ -117,6 +134,9 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
       el('div', { className: 'form-group' }, [
         el('label', { className: 'form-control-plaintext', attrs: { for: 'multi-rate' }, text: demoText.multiChartsTab.intervalLabel }),
         rateInput
+      ]),
+      el('div', { className: 'form-group' }, [
+        el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [menu.el])
       ])
     ])
   ]);
@@ -132,6 +152,9 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
       playBackwardButton.setDisabled(playing);
       playForwardButton.setDisabled(playing);
       stopButton.setDisabled(!playing);
+    },
+    destroy() {
+      menu.destroy();
     }
   };
 }

@@ -43,7 +43,7 @@ export { demoText } from './demoText';
 export { getGallerySections, switchableDemoModes } from './gallery';
 export type { GalleryDemoItem, GalleryPageItem, GalleryItem, GallerySection, SwitchableDemoMode } from './gallery';
 
-export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, shareHashPrefix } from './shareState';
-export type { ShareState } from './shareState';
+export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, consumeSingleShareState, shareHashPrefix } from './shareState';
+export type { ShareState, SingleShareState, MultiShareState, RandomShareState } from './shareState';
 
 export { getDocsBaseUrl, getReferenceSectionIds, getReferenceSectionUrl } from './docsLinks';

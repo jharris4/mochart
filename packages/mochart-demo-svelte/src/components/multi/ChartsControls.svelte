@@ -1,11 +1,16 @@
 <script lang="ts">
   import { demoText } from '@mochart/demo-common';
+  import type { ShareState } from '@mochart/demo-common';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
+  import ExportShareMenu from '../misc/ExportShareMenu.svelte';
   import Icon from '../misc/Icon.svelte';
 
   interface Props {
     playing: boolean;
+    initialRows: number;
+    initialCols: number;
+    initialRate: number;
     onRowsChange: (rows: number) => void;
     onColsChange: (cols: number) => void;
     onStepBackwardClick: () => void;
@@ -14,16 +19,18 @@
     onPlayForwardClick: () => void;
     onStopClick: () => void;
     onRateChange: (rate: number) => void;
+    exportPng: () => void;
+    exportSvg: () => void;
+    getShareState: () => ShareState;
   }
 
   type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
 
-  const defaultChartRows = 2;
-  const defaultChartCols = 2;
-  const defaultRate = 2000;
-
   let {
     playing,
+    initialRows,
+    initialCols,
+    initialRate,
     onRowsChange,
     onColsChange,
     onStepBackwardClick,
@@ -31,12 +38,19 @@
     onPlayBackwardClick,
     onPlayForwardClick,
     onStopClick,
-    onRateChange
+    onRateChange,
+    exportPng,
+    exportSvg,
+    getShareState
   }: Props = $props();
 
-  let rateText = $state('' + defaultRate);
-  let rowsText = $state('' + defaultChartRows);
-  let colsText = $state('' + defaultChartCols);
+  // Seed the inputs from the (possibly share-restored) initial values.
+  // svelte-ignore state_referenced_locally
+  let rateText = $state('' + initialRate);
+  // svelte-ignore state_referenced_locally
+  let rowsText = $state('' + initialRows);
+  // svelte-ignore state_referenced_locally
+  let colsText = $state('' + initialCols);
 
   // Input values arrive as strings and are coerced to numbers in place, so the
   // working variable is intentionally loose (matching the original demo).
@@ -114,6 +128,11 @@
       <label class="form-control-plaintext" for="multi-rate">{demoText.multiChartsTab.intervalLabel}</label>
       <input id="multi-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="form-control" value={rateText}
              oninput={rateChanged} aria-label={demoText.multiChartsTab.intervalAria} />
+    </div>
+    <div class="form-group">
+      <div class="btn-toolbar" role="toolbar">
+        <ExportShareMenu idPrefix="multi" {exportPng} {exportSvg} {getShareState} />
+      </div>
     </div>
   </form>
 </div>

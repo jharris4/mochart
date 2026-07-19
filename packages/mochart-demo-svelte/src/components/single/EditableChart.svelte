@@ -3,11 +3,11 @@
 
   import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
   import { demoText } from '@mochart/demo-common';
+  import { exportPNG, exportSVG } from '@mochart/export';
   import { Chart } from '@mochart/svelte';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
-  import ExportButtons from '../misc/ExportButtons.svelte';
-  import ShareButton from '../misc/ShareButton.svelte';
+  import ExportShareMenu from '../misc/ExportShareMenu.svelte';
   import Icon from '../misc/Icon.svelte';
 
   import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
@@ -602,6 +602,18 @@
   const isLastGroup = $derived(groupIndex === filteredGroupValues.length - 1);
   const hasPrevSeries = $derived(seriesIndex > 0);
   const hasNextSeries = $derived(seriesIndex < mochartDemoConfig.seriesCount - 1);
+
+  function onExportPng() {
+    if (chartContentElement) {
+      void exportPNG(chartContentElement);
+    }
+  }
+
+  function onExportSvg() {
+    if (chartContentElement) {
+      exportSVG(chartContentElement);
+    }
+  }
 </script>
 
 {#snippet commonControls()}
@@ -623,10 +635,16 @@
       <Icon size="lg" fixedWidth={true} name={selectionMode === 'group' ? "bullseye" : "sliders"} />
     </ButtonWithTooltip>
   </div>
-  <ExportButtons idPrefix="edit" disabled={!!error} getContainer={() => chartContentElement} />
-  {#if showShareButton}
-    <ShareButton idPrefix="edit" getShareState={() => ({ config: mochartDemoConfig.config, data })} />
-  {/if}
+{/snippet}
+
+{#snippet exportShareMenu()}
+  <!-- Pushed to the far right of the controls row (past the group/series input).
+       Share is only offered on the chart flagged for it (the first, when two
+       are shown). -->
+  <span class="chart-controls-menu">
+    <ExportShareMenu idPrefix="edit" disabled={!!error} exportPng={onExportPng} exportSvg={onExportSvg}
+                     getShareState={showShareButton ? () => ({ mode: 'single', config: mochartDemoConfig.config, data }) : void 0} />
+  </span>
 {/snippet}
 
 <div class="editable-mochart-chart">
@@ -698,6 +716,7 @@
               <input type="text" class="form-control" disabled={error || sequencePlaying} bind:value={groupValuesText} />
             </form>
           </span>
+          {@render exportShareMenu()}
         </div>
       {:else}
         <div class="chart-controls-container">
@@ -777,6 +796,7 @@
               <input type="text" class="form-control" disabled={error || seriesControlsDisabled} bind:value={seriesValuesText} />
             </form>
           </span>
+          {@render exportShareMenu()}
         </div>
       {/if}
     </div>

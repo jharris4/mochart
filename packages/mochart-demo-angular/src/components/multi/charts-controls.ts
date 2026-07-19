@@ -1,8 +1,11 @@
 import { Component, Input, signal } from '@angular/core';
+import type { OnInit } from '@angular/core';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
+import { ExportShareMenu } from '../misc/export-share-menu';
 import { Icon } from '../misc/icon';
 
 const defaultChartRows = 2;
@@ -11,7 +14,7 @@ const defaultRate = 2000;
 
 @Component({
   selector: 'app-charts-controls',
-  imports: [ButtonWithTooltip, Icon],
+  imports: [ButtonWithTooltip, ExportShareMenu, Icon],
   styles: [':host { display: contents; }'],
   template: `
     <div class="multi-controls">
@@ -55,11 +58,16 @@ const defaultRate = 2000;
           <input id="multi-rate" [disabled]="playing" type="number" min="5" max="60000" step="100" class="form-control" [value]="rateText()"
                  [attr.aria-label]="text.intervalAria" (input)="rateChanged($event)" />
         </div>
+        <div class="form-group">
+          <div class="btn-toolbar" role="toolbar">
+            <app-export-share-menu idPrefix="multi" [exportPng]="exportPng" [exportSvg]="exportSvg" [getShareState]="getShareState" />
+          </div>
+        </div>
       </form>
     </div>
   `
 })
-export class ChartsControls {
+export class ChartsControls implements OnInit {
   readonly text = demoText.multiChartsTab;
 
   @Input({ required: true }) playing!: boolean;
@@ -71,10 +79,23 @@ export class ChartsControls {
   @Input({ required: true }) onPlayForwardClick!: () => void;
   @Input({ required: true }) onStopClick!: () => void;
   @Input({ required: true }) onRateChange!: (rate: number) => void;
+  @Input({ required: true }) exportPng!: () => void;
+  @Input({ required: true }) exportSvg!: () => void;
+  @Input({ required: true }) getShareState!: () => ShareState;
+  // Seeded from the (possibly share-restored) grid size and interval.
+  @Input() initialRows = defaultChartRows;
+  @Input() initialCols = defaultChartCols;
+  @Input() initialRate = defaultRate;
 
   rateText = signal('' + defaultRate);
   rowsText = signal('' + defaultChartRows);
   colsText = signal('' + defaultChartCols);
+
+  ngOnInit(): void {
+    this.rowsText.set('' + this.initialRows);
+    this.colsText.set('' + this.initialCols);
+    this.rateText.set('' + this.initialRate);
+  }
 
   // Input values arrive as strings and are coerced to numbers in place, so the
   // working variable is intentionally loose (matching the original demo).

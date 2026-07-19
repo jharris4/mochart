@@ -9,10 +9,11 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "lodash.merge": "^4.6.2",
     "@mochart/core": "^1.0.0",
     "@mochart/demo-data": "^1.0.0",
     "@mochart/movalid": "^1.0.0",
+    "fflate": "^0.8.3",
+    "lodash.merge": "^4.6.2",
     "seedrandom": "^3.0.5"
   },
   "devDependencies": {

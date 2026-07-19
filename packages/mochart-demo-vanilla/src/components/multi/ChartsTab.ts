@@ -1,5 +1,7 @@
 
-import { buildMochartDemoConfig, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
+import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
 import { el, observeSize, setActiveClass } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
@@ -25,22 +27,33 @@ const defaultChartRows = 2;
 const defaultChartCols = 2;
 const defaultRate = 2000;
 
+function clampGrid(value: number): number {
+  return Math.min(4, Math.max(1, Math.round(value)));
+}
+
 export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   let demoObject = props.demoObject;
   let active = props.active ?? false;
 
   let intervalId: ReturnType<typeof setInterval> | null = null;
 
+  // A share link restores the grid size, playback step and interval.
+  const shared = consumeShareState('multi');
+  const sharedMulti = shared && shared.mode === 'multi' ? shared : null;
+
   let playing = false;
-  let chartRows = defaultChartRows;
-  let chartCols = defaultChartCols;
-  let rate = defaultRate;
+  let chartRows = sharedMulti ? clampGrid(sharedMulti.rows) : defaultChartRows;
+  let chartCols = sharedMulti ? clampGrid(sharedMulti.cols) : defaultChartCols;
+  let rate = sharedMulti ? sharedMulti.interval : defaultRate;
   let mochartDemoConfig = buildMochartDemoConfig(demoObject.config);
   let data = demoObject.data;
   let dataCount = demoObject.data.length;
-  let currentDataCount = demoObject.data.length;
+  // A shared step seeks the playback position; otherwise start on the full set.
+  let currentDataCount = sharedMulti && dataCount > 0
+    ? ((Math.round(sharedMulti.step) % dataCount) + dataCount) % dataCount
+    : dataCount;
   let dataProviders = getDataProvidersForDataCount(
-    mochartDemoConfig.mochartConfig, demoObject.data, defaultChartRows * defaultChartCols, demoObject.data.length);
+    mochartDemoConfig.mochartConfig, demoObject.data, chartRows * chartCols, currentDataCount);
   let focusedGroupIndices: number[] = dataProviders.map(() => -1);
   let focusedGroupIndex = -1;
   let focusedSeriesAxisId: string | null = null;
@@ -184,11 +197,42 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
 
   const chartsGrid = el('div', { className: 'multi-charts' });
   const sizer = el('div', { className: 'multi-charts-sizer' }, [chartsGrid]);
+
+  // The whole grid exports as one tiled image; share captures the grid size,
+  // playback step and interval so the link restores the same view.
+  function getChartContainers(): Element[] {
+    return Array.from(chartsGrid.querySelectorAll('.multi-mochart-chart'));
+  }
+
+  function onExportPng(): void {
+    const containers = getChartContainers();
+    if (containers.length > 0) {
+      void exportChartsPNG(containers, { cols: chartCols });
+    }
+  }
+
+  function onExportSvg(): void {
+    const containers = getChartContainers();
+    if (containers.length > 0) {
+      exportChartsSVG(containers, { cols: chartCols });
+    }
+  }
+
+  function getShareState(): ShareState {
+    return { mode: 'multi', rows: chartRows, cols: chartCols, step: currentDataCount, interval: rate };
+  }
+
   const controls = chartsControls({
     onRowsChange, onColsChange,
     onStepBackwardClick, onStepForwardClick,
     onPlayBackwardClick, onPlayForwardClick,
-    onStopClick, onRateChange
+    onStopClick, onRateChange,
+    initialRows: chartRows,
+    initialCols: chartCols,
+    initialRate: rate,
+    exportPng: onExportPng,
+    exportSvg: onExportSvg,
+    getShareState
   });
 
   const container = el('div', {
@@ -273,6 +317,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     destroy() {
       onStopClick();
       stopObserving();
+      controls.destroy();
       destroyCharts();
     }
   };

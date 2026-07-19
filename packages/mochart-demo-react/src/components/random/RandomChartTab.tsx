@@ -3,13 +3,15 @@ import Icon from '../misc/Icon';
 
 import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
+import { exportPNG, exportSVG } from '@mochart/export';
 
 import { demoText } from '@mochart/demo-common';
+import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
-import ExportButtons from '../misc/ExportButtons';
+import ExportShareMenu from '../misc/ExportShareMenu';
 
-import type { DemoDataProvider } from '../../types';
+import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
 const defaultRate = 2000;
 
@@ -17,18 +19,21 @@ interface Props {
   active?: boolean;
   mochartConfig: MochartConfig;
   dataProvider: DemoDataProvider | null;
+  randomConfig: RandomConfigWithValid;
+  initialRate?: number;
   onRandomizeBack: () => void;
   onRandomizeNext: () => void;
   applyReuse: boolean;
   toggleApplyReuse: () => void;
 }
 
-export default function RandomMochartChartsTab({ active, mochartConfig, dataProvider, onRandomizeBack, onRandomizeNext, applyReuse, toggleApplyReuse }: Props) {
+export default function RandomMochartChartsTab({ active, mochartConfig, dataProvider, randomConfig, initialRate, onRandomizeBack, onRandomizeNext, applyReuse, toggleApplyReuse }: Props) {
   const intervalIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const chartSizerRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [rate, setRate] = useState(defaultRate);
-  const [rateText, setRateText] = useState<string | number>('' + defaultRate);
+  // A share link restores the interval; otherwise start on the default.
+  const [rate, setRate] = useState(initialRate ?? defaultRate);
+  const [rateText, setRateText] = useState<string | number>('' + (initialRate ?? defaultRate));
 
   const onStopClick = () => {
     if (intervalIdRef.current !== null) {
@@ -70,6 +75,26 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
     setRate(nextRate);
   };
 
+  const onExportPng = () => {
+    const container = chartSizerRef.current;
+    if (container) {
+      void exportPNG(container);
+    }
+  };
+
+  const onExportSvg = () => {
+    const container = chartSizerRef.current;
+    if (container) {
+      exportSVG(container);
+    }
+  };
+
+  // Share captures the generator config, the reuse toggle and the interval; the
+  // step comes from the /random/:demoId/:randomId path already in the URL.
+  const getShareState = (): ShareState => ({
+    mode: 'random', randomConfig, applyReuse, interval: rate
+  });
+
   return (
     <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
       <div className="random-chart-sizer" ref={chartSizerRef}>
@@ -108,7 +133,6 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
               </div>
             </div>
             <div className="btn-toolbar ml-2" role="toolbar">
-              <ExportButtons idPrefix="random" getContainer={() => chartSizerRef.current} />
               <div className="btn-group">
                 <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
                   tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
@@ -116,6 +140,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
                   <Icon size="lg" fixedWidth={true} name="recycle" />
                 </ButtonWithTooltip>
               </div>
+              <ExportShareMenu idPrefix="random" exportPng={onExportPng} exportSvg={onExportSvg} getShareState={getShareState} />
             </div>
           </div>
         </form>

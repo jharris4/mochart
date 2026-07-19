@@ -2,8 +2,10 @@ import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 
 import { Chart } from '@mochart/angular';
+import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { buildMochartDemoConfig, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import type { MultiShareState, ShareState } from '@mochart/demo-common';
 
 import { ChartsControls } from './charts-controls';
 import { createElementSize } from '../misc/element-size';
@@ -16,6 +18,10 @@ const defaultChartRows = 2;
 const defaultChartCols = 2;
 
 const defaultRate = 2000;
+
+function clampGrid(value: number): number {
+  return Math.min(4, Math.max(1, Math.round(value)));
+}
 
 @Component({
   selector: 'app-charts-tab',
@@ -39,7 +45,9 @@ const defaultRate = 2000;
       <app-charts-controls [playing]="playing()" [onRowsChange]="onRowsChange" [onColsChange]="onColsChange"
                            [onStepBackwardClick]="onStepBackwardClick" [onStepForwardClick]="onStepForwardClick"
                            [onPlayBackwardClick]="onPlayBackwardClick" [onPlayForwardClick]="onPlayForwardClick"
-                           [onStopClick]="onStopClick" [onRateChange]="onRateChange" />
+                           [onStopClick]="onStopClick" [onRateChange]="onRateChange"
+                           [initialRows]="chartRows()" [initialCols]="chartCols()" [initialRate]="rate()"
+                           [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
     </div>
   `
 })
@@ -72,14 +80,56 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   gridHeight = this.elementSize.height;
 
   ngOnInit(): void {
-    this.mochartDemoConfig.set(buildMochartDemoConfig(this.demoObject.config));
-    this.data.set(this.demoObject.data);
-    this.dataCount.set(this.demoObject.data.length);
-    this.currentDataCount.set(this.demoObject.data.length);
-    this.dataProviders.set(getDataProvidersForDataCount(
-      this.mochartDemoConfig()!.mochartConfig, this.demoObject.data, defaultChartRows * defaultChartCols, this.demoObject.data.length));
+    // A share link restores the grid size, playback step and interval.
+    const shared = this.consumeMultiShareState();
+    const rows = shared ? clampGrid(shared.rows) : defaultChartRows;
+    const cols = shared ? clampGrid(shared.cols) : defaultChartCols;
+    const rate = shared ? shared.interval : defaultRate;
+    this.chartRows.set(rows);
+    this.chartCols.set(cols);
+    this.rate.set(rate);
+    const mochartDemoConfig = buildMochartDemoConfig(this.demoObject.config);
+    this.mochartDemoConfig.set(mochartDemoConfig);
+    const data = this.demoObject.data;
+    this.data.set(data);
+    const dataCount = data.length;
+    this.dataCount.set(dataCount);
+    // A shared step seeks the playback position; otherwise start on the full set.
+    const currentDataCount = shared !== null && dataCount > 0
+      ? ((Math.round(shared.step) % dataCount) + dataCount) % dataCount
+      : dataCount;
+    this.currentDataCount.set(currentDataCount);
+    this.dataProviders.set(getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, rows * cols, currentDataCount));
     this.focusedGroupIndices.set(this.dataProviders().map(() => -1));
   }
+
+  private consumeMultiShareState(): MultiShareState | null {
+    const shared = consumeShareState('multi');
+    return shared !== null && shared.mode === 'multi' ? shared : null;
+  }
+
+  private getChartContainers(): Element[] {
+    const grid = this.gridElement?.nativeElement;
+    return grid ? Array.from(grid.querySelectorAll('.multi-mochart-chart')) : [];
+  }
+
+  onExportPng = (): void => {
+    const containers = this.getChartContainers();
+    if (containers.length > 0) {
+      void exportChartsPNG(containers, { cols: this.chartCols() });
+    }
+  };
+
+  onExportSvg = (): void => {
+    const containers = this.getChartContainers();
+    if (containers.length > 0) {
+      exportChartsSVG(containers, { cols: this.chartCols() });
+    }
+  };
+
+  getShareState = (): ShareState => ({
+    mode: 'multi', rows: this.chartRows(), cols: this.chartCols(), step: this.currentDataCount(), interval: this.rate()
+  });
 
   ngAfterViewInit(): void {
     this.elementSize.observe(this.gridElement.nativeElement);

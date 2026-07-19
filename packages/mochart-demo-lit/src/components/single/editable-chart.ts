@@ -4,11 +4,12 @@ import type { PropertyValues } from 'lit';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart } from '@mochart/lit';
+import { exportPNG, exportSVG } from '@mochart/export';
 import { demoText } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import { buttonWithTooltip, exportButtons, icon } from '../misc/templates';
-import '../misc/share-button';
+import { buttonWithTooltip, icon } from '../misc/templates';
+import '../misc/export-share-menu';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -569,15 +570,16 @@ export class EditableChart extends LightElement {
     </div>`;
   }
 
-  private renderExportButtons(): unknown {
-    return exportButtons({ idPrefix: 'edit', getContainer: () => this.querySelector('.editable-chart-content') });
-  }
-
-  private renderShareButton(): unknown {
-    if (!this.showShareButton) {
-      return nothing;
-    }
-    return html`<share-button .idPrefix=${'edit'} .getShareState=${() => ({ config: this.mochartDemoConfig.config, data: this.data })}></share-button>`;
+  // The export/share menu sits at the far right of the controls row (past the
+  // group/series input). Share is only offered on the chart flagged for it (the
+  // first, when two are shown).
+  private renderExportShareMenu(error: boolean): unknown {
+    return html`<span class="chart-controls-menu">
+      <export-share-menu .idPrefix=${'edit'} .disabled=${error}
+        .exportPng=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { void exportPNG(container); } }}
+        .exportSvg=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { exportSVG(container); } }}
+        .getShareState=${this.showShareButton ? () => ({ mode: 'single', config: this.mochartDemoConfig.config, data: this.data }) : undefined}></export-share-menu>
+    </span>`;
   }
 
   private renderGroupControls(error: boolean, disableAdd: boolean, disableRemove: boolean): unknown {
@@ -588,8 +590,6 @@ export class EditableChart extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
-              ${this.renderExportButtons()}
-              ${this.renderShareButton()}
               <div class="btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-reset-groups', disabled: error || this.sequencePlaying, label: demoText.editableChart.resetGroups.label, tooltipText: demoText.editableChart.resetGroups.tooltip, tooltipPlacement: 'right', onClick: this.resetGroups, ariaLabel: demoText.editableChart.resetGroups.aria },
@@ -634,6 +634,7 @@ export class EditableChart extends LightElement {
                  @input=${(event: Event) => { this.groupValuesText = (event.currentTarget as HTMLInputElement).value; }} />
         </form>
       </span>
+      ${this.renderExportShareMenu(error)}
     </div>`;
   }
 
@@ -652,8 +653,6 @@ export class EditableChart extends LightElement {
             <div class="btn-toolbar" role="toolbar">
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
-              ${this.renderExportButtons()}
-              ${this.renderShareButton()}
             </div>
           </div>
           <div class="form-group">
@@ -720,6 +719,7 @@ export class EditableChart extends LightElement {
                  @input=${(event: Event) => { this.seriesValuesText = (event.currentTarget as HTMLInputElement).value; }} />
         </form>
       </span>
+      ${this.renderExportShareMenu(error)}
     </div>`;
   }
 

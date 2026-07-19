@@ -7,7 +7,6 @@
   import { demoText } from '@mochart/demo-common';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
-  import ExportButtons from '../misc/ExportButtons.svelte';
   import Icon from '../misc/Icon.svelte';
 
   import type { ChartDataProviderLike } from '../../types';
@@ -21,7 +20,6 @@
   let { active = false, mochartConfig, dataProviders }: Props = $props();
 
   let dataProviderIndex = $state(0);
-  let chartSizerElement = $state<HTMLDivElement | null>(null);
 
   // Props intentionally seed the previous-value snapshots with their initial
   // value only; the $effect.pre below re-syncs on later prop changes.
@@ -65,7 +63,7 @@
 </script>
 
 <div class={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
-  <div class="transition-chart-sizer" bind:this={chartSizerElement}>
+  <div class="transition-chart-sizer">
     <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
            {mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
   </div>
@@ -83,7 +81,6 @@
               <Icon size="lg" fixedWidth={true} name="forward-step" />
             </ButtonWithTooltip>
           </div>
-          <ExportButtons idPrefix="transition" getContainer={() => chartSizerElement} />
         </div>
       </div>
     </form>
