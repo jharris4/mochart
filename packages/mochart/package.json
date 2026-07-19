@@ -43,6 +43,7 @@
     "@mochart/movalid": "^1.0.0"
   },
   "scripts": {
+    "prebuild": "tsx scripts/stampVersion.ts",
     "build": "vite build && npm run build:types",
     "build:types": "tsc -p tsconfig.build.json",
     "prepack": "npm run build",
