@@ -536,10 +536,7 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     gap: 6px 10px;
     min-width: 0;
 }
-/* Form rows may carry Bootstrap's .mb-3 or a .form-group class — style both
-   the same way */
-.mochart-demo-modes-container form .mb-3,
-.mochart-demo-content form .mb-3,
+/* Form rows carry a .form-group class — lay them out inline */
 .mochart-demo-modes-container form .form-group,
 .mochart-demo-content form .form-group {
     display: flex;
