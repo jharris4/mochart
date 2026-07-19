@@ -1,10 +1,11 @@
 import demoData from '@mochart/demo-data';
 
-import { demoText } from '@mochart/demo-common';
+import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { getPath, navigate, onNavigate } from './router';
 
 import { el } from '../src/components/misc/dom';
+import { galleryPage } from '../src/components/gallery/GalleryPage';
 import { demoSingle } from '../src/components/single/DemoSingle';
 import type { DemoSingleHandle } from '../src/components/single/DemoSingle';
 import { demoMulti } from '../src/components/multi/DemoMulti';
@@ -14,28 +15,34 @@ import type { DemoRandomHandle } from '../src/components/random/DemoRandom';
 import { demoTransition } from '../src/components/transition/DemoTransition';
 import { demoRotation } from '../src/components/rotation/DemoRotation';
 
-import type { DemoMode } from '../src/types';
-
 interface Route {
   redirect?: string;
   notFound?: string;
+  gallery?: boolean;
   mode?: string;
   demoId?: string;
   randomId?: string;
 }
 
-const { demoIds, demoObjectMap } = demoData;
-const initialDemoId = demoIds[0];
+const { demoObjectMap } = demoData;
 
-// Same routes as the react demo (react-router 7), resolved by hand.
+// The gallery at /demos is the landing route; a demo is always viewed at
+// /<mode>/<demoId>. The legacy scheme used a 'demos' pseudo-demo-id for the
+// list ("/single/demos"), so those URLs redirect to the gallery.
 function resolveRoute(path: string): Route {
   const segments = path.split('/').filter(segment => segment.length > 0);
   if (segments.length === 0) {
-    return { redirect: '/single/demos' };
+    return { redirect: '/demos' };
   }
   const [mode, demoId, randomId] = segments;
+  if (mode === 'demos' && segments.length === 1) {
+    return { gallery: true };
+  }
+  if ((mode === 'single' || mode === 'multi' || mode === 'random') && demoId === 'demos') {
+    return { redirect: '/demos' };
+  }
   if ((mode === 'single' || mode === 'multi' || mode === 'random') && segments.length === 1) {
-    return { redirect: `/${mode}/demos` };
+    return { redirect: '/demos' };
   }
   if ((mode === 'single' || mode === 'multi') && segments.length === 2) {
     return { mode, demoId };
@@ -52,28 +59,10 @@ function resolveRoute(path: string): Route {
   return { notFound: path };
 }
 
-function getBasePathForMode(demoMode: string): string {
-  return '/' + demoMode;
-}
-
-function onDemoModeChanged(nextDemoMode: DemoMode, nextDemoId?: string): void {
-  if (nextDemoMode === 'transition' || nextDemoMode === 'rotation') {
-    navigate(getBasePathForMode(nextDemoMode));
-  }
-  else {
-    navigate(`${getBasePathForMode(nextDemoMode)}/${nextDemoId !== undefined ? nextDemoId : initialDemoId}`);
-  }
-}
-
-function makeOnDemoChanged(demoMode: string): (nextDemoId: string) => void {
-  return (nextDemoId: string) => {
-    navigate(`${getBasePathForMode(demoMode)}/${nextDemoId}`);
-  };
-}
-
 type View =
   | { kind: 'none' }
   | { kind: 'message'; el: HTMLElement }
+  | { kind: 'gallery'; el: HTMLElement }
   | { kind: 'single'; handle: DemoSingleHandle }
   | { kind: 'multi'; handle: DemoMultiHandle }
   | { kind: 'random'; handle: DemoRandomHandle }
@@ -81,19 +70,20 @@ type View =
 
 // The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
 // link back to it; standalone dev/build leaves it unset and no link renders.
-const siteRootUrl = import.meta.env.VITE_SITE_ROOT as string | undefined;
+// Every view places the link itself (top-left, before its own navigation).
+// For styling/debugging without a site build, `?siteRoot` forces the button
+// (linking to `/`), and `?siteRoot=<url>` points it at a specific target.
+function getDebugSiteRootUrl(): string | undefined {
+  const param = new URLSearchParams(window.location.search).get('siteRoot');
+  if (param === null) {
+    return undefined;
+  }
+  return param === '' ? '/' : param;
+}
+
+const siteRootUrl = (import.meta.env.VITE_SITE_ROOT as string | undefined) ?? getDebugSiteRootUrl();
 
 export function mountApp(root: HTMLElement): void {
-  if (siteRootUrl !== undefined) {
-    // Outside `root`, which the router clears on every view change.
-    document.body.append(el('a', {
-      className: 'btn btn-secondary btn-sm',
-      style: 'position: fixed; top: 14px; right: 18px; z-index: 1030;',
-      attrs: { href: siteRootUrl, title: demoText.siteRootLink.tooltip, 'aria-label': demoText.siteRootLink.aria },
-      text: demoText.siteRootLink.label
-    }));
-  }
-
   let view: View = { kind: 'none' };
 
   function clearView(): void {
@@ -114,26 +104,53 @@ export function mountApp(root: HTMLElement): void {
     view = { kind: 'message', el: element };
   }
 
-  // The transition/rotation demos have no navigation of their own, so give
-  // them a way back to the main demo gallery.
+  function showGallery(): void {
+    if (view.kind === 'gallery') {
+      return;
+    }
+    clearView();
+    const gallery = galleryPage({
+      demoData,
+      siteRootUrl,
+      onOpenDemo: demoId => navigate(`/single/${demoId}`),
+      onOpenPage: mode => navigate(`/${mode}`)
+    });
+    root.append(gallery.el);
+    view = { kind: 'gallery', el: gallery.el };
+  }
+
+  function onBackToDemos(): void {
+    navigate('/demos');
+  }
+
+  // Switching mode keeps the current demo; the demo id comes from the URL so
+  // the switcher stays correct after any navigation.
+  function makeOnModeChanged(): (nextDemoMode: SwitchableDemoMode) => void {
+    return (nextDemoMode: SwitchableDemoMode) => {
+      const route = resolveRoute(getPath());
+      const demoId = route.demoId;
+      if (demoId === undefined) {
+        navigate('/demos');
+      }
+      else if (nextDemoMode === 'random') {
+        navigate(`/random/${demoId}/0`);
+      }
+      else {
+        navigate(`/${nextDemoMode}/${demoId}`);
+      }
+    };
+  }
+
   function showShellDemo(mode: 'transition' | 'rotation'): void {
     if (view.kind === mode) {
       return;
     }
     clearView();
-    const demo = mode === 'transition' ? demoTransition() : demoRotation();
-    const backButton = el('button', {
-      className: 'btn btn-secondary btn-sm',
-      attrs: { type: 'button' },
-      text: '← Back to demos'
-    });
-    backButton.addEventListener('click', () => navigate('/single/demos'));
-    const shell = el('div', { style: 'height: 100%; display: flex; flex-direction: column;' }, [
-      el('div', { style: 'padding: 14px 18px 0;' }, [backButton]),
-      el('div', { style: 'flex: 1; min-height: 0;' }, [demo.el])
-    ]);
-    root.append(shell);
-    view = { kind: mode, el: shell, destroy: () => demo.destroy() };
+    const demo = mode === 'transition'
+      ? demoTransition({ siteRootUrl, onBackToDemos })
+      : demoRotation({ siteRootUrl, onBackToDemos });
+    root.append(demo.el);
+    view = { kind: mode, el: demo.el, destroy: () => demo.destroy() };
   }
 
   function render(): void {
@@ -147,14 +164,17 @@ export function mountApp(root: HTMLElement): void {
       showMessage('No route found matching ' + route.notFound);
       return;
     }
+    if (route.gallery === true) {
+      showGallery();
+      return;
+    }
     if (route.mode === 'transition' || route.mode === 'rotation') {
       showShellDemo(route.mode);
       return;
     }
 
-    const demoId = route.demoId !== undefined ? route.demoId : initialDemoId;
-    const isKnownDemo = demoId === 'demos' || demoObjectMap[demoId] !== undefined;
-    if (!isKnownDemo) {
+    const demoId = route.demoId!;
+    if (demoObjectMap[demoId] === undefined) {
       showMessage('No demo found for id: ' + demoId);
       return;
     }
@@ -166,8 +186,8 @@ export function mountApp(root: HTMLElement): void {
       else {
         clearView();
         const handle = demoSingle({
-          demoData, initialDemoId: demoId, demoMode: 'single',
-          onDemoModeChanged, onDemoChanged: makeOnDemoChanged('single')
+          demoData, initialDemoId: demoId, siteRootUrl,
+          onModeChanged: makeOnModeChanged(), onBackToDemos
         });
         root.append(handle.el);
         view = { kind: 'single', handle };
@@ -180,8 +200,8 @@ export function mountApp(root: HTMLElement): void {
       else {
         clearView();
         const handle = demoMulti({
-          demoData, initialDemoId: demoId, demoMode: 'multi',
-          onDemoModeChanged, onDemoChanged: makeOnDemoChanged('multi')
+          demoData, initialDemoId: demoId, siteRootUrl,
+          onModeChanged: makeOnModeChanged(), onBackToDemos
         });
         root.append(handle.el);
         view = { kind: 'multi', handle };
@@ -195,10 +215,10 @@ export function mountApp(root: HTMLElement): void {
         return;
       }
       const incrementRandomId = () => {
-        navigate(`${getBasePathForMode('random')}/${getCurrentRandomDemoId()}/${Math.floor(getCurrentRandomId()) + 1}`);
+        navigate(`/random/${getCurrentRandomDemoId()}/${Math.floor(getCurrentRandomId()) + 1}`);
       };
       const decrementRandomId = () => {
-        navigate(`${getBasePathForMode('random')}/${getCurrentRandomDemoId()}/${Math.floor(getCurrentRandomId()) - 1}`);
+        navigate(`/random/${getCurrentRandomDemoId()}/${Math.floor(getCurrentRandomId()) - 1}`);
       };
       if (view.kind === 'random') {
         view.handle.update(demoId, randomId);
@@ -206,8 +226,8 @@ export function mountApp(root: HTMLElement): void {
       else {
         clearView();
         const handle = demoRandom({
-          demoData, initialDemoId: demoId, demoMode: 'random',
-          onDemoModeChanged, onDemoChanged: makeOnDemoChanged('random'),
+          demoData, initialDemoId: demoId, siteRootUrl,
+          onModeChanged: makeOnModeChanged(), onBackToDemos,
           randomId, incrementRandomId, decrementRandomId
         });
         root.append(handle.el);
@@ -220,7 +240,7 @@ export function mountApp(root: HTMLElement): void {
   // they stay correct after any navigation.
   function getCurrentRandomDemoId(): string {
     const route = resolveRoute(getPath());
-    return route.demoId !== undefined ? route.demoId : initialDemoId;
+    return route.demoId !== undefined ? route.demoId : demoData.demoIds[0];
   }
 
   function getCurrentRandomId(): number {

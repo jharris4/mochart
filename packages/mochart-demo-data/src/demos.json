@@ -3,34 +3,23 @@
     {
       "id": "tick-prune",
       "title": "Long Tick Label Pruning",
+      "description": "A date axis with long formatted tick labels, pruned as space runs out instead of overlapping.",
       "config": "long-tick-label-config.json",
       "data": "mixed-groups-positive-values-data.json",
       "random": "positive-random.json"
     },
     {
-      "id": "threshold-line",
-      "title": "Threshold Line",
-      "config": "threshold-line-config.json",
-      "data": "mixed-groups-mixed-values-data.json",
-      "random": "default-random.json"
-    },
-    {
       "id": "threshold-group-line",
       "title": "Threshold Group Line",
+      "description": "A titled threshold line at a fixed date on the group axis, over a linear date scale.",
       "config": "threshold-group-line-config.json",
       "data": "dst-data.json",
       "random": "default-random.json"
     },
     {
-      "id": "color-property",
-      "title": "Color Property",
-      "config": "color-property-bars-config.json",
-      "data": "mixed-groups-mixed-values-data.json",
-      "random": "default-random.json"
-    },
-    {
       "id": "ordinal",
       "title": "Group Ordinal",
+      "description": "String group values on an ordinal group scale.",
       "config": "group-ordinal-config.json",
       "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
@@ -38,6 +27,7 @@
     {
       "id": "ordinal-dates",
       "title": "Ordinal Dates",
+      "description": "Date group values kept on an ordinal scale, with month-formatted tick labels.",
       "config": "ordinal-dates-config.json",
       "data": "ordinal-dates-data.json",
       "random": "default-random.json"
@@ -45,6 +35,7 @@
     {
       "id": "group-display",
       "title": "Group Display Property",
+      "description": "A displayProperty on the group axis: groups keyed by one property but labeled by another.",
       "config": "group-display-config.json",
       "data": "group-display-data.json",
       "random": "default-random.json"
@@ -52,6 +43,7 @@
     {
       "id": "monthly",
       "title": "Monthly",
+      "description": "A year of monthly data on an ordinal date axis with rotated, abbreviated month tick labels.",
       "config": "monthly-config.json",
       "data": "monthly-data.json",
       "random": "default-random.json"
@@ -59,6 +51,7 @@
     {
       "id": "capped",
       "title": "Capped",
+      "description": "Bars capped with a marker at each value, animated with long durations.",
       "config": "cap-bars-config.json",
       "data": "cap-data.json",
       "random": "positive-random.json"
@@ -66,20 +59,15 @@
     {
       "id": "capped-inverted",
       "title": "Capped Inverted",
+      "description": "The capped bars demo flipped to a horizontal orientation.",
       "config": "cap-bars-inverted-config.json",
       "data": "cap-data.json",
       "random": "positive-random.json"
     },
     {
-      "id": "scatter",
-      "title": "Scatter",
-      "config": "scatter-config.json",
-      "data": "range-data.json",
-      "random": "default-random.json"
-    },
-    {
       "id": "dst",
       "title": "Daylight Savings",
+      "description": "Hourly date groups spanning a daylight-savings transition, labeled via a display property.",
       "config": "dst-config.json",
       "data": "dst-data.json",
       "random": "default-random.json"
@@ -87,6 +75,7 @@
     {
       "id": "cluttered",
       "title": "Cluttered",
+      "description": "Deliberately crowded axes, tooltip and grid styling for stress-testing label layout.",
       "config": "cluttered-config.json",
       "data": "mixed-groups-positive-values-data.json",
       "random": "default-random.json"
@@ -94,6 +83,7 @@
     {
       "id": "cluttered-inverted",
       "title": "Cluttered Inverted",
+      "description": "The cluttered demo flipped to a horizontal orientation.",
       "config": "cluttered-inverted-config.json",
       "data": "mixed-groups-positive-values-data.json",
       "random": "default-random.json"
@@ -101,6 +91,7 @@
     {
       "id": "undefined-values",
       "title": "Missing Values",
+      "description": "Missing (undefined) values in line, area and marker series, surfaced in the tooltip as N/A.",
       "config": "undefined-values-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -108,6 +99,7 @@
     {
       "id": "undefined-stacked",
       "title": "Missing Stacked Values",
+      "description": "Missing values inside stacked series.",
       "config": "undefined-stacked-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -115,6 +107,7 @@
     {
       "id": "undefined-ranged",
       "title": "Missing Ranged Values",
+      "description": "Missing values in ranged (min/max) series.",
       "config": "undefined-ranged-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -122,6 +115,7 @@
     {
       "id": "undefined-single",
       "title": "Missing Single Values",
+      "description": "A single series with missing values.",
       "config": "undefined-single-config.json",
       "data": "undefined-single-values-data.json",
       "random": "undefined-random.json"
@@ -129,6 +123,7 @@
     {
       "id": "undefined-skipped",
       "title": "Skip Missing Values",
+      "description": "Missing values skipped: shapes connect across the gaps instead of breaking.",
       "config": "undefined-skip-values-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -136,6 +131,7 @@
     {
       "id": "undefined-skipped-stacked",
       "title": "Skip Missing Stacked Values",
+      "description": "Skipped missing values in stacked series.",
       "config": "undefined-skip-stacked-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -143,6 +139,7 @@
     {
       "id": "undefined-skipped-ranged",
       "title": "Skip Missing Ranged Values",
+      "description": "Skipped missing values in ranged (min/max) series.",
       "config": "undefined-skip-ranged-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -150,6 +147,7 @@
     {
       "id": "undefined-skipped-single",
       "title": "Skip Missing Single Values",
+      "description": "A single series skipping its missing values.",
       "config": "undefined-skip-single-config.json",
       "data": "undefined-single-values-data.json",
       "random": "undefined-random.json"
@@ -157,6 +155,7 @@
     {
       "id": "undefined-all",
       "title": "Missing All Values",
+      "description": "Groups where every series value is missing, across stacks and ranges.",
       "config": "undefined-all-config.json",
       "data": "undefined-all-values-data.json",
       "random": "undefined-positive-random.json"
@@ -204,6 +203,14 @@
       "random": "default-random.json"
     },
     {
+      "id": "color-property",
+      "title": "Color Property",
+      "description": "Bars colored per data row from a color property in the data instead of the series config.",
+      "config": "color-property-bars-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
+      "random": "default-random.json"
+    },
+    {
       "id": "axis-supression",
       "title": "Axis Suppression Adjustment",
       "description": "Stacked bars plus a line on a second value axis, with the axis suppression adjustments that keep the layout stable as legend filtering hides series.",
@@ -217,6 +224,14 @@
       "description": "Eight line series over a linear date axis, spread across four separate value axes.",
       "config": "multiple-axes-config.json",
       "data": "sales-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "threshold-line",
+      "title": "Threshold Line",
+      "description": "A horizontal threshold line drawn across the plot at a fixed value on the value axis.",
+      "config": "threshold-line-config.json",
+      "data": "mixed-groups-mixed-values-data.json",
       "random": "default-random.json"
     },
     {
@@ -289,6 +304,14 @@
       "description": "A bubble chart: renderer 'none' with markers sized per value through markerProperty.",
       "config": "bubble-config.json",
       "data": "bubble-data.json",
+      "random": "default-random.json"
+    },
+    {
+      "id": "scatter",
+      "title": "Scatter",
+      "description": "Marker-only series (renderer none) forming a scatter plot.",
+      "config": "scatter-config.json",
+      "data": "range-data.json",
       "random": "default-random.json"
     },
     {

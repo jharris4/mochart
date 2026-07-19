@@ -40,6 +40,9 @@ export { rotationData, rotationConfigs } from './rotationConfigs';
 
 export { demoText } from './demoText';
 
+export { getGallerySections, switchableDemoModes } from './gallery';
+export type { GalleryDemoItem, GalleryPageItem, GalleryItem, GallerySection, SwitchableDemoMode } from './gallery';
+
 export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, shareHashPrefix } from './shareState';
 export type { ShareState } from './shareState';
 

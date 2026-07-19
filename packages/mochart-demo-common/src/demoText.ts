@@ -23,6 +23,29 @@ export const demoText = {
     invalidRandomConfig: 'Invalid Random Config',
     creatingDataProvider: 'Error creating DataProvider'
   },
+  // The standalone demo gallery page (the landing route). The demosTab block
+  // below is the older in-view demo list still used by the framework demos.
+  gallery: {
+    sections: {
+      demos: 'Demos',
+      showcases: 'Showcases',
+      test: 'Test Demos'
+    },
+    testSectionHint: 'Feature-coverage demos exercising less common config options',
+    showcases: {
+      transition: { title: 'Transition', description: 'Animate a chart between two datasets' },
+      rotation: { title: 'Rotation', description: 'A grid of charts showing different tick label rotations' }
+    }
+  },
+  backToDemos: { label: 'Demos', tooltip: 'Back to the demo gallery', aria: 'Back to the demo gallery' },
+  modeSwitcher: {
+    label: 'Mode:',
+    modes: {
+      single: { label: 'Single', title: 'One chart with editable config, data, groups and series' },
+      multi: { label: 'Multi', title: 'A grid of charts stepping through datasets together' },
+      random: { label: 'Random', title: 'A chart fed by a seeded random data generator' }
+    }
+  },
   demosTab: {
     demoModeLabel: 'Demo Mode:',
     modes: {
@@ -63,6 +86,8 @@ export const demoText = {
   },
   siteRootLink: {
     label: '← Mochart',
+    // In-layout button variant (icon + text) used by the gallery navigation.
+    shortLabel: 'Mochart',
     tooltip: 'Back to the Mochart site',
     aria: 'Back to the Mochart site'
   },

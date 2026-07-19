@@ -1,19 +1,19 @@
 import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
+import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
-import { demosTab } from '../demos/DemosTab';
-import type { DemosTabHandle } from '../demos/DemosTab';
+import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/ModeSwitcher';
 import { randomContent } from './RandomContent';
 import type { RandomContentHandle } from './RandomContent';
 
-import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { DemoData, MochartDemoConfig, RandomConfigWithValid } from '../../types';
 
 export interface DemoRandomProps {
   demoData: DemoData;
-  demoMode: DemoMode;
   initialDemoId: string;
-  onDemoModeChanged: OnDemoModeChanged;
-  onDemoChanged: OnDemoChanged;
+  siteRootUrl?: string;
+  onModeChanged: (nextDemoMode: SwitchableDemoMode) => void;
+  onBackToDemos: () => void;
   randomId: number;
   incrementRandomId: () => void;
   decrementRandomId: () => void;
@@ -26,21 +26,15 @@ export interface DemoRandomHandle {
 }
 
 const eventKeyChart = 1;
-const eventKeyDemo = 2;
-const eventKeyConfig = 3;
-const eventKeyData = 4;
-
-function getActiveKeyForInitialDemoId(initialDemoId: string): number {
-  return initialDemoId === 'demos' ? eventKeyDemo : eventKeyChart;
-}
+const eventKeyConfig = 2;
+const eventKeyData = 3;
 
 export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
-  const { demoData, demoMode, onDemoModeChanged, onDemoChanged, incrementRandomId, decrementRandomId } = props;
+  const { demoData, onModeChanged, onBackToDemos, incrementRandomId, decrementRandomId } = props;
 
   let initialDemoId = props.initialDemoId;
   let randomId = props.randomId;
-  let demoId = initialDemoId;
-  let activeKey = getActiveKeyForInitialDemoId(initialDemoId);
+  let activeKey = eventKeyChart;
 
   function buildStateForDemo(currentDemoId: string): { mochartDemoConfig: MochartDemoConfig; randomConfig: RandomConfigWithValid } {
     const config = demoData.demoObjectMap[currentDemoId].config;
@@ -50,46 +44,17 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
     };
   }
 
-  let demoState = initialDemoId !== 'demos' ? buildStateForDemo(initialDemoId) : null;
+  let demoState = buildStateForDemo(initialDemoId);
 
-  function onDemoChange(nextDemoId: string): void {
-    demoId = nextDemoId;
-    onDemoChanged(nextDemoId);
-  }
-
-  // Demos-only view used until a real demo is routed (content is created
-  // lazily because it needs a demo's config).
-  const demosOnly: DemosTabHandle = demosTab({
-    active: activeKey === eventKeyDemo,
-    demoData,
-    demoMode,
-    demoId,
-    onDemoModeChanged,
-    onDemoChange
+  const content: RandomContentHandle = randomContent({
+    mochartDemoConfig: demoState.mochartDemoConfig,
+    initialRandomConfig: demoState.randomConfig,
+    activeKey,
+    eventKeys: { eventKeyChart, eventKeyConfig, eventKeyData },
+    randomId,
+    incrementRandomId,
+    decrementRandomId
   });
-
-  let content: RandomContentHandle | null = null;
-
-  function ensureContent(): void {
-    if (content !== null || demoState === null) {
-      return;
-    }
-    content = randomContent({
-      demoData,
-      mochartDemoConfig: demoState.mochartDemoConfig,
-      initialRandomConfig: demoState.randomConfig,
-      demoMode,
-      initialDemoId,
-      demoId,
-      onDemoModeChanged,
-      onDemoChange,
-      activeKey,
-      eventKeys: { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData },
-      randomId,
-      incrementRandomId,
-      decrementRandomId
-    });
-  }
 
   function navItem(text: string, key: number): { li: HTMLLIElement; button: HTMLButtonElement } {
     const button = el('button', {
@@ -101,40 +66,21 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
     return { li: el('li', { className: 'nav-item' }, [button]), button };
   }
 
-  const demoNav = navItem(demoText.tabs.demos, eventKeyDemo);
   const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
   const configNav = navItem(demoText.tabs.randomConfig, eventKeyConfig);
   const dataNav = navItem(demoText.tabs.data, eventKeyData);
 
-  const contentPane = el('div', { className: 'mochart-demo-content-pane' });
   const container = el('div', { className: 'mochart-demo-container multi' }, [
     el('div', { className: 'mochart-demo-tabs-container' }, [
-      el('ul', { className: 'nav nav-tabs' }, [demoNav.li, chartNav.li, configNav.li, dataNav.li])
+      el('div', { className: 'mochart-demo-nav-group' }, [
+        siteRootButton(props.siteRootUrl),
+        backToDemosButton(onBackToDemos),
+        el('ul', { className: 'nav nav-tabs' }, [chartNav.li, configNav.li, dataNav.li])
+      ]),
+      modeSwitcher({ demoMode: 'random', onModeChanged })
     ]),
-    contentPane
+    el('div', { className: 'mochart-demo-content-pane' }, [content.el])
   ]);
-
-  let layoutIsDemos: boolean | null = null;
-
-  function buildLayout(): void {
-    const isDemos = initialDemoId === 'demos';
-    chartNav.li.style.display = isDemos ? 'none' : '';
-    configNav.li.style.display = isDemos ? 'none' : '';
-    dataNav.li.style.display = isDemos ? 'none' : '';
-    if (layoutIsDemos === isDemos) {
-      return;
-    }
-    layoutIsDemos = isDemos;
-    if (isDemos) {
-      contentPane.replaceChildren(
-        el('div', { className: 'mochart-demo-content single-tab' }, [demosOnly.el])
-      );
-    }
-    else {
-      ensureContent();
-      contentPane.replaceChildren(content!.el);
-    }
-  }
 
   function handleSelect(nextActiveKey: number): void {
     activeKey = nextActiveKey;
@@ -142,15 +88,12 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
   }
 
   function sync(): void {
-    demoNav.button.classList.toggle('active', activeKey === eventKeyDemo);
     chartNav.button.classList.toggle('active', activeKey === eventKeyChart);
     configNav.button.classList.toggle('active', activeKey === eventKeyConfig);
     dataNav.button.classList.toggle('active', activeKey === eventKeyData);
-    demosOnly.setActive(activeKey === eventKeyDemo);
-    content?.setActiveKey(activeKey);
+    content.setActiveKey(activeKey);
   }
 
-  buildLayout();
   sync();
 
   return {
@@ -163,28 +106,19 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
       }
       if (demoIdChanged) {
         initialDemoId = nextInitialDemoId;
-        demoId = nextInitialDemoId;
-        activeKey = getActiveKeyForInitialDemoId(nextInitialDemoId);
-        demosOnly.setDemoId(demoId);
-        if (nextInitialDemoId !== 'demos') {
-          demoState = buildStateForDemo(nextInitialDemoId);
-        }
+        activeKey = eventKeyChart;
+        demoState = buildStateForDemo(nextInitialDemoId);
       }
       randomId = nextRandomId;
-      buildLayout();
-      if (initialDemoId !== 'demos' && demoState !== null) {
-        content?.update({
-          mochartDemoConfig: demoState.mochartDemoConfig,
-          initialRandomConfig: demoState.randomConfig,
-          initialDemoId,
-          demoId,
-          randomId
-        });
-      }
+      content.update({
+        mochartDemoConfig: demoState.mochartDemoConfig,
+        initialRandomConfig: demoState.randomConfig,
+        randomId
+      });
       sync();
     },
     destroy() {
-      content?.destroy();
+      content.destroy();
     }
   };
 }

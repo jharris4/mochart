@@ -2,10 +2,16 @@
 import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
+import { backToDemosButton, siteRootButton } from '../misc/ModeSwitcher';
 import { transitionChartTab } from './TransitionChartTab';
 import { transitionConfigTab } from './TransitionConfigTab';
 
 import type { TransitionConfig } from '../../types';
+
+export interface DemoTransitionProps {
+  siteRootUrl?: string;
+  onBackToDemos: () => void;
+}
 
 export interface DemoTransitionHandle {
   el: HTMLElement;
@@ -15,7 +21,7 @@ export interface DemoTransitionHandle {
 const eventKeyChart = 1;
 const eventKeyConfig = 2;
 
-export function demoTransition(): DemoTransitionHandle {
+export function demoTransition(props: DemoTransitionProps): DemoTransitionHandle {
   let activeKey = eventKeyChart;
 
   let transitionConfig = defaultTransitionConfig;
@@ -61,7 +67,11 @@ export function demoTransition(): DemoTransitionHandle {
 
   const container = el('div', { className: 'mochart-demo-container multi' }, [
     el('div', { className: 'mochart-demo-tabs-container' }, [
-      el('ul', { className: 'nav nav-tabs' }, [chartNav.li, configNav.li])
+      el('div', { className: 'mochart-demo-nav-group' }, [
+        siteRootButton(props.siteRootUrl),
+        backToDemosButton(props.onBackToDemos),
+        el('ul', { className: 'nav nav-tabs' }, [chartNav.li, configNav.li])
+      ])
     ]),
     el('div', { className: 'mochart-demo-content-pane' }, [
       el('div', { className: 'mochart-demo-content' }, [chart.el, config.el])

@@ -3,8 +3,6 @@ import type { MochartConfig, DataProvider } from '@mochart/core';
 
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
-import { demosTab } from '../demos/DemosTab';
-import type { DemosTabHandle } from '../demos/DemosTab';
 import { randomChartTab } from './RandomChartTab';
 import type { RandomChartTabHandle } from './RandomChartTab';
 import { randomConfigTab } from './RandomConfigTab';
@@ -14,24 +12,17 @@ import type { RandomDataTabHandle } from './RandomDataTab';
 
 import { demoText, generateChartDataProvider } from '@mochart/demo-common';
 
-import type { DemoData, DemoMode, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue, OnDemoModeChanged, OnDemoChanged } from '../../types';
+import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
 interface EventKeys {
   eventKeyChart: number;
-  eventKeyDemo: number;
   eventKeyConfig: number;
   eventKeyData: number;
 }
 
 export interface RandomContentProps {
-  demoData: DemoData;
   mochartDemoConfig: MochartDemoConfig;
   initialRandomConfig: RandomConfigWithValid;
-  demoMode: DemoMode;
-  initialDemoId: string;
-  demoId: string;
-  onDemoModeChanged: OnDemoModeChanged;
-  onDemoChange: OnDemoChanged;
   activeKey: number;
   eventKeys: EventKeys;
   randomId: number;
@@ -45,20 +36,17 @@ export interface RandomContentHandle {
   update(next: {
     mochartDemoConfig: MochartDemoConfig;
     initialRandomConfig: RandomConfigWithValid;
-    initialDemoId: string;
-    demoId: string;
     randomId: number;
   }): void;
   destroy(): void;
 }
 
 export function randomContent(props: RandomContentProps): RandomContentHandle {
-  const { demoData, demoMode, onDemoModeChanged, onDemoChange, eventKeys, incrementRandomId, decrementRandomId } = props;
-  const { eventKeyChart, eventKeyDemo, eventKeyConfig, eventKeyData } = eventKeys;
+  const { eventKeys, incrementRandomId, decrementRandomId } = props;
+  const { eventKeyChart, eventKeyConfig, eventKeyData } = eventKeys;
 
   let mochartDemoConfig = props.mochartDemoConfig;
   let initialRandomConfig = props.initialRandomConfig;
-  let initialDemoId = props.initialDemoId;
   let randomId = props.randomId;
   let activeKey = props.activeKey;
 
@@ -159,14 +147,6 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
   // children
   // ---------------------------------------------------------------------
 
-  const demos: DemosTabHandle = demosTab({
-    active: activeKey === eventKeyDemo,
-    demoData,
-    demoMode,
-    demoId: props.demoId,
-    onDemoModeChanged,
-    onDemoChange
-  });
   const chart: RandomChartTabHandle = randomChartTab({
     active: activeKey === eventKeyChart,
     mochartConfig: mochartDemoConfig.mochartConfig,
@@ -187,13 +167,12 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
     data
   });
 
-  const demosBoundary: ErrorTabHandle = errorTab(() => demos.el, activeKey === eventKeyDemo);
   const chartBoundary: ErrorTabHandle = errorTab(() => chart.el, activeKey === eventKeyChart);
   const configBoundary: ErrorTabHandle = errorTab(() => config.el, activeKey === eventKeyConfig);
   const dataBoundary: ErrorTabHandle = errorTab(() => dataView.el, activeKey === eventKeyData);
 
   const container = el('div', { className: 'mochart-demo-content' }, [
-    demosBoundary.el, chartBoundary.el, configBoundary.el, dataBoundary.el
+    chartBoundary.el, configBoundary.el, dataBoundary.el
   ]);
 
   function syncChildren(): void {
@@ -206,16 +185,12 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
     dataBoundary.guard(() => dataView.setData(data));
   }
 
-  if (initialDemoId !== 'demos') {
-    updateDataProvider(initialRandomConfig);
-  }
+  updateDataProvider(initialRandomConfig);
 
   return {
     el: container,
     setActiveKey(nextActiveKey: number) {
       activeKey = nextActiveKey;
-      demos.setActive(activeKey === eventKeyDemo);
-      demosBoundary.setActive(activeKey === eventKeyDemo);
       chartBoundary.setActive(activeKey === eventKeyChart);
       configBoundary.setActive(activeKey === eventKeyConfig);
       dataBoundary.setActive(activeKey === eventKeyData);
@@ -224,15 +199,12 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
       dataBoundary.guard(() => dataView.setActive(activeKey === eventKeyData));
     },
     update(next) {
-      const demoChanged = next.initialDemoId !== initialDemoId ||
-        next.initialRandomConfig !== initialRandomConfig ||
+      const demoChanged = next.initialRandomConfig !== initialRandomConfig ||
         next.mochartDemoConfig !== mochartDemoConfig;
       const randomIdChanged = next.randomId !== randomId;
       mochartDemoConfig = next.mochartDemoConfig;
       initialRandomConfig = next.initialRandomConfig;
-      initialDemoId = next.initialDemoId;
       randomId = next.randomId;
-      demos.setDemoId(next.demoId);
       if (demoChanged) {
         updateDataProvider(next.initialRandomConfig);
       }
