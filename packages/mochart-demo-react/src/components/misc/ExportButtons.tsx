@@ -1,5 +1,4 @@
 import React from 'react';
-import { ButtonGroup } from 'reactstrap';
 import Icon from './Icon';
 
 import { exportPNG, exportSVG } from '@mochart/export';
@@ -32,7 +31,7 @@ export default function ExportButtons({ idPrefix, getContainer, disabled = false
   };
 
   return (
-    <ButtonGroup>
+    <div className="btn-group">
       <ButtonWithTooltip id={idPrefix + "-export-png"} disabled={disabled} label={demoText.exportButtons.png.label}
         tooltipText={demoText.exportButtons.png.tooltip} tooltipPlacement="top-start"
         onClick={onExportPng} aria-label={demoText.exportButtons.png.aria}>
@@ -43,6 +42,6 @@ export default function ExportButtons({ idPrefix, getContainer, disabled = false
         onClick={onExportSvg} aria-label={demoText.exportButtons.svg.aria}>
         <Icon size="lg" fixedWidth={true} name="file-code" />
       </ButtonWithTooltip>
-    </ButtonGroup>
+    </div>
   );
 }

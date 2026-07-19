@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Nav, NavItem, NavLink } from 'reactstrap';
 
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
@@ -66,23 +65,23 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
         <div className="mochart-demo-nav-group">
           <SiteRootButton siteRootUrl={siteRootUrl} />
           <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <Nav tabs>
-            <NavItem>
-              <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
+          <ul className="nav nav-tabs">
+            <li className="nav-item">
+              <button type="button" className={"nav-link" + (activeKey === eventKeyChart ? " active" : "")} onClick={() => { handleSelect(eventKeyChart); }}>
                 {demoText.tabs.chart}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button type="button" className={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
                 {demoText.tabs.randomConfig}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink active={activeKey === eventKeyData} onClick={() => { handleSelect(eventKeyData); }}>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button type="button" className={"nav-link" + (activeKey === eventKeyData ? " active" : "")} onClick={() => { handleSelect(eventKeyData); }}>
                 {demoText.tabs.data}
-              </NavLink>
-            </NavItem>
-          </Nav>
+              </button>
+            </li>
+          </ul>
         </div>
         <ModeSwitcher demoMode="random" onModeChanged={onModeChanged} />
       </div>

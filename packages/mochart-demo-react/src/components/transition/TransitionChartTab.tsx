@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Form, FormGroup, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import Icon from '../misc/Icon';
 
 import { Chart } from '@mochart/react';
@@ -49,10 +48,10 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
           mochartConfig={mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
       </div>
       <div className="transition-controls">
-        <Form inline>
-          <FormGroup>
-            <ButtonToolbar>
-              <ButtonGroup>
+        <form className="form-inline">
+          <div className="form-group">
+            <div className="btn-toolbar" role="toolbar">
+              <div className="btn-group">
                 <ButtonWithTooltip id="transition-back" label={demoText.transitionChartTab.back.label} tooltipText={demoText.transitionChartTab.back.tooltip} tooltipPlacement="top-start"
                   onClick={onStepBack} aria-label={demoText.transitionChartTab.back.aria}>
                   <Icon size="lg" fixedWidth={true} name="backward-step" />
@@ -61,11 +60,11 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
                   onClick={onStepForward} aria-label={demoText.transitionChartTab.next.aria}>
                   <Icon size="lg" fixedWidth={true} name="forward-step" />
                 </ButtonWithTooltip>
-              </ButtonGroup>
+              </div>
               <ExportButtons idPrefix="transition" getContainer={() => chartSizerRef.current} />
-            </ButtonToolbar>
-          </FormGroup>
-        </Form>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   );

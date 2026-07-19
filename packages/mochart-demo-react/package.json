@@ -17,7 +17,6 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router": "^7.0.0",
-    "reactstrap": "^9.2.3",
     "seedrandom": "^3.0.5",
     "@mochart/movalid": "^1.0.0"
   },

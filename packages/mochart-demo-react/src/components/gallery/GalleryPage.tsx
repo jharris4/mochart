@@ -1,5 +1,4 @@
 import React from 'react';
-import { ListGroup, ListGroupItem } from 'reactstrap';
 import Icon from '../misc/Icon';
 
 import { getGallerySections } from '@mochart/demo-common';
@@ -23,7 +22,7 @@ const pageIcons: Record<'transition' | 'rotation', string> = {
 
 function GalleryListItem({ item, onOpenDemo, onOpenPage }: { item: GalleryItem } & Pick<GalleryPageProps, 'onOpenDemo' | 'onOpenPage'>) {
   return (
-    <ListGroupItem tag="button" type="button" action
+    <button type="button" className="list-group-item list-group-item-action"
       onClick={() => {
         if (item.kind === 'demo') {
           onOpenDemo(item.id);
@@ -35,7 +34,7 @@ function GalleryListItem({ item, onOpenDemo, onOpenPage }: { item: GalleryItem }
       {item.kind === 'page' ? <Icon fixedWidth name={pageIcons[item.mode]} /> : null}
       <span className="mochart-demo-item-title">{item.title}</span>
       {item.description !== void 0 ? <span className="mochart-demo-item-description">{item.description}</span> : null}
-    </ListGroupItem>
+    </button>
   );
 }
 
@@ -47,12 +46,12 @@ function GallerySectionView({ section, onOpenDemo, onOpenPage }: { section: Gall
     </>
   );
   const list = (
-    <ListGroup tag="div">
+    <div className="list-group">
       {section.items.map(item => (
         <GalleryListItem key={item.kind === 'demo' ? 'demo-' + item.id : 'page-' + item.mode}
           item={item} onOpenDemo={onOpenDemo} onOpenPage={onOpenPage} />
       ))}
-    </ListGroup>
+    </div>
   );
   if (!section.collapsed) {
     return (

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ButtonGroup } from 'reactstrap';
 import Icon from './Icon';
 
 import { buildShareUrl, demoText } from '@mochart/demo-common';
@@ -43,12 +42,12 @@ export default function ShareButton({ idPrefix, getShareState, disabled = false 
   };
 
   return (
-    <ButtonGroup>
+    <div className="btn-group">
       <ButtonWithTooltip id={idPrefix + "-share"} disabled={disabled} label={demoText.shareButton.label}
         tooltipText={copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.tooltip} tooltipPlacement="top-start"
         onClick={onClick} aria-label={demoText.shareButton.aria}>
         <Icon size="lg" fixedWidth={true} name={copied ? "check" : "link"} />
       </ButtonWithTooltip>
-    </ButtonGroup>
+    </div>
   );
 }

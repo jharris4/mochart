@@ -1,5 +1,4 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { ButtonToolbar } from 'reactstrap';
 import Icon from '../misc/Icon';
 
 import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
@@ -99,7 +98,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
         <TextAreaContent value={dataText} onChange={(text: string) => { setDataText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
-        <ButtonToolbar>
+        <div className="btn-toolbar" role="toolbar">
           <ButtonWithTooltip id="data-reset" label={demoText.dataTab.reset.label} tooltipText={demoText.dataTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={resetData} aria-label={demoText.dataTab.reset.aria}>
             <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
@@ -115,7 +114,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
             <Icon size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
-        </ButtonToolbar>
+        </div>
       </div>
     </div>
   );

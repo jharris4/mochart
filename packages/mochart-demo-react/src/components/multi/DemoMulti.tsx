@@ -1,5 +1,4 @@
 import React from 'react';
-import { Nav, NavItem, NavLink } from 'reactstrap';
 
 import { demoText } from '@mochart/demo-common';
 
@@ -16,11 +15,11 @@ export default function MochartDemoMulti({ demoData, initialDemoId, siteRootUrl,
         <div className="mochart-demo-nav-group">
           <SiteRootButton siteRootUrl={siteRootUrl} />
           <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <Nav tabs>
-            <NavItem>
-              <NavLink active>{demoText.tabs.chart}</NavLink>
-            </NavItem>
-          </Nav>
+          <ul className="nav nav-tabs">
+            <li className="nav-item">
+              <button type="button" className="nav-link active">{demoText.tabs.chart}</button>
+            </li>
+          </ul>
         </div>
         <ModeSwitcher demoMode="multi" onModeChanged={onModeChanged} />
       </div>

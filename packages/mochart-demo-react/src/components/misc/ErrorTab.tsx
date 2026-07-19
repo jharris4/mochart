@@ -1,5 +1,4 @@
 import React, { Component, type ErrorInfo, type ReactElement } from 'react';
-import { Alert } from 'reactstrap';
 
 import { demoText } from '@mochart/demo-common';
 
@@ -31,9 +30,9 @@ export default class ErrorTab extends Component<Props, State> {
     if (hasError) {
       return (
         <div className={"mochart-demo-tab-container error" + (active ? " active" : "")}>
-          <Alert color="danger" className="text-center mochart-demo-error-message">
+          <div className="alert alert-danger text-center mochart-demo-error-message" role="alert">
             {demoText.errors.errorOccurred}
-          </Alert>
+          </div>
         </div>
       );
     }

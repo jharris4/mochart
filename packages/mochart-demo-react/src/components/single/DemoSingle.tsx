@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Nav, NavItem, NavLink } from 'reactstrap';
 
 import { consumeShareState, demoText } from '@mochart/demo-common';
 
@@ -39,25 +38,25 @@ export default function MochartDemoSingle({ demoData, initialDemoId, siteRootUrl
         <div className="mochart-demo-nav-group">
           <SiteRootButton siteRootUrl={siteRootUrl} />
           <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <Nav tabs>
-            <NavItem>
-              <NavLink active={activeKey === eventKeyChart}
+          <ul className="nav nav-tabs">
+            <li className="nav-item">
+              <button type="button" className={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
                 title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : void 0}
                 onClick={() => { handleSelect(eventKeyChart); }}>
                 {demoText.tabs.chart}{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button type="button" className={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
                 {demoText.tabs.config}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink active={activeKey === eventKeyData} onClick={() => { handleSelect(eventKeyData); }}>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button type="button" className={"nav-link" + (activeKey === eventKeyData ? " active" : "")} onClick={() => { handleSelect(eventKeyData); }}>
                 {demoText.tabs.data}
-              </NavLink>
-            </NavItem>
-          </Nav>
+              </button>
+            </li>
+          </ul>
         </div>
         <ModeSwitcher demoMode="single" onModeChanged={onModeChanged} />
       </div>

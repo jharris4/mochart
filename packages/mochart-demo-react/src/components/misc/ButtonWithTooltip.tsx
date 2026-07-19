@@ -1,16 +1,10 @@
-import React, { useState } from 'react';
-import { Button, Tooltip } from 'reactstrap';
-
-function getIsTouchDevice() {
-  const win = window as unknown as { DocumentTouch?: unknown };
-  return true == ("ontouchstart" in window || (win.DocumentTouch !== void 0 && document instanceof (win.DocumentTouch as never)));
-}
-
-const isTouchDevice = getIsTouchDevice();
+import React from 'react';
 
 interface Props {
   children?: React.ReactNode;
   tooltipText?: string;
+  // Accepted for call-site parity with the old reactstrap Tooltip; the native
+  // title attribute covers the same hint without a popper-style library.
   tooltipPlacement?: string;
   id?: string;
   disabled?: boolean;
@@ -24,33 +18,17 @@ interface Props {
 }
 
 export default function ButtonWithTooltip(props: Props) {
-  const { children, tooltipText, tooltipPlacement, id, disabled, onClick, label, pressed, ...buttonProps } = props;
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-
-  const toggle = () => setTooltipOpen(open => !open);
-  const handleClick = () => {
-    setTooltipOpen(false);
-    if (onClick) {
-      onClick();
-    }
-  };
-
-  let tooltip: React.ReactNode = false;
-  if (!isTouchDevice) {
-    tooltip = (
-      <Tooltip placement={tooltipPlacement as never} isOpen={tooltipOpen && !disabled} target={id ?? ''} toggle={toggle} delay={{ show: 100, hide: 0 }}>
-        {tooltipText}
-      </Tooltip>
-    );
-  }
+  // tooltipPlacement is intentionally destructured out and ignored.
+  const { children, tooltipText, tooltipPlacement, id, disabled, onClick, color = 'secondary', label, pressed, ...buttonProps } = props;
 
   return (
     <span className="button-with-tooltip">
-      <Button id={id} disabled={disabled} onClick={handleClick} active={pressed === true}
-        aria-pressed={pressed === void 0 ? void 0 : pressed} {...(buttonProps as Record<string, unknown>)}>
+      <button id={id} type="button" className={`btn btn-${color}` + (pressed ? ' active' : '')}
+        disabled={disabled} title={tooltipText}
+        aria-pressed={pressed === void 0 ? void 0 : pressed} onClick={onClick}
+        {...(buttonProps as Record<string, unknown>)}>
         {children}{label ? <span className="btn-label">{label}</span> : null}
-      </Button>
-      {tooltip}
+      </button>
     </span>
   );
 }

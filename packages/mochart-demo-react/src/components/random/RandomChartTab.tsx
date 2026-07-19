@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import Icon from '../misc/Icon';
 
 import { Chart } from '@mochart/react';
@@ -79,10 +78,10 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
           mochartConfig={mochartConfig} dataProvider={dataProvider} />
       </div>
       <div className="random-controls">
-        <Form inline>
-          <FormGroup>
-            <ButtonToolbar>
-              <ButtonGroup>
+        <form className="form-inline">
+          <div className="form-group">
+            <div className="btn-toolbar" role="toolbar">
+              <div className="btn-group">
                 <ButtonWithTooltip id="randomize-back" disabled={playing} label={demoText.randomChartTab.back.label}
                   tooltipText={demoText.randomChartTab.back.tooltip} tooltipPlacement="top-start"
                   onClick={onRandomizeBack} aria-label={demoText.randomChartTab.back.aria}>
@@ -101,25 +100,25 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
                   onClick={onStopClick} aria-label={demoText.randomChartTab.stop.aria}>
                   <Icon size="lg" fixedWidth={true} name="stop" />
                 </ButtonWithTooltip>
-              </ButtonGroup>
-              <FormGroup>
+              </div>
+              <div className="form-group">
                 <label className="form-control-plaintext" htmlFor="random-rate">{demoText.randomChartTab.intervalLabel}</label>
-                <Input id="random-rate" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
+                <input id="random-rate" className="form-control" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
                   onChange={rateChanged} aria-label={demoText.randomChartTab.intervalAria} />
-              </FormGroup>
-            </ButtonToolbar>
-            <ButtonToolbar className="ml-2">
+              </div>
+            </div>
+            <div className="btn-toolbar ml-2" role="toolbar">
               <ExportButtons idPrefix="random" getContainer={() => chartSizerRef.current} />
-              <ButtonGroup>
+              <div className="btn-group">
                 <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
                   tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
                   onClick={toggleApplyReuse} aria-label={demoText.randomChartTab.reuse.aria}>
                   <Icon size="lg" fixedWidth={true} name="recycle" />
                 </ButtonWithTooltip>
-              </ButtonGroup>
-            </ButtonToolbar>
-          </FormGroup>
-        </Form>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   );

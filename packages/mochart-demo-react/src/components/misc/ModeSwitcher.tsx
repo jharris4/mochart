@@ -3,7 +3,6 @@
 // gallery pages, not modes, so they don't appear here.
 
 import React from 'react';
-import { ButtonToolbar, Button } from 'reactstrap';
 import Icon from './Icon';
 
 import { demoText, switchableDemoModes } from '@mochart/demo-common';
@@ -26,18 +25,19 @@ export function ModeSwitcher({ demoMode, onModeChanged }: ModeSwitcherProps) {
   return (
     <div className="mochart-demo-mode-switcher">
       <span className="form-control-plaintext">{demoText.modeSwitcher.label}</span>
-      <ButtonToolbar>
+      <div className="btn-toolbar" role="toolbar">
         {switchableDemoModes.map(mode => {
           const current = mode === demoMode;
           const { label, title } = demoText.modeSwitcher.modes[mode];
           return (
-            <Button key={mode} disabled={current} title={title} color={current ? 'primary' : void 0}
+            <button key={mode} type="button" className={"btn btn-" + (current ? 'primary' : 'secondary')}
+              disabled={current} title={title}
               onClick={() => { onModeChanged(mode); }}>
               <Icon size="lg" name={modeIcons[mode]} /> {label}
-            </Button>
+            </button>
           );
         })}
-      </ButtonToolbar>
+      </div>
     </div>
   );
 }
@@ -60,9 +60,9 @@ export function SiteRootButton({ siteRootUrl }: { siteRootUrl?: string }) {
 
 export function BackToDemosButton({ onBackToDemos }: { onBackToDemos: OnBackToDemos }) {
   return (
-    <Button className="mochart-demo-back-button" title={demoText.backToDemos.tooltip}
+    <button type="button" className="btn btn-secondary mochart-demo-back-button" title={demoText.backToDemos.tooltip}
       aria-label={demoText.backToDemos.aria} onClick={() => { onBackToDemos(); }}>
       <Icon name="chevron-left" /> {demoText.backToDemos.label}
-    </Button>
+    </button>
   );
 }

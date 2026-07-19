@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Form, FormGroup, Input, ButtonToolbar, ButtonGroup } from 'reactstrap';
 import Icon from '../misc/Icon';
 
 import type { MochartConfig } from '@mochart/core';
@@ -335,18 +334,18 @@ function MultiMochartControls({ playing, onRowsChange, onColsChange, onStepBackw
 
   return (
     <div className="multi-controls">
-      <Form inline>
-        <FormGroup>
+      <form className="form-inline">
+        <div className="form-group">
           <label className="form-control-plaintext" htmlFor="grid-rows">{demoText.multiChartsTab.gridLabel}</label>
-          <Input id="grid-rows" disabled={playing} type="number" min={1} max={4} value={rowsText}
+          <input id="grid-rows" className="form-control" disabled={playing} type="number" min={1} max={4} value={rowsText}
             onChange={rowsChanged} aria-label={demoText.multiChartsTab.gridRowsAria} />
           <span className="form-control-plaintext">&times;</span>
-          <Input id="grid-cols" disabled={playing} type="number" min={1} max={4} value={colsText}
+          <input id="grid-cols" className="form-control" disabled={playing} type="number" min={1} max={4} value={colsText}
             onChange={colsChanged} aria-label={demoText.multiChartsTab.gridColsAria} />
-        </FormGroup>
-        <FormGroup>
-          <ButtonToolbar>
-            <ButtonGroup>
+        </div>
+        <div className="form-group">
+          <div className="btn-toolbar" role="toolbar">
+            <div className="btn-group">
               <ButtonWithTooltip id="step-back" disabled={playing} tooltipText={demoText.multiChartsTab.stepBackward.tooltip} tooltipPlacement="top-start"
                 onClick={onStepBackwardClick} aria-label={demoText.multiChartsTab.stepBackward.aria}>
                 <Icon size="lg" fixedWidth={true} name="backward-step" />
@@ -367,15 +366,15 @@ function MultiMochartControls({ playing, onRowsChange, onColsChange, onStepBackw
                 onClick={onStopClick} aria-label={demoText.multiChartsTab.stop.aria}>
                 <Icon size="lg" fixedWidth={true} name="stop" />
               </ButtonWithTooltip>
-            </ButtonGroup>
-          </ButtonToolbar>
-        </FormGroup>
-        <FormGroup>
+            </div>
+          </div>
+        </div>
+        <div className="form-group">
           <label className="form-control-plaintext" htmlFor="multi-rate">{demoText.multiChartsTab.intervalLabel}</label>
-          <Input id="multi-rate" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
+          <input id="multi-rate" className="form-control" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
             onChange={rateChanged} aria-label={demoText.multiChartsTab.intervalAria} />
-        </FormGroup>
-      </Form>
+        </div>
+      </form>
     </div>
   );
 }

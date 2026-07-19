@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Nav, NavItem, NavLink } from 'reactstrap';
 
 import type { MochartConfig } from '@mochart/core';
 
@@ -30,18 +29,18 @@ export default function MochartDemoTransition({ siteRootUrl, onBackToDemos }: De
         <div className="mochart-demo-nav-group">
           <SiteRootButton siteRootUrl={siteRootUrl} />
           <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <Nav tabs>
-            <NavItem>
-              <NavLink active={activeKey === eventKeyChart} onClick={() => { handleSelect(eventKeyChart); }}>
+          <ul className="nav nav-tabs">
+            <li className="nav-item">
+              <button type="button" className={"nav-link" + (activeKey === eventKeyChart ? " active" : "")} onClick={() => { handleSelect(eventKeyChart); }}>
                 {demoText.tabs.chart}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink active={activeKey === eventKeyConfig} onClick={() => { handleSelect(eventKeyConfig); }}>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button type="button" className={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
                 {demoText.tabs.transitionConfig}
-              </NavLink>
-            </NavItem>
-          </Nav>
+              </button>
+            </li>
+          </ul>
         </div>
       </div>
       <div className="mochart-demo-content-pane">

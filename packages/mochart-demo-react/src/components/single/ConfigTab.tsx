@@ -1,5 +1,4 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { ButtonToolbar } from 'reactstrap';
 import Icon from '../misc/Icon';
 
 import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
@@ -121,7 +120,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
         <TextAreaContent value={configText} onChange={(text: string) => { setState(prev => ({ ...prev, configText: text })); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
-        <ButtonToolbar>
+        <div className="btn-toolbar" role="toolbar">
           <ButtonWithTooltip id="config-reset" label={demoText.configTab.reset.label} tooltipText={demoText.configTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={resetConfig} aria-label={demoText.configTab.reset.aria}>
             <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
@@ -147,7 +146,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
             <Icon size="lg" fixedWidth={true} name="check" />
           </ButtonWithTooltip>
           {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
-        </ButtonToolbar>
+        </div>
         <DocsLinks config={state.demoConfig.configWithoutDefaults} />
       </div>
     </div>
