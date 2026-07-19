@@ -60,6 +60,15 @@ stack.
 npm install @mochart/core
 ```
 
+Charts style themselves with inline styles — no CSS import is required. If
+your page uses a global CSS reset (Tailwind preflight, VitePress base styles,
+normalize.css), also import the optional stylesheet, which re-asserts the
+browser defaults the chart's HTML overlays (tooltip, message states) rely on:
+
+```js
+import '@mochart/core/mochart.css';
+```
+
 ## Quick start
 
 `createDefaultChart` is the simplest entry point — give it a raw config and a

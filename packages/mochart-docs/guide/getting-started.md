@@ -17,6 +17,23 @@ sizing on top of the same API:
 [React](/guide/frameworks/react), [Svelte](/guide/frameworks/svelte), or
 [Vue](/guide/frameworks/vue).
 
+### The optional stylesheet
+
+Charts style themselves with inline styles, so no CSS import is required.
+The package does ship one optional stylesheet:
+
+```js
+import '@mochart/core/mochart.css';
+```
+
+It re-asserts the browser default styles that the chart's HTML overlays (the
+tooltip and the no-data/loading/error messages) rely on. Import it when your
+page uses a global CSS reset — Tailwind's preflight, VitePress's base styles,
+or a `normalize.css`-style reset — which can otherwise disturb overlay layout
+(for example, `svg { display: block }` breaks the vertical alignment of
+tooltip rows). It never overrides the chart's own styling, and overlays still
+inherit your page's font and text color.
+
 ## Your first chart
 
 `createDefaultChart` is the simplest entry point — give it a container

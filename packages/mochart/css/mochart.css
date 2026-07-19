@@ -1,0 +1,53 @@
+/**
+ * Optional structural stylesheet for @mochart/core.
+ *
+ * Charts set all intentional layout as inline styles, but the HTML overlays
+ * (tooltip, no-data / loading / error messages) also rely on browser default
+ * styles for everything they don't set. Host-page CSS resets (Tailwind
+ * preflight, VitePress base styles, normalize.css) override those defaults
+ * and can break overlay layout — e.g. `svg { display: block }` pushes the
+ * tooltip's color icon onto its own line.
+ *
+ * This file re-asserts the browser defaults the overlays depend on, keyed to
+ * mochart's own class names:
+ *
+ * - It is a no-op on pages without such resets.
+ * - Inline styles set by the chart always take precedence, so it never
+ *   overrides intentional chart styling.
+ * - Typography and colors are NOT pinned: overlays inherit the host page's
+ *   font and text color by design. Likewise button appearance and
+ *   `box-sizing` are left to the host, since the chart measures and renders
+ *   under the same rules either way.
+ *
+ * Import it wherever your bundler handles CSS:
+ *
+ *   import '@mochart/core/mochart.css';
+ */
+
+/* Tooltip boxes default to no margin; intentional spacing is inline. The
+ * hidden tooltip sizer shares these classes, so measurement stays in sync. */
+.mochart-tooltip-container div,
+.mochart-tooltip-container span {
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.mochart-tooltip-container span {
+  display: inline;
+}
+
+/* Inline color icons inside tooltip rows. Resets commonly force
+ * `svg { display: block }`, which wraps the icon's spacer onto a second line
+ * and knocks the row text out of vertical alignment. */
+.mochart-tooltip-container svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Message overlays (and any custom factory content dropped into them). */
+.mochart-no-data div,
+.mochart-no-series div,
+.mochart-loading div {
+  margin: 0;
+}

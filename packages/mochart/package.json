@@ -27,11 +27,13 @@
       "types": "./dist/types/index.d.ts",
       "development": "./src/index.ts",
       "default": "./dist/mochart.js"
-    }
+    },
+    "./mochart.css": "./css/mochart.css"
   },
   "files": [
     "src",
-    "dist"
+    "dist",
+    "css"
   ],
   "dependencies": {
     "d3-format": "^3.1.2",
