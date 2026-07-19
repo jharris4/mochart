@@ -40,7 +40,7 @@ export class ChartsTab extends LightElement {
   private focusedSeriesId: string | null = null;
   @state() private filteredSeriesIds: FilteredSeriesIds = {};
 
-  // Measured size of the charts grid (react-sizer equivalent).
+  // Measured size of the charts grid.
   private size = new ElementSizeController(this);
 
   private initFocusAndFiltered(): void {

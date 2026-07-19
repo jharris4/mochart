@@ -3,8 +3,7 @@ import type { Ref } from 'vue';
 
 /**
  * Measures an element's client size with a ResizeObserver — the Vue
- * equivalent of Svelte's `bind:clientWidth`/`bind:clientHeight` (which the
- * react demo covered with the react-sizer HOC).
+ * equivalent of Svelte's `bind:clientWidth`/`bind:clientHeight`.
  */
 export function useElementSize(): { elementRef: Ref<HTMLElement | null>; width: Ref<number>; height: Ref<number> } {
   const elementRef = ref<HTMLElement | null>(null);

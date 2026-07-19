@@ -28,8 +28,7 @@ const props = withDefaults(defineProps<Props>(), {
   active: false
 });
 
-// Measured width of the tab (the react demo wrapped this tab in the
-// react-sizer HOC for the same purpose).
+// Measured width of the tab.
 const { elementRef, width } = useElementSize();
 
 const chartCount = ref(defaultChartCount);

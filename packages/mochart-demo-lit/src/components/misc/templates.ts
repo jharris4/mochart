@@ -48,9 +48,9 @@ interface ButtonWithTooltipProps {
 }
 
 /**
- * The react demo used reactstrap's Tooltip; the native title attribute
- * covers the same hint here without a popper-style positioning library.
- * tooltipPlacement is accepted for call-site parity but unused.
+ * The native title attribute covers the hover hint without a popper-style
+ * positioning library. tooltipPlacement is accepted for call-site parity
+ * but unused.
  */
 export function buttonWithTooltip(
   { id, tooltipText, disabled = false, onClick, color = 'secondary', ariaLabel, label, pressed }: ButtonWithTooltipProps,

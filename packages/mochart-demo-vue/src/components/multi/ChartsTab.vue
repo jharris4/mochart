@@ -190,7 +190,7 @@ function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filtered
   filteredSeriesIds.value = { ...nextFilteredSeriesIds };
 }
 
-// Measured size of the charts grid (react-sizer equivalent).
+// Measured size of the charts grid.
 const { elementRef: gridRef, width: gridWidth, height: gridHeight } = useElementSize();
 
 const chartWidth = computed(() => Math.floor((gridWidth.value - scrollWidthOffset) / chartCols.value));

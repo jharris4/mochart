@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
 
 /**
- * The react demo used reactstrap's Tooltip; the native title attribute
- * covers the same hint here without a popper-style positioning library.
- * tooltipPlacement is accepted for call-site parity but unused. `label`
+ * The native title attribute covers the hover hint without a popper-style
+ * positioning library. tooltipPlacement is accepted for call-site parity
+ * but unused. `label`
  * renders visible text beside the icon; `pressed` marks the button as a
  * toggle (aria-pressed + active styling). The aria-label lands on the
  * button element via the `aria-label` input alias.

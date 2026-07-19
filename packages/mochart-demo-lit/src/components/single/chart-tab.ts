@@ -24,8 +24,7 @@ export class ChartTab extends LightElement {
   @property({ attribute: false }) dataError: string | boolean | null = false;
   @property({ attribute: false }) active = false;
 
-  // Measured width of the tab (the react demo wrapped this tab in the
-  // react-sizer HOC for the same purpose).
+  // Measured width of the tab.
   private size = new ElementSizeController(this);
 
   @state() private chartCount = defaultChartCount;

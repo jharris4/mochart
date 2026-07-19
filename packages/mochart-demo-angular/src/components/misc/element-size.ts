@@ -10,9 +10,8 @@ export interface ElementSize {
 
 /**
  * Measures an element's client size with a ResizeObserver — the Angular
- * equivalent of the Vue demo's useElementSize composable (which the react
- * demo covered with the react-sizer HOC). Call `observe` from
- * ngAfterViewInit and `disconnect` from ngOnDestroy.
+ * equivalent of the Vue demo's useElementSize composable. Call `observe`
+ * from ngAfterViewInit and `disconnect` from ngOnDestroy.
  */
 export function createElementSize(): ElementSize {
   const width = signal(0);

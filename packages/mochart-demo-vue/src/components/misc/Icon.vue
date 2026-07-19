@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-// Font Awesome 6 solid icon (css classes only), the Vue equivalent of the
-// react demo's react-fontawesome shim. Relies on the
+// Font Awesome 6 solid icon (css classes only). Relies on the
 // `@fortawesome/fontawesome-free` css being imported.
 interface Props {
   name: string;

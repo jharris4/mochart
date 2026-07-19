@@ -3,7 +3,7 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 /**
  * Measures an element's client size with a ResizeObserver — the Lit
  * equivalent of the Vue demo's `useElementSize` composable (which covered
- * Svelte's `bind:clientWidth`/`bind:clientHeight` and the react-sizer HOC).
+ * Svelte's `bind:clientWidth`/`bind:clientHeight`).
  * Attach it to the measured element with lit-html's `ref()` directive:
  * `<div ${ref(this.size.attach)}>`.
  */

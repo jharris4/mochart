@@ -251,7 +251,7 @@ export function errorTab(create: () => HTMLElement, active: boolean): ErrorTabHa
 
 // ---------------------------------------------------------------------------
 // Size observation — the vanilla stand-in for the framework demos' measured
-// containers (react-sizer / bind:clientWidth / ResizeController).
+// containers (bind:clientWidth / ResizeController).
 // ---------------------------------------------------------------------------
 
 export function observeSize(

@@ -44,8 +44,7 @@ export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   @ViewChild('container', { static: true }) containerElement!: ElementRef<HTMLDivElement>;
 
-  // Measured width of the tab (the react demo wrapped this tab in the
-  // react-sizer HOC for the same purpose).
+  // Measured width of the tab.
   private elementSize = createElementSize();
   width = this.elementSize.width;
 

@@ -1,6 +1,5 @@
 <script lang="ts">
-  // Font Awesome 6 solid icon (css classes only), the Svelte equivalent of the
-  // react demo's react-fontawesome shim. Relies on the
+  // Font Awesome 6 solid icon (css classes only). Relies on the
   // `@fortawesome/fontawesome-free` css being imported.
   interface Props {
     name: string;

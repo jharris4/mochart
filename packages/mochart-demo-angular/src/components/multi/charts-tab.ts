@@ -66,7 +66,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   focusedSeriesId = signal<string | null>(null);
   filteredSeriesIds = signal<FilteredSeriesIds>({});
 
-  // Measured size of the charts grid (react-sizer equivalent).
+  // Measured size of the charts grid.
   private elementSize = createElementSize();
   gridWidth = this.elementSize.width;
   gridHeight = this.elementSize.height;

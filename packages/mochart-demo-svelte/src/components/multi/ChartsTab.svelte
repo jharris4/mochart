@@ -202,7 +202,7 @@
     filteredSeriesIds = { ...nextFilteredSeriesIds };
   }
 
-  // Measured size of the charts grid (react-sizer equivalent).
+  // Measured size of the charts grid.
   let gridWidth = $state(0);
   let gridHeight = $state(0);
 

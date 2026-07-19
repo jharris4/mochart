@@ -10,9 +10,6 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "noEmit": true,
-    "paths": {
-      "react-fontawesome": ["./src/shims/react-fontawesome.tsx"]
-    },
     "types": ["vite/client"]
   },
   "include": ["src", "main"]

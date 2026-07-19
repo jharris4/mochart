@@ -22,8 +22,7 @@
 
   let { config = null, data = null, dataError = false, active = false }: Props = $props();
 
-  // Measured width of the tab (the react demo wrapped this tab in the
-  // react-sizer HOC for the same purpose).
+  // Measured width of the tab.
   let width = $state(0);
 
   let chartCount = $state(defaultChartCount);

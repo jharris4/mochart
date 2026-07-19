@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// The react demo used reactstrap's Tooltip; the native title attribute
-// covers the same hint here without a popper-style positioning library.
+// The native title attribute covers the hover hint without a popper-style
+// positioning library.
 // tooltipPlacement is accepted for call-site parity but unused. Extra
 // attributes (e.g. aria-label) fall through to the button element.
 // `label` renders visible text beside the icon; `pressed` marks the button

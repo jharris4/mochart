@@ -370,8 +370,8 @@ html, body {
     border-top: 1px solid var(--demo-border);
     margin-top: 8px;
 }
-/* The react demo measures the editor pane with react-sizer and sets explicit
-   pixel sizes on the textarea; plain css sizing does the same job here. */
+/* No JS measurement needed for the editor pane; plain css sizing sets the
+   textarea dimensions here. */
 .text-area-content {
     display: flex;
     flex: 1 1 auto;
@@ -536,8 +536,8 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     gap: 6px 10px;
     min-width: 0;
 }
-/* reactstrap renders FormGroup as .mb-3; the svelte/vue/lit ports write
-   .form-group — style both the same way */
+/* Form rows may carry Bootstrap's .mb-3 or a .form-group class — style both
+   the same way */
 .mochart-demo-modes-container form .mb-3,
 .mochart-demo-content form .mb-3,
 .mochart-demo-modes-container form .form-group,

@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 /**
- * Font Awesome 6 solid icon (css classes only), the Angular equivalent of the
- * react demo's react-fontawesome shim. Relies on the
+ * Font Awesome 6 solid icon (css classes only). Relies on the
  * `@fortawesome/fontawesome-free` css being imported.
  */
 @Component({

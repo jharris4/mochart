@@ -3,8 +3,8 @@ import React from 'react';
 interface Props {
   children?: React.ReactNode;
   tooltipText?: string;
-  // Accepted for call-site parity with the old reactstrap Tooltip; the native
-  // title attribute covers the same hint without a popper-style library.
+  // Accepted for call-site parity; the native title attribute covers the
+  // same hint without a popper-style positioning library.
   tooltipPlacement?: string;
   id?: string;
   disabled?: boolean;
