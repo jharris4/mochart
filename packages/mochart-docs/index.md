@@ -32,14 +32,17 @@ features:
 ---
 
 <script setup>
-import * as basic from './examples/basic'
+import * as hero from './examples/hero'
 </script>
 
 ## See it move
 
-Every chart on this site is live — this one animates between two datasets:
+Every chart on this site is live. This one stacks three series into one bar
+per month — **hover a legend item** to focus its series, **click one** to
+filter it out of the chart (click again to bring it back), and animate to a
+new dataset to watch the stack move as a single gapless unit:
 
-<LiveChart :config="basic.config" :data="basic.data" :alt-data="basic.altData" />
+<LiveChart :config="hero.config" :data="hero.data" :alt-data="hero.altData" />
 
 ```js
 import { createDefaultChart } from '@mochart/core';

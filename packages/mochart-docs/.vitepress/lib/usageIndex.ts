@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import * as basic from '../../examples/basic';
+import * as hero from '../../examples/hero';
 import * as animation from '../../examples/animation';
 import * as interaction from '../../examples/interaction';
 import * as stackedBars from '../../examples/stackedBars';
@@ -38,6 +39,7 @@ const docsLinkCap = 3;
 const demoLinkCap = 3;
 
 const docsExamples: { config: object; page: UsageLink }[] = [
+  { config: hero.config, page: { text: 'Home', link: '/' } },
   { config: basic.config, page: { text: 'Getting started', link: '/guide/getting-started' } },
   { config: animation.config, page: { text: 'Staged animation', link: '/guide/staged-animation' } },
   { config: interaction.config, page: { text: 'Interaction', link: '/guide/interaction' } },
