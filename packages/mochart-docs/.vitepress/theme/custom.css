@@ -14,6 +14,16 @@
   color: #3c3c43;
 }
 
+/* VitePress's base CSS sets `img, svg { display: block }`, which turns the
+   tooltip's inline color-icon svg into a block: the icon's spacer wraps onto
+   a second line and the label/value text falls out of vertical alignment.
+   Restore the inline rendering the tooltip expects — the class selector
+   outweighs VitePress's bare tag selector. */
+.mochart-tooltip-line-icon svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .live-chart-controls {
   margin-top: 8px;
 }
