@@ -5,7 +5,7 @@ coverage
 .vscode
 dist
 generated
-.vitepress/cache
+**/.vitepress/cache
 /site
 .svelte-kit
 test-results
