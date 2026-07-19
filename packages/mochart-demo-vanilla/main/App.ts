@@ -1,5 +1,7 @@
 import demoData from '@mochart/demo-data';
 
+import { demoText } from '@mochart/demo-common';
+
 import { getPath, navigate, onNavigate } from './router';
 
 import { el } from '../src/components/misc/dom';
@@ -77,7 +79,21 @@ type View =
   | { kind: 'random'; handle: DemoRandomHandle }
   | { kind: 'transition' | 'rotation'; el: HTMLElement; destroy: () => void };
 
+// The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
+// link back to it; standalone dev/build leaves it unset and no link renders.
+const siteRootUrl = import.meta.env.VITE_SITE_ROOT as string | undefined;
+
 export function mountApp(root: HTMLElement): void {
+  if (siteRootUrl !== undefined) {
+    // Outside `root`, which the router clears on every view change.
+    document.body.append(el('a', {
+      className: 'btn btn-secondary btn-sm',
+      style: 'position: fixed; top: 14px; right: 18px; z-index: 1030;',
+      attrs: { href: siteRootUrl, title: demoText.siteRootLink.tooltip, 'aria-label': demoText.siteRootLink.aria },
+      text: demoText.siteRootLink.label
+    }));
+  }
+
   let view: View = { kind: 'none' };
 
   function clearView(): void {

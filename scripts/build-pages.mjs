@@ -62,7 +62,14 @@ cpSync(join(rootDir, 'packages', 'mochart-docs', '.vitepress', 'dist'), siteDir,
 for (const demo of demos) {
   // Package directories keep the unscoped mochart-* names.
   const pkgDir = demo.pkg.replace('@mochart/', 'mochart-');
-  execSync(`npm run build -w ${demo.pkg} -- --base=${base}${demo.slug}/`, { cwd: rootDir, stdio: 'inherit' });
+  // VITE_SITE_ROOT tells each demo where the docs site root lives so it can
+  // render a "back to the Mochart site" link; standalone builds leave it unset
+  // and the link is not rendered.
+  execSync(`npm run build -w ${demo.pkg} -- --base=${base}${demo.slug}/`, {
+    cwd: rootDir,
+    stdio: 'inherit',
+    env: { ...process.env, VITE_SITE_ROOT: base }
+  });
   cpSync(join(rootDir, 'packages', pkgDir, 'dist'), join(siteDir, demo.slug), { recursive: true });
 }
 

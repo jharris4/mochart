@@ -9,6 +9,8 @@ import './demo.css';
 
 import demoData from '@mochart/demo-data';
 
+import { demoText } from '@mochart/demo-common';
+
 import DemoSingle from '../src/components/single/DemoSingle';
 import DemoMulti from '../src/components/multi/DemoMulti';
 import DemoRandom from '../src/components/random/DemoRandom';
@@ -137,13 +139,25 @@ function App() {
   );
 }
 
+// The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
+// link back to it; standalone dev/build leaves it unset and no link renders.
+const siteRootUrl = import.meta.env.VITE_SITE_ROOT as string | undefined;
+
 const rootElement = document.getElementById('root');
 if (rootElement === null) {
   throw new Error('demo root element (#root) not found');
 }
 
 createRoot(rootElement).render(
-  <BrowserRouter basename={routerBasePath}>
-    <App />
-  </BrowserRouter>
+  <>
+    {siteRootUrl !== void 0
+      ? <a className="btn btn-secondary btn-sm" style={{ position: 'fixed', top: 14, right: 18, zIndex: 1030 }}
+          href={siteRootUrl} title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>
+          {demoText.siteRootLink.label}
+        </a>
+      : null}
+    <BrowserRouter basename={routerBasePath}>
+      <App />
+    </BrowserRouter>
+  </>
 );

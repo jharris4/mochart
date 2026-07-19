@@ -61,6 +61,11 @@ export const demoText = {
     label: 'Reference:',
     tooltipPrefix: 'Open the config reference for '
   },
+  siteRootLink: {
+    label: '← Mochart',
+    tooltip: 'Back to the Mochart site',
+    aria: 'Back to the Mochart site'
+  },
   shareButton: {
     label: 'Share',
     tooltip: 'Copy a link to this chart with the current config and data',

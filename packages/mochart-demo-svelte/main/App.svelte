@@ -3,6 +3,8 @@
 
   import demoData from '@mochart/demo-data';
 
+  import { demoText } from '@mochart/demo-common';
+
   import DemoSingle from '../src/components/single/DemoSingle.svelte';
   import DemoMulti from '../src/components/multi/DemoMulti.svelte';
   import DemoRandom from '../src/components/random/DemoRandom.svelte';
@@ -21,6 +23,10 @@
 
   const { demoIds, demoObjectMap } = demoData;
   const initialDemoId = demoIds[0];
+
+  // The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
+  // link back to it; standalone dev/build leaves it unset and no link renders.
+  const siteRootUrl = import.meta.env.VITE_SITE_ROOT as string | undefined;
 
   // Same routes as the react demo (react-router 7), resolved by hand.
   const route = $derived.by((): Route => {
@@ -87,6 +93,10 @@
   }
 </script>
 
+{#if siteRootUrl !== void 0}
+  <a class="btn btn-secondary btn-sm" style="position: fixed; top: 14px; right: 18px; z-index: 1030;"
+    href={siteRootUrl} title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>{demoText.siteRootLink.label}</a>
+{/if}
 {#if route.redirect !== void 0}
   <!-- redirecting -->
 {:else if route.notFound !== void 0}

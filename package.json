@@ -25,6 +25,8 @@
     "dev:docs": "npm run dev -w @mochart/docs",
     "build": "npm run build -w @mochart/demo-vanilla",
     "build:pages": "node scripts/build-pages.mjs",
+    "preview:pages": "PAGES_BASE=/ node scripts/build-pages.mjs && PAGES_BASE=/ node scripts/preview-pages.mjs",
+    "preview:pages:serve": "PAGES_BASE=/ node scripts/preview-pages.mjs",
     "build:libs": "npm run build -w @mochart/movalid && npm run build -w @mochart/core && npm run build -w @mochart/export && npm run build -w @mochart/react && npm run build -w @mochart/svelte && npm run build -w @mochart/vue && npm run build -w @mochart/lit && npm run build -w @mochart/angular",
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",

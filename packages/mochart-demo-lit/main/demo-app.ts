@@ -5,6 +5,8 @@ import { getPath, navigate, subscribe } from './router';
 
 import demoData from '@mochart/demo-data';
 
+import { demoText } from '@mochart/demo-common';
+
 import { LightElement } from '../src/components/misc/LightElement';
 import '../src/components/single/demo-single';
 import '../src/components/multi/demo-multi';
@@ -54,6 +56,10 @@ function getBasePathForMode(demoMode: string): string {
   return '/' + demoMode;
 }
 
+// The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
+// link back to it; standalone dev/build leaves it unset and no link renders.
+const siteRootUrl = import.meta.env.VITE_SITE_ROOT as string | undefined;
+
 @customElement('demo-app')
 export class DemoApp extends LightElement {
   @state() private path = getPath();
@@ -96,6 +102,14 @@ export class DemoApp extends LightElement {
   }
 
   override render(): unknown {
+    const siteRootLink = siteRootUrl !== void 0
+      ? html`<a class="btn btn-secondary btn-sm" style="position: fixed; top: 14px; right: 18px; z-index: 1030;"
+          href=${siteRootUrl} title=${demoText.siteRootLink.tooltip} aria-label=${demoText.siteRootLink.aria}>${demoText.siteRootLink.label}</a>`
+      : null;
+    return html`${siteRootLink}${this.renderView()}`;
+  }
+
+  private renderView(): unknown {
     const route = getRoute(this.path);
     if (route.redirect !== void 0) {
       // redirecting (in updated())
