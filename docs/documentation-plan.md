@@ -160,14 +160,19 @@ generated artifact instead of each re-walking the config modules.
 
 ## Phase 5 — Polish and upkeep
 
-- [ ] Landing page redesign (docs home): hero chart, one-paragraph pitch,
-      quick-start snippet, links to galleries per framework.
-- [ ] Contributor docs: how the config metadata pipeline works (docs/
-      validators/defaults parity, how to add a config property end to end),
-      how golden tests work, how the site builds.
-- [ ] Keep-fresh guardrails in CI: config parity check (Phase 1), JSDoc diff
-      check (Phase 3), docs build + dead-link check (Phase 2).
-- [ ] Later, if/when versioned releases matter: docs versioning strategy.
+- [x] Landing page (docs home): hero + linked feature cards, live hero
+      chart with animate + open-in-demo controls, quick-start snippet, and
+      per-framework guide/gallery link sections.
+- [x] Contributor docs: CONTRIBUTING.md covers the config metadata
+      pipeline (with add-a-property and add-a-section checklists), golden
+      tests, gallery conventions, docs-site pitfalls, site assembly/deploy,
+      and the CI guardrail summary.
+- [x] Keep-fresh guardrails in CI — all landed with their phases: config
+      parity fails the generator (→ build:pages), the JSDoc sync test and
+      docs example validation run in root npm test, VitePress dead-link
+      checking runs in the docs build. Summarized in CONTRIBUTING.md.
+- [ ] Later, if/when versioned releases matter: docs versioning strategy
+      (deliberately deferred — nothing versioned is published yet).
 
 ## Sequencing
 
