@@ -6,7 +6,7 @@ import type { PropertyValues } from 'lit';
 import { chart } from '@mochart/lit';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -102,14 +102,14 @@ export class ChartsTab extends LightElement {
   private onExportPng = (): void => {
     const containers = this.getChartContainers();
     if (containers.length > 0) {
-      void exportChartsPNG(containers, { cols: this.chartCols });
+      void exportChartsPNG(containers, { cols: this.chartCols, ...getChartExportOptions() });
     }
   };
 
   private onExportSvg = (): void => {
     const containers = this.getChartContainers();
     if (containers.length > 0) {
-      exportChartsSVG(containers, { cols: this.chartCols });
+      exportChartsSVG(containers, { cols: this.chartCols, ...getChartExportOptions() });
     }
   };
 

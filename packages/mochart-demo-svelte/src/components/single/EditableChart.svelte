@@ -2,7 +2,7 @@
   import { untrack, onDestroy } from 'svelte';
 
   import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
-  import { demoText } from '@mochart/demo-common';
+  import { getChartExportOptions, demoText } from '@mochart/demo-common';
   import { exportPNG, exportSVG } from '@mochart/export';
   import { Chart } from '@mochart/svelte';
 
@@ -605,13 +605,13 @@
 
   function onExportPng() {
     if (chartContentElement) {
-      void exportPNG(chartContentElement);
+      void exportPNG(chartContentElement, getChartExportOptions());
     }
   }
 
   function onExportSvg() {
     if (chartContentElement) {
-      exportSVG(chartContentElement);
+      exportSVG(chartContentElement, getChartExportOptions());
     }
   }
 </script>

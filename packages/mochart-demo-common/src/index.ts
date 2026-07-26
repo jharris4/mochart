@@ -48,5 +48,5 @@ export type { ShareState, SingleShareState, MultiShareState, RandomShareState } 
 
 export { getDocsBaseUrl, getReferenceSectionIds, getReferenceSectionUrl } from './docsLinks';
 
-export { initTheme } from './theme';
+export { initTheme, getChartExportOptions } from './theme';
 export type { ThemeController } from './theme';

@@ -1,0 +1,64 @@
+/*
+ * Dark-theme restyle for mochart charts.
+ *
+ * The chart's default palette (config-driven) is designed for light
+ * surfaces: black title/axis/legend text, a near-white grid, a white
+ * tooltip. Rather than rebuilding every config when the theme flips, this
+ * stylesheet overrides those structural colors under the `dark` class the
+ * docs site and demos toggle on <html>. It works because the chart writes
+ * SVG colors as presentation attributes, which any CSS rule outranks.
+ * Series colors (palette-driven fills, strokes, markers, value labels) are
+ * left alone — the default palette reads fine on dark surfaces.
+ *
+ * Shared by the demo apps (demo.css imports it) and the docs site's live
+ * examples (.vitepress/theme imports it directly), so it defines its own
+ * tokens instead of relying on either host's variables; the values track
+ * the VitePress dark palette both hosts already use.
+ */
+
+html.dark {
+    --mochart-dark-text: #dfe0e6;
+    --mochart-dark-line: #9ea1ad;
+    --mochart-dark-grid: #3f4048;
+    --mochart-dark-crosshair: rgba(235, 235, 245, 0.38);
+    --mochart-dark-tooltip-bg: rgba(32, 33, 39, 0.94);
+    --mochart-dark-tooltip-border: rgba(140, 145, 160, 0.55);
+}
+
+/* Chart, axis, threshold and legend text (SVG). */
+html.dark .mochart-chart .mochart-title text,
+html.dark .mochart-chart .mochart-axis-title text,
+html.dark .mochart-chart .mochart-axis-tick-labels text,
+html.dark .mochart-chart .mochart-axis-size-tick-label text,
+html.dark .mochart-chart .mochart-axis-threshold-container text,
+html.dark .mochart-chart .mochart-legend text {
+    fill: var(--mochart-dark-text);
+}
+
+/* Axis structure: axis lines, tick marks, base lines, threshold lines.
+   The axis-line/base-line classes sit on wrapper <g>s while the stroke
+   attribute is on the inner <line>, so target the line itself — an
+   attribute on the element beats an inherited CSS value. */
+html.dark .mochart-chart .mochart-axis-line line,
+html.dark .mochart-chart .mochart-axis-base-line line,
+html.dark .mochart-chart .mochart-axis-tick-marks line,
+html.dark .mochart-chart .mochart-axis-threshold-container line {
+    stroke: var(--mochart-dark-line);
+}
+
+/* The light-grey grid default (#e5e5e5) is glaring on a dark surface. */
+html.dark .mochart-chart .mochart-axis-grid-line {
+    stroke: var(--mochart-dark-grid);
+}
+
+/* Crosshair lines default to rgba(0,0,0,0.3). */
+html.dark .mochart-chart .mochart-crosshair line {
+    stroke: var(--mochart-dark-crosshair);
+}
+
+/* The tooltip is an HTML overlay whose colors are inline styles, so its
+ * overrides need !important. Its text inherits the host page's color. */
+html.dark .mochart-tooltip-container .mochart-tooltip {
+    background: var(--mochart-dark-tooltip-bg) !important;
+    border-color: var(--mochart-dark-tooltip-border) !important;
+}

@@ -5,7 +5,7 @@ import { Chart } from '@mochart/vue';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -79,14 +79,14 @@ onBeforeUnmount(() => {
 function onExportPng() {
   const container = chartSizerElement.value;
   if (container) {
-    void exportPNG(container);
+    void exportPNG(container, getChartExportOptions());
   }
 }
 
 function onExportSvg() {
   const container = chartSizerElement.value;
   if (container) {
-    exportSVG(container);
+    exportSVG(container, getChartExportOptions());
   }
 }
 

@@ -5,7 +5,7 @@
   import type { MochartConfig } from '@mochart/core';
   import { exportPNG, exportSVG } from '@mochart/export';
 
-  import { demoText } from '@mochart/demo-common';
+  import { getChartExportOptions, demoText } from '@mochart/demo-common';
   import type { ShareState } from '@mochart/demo-common';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -92,13 +92,13 @@
 
   function onExportPng() {
     if (chartSizerElement) {
-      void exportPNG(chartSizerElement);
+      void exportPNG(chartSizerElement, getChartExportOptions());
     }
   }
 
   function onExportSvg() {
     if (chartSizerElement) {
-      exportSVG(chartSizerElement);
+      exportSVG(chartSizerElement, getChartExportOptions());
     }
   }
 

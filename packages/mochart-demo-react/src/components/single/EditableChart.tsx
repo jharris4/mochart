@@ -5,7 +5,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import { Chart } from '@mochart/react';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import ExportShareMenu from '../misc/ExportShareMenu';
@@ -666,14 +666,14 @@ export default function EditableChart(props: Props) {
   const onExportPng = () => {
     const container = chartContentRef.current;
     if (container) {
-      void exportPNG(container);
+      void exportPNG(container, getChartExportOptions());
     }
   };
 
   const onExportSvg = () => {
     const container = chartContentRef.current;
     if (container) {
-      exportSVG(container);
+      exportSVG(container, getChartExportOptions());
     }
   };
 

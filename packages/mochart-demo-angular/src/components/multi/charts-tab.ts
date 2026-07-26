@@ -4,7 +4,7 @@ import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from 
 import { Chart } from '@mochart/angular';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
 import type { MultiShareState, ShareState } from '@mochart/demo-common';
 
 import { ChartsControls } from './charts-controls';
@@ -116,14 +116,14 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   onExportPng = (): void => {
     const containers = this.getChartContainers();
     if (containers.length > 0) {
-      void exportChartsPNG(containers, { cols: this.chartCols() });
+      void exportChartsPNG(containers, { cols: this.chartCols(), ...getChartExportOptions() });
     }
   };
 
   onExportSvg = (): void => {
     const containers = this.getChartContainers();
     if (containers.length > 0) {
-      exportChartsSVG(containers, { cols: this.chartCols() });
+      exportChartsSVG(containers, { cols: this.chartCols(), ...getChartExportOptions() });
     }
   };
 

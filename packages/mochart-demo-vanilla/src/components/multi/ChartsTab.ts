@@ -1,5 +1,5 @@
 
-import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
@@ -207,14 +207,14 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   function onExportPng(): void {
     const containers = getChartContainers();
     if (containers.length > 0) {
-      void exportChartsPNG(containers, { cols: chartCols });
+      void exportChartsPNG(containers, { cols: chartCols, ...getChartExportOptions() });
     }
   }
 
   function onExportSvg(): void {
     const containers = getChartContainers();
     if (containers.length > 0) {
-      exportChartsSVG(containers, { cols: chartCols });
+      exportChartsSVG(containers, { cols: chartCols, ...getChartExportOptions() });
     }
   }
 

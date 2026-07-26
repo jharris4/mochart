@@ -5,7 +5,7 @@ import { Chart } from '@mochart/angular';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
@@ -98,14 +98,14 @@ export class RandomChartTab implements OnInit, OnChanges, OnDestroy {
   onExportPng = (): void => {
     const container = this.getChartSizer();
     if (container) {
-      void exportPNG(container);
+      void exportPNG(container, getChartExportOptions());
     }
   };
 
   onExportSvg = (): void => {
     const container = this.getChartSizer();
     if (container) {
-      exportSVG(container);
+      exportSVG(container, getChartExportOptions());
     }
   };
 

@@ -5,7 +5,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import { Chart } from '@mochart/angular';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { ExportShareMenu } from '../misc/export-share-menu';
@@ -269,14 +269,14 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   onExportPng = (): void => {
     const container = this.getChartContent();
     if (container) {
-      void exportPNG(container);
+      void exportPNG(container, getChartExportOptions());
     }
   };
 
   onExportSvg = (): void => {
     const container = this.getChartContent();
     if (container) {
-      exportSVG(container);
+      exportSVG(container, getChartExportOptions());
     }
   };
 

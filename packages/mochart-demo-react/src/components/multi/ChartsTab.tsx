@@ -5,7 +5,7 @@ import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -255,14 +255,14 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   const onExportPng = () => {
     const containers = getChartContainers();
     if (containers.length > 0) {
-      void exportChartsPNG(containers, { cols: state.chartCols });
+      void exportChartsPNG(containers, { cols: state.chartCols, ...getChartExportOptions() });
     }
   };
 
   const onExportSvg = () => {
     const containers = getChartContainers();
     if (containers.length > 0) {
-      exportChartsSVG(containers, { cols: state.chartCols });
+      exportChartsSVG(containers, { cols: state.chartCols, ...getChartExportOptions() });
     }
   };
 

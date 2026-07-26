@@ -6,7 +6,7 @@ import { chart } from '@mochart/lit';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -130,8 +130,8 @@ export class RandomChartTab extends LightElement {
                 )}
               </div>
               <export-share-menu .idPrefix=${'random'}
-                .exportPng=${() => { const container = this.querySelector('.random-chart-sizer'); if (container) { void exportPNG(container); } }}
-                .exportSvg=${() => { const container = this.querySelector('.random-chart-sizer'); if (container) { exportSVG(container); } }}
+                .exportPng=${() => { const container = this.querySelector('.random-chart-sizer'); if (container) { void exportPNG(container, getChartExportOptions()); } }}
+                .exportSvg=${() => { const container = this.querySelector('.random-chart-sizer'); if (container) { exportSVG(container, getChartExportOptions()); } }}
                 .getShareState=${this.getShareState}></export-share-menu>
             </div>
           </div>

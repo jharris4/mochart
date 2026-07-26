@@ -1,3 +1,7 @@
+/* Restyles the charts' structural colors (axis text, grid, tooltip, …) for
+   the dark theme; the docs site imports the same file for its live examples. */
+@import './chart-dark.css';
+
 /* ============================================================
    Design tokens
    ============================================================ */
@@ -853,24 +857,6 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
    ============================================================ */
 .demo-text-center {
     text-align: center;
-}
-
-/* ============================================================
-   Chart surfaces in dark mode
-   ============================================================ */
-/* The chart's default palette (config-driven: black axis text, white tooltip,
-   light grid) is designed for light surfaces, so — like the docs site's live
-   examples — the chart areas stay on a pinned light card in both themes. Only
-   the dark theme needs the pinning; in light mode these wrappers sit on the
-   already-white pane. */
-html.dark .mochart-demo-content .editable-chart-content,
-html.dark .mochart-demo-content .multi-charts-sizer,
-html.dark .mochart-demo-content .random-chart-sizer,
-html.dark .mochart-demo-content .transition-chart-sizer,
-html.dark .rotation-charts {
-    background: #ffffff;
-    color: #3c3c43;
-    border-radius: var(--demo-radius);
 }
 
 /* ============================================================

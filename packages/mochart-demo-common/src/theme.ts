@@ -14,7 +14,7 @@ const darkClass = 'dark';
 export interface ThemeController {
   /** Whether the dark theme is currently applied. */
   isDark(): boolean;
-  /** Flip the theme, persist the explicit choice, and notify listeners. */
+  /** Flip the theme, persist the choice ('auto' when it matches the OS), and notify listeners. */
   toggle(): void;
   /** Subscribe to theme changes (toggle, other tabs, OS changes); returns an unsubscribe. */
   onChange(listener: (dark: boolean) => void): () => void;
@@ -31,13 +31,24 @@ function readStoredPreference(): string {
   }
 }
 
-function writeStoredPreference(value: 'light' | 'dark'): void {
+function writeStoredPreference(value: 'light' | 'dark' | 'auto'): void {
   try {
     localStorage.setItem(storageKey, value);
   }
   catch {
     // Storage can be unavailable (privacy modes); the in-page toggle still works.
   }
+}
+
+/**
+ * Export background for the current theme. In dark mode @mochart/export
+ * inlines the chart's computed (dark-restyled) colors, so the default white
+ * background would leave light text unreadable — paint the demos' dark chart
+ * surface instead so exports stay WYSIWYG.
+ */
+export function getChartExportOptions(): { backgroundColor: string } {
+  const dark = document.documentElement.classList.contains(darkClass);
+  return { backgroundColor: dark ? '#202127' : '#ffffff' };
 }
 
 export function initTheme(): ThemeController {
@@ -79,7 +90,10 @@ export function initTheme(): ThemeController {
     },
     toggle() {
       const next = !document.documentElement.classList.contains(darkClass);
-      writeStoredPreference(next ? 'dark' : 'light');
+      // Mirror VitePress (vueuse useDark): a choice that matches the OS
+      // preference is stored as 'auto', so the site keeps following the OS
+      // instead of freezing on an explicit value forever.
+      writeStoredPreference(next === media.matches ? 'auto' : next ? 'dark' : 'light');
       apply(next);
     },
     onChange(listener: (dark: boolean) => void) {

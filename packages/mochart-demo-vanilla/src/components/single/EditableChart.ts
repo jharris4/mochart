@@ -1,7 +1,7 @@
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 
 import type { ShareState } from '@mochart/demo-common';
 
@@ -590,8 +590,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // (the first, when two are shown).
   const exportShareMenuHandle = exportShareMenu({
     idPrefix: 'edit',
-    exportPng: () => { void exportPNG(chartContentElement); },
-    exportSvg: () => { exportSVG(chartContentElement); },
+    exportPng: () => { void exportPNG(chartContentElement, getChartExportOptions()); },
+    exportSvg: () => { exportSVG(chartContentElement, getChartExportOptions()); },
     getShareState: props.showShareButton
       ? (): ShareState => ({ mode: 'single', config: mochartDemoConfig.config, data })
       : undefined

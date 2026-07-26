@@ -1,7 +1,7 @@
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass } from '../misc/dom';
@@ -115,8 +115,8 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   // step comes from the /random/:demoId/:randomId path already in the URL.
   const menu = exportShareMenu({
     idPrefix: 'random',
-    exportPng: () => { void exportPNG(chartSizer); },
-    exportSvg: () => { exportSVG(chartSizer); },
+    exportPng: () => { void exportPNG(chartSizer, getChartExportOptions()); },
+    exportSvg: () => { exportSVG(chartSizer, getChartExportOptions()); },
     getShareState: (): ShareState => ({ mode: 'random', randomConfig, applyReuse, interval: rate })
   });
 

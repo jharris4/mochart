@@ -1,17 +1,20 @@
-/* Live chart examples render on a light card in both color themes — the
-   chart's default palette and text colors are designed for light surfaces. */
 .live-chart {
   margin: 16px 0;
 }
 
+/* Live chart examples sit on a theme-aware card; in dark mode the chart's
+   structural colors are restyled by @mochart/demo-common/chart-dark.css. */
 .live-chart-card {
-  background-color: #ffffff;
+  background-color: var(--vp-c-bg);
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   padding: 8px;
-  /* The chart's HTML overlays (tooltip, legend text) inherit `color` and have
-     light backgrounds; pin a dark text color so dark mode stays readable. */
-  color: #3c3c43;
+  /* The chart's HTML overlays (tooltip, messages) inherit `color`. */
+  color: var(--vp-c-text-1);
+}
+
+.dark .live-chart-card {
+  background-color: var(--vp-c-bg-soft);
 }
 
 .live-chart-controls {

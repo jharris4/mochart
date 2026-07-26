@@ -5,7 +5,7 @@ import type { PropertyValues } from 'lit';
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart } from '@mochart/lit';
 import { exportPNG, exportSVG } from '@mochart/export';
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, icon } from '../misc/templates';
@@ -576,8 +576,8 @@ export class EditableChart extends LightElement {
   private renderExportShareMenu(error: boolean): unknown {
     return html`<span class="chart-controls-menu">
       <export-share-menu .idPrefix=${'edit'} .disabled=${error}
-        .exportPng=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { void exportPNG(container); } }}
-        .exportSvg=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { exportSVG(container); } }}
+        .exportPng=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { void exportPNG(container, getChartExportOptions()); } }}
+        .exportSvg=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { exportSVG(container, getChartExportOptions()); } }}
         .getShareState=${this.showShareButton ? () => ({ mode: 'single', config: this.mochartDemoConfig.config, data: this.data }) : undefined}></export-share-menu>
     </span>`;
   }

@@ -4,7 +4,7 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { Chart } from '@mochart/vue';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ChartsControls from './ChartsControls.vue';
@@ -225,14 +225,14 @@ function getChartContainers(): Element[] {
 function onExportPng() {
   const containers = getChartContainers();
   if (containers.length > 0) {
-    void exportChartsPNG(containers, { cols: chartCols.value });
+    void exportChartsPNG(containers, { cols: chartCols.value, ...getChartExportOptions() });
   }
 }
 
 function onExportSvg() {
   const containers = getChartContainers();
   if (containers.length > 0) {
-    exportChartsSVG(containers, { cols: chartCols.value });
+    exportChartsSVG(containers, { cols: chartCols.value, ...getChartExportOptions() });
   }
 }
 

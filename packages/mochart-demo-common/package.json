@@ -7,7 +7,8 @@
   "license": "BSD-3-Clause",
   "exports": {
     ".": "./src/index.ts",
-    "./demo.css": "./css/demo.css"
+    "./demo.css": "./css/demo.css",
+    "./chart-dark.css": "./css/chart-dark.css"
   },
   "dependencies": {
     "@mochart/core": "^1.0.0",

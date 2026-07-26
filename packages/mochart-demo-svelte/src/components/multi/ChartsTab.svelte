@@ -4,7 +4,7 @@
   import { Chart } from '@mochart/svelte';
   import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-  import { buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
   import type { ShareState } from '@mochart/demo-common';
 
   import ChartsControls from './ChartsControls.svelte';
@@ -230,14 +230,14 @@
   function onExportPng() {
     const containers = getChartContainers();
     if (containers.length > 0) {
-      void exportChartsPNG(containers, { cols: chartCols });
+      void exportChartsPNG(containers, { cols: chartCols, ...getChartExportOptions() });
     }
   }
 
   function onExportSvg() {
     const containers = getChartContainers();
     if (containers.length > 0) {
-      exportChartsSVG(containers, { cols: chartCols });
+      exportChartsSVG(containers, { cols: chartCols, ...getChartExportOptions() });
     }
   }
 

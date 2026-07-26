@@ -5,7 +5,7 @@ import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -78,14 +78,14 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
   const onExportPng = () => {
     const container = chartSizerRef.current;
     if (container) {
-      void exportPNG(container);
+      void exportPNG(container, getChartExportOptions());
     }
   };
 
   const onExportSvg = () => {
     const container = chartSizerRef.current;
     if (container) {
-      exportSVG(container);
+      exportSVG(container, getChartExportOptions());
     }
   };
 

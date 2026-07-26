@@ -5,7 +5,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import { Chart } from '@mochart/vue';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -576,14 +576,14 @@ const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig
 function onExportPng() {
   const container = chartContentElement.value;
   if (container) {
-    void exportPNG(container);
+    void exportPNG(container, getChartExportOptions());
   }
 }
 
 function onExportSvg() {
   const container = chartContentElement.value;
   if (container) {
-    exportSVG(container);
+    exportSVG(container, getChartExportOptions());
   }
 }
 
