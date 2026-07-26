@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-not-found-page',
   styles: [':host { display: contents; }'],
-  template: '<div>No route found matching {{ path }}</div>'
+  template: '<div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No route found matching {{ path }}</div></div>'
 })
 export class NotFoundPage {
   private readonly router = inject(Router);

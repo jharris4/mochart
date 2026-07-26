@@ -134,7 +134,7 @@
 {#if route.redirect !== void 0}
   <!-- redirecting -->
 {:else if route.notFound !== void 0}
-  <div>No route found matching {route.notFound}</div>
+  <div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No route found matching {route.notFound}</div></div>
 {:else if route.gallery === true}
   <GalleryPage {demoData} {siteRootUrl} {onOpenDemo} {onOpenPage} />
 {:else if route.mode === 'transition'}
@@ -142,14 +142,14 @@
 {:else if route.mode === 'rotation'}
   <DemoRotation {siteRootUrl} {onBackToDemos} />
 {:else if !isKnownDemo}
-  <div>No demo found for id: {demoId}</div>
+  <div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No demo found for id: {demoId}</div></div>
 {:else if route.mode === 'single'}
   <DemoSingle {demoData} initialDemoId={demoId!} {siteRootUrl} {onModeChanged} {onBackToDemos} />
 {:else if route.mode === 'multi'}
   <DemoMulti {demoData} initialDemoId={demoId!} {siteRootUrl} {onModeChanged} {onBackToDemos} />
 {:else if route.mode === 'random'}
   {#if !isValidRandomId}
-    <div>Bad random id: {route.randomId}</div>
+    <div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">Bad random id: {route.randomId}</div></div>
   {:else}
     <DemoRandom {demoData} initialDemoId={demoId!} {siteRootUrl} {onModeChanged} {onBackToDemos}
       {randomId} {incrementRandomId} {decrementRandomId} />

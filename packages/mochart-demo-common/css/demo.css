@@ -516,6 +516,9 @@ html, body {
 }
 .demo-list-item {
     display: block;
+    width: 100%;
+    /* Items are often <button>s, which center text by default. */
+    text-align: left;
     text-decoration: none;
 }
 .demo-list-item:hover {
@@ -785,6 +788,15 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
 .demo-menu.open {
     display: block;
 }
+/* Caret on the menu trigger, pointing up because the menu opens upward. */
+.demo-menu-trigger::after {
+    content: '';
+    display: inline-block;
+    vertical-align: 0.15em;
+    border-bottom: 0.3em solid;
+    border-left: 0.3em solid transparent;
+    border-right: 0.3em solid transparent;
+}
 .demo-menu-item {
     display: flex;
     align-items: center;
@@ -821,6 +833,19 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     color: var(--demo-error-text);
     background: var(--demo-error-bg);
     border-color: var(--demo-error-border);
+}
+
+/* Full-page message states (unknown route or demo id): center a small alert
+   card on the page background. */
+.mochart-demo-message {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.mochart-demo-message .demo-alert {
+    max-width: 480px;
 }
 
 /* ============================================================

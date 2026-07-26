@@ -12,7 +12,7 @@ import { createDemoNavigation, isKnownDemo, siteRootUrl } from './navigation';
   styles: [':host { display: contents; }'],
   template: `
     @if (!knownDemo) {
-      <div>No demo found for id: {{ demoId }}</div>
+      <div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No demo found for id: {{ demoId }}</div></div>
     } @else {
       <app-demo-multi [demoData]="demoData" [initialDemoId]="demoId" [siteRootUrl]="siteRootUrl"
                       [onModeChanged]="onModeChanged" [onBackToDemos]="nav.onBackToDemos" />

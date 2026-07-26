@@ -12,9 +12,9 @@ import { createDemoNavigation, isKnownDemo, navigate, siteRootUrl } from './navi
   styles: [':host { display: contents; }'],
   template: `
     @if (!knownDemo) {
-      <div>No demo found for id: {{ demoId }}</div>
+      <div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No demo found for id: {{ demoId }}</div></div>
     } @else if (!isValidRandomId) {
-      <div>Bad random id: {{ randomId }}</div>
+      <div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">Bad random id: {{ randomId }}</div></div>
     } @else {
       <app-demo-random [demoData]="demoData" [initialDemoId]="demoId" [siteRootUrl]="siteRootUrl"
                        [onModeChanged]="onModeChanged" [onBackToDemos]="nav.onBackToDemos"

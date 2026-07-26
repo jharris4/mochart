@@ -99,7 +99,9 @@ export function mountApp(root: HTMLElement): void {
 
   function showMessage(text: string): void {
     clearView();
-    const element = el('div', { text });
+    const element = el('div', { className: 'mochart-demo-message' }, [
+      el('div', { className: 'demo-alert demo-alert-error', attrs: { role: 'alert' }, text })
+    ]);
     root.append(element);
     view = { kind: 'message', el: element };
   }

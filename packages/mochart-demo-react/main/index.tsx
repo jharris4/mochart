@@ -131,7 +131,7 @@ function DemoModeRoute({ Component }: DemoModeRouteProps) {
   const nav = useDemoNavigation(demoId);
   useClearShareHash();
   if (demoObjectMap[demoId] === void 0) {
-    return <div>No demo found for id: {demoId}</div>;
+    return <div className="mochart-demo-message"><div className="demo-alert demo-alert-error" role="alert">No demo found for id: {demoId}</div></div>;
   }
   return <Component demoData={demoData} initialDemoId={demoId} siteRootUrl={siteRootUrl}
     onModeChanged={nav.onModeChanged} onBackToDemos={nav.onBackToDemos} />;
@@ -144,11 +144,11 @@ function RandomRoute() {
   const nav = useDemoNavigation(demoId);
   useClearShareHash();
   if (demoObjectMap[demoId] === void 0) {
-    return <div>No demo found for id: {demoId}</div>;
+    return <div className="mochart-demo-message"><div className="demo-alert demo-alert-error" role="alert">No demo found for id: {demoId}</div></div>;
   }
   const randomId = Number(params.randomId);
   if (!(randomId > Number.MIN_SAFE_INTEGER && randomId < Number.MAX_SAFE_INTEGER)) {
-    return <div>Bad random id: {params.randomId}</div>;
+    return <div className="mochart-demo-message"><div className="demo-alert demo-alert-error" role="alert">Bad random id: {params.randomId}</div></div>;
   }
   const incrementRandomId = () => {
     demoNavigate(`/random/${demoId}/${Math.floor(randomId) + 1}`);

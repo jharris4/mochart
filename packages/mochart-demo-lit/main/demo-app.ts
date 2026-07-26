@@ -135,7 +135,7 @@ export class DemoApp extends LightElement {
       return null;
     }
     if (route.notFound !== void 0) {
-      return html`<div>No route found matching ${route.notFound}</div>`;
+      return html`<div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No route found matching ${route.notFound}</div></div>`;
     }
     if (route.gallery === true) {
       return html`<gallery-page .demoData=${demoData} .siteRootUrl=${siteRootUrl}
@@ -149,7 +149,7 @@ export class DemoApp extends LightElement {
     }
     const demoId = route.demoId!;
     if (demoObjectMap[demoId] === void 0) {
-      return html`<div>No demo found for id: ${demoId}</div>`;
+      return html`<div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No demo found for id: ${demoId}</div></div>`;
     }
     if (route.mode === 'single') {
       return html`<demo-single .demoData=${demoData} .initialDemoId=${demoId} .siteRootUrl=${siteRootUrl}
@@ -162,7 +162,7 @@ export class DemoApp extends LightElement {
     const randomId = Number(route.randomId);
     const isValidRandomId = randomId > Number.MIN_SAFE_INTEGER && randomId < Number.MAX_SAFE_INTEGER;
     if (!isValidRandomId) {
-      return html`<div>Bad random id: ${route.randomId}</div>`;
+      return html`<div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">Bad random id: ${route.randomId}</div></div>`;
     }
     // The randomize buttons read the demo id / random id from the routed URL;
     // the closures are rebuilt on every render, so they stay current.
