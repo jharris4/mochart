@@ -312,7 +312,7 @@
       "description": "A scatter chart: marker-only series (renderer none) on a linear group axis, with points positioned by irregular measured x values.",
       "config": "scatter-config.json",
       "data": "scatter-data.json",
-      "random": "default-random.json"
+      "random": "scatter-random.json"
     },
     {
       "id": "picket",
