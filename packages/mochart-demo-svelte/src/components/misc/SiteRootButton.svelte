@@ -13,7 +13,7 @@
 </script>
 
 {#if siteRootUrl !== void 0}
-  <a class="btn btn-secondary mochart-demo-site-root-button" href={siteRootUrl}
+  <a class="demo-btn demo-btn-secondary mochart-demo-site-root-button" href={siteRootUrl}
      title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>
     <Icon name="house" /> {demoText.siteRootLink.shortLabel}
   </a>

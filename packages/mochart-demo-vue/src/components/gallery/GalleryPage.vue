@@ -4,6 +4,7 @@ import type { GalleryItem } from '@mochart/demo-common';
 
 import Icon from '../misc/Icon.vue';
 import SiteRootButton from '../misc/SiteRootButton.vue';
+import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
 
 import type { DemoData } from '../../types';
 
@@ -37,8 +38,9 @@ function onItemClick(item: GalleryItem) {
 
 <template>
   <div class="mochart-demo-container">
-    <div v-if="props.siteRootUrl !== void 0" class="mochart-demo-gallery-header">
+    <div class="mochart-demo-gallery-header">
       <SiteRootButton :site-root-url="props.siteRootUrl" />
+      <ThemeToggleButton />
     </div>
     <div class="mochart-demo-content-pane">
       <div class="mochart-demo-gallery">
@@ -51,9 +53,9 @@ function onItemClick(item: GalleryItem) {
               <span class="mochart-demo-gallery-section-title">{{ section.title }}</span>
               <span v-if="section.hint !== void 0" class="mochart-demo-gallery-section-hint">{{ section.hint }}</span>
             </summary>
-            <div class="list-group">
+            <div class="demo-list">
               <button v-for="item in section.items" :key="item.kind === 'demo' ? item.id : item.mode" type="button"
-                      class="list-group-item list-group-item-action" @click="onItemClick(item)">
+                      class="demo-list-item" @click="onItemClick(item)">
                 <Icon v-if="item.kind === 'page'" :name="pageIcons[item.mode]" :fixed-width="true" />
                 <span class="mochart-demo-item-title">{{ item.title }}</span>
                 <span v-if="item.description !== void 0" class="mochart-demo-item-description">{{ item.description }}</span>
@@ -65,9 +67,9 @@ function onItemClick(item: GalleryItem) {
               <span class="mochart-demo-gallery-section-title">{{ section.title }}</span>
               <span v-if="section.hint !== void 0" class="mochart-demo-gallery-section-hint">{{ section.hint }}</span>
             </div>
-            <div class="list-group">
+            <div class="demo-list">
               <button v-for="item in section.items" :key="item.kind === 'demo' ? item.id : item.mode" type="button"
-                      class="list-group-item list-group-item-action" @click="onItemClick(item)">
+                      class="demo-list-item" @click="onItemClick(item)">
                 <Icon v-if="item.kind === 'page'" :name="pageIcons[item.mode]" :fixed-width="true" />
                 <span class="mochart-demo-item-title">{{ item.title }}</span>
                 <span v-if="item.description !== void 0" class="mochart-demo-item-description">{{ item.description }}</span>

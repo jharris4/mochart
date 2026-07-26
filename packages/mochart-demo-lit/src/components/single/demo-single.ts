@@ -7,6 +7,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
+import '../misc/theme-toggle-button';
 
 import './chart-tab';
 import './config-tab';
@@ -130,8 +131,8 @@ export class DemoSingle extends LightElement {
 
   private renderTab(eventKey: number, label: string): unknown {
     const badge = eventKey === eventKeyChart && this.hasPendingChanges;
-    return html`<li class="nav-item">
-      <button type="button" class=${'nav-link' + (this.activeKey === eventKey ? ' active' : '')}
+    return html`<li class="demo-tab-item">
+      <button type="button" class=${'demo-tab' + (this.activeKey === eventKey ? ' active' : '')}
               title=${badge ? demoText.tabs.chartPendingTitle : nothing}
               @click=${() => this.handleSelect(eventKey)}>${label}${badge ? html`<span class="mochart-pending-badge" aria-hidden="true"></span>` : nothing}</button>
     </li>`;
@@ -143,13 +144,16 @@ export class DemoSingle extends LightElement {
         <div class="mochart-demo-nav-group">
           ${siteRootButton(this.siteRootUrl)}
           ${backToDemosButton(this.onBackToDemos)}
-          <ul class="nav nav-tabs">
+          <ul class="demo-tabs">
             ${this.renderTab(eventKeyChart, demoText.tabs.chart)}
             ${this.renderTab(eventKeyConfig, demoText.tabs.config)}
             ${this.renderTab(eventKeyData, demoText.tabs.data)}
           </ul>
         </div>
-        ${modeSwitcher({ demoMode: 'single', onModeChanged: this.onModeChanged })}
+        <div class="mochart-demo-nav-group">
+          ${modeSwitcher({ demoMode: 'single', onModeChanged: this.onModeChanged })}
+          <theme-toggle-button></theme-toggle-button>
+        </div>
       </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">

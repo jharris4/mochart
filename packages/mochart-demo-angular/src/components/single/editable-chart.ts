@@ -51,11 +51,11 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
           @if (selectionMode() === 'group') {
             <div class="chart-controls-container">
               <div class="chart-controls-buttons">
-                <form class="form-inline">
-                  <div class="form-group">
-                    <div class="btn-toolbar" role="toolbar">
+                <form class="demo-form-row">
+                  <div class="demo-field">
+                    <div class="demo-toolbar" role="toolbar">
                       @if (showChartCountControls) {
-                        <div class="btn-group">
+                        <div class="demo-btn-group">
                           <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
                                                    [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
                                                    [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
@@ -63,7 +63,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                           </app-button-with-tooltip>
                         </div>
                       }
-                      <div class="btn-group">
+                      <div class="demo-btn-group">
                         <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToGroups"
                                                  [tooltipText]="selectionMode() === 'group'
                                                    ? text.editMode.tooltipToSeries
@@ -72,7 +72,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                           <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
                         </app-button-with-tooltip>
                       </div>
-                      <div class="btn-group">
+                      <div class="demo-btn-group">
                         <app-button-with-tooltip id="edit-reset-groups" [disabled]="error || sequencePlaying()" [label]="text.resetGroups.label" [tooltipText]="text.resetGroups.tooltip" tooltipPlacement="right"
                                                  [onClick]="resetGroups" [aria-label]="text.resetGroups.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
@@ -111,8 +111,8 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                 </form>
               </div>
               <span class="chart-controls-input">
-                <form class="form-inline">
-                  <input type="text" class="form-control" [disabled]="error || sequencePlaying()"
+                <form class="demo-form-row">
+                  <input type="text" class="demo-input" [disabled]="error || sequencePlaying()"
                          [value]="groupValuesText()" (input)="onGroupValuesInput($event)" />
                 </form>
               </span>
@@ -125,11 +125,11 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
           } @else {
             <div class="chart-controls-container">
               <div class="chart-controls-buttons">
-                <form class="form-inline">
-                  <div class="form-group">
-                    <div class="btn-toolbar" role="toolbar">
+                <form class="demo-form-row">
+                  <div class="demo-field">
+                    <div class="demo-toolbar" role="toolbar">
                       @if (showChartCountControls) {
-                        <div class="btn-group">
+                        <div class="demo-btn-group">
                           <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
                                                    [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
                                                    [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
@@ -137,7 +137,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                           </app-button-with-tooltip>
                         </div>
                       }
-                      <div class="btn-group">
+                      <div class="demo-btn-group">
                         <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToGroups"
                                                  [tooltipText]="selectionMode() === 'group'
                                                    ? text.editMode.tooltipToSeries
@@ -148,9 +148,9 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                       </div>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <div class="btn-toolbar" role="toolbar">
-                      <div class="btn-group">
+                  <div class="demo-field">
+                    <div class="demo-toolbar" role="toolbar">
+                      <div class="demo-btn-group">
                         <app-button-with-tooltip id="edit-group-decrease" [disabled]="error || groupOrderControlsDisabled || isFirstGroup" [tooltipText]="text.decreaseGroupOrder.tooltip" tooltipPlacement="right"
                                                  [onClick]="decreaseGroupOrder" [aria-label]="text.decreaseGroupOrder.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-left" />
@@ -158,12 +158,12 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                       </div>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ text.groupIndexPrefix + groupIndex() }}</span>
+                  <div class="demo-field">
+                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ text.groupIndexPrefix + groupIndex() }}</span>
                   </div>
-                  <div class="form-group">
-                    <div class="btn-toolbar" role="toolbar">
-                      <div class="btn-group">
+                  <div class="demo-field">
+                    <div class="demo-toolbar" role="toolbar">
+                      <div class="demo-btn-group">
                         <app-button-with-tooltip id="edit-group-increase" [disabled]="error || groupOrderControlsDisabled || isLastGroup" [tooltipText]="text.increaseGroupOrder.tooltip" tooltipPlacement="right"
                                                  [onClick]="increaseGroupOrder" [aria-label]="text.increaseGroupOrder.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-right" />
@@ -171,9 +171,9 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                       </div>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <div class="btn-toolbar" role="toolbar">
-                      <div class="btn-group">
+                  <div class="demo-field">
+                    <div class="demo-toolbar" role="toolbar">
+                      <div class="demo-btn-group">
                         <app-button-with-tooltip id="edit-previous-series" [disabled]="error || seriesControlsDisabled || !hasPrevSeries" [tooltipText]="text.previousSeries.tooltip" tooltipPlacement="right"
                                                  [onClick]="prevSeries" [aria-label]="text.previousSeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-down" />
@@ -181,18 +181,18 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                       </div>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ text.seriesIndexPrefix + seriesIndex() }}</span>
+                  <div class="demo-field">
+                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ text.seriesIndexPrefix + seriesIndex() }}</span>
                   </div>
-                  <div class="form-group">
-                    <div class="btn-toolbar" role="toolbar">
-                      <div class="btn-group">
+                  <div class="demo-field">
+                    <div class="demo-toolbar" role="toolbar">
+                      <div class="demo-btn-group">
                         <app-button-with-tooltip id="edit-next-series" [disabled]="error || seriesControlsDisabled || !hasNextSeries" [tooltipText]="text.nextSeries.tooltip" tooltipPlacement="right"
                                                  [onClick]="nextSeries" [aria-label]="text.nextSeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-up" />
                         </app-button-with-tooltip>
                       </div>
-                      <div class="btn-group">
+                      <div class="demo-btn-group">
                         <app-button-with-tooltip id="edit-reset-series" [disabled]="error || seriesControlsDisabled" [tooltipText]="text.resetSeries.tooltip" tooltipPlacement="right"
                                                  [onClick]="resetSeriesChanges" [aria-label]="text.resetSeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
@@ -207,8 +207,8 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                 </form>
               </div>
               <span class="chart-controls-input">
-                <form class="form-inline">
-                  <input type="text" class="form-control" [disabled]="error || seriesControlsDisabled"
+                <form class="demo-form-row">
+                  <input type="text" class="demo-input" [disabled]="error || seriesControlsDisabled"
                          [value]="seriesValuesText()" (input)="onSeriesValuesInput($event)" />
                 </form>
               </span>

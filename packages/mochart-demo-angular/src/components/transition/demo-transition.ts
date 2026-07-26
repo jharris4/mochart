@@ -4,7 +4,7 @@ import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitio
 
 import { TransitionChartTab } from './transition-chart-tab';
 import { TransitionConfigTab } from './transition-config-tab';
-import { BackToDemosButton, SiteRootButton } from '../misc/mode-switcher';
+import { BackToDemosButton, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
 
 import type { TransitionConfig } from '../../types';
 
@@ -13,7 +13,7 @@ const eventKeyConfig = 2;
 
 @Component({
   selector: 'app-demo-transition',
-  imports: [TransitionChartTab, TransitionConfigTab, BackToDemosButton, SiteRootButton],
+  imports: [TransitionChartTab, TransitionConfigTab, BackToDemosButton, SiteRootButton, ThemeToggleButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container multi">
@@ -23,21 +23,22 @@ const eventKeyConfig = 2;
             <a appSiteRootButton [href]="siteRootUrl"></a>
           }
           <button appBackToDemosButton (click)="onBackToDemos()"></button>
-          <ul class="nav nav-tabs">
-            <li class="nav-item">
-              <button type="button" [class]="'nav-link' + (activeKey() === eventKeyChart ? ' active' : '')"
+          <ul class="demo-tabs">
+            <li class="demo-tab-item">
+              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyChart ? ' active' : '')"
                       (click)="handleSelect(eventKeyChart)">
                 {{ text.chart }}
               </button>
             </li>
-            <li class="nav-item">
-              <button type="button" [class]="'nav-link' + (activeKey() === eventKeyConfig ? ' active' : '')"
+            <li class="demo-tab-item">
+              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyConfig ? ' active' : '')"
                       (click)="handleSelect(eventKeyConfig)">
                 {{ text.transitionConfig }}
               </button>
             </li>
           </ul>
         </div>
+        <button appThemeToggleButton></button>
       </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">

@@ -87,7 +87,7 @@ export class RandomChartTab extends LightElement {
   });
 
   override render(): unknown {
-    return html`<div class=${'mochart-demo-tab-container col chart' + (this.active ? ' active' : '')}>
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')}>
       <div class="random-chart-sizer">
         ${chart({
           style: 'flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;',
@@ -96,10 +96,10 @@ export class RandomChartTab extends LightElement {
         })}
       </div>
       <div class="random-controls">
-        <form class="form-inline">
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group">
+        <form class="demo-form-row">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'randomize-back', disabled: this.playing, label: demoText.randomChartTab.back.label, tooltipText: demoText.randomChartTab.back.tooltip, tooltipPlacement: 'top-start', onClick: this.onRandomizeBack, ariaLabel: demoText.randomChartTab.back.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'dice', flip: 'horizontal' })
@@ -117,13 +117,13 @@ export class RandomChartTab extends LightElement {
                   icon({ size: 'lg', fixedWidth: true, name: 'stop' })
                 )}
               </div>
-              <div class="form-group">
-                <label class="form-control-plaintext" for="random-rate">${demoText.randomChartTab.intervalLabel}</label>
-                <input id="random-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label=${demoText.randomChartTab.intervalAria} @input=${this.rateChanged} />
+              <div class="demo-field">
+                <label class="demo-label" for="random-rate">${demoText.randomChartTab.intervalLabel}</label>
+                <input id="random-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="demo-input" .value=${'' + this.rateText} aria-label=${demoText.randomChartTab.intervalAria} @input=${this.rateChanged} />
               </div>
             </div>
-            <div class="btn-toolbar ml-2" role="toolbar">
-              <div class="btn-group">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'reuse', disabled: this.playing, label: demoText.randomChartTab.reuse.label, pressed: this.applyReuse, tooltipText: demoText.randomChartTab.reuse.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleApplyReuse, ariaLabel: demoText.randomChartTab.reuse.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'recycle' })

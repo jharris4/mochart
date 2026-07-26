@@ -123,12 +123,12 @@
   const slowIcon = $derived(slow ? 'hourglass' : 'hourglass-end');
 </script>
 
-<div class={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")}>
   <div class="mochart-demo-tab-content">
     <TextAreaContent value={configText} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer">
-    <div class="btn-toolbar" role="toolbar">
+    <div class="demo-toolbar" role="toolbar">
       <ButtonWithTooltip id="config-reset" label={demoText.configTab.reset.label} tooltipText={demoText.configTab.reset.tooltip} tooltipPlacement="top-start"
                          onClick={resetConfig} aria-label={demoText.configTab.reset.aria}>
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

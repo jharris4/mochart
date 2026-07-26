@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 <template>
   <span class="button-with-tooltip">
-    <button :id="props.id" type="button" :class="`btn btn-${props.color}` + (props.pressed ? ' active' : '')"
+    <button :id="props.id" type="button" :class="`demo-btn demo-btn-${props.color}` + (props.pressed ? ' active' : '')"
             :disabled="props.disabled" :title="props.tooltipText"
             :aria-pressed="props.pressed === void 0 ? void 0 : props.pressed"
             v-bind="$attrs" @click="props.onClick()">

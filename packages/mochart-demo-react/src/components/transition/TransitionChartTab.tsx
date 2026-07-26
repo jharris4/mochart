@@ -39,17 +39,17 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
   };
 
   return (
-    <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
       <div className="transition-chart-sizer">
         {/* Chart self-measures when width/height are omitted. */}
         <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}
           mochartConfig={mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
       </div>
       <div className="transition-controls">
-        <form className="form-inline">
-          <div className="form-group">
-            <div className="btn-toolbar" role="toolbar">
-              <div className="btn-group">
+        <form className="demo-form-row">
+          <div className="demo-field">
+            <div className="demo-toolbar" role="toolbar">
+              <div className="demo-btn-group">
                 <ButtonWithTooltip id="transition-back" label={demoText.transitionChartTab.back.label} tooltipText={demoText.transitionChartTab.back.tooltip} tooltipPlacement="top-start"
                   onClick={onStepBack} aria-label={demoText.transitionChartTab.back.aria}>
                   <Icon size="lg" fixedWidth={true} name="backward-step" />

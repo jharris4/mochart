@@ -16,16 +16,16 @@ import type { ChartDataProviderLike } from '../../types';
   imports: [Chart, ButtonWithTooltip, Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container col chart' + (active ? ' active' : '')">
+    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')">
       <div class="transition-chart-sizer">
         <mochart-chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                        [mochartConfig]="mochartConfig" [dataProvider]="dataProviders[dataProviderIndex()]" />
       </div>
       <div class="transition-controls">
-        <form class="form-inline">
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group">
+        <form class="demo-form-row">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 <app-button-with-tooltip id="transition-back" [label]="text.back.label" [tooltipText]="text.back.tooltip" tooltipPlacement="top-start"
                                          [onClick]="onStepBack" [aria-label]="text.back.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="backward-step" />

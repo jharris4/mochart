@@ -2,10 +2,13 @@
 // Single/Multi/Random mode switcher. Transition/rotation are standalone
 // gallery pages, not modes, so they don't appear here.
 
-import { demoText, switchableDemoModes } from '@mochart/demo-common';
+import { demoText, initTheme, switchableDemoModes } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el, icon } from './dom';
+
+// One controller for the whole app; every view's toggle button shares it.
+const theme = initTheme();
 
 const modeIcons: Record<SwitchableDemoMode, string> = {
   single: 'pen-to-square',
@@ -23,7 +26,7 @@ export function modeSwitcher(props: ModeSwitcherProps): HTMLElement {
     const current = mode === props.demoMode;
     const { label, title } = demoText.modeSwitcher.modes[mode];
     const button = el('button', {
-      className: 'btn btn-' + (current ? 'primary' : 'secondary'),
+      className: 'demo-btn demo-btn-' + (current ? 'primary' : 'secondary'),
       attrs: { type: 'button', title }
     }, [icon(modeIcons[mode], { size: 'lg' }), ' ' + label]);
     button.disabled = current;
@@ -31,8 +34,8 @@ export function modeSwitcher(props: ModeSwitcherProps): HTMLElement {
     return button;
   });
   return el('div', { className: 'mochart-demo-mode-switcher' }, [
-    el('span', { className: 'form-control-plaintext', text: demoText.modeSwitcher.label }),
-    el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, buttons)
+    el('span', { className: 'demo-label', text: demoText.modeSwitcher.label }),
+    el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, buttons)
   ]);
 }
 
@@ -45,7 +48,7 @@ export function siteRootButton(siteRootUrl: string | undefined): HTMLElement | n
     return null;
   }
   return el('a', {
-    className: 'btn btn-secondary mochart-demo-site-root-button',
+    className: 'demo-btn demo-btn-secondary mochart-demo-site-root-button',
     attrs: {
       href: siteRootUrl,
       title: demoText.siteRootLink.tooltip,
@@ -54,9 +57,33 @@ export function siteRootButton(siteRootUrl: string | undefined): HTMLElement | n
   }, [icon('house'), ' ' + demoText.siteRootLink.shortLabel]);
 }
 
+/** Icon-only light/dark toggle; shares the docs site's theme choice. */
+export function themeToggleButton(): HTMLElement {
+  const button = el('button', {
+    className: 'demo-btn demo-btn-secondary mochart-demo-theme-toggle',
+    attrs: { type: 'button', 'aria-label': demoText.themeToggle.aria }
+  });
+  let iconEl: HTMLElement | null = null;
+  function render(dark: boolean): void {
+    const nextIcon = icon(dark ? 'sun' : 'moon', { size: 'lg', fixedWidth: true });
+    if (iconEl === null) {
+      button.append(nextIcon);
+    }
+    else {
+      button.replaceChild(nextIcon, iconEl);
+    }
+    iconEl = nextIcon;
+    button.title = dark ? demoText.themeToggle.tooltipToLight : demoText.themeToggle.tooltipToDark;
+  }
+  render(theme.isDark());
+  button.addEventListener('click', () => theme.toggle());
+  theme.onChange(render);
+  return button;
+}
+
 export function backToDemosButton(onBackToDemos: () => void): HTMLElement {
   const button = el('button', {
-    className: 'btn btn-secondary mochart-demo-back-button',
+    className: 'demo-btn demo-btn-secondary mochart-demo-back-button',
     attrs: {
       type: 'button',
       title: demoText.backToDemos.tooltip,

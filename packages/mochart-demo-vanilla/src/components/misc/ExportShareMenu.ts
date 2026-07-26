@@ -40,7 +40,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
 
   const trigger = el('button', {
     id: idPrefix + '-export-share',
-    className: 'btn btn-secondary dropdown-toggle',
+    className: 'demo-btn demo-btn-secondary demo-menu-trigger',
     attrs: {
       type: 'button',
       'aria-haspopup': 'true',
@@ -53,7 +53,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
   trigger.addEventListener('click', () => toggle());
 
   const pngItem = el('button', {
-    className: 'dropdown-item',
+    className: 'demo-menu-item',
     attrs: { type: 'button', 'aria-label': demoText.exportButtons.png.aria }
   }, [
     icon('file-image', { fixedWidth: true }), ' ',
@@ -62,7 +62,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
   pngItem.addEventListener('click', () => runAndClose(exportPng));
 
   const svgItem = el('button', {
-    className: 'dropdown-item',
+    className: 'demo-menu-item',
     attrs: { type: 'button', 'aria-label': demoText.exportButtons.svg.aria }
   }, [
     icon('file-code', { fixedWidth: true }), ' ',
@@ -70,7 +70,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
   ]);
   svgItem.addEventListener('click', () => runAndClose(exportSvg));
 
-  const menu = el('div', { className: 'dropdown-menu' }, [pngItem, svgItem]);
+  const menu = el('div', { className: 'demo-menu' }, [pngItem, svgItem]);
 
   // Share item is only mounted when the caller offers a share state.
   let shareItem: HTMLButtonElement | null = null;
@@ -80,14 +80,14 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     shareIconEl = icon('link', { fixedWidth: true });
     shareLabelSpan = el('span', { className: 'mochart-menu-item-label', text: demoText.shareButton.label });
     shareItem = el('button', {
-      className: 'dropdown-item',
+      className: 'demo-menu-item',
       attrs: { type: 'button', 'aria-label': demoText.shareButton.aria }
     }, [shareIconEl, ' ', shareLabelSpan]);
     shareItem.addEventListener('click', onShare);
-    menu.append(el('div', { className: 'dropdown-divider' }), shareItem);
+    menu.append(el('div', { className: 'demo-menu-divider' }), shareItem);
   }
 
-  const root = el('div', { className: 'btn-group dropup mochart-export-share-menu' }, [trigger, menu]);
+  const root = el('div', { className: 'demo-btn-group demo-menu-up mochart-export-share-menu' }, [trigger, menu]);
 
   function renderShare(): void {
     if (shareItem === null || shareIconEl === null || shareLabelSpan === null) {
@@ -116,7 +116,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     }
     open = true;
     positionMenu();
-    menu.classList.add('show');
+    menu.classList.add('open');
     trigger.classList.add('active');
     trigger.setAttribute('aria-expanded', 'true');
     document.addEventListener('mousedown', onDocMouseDown);
@@ -131,7 +131,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
       return;
     }
     open = false;
-    menu.classList.remove('show');
+    menu.classList.remove('open');
     trigger.classList.remove('active');
     trigger.setAttribute('aria-expanded', 'false');
     menu.removeAttribute('style');

@@ -21,16 +21,16 @@ const defaultRate = 2000;
   imports: [Chart, ButtonWithTooltip, ExportShareMenu, Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container col chart' + (active ? ' active' : '')">
+    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')">
       <div class="random-chart-sizer" #chartSizer>
         <mochart-chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                        [mochartConfig]="mochartConfig" [dataProvider]="dataProvider" />
       </div>
       <div class="random-controls">
-        <form class="form-inline">
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group">
+        <form class="demo-form-row">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 <app-button-with-tooltip id="randomize-back" [disabled]="playing()" [label]="text.back.label"
                                          [tooltipText]="text.back.tooltip" tooltipPlacement="top-start"
                                          [onClick]="onRandomizeBack" [aria-label]="text.back.aria">
@@ -50,14 +50,14 @@ const defaultRate = 2000;
                   <app-icon size="lg" [fixedWidth]="true" name="stop" />
                 </app-button-with-tooltip>
               </div>
-              <div class="form-group">
-                <label class="form-control-plaintext" for="random-rate">{{ text.intervalLabel }}</label>
-                <input id="random-rate" [disabled]="playing()" type="number" min="5" max="60000" step="100" class="form-control" [value]="rateText()"
+              <div class="demo-field">
+                <label class="demo-label" for="random-rate">{{ text.intervalLabel }}</label>
+                <input id="random-rate" [disabled]="playing()" type="number" min="5" max="60000" step="100" class="demo-input" [value]="rateText()"
                        [attr.aria-label]="text.intervalAria" (input)="rateChanged($event)" />
               </div>
             </div>
-            <div class="btn-toolbar ml-2" role="toolbar">
-              <div class="btn-group">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 <app-button-with-tooltip id="reuse" [disabled]="playing()" [label]="text.reuse.label" [pressed]="applyReuse"
                                          [tooltipText]="text.reuse.tooltip" tooltipPlacement="top-start"
                                          [onClick]="toggleApplyReuse" [aria-label]="text.reuse.aria">

@@ -242,7 +242,7 @@ function getMultiShareState(): ShareState {
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container col chart' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')">
     <div ref="gridRef" class="multi-charts-sizer">
       <div v-if="gridWidth > 0" class="multi-charts">
         <div v-for="(dataProvider, i) in dataProviders" :key="i" class="multi-mochart-chart">

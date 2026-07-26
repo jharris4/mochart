@@ -49,7 +49,7 @@ export class TransitionChartTab extends LightElement {
   };
 
   override render(): unknown {
-    return html`<div class=${'mochart-demo-tab-container col chart' + (this.active ? ' active' : '')}>
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')}>
       <div class="transition-chart-sizer">
         ${chart({
           style: 'flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;',
@@ -58,10 +58,10 @@ export class TransitionChartTab extends LightElement {
         })}
       </div>
       <div class="transition-controls">
-        <form class="form-inline">
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group">
+        <form class="demo-form-row">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'transition-back', label: demoText.transitionChartTab.back.label, tooltipText: demoText.transitionChartTab.back.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepBack, ariaLabel: demoText.transitionChartTab.back.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'backward-step' })

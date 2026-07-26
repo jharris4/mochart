@@ -5,6 +5,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 import BackToDemosButton from '../misc/BackToDemosButton.vue';
 import ModeSwitcher from '../misc/ModeSwitcher.vue';
 import SiteRootButton from '../misc/SiteRootButton.vue';
+import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
 import ChartsTab from './ChartsTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
@@ -27,13 +28,16 @@ const props = defineProps<Props>();
       <div class="mochart-demo-nav-group">
         <SiteRootButton :site-root-url="props.siteRootUrl" />
         <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <button type="button" class="nav-link active">{{ demoText.tabs.chart }}</button>
+        <ul class="demo-tabs">
+          <li class="demo-tab-item">
+            <button type="button" class="demo-tab active">{{ demoText.tabs.chart }}</button>
           </li>
         </ul>
       </div>
-      <ModeSwitcher demo-mode="multi" :on-mode-changed="props.onModeChanged" />
+      <div class="mochart-demo-nav-group">
+        <ModeSwitcher demo-mode="multi" :on-mode-changed="props.onModeChanged" />
+        <ThemeToggleButton />
+      </div>
     </div>
     <div class="mochart-demo-content-pane">
       <div class="mochart-demo-content">

@@ -19,7 +19,7 @@ export default function RandomMochartDataTab({ active, data }: Props) {
   }
 
   return (
-    <div className={"mochart-demo-tab-container col data" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")}>
       <div className="mochart-demo-tab-content">
         <TextAreaContent value={dataText} onChange={() => {}} />
       </div>

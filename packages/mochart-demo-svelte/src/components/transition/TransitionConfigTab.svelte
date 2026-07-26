@@ -64,12 +64,12 @@
   const footerError = $derived(jsonError ?? errorMessage);
 </script>
 
-<div class={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")}>
   <div class="mochart-demo-tab-content">
     <TextAreaContent value={configText} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer">
-    <div class="btn-toolbar" role="toolbar">
+    <div class="demo-toolbar" role="toolbar">
       <ButtonWithTooltip id="config-reset" label={demoText.transitionConfigTab.reset.label} tooltipText={demoText.transitionConfigTab.reset.tooltip} tooltipPlacement="top-start"
                          onClick={onReset} aria-label={demoText.transitionConfigTab.reset.aria}>
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

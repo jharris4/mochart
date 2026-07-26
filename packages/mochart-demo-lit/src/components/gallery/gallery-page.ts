@@ -7,6 +7,7 @@ import type { GalleryItem, GallerySection } from '@mochart/demo-common';
 import { LightElement } from '../misc/LightElement';
 import { icon } from '../misc/templates';
 import { siteRootButton } from '../misc/mode-switcher';
+import '../misc/theme-toggle-button';
 
 import type { DemoData } from '../../types';
 
@@ -32,14 +33,14 @@ export class GalleryPage extends LightElement {
   }
 
   private renderItem(item: GalleryItem): unknown {
-    return html`<button type="button" class="list-group-item list-group-item-action"
+    return html`<button type="button" class="demo-list-item"
         @click=${() => this.onItemClick(item)}>${item.kind === 'page' ? icon({ name: pageIcons[item.mode], fixedWidth: true }) : nothing}<span class="mochart-demo-item-title">${item.title}</span>${item.description !== void 0
           ? html`<span class="mochart-demo-item-description">${item.description}</span>`
           : nothing}</button>`;
   }
 
   private renderSection(section: GallerySection): unknown {
-    const list = html`<div class="list-group">${section.items.map(item => this.renderItem(item))}</div>`;
+    const list = html`<div class="demo-list">${section.items.map(item => this.renderItem(item))}</div>`;
     const header = html`<span class="mochart-demo-gallery-section-title">${section.title}</span>${section.hint !== void 0
       ? html`<span class="mochart-demo-gallery-section-hint">${section.hint}</span>`
       : nothing}`;
@@ -59,9 +60,10 @@ export class GalleryPage extends LightElement {
 
   override render(): unknown {
     return html`<div class="mochart-demo-container">
-      ${this.siteRootUrl !== void 0
-        ? html`<div class="mochart-demo-gallery-header">${siteRootButton(this.siteRootUrl)}</div>`
-        : nothing}
+      <div class="mochart-demo-gallery-header">
+        ${siteRootButton(this.siteRootUrl)}
+        <theme-toggle-button></theme-toggle-button>
+      </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-gallery">
           ${getGallerySections(this.demoData).map(section => this.renderSection(section))}

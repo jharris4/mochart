@@ -13,7 +13,7 @@ import { Component, Input } from '@angular/core';
   styles: [':host { display: contents; }'],
   template: `
     <span class="button-with-tooltip">
-      <button [id]="id" type="button" [class]="'btn btn-' + color + (pressed ? ' active' : '')"
+      <button [id]="id" type="button" [class]="'demo-btn demo-btn-' + color + (pressed ? ' active' : '')"
               [disabled]="disabled" [attr.title]="tooltipText ?? null"
               [attr.aria-pressed]="pressed === undefined ? null : pressed"
               [attr.aria-label]="ariaLabel ?? null" (click)="onClick()">

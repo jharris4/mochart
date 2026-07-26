@@ -618,7 +618,7 @@
 
 {#snippet commonControls()}
   {#if showChartCountControls}
-    <div class="btn-group">
+    <div class="demo-btn-group">
       <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
                          tooltipText={chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow} tooltipPlacement="right"
                          onClick={onChartCountToggle} aria-label={demoText.editableChart.secondChart.aria}>
@@ -626,7 +626,7 @@
       </ButtonWithTooltip>
     </div>
   {/if}
-  <div class="btn-group">
+  <div class="demo-btn-group">
     <ButtonWithTooltip id="edit-mode" label={selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups}
                        tooltipText={selectionMode === 'group'
                          ? demoText.editableChart.editMode.tooltipToSeries
@@ -661,11 +661,11 @@
       {#if selectionMode === 'group'}
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="form-inline">
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
+            <form class="demo-form-row">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
                   {@render commonControls()}
-                  <div class="btn-group">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-reset-groups" disabled={error || sequencePlaying} label={demoText.editableChart.resetGroups.label}
                                        tooltipText={demoText.editableChart.resetGroups.tooltip} tooltipPlacement="right"
                                        onClick={resetGroups} aria-label={demoText.editableChart.resetGroups.aria}>
@@ -712,8 +712,8 @@
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="form-inline">
-              <input type="text" class="form-control" disabled={error || sequencePlaying} bind:value={groupValuesText} />
+            <form class="demo-form-row">
+              <input type="text" class="demo-input" disabled={error || sequencePlaying} bind:value={groupValuesText} />
             </form>
           </span>
           {@render exportShareMenu()}
@@ -721,15 +721,15 @@
       {:else}
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="form-inline">
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
+            <form class="demo-form-row">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
                   {@render commonControls()}
                 </div>
               </div>
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-group-decrease" disabled={error || groupOrderControlsDisabled || isFirstGroup}
                                        tooltipText={demoText.editableChart.decreaseGroupOrder.tooltip} tooltipPlacement="right"
                                        onClick={decreaseGroupOrder} aria-label={demoText.editableChart.decreaseGroupOrder.aria}>
@@ -738,12 +738,12 @@
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{demoText.editableChart.groupIndexPrefix + groupIndex}</span>
+              <div class="demo-field">
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{demoText.editableChart.groupIndexPrefix + groupIndex}</span>
               </div>
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-group-increase" disabled={error || groupOrderControlsDisabled || isLastGroup}
                                        tooltipText={demoText.editableChart.increaseGroupOrder.tooltip} tooltipPlacement="right"
                                        onClick={increaseGroupOrder} aria-label={demoText.editableChart.increaseGroupOrder.aria}>
@@ -752,9 +752,9 @@
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-previous-series" disabled={error || seriesControlsDisabled || !hasPrevSeries}
                                        tooltipText={demoText.editableChart.previousSeries.tooltip} tooltipPlacement="right"
                                        onClick={prevSeries} aria-label={demoText.editableChart.previousSeries.aria}>
@@ -763,19 +763,19 @@
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{demoText.editableChart.seriesIndexPrefix + seriesIndex}</span>
+              <div class="demo-field">
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{demoText.editableChart.seriesIndexPrefix + seriesIndex}</span>
               </div>
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-next-series" disabled={error || seriesControlsDisabled || !hasNextSeries}
                                        tooltipText={demoText.editableChart.nextSeries.tooltip} tooltipPlacement="right"
                                        onClick={nextSeries} aria-label={demoText.editableChart.nextSeries.aria}>
                       <Icon size="lg" fixedWidth={true} name="chevron-up" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="btn-group">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-reset-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.resetSeries.label}
                                        tooltipText={demoText.editableChart.resetSeries.tooltip} tooltipPlacement="right"
                                        onClick={resetSeriesChanges} aria-label={demoText.editableChart.resetSeries.aria}>
@@ -792,8 +792,8 @@
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="form-inline">
-              <input type="text" class="form-control" disabled={error || seriesControlsDisabled} bind:value={seriesValuesText} />
+            <form class="demo-form-row">
+              <input type="text" class="demo-input" disabled={error || seriesControlsDisabled} bind:value={seriesValuesText} />
             </form>
           </span>
           {@render exportShareMenu()}

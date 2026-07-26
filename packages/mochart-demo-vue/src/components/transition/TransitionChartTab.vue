@@ -51,16 +51,16 @@ function onStepForward() {
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container col chart' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')">
     <div class="transition-chart-sizer">
       <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
              :mochart-config="props.mochartConfig" :data-provider="props.dataProviders[dataProviderIndex]" />
     </div>
     <div class="transition-controls">
-      <form class="form-inline">
-        <div class="form-group">
-          <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group">
+      <form class="demo-form-row">
+        <div class="demo-field">
+          <div class="demo-toolbar" role="toolbar">
+            <div class="demo-btn-group">
               <ButtonWithTooltip id="transition-back" :label="demoText.transitionChartTab.back.label" :tooltip-text="demoText.transitionChartTab.back.tooltip" tooltip-placement="top-start"
                                  :on-click="onStepBack" :aria-label="demoText.transitionChartTab.back.aria">
                 <Icon size="lg" :fixed-width="true" name="backward-step" />

@@ -63,14 +63,14 @@ export function transitionChartTab(props: TransitionChartTabProps): TransitionCh
   });
 
   const container = el('div', {
-    className: 'mochart-demo-tab-container col chart' + (props.active ? ' active' : '')
+    className: 'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')
   }, [
     chartSizer,
     el('div', { className: 'transition-controls' }, [
-      el('form', { className: 'form-inline' }, [
-        el('div', { className: 'form-group' }, [
-          el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-            el('div', { className: 'btn-group' }, [backButton.el, forwardButton.el])
+      el('form', { className: 'demo-form-row' }, [
+        el('div', { className: 'demo-field' }, [
+          el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+            el('div', { className: 'demo-btn-group' }, [backButton.el, forwardButton.el])
           ])
         ])
       ])

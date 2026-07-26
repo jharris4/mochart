@@ -93,12 +93,12 @@ export default function MochartDataTab({ active, config = null, data = null, onD
   const footerError = jsonError ?? errorMessage;
 
   return (
-    <div className={"mochart-demo-tab-container col data" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")}>
       <div className="mochart-demo-tab-content">
         <TextAreaContent value={dataText} onChange={(text: string) => { setDataText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
-        <div className="btn-toolbar" role="toolbar">
+        <div className="demo-toolbar" role="toolbar">
           <ButtonWithTooltip id="data-reset" label={demoText.dataTab.reset.label} tooltipText={demoText.dataTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={resetData} aria-label={demoText.dataTab.reset.aria}>
             <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

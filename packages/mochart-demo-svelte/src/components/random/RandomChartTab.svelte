@@ -116,16 +116,16 @@
   });
 </script>
 
-<div class={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
   <div class="random-chart-sizer" bind:this={chartSizerElement}>
     <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
            {mochartConfig} {dataProvider} />
   </div>
   <div class="random-controls">
-    <form class="form-inline">
-      <div class="form-group">
-        <div class="btn-toolbar" role="toolbar">
-          <div class="btn-group">
+    <form class="demo-form-row">
+      <div class="demo-field">
+        <div class="demo-toolbar" role="toolbar">
+          <div class="demo-btn-group">
             <ButtonWithTooltip id="randomize-back" disabled={playing} label={demoText.randomChartTab.back.label}
                                tooltipText={demoText.randomChartTab.back.tooltip} tooltipPlacement="top-start"
                                onClick={onRandomizeBack} aria-label={demoText.randomChartTab.back.aria}>
@@ -145,14 +145,14 @@
               <Icon size="lg" fixedWidth={true} name="stop" />
             </ButtonWithTooltip>
           </div>
-          <div class="form-group">
-            <label class="form-control-plaintext" for="random-rate">{demoText.randomChartTab.intervalLabel}</label>
-            <input id="random-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="form-control" value={rateText}
+          <div class="demo-field">
+            <label class="demo-label" for="random-rate">{demoText.randomChartTab.intervalLabel}</label>
+            <input id="random-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="demo-input" value={rateText}
                    oninput={rateChanged} aria-label={demoText.randomChartTab.intervalAria} />
           </div>
         </div>
-        <div class="btn-toolbar ml-2" role="toolbar">
-          <div class="btn-group">
+        <div class="demo-toolbar" role="toolbar">
+          <div class="demo-btn-group">
             <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
                                tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
                                onClick={toggleApplyReuse} aria-label={demoText.randomChartTab.reuse.aria}>

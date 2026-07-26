@@ -71,18 +71,18 @@ function rateChanged(event: Event) {
 
 <template>
   <div class="multi-controls">
-    <form class="form-inline">
-      <div class="form-group">
-        <label class="form-control-plaintext" for="grid-rows">{{ demoText.multiChartsTab.gridLabel }}</label>
-        <input id="grid-rows" :disabled="props.playing" type="number" min="1" max="4" class="form-control" :value="rowsText"
+    <form class="demo-form-row">
+      <div class="demo-field">
+        <label class="demo-label" for="grid-rows">{{ demoText.multiChartsTab.gridLabel }}</label>
+        <input id="grid-rows" :disabled="props.playing" type="number" min="1" max="4" class="demo-input" :value="rowsText"
                :aria-label="demoText.multiChartsTab.gridRowsAria" @input="rowsChanged" />
-        <span class="form-control-plaintext">&times;</span>
-        <input id="grid-cols" :disabled="props.playing" type="number" min="1" max="4" class="form-control" :value="colsText"
+        <span class="demo-label">&times;</span>
+        <input id="grid-cols" :disabled="props.playing" type="number" min="1" max="4" class="demo-input" :value="colsText"
                :aria-label="demoText.multiChartsTab.gridColsAria" @input="colsChanged" />
       </div>
-      <div class="form-group">
-        <div class="btn-toolbar" role="toolbar">
-          <div class="btn-group">
+      <div class="demo-field">
+        <div class="demo-toolbar" role="toolbar">
+          <div class="demo-btn-group">
             <ButtonWithTooltip id="step-back" :disabled="props.playing" :tooltip-text="demoText.multiChartsTab.stepBackward.tooltip" tooltip-placement="top-start"
                                :on-click="props.onStepBackwardClick" :aria-label="demoText.multiChartsTab.stepBackward.aria">
               <Icon size="lg" :fixed-width="true" name="backward-step" />
@@ -106,13 +106,13 @@ function rateChanged(event: Event) {
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-control-plaintext" for="multi-rate">{{ demoText.multiChartsTab.intervalLabel }}</label>
-        <input id="multi-rate" :disabled="props.playing" type="number" min="5" max="60000" step="100" class="form-control" :value="rateText"
+      <div class="demo-field">
+        <label class="demo-label" for="multi-rate">{{ demoText.multiChartsTab.intervalLabel }}</label>
+        <input id="multi-rate" :disabled="props.playing" type="number" min="5" max="60000" step="100" class="demo-input" :value="rateText"
                :aria-label="demoText.multiChartsTab.intervalAria" @input="rateChanged" />
       </div>
-      <div class="form-group">
-        <div class="btn-toolbar" role="toolbar">
+      <div class="demo-field">
+        <div class="demo-toolbar" role="toolbar">
           <ExportShareMenu id-prefix="multi" :export-png="props.exportPng" :export-svg="props.exportSvg" :get-share-state="props.getShareState" />
         </div>
       </div>

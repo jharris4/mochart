@@ -5,6 +5,7 @@ import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitio
 
 import BackToDemosButton from '../misc/BackToDemosButton.vue';
 import SiteRootButton from '../misc/SiteRootButton.vue';
+import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
 import TransitionChartTab from './TransitionChartTab.vue';
 import TransitionConfigTab from './TransitionConfigTab.vue';
 
@@ -49,21 +50,22 @@ function onResetConfig() {
       <div class="mochart-demo-nav-group">
         <SiteRootButton :site-root-url="props.siteRootUrl" />
         <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
+        <ul class="demo-tabs">
+          <li class="demo-tab-item">
+            <button type="button" :class="'demo-tab' + (activeKey === eventKeyChart ? ' active' : '')"
                     @click="handleSelect(eventKeyChart)">
               {{ demoText.tabs.chart }}
             </button>
           </li>
-          <li class="nav-item">
-            <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
+          <li class="demo-tab-item">
+            <button type="button" :class="'demo-tab' + (activeKey === eventKeyConfig ? ' active' : '')"
                     @click="handleSelect(eventKeyConfig)">
               {{ demoText.tabs.transitionConfig }}
             </button>
           </li>
         </ul>
       </div>
+      <ThemeToggleButton />
     </div>
     <div class="mochart-demo-content-pane">
       <div class="mochart-demo-content">

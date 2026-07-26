@@ -22,7 +22,7 @@ watch(() => props.data, (nextData) => {
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container col data' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')">
     <div class="mochart-demo-tab-content">
       <TextAreaContent :value="dataText" :on-change="() => {}" />
     </div>

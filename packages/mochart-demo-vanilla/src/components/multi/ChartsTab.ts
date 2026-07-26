@@ -236,7 +236,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   });
 
   const container = el('div', {
-    className: 'mochart-demo-tab-container col chart' + (active ? ' active' : '')
+    className: 'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')
   }, [sizer, controls.el]);
 
   const stopObserving = observeSize(sizer, (nextWidth, nextHeight) => {

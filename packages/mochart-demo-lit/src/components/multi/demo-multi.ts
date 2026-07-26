@@ -7,6 +7,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
+import '../misc/theme-toggle-button';
 
 import './charts-tab';
 import '../misc/error-tab';
@@ -35,13 +36,16 @@ export class DemoMulti extends LightElement {
         <div class="mochart-demo-nav-group">
           ${siteRootButton(this.siteRootUrl)}
           ${backToDemosButton(this.onBackToDemos)}
-          <ul class="nav nav-tabs">
-            <li class="nav-item">
-              <button type="button" class="nav-link active">${demoText.tabs.chart}</button>
+          <ul class="demo-tabs">
+            <li class="demo-tab-item">
+              <button type="button" class="demo-tab active">${demoText.tabs.chart}</button>
             </li>
           </ul>
         </div>
-        ${modeSwitcher({ demoMode: 'multi', onModeChanged: this.onModeChanged })}
+        <div class="mochart-demo-nav-group">
+          ${modeSwitcher({ demoMode: 'multi', onModeChanged: this.onModeChanged })}
+          <theme-toggle-button></theme-toggle-button>
+        </div>
       </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">

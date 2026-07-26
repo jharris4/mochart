@@ -18,18 +18,18 @@ const defaultRate = 2000;
   styles: [':host { display: contents; }'],
   template: `
     <div class="multi-controls">
-      <form class="form-inline">
-        <div class="form-group">
-          <label class="form-control-plaintext" for="grid-rows">{{ text.gridLabel }}</label>
-          <input id="grid-rows" [disabled]="playing" type="number" min="1" max="4" class="form-control" [value]="rowsText()"
+      <form class="demo-form-row">
+        <div class="demo-field">
+          <label class="demo-label" for="grid-rows">{{ text.gridLabel }}</label>
+          <input id="grid-rows" [disabled]="playing" type="number" min="1" max="4" class="demo-input" [value]="rowsText()"
                  [attr.aria-label]="text.gridRowsAria" (input)="rowsChanged($event)" />
-          <span class="form-control-plaintext">&times;</span>
-          <input id="grid-cols" [disabled]="playing" type="number" min="1" max="4" class="form-control" [value]="colsText()"
+          <span class="demo-label">&times;</span>
+          <input id="grid-cols" [disabled]="playing" type="number" min="1" max="4" class="demo-input" [value]="colsText()"
                  [attr.aria-label]="text.gridColsAria" (input)="colsChanged($event)" />
         </div>
-        <div class="form-group">
-          <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group">
+        <div class="demo-field">
+          <div class="demo-toolbar" role="toolbar">
+            <div class="demo-btn-group">
               <app-button-with-tooltip id="step-back" [disabled]="playing" [tooltipText]="text.stepBackward.tooltip" tooltipPlacement="top-start"
                                        [onClick]="onStepBackwardClick" [aria-label]="text.stepBackward.aria">
                 <app-icon size="lg" [fixedWidth]="true" name="backward-step" />
@@ -53,13 +53,13 @@ const defaultRate = 2000;
             </div>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-control-plaintext" for="multi-rate">{{ text.intervalLabel }}</label>
-          <input id="multi-rate" [disabled]="playing" type="number" min="5" max="60000" step="100" class="form-control" [value]="rateText()"
+        <div class="demo-field">
+          <label class="demo-label" for="multi-rate">{{ text.intervalLabel }}</label>
+          <input id="multi-rate" [disabled]="playing" type="number" min="5" max="60000" step="100" class="demo-input" [value]="rateText()"
                  [attr.aria-label]="text.intervalAria" (input)="rateChanged($event)" />
         </div>
-        <div class="form-group">
-          <div class="btn-toolbar" role="toolbar">
+        <div class="demo-field">
+          <div class="demo-toolbar" role="toolbar">
             <app-export-share-menu idPrefix="multi" [exportPng]="exportPng" [exportSvg]="exportSvg" [getShareState]="getShareState" />
           </div>
         </div>

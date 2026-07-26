@@ -22,10 +22,10 @@
 </script>
 
 <div class="mochart-demo-mode-switcher">
-  <span class="form-control-plaintext">{demoText.modeSwitcher.label}</span>
-  <div class="btn-toolbar" role="toolbar">
+  <span class="demo-label">{demoText.modeSwitcher.label}</span>
+  <div class="demo-toolbar" role="toolbar">
     {#each switchableDemoModes as mode (mode)}
-      <button type="button" class={"btn btn-" + (mode === demoMode ? "primary" : "secondary")}
+      <button type="button" class={"demo-btn demo-btn-" + (mode === demoMode ? "primary" : "secondary")}
               disabled={mode === demoMode} title={demoText.modeSwitcher.modes[mode].title}
               onclick={() => onModeChanged(mode)}>
         <Icon size="lg" name={modeIcons[mode]} /> {demoText.modeSwitcher.modes[mode].label}

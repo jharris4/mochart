@@ -80,7 +80,7 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
   const chartsHost = el('div', { className: 'editable-charts' });
   const sizer = el('div', { className: 'editable-charts-sizer' }, [chartsHost]);
   const container = el('div', {
-    className: 'mochart-demo-tab-container row chart' + (active ? ' active' : '')
+    className: 'mochart-demo-tab-container demo-layout-row chart' + (active ? ' active' : '')
   }, [sizer]);
 
   const stopObserving = observeSize(container, (nextWidth) => {

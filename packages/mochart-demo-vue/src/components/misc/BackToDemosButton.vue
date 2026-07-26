@@ -12,7 +12,7 @@ const props = defineProps<Props>();
 </script>
 
 <template>
-  <button type="button" class="btn btn-secondary mochart-demo-back-button"
+  <button type="button" class="demo-btn demo-btn-secondary mochart-demo-back-button"
           :title="demoText.backToDemos.tooltip" :aria-label="demoText.backToDemos.aria"
           @click="props.onBackToDemos()">
     <Icon name="chevron-left" /> {{ demoText.backToDemos.label }}

@@ -34,7 +34,7 @@ const defaultRate = 2000;
 
 export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle {
   const rowsInput = el('input', {
-    id: 'grid-rows', className: 'form-control',
+    id: 'grid-rows', className: 'demo-input',
     attrs: { type: 'number', min: '1', max: '4', 'aria-label': demoText.multiChartsTab.gridRowsAria }
   });
   rowsInput.value = '' + (props.initialRows ?? defaultChartRows);
@@ -49,7 +49,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
   });
 
   const colsInput = el('input', {
-    id: 'grid-cols', className: 'form-control',
+    id: 'grid-cols', className: 'demo-input',
     attrs: { type: 'number', min: '1', max: '4', 'aria-label': demoText.multiChartsTab.gridColsAria }
   });
   colsInput.value = '' + (props.initialCols ?? defaultChartCols);
@@ -64,7 +64,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
   });
 
   const rateInput = el('input', {
-    id: 'multi-rate', className: 'form-control',
+    id: 'multi-rate', className: 'demo-input',
     attrs: { type: 'number', min: '5', max: '60000', step: '100', 'aria-label': demoText.multiChartsTab.intervalAria }
   });
   rateInput.value = '' + (props.initialRate ?? defaultRate);
@@ -117,26 +117,26 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
   });
 
   const container = el('div', { className: 'multi-controls' }, [
-    el('form', { className: 'form-inline' }, [
-      el('div', { className: 'form-group' }, [
-        el('label', { className: 'form-control-plaintext', attrs: { for: 'grid-rows' }, text: demoText.multiChartsTab.gridLabel }),
+    el('form', { className: 'demo-form-row' }, [
+      el('div', { className: 'demo-field' }, [
+        el('label', { className: 'demo-label', attrs: { for: 'grid-rows' }, text: demoText.multiChartsTab.gridLabel }),
         rowsInput,
-        el('span', { className: 'form-control-plaintext', text: '×' }),
+        el('span', { className: 'demo-label', text: '×' }),
         colsInput
       ]),
-      el('div', { className: 'form-group' }, [
-        el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-          el('div', { className: 'btn-group' }, [
+      el('div', { className: 'demo-field' }, [
+        el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+          el('div', { className: 'demo-btn-group' }, [
             stepBackButton.el, stepForwardButton.el, playBackwardButton.el, playForwardButton.el, stopButton.el
           ])
         ])
       ]),
-      el('div', { className: 'form-group' }, [
-        el('label', { className: 'form-control-plaintext', attrs: { for: 'multi-rate' }, text: demoText.multiChartsTab.intervalLabel }),
+      el('div', { className: 'demo-field' }, [
+        el('label', { className: 'demo-label', attrs: { for: 'multi-rate' }, text: demoText.multiChartsTab.intervalLabel }),
         rateInput
       ]),
-      el('div', { className: 'form-group' }, [
-        el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [menu.el])
+      el('div', { className: 'demo-field' }, [
+        el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [menu.el])
       ])
     ])
   ]);

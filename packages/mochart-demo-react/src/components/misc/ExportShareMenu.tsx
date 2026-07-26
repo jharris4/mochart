@@ -112,28 +112,28 @@ export default function ExportShareMenu({ idPrefix, exportPng, exportSvg, getSha
   const menuOpen = open && coords !== null;
 
   return (
-    <div className="btn-group dropup mochart-export-share-menu" ref={rootRef}>
+    <div className="demo-btn-group demo-menu-up mochart-export-share-menu" ref={rootRef}>
       <button id={idPrefix + '-export-share'} type="button" ref={triggerRef}
-        className={'btn btn-secondary dropdown-toggle' + (open ? ' active' : '')}
+        className={'demo-btn demo-btn-secondary demo-menu-trigger' + (open ? ' active' : '')}
         disabled={disabled} aria-haspopup="true" aria-expanded={open}
         title={demoText.exportShareMenu.trigger.tooltip} aria-label={demoText.exportShareMenu.trigger.aria}
         onClick={() => setOpen(prev => !prev)}>
         <Icon size="lg" fixedWidth={true} name="share-nodes" />
       </button>
-      <div className={'dropdown-menu' + (menuOpen ? ' show' : '')}
+      <div className={'demo-menu' + (menuOpen ? ' open' : '')}
         style={menuOpen ? { position: 'fixed', bottom: coords.bottom, right: coords.right, margin: 0, zIndex: 1080 } : void 0}>
-        <button type="button" className="dropdown-item" onClick={() => runAndClose(exportPng)}
+        <button type="button" className="demo-menu-item" onClick={() => runAndClose(exportPng)}
           aria-label={demoText.exportButtons.png.aria}>
           <Icon fixedWidth={true} name="file-image" /> <span className="mochart-menu-item-label">{demoText.exportButtons.png.label}</span>
         </button>
-        <button type="button" className="dropdown-item" onClick={() => runAndClose(exportSvg)}
+        <button type="button" className="demo-menu-item" onClick={() => runAndClose(exportSvg)}
           aria-label={demoText.exportButtons.svg.aria}>
           <Icon fixedWidth={true} name="file-code" /> <span className="mochart-menu-item-label">{demoText.exportButtons.svg.label}</span>
         </button>
         {getShareState ? (
           <React.Fragment>
-            <div className="dropdown-divider" />
-            <button type="button" className="dropdown-item" onClick={onShare}
+            <div className="demo-menu-divider" />
+            <button type="button" className="demo-menu-item" onClick={onShare}
               aria-label={demoText.shareButton.aria}>
               <Icon fixedWidth={true} name={copied ? 'check' : 'link'} /> <span className="mochart-menu-item-label">{copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
             </button>

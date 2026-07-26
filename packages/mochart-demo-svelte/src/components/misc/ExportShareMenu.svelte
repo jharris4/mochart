@@ -126,26 +126,26 @@
     : void 0);
 </script>
 
-<div class="btn-group dropup mochart-export-share-menu" bind:this={rootElement}>
+<div class="demo-btn-group demo-menu-up mochart-export-share-menu" bind:this={rootElement}>
   <button id={idPrefix + '-export-share'} type="button" bind:this={triggerElement}
-          class={'btn btn-secondary dropdown-toggle' + (open ? ' active' : '')}
+          class={'demo-btn demo-btn-secondary demo-menu-trigger' + (open ? ' active' : '')}
           {disabled} aria-haspopup="true" aria-expanded={open}
           title={demoText.exportShareMenu.trigger.tooltip} aria-label={demoText.exportShareMenu.trigger.aria}
           onclick={toggle}>
     <Icon size="lg" fixedWidth={true} name="share-nodes" />
   </button>
-  <div class={'dropdown-menu' + (menuOpen ? ' show' : '')} style={menuStyle}>
-    <button type="button" class="dropdown-item" onclick={() => runAndClose(exportPng)}
+  <div class={'demo-menu' + (menuOpen ? ' open' : '')} style={menuStyle}>
+    <button type="button" class="demo-menu-item" onclick={() => runAndClose(exportPng)}
             aria-label={demoText.exportButtons.png.aria}>
       <Icon fixedWidth={true} name="file-image" /> <span class="mochart-menu-item-label">{demoText.exportButtons.png.label}</span>
     </button>
-    <button type="button" class="dropdown-item" onclick={() => runAndClose(exportSvg)}
+    <button type="button" class="demo-menu-item" onclick={() => runAndClose(exportSvg)}
             aria-label={demoText.exportButtons.svg.aria}>
       <Icon fixedWidth={true} name="file-code" /> <span class="mochart-menu-item-label">{demoText.exportButtons.svg.label}</span>
     </button>
     {#if getShareState}
-      <div class="dropdown-divider"></div>
-      <button type="button" class="dropdown-item" onclick={onShare}
+      <div class="demo-menu-divider"></div>
+      <button type="button" class="demo-menu-item" onclick={onShare}
               aria-label={demoText.shareButton.aria}>
         <Icon fixedWidth={true} name={copied ? 'check' : 'link'} /> <span class="mochart-menu-item-label">{copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
       </button>

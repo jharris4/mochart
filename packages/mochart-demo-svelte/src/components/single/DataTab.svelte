@@ -117,12 +117,12 @@
   const footerError = $derived(jsonError ?? errorMessage);
 </script>
 
-<div class={"mochart-demo-tab-container col data" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")}>
   <div class="mochart-demo-tab-content">
     <TextAreaContent value={dataText} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer">
-    <div class="btn-toolbar" role="toolbar">
+    <div class="demo-toolbar" role="toolbar">
       <ButtonWithTooltip id="data-reset" label={demoText.dataTab.reset.label} tooltipText={demoText.dataTab.reset.tooltip} tooltipPlacement="top-start"
                          onClick={resetData} aria-label={demoText.dataTab.reset.aria}>
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

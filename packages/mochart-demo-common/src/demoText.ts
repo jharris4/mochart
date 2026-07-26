@@ -75,6 +75,12 @@ export const demoText = {
     tooltip: 'Back to the Mochart site',
     aria: 'Back to the Mochart site'
   },
+  themeToggle: {
+    // Icon-only button (sun/moon) in every view's navigation row.
+    tooltipToDark: 'Switch to the dark theme',
+    tooltipToLight: 'Switch to the light theme',
+    aria: 'Toggle color theme'
+  },
   shareButton: {
     label: 'Share',
     tooltip: 'Copy a link to this chart with the current config and data',

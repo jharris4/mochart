@@ -11,7 +11,7 @@
   let { onBackToDemos }: Props = $props();
 </script>
 
-<button type="button" class="btn btn-secondary mochart-demo-back-button"
+<button type="button" class="demo-btn demo-btn-secondary mochart-demo-back-button"
         title={demoText.backToDemos.tooltip} aria-label={demoText.backToDemos.aria}
         onclick={onBackToDemos}>
   <Icon name="chevron-left" /> {demoText.backToDemos.label}

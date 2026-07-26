@@ -68,11 +68,11 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
   footerError.hidden = true;
 
   const container = el('div', {
-    className: 'mochart-demo-tab-container col config' + (props.active ? ' active' : '')
+    className: 'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')
   }, [
     el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
     el('div', { className: 'mochart-demo-tab-footer' }, [
-      el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
+      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
         resetButton.el, applyButton.el, footerError
       ])
     ])

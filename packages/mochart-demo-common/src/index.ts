@@ -47,3 +47,6 @@ export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, c
 export type { ShareState, SingleShareState, MultiShareState, RandomShareState } from './shareState';
 
 export { getDocsBaseUrl, getReferenceSectionIds, getReferenceSectionUrl } from './docsLinks';
+
+export { initTheme } from './theme';
+export type { ThemeController } from './theme';

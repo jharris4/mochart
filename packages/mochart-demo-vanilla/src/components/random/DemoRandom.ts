@@ -2,7 +2,7 @@ import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
-import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/ModeSwitcher';
+import { backToDemosButton, modeSwitcher, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
 import { randomContent } from './RandomContent';
 import type { RandomContentHandle } from './RandomContent';
 
@@ -58,12 +58,12 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
 
   function navItem(text: string, key: number): { li: HTMLLIElement; button: HTMLButtonElement } {
     const button = el('button', {
-      className: 'nav-link' + (activeKey === key ? ' active' : ''),
+      className: 'demo-tab' + (activeKey === key ? ' active' : ''),
       attrs: { type: 'button' },
       text
     });
     button.addEventListener('click', () => handleSelect(key));
-    return { li: el('li', { className: 'nav-item' }, [button]), button };
+    return { li: el('li', { className: 'demo-tab-item' }, [button]), button };
   }
 
   const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
@@ -75,9 +75,12 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
       el('div', { className: 'mochart-demo-nav-group' }, [
         siteRootButton(props.siteRootUrl),
         backToDemosButton(onBackToDemos),
-        el('ul', { className: 'nav nav-tabs' }, [chartNav.li, configNav.li, dataNav.li])
+        el('ul', { className: 'demo-tabs' }, [chartNav.li, configNav.li, dataNav.li])
       ]),
-      modeSwitcher({ demoMode: 'random', onModeChanged })
+      el('div', { className: 'mochart-demo-nav-group' }, [
+        modeSwitcher({ demoMode: 'random', onModeChanged }),
+        themeToggleButton()
+      ])
     ]),
     el('div', { className: 'mochart-demo-content-pane' }, [content.el])
   ]);

@@ -62,16 +62,16 @@
   }
 </script>
 
-<div class={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
   <div class="transition-chart-sizer">
     <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
            {mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
   </div>
   <div class="transition-controls">
-    <form class="form-inline">
-      <div class="form-group">
-        <div class="btn-toolbar" role="toolbar">
-          <div class="btn-group">
+    <form class="demo-form-row">
+      <div class="demo-field">
+        <div class="demo-toolbar" role="toolbar">
+          <div class="demo-btn-group">
             <ButtonWithTooltip id="transition-back" label={demoText.transitionChartTab.back.label} tooltipText={demoText.transitionChartTab.back.tooltip} tooltipPlacement="top-start"
                                onClick={onStepBack} aria-label={demoText.transitionChartTab.back.aria}>
               <Icon size="lg" fixedWidth={true} name="backward-step" />

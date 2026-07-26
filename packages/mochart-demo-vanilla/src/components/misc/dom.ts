@@ -109,7 +109,7 @@ export function buttonWithTooltip(options: ButtonOptions): ButtonHandle {
   const color = options.color ?? 'secondary';
   const button = el('button', {
     id: options.id,
-    className: `btn btn-${color}` + (options.pressed ? ' active' : ''),
+    className: `demo-btn demo-btn-${color}` + (options.pressed ? ' active' : ''),
     attrs: {
       type: 'button',
       title: options.tooltipText,
@@ -211,7 +211,7 @@ export function errorTab(create: () => HTMLElement, active: boolean): ErrorTabHa
     failed = true;
     failedPane = el('div', { className: 'mochart-demo-tab-container error' + (isActive ? ' active' : '') }, [
       el('div', {
-        className: 'alert alert-danger text-center mochart-demo-error-message',
+        className: 'demo-alert demo-alert-error demo-text-center mochart-demo-error-message',
         attrs: { role: 'alert' },
         text: demoText.errors.errorOccurred
       })

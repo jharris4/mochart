@@ -177,7 +177,7 @@ export default function MochartChartTab({ config = null, data = null, dataError 
   }
 
   return (
-    <div ref={elementRef} className={"mochart-demo-tab-container row chart" + (active ? " active" : "")}>
+    <div ref={elementRef} className={"mochart-demo-tab-container demo-layout-row chart" + (active ? " active" : "")}>
       <div className="editable-charts-sizer">
         <div className="editable-charts">
           {charts}

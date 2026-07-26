@@ -6,7 +6,7 @@ import MochartChartTab from './ChartTab';
 import MochartDataTab from './DataTab';
 import MochartConfigTab from './ConfigTab';
 import ErrorTab from '../misc/ErrorTab';
-import { ModeSwitcher, SiteRootButton, BackToDemosButton } from '../misc/ModeSwitcher';
+import { ModeSwitcher, SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
 
 import type { DemoTabProps, DemoConfig, DataRow } from '../../types';
 
@@ -38,27 +38,30 @@ export default function MochartDemoSingle({ demoData, initialDemoId, siteRootUrl
         <div className="mochart-demo-nav-group">
           <SiteRootButton siteRootUrl={siteRootUrl} />
           <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <ul className="nav nav-tabs">
-            <li className="nav-item">
-              <button type="button" className={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
+          <ul className="demo-tabs">
+            <li className="demo-tab-item">
+              <button type="button" className={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
                 title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : void 0}
                 onClick={() => { handleSelect(eventKeyChart); }}>
                 {demoText.tabs.chart}{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
               </button>
             </li>
-            <li className="nav-item">
-              <button type="button" className={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
+            <li className="demo-tab-item">
+              <button type="button" className={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
                 {demoText.tabs.config}
               </button>
             </li>
-            <li className="nav-item">
-              <button type="button" className={"nav-link" + (activeKey === eventKeyData ? " active" : "")} onClick={() => { handleSelect(eventKeyData); }}>
+            <li className="demo-tab-item">
+              <button type="button" className={"demo-tab" + (activeKey === eventKeyData ? " active" : "")} onClick={() => { handleSelect(eventKeyData); }}>
                 {demoText.tabs.data}
               </button>
             </li>
           </ul>
         </div>
-        <ModeSwitcher demoMode="single" onModeChanged={onModeChanged} />
+        <div className="mochart-demo-nav-group">
+          <ModeSwitcher demoMode="single" onModeChanged={onModeChanged} />
+          <ThemeToggleButton />
+        </div>
       </div>
       <MochartDemoContent activeKey={activeKey} demoData={demoData} initialDemoId={initialDemoId}
         onPendingChanged={setHasPending} />

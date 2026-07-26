@@ -7,6 +7,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 import BackToDemosButton from '../misc/BackToDemosButton.vue';
 import ModeSwitcher from '../misc/ModeSwitcher.vue';
 import SiteRootButton from '../misc/SiteRootButton.vue';
+import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
 import RandomContent from './RandomContent.vue';
 
 import type { DemoData } from '../../types';
@@ -62,28 +63,31 @@ function handleSelect(nextActiveKey: number) {
       <div class="mochart-demo-nav-group">
         <SiteRootButton :site-root-url="props.siteRootUrl" />
         <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <button type="button" :class="'nav-link' + (activeKey === eventKeyChart ? ' active' : '')"
+        <ul class="demo-tabs">
+          <li class="demo-tab-item">
+            <button type="button" :class="'demo-tab' + (activeKey === eventKeyChart ? ' active' : '')"
                     @click="handleSelect(eventKeyChart)">
               {{ demoText.tabs.chart }}
             </button>
           </li>
-          <li class="nav-item">
-            <button type="button" :class="'nav-link' + (activeKey === eventKeyConfig ? ' active' : '')"
+          <li class="demo-tab-item">
+            <button type="button" :class="'demo-tab' + (activeKey === eventKeyConfig ? ' active' : '')"
                     @click="handleSelect(eventKeyConfig)">
               {{ demoText.tabs.randomConfig }}
             </button>
           </li>
-          <li class="nav-item">
-            <button type="button" :class="'nav-link' + (activeKey === eventKeyData ? ' active' : '')"
+          <li class="demo-tab-item">
+            <button type="button" :class="'demo-tab' + (activeKey === eventKeyData ? ' active' : '')"
                     @click="handleSelect(eventKeyData)">
               {{ demoText.tabs.data }}
             </button>
           </li>
         </ul>
       </div>
-      <ModeSwitcher demo-mode="random" :on-mode-changed="props.onModeChanged" />
+      <div class="mochart-demo-nav-group">
+        <ModeSwitcher demo-mode="random" :on-mode-changed="props.onModeChanged" />
+        <ThemeToggleButton />
+      </div>
     </div>
     <div class="mochart-demo-content-pane">
       <RandomContent :mochart-demo-config="mochartDemoConfig" :initial-random-config="randomConfig"

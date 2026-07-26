@@ -5,6 +5,7 @@ import { DefaultChart } from '@mochart/vue';
 
 import BackToDemosButton from '../misc/BackToDemosButton.vue';
 import SiteRootButton from '../misc/SiteRootButton.vue';
+import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
 
 import { configs, data, minWidth } from './rotationConfigs';
 
@@ -50,6 +51,7 @@ const colWidth = computed(() => Math.floor(chartsWidth.value / cols.value));
         <SiteRootButton :site-root-url="props.siteRootUrl" />
         <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
       </div>
+      <ThemeToggleButton />
     </div>
     <div ref="chartsElement" class="rotation-charts">
       <template v-if="colWidth > 0">

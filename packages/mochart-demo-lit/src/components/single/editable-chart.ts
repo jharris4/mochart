@@ -553,7 +553,7 @@ export class EditableChart extends LightElement {
     if (!this.showChartCountControls) {
       return nothing;
     }
-    return html`<div class="btn-group">
+    return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
         { id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: this.chartCount === 2, tooltipText: this.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow, tooltipPlacement: 'right', onClick: this.onChartCountToggle, ariaLabel: demoText.editableChart.secondChart.aria },
         icon({ size: 'lg', fixedWidth: true, name: this.chartCount === 2 ? 'window-maximize' : 'window-restore' })
@@ -562,7 +562,7 @@ export class EditableChart extends LightElement {
   }
 
   private renderModeToggle(): unknown {
-    return html`<div class="btn-group">
+    return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
         { id: 'edit-mode', label: this.selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups, tooltipText: this.selectionMode === 'group' ? demoText.editableChart.editMode.tooltipToSeries : demoText.editableChart.editMode.tooltipToGroups, tooltipPlacement: 'right', onClick: this.onModeToggle, ariaLabel: demoText.editableChart.editMode.aria },
         icon({ size: 'lg', fixedWidth: true, name: this.selectionMode === 'group' ? 'bullseye' : 'sliders' })
@@ -585,12 +585,12 @@ export class EditableChart extends LightElement {
   private renderGroupControls(error: boolean, disableAdd: boolean, disableRemove: boolean): unknown {
     return html`<div class="chart-controls-container">
       <div class="chart-controls-buttons">
-        <form class="form-inline">
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
+        <form class="demo-form-row">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
-              <div class="btn-group">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-reset-groups', disabled: error || this.sequencePlaying, label: demoText.editableChart.resetGroups.label, tooltipText: demoText.editableChart.resetGroups.tooltip, tooltipPlacement: 'right', onClick: this.resetGroups, ariaLabel: demoText.editableChart.resetGroups.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
@@ -629,8 +629,8 @@ export class EditableChart extends LightElement {
         </form>
       </div>
       <span class="chart-controls-input">
-        <form class="form-inline">
-          <input type="text" class="form-control" ?disabled=${error || this.sequencePlaying} .value=${this.groupValuesText}
+        <form class="demo-form-row">
+          <input type="text" class="demo-input" ?disabled=${error || this.sequencePlaying} .value=${this.groupValuesText}
                  @input=${(event: Event) => { this.groupValuesText = (event.currentTarget as HTMLInputElement).value; }} />
         </form>
       </span>
@@ -648,16 +648,16 @@ export class EditableChart extends LightElement {
     const hasNextSeries = this.seriesIndex < this.mochartDemoConfig.seriesCount - 1;
     return html`<div class="chart-controls-container">
       <div class="chart-controls-buttons">
-        <form class="form-inline">
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
+        <form class="demo-form-row">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
             </div>
           </div>
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-group-decrease', disabled: error || groupOrderControlsDisabled || isFirstGroup, tooltipText: demoText.editableChart.decreaseGroupOrder.tooltip, tooltipPlacement: 'right', onClick: this.decreaseGroupOrder, ariaLabel: demoText.editableChart.decreaseGroupOrder.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-left' })
@@ -665,12 +665,12 @@ export class EditableChart extends LightElement {
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">${demoText.editableChart.groupIndexPrefix + this.groupIndex}</span>
+          <div class="demo-field">
+            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">${demoText.editableChart.groupIndexPrefix + this.groupIndex}</span>
           </div>
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-group-increase', disabled: error || groupOrderControlsDisabled || isLastGroup, tooltipText: demoText.editableChart.increaseGroupOrder.tooltip, tooltipPlacement: 'right', onClick: this.increaseGroupOrder, ariaLabel: demoText.editableChart.increaseGroupOrder.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-right' })
@@ -678,9 +678,9 @@ export class EditableChart extends LightElement {
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-previous-series', disabled: error || seriesControlsDisabled || !hasPrevSeries, tooltipText: demoText.editableChart.previousSeries.tooltip, tooltipPlacement: 'right', onClick: this.prevSeries, ariaLabel: demoText.editableChart.previousSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-down' })
@@ -688,18 +688,18 @@ export class EditableChart extends LightElement {
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">${demoText.editableChart.seriesIndexPrefix + this.seriesIndex}</span>
+          <div class="demo-field">
+            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">${demoText.editableChart.seriesIndexPrefix + this.seriesIndex}</span>
           </div>
-          <div class="form-group">
-            <div class="btn-toolbar" role="toolbar">
-              <div class="btn-group">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-next-series', disabled: error || seriesControlsDisabled || !hasNextSeries, tooltipText: demoText.editableChart.nextSeries.tooltip, tooltipPlacement: 'right', onClick: this.nextSeries, ariaLabel: demoText.editableChart.nextSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-up' })
                 )}
               </div>
-              <div class="btn-group">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-reset-series', disabled: error || seriesControlsDisabled, label: demoText.editableChart.resetSeries.label, tooltipText: demoText.editableChart.resetSeries.tooltip, tooltipPlacement: 'right', onClick: this.resetSeriesChanges, ariaLabel: demoText.editableChart.resetSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
@@ -714,8 +714,8 @@ export class EditableChart extends LightElement {
         </form>
       </div>
       <span class="chart-controls-input">
-        <form class="form-inline">
-          <input type="text" class="form-control" ?disabled=${error || seriesControlsDisabled} .value=${this.seriesValuesText}
+        <form class="demo-form-row">
+          <input type="text" class="demo-input" ?disabled=${error || seriesControlsDisabled} .value=${this.seriesValuesText}
                  @input=${(event: Event) => { this.seriesValuesText = (event.currentTarget as HTMLInputElement).value; }} />
         </form>
       </span>

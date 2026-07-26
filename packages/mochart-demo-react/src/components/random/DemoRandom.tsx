@@ -10,7 +10,7 @@ import RandomMochartChartTab from './RandomChartTab';
 import RandomMochartConfigTab from './RandomConfigTab';
 import RandomMochartDataTab from './RandomDataTab';
 import ErrorTab from '../misc/ErrorTab';
-import { ModeSwitcher, SiteRootButton, BackToDemosButton } from '../misc/ModeSwitcher';
+import { ModeSwitcher, SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
 
 import type {
   DemoData, DemoTabProps, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue
@@ -66,25 +66,28 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
         <div className="mochart-demo-nav-group">
           <SiteRootButton siteRootUrl={siteRootUrl} />
           <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <ul className="nav nav-tabs">
-            <li className="nav-item">
-              <button type="button" className={"nav-link" + (activeKey === eventKeyChart ? " active" : "")} onClick={() => { handleSelect(eventKeyChart); }}>
+          <ul className="demo-tabs">
+            <li className="demo-tab-item">
+              <button type="button" className={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")} onClick={() => { handleSelect(eventKeyChart); }}>
                 {demoText.tabs.chart}
               </button>
             </li>
-            <li className="nav-item">
-              <button type="button" className={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
+            <li className="demo-tab-item">
+              <button type="button" className={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
                 {demoText.tabs.randomConfig}
               </button>
             </li>
-            <li className="nav-item">
-              <button type="button" className={"nav-link" + (activeKey === eventKeyData ? " active" : "")} onClick={() => { handleSelect(eventKeyData); }}>
+            <li className="demo-tab-item">
+              <button type="button" className={"demo-tab" + (activeKey === eventKeyData ? " active" : "")} onClick={() => { handleSelect(eventKeyData); }}>
                 {demoText.tabs.data}
               </button>
             </li>
           </ul>
         </div>
-        <ModeSwitcher demoMode="random" onModeChanged={onModeChanged} />
+        <div className="mochart-demo-nav-group">
+          <ModeSwitcher demoMode="random" onModeChanged={onModeChanged} />
+          <ThemeToggleButton />
+        </div>
       </div>
       <div className="mochart-demo-content-pane">
         <RandomMochartDemoContent mochartDemoConfig={mochartDemoConfig} initialRandomConfig={randomConfig}

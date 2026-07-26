@@ -1,7 +1,6 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/solid.min.css';
-import './demo.css';
+import '@mochart/demo-common/demo.css';
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { APP_BASE_HREF } from '@angular/common';

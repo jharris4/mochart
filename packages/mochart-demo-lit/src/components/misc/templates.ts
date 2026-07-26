@@ -56,7 +56,7 @@ export function buttonWithTooltip(
   children: unknown
 ): TemplateResult {
   return html`<span class="button-with-tooltip">
-    <button id=${id} type="button" class=${`btn btn-${color}` + (pressed ? ' active' : '')} ?disabled=${disabled}
+    <button id=${id} type="button" class=${`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')} ?disabled=${disabled}
             title=${tooltipText ?? nothing} aria-label=${ariaLabel ?? nothing}
             aria-pressed=${pressed === void 0 ? nothing : String(pressed)} @click=${() => onClick()}>
       ${children}${label ? html`<span class="btn-label">${label}</span>` : nothing}

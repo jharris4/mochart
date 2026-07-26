@@ -7,6 +7,7 @@
   import BackToDemosButton from '../misc/BackToDemosButton.svelte';
   import ModeSwitcher from '../misc/ModeSwitcher.svelte';
   import SiteRootButton from '../misc/SiteRootButton.svelte';
+  import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
 
   import type { DemoData } from '../../types';
 
@@ -40,15 +41,18 @@
     <div class="mochart-demo-nav-group">
       <SiteRootButton {siteRootUrl} />
       <BackToDemosButton {onBackToDemos} />
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <button type="button" class="nav-link active">
+      <ul class="demo-tabs">
+        <li class="demo-tab-item">
+          <button type="button" class="demo-tab active">
             {demoText.tabs.chart}
           </button>
         </li>
       </ul>
     </div>
-    <ModeSwitcher demoMode="multi" {onModeChanged} />
+    <div class="mochart-demo-nav-group">
+      <ModeSwitcher demoMode="multi" {onModeChanged} />
+      <ThemeToggleButton />
+    </div>
   </div>
   <div class="mochart-demo-content-pane">
     <div class="mochart-demo-content">

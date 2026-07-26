@@ -30,7 +30,7 @@
   });
 </script>
 
-<div class={"mochart-demo-tab-container col data" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")}>
   <div class="mochart-demo-tab-content">
     <TextAreaContent value={dataText} onChange={() => {}} />
   </div>

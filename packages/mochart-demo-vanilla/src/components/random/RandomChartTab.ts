@@ -67,7 +67,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   }
 
   const rateInput = el('input', {
-    id: 'random-rate', className: 'form-control',
+    id: 'random-rate', className: 'demo-input',
     attrs: { type: 'number', min: '5', max: '60000', step: '100', 'aria-label': demoText.randomChartTab.intervalAria }
   });
   rateInput.value = '' + (props.initialRate ?? defaultRate);
@@ -121,21 +121,21 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   });
 
   const container = el('div', {
-    className: 'mochart-demo-tab-container col chart' + (active ? ' active' : '')
+    className: 'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')
   }, [
     chartSizer,
     el('div', { className: 'random-controls' }, [
-      el('form', { className: 'form-inline' }, [
-        el('div', { className: 'form-group' }, [
-          el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-            el('div', { className: 'btn-group' }, [backButton.el, nextButton.el, playButton.el, stopButton.el]),
-            el('div', { className: 'form-group' }, [
-              el('label', { className: 'form-control-plaintext', attrs: { for: 'random-rate' }, text: demoText.randomChartTab.intervalLabel }),
+      el('form', { className: 'demo-form-row' }, [
+        el('div', { className: 'demo-field' }, [
+          el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+            el('div', { className: 'demo-btn-group' }, [backButton.el, nextButton.el, playButton.el, stopButton.el]),
+            el('div', { className: 'demo-field' }, [
+              el('label', { className: 'demo-label', attrs: { for: 'random-rate' }, text: demoText.randomChartTab.intervalLabel }),
               rateInput
             ])
           ]),
-          el('div', { className: 'btn-toolbar ml-2', attrs: { role: 'toolbar' } }, [
-            el('div', { className: 'btn-group' }, [reuseButton.el]),
+          el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+            el('div', { className: 'demo-btn-group' }, [reuseButton.el]),
             menu.el
           ])
         ])

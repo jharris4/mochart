@@ -34,7 +34,7 @@
 </script>
 
 <span class="button-with-tooltip">
-  <button {id} type="button" class={`btn btn-${color}` + (pressed ? ' active' : '')} {disabled} title={tooltipText}
+  <button {id} type="button" class={`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')} {disabled} title={tooltipText}
           aria-pressed={pressed === void 0 ? void 0 : pressed} onclick={onClick} {...rest}>
     {@render children()}{#if label}<span class="btn-label">{label}</span>{/if}
   </button>

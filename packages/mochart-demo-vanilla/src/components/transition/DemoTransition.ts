@@ -2,7 +2,7 @@
 import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
-import { backToDemosButton, siteRootButton } from '../misc/ModeSwitcher';
+import { backToDemosButton, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
 import { transitionChartTab } from './TransitionChartTab';
 import { transitionConfigTab } from './TransitionConfigTab';
 
@@ -54,12 +54,12 @@ export function demoTransition(props: DemoTransitionProps): DemoTransitionHandle
 
   function navItem(text: string, key: number): { li: HTMLLIElement; button: HTMLButtonElement } {
     const button = el('button', {
-      className: 'nav-link' + (activeKey === key ? ' active' : ''),
+      className: 'demo-tab' + (activeKey === key ? ' active' : ''),
       attrs: { type: 'button' },
       text
     });
     button.addEventListener('click', () => handleSelect(key));
-    return { li: el('li', { className: 'nav-item' }, [button]), button };
+    return { li: el('li', { className: 'demo-tab-item' }, [button]), button };
   }
 
   const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
@@ -70,8 +70,9 @@ export function demoTransition(props: DemoTransitionProps): DemoTransitionHandle
       el('div', { className: 'mochart-demo-nav-group' }, [
         siteRootButton(props.siteRootUrl),
         backToDemosButton(props.onBackToDemos),
-        el('ul', { className: 'nav nav-tabs' }, [chartNav.li, configNav.li])
-      ])
+        el('ul', { className: 'demo-tabs' }, [chartNav.li, configNav.li])
+      ]),
+      themeToggleButton()
     ]),
     el('div', { className: 'mochart-demo-content-pane' }, [
       el('div', { className: 'mochart-demo-content' }, [chart.el, config.el])

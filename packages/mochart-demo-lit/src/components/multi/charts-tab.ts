@@ -241,7 +241,7 @@ export class ChartsTab extends LightElement {
   override render(): unknown {
     const chartWidth = Math.floor((this.size.width - scrollWidthOffset) / this.chartCols);
     const chartHeight = Math.floor(this.size.height / this.chartRows);
-    return html`<div class=${'mochart-demo-tab-container col chart' + (this.active ? ' active' : '')}>
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')}>
       <div ${ref(this.size.attach)} class="multi-charts-sizer">
         ${this.size.width > 0
           ? html`<div class="multi-charts">

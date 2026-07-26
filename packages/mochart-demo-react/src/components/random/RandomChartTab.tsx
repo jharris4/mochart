@@ -96,17 +96,17 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
   });
 
   return (
-    <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
       <div className="random-chart-sizer" ref={chartSizerRef}>
         {/* Chart self-measures when width/height are omitted. */}
         <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}
           mochartConfig={mochartConfig} dataProvider={dataProvider} />
       </div>
       <div className="random-controls">
-        <form className="form-inline">
-          <div className="form-group">
-            <div className="btn-toolbar" role="toolbar">
-              <div className="btn-group">
+        <form className="demo-form-row">
+          <div className="demo-field">
+            <div className="demo-toolbar" role="toolbar">
+              <div className="demo-btn-group">
                 <ButtonWithTooltip id="randomize-back" disabled={playing} label={demoText.randomChartTab.back.label}
                   tooltipText={demoText.randomChartTab.back.tooltip} tooltipPlacement="top-start"
                   onClick={onRandomizeBack} aria-label={demoText.randomChartTab.back.aria}>
@@ -126,14 +126,14 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
                   <Icon size="lg" fixedWidth={true} name="stop" />
                 </ButtonWithTooltip>
               </div>
-              <div className="form-group">
-                <label className="form-control-plaintext" htmlFor="random-rate">{demoText.randomChartTab.intervalLabel}</label>
-                <input id="random-rate" className="form-control" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
+              <div className="demo-field">
+                <label className="demo-label" htmlFor="random-rate">{demoText.randomChartTab.intervalLabel}</label>
+                <input id="random-rate" className="demo-input" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
                   onChange={rateChanged} aria-label={demoText.randomChartTab.intervalAria} />
               </div>
             </div>
-            <div className="btn-toolbar ml-2" role="toolbar">
-              <div className="btn-group">
+            <div className="demo-toolbar" role="toolbar">
+              <div className="demo-btn-group">
                 <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
                   tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
                   onClick={toggleApplyReuse} aria-label={demoText.randomChartTab.reuse.aria}>

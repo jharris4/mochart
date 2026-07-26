@@ -6,7 +6,8 @@
   "type": "module",
   "license": "BSD-3-Clause",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./demo.css": "./css/demo.css"
   },
   "dependencies": {
     "@mochart/core": "^1.0.0",

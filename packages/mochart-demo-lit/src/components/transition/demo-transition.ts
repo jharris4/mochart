@@ -5,6 +5,7 @@ import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitio
 
 import { LightElement } from '../misc/LightElement';
 import { backToDemosButton, siteRootButton } from '../misc/mode-switcher';
+import '../misc/theme-toggle-button';
 import './transition-chart-tab';
 import './transition-config-tab';
 
@@ -45,17 +46,18 @@ export class DemoTransition extends LightElement {
         <div class="mochart-demo-nav-group">
           ${siteRootButton(this.siteRootUrl)}
           ${backToDemosButton(this.onBackToDemos)}
-          <ul class="nav nav-tabs">
-            <li class="nav-item">
-              <button type="button" class=${'nav-link' + (this.activeKey === eventKeyChart ? ' active' : '')}
+          <ul class="demo-tabs">
+            <li class="demo-tab-item">
+              <button type="button" class=${'demo-tab' + (this.activeKey === eventKeyChart ? ' active' : '')}
                       @click=${() => this.handleSelect(eventKeyChart)}>${demoText.tabs.chart}</button>
             </li>
-            <li class="nav-item">
-              <button type="button" class=${'nav-link' + (this.activeKey === eventKeyConfig ? ' active' : '')}
+            <li class="demo-tab-item">
+              <button type="button" class=${'demo-tab' + (this.activeKey === eventKeyConfig ? ' active' : '')}
                       @click=${() => this.handleSelect(eventKeyConfig)}>${demoText.tabs.transitionConfig}</button>
             </li>
           </ul>
         </div>
+        <theme-toggle-button></theme-toggle-button>
       </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">

@@ -131,25 +131,25 @@ function onShare() {
 </script>
 
 <template>
-  <div ref="rootElement" class="btn-group dropup mochart-export-share-menu">
+  <div ref="rootElement" class="demo-btn-group demo-menu-up mochart-export-share-menu">
     <button :id="props.idPrefix + '-export-share'" ref="triggerElement" type="button"
-            :class="'btn btn-secondary dropdown-toggle' + (open ? ' active' : '')"
+            :class="'demo-btn demo-btn-secondary demo-menu-trigger' + (open ? ' active' : '')"
             :disabled="props.disabled" aria-haspopup="true" :aria-expanded="open"
             :title="demoText.exportShareMenu.trigger.tooltip" :aria-label="demoText.exportShareMenu.trigger.aria"
             @click="toggle">
       <Icon size="lg" :fixed-width="true" name="share-nodes" />
     </button>
-    <div :class="'dropdown-menu' + (menuOpen ? ' show' : '')"
+    <div :class="'demo-menu' + (menuOpen ? ' open' : '')"
          :style="menuOpen && coords ? { position: 'fixed', bottom: coords.bottom + 'px', right: coords.right + 'px', margin: '0', zIndex: 1080 } : void 0">
-      <button type="button" class="dropdown-item" :aria-label="demoText.exportButtons.png.aria" @click="runAndClose(props.exportPng)">
+      <button type="button" class="demo-menu-item" :aria-label="demoText.exportButtons.png.aria" @click="runAndClose(props.exportPng)">
         <Icon :fixed-width="true" name="file-image" /> <span class="mochart-menu-item-label">{{ demoText.exportButtons.png.label }}</span>
       </button>
-      <button type="button" class="dropdown-item" :aria-label="demoText.exportButtons.svg.aria" @click="runAndClose(props.exportSvg)">
+      <button type="button" class="demo-menu-item" :aria-label="demoText.exportButtons.svg.aria" @click="runAndClose(props.exportSvg)">
         <Icon :fixed-width="true" name="file-code" /> <span class="mochart-menu-item-label">{{ demoText.exportButtons.svg.label }}</span>
       </button>
       <template v-if="props.getShareState">
-        <div class="dropdown-divider"></div>
-        <button type="button" class="dropdown-item" :aria-label="demoText.shareButton.aria" @click="onShare">
+        <div class="demo-menu-divider"></div>
+        <button type="button" class="demo-menu-item" :aria-label="demoText.shareButton.aria" @click="onShare">
           <Icon :fixed-width="true" :name="copied ? 'check' : 'link'" /> <span class="mochart-menu-item-label">{{ copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label }}</span>
         </button>
       </template>

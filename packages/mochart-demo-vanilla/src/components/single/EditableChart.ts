@@ -598,8 +598,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   });
   const menuSpan = el('span', { className: 'chart-controls-menu' }, [exportShareMenuHandle.el]);
   const commonControls = [
-    ...(chartCountButton ? [el('div', { className: 'btn-group' }, [chartCountButton.el])] : []),
-    el('div', { className: 'btn-group' }, [modeButton.el])
+    ...(chartCountButton ? [el('div', { className: 'demo-btn-group' }, [chartCountButton.el])] : []),
+    el('div', { className: 'demo-btn-group' }, [modeButton.el])
   ];
 
   // Group-mode panel
@@ -652,26 +652,26 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     content: [icon('check-double', { size: 'lg', fixedWidth: true })]
   });
 
-  const groupInput = el('input', { className: 'form-control', attrs: { type: 'text' } });
+  const groupInput = el('input', { className: 'demo-input', attrs: { type: 'text' } });
   groupInput.addEventListener('input', () => {
     groupValuesText = groupInput.value;
     sync();
   });
 
-  const groupToolbar = el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-    el('div', { className: 'btn-group' }, [
+  const groupToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+    el('div', { className: 'demo-btn-group' }, [
       resetGroupsButton.el, reverseGroupsButton.el, addGroupsButton.el, removeGroupsButton.el,
       playAddButton.el, playRemoveButton.el, stopButton.el, selectAllButton.el
     ])
   ]);
   const groupPanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [
-      el('form', { className: 'form-inline' }, [
-        el('div', { className: 'form-group' }, [groupToolbar])
+      el('form', { className: 'demo-form-row' }, [
+        el('div', { className: 'demo-field' }, [groupToolbar])
       ])
     ]),
     el('span', { className: 'chart-controls-input' }, [
-      el('form', { className: 'form-inline' }, [groupInput])
+      el('form', { className: 'demo-form-row' }, [groupInput])
     ])
   ]);
 
@@ -713,47 +713,47 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });
 
-  const groupIndexLabel = el('span', { className: 'form-control-plaintext', style: 'margin-left: 5px; margin-right: 5px;' });
-  const seriesIndexLabel = el('span', { className: 'form-control-plaintext', style: 'margin-left: 5px; margin-right: 5px;' });
+  const groupIndexLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' });
+  const seriesIndexLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' });
 
-  const seriesInput = el('input', { className: 'form-control', attrs: { type: 'text' } });
+  const seriesInput = el('input', { className: 'demo-input', attrs: { type: 'text' } });
   seriesInput.addEventListener('input', () => {
     seriesValuesText = seriesInput.value;
     sync();
   });
 
-  const seriesForm = el('form', { className: 'form-inline' }, [
-    el('div', { className: 'form-group' }, [
-      el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'btn-group' }, [groupDecreaseButton.el])
+  const seriesForm = el('form', { className: 'demo-form-row' }, [
+    el('div', { className: 'demo-field' }, [
+      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+        el('div', { className: 'demo-btn-group' }, [groupDecreaseButton.el])
       ])
     ]),
-    el('div', { className: 'form-group' }, [groupIndexLabel]),
-    el('div', { className: 'form-group' }, [
-      el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'btn-group' }, [groupIncreaseButton.el])
+    el('div', { className: 'demo-field' }, [groupIndexLabel]),
+    el('div', { className: 'demo-field' }, [
+      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+        el('div', { className: 'demo-btn-group' }, [groupIncreaseButton.el])
       ])
     ]),
-    el('div', { className: 'form-group' }, [
-      el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'btn-group' }, [previousSeriesButton.el])
+    el('div', { className: 'demo-field' }, [
+      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+        el('div', { className: 'demo-btn-group' }, [previousSeriesButton.el])
       ])
     ]),
-    el('div', { className: 'form-group' }, [seriesIndexLabel]),
-    el('div', { className: 'form-group' }, [
-      el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'btn-group' }, [nextSeriesButton.el]),
-        el('div', { className: 'btn-group' }, [resetSeriesButton.el, applySeriesButton.el])
+    el('div', { className: 'demo-field' }, [seriesIndexLabel]),
+    el('div', { className: 'demo-field' }, [
+      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+        el('div', { className: 'demo-btn-group' }, [nextSeriesButton.el]),
+        el('div', { className: 'demo-btn-group' }, [resetSeriesButton.el, applySeriesButton.el])
       ])
     ])
   ]);
-  const seriesCommonToolbar = el('div', { className: 'btn-toolbar', attrs: { role: 'toolbar' } });
-  seriesForm.prepend(el('div', { className: 'form-group' }, [seriesCommonToolbar]));
+  const seriesCommonToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
+  seriesForm.prepend(el('div', { className: 'demo-field' }, [seriesCommonToolbar]));
 
   const seriesPanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [seriesForm]),
     el('span', { className: 'chart-controls-input' }, [
-      el('form', { className: 'form-inline' }, [seriesInput])
+      el('form', { className: 'demo-form-row' }, [seriesInput])
     ])
   ]);
 

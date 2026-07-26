@@ -6,7 +6,7 @@ import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTrans
 
 import TransitionMochartChartTab from './TransitionChartTab';
 import TransitionMochartConfigTab from './TransitionConfigTab';
-import { SiteRootButton, BackToDemosButton } from '../misc/ModeSwitcher';
+import { SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
 
 import type { TransitionConfig, ChartDataProviderLike, OnBackToDemos } from '../../types';
 
@@ -29,19 +29,20 @@ export default function MochartDemoTransition({ siteRootUrl, onBackToDemos }: De
         <div className="mochart-demo-nav-group">
           <SiteRootButton siteRootUrl={siteRootUrl} />
           <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <ul className="nav nav-tabs">
-            <li className="nav-item">
-              <button type="button" className={"nav-link" + (activeKey === eventKeyChart ? " active" : "")} onClick={() => { handleSelect(eventKeyChart); }}>
+          <ul className="demo-tabs">
+            <li className="demo-tab-item">
+              <button type="button" className={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")} onClick={() => { handleSelect(eventKeyChart); }}>
                 {demoText.tabs.chart}
               </button>
             </li>
-            <li className="nav-item">
-              <button type="button" className={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
+            <li className="demo-tab-item">
+              <button type="button" className={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
                 {demoText.tabs.transitionConfig}
               </button>
             </li>
           </ul>
         </div>
+        <ThemeToggleButton />
       </div>
       <div className="mochart-demo-content-pane">
         <TransitionMochartDemoContent activeKey={activeKey} />

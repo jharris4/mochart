@@ -5,6 +5,7 @@ import { defaultChart } from '@mochart/lit';
 
 import { LightElement } from '../misc/LightElement';
 import { backToDemosButton, siteRootButton } from '../misc/mode-switcher';
+import '../misc/theme-toggle-button';
 
 import { configs, data, minWidth } from './rotationConfigs';
 
@@ -46,6 +47,7 @@ export class DemoRotation extends LightElement {
           ${siteRootButton(this.siteRootUrl)}
           ${backToDemosButton(this.onBackToDemos)}
         </div>
+        <theme-toggle-button></theme-toggle-button>
       </div>
       <div class="rotation-charts">
         ${colWidth > 0 ? configs.map((config, i) => html`<div

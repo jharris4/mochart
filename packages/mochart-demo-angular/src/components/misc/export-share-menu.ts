@@ -26,31 +26,31 @@ const menuGap = 4;
   imports: [Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div #root class="btn-group dropup mochart-export-share-menu">
+    <div #root class="demo-btn-group demo-menu-up mochart-export-share-menu">
       <button [id]="idPrefix + '-export-share'" type="button" #trigger
-              [class]="'btn btn-secondary dropdown-toggle' + (open() ? ' active' : '')"
+              [class]="'demo-btn demo-btn-secondary demo-menu-trigger' + (open() ? ' active' : '')"
               [disabled]="disabled" aria-haspopup="true" [attr.aria-expanded]="open()"
               [attr.title]="text.trigger.tooltip" [attr.aria-label]="text.trigger.aria"
               (click)="toggle()">
         <app-icon size="lg" [fixedWidth]="true" name="share-nodes" />
       </button>
-      <div [class]="'dropdown-menu' + (menuOpen() ? ' show' : '')"
+      <div [class]="'demo-menu' + (menuOpen() ? ' open' : '')"
            [style.position]="menuOpen() ? 'fixed' : null"
            [style.bottom.px]="menuOpen() ? coords()!.bottom : null"
            [style.right.px]="menuOpen() ? coords()!.right : null"
            [style.margin]="menuOpen() ? '0' : null"
            [style.z-index]="menuOpen() ? 1080 : null">
-        <button type="button" class="dropdown-item" (click)="runAndClose(exportPng)"
+        <button type="button" class="demo-menu-item" (click)="runAndClose(exportPng)"
                 [attr.aria-label]="exportText.png.aria">
           <app-icon [fixedWidth]="true" name="file-image" /> <span class="mochart-menu-item-label">{{ exportText.png.label }}</span>
         </button>
-        <button type="button" class="dropdown-item" (click)="runAndClose(exportSvg)"
+        <button type="button" class="demo-menu-item" (click)="runAndClose(exportSvg)"
                 [attr.aria-label]="exportText.svg.aria">
           <app-icon [fixedWidth]="true" name="file-code" /> <span class="mochart-menu-item-label">{{ exportText.svg.label }}</span>
         </button>
         @if (getShareState) {
-          <div class="dropdown-divider"></div>
-          <button type="button" class="dropdown-item" (click)="onShare()"
+          <div class="demo-menu-divider"></div>
+          <button type="button" class="demo-menu-item" (click)="onShare()"
                   [attr.aria-label]="shareText.aria">
             <app-icon [fixedWidth]="true" [name]="copied() ? 'check' : 'link'" /> <span class="mochart-menu-item-label">{{ copied() ? shareText.tooltipCopied : shareText.label }}</span>
           </button>

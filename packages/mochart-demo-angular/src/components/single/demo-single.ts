@@ -7,7 +7,7 @@ import { ChartTab } from './chart-tab';
 import { ConfigTab } from './config-tab';
 import { DataTab } from './data-tab';
 import { ErrorTab } from '../misc/error-tab';
-import { BackToDemosButton, ModeSwitcher, SiteRootButton } from '../misc/mode-switcher';
+import { BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
 
 import type { DemoData, DemoConfig, DataRow, SwitchableDemoMode } from '../../types';
 
@@ -19,7 +19,7 @@ const eventKeyData = 3;
 
 @Component({
   selector: 'app-demo-single',
-  imports: [ChartTab, ConfigTab, DataTab, ErrorTab, BackToDemosButton, ModeSwitcher, SiteRootButton],
+  imports: [ChartTab, ConfigTab, DataTab, ErrorTab, BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container">
@@ -29,29 +29,32 @@ const eventKeyData = 3;
             <a appSiteRootButton [href]="siteRootUrl"></a>
           }
           <button appBackToDemosButton (click)="onBackToDemos()"></button>
-          <ul class="nav nav-tabs">
-            <li class="nav-item">
-              <button type="button" [class]="'nav-link' + (activeKey() === eventKeyChart ? ' active' : '')"
+          <ul class="demo-tabs">
+            <li class="demo-tab-item">
+              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyChart ? ' active' : '')"
                       [attr.title]="hasPendingChanges ? text.chartPendingTitle : null"
                       (click)="handleSelect(eventKeyChart)">
                 {{ text.chart }}@if (hasPendingChanges) {<span class="mochart-pending-badge" aria-hidden="true"></span>}
               </button>
             </li>
-            <li class="nav-item">
-              <button type="button" [class]="'nav-link' + (activeKey() === eventKeyConfig ? ' active' : '')"
+            <li class="demo-tab-item">
+              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyConfig ? ' active' : '')"
                       (click)="handleSelect(eventKeyConfig)">
                 {{ text.config }}
               </button>
             </li>
-            <li class="nav-item">
-              <button type="button" [class]="'nav-link' + (activeKey() === eventKeyData ? ' active' : '')"
+            <li class="demo-tab-item">
+              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyData ? ' active' : '')"
                       (click)="handleSelect(eventKeyData)">
                 {{ text.data }}
               </button>
             </li>
           </ul>
         </div>
-        <app-mode-switcher [demoMode]="'single'" [onModeChanged]="onModeChanged" />
+        <div class="mochart-demo-nav-group">
+          <app-mode-switcher [demoMode]="'single'" [onModeChanged]="onModeChanged" />
+          <button appThemeToggleButton></button>
+        </div>
       </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">

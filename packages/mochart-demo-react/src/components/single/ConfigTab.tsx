@@ -115,12 +115,12 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   const footerError = jsonError ?? errorMessage;
 
   return (
-    <div className={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")}>
       <div className="mochart-demo-tab-content">
         <TextAreaContent value={configText} onChange={(text: string) => { setState(prev => ({ ...prev, configText: text })); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
-        <div className="btn-toolbar" role="toolbar">
+        <div className="demo-toolbar" role="toolbar">
           <ButtonWithTooltip id="config-reset" label={demoText.configTab.reset.label} tooltipText={demoText.configTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={resetConfig} aria-label={demoText.configTab.reset.aria}>
             <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

@@ -81,16 +81,16 @@ export class ChartsControls extends LightElement {
 
   override render(): unknown {
     return html`<div class="multi-controls">
-      <form class="form-inline">
-        <div class="form-group">
-          <label class="form-control-plaintext" for="grid-rows">${demoText.multiChartsTab.gridLabel}</label>
-          <input id="grid-rows" ?disabled=${this.playing} type="number" min="1" max="4" class="form-control" .value=${'' + this.rowsText} aria-label=${demoText.multiChartsTab.gridRowsAria} @input=${this.rowsChanged} />
-          <span class="form-control-plaintext">&times;</span>
-          <input id="grid-cols" ?disabled=${this.playing} type="number" min="1" max="4" class="form-control" .value=${'' + this.colsText} aria-label=${demoText.multiChartsTab.gridColsAria} @input=${this.colsChanged} />
+      <form class="demo-form-row">
+        <div class="demo-field">
+          <label class="demo-label" for="grid-rows">${demoText.multiChartsTab.gridLabel}</label>
+          <input id="grid-rows" ?disabled=${this.playing} type="number" min="1" max="4" class="demo-input" .value=${'' + this.rowsText} aria-label=${demoText.multiChartsTab.gridRowsAria} @input=${this.rowsChanged} />
+          <span class="demo-label">&times;</span>
+          <input id="grid-cols" ?disabled=${this.playing} type="number" min="1" max="4" class="demo-input" .value=${'' + this.colsText} aria-label=${demoText.multiChartsTab.gridColsAria} @input=${this.colsChanged} />
         </div>
-        <div class="form-group">
-          <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group">
+        <div class="demo-field">
+          <div class="demo-toolbar" role="toolbar">
+            <div class="demo-btn-group">
               ${buttonWithTooltip(
                 { id: 'step-back', disabled: this.playing, tooltipText: demoText.multiChartsTab.stepBackward.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepBackwardClick, ariaLabel: demoText.multiChartsTab.stepBackward.aria },
                 icon({ size: 'lg', fixedWidth: true, name: 'backward-step' })
@@ -114,12 +114,12 @@ export class ChartsControls extends LightElement {
             </div>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-control-plaintext" for="multi-rate">${demoText.multiChartsTab.intervalLabel}</label>
-          <input id="multi-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="form-control" .value=${'' + this.rateText} aria-label=${demoText.multiChartsTab.intervalAria} @input=${this.rateChanged} />
+        <div class="demo-field">
+          <label class="demo-label" for="multi-rate">${demoText.multiChartsTab.intervalLabel}</label>
+          <input id="multi-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="demo-input" .value=${'' + this.rateText} aria-label=${demoText.multiChartsTab.intervalAria} @input=${this.rateChanged} />
         </div>
-        <div class="form-group">
-          <div class="btn-toolbar" role="toolbar">
+        <div class="demo-field">
+          <div class="demo-toolbar" role="toolbar">
             <export-share-menu .idPrefix=${'multi'} .exportPng=${this.exportPng} .exportSvg=${this.exportSvg} .getShareState=${this.getShareState}></export-share-menu>
           </div>
         </div>

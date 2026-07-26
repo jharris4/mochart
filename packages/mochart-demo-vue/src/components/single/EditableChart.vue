@@ -606,17 +606,17 @@ function getSingleShareState(): ShareState {
       <div class="editable-chart-controls">
         <div v-if="selectionMode === 'group'" class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="form-inline">
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div v-if="props.showChartCountControls" class="btn-group">
+            <form class="demo-form-row">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div v-if="props.showChartCountControls" class="demo-btn-group">
                     <ButtonWithTooltip id="edit-chart-count" :label="demoText.editableChart.secondChart.label" :pressed="props.chartCount === 2"
                                        :tooltip-text="props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow" tooltip-placement="right"
                                        :on-click="props.onChartCountToggle" :aria-label="demoText.editableChart.secondChart.aria">
                       <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="btn-group">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups"
                                        :tooltip-text="selectionMode === 'group'
                                          ? demoText.editableChart.editMode.tooltipToSeries
@@ -625,7 +625,7 @@ function getSingleShareState(): ShareState {
                       <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="btn-group">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" :label="demoText.editableChart.resetGroups.label" :tooltip-text="demoText.editableChart.resetGroups.tooltip" tooltip-placement="right"
                                        :on-click="resetGroups" :aria-label="demoText.editableChart.resetGroups.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
@@ -664,8 +664,8 @@ function getSingleShareState(): ShareState {
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="form-inline">
-              <input type="text" class="form-control" :disabled="error || sequencePlaying" v-model="groupValuesText" />
+            <form class="demo-form-row">
+              <input type="text" class="demo-input" :disabled="error || sequencePlaying" v-model="groupValuesText" />
             </form>
           </span>
           <span class="chart-controls-menu">
@@ -676,17 +676,17 @@ function getSingleShareState(): ShareState {
         </div>
         <div v-else class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="form-inline">
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div v-if="props.showChartCountControls" class="btn-group">
+            <form class="demo-form-row">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div v-if="props.showChartCountControls" class="demo-btn-group">
                     <ButtonWithTooltip id="edit-chart-count" :label="demoText.editableChart.secondChart.label" :pressed="props.chartCount === 2"
                                        :tooltip-text="props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow" tooltip-placement="right"
                                        :on-click="props.onChartCountToggle" :aria-label="demoText.editableChart.secondChart.aria">
                       <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="btn-group">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups"
                                        :tooltip-text="selectionMode === 'group'
                                          ? demoText.editableChart.editMode.tooltipToSeries
@@ -697,9 +697,9 @@ function getSingleShareState(): ShareState {
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-group-decrease" :disabled="error || groupOrderControlsDisabled || isFirstGroup" :tooltip-text="demoText.editableChart.decreaseGroupOrder.tooltip" tooltip-placement="right"
                                        :on-click="decreaseGroupOrder" :aria-label="demoText.editableChart.decreaseGroupOrder.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-left" />
@@ -707,12 +707,12 @@ function getSingleShareState(): ShareState {
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ demoText.editableChart.groupIndexPrefix + groupIndex }}</span>
+              <div class="demo-field">
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ demoText.editableChart.groupIndexPrefix + groupIndex }}</span>
               </div>
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-group-increase" :disabled="error || groupOrderControlsDisabled || isLastGroup" :tooltip-text="demoText.editableChart.increaseGroupOrder.tooltip" tooltip-placement="right"
                                        :on-click="increaseGroupOrder" :aria-label="demoText.editableChart.increaseGroupOrder.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-right" />
@@ -720,9 +720,9 @@ function getSingleShareState(): ShareState {
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-previous-series" :disabled="error || seriesControlsDisabled || !hasPrevSeries" :tooltip-text="demoText.editableChart.previousSeries.tooltip" tooltip-placement="right"
                                        :on-click="prevSeries" :aria-label="demoText.editableChart.previousSeries.aria">
                       <Icon size="lg" :fixed-width="true" name="chevron-down" />
@@ -730,18 +730,18 @@ function getSingleShareState(): ShareState {
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <span class="form-control-plaintext" style="margin-left: 5px; margin-right: 5px;">{{ demoText.editableChart.seriesIndexPrefix + seriesIndex }}</span>
+              <div class="demo-field">
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ demoText.editableChart.seriesIndexPrefix + seriesIndex }}</span>
               </div>
-              <div class="form-group">
-                <div class="btn-toolbar" role="toolbar">
-                  <div class="btn-group">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-next-series" :disabled="error || seriesControlsDisabled || !hasNextSeries" :tooltip-text="demoText.editableChart.nextSeries.tooltip" tooltip-placement="right"
                                        :on-click="nextSeries" :aria-label="demoText.editableChart.nextSeries.aria">
                       <Icon size="lg" :fixed-width="true" name="chevron-up" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="btn-group">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-reset-series" :disabled="error || seriesControlsDisabled" :tooltip-text="demoText.editableChart.resetSeries.tooltip" tooltip-placement="right"
                                        :on-click="resetSeriesChanges" :aria-label="demoText.editableChart.resetSeries.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
@@ -756,8 +756,8 @@ function getSingleShareState(): ShareState {
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="form-inline">
-              <input type="text" class="form-control" :disabled="error || seriesControlsDisabled" v-model="seriesValuesText" />
+            <form class="demo-form-row">
+              <input type="text" class="demo-input" :disabled="error || seriesControlsDisabled" v-model="seriesValuesText" />
             </form>
           </span>
           <span class="chart-controls-menu">

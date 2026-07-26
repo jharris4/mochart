@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { DefaultChart } from '@mochart/react';
 
-import { SiteRootButton, BackToDemosButton } from '../misc/ModeSwitcher';
+import { SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
 
 import type { OnBackToDemos } from '../../types';
 
@@ -43,6 +43,7 @@ export default function DemoRotation({ siteRootUrl, onBackToDemos }: DemoRotatio
           <SiteRootButton siteRootUrl={siteRootUrl} />
           <BackToDemosButton onBackToDemos={onBackToDemos} />
         </div>
+        <ThemeToggleButton />
       </div>
       <div className="rotation-charts" ref={chartsRef}>
         {colWidth > 0 ? configs.map((config, i) => <DemoRotationChart key={i} data={data} config={config} i={i} cols={cols} colWidth={colWidth} />) : null}

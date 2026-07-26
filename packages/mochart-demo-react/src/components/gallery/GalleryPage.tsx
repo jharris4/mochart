@@ -4,7 +4,7 @@ import Icon from '../misc/Icon';
 import { getGallerySections } from '@mochart/demo-common';
 import type { GalleryItem, GallerySection } from '@mochart/demo-common';
 
-import { SiteRootButton } from '../misc/ModeSwitcher';
+import { SiteRootButton, ThemeToggleButton } from '../misc/ModeSwitcher';
 
 import type { DemoData } from '../../types';
 
@@ -22,7 +22,7 @@ const pageIcons: Record<'transition' | 'rotation', string> = {
 
 function GalleryListItem({ item, onOpenDemo, onOpenPage }: { item: GalleryItem } & Pick<GalleryPageProps, 'onOpenDemo' | 'onOpenPage'>) {
   return (
-    <button type="button" className="list-group-item list-group-item-action"
+    <button type="button" className="demo-list-item"
       onClick={() => {
         if (item.kind === 'demo') {
           onOpenDemo(item.id);
@@ -46,7 +46,7 @@ function GallerySectionView({ section, onOpenDemo, onOpenPage }: { section: Gall
     </>
   );
   const list = (
-    <div className="list-group">
+    <div className="demo-list">
       {section.items.map(item => (
         <GalleryListItem key={item.kind === 'demo' ? 'demo-' + item.id : 'page-' + item.mode}
           item={item} onOpenDemo={onOpenDemo} onOpenPage={onOpenPage} />
@@ -77,9 +77,10 @@ function GallerySectionView({ section, onOpenDemo, onOpenPage }: { section: Gall
 export default function GalleryPage({ demoData, siteRootUrl, onOpenDemo, onOpenPage }: GalleryPageProps) {
   return (
     <div className="mochart-demo-container">
-      {siteRootUrl !== void 0
-        ? <div className="mochart-demo-gallery-header"><SiteRootButton siteRootUrl={siteRootUrl} /></div>
-        : null}
+      <div className="mochart-demo-gallery-header">
+        <SiteRootButton siteRootUrl={siteRootUrl} />
+        <ThemeToggleButton />
+      </div>
       <div className="mochart-demo-content-pane">
         <div className="mochart-demo-gallery">
           {getGallerySections(demoData).map(section => (

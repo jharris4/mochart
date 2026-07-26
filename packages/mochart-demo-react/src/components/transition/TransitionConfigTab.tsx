@@ -48,12 +48,12 @@ export default function TransitionConfigTab({ active, transitionConfig, onUpdate
   const footerError = jsonError ?? errorMessage;
 
   return (
-    <div className={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")}>
       <div className="mochart-demo-tab-content">
         <TextAreaContent value={configText} onChange={(text: string) => { setConfigText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
-        <div className="btn-toolbar" role="toolbar">
+        <div className="demo-toolbar" role="toolbar">
           <ButtonWithTooltip id="config-reset" label={demoText.transitionConfigTab.reset.label} tooltipText={demoText.transitionConfigTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={onReset} aria-label={demoText.transitionConfigTab.reset.aria}>
             <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

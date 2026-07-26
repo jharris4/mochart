@@ -95,12 +95,12 @@ export class DataTab extends LightElement {
   override render(): unknown {
     const jsonError = getJsonError(this.dataText);
     const footerError = jsonError ?? this.errorMessage;
-    return html`<div class=${'mochart-demo-tab-container col data' + (this.active ? ' active' : '')}>
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.dataText, onChange: this.onTextChange })}
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="btn-toolbar" role="toolbar">
+        <div class="demo-toolbar" role="toolbar">
           ${buttonWithTooltip(
             { id: 'data-reset', label: demoText.dataTab.reset.label, tooltipText: demoText.dataTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: this.resetData, ariaLabel: demoText.dataTab.reset.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })

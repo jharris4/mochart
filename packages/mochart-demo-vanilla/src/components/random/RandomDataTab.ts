@@ -19,7 +19,7 @@ export function randomDataTab(props: RandomDataTabProps): RandomDataTabHandle {
   const textArea = textAreaContent(formatData(data), () => {});
 
   const container = el('div', {
-    className: 'mochart-demo-tab-container col data' + (props.active ? ' active' : '')
+    className: 'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')
   }, [
     el('div', { className: 'mochart-demo-tab-content' }, [textArea.el])
   ]);

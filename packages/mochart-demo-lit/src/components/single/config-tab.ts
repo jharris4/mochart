@@ -109,12 +109,12 @@ export class ConfigTab extends LightElement {
     const slowIcon = slow ? 'hourglass' : 'hourglass-end';
     const jsonError = this.jsonError;
     const footerError = jsonError ?? this.errorMessage;
-    return html`<div class=${'mochart-demo-tab-container col config' + (this.active ? ' active' : '')}>
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="btn-toolbar" role="toolbar">
+        <div class="demo-toolbar" role="toolbar">
           ${buttonWithTooltip(
             { id: 'config-reset', label: demoText.configTab.reset.label, tooltipText: demoText.configTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: this.resetConfig, ariaLabel: demoText.configTab.reset.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })

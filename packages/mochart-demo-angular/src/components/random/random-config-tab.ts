@@ -14,12 +14,12 @@ import type { RandomConfigWithValid } from '../../types';
   imports: [TextAreaContent, ButtonWithTooltip, Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container col config' + (active ? ' active' : '')">
+    <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')">
       <div class="mochart-demo-tab-content">
         <app-text-area-content [value]="configText()" [onChange]="onTextChange" />
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="btn-toolbar" role="toolbar">
+        <div class="demo-toolbar" role="toolbar">
           <app-button-with-tooltip id="config-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
                                    [onClick]="onReset" [aria-label]="text.reset.aria">
             <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />

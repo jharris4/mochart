@@ -89,18 +89,18 @@
 </script>
 
 <div class="multi-controls">
-  <form class="form-inline">
-    <div class="form-group">
-      <label class="form-control-plaintext" for="grid-rows">{demoText.multiChartsTab.gridLabel}</label>
-      <input id="grid-rows" disabled={playing} type="number" min="1" max="4" class="form-control" value={rowsText}
+  <form class="demo-form-row">
+    <div class="demo-field">
+      <label class="demo-label" for="grid-rows">{demoText.multiChartsTab.gridLabel}</label>
+      <input id="grid-rows" disabled={playing} type="number" min="1" max="4" class="demo-input" value={rowsText}
              oninput={rowsChanged} aria-label={demoText.multiChartsTab.gridRowsAria} />
-      <span class="form-control-plaintext">&times;</span>
-      <input id="grid-cols" disabled={playing} type="number" min="1" max="4" class="form-control" value={colsText}
+      <span class="demo-label">&times;</span>
+      <input id="grid-cols" disabled={playing} type="number" min="1" max="4" class="demo-input" value={colsText}
              oninput={colsChanged} aria-label={demoText.multiChartsTab.gridColsAria} />
     </div>
-    <div class="form-group">
-      <div class="btn-toolbar" role="toolbar">
-        <div class="btn-group">
+    <div class="demo-field">
+      <div class="demo-toolbar" role="toolbar">
+        <div class="demo-btn-group">
           <ButtonWithTooltip id="step-back" disabled={playing} tooltipText={demoText.multiChartsTab.stepBackward.tooltip} tooltipPlacement="top-start"
                              onClick={onStepBackwardClick} aria-label={demoText.multiChartsTab.stepBackward.aria}>
             <Icon size="lg" fixedWidth={true} name="backward-step" />
@@ -124,13 +124,13 @@
         </div>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-control-plaintext" for="multi-rate">{demoText.multiChartsTab.intervalLabel}</label>
-      <input id="multi-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="form-control" value={rateText}
+    <div class="demo-field">
+      <label class="demo-label" for="multi-rate">{demoText.multiChartsTab.intervalLabel}</label>
+      <input id="multi-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="demo-input" value={rateText}
              oninput={rateChanged} aria-label={demoText.multiChartsTab.intervalAria} />
     </div>
-    <div class="form-group">
-      <div class="btn-toolbar" role="toolbar">
+    <div class="demo-field">
+      <div class="demo-toolbar" role="toolbar">
         <ExportShareMenu idPrefix="multi" {exportPng} {exportSvg} {getShareState} />
       </div>
     </div>

@@ -5,13 +5,13 @@ import { demoText } from '@mochart/demo-common';
 
 import { ChartsTab } from './charts-tab';
 import { ErrorTab } from '../misc/error-tab';
-import { BackToDemosButton, ModeSwitcher, SiteRootButton } from '../misc/mode-switcher';
+import { BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
 
 import type { DemoData, SwitchableDemoMode } from '../../types';
 
 @Component({
   selector: 'app-demo-multi',
-  imports: [ChartsTab, ErrorTab, BackToDemosButton, ModeSwitcher, SiteRootButton],
+  imports: [ChartsTab, ErrorTab, BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container multi">
@@ -21,13 +21,16 @@ import type { DemoData, SwitchableDemoMode } from '../../types';
             <a appSiteRootButton [href]="siteRootUrl"></a>
           }
           <button appBackToDemosButton (click)="onBackToDemos()"></button>
-          <ul class="nav nav-tabs">
-            <li class="nav-item">
-              <button type="button" class="nav-link active">{{ text.chart }}</button>
+          <ul class="demo-tabs">
+            <li class="demo-tab-item">
+              <button type="button" class="demo-tab active">{{ text.chart }}</button>
             </li>
           </ul>
         </div>
-        <app-mode-switcher [demoMode]="'multi'" [onModeChanged]="onModeChanged" />
+        <div class="mochart-demo-nav-group">
+          <app-mode-switcher [demoMode]="'multi'" [onModeChanged]="onModeChanged" />
+          <button appThemeToggleButton></button>
+        </div>
       </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">

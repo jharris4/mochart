@@ -15,12 +15,12 @@ import type { DemoConfig, DataRow } from '../../types';
   imports: [TextAreaContent, ButtonWithTooltip, Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container col data' + (active ? ' active' : '')">
+    <div [class]="'mochart-demo-tab-container demo-layout-col data' + (active ? ' active' : '')">
       <div class="mochart-demo-tab-content">
         <app-text-area-content [value]="dataText()" [onChange]="onTextChange" />
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="btn-toolbar" role="toolbar">
+        <div class="demo-toolbar" role="toolbar">
           <app-button-with-tooltip id="data-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
                                    [onClick]="resetData" [aria-label]="text.reset.aria">
             <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />

@@ -22,10 +22,10 @@ const modeIcons: Record<SwitchableDemoMode, string> = {
 
 <template>
   <div class="mochart-demo-mode-switcher">
-    <span class="form-control-plaintext">{{ demoText.modeSwitcher.label }}</span>
-    <div class="btn-toolbar" role="toolbar">
+    <span class="demo-label">{{ demoText.modeSwitcher.label }}</span>
+    <div class="demo-toolbar" role="toolbar">
       <button v-for="mode in switchableDemoModes" :key="mode" type="button"
-              :class="'btn btn-' + (mode === props.demoMode ? 'primary' : 'secondary')"
+              :class="'demo-btn demo-btn-' + (mode === props.demoMode ? 'primary' : 'secondary')"
               :disabled="mode === props.demoMode" :title="demoText.modeSwitcher.modes[mode].title"
               @click="props.onModeChanged(mode)">
         <Icon size="lg" :name="modeIcons[mode]" /> {{ demoText.modeSwitcher.modes[mode].label }}

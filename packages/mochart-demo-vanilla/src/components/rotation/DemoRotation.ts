@@ -1,7 +1,7 @@
 import { rotationConfigs as configs, rotationData as data } from '@mochart/demo-common';
 
 import { el, observeSize } from '../misc/dom';
-import { backToDemosButton, siteRootButton } from '../misc/ModeSwitcher';
+import { backToDemosButton, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
 import { mountDefaultChart } from '../misc/chartHost';
 import type { ChartHostHandle } from '../misc/chartHost';
 
@@ -29,7 +29,8 @@ export function demoRotation(props: DemoRotationProps): DemoRotationHandle {
       el('div', { className: 'mochart-demo-nav-group' }, [
         siteRootButton(props.siteRootUrl),
         backToDemosButton(props.onBackToDemos)
-      ])
+      ]),
+      themeToggleButton()
     ]),
     chartsContainer
   ]);

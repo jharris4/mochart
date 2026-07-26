@@ -8,6 +8,7 @@
   import BackToDemosButton from '../misc/BackToDemosButton.svelte';
   import ModeSwitcher from '../misc/ModeSwitcher.svelte';
   import SiteRootButton from '../misc/SiteRootButton.svelte';
+  import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
 
   import type { DemoData } from '../../types';
 
@@ -79,28 +80,31 @@
     <div class="mochart-demo-nav-group">
       <SiteRootButton {siteRootUrl} />
       <BackToDemosButton {onBackToDemos} />
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <button type="button" class={"nav-link" + (activeKey === eventKeyChart ? " active" : "")}
+      <ul class="demo-tabs">
+        <li class="demo-tab-item">
+          <button type="button" class={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
                   onclick={() => handleSelect(eventKeyChart)}>
             {demoText.tabs.chart}
           </button>
         </li>
-        <li class="nav-item">
-          <button type="button" class={"nav-link" + (activeKey === eventKeyConfig ? " active" : "")}
+        <li class="demo-tab-item">
+          <button type="button" class={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")}
                   onclick={() => handleSelect(eventKeyConfig)}>
             {demoText.tabs.randomConfig}
           </button>
         </li>
-        <li class="nav-item">
-          <button type="button" class={"nav-link" + (activeKey === eventKeyData ? " active" : "")}
+        <li class="demo-tab-item">
+          <button type="button" class={"demo-tab" + (activeKey === eventKeyData ? " active" : "")}
                   onclick={() => handleSelect(eventKeyData)}>
             {demoText.tabs.data}
           </button>
         </li>
       </ul>
     </div>
-    <ModeSwitcher demoMode="random" {onModeChanged} />
+    <div class="mochart-demo-nav-group">
+      <ModeSwitcher demoMode="random" {onModeChanged} />
+      <ThemeToggleButton />
+    </div>
   </div>
   <div class="mochart-demo-content-pane">
     <RandomContent {mochartDemoConfig} initialRandomConfig={randomConfig}

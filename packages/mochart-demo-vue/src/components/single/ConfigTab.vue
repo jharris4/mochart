@@ -111,12 +111,12 @@ const footerError = computed(() => jsonError.value ?? errorMessage.value);
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container col config' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')">
     <div class="mochart-demo-tab-content">
       <TextAreaContent :value="configText" :on-change="onTextChange" />
     </div>
     <div class="mochart-demo-tab-footer">
-      <div class="btn-toolbar" role="toolbar">
+      <div class="demo-toolbar" role="toolbar">
         <ButtonWithTooltip id="config-reset" :label="demoText.configTab.reset.label" :tooltip-text="demoText.configTab.reset.tooltip" tooltip-placement="top-start"
                            :on-click="resetConfig" :aria-label="demoText.configTab.reset.aria">
           <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />

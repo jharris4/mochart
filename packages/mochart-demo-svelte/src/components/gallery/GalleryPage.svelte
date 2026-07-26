@@ -7,6 +7,7 @@
 
   import Icon from '../misc/Icon.svelte';
   import SiteRootButton from '../misc/SiteRootButton.svelte';
+  import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
 
   import type { DemoData } from '../../types';
 
@@ -44,9 +45,9 @@
 {/snippet}
 
 {#snippet sectionItems(section: GallerySection)}
-  <div class="list-group">
+  <div class="demo-list">
     {#each section.items as item (item.kind === 'demo' ? item.id : item.mode)}
-      <button type="button" class="list-group-item list-group-item-action"
+      <button type="button" class="demo-list-item"
               onclick={() => onItemClick(item)}>
         {#if item.kind === 'page'}
           <Icon fixedWidth name={pageIcons[item.mode]} />
@@ -61,11 +62,12 @@
 {/snippet}
 
 <div class="mochart-demo-container">
-  {#if siteRootUrl !== void 0}
-    <div class="mochart-demo-gallery-header">
+  <div class="mochart-demo-gallery-header">
+    {#if siteRootUrl !== void 0}
       <SiteRootButton {siteRootUrl} />
-    </div>
-  {/if}
+    {/if}
+    <ThemeToggleButton />
+  </div>
   <div class="mochart-demo-content-pane">
     <div class="mochart-demo-gallery">
       {#each sections as section (section.key)}

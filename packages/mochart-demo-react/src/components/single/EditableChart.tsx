@@ -652,7 +652,7 @@ export default function EditableChart(props: Props) {
   const disableAdd = orderChanged || !selectedGroupValues.some(group => !filteredGroupMap[group]);
 
   const modeControlContent = (
-    <div className="btn-group" key="modeControls">
+    <div className="demo-btn-group" key="modeControls">
       <ButtonWithTooltip id="edit-mode" label={selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups}
         tooltipText={selectionMode === 'group'
           ? demoText.editableChart.editMode.tooltipToSeries
@@ -696,7 +696,7 @@ export default function EditableChart(props: Props) {
   let commonControlContent: React.ReactNode;
   if (showChartCountControls) {
     commonControlContent = [
-      <div className="btn-group" key="chartCountControls">
+      <div className="demo-btn-group" key="chartCountControls">
         <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
           tooltipText={chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow} tooltipPlacement="right"
           onClick={onChartCountToggle} aria-label={demoText.editableChart.secondChart.aria}>
@@ -715,11 +715,11 @@ export default function EditableChart(props: Props) {
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
-          <form className="form-inline">
-            <div className="form-group">
-              <div className="btn-toolbar" role="toolbar">
+          <form className="demo-form-row">
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
                 {commonControlContent}
-                <div className="btn-group">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-reset-groups" disabled={error || sequencePlaying} label={demoText.editableChart.resetGroups.label}
                     tooltipText={demoText.editableChart.resetGroups.tooltip} tooltipPlacement="right"
                     onClick={resetGroups} aria-label={demoText.editableChart.resetGroups.aria}>
@@ -766,8 +766,8 @@ export default function EditableChart(props: Props) {
           </form>
         </div>
         <span className="chart-controls-input">
-          <form className="form-inline">
-            <input type="text" className="form-control" disabled={error || sequencePlaying} value={groupValuesText} onChange={groupValuesChanged} />
+          <form className="demo-form-row">
+            <input type="text" className="demo-input" disabled={error || sequencePlaying} value={groupValuesText} onChange={groupValuesChanged} />
           </form>
         </span>
         {exportShareRightContent}
@@ -787,15 +787,15 @@ export default function EditableChart(props: Props) {
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
-          <form className="form-inline">
-            <div className="form-group">
-              <div className="btn-toolbar" role="toolbar">
+          <form className="demo-form-row">
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
                 {commonControlContent}
               </div>
             </div>
-            <div className="form-group">
-              <div className="btn-toolbar" role="toolbar">
-                <div className="btn-group">
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-group-decrease" disabled={error || groupOrderControlsDisabled || isFirstGroup}
                     tooltipText={demoText.editableChart.decreaseGroupOrder.tooltip} tooltipPlacement="right"
                     onClick={decreaseGroupOrder} aria-label={demoText.editableChart.decreaseGroupOrder.aria}>
@@ -804,12 +804,12 @@ export default function EditableChart(props: Props) {
                 </div>
               </div>
             </div>
-            <div className="form-group">
-              <span className="form-control-plaintext" style={{ marginLeft: 5, marginRight: 5 }}>{groupIndexText + groupIndex}</span>
+            <div className="demo-field">
+              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>{groupIndexText + groupIndex}</span>
             </div>
-            <div className="form-group">
-              <div className="btn-toolbar" role="toolbar">
-                <div className="btn-group">
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-group-increase" disabled={error || groupOrderControlsDisabled || isLastGroup}
                     tooltipText={demoText.editableChart.increaseGroupOrder.tooltip} tooltipPlacement="right"
                     onClick={increaseGroupOrder} aria-label={demoText.editableChart.increaseGroupOrder.aria}>
@@ -818,9 +818,9 @@ export default function EditableChart(props: Props) {
                 </div>
               </div>
             </div>
-            <div className="form-group">
-              <div className="btn-toolbar" role="toolbar">
-                <div className="btn-group">
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-previous-series" disabled={error || seriesControlsDisabled || !hasPrevSeries}
                     tooltipText={demoText.editableChart.previousSeries.tooltip} tooltipPlacement="right"
                     onClick={prevSeries} aria-label={demoText.editableChart.previousSeries.aria}>
@@ -829,19 +829,19 @@ export default function EditableChart(props: Props) {
                 </div>
               </div>
             </div>
-            <div className="form-group">
-              <span className="form-control-plaintext" style={{ marginLeft: 5, marginRight: 5 }}>{seriesIndexText + seriesIndex}</span>
+            <div className="demo-field">
+              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>{seriesIndexText + seriesIndex}</span>
             </div>
-            <div className="form-group">
-              <div className="btn-toolbar" role="toolbar">
-                <div className="btn-group">
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-next-series" disabled={error || seriesControlsDisabled || !hasNextSeries}
                     tooltipText={demoText.editableChart.nextSeries.tooltip} tooltipPlacement="right"
                     onClick={nextSeries} aria-label={demoText.editableChart.nextSeries.aria}>
                     <Icon size="lg" fixedWidth={true} name="chevron-up" />
                   </ButtonWithTooltip>
                 </div>
-                <div className="btn-group">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-reset-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.resetSeries.label}
                     tooltipText={demoText.editableChart.resetSeries.tooltip} tooltipPlacement="right"
                     onClick={resetSeriesChanges} aria-label={demoText.editableChart.resetSeries.aria}>
@@ -858,8 +858,8 @@ export default function EditableChart(props: Props) {
           </form>
         </div>
         <span className="chart-controls-input">
-          <form className="form-inline">
-            <input type="text" className="form-control" disabled={error || seriesControlsDisabled} value={seriesValuesText} onChange={seriesValuesChanged} />
+          <form className="demo-form-row">
+            <input type="text" className="demo-input" disabled={error || seriesControlsDisabled} value={seriesValuesText} onChange={seriesValuesChanged} />
           </form>
         </span>
         {exportShareRightContent}

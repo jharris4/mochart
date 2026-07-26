@@ -35,7 +35,7 @@ export class ExportShareMenu extends LightElement {
   @state() private copied = false;
   @state() private coords: { bottom: number; right: number } | null = null;
 
-  @query('.dropdown-toggle') private trigger?: HTMLButtonElement;
+  @query('.demo-menu-trigger') private trigger?: HTMLButtonElement;
 
   private revertTimer: ReturnType<typeof setTimeout> | null = null;
   private listening = false;
@@ -145,27 +145,27 @@ export class ExportShareMenu extends LightElement {
 
   override render(): unknown {
     const menuOpen = this.open && this.coords !== null;
-    return html`<div class="btn-group dropup mochart-export-share-menu">
+    return html`<div class="demo-btn-group demo-menu-up mochart-export-share-menu">
       <button id=${this.idPrefix + '-export-share'} type="button"
-              class=${'btn btn-secondary dropdown-toggle' + (this.open ? ' active' : '')}
+              class=${'demo-btn demo-btn-secondary demo-menu-trigger' + (this.open ? ' active' : '')}
               ?disabled=${this.disabled} aria-haspopup="true" aria-expanded=${this.open}
               title=${demoText.exportShareMenu.trigger.tooltip} aria-label=${demoText.exportShareMenu.trigger.aria}
               @click=${this.onToggle}>
         ${icon({ size: 'lg', fixedWidth: true, name: 'share-nodes' })}
       </button>
-      <div class=${'dropdown-menu' + (menuOpen ? ' show' : '')}
+      <div class=${'demo-menu' + (menuOpen ? ' open' : '')}
            style=${menuOpen ? `position: fixed; bottom: ${this.coords!.bottom}px; right: ${this.coords!.right}px; margin: 0; z-index: 1080;` : nothing}>
-        <button type="button" class="dropdown-item" @click=${() => this.runAndClose(this.exportPng)}
+        <button type="button" class="demo-menu-item" @click=${() => this.runAndClose(this.exportPng)}
                 aria-label=${demoText.exportButtons.png.aria}>
           ${icon({ fixedWidth: true, name: 'file-image' })} <span class="mochart-menu-item-label">${demoText.exportButtons.png.label}</span>
         </button>
-        <button type="button" class="dropdown-item" @click=${() => this.runAndClose(this.exportSvg)}
+        <button type="button" class="demo-menu-item" @click=${() => this.runAndClose(this.exportSvg)}
                 aria-label=${demoText.exportButtons.svg.aria}>
           ${icon({ fixedWidth: true, name: 'file-code' })} <span class="mochart-menu-item-label">${demoText.exportButtons.svg.label}</span>
         </button>
         ${this.getShareState ? html`
-          <div class="dropdown-divider"></div>
-          <button type="button" class="dropdown-item" @click=${this.onShare}
+          <div class="demo-menu-divider"></div>
+          <button type="button" class="demo-menu-item" @click=${this.onShare}
                   aria-label=${demoText.shareButton.aria}>
             ${icon({ fixedWidth: true, name: this.copied ? 'check' : 'link' })} <span class="mochart-menu-item-label">${this.copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
           </button>` : nothing}

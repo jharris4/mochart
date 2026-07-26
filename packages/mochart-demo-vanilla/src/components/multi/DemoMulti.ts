@@ -3,7 +3,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
-import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/ModeSwitcher';
+import { backToDemosButton, modeSwitcher, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
 import { chartsTab } from './ChartsTab';
 import type { ChartsTabHandle } from './ChartsTab';
 
@@ -35,7 +35,7 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
   const chartsBoundary: ErrorTabHandle = errorTab(() => charts.el, true);
 
   const chartNav = el('button', {
-    className: 'nav-link active',
+    className: 'demo-tab active',
     attrs: { type: 'button' },
     text: demoText.tabs.chart
   });
@@ -45,9 +45,12 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
       el('div', { className: 'mochart-demo-nav-group' }, [
         siteRootButton(props.siteRootUrl),
         backToDemosButton(onBackToDemos),
-        el('ul', { className: 'nav nav-tabs' }, [el('li', { className: 'nav-item' }, [chartNav])])
+        el('ul', { className: 'demo-tabs' }, [el('li', { className: 'demo-tab-item' }, [chartNav])])
       ]),
-      modeSwitcher({ demoMode: 'multi', onModeChanged })
+      el('div', { className: 'mochart-demo-nav-group' }, [
+        modeSwitcher({ demoMode: 'multi', onModeChanged }),
+        themeToggleButton()
+      ])
     ]),
     el('div', { className: 'mochart-demo-content-pane' }, [
       el('div', { className: 'mochart-demo-content' }, [chartsBoundary.el])

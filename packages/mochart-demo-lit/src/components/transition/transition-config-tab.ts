@@ -54,12 +54,12 @@ export class TransitionConfigTab extends LightElement {
   override render(): unknown {
     const jsonError = this.jsonError;
     const footerError = jsonError ?? this.errorMessage;
-    return html`<div class=${'mochart-demo-tab-container col config' + (this.active ? ' active' : '')}>
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="btn-toolbar" role="toolbar">
+        <div class="demo-toolbar" role="toolbar">
           ${buttonWithTooltip(
             { id: 'config-reset', label: demoText.transitionConfigTab.reset.label, tooltipText: demoText.transitionConfigTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: () => this.onReset(), ariaLabel: demoText.transitionConfigTab.reset.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })

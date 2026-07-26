@@ -10,7 +10,7 @@ import { TextAreaContent } from '../misc/text-area-content';
   imports: [TextAreaContent],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container col data' + (active ? ' active' : '')">
+    <div [class]="'mochart-demo-tab-container demo-layout-col data' + (active ? ' active' : '')">
       <div class="mochart-demo-tab-content">
         <app-text-area-content [value]="dataText()" [onChange]="noop" />
       </div>

@@ -50,12 +50,12 @@ export default function RandomMochartConfigTab({ active, randomConfig, onUpdate,
   const footerError = jsonError ?? errorMessage;
 
   return (
-    <div className={"mochart-demo-tab-container col config" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")}>
       <div className="mochart-demo-tab-content">
         <TextAreaContent value={configText} onChange={(text: string) => { setConfigText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
-        <div className="btn-toolbar" role="toolbar">
+        <div className="demo-toolbar" role="toolbar">
           <ButtonWithTooltip id="config-reset" label={demoText.randomConfigTab.reset.label} tooltipText={demoText.randomConfigTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={onReset} aria-label={demoText.randomConfigTab.reset.aria}>
             <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

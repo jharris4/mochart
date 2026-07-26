@@ -98,16 +98,16 @@ function getRandomShareState(): ShareState {
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container col chart' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')">
     <div class="random-chart-sizer" ref="chartSizerElement">
       <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
              :mochart-config="props.mochartConfig" :data-provider="props.dataProvider" />
     </div>
     <div class="random-controls">
-      <form class="form-inline">
-        <div class="form-group">
-          <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group">
+      <form class="demo-form-row">
+        <div class="demo-field">
+          <div class="demo-toolbar" role="toolbar">
+            <div class="demo-btn-group">
               <ButtonWithTooltip id="randomize-back" :disabled="playing" :label="demoText.randomChartTab.back.label"
                                  :tooltip-text="demoText.randomChartTab.back.tooltip" tooltip-placement="top-start"
                                  :on-click="props.onRandomizeBack" :aria-label="demoText.randomChartTab.back.aria">
@@ -127,14 +127,14 @@ function getRandomShareState(): ShareState {
                 <Icon size="lg" :fixed-width="true" name="stop" />
               </ButtonWithTooltip>
             </div>
-            <div class="form-group">
-              <label class="form-control-plaintext" for="random-rate">{{ demoText.randomChartTab.intervalLabel }}</label>
-              <input id="random-rate" :disabled="playing" type="number" min="5" max="60000" step="100" class="form-control" :value="rateText"
+            <div class="demo-field">
+              <label class="demo-label" for="random-rate">{{ demoText.randomChartTab.intervalLabel }}</label>
+              <input id="random-rate" :disabled="playing" type="number" min="5" max="60000" step="100" class="demo-input" :value="rateText"
                      :aria-label="demoText.randomChartTab.intervalAria" @input="rateChanged" />
             </div>
           </div>
-          <div class="btn-toolbar ml-2" role="toolbar">
-            <div class="btn-group">
+          <div class="demo-toolbar" role="toolbar">
+            <div class="demo-btn-group">
               <ButtonWithTooltip id="reuse" :disabled="playing" :label="demoText.randomChartTab.reuse.label" :pressed="props.applyReuse"
                                  :tooltip-text="demoText.randomChartTab.reuse.tooltip" tooltip-placement="top-start"
                                  :on-click="props.toggleApplyReuse" :aria-label="demoText.randomChartTab.reuse.aria">

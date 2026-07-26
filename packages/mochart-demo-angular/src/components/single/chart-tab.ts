@@ -19,7 +19,7 @@ const defaultChartCount = 1;
   imports: [EditableChart],
   styles: [':host { display: contents; }'],
   template: `
-    <div #container [class]="'mochart-demo-tab-container row chart' + (active ? ' active' : '')">
+    <div #container [class]="'mochart-demo-tab-container demo-layout-row chart' + (active ? ' active' : '')">
       <div class="editable-charts-sizer">
         <div class="editable-charts">
           @if (mochartDemoConfig() && width() > 0) {

@@ -9,6 +9,7 @@
 
   import BackToDemosButton from '../misc/BackToDemosButton.svelte';
   import SiteRootButton from '../misc/SiteRootButton.svelte';
+  import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
 
   interface Props {
     siteRootUrl?: string;
@@ -31,6 +32,7 @@
       <SiteRootButton {siteRootUrl} />
       <BackToDemosButton {onBackToDemos} />
     </div>
+    <ThemeToggleButton />
   </div>
   <div class="rotation-charts" bind:clientWidth={chartsWidth}>
     {#if colWidth > 0}

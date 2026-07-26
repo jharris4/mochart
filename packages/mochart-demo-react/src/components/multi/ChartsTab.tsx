@@ -271,7 +271,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   });
 
   return (
-    <div className={"mochart-demo-tab-container col chart" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
       <div className="multi-charts-sizer" ref={gridRef}>
         {gridWidth > 0 ?
           <MultiMochartCharts width={gridWidth} height={gridHeight} mochartConfig={mochartConfig} dataProviders={dataProviders}
@@ -389,18 +389,18 @@ function MultiMochartControls({ playing, initialRows, initialCols, initialRate, 
 
   return (
     <div className="multi-controls">
-      <form className="form-inline">
-        <div className="form-group">
-          <label className="form-control-plaintext" htmlFor="grid-rows">{demoText.multiChartsTab.gridLabel}</label>
-          <input id="grid-rows" className="form-control" disabled={playing} type="number" min={1} max={4} value={rowsText}
+      <form className="demo-form-row">
+        <div className="demo-field">
+          <label className="demo-label" htmlFor="grid-rows">{demoText.multiChartsTab.gridLabel}</label>
+          <input id="grid-rows" className="demo-input" disabled={playing} type="number" min={1} max={4} value={rowsText}
             onChange={rowsChanged} aria-label={demoText.multiChartsTab.gridRowsAria} />
-          <span className="form-control-plaintext">&times;</span>
-          <input id="grid-cols" className="form-control" disabled={playing} type="number" min={1} max={4} value={colsText}
+          <span className="demo-label">&times;</span>
+          <input id="grid-cols" className="demo-input" disabled={playing} type="number" min={1} max={4} value={colsText}
             onChange={colsChanged} aria-label={demoText.multiChartsTab.gridColsAria} />
         </div>
-        <div className="form-group">
-          <div className="btn-toolbar" role="toolbar">
-            <div className="btn-group">
+        <div className="demo-field">
+          <div className="demo-toolbar" role="toolbar">
+            <div className="demo-btn-group">
               <ButtonWithTooltip id="step-back" disabled={playing} tooltipText={demoText.multiChartsTab.stepBackward.tooltip} tooltipPlacement="top-start"
                 onClick={onStepBackwardClick} aria-label={demoText.multiChartsTab.stepBackward.aria}>
                 <Icon size="lg" fixedWidth={true} name="backward-step" />
@@ -424,13 +424,13 @@ function MultiMochartControls({ playing, initialRows, initialCols, initialRate, 
             </div>
           </div>
         </div>
-        <div className="form-group">
-          <label className="form-control-plaintext" htmlFor="multi-rate">{demoText.multiChartsTab.intervalLabel}</label>
-          <input id="multi-rate" className="form-control" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
+        <div className="demo-field">
+          <label className="demo-label" htmlFor="multi-rate">{demoText.multiChartsTab.intervalLabel}</label>
+          <input id="multi-rate" className="demo-input" disabled={playing} type="number" min={5} max={60000} step={100} value={rateText}
             onChange={rateChanged} aria-label={demoText.multiChartsTab.intervalAria} />
         </div>
-        <div className="form-group">
-          <div className="btn-toolbar" role="toolbar">
+        <div className="demo-field">
+          <div className="demo-toolbar" role="toolbar">
             <ExportShareMenu idPrefix="multi" exportPng={exportPng} exportSvg={exportSvg} getShareState={getShareState} />
           </div>
         </div>

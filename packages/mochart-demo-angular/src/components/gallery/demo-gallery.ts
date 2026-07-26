@@ -4,7 +4,7 @@ import type { OnInit } from '@angular/core';
 import { getGallerySections } from '@mochart/demo-common';
 
 import { Icon } from '../misc/icon';
-import { SiteRootButton } from '../misc/mode-switcher';
+import { SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
 
 import type { DemoData, GalleryItem, GallerySection } from '../../types';
 
@@ -21,15 +21,16 @@ const pageIcons: Record<'transition' | 'rotation', string> = {
  */
 @Component({
   selector: 'app-demo-gallery',
-  imports: [Icon, SiteRootButton],
+  imports: [Icon, SiteRootButton, ThemeToggleButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container">
-      @if (siteRootUrl !== undefined) {
-        <div class="mochart-demo-gallery-header">
+      <div class="mochart-demo-gallery-header">
+        @if (siteRootUrl !== undefined) {
           <a appSiteRootButton [href]="siteRootUrl"></a>
-        </div>
-      }
+        }
+        <button appThemeToggleButton></button>
+      </div>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-gallery">
           @for (section of sections; track section.key) {
@@ -41,9 +42,9 @@ const pageIcons: Record<'transition' | 'rotation', string> = {
                     <span class="mochart-demo-gallery-section-hint">{{ section.hint }}</span>
                   }
                 </div>
-                <div class="list-group">
+                <div class="demo-list">
                   @for (item of section.items; track $index) {
-                    <button type="button" class="list-group-item list-group-item-action" (click)="onItemClick(item)">
+                    <button type="button" class="demo-list-item" (click)="onItemClick(item)">
                       @if (item.kind === 'page') {
                         <app-icon [name]="pageIcons[item.mode]" [fixedWidth]="true" />
                       }
@@ -64,9 +65,9 @@ const pageIcons: Record<'transition' | 'rotation', string> = {
                     <span class="mochart-demo-gallery-section-hint">{{ section.hint }}</span>
                   }
                 </summary>
-                <div class="list-group">
+                <div class="demo-list">
                   @for (item of section.items; track $index) {
-                    <button type="button" class="list-group-item list-group-item-action" (click)="onItemClick(item)">
+                    <button type="button" class="demo-list-item" (click)="onItemClick(item)">
                       @if (item.kind === 'page') {
                         <app-icon [name]="pageIcons[item.mode]" [fixedWidth]="true" />
                       }
