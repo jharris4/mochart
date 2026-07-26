@@ -5,6 +5,7 @@ next to each shape. Both are per-series config.
 
 <script setup>
 import * as markersLabels from '../examples/markersLabels'
+import * as scatterBubble from '../examples/scatterBubble'
 </script>
 
 <LiveChart :config="markersLabels.config" :data="markersLabels.data" />
@@ -33,3 +34,29 @@ import * as markersLabels from '../examples/markersLabels'
 - Label colors accept the palette modes (`series`, `seriesIndex`,
   `groupIndex`) as well as literal colors — see
   [`colorPaletteConfig`](/reference/colorPaletteConfig).
+
+## Scatter and bubble charts
+
+Markers on their own make a scatter chart: set
+[`renderer`](/reference/seriesConfigs#seriesConfigs.renderer) to `none` so a
+series draws no shape, and only its markers remain.
+
+<LiveChart :config="scatterBubble.config" :data="scatterBubble.data" />
+
+<<< @/examples/scatterBubble.ts
+
+- Use a `linear` group axis
+  [`scale`](/reference/groupAxisConfig#groupAxisConfig.scale) (with `number`
+  or `date` [`type`](/reference/groupAxisConfig#groupAxisConfig.type)) so
+  points are positioned by their measured x values rather than evenly spaced
+  category slots.
+- For bubbles, point
+  [`markerProperty`](/reference/seriesConfigs#seriesConfigs.markerProperty)
+  at a data property; marker sizes scale between
+  [`minMarkerSize`](/reference/seriesConfigs#seriesConfigs.minMarkerSize) and
+  [`markerSize`](/reference/seriesConfigs#seriesConfigs.markerSize) with the
+  property's value.
+- Every series reads its x from the row's group value, so series share x
+  positions. For series with points at different x values, give each x its
+  own row and leave the other series' properties out — a row draws a marker
+  only for the series that have a value there.

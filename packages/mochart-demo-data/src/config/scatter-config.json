@@ -7,8 +7,7 @@
     "valueLabel": "Group",
     "property": "group",
     "type": "number",
-    "scale": "ordinal",
-    "groupCountPadding": 1
+    "scale": "linear"
   },
   "seriesAllConfig": {
     "renderer": "none",
@@ -16,7 +15,7 @@
   },
   "seriesConfigs": [
     {
-      "property": "range-max",
+      "property": "value1",
       "title": "Scatter 1",
       "strokeColor": "#9467bd",
       "fillColor": "#9467bd",
@@ -24,7 +23,7 @@
     },
     {
       "axis": "SA0",
-      "property": "middle",
+      "property": "value2",
       "title": "Scatter 2",
       "strokeColor": "#ffbb78",
       "fillColor": "#ffbb78",
@@ -32,7 +31,7 @@
     },
     {
       "axis": "SA0",
-      "property": "range-min",
+      "property": "value3",
       "title": "Scatter 3",
       "strokeColor": "#1f77b4",
       "fillColor": "#1f77b4",

@@ -309,9 +309,9 @@
     {
       "id": "scatter",
       "title": "Scatter",
-      "description": "Marker-only series (renderer none) forming a scatter plot.",
+      "description": "A scatter chart: marker-only series (renderer none) on a linear group axis, with points positioned by irregular measured x values.",
       "config": "scatter-config.json",
-      "data": "range-data.json",
+      "data": "scatter-data.json",
       "random": "default-random.json"
     },
     {
