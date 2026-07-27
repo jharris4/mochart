@@ -1685,6 +1685,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#seriesAxisConfigs.tickMarks">tickMarks</a></td><td>whether to show lines perpendicular to each tick value along the axis</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
+<tr id="seriesAxisConfigs.ticks">
+<td><a href="#seriesAxisConfigs.ticks">ticks</a></td><td>the explicit ticks to show on the axis in place of the generated ones, each { value, label } placing label text at an axis value (label falls back to the formatted value, use null for none)<br/><br/>Replaces the automatic tick generation entirely: tick counts, intervals and domain-edge ticks are ignored. Useful for naming fixed positions, e.g. heatmap row bands or threshold levels. Ticks outside the current axis domain are hidden.</td><td>should be an array with elements that should be an object with exact properties { value: should be a number, label: should be a string or be equal to undefined } or be equal to null</td><td><div>null</div>
+</td>
+</tr>
 <tr id="seriesAxisConfigs.title">
 <td><a href="#seriesAxisConfigs.title">title</a></td><td>the title text to be shown along side to the axis (use null for no title)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
