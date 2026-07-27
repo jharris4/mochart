@@ -35,6 +35,19 @@ const demoUrl = computed(() => {
   return import.meta.env.BASE_URL + 'vanilla/single/stacked/' + shareHashPrefix + payload;
 });
 
+// The docs render tooltips at VitePress's 16px body font while the default
+// iconSize (14) is sized 1:1 for the demo apps' 14px font, leaving the color
+// icon undersized against the row text. Match it to the docs' font size here;
+// examples can still override, and the share payload keeps the raw config
+// since the demo galleries render at 14px.
+const renderConfig = computed(() => ({
+  ...props.config,
+  tooltipConfig: {
+    iconSize: 16,
+    ...(props.config['tooltipConfig'] as Record<string, unknown> | undefined)
+  }
+}));
+
 const host = ref<HTMLElement | null>(null);
 const showingAlt = ref(false);
 let chart: ChartHandle | null = null;
@@ -47,7 +60,7 @@ onMounted(async () => {
     return;
   }
   chart = createDefaultChart(el, {
-    config: props.config,
+    config: renderConfig.value,
     data: props.data,
     width: el.clientWidth,
     height: props.height
