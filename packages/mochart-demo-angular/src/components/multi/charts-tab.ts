@@ -36,6 +36,8 @@ function clampGrid(value: number): number {
               <div class="multi-mochart-chart">
                 <mochart-chart [mochartConfig]="mochartDemoConfig()!.mochartConfig" [dataProvider]="dataProvider"
                                [width]="chartWidth" [height]="chartHeight"
+                               [filteredSeriesIds]="filteredSeriesIds()" [focusedGroupIndex]="focusedGroupIndexAt(i)"
+                               [focusedSeriesAxisId]="focusedSeriesAxisId()" [focusedSeriesId]="focusedSeriesId()"
                                (seriesFilter)="onSeriesFilter($event)" (focus)="onChartFocus(i, $event)" />
               </div>
             }
@@ -275,6 +277,12 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       this.focusedSeriesId.set(seriesId);
     }
     this.focusedGroupIndices.set(nextFocusedGroupIndices);
+  }
+
+  // Controlled focus for the chart at `chartIndex`; -1 (none) when the grid
+  // has more charts than remapped indices so the input stays controlled.
+  focusedGroupIndexAt(chartIndex: number): number {
+    return this.focusedGroupIndices()[chartIndex] ?? -1;
   }
 
   // The chart owns filter toggling now and reports the whole map.

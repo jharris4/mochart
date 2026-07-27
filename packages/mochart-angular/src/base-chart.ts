@@ -30,6 +30,21 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   @Input() noSizeComponent?: PlaceholderComponent;
   @Input() noSeriesComponent?: PlaceholderComponent;
   @Input() configErrorComponent?: PlaceholderComponent;
+  /**
+   * Controlled focused group index (-1 = none). When set it overrides the
+   * chart's internal focus on every update; pass back the value reported by
+   * `focus` to keep several charts in sync. Omit to leave focus chart-managed.
+   */
+  @Input() focusedGroupIndex?: number;
+  /** Controlled focused series-axis id (null = none). See `focusedGroupIndex`. */
+  @Input() focusedSeriesAxisId?: string | null;
+  /** Controlled focused series id (null = none). See `focusedGroupIndex`. */
+  @Input() focusedSeriesId?: string | null;
+  /**
+   * Controlled filter map (series id → true = filtered out); pass back the
+   * map reported by `seriesFilter` to sync legend filtering across charts.
+   */
+  @Input() filteredSeriesIds?: Record<string, boolean>;
 
   @Output() chartClick = new EventEmitter<any>();
   @Output() chartMouseEnter = new EventEmitter<any>();
@@ -62,7 +77,11 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
       noDataComponent: this.noDataComponent,
       noSizeComponent: this.noSizeComponent,
       noSeriesComponent: this.noSeriesComponent,
-      configErrorComponent: this.configErrorComponent
+      configErrorComponent: this.configErrorComponent,
+      focusedGroupIndex: this.focusedGroupIndex,
+      focusedSeriesAxisId: this.focusedSeriesAxisId,
+      focusedSeriesId: this.focusedSeriesId,
+      filteredSeriesIds: this.filteredSeriesIds
     };
     // Only subscribed outputs are forwarded to the core: some core behaviors
     // (e.g. clickable-title styling) switch on the presence of a callback.

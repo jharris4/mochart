@@ -41,6 +41,22 @@ export interface BaseChartProps extends ChartCallbackProps {
   style?: CSSProperties;
   loading?: boolean;
   error?: any;
+  /**
+   * Controlled focused group index (-1 = none). When set it overrides the
+   * chart's internal focus on every render; pass back the value reported by
+   * `onFocus` to keep several charts in sync. Omit to leave focus
+   * chart-managed.
+   */
+  focusedGroupIndex?: number;
+  /** Controlled focused series-axis id (null = none). See `focusedGroupIndex`. */
+  focusedSeriesAxisId?: string | null;
+  /** Controlled focused series id (null = none). See `focusedGroupIndex`. */
+  focusedSeriesId?: string | null;
+  /**
+   * Controlled filter map (series id → true = filtered out); pass back the
+   * map reported by `onSeriesFilter` to sync legend filtering across charts.
+   */
+  filteredSeriesIds?: Record<string, boolean>;
 }
 
 /** Props for `Chart`: a pre-enhanced config plus a data provider. */

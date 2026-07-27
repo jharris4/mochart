@@ -30,7 +30,23 @@ export const baseChartProps = {
   noSeriesComponent: placeholderProp,
   configErrorComponent: placeholderProp,
   loading: { type: Boolean, default: undefined },
-  error: anyProp
+  error: anyProp,
+  /**
+   * Controlled focused group index (-1 = none). When set it overrides the
+   * chart's internal focus on every render; pass back the value reported by
+   * `onFocus` to keep several charts in sync. Omit to leave focus
+   * chart-managed.
+   */
+  focusedGroupIndex: { type: Number, default: undefined },
+  /** Controlled focused series-axis id (null = none). See `focusedGroupIndex`. */
+  focusedSeriesAxisId: { type: String as PropType<string | null>, default: undefined },
+  /** Controlled focused series id (null = none). See `focusedGroupIndex`. */
+  focusedSeriesId: { type: String as PropType<string | null>, default: undefined },
+  /**
+   * Controlled filter map (series id → true = filtered out); pass back the
+   * map reported by `onSeriesFilter` to sync legend filtering across charts.
+   */
+  filteredSeriesIds: { type: Object as PropType<Record<string, boolean>>, default: undefined }
 };
 
 export const chartProps = {

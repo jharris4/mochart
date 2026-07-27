@@ -597,10 +597,14 @@ function getSingleShareState(): ShareState {
     <div class="editable-chart-container">
       <div class="editable-chart-content" ref="chartContentElement">
         <!-- ManagedChart (behind mochart-vue's Chart) picks animated vs static
-             from the config and owns focus/filter state internally. Width is
-             explicit; height tracks the container. -->
+             from the config. Focus/filter is controlled by the parent ChartTab
+             so the 1–2 charts stay in sync; the group index is translated into
+             this chart's filtered-data coordinates (filteredFocusedGroupIndex).
+             Width is explicit; height tracks the container. -->
         <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                :width="props.width" :mochart-config="props.mochartDemoConfig.mochartConfig" :data-provider="dataProvider"
+               :filtered-series-ids="props.filteredSeriesIds" :focused-group-index="filteredFocusedGroupIndex"
+               :focused-series-axis-id="props.focusedSeriesAxisId ?? null" :focused-series-id="props.focusedSeriesId ?? null"
                :on-focus="onChartFocus" :on-series-filter="props.onSeriesFilter" :on-chart-click="onChartClick" />
       </div>
       <div class="editable-chart-controls">

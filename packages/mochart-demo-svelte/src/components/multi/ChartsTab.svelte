@@ -261,6 +261,8 @@
           <div class="multi-mochart-chart">
             <Chart mochartConfig={mochartDemoConfig.mochartConfig} {dataProvider}
                    width={chartWidth} height={chartHeight}
+                   {filteredSeriesIds} focusedGroupIndex={focusedGroupIndices[i] ?? -1}
+                   focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
                    {onSeriesFilter} onFocus={(focusData) => onChartFocus(i, focusData)} />
           </div>
         {/each}

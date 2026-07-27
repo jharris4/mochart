@@ -93,6 +93,8 @@ export class EditableChart extends LightElement {
   @state() private filteredFocusedGroupIndex = -1;
   @state() private orderChanged = false;
 
+  // Translate the parent's focused group index (in full-data coordinates)
+  // into this chart's filtered-data coordinates by group value.
   private getFilteredFocusedGroupIndex(nextFilteredData: Row[]): number {
     let nextFilteredFocusedGroupIndex = -1;
     if (this.focusedGroupIndex >= 0) {
@@ -736,13 +738,19 @@ export class EditableChart extends LightElement {
       <div class="editable-chart-container">
         <div class="editable-chart-content">
           ${chart({
-            // The chart controller picks animated vs static from the config
-            // and owns focus/filter state internally. Width is explicit;
-            // height tracks the container.
+            // The chart controller picks animated vs static from the config.
+            // Focus/filter is controlled by the parent chart-tab so the 1–2
+            // charts stay in sync; the group index is translated into this
+            // chart's filtered-data coordinates (filteredFocusedGroupIndex).
+            // Width is explicit; height tracks the container.
             style: 'flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;',
             width: this.width,
             mochartConfig: this.mochartDemoConfig.mochartConfig,
             dataProvider: this.dataProvider,
+            filteredSeriesIds: this.filteredSeriesIds,
+            focusedGroupIndex: this.filteredFocusedGroupIndex,
+            focusedSeriesAxisId: this.focusedSeriesAxisId ?? null,
+            focusedSeriesId: this.focusedSeriesId ?? null,
             onFocus: this.onChartFocus,
             onSeriesFilter: this.onSeriesFilter,
             onChartClick: this.onChartClick

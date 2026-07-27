@@ -71,9 +71,6 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     focusedSeriesAxisId = null;
     focusedSeriesId = null;
     filteredSeriesIds = {};
-    void focusedSeriesAxisId;
-    void focusedSeriesId;
-    void filteredSeriesIds;
   }
 
   function getFocusedGroupIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
@@ -106,7 +103,6 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   function refreshDataProviders(): void {
     dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
     focusedGroupIndices = getFocusedGroupIndices(dataProviders);
-    void focusedGroupIndices;
     syncCharts();
   }
 
@@ -188,11 +184,13 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
       focusedSeriesId = seriesId;
     }
     focusedGroupIndices = nextFocusedGroupIndices;
+    syncCharts();
   }
 
   // The chart owns filter toggling now and reports the whole map.
   function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }): void {
     filteredSeriesIds = { ...nextFilteredSeriesIds };
+    syncCharts();
   }
 
   const chartsGrid = el('div', { className: 'multi-charts' });
@@ -273,6 +271,10 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         dataProvider: dataProviders[i],
         width: chartWidth,
         height: chartHeight,
+        filteredSeriesIds,
+        focusedGroupIndex: focusedGroupIndices[i] ?? -1,
+        focusedSeriesAxisId: focusedSeriesAxisId ?? null,
+        focusedSeriesId: focusedSeriesId ?? null,
         onSeriesFilter,
         onFocus: (focusData: any) => onChartFocus(i, focusData)
       });
@@ -285,6 +287,10 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         dataProvider: dataProviders[i],
         width: chartWidth,
         height: chartHeight,
+        filteredSeriesIds,
+        focusedGroupIndex: focusedGroupIndices[i] ?? -1,
+        focusedSeriesAxisId: focusedSeriesAxisId ?? null,
+        focusedSeriesId: focusedSeriesId ?? null,
         onSeriesFilter,
         onFocus: (focusData: any) => onChartFocus(i, focusData)
       });

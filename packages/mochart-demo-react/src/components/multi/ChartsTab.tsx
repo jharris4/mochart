@@ -305,7 +305,8 @@ interface ChartsProps {
   onChartFocus: (chartIndex: number, focusData: any) => void;
 }
 
-function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chartRows, chartCols, onSeriesFilter, onChartFocus }: ChartsProps) {
+function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chartRows, chartCols,
+  filteredSeriesIds, focusedGroupIndices, focusedSeriesAxisId, focusedSeriesId, onSeriesFilter, onChartFocus }: ChartsProps) {
   const chartWidth = Math.floor((width - scrollWidthOffset) / chartCols);
   const chartHeight = Math.floor(height / chartRows);
 
@@ -316,6 +317,8 @@ function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chart
     charts.push(
       <div key={'chart-' + i} className="multi-mochart-chart">
         <Chart mochartConfig={mochartConfig} dataProvider={dataProviders[i]} width={chartWidth} height={chartHeight}
+          filteredSeriesIds={filteredSeriesIds} focusedGroupIndex={focusedGroupIndices[i] ?? -1}
+          focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
           onSeriesFilter={onSeriesFilter} onFocus={(fd) => onChartFocus(chartIndex, fd)} />
       </div>
     );

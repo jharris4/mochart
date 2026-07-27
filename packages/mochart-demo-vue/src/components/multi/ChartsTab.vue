@@ -248,6 +248,8 @@ function getMultiShareState(): ShareState {
         <div v-for="(dataProvider, i) in dataProviders" :key="i" class="multi-mochart-chart">
           <Chart :mochart-config="mochartDemoConfig.mochartConfig" :data-provider="dataProvider"
                  :width="chartWidth" :height="chartHeight"
+                 :filtered-series-ids="filteredSeriesIds" :focused-group-index="focusedGroupIndices[i] ?? -1"
+                 :focused-series-axis-id="focusedSeriesAxisId ?? null" :focused-series-id="focusedSeriesId ?? null"
                  :on-series-filter="onSeriesFilter" :on-focus="(focusData: any) => onChartFocus(i, focusData)" />
         </div>
       </div>

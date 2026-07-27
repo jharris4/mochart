@@ -45,6 +45,8 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                Width is explicit; height tracks the container. -->
           <mochart-chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                          [width]="width" [mochartConfig]="mochartDemoConfig.mochartConfig" [dataProvider]="dataProvider()"
+                         [filteredSeriesIds]="filteredSeriesIds" [focusedGroupIndex]="filteredFocusedGroupIndex()"
+                         [focusedSeriesAxisId]="focusedSeriesAxisId ?? null" [focusedSeriesId]="focusedSeriesId ?? null"
                          (focus)="onChartFocus($event)" (seriesFilter)="onSeriesFilter($event)" (chartClick)="onChartClick($event)" />
         </div>
         <div class="editable-chart-controls">

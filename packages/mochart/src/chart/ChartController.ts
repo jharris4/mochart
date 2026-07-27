@@ -24,6 +24,7 @@ export class ChartController {
 
   constructor(container: Element, props: ManagedChartProps) {
     this.props = props;
+    this.focus.applyExternal(props);
     this.source = this.createSource();
     this.lastInput = this.buildInput();
     this.source.start(this.lastInput);
@@ -39,6 +40,7 @@ export class ChartController {
     // change was made, matching the old willReceiveProps ordering
     this.focus.reconcile(prev, props, prev);
     this.props = props;
+    this.focus.applyExternal(props);
     this.applyInput();
   }
 

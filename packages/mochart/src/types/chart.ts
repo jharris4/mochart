@@ -131,6 +131,23 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
   loading?: boolean;
   /** Switches the chart into its error state (see `getErrorComponent`). */
   error?: unknown;
+  /**
+   * Externally-controlled focused group index (-1 = none). When set (not
+   * undefined) it overrides the chart's internal focus state on every update;
+   * pass back the value reported by `onFocus` to keep several charts in sync.
+   * Leave undefined to let the chart manage focus internally.
+   */
+  focusedGroupIndex?: number;
+  /** Externally-controlled focused series-axis id (null = none). See `focusedGroupIndex`. */
+  focusedSeriesAxisId?: string | null;
+  /** Externally-controlled focused series id (null = none). See `focusedGroupIndex`. */
+  focusedSeriesId?: string | null;
+  /**
+   * Externally-controlled filter map (series id → true = filtered out).
+   * When set it overrides the chart's internal filter state on every update;
+   * pass back the map reported by `onSeriesFilter` to sync legend filtering.
+   */
+  filteredSeriesIds?: Record<string, boolean>;
 }
 
 /** Props accepted by createChart, which takes an already enhanced config. */

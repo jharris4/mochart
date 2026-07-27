@@ -145,6 +145,21 @@ describe('FocusController focus handling', () => {
     expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S1: true });
   });
 
+  it('applies external controlled values, leaving undefined fields untouched', () => {
+    const { controller } = makeHarness();
+    controller.applyFocus({ groupIndex: 2, seriesId: 'S0' });
+
+    controller.applyExternal({ focusedGroupIndex: 0, filteredSeriesIds: { S1: true } });
+    expect(controller.focusedGroupIndex).toBe(0);
+    expect(controller.focusedSeriesId).toBe('S0'); // undefined = uncontrolled, kept
+    expect(controller.filteredSeriesIds).toEqual({ S1: true });
+
+    controller.applyExternal({ focusedSeriesId: null, focusedSeriesAxisId: 'SA0' });
+    expect(controller.focusedSeriesId).toBe(null);
+    expect(controller.focusedSeriesAxisId).toBe('SA0');
+    expect(controller.focusedGroupIndex).toBe(0);
+  });
+
   it('never mutates a previously returned filter snapshot', () => {
     const { controller } = makeHarness();
 

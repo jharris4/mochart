@@ -42,8 +42,8 @@ export class ChartsTab extends LightElement {
   @state() private dataProviders: ChartDataProviderLike[] = [];
   @state() private focusedGroupIndices: number[] = [];
   private focusedGroupIndex = -1;
-  private focusedSeriesAxisId: string | null = null;
-  private focusedSeriesId: string | null = null;
+  @state() private focusedSeriesAxisId: string | null = null;
+  @state() private focusedSeriesId: string | null = null;
   @state() private filteredSeriesIds: FilteredSeriesIds = {};
 
   // Measured size of the charts grid.
@@ -251,6 +251,10 @@ export class ChartsTab extends LightElement {
                   dataProvider,
                   width: chartWidth,
                   height: chartHeight,
+                  filteredSeriesIds: this.filteredSeriesIds,
+                  focusedGroupIndex: this.focusedGroupIndices[i] ?? -1,
+                  focusedSeriesAxisId: this.focusedSeriesAxisId ?? null,
+                  focusedSeriesId: this.focusedSeriesId ?? null,
                   onSeriesFilter: this.onSeriesFilter,
                   onFocus: (focusData: any) => this.onChartFocus(i, focusData)
                 })}

@@ -651,10 +651,14 @@
   <div class="editable-chart-container">
     <div class="editable-chart-content" bind:this={chartContentElement}>
       <!-- ManagedChart (behind mochart-svelte's Chart) picks animated vs static
-           from the config and owns focus/filter state internally. Width is
-           explicit; height tracks the container. -->
+           from the config; focus/filter is controlled by the parent ChartTab so
+           the 1–2 charts stay in sync, with the group index translated into
+           this chart's filtered-data coordinates (filteredFocusedGroupIndex).
+           Width is explicit; height tracks the container. -->
       <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
              {width} mochartConfig={mochartDemoConfig.mochartConfig} {dataProvider}
+             {filteredSeriesIds} focusedGroupIndex={filteredFocusedGroupIndex}
+             focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
              onFocus={onChartFocus} {onSeriesFilter} {onChartClick} />
     </div>
     <div class="editable-chart-controls">

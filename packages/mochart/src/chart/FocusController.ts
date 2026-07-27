@@ -14,6 +14,14 @@ export interface FocusChangeCallbacks {
   onSeriesFilter?: (filter: ChartSeriesFilter) => void;
 }
 
+/** Externally-controlled focus/filter values (undefined = uncontrolled). */
+export interface ExternalFocusInput {
+  focusedGroupIndex?: number;
+  focusedSeriesAxisId?: string | null;
+  focusedSeriesId?: string | null;
+  filteredSeriesIds?: Record<string, boolean>;
+}
+
 /**
  * Focus and series-filter state machine for a managed chart (was
  * ManagedChart): tracks the focused group/series/axis and the filtered
@@ -79,6 +87,27 @@ export class FocusController {
     }
     if (seriesFilterChanged) {
       callbacks.onSeriesFilter?.({ filteredSeriesIds });
+    }
+  }
+
+  /**
+   * Apply the host's controlled focus/filter props. Each field set (not
+   * undefined) overrides the internal state; undefined fields stay
+   * chart-managed. No callbacks fire — the values came from the host.
+   */
+  applyExternal(input: ExternalFocusInput): void {
+    const { focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId, filteredSeriesIds } = input;
+    if (focusedGroupIndex !== undefined) {
+      this.focusedGroupIndex = focusedGroupIndex;
+    }
+    if (focusedSeriesAxisId !== undefined) {
+      this.focusedSeriesAxisId = focusedSeriesAxisId;
+    }
+    if (focusedSeriesId !== undefined) {
+      this.focusedSeriesId = focusedSeriesId;
+    }
+    if (filteredSeriesIds !== undefined) {
+      this.filteredSeriesIds = filteredSeriesIds;
     }
   }
 

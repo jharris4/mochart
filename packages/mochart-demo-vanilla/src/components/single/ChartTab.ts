@@ -146,7 +146,10 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
         dataError,
         isActive: active,
         chartCount,
-        focusedGroupIndex
+        filteredSeriesIds,
+        focusedGroupIndex,
+        focusedSeriesAxisId,
+        focusedSeriesId
       });
     }
   }

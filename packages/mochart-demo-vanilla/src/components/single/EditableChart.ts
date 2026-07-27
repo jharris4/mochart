@@ -41,7 +41,10 @@ export interface EditableChartUpdate {
   dataError?: string | boolean | null;
   isActive: boolean;
   chartCount: number;
+  filteredSeriesIds: FilteredSeriesIds;
   focusedGroupIndex: number;
+  focusedSeriesAxisId?: string | null;
+  focusedSeriesId?: string | null;
 }
 
 export interface EditableChartHandle {
@@ -72,7 +75,10 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   let data = props.data;
   let dataError = props.dataError ?? false;
   let chartCount = props.chartCount;
+  let filteredSeriesIds = props.filteredSeriesIds;
   let focusedGroupIndex = props.focusedGroupIndex;
+  let focusedSeriesAxisId = props.focusedSeriesAxisId ?? null;
+  let focusedSeriesId = props.focusedSeriesId ?? null;
 
   // Working copies of the demo data; mutated in place by the group/series
   // editing controls (same pattern as the framework demos).
@@ -119,7 +125,6 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       seriesValuesText = demoText.editableChart.selectAGroupText;
     }
     filteredFocusedGroupIndex = dataError ? -1 : getFilteredFocusedGroupIndex(nextFilteredData);
-    void filteredFocusedGroupIndex;
     if (!dataError && mochartDemoConfig.mochartConfig.validation.valid) {
       dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, mochartDemoConfig.mochartConfig.groupAxisConfig.property ?? '');
     }
@@ -562,6 +567,10 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       width,
       mochartConfig: mochartDemoConfig.mochartConfig,
       dataProvider,
+      filteredSeriesIds,
+      focusedGroupIndex: filteredFocusedGroupIndex,
+      focusedSeriesAxisId,
+      focusedSeriesId,
       onFocus: onChartFocus,
       onSeriesFilter,
       onChartClick
@@ -766,7 +775,15 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // sync — recompute derived state and patch the DOM
   // -------------------------------------------------------------------------
 
-  let lastChartProps: { width: number; mochartConfig: unknown; dataProvider: unknown } | null = null;
+  let lastChartProps: {
+    width: number;
+    mochartConfig: unknown;
+    dataProvider: unknown;
+    filteredSeriesIds: FilteredSeriesIds;
+    focusedGroupIndex: number;
+    focusedSeriesAxisId: string | null;
+    focusedSeriesId: string | null;
+  } | null = null;
 
   function sync(): void {
     const chartDataError = !!(dataProvider && dataProvider.getError && dataProvider.getError());
@@ -845,12 +862,28 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     // chart props
     if (lastChartProps === null || lastChartProps.width !== width ||
         lastChartProps.mochartConfig !== mochartDemoConfig.mochartConfig ||
-        lastChartProps.dataProvider !== dataProvider) {
-      lastChartProps = { width, mochartConfig: mochartDemoConfig.mochartConfig, dataProvider };
+        lastChartProps.dataProvider !== dataProvider ||
+        lastChartProps.filteredSeriesIds !== filteredSeriesIds ||
+        lastChartProps.focusedGroupIndex !== filteredFocusedGroupIndex ||
+        lastChartProps.focusedSeriesAxisId !== focusedSeriesAxisId ||
+        lastChartProps.focusedSeriesId !== focusedSeriesId) {
+      lastChartProps = {
+        width,
+        mochartConfig: mochartDemoConfig.mochartConfig,
+        dataProvider,
+        filteredSeriesIds,
+        focusedGroupIndex: filteredFocusedGroupIndex,
+        focusedSeriesAxisId,
+        focusedSeriesId
+      };
       chartHost.update({
         width,
         mochartConfig: mochartDemoConfig.mochartConfig,
         dataProvider,
+        filteredSeriesIds,
+        focusedGroupIndex: filteredFocusedGroupIndex,
+        focusedSeriesAxisId,
+        focusedSeriesId,
         onFocus: onChartFocus,
         onSeriesFilter,
         onChartClick
@@ -873,7 +906,10 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       data = next.data;
       dataError = next.dataError ?? false;
       chartCount = next.chartCount;
+      filteredSeriesIds = next.filteredSeriesIds;
       focusedGroupIndex = next.focusedGroupIndex;
+      focusedSeriesAxisId = next.focusedSeriesAxisId ?? null;
+      focusedSeriesId = next.focusedSeriesId ?? null;
 
       if (dataChanged || configStructureChanged) {
         initData();

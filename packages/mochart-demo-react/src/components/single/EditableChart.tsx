@@ -636,10 +636,12 @@ export default function EditableChart(props: Props) {
   };
 
   const {
-    width, chartCount, showChartCountControls, showShareButton, onChartCountToggle, focusedSeriesAxisId, focusedSeriesId, onSeriesFilter
+    width, chartCount, showChartCountControls, showShareButton, onChartCountToggle, onSeriesFilter,
+    filteredSeriesIds, focusedSeriesAxisId, focusedSeriesId
   } = props;
   const {
-    sequencePlaying, selectionMode, dataProvider, groupValuesText, groupIndex, seriesIndex, seriesValuesText, orderChanged
+    sequencePlaying, selectionMode, dataProvider, groupValuesText, groupIndex, seriesIndex, seriesValuesText, orderChanged,
+    filteredFocusedGroupIndex
   } = state;
 
   const dataError = !!(dataProvider && dataProvider.getError && dataProvider.getError());
@@ -867,14 +869,17 @@ export default function EditableChart(props: Props) {
     );
   }
 
-  // ManagedChart (behind mochart-react's Chart) picks animated vs static from
-  // the config and owns focus/filter state internally now.
   const { mochartConfig } = mochartDemoConfig;
   // Width comes from the parent as an explicit prop; Chart self-measures the
   // available height (the old code used a sizer HOC for the same purpose).
+  // Focus/filter is controlled by the parent ChartTab so the 1–2 charts stay
+  // in sync; the group index is translated into this chart's filtered-data
+  // coordinates (filteredFocusedGroupIndex).
   const chartContent = (
     <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}
       width={width} mochartConfig={mochartConfig} dataProvider={dataProvider}
+      filteredSeriesIds={filteredSeriesIds} focusedGroupIndex={filteredFocusedGroupIndex}
+      focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
       onFocus={onChartFocus} onSeriesFilter={onSeriesFilter} onChartClick={onChartClick} />
   );
 
