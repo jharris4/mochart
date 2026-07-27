@@ -41,8 +41,8 @@ type ValueDeltaObject = Record<ValueKey, NumericValuesDelta> & { deltaPercentage
  **/
 
 const nullValueObject: SeriesValueObject = {
-  plain: null, range: null, stack: null, prior: null, marker: null, label: null, color: null,
-  markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, min: null, max: null
+  plain: null, range: null, stack: null, prior: null, marker: null, label: null, color: null, tooltip: null,
+  markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, tooltipCopyKey: null, min: null, max: null
 };
 
 const emptyValueDelta = {
@@ -220,6 +220,7 @@ function setAllInitialExtraSeriesValues(seriesValueObjects: SeriesValueObjects, 
     setInitialExtraSeriesValues(valueObject, rawValueObject, 'marker', 'markerCopyKey', seriesDomains[id].marker[0] ?? undefined);
     setInitialExtraSeriesValues(valueObject, rawValueObject, 'color', 'colorCopyKey', seriesDomains[id].color[0] ?? undefined);
     setInitialExtraSeriesValues(valueObject, rawValueObject, 'label', 'labelCopyKey', axisBases[axis!] ?? undefined);
+    setInitialExtraSeriesValues(valueObject, rawValueObject, 'tooltip', 'tooltipCopyKey', seriesDomains[id].tooltip[0] ?? undefined);
   }
 }
 

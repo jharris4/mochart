@@ -16,9 +16,11 @@ export interface SeriesValueObject {
   marker: NumericValues | null;
   label: NumericValues | null;
   color: NumericValues | null;
+  tooltip: NumericValues | null;
   markerCopyKey: string | null;
   labelCopyKey: string | null;
   colorCopyKey: string | null;
+  tooltipCopyKey: string | null;
   min: NumericValues | null;
   max: NumericValues | null;
 }

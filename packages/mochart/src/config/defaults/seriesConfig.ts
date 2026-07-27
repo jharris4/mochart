@@ -21,6 +21,7 @@ export function getRegularDefaults() {
     markerProperty: NONE,
     colorProperty: NONE,
     labelProperty: NONE,
+    tooltipProperty: NONE,
     stack: NONE,
     group: NONE,
     gradient: NONE,

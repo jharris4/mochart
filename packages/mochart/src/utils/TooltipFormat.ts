@@ -66,6 +66,13 @@ function getValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, 
 export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, valueFormat: ValueFormatter, series: GroupSeriesSlice, adjustForSuppression: boolean) {
   const labelText = getSeriesLabel(seriesConfig);
 
+  if (seriesConfig.tooltipProperty !== NONE) {
+    return {
+      labelText,
+      valueText: getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'tooltip')
+    };
+  }
+
   const seriesValueText = getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'plain');
   const rangeSeriesValueText = seriesConfig.rangeProperty !== NONE ? getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'range') : null;
   const markerSeriesValueText = seriesConfig.markerProperty !== NONE ? getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'marker') : null;
@@ -103,9 +110,11 @@ export function getSuppressedValue(chartData: ChartData, seriesConfig: SeriesCon
       marker: null,
       label: null,
       color: null,
+      tooltip: null,
       markerCopyKey: null,
       labelCopyKey: null,
       colorCopyKey: null,
+      tooltipCopyKey: null,
       min: null,
       max: null
     };
@@ -117,6 +126,10 @@ export function getSuppressedValue(chartData: ChartData, seriesConfig: SeriesCon
     if (seriesConfig.markerProperty !== NONE&& newValueObject.marker === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['marker'][0];
       newValueObject.marker = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? (base ?? undefined) : undefined);
+    }
+    if (seriesConfig.tooltipProperty !== NONE && newValueObject.tooltip === null) {
+      base = chartData.seriesData.raw.domains[seriesConfig.id]['tooltip'][0];
+      newValueObject.tooltip = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? (base ?? undefined) : undefined);
     }
   }
   return newValueObject

@@ -63,10 +63,10 @@
                 version: '1.0.0',
                 titleConfig: { title: 'Support tickets by weekday (fictional)' },
                 legendConfig: { visible: true },
-                tooltipConfig: { visible: false }, // the tooltip would show band coordinates, not cell values
                 groupAxisConfig: heatmap.groupAxisConfig,
                 seriesAxisConfigs: [{ ...heatmap.seriesAxisConfig, id: 'sa' }],
-                seriesConfigs: heatmap.seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
+                // valueFormat applies to the tooltip's cell values (tooltipProperty)
+                seriesConfigs: heatmap.seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa', valueFormat: ',.0f' }))
             });
             const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data, mochartConfig.groupAxisConfig.property);
 

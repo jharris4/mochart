@@ -29,6 +29,7 @@ function makeSeriesConfig(over: Partial<SeriesConfig> = {}): SeriesConfig {
     id: 's1',
     rangeProperty: null,
     markerProperty: null,
+    tooltipProperty: null,
     valueLabel: 'Val',
     useTitleForValueLabel: false,
     title: null,
@@ -87,6 +88,29 @@ describe('getSeriesText', () => {
       false
     );
     expect(valueText).toBe('42 (7)');
+  });
+
+  it('shows the tooltipProperty value in place of the plain and range values', () => {
+    const { labelText, valueText } = getSeriesText(
+      makeTooltipConfig(),
+      makeSeriesConfig({ rangeProperty: 'hi', tooltipProperty: 't' }),
+      identity,
+      makeSlice({ plain: 42, range: 10, tooltip: 99 }) as never,
+      false
+    );
+    expect(labelText).toBe('Val: ');
+    expect(valueText).toBe('99');
+  });
+
+  it('treats an absent tooltipProperty value as missing', () => {
+    const { valueText } = getSeriesText(
+      makeTooltipConfig({ showMissingValues: false }),
+      makeSeriesConfig({ tooltipProperty: 't' }),
+      identity,
+      makeSlice({ plain: 42 }) as never, // tooltip undefined
+      false
+    );
+    expect(valueText).toBe(null);
   });
 
   it('is null when there is no value and missing values are hidden', () => {
@@ -150,13 +174,13 @@ describe('getSeriesText', () => {
 describe('getSuppressedValue', () => {
   const seriesConfig = makeSeriesConfig({ seriesAxisConfig: { id: 'y' } as SeriesConfig['seriesAxisConfig'] });
 
-  function makeChartData(over: Partial<{ base: number; groups: (unknown)[]; markerDomain: number[] }> = {}): ChartData {
+  function makeChartData(over: Partial<{ base: number; groups: (unknown)[]; markerDomain: number[]; tooltipDomain: number[] }> = {}): ChartData {
     const base = over.base ?? 5;
     const groups = over.groups ?? ['a', 'b', undefined];
     return {
       seriesData: {
         axisBases: { y: base },
-        raw: { domains: { s1: { marker: over.markerDomain ?? [3, 9] } } }
+        raw: { domains: { s1: { marker: over.markerDomain ?? [3, 9], tooltip: over.tooltipDomain ?? [2, 8] } } }
       },
       groupData: { values: { raw: groups } }
     } as unknown as ChartData;
@@ -187,5 +211,15 @@ describe('getSuppressedValue', () => {
       valueObject
     );
     expect(out.marker).toEqual([3, 3, undefined]);
+  });
+
+  it('fills tooltip values from the tooltip domain minimum', () => {
+    const valueObject = { plain: null, tooltip: null } as unknown as SeriesValueObject;
+    const out = getSuppressedValue(
+      makeChartData({ base: 5, tooltipDomain: [2, 8] }),
+      makeSeriesConfig({ tooltipProperty: 't' }),
+      valueObject
+    );
+    expect(out.tooltip).toEqual([2, 2, undefined]);
   });
 });

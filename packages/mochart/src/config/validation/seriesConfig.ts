@@ -30,6 +30,7 @@ export default function getValidators(config: Partial<SeriesConfig>) {
     markerProperty: validators.propertyOptional(),
     colorProperty: validators.propertyOptional(),
     labelProperty: validators.propertyOptional(),
+    tooltipProperty: validators.propertyOptional(),
     ignore: validators.boolean(),
     renderer: validators.oneOf(RENDERERS),
     skipMissing: validators.boolean(),

@@ -2219,6 +2219,14 @@ export interface SeriesConfig {
    */
   labelProperty: string | null;
   /**
+   * The property to retrieve from the data provider for the values shown for
+   * the series in the tooltip in place of the series values (use null for
+   * none).
+   *
+   * @default null
+   */
+  tooltipProperty: string | null;
+  /**
    * The unique identifier of the axis that the series belongs to.
    *
    * Assigns the series to the value axis in `seriesAxisConfigs` whose `id`

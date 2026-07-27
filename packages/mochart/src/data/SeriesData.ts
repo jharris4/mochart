@@ -115,8 +115,8 @@ function getFilteredSeriesBundle(seriesAxisConfigs: SeriesAxisConfig[], seriesCo
 
 function createEmptySeriesValueObjects(seriesConfigs: SeriesConfig[]): SeriesValueObjects {
   return arrayToMap(seriesConfigs, idAccessor, () => ({
-    plain: null, range: null, stack: null, prior: null, marker: null, label: null, color: null,
-    markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, min: null, max: null
+    plain: null, range: null, stack: null, prior: null, marker: null, label: null, color: null, tooltip: null,
+    markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, tooltipCopyKey: null, min: null, max: null
   }));
 }
 
@@ -160,6 +160,8 @@ function setExtraSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: rea
     setExtraProperty(seriesConfig.colorProperty !== NONE, seriesConfig.colorProperty, 'color', 'colorCopyKey',
       valueObject, existingProperties, rawGroupValues, dataProvider);
     setExtraProperty(seriesConfig.labelProperty !== NONE, seriesConfig.labelProperty, 'label', 'labelCopyKey',
+      valueObject, existingProperties, rawGroupValues, dataProvider);
+    setExtraProperty(seriesConfig.tooltipProperty !== NONE, seriesConfig.tooltipProperty, 'tooltip', 'tooltipCopyKey',
       valueObject, existingProperties, rawGroupValues, dataProvider);
   }
 }

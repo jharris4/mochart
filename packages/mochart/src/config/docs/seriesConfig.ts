@@ -10,6 +10,7 @@ export default function getDescriptions() {
     markerProperty: 'the property to retrieve from the data provider for the marker size values (use null for none)',
     colorProperty: 'the property to retrieve from the data provider for the series color values (use null for none)',
     labelProperty: 'the property to retrieve from the data provider for the series label values (use null for none)',
+    tooltipProperty: 'the property to retrieve from the data provider for the values shown for the series in the tooltip in place of the series values (use null for none)',
     ignore: 'whether to ignore this series and treat it as though it were not specified',
     renderer: 'the shape renderer to use when drawing the series shape (line, area, bar, none)',
     skipMissing: 'whether to skip undefined values when drawing the shape for this series',

@@ -64,7 +64,7 @@ describe('createHeatmap', () => {
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.title)).toEqual(['North', 'South', 'West']);
     expect(seriesConfigs[1]).toMatchObject({
       id: 'row1', property: 'row1', rangeProperty: 'row1Start', colorProperty: 'row1Value',
-      renderer: 'bar', group: null, stack: null
+      tooltipProperty: 'row1Value', renderer: 'bar', group: null, stack: null
     });
   });
 

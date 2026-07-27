@@ -121,8 +121,8 @@ export function createHeatmapColorScale(domain: [number, number], options: Creat
  * min/max — linear interpolation restricted to a sub-interval reproduces the
  * global scale, keeping cell colors comparable across rows.
  *
- * The tooltip shows each cell's band coordinates rather than its value, so
- * charts usually want `tooltipConfig: { visible: false }`.
+ * Each series sets `tooltipProperty` to the cell value, so the tooltip shows
+ * the value driving the color rather than the cell's band coordinates.
  */
 export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatmapOptions = {}): HeatmapData {
   const cellPadding = options.cellPadding ?? DEFAULT_CELL_PADDING;
@@ -175,6 +175,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
       property: 'row' + r,
       rangeProperty: 'row' + r + 'Start',
       colorProperty: 'row' + r + 'Value',
+      tooltipProperty: 'row' + r + 'Value',
       colorMin: colorScale(rowDomain[0]),
       colorMax: colorScale(rowDomain[1]),
       colorInterpolation: options.colorInterpolation ?? DEFAULT_COLOR_INTERPOLATION,

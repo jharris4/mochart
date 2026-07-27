@@ -80,6 +80,9 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
       if (seriesConfig.labelProperty !== NONE) {
         checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.labelProperty);
       }
+      if (seriesConfig.tooltipProperty !== NONE) {
+        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.tooltipProperty);
+      }
     }
   }
 
