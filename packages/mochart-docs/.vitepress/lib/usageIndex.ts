@@ -21,6 +21,10 @@ import * as thresholdRange from '../../examples/thresholdRange';
 import * as gradients from '../../examples/gradients';
 import * as markersLabels from '../../examples/markersLabels';
 import * as tooltipFormat from '../../examples/tooltipFormat';
+import * as histogram from '../../examples/histogram';
+import * as waterfall from '../../examples/waterfall';
+import * as sparkline from '../../examples/sparkline';
+import * as heatmap from '../../examples/heatmap';
 
 export interface UsageLink {
   text: string;
@@ -51,7 +55,11 @@ const docsExamples: { config: object; page: UsageLink }[] = [
   { config: thresholdRange.config, page: { text: 'Thresholds and ranges', link: '/recipes/thresholds-ranges' } },
   { config: gradients.config, page: { text: 'Gradients', link: '/recipes/gradients' } },
   { config: markersLabels.config, page: { text: 'Markers and labels', link: '/recipes/markers-labels' } },
-  { config: tooltipFormat.config, page: { text: 'Tooltip formatting', link: '/recipes/tooltip-formatting' } }
+  { config: tooltipFormat.config, page: { text: 'Tooltip formatting', link: '/recipes/tooltip-formatting' } },
+  { config: histogram.config, page: { text: 'Histogram', link: '/recipes/histogram' } },
+  { config: waterfall.config, page: { text: 'Waterfall', link: '/recipes/waterfall' } },
+  { config: sparkline.config, page: { text: 'Sparklines', link: '/recipes/sparklines' } },
+  { config: heatmap.config, page: { text: 'Heatmap', link: '/recipes/heatmap' } }
 ];
 
 const objectSectionIds = new Set([

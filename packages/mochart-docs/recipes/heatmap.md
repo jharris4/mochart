@@ -1,0 +1,46 @@
+# Heatmap
+
+The `createHeatmap` helper turns a grid of values into heatmap pieces: rows
+become full-width bar series stacked on a hidden axis, and each cell's value
+colors it from a shared sequential ramp.
+
+<script setup>
+import * as heatmap from '../examples/heatmap'
+</script>
+
+<LiveChart :config="heatmap.config" :data="heatmap.data" />
+
+<<< @/examples/heatmap.ts
+
+## How it works
+
+- Each row is a `bar` series floating on a fixed one-unit band of the
+  series axis via
+  [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty)
+  (`rows[0]` on top). The returned `seriesAxisConfig` pins the axis to
+  exactly the stacked bands and hides it — numeric ticks would land on the
+  band edges and mislabel the rows, so the legend names them instead.
+- Cell colors come from
+  [`colorProperty`](/reference/seriesConfigs#seriesConfigs.colorProperty):
+  each cell's value drives its fill. The core color scale spans each
+  series' *own* extent, so the helper sets every row's
+  [`colorMin`](/reference/seriesConfigs#seriesConfigs.colorMin)/[`colorMax`](/reference/seriesConfigs#seriesConfigs.colorMax)
+  to the global ramp sampled at that row's min/max — keeping cell colors
+  comparable across rows. The default ramp is a light-to-dark sequential
+  blue; override with `colorMin`, `colorMax` and `colorInterpolation`, or
+  fix the scale across datasets with `domain`.
+- Each series sets
+  [`tooltipProperty`](/reference/seriesConfigs#seriesConfigs.tooltipProperty)
+  to the cell value, so the tooltip shows the value driving the color
+  rather than the cell's band coordinates —
+  [`valueFormat`](/reference/seriesConfigs#seriesConfigs.valueFormat)
+  formats it as usual.
+- `null`/`undefined` cells leave a gap in the grid:
+  [`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing) skips
+  them without disturbing their neighbours. `cellPadding` sets the gap
+  between cells (0 for a contiguous grid), and `columnLabels` names the
+  columns (defaults to 1-based numbers).
+- The returned `colorScale` maps any value to its hex color and `domain`
+  is the scaled extent — the pieces you need to render a color-ramp legend
+  next to the chart. `createHeatmapColorScale(domain, options)` builds the
+  same scale standalone.

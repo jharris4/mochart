@@ -10,6 +10,7 @@ import {
   createDefaultChart, createChart,
   ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider,
   validateConfig, migrateConfig, enhanceConfig, getDefaults, getDataErrors,
+  createHistogram, createWaterfall, createSparklineConfig, createHeatmap,
   mochartCssClasses, getVersionString
 } from '@mochart/core';
 ```
@@ -102,6 +103,37 @@ getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data pr
   merged, and cross-references resolved.
 - `getDataErrors` checks a dataset against an enhanced config — missing
   properties, non-numeric series values, duplicate groups.
+
+## Chart helpers
+
+Factories for chart shapes that are really data transforms plus config
+conventions. Each returns chart-ready `data` rows alongside config
+*fragments* (`groupAxisConfig`, `seriesConfigs`, …) to spread into your own
+config — they never touch the chart, so titles, axes, and styling stay
+yours. Each links to a recipe with a live example.
+
+```ts
+createHistogram(values, options?)   // → { bins, data, groupAxisConfig, seriesConfig }
+createWaterfall(items, options?)    // → { steps, data, groupAxisConfig, seriesConfigs }
+createHeatmap(rows, options?)       // → { domain, colorScale, data, groupAxisConfig, seriesAxisConfig, seriesConfigs }
+createSparklineConfig(config, options?)  // → config with the sparkline preset applied
+```
+
+- `createHistogram` bins an array of numbers (Sturges' count and round bin
+  edges by default; `normalize` / `cumulative` modes) into contiguous bars.
+  `binValues` returns just the bins, without the chart fragments. See
+  [Histogram](/recipes/histogram).
+- `createWaterfall` accumulates signed steps into floating bars with
+  increase/decrease/total series. `computeWaterfallSteps` is the math
+  alone. See [Waterfall](/recipes/waterfall).
+- `createHeatmap` turns a grid of row values into stacked bar-band series
+  colored from a shared sequential ramp; `createHeatmapColorScale` builds
+  the same value→color scale standalone (e.g. for a ramp legend). See
+  [Heatmap](/recipes/heatmap).
+- `createSparklineConfig` is a config preset rather than a data transform:
+  it hides axes, legend, tooltip, crosshairs and markers, and collapses
+  margins for tiny inline charts. Values already set on the passed config
+  win. See [Sparklines](/recipes/sparklines).
 
 ## Constants
 

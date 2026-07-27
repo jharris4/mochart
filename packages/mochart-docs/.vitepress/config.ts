@@ -88,7 +88,11 @@ function guideSidebar() {
         { text: 'Thresholds and ranges', link: '/recipes/thresholds-ranges' },
         { text: 'Gradients', link: '/recipes/gradients' },
         { text: 'Markers and labels', link: '/recipes/markers-labels' },
-        { text: 'Tooltip formatting', link: '/recipes/tooltip-formatting' }
+        { text: 'Tooltip formatting', link: '/recipes/tooltip-formatting' },
+        { text: 'Histogram', link: '/recipes/histogram' },
+        { text: 'Waterfall', link: '/recipes/waterfall' },
+        { text: 'Sparklines', link: '/recipes/sparklines' },
+        { text: 'Heatmap', link: '/recipes/heatmap' }
       ]
     }
   ];
