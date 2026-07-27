@@ -103,8 +103,8 @@ export interface PlotLayoutResult {
   plotLayoutInfo: SpacingLayoutInfo;
   groupAxisLayoutInfo: GroupAxisLayoutInfo;
   seriesLayoutInfo: LayoutInfo;
-  /** Hidden axes map to plain zero bounds (emptyLayoutInfo). */
-  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo | Bounds>;
+  /** Hidden axes get zero-size layout infos so their series scales stay usable. */
+  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo>;
 }
 
 /** The full layout produced by getChartLayoutInfo. Legend fields are absent when the legend is hidden. */

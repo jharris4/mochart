@@ -17,6 +17,8 @@ export { getDefaults } from './config/defaults/mochartConfig';
 export { default as validateConfig } from './config/validation/mochartConfig';
 export { default as migrateConfig } from './config/migration/mochartConfig';
 export { enhanceConfig } from './config/helper';
+export { createSparklineConfig } from './config/helper/sparkline';
+export type { CreateSparklineConfigOptions } from './config/helper/sparkline';
 export { NONE, AUTO, TYPE_DATE, TYPE_NUMBER, TYPE_STRING, SCALE_ORDINAL, SCALE_LINEAR } from './config/core/constants';
 export { getDataErrors } from './data/DataValidator';
 export { binValues, createHistogram } from './data/Histogram';

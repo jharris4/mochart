@@ -38,7 +38,7 @@ export function getSeriesAxisSizes(axisConfigs: SeriesAxisConfig[], axisDataCoun
   });
 }
 
-export function createSeriesAxisLayoutInfos(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, seriesAxisRotatedTickBounds: Record<string, Bounds>, axisTickInfos: AxisTickInfos, groupY: number, seriesY: number, groupInnerExtent: number, seriesInnerExtent: number, groupAxesOffset: BeforeAfter, seriesAxesOffset: BeforeAfter, seriesAxisSizes: Record<string, number>, seriesAxisFilteredSeriesCounts: Record<string, number>, seriesAxesCollapsedAfter: number): Record<string, AxisLayoutInfo | Bounds> {
+export function createSeriesAxisLayoutInfos(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, seriesAxisRotatedTickBounds: Record<string, Bounds>, axisTickInfos: AxisTickInfos, groupY: number, seriesY: number, groupInnerExtent: number, seriesInnerExtent: number, groupAxesOffset: BeforeAfter, seriesAxesOffset: BeforeAfter, seriesAxisSizes: Record<string, number>, seriesAxisFilteredSeriesCounts: Record<string, number>, seriesAxesCollapsedAfter: number): Record<string, AxisLayoutInfo> {
   const { plotConfig, seriesAxisConfigs } = mochartConfig;
   const { seriesAxisTitleBounds, seriesAxisTickBounds, seriesAxisThresholdTitleBounds } = chartTextBoundsData;
   const { seriesAxisTickInfos } = axisTickInfos;
@@ -48,38 +48,36 @@ export function createSeriesAxisLayoutInfos(mochartConfig: MochartConfig, chartT
   let currentSeriesOffsetAfter = 0;
   let currentSeriesCollapsedOffsetBefore = 0;
   let currentSeriesCollapsedOffsetAfter = 0;
-  return arrayToMap<SeriesAxisConfig, AxisLayoutInfo | Bounds>(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
+  return arrayToMap<SeriesAxisConfig, AxisLayoutInfo>(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
     const { id, before, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = seriesAxisConfig;
-    if (seriesAxisConfig.visible && (seriesAxisConfig.alwaysVisible || seriesAxisFilteredSeriesCounts[id] > 0)) {
-      let seriesAxisOffset = groupY;
-      if (collapsed) {
-        seriesAxisOffset += groupAxesOffset.before + (before ? currentSeriesCollapsedOffsetBefore : currentSeriesCollapsedOffsetAfter + groupInnerExtent - seriesAxesCollapsedAfter);
-      }
-      else {
-        seriesAxisOffset += (before ? currentSeriesOffsetBefore : currentSeriesOffsetAfter + groupAxesOffset.before + groupInnerExtent);
-      }
-      let seriesAxisSize = seriesAxisSizes[id];
-      let seriesAxisLayoutInfo = createInnerOuterSpacingLayoutInfo({
-        x: inverted ? seriesY + seriesAxesOffset.before : seriesAxisOffset,
-        y: inverted ? seriesAxisOffset : seriesY + seriesAxesOffset.before,
-        width: inverted ? seriesInnerExtent : seriesAxisSize,
-        height: inverted ? seriesAxisSize : seriesInnerExtent
-      },
-        vertical, inverted, before, marginInner, marginOuter, paddingInner, paddingOuter) as AxisLayoutInfo;
-      setExtraAxisInfo(seriesAxisLayoutInfo, seriesAxisConfig, seriesAxisTickInfos[id], seriesAxisTickBounds[id], seriesAxisRotatedTickBounds[id], seriesAxisTitleBounds[id], seriesAxisThresholdTitleBounds[id], vertical, inverted);
-      if (collapsed) {
-        currentSeriesCollapsedOffsetBefore += before === true ? seriesAxisSize : 0;
-        currentSeriesCollapsedOffsetAfter += before === false ? seriesAxisSize : 0;
-      }
-      else {
-        currentSeriesOffsetBefore += before === true ? seriesAxisSize : 0;
-        currentSeriesOffsetAfter += before === false ? seriesAxisSize : 0;
-      }
-      return seriesAxisLayoutInfo;
+    // Hidden/suppressed axes still get a full layout info — their size is
+    // already 0 (getSeriesAxisSizes) so they consume no space, but the scales
+    // for their series need the seriesExtent set by setExtraAxisInfo.
+    let seriesAxisOffset = groupY;
+    if (collapsed) {
+      seriesAxisOffset += groupAxesOffset.before + (before ? currentSeriesCollapsedOffsetBefore : currentSeriesCollapsedOffsetAfter + groupInnerExtent - seriesAxesCollapsedAfter);
     }
     else {
-      return emptyLayoutInfo
+      seriesAxisOffset += (before ? currentSeriesOffsetBefore : currentSeriesOffsetAfter + groupAxesOffset.before + groupInnerExtent);
     }
+    let seriesAxisSize = seriesAxisSizes[id];
+    let seriesAxisLayoutInfo = createInnerOuterSpacingLayoutInfo({
+      x: inverted ? seriesY + seriesAxesOffset.before : seriesAxisOffset,
+      y: inverted ? seriesAxisOffset : seriesY + seriesAxesOffset.before,
+      width: inverted ? seriesInnerExtent : seriesAxisSize,
+      height: inverted ? seriesAxisSize : seriesInnerExtent
+    },
+      vertical, inverted, before, marginInner, marginOuter, paddingInner, paddingOuter) as AxisLayoutInfo;
+    setExtraAxisInfo(seriesAxisLayoutInfo, seriesAxisConfig, seriesAxisTickInfos[id], seriesAxisTickBounds[id], seriesAxisRotatedTickBounds[id], seriesAxisTitleBounds[id], seriesAxisThresholdTitleBounds[id], vertical, inverted);
+    if (collapsed) {
+      currentSeriesCollapsedOffsetBefore += before === true ? seriesAxisSize : 0;
+      currentSeriesCollapsedOffsetAfter += before === false ? seriesAxisSize : 0;
+    }
+    else {
+      currentSeriesOffsetBefore += before === true ? seriesAxisSize : 0;
+      currentSeriesOffsetAfter += before === false ? seriesAxisSize : 0;
+    }
+    return seriesAxisLayoutInfo;
   });
 }
 

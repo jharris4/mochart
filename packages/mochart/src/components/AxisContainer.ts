@@ -10,13 +10,12 @@ import type { MochartConfig } from '../types/config';
 import type { AxisData, GroupAxisData, SeriesAxisData, SeriesData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { AxisLayoutInfo, GroupAxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
-import type { Bounds } from '../types/geometry';
 
 interface AxisContainerProps {
   front: boolean;
   mochartConfig: MochartConfig;
   groupAxisLayoutInfo: GroupAxisLayoutInfo;
-  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo | Bounds>;
+  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo>;
   plotLayoutInfo: SpacingLayoutInfo;
   seriesData: SeriesData;
   focusData: FocusData;
@@ -62,7 +61,7 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
         key: 'series-axis-' + id,
         ctor: SeriesAxis,
         props: { front, seriesAxisConfig: axisConfig,
-          seriesAxisLayoutInfo: seriesAxisLayoutInfos[id] as AxisLayoutInfo, seriesCount: seriesData.axisSeriesCounts[id],
+          seriesAxisLayoutInfo: seriesAxisLayoutInfos[id], seriesCount: seriesData.axisSeriesCounts[id],
           focusPercentages: seriesAxisComputedFocusDomainPercentages[id] ?? [], seriesAxisData,
           axisFocusPercentage, seriesFocusPercentage,
           titleClipPathUniqueId: seriesAxisTitleClipPathUniqueIds[id],

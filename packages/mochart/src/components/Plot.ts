@@ -14,7 +14,6 @@ import type { InternalFocus } from '../types/chart';
 import type { AxisData, ChartData, GroupAxisData, SeriesAxisData, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { AxisLayoutInfo, GroupAxisLayoutInfo, LayoutInfo, SpacingLayoutInfo } from '../types/layout';
-import type { Bounds } from '../types/geometry';
 
 type CompleteAxisData = AxisData & { group: GroupAxisData; series: SeriesAxisData };
 
@@ -22,7 +21,7 @@ interface PlotFrontBackProps {
   front: boolean;
   mochartConfig: MochartConfig;
   groupAxisLayoutInfo: GroupAxisLayoutInfo;
-  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo | Bounds>;
+  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo>;
   seriesLayoutInfo: LayoutInfo;
   plotLayoutInfo: SpacingLayoutInfo;
   chartData: ChartData;

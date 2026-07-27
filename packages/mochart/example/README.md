@@ -17,3 +17,6 @@ npm run build -w @mochart/core
   npx serve packages/mochart
   # then open http://localhost:3000/example/example-esm.html
   ```
+- **example-histogram.html**, **example-waterfall.html**, **example-sparkline.html** —
+  the `createHistogram`, `createWaterfall` and `createSparklineConfig` helpers.
+  Same setup as example-esm.html (serve over HTTP).

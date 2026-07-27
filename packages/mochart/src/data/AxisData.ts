@@ -135,7 +135,7 @@ function getGroupAxisScale(axisConfig: GroupAxisConfig, axisDomain: GroupAxisDom
 function getSeriesAxisScales(seriesAxisConfigs: SeriesAxisConfig[], rawAxisDomainArray: Record<string, NullableDomain>, filteredAxisDomainArray: Record<string, NullableDomain>, axisLayountInfoArray: ChartLayoutInfo['seriesAxisLayoutInfos'], vertical: boolean): Record<string, AxisScale> {
   return arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
     let axisId = seriesAxisConfig.id;
-    return getSeriesAxisScale(seriesAxisConfig, rawAxisDomainArray[axisId], filteredAxisDomainArray[axisId], axisLayountInfoArray[axisId] as AxisLayoutInfo, vertical);
+    return getSeriesAxisScale(seriesAxisConfig, rawAxisDomainArray[axisId], filteredAxisDomainArray[axisId], axisLayountInfoArray[axisId], vertical);
   });
 }
 
@@ -302,7 +302,7 @@ function getMaxTickLabelLength(_groupAxisConfig: GroupAxisConfig, groupValues: r
 function getSeriesAxisTickData(axisConfigArray: SeriesAxisConfig[], axisLayoutInfoArray: ChartLayoutInfo['seriesAxisLayoutInfos'], rawAxisDomainArray: Record<string, NullableDomain>, filteredAxisDomainArray: Record<string, NullableDomain>, filteredSeriesCountArray: Record<string, number>, axisScaleArray: Record<string, AxisScale>, vertical: boolean): Record<string, AxisTick[]> {
   return arrayToMap(axisConfigArray, idAccessor, axisConfig => {
     let axisId = axisConfig.id;
-    return getSeriesAxisTickDataObject(axisConfig, axisLayoutInfoArray[axisId] as AxisLayoutInfo, rawAxisDomainArray[axisId], filteredAxisDomainArray[axisId], filteredSeriesCountArray[axisId], axisScaleArray[axisId], vertical);
+    return getSeriesAxisTickDataObject(axisConfig, axisLayoutInfoArray[axisId], rawAxisDomainArray[axisId], filteredAxisDomainArray[axisId], filteredSeriesCountArray[axisId], axisScaleArray[axisId], vertical);
   });
 }
 

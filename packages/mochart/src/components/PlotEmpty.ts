@@ -6,7 +6,6 @@ import Axis from './Axis';
 import type { MochartConfig, SeriesAxisConfig } from '../types/config';
 import type { AxisTick } from '../types/data';
 import type { AxisLayoutInfo, GroupAxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
-import type { Bounds } from '../types/geometry';
 
 const emptyFocusPercentages: number[] = [];
 const emptyTicks: AxisTick[] = [];
@@ -14,7 +13,7 @@ const emptyTicks: AxisTick[] = [];
 interface PlotEmptyProps {
   mochartConfig: MochartConfig;
   groupAxisLayoutInfo: GroupAxisLayoutInfo;
-  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo | Bounds>;
+  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo>;
   plotLayoutInfo: SpacingLayoutInfo;
   groupAxisTitleClipPathUniqueId: string;
   groupAxisTickLabelClipPathUniqueId: string;

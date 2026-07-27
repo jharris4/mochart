@@ -8,13 +8,12 @@ import type { MochartConfig, SeriesAxisConfig } from '../types/config';
 import type { ChartData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { AxisLayoutInfo, GroupAxisLayoutInfo, LayoutInfo } from '../types/layout';
-import type { Bounds } from '../types/geometry';
 
 interface AxisThresholdContainerProps {
   front: boolean;
   mochartConfig: MochartConfig;
   groupAxisLayoutInfo: GroupAxisLayoutInfo;
-  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo | Bounds>;
+  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo>;
   seriesLayoutInfo: LayoutInfo;
   chartData: ChartData;
   focusData: FocusData;
@@ -54,7 +53,7 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
       return {
         key: 'series-axis-' + id,
         ctor: AxisThreshold,
-        props: { front, plotConfig, axisConfig, axisLayoutInfo: seriesAxisLayoutInfos[id] as AxisLayoutInfo,
+        props: { front, plotConfig, axisConfig, axisLayoutInfo: seriesAxisLayoutInfos[id],
           hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: seriesAxisDomain, vertical: !inverted,
           axisFocusPercentage, seriesFocusPercentage, axisThresholdClass: mochartCssClasses['seriesAxisThreshold'] + id }
       };
