@@ -69,7 +69,7 @@ function renderWaterfall(skipPartialRange: boolean | undefined) {
     seriesConfigs: waterfall.seriesConfigs.map((seriesConfig) => ({
       ...seriesConfig,
       axis: 'sa',
-      ...(skipPartialRange === void 0 ? {} : { skipPartialRange })
+      ...(skipPartialRange === undefined ? {} : { skipPartialRange })
     }))
   });
   const container = document.createElement('div');
@@ -88,7 +88,7 @@ function renderWaterfall(skipPartialRange: boolean | undefined) {
 
 describe('skipPartialRange on a skipMissing bar series with a rangeProperty', () => {
   it('renders one bar per step across the waterfall direction series (helper default)', () => {
-    const { chart, container } = renderWaterfall(void 0);
+    const { chart, container } = renderWaterfall(undefined);
 
     // Each step belongs to exactly one direction series; the other two series
     // must skip the group rather than draw a zero-extent bar at `start`.

@@ -91,7 +91,7 @@ function groupDateGenerator({ date }: RandomGroupConfig, randomGenerator: Rng): 
   const max = toMillis(date.max);
   let range = max - min;
   let dateUnit = 1;
-  if (intervalUnitToDateUnit[intervalUnit] !== void 0) {
+  if (intervalUnitToDateUnit[intervalUnit] !== undefined) {
     dateUnit = intervalUnitToDateUnit[intervalUnit];
   }
   interval *= dateUnit;
@@ -129,7 +129,7 @@ function generateGroupValues(
   for (i = 0; i < groupCount; i++) {
     if (missingProbability === 0 || missingGenerator() >= missingProbability) {
       v = generator();
-      while (groupValueMap['' + v] !== void 0) {
+      while (groupValueMap['' + v] !== undefined) {
         v = generator();
       }
       groupValueMap['' + v] = v;
@@ -219,7 +219,7 @@ function generateSeriesValuesForGroupValues(
 ): (number | undefined)[] {
   return groupValues.map(() => {
     if (probability > 0 && missingGenerator() < probability) {
-      return void 0;
+      return undefined;
     }
     else if (round) {
       return Math.round(min + randomGenerator() * range);

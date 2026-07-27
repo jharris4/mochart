@@ -520,10 +520,10 @@ function setBaseValuesForOuterChanges(startValueObject: SeriesValueObject, endVa
 
 function setBaseValuesForOuterChange(targetValues: NumericValues | null, sourceValues: NumericValues | null, changedValues: NumericValues | null, outerCountChanges: OuterChangeCounts): void {
   if (targetValues !== null && sourceValues !== null && changedValues !== null && sourceValues.length > 0) {
-    if (outerCountChanges.before > 0 && sourceValues[0] !== void 0 && !hasUndefinedForRange(changedValues, 0, outerCountChanges.before)) {
+    if (outerCountChanges.before > 0 && sourceValues[0] !== undefined && !hasUndefinedForRange(changedValues, 0, outerCountChanges.before)) {
       setArrayValuesForRange(targetValues, 0, outerCountChanges.before, sourceValues[0]);
     }
-    if (outerCountChanges.after > 0 && sourceValues[sourceValues.length - 1] !== void 0  && !hasUndefinedForRange(changedValues, targetValues.length - outerCountChanges.after, targetValues.length)) {
+    if (outerCountChanges.after > 0 && sourceValues[sourceValues.length - 1] !== undefined  && !hasUndefinedForRange(changedValues, targetValues.length - outerCountChanges.after, targetValues.length)) {
       setArrayValuesForRange(targetValues, targetValues.length - outerCountChanges.after, targetValues.length, sourceValues[sourceValues.length-1]);
     }
   }

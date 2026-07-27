@@ -131,19 +131,19 @@ export class EditableChart extends LightElement {
     else {
       this.dataProvider = null;
     }
-    if (nextState.orderChanged !== void 0) {
+    if (nextState.orderChanged !== undefined) {
       this.orderChanged = nextState.orderChanged;
     }
-    if (nextState.groupIndex !== void 0) {
+    if (nextState.groupIndex !== undefined) {
       this.groupIndex = nextState.groupIndex;
     }
-    if (nextState.seriesIndex !== void 0) {
+    if (nextState.seriesIndex !== undefined) {
       this.seriesIndex = nextState.seriesIndex;
     }
-    if (nextState.groupValuesText !== void 0) {
+    if (nextState.groupValuesText !== undefined) {
       this.groupValuesText = nextState.groupValuesText;
     }
-    if (nextState.seriesValuesText !== void 0) {
+    if (nextState.seriesValuesText !== undefined) {
       this.seriesValuesText = nextState.seriesValuesText;
     }
   }
@@ -192,7 +192,7 @@ export class EditableChart extends LightElement {
   };
 
   private onLocalFocus({ seriesAxisId, seriesId, groupIndex: nextGroupIndex }: FocusPayload): void {
-    if (nextGroupIndex !== void 0) {
+    if (nextGroupIndex !== undefined) {
       const nextFilteredFocusedGroupIndex = nextGroupIndex;
       let newFocusedGroupIndex = -1;
       if (nextFilteredFocusedGroupIndex >= 0) {
@@ -333,7 +333,7 @@ export class EditableChart extends LightElement {
     }
     const nextRemovedData: Row[] = [];
     oldRemovedData.forEach(removedObject => {
-      if (removedMap[removedObject[groupProperty]] !== void 0) {
+      if (removedMap[removedObject[groupProperty]] !== undefined) {
         nextRemovedData.push(removedMap[removedObject[groupProperty]]);
       }
     });

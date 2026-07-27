@@ -92,7 +92,7 @@ export function computeWaterfallSteps(items: readonly WaterfallItem[], base = 0)
   return items.map((item) => {
     const { label } = item;
     if (item.total === true) {
-      if (item.value !== void 0) {
+      if (item.value !== undefined) {
         running = item.value;
       }
       return { label, delta: running - base, start: base, end: running, cumulative: running, direction: 'total' as const };
@@ -111,9 +111,9 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
   const data = steps.map((step) => ({
     [GROUP_PROPERTY]: step.label,
     [RANGE_PROPERTY]: step.start,
-    increase: step.direction === 'increase' ? step.end : void 0,
-    decrease: step.direction === 'decrease' ? step.end : void 0,
-    total: step.direction === 'total' ? step.end : void 0,
+    increase: step.direction === 'increase' ? step.end : undefined,
+    decrease: step.direction === 'decrease' ? step.end : undefined,
+    total: step.direction === 'total' ? step.end : undefined,
     delta: step.delta,
     cumulative: step.cumulative,
     direction: step.direction

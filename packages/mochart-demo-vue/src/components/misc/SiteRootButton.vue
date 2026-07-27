@@ -10,12 +10,12 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  siteRootUrl: void 0
+  siteRootUrl: undefined
 });
 </script>
 
 <template>
-  <a v-if="props.siteRootUrl !== void 0" class="demo-btn demo-btn-secondary mochart-demo-site-root-button"
+  <a v-if="props.siteRootUrl !== undefined" class="demo-btn demo-btn-secondary mochart-demo-site-root-button"
      :href="props.siteRootUrl" :title="demoText.siteRootLink.tooltip" :aria-label="demoText.siteRootLink.aria">
     <Icon name="house" /> {{ demoText.siteRootLink.shortLabel }}
   </a>

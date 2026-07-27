@@ -26,7 +26,7 @@ import {
   getArrayDeltas
 } from '../../src/utils/utils';
 
-const U = void 0;
+const U = undefined;
 
 describe('idAccessor', () => {
   it('reads the id property', () => {

@@ -25,7 +25,7 @@ export default function ButtonWithTooltip(props: Props) {
     <span className="button-with-tooltip">
       <button id={id} type="button" className={`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')}
         disabled={disabled} title={tooltipText}
-        aria-pressed={pressed === void 0 ? void 0 : pressed} onClick={onClick}
+        aria-pressed={pressed === undefined ? undefined : pressed} onClick={onClick}
         {...(buttonProps as Record<string, unknown>)}>
         {children}{label ? <span className="btn-label">{label}</span> : null}
       </button>

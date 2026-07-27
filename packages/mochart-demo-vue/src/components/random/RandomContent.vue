@@ -37,7 +37,7 @@ const { eventKeyChart, eventKeyConfig, eventKeyData } = props.eventKeys;
 // step comes from the randomId in the URL path). Consume it once at mount.
 const sharedState = consumeShareState('random');
 const initialShared = sharedState && sharedState.mode === 'random' ? sharedState : null;
-const initialRate = initialShared ? initialShared.interval : void 0;
+const initialRate = initialShared ? initialShared.interval : undefined;
 
 const randomConfig = shallowRef<RandomConfigWithValid>(
   initialShared ? { ...initialShared.randomConfig, valid: true } : props.initialRandomConfig);
@@ -85,7 +85,7 @@ function getData(mochartConfig: MochartConfig, groupValues: GroupValue[], series
 
 function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
   const { mochartConfig } = props.mochartDemoConfig;
-  const nextRandomConfig = forcedRandomConfig !== void 0 ? forcedRandomConfig : randomConfig.value;
+  const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : randomConfig.value;
 
   if (nextRandomConfig.valid) {
     const generatorConfig = applyReuse.value ? nextRandomConfig : withReuseNeutralized(nextRandomConfig);

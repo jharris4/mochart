@@ -87,7 +87,7 @@ export default class Legend extends Renderer<LegendProps> {
       onSeriesFilter(seriesId);
     }
     if (legendConfig.focusOnClick) {
-      if (focusedSeriesId !== void 0 && focusedSeriesId !== null) {
+      if (focusedSeriesId !== undefined && focusedSeriesId !== null) {
         onFocus({ seriesId: null });
       }
       else {

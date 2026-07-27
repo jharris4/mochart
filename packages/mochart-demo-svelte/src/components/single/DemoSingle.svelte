@@ -27,7 +27,7 @@
   const eventKeyConfig = 2;
   const eventKeyData = 3;
 
-  let { demoData, initialDemoId, siteRootUrl = void 0, onModeChanged, onBackToDemos }: Props = $props();
+  let { demoData, initialDemoId, siteRootUrl = undefined, onModeChanged, onBackToDemos }: Props = $props();
 
   let activeKey = $state(eventKeyChart);
 
@@ -134,7 +134,7 @@
       <ul class="demo-tabs">
         <li class="demo-tab-item">
           <button type="button" class={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
-                  title={hasPendingChanges ? demoText.tabs.chartPendingTitle : void 0}
+                  title={hasPendingChanges ? demoText.tabs.chartPendingTitle : undefined}
                   onclick={() => handleSelect(eventKeyChart)}>
             {demoText.tabs.chart}{#if hasPendingChanges}<span class="mochart-pending-badge" aria-hidden="true"></span>{/if}
           </button>

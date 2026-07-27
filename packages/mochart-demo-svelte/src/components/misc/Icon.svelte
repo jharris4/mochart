@@ -8,7 +8,7 @@
     flip?: string;
   }
 
-  let { name, size = void 0, fixedWidth = false, flip = void 0 }: Props = $props();
+  let { name, size = undefined, fixedWidth = false, flip = undefined }: Props = $props();
 
   const classes = $derived.by(() => {
     const list = ['fa-solid', `fa-${name}`];

@@ -85,13 +85,13 @@ export class FocusController {
   /** Apply a partial focus update raised from inside the chart. */
   applyFocus(focus: InternalFocus): ChartFocus {
     const { seriesAxisId, seriesId, groupIndex } = focus;
-    if (seriesAxisId !== void 0) {
+    if (seriesAxisId !== undefined) {
       this.focusedSeriesAxisId = seriesAxisId;
     }
-    if (seriesId !== void 0) {
+    if (seriesId !== undefined) {
       this.focusedSeriesId = seriesId;
     }
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       this.focusedGroupIndex = groupIndex ?? -1;
     }
     return this.focus();

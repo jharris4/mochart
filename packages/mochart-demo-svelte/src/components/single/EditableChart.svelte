@@ -123,19 +123,19 @@
     else {
       dataProvider = null;
     }
-    if (nextState.orderChanged !== void 0) {
+    if (nextState.orderChanged !== undefined) {
       orderChanged = nextState.orderChanged;
     }
-    if (nextState.groupIndex !== void 0) {
+    if (nextState.groupIndex !== undefined) {
       groupIndex = nextState.groupIndex;
     }
-    if (nextState.seriesIndex !== void 0) {
+    if (nextState.seriesIndex !== undefined) {
       seriesIndex = nextState.seriesIndex;
     }
-    if (nextState.groupValuesText !== void 0) {
+    if (nextState.groupValuesText !== undefined) {
       groupValuesText = nextState.groupValuesText;
     }
-    if (nextState.seriesValuesText !== void 0) {
+    if (nextState.seriesValuesText !== undefined) {
       seriesValuesText = nextState.seriesValuesText;
     }
   }
@@ -199,7 +199,7 @@
   }
 
   function onLocalFocus({ seriesAxisId, seriesId, groupIndex: nextGroupIndex }: FocusPayload) {
-    if (nextGroupIndex !== void 0) {
+    if (nextGroupIndex !== undefined) {
       const nextFilteredFocusedGroupIndex = nextGroupIndex;
       let newFocusedGroupIndex = -1;
       if (nextFilteredFocusedGroupIndex >= 0) {
@@ -340,7 +340,7 @@
     }
     const nextRemovedData: Row[] = [];
     oldRemovedData.forEach(removedObject => {
-      if (removedMap[removedObject[groupProperty]] !== void 0) {
+      if (removedMap[removedObject[groupProperty]] !== undefined) {
         nextRemovedData.push(removedMap[removedObject[groupProperty]]);
       }
     });
@@ -643,7 +643,7 @@
        are shown). -->
   <span class="chart-controls-menu">
     <ExportShareMenu idPrefix="edit" disabled={!!error} exportPng={onExportPng} exportSvg={onExportSvg}
-                     getShareState={showShareButton ? () => ({ mode: 'single', config: mochartDemoConfig.config, data }) : void 0} />
+                     getShareState={showShareButton ? () => ({ mode: 'single', config: mochartDemoConfig.config, data }) : undefined} />
   </span>
 {/snippet}
 

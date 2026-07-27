@@ -85,7 +85,7 @@ function initMochartTween(): TweenEngine {
   // Resolved per call rather than bound at import so that clocks installed
   // after this module loads (e.g. test fake timers) are honored.
   const now = function(): number {
-    if (typeof (window) !== 'undefined' && window.performance !== void 0 && window.performance.now !== void 0) {
+    if (typeof (window) !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined) {
       return window.performance.now();
     }
     return Date.now();
@@ -112,7 +112,7 @@ function initMochartTween(): TweenEngine {
       return false;
     }
 
-    time = time !== void 0 ? time : now();
+    time = time !== undefined ? time : now();
 
     // A cascade this deep within one frame means a zero-duration chain cycle;
     // defer the remainder to the next frame instead of hanging the loop.
@@ -121,7 +121,7 @@ function initMochartTween(): TweenEngine {
 			_pendingTweens = {};
 
       for (let tweenId of tweenIds) {
-        if (_tweens[tweenId] !== void 0 && _tweens[tweenId].update(time) === false) {
+        if (_tweens[tweenId] !== undefined && _tweens[tweenId].update(time) === false) {
           delete _tweens[tweenId];
         }
       }
@@ -147,7 +147,7 @@ function initMochartTween(): TweenEngine {
       isPlaying = true;
 		  onStartCallbackFired = false;
 
-      startTime = delay + (time !== void 0 ? time : now());
+      startTime = delay + (time !== undefined ? time : now());
       return tween;
     }
 
@@ -248,7 +248,7 @@ function initMochartTween(): TweenEngine {
   };
 }
 
-if (MochartTween._requestRaf === void 0) {
+if (MochartTween._requestRaf === undefined) {
   MochartTween._animationId = null;
   MochartTween._rafCallback = function(ts: number): void {
     if (!ts) {

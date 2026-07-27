@@ -115,7 +115,7 @@ export class RandomContent implements OnInit, OnChanges {
 
   private updateDataProvider(forcedRandomConfig?: RandomConfigWithValid): void {
     const { mochartConfig } = this.mochartDemoConfig;
-    const nextRandomConfig = forcedRandomConfig !== void 0 ? forcedRandomConfig : this.randomConfig()!;
+    const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : this.randomConfig()!;
 
     if (nextRandomConfig.valid) {
       const generatorConfig = this.applyReuse() ? nextRandomConfig : this.withReuseNeutralized(nextRandomConfig);

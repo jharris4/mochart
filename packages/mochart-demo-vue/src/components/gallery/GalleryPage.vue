@@ -51,28 +51,28 @@ function onItemClick(item: GalleryItem) {
             <summary class="mochart-demo-gallery-section-header">
               <Icon name="flask" :fixed-width="true" />
               <span class="mochart-demo-gallery-section-title">{{ section.title }}</span>
-              <span v-if="section.hint !== void 0" class="mochart-demo-gallery-section-hint">{{ section.hint }}</span>
+              <span v-if="section.hint !== undefined" class="mochart-demo-gallery-section-hint">{{ section.hint }}</span>
             </summary>
             <div class="demo-list">
               <button v-for="item in section.items" :key="item.kind === 'demo' ? item.id : item.mode" type="button"
                       class="demo-list-item" @click="onItemClick(item)">
                 <Icon v-if="item.kind === 'page'" :name="pageIcons[item.mode]" :fixed-width="true" />
                 <span class="mochart-demo-item-title">{{ item.title }}</span>
-                <span v-if="item.description !== void 0" class="mochart-demo-item-description">{{ item.description }}</span>
+                <span v-if="item.description !== undefined" class="mochart-demo-item-description">{{ item.description }}</span>
               </button>
             </div>
           </details>
           <section v-else class="mochart-demo-gallery-section">
             <div class="mochart-demo-gallery-section-header">
               <span class="mochart-demo-gallery-section-title">{{ section.title }}</span>
-              <span v-if="section.hint !== void 0" class="mochart-demo-gallery-section-hint">{{ section.hint }}</span>
+              <span v-if="section.hint !== undefined" class="mochart-demo-gallery-section-hint">{{ section.hint }}</span>
             </div>
             <div class="demo-list">
               <button v-for="item in section.items" :key="item.kind === 'demo' ? item.id : item.mode" type="button"
                       class="demo-list-item" @click="onItemClick(item)">
                 <Icon v-if="item.kind === 'page'" :name="pageIcons[item.mode]" :fixed-width="true" />
                 <span class="mochart-demo-item-title">{{ item.title }}</span>
-                <span v-if="item.description !== void 0" class="mochart-demo-item-description">{{ item.description }}</span>
+                <span v-if="item.description !== undefined" class="mochart-demo-item-description">{{ item.description }}</span>
               </button>
             </div>
           </section>

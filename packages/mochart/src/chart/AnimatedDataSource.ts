@@ -159,7 +159,7 @@ export class AnimatedDataSource implements ChartDataSource {
 
   private startFocusTween(input: ChartDataSourceInput, overrideFocusedGroupIndex?: number): void {
     const { mochartConfig, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = input;
-    let newFocusedGroupIndex = overrideFocusedGroupIndex !== void 0 ? overrideFocusedGroupIndex : focusedGroupIndex;
+    let newFocusedGroupIndex = overrideFocusedGroupIndex !== undefined ? overrideFocusedGroupIndex : focusedGroupIndex;
     let focusData = getFocusDataWithMutations(this.focusData!, getFocusData(mochartConfig, this.chartData!, newFocusedGroupIndex, focusedSeriesAxisId, focusedSeriesId));
     let focusAnimationData = getFocusAnimationData(mochartConfig, this.focusData!, focusData);
     this.focusTweening = true;
@@ -206,7 +206,7 @@ export class AnimatedDataSource implements ChartDataSource {
   }
 
   remapFocus({ seriesAxisId, seriesId, groupIndex }: InternalFocus): InternalFocus {
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       groupIndex = groupIndex ?? -1;
       if (groupIndex !== -1 && this.dataTweening && !this.valuesTweened) {
         if (this.valuesTweening) {

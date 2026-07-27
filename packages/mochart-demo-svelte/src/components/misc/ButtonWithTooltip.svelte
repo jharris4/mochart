@@ -22,12 +22,12 @@
   let {
     id,
     tooltipText,
-    tooltipPlacement = void 0,
+    tooltipPlacement = undefined,
     disabled = false,
     onClick,
     color = 'secondary',
-    label = void 0,
-    pressed = void 0,
+    label = undefined,
+    pressed = undefined,
     children,
     ...rest
   }: Props = $props();
@@ -35,7 +35,7 @@
 
 <span class="button-with-tooltip">
   <button {id} type="button" class={`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')} {disabled} title={tooltipText}
-          aria-pressed={pressed === void 0 ? void 0 : pressed} onclick={onClick} {...rest}>
+          aria-pressed={pressed === undefined ? undefined : pressed} onclick={onClick} {...rest}>
     {@render children()}{#if label}<span class="btn-label">{label}</span>{/if}
   </button>
 </span>

@@ -4,7 +4,7 @@ import { loadConfigReference } from './lib/model';
 // The deployed site nests the demo galleries next to the docs (see
 // scripts/build-pages.mjs), so demo links resolve only on the assembled site,
 // not under `vitepress dev`.
-const rawBase = process.env.PAGES_BASE !== void 0 ? process.env.PAGES_BASE : '/';
+const rawBase = process.env.PAGES_BASE !== undefined ? process.env.PAGES_BASE : '/';
 const base = rawBase.endsWith('/') ? rawBase : rawBase + '/';
 
 const demoLinks = [

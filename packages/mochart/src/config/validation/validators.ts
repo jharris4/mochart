@@ -19,8 +19,8 @@ const styleKeyMap = {
 const dashArray = () => validators.regexp(dashArrayRegexp).withCustomName('dashArray').withMessage('should be a valid dash array');
 const numberFormat = () => validators.regexp(numberFormatRegexp).withCustomName('numberFormat').withMessage('should be a valid number format');
 const dateFormat = () => validators.string().withCustomName('dateFormat').withMessage('should be a valid date format');
-const propertyRequired = () => validators.notOneOf([void 0, NONE]).withCustomName('propertyRequired').withMessage('should be a defined value');
-const propertyOptional = () => validators.notEqual(void 0).orEqual(NONE).withCustomName('propertyOptional').withMessage('should be a defined value or equal to null');
+const propertyRequired = () => validators.notOneOf([undefined, NONE]).withCustomName('propertyRequired').withMessage('should be a defined value');
+const propertyOptional = () => validators.notEqual(undefined).orEqual(NONE).withCustomName('propertyOptional').withMessage('should be a defined value or equal to null');
 const margin = () => validators.objectWith(MARGIN_KEYS, validators.numberMin(0));
 const padding = () => validators.objectWith(PADDING_KEYS, validators.numberMin(0));
 const style = () => validators.objectWithShape(styleKeyMap);

@@ -15,9 +15,9 @@ import { fileURLToPath } from 'node:url';
 
 const siteDir = fileURLToPath(new URL('../site', import.meta.url));
 
-const rawBase = process.env.PAGES_BASE !== void 0 ? process.env.PAGES_BASE : '/';
+const rawBase = process.env.PAGES_BASE !== undefined ? process.env.PAGES_BASE : '/';
 const base = rawBase.endsWith('/') ? rawBase : rawBase + '/';
-const port = process.env.PORT !== void 0 ? Number(process.env.PORT) : 4321;
+const port = process.env.PORT !== undefined ? Number(process.env.PORT) : 4321;
 
 if (!existsSync(join(siteDir, 'index.html'))) {
   console.error('site/ has not been assembled yet — run this first:');
@@ -49,7 +49,7 @@ const mimeTypes = {
 function sendFile(res, filePath, status) {
   const contentType = mimeTypes[extname(filePath).toLowerCase()];
   res.writeHead(status, {
-    'content-type': contentType !== void 0 ? contentType : 'application/octet-stream',
+    'content-type': contentType !== undefined ? contentType : 'application/octet-stream',
     'cache-control': 'no-store'
   });
   createReadStream(filePath).pipe(res);

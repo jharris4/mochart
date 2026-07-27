@@ -112,19 +112,19 @@ function updateFilteredDataState(
   else {
     dataProvider.value = null;
   }
-  if (nextState.orderChanged !== void 0) {
+  if (nextState.orderChanged !== undefined) {
     orderChanged.value = nextState.orderChanged;
   }
-  if (nextState.groupIndex !== void 0) {
+  if (nextState.groupIndex !== undefined) {
     groupIndex.value = nextState.groupIndex;
   }
-  if (nextState.seriesIndex !== void 0) {
+  if (nextState.seriesIndex !== undefined) {
     seriesIndex.value = nextState.seriesIndex;
   }
-  if (nextState.groupValuesText !== void 0) {
+  if (nextState.groupValuesText !== undefined) {
     groupValuesText.value = nextState.groupValuesText;
   }
-  if (nextState.seriesValuesText !== void 0) {
+  if (nextState.seriesValuesText !== undefined) {
     seriesValuesText.value = nextState.seriesValuesText;
   }
 }
@@ -167,7 +167,7 @@ function onChartFocus({ focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seri
 }
 
 function onLocalFocus({ seriesAxisId, seriesId, groupIndex: nextGroupIndex }: FocusPayload) {
-  if (nextGroupIndex !== void 0) {
+  if (nextGroupIndex !== undefined) {
     const nextFilteredFocusedGroupIndex = nextGroupIndex;
     let newFocusedGroupIndex = -1;
     if (nextFilteredFocusedGroupIndex >= 0) {
@@ -308,7 +308,7 @@ function addGroups() {
   }
   const nextRemovedData: Row[] = [];
   oldRemovedData.forEach(removedObject => {
-    if (removedMap[removedObject[groupProperty]] !== void 0) {
+    if (removedMap[removedObject[groupProperty]] !== undefined) {
       nextRemovedData.push(removedMap[removedObject[groupProperty]]);
     }
   });
@@ -671,7 +671,7 @@ function getSingleShareState(): ShareState {
           <span class="chart-controls-menu">
             <ExportShareMenu id-prefix="edit" :disabled="error"
                              :export-png="onExportPng" :export-svg="onExportSvg"
-                             :get-share-state="props.showShareButton ? getSingleShareState : void 0" />
+                             :get-share-state="props.showShareButton ? getSingleShareState : undefined" />
           </span>
         </div>
         <div v-else class="chart-controls-container">
@@ -763,7 +763,7 @@ function getSingleShareState(): ShareState {
           <span class="chart-controls-menu">
             <ExportShareMenu id-prefix="edit" :disabled="error"
                              :export-png="onExportPng" :export-svg="onExportSvg"
-                             :get-share-state="props.showShareButton ? getSingleShareState : void 0" />
+                             :get-share-state="props.showShareButton ? getSingleShareState : undefined" />
           </span>
         </div>
       </div>

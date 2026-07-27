@@ -10,7 +10,7 @@ import type { ChartData, GroupData, NullableDomain, SeriesData } from '../types/
 function isFocused(value: number | null | undefined): value is number;
 function isFocused(value: string | null | undefined): value is string;
 function isFocused(value: number | string | null | undefined): value is number | string {
-  return value !== void 0 && value !== null && value !== -1;
+  return value !== undefined && value !== null && value !== -1;
 }
 
 function getPercentageForDomain(domain: [number, number], value: number, inverted: boolean): number {
@@ -281,8 +281,8 @@ function getSeriesFocusDomainPercentages(mochartConfig: MochartConfig, seriesDat
           if (maxValues !== null && minValues !== null) {
             const maxValue = maxValues[focusedGroupIndex];
             const minValue = minValues[focusedGroupIndex];
-            if (maxValue !== void 0 || minValue !== void 0) {
-              if (maxValue !== void 0 && minValue !== void 0) {
+            if (maxValue !== undefined || minValue !== undefined) {
+              if (maxValue !== undefined && minValue !== undefined) {
                 if (maxValue !== minValue) {
                   seriesGroupValues = [maxValue, minValue];
                 }
@@ -290,7 +290,7 @@ function getSeriesFocusDomainPercentages(mochartConfig: MochartConfig, seriesDat
                   seriesGroupValues = [maxValue];
                 }
               }
-              else if (maxValue !== void 0) {
+              else if (maxValue !== undefined) {
                 seriesGroupValues = [maxValue];
               }
               else {
@@ -300,7 +300,7 @@ function getSeriesFocusDomainPercentages(mochartConfig: MochartConfig, seriesDat
           }
           else {
             const value = maxValues !== null ? maxValues[focusedGroupIndex] : minValues![focusedGroupIndex];
-            if (value !== void 0) {
+            if (value !== undefined) {
 
               seriesGroupValues = [value];
             }
@@ -328,8 +328,8 @@ function getSeriesFocusDomainPercentages(mochartConfig: MochartConfig, seriesDat
             }
           }
           if (seriesFocusDomain[0] !== null) { // if the domain has no values then min ([0]) and max ([1]) will both be null
-            if (seriesFocusDomain[0] !== void 0 || seriesFocusDomain[1] !== void 0) {
-              if (seriesFocusDomain[0] !== void 0 && seriesFocusDomain[1] !== void 0) {
+            if (seriesFocusDomain[0] !== undefined || seriesFocusDomain[1] !== undefined) {
+              if (seriesFocusDomain[0] !== undefined && seriesFocusDomain[1] !== undefined) {
                 if (seriesFocusDomain[0] !== seriesFocusDomain[1]) {
                   seriesPercentages = [
                     getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted),
@@ -342,7 +342,7 @@ function getSeriesFocusDomainPercentages(mochartConfig: MochartConfig, seriesDat
                   ];
                 }
               }
-              else if (seriesFocusDomain[0] !== void 0) {
+              else if (seriesFocusDomain[0] !== undefined) {
                 seriesPercentages = [
                   getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted)
                 ];

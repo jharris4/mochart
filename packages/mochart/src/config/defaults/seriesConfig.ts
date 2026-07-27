@@ -123,8 +123,8 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig &
       { ...defaultRule, default: index }
     ], configWithRegularDefaults, index),
     axis: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? void 0 : soleSeriesAxisId, defaultText: 'sole axis id' },
-      { ...defaultRule, default: soleSeriesAxisId === null ? void 0 : soleSeriesAxisId }
+      { condition: (config, index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId, defaultText: 'sole axis id' },
+      { ...defaultRule, default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId }
     ], configWithRegularDefaults, index),
     stack: conditionalDefault([
       { condition: (config, index) => true, suffix: 'series stack', default: soleSeriesStackId, defaultText: 'sole stack id' },

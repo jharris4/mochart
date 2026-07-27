@@ -9,10 +9,10 @@
     siteRootUrl?: string;
   }
 
-  let { siteRootUrl = void 0 }: Props = $props();
+  let { siteRootUrl = undefined }: Props = $props();
 </script>
 
-{#if siteRootUrl !== void 0}
+{#if siteRootUrl !== undefined}
   <a class="demo-btn demo-btn-secondary mochart-demo-site-root-button" href={siteRootUrl}
      title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>
     <Icon name="house" /> {demoText.siteRootLink.shortLabel}

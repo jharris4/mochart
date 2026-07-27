@@ -16,7 +16,7 @@ const eventKeyConfig = 2;
 
 @customElement('demo-transition')
 export class DemoTransition extends LightElement {
-  @property({ attribute: false }) siteRootUrl: string | undefined = void 0;
+  @property({ attribute: false }) siteRootUrl: string | undefined = undefined;
   @property({ attribute: false }) onBackToDemos!: () => void;
 
   @state() private activeKey = eventKeyChart;

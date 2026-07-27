@@ -168,7 +168,7 @@ export function consumeShareState(expectedMode?: ShareState['mode']): ShareState
   else {
     window.addEventListener('load', stripAcrossLoad, { once: true });
   }
-  if (state !== null && expectedMode !== void 0 && state.mode !== expectedMode) {
+  if (state !== null && expectedMode !== undefined && state.mode !== expectedMode) {
     return null;
   }
   return state;

@@ -19,7 +19,7 @@
     onBackToDemos: () => void;
   }
 
-  let { demoData, initialDemoId, siteRootUrl = void 0, onModeChanged, onBackToDemos }: Props = $props();
+  let { demoData, initialDemoId, siteRootUrl = undefined, onModeChanged, onBackToDemos }: Props = $props();
 
   // Props intentionally seed local state with their initial value only; the
   // $effect.pre below re-syncs everything when the routed demo changes.

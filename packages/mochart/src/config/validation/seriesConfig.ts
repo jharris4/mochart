@@ -38,7 +38,7 @@ export default function getValidators(config: Partial<SeriesConfig>) {
     showMissingAtBase: validators.boolean(),
     curve: validators.objectWithShape({
       type: validators.oneOf(CURVE_TYPES),
-      param: validators.numberMinMax(0, 1).orEqual(void 0)
+      param: validators.numberMinMax(0, 1).orEqual(undefined)
     }),
     capSize: validators.numberMin(0),
     capType: validators.oneOf(CAP_TYPES).orEqual(NONE),

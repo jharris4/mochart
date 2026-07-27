@@ -11,7 +11,7 @@ import { configs, data, minWidth } from './rotationConfigs';
 
 @customElement('demo-rotation')
 export class DemoRotation extends LightElement {
-  @property({ attribute: false }) siteRootUrl: string | undefined = void 0;
+  @property({ attribute: false }) siteRootUrl: string | undefined = undefined;
   @property({ attribute: false }) onBackToDemos!: () => void;
 
   // Columns are sized from the card's measured width (not the window) so the

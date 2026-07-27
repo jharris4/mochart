@@ -20,7 +20,7 @@ const eventKeyData = 3;
 export class DemoRandom extends LightElement {
   @property({ attribute: false }) demoData!: DemoData;
   @property({ attribute: false }) initialDemoId!: string;
-  @property({ attribute: false }) siteRootUrl: string | undefined = void 0;
+  @property({ attribute: false }) siteRootUrl: string | undefined = undefined;
   @property({ attribute: false }) onModeChanged!: (nextDemoMode: SwitchableDemoMode) => void;
   @property({ attribute: false }) onBackToDemos!: () => void;
   @property({ attribute: false }) randomId = 0;

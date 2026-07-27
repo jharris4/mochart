@@ -22,7 +22,7 @@ function getDuplicates(values: readonly GroupValue[]): GroupValue[] {
 }
 
 function checkProperty(dataErrors: string[], dataProvider: DataProvider, groupValues: readonly GroupValue[], property: string): void {
-  let numberValidator = validators.number().orEqual(void 0);
+  let numberValidator = validators.number().orEqual(undefined);
   if (groupValues.some((g, i) => !numberValidator(dataProvider.getSeriesValue(g, i, property)))) {
     dataErrors.push('series values must be numeric or undefined for property: ' + property);
   }

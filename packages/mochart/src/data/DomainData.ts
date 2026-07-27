@@ -32,7 +32,7 @@ export function getDomainForValues(values: readonly (number | undefined)[] | nul
     let i, valueCount = values.length;
     for (i=0; i<valueCount; i++) {
       value = values[i];
-      if (value !== void 0) {
+      if (value !== undefined) {
         if (min === null || value < min) {
           min = value;
         }

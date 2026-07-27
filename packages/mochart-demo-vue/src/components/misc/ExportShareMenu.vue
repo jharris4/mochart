@@ -26,7 +26,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  getShareState: void 0,
+  getShareState: undefined,
   disabled: false
 });
 
@@ -140,7 +140,7 @@ function onShare() {
       <Icon size="lg" :fixed-width="true" name="share-nodes" />
     </button>
     <div :class="'demo-menu' + (menuOpen ? ' open' : '')"
-         :style="menuOpen && coords ? { position: 'fixed', bottom: coords.bottom + 'px', right: coords.right + 'px', margin: '0', zIndex: 1080 } : void 0">
+         :style="menuOpen && coords ? { position: 'fixed', bottom: coords.bottom + 'px', right: coords.right + 'px', margin: '0', zIndex: 1080 } : undefined">
       <button type="button" class="demo-menu-item" :aria-label="demoText.exportButtons.png.aria" @click="runAndClose(props.exportPng)">
         <Icon :fixed-width="true" name="file-image" /> <span class="mochart-menu-item-label">{{ demoText.exportButtons.png.label }}</span>
       </button>

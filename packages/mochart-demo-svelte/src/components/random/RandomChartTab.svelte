@@ -35,7 +35,7 @@
     mochartConfig,
     dataProvider,
     randomConfig,
-    initialRate = void 0,
+    initialRate = undefined,
     onRandomizeBack,
     onRandomizeNext,
     applyReuse,

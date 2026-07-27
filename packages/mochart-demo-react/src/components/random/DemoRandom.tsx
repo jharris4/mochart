@@ -182,8 +182,8 @@ function RandomMochartDemoContent(props: ContentProps) {
 
   // A share link restores the generator config, reuse toggle and interval (the
   // step comes from the randomId in the URL path). Consume it once at mount.
-  const initialSharedRef = useRef<ShareState | null | undefined>(void 0);
-  if (initialSharedRef.current === void 0) {
+  const initialSharedRef = useRef<ShareState | null | undefined>(undefined);
+  if (initialSharedRef.current === undefined) {
     initialSharedRef.current = consumeShareState('random');
   }
   const initialShared = initialSharedRef.current && initialSharedRef.current.mode === 'random' ? initialSharedRef.current : null;
@@ -236,7 +236,7 @@ function RandomMochartDemoContent(props: ContentProps) {
     <div className="mochart-demo-content">
       <ErrorTab active={activeKey === eventKeyChart}>
         <RandomMochartChartTab mochartConfig={mochartConfig} dataProvider={dataProvider}
-          randomConfig={randomConfig} initialRate={initialShared ? initialShared.interval : void 0}
+          randomConfig={randomConfig} initialRate={initialShared ? initialShared.interval : undefined}
           onRandomizeBack={onRandomizeBack} onRandomizeNext={onRandomizeNext}
           applyReuse={applyReuse} toggleApplyReuse={toggleApplyReuse} />
       </ErrorTab>

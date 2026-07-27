@@ -63,7 +63,7 @@ export class ChartsTab extends LightElement {
     this.playing = false;
     this.data = this.demoObject.data;
     this.dataCount = this.data.length;
-    this.currentDataCount = step !== void 0 && this.dataCount > 0
+    this.currentDataCount = step !== undefined && this.dataCount > 0
       ? ((Math.round(step) % this.dataCount) + this.dataCount) % this.dataCount
       : this.dataCount;
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
@@ -205,7 +205,7 @@ export class ChartsTab extends LightElement {
     let groupIndex = focusData.focusedGroupIndex;
     const { mochartConfig } = this.mochartDemoConfig;
     let nextFocusedGroupIndices = this.focusedGroupIndices;
-    if (groupIndex !== void 0 && groupIndex >= 0) {
+    if (groupIndex !== undefined && groupIndex >= 0) {
       const groupValue = this.dataProviders[chartIndex].getGroupValues()[groupIndex];
       let i, count = this.data.length;
       for (i = 0; i < count; i++) {
@@ -221,13 +221,13 @@ export class ChartsTab extends LightElement {
     else if (this.focusedGroupIndex >= 0) {
       nextFocusedGroupIndices = this.dataProviders.map(() => -1);
     }
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       this.focusedGroupIndex = groupIndex;
     }
-    if (seriesAxisId !== void 0) {
+    if (seriesAxisId !== undefined) {
       this.focusedSeriesAxisId = seriesAxisId;
     }
-    if (seriesId !== void 0) {
+    if (seriesId !== undefined) {
       this.focusedSeriesId = seriesId;
     }
     this.focusedGroupIndices = nextFocusedGroupIndices;

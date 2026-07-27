@@ -121,7 +121,7 @@ function getGroupMergedDisplayValues(
 }
 
 function setValuesForIndices(targetValues: GroupValue[], sourceValues: readonly GroupValue[], indicesForValues: readonly number[]): void {
-  if (sourceValues !== void 0) {
+  if (sourceValues !== undefined) {
     let i, count = sourceValues.length;
     for (i=0; i<count; i++) {
       targetValues[indicesForValues[i]] = sourceValues[i];
@@ -137,7 +137,7 @@ function getValueToNewIndexMap(values: readonly GroupValue[], newValues: readonl
   }
   count = newValues.length;
   for (i=0; i<count; i++) {
-    if (valueToNewIndexMap[getMapKey(newValues[i])] !== void 0) {
+    if (valueToNewIndexMap[getMapKey(newValues[i])] !== undefined) {
       valueToNewIndexMap[getMapKey(newValues[i])] = i;
     }
   }
@@ -209,7 +209,7 @@ function getGroupMergedValuesData(
   getMapKey: GroupMapKeyAccessor
 ): GroupMergedValuesWithoutDisplay {
   const valueToNewIndexMap = getValueToNewIndexMap(groupValuesOld, groupValuesNew, getMapKey);
-  const added = getValuesWithIndex(valueToNewIndexMap, groupValuesNew, void 0, getMapKey);
+  const added = getValuesWithIndex(valueToNewIndexMap, groupValuesNew, undefined, getMapKey);
   const removed = getValuesWithIndex(valueToNewIndexMap, groupValuesOld, -1, getMapKey);
   const merged = getGroupValuesMerged(groupValuesOld, groupValuesNew, removed, added, valueToNewIndexMap, sort, getMapKey);
 

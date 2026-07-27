@@ -140,7 +140,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     if (gradient !== NONE) {
       const { linearGradientConfig, radialGradientConfig } = seriesConfig;
       const gradientSlot = this.ensureDefsGradientSlot();
-      if (linearGradientConfig !== void 0) {
+      if (linearGradientConfig !== undefined) {
         gradientSlot.set(LinearGradient, { uniqueId: gradientId, linearGradientConfig });
       }
       else {

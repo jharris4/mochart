@@ -241,12 +241,12 @@ function getAddedRemoved(a: Defaults, b: Defaults, whitelist: Record<string, boo
   const added: string[] = [];
   const removed: string[] = [];
   for (let aKey of aKeys) {
-    if (b[aKey] === void 0 && whitelist[aKey] !== true) {
+    if (b[aKey] === undefined && whitelist[aKey] !== true) {
       removed.push(aKey);
     }
   }
   for (let bKey of bKeys) {
-    if (a[bKey] === void 0) {
+    if (a[bKey] === undefined) {
       added.push(bKey);
     }
   }
@@ -272,7 +272,7 @@ function checkKeyIntegrity(section: SectionSource, errors: string[]) {
     errors.push(`${id}: descriptions and validators have different keys (missing description: ${JSON.stringify(descriptionDiff.removed)}, missing validator: ${JSON.stringify(descriptionDiff.added)})`);
   }
   for (let detailKey of Object.keys(details)) {
-    if (validators[detailKey] === void 0) {
+    if (validators[detailKey] === undefined) {
       errors.push(`${id}: details entry '${detailKey}' has no matching validator`);
     }
   }
@@ -396,7 +396,7 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
       description: descriptions[key],
       rules: getPropertyRules(source.validators[key], sectionKeyRules[key])
     };
-    if (details[key] !== void 0) {
+    if (details[key] !== undefined) {
       property.details = details[key];
     }
     const conditionalDefault = source.conditionalDefaults?.[key];

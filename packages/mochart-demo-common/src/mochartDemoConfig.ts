@@ -21,7 +21,7 @@ export default function buildMochartDemoConfig(config: ConfigRecord): MochartDem
   // helper shortcuts
   const { valid } = configValidation;
   const { groupAxisConfig, seriesConfigs } = mochartConfig;
-  const groupProperty = groupAxisConfig ? groupAxisConfig.property : void 0;
+  const groupProperty = groupAxisConfig ? groupAxisConfig.property : undefined;
   const seriesCount = Array.isArray(seriesConfigs) ? seriesConfigs.length : 0;
 
   return {
@@ -38,7 +38,7 @@ export default function buildMochartDemoConfig(config: ConfigRecord): MochartDem
 }
 
 function isObject(v: unknown): v is ConfigRecord {
-  return v !== null && v !== void 0 && typeof v === 'object';
+  return v !== null && v !== undefined && typeof v === 'object';
 }
 
 function areEqual(a: unknown, b: unknown): boolean {
@@ -96,11 +96,11 @@ function withoutDefaults(configWithDefaults: unknown, configDefaults: unknown): 
     for (const sectionKey of sectionKeys) {
       const configSection = configWithDefaults[sectionKey];
       const allKey = sectionKeyAllMap[sectionKey];
-      const allSectionValue = allKey && configWithDefaults[allKey] !== void 0 ? configWithDefaults[allKey] : {};
+      const allSectionValue = allKey && configWithDefaults[allKey] !== undefined ? configWithDefaults[allKey] : {};
       const allSection = isObject(allSectionValue) ? allSectionValue : {};
-      if (configSection !== void 0) {
+      if (configSection !== undefined) {
         const configDefaultSection = configDefaults[sectionKey];
-        if (configDefaultSection !== void 0) {
+        if (configDefaultSection !== undefined) {
           if (Array.isArray(configSection)) {
             const defaultSections = Array.isArray(configDefaultSection) ? configDefaultSection : [];
             const newSections: unknown[] = [];

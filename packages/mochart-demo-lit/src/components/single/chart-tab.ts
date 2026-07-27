@@ -94,13 +94,13 @@ export class ChartTab extends LightElement {
 
   private onFocus = (focusData: FocusData = {}): void => {
     const { seriesAxisId, seriesId, groupIndex } = focusData;
-    if (seriesAxisId !== void 0) {
+    if (seriesAxisId !== undefined) {
       this.focusedSeriesAxisId = seriesAxisId;
     }
-    if (seriesId !== void 0) {
+    if (seriesId !== undefined) {
       this.focusedSeriesId = seriesId;
     }
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       this.focusedGroupIndex = groupIndex;
     }
   };

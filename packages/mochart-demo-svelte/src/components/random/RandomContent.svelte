@@ -50,7 +50,7 @@
   const shared = sharedState && sharedState.mode === 'random' ? sharedState : null;
   // svelte-ignore state_referenced_locally
   const initialResolvedRandomConfig: RandomConfigWithValid = shared ? { ...shared.randomConfig, valid: true } : initialRandomConfig;
-  const initialRate = shared ? shared.interval : void 0;
+  const initialRate = shared ? shared.interval : undefined;
 
   // svelte-ignore state_referenced_locally
   let randomConfig = $state.raw<RandomConfigWithValid>(initialResolvedRandomConfig);
@@ -98,7 +98,7 @@
 
   function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
     const { mochartConfig } = mochartDemoConfig;
-    const nextRandomConfig = forcedRandomConfig !== void 0 ? forcedRandomConfig : randomConfig;
+    const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : randomConfig;
 
     if (nextRandomConfig.valid) {
       const generatorConfig = applyReuse ? nextRandomConfig : withReuseNeutralized(nextRandomConfig);

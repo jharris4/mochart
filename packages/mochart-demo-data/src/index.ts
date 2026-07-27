@@ -13,7 +13,7 @@ const randomModules = import.meta.glob('./random/*.json', { eager: true, import:
 
 function getModule(modules: ModuleMap, dir: string, file: string): unknown {
   const mod = modules[dir + file];
-  if (mod === void 0) {
+  if (mod === undefined) {
     throw new Error('demo file not found: ' + dir + file);
   }
   return mod;

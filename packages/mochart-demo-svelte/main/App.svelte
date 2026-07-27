@@ -31,7 +31,7 @@
   function getDebugSiteRootUrl(): string | undefined {
     const param = new URLSearchParams(window.location.search).get('siteRoot');
     if (param === null) {
-      return void 0;
+      return undefined;
     }
     return param === '' ? '/' : param;
   }
@@ -74,7 +74,7 @@
   const route = $derived(resolveRoute(getPath()));
 
   $effect(() => {
-    if (route.redirect !== void 0) {
+    if (route.redirect !== undefined) {
       navigate(route.redirect, { replace: true });
     }
   });
@@ -95,7 +95,7 @@
   // the switcher stays correct after any navigation.
   function onModeChanged(nextDemoMode: SwitchableDemoMode) {
     const currentDemoId = resolveRoute(getPath()).demoId;
-    if (currentDemoId === void 0) {
+    if (currentDemoId === undefined) {
       navigate('/demos');
     }
     else if (nextDemoMode === 'random') {
@@ -107,7 +107,7 @@
   }
 
   const demoId = $derived(route.demoId);
-  const isKnownDemo = $derived(demoId !== void 0 && demoObjectMap[demoId] !== void 0);
+  const isKnownDemo = $derived(demoId !== undefined && demoObjectMap[demoId] !== undefined);
   const randomId = $derived(Number(route.randomId));
   const isValidRandomId = $derived(randomId > Number.MIN_SAFE_INTEGER && randomId < Number.MAX_SAFE_INTEGER);
 
@@ -115,7 +115,7 @@
   // they stay correct after any navigation.
   function getCurrentRandomDemoId(): string {
     const currentDemoId = resolveRoute(getPath()).demoId;
-    return currentDemoId !== void 0 ? currentDemoId : demoIds[0];
+    return currentDemoId !== undefined ? currentDemoId : demoIds[0];
   }
 
   function getCurrentRandomId(): number {
@@ -131,9 +131,9 @@
   }
 </script>
 
-{#if route.redirect !== void 0}
+{#if route.redirect !== undefined}
   <!-- redirecting -->
-{:else if route.notFound !== void 0}
+{:else if route.notFound !== undefined}
   <div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No route found matching {route.notFound}</div></div>
 {:else if route.gallery === true}
   <GalleryPage {demoData} {siteRootUrl} {onOpenDemo} {onOpenPage} />

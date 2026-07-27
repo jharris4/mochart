@@ -44,7 +44,7 @@ function applyCurve(generator: ShapeGenerator, curveOption: SeriesCurve): ShapeG
   let curve = curveTypeToCurveMap[curveOption.type];
   if (curve !== null) {
     const curveParamFunction = curveTypeToParamFunctionMap[curveOption.type];
-    if (curveParamFunction !== null && curveOption.param !== void 0) {
+    if (curveParamFunction !== null && curveOption.param !== undefined) {
       curve = curve[curveParamFunction]!(curveOption.param);
     }
     generator = generator.curve(curve);

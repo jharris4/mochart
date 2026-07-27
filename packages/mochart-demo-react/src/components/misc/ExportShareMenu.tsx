@@ -121,7 +121,7 @@ export default function ExportShareMenu({ idPrefix, exportPng, exportSvg, getSha
         <Icon size="lg" fixedWidth={true} name="share-nodes" />
       </button>
       <div className={'demo-menu' + (menuOpen ? ' open' : '')}
-        style={menuOpen ? { position: 'fixed', bottom: coords.bottom, right: coords.right, margin: 0, zIndex: 1080 } : void 0}>
+        style={menuOpen ? { position: 'fixed', bottom: coords.bottom, right: coords.right, margin: 0, zIndex: 1080 } : undefined}>
         <button type="button" className="demo-menu-item" onClick={() => runAndClose(exportPng)}
           aria-label={demoText.exportButtons.png.aria}>
           <Icon fixedWidth={true} name="file-image" /> <span className="mochart-menu-item-label">{demoText.exportButtons.png.label}</span>

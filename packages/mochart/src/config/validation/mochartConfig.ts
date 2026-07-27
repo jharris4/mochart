@@ -180,7 +180,7 @@ export default function validateConfig(configWithoutDefaults: unknown, configDef
     const sectionKeys = Object.keys(configWithoutAllValidators);
     for (let sectionKey of sectionKeys) {
       const { validator, allKey } = configWithoutAllValidators[sectionKey]!;
-      if (allKey && config[allKey] !== void 0) { // all is optional, only validate if set
+      if (allKey && config[allKey] !== undefined) { // all is optional, only validate if set
         if (!objectValidator(configWithoutDefaults[allKey])) {
           errors.push(getMessage(allKey, objectValidator.getErrorMessage(config[allKey])));
         }
@@ -188,24 +188,24 @@ export default function validateConfig(configWithoutDefaults: unknown, configDef
       const { list, validators, uniqueKeys, references, commonReferences } = configWithoutAllValidators[sectionKey]!;
       const priorErrorCount = errors.length;
       if (list === true) {
-        if (configWithoutDefaults[sectionKey] !== void 0) {
+        if (configWithoutDefaults[sectionKey] !== undefined) {
           if (!validator(configWithoutDefaults[sectionKey]) && !objectValidator(configWithoutDefaults[sectionKey])) {
             errors.push(getMessage(sectionKey, validator.getErrorMessage(configWithoutDefaults[sectionKey])));
           }
         }
-        if ((configDefaults[sectionKey] !== void 0 || configWithoutDefaults[sectionKey] === void 0) && !validator(configDefaults[sectionKey])) {
-          const prefix = configDefaults[sectionKey] === void 0 ? '' : DEFAULT;
+        if ((configDefaults[sectionKey] !== undefined || configWithoutDefaults[sectionKey] === undefined) && !validator(configDefaults[sectionKey])) {
+          const prefix = configDefaults[sectionKey] === undefined ? '' : DEFAULT;
           errors.push(getMessage(prefix + sectionKey, validator.getErrorMessage(configDefaults[sectionKey])));
         }
       }
       else {
-        if (configWithoutDefaults[sectionKey] !== void 0) {
+        if (configWithoutDefaults[sectionKey] !== undefined) {
           if (!validator(configWithoutDefaults[sectionKey])) {
             errors.push(getMessage(sectionKey, validator.getErrorMessage(configWithoutDefaults[sectionKey])));
           }
         }
-        if ((configDefaults[sectionKey] !== void 0 || configWithoutDefaults[sectionKey] === void 0) && !validator(configDefaults[sectionKey])) {
-          const prefix = configDefaults[sectionKey] === void 0 ? '' : DEFAULT;
+        if ((configDefaults[sectionKey] !== undefined || configWithoutDefaults[sectionKey] === undefined) && !validator(configDefaults[sectionKey])) {
+          const prefix = configDefaults[sectionKey] === undefined ? '' : DEFAULT;
           errors.push(getMessage(prefix + sectionKey, validator.getErrorMessage(configDefaults[sectionKey])));
         }
       }
@@ -260,7 +260,7 @@ function validateConfigSection(config: ConfigRecord, configWithoutDefaults: Conf
 }
 
 function safeIndex(array: unknown, i: number): unknown {
-  return Array.isArray(array) ? array[i] : void 0;
+  return Array.isArray(array) ? array[i] : undefined;
 }
 
 function validateConfigSections(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[]): void {
@@ -273,7 +273,7 @@ function validateConfigSections(config: ConfigRecord, configWithoutDefaults: Con
       all, sectionValidators, uniqueKeys, errors, warnings, false, i);
   }
   if (sections.length === 0 && all) {
-    validateSection(sectionKey, allKey, all, void 0, void 0, all, sectionValidators, uniqueKeys, errors, warnings, true);
+    validateSection(sectionKey, allKey, all, undefined, undefined, all, sectionValidators, uniqueKeys, errors, warnings, true);
   }
 }
 
@@ -285,7 +285,7 @@ function pushAll(target: string[], source: string[]): void {
   }
 }
 
-function validateSection(sectionKey: string, allKey: string | undefined, section: unknown, sectionWithoutDefaults: unknown, sectionDefaults: unknown, all: unknown, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[], onlyAll: boolean, i: number | undefined = void 0): void {
+function validateSection(sectionKey: string, allKey: string | undefined, section: unknown, sectionWithoutDefaults: unknown, sectionDefaults: unknown, all: unknown, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[], onlyAll: boolean, i: number | undefined = undefined): void {
   const sectionAll = configWithAll(section, all);
   let { errorMessages, warningMessages } = getMessages(sectionKey, allKey, uniqueKeys, sectionWithoutDefaults, sectionDefaults, all, sectionValidators(isConfigRecord(sectionAll) ? sectionAll : {}), onlyAll, i);
   pushAll(errors, errorMessages);
@@ -297,15 +297,15 @@ function validateUniqueInternal(config: ConfigRecord, sectionKey: string, proper
   if (Array.isArray(sections)) {
     let sources: Record<string, boolean> = {};
     for (const section of sections) {
-      if (isConfigRecord(section) && section[property] !== void 0) {
+      if (isConfigRecord(section) && section[property] !== undefined) {
         const value = String(section[property]);
-        sources[value] = sources[value] !== void 0;
+        sources[value] = sources[value] !== undefined;
       }
     }
     let section;
     for (let i = 0; i < sections.length; i++) {
       section = sections[i];
-      if (isConfigRecord(section) && section[property] !== void 0 && sources[String(section[property])] === true) {
+      if (isConfigRecord(section) && section[property] !== undefined && sources[String(section[property])] === true) {
         errors.push(getPropertyMessage(sectionKey, property,
           getUniqueMessage() + ': ' + JSON.stringify(section[property]), i));
       }
@@ -336,7 +336,7 @@ function validateReferencesInternal(config: ConfigRecord, targetSections: unknow
     let sources: Record<string, boolean> = {};
     const sourceSectionRecords = sourceSections.filter(isConfigRecord);
     for (let sourceSection of sourceSectionRecords) {
-      if (sourceSection[sourceProperty] !== void 0) {
+      if (sourceSection[sourceProperty] !== undefined) {
         sources[String(sourceSection[sourceProperty])] = true;
       }
     }
@@ -344,7 +344,7 @@ function validateReferencesInternal(config: ConfigRecord, targetSections: unknow
       let target: unknown;
       for (let i = 0; i < targetSections.length; i++) {
         target = targetSections[i];
-        if (isConfigRecord(target) && target[targetProperty] !== void 0 && target[targetProperty] !== NONE && sources[String(target[targetProperty])] !== true) {
+        if (isConfigRecord(target) && target[targetProperty] !== undefined && target[targetProperty] !== NONE && sources[String(target[targetProperty])] !== true) {
           errors.push(getPropertyMessage(targetSectionKey, targetProperty,
             getReferenceMessage(sourceSectionKey, sourceProperty) + ': ' + JSON.stringify(target[targetProperty]), i));
         }
@@ -352,7 +352,7 @@ function validateReferencesInternal(config: ConfigRecord, targetSections: unknow
     }
     else if (isConfigRecord(targetSections)) {
       let target = targetSections;
-      if (target[targetProperty] !== void 0 && target[targetProperty] !== NONE && sources[String(target[targetProperty])] !== true) {
+      if (target[targetProperty] !== undefined && target[targetProperty] !== NONE && sources[String(target[targetProperty])] !== true) {
         errors.push(getPropertyMessage(targetSectionKey, targetProperty,
           getReferenceMessage(sourceSectionKey, sourceProperty) + ': ' + JSON.stringify(target[targetProperty])));
       }
@@ -378,7 +378,7 @@ function validateCommonReferencesInternal(config: ConfigRecord, targetSections: 
     let sourceProperties: Record<string, unknown> = {};
     const sourceSectionRecords = sourceSections.filter(isConfigRecord);
     for (let sourceSection of sourceSectionRecords) {
-      if (sourceSection[sourceProperty] !== void 0 && sourceSection[commonProperty] !== void 0) {
+      if (sourceSection[sourceProperty] !== undefined && sourceSection[commonProperty] !== undefined) {
         sourceProperties[String(sourceSection[sourceProperty])] = sourceSection[commonProperty];
       }
     }
@@ -387,8 +387,8 @@ function validateCommonReferencesInternal(config: ConfigRecord, targetSections: 
     if (Array.isArray(targetSections)) {
       for (i = 0; i < targetSections.length; i++) {
         target = targetSections[i];
-        if (isConfigRecord(target) && target[targetProperty] !== void 0 && target[commonProperty] !== void 0 &&
-          sourceProperties[String(target[targetProperty])] !== void 0 && sourceProperties[String(target[targetProperty])] !== target[commonProperty]) {
+        if (isConfigRecord(target) && target[targetProperty] !== undefined && target[commonProperty] !== undefined &&
+          sourceProperties[String(target[targetProperty])] !== undefined && sourceProperties[String(target[targetProperty])] !== target[commonProperty]) {
           errors.push(getPropertyMessage(targetSectionKey, targetProperty,
             getCommonReferenceMessage(sourceSectionKey, sourceProperty, commonProperty) + ': ' +
             JSON.stringify(sourceProperties[String(target[targetProperty])]) + ' vs  ' + JSON.stringify(target[commonProperty]), i));
@@ -397,8 +397,8 @@ function validateCommonReferencesInternal(config: ConfigRecord, targetSections: 
     }
     else if (isConfigRecord(targetSections)) {
       const targetRecord = targetSections;
-      if (targetRecord[targetProperty] !== void 0 && targetRecord[commonProperty] !== void 0 &&
-        sourceProperties[String(targetRecord[targetProperty])] !== void 0 && sourceProperties[String(targetRecord[targetProperty])] !== targetRecord[commonProperty]) {
+      if (targetRecord[targetProperty] !== undefined && targetRecord[commonProperty] !== undefined &&
+        sourceProperties[String(targetRecord[targetProperty])] !== undefined && sourceProperties[String(targetRecord[targetProperty])] !== targetRecord[commonProperty]) {
         errors.push(getPropertyMessage(targetSectionKey, targetProperty,
           getCommonReferenceMessage(sourceSectionKey, sourceProperty, commonProperty) + ': ' +
           JSON.stringify(sourceProperties[String(targetRecord[targetProperty])]) + ' vs  ' + JSON.stringify(targetRecord[commonProperty]), i));

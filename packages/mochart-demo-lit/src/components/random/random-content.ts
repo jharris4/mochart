@@ -39,7 +39,7 @@ export class RandomContent extends LightElement {
   @state() private applyReuse = true;
   // Restored from a share link (the interval seeds the chart tab's rate);
   // undefined for a normal mount, where the default rate applies.
-  private initialRate: number | undefined = void 0;
+  private initialRate: number | undefined = undefined;
 
   private toggleApplyReuse = (): void => {
     this.applyReuse = !this.applyReuse;
@@ -79,7 +79,7 @@ export class RandomContent extends LightElement {
 
   private updateDataProvider(forcedRandomConfig?: RandomConfigWithValid): void {
     const { mochartConfig } = this.mochartDemoConfig;
-    const nextRandomConfig = forcedRandomConfig !== void 0 ? forcedRandomConfig : this.randomConfig;
+    const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : this.randomConfig;
 
     if (nextRandomConfig.valid) {
       const generatorConfig = this.applyReuse ? nextRandomConfig : this.withReuseNeutralized(nextRandomConfig);

@@ -45,7 +45,7 @@ export default function getValidators() {
 
     ticks: validators.arrayOf(validators.objectWithShape({
       value: validators.number(),
-      label: validators.string().orEqual(void 0)
+      label: validators.string().orEqual(undefined)
     }), true).orEqual(NONE),
 
     softMax: validators.number().orEqual(NONE),

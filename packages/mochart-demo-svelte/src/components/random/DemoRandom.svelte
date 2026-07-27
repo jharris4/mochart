@@ -30,7 +30,7 @@
   let {
     demoData,
     initialDemoId,
-    siteRootUrl = void 0,
+    siteRootUrl = undefined,
     onModeChanged,
     onBackToDemos,
     randomId,

@@ -13,19 +13,19 @@ const objectValidator = validators.object();
 const suffix = ' - ';
 const maxInvalidProperties = 10;
 
-function prefixMessage(prefix: string, i: number | undefined = void 0): string {
-  return i === void 0 ? prefix + suffix : prefix + '[' + i + ']' + suffix;
+function prefixMessage(prefix: string, i: number | undefined = undefined): string {
+  return i === undefined ? prefix + suffix : prefix + '[' + i + ']' + suffix;
 }
 
-function prefixPropertyErrorMessage(prefix: string, property: string, message: string, i: number | undefined = void 0): string {
+function prefixPropertyErrorMessage(prefix: string, property: string, message: string, i: number | undefined = undefined): string {
   return prefixMessage(prefix, i) + property + suffix + message;
 }
 
-function prefixErrorMessage(prefix: string, message: string, i: number | undefined = void 0): string {
+function prefixErrorMessage(prefix: string, message: string, i: number | undefined = undefined): string {
   return prefixMessage(prefix, i) + message;
 }
 
-export function getPropertyMessage(prefix: string, property: string, message: string, i: number | undefined = void 0): string {
+export function getPropertyMessage(prefix: string, property: string, message: string, i: number | undefined = undefined): string {
   return prefixPropertyErrorMessage(prefix, property, message, i);
 }
 
@@ -41,15 +41,15 @@ export function addErrorMessage(prefix: string, config: unknown, validator: Vali
   }
 }
 
-export function addErrorMessages(prefix: string, config: unknown, validatorMap: ValidatorMap, errorMessages: string[], i: number | undefined = void 0): void {
+export function addErrorMessages(prefix: string, config: unknown, validatorMap: ValidatorMap, errorMessages: string[], i: number | undefined = undefined): void {
   addErrorMessagesInternal(prefix, config, validatorMap, errorMessages, i, true);
 }
 
-function addErrorMessagesInternal(prefix: string, config: unknown, validatorMap: ValidatorMap, errorMessages: string[], i: number | undefined = void 0, all = false): void {
+function addErrorMessagesInternal(prefix: string, config: unknown, validatorMap: ValidatorMap, errorMessages: string[], i: number | undefined = undefined, all = false): void {
   if (objectValidator(config) && isConfigObject(config)) {
     const validatorKeys = Object.keys(validatorMap);
     const configKeys = Object.keys(config);
-    const keys = all ? validatorKeys : configKeys.filter(configKey => validatorMap[configKey] !== void 0)
+    const keys = all ? validatorKeys : configKeys.filter(configKey => validatorMap[configKey] !== undefined)
 
     for (let key of keys) {
       const validator = validatorMap[key]!;
@@ -62,11 +62,11 @@ function addErrorMessagesInternal(prefix: string, config: unknown, validatorMap:
   }
 }
 
-export function addWarningMessages(prefix: string, config: unknown, propertyMap: Record<string, unknown>, warningMessages: string[], i: number | undefined = void 0): void {
+export function addWarningMessages(prefix: string, config: unknown, propertyMap: Record<string, unknown>, warningMessages: string[], i: number | undefined = undefined): void {
   addWarningMessagesInternal(prefix, config, propertyMap, warningMessages, i, true);
 }
 
-function addWarningMessagesInternal(prefix: string, config: unknown, propertyMap: Record<string, unknown>, warningMessages: string[], i: number | undefined = void 0, _all = false): void {
+function addWarningMessagesInternal(prefix: string, config: unknown, propertyMap: Record<string, unknown>, warningMessages: string[], i: number | undefined = undefined, _all = false): void {
   if (objectValidator(config) && isConfigObject(config)) {
     let invalidProperties: string[] = [];
     let invalidPropertyCount = 0;
@@ -94,7 +94,7 @@ function addWarningMessagesInternal(prefix: string, config: unknown, propertyMap
 function objectWithKeys<T>(object: Record<string, T>, keys: string[]): Record<string, T> {
   const clone: Record<string, T> = {};
   for (let key of keys) {
-    if (object[key] !== void 0) {
+    if (object[key] !== undefined) {
       clone[key] = object[key];
     }
   }
@@ -111,7 +111,7 @@ function arrayToMap(array: string[]): Record<string, boolean> {
 
 export const DEFAULT = 'Default ';
 
-export function getMessages(sectionKey: string, allKey: string | undefined, uniqueKeys: string[] | undefined, section: unknown, sectionDefaults: unknown, all: unknown, validatorMap: ValidatorMap, onlyAll: boolean, i: number | undefined = void 0) {
+export function getMessages(sectionKey: string, allKey: string | undefined, uniqueKeys: string[] | undefined, section: unknown, sectionDefaults: unknown, all: unknown, validatorMap: ValidatorMap, onlyAll: boolean, i: number | undefined = undefined) {
   const errorMessages: string[] = [];
   const warningMessages: string[] = [];
   const validatorKeys = Object.keys(validatorMap);
@@ -120,8 +120,8 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
   if (!onlyAll && objectValidator(sectionDefaults) && isConfigObject(sectionDefaults)) {
     providedKeyMap = {...providedKeyMap, ...sectionDefaults};
 
-    if (i === void 0 || i === 0) {
-      const sectionDefaultKeys = Object.keys(sectionDefaults).filter(key => sectionDefaults[key] !== void 0);
+    if (i === undefined || i === 0) {
+      const sectionDefaultKeys = Object.keys(sectionDefaults).filter(key => sectionDefaults[key] !== undefined);
       const defaultValidators = objectWithKeys(validatorMap, sectionDefaultKeys);
 
       addErrorMessagesInternal(DEFAULT + sectionKey, sectionDefaults, defaultValidators, errorMessages);
@@ -130,8 +130,8 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
   }
   if (objectValidator(all) && isConfigObject(all)) {
     providedKeyMap = { ...providedKeyMap, ...all };
-    if ((i === void 0 || i === 0)) {
-      const uniqueAllKeys = (Array.isArray(uniqueKeys) ? uniqueKeys : []).filter(uniqueKey => all[uniqueKey] !== void 0)
+    if ((i === undefined || i === 0)) {
+      const uniqueAllKeys = (Array.isArray(uniqueKeys) ? uniqueKeys : []).filter(uniqueKey => all[uniqueKey] !== undefined)
 
       for (let uniqueAllKey of uniqueAllKeys) {
         errorMessages.push(
@@ -155,7 +155,7 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
   }
 
   if (!onlyAll) {
-    const missingKeys = validatorKeys.filter(key => providedKeyMap[key] === void 0);
+    const missingKeys = validatorKeys.filter(key => providedKeyMap[key] === undefined);
     const missingValidators = objectWithKeys(validatorMap, missingKeys);
 
     addErrorMessagesInternal(sectionKey, isConfigObject(section) ? section : {}, missingValidators, errorMessages, i, true);

@@ -55,5 +55,5 @@ export function createDemoNavigation(router: Router): DemoNavigation {
 }
 
 export function isKnownDemo(demoId: string): boolean {
-  return demoData.demoObjectMap[demoId] !== void 0;
+  return demoData.demoObjectMap[demoId] !== undefined;
 }

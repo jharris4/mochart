@@ -18,7 +18,7 @@
     onOpenPage: (mode: 'transition' | 'rotation') => void;
   }
 
-  let { demoData, siteRootUrl = void 0, onOpenDemo, onOpenPage }: Props = $props();
+  let { demoData, siteRootUrl = undefined, onOpenDemo, onOpenPage }: Props = $props();
 
   const pageIcons: Record<'transition' | 'rotation', string> = {
     transition: 'right-left',
@@ -39,7 +39,7 @@
 
 {#snippet sectionHeader(section: GallerySection)}
   <span class="mochart-demo-gallery-section-title">{section.title}</span>
-  {#if section.hint !== void 0}
+  {#if section.hint !== undefined}
     <span class="mochart-demo-gallery-section-hint">{section.hint}</span>
   {/if}
 {/snippet}
@@ -53,7 +53,7 @@
           <Icon fixedWidth name={pageIcons[item.mode]} />
         {/if}
         <span class="mochart-demo-item-title">{item.title}</span>
-        {#if item.description !== void 0}
+        {#if item.description !== undefined}
           <span class="mochart-demo-item-description">{item.description}</span>
         {/if}
       </button>
@@ -63,7 +63,7 @@
 
 <div class="mochart-demo-container">
   <div class="mochart-demo-gallery-header">
-    {#if siteRootUrl !== void 0}
+    {#if siteRootUrl !== undefined}
       <SiteRootButton {siteRootUrl} />
     {/if}
     <ThemeToggleButton />

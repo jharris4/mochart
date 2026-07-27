@@ -13,7 +13,7 @@ export const sectionKeyAllMap: Record<string, string> = {
 };
 
 function isObject(v: unknown): v is ConfigRecord {
-  return v !== null && v !== void 0 && typeof v === "object";
+  return v !== null && v !== undefined && typeof v === "object";
 }
 
 const shallowConfigListCopy = (configs: unknown): unknown => {
@@ -31,11 +31,11 @@ const configsToIdMap = <T>(configs: ConfigRecord[], value: (config: ConfigRecord
 };
 
 function isInteger(v: unknown): v is number {
-  return v !== void 0 && (typeof v === "number" || v instanceof Number) && isFinite(v as number) && (v as number) % 1 === 0;
+  return v !== undefined && (typeof v === "number" || v instanceof Number) && isFinite(v as number) && (v as number) % 1 === 0;
 }
 
 function isString(v: unknown): v is string {
-  return v !== void 0 && (typeof v === "string" || v instanceof String);
+  return v !== undefined && (typeof v === "string" || v instanceof String);
 }
 
 function getOrder(v: unknown): number {
@@ -57,7 +57,7 @@ const addToIdMap = (idMap: Record<string, ConfigRecord[]>, configs: ConfigRecord
   if (Array.isArray(configs)) {
     for (let config of configs) {
       const reference = config[key];
-      if (isObject(config) && typeof reference === 'string' && reference !== NONE && idMap[reference] !== void 0) {
+      if (isObject(config) && typeof reference === 'string' && reference !== NONE && idMap[reference] !== undefined) {
         idMap[reference]!.push(config);
       }
     }
@@ -77,8 +77,8 @@ function shallowConfigCopy(config: ConfigRecord): ConfigRecord {
 const assignConfigReferences = (configs: ConfigRecord[], referenceKey: string, referenceName: string, configMap: Record<string, ConfigRecord>, configDescriptor: string): void => {
   if (Array.isArray(configs)) {
     for (let config of configs) {
-      if (isObject(config) && config[referenceKey] !== void 0) {
-        if (config[referenceName] !== void 0) {
+      if (isObject(config) && config[referenceKey] !== undefined) {
+        if (config[referenceName] !== undefined) {
           console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
         }
         config[referenceName] = configMap[String(config[referenceKey])];
@@ -91,7 +91,7 @@ const assignConfigListReferences = (configs: ConfigRecord[], referenceName: stri
   if (Array.isArray(configs)) {
     for (let config of configs) {
       if (isObject(config)) {
-        if (config[referenceName] !== void 0) {
+        if (config[referenceName] !== undefined) {
           console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
         }
         config[referenceName] = configListMap[String(config.id)];
@@ -104,7 +104,7 @@ const assignConfigListIndexReferences = (configs: ConfigRecord[], referenceName:
   if (Array.isArray(configs)) {
     for (let config of configs) {
       if (isObject(config)) {
-        if (config[referenceName] !== void 0) {
+        if (config[referenceName] !== undefined) {
           console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
         }
         config[referenceName] = arrayToIdIndexMap(config[listReferenceName]);
@@ -154,7 +154,7 @@ export function filterConfig(config: unknown): config is ConfigRecord {
 
 function withoutUndefined(object: ConfigRecord): ConfigRecord {
   const keys = Object.keys(object);
-  const keysFiltered = keys.filter(key => object[key] !== void 0);
+  const keysFiltered = keys.filter(key => object[key] !== undefined);
   if (keysFiltered.length < keys.length) {
     const clone: ConfigRecord = {};
     for (let key of keysFiltered) {
@@ -191,7 +191,7 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
         else if (isObject(configSection)) {
           config[sectionKey] = [{ ...(isObject(defaultsSection[0]) ? withoutUndefined(defaultsSection[0]) : {}), ...configSection }];
         }
-        else if (configSection === void 0) {
+        else if (configSection === undefined) {
           config[sectionKey] = defaultsSection;
         }
       }
@@ -199,7 +199,7 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
         if (isObject(configSection)) {
           config[sectionKey] = { ...withoutUndefined(defaultsSection), ...configSection };
         }
-        else if (configSection === void 0) {
+        else if (configSection === undefined) {
           config[sectionKey] = withoutUndefined(defaultsSection);
         }
       }
@@ -219,7 +219,7 @@ function applyAllConfig(configs: ConfigRecord[], allConfig: unknown): ConfigReco
 }
 
 export default function buildMochartConfig(configWithoutDefaults: unknown, configDefaults: ConfigRecord, validation?: ConfigValidation): MochartConfig {
-  if (validation === void 0) {
+  if (validation === undefined) {
     validation = { valid: true, errors: [], warnings: [] };
   }
   else {
@@ -231,7 +231,7 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
       validation
     } as MochartConfig;
   }
-  else if (configWithoutDefaults.validation !== void 0) {
+  else if (configWithoutDefaults.validation !== undefined) {
     console.warn('mochartConfig had a validation property that will be overriden');
   }
 

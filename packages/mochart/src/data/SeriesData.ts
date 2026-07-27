@@ -235,9 +235,9 @@ function setStackSingleSeriesValues(valueObject: SeriesValueObject, positiveStac
   let value: number | undefined, tempValue: number | undefined;
   for (i=0; i<count; i++) {
     value = values[i];
-    if (value === void 0) {
+    if (value === undefined) {
       priorValues.push(positiveStackValues[i]);
-      stackValues.push(void 0);
+      stackValues.push(undefined);
     }
     else if (value >= 0) {
       tempValue = positiveStackValues[i];
@@ -252,7 +252,7 @@ function setStackSingleSeriesValues(valueObject: SeriesValueObject, positiveStac
       stackValues.push(tempValue);
     }
   }
-  if (tempValue === void 0) { // no values were stacked, so don't set the prior values
+  if (tempValue === undefined) { // no values were stacked, so don't set the prior values
     priorValues = stackValues;
   }
   valueObject.stack = stackValues;
@@ -265,7 +265,7 @@ function getStackPriorValues(positiveStackValues: number[], negativeStackValues:
   let i, count = values.length;
   for (i = 0; i < count; i++) {
     value = values[i];
-    if (value === void 0 || value >= 0) {
+    if (value === undefined || value >= 0) {
       priorValues.push(positiveStackValues[i]);
     }
     else {
@@ -279,7 +279,7 @@ function incrementStackValues(positiveStackValues: number[], negativeStackValues
   let i, value: number | undefined, count = values.length;
   for (i=0; i<count; i++) {
     value = values[i];
-    if (value !== void 0) {
+    if (value !== undefined) {
       if (value > 0) {
         positiveStackValues[i]+= value;
       }
@@ -386,7 +386,7 @@ function setSeriesDomain(seriesDomainObject: SeriesDomainObject, seriesValuesObj
 function getSeriesFilteredFlags(seriesConfigs: SeriesConfig[], filteredSeriesMap: Record<string, unknown>): Record<string, boolean> {
   let seriesFilteredFlags: Record<string, boolean> = {};
   for (let seriesConfig of seriesConfigs) {
-    seriesFilteredFlags[seriesConfig.id] = filteredSeriesMap[seriesConfig.id] !== void 0;
+    seriesFilteredFlags[seriesConfig.id] = filteredSeriesMap[seriesConfig.id] !== undefined;
   }
   return seriesFilteredFlags;
 }
@@ -455,7 +455,7 @@ function getGroupSeriesValueObject(seriesValueObject: SeriesValueObject, groupIn
   let keyValues: NumericValues | null;
   for (let key of valueKeys) {
     keyValues = seriesValueObject[key];
-    if (keyValues !== void 0) {
+    if (keyValues !== undefined) {
       if (keyValues === null) {
         groupSeriesValueObject[key] = null;
       }

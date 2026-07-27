@@ -239,7 +239,7 @@ export default function EditableChart(props: Props) {
 
   const onLocalFocus = ({ seriesAxisId, seriesId, groupIndex }: FocusPayload) => {
     const { data, onFocus } = propsRef.current;
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       const filteredFocusedGroupIndex = groupIndex;
       let newFocusedGroupIndex = -1;
       if (filteredFocusedGroupIndex >= 0) {
@@ -403,7 +403,7 @@ export default function EditableChart(props: Props) {
     }
     const removedData: Row[] = [];
     oldRemovedData.forEach(removedObject => {
-      if (removedMap[removedObject[groupProperty]] !== void 0) {
+      if (removedMap[removedObject[groupProperty]] !== undefined) {
         removedData.push(removedMap[removedObject[groupProperty]]);
       }
     });
@@ -685,7 +685,7 @@ export default function EditableChart(props: Props) {
       getShareState={showShareButton ? () => {
         const { mochartDemoConfig, data } = propsRef.current;
         return { mode: 'single', config: mochartDemoConfig.config, data };
-      } : void 0} />
+      } : undefined} />
   );
 
   // Pushed to the far right of the controls row (past the group/series input).

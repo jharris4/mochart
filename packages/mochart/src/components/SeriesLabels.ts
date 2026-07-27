@@ -178,7 +178,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             if (hasBase) {
               withinPercentages = (maxSeriesValue: number, minSeriesValue?: number | null) => {
                 let valueMin = base;
-                if (minSeriesValue !== null && minSeriesValue !== void 0) {
+                if (minSeriesValue !== null && minSeriesValue !== undefined) {
                   valueMin = minSeriesValue;
                 }
                 return oldWithinPercentages(maxSeriesValue) && (maxSeriesValue - valueMin) >= minAbsoluteValue;
@@ -187,7 +187,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             else {
               withinPercentages = (maxSeriesValue: number, minSeriesValue?: number | null) => {
                 let valueMin = domainMin;
-                if (minSeriesValue !== null && minSeriesValue !== void 0) {
+                if (minSeriesValue !== null && minSeriesValue !== undefined) {
                   valueMin = minSeriesValue;
                 }
                 return oldWithinPercentages(maxSeriesValue) && (maxSeriesValue - valueMin) >= minAbsoluteValue;
@@ -197,7 +197,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
           else {
             withinPercentages = (maxSeriesValue: number, minSeriesValue?: number | null) => {
               let valueMin = maxSeriesValue;
-              if (minSeriesValue !== void 0) {
+              if (minSeriesValue !== undefined) {
                 // Preserve the original numeric coercion: a null minimum
                 // represents the zero baseline for an unstacked value.
                 valueMin = minSeriesValue ?? 0;
@@ -223,7 +223,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
 
         for (let i = 0; i < length; i++) {
           let skipI = skipMissing ? skipGroupIndexMap[i] : i;
-          if (getDefined(null, i) && labelValues[skipI] !== void 0 && withinPercentages(maxValues[skipI]!, minValues ? minValues[skipI] : null)) {
+          if (getDefined(null, i) && labelValues[skipI] !== undefined && withinPercentages(maxValues[skipI]!, minValues ? minValues[skipI] : null)) {
             aboveBase = !hasBase || maxValues[skipI]! >= base;
             textAnchor = aboveBase ? aboveBaseTextAnchor : belowBaseTextAnchor;
             dy = aboveBase ? aboveBaseDY : belowBaseDY;

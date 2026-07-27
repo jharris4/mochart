@@ -53,7 +53,7 @@ function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, ra
   const data = demoObject.data;
   const dataCount = data.length;
   // A shared step seeks the playback position; otherwise start on the full set.
-  const currentDataCount = step !== void 0 && dataCount > 0
+  const currentDataCount = step !== undefined && dataCount > 0
     ? ((Math.round(step) % dataCount) + dataCount) % dataCount
     : dataCount;
   const dataProviders = getDataProvidersForDataCount(mochartConfig, data, chartRows * chartCols, currentDataCount);
@@ -88,7 +88,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
       shared ? clampGrid(shared.rows) : defaultChartRows,
       shared ? clampGrid(shared.cols) : defaultChartCols,
       shared ? shared.interval : defaultRate,
-      shared ? shared.step : void 0
+      shared ? shared.step : undefined
     );
   });
 
@@ -206,7 +206,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     const { mochartDemoConfig, data, dataProviders, focusedGroupIndex: currentFocusedGroupIndex } = state;
     const { mochartConfig } = mochartDemoConfig;
     let focusedGroupIndices = state.focusedGroupIndices;
-    if (groupIndex !== void 0 && groupIndex >= 0) {
+    if (groupIndex !== undefined && groupIndex >= 0) {
       const groupValue = dataProviders[chartIndex].getGroupValues()[groupIndex];
       const count = data.length;
       for (let i = 0; i < count; i++) {
@@ -222,9 +222,9 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     else if (currentFocusedGroupIndex >= 0) {
       focusedGroupIndices = dataProviders.map(() => -1);
     }
-    const nextFocusedGroupIndex = groupIndex !== void 0 ? groupIndex : currentFocusedGroupIndex;
-    const nextFocusedSeriesAxisId = seriesAxisId !== void 0 ? seriesAxisId : state.focusedSeriesAxisId;
-    const nextFocusedSeriesId = seriesId !== void 0 ? seriesId : state.focusedSeriesId;
+    const nextFocusedGroupIndex = groupIndex !== undefined ? groupIndex : currentFocusedGroupIndex;
+    const nextFocusedSeriesAxisId = seriesAxisId !== undefined ? seriesAxisId : state.focusedSeriesAxisId;
+    const nextFocusedSeriesId = seriesId !== undefined ? seriesId : state.focusedSeriesId;
     setState(prev => ({
       ...prev,
       focusedGroupIndices,

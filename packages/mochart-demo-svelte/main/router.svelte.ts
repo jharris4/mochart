@@ -9,8 +9,8 @@ interface DemoWindowConfig {
 let routerBasePath = '/';
 
 const config = (window as unknown as { __config?: DemoWindowConfig })['__config'];
-if (config !== void 0) {
-  if (config['routerBasePath'] !== void 0) {
+if (config !== undefined) {
+  if (config['routerBasePath'] !== undefined) {
     routerBasePath = config['routerBasePath'];
   }
 }

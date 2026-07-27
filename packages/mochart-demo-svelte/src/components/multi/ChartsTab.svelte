@@ -188,7 +188,7 @@
     let groupIndex = focusData.focusedGroupIndex;
     const { mochartConfig } = mochartDemoConfig;
     let nextFocusedGroupIndices = focusedGroupIndices;
-    if (groupIndex !== void 0 && groupIndex >= 0) {
+    if (groupIndex !== undefined && groupIndex >= 0) {
       const groupValue = dataProviders[chartIndex].getGroupValues()[groupIndex];
       let i, count = data.length;
       for (i = 0; i < count; i++) {
@@ -204,13 +204,13 @@
     else if (focusedGroupIndex >= 0) {
       nextFocusedGroupIndices = dataProviders.map(() => -1);
     }
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       focusedGroupIndex = groupIndex;
     }
-    if (seriesAxisId !== void 0) {
+    if (seriesAxisId !== undefined) {
       focusedSeriesAxisId = seriesAxisId;
     }
-    if (seriesId !== void 0) {
+    if (seriesId !== undefined) {
       focusedSeriesId = seriesId;
     }
     focusedGroupIndices = nextFocusedGroupIndices;

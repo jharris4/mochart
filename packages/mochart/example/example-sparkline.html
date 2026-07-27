@@ -43,7 +43,7 @@
         const winLoss = (count = 30) =>
             Array.from({ length: count }, (_, i) => {
                 const win = next() > 0.45;
-                return { i: String(i), up: win ? 1 : void 0, down: win ? void 0 : -1 };
+                return { i: String(i), up: win ? 1 : undefined, down: win ? undefined : -1 };
             });
 
         const singleSeries = (renderer, color) => ({
@@ -84,10 +84,10 @@
 
         function latestText(metric, data) {
             const last = data[data.length - 1];
-            if (last.value !== void 0) {
+            if (last.value !== undefined) {
                 return String(last.value);
             }
-            const wins = data.filter((row) => row.up !== void 0).length;
+            const wins = data.filter((row) => row.up !== undefined).length;
             return `${wins}W / ${data.length - wins}L`;
         }
 

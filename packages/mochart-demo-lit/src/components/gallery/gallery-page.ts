@@ -19,7 +19,7 @@ const pageIcons: Record<'transition' | 'rotation', string> = {
 @customElement('gallery-page')
 export class GalleryPage extends LightElement {
   @property({ attribute: false }) demoData!: DemoData;
-  @property({ attribute: false }) siteRootUrl: string | undefined = void 0;
+  @property({ attribute: false }) siteRootUrl: string | undefined = undefined;
   @property({ attribute: false }) onOpenDemo!: (demoId: string) => void;
   @property({ attribute: false }) onOpenPage!: (mode: 'transition' | 'rotation') => void;
 
@@ -34,14 +34,14 @@ export class GalleryPage extends LightElement {
 
   private renderItem(item: GalleryItem): unknown {
     return html`<button type="button" class="demo-list-item"
-        @click=${() => this.onItemClick(item)}>${item.kind === 'page' ? icon({ name: pageIcons[item.mode], fixedWidth: true }) : nothing}<span class="mochart-demo-item-title">${item.title}</span>${item.description !== void 0
+        @click=${() => this.onItemClick(item)}>${item.kind === 'page' ? icon({ name: pageIcons[item.mode], fixedWidth: true }) : nothing}<span class="mochart-demo-item-title">${item.title}</span>${item.description !== undefined
           ? html`<span class="mochart-demo-item-description">${item.description}</span>`
           : nothing}</button>`;
   }
 
   private renderSection(section: GallerySection): unknown {
     const list = html`<div class="demo-list">${section.items.map(item => this.renderItem(item))}</div>`;
-    const header = html`<span class="mochart-demo-gallery-section-title">${section.title}</span>${section.hint !== void 0
+    const header = html`<span class="mochart-demo-gallery-section-title">${section.title}</span>${section.hint !== undefined
       ? html`<span class="mochart-demo-gallery-section-hint">${section.hint}</span>`
       : nothing}`;
     if (!section.collapsed) {

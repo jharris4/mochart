@@ -26,8 +26,8 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesStackCon
       { ...defaultRule, default: 'SS' + index }
     ], configWithRegularDefaults, index),
     axis: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? void 0 : soleSeriesAxisId, defaultText: 'first axis id' },
-      { ...defaultRule, default: soleSeriesAxisId === null ? void 0 : soleSeriesAxisId }
+      { condition: (config, index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId, defaultText: 'first axis id' },
+      { ...defaultRule, default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId }
     ], configWithRegularDefaults, index),
   }
 }

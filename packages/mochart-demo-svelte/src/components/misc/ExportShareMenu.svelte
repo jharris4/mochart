@@ -25,7 +25,7 @@
     disabled?: boolean;
   }
 
-  let { idPrefix, exportPng, exportSvg, getShareState = void 0, disabled = false }: Props = $props();
+  let { idPrefix, exportPng, exportSvg, getShareState = undefined, disabled = false }: Props = $props();
 
   const copiedFeedbackMs = 1500;
   const menuGap = 4;
@@ -123,7 +123,7 @@
   const menuOpen = $derived(open && coords !== null);
   const menuStyle = $derived(menuOpen && coords
     ? `position: fixed; bottom: ${coords.bottom}px; right: ${coords.right}px; margin: 0; z-index: 1080;`
-    : void 0);
+    : undefined);
 </script>
 
 <div class="demo-btn-group demo-menu-up mochart-export-share-menu" bind:this={rootElement}>

@@ -249,7 +249,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     let groupIndex = focusData.focusedGroupIndex;
     const { mochartConfig } = this.mochartDemoConfig()!;
     let nextFocusedGroupIndices = this.focusedGroupIndices();
-    if (groupIndex !== void 0 && groupIndex >= 0) {
+    if (groupIndex !== undefined && groupIndex >= 0) {
       const groupValue = this.dataProviders()[chartIndex].getGroupValues()[groupIndex];
       let i, count = this.data().length;
       for (i = 0; i < count; i++) {
@@ -265,13 +265,13 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     else if (this.focusedGroupIndex() >= 0) {
       nextFocusedGroupIndices = this.dataProviders().map(() => -1);
     }
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       this.focusedGroupIndex.set(groupIndex);
     }
-    if (seriesAxisId !== void 0) {
+    if (seriesAxisId !== undefined) {
       this.focusedSeriesAxisId.set(seriesAxisId);
     }
-    if (seriesId !== void 0) {
+    if (seriesId !== undefined) {
       this.focusedSeriesId.set(seriesId);
     }
     this.focusedGroupIndices.set(nextFocusedGroupIndices);

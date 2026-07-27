@@ -30,8 +30,8 @@ const { demoObjectMap } = demoData;
 let routerBasePath = '/';
 
 const config = (window as unknown as { __config?: DemoWindowConfig })['__config'];
-if (config !== void 0) {
-  if (config['routerBasePath'] !== void 0) {
+if (config !== undefined) {
+  if (config['routerBasePath'] !== undefined) {
     routerBasePath = config['routerBasePath'];
   }
 }
@@ -44,7 +44,7 @@ if (config !== void 0) {
 function getDebugSiteRootUrl(): string | undefined {
   const param = new URLSearchParams(window.location.search).get('siteRoot');
   if (param === null) {
-    return void 0;
+    return undefined;
   }
   return param === '' ? '/' : param;
 }
@@ -130,7 +130,7 @@ function DemoModeRoute({ Component }: DemoModeRouteProps) {
   const demoId = params.demoId!;
   const nav = useDemoNavigation(demoId);
   useClearShareHash();
-  if (demoObjectMap[demoId] === void 0) {
+  if (demoObjectMap[demoId] === undefined) {
     return <div className="mochart-demo-message"><div className="demo-alert demo-alert-error" role="alert">No demo found for id: {demoId}</div></div>;
   }
   return <Component demoData={demoData} initialDemoId={demoId} siteRootUrl={siteRootUrl}
@@ -143,7 +143,7 @@ function RandomRoute() {
   const demoId = params.demoId!;
   const nav = useDemoNavigation(demoId);
   useClearShareHash();
-  if (demoObjectMap[demoId] === void 0) {
+  if (demoObjectMap[demoId] === undefined) {
     return <div className="mochart-demo-message"><div className="demo-alert demo-alert-error" role="alert">No demo found for id: {demoId}</div></div>;
   }
   const randomId = Number(params.randomId);

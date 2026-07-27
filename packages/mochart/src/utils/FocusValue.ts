@@ -73,7 +73,7 @@ export function getFocusPercentageColor(focusPercentage: FocusPercentage, normal
 
 export function getAxisFocusColor(axisFocusPercentage: FocusPercentage | undefined, seriesFocusPercentage: FocusPercentage | undefined, useSeriesFocus: boolean, normalColor: string, focusedColor: string, defocusedColor: string): string {
   let color = normalColor;
-  if (axisFocusPercentage !== void 0 && seriesFocusPercentage !== void 0) {
+  if (axisFocusPercentage !== undefined && seriesFocusPercentage !== undefined) {
     if (axisFocusPercentage !== null) {
       color = getFocusPercentageColor(axisFocusPercentage, normalColor, focusedColor, defocusedColor);
     }
@@ -86,7 +86,7 @@ export function getAxisFocusColor(axisFocusPercentage: FocusPercentage | undefin
 
 export function getAxisFocusOpacity(axisFocusPercentage: FocusPercentage | undefined, seriesFocusPercentage: FocusPercentage | undefined, useSeriesFocus: boolean, normalOpacity: number, focusedOpacity: number, defocusedOpacity: number): number {
   let opacity = normalOpacity;
-  if (axisFocusPercentage !== void 0 && seriesFocusPercentage !== void 0 && !(axisFocusPercentage === null && seriesFocusPercentage === null)) {
+  if (axisFocusPercentage !== undefined && seriesFocusPercentage !== undefined && !(axisFocusPercentage === null && seriesFocusPercentage === null)) {
     const percentage = useSeriesFocus ? getCombinedFocusPercentage(axisFocusPercentage, seriesFocusPercentage) : axisFocusPercentage;
     opacity = getFocusValue(percentage, normalOpacity, focusedOpacity, defocusedOpacity);
   }

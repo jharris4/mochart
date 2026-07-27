@@ -126,7 +126,7 @@ const hasPendingChanges = computed(() =>
         <ul class="demo-tabs">
           <li class="demo-tab-item">
             <button type="button" :class="'demo-tab' + (activeKey === eventKeyChart ? ' active' : '')"
-                    :title="hasPendingChanges ? demoText.tabs.chartPendingTitle : void 0"
+                    :title="hasPendingChanges ? demoText.tabs.chartPendingTitle : undefined"
                     @click="handleSelect(eventKeyChart)">
               {{ demoText.tabs.chart }}<span v-if="hasPendingChanges" class="mochart-pending-badge" aria-hidden="true"></span>
             </button>

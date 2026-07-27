@@ -19,7 +19,7 @@ export function formatDataView(fullRows: DataRow[], viewUsedProperties: Set<stri
 }
 
 export function isObject(v: unknown): boolean {
-  return v !== null && v !== void 0 && typeof v === 'object';
+  return v !== null && v !== undefined && typeof v === 'object';
 }
 
 export function isArrayOfObjects(candidate: unknown): boolean {

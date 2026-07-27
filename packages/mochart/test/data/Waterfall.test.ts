@@ -71,9 +71,9 @@ describe('createWaterfall', () => {
       { label: 'Profit', total: true }
     ]);
     expect(data).toEqual([
-      { label: 'Revenue', start: 0, increase: 100, decrease: void 0, total: void 0, delta: 100, cumulative: 100, direction: 'increase' },
-      { label: 'Costs', start: 100, increase: void 0, decrease: 60, total: void 0, delta: -40, cumulative: 60, direction: 'decrease' },
-      { label: 'Profit', start: 0, increase: void 0, decrease: void 0, total: 60, delta: 60, cumulative: 60, direction: 'total' }
+      { label: 'Revenue', start: 0, increase: 100, decrease: undefined, total: undefined, delta: 100, cumulative: 100, direction: 'increase' },
+      { label: 'Costs', start: 100, increase: undefined, decrease: 60, total: undefined, delta: -40, cumulative: 60, direction: 'decrease' },
+      { label: 'Profit', start: 0, increase: undefined, decrease: undefined, total: 60, delta: 60, cumulative: 60, direction: 'total' }
     ]);
   });
 

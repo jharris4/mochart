@@ -67,7 +67,7 @@ function resolveRoute(path: string): Route {
 function getDebugSiteRootUrl(): string | undefined {
   const param = new URLSearchParams(window.location.search).get('siteRoot');
   if (param === null) {
-    return void 0;
+    return undefined;
   }
   return param === '' ? '/' : param;
 }
@@ -95,7 +95,7 @@ export class DemoApp extends LightElement {
 
   override updated(): void {
     const route = resolveRoute(this.path);
-    if (route.redirect !== void 0) {
+    if (route.redirect !== undefined) {
       navigate(route.redirect, { replace: true });
     }
   }
@@ -109,7 +109,7 @@ export class DemoApp extends LightElement {
   private onModeChanged = (nextDemoMode: SwitchableDemoMode): void => {
     const route = resolveRoute(getPath());
     const demoId = route.demoId;
-    if (demoId === void 0) {
+    if (demoId === undefined) {
       navigate('/demos');
     }
     else if (nextDemoMode === 'random') {
@@ -130,11 +130,11 @@ export class DemoApp extends LightElement {
 
   override render(): unknown {
     const route = resolveRoute(this.path);
-    if (route.redirect !== void 0) {
+    if (route.redirect !== undefined) {
       // redirecting (in updated())
       return null;
     }
-    if (route.notFound !== void 0) {
+    if (route.notFound !== undefined) {
       return html`<div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No route found matching ${route.notFound}</div></div>`;
     }
     if (route.gallery === true) {
@@ -148,7 +148,7 @@ export class DemoApp extends LightElement {
       return html`<demo-rotation .siteRootUrl=${siteRootUrl} .onBackToDemos=${this.onBackToDemos}></demo-rotation>`;
     }
     const demoId = route.demoId!;
-    if (demoObjectMap[demoId] === void 0) {
+    if (demoObjectMap[demoId] === undefined) {
       return html`<div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No demo found for id: ${demoId}</div></div>`;
     }
     if (route.mode === 'single') {

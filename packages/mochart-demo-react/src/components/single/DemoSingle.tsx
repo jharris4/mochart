@@ -41,7 +41,7 @@ export default function MochartDemoSingle({ demoData, initialDemoId, siteRootUrl
           <ul className="demo-tabs">
             <li className="demo-tab-item">
               <button type="button" className={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
-                title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : void 0}
+                title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : undefined}
                 onClick={() => { handleSelect(eventKeyChart); }}>
                 {demoText.tabs.chart}{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
               </button>

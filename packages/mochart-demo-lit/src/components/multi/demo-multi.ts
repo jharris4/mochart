@@ -18,7 +18,7 @@ import type { DemoData } from '../../types';
 export class DemoMulti extends LightElement {
   @property({ attribute: false }) demoData!: DemoData;
   @property({ attribute: false }) initialDemoId!: string;
-  @property({ attribute: false }) siteRootUrl: string | undefined = void 0;
+  @property({ attribute: false }) siteRootUrl: string | undefined = undefined;
   @property({ attribute: false }) onModeChanged!: (nextDemoMode: SwitchableDemoMode) => void;
   @property({ attribute: false }) onBackToDemos!: () => void;
 

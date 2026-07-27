@@ -33,7 +33,7 @@ const { demoIds, demoObjectMap } = demoData;
 function getDebugSiteRootUrl(): string | undefined {
   const param = new URLSearchParams(window.location.search).get('siteRoot');
   if (param === null) {
-    return void 0;
+    return undefined;
   }
   return param === '' ? '/' : param;
 }
@@ -75,7 +75,7 @@ const route = computed((): Route => {
 });
 
 watchEffect(() => {
-  if (route.value.redirect !== void 0) {
+  if (route.value.redirect !== undefined) {
     navigate(route.value.redirect, { replace: true });
   }
 });
@@ -96,7 +96,7 @@ function onOpenPage(mode: 'transition' | 'rotation') {
 // the switcher stays correct after any navigation.
 function onModeChanged(nextDemoMode: SwitchableDemoMode) {
   const currentDemoId = route.value.demoId;
-  if (currentDemoId === void 0) {
+  if (currentDemoId === undefined) {
     navigate('/demos');
   }
   else if (nextDemoMode === 'random') {
@@ -107,8 +107,8 @@ function onModeChanged(nextDemoMode: SwitchableDemoMode) {
   }
 }
 
-const demoId = computed(() => route.value.demoId !== void 0 ? route.value.demoId : demoIds[0]);
-const isKnownDemo = computed(() => demoObjectMap[demoId.value] !== void 0);
+const demoId = computed(() => route.value.demoId !== undefined ? route.value.demoId : demoIds[0]);
+const isKnownDemo = computed(() => demoObjectMap[demoId.value] !== undefined);
 const randomId = computed(() => Number(route.value.randomId));
 const isValidRandomId = computed(() => randomId.value > Number.MIN_SAFE_INTEGER && randomId.value < Number.MAX_SAFE_INTEGER);
 
@@ -124,10 +124,10 @@ function decrementRandomId() {
 </script>
 
 <template>
-  <template v-if="route.redirect !== void 0">
+  <template v-if="route.redirect !== undefined">
     <!-- redirecting -->
   </template>
-  <div v-else-if="route.notFound !== void 0" class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No route found matching {{ route.notFound }}</div></div>
+  <div v-else-if="route.notFound !== undefined" class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No route found matching {{ route.notFound }}</div></div>
   <GalleryPage v-else-if="route.gallery === true"
                :demo-data="demoData" :site-root-url="siteRootUrl"
                :on-open-demo="onOpenDemo" :on-open-page="onOpenPage" />

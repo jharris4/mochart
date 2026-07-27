@@ -19,12 +19,12 @@ interface Props {
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<Props>(), {
-  tooltipText: void 0,
-  tooltipPlacement: void 0,
+  tooltipText: undefined,
+  tooltipPlacement: undefined,
   disabled: false,
   color: 'secondary',
-  label: void 0,
-  pressed: void 0
+  label: undefined,
+  pressed: undefined
 });
 </script>
 
@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
   <span class="button-with-tooltip">
     <button :id="props.id" type="button" :class="`demo-btn demo-btn-${props.color}` + (props.pressed ? ' active' : '')"
             :disabled="props.disabled" :title="props.tooltipText"
-            :aria-pressed="props.pressed === void 0 ? void 0 : props.pressed"
+            :aria-pressed="props.pressed === undefined ? undefined : props.pressed"
             v-bind="$attrs" @click="props.onClick()">
       <slot></slot><span v-if="props.label" class="btn-label">{{ props.label }}</span>
     </button>

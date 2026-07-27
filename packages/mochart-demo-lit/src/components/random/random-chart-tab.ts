@@ -23,7 +23,7 @@ export class RandomChartTab extends LightElement {
   @property({ attribute: false }) mochartConfig!: MochartConfig;
   @property({ attribute: false }) dataProvider: DemoDataProvider | null = null;
   @property({ attribute: false }) randomConfig!: RandomConfigWithValid;
-  @property({ attribute: false }) initialRate: number | undefined = void 0;
+  @property({ attribute: false }) initialRate: number | undefined = undefined;
   @property({ attribute: false }) onRandomizeBack!: () => void;
   @property({ attribute: false }) onRandomizeNext!: () => void;
   @property({ attribute: false }) applyReuse = false;
@@ -38,7 +38,7 @@ export class RandomChartTab extends LightElement {
   override willUpdate(changed: PropertyValues<this>): void {
     if (!this.hasUpdated) {
       // A share link restores the interval; otherwise start on the default.
-      if (this.initialRate !== void 0) {
+      if (this.initialRate !== undefined) {
         this.rate = this.initialRate;
         this.rateText = '' + this.initialRate;
       }

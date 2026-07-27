@@ -6,11 +6,11 @@ import type { MochartConfig, MochartInputConfig } from '../types/config';
 import type { DataProvider, DataRow } from '../types/data';
 
 function isObject(v: unknown): v is Record<string, unknown> {
-  return v !== null && v !== void 0 && typeof v === "object";
+  return v !== null && v !== undefined && typeof v === "object";
 }
 
 function getGroupProperty(config: MochartInputConfig | MochartConfig): string | undefined {
-  let groupProperty: string | undefined = void 0;
+  let groupProperty: string | undefined = undefined;
   if (isObject(config) && isObject(config.groupAxisConfig)) {
     const property = config.groupAxisConfig.property;
     groupProperty = typeof property === 'string' ? property : undefined;
@@ -32,7 +32,7 @@ function buildErrorDataProvider(error: unknown = 'Invalid Data'): DataProvider {
 
 function createRawDataProvider(mochartConfig: MochartConfig, data: readonly unknown[]): DataProvider | null {
   const groupProperty = getGroupProperty(mochartConfig);
-  if (groupProperty !== void 0 && isArrayOfObjects(data)) {
+  if (groupProperty !== undefined && isArrayOfObjects(data)) {
     return new ArrayOfObjectsDataProvider(data, groupProperty) as unknown as DataProvider;
   }
   return null;

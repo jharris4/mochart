@@ -48,11 +48,11 @@ const typeValidatorDefinitions = {
     message: () => "should be a boolean"
   },
   number: {
-    validator: () => v => v !== void 0 && (typeof v === "number" || v instanceof Number) && isFinite(v as number),
+    validator: () => v => v !== undefined && (typeof v === "number" || v instanceof Number) && isFinite(v as number),
     message: () => "should be a number"
   },
   string: {
-    validator: () => v => v !== void 0 && (typeof v === "string" || v instanceof String),
+    validator: () => v => v !== undefined && (typeof v === "string" || v instanceof String),
     message: () => "should be a string"
   },
   array: {
@@ -60,7 +60,7 @@ const typeValidatorDefinitions = {
     message: () => "should be an array"
   },
   object: {
-    validator: () => v => v !== null && v !== void 0 && typeof v === "object",
+    validator: () => v => v !== null && v !== undefined && typeof v === "object",
     message: () => "should be an object"
   },
   any: {
@@ -80,7 +80,7 @@ export { typeValidators };
 const printAny = (value: any, recurse?: boolean): string => {
   if (recurse === false) {
     return value;
-  } else if (value === void 0) {
+  } else if (value === undefined) {
     return "undefined";
   } else if (value === null) {
     return "null";
@@ -269,7 +269,7 @@ const argumentTypeValidatorDefinitions = {
     message: (valueArray: any[]) => "should be one of " + printArray(valueArray)
   },
   oneIn: {
-    validator: (valueMap: Record<string, any>) => v => valueMap[v] !== void 0,
+    validator: (valueMap: Record<string, any>) => v => valueMap[v] !== undefined,
     message: (valueMap: Record<string, any>) => "should be in " + printObject(valueMap)
   },
   notEqual: {
@@ -281,7 +281,7 @@ const argumentTypeValidatorDefinitions = {
     message: (valueArray: any[]) => "should not be one of " + printArray(valueArray)
   },
   notOneIn: {
-    validator: (valueMap: Record<string, any>) => v => valueMap[v] === void 0,
+    validator: (valueMap: Record<string, any>) => v => valueMap[v] === undefined,
     message: (valueMap: Record<string, any>) => "should not be in " + printObject(valueMap)
   },
   arrayWithLength: {
@@ -351,7 +351,7 @@ const compoundValidatorDefinitions = {
         propertyMap[property] = property;
       });
       let someInvalid = valueKeys.some(valueKey => {
-        if (propertyMap[valueKey] === void 0 || !propertyValidator(v[valueKey])) {
+        if (propertyMap[valueKey] === undefined || !propertyValidator(v[valueKey])) {
           return true;
         }
         return false;
@@ -379,7 +379,7 @@ const compoundValidatorDefinitions = {
       if (!someInvalid && !allowExtraProperties) {
         let valueKeys = Object.keys(v);
         someInvalid = valueKeys.some(valueKey => {
-          if (propertyToValidatorMap[valueKey] === void 0) {
+          if (propertyToValidatorMap[valueKey] === undefined) {
             return true;
           }
           return false;
@@ -446,8 +446,8 @@ const validatorArgsToNestedValues: Record<string, (...args: any[]) => Record<str
   },
   objectWithSome: (properties: string[], propertyValidator: Validator) => {
     let propertyToValidatorMap: Record<string, Validator> = {};
-    if (propertyValidator.allowedValues === null || propertyValidator.allowedValues.indexOf(void 0) === -1) {
-      propertyValidator = propertyValidator.orEqual(void 0);
+    if (propertyValidator.allowedValues === null || propertyValidator.allowedValues.indexOf(undefined) === -1) {
+      propertyValidator = propertyValidator.orEqual(undefined);
     }
     properties.forEach(property => {
       propertyToValidatorMap[property] = propertyValidator;
@@ -583,7 +583,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
         extensionFunction.isEnum = false;
         extensionFunction.nestedValues = validatorFunction.nestedValues;
         extensionFunction.rangeValues = validatorFunction.rangeValues;
-        if (validatorExtensionArgsToAllowedValues[extensionKey] !== void 0) {
+        if (validatorExtensionArgsToAllowedValues[extensionKey] !== undefined) {
           let extensionAllowedValues = validatorExtensionArgsToAllowedValues[extensionKey](...args);
           extensionFunction.isEnum = validatorFunction.isEnum && validatorExtensionArgsToIsEnum[extensionKey](...args);
           if (extensionAllowedValues !== null) {
@@ -634,14 +634,14 @@ validatorDefinitionKeys.forEach(validatorKey => {
     validatorFunction.nestedValues = null;
     validatorFunction.rangeValues = null;
     validatorFunction.isEnum = false;
-    if (validatorArgsToAllowedValues[validatorKey] !== void 0) {
+    if (validatorArgsToAllowedValues[validatorKey] !== undefined) {
       validatorFunction.allowedValues = validatorArgsToAllowedValues[validatorKey](...args);
       validatorFunction.isEnum = validatorArgsToIsEnum[validatorKey](...args);
     }
-    if (validatorArgsToNestedValues[validatorKey] !== void 0) {
+    if (validatorArgsToNestedValues[validatorKey] !== undefined) {
       validatorFunction.nestedValues = validatorArgsToNestedValues[validatorKey](...args);
     }
-    if (validatorArgsToRangeValues[validatorKey] !== void 0) {
+    if (validatorArgsToRangeValues[validatorKey] !== undefined) {
       validatorFunction.rangeValues = validatorArgsToRangeValues[validatorKey](...args);
     }
     validatorFunction.errorMessage = (validatorDefinitions as Record<string, ValidatorDefinition>)[
@@ -654,7 +654,7 @@ validatorDefinitionKeys.forEach(validatorKey => {
   };
 });
 const appendSuffix = (message: string, suffix?: string): string =>
-  suffix !== void 0 ? message + " " + suffix : message;
+  suffix !== undefined ? message + " " + suffix : message;
 
 validators.conditional = (rules: ConditionalRule[], object: any): Validator => {
   let matchedRule = rules.find(rule => rule.condition(object))!;

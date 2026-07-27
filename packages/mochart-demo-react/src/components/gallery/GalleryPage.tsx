@@ -33,7 +33,7 @@ function GalleryListItem({ item, onOpenDemo, onOpenPage }: { item: GalleryItem }
       }}>
       {item.kind === 'page' ? <Icon fixedWidth name={pageIcons[item.mode]} /> : null}
       <span className="mochart-demo-item-title">{item.title}</span>
-      {item.description !== void 0 ? <span className="mochart-demo-item-description">{item.description}</span> : null}
+      {item.description !== undefined ? <span className="mochart-demo-item-description">{item.description}</span> : null}
     </button>
   );
 }
@@ -42,7 +42,7 @@ function GallerySectionView({ section, onOpenDemo, onOpenPage }: { section: Gall
   const header = (
     <>
       <span className="mochart-demo-gallery-section-title">{section.title}</span>
-      {section.hint !== void 0 ? <span className="mochart-demo-gallery-section-hint">{section.hint}</span> : null}
+      {section.hint !== undefined ? <span className="mochart-demo-gallery-section-hint">{section.hint}</span> : null}
     </>
   );
   const list = (

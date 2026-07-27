@@ -7,15 +7,15 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
   let temp, i, length = seriesPositions.length;
   if (seriesPriorPositions !== null) {
     for (i = 0; i < length; i++) {
-      if (seriesPositions[i] === void 0) {
-        if (seriesPriorPositions[i] !== void 0) {
+      if (seriesPositions[i] === undefined) {
+        if (seriesPriorPositions[i] !== undefined) {
           seriesPositions[i] = seriesPriorPositions[i];
         }
         else {
           seriesPriorPositions[i] = seriesBasePosition;
         }
       }
-      else if (seriesPriorPositions[i] === void 0) {
+      else if (seriesPriorPositions[i] === undefined) {
         seriesPriorPositions[i] = seriesPositions[i];
       }
       else {
@@ -52,7 +52,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
     }
   }
 
-  const missingPosition = showMissingAtBase ? seriesBasePosition : void 0;
+  const missingPosition = showMissingAtBase ? seriesBasePosition : undefined;
   const skip = !showMissingAtBase && skipMissing; // skipMissing has no effect when showMissingAtBase is true
 
   const seriesPositions: SeriesPosition[] = [];
@@ -79,7 +79,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
   let i, length = groupPositions.length;
   let position;
   for (i=0; i<length; i++) {
-    if (max[i] !== void 0 && (!requireBothValues || min![i] !== void 0)) {
+    if (max[i] !== undefined && (!requireBothValues || min![i] !== undefined)) {
       position = Math.floor(seriesAxisScale(max[i]!));
       seriesPositions.push(position);
     }
@@ -90,7 +90,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
   if (min !== null) {
     seriesPriorPositions = [];
     for (i=0; i<length; i++) {
-      if (min[i] !== void 0 && (!requireBothValues || max[i] !== void 0)) {
+      if (min[i] !== undefined && (!requireBothValues || max[i] !== undefined)) {
         position = Math.floor(seriesAxisScale(min[i]!));
         seriesPriorPositions.push(position);
       }
@@ -114,7 +114,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
       let iSkip = 0;
       for (i = 0; i < length; i++) {
         seriesPosition = seriesPositions[i];
-        if (seriesPosition !== void 0) {
+        if (seriesPosition !== undefined) {
           groupDefinedPositions.push(groupPositions[i]!);
           seriesDefinedPositions.push(seriesPosition);
           seriesPriorDefinedPositions.push(seriesPriorPositions[i] || seriesPosition); // rely on the fact that prior has been normalized
@@ -125,7 +125,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
     else {
       let iSkip = 0;
       for (i = 0; i < length; i++) {
-        if (seriesPositions[i] !== void 0) {
+        if (seriesPositions[i] !== undefined) {
           groupDefinedPositions.push(groupPositions[i]!);
           seriesDefinedPositions.push(seriesPositions[i]!);
           skipGroupIndexMap[iSkip++] = i;
@@ -140,12 +140,12 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
 
   length = gp.length;
   // The d parameters in the following functions are unused, just present because that's what d3's generators expect
-  const getDefined = skip ? () => true : (_d: unknown, i: number) => seriesPositions[i] !== void 0;
+  const getDefined = skip ? () => true : (_d: unknown, i: number) => seriesPositions[i] !== undefined;
   const getGroupPosition: SeriesPositionAccessor = (_d, i) => gp[i];
   const getOffsetGroupPosition: SeriesPositionAccessor = (_d, i) => gp[i] + groupValueOffset;
   const getSeriesPosition: SeriesPositionAccessor = (_d, i) => sp[i];
 
-  let getCurrentSeriesPosition: SeriesPositionAccessor = skip ? getSeriesPosition : (_d, i) => sp[i] !== void 0 ? sp[i] : seriesBasePosition;
+  let getCurrentSeriesPosition: SeriesPositionAccessor = skip ? getSeriesPosition : (_d, i) => sp[i] !== undefined ? sp[i] : seriesBasePosition;
   let getPriorSeriesPosition: SeriesPositionAccessor = () => seriesBasePosition;
   if (spp !== null) {
     if (stack !== NONE) {
@@ -160,10 +160,10 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
       }
       else {
         getCurrentSeriesPosition = (_d, i) => {
-          return sp[i] !== void 0 ? sp[i] : seriesBasePosition;
+          return sp[i] !== undefined ? sp[i] : seriesBasePosition;
         };
         getPriorSeriesPosition = (_d, i) => {
-          return spp[i] !== void 0 ? spp[i] : seriesBasePosition;
+          return spp[i] !== undefined ? spp[i] : seriesBasePosition;
         }
       }
     }
@@ -178,8 +178,8 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
       getPriorSeriesPosition = (_d, i) => sp[i]! < seriesBasePosition ? seriesBasePosition : sp[i];
     }
     else {
-      getCurrentSeriesPosition = (_d, i) => sp[i] !== void 0 ? (sp[i]! < seriesBasePosition ? sp[i] : seriesBasePosition) : void 0;
-      getPriorSeriesPosition = (_d, i) => sp[i] !== void 0 && sp[i]! < seriesBasePosition ? seriesBasePosition : sp[i];
+      getCurrentSeriesPosition = (_d, i) => sp[i] !== undefined ? (sp[i]! < seriesBasePosition ? sp[i] : seriesBasePosition) : undefined;
+      getPriorSeriesPosition = (_d, i) => sp[i] !== undefined && sp[i]! < seriesBasePosition ? seriesBasePosition : sp[i];
     }
     if (inverted) {
       let temp = getCurrentSeriesPosition;

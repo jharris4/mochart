@@ -11,9 +11,9 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  size: void 0,
+  size: undefined,
   fixedWidth: false,
-  flip: void 0
+  flip: undefined
 });
 
 const classes = computed(() => {

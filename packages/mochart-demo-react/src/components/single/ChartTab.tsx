@@ -132,13 +132,13 @@ export default function MochartChartTab({ config = null, data = null, dataError 
 
   const onFocus = (focusData: FocusData = {}) => {
     const { seriesAxisId, seriesId, groupIndex } = focusData;
-    if (seriesAxisId !== void 0) {
+    if (seriesAxisId !== undefined) {
       focus.current.focusedSeriesAxisId = seriesAxisId;
     }
-    if (seriesId !== void 0) {
+    if (seriesId !== undefined) {
       focus.current.focusedSeriesId = seriesId;
     }
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       focus.current.focusedGroupIndex = groupIndex;
     }
     setState(prevState => ({

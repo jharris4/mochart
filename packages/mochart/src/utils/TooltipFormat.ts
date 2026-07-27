@@ -39,7 +39,7 @@ function getValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, 
   const hasFilterValue = filterValueObject[key] !== null;
 
   let seriesValueText = null;
-  if (seriesValueObject[key] !== void 0) {
+  if (seriesValueObject[key] !== undefined) {
     if (adjustForSuppression && tooltipConfig.adjustForSuppression) {
       if (hasFilterValue) {
         seriesValueText = String(valueFormat(filterValueObject[key]!));
@@ -119,17 +119,17 @@ export function getSuppressedValue(chartData: ChartData, seriesConfig: SeriesCon
       max: null
     };
     let base = chartData.seriesData.axisBases[seriesConfig.seriesAxisConfig.id];
-    newValueObject.plain = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? (base ?? undefined) : undefined);
+    newValueObject.plain = chartData.groupData.values.raw.map(groupValue => groupValue !== undefined ? (base ?? undefined) : undefined);
     if (seriesConfig.rangeProperty !== NONE && newValueObject.range === null) {
       newValueObject.range = newValueObject.plain;
     }
     if (seriesConfig.markerProperty !== NONE&& newValueObject.marker === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['marker'][0];
-      newValueObject.marker = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? (base ?? undefined) : undefined);
+      newValueObject.marker = chartData.groupData.values.raw.map(groupValue => groupValue !== undefined ? (base ?? undefined) : undefined);
     }
     if (seriesConfig.tooltipProperty !== NONE && newValueObject.tooltip === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['tooltip'][0];
-      newValueObject.tooltip = chartData.groupData.values.raw.map(groupValue => groupValue !== void 0 ? (base ?? undefined) : undefined);
+      newValueObject.tooltip = chartData.groupData.values.raw.map(groupValue => groupValue !== undefined ? (base ?? undefined) : undefined);
     }
   }
   return newValueObject

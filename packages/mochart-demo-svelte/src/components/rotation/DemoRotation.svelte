@@ -16,7 +16,7 @@
     onBackToDemos: () => void;
   }
 
-  let { siteRootUrl = void 0, onBackToDemos }: Props = $props();
+  let { siteRootUrl = undefined, onBackToDemos }: Props = $props();
 
   // Columns are sized from the card's measured width (not the window) so the
   // grid stays inside the padded shell.

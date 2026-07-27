@@ -80,7 +80,7 @@ function getColor(fillOrStrokeKey: FillOrStrokeKey, mapKey: ColorMapKey, colorPa
     return colors[seriesIndex % colors.length];
   }
   else if (color === COLOR_GROUP_INDEX) {
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       const colors = colorPaletteConfig[paletteKey][fillOrStrokeKey];
       return colors[groupIndex % colors.length];
     }

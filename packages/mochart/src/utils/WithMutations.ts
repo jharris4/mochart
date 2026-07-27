@@ -6,7 +6,7 @@ export type CustomMutator = (oldValue: unknown, newValue: unknown) => unknown;
  */
 export function getWithMutations<T>(oldValue: T | null | undefined, newValue: T, customMutator?: CustomMutator): T;
 export function getWithMutations(oldValue: unknown, newValue: unknown, customMutator?: CustomMutator): unknown {
-  if (oldValue === null || oldValue === void 0 || newValue === void 0 || newValue === null || oldValue === newValue) {
+  if (oldValue === null || oldValue === undefined || newValue === undefined || newValue === null || oldValue === newValue) {
     return newValue;
   }
   else if (Array.isArray(oldValue) && Array.isArray(newValue)) {
@@ -45,7 +45,7 @@ export function getWithMutations(oldValue: unknown, newValue: unknown, customMut
       return newObject;
     }
   }
-  else if (customMutator !== void 0) {
+  else if (customMutator !== undefined) {
     return customMutator(oldValue, newValue);
   }
   else {

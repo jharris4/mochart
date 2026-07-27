@@ -50,7 +50,7 @@ export function ModeSwitcher({ demoMode, onModeChanged }: ModeSwitcherProps) {
  * Renders nothing when no site root is configured (standalone dev/build).
  */
 export function SiteRootButton({ siteRootUrl }: { siteRootUrl?: string }) {
-  if (siteRootUrl === void 0) {
+  if (siteRootUrl === undefined) {
     return null;
   }
   return (

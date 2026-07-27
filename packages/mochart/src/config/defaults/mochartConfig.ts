@@ -35,18 +35,18 @@ function getOnlyIdWithDefaults<T extends { id?: string }>(configs: unknown, conf
     if (configs.length === 1) {
       const only = getWithDefault(configs[0], configAll, defaults[0]);
       const { id } = only;
-      return id !== void 0 ? id : NONE;
+      return id !== undefined ? id : NONE;
     }
   }
   else if (isObject(configs)) {
     const only = getWithDefault(configs, configAll, defaults[0]);
     const { id } = only;
-    return id !== void 0 ? id : NONE;
+    return id !== undefined ? id : NONE;
   }
   else if (Array.isArray(defaults) && defaults.length === 1) {
     const only = defaults[0];
     const { id } = only;
-    return id !== void 0 ? id : NONE;
+    return id !== undefined ? id : NONE;
   }
   return NONE;
 }
@@ -119,7 +119,7 @@ function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDef
   for (let stackConfig of stackConfigs) {
     const { axis } = stackConfig;
     // Make sure the stackConfig.axis is never undefined. Use the first seriesConfig if necessary
-    if (axis === void 0) {
+    if (axis === undefined) {
       stackMap[String(configs[0]?.id)] = true;
     }
     else {

@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 const rootDir = fileURLToPath(new URL('..', import.meta.url));
 const siteDir = join(rootDir, 'site');
 
-const rawBase = process.env.PAGES_BASE !== void 0 ? process.env.PAGES_BASE : '/mochart/';
+const rawBase = process.env.PAGES_BASE !== undefined ? process.env.PAGES_BASE : '/mochart/';
 const base = rawBase.endsWith('/') ? rawBase : rawBase + '/';
 
 const demos = [

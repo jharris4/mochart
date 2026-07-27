@@ -41,7 +41,7 @@ export function modeSwitcher({ demoMode, onModeChanged }: ModeSwitcherProps): Te
  * Renders nothing when no site root is configured (standalone dev/build).
  */
 export function siteRootButton(siteRootUrl: string | undefined): unknown {
-  if (siteRootUrl === void 0) {
+  if (siteRootUrl === undefined) {
     return nothing;
   }
   return html`<a class="demo-btn demo-btn-secondary mochart-demo-site-root-button" href=${siteRootUrl}

@@ -30,7 +30,7 @@ const defaultRate = 2000;
 
 const props = withDefaults(defineProps<Props>(), {
   active: false,
-  initialRate: void 0
+  initialRate: undefined
 });
 
 let intervalId: ReturnType<typeof setInterval> | null = null;

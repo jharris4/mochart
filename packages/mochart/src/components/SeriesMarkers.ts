@@ -70,11 +70,11 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
         let count = markerValues.length;
         for (let m = 0; m < count; m++) {
           const markerValue = markerValues[m];
-          if (markerValue !== void 0) {
+          if (markerValue !== undefined) {
             markerSizes.push(minMarkerSize + (markerValue - markerMin) / markerExtent * markerSizeExtent);
           }
           else if (!skipMissing) {
-            markerSizes.push(void 0);
+            markerSizes.push(undefined);
           }
         }
       }
@@ -90,7 +90,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
 
       for (let i = 0; i < length; i++) {
         let skipI = skipMissing ? skipGroupIndexMap[i] : i;
-        if (getDefined(null, i) && (markerShowMissing || max[skipI] !== void 0)) {
+        if (getDefined(null, i) && (markerShowMissing || max[skipI] !== undefined)) {
           focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
@@ -110,11 +110,11 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
           let currentMarkerSize: number | undefined = markerSize;
           if (markerSizes !== null) {
             currentMarkerSize = markerSizes[i];
-            if (currentMarkerSize !== void 0) {
+            if (currentMarkerSize !== undefined) {
               theSymbol = symbolGenerator.size(currentMarkerSize * currentMarkerSize)();
             }
           }
-          if (currentMarkerSize !== void 0) {
+          if (currentMarkerSize !== undefined) {
             markers.push({
               key: 'marker-' + i,
               attrs: { className: mochartCssClasses['seriesMarker'] + i, d: theSymbol, transform: translate(cx, cy),

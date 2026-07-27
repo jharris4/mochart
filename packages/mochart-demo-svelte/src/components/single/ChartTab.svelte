@@ -99,13 +99,13 @@
 
   function onFocus(focusData: FocusData = {}) {
     const { seriesAxisId, seriesId, groupIndex } = focusData;
-    if (seriesAxisId !== void 0) {
+    if (seriesAxisId !== undefined) {
       focusedSeriesAxisId = seriesAxisId;
     }
-    if (seriesId !== void 0) {
+    if (seriesId !== undefined) {
       focusedSeriesId = seriesId;
     }
-    if (groupIndex !== void 0) {
+    if (groupIndex !== undefined) {
       focusedGroupIndex = groupIndex;
     }
   }

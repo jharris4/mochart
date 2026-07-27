@@ -15,7 +15,7 @@
     onBackToDemos: () => void;
   }
 
-  let { siteRootUrl = void 0, onBackToDemos }: Props = $props();
+  let { siteRootUrl = undefined, onBackToDemos }: Props = $props();
 
   const eventKeyChart = 1;
   const eventKeyConfig = 2;

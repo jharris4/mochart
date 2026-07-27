@@ -271,7 +271,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     if (shouldFocus || shouldFilter) {
       event.stopPropagation();
       if (shouldFocus) {
-        if (focusedSeriesId !== void 0 && focusedSeriesId !== null) {
+        if (focusedSeriesId !== undefined && focusedSeriesId !== null) {
           onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId });
         }
         else {

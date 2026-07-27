@@ -56,7 +56,7 @@ export function centerTextY(textBounds: { x?: number; y?: number; height: number
 export function createArrayFilledWithUndefined(count: number): undefined[] {
   let i, theArray: undefined[] = [];
   for (i=0; i<count; i++) {
-    theArray.push(void 0);
+    theArray.push(undefined);
   }
   return theArray;
 }
@@ -73,11 +73,11 @@ export function createArrayWithValueIfNotUndefined<T, V>(source: readonly T[], v
   let i, theArray: (V | undefined)[] = [];
   let count = source.length;
   for (i=0; i<count; i++) {
-    if (source[i] !== void 0) {
+    if (source[i] !== undefined) {
       theArray.push(value);
     }
     else {
-      theArray.push(void 0);
+      theArray.push(undefined);
     }
   }
   return theArray;
@@ -87,8 +87,8 @@ export function copyArrayWithValueIfNotUndefined<T, U>(source: readonly T[], oth
   let i, theArray: (T | undefined)[] = [];
   let count = source.length;
   for (i=0; i<count; i++) {
-    if (otherSource[i] === void 0) {
-      theArray.push(void 0);
+    if (otherSource[i] === undefined) {
+      theArray.push(undefined);
     }
     else {
       theArray.push(source[i]);
@@ -100,7 +100,7 @@ export function copyArrayWithValueIfNotUndefined<T, U>(source: readonly T[], oth
 export function replaceArrayUndefinedWithValue<T>(array: (T | undefined)[], value: T): void {
   let i, count = array.length;
   for (i=0; i<count; i++) {
-    if (array[i] === void 0) {
+    if (array[i] === undefined) {
       array[i] = value;
     }
   }
@@ -110,7 +110,7 @@ export function copyWithValueOnlyIfOtherUndefined<T, U>(source: T[], otherSource
   let i, found = -1;
   let count = source.length;
   for (i=0; i<count; i++) {
-    if (otherSource[i] === void 0) {
+    if (otherSource[i] === undefined) {
       found = i;
       break;
     }
@@ -118,7 +118,7 @@ export function copyWithValueOnlyIfOtherUndefined<T, U>(source: T[], otherSource
   if (found >= 0) {
     let copy = source.slice();
     for (i=found; i<count; i++) {
-      if (otherSource[i] === void 0) {
+      if (otherSource[i] === undefined) {
         copy[i] = value;
       }
     }
@@ -175,10 +175,10 @@ export function setArrayValuesIfOneIsUndefined<T>(array: (T | undefined)[], othe
   let i, count = array.length;
   for (i=0; i<count; i++) {
     if (array[i] !== otherArray[i]) {
-      if (array[i] === void 0) {
+      if (array[i] === undefined) {
         array[i] = value;
       }
-      else if (otherArray[i] === void 0) {
+      else if (otherArray[i] === undefined) {
         otherArray[i] = value;
       }
     }
@@ -194,10 +194,10 @@ export function setArrayValuesFromSourcesIfOneIsUndefined<T>(
   let i, count = array.length;
   for (i=0; i<count; i++) {
     if (array[i] !== otherArray[i]) {
-      if (array[i] === void 0) {
+      if (array[i] === undefined) {
         array[i] = sourceArray[i];
       }
-      else if (otherArray[i] === void 0) {
+      else if (otherArray[i] === undefined) {
         otherArray[i] = otherSourceArray[i];
       }
     }
@@ -214,7 +214,7 @@ export function setArrayValuesForRange<T>(array: T[], min: number, max: number, 
 export function hasUndefinedForRange(array: readonly unknown[], min: number, max: number): boolean {
   let i;
   for (i=min; i<max; i++) {
-    if (array[i] === void 0) {
+    if (array[i] === undefined) {
       return true;
     }
   }
@@ -240,7 +240,7 @@ export function getArrayDeltas(array: readonly number[], otherArray: readonly (n
   let count = array.length;
   let deltas: number[] = [];
   for (let i=0; i<count; i++) {
-    if (otherArray[i] !== void 0) { // if one is undefined, both should be undefined
+    if (otherArray[i] !== undefined) { // if one is undefined, both should be undefined
       deltas.push((otherArray[i] as number) - array[i]);
     }
     else {

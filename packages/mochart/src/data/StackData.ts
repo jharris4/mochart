@@ -30,7 +30,7 @@ function getStackOuterSeriesIds(seriesStackConfigs: SeriesStackConfig[], groupCo
   let outerSeriesIds: (string | undefined)[];
   const emptyGroupValues: undefined[] = [];
   for (let i=0; i<groupCount; i++) {
-    emptyGroupValues.push(void 0);
+    emptyGroupValues.push(undefined);
   }
   for (let { id } of seriesStackConfigs) {
     outerSeriesIds = emptyGroupValues.slice();
