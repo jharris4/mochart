@@ -57,9 +57,15 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
     }
   }, []);
 
+  // The routed randomId is baked into each render's onRandomizeNext, so the
+  // interval must read the latest one via a ref — freezing the play-time
+  // closure would navigate to the same randomId on every tick after the first.
+  const onRandomizeNextRef = useRef(onRandomizeNext);
+  onRandomizeNextRef.current = onRandomizeNext;
+
   const onPlayClick = () => {
     setPlaying(true);
-    intervalIdRef.current = setInterval(onRandomizeNext, rate);
+    intervalIdRef.current = setInterval(() => onRandomizeNextRef.current(), rate);
   };
 
   const rateChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
