@@ -308,6 +308,24 @@ function getSeriesAxisTickData(axisConfigArray: SeriesAxisConfig[], axisLayoutIn
 
 function getSeriesAxisTickDataObject(axisConfig: SeriesAxisConfig, axisLayoutInfo: AxisLayoutInfo, rawSeriesAxisDomain: NullableDomain, filteredSeriesAxisDomain: NullableDomain, filteredSeriesCount: number, axisScale: AxisScale, vertical: boolean): AxisTick[] {
   let ticks: AxisTick[] = [];
+  if (axisConfig.ticks !== NONE) {
+    if (axisConfig.alwaysVisible || filteredSeriesCount > 0) {
+      const tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, axisScale, axisConfig.ticks.length);
+      const [rangeStart, rangeEnd] = axisScale.range();
+      const rangeMin = Math.min(rangeStart, rangeEnd);
+      const rangeMax = Math.max(rangeStart, rangeEnd);
+      ticks = axisConfig.ticks.map(({ value, label }) => {
+        const position = axisScale(value);
+        return {
+          label: label ?? tickLabelFormatter(value),
+          position,
+          value,
+          hidden: !Number.isFinite(position) || position < rangeMin || position > rangeMax
+        };
+      });
+    }
+    return ticks;
+  }
   if (axisConfig.alwaysVisible || filteredSeriesCount > 0) {
     let tickCount = axisConfig.tickCount;
     let scaleTicks: AxisValue[];

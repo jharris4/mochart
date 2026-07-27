@@ -22,6 +22,7 @@ export default function getDescriptions() {
     adjustTickLabelSizeForSuppression: 'whether to adjust the size of the axis tick label bounds as series belonging to it are suppressed',
     alwaysVisible: 'whether the axis should be visible when all series belonging to it are suppressed',
     tickLabelFormat: 'the d3 format string to be applied to the series values when displayed in axis tick labels (use null for none, use "auto" to derive from data)',
+    ticks: 'the explicit ticks to show on the axis in place of the generated ones, each { value, label } placing label text at an axis value (label falls back to the formatted value, use null for none)',
     maxMarginPercent: 'the percentage margin (0 - 1) relative to the domain of the axis to use at the maximum extent of the axis (only applied if max is "auto" and max value is not equal base)',
     minMarginPercent: 'the percentage margin (0 - 1) relative to the domain of the axis to use at the minimum extent of the axis (only applied if min is "auto" and min value is not equal base)',
     focusOnMouseOver: 'whether the series axis should be focused whenever the user mouses over a part of it in the chart',
@@ -36,6 +37,7 @@ export function getDetails() {
     max: 'With `"auto"` the maximum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead.',
     softMin: 'A lower bound that only applies while no data value is below it — the axis covers at least this value, but real data smaller than it still expands the domain. Unlike `min`, it never clips data.',
     softMax: 'An upper bound that only applies while no data value is above it — the axis covers at least this value, but real data larger than it still expands the domain. Unlike `max`, it never clips data.',
-    base: 'The value that bars and areas grow from, and the resting position shapes animate from/to when series enter or leave. With mixed positive/negative data the base separates the two directions.'
+    base: 'The value that bars and areas grow from, and the resting position shapes animate from/to when series enter or leave. With mixed positive/negative data the base separates the two directions.',
+    ticks: 'Replaces the automatic tick generation entirely: tick counts, intervals and domain-edge ticks are ignored. Useful for naming fixed positions, e.g. heatmap row bands or threshold levels. Ticks outside the current axis domain are hidden.'
   };
 }

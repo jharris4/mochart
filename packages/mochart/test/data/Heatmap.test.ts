@@ -35,7 +35,16 @@ describe('createHeatmap', () => {
     expect(data[0].row0Value).toBe(0);
     expect(data[0].row2Start).toBe(0);
     expect(data[0].row2).toBe(1);
-    expect(seriesAxisConfig).toMatchObject({ min: 0, max: 3, visible: false });
+    expect(seriesAxisConfig).toMatchObject({ min: 0, max: 3 });
+  });
+
+  it('labels each row band center with an explicit axis tick', () => {
+    const { seriesAxisConfig } = createHeatmap(rows());
+    expect(seriesAxisConfig.ticks).toEqual([
+      { value: 2.5, label: 'North' },
+      { value: 1.5, label: 'South' },
+      { value: 0.5, label: 'West' }
+    ]);
   });
 
   it('trims cellPadding from each side of the bands and group slots', () => {
@@ -64,7 +73,7 @@ describe('createHeatmap', () => {
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.title)).toEqual(['North', 'South', 'West']);
     expect(seriesConfigs[1]).toMatchObject({
       id: 'row1', property: 'row1', rangeProperty: 'row1Start', colorProperty: 'row1Value',
-      tooltipProperty: 'row1Value', renderer: 'bar', group: null, stack: null
+      tooltipProperty: 'row1Value', renderer: 'bar', group: null, stack: null, showInLegend: false
     });
   });
 

@@ -1983,6 +1983,13 @@ export interface GroupAxisConfig extends AxisConfigBase {
   valueSuffix: string | null;
 }
 
+export interface SeriesAxisTick {
+  /** The axis value to place the tick at. */
+  value: number;
+  /** The tick label text; when omitted the value is formatted with `tickLabelFormat`. */
+  label?: string;
+}
+
 export interface SeriesAxisConfig extends AxisConfigBase {
   /**
    * The unique identifier for the series axis so it can be referenced by series
@@ -2138,6 +2145,19 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    * @default "linear"
    */
   scale: Scale;
+  /**
+   * The explicit ticks to show on the axis in place of the generated ones, each
+   * { value, label } placing label text at an axis value (label falls back to
+   * the formatted value, use null for none).
+   *
+   * Replaces the automatic tick generation entirely: tick counts, intervals and
+   * domain-edge ticks are ignored. Useful for naming fixed positions, e.g.
+   * heatmap row bands or threshold levels. Ticks outside the current axis
+   * domain are hidden.
+   *
+   * @default null
+   */
+  ticks: SeriesAxisTick[] | null;
   /**
    * The type of the series axis, must be number.
    *

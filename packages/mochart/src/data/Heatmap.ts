@@ -111,10 +111,13 @@ export function createHeatmapColorScale(domain: [number, number], options: Creat
 
 /**
  * Turns a grid of values into the pieces of a heatmap chart: each row becomes
- * a full-width `bar` series floating on a fixed one-unit band of a hidden
- * linear series axis (`rows[0]` on top), columns become ordinal group values,
- * and each cell's `colorProperty` value colors it from a shared sequential
- * ramp. Spread the fragments into a chart config and chart the `data`.
+ * a full-width `bar` series floating on a fixed one-unit band of a linear
+ * series axis labelled with the row names via explicit `ticks` (`rows[0]` on
+ * top), columns become ordinal group values, and each cell's `colorProperty`
+ * value colors it from a shared sequential ramp. Spread the fragments into a
+ * chart config and chart the `data`. The row series stay out of the legend
+ * (`showInLegend: false`) — the axis names the rows and a color-scale strip
+ * built from `colorScale` makes the better legend.
  *
  * The core color scale spans each series' own color-value extent, so each
  * row's `colorMin`/`colorMax` is the global ramp sampled at that row's
@@ -157,15 +160,15 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
     groupPadding: { inner: cellPadding * 2, outer: cellPadding }
   };
 
-  // Pinned to exactly the stacked row bands; numeric ticks would land on the
-  // band edges and mislabel the rows, so the axis stays hidden and the legend
-  // (series titles) names them.
+  // Pinned to exactly the stacked row bands, with one explicit tick per row
+  // labelling its band center (auto numeric ticks would land on band edges
+  // and mislabel the rows).
   const seriesAxisConfig: Partial<SeriesAxisConfig> = {
     min: 0,
     max: Math.max(rowCount, 1),
     minMarginPercent: 0,
     maxMarginPercent: 0,
-    visible: false
+    ticks: rows.map((row, r) => ({ value: rowCount - r - 0.5, label: row.label }))
   };
 
   const seriesConfigs = rows.map((row, r) => {
@@ -184,6 +187,9 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
       group: null,
       stack: null,
       fillOpacity: 1,
+      // Rows are named by the axis ticks; a legend entry per row would only
+      // invite suppressing rows, which reads as data rather than a hidden series.
+      showInLegend: false,
       title: row.label
     } as Partial<SeriesConfig>;
   });

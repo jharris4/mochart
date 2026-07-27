@@ -39,6 +39,8 @@ export function getRegularDefaults() {
 
     scale: SCALE_LINEAR,
 
+    ticks: NONE,
+
     type: TYPE_NUMBER,
 
     useSeriesFocus: true

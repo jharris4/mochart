@@ -43,6 +43,11 @@ export default function getValidators() {
 
     scale: validators.equal(SCALE_LINEAR),
 
+    ticks: validators.arrayOf(validators.objectWithShape({
+      value: validators.number(),
+      label: validators.string().orEqual(void 0)
+    }), true).orEqual(NONE),
+
     softMax: validators.number().orEqual(NONE),
     softMin: validators.number().orEqual(NONE),
 
