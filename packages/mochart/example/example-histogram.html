@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mochart histogram helper example</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; }
+        #chart { width: 720px; height: 400px; }
+        .controls { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+        .controls label { display: flex; gap: 0.4rem; align-items: center; }
+    </style>
+</head>
+<body>
+    <h1>mochart — histogram helper</h1>
+    <p>Bins 2,000 samples from a normal distribution with <code>createHistogram</code> and renders the
+       result as touching bars. Serve this directory over HTTP.</p>
+    <div class="controls">
+        <button id="resample">Resample</button>
+        <label>Bins
+            <input id="binCount" type="range" min="4" max="60" step="1" value="20">
+            <span id="binCountLabel">auto</span>
+        </label>
+        <label>Normalize
+            <select id="normalize">
+                <option value="count">count</option>
+                <option value="probability">probability</option>
+                <option value="density">density</option>
+            </select>
+        </label>
+        <label><input id="cumulative" type="checkbox"> cumulative</label>
+    </div>
+    <div id="chart"></div>
+    <script type="module">
+        import { createChart, enhanceConfig, ArrayOfObjectsDataProvider, createHistogram } from '../dist/mochart.js';
+
+        // Deterministic Box–Muller samples so reloads look the same.
+        function normalSamples(count, mean, stdDev, seed) {
+            const samples = [];
+            let state = seed;
+            const next = () => {
+                state = (state * 1664525 + 1013904223) % 4294967296;
+                return state / 4294967296;
+            };
+            for (let i = 0; i < count; i++) {
+                const u = Math.max(next(), 1e-9);
+                const v = next();
+                samples.push(mean + stdDev * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v));
+            }
+            return samples;
+        }
+
+        let seed = 42;
+        let samples = normalSamples(2000, 100, 15, seed);
+        let useAutoBins = true;
+
+        const chartEl = document.getElementById('chart');
+        let chart = null;
+
+        function render() {
+            const { data, groupAxisConfig, seriesConfig } = createHistogram(samples, {
+                binCount: useAutoBins ? undefined : Number(document.getElementById('binCount').value),
+                normalize: document.getElementById('normalize').value,
+                cumulative: document.getElementById('cumulative').checked
+            });
+
+            const mochartConfig = enhanceConfig({
+                version: '1.0.0',
+                titleConfig: { title: 'Distribution of 2,000 samples (μ = 100, σ = 15)' },
+                groupAxisConfig: { ...groupAxisConfig, title: 'Value' },
+                seriesAxisConfigs: [{ id: 'sa', min: 0 }],
+                seriesConfigs: [{ ...seriesConfig, axis: 'sa' }]
+            });
+            const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.groupAxisConfig.property);
+
+            if (chart === null) {
+                chart = createChart(chartEl, { mochartConfig, dataProvider, width: 720, height: 400 });
+            } else {
+                chart.update({ mochartConfig, dataProvider });
+            }
+            document.getElementById('binCountLabel').textContent = useAutoBins ? 'auto' : String(data.length);
+        }
+
+        document.getElementById('resample').addEventListener('click', () => {
+            seed += 1;
+            samples = normalSamples(2000, 100, 15, seed);
+            render();
+        });
+        document.getElementById('binCount').addEventListener('input', () => {
+            useAutoBins = false;
+            render();
+        });
+        document.getElementById('normalize').addEventListener('change', render);
+        document.getElementById('cumulative').addEventListener('change', render);
+
+        render();
+    </script>
+</body>
+</html>
