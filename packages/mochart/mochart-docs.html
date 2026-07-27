@@ -2252,7 +2252,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.skipMissing">
-<td><a href="#seriesConfigs.skipMissing">skipMissing</a></td><td>whether to skip undefined values when drawing the shape for this series<br/><br/>When `true`, groups whose value is missing (`undefined`) are left out of the shape, so lines and areas connect directly between the neighbouring defined values; when `false` the shape breaks at the gap.</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#seriesConfigs.skipMissing">skipMissing</a></td><td>whether to skip undefined values when drawing the shape for this series<br/><br/>When `true`, groups whose value is missing (`undefined`) are left out of the shape, so lines and areas connect directly between the neighbouring defined values; when `false` the shape breaks at the gap. For a series with a `rangeProperty`, a group counts as missing only when both properties are undefined — see `skipPartialRange`.</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="seriesConfigs.skipPartialRange">
+<td><a href="#seriesConfigs.skipPartialRange">skipPartialRange</a></td><td>whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one<br/><br/>Only affects series with a `rangeProperty` (stacked series are unaffected). By default a group with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such groups count as missing instead, following the configured missing-value treatment: a break in the shape, or skipped over when `skipMissing` is set, or drawn at the base when `showMissingAtBase` is set.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="seriesConfigs.stack">

@@ -28,6 +28,7 @@ export function getRegularDefaults() {
     ignore: false,
     renderer: RENDERER_LINE,
     skipMissing: false,
+    skipPartialRange: false,
     showMissingAtBase: false,
     curve: { type: CURVE_TYPE_LINEAR },
     capSize: 5,

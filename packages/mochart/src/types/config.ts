@@ -2294,11 +2294,28 @@ export interface SeriesConfig {
    *
    * When `true`, groups whose value is missing (`undefined`) are left out of
    * the shape, so lines and areas connect directly between the neighbouring
-   * defined values; when `false` the shape breaks at the gap.
+   * defined values; when `false` the shape breaks at the gap. For a series with
+   * a `rangeProperty`, a group counts as missing only when both properties are
+   * undefined — see `skipPartialRange`.
    *
    * @default false
    */
   skipMissing: boolean;
+  /**
+   * Whether to treat a value as missing when either of property or
+   * rangeProperty is undefined, instead of collapsing to the defined one.
+   *
+   * Only affects series with a `rangeProperty` (stacked series are unaffected).
+   * By default a group with just one of `property`/`rangeProperty` undefined
+   * keeps a zero-extent span collapsed at the defined value, so ranged areas
+   * stay connected through it. When `true` such groups count as missing
+   * instead, following the configured missing-value treatment: a break in the
+   * shape, or skipped over when `skipMissing` is set, or drawn at the base when
+   * `showMissingAtBase` is set.
+   *
+   * @default false
+   */
+  skipPartialRange: boolean;
   /**
    * Whether to use the series axis base value for missing values when drawing
    * the shape for this series.

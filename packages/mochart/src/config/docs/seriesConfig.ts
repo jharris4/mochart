@@ -14,6 +14,7 @@ export default function getDescriptions() {
     ignore: 'whether to ignore this series and treat it as though it were not specified',
     renderer: 'the shape renderer to use when drawing the series shape (line, area, bar, none)',
     skipMissing: 'whether to skip undefined values when drawing the shape for this series',
+    skipPartialRange: 'whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one',
     showMissingAtBase: 'whether to use the series axis base value for missing values when drawing the shape for this series',
     curve: 'the d3 curve type and param to use when drawing the series shape',
     capSize: 'the size of the cap (in pixels) to use when drawing caps on a bar series',
@@ -120,7 +121,8 @@ export function getDetails() {
     stack: 'Series sharing the same stack id (an `id` from `seriesStackConfigs`) are drawn stacked on one another and animate as a single unit, so the stack stays gapless mid-transition. Defaults to the sole stack id when exactly one stack is configured; use `null` to opt a series out.',
     group: 'Series sharing the same group id (an `id` from `seriesGroupConfigs`) are laid out side by side within each group slot — grouped/clustered bars. Defaults to the sole group id when exactly one group is configured; use `null` to opt a series out.',
     curve: 'Only affects the `line` and `area` renderers. `type` selects the d3-shape curve (`linear`, `monotoneX`, `natural`, `step`, `cardinal`, `catmullRom`, …) and `param` is passed to the curve’s tension/alpha configurator for the curve types that take one.',
-    skipMissing: 'When `true`, groups whose value is missing (`undefined`) are left out of the shape, so lines and areas connect directly between the neighbouring defined values; when `false` the shape breaks at the gap.',
+    skipMissing: 'When `true`, groups whose value is missing (`undefined`) are left out of the shape, so lines and areas connect directly between the neighbouring defined values; when `false` the shape breaks at the gap. For a series with a `rangeProperty`, a group counts as missing only when both properties are undefined — see `skipPartialRange`.',
+    skipPartialRange: 'Only affects series with a `rangeProperty` (stacked series are unaffected). By default a group with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such groups count as missing instead, following the configured missing-value treatment: a break in the shape, or skipped over when `skipMissing` is set, or drawn at the base when `showMissingAtBase` is set.',
     showMissingAtBase: 'An alternative missing-value treatment: instead of leaving a gap, missing values are drawn at the series axis base value.',
     valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the series axis `tickLabelFormat` when that is set.',
     capType: 'Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.'

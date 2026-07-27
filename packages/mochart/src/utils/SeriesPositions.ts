@@ -31,7 +31,7 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
 }
 
 export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesConfig: SeriesConfig, groupValueData: GroupAxisData['valueData'], seriesAxisScale: AxisScale, valueObject: SeriesValueObject, seriesLayoutInfo: LayoutInfo): SeriesPositionData {
-  const { seriesAxisConfig, seriesGroupConfig, showMissingAtBase, skipMissing, group, stack, rangeProperty } = seriesConfig;
+  const { seriesAxisConfig, seriesGroupConfig, showMissingAtBase, skipMissing, skipPartialRange, group, stack, rangeProperty } = seriesConfig;
   const { spacingInfo, positions: groupPositions } = groupValueData;
   const { base } = seriesAxisConfig;
   const { min } = valueObject;
@@ -70,10 +70,16 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
     groupValueOffset = groupValueOffset + (seriesGroupConfig!.seriesConfigIndicesById![seriesConfig.id]! * groupExtentAndMargins) + ((groupExtentAndMargins - groupValueExtent) / 2.0);
   }
 
+  // With skipPartialRange, a ranged group missing either of its two values is
+  // treated as wholly missing here, before normalizePriorPositions can back-fill
+  // the absent side and collapse the group to a zero-extent span. Stacked series
+  // are exempt: their min holds stack priors, not range values.
+  const requireBothValues = skipPartialRange && rangeProperty !== NONE && stack === NONE && min !== null;
+
   let i, length = groupPositions.length;
   let position;
   for (i=0; i<length; i++) {
-    if (max[i] !== void 0) {
+    if (max[i] !== void 0 && (!requireBothValues || min![i] !== void 0)) {
       position = Math.floor(seriesAxisScale(max[i]!));
       seriesPositions.push(position);
     }
@@ -84,7 +90,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
   if (min !== null) {
     seriesPriorPositions = [];
     for (i=0; i<length; i++) {
-      if (min[i] !== void 0) {
+      if (min[i] !== void 0 && (!requireBothValues || max[i] !== void 0)) {
         position = Math.floor(seriesAxisScale(min[i]!));
         seriesPriorPositions.push(position);
       }

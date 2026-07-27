@@ -129,12 +129,16 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
   // each group carries a value for exactly one of them, so the bars render
   // full-width in their slot (group/stack null keeps them out of any
   // configured grouping) and the legend names the three directions.
+  // skipPartialRange matters because `start` exists on every row: without it
+  // the two off-direction series would keep zero-extent bars at `start`
+  // instead of skipping the group.
   const seriesConfigs = DIRECTIONS.map((direction) => ({
     id: direction,
     property: direction,
     rangeProperty: RANGE_PROPERTY,
     renderer: 'bar',
     skipMissing: true,
+    skipPartialRange: true,
     group: null,
     stack: null,
     title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],

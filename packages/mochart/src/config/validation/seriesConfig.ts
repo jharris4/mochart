@@ -34,6 +34,7 @@ export default function getValidators(config: Partial<SeriesConfig>) {
     ignore: validators.boolean(),
     renderer: validators.oneOf(RENDERERS),
     skipMissing: validators.boolean(),
+    skipPartialRange: validators.boolean(),
     showMissingAtBase: validators.boolean(),
     curve: validators.objectWithShape({
       type: validators.oneOf(CURVE_TYPES),
