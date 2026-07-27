@@ -239,12 +239,17 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         let hasDifferentFillColors = seriesConfig.fillColor === COLOR_GROUP_INDEX;
         let hasDifferentColors = hasDifferentStrokeColors || hasDifferentFillColors;
         let focusPercentage;
+        const { skipMissing } = seriesConfig;
+        const { skipGroupIndexMap } = seriesPositionData;
 
         for (let i = 0; i < seriesPositionData.length; i++) {
           if (seriesPositionData.getDefined(null, i)) {
-            focusPercentage = getGroupFocusPercentage(groupFocusPercentages[i], seriesFocusPercentage);
+            // Positions are compacted when skipMissing is set, but focus and
+            // color values stay indexed by the raw group index.
+            let skipI = skipMissing ? skipGroupIndexMap[i] : i;
+            focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
             if (seriesColorGenerator !== null) {
-              barStrokeColor = seriesColorGenerator(i);
+              barStrokeColor = seriesColorGenerator(skipI);
               barFillColor = barStrokeColor;
             }
             else if (hasDifferentColors) {

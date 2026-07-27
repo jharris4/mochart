@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mochart heatmap helper example</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; }
+        #chart { width: 720px; height: 400px; }
+        .controls { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+        .scale { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; font-size: 0.85rem; color: #444; }
+        .scale-ramp { display: flex; width: 240px; height: 12px; border-radius: 2px; overflow: hidden; }
+        .scale-ramp span { flex: 1; }
+    </style>
+</head>
+<body>
+    <h1>mochart — heatmap helper</h1>
+    <p>Turns a grid of values into per-row <code>rangeProperty</code> bar bands colored through a shared
+       sequential ramp via <code>colorProperty</code> with <code>createHeatmap</code>. A couple of cells are
+       left empty on purpose. Serve this directory over HTTP.</p>
+    <div class="controls">
+        <button id="randomize">Randomize</button>
+    </div>
+    <div id="chart"></div>
+    <div class="scale">
+        <span id="scale-min"></span>
+        <div class="scale-ramp" id="scale-ramp"></div>
+        <span id="scale-max"></span>
+        <span>tickets / day</span>
+    </div>
+    <script type="module">
+        import { createChart, enhanceConfig, ArrayOfObjectsDataProvider, createHeatmap } from '../dist/mochart.js';
+
+        const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        // Deterministic pseudo-random jitter so reloads look the same.
+        let state = 11;
+        const next = () => {
+            state = (state * 1664525 + 1013904223) % 4294967296;
+            return state / 4294967296;
+        };
+
+        const chartEl = document.getElementById('chart');
+        let chart = null;
+
+        function render() {
+            // Weekday activity, busier midweek and in the winter months.
+            const rows = WEEKDAYS.map((label, r) => ({
+                label,
+                values: MONTHS.map((month, c) => {
+                    if ((r === 5 && c === 3) || (r === 6 && c === 8)) {
+                        return null; // no data collected — leaves a gap
+                    }
+                    const weekday = r < 5 ? 1 : 0.35;
+                    const season = 1 + 0.5 * Math.cos((c / 12) * 2 * Math.PI);
+                    return Math.round(40 * weekday * season * (0.6 + 0.8 * next()));
+                })
+            }));
+
+            const heatmap = createHeatmap(rows, { columnLabels: MONTHS });
+
+            const mochartConfig = enhanceConfig({
+                version: '1.0.0',
+                titleConfig: { title: 'Support tickets by weekday (fictional)' },
+                legendConfig: { visible: true },
+                tooltipConfig: { visible: false }, // the tooltip would show band coordinates, not cell values
+                groupAxisConfig: heatmap.groupAxisConfig,
+                seriesAxisConfigs: [{ ...heatmap.seriesAxisConfig, id: 'sa' }],
+                seriesConfigs: heatmap.seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
+            });
+            const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data, mochartConfig.groupAxisConfig.property);
+
+            if (chart === null) {
+                chart = createChart(chartEl, { mochartConfig, dataProvider, width: 720, height: 400 });
+            } else {
+                chart.update({ mochartConfig, dataProvider });
+            }
+
+            renderScaleLegend(heatmap);
+        }
+
+        function renderScaleLegend({ domain, colorScale }) {
+            const [min, max] = domain;
+            const steps = 24;
+            document.getElementById('scale-ramp').innerHTML = Array.from({ length: steps }, (_, i) =>
+                `<span style="background:${colorScale(min + ((max - min) * i) / (steps - 1))}"></span>`
+            ).join('');
+            document.getElementById('scale-min').textContent = String(min);
+            document.getElementById('scale-max').textContent = String(max);
+        }
+
+        document.getElementById('randomize').addEventListener('click', render);
+
+        render();
+    </script>
+</body>
+</html>

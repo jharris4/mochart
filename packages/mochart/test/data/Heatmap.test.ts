@@ -1,0 +1,146 @@
+import { describe, it, expect } from 'vitest';
+import { scaleLinear } from 'd3-scale';
+import { interpolateLab } from 'd3-interpolate';
+import { createHeatmap, createHeatmapColorScale } from '../../src/data/Heatmap';
+import { enhanceConfig } from '../../src/config/helper';
+import { getDataErrors } from '../../src/data/DataValidator';
+import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
+import type { HeatmapRow } from '../../src/data/Heatmap';
+
+interface TestColorScale {
+  (value: number): string;
+  range(values: readonly unknown[]): TestColorScale;
+  domain(values: readonly number[]): TestColorScale;
+  interpolate(interpolator: unknown): TestColorScale;
+}
+
+const rows = (): HeatmapRow[] => [
+  { label: 'North', values: [0, 5, 10] },
+  { label: 'South', values: [2, undefined, 8] },
+  { label: 'West', values: [4, 6, null] }
+];
+
+const toHex = (rgb: string): string => {
+  const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)!;
+  return '#' + match.slice(1, 4).map((channel) => Number(channel).toString(16).padStart(2, '0')).join('');
+};
+
+describe('createHeatmap', () => {
+  it('lays each row out as a one-unit band, first row on top', () => {
+    const { data, seriesAxisConfig } = createHeatmap(rows(), { cellPadding: 0 });
+    expect(data).toHaveLength(3);
+    expect(data[0].column).toBe('1');
+    expect(data[0].row0Start).toBe(2);
+    expect(data[0].row0).toBe(3);
+    expect(data[0].row0Value).toBe(0);
+    expect(data[0].row2Start).toBe(0);
+    expect(data[0].row2).toBe(1);
+    expect(seriesAxisConfig).toMatchObject({ min: 0, max: 3, visible: false });
+  });
+
+  it('trims cellPadding from each side of the bands and group slots', () => {
+    const { data, groupAxisConfig } = createHeatmap(rows(), { cellPadding: 0.1 });
+    expect(data[0].row0Start).toBeCloseTo(2.1);
+    expect(data[0].row0).toBeCloseTo(2.9);
+    expect(groupAxisConfig.groupPadding).toEqual({ inner: 0.2, outer: 0.1 });
+  });
+
+  it('leaves missing cells out of the data', () => {
+    const { data, seriesConfigs } = createHeatmap(rows());
+    expect(data[1].row1).toBeUndefined();
+    expect(data[1].row1Start).toBeUndefined();
+    expect(data[1].row1Value).toBeUndefined();
+    expect(data[2].row2Value).toBeUndefined();
+    expect(seriesConfigs.every((seriesConfig) => seriesConfig.skipMissing === true)).toBe(true);
+  });
+
+  it('uses custom column labels', () => {
+    const { data } = createHeatmap(rows(), { columnLabels: ['Jan', 'Feb', 'Mar'] });
+    expect(data.map((entry) => entry.column)).toEqual(['Jan', 'Feb', 'Mar']);
+  });
+
+  it('titles one bar series per row', () => {
+    const { seriesConfigs } = createHeatmap(rows());
+    expect(seriesConfigs.map((seriesConfig) => seriesConfig.title)).toEqual(['North', 'South', 'West']);
+    expect(seriesConfigs[1]).toMatchObject({
+      id: 'row1', property: 'row1', rangeProperty: 'row1Start', colorProperty: 'row1Value',
+      renderer: 'bar', group: null, stack: null
+    });
+  });
+
+  it('computes the domain from all cells and samples each row color range from the global ramp', () => {
+    const heatmap = createHeatmap(rows());
+    expect(heatmap.domain).toEqual([0, 10]);
+    expect(heatmap.seriesConfigs[0].colorMin).toBe(heatmap.colorScale(0));
+    expect(heatmap.seriesConfigs[0].colorMax).toBe(heatmap.colorScale(10));
+    expect(heatmap.seriesConfigs[1].colorMin).toBe(heatmap.colorScale(2));
+    expect(heatmap.seriesConfigs[1].colorMax).toBe(heatmap.colorScale(8));
+    expect(heatmap.seriesConfigs.every((seriesConfig) => /^#[0-9a-f]{6}$/.test(seriesConfig.colorMin as string))).toBe(true);
+  });
+
+  it('reproduces the global scale when the core interpolates each row over its own extent', () => {
+    const heatmap = createHeatmap(rows());
+    for (const [r, row] of rows().entries()) {
+      const values = row.values.filter((value): value is number => value != null);
+      // What SeriesColors.getSeriesColorGenerator builds for the series.
+      const coreScale = (scaleLinear() as unknown as TestColorScale)
+        .range([heatmap.seriesConfigs[r].colorMin, heatmap.seriesConfigs[r].colorMax])
+        .domain([Math.min(...values), Math.max(...values)])
+        .interpolate(interpolateLab);
+      for (const value of values) {
+        expect(toHex(coreScale(value))).toBe(heatmap.colorScale(value));
+      }
+    }
+  });
+
+  it('colors every cell at the ramp midpoint when all values are equal', () => {
+    const heatmap = createHeatmap([{ label: 'A', values: [7, 7] }, { label: 'B', values: [7] }]);
+    expect(heatmap.domain).toEqual([7, 7]);
+    const midpoint = heatmap.colorScale(7);
+    expect(heatmap.colorScale(0)).toBe(midpoint);
+    expect(heatmap.seriesConfigs[0].colorMin).toBe(midpoint);
+    expect(heatmap.seriesConfigs[1].colorMax).toBe(midpoint);
+  });
+
+  it('produces a valid chart config and data', () => {
+    const heatmap = createHeatmap(rows());
+    const mochartConfig = enhanceConfig({
+      version: '1.0.0',
+      groupAxisConfig: heatmap.groupAxisConfig,
+      seriesAxisConfigs: [{ ...heatmap.seriesAxisConfig, id: 'sa' }],
+      seriesConfigs: heatmap.seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
+    });
+    expect(mochartConfig.validation.valid).toBe(true);
+    // The group property is always set; only cell properties can be undefined.
+    const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data as Record<string, string | number>[], 'column');
+    expect(getDataErrors(mochartConfig, dataProvider)).toEqual([]);
+  });
+
+  it('does not mutate the passed rows or options', () => {
+    const input = rows();
+    const snapshot = structuredClone(input);
+    const options = { columnLabels: ['a', 'b', 'c'], domain: [0, 10] as [number, number] };
+    const optionsSnapshot = structuredClone(options);
+    createHeatmap(input, options);
+    expect(input).toEqual(snapshot);
+    expect(options).toEqual(optionsSnapshot);
+  });
+
+  it('handles empty input', () => {
+    const heatmap = createHeatmap([]);
+    expect(heatmap.domain).toBeNull();
+    expect(heatmap.data).toEqual([]);
+    expect(heatmap.seriesConfigs).toEqual([]);
+  });
+});
+
+describe('createHeatmapColorScale', () => {
+  it('maps the domain ends to the end colors and clamps outside values', () => {
+    const scale = createHeatmapColorScale([0, 10], { colorMin: '#000000', colorMax: '#ffffff', colorInterpolation: 'rgb' });
+    expect(scale(0)).toBe('#000000');
+    expect(scale(10)).toBe('#ffffff');
+    expect(scale(-5)).toBe('#000000');
+    expect(scale(15)).toBe('#ffffff');
+    expect(scale(5)).toBe(toHex('rgb(128, 128, 128)'));
+  });
+});
