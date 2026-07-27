@@ -5,7 +5,7 @@ import { getPath, navigate, subscribe } from './router';
 
 import demoData from '@mochart/demo-data';
 
-import type { SwitchableDemoMode } from '@mochart/demo-common';
+import type { ShowcaseMode, SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../src/components/misc/LightElement';
 import '../src/components/gallery/gallery-page';
@@ -14,6 +14,7 @@ import '../src/components/multi/demo-multi';
 import '../src/components/random/demo-random';
 import '../src/components/transition/demo-transition';
 import '../src/components/rotation/demo-rotation';
+import '../src/components/sparkline/demo-sparkline';
 
 interface Route {
   redirect?: string;
@@ -53,7 +54,7 @@ function resolveRoute(path: string): Route {
   if (mode === 'random' && segments.length === 3) {
     return { mode, demoId, randomId };
   }
-  if ((mode === 'transition' || mode === 'rotation') && segments.length === 1) {
+  if ((mode === 'transition' || mode === 'rotation' || mode === 'sparkline') && segments.length === 1) {
     return { mode };
   }
   return { notFound: path };
@@ -124,7 +125,7 @@ export class DemoApp extends LightElement {
     navigate(`/single/${demoId}`);
   };
 
-  private onOpenPage = (mode: 'transition' | 'rotation'): void => {
+  private onOpenPage = (mode: ShowcaseMode): void => {
     navigate(`/${mode}`);
   };
 
@@ -146,6 +147,9 @@ export class DemoApp extends LightElement {
     }
     if (route.mode === 'rotation') {
       return html`<demo-rotation .siteRootUrl=${siteRootUrl} .onBackToDemos=${this.onBackToDemos}></demo-rotation>`;
+    }
+    if (route.mode === 'sparkline') {
+      return html`<demo-sparkline .siteRootUrl=${siteRootUrl} .onBackToDemos=${this.onBackToDemos}></demo-sparkline>`;
     }
     const demoId = route.demoId!;
     if (demoObjectMap[demoId] === undefined) {

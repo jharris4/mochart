@@ -14,6 +14,7 @@ import { demoRandom } from '../src/components/random/DemoRandom';
 import type { DemoRandomHandle } from '../src/components/random/DemoRandom';
 import { demoTransition } from '../src/components/transition/DemoTransition';
 import { demoRotation } from '../src/components/rotation/DemoRotation';
+import { demoSparkline } from '../src/components/sparkline/DemoSparkline';
 
 interface Route {
   redirect?: string;
@@ -53,7 +54,7 @@ function resolveRoute(path: string): Route {
   if (mode === 'random' && segments.length === 3) {
     return { mode, demoId, randomId };
   }
-  if ((mode === 'transition' || mode === 'rotation') && segments.length === 1) {
+  if ((mode === 'transition' || mode === 'rotation' || mode === 'sparkline') && segments.length === 1) {
     return { mode };
   }
   return { notFound: path };
@@ -66,7 +67,7 @@ type View =
   | { kind: 'single'; handle: DemoSingleHandle }
   | { kind: 'multi'; handle: DemoMultiHandle }
   | { kind: 'random'; handle: DemoRandomHandle }
-  | { kind: 'transition' | 'rotation'; el: HTMLElement; destroy: () => void };
+  | { kind: 'transition' | 'rotation' | 'sparkline'; el: HTMLElement; destroy: () => void };
 
 // The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
 // link back to it; standalone dev/build leaves it unset and no link renders.
@@ -90,7 +91,7 @@ export function mountApp(root: HTMLElement): void {
     if (view.kind === 'single' || view.kind === 'multi' || view.kind === 'random') {
       view.handle.destroy();
     }
-    else if (view.kind === 'transition' || view.kind === 'rotation') {
+    else if (view.kind === 'transition' || view.kind === 'rotation' || view.kind === 'sparkline') {
       view.destroy();
     }
     root.replaceChildren();
@@ -143,14 +144,16 @@ export function mountApp(root: HTMLElement): void {
     };
   }
 
-  function showShellDemo(mode: 'transition' | 'rotation'): void {
+  function showShellDemo(mode: 'transition' | 'rotation' | 'sparkline'): void {
     if (view.kind === mode) {
       return;
     }
     clearView();
     const demo = mode === 'transition'
       ? demoTransition({ siteRootUrl, onBackToDemos })
-      : demoRotation({ siteRootUrl, onBackToDemos });
+      : mode === 'rotation'
+        ? demoRotation({ siteRootUrl, onBackToDemos })
+        : demoSparkline({ siteRootUrl, onBackToDemos });
     root.append(demo.el);
     view = { kind: mode, el: demo.el, destroy: () => demo.destroy() };
   }
@@ -170,7 +173,7 @@ export function mountApp(root: HTMLElement): void {
       showGallery();
       return;
     }
-    if (route.mode === 'transition' || route.mode === 'rotation') {
+    if (route.mode === 'transition' || route.mode === 'rotation' || route.mode === 'sparkline') {
       showShellDemo(route.mode);
       return;
     }

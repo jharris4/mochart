@@ -9,7 +9,7 @@ import RandomConfigTab from './RandomConfigTab.vue';
 import RandomDataTab from './RandomDataTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -22,6 +22,8 @@ interface EventKeys {
 interface Props {
   mochartDemoConfig: MochartDemoConfig;
   initialRandomConfig: RandomConfigWithValid;
+  /** The demo's chart-type generator id, if it has one (demos.json). */
+  generator?: string;
   activeKey: number;
   eventKeys: EventKeys;
   randomId: number;
@@ -89,7 +91,7 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
 
   if (nextRandomConfig.valid) {
     const generatorConfig = applyReuse.value ? nextRandomConfig : withReuseNeutralized(nextRandomConfig);
-    const nextDataProvider = generateChartDataProvider(mochartConfig, generatorConfig, props.randomId);
+    const nextDataProvider = generateDemoDataProvider(props.generator, mochartConfig, generatorConfig, props.randomId);
     const { groupValues = [], seriesValues = {} } = nextDataProvider;
     const nextData = getData(mochartConfig, groupValues, seriesValues);
     const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);

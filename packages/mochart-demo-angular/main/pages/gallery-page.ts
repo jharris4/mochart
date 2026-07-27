@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 
 import demoData from '@mochart/demo-data';
 
+import type { ShowcaseMode } from '../../src/types';
+
 import { DemoGallery } from '../../src/components/gallery/demo-gallery';
 import { navigate, siteRootUrl } from './navigation';
 
@@ -25,7 +27,7 @@ export class GalleryPage {
     navigate(this.router, ['/single', demoId]);
   };
 
-  onOpenPage = (mode: 'transition' | 'rotation'): void => {
+  onOpenPage = (mode: ShowcaseMode): void => {
     navigate(this.router, ['/', mode]);
   };
 }

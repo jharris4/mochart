@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { buildMochartDemoConfig, consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import RandomMochartChartTab from './RandomChartTab';
@@ -31,15 +31,18 @@ interface RandomState {
   activeKey: number;
   mochartDemoConfig: MochartDemoConfig;
   randomConfig: RandomConfigWithValid;
+  /** The demo's chart-type generator id, if it has one (demos.json). */
+  generator?: string;
 }
 
 function buildState(demoData: DemoData, initialDemoId: string): RandomState {
-  const config = demoData.demoObjectMap[initialDemoId].config;
+  const demo = demoData.demoObjectMap[initialDemoId];
   return {
     demoId: initialDemoId,
     activeKey: eventKeyChart,
-    mochartDemoConfig: buildMochartDemoConfig(config),
-    randomConfig: Object.assign({}, demoData.demoObjectMap[initialDemoId].random, { valid: true })
+    mochartDemoConfig: buildMochartDemoConfig(demo.config),
+    randomConfig: Object.assign({}, demo.random, { valid: true }),
+    generator: demo.generator
   };
 }
 
@@ -58,7 +61,7 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
 
   const handleSelect = (activeKey: number) => setState(prev => ({ ...prev, activeKey }));
 
-  const { activeKey, mochartDemoConfig, randomConfig } = state;
+  const { activeKey, mochartDemoConfig, randomConfig, generator } = state;
 
   return (
     <div className="mochart-demo-container multi">
@@ -91,7 +94,7 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
       </div>
       <div className="mochart-demo-content-pane">
         <RandomMochartDemoContent mochartDemoConfig={mochartDemoConfig} initialRandomConfig={randomConfig}
-          initialDemoId={initialDemoId} activeKey={activeKey}
+          generator={generator} initialDemoId={initialDemoId} activeKey={activeKey}
           randomId={randomId} incrementRandomId={incrementRandomId} decrementRandomId={decrementRandomId} />
       </div>
     </div>
@@ -101,6 +104,8 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
 interface ContentProps {
   mochartDemoConfig: MochartDemoConfig;
   initialRandomConfig: RandomConfigWithValid;
+  /** The demo's chart-type generator id, if it has one (demos.json). */
+  generator?: string;
   initialDemoId: string;
   activeKey: number;
   randomId: number;
@@ -146,11 +151,11 @@ function withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithVa
   };
 }
 
-function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: number, randomConfig: RandomConfigWithValid, applyReuse: boolean): Pick<ContentState, 'dataProvider' | 'data' | 'randomConfig'> {
+function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: number, randomConfig: RandomConfigWithValid, applyReuse: boolean, generator: string | undefined): Pick<ContentState, 'dataProvider' | 'data' | 'randomConfig'> {
   const { mochartConfig } = mochartDemoConfig;
   if (randomConfig.valid) {
     const generatorConfig = applyReuse ? randomConfig : withReuseNeutralized(randomConfig);
-    const dataProvider = generateChartDataProvider(mochartConfig, generatorConfig, randomId);
+    const dataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
     const { groupValues = [], seriesValues = {} } = dataProvider;
     const data = getData(mochartConfig, groupValues, seriesValues);
     const dataErrors = getDataErrors(mochartConfig, dataProvider as unknown as DataProvider);
@@ -178,7 +183,7 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
 }
 
 function RandomMochartDemoContent(props: ContentProps) {
-  const { initialDemoId, mochartDemoConfig, initialRandomConfig, activeKey, randomId, incrementRandomId, decrementRandomId } = props;
+  const { initialDemoId, mochartDemoConfig, initialRandomConfig, generator, activeKey, randomId, incrementRandomId, decrementRandomId } = props;
 
   // A share link restores the generator config, reuse toggle and interval (the
   // step comes from the randomId in the URL path). Consume it once at mount.
@@ -192,7 +197,7 @@ function RandomMochartDemoContent(props: ContentProps) {
     // Reuse defaults on to match the generator's historical behavior.
     const applyReuse = initialShared ? initialShared.applyReuse : true;
     const randomConfig: RandomConfigWithValid = initialShared ? { ...initialShared.randomConfig, valid: true } : initialRandomConfig;
-    return { applyReuse, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, applyReuse) };
+    return { applyReuse, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, applyReuse, generator) };
   });
 
   // Regenerate the data provider when the demo/config/randomId changes. A demo
@@ -204,10 +209,10 @@ function RandomMochartDemoContent(props: ContentProps) {
     if (p.initialDemoId !== initialDemoId || p.initialRandomConfig !== initialRandomConfig || p.mochartDemoConfig !== mochartDemoConfig || p.randomId !== randomId) {
       prev.current = { initialDemoId, initialRandomConfig, mochartDemoConfig, randomId };
       if (initialDemoId !== p.initialDemoId || initialRandomConfig !== p.initialRandomConfig || mochartDemoConfig !== p.mochartDemoConfig) {
-        setState(s => ({ ...s, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig, s.applyReuse) }));
+        setState(s => ({ ...s, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig, s.applyReuse, generator) }));
       }
       else if (randomId !== p.randomId) {
-        setState(s => ({ ...s, ...computeProviderState(mochartDemoConfig, randomId, s.randomConfig, s.applyReuse) }));
+        setState(s => ({ ...s, ...computeProviderState(mochartDemoConfig, randomId, s.randomConfig, s.applyReuse, generator) }));
       }
     }
   }
@@ -215,7 +220,7 @@ function RandomMochartDemoContent(props: ContentProps) {
   // Toggling reuse regenerates immediately so the effect is visible.
   const toggleApplyReuse = () => setState(prevState => {
     const applyReuse = !prevState.applyReuse;
-    return { ...prevState, applyReuse, ...computeProviderState(mochartDemoConfig, randomId, prevState.randomConfig, applyReuse) };
+    return { ...prevState, applyReuse, ...computeProviderState(mochartDemoConfig, randomId, prevState.randomConfig, applyReuse, generator) };
   });
 
   const onRandomizeBack = () => decrementRandomId();
@@ -224,10 +229,10 @@ function RandomMochartDemoContent(props: ContentProps) {
   // Regenerate immediately so Apply/Reset on the Random Config tab visibly
   // take effect instead of waiting for the next randomize.
   const onUpdateConfig = (randomConfig: RandomConfigWithValid) => setState(prevState =>
-    ({ ...prevState, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, prevState.applyReuse) }));
+    ({ ...prevState, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, prevState.applyReuse, generator) }));
 
   const onResetConfig = () => setState(prevState =>
-    ({ ...prevState, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig, prevState.applyReuse) }));
+    ({ ...prevState, ...computeProviderState(mochartDemoConfig, randomId, initialRandomConfig, prevState.applyReuse, generator) }));
 
   const { randomConfig, dataProvider, data, applyReuse } = state;
   const { mochartConfig } = mochartDemoConfig;

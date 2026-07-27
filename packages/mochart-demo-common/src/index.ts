@@ -26,6 +26,12 @@ export type { DemoConfigView } from './configEditing';
 
 export { generateChartDataProvider } from './randomGenerator';
 
+export {
+  chartTypeGenerators, isChartTypeGenerator,
+  generateChartTypeDataProvider, generateDemoDataProvider, buildChartTypeDemoSnapshots
+} from './chartTypeGenerators';
+export type { ChartTypeGenerator, ChartTypeDemoSnapshot } from './chartTypeGenerators';
+
 export { validateRandomConfig, formatRandomConfig } from './randomConfig';
 
 export {
@@ -38,10 +44,13 @@ export { getChartDataCount, getDataProvidersForDataCount } from './multiCharts';
 
 export { rotationData, rotationConfigs } from './rotationConfigs';
 
+export { inlineSparklineMetrics, tableSparklineMetrics } from './sparklines';
+export type { SparklineMetric } from './sparklines';
+
 export { demoText } from './demoText';
 
 export { getGallerySections, switchableDemoModes } from './gallery';
-export type { GalleryDemoItem, GalleryPageItem, GalleryItem, GallerySection, SwitchableDemoMode } from './gallery';
+export type { GalleryDemoItem, GalleryPageItem, GalleryItem, GallerySection, SwitchableDemoMode, ShowcaseMode } from './gallery';
 
 export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, consumeSingleShareState, shareHashPrefix } from './shareState';
 export type { ShareState, SingleShareState, MultiShareState, RandomShareState } from './shareState';

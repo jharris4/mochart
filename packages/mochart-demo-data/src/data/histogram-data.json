@@ -1,0 +1,11 @@
+[
+  {"binLabel":"50–75","value":8,"binStart":50,"binEnd":75,"binCenter":62.5,"count":8},
+  {"binLabel":"75–100","value":13,"binStart":75,"binEnd":100,"binCenter":87.5,"count":13},
+  {"binLabel":"100–125","value":43,"binStart":100,"binEnd":125,"binCenter":112.5,"count":43},
+  {"binLabel":"125–150","value":58,"binStart":125,"binEnd":150,"binCenter":137.5,"count":58},
+  {"binLabel":"150–175","value":57,"binStart":150,"binEnd":175,"binCenter":162.5,"count":57},
+  {"binLabel":"175–200","value":52,"binStart":175,"binEnd":200,"binCenter":187.5,"count":52},
+  {"binLabel":"200–225","value":29,"binStart":200,"binEnd":225,"binCenter":212.5,"count":29},
+  {"binLabel":"225–250","value":18,"binStart":225,"binEnd":250,"binCenter":237.5,"count":18},
+  {"binLabel":"250–275","value":2,"binStart":250,"binEnd":275,"binCenter":262.5,"count":2}
+]

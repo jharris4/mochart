@@ -11,7 +11,7 @@ import './random-config-tab';
 import './random-data-tab';
 import '../misc/error-tab';
 
-import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -25,6 +25,7 @@ interface EventKeys {
 export class RandomContent extends LightElement {
   @property({ attribute: false }) mochartDemoConfig!: MochartDemoConfig;
   @property({ attribute: false }) initialRandomConfig!: RandomConfigWithValid;
+  @property({ attribute: false }) generator: string | undefined = undefined;
   @property({ attribute: false }) activeKey = 0;
   @property({ attribute: false }) eventKeys!: EventKeys;
   @property({ attribute: false }) randomId = 0;
@@ -83,7 +84,7 @@ export class RandomContent extends LightElement {
 
     if (nextRandomConfig.valid) {
       const generatorConfig = this.applyReuse ? nextRandomConfig : this.withReuseNeutralized(nextRandomConfig);
-      const nextDataProvider = generateChartDataProvider(mochartConfig, generatorConfig, this.randomId);
+      const nextDataProvider = generateDemoDataProvider(this.generator, mochartConfig, generatorConfig, this.randomId);
       const { groupValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = this.getData(mochartConfig, groupValues, seriesValues);
       const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);

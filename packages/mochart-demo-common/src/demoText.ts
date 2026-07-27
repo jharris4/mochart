@@ -33,7 +33,8 @@ export const demoText = {
     testSectionHint: 'Feature-coverage demos exercising less common config options',
     showcases: {
       transition: { title: 'Transition', description: 'Animate a chart between two datasets' },
-      rotation: { title: 'Rotation', description: 'A grid of charts showing different tick label rotations' }
+      rotation: { title: 'Rotation', description: 'A grid of charts showing different tick label rotations' },
+      sparkline: { title: 'Sparklines', description: 'Word-sized charts embedded in text and tables' }
     }
   },
   backToDemos: { label: 'Demos', tooltip: 'Back to the demo gallery', aria: 'Back to the demo gallery' },
@@ -156,5 +157,21 @@ export const demoText = {
   transitionConfigTab: {
     reset: { label: 'Reset', tooltip: 'Restore the original transition config', aria: 'Reset' },
     apply: { label: 'Apply', tooltip: 'Apply this config to the transition charts', aria: 'Apply' }
+  },
+  // The sparkline showcase page: prose with inline charts woven between the
+  // segments (segment count = inline chart count + 1, see sparklines.ts),
+  // then a small-multiples metrics table.
+  sparklinePage: {
+    intro: [
+      'Sparklines are word-sized charts that live inside running text. The createSparklineConfig helper strips a regular chart config down to its plotted shape — no axes, legend, tooltip or margins — so a 30-day revenue trend ',
+      ' can sit right in a sentence, an error-rate pulse ',
+      ' beside it, and the same preset scales up to small-multiple tables like the one below.'
+    ],
+    randomize: { label: 'Randomize', tooltip: 'Generate new data for every sparkline', aria: 'Randomize sparklines' },
+    table: {
+      metric: 'Metric',
+      latest: 'Latest',
+      trend: 'Last 30 days'
+    }
   }
 } as const;

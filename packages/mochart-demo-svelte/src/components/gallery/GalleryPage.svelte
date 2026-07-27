@@ -3,7 +3,7 @@
   // demos, the feature-coverage test demos in a collapsed section and the
   // standalone showcase pages.
   import { getGallerySections } from '@mochart/demo-common';
-  import type { GalleryItem, GallerySection } from '@mochart/demo-common';
+  import type { GalleryItem, GallerySection, ShowcaseMode } from '@mochart/demo-common';
 
   import Icon from '../misc/Icon.svelte';
   import SiteRootButton from '../misc/SiteRootButton.svelte';
@@ -15,14 +15,15 @@
     demoData: DemoData;
     siteRootUrl?: string;
     onOpenDemo: (demoId: string) => void;
-    onOpenPage: (mode: 'transition' | 'rotation') => void;
+    onOpenPage: (mode: ShowcaseMode) => void;
   }
 
   let { demoData, siteRootUrl = undefined, onOpenDemo, onOpenPage }: Props = $props();
 
-  const pageIcons: Record<'transition' | 'rotation', string> = {
+  const pageIcons: Record<ShowcaseMode, string> = {
     transition: 'right-left',
-    rotation: 'repeat'
+    rotation: 'repeat',
+    sparkline: 'chart-line'
   };
 
   const sections = $derived(getGallerySections(demoData));

@@ -52,7 +52,7 @@ const eventKeyData = 3;
       </div>
       <div class="mochart-demo-content-pane">
         <app-random-content [mochartDemoConfig]="mochartDemoConfig()!" [initialRandomConfig]="randomConfig()!"
-                            [activeKey]="activeKey()" [eventKeys]="eventKeys"
+                            [generator]="generator()" [activeKey]="activeKey()" [eventKeys]="eventKeys"
                             [randomId]="randomId" [incrementRandomId]="incrementRandomId" [decrementRandomId]="decrementRandomId" />
       </div>
     </div>
@@ -75,12 +75,14 @@ export class DemoRandom implements OnInit, OnChanges {
   activeKey = signal(eventKeyChart);
   mochartDemoConfig = signal<MochartDemoConfig | null>(null);
   randomConfig = signal<RandomConfigWithValid | null>(null);
+  generator = signal<string | undefined>(undefined);
 
-  private buildStateForDemo(demoId: string): { mochartDemoConfig: MochartDemoConfig; randomConfig: RandomConfigWithValid } {
-    const config = this.demoData.demoObjectMap[demoId].config;
+  private buildStateForDemo(demoId: string): { mochartDemoConfig: MochartDemoConfig; randomConfig: RandomConfigWithValid; generator?: string } {
+    const demo = this.demoData.demoObjectMap[demoId];
     return {
-      mochartDemoConfig: buildMochartDemoConfig(config),
-      randomConfig: Object.assign({}, this.demoData.demoObjectMap[demoId].random, { valid: true })
+      mochartDemoConfig: buildMochartDemoConfig(demo.config),
+      randomConfig: Object.assign({}, demo.random, { valid: true }),
+      generator: demo.generator
     };
   }
 
@@ -88,6 +90,7 @@ export class DemoRandom implements OnInit, OnChanges {
     const initialState = this.buildStateForDemo(this.initialDemoId);
     this.mochartDemoConfig.set(initialState.mochartDemoConfig);
     this.randomConfig.set(initialState.randomConfig);
+    this.generator.set(initialState.generator);
   }
 
   // When the routed demo changes, rebuild the generator state (RandomContent
@@ -101,6 +104,7 @@ export class DemoRandom implements OnInit, OnChanges {
     this.activeKey.set(eventKeyChart);
     this.mochartDemoConfig.set(nextState.mochartDemoConfig);
     this.randomConfig.set(nextState.randomConfig);
+    this.generator.set(nextState.generator);
   }
 
   handleSelect(nextActiveKey: number): void {

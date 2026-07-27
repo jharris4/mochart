@@ -10,7 +10,7 @@ import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
 
-import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -23,6 +23,8 @@ interface EventKeys {
 export interface RandomContentProps {
   mochartDemoConfig: MochartDemoConfig;
   initialRandomConfig: RandomConfigWithValid;
+  /** The demo's chart-type generator id, if it has one (demos.json). */
+  generator?: string;
   activeKey: number;
   eventKeys: EventKeys;
   randomId: number;
@@ -36,6 +38,7 @@ export interface RandomContentHandle {
   update(next: {
     mochartDemoConfig: MochartDemoConfig;
     initialRandomConfig: RandomConfigWithValid;
+    generator?: string;
     randomId: number;
   }): void;
   destroy(): void;
@@ -47,6 +50,7 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
 
   let mochartDemoConfig = props.mochartDemoConfig;
   let initialRandomConfig = props.initialRandomConfig;
+  let generator = props.generator;
   let randomId = props.randomId;
   let activeKey = props.activeKey;
 
@@ -102,7 +106,7 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
 
     if (nextRandomConfig.valid) {
       const generatorConfig = applyReuse ? nextRandomConfig : withReuseNeutralized(nextRandomConfig);
-      const nextDataProvider = generateChartDataProvider(mochartConfig, generatorConfig, randomId);
+      const nextDataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
       const { groupValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = getData(mochartConfig, groupValues, seriesValues);
       const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
@@ -216,6 +220,7 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
       const randomIdChanged = next.randomId !== randomId;
       mochartDemoConfig = next.mochartDemoConfig;
       initialRandomConfig = next.initialRandomConfig;
+      generator = next.generator;
       randomId = next.randomId;
       if (demoChanged) {
         updateDataProvider(next.initialRandomConfig);

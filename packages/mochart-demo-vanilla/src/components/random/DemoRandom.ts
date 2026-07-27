@@ -36,11 +36,12 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
   let randomId = props.randomId;
   let activeKey = eventKeyChart;
 
-  function buildStateForDemo(currentDemoId: string): { mochartDemoConfig: MochartDemoConfig; randomConfig: RandomConfigWithValid } {
-    const config = demoData.demoObjectMap[currentDemoId].config;
+  function buildStateForDemo(currentDemoId: string): { mochartDemoConfig: MochartDemoConfig; randomConfig: RandomConfigWithValid; generator?: string } {
+    const demo = demoData.demoObjectMap[currentDemoId];
     return {
-      mochartDemoConfig: buildMochartDemoConfig(config),
-      randomConfig: Object.assign({}, demoData.demoObjectMap[currentDemoId].random, { valid: true })
+      mochartDemoConfig: buildMochartDemoConfig(demo.config),
+      randomConfig: Object.assign({}, demo.random, { valid: true }),
+      generator: demo.generator
     };
   }
 
@@ -49,6 +50,7 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
   const content: RandomContentHandle = randomContent({
     mochartDemoConfig: demoState.mochartDemoConfig,
     initialRandomConfig: demoState.randomConfig,
+    generator: demoState.generator,
     activeKey,
     eventKeys: { eventKeyChart, eventKeyConfig, eventKeyData },
     randomId,
@@ -116,6 +118,7 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
       content.update({
         mochartDemoConfig: demoState.mochartDemoConfig,
         initialRandomConfig: demoState.randomConfig,
+        generator: demoState.generator,
         randomId
       });
       sync();

@@ -6,11 +6,12 @@ import { getGallerySections } from '@mochart/demo-common';
 import { Icon } from '../misc/icon';
 import { SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
 
-import type { DemoData, GalleryItem, GallerySection } from '../../types';
+import type { DemoData, GalleryItem, GallerySection, ShowcaseMode } from '../../types';
 
-const pageIcons: Record<'transition' | 'rotation', string> = {
+const pageIcons: Record<ShowcaseMode, string> = {
   transition: 'right-left',
-  rotation: 'repeat'
+  rotation: 'repeat',
+  sparkline: 'chart-line'
 };
 
 /**
@@ -90,7 +91,7 @@ export class DemoGallery implements OnInit {
   @Input({ required: true }) demoData!: DemoData;
   @Input() siteRootUrl?: string;
   @Input({ required: true }) onOpenDemo!: (demoId: string) => void;
-  @Input({ required: true }) onOpenPage!: (mode: 'transition' | 'rotation') => void;
+  @Input({ required: true }) onOpenPage!: (mode: ShowcaseMode) => void;
 
   readonly pageIcons = pageIcons;
 

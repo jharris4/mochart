@@ -1,5 +1,5 @@
 import { getGallerySections } from '@mochart/demo-common';
-import type { GalleryItem, GallerySection } from '@mochart/demo-common';
+import type { GalleryItem, GallerySection, ShowcaseMode } from '@mochart/demo-common';
 
 import { el, icon } from '../misc/dom';
 import { siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
@@ -10,16 +10,17 @@ export interface GalleryPageProps {
   demoData: DemoData;
   siteRootUrl?: string;
   onOpenDemo: (demoId: string) => void;
-  onOpenPage: (mode: 'transition' | 'rotation') => void;
+  onOpenPage: (mode: ShowcaseMode) => void;
 }
 
 export interface GalleryPageHandle {
   el: HTMLElement;
 }
 
-const pageIcons: Record<'transition' | 'rotation', string> = {
+const pageIcons: Record<ShowcaseMode, string> = {
   transition: 'right-left',
-  rotation: 'repeat'
+  rotation: 'repeat',
+  sparkline: 'chart-line'
 };
 
 export function galleryPage(props: GalleryPageProps): GalleryPageHandle {

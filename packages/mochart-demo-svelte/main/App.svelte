@@ -3,7 +3,7 @@
 
   import demoData from '@mochart/demo-data';
 
-  import type { SwitchableDemoMode } from '@mochart/demo-common';
+  import type { ShowcaseMode, SwitchableDemoMode } from '@mochart/demo-common';
 
   import GalleryPage from '../src/components/gallery/GalleryPage.svelte';
   import DemoSingle from '../src/components/single/DemoSingle.svelte';
@@ -11,6 +11,7 @@
   import DemoRandom from '../src/components/random/DemoRandom.svelte';
   import DemoTransition from '../src/components/transition/DemoTransition.svelte';
   import DemoRotation from '../src/components/rotation/DemoRotation.svelte';
+  import DemoSparkline from '../src/components/sparkline/DemoSparkline.svelte';
 
   interface Route {
     redirect?: string;
@@ -65,7 +66,7 @@
     if (mode === 'random' && segments.length === 3) {
       return { mode, demoId, randomId };
     }
-    if ((mode === 'transition' || mode === 'rotation') && segments.length === 1) {
+    if ((mode === 'transition' || mode === 'rotation' || mode === 'sparkline') && segments.length === 1) {
       return { mode };
     }
     return { notFound: path };
@@ -87,7 +88,7 @@
     navigate(`/single/${demoId}`);
   }
 
-  function onOpenPage(mode: 'transition' | 'rotation') {
+  function onOpenPage(mode: ShowcaseMode) {
     navigate(`/${mode}`);
   }
 
@@ -141,6 +142,8 @@
   <DemoTransition {siteRootUrl} {onBackToDemos} />
 {:else if route.mode === 'rotation'}
   <DemoRotation {siteRootUrl} {onBackToDemos} />
+{:else if route.mode === 'sparkline'}
+  <DemoSparkline {siteRootUrl} {onBackToDemos} />
 {:else if !isKnownDemo}
   <div class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No demo found for id: {demoId}</div></div>
 {:else if route.mode === 'single'}

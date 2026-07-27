@@ -9,7 +9,7 @@
   import RandomDataTab from './RandomDataTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
 
-  import { consumeShareState, demoText, generateChartDataProvider } from '@mochart/demo-common';
+  import { consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
 
   import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -22,6 +22,8 @@
   interface Props {
     mochartDemoConfig: MochartDemoConfig;
     initialRandomConfig: RandomConfigWithValid;
+    /** The demo's chart-type generator id, if it has one (demos.json). */
+    generator?: string;
     activeKey: number;
     eventKeys: EventKeys;
     randomId: number;
@@ -32,6 +34,7 @@
   let {
     mochartDemoConfig,
     initialRandomConfig,
+    generator = undefined,
     activeKey,
     eventKeys,
     randomId,
@@ -102,7 +105,7 @@
 
     if (nextRandomConfig.valid) {
       const generatorConfig = applyReuse ? nextRandomConfig : withReuseNeutralized(nextRandomConfig);
-      const nextDataProvider = generateChartDataProvider(mochartConfig, generatorConfig, randomId);
+      const nextDataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
       const { groupValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = getData(mochartConfig, groupValues, seriesValues);
       const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);

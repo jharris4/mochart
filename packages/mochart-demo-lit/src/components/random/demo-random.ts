@@ -30,12 +30,14 @@ export class DemoRandom extends LightElement {
   @state() private activeKey = eventKeyChart;
   @state() private mochartDemoConfig: MochartDemoConfig | null = null;
   @state() private randomConfig: RandomConfigWithValid | null = null;
+  @state() private generator: string | undefined = undefined;
 
-  private buildStateForDemo(demoId: string): { mochartDemoConfig: MochartDemoConfig; randomConfig: RandomConfigWithValid } {
-    const config = this.demoData.demoObjectMap[demoId].config;
+  private buildStateForDemo(demoId: string): { mochartDemoConfig: MochartDemoConfig; randomConfig: RandomConfigWithValid; generator?: string } {
+    const demo = this.demoData.demoObjectMap[demoId];
     return {
-      mochartDemoConfig: buildMochartDemoConfig(config),
-      randomConfig: Object.assign({}, this.demoData.demoObjectMap[demoId].random, { valid: true })
+      mochartDemoConfig: buildMochartDemoConfig(demo.config),
+      randomConfig: Object.assign({}, demo.random, { valid: true }),
+      generator: demo.generator
     };
   }
 
@@ -49,6 +51,7 @@ export class DemoRandom extends LightElement {
     this.activeKey = eventKeyChart;
     this.mochartDemoConfig = nextState.mochartDemoConfig;
     this.randomConfig = nextState.randomConfig;
+    this.generator = nextState.generator;
   }
 
   private handleSelect(nextActiveKey: number): void {
@@ -81,7 +84,7 @@ export class DemoRandom extends LightElement {
       </div>
       <div class="mochart-demo-content-pane">
         <random-content
-            .mochartDemoConfig=${this.mochartDemoConfig!} .initialRandomConfig=${this.randomConfig!}
+            .mochartDemoConfig=${this.mochartDemoConfig!} .initialRandomConfig=${this.randomConfig!} .generator=${this.generator}
             .activeKey=${this.activeKey} .eventKeys=${{ eventKeyChart, eventKeyConfig, eventKeyData }}
             .randomId=${this.randomId} .incrementRandomId=${this.incrementRandomId} .decrementRandomId=${this.decrementRandomId}></random-content>
       </div>

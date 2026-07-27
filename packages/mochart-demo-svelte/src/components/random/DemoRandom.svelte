@@ -39,10 +39,11 @@
   }: Props = $props();
 
   function buildStateForDemo(demoId: string) {
-    const config = demoData.demoObjectMap[demoId].config;
+    const demo = demoData.demoObjectMap[demoId];
     return {
-      mochartDemoConfig: buildMochartDemoConfig(config),
-      randomConfig: Object.assign({}, demoData.demoObjectMap[demoId].random, { valid: true })
+      mochartDemoConfig: buildMochartDemoConfig(demo.config),
+      randomConfig: Object.assign({}, demo.random, { valid: true }),
+      generator: demo.generator
     };
   }
 
@@ -54,6 +55,7 @@
   let activeKey = $state(eventKeyChart);
   let mochartDemoConfig = $state.raw(initialState.mochartDemoConfig);
   let randomConfig = $state.raw(initialState.randomConfig);
+  let generator = $state.raw(initialState.generator);
 
   // svelte-ignore state_referenced_locally
   let previousInitialDemoId = initialDemoId;
@@ -66,6 +68,7 @@
         activeKey = eventKeyChart;
         mochartDemoConfig = nextState.mochartDemoConfig;
         randomConfig = nextState.randomConfig;
+        generator = nextState.generator;
       }
     });
   });
@@ -107,7 +110,7 @@
     </div>
   </div>
   <div class="mochart-demo-content-pane">
-    <RandomContent {mochartDemoConfig} initialRandomConfig={randomConfig}
+    <RandomContent {mochartDemoConfig} initialRandomConfig={randomConfig} {generator}
                    {activeKey} eventKeys={{ eventKeyChart, eventKeyConfig, eventKeyData }}
                    {randomId} {incrementRandomId} {decrementRandomId} />
   </div>

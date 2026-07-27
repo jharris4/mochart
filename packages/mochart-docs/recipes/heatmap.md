@@ -1,8 +1,8 @@
 # Heatmap
 
 The `createHeatmap` helper turns a grid of values into heatmap pieces: rows
-become full-width bar series stacked on a hidden axis, and each cell's value
-colors it from a shared sequential ramp.
+become full-width bar series stacked on a row-labelled axis, and each cell's
+value colors it from a shared sequential ramp.
 
 <script setup>
 import * as heatmap from '../examples/heatmap'
@@ -18,8 +18,14 @@ import * as heatmap from '../examples/heatmap'
   series axis via
   [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty)
   (`rows[0]` on top). The returned `seriesAxisConfig` pins the axis to
-  exactly the stacked bands and hides it — numeric ticks would land on the
-  band edges and mislabel the rows, so the legend names them instead.
+  exactly the stacked bands and labels each band's center with the row name
+  through explicit
+  [`ticks`](/reference/seriesAxisConfigs#seriesAxisConfigs.ticks) (auto
+  numeric ticks would land on the band edges and mislabel the rows). The
+  row series stay out of the legend
+  ([`showInLegend: false`](/reference/seriesConfigs#seriesConfigs.showInLegend))
+  — hiding a row from a legend would read as missing data, and a color-ramp
+  strip built from `colorScale` makes the better legend.
 - Cell colors come from
   [`colorProperty`](/reference/seriesConfigs#seriesConfigs.colorProperty):
   each cell's value drives its fill. The core color scale spans each

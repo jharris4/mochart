@@ -21,10 +21,13 @@ export interface GalleryDemoItem {
   description?: string;
 }
 
+/** The demo modes rendered as standalone showcase pages. */
+export type ShowcaseMode = Extract<DemoMode, 'transition' | 'rotation' | 'sparkline'>;
+
 /** A gallery entry opening a standalone showcase page. */
 export interface GalleryPageItem {
   kind: 'page';
-  mode: Extract<DemoMode, 'transition' | 'rotation'>;
+  mode: ShowcaseMode;
   title: string;
   description: string;
 }
@@ -68,7 +71,8 @@ export function getGallerySections(demoData: DemoData): GallerySection[] {
       collapsed: false,
       items: [
         { kind: 'page', mode: 'transition', ...showcases.transition },
-        { kind: 'page', mode: 'rotation', ...showcases.rotation }
+        { kind: 'page', mode: 'rotation', ...showcases.rotation },
+        { kind: 'page', mode: 'sparkline', ...showcases.sparkline }
       ]
     }
   ];

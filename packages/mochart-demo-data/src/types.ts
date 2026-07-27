@@ -39,6 +39,11 @@ export interface DemoManifestEntry {
   config: string;
   data: string;
   random: string;
+  /**
+   * Chart-type data generator used in random mode instead of the generic
+   * per-property generator (see demo-common's chartTypeGenerators).
+   */
+  generator?: string;
 }
 
 /** A single demo entry assembled from its config/data/random JSON. */
@@ -50,6 +55,8 @@ export interface Demo {
   config: DemoConfig;
   data: DataRow[];
   random: RandomConfig;
+  /** Chart-type random-mode generator id (see DemoManifestEntry.generator). */
+  generator?: string;
 }
 
 /** The assembled collection of demos loaded at startup. */

@@ -30,10 +30,11 @@ const eventKeyData = 3;
 const props = defineProps<Props>();
 
 function buildStateForDemo(demoId: string) {
-  const config = props.demoData.demoObjectMap[demoId].config;
+  const demo = props.demoData.demoObjectMap[demoId];
   return {
-    mochartDemoConfig: buildMochartDemoConfig(config),
-    randomConfig: Object.assign({}, props.demoData.demoObjectMap[demoId].random, { valid: true })
+    mochartDemoConfig: buildMochartDemoConfig(demo.config),
+    randomConfig: Object.assign({}, demo.random, { valid: true }),
+    generator: demo.generator
   };
 }
 
@@ -42,6 +43,7 @@ const initialState = buildStateForDemo(props.initialDemoId);
 const activeKey = ref(eventKeyChart);
 const mochartDemoConfig = shallowRef(initialState.mochartDemoConfig);
 const randomConfig = shallowRef(initialState.randomConfig);
+const generator = shallowRef(initialState.generator);
 
 // When the routed demo changes, rebuild its config state (RandomContent's own
 // watch tells a demo change apart from a randomId-only step).
@@ -50,6 +52,7 @@ watch(() => props.initialDemoId, (nextInitialDemoId) => {
   activeKey.value = eventKeyChart;
   mochartDemoConfig.value = nextState.mochartDemoConfig;
   randomConfig.value = nextState.randomConfig;
+  generator.value = nextState.generator;
 });
 
 function handleSelect(nextActiveKey: number) {
@@ -90,7 +93,7 @@ function handleSelect(nextActiveKey: number) {
       </div>
     </div>
     <div class="mochart-demo-content-pane">
-      <RandomContent :mochart-demo-config="mochartDemoConfig" :initial-random-config="randomConfig"
+      <RandomContent :mochart-demo-config="mochartDemoConfig" :initial-random-config="randomConfig" :generator="generator"
                      :active-key="activeKey" :event-keys="{ eventKeyChart, eventKeyConfig, eventKeyData }"
                      :random-id="props.randomId" :increment-random-id="props.incrementRandomId" :decrement-random-id="props.decrementRandomId" />
     </div>

@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 import { getGallerySections } from '@mochart/demo-common';
-import type { GalleryItem, GallerySection } from '@mochart/demo-common';
+import type { GalleryItem, GallerySection, ShowcaseMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { icon } from '../misc/templates';
@@ -11,9 +11,10 @@ import '../misc/theme-toggle-button';
 
 import type { DemoData } from '../../types';
 
-const pageIcons: Record<'transition' | 'rotation', string> = {
+const pageIcons: Record<ShowcaseMode, string> = {
   transition: 'right-left',
-  rotation: 'repeat'
+  rotation: 'repeat',
+  sparkline: 'chart-line'
 };
 
 @customElement('gallery-page')
@@ -21,7 +22,7 @@ export class GalleryPage extends LightElement {
   @property({ attribute: false }) demoData!: DemoData;
   @property({ attribute: false }) siteRootUrl: string | undefined = undefined;
   @property({ attribute: false }) onOpenDemo!: (demoId: string) => void;
-  @property({ attribute: false }) onOpenPage!: (mode: 'transition' | 'rotation') => void;
+  @property({ attribute: false }) onOpenPage!: (mode: ShowcaseMode) => void;
 
   private onItemClick(item: GalleryItem): void {
     if (item.kind === 'demo') {

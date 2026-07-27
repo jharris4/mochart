@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "titleConfig": {
+    "title": "Income Statement (fictional, $k)"
+  },
+  "groupAxisConfig": {
+    "property": "label",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": [
+    {
+      "title": "$ thousands"
+    }
+  ],
+  "seriesConfigs": [
+    {
+      "id": "increase",
+      "property": "increase",
+      "rangeProperty": "start",
+      "renderer": "bar",
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "title": "Increase",
+      "fillColor": "#1baf7a"
+    },
+    {
+      "id": "decrease",
+      "property": "decrease",
+      "rangeProperty": "start",
+      "renderer": "bar",
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "title": "Decrease",
+      "fillColor": "#e34948"
+    },
+    {
+      "id": "total",
+      "property": "total",
+      "rangeProperty": "start",
+      "renderer": "bar",
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "title": "Total",
+      "fillColor": "#2a78d6"
+    }
+  ]
+}

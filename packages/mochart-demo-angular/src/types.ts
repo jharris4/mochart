@@ -3,5 +3,5 @@ export type {
   GroupValue, FilteredSeriesIds, FocusData, TransitionConfig,
   ChartDataProviderLike, DemoDataProvider, DemoMode,
   RandomConfigWithValid, MochartDemoConfig,
-  SwitchableDemoMode, GalleryItem, GallerySection
+  SwitchableDemoMode, ShowcaseMode, GalleryItem, GallerySection
 } from '@mochart/demo-common';

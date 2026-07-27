@@ -18,6 +18,7 @@ import DemoMulti from '../src/components/multi/DemoMulti';
 import DemoRandom from '../src/components/random/DemoRandom';
 import DemoTransition from '../src/components/transition/DemoTransition';
 import DemoRotation from '../src/components/rotation/DemoRotation';
+import DemoSparkline from '../src/components/sparkline/DemoSparkline';
 
 import type { DemoTabProps } from '../src/types';
 
@@ -171,6 +172,11 @@ function RotationRoute() {
   return <DemoRotation siteRootUrl={siteRootUrl} onBackToDemos={onBackToDemos} />;
 }
 
+function SparklineRoute() {
+  const onBackToDemos = useBackToDemos();
+  return <DemoSparkline siteRootUrl={siteRootUrl} onBackToDemos={onBackToDemos} />;
+}
+
 // The legacy scheme used a 'demos' pseudo-demo-id for the in-view demo list
 // ("/single/demos"), so those URLs redirect to the gallery landing route.
 function App() {
@@ -191,6 +197,7 @@ function App() {
       <Route path="/random/:demoId/:randomId" element={<RandomRoute />} />
       <Route path="/transition" element={<TransitionRoute />} />
       <Route path="/rotation" element={<RotationRoute />} />
+      <Route path="/sparkline" element={<SparklineRoute />} />
       <Route path="*" element={<RouteNotFound />} />
     </Routes>
   );

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getGallerySections } from '@mochart/demo-common';
-import type { GalleryItem } from '@mochart/demo-common';
+import type { GalleryItem, ShowcaseMode } from '@mochart/demo-common';
 
 import Icon from '../misc/Icon.vue';
 import SiteRootButton from '../misc/SiteRootButton.vue';
@@ -14,14 +14,15 @@ interface Props {
   demoData: DemoData;
   siteRootUrl?: string;
   onOpenDemo: (demoId: string) => void;
-  onOpenPage: (mode: 'transition' | 'rotation') => void;
+  onOpenPage: (mode: ShowcaseMode) => void;
 }
 
 const props = defineProps<Props>();
 
-const pageIcons: Record<'transition' | 'rotation', string> = {
+const pageIcons: Record<ShowcaseMode, string> = {
   transition: 'right-left',
-  rotation: 'repeat'
+  rotation: 'repeat',
+  sparkline: 'chart-line'
 };
 
 const sections = getGallerySections(props.demoData);

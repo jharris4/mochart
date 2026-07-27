@@ -24,6 +24,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "generate-demos": "tsx scripts/generateChartTypeDemos.ts"
   }
 }

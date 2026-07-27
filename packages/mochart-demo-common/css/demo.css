@@ -414,6 +414,59 @@ html, body {
 .rotation-chart {
     position: absolute;
 }
+
+/* Sparkline showcase: prose with inline word-sized charts, then a metrics
+   table of small multiples. Lives inside the standard .mochart-demo-container
+   shell (nav row + card), like the rotation grid. */
+.sparkline-page {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px 24px;
+    background: var(--demo-surface);
+    border: 1px solid var(--demo-border);
+    border-radius: var(--demo-radius-lg);
+    box-shadow: var(--demo-shadow);
+}
+.sparkline-intro {
+    max-width: 640px;
+    margin: 0 0 20px;
+    line-height: 1.7;
+}
+/* Inline sparklines sit on the text baseline like a word. */
+.sparkline-inline {
+    display: inline-block;
+    vertical-align: -6px;
+    line-height: 0;
+}
+.sparkline-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px 12px;
+    margin: 0 0 16px;
+}
+.sparkline-table {
+    border-collapse: collapse;
+}
+.sparkline-table th,
+.sparkline-table td {
+    text-align: left;
+    padding: 8px 28px 8px 0;
+    border-bottom: 1px solid var(--demo-border);
+}
+.sparkline-table th {
+    font-weight: 600;
+}
+.sparkline-table td.sparkline-value {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+.sparkline-table .sparkline-cell {
+    line-height: 0;
+}
 .mochart-demo-content .mochart-chart {
     position: relative;
     display: flex;

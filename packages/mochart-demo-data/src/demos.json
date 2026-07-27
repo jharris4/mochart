@@ -361,6 +361,33 @@
       "config": "missing-stacked-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
+    },
+    {
+      "id": "histogram",
+      "title": "Histogram",
+      "description": "Raw samples binned into touching bars by the createHistogram helper. Random mode re-samples the distribution, so every bar height changes while bins enter and exit at the edges.",
+      "config": "histogram-config.json",
+      "data": "histogram-data.json",
+      "random": "default-random.json",
+      "generator": "histogram"
+    },
+    {
+      "id": "waterfall",
+      "title": "Waterfall",
+      "description": "Floating increase/decrease bars accumulating into totals, built by the createWaterfall helper. Random mode re-draws step values and drops or restores optional steps, recomputing every running total.",
+      "config": "waterfall-config.json",
+      "data": "waterfall-data.json",
+      "random": "default-random.json",
+      "generator": "waterfall"
+    },
+    {
+      "id": "heatmap",
+      "title": "Heatmap",
+      "description": "A weekday-by-month grid from the createHeatmap helper: row bands on a tick-labelled axis, cells colored from a shared sequential ramp. Random mode recolors every cell and drops columns in and out.",
+      "config": "heatmap-config.json",
+      "data": "heatmap-data.json",
+      "random": "default-random.json",
+      "generator": "heatmap"
     }
   ]
 }

@@ -5,7 +5,7 @@ import { navigate, getPath } from './router';
 
 import demoData from '@mochart/demo-data';
 
-import type { SwitchableDemoMode } from '@mochart/demo-common';
+import type { ShowcaseMode, SwitchableDemoMode } from '@mochart/demo-common';
 
 import GalleryPage from '../src/components/gallery/GalleryPage.vue';
 import DemoSingle from '../src/components/single/DemoSingle.vue';
@@ -13,6 +13,7 @@ import DemoMulti from '../src/components/multi/DemoMulti.vue';
 import DemoRandom from '../src/components/random/DemoRandom.vue';
 import DemoTransition from '../src/components/transition/DemoTransition.vue';
 import DemoRotation from '../src/components/rotation/DemoRotation.vue';
+import DemoSparkline from '../src/components/sparkline/DemoSparkline.vue';
 
 interface Route {
   redirect?: string;
@@ -68,7 +69,7 @@ const route = computed((): Route => {
   if (mode === 'random' && segments.length === 3) {
     return { mode, demoId, randomId };
   }
-  if ((mode === 'transition' || mode === 'rotation') && segments.length === 1) {
+  if ((mode === 'transition' || mode === 'rotation' || mode === 'sparkline') && segments.length === 1) {
     return { mode };
   }
   return { notFound: path };
@@ -88,7 +89,7 @@ function onOpenDemo(nextDemoId: string) {
   navigate(`/single/${nextDemoId}`);
 }
 
-function onOpenPage(mode: 'transition' | 'rotation') {
+function onOpenPage(mode: ShowcaseMode) {
   navigate(`/${mode}`);
 }
 
@@ -135,6 +136,8 @@ function decrementRandomId() {
                   :site-root-url="siteRootUrl" :on-back-to-demos="onBackToDemos" />
   <DemoRotation v-else-if="route.mode === 'rotation'"
                 :site-root-url="siteRootUrl" :on-back-to-demos="onBackToDemos" />
+  <DemoSparkline v-else-if="route.mode === 'sparkline'"
+                 :site-root-url="siteRootUrl" :on-back-to-demos="onBackToDemos" />
   <div v-else-if="!isKnownDemo" class="mochart-demo-message"><div class="demo-alert demo-alert-error" role="alert">No demo found for id: {{ demoId }}</div></div>
   <DemoSingle v-else-if="route.mode === 'single'"
               :demo-data="demoData" :initial-demo-id="demoId" :site-root-url="siteRootUrl"

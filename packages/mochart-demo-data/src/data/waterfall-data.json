@@ -1,0 +1,11 @@
+[
+  {"label":"Product revenue","start":0,"increase":420,"delta":420,"cumulative":420,"direction":"increase"},
+  {"label":"Services revenue","start":420,"increase":630,"delta":210,"cumulative":630,"direction":"increase"},
+  {"label":"Licensing","start":630,"increase":705,"delta":75,"cumulative":705,"direction":"increase"},
+  {"label":"Gross revenue","start":0,"total":705,"delta":705,"cumulative":705,"direction":"total"},
+  {"label":"Cost of goods","start":705,"decrease":525,"delta":-180,"cumulative":525,"direction":"decrease"},
+  {"label":"Operating expenses","start":525,"decrease":430,"delta":-95,"cumulative":430,"direction":"decrease"},
+  {"label":"Marketing","start":430,"decrease":370,"delta":-60,"cumulative":370,"direction":"decrease"},
+  {"label":"Tax","start":370,"decrease":348,"delta":-22,"cumulative":348,"direction":"decrease"},
+  {"label":"Net income","start":0,"total":348,"delta":348,"cumulative":348,"direction":"total"}
+]

@@ -11,6 +11,7 @@ import { MultiPage } from './pages/multi-page';
 import { RandomPage } from './pages/random-page';
 import { TransitionPage } from './pages/transition-page';
 import { RotationPage } from './pages/rotation-page';
+import { SparklinePage } from './pages/sparkline-page';
 import { NotFoundPage } from './pages/not-found-page';
 
 export const routes: Routes = [
@@ -29,5 +30,6 @@ export const routes: Routes = [
   { path: 'random/:demoId/:randomId', component: RandomPage },
   { path: 'transition', component: TransitionPage },
   { path: 'rotation', component: RotationPage },
+  { path: 'sparkline', component: SparklinePage },
   { path: '**', component: NotFoundPage }
 ];

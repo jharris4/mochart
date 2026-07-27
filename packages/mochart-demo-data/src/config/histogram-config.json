@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "titleConfig": {
+    "title": "Response Time Distribution"
+  },
+  "groupAxisConfig": {
+    "property": "binLabel",
+    "type": "string",
+    "scale": "ordinal",
+    "groupPadding": {
+      "inner": 0,
+      "outer": 0
+    },
+    "title": "Response time (ms)"
+  },
+  "seriesAxisConfigs": [
+    {
+      "min": 0
+    }
+  ],
+  "seriesConfigs": [
+    {
+      "property": "value",
+      "renderer": "bar",
+      "title": "Requests"
+    }
+  ]
+}

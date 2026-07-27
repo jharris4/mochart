@@ -42,7 +42,7 @@ export interface DemoDataProvider {
 }
 
 /** The demo mode routes exposed by the gallery. */
-export type DemoMode = 'single' | 'multi' | 'random' | 'transition' | 'rotation';
+export type DemoMode = 'single' | 'multi' | 'random' | 'transition' | 'rotation' | 'sparkline';
 
 /** Navigate to a different demo mode (optionally targeting a specific demo). */
 export type OnDemoModeChanged = (nextDemoMode: DemoMode, nextDemoId?: string) => void;
