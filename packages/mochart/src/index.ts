@@ -21,5 +21,7 @@ export { NONE, AUTO, TYPE_DATE, TYPE_NUMBER, TYPE_STRING, SCALE_ORDINAL, SCALE_L
 export { getDataErrors } from './data/DataValidator';
 export { binValues, createHistogram } from './data/Histogram';
 export type { HistogramBin, BinValuesOptions, CreateHistogramOptions, HistogramData } from './data/Histogram';
+export { computeWaterfallSteps, createWaterfall } from './data/Waterfall';
+export type { WaterfallDirection, WaterfallItem, WaterfallStep, CreateWaterfallOptions, WaterfallData } from './data/Waterfall';
 export { mochartCssClasses } from './utils/ChartDom';
 export { isDataProviderValid } from './data/ChartData';

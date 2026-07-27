@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mochart waterfall helper example</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; }
+        #chart { width: 720px; height: 400px; }
+        .controls { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+    <h1>mochart — waterfall helper</h1>
+    <p>Turns a list of signed changes and totals into floating <code>rangeProperty</code> bars with
+       <code>createWaterfall</code>. Serve this directory over HTTP.</p>
+    <div class="controls">
+        <button id="randomize">Randomize</button>
+        <label><input id="subtotal" type="checkbox" checked> gross profit subtotal</label>
+    </div>
+    <div id="chart"></div>
+    <script type="module">
+        import { createChart, enhanceConfig, ArrayOfObjectsDataProvider, createWaterfall } from '../dist/mochart.js';
+
+        // Deterministic pseudo-random jitter so reloads look the same.
+        let state = 7;
+        const next = () => {
+            state = (state * 1664525 + 1013904223) % 4294967296;
+            return state / 4294967296;
+        };
+        const jitter = (value) => Math.round(value * (0.7 + 0.6 * next()));
+
+        const chartEl = document.getElementById('chart');
+        let chart = null;
+
+        function render() {
+            const items = [
+                { label: 'Product revenue', value: jitter(420) },
+                { label: 'Services revenue', value: jitter(210) },
+                ...(document.getElementById('subtotal').checked ? [{ label: 'Gross revenue', total: true }] : []),
+                { label: 'Cost of goods', value: -jitter(180) },
+                { label: 'Operating expenses', value: -jitter(95) },
+                { label: 'Marketing', value: -jitter(60) },
+                { label: 'Tax', value: -jitter(22) },
+                { label: 'Net income', total: true }
+            ];
+
+            const { data, groupAxisConfig, seriesConfigs } = createWaterfall(items);
+
+            const mochartConfig = enhanceConfig({
+                version: '1.0.0',
+                titleConfig: { title: 'Income statement (fictional, $k)' },
+                groupAxisConfig,
+                seriesAxisConfigs: [{ id: 'sa' }],
+                seriesConfigs: seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
+            });
+            const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.groupAxisConfig.property);
+
+            if (chart === null) {
+                chart = createChart(chartEl, { mochartConfig, dataProvider, width: 720, height: 400 });
+            } else {
+                chart.update({ mochartConfig, dataProvider });
+            }
+        }
+
+        document.getElementById('randomize').addEventListener('click', render);
+        document.getElementById('subtotal').addEventListener('change', render);
+
+        render();
+    </script>
+</body>
+</html>
