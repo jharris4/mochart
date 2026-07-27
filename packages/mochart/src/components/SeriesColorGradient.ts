@@ -29,7 +29,7 @@ export default class SeriesColorGradient extends Renderer<SeriesColorGradientPro
       this.setPresent(true);
       this.root.set({ id: uniqueId, x1: '0', x2: '0', y1: '1', y2: '0' });
       this.stops.sync(colors, {
-        key: (color, i) => i,
+        key: (_color, i) => i,
         create: () => ({ root: svgEl('stop') }),
         update: (handle, color, i) => {
           handle.root.set({ offset: toPercent(i, colors.length), stopColor: color, stopOpacity: 1 });

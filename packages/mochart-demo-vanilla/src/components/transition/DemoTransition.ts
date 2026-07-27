@@ -1,5 +1,5 @@
 
-import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
 import { backToDemosButton, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';

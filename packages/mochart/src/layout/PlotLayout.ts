@@ -92,7 +92,7 @@ export function getPlotHeight(innerHeight: number, titleHeight: number, legendHe
 
 export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: AxisConfigBase, axisTickInfo: AxisTickInfo, tickBounds: TextBounds, rotatedTickBounds: Bounds, titleBounds: TextBounds, thresholdTitleBounds: TextBounds, vertical: boolean, inverted: boolean): void {
   const { before, collapsed, titleMarginInner, titleMarginOuter, titlePaddingInner, titlePaddingOuter, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter,
-    thresholdTitleMargin, thresholdTitlePadding, tickLabelRotation, title, threshold, thresholdTitle } = axisConfig;
+    thresholdTitleMargin, thresholdTitlePadding, title, threshold, thresholdTitle } = axisConfig;
   const notAfter = (before && !collapsed) || (!before && collapsed);
 
   axisLayoutInfo.tickLabelParallel = axisTickInfo.tickLabelParallel;
@@ -124,7 +124,6 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   const tickLabelAnchorOffset = axisTickInfo.tickLabelAnchor === ANCHOR_MIDDLE ? tickLabelSize / 2.0 : axisTickInfo.tickLabelAnchor === ANCHOR_START ? 0 : tickLabelSize;
 
   const { totalTickLabelSize, totalTitleSize, width, height } = axisLayoutInfo;
-  const totalSize = totalTickLabelSize + totalTitleSize + 0;
 
   let titleTextX = 0;
   let titleTextY = 0;

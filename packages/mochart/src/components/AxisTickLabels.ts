@@ -150,7 +150,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     this.background.set(Background, { config: axisConfig, configStyleKey: 'tickLabelBackgroundStyle', classKey: 'axisTickLabelBackground', spacingRelative: false, spacingLayoutInfo: axisLayoutInfo.tickLabelLayoutInfo });
 
     this.tickLabels.sync(axisTicks, {
-      key: (tick, i) => 'tick-label-' + i,
+      key: (_tick, i) => 'tick-label-' + i,
       create: () => {
         const root = svgEl('g');
         const text = svgEl('text');

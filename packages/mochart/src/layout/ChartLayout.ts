@@ -29,15 +29,13 @@ export function getChartLayoutInfo(mochartConfig: MochartConfig, chartData: Char
 }
 
 function getChartContentLayoutInfo(mochartConfig: MochartConfig, chartData: ChartDataForLayout | null, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds): TitleLayoutResult & PlotLayoutResult & Partial<LegendLayoutResult> {
-  const { plotConfig, titleConfig, legendConfig } = mochartConfig;
+  const { titleConfig, legendConfig } = mochartConfig;
   const { y, height } = contentBounds;
 
   const plotWidthAndX = getPlotWidthAndX(mochartConfig, chartTextBoundsData, chartData, contentBounds);
   const titleHeight = getTitleHeight(mochartConfig, chartTextBoundsData);
   const legendHeight = getLegendHeight(mochartConfig, chartTextBoundsData, contentBounds, plotWidthAndX);
   const plotHeight = getPlotHeight(height, titleHeight, legendHeight);
-
-  let isTitleTop = titleConfig.position === POSITION_TOP;
 
   let plotY = y;
   let titleY = y;

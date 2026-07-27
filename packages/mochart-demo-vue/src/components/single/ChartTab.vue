@@ -28,8 +28,12 @@ const props = withDefaults(defineProps<Props>(), {
   active: false
 });
 
-// Measured width of the tab.
+// Measured width of the tab. The sizer element is attached through a function
+// ref so the binding is visible to the type checker (a string ref is not).
 const { elementRef, width } = useElementSize();
+function attachSizer(el: unknown): void {
+  elementRef.value = el instanceof HTMLElement ? el : null;
+}
 
 const chartCount = ref(defaultChartCount);
 const focusedSeriesAxisId = shallowRef<string | null>(null);
@@ -117,7 +121,7 @@ const chartWidth = computed(() => Math.floor((width.value - scrollWidthOffset) /
 </script>
 
 <template>
-  <div ref="elementRef" :class="'mochart-demo-tab-container demo-layout-row chart' + (props.active ? ' active' : '')">
+  <div :ref="attachSizer" :class="'mochart-demo-tab-container demo-layout-row chart' + (props.active ? ' active' : '')">
     <div class="editable-charts-sizer">
       <div class="editable-charts">
         <template v-if="mochartDemoConfig && width > 0">

@@ -29,11 +29,11 @@ abstract class ChartHostDirective extends AsyncDirective {
 
   // All work happens in update(); render() only satisfies the directive
   // contract (it is what would run where there is no DOM, e.g. SSR).
-  render(props: Record<string, any>): unknown {
+  render(_props: Record<string, any>): unknown {
     return noChange;
   }
 
-  override update(part: ChildPart, [props]: [Record<string, any>]): unknown {
+  override update(_part: ChildPart, [props]: [Record<string, any>]): unknown {
     // `className`/`style` belong to the container div, not the chart.
     const { className, style, ...chartProps } = props;
     this.props = chartProps;
@@ -91,14 +91,14 @@ abstract class ChartHostDirective extends AsyncDirective {
 
 class ChartDirective extends ChartHostDirective {
   protected readonly create: CreateChartFn = createChart as CreateChartFn;
-  override render(props: ChartProps): unknown {
+  override render(_props: ChartProps): unknown {
     return noChange;
   }
 }
 
 class DefaultChartDirective extends ChartHostDirective {
   protected readonly create: CreateChartFn = createDefaultChart as CreateChartFn;
-  override render(props: DefaultChartProps): unknown {
+  override render(_props: DefaultChartProps): unknown {
     return noChange;
   }
 }

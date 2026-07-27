@@ -158,7 +158,7 @@ describe('Renderer', () => {
       root = htmlEl('span');
       text = textEl();
       syncCount = 0;
-      derive(props: { v: number }, state: { doubled: number }, prevProps: { v: number } | null) {
+      derive(props: { v: number }, _state: { doubled: number }, prevProps: { v: number } | null) {
         if (prevProps !== null && props.v === prevProps.v) {
           return null;
         }

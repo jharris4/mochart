@@ -64,7 +64,7 @@ const typeValidatorDefinitions = {
     message: () => "should be an object"
   },
   any: {
-    validator: () => v => true,
+    validator: () => _v => true,
     message: () => "should be any value"
   }
 } satisfies Record<string, ValidatorDefinition>;
@@ -474,9 +474,9 @@ const validatorArgsToRangeValues: Record<string, (...args: any[]) => RangeValues
 };
 
 const validatorArgsToIsEnum: Record<string, (...args: any[]) => boolean> = {
-  equal: value => true,
-  oneOf: values => true,
-  oneIn: valueMap => true,
+  equal: _value => true,
+  oneOf: _values => true,
+  oneIn: _valueMap => true,
   or: validators => !validators.some((validator: Validator) => !validator.isEnum)
 };
 
@@ -520,8 +520,8 @@ const validatorExtensionArgsToAllowedValues: Record<string, (...args: any[]) => 
 };
 
 const validatorExtensionArgsToIsEnum: Record<string, (...args: any[]) => boolean> = {
-  orEqual: value => true,
-  orOneOf: values => true,
+  orEqual: _value => true,
+  orOneOf: _values => true,
   or: validator => validator.isEnum
 };
 

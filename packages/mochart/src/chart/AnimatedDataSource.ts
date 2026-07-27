@@ -25,7 +25,6 @@ export class AnimatedDataSource implements ChartDataSource {
   focusData: FocusData | null = null;
 
   private input!: ChartDataSourceInput;
-  private targetChartData: ChartData | null = null;
   private chartAnimationData: ChartAnimationData | null = null;
   private hasGroupAdditions = false;
   private hasGroupRemovals = false;
@@ -45,7 +44,6 @@ export class AnimatedDataSource implements ChartDataSource {
   start(input: ChartDataSourceInput): void {
     this.input = input;
     const { mochartConfig, dataProvider, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = input;
-    this.targetChartData = null;
     this.chartAnimationData = null;
     this.hasGroupAdditions = false;
     this.hasGroupRemovals = false;
@@ -57,7 +55,6 @@ export class AnimatedDataSource implements ChartDataSource {
     this.tweenManager.cancelTweens();
     if (mochartConfig && mochartConfig.validation.valid && isDataProviderValid(dataProvider)) {
       let newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
-      this.targetChartData = newChartData;
       this.chartAnimationData = getChartAnimationData(mochartConfig, null, newChartData);
 
       this.startDataTween(input, this.chartAnimationData);
@@ -99,7 +96,7 @@ export class AnimatedDataSource implements ChartDataSource {
     else if (dataProviderValid && configValid && (configChanged || dataChanged || focusChanged)) {
       let groupsChanged = false;
       if (configChanged || dataChanged) {
-        let chartData = this.targetChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
+        let chartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
         let chartAnimationData = this.chartAnimationData = getChartAnimationData(mochartConfig, this.chartData, chartData);
 
         this.startDataTween(input, chartAnimationData);

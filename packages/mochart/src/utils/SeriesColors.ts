@@ -4,7 +4,7 @@ import { interpolateRgb, interpolateHsl, interpolateLab, interpolateHcl } from '
 import {
   NONE, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX, COLOR_SAME, COLOR_SERIES,
   COLOR_INTERPOLATION_HCL, COLOR_INTERPOLATION_HSL, COLOR_INTERPOLATION_LAB, COLOR_INTERPOLATION_RGB,
-  RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE
+  RENDERER_AREA, RENDERER_BAR, RENDERER_LINE
 } from '../config/core/constants';
 import { getFocusedDefocused } from './FocusValue';
 import type { FocusPercentage } from '../types/animation';

@@ -41,7 +41,6 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   const shared = consumeShareState('multi');
   const sharedMulti = shared && shared.mode === 'multi' ? shared : null;
 
-  let playing = false;
   let chartRows = sharedMulti ? clampGrid(sharedMulti.rows) : defaultChartRows;
   let chartCols = sharedMulti ? clampGrid(sharedMulti.cols) : defaultChartCols;
   let rate = sharedMulti ? sharedMulti.interval : defaultRate;
@@ -133,13 +132,11 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   }
 
   function onPlayBackwardClick(): void {
-    playing = true;
     intervalId = setInterval(onStepBackwardClick, rate);
     controls.setPlaying(true);
   }
 
   function onPlayForwardClick(): void {
-    playing = true;
     intervalId = setInterval(onStepForwardClick, rate);
     controls.setPlaying(true);
   }
@@ -149,7 +146,6 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
       clearInterval(intervalId);
     }
     intervalId = null;
-    playing = false;
     controls.setPlaying(false);
   }
 

@@ -50,16 +50,16 @@ export function getRegularDefaults() {
 export function getConditionalDefaults(configWithRegularDefaults: SeriesAxisConfig, index: number, hasStack: boolean) {
   return {
     base: conditionalDefault([
-      { condition: (config, index) => hasStack, suffix: 'series axis has stacks', default: 0, defaultText: '0' },
-      { condition: (config, index) => !hasStack, suffix: 'series axis has no stacks', default: NONE, defaultText: NONE },
+      { condition: (_config, _index) => hasStack, suffix: 'series axis has stacks', default: 0, defaultText: '0' },
+      { condition: (_config, _index) => !hasStack, suffix: 'series axis has no stacks', default: NONE, defaultText: NONE },
       { ...defaultRule, default: NONE }
     ], configWithRegularDefaults, index),
     id: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series axis index', default: 'SA' + index, defaultText: 'SA${index}' },
+      { condition: (_config, _index) => true, suffix: 'series axis index', default: 'SA' + index, defaultText: 'SA${index}' },
       { ...defaultRule, default: 'SA' + index }
     ], configWithRegularDefaults, index),
     order: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series axis index', default: index, defaultText: '${index}' },
+      { condition: (_config, _index) => true, suffix: 'series axis index', default: index, defaultText: '${index}' },
       { ...defaultRule, default: index }
     ], configWithRegularDefaults, index)
   };

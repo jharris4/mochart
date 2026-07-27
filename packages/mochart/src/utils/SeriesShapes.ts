@@ -272,7 +272,6 @@ export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionDat
   const applyStackOuter = stack && (capType !== NONE && capOnlyStackOuter) || (capType === NONE && outerCapType && outerCapType !== NONE);
 
   let connector = getConnector(columnCapType, inverted);
-  let columnCapConnector = columnCapType === CAP_TYPE_POINT ? connectPointInverted : columnCapType === CAP_TYPE_CURVE ? connectCurveInverted : connectRoundInverted;
 
   let groupPosition;
   let seriesValueExtent;

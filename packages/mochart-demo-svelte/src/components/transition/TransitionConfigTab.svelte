@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
+  import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';

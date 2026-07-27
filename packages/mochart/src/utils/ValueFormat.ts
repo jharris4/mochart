@@ -1,4 +1,4 @@
-import { format, formatSpecifier } from 'd3-format';
+import { format } from 'd3-format';
 import { timeFormat, utcFormat } from 'd3-time-format';
 import { scaleLinear } from 'd3-scale';
 

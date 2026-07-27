@@ -27,7 +27,6 @@ export class DemoRandom extends LightElement {
   @property({ attribute: false }) incrementRandomId!: () => void;
   @property({ attribute: false }) decrementRandomId!: () => void;
 
-  @state() private demoId = '';
   @state() private activeKey = eventKeyChart;
   @state() private mochartDemoConfig: MochartDemoConfig | null = null;
   @state() private randomConfig: RandomConfigWithValid | null = null;
@@ -47,7 +46,6 @@ export class DemoRandom extends LightElement {
       return;
     }
     const nextState = this.buildStateForDemo(this.initialDemoId);
-    this.demoId = this.initialDemoId;
     this.activeKey = eventKeyChart;
     this.mochartDemoConfig = nextState.mochartDemoConfig;
     this.randomConfig = nextState.randomConfig;

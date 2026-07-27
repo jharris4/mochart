@@ -231,7 +231,7 @@ function generateSeriesValuesForGroupValues(
 }
 
 function generateSeriesValues(
-  id: string,
+  _id: string,
   groupData: GroupData,
   reuse: RandomConfig['series']['reuse'],
   min: number,
@@ -282,7 +282,6 @@ function generateChartSeriesValues(
   const { number, missing, reuse } = series;
   const { min, max, limitToAxisConfig, round } = number;
   const { probability } = missing;
-  const range = max - min;
   const seriesValues: Record<string, (number | undefined)[]> = {};
   const randomGenerator = rng(randomId);
   const missingGenerator = rng(randomId);
@@ -344,7 +343,7 @@ export function generateChartDataProvider(
     const oldValueToIndex = groupValues.reduce<Record<string, number>>((m, g, i) => { m['' + g] = i; return m; }, {});
     const sortedIndexToIndex = sortedGroupValues.map(g => oldValueToIndex['' + g]);
     groupValues = sortedGroupValues;
-    const oldToNew = (values: (number | undefined)[]) => values.map((v, i) => values[sortedIndexToIndex[i]]);
+    const oldToNew = (values: (number | undefined)[]) => values.map((_v, i) => values[sortedIndexToIndex[i]]);
 
     const seriesKeys = Object.keys(seriesValues);
     for (const seriesKey of seriesKeys) {

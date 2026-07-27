@@ -1,5 +1,5 @@
 
-import { applyTransitionConfigEdit, buildMochartDemoConfig, demoText, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
 

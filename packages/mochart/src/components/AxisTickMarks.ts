@@ -50,7 +50,7 @@ export default class AxisTickMarks extends Renderer<AxisTickMarksProps> {
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['axisTickMarks'] });
       this.ticks.sync(axisTicks, {
-        key: (tick, i) => 'tick-mark-' + i,
+        key: (_tick, i) => 'tick-mark-' + i,
         create: () => {
           const root = svgEl('g');
           const line = svgEl('line');

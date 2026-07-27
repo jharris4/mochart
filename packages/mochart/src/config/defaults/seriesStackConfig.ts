@@ -22,11 +22,11 @@ export function getRegularDefaults() {
 export function getConditionalDefaults(configWithRegularDefaults: SeriesStackConfig, index: number, soleSeriesAxisId: string | null) {
   return {
     id: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series stack index', default: 'SS' + index, defaultText: 'SS${index}' },
+      { condition: (_config, _index) => true, suffix: 'series stack index', default: 'SS' + index, defaultText: 'SS${index}' },
       { ...defaultRule, default: 'SS' + index }
     ], configWithRegularDefaults, index),
     axis: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId, defaultText: 'first axis id' },
+      { condition: (_config, _index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId, defaultText: 'first axis id' },
       { ...defaultRule, default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId }
     ], configWithRegularDefaults, index),
   }

@@ -1,6 +1,6 @@
 import { Component, Input, signal } from '@angular/core';
 
-import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { TransitionChartTab } from './transition-chart-tab';
 import { TransitionConfigTab } from './transition-config-tab';

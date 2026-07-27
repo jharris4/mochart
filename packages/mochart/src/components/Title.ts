@@ -135,7 +135,7 @@ export default class Title extends Renderer<TitleProps, TitleState> {
 
     if (titleConfig.title !== NONE) {
       const { title, titlePrefix, titleSuffix, truncationEnabled, truncationValue, link, linkDisabled,
-        textMargin, textPadding, titleBackgroundStyle, titleTextStyle,
+        titleBackgroundStyle, titleTextStyle,
         prefixBackgroundStyle, prefixTextStyle,
         suffixBackgroundStyle, suffixTextStyle
       } = titleConfig;

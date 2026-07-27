@@ -119,7 +119,7 @@ export class ChartTab extends LightElement {
     const allowedChartCount = Math.floor(width / 2) > minChartWidthForSecondChart ? 2 : 1;
     const adjustedChartCount = Math.min(this.chartCount, allowedChartCount);
     const chartWidth = Math.floor((width - scrollWidthOffset) / adjustedChartCount);
-    const chartIndices = Array.from({ length: adjustedChartCount }, (unused, index) => index + 1);
+    const chartIndices = Array.from({ length: adjustedChartCount }, (_unused, index) => index + 1);
     return html`<div ${ref(this.size.attach)} class=${'mochart-demo-tab-container demo-layout-row chart' + (this.active ? ' active' : '')}>
       <div class="editable-charts-sizer">
         <div class="editable-charts">

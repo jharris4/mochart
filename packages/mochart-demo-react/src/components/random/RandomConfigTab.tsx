@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
 import TextAreaContent from '../misc/TextAreaContent';

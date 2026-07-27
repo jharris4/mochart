@@ -1,7 +1,7 @@
 import { Renderer, svgEl, textEl } from '../render';
 
 import { translate, translateRotate } from '../utils/utils';
-import { NONE, SCALE_LINEAR, TYPE_NUMBER, TYPE_DATE } from '../config/core/constants';
+import { NONE, SCALE_LINEAR, TYPE_DATE } from '../config/core/constants';
 import type { El, TextEl } from '../render';
 import type { AxisConfigBase } from '../types/config';
 import type { DataType, Scale } from '../config/core/constants';
@@ -78,7 +78,6 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
         const { thresholdTitleLayoutInfo } = axisLayoutInfo;
         let titleX = thresholdX;
         let titleY = thresholdY;
-        let hidden = false;
         const paddingRelativeBounds = 'paddingRelativeBounds' in thresholdTitleLayoutInfo
           ? thresholdTitleLayoutInfo.paddingRelativeBounds
           : thresholdTitleLayoutInfo;
@@ -99,7 +98,6 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
 
         if (vertical) {
           paddingY += paddingHeight / 2.0;
-          hidden = height > seriesLayoutInfo.height;
           if (before) {
             // left
           }
@@ -120,23 +118,18 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
               if (thresholdY - height >= seriesLayoutInfo.y) {
                 titleY = thresholdY - height;
               }
-              else {
-                hidden = true;
-              }
+
             }
             else if (!thresholdTitleBefore && titleY > (thresholdY - height)) {
               if (thresholdY + height <= seriesLayoutInfo.y + seriesLayoutInfo.height) {
                 titleY = thresholdY;
               }
-              else {
-                hidden = true;
-              }
+
             }
           }
         }
         else {
           paddingX += paddingHeight / 2.0;
-          hidden = width > seriesLayoutInfo.width;
           if (before) {
             // below
           }
@@ -157,17 +150,13 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
               if (thresholdX + width <= seriesLayoutInfo.x + seriesLayoutInfo.width) {
                 titleX = thresholdX;
               }
-              else {
-                hidden = true;
-              }
+
             }
             else if (!thresholdTitleBefore && titleX < (thresholdX + width)) {
               if (thresholdX - width >= seriesLayoutInfo.x) {
                 titleX = thresholdX - width;
               }
-              else {
-                hidden = true;
-              }
+
             }
           }
         }

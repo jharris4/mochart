@@ -115,27 +115,27 @@ export function getRegularDefaults() {
 export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig & { color?: SeriesColor }, index: number, soleSeriesAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null) {
   return {
     id: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series index', default: 'S' + index, defaultText: 'S${index}' },
+      { condition: (_config, _index) => true, suffix: 'series index', default: 'S' + index, defaultText: 'S${index}' },
       { ...defaultRule, default: 'S' + index }
     ], configWithRegularDefaults, index),
     order: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series index', default: index, defaultText: '${index}' },
+      { condition: (_config, _index) => true, suffix: 'series index', default: index, defaultText: '${index}' },
       { ...defaultRule, default: index }
     ], configWithRegularDefaults, index),
     axis: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId, defaultText: 'sole axis id' },
+      { condition: (_config, _index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId, defaultText: 'sole axis id' },
       { ...defaultRule, default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId }
     ], configWithRegularDefaults, index),
     stack: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series stack', default: soleSeriesStackId, defaultText: 'sole stack id' },
+      { condition: (_config, _index) => true, suffix: 'series stack', default: soleSeriesStackId, defaultText: 'sole stack id' },
       { ...defaultRule, default: soleSeriesStackId }
     ], configWithRegularDefaults, index),
     group: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series group', default: soleSeriesGroupId, defaultText: 'sole group id' },
+      { condition: (_config, _index) => true, suffix: 'series group', default: soleSeriesGroupId, defaultText: 'sole group id' },
       { ...defaultRule, default: soleSeriesGroupId }
     ], configWithRegularDefaults, index),
     gradient: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'series gradient', default: soleGradientConfigId, defaultText: 'sole gradient id' },
+      { condition: (_config, _index) => true, suffix: 'series gradient', default: soleGradientConfigId, defaultText: 'sole gradient id' },
       { ...defaultRule, default: soleGradientConfigId }
     ], configWithRegularDefaults, index),
     animateBaseFromAdjacent: conditionalDefault([

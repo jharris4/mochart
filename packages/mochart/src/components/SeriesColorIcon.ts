@@ -158,7 +158,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
   syncColorContent(showSeriesColor: boolean, gradientId: string, className: string | null | undefined): void {
     const {
       seriesContextConfig, seriesConfig, seriesIndex, colorPaletteConfig,
-      seriesIsSuppressed, focused, focusPercentage, visible = true
+      seriesIsSuppressed, focusPercentage, visible = true
     } = this.props;
 
     if (!visible) {

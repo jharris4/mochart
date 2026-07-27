@@ -1,13 +1,13 @@
-import { NONE, POSITION_TOP, ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT } from '../config/core/constants';
-import { getSpacingOuterHeight, createSpacingLayoutInfo, getSpacingLeft, getSpacingRight, getSpacingWidth, getSpacingTop, getSpacingHeight } from './SpacingLayoutInfo';
+import { ALIGN_LEFT, ALIGN_CENTER } from '../config/core/constants';
+import { createSpacingLayoutInfo, getSpacingLeft, getSpacingWidth, getSpacingTop, getSpacingHeight } from './SpacingLayoutInfo';
 import type { Bounds } from '../types/geometry';
 import type { MochartConfig } from '../types/config';
 import type { ChartTextBoundsData, LayoutInfo, LegendLayoutResult, SpacingLayoutInfo } from '../types/layout';
 
 export function getLegendHeight(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, plotWidthAndX: { x: number; width: number }): number {
-  const { chartConfig, plotConfig, legendConfig, seriesConfigs } = mochartConfig;
+  const { legendConfig, seriesConfigs } = mochartConfig;
   if (legendConfig.visible === true && seriesConfigs.length > 0) {
-    const { margin, padding, itemMargin, itemPadding, alignedToAxes, align, iconSize, iconSpacerSize } = legendConfig;
+    const { margin, padding, itemMargin, itemPadding, alignedToAxes, iconSize, iconSpacerSize } = legendConfig;
     const { legendItemTextRawBounds, legendItemMaxTextBounds } = chartTextBoundsData;
     const { width } = contentBounds;
 
@@ -36,7 +36,6 @@ export function getLegendHeight(mochartConfig: MochartConfig, chartTextBoundsDat
 
     let x = legendMinSpacingX;
     let y = legendSpacingTop;
-    let maxX = x;
     let maxY = y;
     let textWidth: number, itemWidth: number;
     for (let itemTextBounds of legendItemTextRawBounds) {
@@ -57,7 +56,7 @@ export function getLegendHeight(mochartConfig: MochartConfig, chartTextBoundsDat
 }
 
 export function getLegendLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, legendHeight: number, legendY: number): Partial<LegendLayoutResult> {
-  const { chartConfig, plotConfig, legendConfig, seriesConfigs } = mochartConfig;
+  const { legendConfig, seriesConfigs } = mochartConfig;
   if (legendConfig.visible === true && seriesConfigs.length > 0) {
     const { margin, padding, itemMargin, itemPadding, alignedToAxes, align, iconSize, iconSpacerSize } = legendConfig;
     const { legendItemTextRawBounds, legendItemMaxTextBounds } = chartTextBoundsData;
@@ -69,10 +68,8 @@ export function getLegendLayoutInfo(mochartConfig: MochartConfig, chartTextBound
     const legendSpacingLeft = getSpacingLeft(margin, padding);
     const legendSpacingTop = getSpacingTop(margin, padding);
     const legendSpacingWidth = getSpacingWidth(margin, padding);
-    const legendSpacingHeight = getSpacingHeight(margin, padding);
 
     const itemSpacingLeft = getSpacingLeft(itemMargin, itemPadding);
-    const itemSpacingTop = getSpacingTop(itemMargin, itemPadding);
     const itemSpacingWidth = getSpacingWidth(itemMargin, itemPadding);
     const itemSpacingHeight = getSpacingHeight(itemMargin, itemPadding);
 

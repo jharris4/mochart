@@ -50,7 +50,7 @@ export default class AxisGrid extends Renderer<AxisGridProps> {
       this.setPresent(true);
       this.root.set({ className: axisGridClass });
       this.lines.sync(axisTicks, {
-        key: (tick, i) => 'gridLine-' + i,
+        key: (_tick, i) => 'gridLine-' + i,
         create: () => {
           const root = svgEl('g');
           const line = svgEl('line');

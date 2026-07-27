@@ -53,7 +53,6 @@ interface SuiteResult {
 }
 
 let mounted: MountedChart[] = [];
-let mountedSpec: ScenarioSpec | null = null;
 const suiteResults: SuiteResult[] = [];
 
 function destroyCharts(): void {
@@ -61,7 +60,6 @@ function destroyCharts(): void {
     chart.handle.destroy();
   }
   mounted = [];
-  mountedSpec = null;
   chartHost.innerHTML = '';
   chartHost.classList.remove('grid');
 }
@@ -100,7 +98,6 @@ async function mountScenario(spec: ScenarioSpec, options: ScenarioOptions): Prom
   const created = performance.now();
   await afterPaint();
   const settled = performance.now();
-  mountedSpec = spec;
 
   const result: MountResult = {
     createMs: created - start,

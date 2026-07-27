@@ -8,13 +8,13 @@ import { getSeriesDataWithAxisDomains, getSeriesDataWithAxisBases, getSeriesData
 
 import { domainKeys } from '../data/constants';
 
-import { hasGroupAdditions, hasGroupRemovals, getExpansionGroupValueDeltaData, getCollapseGroupValueDeltaData } from './GroupAnimationData';
+import { hasGroupAdditions, getExpansionGroupValueDeltaData, getCollapseGroupValueDeltaData } from './GroupAnimationData';
 
 import { mapMap } from '../utils/utils';
 
-import { SCALE_ORDINAL, SCALE_LINEAR, TYPE_DATE } from '../config/core/constants';
+import { SCALE_ORDINAL } from '../config/core/constants';
 import type { AxisDomains, ChartData, GroupAxisDomain, NullableDomain, SeriesDomainObject, SeriesDomainObjects } from '../types/data';
-import type { GroupAxisConfig, MochartConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type { MochartConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
 import type {
   AxisDeltaData, CompleteNumericArrayDelta, DomainDelta, DomainDeltaMap, GroupDeltaData,
   NumericDomain, SeriesDomainDelta, SeriesDomainDeltaMap
@@ -105,7 +105,6 @@ function getMaxSeriesDomain(domainObject: SeriesDomainObject, otherDomainObject:
 function getMaxSeriesDomains(domainObjects: SeriesDomainObjects, otherDomainObjects: SeriesDomainObjects): SeriesDomainObjects {
   let newDomainObjects: SeriesDomainObjects = {};
   let seriesIds = Object.keys(domainObjects);
-  let i, count = domainObjects.length;
   for (let seriesId of seriesIds) {
     newDomainObjects[seriesId] = getMaxSeriesDomain(domainObjects[seriesId], otherDomainObjects[seriesId]);
   }
@@ -163,7 +162,7 @@ export function getTransitionAxisExpansionData(mochartConfig: MochartConfig, pre
     setBaseDomainForChanges(startGroupAxisDomain, endGroupAxisDomain);
   }
 
-  let groupAxisDomainDelta = getGroupAxisDomainDelta(groupAxisConfig, startGroupAxisDomain, endGroupAxisDomain);
+  let groupAxisDomainDelta = getGroupAxisDomainDelta(startGroupAxisDomain, endGroupAxisDomain);
   if (groupAxisDomainDelta.deltaPercentage !== 0) {
     finalGroupAxisDomain = endGroupAxisDomain;
     groupValueDeltaData = getExpansionGroupValueDeltaData(groupAxisConfig, groupDeltaData, prevChartData, newChartData, endGroupAxisDomain);
@@ -275,7 +274,7 @@ export function getTransitionAxisCollapseData(mochartConfig: MochartConfig, prev
 
   const { groupAxisConfig, seriesAxisConfigs, seriesConfigs } = mochartConfig;
 
-  let groupAxisDomainDelta = getGroupAxisDomainDelta(groupAxisConfig, endGroupAxisDomain, startGroupAxisDomain);
+  let groupAxisDomainDelta = getGroupAxisDomainDelta(endGroupAxisDomain, startGroupAxisDomain);
   if (groupAxisDomainDelta.deltaPercentage !== 0) {
     groupValueDeltaData = getCollapseGroupValueDeltaData(groupAxisConfig, groupDeltaData, prevChartData, newChartData, startGroupAxisDomain);
 
@@ -370,7 +369,7 @@ function getSeriesAxisDomainDeltas(fromSeriesAxisDomains: AxisDomains, toSeriesA
   };
 }
 
-function getGroupAxisDomainDelta(groupAxisConfig: GroupAxisConfig, fromGroupAxisDomain: GroupAxisDomain, toGroupAxisDomain: GroupAxisDomain): DomainDelta {
+function getGroupAxisDomainDelta(fromGroupAxisDomain: GroupAxisDomain, toGroupAxisDomain: GroupAxisDomain): DomainDelta {
   let delta: NumericDomain = [0, 0];
 
   const getValue = (groupValue: GroupAxisDomain[number]): number => groupValue === null ? 0 : groupValue instanceof Date ? groupValue.getTime() : groupValue;
@@ -390,23 +389,10 @@ function getGroupAxisDomainDelta(groupAxisConfig: GroupAxisConfig, fromGroupAxis
   }
 }
 
-function getOrdinalGroupValueDeltaData(oldNumericValues: number[], newNumericValues: number[]): Omit<CompleteNumericArrayDelta, 'deltaPercentage'> {
-  let deltas: number[] = [];
-  let i, count = oldNumericValues.length;
-  for (i=0; i<count; i++) {
-    deltas.push(newNumericValues[i] - oldNumericValues[i]);
-  }
-  return {
-    start: oldNumericValues,
-    deltas,
-    end: newNumericValues
-  }
-}
-
 function getSeriesDomainDeltas(seriesConfigs: SeriesConfig[], fromDomainObjects: SeriesDomainObjects, toDomainObjects: SeriesDomainObjects, fromAxisExtents: Record<string, number>): SeriesDomainDeltaMap {
   let deltaPercentage = 0;
   let deltas: Record<string, SeriesDomainDelta> = {};
-  let domainDelta, domainDeltaPercentage;
+  let domainDelta;
   for (let seriesConfig of seriesConfigs) {
     const { id } = seriesConfig;
     domainDelta = getSeriesDomainDelta(fromDomainObjects[id]!, toDomainObjects[id]!, fromAxisExtents[seriesConfig.axis!]!);

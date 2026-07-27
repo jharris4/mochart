@@ -1,6 +1,5 @@
 import { arrayToMap, idAccessor } from '../utils/utils';
 import { getAxisSize, setExtraAxisInfo, getRotatedTickBounds } from './PlotLayout';
-import { NONE } from '../config/core/constants';
 import { createInnerOuterSpacingLayoutInfo } from './SpacingLayoutInfo';
 import type { Bounds, TextBounds } from '../types/geometry';
 import type { MochartConfig, SeriesAxisConfig } from '../types/config';
@@ -38,7 +37,7 @@ export function getSeriesAxisSizes(axisConfigs: SeriesAxisConfig[], axisDataCoun
   });
 }
 
-export function createSeriesAxisLayoutInfos(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, seriesAxisRotatedTickBounds: Record<string, Bounds>, axisTickInfos: AxisTickInfos, groupY: number, seriesY: number, groupInnerExtent: number, seriesInnerExtent: number, groupAxesOffset: BeforeAfter, seriesAxesOffset: BeforeAfter, seriesAxisSizes: Record<string, number>, seriesAxisFilteredSeriesCounts: Record<string, number>, seriesAxesCollapsedAfter: number): Record<string, AxisLayoutInfo> {
+export function createSeriesAxisLayoutInfos(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, _chartData: ChartDataForLayout | null, seriesAxisRotatedTickBounds: Record<string, Bounds>, axisTickInfos: AxisTickInfos, groupY: number, seriesY: number, groupInnerExtent: number, seriesInnerExtent: number, groupAxesOffset: BeforeAfter, seriesAxesOffset: BeforeAfter, seriesAxisSizes: Record<string, number>, _seriesAxisFilteredSeriesCounts: Record<string, number>, seriesAxesCollapsedAfter: number): Record<string, AxisLayoutInfo> {
   const { plotConfig, seriesAxisConfigs } = mochartConfig;
   const { seriesAxisTitleBounds, seriesAxisTickBounds, seriesAxisThresholdTitleBounds } = chartTextBoundsData;
   const { seriesAxisTickInfos } = axisTickInfos;

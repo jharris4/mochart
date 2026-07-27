@@ -72,7 +72,7 @@ export default class Legend extends Renderer<LegendProps> {
     }
   }
 
-  legendItemMouseLeave = (seriesId: string) => {
+  legendItemMouseLeave = (_seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
     if (mochartConfig.legendConfig.focusOnMouseOver) {
       onFocus({ seriesId: null });

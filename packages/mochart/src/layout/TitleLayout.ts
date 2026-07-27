@@ -1,7 +1,7 @@
-import { NONE, ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT, VERTICAL_ALIGN_TOP, VERTICAL_ALIGN_MIDDLE } from '../config/core/constants';
+import { NONE, ALIGN_LEFT, ALIGN_CENTER, VERTICAL_ALIGN_TOP, VERTICAL_ALIGN_MIDDLE } from '../config/core/constants';
 import type { VerticalAlign } from '../config/core/constants';
 import { getSpacingWidth, getSpacingOuterWidth, getSpacingOuterHeight, getSpacingHeight, getMaxSpacingHeight } from './SpacingLayoutInfo';
-import { createSpacingLayoutInfo, getSpacingLeft, getSpacingRight } from './SpacingLayoutInfo';
+import { createSpacingLayoutInfo, getSpacingLeft } from './SpacingLayoutInfo';
 import type { MarginPadding, Bounds } from '../types/geometry';
 import type { MochartConfig, TitleConfig } from '../types/config';
 import type { ChartTextBoundsData, LayoutInfo, SpacingLayoutInfo, TitleLayoutResult } from '../types/layout';
@@ -56,8 +56,7 @@ export function getTitleHeight(mochartConfig: MochartConfig, chartTextBoundsData
 }
 
 export function getTitleLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, titleHeight: number, titleY: number): TitleLayoutResult {
-  const { plotConfig, titleConfig } = mochartConfig;
-  const { inverted } = plotConfig;
+  const { titleConfig } = mochartConfig;
   const { title, titlePrefix, titleSuffix, alignedToAxes, align, verticalAlign, verticalExpand,
           margin, padding, textMargin, textPadding, prefixMargin, prefixPadding, suffixMargin, suffixPadding } = titleConfig;
   const spacingLeft = getSpacingLeft(margin, padding);

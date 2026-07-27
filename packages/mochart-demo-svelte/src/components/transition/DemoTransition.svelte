@@ -1,6 +1,6 @@
 <script lang="ts">
 
-  import { buildMochartDemoConfig, defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
+  import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
   import TransitionChartTab from './TransitionChartTab.svelte';
   import TransitionConfigTab from './TransitionConfigTab.svelte';

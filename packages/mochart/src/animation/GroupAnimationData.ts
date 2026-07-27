@@ -1,6 +1,5 @@
 import { NONE, SCALE_ORDINAL } from '../config/core/constants';
-import { getValuesAtIndices, getMaxAbsoluteValue } from '../utils/utils';
-import { getNumericGroupValues } from '../data/GroupData';
+import { getMaxAbsoluteValue } from '../utils/utils';
 import type { GroupAxisConfig, MochartConfig } from '../types/config';
 import type { GroupAxisDomain, GroupData, GroupValue } from '../types/data';
 import type {

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';

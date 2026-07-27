@@ -12,7 +12,7 @@ function toPercent(aNumber: number): string {
 }
 
 const stopAdapter: ElListAdapter<GradientStop, { root: ReturnType<typeof svgEl> }> = {
-  key: (stop, i) => i,
+  key: (_stop, i) => i,
   create: () => ({ root: svgEl('stop') }),
   update: (handle, stop) => {
     handle.root.set({ offset: toPercent(stop.offset), stopColor: stop.color, stopOpacity: stop.opacity });

@@ -4,10 +4,10 @@ import { NONE } from '../config/core/constants';
 
 import { keyPlain, valueKeys, positionKeys, extraKeys, extraCopyKeys, positionOrComputedOrExtraKeys } from './constants';
 
-import { copyWithValueOnlyIfOtherUndefined, createArrayFilledWithZero, arrayToMap, mapMap, idAccessor } from '../utils/utils';
+import { createArrayFilledWithZero, arrayToMap, mapMap, idAccessor } from '../utils/utils';
 import type { DataProvider, GroupData, GroupValue, NullableDomain, NumericValues, SeriesData, SeriesDataSet, SeriesDomainObject, SeriesDomainObjects, SeriesValueObject, SeriesValueObjects } from '../types/data';
 import type { MochartConfig, SeriesAxisConfig, SeriesConfig, SeriesGroupConfig, SeriesStackConfig } from '../types/config';
-import type { DomainKey, ExtraCopyKey, ExtraKey, PositionKey, ValueKey } from './constants';
+import type { ExtraCopyKey, ExtraKey, PositionKey, ValueKey } from './constants';
 
 type SeriesContainerConfig = SeriesAxisConfig | SeriesStackConfig | SeriesGroupConfig;
 type SeriesBundle = { data: SeriesDataSet };

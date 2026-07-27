@@ -33,7 +33,6 @@ const exportPngButton = document.getElementById('export-png') as HTMLButtonEleme
 const exportSvgButton = document.getElementById('export-svg') as HTMLButtonElement;
 
 let chart: ChartHandle | null = null;
-let currentDemo: Demo | null = null;
 let mochartConfig: any = null;
 let groupProperty: string | undefined;
 let seriesProperties: string[] = [];
@@ -85,7 +84,6 @@ function makeDataProvider(): any {
 }
 
 function mountDemo(demo: Demo): void {
-  currentDemo = demo;
   demoTitle.textContent = demo.title;
   stopAutoplay();
 

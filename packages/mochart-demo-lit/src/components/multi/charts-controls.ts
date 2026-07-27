@@ -36,7 +36,7 @@ export class ChartsControls extends LightElement {
   @state() private rowsText = '' + defaultChartRows;
   @state() private colsText = '' + defaultChartCols;
 
-  override willUpdate(changed: PropertyValues<this>): void {
+  override willUpdate(_changed: PropertyValues<this>): void {
     if (!this.hasUpdated) {
       this.rowsText = '' + this.initialRows;
       this.colsText = '' + this.initialCols;

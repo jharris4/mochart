@@ -1,6 +1,6 @@
 import { formatData } from '@mochart/demo-common';
 
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 
 import TextAreaContent from '../misc/TextAreaContent';
 

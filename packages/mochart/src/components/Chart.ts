@@ -859,7 +859,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       return;
     }
 
-    const hasChartDataContent = this.hasChartDataContent(error, loading);
+    const hasChartDataContent = this.hasChartDataContent(error);
     const chartEventHandler = (hasChartDataContent && !loading) ? this.chartEventHandler : {};
 
     this.setPresent(true);
@@ -888,7 +888,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this._simpleNode = node;
   }
 
-  hasChartDataContent(error: unknown, loading: boolean): boolean {
+  hasChartDataContent(error: unknown): boolean {
     const { chartData } = this.props;
     const hasChartData = chartData !== null;
     const groupCount = hasChartData ? getChartDataGroupCount(chartData) : 0;

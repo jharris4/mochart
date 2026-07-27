@@ -36,7 +36,7 @@ export default class AxisFocusTickMarks extends Renderer<AxisFocusTickMarksProps
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['axisFocusTickMarks'] });
       this.ticks.sync(focusPercentages, {
-        key: (focusPercentage, i) => 'focus-tick-mark-' + i,
+        key: (_focusPercentage, i) => 'focus-tick-mark-' + i,
         create: () => {
           const root = svgEl('g');
           const line = svgEl('line');

@@ -23,7 +23,7 @@ export function getRegularDefaults() {
 export function getConditionalDefaults(configWithRegularDefaults: RadialGradientConfig, index: number) {
   return {
     id: conditionalDefault([
-      { condition: (config, index) => true, suffix: 'radial gradient index', default: 'RG' + index, defaultText: 'RG${index}' },
+      { condition: (_config, _index) => true, suffix: 'radial gradient index', default: 'RG' + index, defaultText: 'RG${index}' },
       { ...defaultRule, default: 'RG' + index }
     ], configWithRegularDefaults, index)
   }

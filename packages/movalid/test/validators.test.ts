@@ -1874,7 +1874,7 @@ describe("validators", () => {
       });
 
       it("should not modify the original validator", () => {
-        let validator, extension, extraExtension;
+        let validator, extension;
         let validatorAllowedValues, extensionAllowedValues;
         regularValidatorKeys.forEach(validatorKey => {
           validator = baseValidators[validatorKey](...validatorInputs[validatorKey].args);
@@ -1883,7 +1883,7 @@ describe("validators", () => {
             extension = validator[extensionKey](...extensionInputs[extensionKey].args);
             extensionAllowedValues = extension.allowedValues;
             extensionKeys.forEach(extraExtensionKey => {
-              extraExtension = extension[extraExtensionKey](...extensionInputs[extraExtensionKey].args);
+              extension[extraExtensionKey](...extensionInputs[extraExtensionKey].args);
               expect(validator.allowedValues).toIsEqual(validatorAllowedValues);
               expect(extension.allowedValues).toIsEqual(extensionAllowedValues);
             });
@@ -1956,7 +1956,7 @@ describe("validators", () => {
       });
 
       it("should not modify the original validator", () => {
-        let validator, extension, extraExtension;
+        let validator, extension;
         let validatorWasEnum, extensionWasEnum;
         regularValidatorKeys.forEach(validatorKey => {
           validator = baseValidators[validatorKey](...validatorInputs[validatorKey].args);
@@ -1965,7 +1965,7 @@ describe("validators", () => {
             extension = validator[extensionKey](...extensionInputs[extensionKey].args);
             extensionWasEnum = extension.isEnum;
             extensionKeys.forEach(extraExtensionKey => {
-              extraExtension = extension[extraExtensionKey](...extensionInputs[extraExtensionKey].args);
+              extension[extraExtensionKey](...extensionInputs[extraExtensionKey].args);
               expect(validator.isEnum).toIsEqual(validatorWasEnum);
               expect(extension.isEnum).toIsEqual(extensionWasEnum);
             });

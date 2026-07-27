@@ -1,4 +1,3 @@
-import React from 'react';
 
 import { demoText } from '@mochart/demo-common';
 

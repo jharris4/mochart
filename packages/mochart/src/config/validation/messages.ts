@@ -101,13 +101,6 @@ function objectWithKeys<T>(object: Record<string, T>, keys: string[]): Record<st
   return clone;
 }
 
-function arrayToMap(array: string[]): Record<string, boolean> {
-  const map: Record<string, boolean> = {};
-  for (let item of array) {
-    map[item] = true;
-  }
-  return map;
-}
 
 export const DEFAULT = 'Default ';
 

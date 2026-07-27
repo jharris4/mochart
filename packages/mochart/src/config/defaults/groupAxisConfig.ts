@@ -46,23 +46,23 @@ export function getRegularDefaults() {
 export function getConditionalDefaults(configWithRegularDefaults: GroupAxisConfig, inverted: boolean) {
   return {
     before: conditionalDefault([
-      { condition: (config, inverted) => inverted === true, suffix: "when plotConfig.inverted is true", default: true },
-      { condition: (config, inverted) => inverted === false, suffix: "when plotConfig.inverted is false", default: false },
+      { condition: (_config, inverted) => inverted === true, suffix: "when plotConfig.inverted is true", default: true },
+      { condition: (_config, inverted) => inverted === false, suffix: "when plotConfig.inverted is false", default: false },
       { ...defaultRule, default: false }
     ], configWithRegularDefaults, inverted),
     maxTickCount: conditionalDefault([
-      { condition: ({ scale }, inverted) => scale === SCALE_LINEAR, suffix: "when scale is linear", default: 10 },
-      { condition: ({ scale }, inverted) => scale === SCALE_ORDINAL, suffix: "when scale is ordinal", default: 0 },
+      { condition: ({ scale }, _inverted) => scale === SCALE_LINEAR, suffix: "when scale is linear", default: 10 },
+      { condition: ({ scale }, _inverted) => scale === SCALE_ORDINAL, suffix: "when scale is ordinal", default: 0 },
       { ...defaultRule, default: 10 }
     ], configWithRegularDefaults, inverted),
     minTickSpacing: conditionalDefault([
-      { condition: ({ scale }, inverted) => scale === SCALE_LINEAR, suffix: "when scale is linear", default: 12 },
-      { condition: ({ scale }, inverted) => scale === SCALE_ORDINAL, suffix: "when scale is ordinal", default: 4 },
+      { condition: ({ scale }, _inverted) => scale === SCALE_LINEAR, suffix: "when scale is linear", default: 12 },
+      { condition: ({ scale }, _inverted) => scale === SCALE_ORDINAL, suffix: "when scale is ordinal", default: 4 },
       { ...defaultRule, default: 10 }
     ], configWithRegularDefaults, inverted),
     tickLabelTruncationEnabled: conditionalDefault([
-      { condition: ({ type }, inverted) => type === TYPE_STRING, suffix: "when type is string", default: true },
-      { condition: ({ type }, inverted) => type !== TYPE_STRING, suffix: "when type is not string", default: false },
+      { condition: ({ type }, _inverted) => type === TYPE_STRING, suffix: "when type is string", default: true },
+      { condition: ({ type }, _inverted) => type !== TYPE_STRING, suffix: "when type is not string", default: false },
       { ...defaultRule, default: false }
     ], configWithRegularDefaults, inverted)
   };

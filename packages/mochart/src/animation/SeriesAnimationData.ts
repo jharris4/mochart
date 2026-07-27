@@ -13,24 +13,23 @@ import { createArrayFilledWithUndefined, createArrayWithValueIfNotUndefined, cop
   getArrayDeltas, replaceArrayUndefinedWithValue } from '../utils/utils';
 
 import {
-  hasGroupAdditions, hasGroupRemovals, hasGroupReorder, hasGroupChanges, hasNumericValueOffsets, getNumericValuesWithoutOffsets,
+  hasGroupChanges, hasNumericValueOffsets, getNumericValuesWithoutOffsets,
   getMergedNumericValues, createGroupOrderDeltaData, setGroupOrderDeltaFactors, getNumericValueOffsets } from './GroupAnimationData';
 
-import { valueKeys, keyPlain, positionKeys, positionOrComputedKeys, positionOrComputedOrExtraKeys, extraAndCopyKeys } from '../data/constants';
+import { keyPlain, positionKeys, positionOrComputedKeys, positionOrComputedOrExtraKeys, extraAndCopyKeys } from '../data/constants';
 
-import { copyWithValueOnlyIfOtherUndefined, mapMap } from '../utils/utils';
+import { mapMap } from '../utils/utils';
 import type { AnimationConfig, MochartConfig, SeriesConfig, SeriesStackConfig } from '../types/config';
 import type {
   AxisDomains, ChartData, NumericValues, SeriesData, SeriesDataSet, SeriesDomainObject,
   SeriesDomainObjects, SeriesValueObject, SeriesValueObjects
 } from '../types/data';
 import type {
-  GroupDeltaData, NumericArrayDelta, NumericValuesDelta, OuterChangeCounts,
+  GroupDeltaData, NumericValuesDelta, OuterChangeCounts,
   SeriesValueDelta, SeriesValueDeltaMap, ValueChangeData
 } from '../types/animation';
 import type { ExtraCopyKey, ExtraKey, PositionKey, PositionOrComputedKey, ValueKey } from '../data/constants';
 
-type PartialSeriesValueObjects = Record<string, Partial<SeriesValueObject>>;
 type AxisExtents = Record<string, number>;
 type ValueDeltaObject = Record<ValueKey, NumericValuesDelta> & { deltaPercentage: number; deltaCopied?: boolean };
 
@@ -80,7 +79,6 @@ export function getFilterDeltaData(mochartConfig: MochartConfig, oldSeriesData: 
   let axisSeriesCounts = oldSeriesData.axisSeriesCounts;
   let stackSeriesCounts = oldSeriesData.stackSeriesCounts;
   let groupSeriesCounts = oldSeriesData.groupSeriesCounts;
-  let priorIndices = oldSeriesData.filtered.priorIndices;
   if (!areMapsEqual(oldSeriesData.filteredFlags, newSeriesData.filteredFlags)) {
     let filteredFlags = getFilteredFlagsFromValues(oldSeriesData, newSeriesData);
     filtersChanged = true;

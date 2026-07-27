@@ -49,7 +49,7 @@ export function getSpacingInnerBounds(bounds: SpacingBoundsInput, margin?: Margi
 }
 
 export function createSpacingLayoutInfo(bounds: SpacingBoundsInput, margin: MarginPadding = emptyMarginPadding, padding: MarginPadding = emptyMarginPadding, inner = true): SpacingLayoutInfo {
-  const { x = 0, y = 0, width, height } = bounds;
+  const { width } = bounds;
   const marginBounds = inner ? width > 0 ? getSpacingInnerBounds(bounds, margin) : bounds : getSpacingOuterBounds(bounds, padding);
   const paddingBounds = inner ? width > 0 ? getSpacingInnerBounds(bounds, margin, padding) : bounds : bounds;
   bounds = inner ? bounds : getSpacingOuterBounds(bounds, margin, padding);

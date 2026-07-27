@@ -159,8 +159,8 @@ export function getFocusDataWithGroupChanges(focusData: FocusData, mochartConfig
 }
 
 export function getSeriesConfigsOrderedByFocus(mochartConfig: MochartConfig, focusData: FocusData): SeriesConfig[] {
-  const { focusedSeriesAxisId, focusedSeriesId, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
-  const { seriesAxisConfigs, seriesConfigs } = mochartConfig;
+  const { focusedSeriesAxisId, focusedSeriesId, seriesFocusPercentages } = focusData;
+  const { seriesConfigs } = mochartConfig;
 
   const focusedSeriesIdsMap: Record<string, boolean> = {};
 
@@ -238,7 +238,7 @@ function getSeriesAxisFocusDomainPercentages(mochartConfig: MochartConfig, serie
   if (isFocused(focusedSeriesAxisId)) {
     const inverted = mochartConfig.plotConfig.inverted;
     const seriesAxisConfig = mochartConfig.seriesAxisConfigsById[focusedSeriesAxisId];
-    const { axisBases, raw, filtered } = seriesData;
+    const { raw, filtered } = seriesData;
     const { id } = seriesAxisConfig;
     const axisDomains = seriesAxisConfig.adjustForSuppression ? filtered.axisDomains : raw.axisDomains;
     const axisDomain = axisDomains[id];
@@ -272,7 +272,7 @@ function getSeriesFocusDomainPercentages(mochartConfig: MochartConfig, seriesDat
       const axisDomain = axisDomains[axis] as [number, number];
       const axisBase = axisBases[axis];
 
-      const { values, domains } = filtered;
+      const { values } = filtered;
       const { max: maxValues, min: minValues } = values[id];
 
       if (maxValues !== null || minValues !== null) {

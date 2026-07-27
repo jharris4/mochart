@@ -1,4 +1,3 @@
-import React from 'react';
 import Icon from '../misc/Icon';
 
 import { getGallerySections } from '@mochart/demo-common';

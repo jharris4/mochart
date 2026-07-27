@@ -57,7 +57,7 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
     else {
       validator = validators.string();
     }
-    if(groupValues.some((g, i) => !validator(getGroupValue(i)))) {
+    if(groupValues.some((_g, i) => !validator(getGroupValue(i)))) {
       dataErrors.push((groupAxisConfig.displayProperty !== NONE ? 'display ' : '') + 'group values must all match the specified type');
     }
     if (dataErrors.length === 0) { // duplicate matching needs all the values to be primitives...

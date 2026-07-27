@@ -1,5 +1,5 @@
 import validators from './validators';
-import { getMessage, getPropertyMessage, getMessages, addErrorMessages, addErrorMessage, addWarningMessages, DEFAULT } from './messages';
+import { getMessage, getPropertyMessage, getMessages, addErrorMessage, addWarningMessages, DEFAULT } from './messages';
 import { NONE, CONFIG_VERSION } from '../core/constants';
 import { applyDefaults, configWithAll, sectionKeyAllMap } from '../core/mochartConfig';
 
@@ -39,7 +39,6 @@ function isConfigRecord(value: unknown): value is ConfigRecord {
 }
 
 const objectValidator = validators.object();
-const arrayValidator = validators.array();
 const arrayOfObjectsOrEmpty = validators.arrayOf(objectValidator, true);
 const arrayOfObjectsNonEmpty = validators.arrayOf(objectValidator, false);
 

@@ -16,10 +16,6 @@ function isObject(v: unknown): v is ConfigRecord {
   return v !== null && v !== undefined && typeof v === "object";
 }
 
-const shallowConfigListCopy = (configs: unknown): unknown => {
-  return Array.isArray(configs) ? configs.map(config => isObject(config) ? ({...config}) : config) : configs;
-}
-
 const configsToIdMap = <T>(configs: ConfigRecord[], value: (config: ConfigRecord) => T): Record<string, T> => {
   const map: Record<string, T> = {};
   if (Array.isArray(configs)) {
@@ -62,16 +58,6 @@ const addToIdMap = (idMap: Record<string, ConfigRecord[]>, configs: ConfigRecord
       }
     }
   }
-};
-
-const copyConfigKeys = ['seriesAxisConfigs', 'seriesStackConfigs', 'seriesGroupConfigs', 'seriesConfigs'];
-
-function shallowConfigCopy(config: ConfigRecord): ConfigRecord {
-  const copies: ConfigRecord = {};
-  for (let configKey of copyConfigKeys) {
-    copies[configKey] = shallowConfigListCopy(config[configKey])
-  }
-  return copies;
 };
 
 const assignConfigReferences = (configs: ConfigRecord[], referenceKey: string, referenceName: string, configMap: Record<string, ConfigRecord>, configDescriptor: string): void => {
@@ -236,7 +222,6 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
   }
 
   const config = applyDefaults(configWithoutDefaults, configDefaults);
-  const shallowCopyConfig = shallowConfigCopy(config);
   let seriesAxisConfigs = config.seriesAxisConfigs as ConfigRecord[];
   let seriesStackConfigs = config.seriesStackConfigs as ConfigRecord[];
   let seriesGroupConfigs = config.seriesGroupConfigs as ConfigRecord[];
@@ -254,13 +239,13 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
 
   const seriesAxisConfigsById = configsToIdMap(seriesAxisConfigs, value => value);
   const seriesAxisConfigsOrdered = configsToOrderedList(seriesAxisConfigs);
-  const seriesAxisSeriesConfigsById = configsToIdMap(seriesAxisConfigs, value => []);
+  const seriesAxisSeriesConfigsById = configsToIdMap(seriesAxisConfigs, () => []);
 
   const seriesStackConfigsById = configsToIdMap(seriesStackConfigs, value => value);
-  const seriesStackSeriesConfigsById = configsToIdMap(seriesStackConfigs, value => []);
+  const seriesStackSeriesConfigsById = configsToIdMap(seriesStackConfigs, () => []);
 
   const seriesGroupConfigsById = configsToIdMap(seriesGroupConfigs, value => value);
-  const seriesGroupSeriesConfigsById = configsToIdMap(seriesGroupConfigs, value => []);
+  const seriesGroupSeriesConfigsById = configsToIdMap(seriesGroupConfigs, () => []);
 
   const linearGradientConfigsById = configsToIdMap(linearGradientConfigs, value => value);
   const radialGradientConfigsById = configsToIdMap(radialGradientConfigs, value => value);
