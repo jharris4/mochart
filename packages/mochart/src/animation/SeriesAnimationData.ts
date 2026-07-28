@@ -573,6 +573,7 @@ function createRawValueDeltaData(mochartConfig: MochartConfig, startValueObjects
 
   adjustDeltaPercentagesForStackedGroups(mochartConfig.seriesStackConfigs, deltas);
   adjustDeltaPercentagesForRangedSeries(seriesConfigs, deltas);
+  adjustDeltaPercentagesForFollowerGroups(seriesConfigs, deltas);
 
   return {
     deltaPercentage,
@@ -598,6 +599,64 @@ function adjustDeltaPercentagesForRangedSeries(seriesConfigs: SeriesConfig[], de
         const maxDeltaPercentage = Math.max(plainDelta.deltaPercentage, rangeDelta.deltaPercentage);
         plainDelta.deltaPercentage = maxDeltaPercentage;
         rangeDelta.deltaPercentage = maxDeltaPercentage;
+      }
+    }
+  }
+}
+
+// A followSeries group — a leader plus its followers, e.g. a hollow
+// candlestick body with its wick segments — renders one visual mark from
+// several series, so the group shares a duration the same way a stack does:
+// every member's plain/range keys take the group's max delta percentage.
+// With independent durations, edges that coincide across members (a wick
+// segment ends exactly where the body starts) travel at different speeds and
+// the segments slide into or away from the body mid-animation; with a shared
+// duration the coincident edges interpolate with the same progress and stay
+// coincident through every frame.
+function adjustDeltaPercentagesForFollowerGroups(seriesConfigs: SeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
+  let followerGroups: Record<string, SeriesConfig[]> | null = null;
+  for (let seriesConfig of seriesConfigs) {
+    if (seriesConfig.followSeries !== NONE && seriesConfig.stack === NONE) {
+      followerGroups ??= {};
+      (followerGroups[seriesConfig.followSeries] ??= []).push(seriesConfig);
+    }
+  }
+  if (followerGroups === null) {
+    return;
+  }
+  const syncKeys = ['plain', 'range'] as const;
+  for (let seriesConfig of seriesConfigs) {
+    const followers = followerGroups[seriesConfig.id];
+    if (followers === undefined || seriesConfig.stack !== NONE) {
+      continue;
+    }
+    const members = [seriesConfig, ...followers];
+    let maxDeltaPercentage = 0;
+    for (let member of members) {
+      const deltaObject = deltaObjects[member.id];
+      for (let key of syncKeys) {
+        const delta = deltaObject[key];
+        if (delta.deltaPercentage !== 0 && delta.deltaCopied !== true) {
+          maxDeltaPercentage = Math.max(maxDeltaPercentage, delta.deltaPercentage);
+        }
+      }
+    }
+    if (maxDeltaPercentage === 0) {
+      continue;
+    }
+    for (let member of members) {
+      const deltaObject = deltaObjects[member.id];
+      let adjusted = false;
+      for (let key of syncKeys) {
+        const delta = deltaObject[key];
+        // zero-delta and copied entries are shared constants — never mutated
+        if (delta.deltaPercentage !== 0 && delta.deltaCopied !== true) {
+          delta.deltaPercentage = maxDeltaPercentage;
+          adjusted = true;
+        }
+      }
+      if (adjusted) {
+        deltaObject.deltaPercentage = Math.max(deltaObject.deltaPercentage, maxDeltaPercentage);
       }
     }
   }
@@ -705,6 +764,7 @@ function createFilteredValueDeltaData(mochartConfig: MochartConfig, startFiltere
 
   adjustDeltaPercentagesForStackedGroups(mochartConfig.seriesStackConfigs, deltas);
   adjustDeltaPercentagesForRangedSeries(seriesConfigs, deltas);
+  adjustDeltaPercentagesForFollowerGroups(seriesConfigs, deltas);
 
   return {
     deltaPercentage,
