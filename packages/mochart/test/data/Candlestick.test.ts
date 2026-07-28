@@ -96,6 +96,56 @@ describe('createCandlestick', () => {
     expect(seriesConfigs).toHaveLength(4);
   });
 
+  describe('volume', () => {
+    const items = [
+      { label: 'Mon', open: 1, high: 3, low: 0, close: 2, volume: 1200 }, // up
+      { label: 'Tue', open: 2, high: 4, low: 1, close: 1.5, volume: 800 } // down
+    ];
+
+    it('emits no volume columns, series or axes by default', () => {
+      const { data, seriesConfigs, seriesAxisConfigs } = createCandlestick(items);
+      expect(seriesAxisConfigs).toBeUndefined();
+      expect('upVolume' in data[0]).toBe(false);
+      expect(seriesConfigs.every((seriesConfig) => seriesConfig.axis === undefined)).toBe(true);
+    });
+
+    it('splits the volume by direction and appends follower volume series', () => {
+      const { data, seriesConfigs } = createCandlestick(items, { volume: true });
+      expect(data[0]).toMatchObject({ volume: 1200, upVolume: 1200, downVolume: undefined });
+      expect(data[1]).toMatchObject({ volume: 800, upVolume: undefined, downVolume: 800 });
+      expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['upWick', 'downWick', 'up', 'down', 'upVolume', 'downVolume']);
+      const upVolume = seriesConfigs.find((seriesConfig) => seriesConfig.id === 'upVolume')!;
+      expect(upVolume).toMatchObject({
+        property: 'upVolume', axis: 'volume', renderer: 'bar', skipMissing: true,
+        showInLegend: false, followSeries: 'up', valueLabel: 'Volume'
+      });
+      expect(upVolume.fillColor).toBe(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'up')!.fillColor);
+    });
+
+    it('moves the price series onto the price axis and splits the panes with margins', () => {
+      const { seriesConfigs, seriesAxisConfigs } = createCandlestick(items, { volume: true });
+      for (const seriesConfig of seriesConfigs) {
+        expect(seriesConfig.axis, seriesConfig.id).toBe(seriesConfig.id!.includes('Volume') ? 'volume' : 'price');
+      }
+      const [priceAxis, volumeAxis] = seriesAxisConfigs!;
+      // defaults: volume pane 20%, gap 5% — price margin (0.25 / 0.75), volume margin (0.8 / 0.2)
+      expect(priceAxis).toMatchObject({ id: 'price' });
+      expect(priceAxis.minMarginPercent).toBeCloseTo(1 / 3, 6);
+      expect(volumeAxis).toMatchObject({ id: 'volume', min: 0, visible: false });
+      expect(volumeAxis.maxMarginPercent).toBeCloseTo(4, 6);
+    });
+
+    it('honours pane sizing and label options', () => {
+      const { seriesConfigs, seriesAxisConfigs } = createCandlestick(items, {
+        volume: { heightPercent: 0.25, gapPercent: 0.05, valueLabel: 'Shares' }
+      });
+      const [priceAxis, volumeAxis] = seriesAxisConfigs!;
+      expect(priceAxis.minMarginPercent).toBeCloseTo(0.3 / 0.7, 6);
+      expect(volumeAxis.maxMarginPercent).toBeCloseTo(3, 6);
+      expect(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'upVolume')!.valueLabel).toBe('Shares');
+    });
+  });
+
   describe('hollow', () => {
     const items = [
       { label: 'Mon', open: 1, high: 3, low: 0, close: 2 }, // up
@@ -134,6 +184,19 @@ describe('createCandlestick', () => {
       // filled bodies keep the default zero-width stroke, in the fill color
       expect(byId.down.strokeColor).toBe(byId.down.fillColor);
       expect(byId.down.strokeWidth).toBeUndefined();
+    });
+
+    it('supports the volume pane in hollow mode too', () => {
+      const { seriesConfigs, seriesAxisConfigs } = createCandlestick(
+        [{ label: 'Mon', open: 1, high: 3, low: 0, close: 2, volume: 100 }],
+        { hollow: true, volume: true }
+      );
+      expect(seriesAxisConfigs).toHaveLength(2);
+      expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toContain('upVolume');
+      // every price series references the price axis, volume series the volume axis
+      for (const seriesConfig of seriesConfigs) {
+        expect(seriesConfig.axis, seriesConfig.id).toBe(seriesConfig.id!.includes('Volume') ? 'volume' : 'price');
+      }
     });
 
     it('adds the upOpen column only in hollow mode', () => {

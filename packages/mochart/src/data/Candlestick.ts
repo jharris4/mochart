@@ -1,4 +1,4 @@
-import type { GroupAxisConfig, SeriesConfig } from '../types/config';
+import type { GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
 
 export type CandlestickDirection = 'up' | 'down';
 
@@ -9,6 +9,8 @@ export interface CandlestickItem {
   high: number;
   low: number;
   close: number;
+  /** The traded volume of the candle, charted when the `volume` option enables the volume pane. */
+  volume?: number;
 }
 
 export interface Candlestick {
@@ -17,10 +19,34 @@ export interface Candlestick {
   high: number;
   low: number;
   close: number;
+  /** The traded volume of the candle, when the input item carried one. */
+  volume?: number;
   /** The signed change of the candle (close minus open). */
   change: number;
   /** `down` when the close is below the open, otherwise `up`. */
   direction: CandlestickDirection;
+}
+
+export interface CandlestickVolumeOptions {
+  /**
+   * The fraction (0 - 1) of the plot height used by the volume pane.
+   *
+   * @default 0.2
+   */
+  heightPercent?: number;
+  /**
+   * The fraction (0 - 1) of the plot height left empty between the price and
+   * volume panes.
+   *
+   * @default 0.05
+   */
+  gapPercent?: number;
+  /**
+   * The tooltip label shown for the volume rows.
+   *
+   * @default "Volume"
+   */
+  valueLabel?: string;
 }
 
 export interface CreateCandlestickOptions {
@@ -51,6 +77,17 @@ export interface CreateCandlestickOptions {
    */
   rangeTitle?: string;
   /**
+   * Add a volume pane: direction-colored volume bars along the bottom of the
+   * plot on their own hidden `volume` axis, with the price series moved to a
+   * `price` axis whose enlarged minimum margin reserves the lower plot band.
+   * Requires `volume` values on the items; pass `true` for the defaults or an
+   * options object to tune the pane. The result gains a `seriesAxisConfigs`
+   * fragment to spread into the chart config alongside the series.
+   *
+   * @default false
+   */
+  volume?: boolean | CandlestickVolumeOptions;
+  /**
    * Draw up candles hollow — outlined open/close bodies instead of filled —
    * the classic hollow-candle style where a filled body means down. The wicks
    * split into segments above and below each body so they don't show through
@@ -80,9 +117,17 @@ export interface CandlestickData {
    * the data keep their series so the config stays stable across data updates.
    * With the `hollow` option the wick series turn shapeless (tooltip row
    * only) and per-direction upper/lower wick segment series slot in between
-   * them and the bodies.
+   * them and the bodies. With the `volume` option per-direction volume bar
+   * series are appended.
    */
   seriesConfigs: Partial<SeriesConfig>[];
+  /**
+   * Fragments to spread into the chart config's `seriesAxisConfigs` — only
+   * present with the `volume` option: the `price` axis the price series
+   * reference and the hidden `volume` axis whose margins split the plot into
+   * the two panes.
+   */
+  seriesAxisConfigs?: Partial<SeriesAxisConfig>[];
 }
 
 // Shared with the OHLC helper (src/data/Ohlc.ts); not part of the public API.
@@ -106,10 +151,82 @@ export const DEFAULT_COLORS: Record<CandlestickDirection, string> = {
 const DEFAULT_WICK_WIDTH_PERCENT = 0.15;
 export const DEFAULT_RANGE_TITLE = 'Range';
 
+export const PRICE_AXIS_ID = 'price';
+export const VOLUME_AXIS_ID = 'volume';
+const DEFAULT_VOLUME_HEIGHT_PERCENT = 0.2;
+const DEFAULT_VOLUME_GAP_PERCENT = 0.05;
+const DEFAULT_VOLUME_LABEL = 'Volume';
+
 export function computeCandlesticks(items: readonly CandlestickItem[]): Candlestick[] {
   return items.map((item) => {
-    const { label, open, high, low, close } = item;
-    return { label, open, high, low, close, change: close - open, direction: close < open ? 'down' as const : 'up' as const };
+    const { label, open, high, low, close, volume } = item;
+    return {
+      label, open, high, low, close,
+      ...(volume !== undefined ? { volume } : {}),
+      change: close - open,
+      direction: close < open ? 'down' as const : 'up' as const
+    };
+  });
+}
+
+/** Resolves the shared candlestick/OHLC `volume` option; null when disabled. */
+export function getVolumeOptions(volume: boolean | CandlestickVolumeOptions | undefined): Required<CandlestickVolumeOptions> | null {
+  if (volume === undefined || volume === false) {
+    return null;
+  }
+  const options = volume === true ? {} : volume;
+  return {
+    heightPercent: options.heightPercent ?? DEFAULT_VOLUME_HEIGHT_PERCENT,
+    gapPercent: options.gapPercent ?? DEFAULT_VOLUME_GAP_PERCENT,
+    valueLabel: options.valueLabel ?? DEFAULT_VOLUME_LABEL
+  };
+}
+
+// The pane split is pure domain margins, so it adapts to every data update:
+// the volume axis pins its minimum at 0 and inflates its maximum until the
+// bars only reach `heightPercent` of the plot, while the price axis pads its
+// minimum until the price data sits above the volume band and the gap.
+// Margins are relative to the pre-margin extent, so a band fraction `f`
+// needs a margin of (1 - f) / f.
+export function buildVolumeSeriesAxisConfigs(volumeOptions: Required<CandlestickVolumeOptions>): Partial<SeriesAxisConfig>[] {
+  const { heightPercent, gapPercent } = volumeOptions;
+  const priceHeightPercent = 1 - heightPercent - gapPercent;
+  return [
+    {
+      id: PRICE_AXIS_ID,
+      minMarginPercent: (heightPercent + gapPercent) / priceHeightPercent
+    },
+    {
+      id: VOLUME_AXIS_ID,
+      min: 0,
+      maxMarginPercent: (1 - heightPercent) / heightPercent,
+      visible: false
+    }
+  ];
+}
+
+// One volume bar series per direction, mirroring the price series' split:
+// out of the legend but following their direction series, so filtering and
+// focusing a direction takes its volume bars along, and the tooltip shows a
+// single volume row per group.
+export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolumeOptions>, colors: Partial<Record<CandlestickDirection, string>> | undefined): Partial<SeriesConfig>[] {
+  return DIRECTIONS.map((direction) => {
+    const color = colors?.[direction] ?? DEFAULT_COLORS[direction];
+    return {
+      id: direction + 'Volume',
+      property: direction + 'Volume',
+      axis: VOLUME_AXIS_ID,
+      renderer: 'bar',
+      skipMissing: true,
+      group: null,
+      stack: null,
+      fillOpacity: 1,
+      showInLegend: false,
+      followSeries: direction,
+      valueLabel: volumeOptions.valueLabel,
+      fillColor: color,
+      strokeColor: color
+    } as Partial<SeriesConfig>;
   });
 }
 
@@ -119,6 +236,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   const bodyWidthPercent = options.bodyWidthPercent ?? 1;
   const rangeTitle = options.rangeTitle ?? DEFAULT_RANGE_TITLE;
   const hollow = options.hollow ?? false;
+  const volumeOptions = getVolumeOptions(options.volume);
 
   const data = candles.map((candle) => ({
     [GROUP_PROPERTY]: candle.label,
@@ -134,6 +252,11 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     // needs the open under an up-only property (the shared `open` column is
     // defined on every row, so it can't gate the segment by direction).
     ...(hollow ? { upOpen: candle.direction === 'up' ? candle.open : undefined } : {}),
+    ...(volumeOptions !== null ? {
+      volume: candle.volume,
+      upVolume: candle.direction === 'up' ? candle.volume : undefined,
+      downVolume: candle.direction === 'down' ? candle.volume : undefined
+    } : {}),
     change: candle.change,
     direction: candle.direction
   }));
@@ -165,6 +288,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       id: direction + 'Wick',
       property: direction + 'High',
       rangeProperty: 'low',
+      ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: hollow ? 'none' : 'bar',
       barWidthPercent: wickWidthPercent,
       skipMissing: true,
@@ -195,6 +319,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   // the single low – high range row.
   const wickSegmentConfigs = hollow ? DIRECTIONS.flatMap((direction) => {
     const shared = {
+      ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
       barWidthPercent: wickWidthPercent,
       skipMissing: true,
@@ -221,6 +346,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       id: direction,
       property: direction,
       rangeProperty: 'open',
+      ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
       barWidthPercent: bodyWidthPercent,
       skipMissing: true,
@@ -245,5 +371,16 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     } as Partial<SeriesConfig>;
   });
 
-  return { candles, data, groupAxisConfig, seriesConfigs: [...wickConfigs, ...wickSegmentConfigs, ...bodyConfigs] };
+  return {
+    candles,
+    data,
+    groupAxisConfig,
+    seriesConfigs: [
+      ...wickConfigs,
+      ...wickSegmentConfigs,
+      ...bodyConfigs,
+      ...(volumeOptions !== null ? buildVolumeSeriesConfigs(volumeOptions, options.colors) : [])
+    ],
+    ...(volumeOptions !== null ? { seriesAxisConfigs: buildVolumeSeriesAxisConfigs(volumeOptions) } : {})
+  };
 }

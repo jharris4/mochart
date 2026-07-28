@@ -1,8 +1,9 @@
 import {
-  computeCandlesticks, DIRECTIONS, DEFAULT_TITLES, DEFAULT_COLORS, GROUP_PROPERTY, DEFAULT_RANGE_TITLE
+  computeCandlesticks, DIRECTIONS, DEFAULT_TITLES, DEFAULT_COLORS, GROUP_PROPERTY, DEFAULT_RANGE_TITLE,
+  PRICE_AXIS_ID, getVolumeOptions, buildVolumeSeriesAxisConfigs, buildVolumeSeriesConfigs
 } from './Candlestick';
-import type { Candlestick, CandlestickDirection, CandlestickItem } from './Candlestick';
-import type { GroupAxisConfig, SeriesConfig } from '../types/config';
+import type { Candlestick, CandlestickDirection, CandlestickItem, CandlestickVolumeOptions } from './Candlestick';
+import type { GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
 
 export interface CreateOhlcOptions {
   /** The per-direction series titles, e.g. shown in the legend. */
@@ -51,6 +52,17 @@ export interface CreateOhlcOptions {
    * @default "Close"
    */
   closeTitle?: string;
+  /**
+   * Add a volume pane: direction-colored volume bars along the bottom of the
+   * plot on their own hidden `volume` axis, with the price series moved to a
+   * `price` axis whose enlarged minimum margin reserves the lower plot band.
+   * Requires `volume` values on the items; pass `true` for the defaults or an
+   * options object to tune the pane. The result gains a `seriesAxisConfigs`
+   * fragment to spread into the chart config alongside the series.
+   *
+   * @default false
+   */
+  volume?: boolean | CandlestickVolumeOptions;
 }
 
 export interface OhlcData {
@@ -69,9 +81,17 @@ export interface OhlcData {
    * Fragments to spread into the chart config's `seriesConfigs`: the low/high
    * lines first (the legend entries), then the open and close ticks that
    * follow them, in up/down order. Directions absent from the data keep their
-   * series so the config stays stable across data updates.
+   * series so the config stays stable across data updates. With the `volume`
+   * option per-direction volume bar series are appended.
    */
   seriesConfigs: Partial<SeriesConfig>[];
+  /**
+   * Fragments to spread into the chart config's `seriesAxisConfigs` — only
+   * present with the `volume` option: the `price` axis the price series
+   * reference and the hidden `volume` axis whose margins split the plot into
+   * the two panes.
+   */
+  seriesAxisConfigs?: Partial<SeriesAxisConfig>[];
 }
 
 const DEFAULT_LINE_WIDTH_PERCENT = 0.15;
@@ -88,6 +108,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   const rangeTitle = options.rangeTitle ?? DEFAULT_RANGE_TITLE;
   const openTitle = options.openTitle ?? DEFAULT_OPEN_TITLE;
   const closeTitle = options.closeTitle ?? DEFAULT_CLOSE_TITLE;
+  const volumeOptions = getVolumeOptions(options.volume);
 
   const data = candles.map((candle) => ({
     [GROUP_PROPERTY]: candle.label,
@@ -101,6 +122,11 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     downHigh: candle.direction === 'down' ? candle.high : undefined,
     upOpen: candle.direction === 'up' ? candle.open : undefined,
     downOpen: candle.direction === 'down' ? candle.open : undefined,
+    ...(volumeOptions !== null ? {
+      volume: candle.volume,
+      upVolume: candle.direction === 'up' ? candle.volume : undefined,
+      downVolume: candle.direction === 'down' ? candle.volume : undefined
+    } : {}),
     change: candle.change,
     direction: candle.direction
   }));
@@ -128,6 +154,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     id: direction,
     property: direction + 'High',
     rangeProperty: 'low',
+    ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
     renderer: 'bar',
     barWidthPercent: lineWidthPercent,
     skipMissing: true,
@@ -148,6 +175,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     id: direction + (side === 'open' ? 'Open' : 'Close'),
     property: side === 'open' ? direction + 'Open' : direction,
     rangeProperty: side,
+    ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
     renderer: 'bar',
     barWidthPercent: tickWidthPercent,
     barAlignPercent: side === 'open' ? 0 : 1,
@@ -164,5 +192,15 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
   } as Partial<SeriesConfig>)));
 
-  return { candles, data, groupAxisConfig, seriesConfigs: [...lineConfigs, ...tickConfigs] };
+  return {
+    candles,
+    data,
+    groupAxisConfig,
+    seriesConfigs: [
+      ...lineConfigs,
+      ...tickConfigs,
+      ...(volumeOptions !== null ? buildVolumeSeriesConfigs(volumeOptions, options.colors) : [])
+    ],
+    ...(volumeOptions !== null ? { seriesAxisConfigs: buildVolumeSeriesAxisConfigs(volumeOptions) } : {})
+  };
 }

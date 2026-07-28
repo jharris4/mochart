@@ -78,10 +78,16 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Series
   // and skipMissing omits missing groups from the shape — and from the
   // tooltip, instead of a dangling "value – N/A" row. This is the
   // direction-split idiom (waterfall, candlestick, OHLC), where the missing
-  // side means "not this series' direction", not "no data".
-  if (seriesConfig.rangeProperty !== NONE && seriesConfig.skipPartialRange && seriesConfig.skipMissing && seriesConfig.stack === NONE) {
+  // side means "not this series' direction", not "no data". A plain follower
+  // series (followSeries — e.g. a direction-split volume bar) is part of the
+  // same idiom, so its missing groups hide the same way.
+  if (seriesConfig.skipMissing && seriesConfig.stack === NONE) {
     const rawValueObject = series.raw.values[seriesConfig.id];
-    if (rawValueObject.plain === undefined || rawValueObject.range === undefined) {
+    if (seriesConfig.rangeProperty !== NONE && seriesConfig.skipPartialRange &&
+      (rawValueObject.plain === undefined || rawValueObject.range === undefined)) {
+      return { labelText, valueText: null };
+    }
+    if (seriesConfig.rangeProperty === NONE && seriesConfig.followSeries !== NONE && rawValueObject.plain === undefined) {
       return { labelText, valueText: null };
     }
   }

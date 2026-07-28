@@ -134,11 +134,13 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
   [Heatmap](/recipes/heatmap).
 - `createCandlestick` turns OHLC items into candles: direction-colored
   open/close bodies over thin low/high wicks, or outlined up bodies with
-  the `hollow` option. `computeCandlesticks` is the math alone. See
+  the `hollow` option. The `volume` option adds a volume pane on a second
+  axis (the result gains a `seriesAxisConfigs` fragment).
+  `computeCandlesticks` is the math alone. See
   [Candlestick](/recipes/candlestick).
 - `createOhlc` turns the same OHLC items into tick bars: thin low/high
-  lines with a left open tick and a right close tick. See
-  [OHLC Bars](/recipes/ohlc).
+  lines with a left open tick and a right close tick, with the same
+  `volume` option. See [OHLC Bars](/recipes/ohlc).
 - `createSparklineConfig` is a config preset rather than a data transform:
   it hides axes, legend, tooltip, crosshairs and markers, and collapses
   margins for tiny inline charts. Values already set on the passed config

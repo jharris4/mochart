@@ -273,6 +273,17 @@ function candlestickItems(rng: Rng, dayCount: number): CandlestickItem[] {
   });
 }
 
+// Volumes are drawn after the whole price walk, so the price sequence for a
+// given seed stays identical whether or not a demo adds volumes — the hollow
+// and OHLC demos share the walk without them.
+function withVolumes(items: CandlestickItem[], rng: Rng): CandlestickItem[] {
+  return items.map(item => ({
+    ...item,
+    // busier days trade more: volume scales with the day's relative move
+    volume: Math.round((2 + 6 * rng()) * (1 + 25 * Math.abs(item.close - item.open) / item.open) * 1e5)
+  }));
+}
+
 // The helper derives `change` from the raw open/close, so it carries float
 // noise (97.13 - 96.54 = 0.589999…); round it for the baked/generated rows.
 function roundCandlestickChanges(rows: DataRow[]): DataRow[] {
@@ -286,12 +297,13 @@ function roundCandlestickChanges(rows: DataRow[]): DataRow[] {
 
 function candlestickRows(rng: Rng): DataRow[] {
   const dayCount = CANDLESTICK_DAYS.length - Math.floor(rng() * (CANDLESTICK_MAX_DROPPED_DAYS + 1));
-  return roundCandlestickChanges(createCandlestick(candlestickItems(rng, dayCount)).data);
+  return roundCandlestickChanges(createCandlestick(withVolumes(candlestickItems(rng, dayCount), rng), { volume: true }).data);
 }
 
 function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
-  const items = candlestickItems(seedrandom('candlestick:baseline'), CANDLESTICK_DAYS.length);
-  const { data, groupAxisConfig, seriesConfigs } = createCandlestick(items);
+  const baselineRng = seedrandom('candlestick:baseline');
+  const items = withVolumes(candlestickItems(baselineRng, CANDLESTICK_DAYS.length), baselineRng);
+  const { data, groupAxisConfig, seriesConfigs, seriesAxisConfigs } = createCandlestick(items, { volume: true });
   roundCandlestickChanges(data);
   return {
     id: 'candlestick',
@@ -299,8 +311,11 @@ function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
       version: '1.0.0',
       titleConfig: { title: 'Daily Share Price (fictional, $)' },
       groupAxisConfig,
-      seriesAxisConfigs: [{ title: '$ per share' }],
-      seriesConfigs: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
+      // the helper's price/volume pane axes, with the demo's title on price
+      seriesAxisConfigs: seriesAxisConfigs!.map(axisConfig =>
+        axisConfig.id === 'price' ? { ...axisConfig, title: '$ per share' } : axisConfig),
+      seriesConfigs: seriesConfigs.map(seriesConfig =>
+        ({ ...seriesConfig, valueFormat: seriesConfig.id!.includes('Volume') ? ',.0f' : ',.2f' }))
     },
     data
   };

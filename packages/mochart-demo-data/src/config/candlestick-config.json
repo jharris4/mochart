@@ -10,7 +10,15 @@
   },
   "seriesAxisConfigs": [
     {
+      "id": "price",
+      "minMarginPercent": 0.3333333333333333,
       "title": "$ per share"
+    },
+    {
+      "id": "volume",
+      "min": 0,
+      "maxMarginPercent": 4,
+      "visible": false
     }
   ],
   "seriesConfigs": [
@@ -18,6 +26,7 @@
       "id": "upWick",
       "property": "upHigh",
       "rangeProperty": "low",
+      "axis": "price",
       "renderer": "bar",
       "barWidthPercent": 0.15,
       "skipMissing": true,
@@ -36,6 +45,7 @@
       "id": "downWick",
       "property": "downHigh",
       "rangeProperty": "low",
+      "axis": "price",
       "renderer": "bar",
       "barWidthPercent": 0.15,
       "skipMissing": true,
@@ -54,6 +64,7 @@
       "id": "up",
       "property": "up",
       "rangeProperty": "open",
+      "axis": "price",
       "renderer": "bar",
       "barWidthPercent": 1,
       "skipMissing": true,
@@ -70,6 +81,7 @@
       "id": "down",
       "property": "down",
       "rangeProperty": "open",
+      "axis": "price",
       "renderer": "bar",
       "barWidthPercent": 1,
       "skipMissing": true,
@@ -81,6 +93,38 @@
       "fillColor": "#e34948",
       "strokeColor": "#e34948",
       "valueFormat": ",.2f"
+    },
+    {
+      "id": "upVolume",
+      "property": "upVolume",
+      "axis": "volume",
+      "renderer": "bar",
+      "skipMissing": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "showInLegend": false,
+      "followSeries": "up",
+      "valueLabel": "Volume",
+      "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
+      "valueFormat": ",.0f"
+    },
+    {
+      "id": "downVolume",
+      "property": "downVolume",
+      "axis": "volume",
+      "renderer": "bar",
+      "skipMissing": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "showInLegend": false,
+      "followSeries": "down",
+      "valueLabel": "Volume",
+      "fillColor": "#e34948",
+      "strokeColor": "#e34948",
+      "valueFormat": ",.0f"
     }
   ]
 }

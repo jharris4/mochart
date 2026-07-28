@@ -7,6 +7,7 @@ wick spanning low→high.
 <script setup>
 import * as candlestick from '../examples/candlestick'
 import * as candlestickHollow from '../examples/candlestickHollow'
+import * as candlestickVolume from '../examples/candlestickVolume'
 </script>
 
 <LiveChart :config="candlestick.config" :data="candlestick.data" />
@@ -68,3 +69,28 @@ wiring, but draws nothing. The up body outlines itself via `strokeColor` /
 `strokeWidth` with a transparent fill, and its legend and tooltip icons pick
 up the stroke color automatically. `colors`, `seriesTitles` and the width
 options apply as in filled mode.
+
+## Volume pane
+
+Give the items a `volume` and pass `volume: true` (works with `hollow` too,
+and with [OHLC Bars](/recipes/ohlc)) to add the classic pane of
+direction-colored volume bars along the bottom of the plot:
+
+<LiveChart :config="candlestickVolume.config" :data="candlestickVolume.data" />
+
+<<< @/examples/candlestickVolume.ts{21}
+
+The pane is pure domain-margin geometry on a second value axis, so it adapts
+to every data update: the result gains a `seriesAxisConfigs` fragment with a
+`price` axis whose enlarged
+[`minMarginPercent`](/reference/seriesAxisConfigs#seriesAxisConfigs.minMarginPercent)
+lifts the candles into the upper plot, and a hidden `volume` axis pinned at
+0 whose
+[`maxMarginPercent`](/reference/seriesAxisConfigs#seriesAxisConfigs.maxMarginPercent)
+confines the bars to the bottom band (margins above 1 are allowed for
+exactly this banding). Tune the split with `volume: { heightPercent,
+gapPercent }` (defaults 0.2 and 0.05), relabel the tooltip rows with
+`valueLabel` (default "Volume"), or set `visible: true` on the volume axis
+fragment to show its scale. The volume bars follow their direction series —
+toggling or focusing Up takes its volume bars along — and stay out of the
+legend, with one volume row per day in the tooltip.

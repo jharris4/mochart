@@ -30,6 +30,7 @@ function makeSeriesConfig(over: Partial<SeriesConfig> = {}): SeriesConfig {
     rangeProperty: null,
     markerProperty: null,
     tooltipProperty: null,
+    followSeries: null,
     valueLabel: 'Val',
     useTitleForValueLabel: false,
     title: null,
@@ -113,6 +114,28 @@ describe('getSeriesText', () => {
         false
       );
       expect(valueText).toBe('10 - 42');
+    });
+
+    it('hides a plain follower row when its value is missing (direction-split volume)', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ showMissingValues: true }),
+        makeSeriesConfig({ skipMissing: true, stack: null, followSeries: 'up' }),
+        identity,
+        makeSlice({}) as never, // plain undefined — the other direction's volume row
+        false
+      );
+      expect(valueText).toBe(null);
+    });
+
+    it('keeps the missing-value text for a plain skipMissing series that follows nothing', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ showMissingValues: true, missingValueText: 'N/A' }),
+        makeSeriesConfig({ skipMissing: true, stack: null }),
+        identity,
+        makeSlice({}) as never,
+        false
+      );
+      expect(valueText).toBe('N/A');
     });
 
     it('still shows a partial range as missing-value text without the skip flags', () => {

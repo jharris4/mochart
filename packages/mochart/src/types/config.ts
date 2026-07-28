@@ -2124,17 +2124,27 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    */
   focusOnClick: boolean;
   /**
-   * The percentage margin (0 - 1) relative to the domain of the axis to use at
-   * the maximum extent of the axis (only applied if max is "auto" and max value
-   * is not equal base).
+   * The percentage margin (0 or greater) relative to the domain of the axis to
+   * use at the maximum extent of the axis (only applied if max is "auto" and
+   * max value is not equal base).
+   *
+   * The margin is relative to the pre-margin domain, so values above 1 are
+   * allowed and confine the data to a band of the plot: a margin of 4 leaves
+   * the data in the bottom fifth — how the candlestick/OHLC volume pane
+   * reserves the upper plot for the price axis.
    *
    * @default 0.05
    */
   maxMarginPercent: number;
   /**
-   * The percentage margin (0 - 1) relative to the domain of the axis to use at
-   * the minimum extent of the axis (only applied if min is "auto" and min value
-   * is not equal base).
+   * The percentage margin (0 or greater) relative to the domain of the axis to
+   * use at the minimum extent of the axis (only applied if min is "auto" and
+   * min value is not equal base).
+   *
+   * The margin is relative to the pre-margin domain, so values above 1 are
+   * allowed and confine the data to a band of the plot: a price axis with
+   * margin 1/3 keeps its data in the top three quarters, leaving the bottom for
+   * a volume pane.
    *
    * @default 0.05
    */

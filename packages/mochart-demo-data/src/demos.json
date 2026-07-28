@@ -392,7 +392,7 @@
     {
       "id": "candlestick",
       "title": "Candlestick",
-      "description": "OHLC candles from the createCandlestick helper: direction-colored open/close bodies over thin low/high wicks, on an ordinal axis that skips non-trading days. Random mode re-runs the price walk, so every candle re-draws while the tail days enter and exit.",
+      "description": "OHLC candles from the createCandlestick helper: direction-colored open/close bodies over thin low/high wicks, on an ordinal axis that skips non-trading days, with the volume option's pane of direction-colored volume bars along the bottom. Random mode re-runs the price walk, so every candle re-draws while the tail days enter and exit.",
       "config": "candlestick-config.json",
       "data": "candlestick-data.json",
       "random": "default-random.json",

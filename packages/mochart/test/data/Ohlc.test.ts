@@ -82,4 +82,26 @@ describe('createOhlc', () => {
     expect(data).toEqual([]);
     expect(seriesConfigs).toHaveLength(6);
   });
+
+  it('supports the volume pane like the candlestick helper', () => {
+    const { data, seriesConfigs, seriesAxisConfigs } = createOhlc([
+      { label: 'Mon', open: 1, high: 3, low: 0, close: 2, volume: 500 }
+    ], { volume: true });
+    expect(data[0]).toMatchObject({ volume: 500, upVolume: 500, downVolume: undefined });
+    expect(seriesConfigs.map((seriesConfig) => seriesConfig.id))
+      .toEqual(['up', 'down', 'upOpen', 'downOpen', 'upClose', 'downClose', 'upVolume', 'downVolume']);
+    for (const seriesConfig of seriesConfigs) {
+      expect(seriesConfig.axis, seriesConfig.id).toBe(seriesConfig.id!.includes('Volume') ? 'volume' : 'price');
+    }
+    const [priceAxis, volumeAxis] = seriesAxisConfigs!;
+    expect(priceAxis).toMatchObject({ id: 'price' });
+    expect(volumeAxis).toMatchObject({ id: 'volume', min: 0, visible: false });
+  });
+
+  it('emits no volume fragments by default', () => {
+    const { data, seriesConfigs, seriesAxisConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    expect(seriesAxisConfigs).toBeUndefined();
+    expect('upVolume' in data[0]).toBe(false);
+    expect(seriesConfigs).toHaveLength(6);
+  });
 });

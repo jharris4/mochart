@@ -53,3 +53,5 @@ import * as ohlc from '../examples/ohlc'
 - Each row also carries the raw `open`/`high`/`low`/`close` plus `change`
   and `direction`, and the computed bars come back under `candles` — the
   helper reuses `computeCandlesticks(items)` for the math.
+- Items with a `volume` can add the classic volume pane via `volume: true`,
+  exactly as in the [Candlestick](/recipes/candlestick#volume-pane) recipe.

@@ -33,11 +33,11 @@ export default function getValidators() {
 
     max: validators.number().orEqual(AUTO),
     maxOffset: validators.number(),
-    maxMarginPercent: validators.numberMinMax(0, 1),
+    maxMarginPercent: validators.numberMin(0),
 
     min: validators.number().orEqual(AUTO),
     minOffset: validators.number(),
-    minMarginPercent: validators.numberMinMax(0, 1),
+    minMarginPercent: validators.numberMin(0),
 
     order: validators.number(),
 
