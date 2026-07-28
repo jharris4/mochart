@@ -128,7 +128,7 @@ export class FocusController {
 
   /**
    * Toggle a series in/out of the filtered set, along with any follower
-   * series (`suppressWith` pointing at it), which take the same state.
+   * series (`followSeries` pointing at it), which take the same state.
    */
   toggleSeriesFilter(seriesId: string, followerSeriesIds: readonly string[] = []): ChartSeriesFilter {
     // copy before mutating so snapshots handed to host callbacks stay frozen

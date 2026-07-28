@@ -1994,6 +1994,12 @@ table thead td { border-bottom-width: 2px; }
 <div>0 (when renderer is none)</div>
 </td>
 </tr>
+<tr id="seriesConfigs.followSeries">
+<td><a href="#seriesConfigs.followSeries">followSeries</a></td><td>the unique identifier of another series whose legend filtering and focus this series follows (use null for none)<br/><br/>When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it, and it shares the referenced series’ focus state both ways: focusing the leader highlights this series too, and focus interactions on this series target the leader. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering or focusing treats the whole mark as one.</td><td><p>should be a string or be equal to null</p>
+<p>should equal the id property of one of the seriesConfigs</p>
+</td><td><div>null</div>
+</td>
+</tr>
 <tr id="seriesConfigs.gradient">
 <td><a href="#seriesConfigs.gradient">gradient</a></td><td>the unique id of the gradient config to be used when coloring the series shape (use null for none)</td><td><p>should be a string or be equal to null</p>
 <p>should equal the id property of one of the linearGradientConfigs or radialGradientConfigs</p>
@@ -2290,12 +2296,6 @@ table thead td { border-bottom-width: 2px; }
 <div>3 (when renderer is line)</div>
 <div>0 (when renderer is area)</div>
 <div>0 (when renderer is none)</div>
-</td>
-</tr>
-<tr id="seriesConfigs.suppressWith">
-<td><a href="#seriesConfigs.suppressWith">suppressWith</a></td><td>the unique identifier of another series whose legend filtering this series follows (use null for none)<br/><br/>When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering removes the whole mark.</td><td><p>should be a string or be equal to null</p>
-<p>should equal the id property of one of the seriesConfigs</p>
-</td><td><div>null</div>
 </td>
 </tr>
 <tr id="seriesConfigs.suppressible">

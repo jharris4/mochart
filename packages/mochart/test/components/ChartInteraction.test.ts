@@ -513,3 +513,55 @@ describe('tooltip', () => {
     expect(container.querySelector('.mochart-crosshair')).toBeNull();
   });
 });
+
+describe('followSeries follower focus', () => {
+  // A candlestick-style pair: a hidden thin wick series that follows the body
+  // series via followSeries, plus an unrelated series to show the defocused
+  // state.
+  const candleRows = [
+    { month: 'Jan', high: 30, low: 5, open: 10, close: 20, x: 50 },
+    { month: 'Feb', high: 40, low: 12, open: 22, close: 25, x: 60 }
+  ];
+
+  function candleConfig(): MochartInputConfig {
+    return makeConfig({
+      seriesConfigs: [
+        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthPercent: 0.2,
+          showInLegend: false, followSeries: 'body', focusOnClick: true },
+        { id: 'body', property: 'close', rangeProperty: 'open', renderer: 'bar', focusOnClick: true },
+        { id: 'other', property: 'x', renderer: 'bar' }
+      ]
+    });
+  }
+
+  function barOpacity(container: Element, seriesId: string): string | null {
+    const bar = container.querySelector(`.mochart-series-${seriesId} path`)!;
+    return bar.getAttribute('fill-opacity');
+  }
+
+  it('highlights the follower along with its focused leader', () => {
+    const container = mountChart(candleConfig(), {}, candleRows);
+    const unfocusedOtherOpacity = Number(barOpacity(container, 'other'));
+
+    handles[handles.length - 1].update({ focusedSeriesId: 'body' } as Partial<DefaultChartProps>);
+
+    // the wick takes its body's focused opacity while the unrelated series dims
+    expect(barOpacity(container, 'wick')).toBe(barOpacity(container, 'body'));
+    expect(Number(barOpacity(container, 'other'))).toBeLessThan(unfocusedOtherOpacity);
+    expect(Number(barOpacity(container, 'wick'))).toBeGreaterThan(Number(barOpacity(container, 'other')));
+  });
+
+  it('focuses and toggles the leader when the follower is clicked', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(candleConfig(), {
+      onFocus: focus => { focuses.push(focus); }
+    }, candleRows);
+
+    const wickBar = () => container.querySelector('.mochart-series-wick path')!;
+    wickBar().dispatchEvent(new MouseEvent('click', {}));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('body');
+
+    wickBar().dispatchEvent(new MouseEvent('click', {}));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
+  });
+});

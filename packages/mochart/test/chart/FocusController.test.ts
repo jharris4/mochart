@@ -145,7 +145,7 @@ describe('FocusController focus handling', () => {
     expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S1: true });
   });
 
-  it('toggles follower series (suppressWith) together with their series', () => {
+  it('toggles follower series (followSeries) together with their series', () => {
     const { controller } = makeHarness();
 
     expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({ S0: true, S0Wick: true });

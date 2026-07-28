@@ -343,8 +343,11 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     for (let seriesConfig of seriesConfigs) {
       const { id: seriesId } = seriesConfig;
       const seriesIndex = seriesConfigIndicesById[seriesId];
+      // a follower series (followSeries) focuses and filters as its leader,
+      // so a candlestick range row acts on the whole candle
+      const focusSeriesId = seriesConfig.followSeries ?? seriesId;
       const seriesIsSuppressed = filteredFlags[seriesId];
-      const seriesIsFocused = seriesId === focusedSeriesId;
+      const seriesIsFocused = focusSeriesId === focusedSeriesId;
       const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
       if (!adjustForSuppression || !(seriesIsSuppressed && tooltipConfig.hideSuppressed)) {
@@ -357,9 +360,9 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
             props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsSuppressed, seriesFocusPercentage,
               colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
               style: seriesIndex === seriesConfigs.length - 1 ? lastLineStyle : lineStyle,
-              onMouseEnter: (event: Event) => this.onSeriesMouseEnter(event, seriesId),
+              onMouseEnter: (event: Event) => this.onSeriesMouseEnter(event, focusSeriesId),
               onMouseLeave: (event: Event) => this.onSeriesMouseLeave(event),
-              onClick: (event: Event) => this.onSeriesClick(event, seriesId) }
+              onClick: (event: Event) => this.onSeriesClick(event, focusSeriesId) }
           });
         }
       }

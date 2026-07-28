@@ -81,6 +81,70 @@ describe('getFocusData', () => {
   });
 });
 
+// A candlestick-style chart: a hidden wick series following the body series
+// via followSeries, plus an unrelated series, all on one axis. The wick spans
+// low→high beyond the body's open→close so the merged focus extent is visible.
+function makeFollowerChart() {
+  const config = makeConfig({
+    groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
+    seriesConfigs: [
+      { id: 'wick', property: 'high', rangeProperty: 'low', showInLegend: false, followSeries: 'body' },
+      { id: 'body', property: 'close', rangeProperty: 'open' },
+      { id: 'other', property: 'x' }
+    ]
+  });
+  const provider = new ArrayOfObjectsDataProvider(
+    [
+      { g: 0, high: 30, low: 5, open: 10, close: 20, x: 50 },
+      { g: 1, high: 40, low: 12, open: 22, close: 25, x: 60 }
+    ],
+    'g'
+  );
+  const chartData = getChartData(config, provider, {});
+  const axisId = config.seriesAxisConfigs[0].id;
+  const domain = chartData.seriesData.raw.axisDomains[axisId] as [number, number];
+  // the chart is not inverted, so a value's domain percentage measures down from the max
+  const pct = (value: number) => (domain[1] - value) / (domain[1] - domain[0]);
+  return { config, chartData, pct };
+}
+
+describe('followSeries followers', () => {
+  it('shares the leader series focus with its followers', () => {
+    const { config, chartData } = makeFollowerChart();
+    const fd = getFocusData(config, chartData, -1, null, 'body');
+    expect(fd.seriesFocusPercentages).toEqual({ wick: 1, body: 1, other: -1 });
+  });
+
+  it('keeps followers with the leader in the focus ordering', () => {
+    const { config, chartData } = makeFollowerChart();
+    const fd = getFocusData(config, chartData, -1, null, 'body');
+    const ordered = getSeriesConfigsOrderedByFocus(config, fd).map(s => s.id);
+    // the defocused series first, then the follower under its leader
+    expect(ordered).toEqual(['other', 'wick', 'body']);
+  });
+
+  it('spans the follower extent in the focused-group domain percentages', () => {
+    const { config, chartData, pct } = makeFollowerChart();
+    const fd = getFocusData(config, chartData, 0, null, 'body');
+    // group 0 spans the wick's low 5 → high 30, wider than the body's 10 → 20
+    expect(fd.seriesFocusDomainPercentages).toEqual([pct(30), pct(5)]);
+  });
+
+  it('spans the follower extent in the whole-series domain percentages', () => {
+    const { config, chartData, pct } = makeFollowerChart();
+    const fd = getFocusData(config, chartData, -1, null, 'body');
+    // across both groups the candles span low 5 → high 40
+    expect(fd.seriesFocusDomainPercentages).toEqual([pct(5), pct(40)]);
+  });
+
+  it('leaves single-series focus behavior unchanged', () => {
+    const { config, chartData, pct } = makeFollowerChart();
+    const fd = getFocusData(config, chartData, -1, null, 'other');
+    expect(fd.seriesFocusPercentages).toEqual({ wick: -1, body: -1, other: 1 });
+    expect(fd.seriesFocusDomainPercentages).toEqual([pct(50), pct(60)]);
+  });
+});
+
 describe('getFocusDataWithDomainPercentages', () => {
   it('adds domain percentages to a focus-data object that lacks them', () => {
     const { config, chartData } = makeChart();

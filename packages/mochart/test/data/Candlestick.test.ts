@@ -52,8 +52,8 @@ describe('createCandlestick', () => {
   it('spans wicks from low to high and bodies from open to close, split by direction', () => {
     const { seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [upWick, downWick, up, down] = seriesConfigs;
-    expect(upWick).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthPercent: 0.15, showInLegend: false, suppressWith: 'up', valueLabel: 'Range' });
-    expect(downWick).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthPercent: 0.15, showInLegend: false, suppressWith: 'down', valueLabel: 'Range' });
+    expect(upWick).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthPercent: 0.15, showInLegend: false, followSeries: 'up', valueLabel: 'Range' });
+    expect(downWick).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthPercent: 0.15, showInLegend: false, followSeries: 'down', valueLabel: 'Range' });
     expect(up).toMatchObject({ property: 'up', rangeProperty: 'open', barWidthPercent: 1, title: 'Up' });
     expect(down).toMatchObject({ property: 'down', rangeProperty: 'open', barWidthPercent: 1, title: 'Down' });
   });

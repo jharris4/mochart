@@ -113,7 +113,7 @@ export class ChartController {
 
   private handleSeriesFilter = (seriesId: string): void => {
     const followerSeriesIds = (this.props.mochartConfig?.seriesConfigs ?? [])
-      .filter(seriesConfig => seriesConfig.suppressWith === seriesId)
+      .filter(seriesConfig => seriesConfig.followSeries === seriesId)
       .map(seriesConfig => seriesConfig.id);
     const snapshot = this.focus.toggleSeriesFilter(seriesId, followerSeriesIds);
     this.applyInput();

@@ -155,7 +155,7 @@ export default function getValidators(config: Partial<SeriesConfig>) {
     showColorInLegend: validators.boolean(),
     showColorInTooltip: validators.boolean(),
     suppressible: validators.boolean(),
-    suppressWith: validators.string().orEqual(NONE),
+    followSeries: validators.string().orEqual(NONE),
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),
     focusGroupOnMouseOver: validators.boolean(),

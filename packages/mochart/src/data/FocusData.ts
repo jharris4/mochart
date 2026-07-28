@@ -54,6 +54,14 @@ export function getFocusData(mochartConfig: MochartConfig, chartData: ChartData,
   if (isFocused(focusedSeriesId)) {
     seriesFocusPercentages = arrayToMap(seriesConfigs, idAccessor, () => -1);
     seriesFocusPercentages[focusedSeriesId] = 1;
+    // follower series (followSeries) share their leader's focus, matching the
+    // legend filtering behavior — e.g. a candlestick wick lighting up with its
+    // body
+    for (const seriesConfig of seriesConfigs) {
+      if (seriesConfig.followSeries === focusedSeriesId) {
+        seriesFocusPercentages[seriesConfig.id] = 1;
+      }
+    }
   }
   else {
     seriesFocusPercentages = arrayToMap(seriesConfigs, idAccessor, () => null);
@@ -188,6 +196,11 @@ export function getSeriesConfigsOrderedByFocus(mochartConfig: MochartConfig, foc
           focusedSeriesIdsMap[seriesConfig.id] = true;
         }
       }
+      for (let seriesConfig of seriesConfigs) {
+        if (seriesConfig.followSeries === focusedSeriesId) {
+          focusedSeriesIdsMap[seriesConfig.id] = true;
+        }
+      }
     }
   }
 
@@ -273,85 +286,81 @@ function getSeriesFocusDomainPercentages(mochartConfig: MochartConfig, seriesDat
       const axisBase = axisBases[axis];
 
       const { values } = filtered;
-      const { max: maxValues, min: minValues } = values[id];
+      // the focused series plus its same-axis followers (followSeries), so a
+      // composite mark like a candlestick highlights its full extent (wick
+      // low/high included, not just the body)
+      const focusedSeriesConfigs = [seriesConfig,
+        ...mochartConfig.seriesConfigs.filter(config => config.followSeries === id && config.axis === axis)];
 
-      if (maxValues !== null || minValues !== null) {
-        if (isFocused(focusedGroupIndex)) {
-          let seriesGroupValues: number[] = [];
-          if (maxValues !== null && minValues !== null) {
-            const maxValue = maxValues[focusedGroupIndex];
-            const minValue = minValues[focusedGroupIndex];
-            if (maxValue !== undefined || minValue !== undefined) {
-              if (maxValue !== undefined && minValue !== undefined) {
-                if (maxValue !== minValue) {
-                  seriesGroupValues = [maxValue, minValue];
-                }
-                else {
-                  seriesGroupValues = [maxValue];
-                }
-              }
-              else if (maxValue !== undefined) {
-                seriesGroupValues = [maxValue];
-              }
-              else {
-                seriesGroupValues = [minValue!];
-              }
-            }
+      if (isFocused(focusedGroupIndex)) {
+        let seriesGroupValues: number[] = [];
+        for (const config of focusedSeriesConfigs) {
+          const { max: maxValues, min: minValues } = values[config.id];
+          const maxValue = maxValues !== null ? maxValues[focusedGroupIndex] : undefined;
+          const minValue = minValues !== null ? minValues[focusedGroupIndex] : undefined;
+          if (maxValue !== undefined) {
+            seriesGroupValues.push(maxValue);
           }
-          else {
-            const value = maxValues !== null ? maxValues[focusedGroupIndex] : minValues![focusedGroupIndex];
-            if (value !== undefined) {
-
-              seriesGroupValues = [value];
-            }
+          if (minValue !== undefined && minValue !== maxValue) {
+            seriesGroupValues.push(minValue);
           }
-          if (seriesGroupValues.length === 1 && seriesGroupValues[0] !== axisBase) {
-            if (axisBase !== null) {
-              seriesGroupValues.push(axisBase);
-            }
-          }
-          seriesPercentages = seriesGroupValues.map(value => getPercentageForDomain(axisDomain, value, inverted));
         }
-        else {
-          let seriesFocusDomain: NullableDomain = [null, null];
+        if (seriesGroupValues.length > 1) {
+          const maxValue = Math.max(...seriesGroupValues);
+          const minValue = Math.min(...seriesGroupValues);
+          seriesGroupValues = maxValue !== minValue ? [maxValue, minValue] : [maxValue];
+        }
+        if (seriesGroupValues.length === 1 && seriesGroupValues[0] !== axisBase) {
+          if (axisBase !== null) {
+            seriesGroupValues.push(axisBase);
+          }
+        }
+        seriesPercentages = seriesGroupValues.map(value => getPercentageForDomain(axisDomain, value, inverted));
+      }
+      else {
+        let seriesFocusDomain: NullableDomain = [null, null];
+        for (const config of focusedSeriesConfigs) {
+          const { max: maxValues, min: minValues } = values[config.id];
+          let configFocusDomain: NullableDomain = [null, null];
           const maxValuesDomain = getDomainForValues(maxValues);
           const minValuesDomain = getDomainForValues(minValues);
           if (maxValuesDomain[0] !== null || minValuesDomain[0] !== null) {
             if (maxValuesDomain[0] !== null && minValuesDomain[0] !== null) {
-              seriesFocusDomain = mergeDomain(maxValuesDomain, minValuesDomain);
+              configFocusDomain = mergeDomain(maxValuesDomain, minValuesDomain);
             }
             else if (maxValuesDomain[0] !== null) {
-              seriesFocusDomain = maxValuesDomain;
+              configFocusDomain = maxValuesDomain;
             }
-            else if (seriesConfig.stack !== NONE) { // for stacks, if max is undefined then the value was undefined...
-              seriesFocusDomain = minValuesDomain;
+            else if (config.stack !== NONE) { // for stacks, if max is undefined then the value was undefined...
+              configFocusDomain = minValuesDomain;
             }
           }
-          if (seriesFocusDomain[0] !== null) { // if the domain has no values then min ([0]) and max ([1]) will both be null
-            if (seriesFocusDomain[0] !== undefined || seriesFocusDomain[1] !== undefined) {
-              if (seriesFocusDomain[0] !== undefined && seriesFocusDomain[1] !== undefined) {
-                if (seriesFocusDomain[0] !== seriesFocusDomain[1]) {
-                  seriesPercentages = [
-                    getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted),
-                    getPercentageForDomain(axisDomain, seriesFocusDomain[1]!, inverted)
-                  ];
-                }
-                else {
-                  seriesPercentages = [
-                    getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted)
-                  ];
-                }
-              }
-              else if (seriesFocusDomain[0] !== undefined) {
+          seriesFocusDomain = mergeDomain(seriesFocusDomain, configFocusDomain);
+        }
+        if (seriesFocusDomain[0] !== null) { // if the domain has no values then min ([0]) and max ([1]) will both be null
+          if (seriesFocusDomain[0] !== undefined || seriesFocusDomain[1] !== undefined) {
+            if (seriesFocusDomain[0] !== undefined && seriesFocusDomain[1] !== undefined) {
+              if (seriesFocusDomain[0] !== seriesFocusDomain[1]) {
                 seriesPercentages = [
-                  getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted)
+                  getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted),
+                  getPercentageForDomain(axisDomain, seriesFocusDomain[1]!, inverted)
                 ];
               }
               else {
                 seriesPercentages = [
-                  getPercentageForDomain(axisDomain, seriesFocusDomain[1]!, inverted)
+                  getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted)
                 ];
               }
+            }
+            else if (seriesFocusDomain[0] !== undefined) {
+              seriesPercentages = [
+                getPercentageForDomain(axisDomain, seriesFocusDomain[0], inverted)
+              ];
+            }
+            else {
+              seriesPercentages = [
+                getPercentageForDomain(axisDomain, seriesFocusDomain[1]!, inverted)
+              ];
             }
           }
         }

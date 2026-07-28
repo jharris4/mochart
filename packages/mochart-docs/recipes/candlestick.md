@@ -39,9 +39,10 @@ import * as candlestick from '../examples/candlestick'
 - The tooltip shows two rows per candle: the body's `open – close` span
   under its direction title, and the wick's `low – high` span under
   `rangeTitle` (default "Range"). The wicks stay out of the legend but
-  follow their body's legend filtering via
-  [`suppressWith`](/reference/seriesConfigs#seriesConfigs.suppressWith),
-  so toggling a direction removes whole candles.
+  follow their body's legend filtering and focus via
+  [`followSeries`](/reference/seriesConfigs#seriesConfigs.followSeries),
+  so toggling a direction removes whole candles and focusing a direction
+  highlights whole candles.
 - Each row also carries the raw `open`/`high`/`low`/`close` plus `change`
   and `direction`, and the computed candles come back under `candles` — or
   call `computeCandlesticks(items)` alone for the math without the chart

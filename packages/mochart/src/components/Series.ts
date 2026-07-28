@@ -129,7 +129,9 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
 
   buildEventListeners(props: SeriesProps, seriesPositionData: SeriesPositionData | null): Pick<SeriesState, 'onSeriesEnter' | 'onSeriesLeave' | 'onSeriesClick' | 'onGroupEnter' | 'onGroupLeave' | 'onGroupClick'> {
     const { seriesConfig, focusData, onFocus } = props;
-    const seriesId = seriesConfig.id;
+    // a follower series (followSeries) focuses as its leader, so clicking a
+    // candlestick wick focuses (and toggles) the whole candle
+    const seriesId = seriesConfig.followSeries ?? seriesConfig.id;
     const focusedGroupIndex = focusData ? focusData.focusedGroupIndex : -1;
     const focusedSeriesId = focusData ? focusData.focusedSeriesId : null;
     const skipGroupIndexMap = seriesPositionData ? seriesPositionData.skipGroupIndexMap : {};

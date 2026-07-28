@@ -26,7 +26,7 @@
       "stack": null,
       "fillOpacity": 1,
       "showInLegend": false,
-      "suppressWith": "up",
+      "followSeries": "up",
       "valueLabel": "Range",
       "fillColor": "#1baf7a",
       "valueFormat": ",.2f"
@@ -43,7 +43,7 @@
       "stack": null,
       "fillOpacity": 1,
       "showInLegend": false,
-      "suppressWith": "down",
+      "followSeries": "down",
       "valueLabel": "Range",
       "fillColor": "#e34948",
       "valueFormat": ",.2f"
