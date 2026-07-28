@@ -79,6 +79,54 @@ describe('getSeriesText', () => {
     expect(valueText).toBe('42');
   });
 
+  describe('skip semantics for ranged series (direction-split idiom)', () => {
+    const skipConfig = { rangeProperty: 'hi', skipMissing: true, skipPartialRange: true, stack: null };
+
+    it('hides the row when the plain value is missing, even when missing values are shown', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ showMissingValues: true }),
+        makeSeriesConfig(skipConfig),
+        identity,
+        makeSlice({ range: 10 }) as never, // plain undefined — the other direction's row
+        false
+      );
+      expect(valueText).toBe(null);
+    });
+
+    it('hides the row when the range value is missing', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ showMissingValues: true }),
+        makeSeriesConfig(skipConfig),
+        identity,
+        makeSlice({ plain: 42 }) as never, // range undefined
+        false
+      );
+      expect(valueText).toBe(null);
+    });
+
+    it('keeps the row when both values are present', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ showMissingValues: true }),
+        makeSeriesConfig(skipConfig),
+        identity,
+        makeSlice({ plain: 42, range: 10 }) as never,
+        false
+      );
+      expect(valueText).toBe('10 - 42');
+    });
+
+    it('still shows a partial range as missing-value text without the skip flags', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ showMissingValues: true, missingValueText: 'N/A' }),
+        makeSeriesConfig({ rangeProperty: 'hi', stack: null }),
+        identity,
+        makeSlice({ range: 10 }) as never,
+        false
+      );
+      expect(valueText).toBe('10 - N/A');
+    });
+  });
+
   it('shows a marker-only value in parentheses when there is no plain value', () => {
     const { valueText } = getSeriesText(
       makeTooltipConfig(),

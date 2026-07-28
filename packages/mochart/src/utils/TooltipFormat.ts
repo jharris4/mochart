@@ -73,6 +73,19 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Series
     };
   }
 
+  // Mirror the shape's skip semantics (see getSeriesPositionData): with
+  // skipPartialRange a ranged group missing either value is wholly missing,
+  // and skipMissing omits missing groups from the shape — and from the
+  // tooltip, instead of a dangling "value – N/A" row. This is the
+  // direction-split idiom (waterfall, candlestick, OHLC), where the missing
+  // side means "not this series' direction", not "no data".
+  if (seriesConfig.rangeProperty !== NONE && seriesConfig.skipPartialRange && seriesConfig.skipMissing && seriesConfig.stack === NONE) {
+    const rawValueObject = series.raw.values[seriesConfig.id];
+    if (rawValueObject.plain === undefined || rawValueObject.range === undefined) {
+      return { labelText, valueText: null };
+    }
+  }
+
   const seriesValueText = getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'plain');
   const rangeSeriesValueText = seriesConfig.rangeProperty !== NONE ? getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'range') : null;
   const markerSeriesValueText = seriesConfig.markerProperty !== NONE ? getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'marker') : null;
