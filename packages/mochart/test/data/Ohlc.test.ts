@@ -1,0 +1,81 @@
+import { describe, it, expect } from 'vitest';
+import { createOhlc } from '../../src/data/Ohlc';
+
+describe('createOhlc', () => {
+  it('returns one row per bar keyed by direction, with the open split too', () => {
+    const { data } = createOhlc([
+      { label: 'Mon', open: 100, high: 105, low: 98, close: 103 },
+      { label: 'Tue', open: 103, high: 104, low: 96, close: 97 }
+    ]);
+    expect(data).toEqual([
+      { label: 'Mon', open: 100, high: 105, low: 98, close: 103, up: 103, down: undefined, upHigh: 105, downHigh: undefined, upOpen: 100, downOpen: undefined, change: 3, direction: 'up' },
+      { label: 'Tue', open: 103, high: 104, low: 96, close: 97, up: undefined, down: 97, upHigh: undefined, downHigh: 104, upOpen: undefined, downOpen: 103, change: -6, direction: 'down' }
+    ]);
+  });
+
+  it('emits config fragments for ordinal line and tick bars', () => {
+    const { groupAxisConfig, seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    expect(groupAxisConfig).toEqual({ property: 'label', type: 'string', scale: 'ordinal' });
+    expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['up', 'down', 'upOpen', 'downOpen', 'upClose', 'downClose']);
+    for (const seriesConfig of seriesConfigs) {
+      expect(seriesConfig.renderer).toBe('bar');
+      expect(seriesConfig.skipMissing).toBe(true);
+      expect(seriesConfig.skipPartialRange).toBe(true);
+      expect(seriesConfig.group).toBeNull();
+      expect(seriesConfig.stack).toBeNull();
+      expect(seriesConfig.fillOpacity).toBe(1);
+      expect(seriesConfig.fillColor).toMatch(/^#/);
+    }
+  });
+
+  it('spans lines from low to high and ticks across zero-extent open/close ranges, split by direction', () => {
+    const { seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    const [up, down, upOpen, downOpen, upClose, downClose] = seriesConfigs;
+    expect(up).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthPercent: 0.15, title: 'Up', valueLabel: 'Range' });
+    expect(down).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthPercent: 0.15, title: 'Down', valueLabel: 'Range' });
+    expect(upOpen).toMatchObject({ property: 'upOpen', rangeProperty: 'open', barWidthPercent: 0.5, barAlignPercent: 0, barMinExtent: 2, showInLegend: false, followSeries: 'up', valueLabel: 'Open' });
+    expect(downOpen).toMatchObject({ property: 'downOpen', rangeProperty: 'open', barWidthPercent: 0.5, barAlignPercent: 0, barMinExtent: 2, showInLegend: false, followSeries: 'down', valueLabel: 'Open' });
+    expect(upClose).toMatchObject({ property: 'up', rangeProperty: 'close', barWidthPercent: 0.5, barAlignPercent: 1, barMinExtent: 2, showInLegend: false, followSeries: 'up', valueLabel: 'Close' });
+    expect(downClose).toMatchObject({ property: 'down', rangeProperty: 'close', barWidthPercent: 0.5, barAlignPercent: 1, barMinExtent: 2, showInLegend: false, followSeries: 'down', valueLabel: 'Close' });
+  });
+
+  it('colors each tick to match its line', () => {
+    const { seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    const [up, down, upOpen, downOpen, upClose, downClose] = seriesConfigs;
+    expect(upOpen.fillColor).toBe(up.fillColor);
+    expect(upClose.fillColor).toBe(up.fillColor);
+    expect(downOpen.fillColor).toBe(down.fillColor);
+    expect(downClose.fillColor).toBe(down.fillColor);
+    expect(up.fillColor).not.toBe(down.fillColor);
+  });
+
+  it('honours custom titles, colors, widths and tooltip labels', () => {
+    const { seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }], {
+      seriesTitles: { up: 'Gain' },
+      colors: { down: '#123456' },
+      lineWidthPercent: 0.1,
+      tickWidthPercent: 0.4,
+      tickExtent: 3,
+      rangeTitle: 'Low – High',
+      openTitle: 'O',
+      closeTitle: 'C'
+    });
+    const [up, down, upOpen, , upClose] = seriesConfigs;
+    expect(up.title).toBe('Gain');
+    expect(down.title).toBe('Down');
+    expect(down.fillColor).toBe('#123456');
+    expect(up.barWidthPercent).toBe(0.1);
+    expect(upOpen.barWidthPercent).toBe(0.4);
+    expect(upOpen.barMinExtent).toBe(3);
+    expect(up.valueLabel).toBe('Low – High');
+    expect(upOpen.valueLabel).toBe('O');
+    expect(upClose.valueLabel).toBe('C');
+  });
+
+  it('returns empty data for empty input', () => {
+    const { candles, data, seriesConfigs } = createOhlc([]);
+    expect(candles).toEqual([]);
+    expect(data).toEqual([]);
+    expect(seriesConfigs).toHaveLength(6);
+  });
+});

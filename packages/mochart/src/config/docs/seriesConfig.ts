@@ -18,6 +18,8 @@ export default function getDescriptions() {
     showMissingAtBase: 'whether to use the series axis base value for missing values when drawing the shape for this series',
     curve: 'the d3 curve type and param to use when drawing the series shape',
     barWidthPercent: 'the fraction (0 - 1) of the bar layout slot width to use when drawing bars in the series',
+    barAlignPercent: 'the fraction (0 - 1) of the slot width freed by barWidthPercent placed before each bar in the series (0 aligns with the slot start, 0.5 centers, 1 aligns with the slot end)',
+    barMinExtent: 'the minimum extent (in pixels) of each bar in the series along the value direction',
     capSize: 'the size of the cap (in pixels) to use when drawing caps on a bar series',
     capType: 'the type (point, curve, round, use null for none) of cap to use when drawing caps on a bar series',
     capExpand: 'whether to expand the base of caps on a bar series when the size of the cap is greater than the extent of the bar',
@@ -128,7 +130,9 @@ export function getDetails() {
     showMissingAtBase: 'An alternative missing-value treatment: instead of leaving a gap, missing values are drawn at the series axis base value.',
     valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the series axis `tickLabelFormat` when that is set.',
     capType: 'Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.',
-    barWidthPercent: 'Only affects the `bar` renderer. Narrows each bar within its layout slot (the full group slot, or the series’ sub-slot when grouped) while keeping it centered, so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range.',
+    barWidthPercent: 'Only affects the `bar` renderer. Narrows each bar within its layout slot (the full group slot, or the series’ sub-slot when grouped), so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range. The narrowed bar is centered by default; `barAlignPercent` moves it within the slot.',
+    barAlignPercent: 'Only affects the `bar` renderer, and only when `barWidthPercent` is less than 1. Lets narrowed bars from different series share one slot side by side — e.g. the left open tick and right close tick of an OHLC bar.',
+    barMinExtent: 'Only affects the `bar` renderer. A bar whose two ends resolve to (nearly) the same position — e.g. a ranged bar whose `property` and `rangeProperty` values are equal — is expanded to this extent, centered on its position, so it stays visible as a tick mark: e.g. the open/close ticks of an OHLC bar, or a candlestick doji body.',
     followSeries: 'When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it, and it shares the referenced series’ focus state both ways: focusing the leader highlights this series too, and focus interactions on this series target the leader. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering or focusing treats the whole mark as one.'
   };
 }

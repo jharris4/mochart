@@ -68,6 +68,17 @@ describe('getSeriesText', () => {
     expect(valueText).toBe('10 - 42');
   });
 
+  it('collapses a range whose two ends format identically to the single value', () => {
+    const { valueText } = getSeriesText(
+      makeTooltipConfig(),
+      makeSeriesConfig({ rangeProperty: 'hi' }),
+      identity,
+      makeSlice({ plain: 42, range: 42 }) as never, // e.g. an OHLC open/close tick
+      false
+    );
+    expect(valueText).toBe('42');
+  });
+
   it('shows a marker-only value in parentheses when there is no plain value', () => {
     const { valueText } = getSeriesText(
       makeTooltipConfig(),

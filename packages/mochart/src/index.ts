@@ -29,5 +29,7 @@ export { createHeatmap, createHeatmapColorScale } from './data/Heatmap';
 export type { HeatmapRow, CreateHeatmapOptions, CreateHeatmapColorScaleOptions, HeatmapData } from './data/Heatmap';
 export { computeCandlesticks, createCandlestick } from './data/Candlestick';
 export type { CandlestickDirection, CandlestickItem, Candlestick, CreateCandlestickOptions, CandlestickData } from './data/Candlestick';
+export { createOhlc } from './data/Ohlc';
+export type { CreateOhlcOptions, OhlcData } from './data/Ohlc';
 export { mochartCssClasses } from './utils/ChartDom';
 export { isDataProviderValid } from './data/ChartData';

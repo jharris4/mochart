@@ -117,6 +117,7 @@ createHistogram(values, options?)   // → { bins, data, groupAxisConfig, series
 createWaterfall(items, options?)    // → { steps, data, groupAxisConfig, seriesConfigs }
 createHeatmap(rows, options?)       // → { domain, colorScale, data, groupAxisConfig, seriesAxisConfig, seriesConfigs }
 createCandlestick(items, options?)  // → { candles, data, groupAxisConfig, seriesConfigs }
+createOhlc(items, options?)         // → { candles, data, groupAxisConfig, seriesConfigs }
 createSparklineConfig(config, options?)  // → config with the sparkline preset applied
 ```
 
@@ -134,6 +135,9 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
 - `createCandlestick` turns OHLC items into candles: direction-colored
   open/close bodies over thin low/high wicks. `computeCandlesticks` is the
   math alone. See [Candlestick](/recipes/candlestick).
+- `createOhlc` turns the same OHLC items into tick bars: thin low/high
+  lines with a left open tick and a right close tick. See
+  [OHLC Bars](/recipes/ohlc).
 - `createSparklineConfig` is a config preset rather than a data transform:
   it hides axes, legend, tooltip, crosshairs and markers, and collapses
   margins for tiny inline charts. Values already set on the passed config

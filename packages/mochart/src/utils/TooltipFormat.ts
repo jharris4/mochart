@@ -79,7 +79,9 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Series
 
   let valueText = null;
   if (seriesValueText !== null && rangeSeriesValueText !== null) {
-    valueText = rangeSeriesValueText + tooltipConfig.rangeValueText + seriesValueText;
+    // A range whose two ends format identically collapses to the single value,
+    // e.g. an OHLC open/close tick whose property and rangeProperty match.
+    valueText = rangeSeriesValueText === seriesValueText ? seriesValueText : rangeSeriesValueText + tooltipConfig.rangeValueText + seriesValueText;
   }
   else if (seriesValueText !== null) {
     valueText = seriesValueText;

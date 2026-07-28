@@ -50,3 +50,5 @@ import * as candlestick from '../examples/candlestick'
 - For hollow candles (up candles drawn as outlines), override the up body
   after spreading: `{ ...upBody, fillOpacity: 0, strokeColor: '#1baf7a',
   strokeWidth: 2 }`.
+- For the tick-bar style of the same data — a thin low/high line with open
+  and close ticks instead of a body — see [OHLC Bars](/recipes/ohlc).

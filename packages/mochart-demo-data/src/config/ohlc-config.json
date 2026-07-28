@@ -1,0 +1,126 @@
+{
+  "version": "1.0.0",
+  "titleConfig": {
+    "title": "Daily Share Price (fictional, $)"
+  },
+  "groupAxisConfig": {
+    "property": "label",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": [
+    {
+      "title": "$ per share"
+    }
+  ],
+  "seriesConfigs": [
+    {
+      "id": "up",
+      "property": "upHigh",
+      "rangeProperty": "low",
+      "renderer": "bar",
+      "barWidthPercent": 0.15,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "title": "Up",
+      "valueLabel": "Range",
+      "fillColor": "#1baf7a",
+      "valueFormat": ",.2f"
+    },
+    {
+      "id": "down",
+      "property": "downHigh",
+      "rangeProperty": "low",
+      "renderer": "bar",
+      "barWidthPercent": 0.15,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "title": "Down",
+      "valueLabel": "Range",
+      "fillColor": "#e34948",
+      "valueFormat": ",.2f"
+    },
+    {
+      "id": "upOpen",
+      "property": "upOpen",
+      "rangeProperty": "open",
+      "renderer": "bar",
+      "barWidthPercent": 0.5,
+      "barAlignPercent": 0,
+      "barMinExtent": 2,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "showInLegend": false,
+      "followSeries": "up",
+      "valueLabel": "Open",
+      "fillColor": "#1baf7a",
+      "valueFormat": ",.2f"
+    },
+    {
+      "id": "downOpen",
+      "property": "downOpen",
+      "rangeProperty": "open",
+      "renderer": "bar",
+      "barWidthPercent": 0.5,
+      "barAlignPercent": 0,
+      "barMinExtent": 2,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "showInLegend": false,
+      "followSeries": "down",
+      "valueLabel": "Open",
+      "fillColor": "#e34948",
+      "valueFormat": ",.2f"
+    },
+    {
+      "id": "upClose",
+      "property": "up",
+      "rangeProperty": "close",
+      "renderer": "bar",
+      "barWidthPercent": 0.5,
+      "barAlignPercent": 1,
+      "barMinExtent": 2,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "showInLegend": false,
+      "followSeries": "up",
+      "valueLabel": "Close",
+      "fillColor": "#1baf7a",
+      "valueFormat": ",.2f"
+    },
+    {
+      "id": "downClose",
+      "property": "down",
+      "rangeProperty": "close",
+      "renderer": "bar",
+      "barWidthPercent": 0.5,
+      "barAlignPercent": 1,
+      "barMinExtent": 2,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "showInLegend": false,
+      "followSeries": "down",
+      "valueLabel": "Close",
+      "fillColor": "#e34948",
+      "valueFormat": ",.2f"
+    }
+  ]
+}

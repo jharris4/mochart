@@ -32,6 +32,8 @@ export function getRegularDefaults() {
     showMissingAtBase: false,
     curve: { type: CURVE_TYPE_LINEAR },
     barWidthPercent: 1,
+    barAlignPercent: 0.5,
+    barMinExtent: 0,
     capSize: 5,
     capType: NONE,
     capExpand: true,

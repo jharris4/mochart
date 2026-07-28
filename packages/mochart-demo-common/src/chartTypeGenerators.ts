@@ -14,7 +14,7 @@
 
 import seedrandom from 'seedrandom';
 
-import { createHistogram, createWaterfall, createHeatmap, createCandlestick } from '@mochart/core';
+import { createHistogram, createWaterfall, createHeatmap, createCandlestick, createOhlc } from '@mochart/core';
 import type { CandlestickItem, MochartConfig } from '@mochart/core';
 
 import { generateChartDataProvider } from './randomGenerator';
@@ -24,7 +24,7 @@ import type { DataRow, DemoConfig, DemoDataProvider, GroupValue, RandomConfig } 
 type Rng = () => number;
 
 /** The chart-type generator ids usable in a demos.json `generator` field. */
-export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick'] as const;
+export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'ohlc'] as const;
 
 export type ChartTypeGenerator = (typeof chartTypeGenerators)[number];
 
@@ -306,11 +306,39 @@ function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
   };
 }
 
+// --- OHLC --------------------------------------------------------------------
+
+// The OHLC demo shares the candlestick price walk (different seed) — only the
+// helper differs: thin low/high lines with open/close ticks instead of
+// wick-and-body candles.
+
+function ohlcRows(rng: Rng): DataRow[] {
+  const dayCount = CANDLESTICK_DAYS.length - Math.floor(rng() * (CANDLESTICK_MAX_DROPPED_DAYS + 1));
+  return roundCandlestickChanges(createOhlc(candlestickItems(rng, dayCount)).data);
+}
+
+function buildOhlcSnapshot(): ChartTypeDemoSnapshot {
+  const items = candlestickItems(seedrandom('ohlc:baseline'), CANDLESTICK_DAYS.length);
+  const { data, groupAxisConfig, seriesConfigs } = createOhlc(items);
+  roundCandlestickChanges(data);
+  return {
+    id: 'ohlc',
+    config: {
+      version: '1.0.0',
+      titleConfig: { title: 'Daily Share Price (fictional, $)' },
+      groupAxisConfig,
+      seriesAxisConfigs: [{ title: '$ per share' }],
+      seriesConfigs: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
+    },
+    data
+  };
+}
+
 // --- Dispatch ----------------------------------------------------------------
 
 /** Rebuilds every chart-type demo's static config/data (snapshot script). */
 export function buildChartTypeDemoSnapshots(): ChartTypeDemoSnapshot[] {
-  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot()];
+  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildOhlcSnapshot()];
 }
 
 /**
@@ -335,6 +363,9 @@ export function generateChartTypeDataProvider(
   }
   else if (generator === 'candlestick') {
     rows = candlestickRows(rng);
+  }
+  else if (generator === 'ohlc') {
+    rows = ohlcRows(rng);
   }
   else {
     rows = heatmapRows(rng, random.series.missing.probability);

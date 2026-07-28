@@ -397,6 +397,15 @@
       "data": "candlestick-data.json",
       "random": "default-random.json",
       "generator": "candlestick"
+    },
+    {
+      "id": "ohlc",
+      "title": "OHLC Bars",
+      "description": "OHLC tick bars from the createOhlc helper: a thin low/high line per trading day with a left open tick and right close tick, direction-colored, on an ordinal axis that skips non-trading days. Random mode re-runs the price walk, so every bar re-draws while the tail days enter and exit.",
+      "config": "ohlc-config.json",
+      "data": "ohlc-data.json",
+      "random": "default-random.json",
+      "generator": "ohlc"
     }
   ]
 }

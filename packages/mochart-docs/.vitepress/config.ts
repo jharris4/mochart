@@ -93,7 +93,8 @@ function guideSidebar() {
         { text: 'Waterfall', link: '/recipes/waterfall' },
         { text: 'Sparklines', link: '/recipes/sparklines' },
         { text: 'Heatmap', link: '/recipes/heatmap' },
-        { text: 'Candlestick', link: '/recipes/candlestick' }
+        { text: 'Candlestick', link: '/recipes/candlestick' },
+        { text: 'OHLC Bars', link: '/recipes/ohlc' }
       ]
     }
   ];

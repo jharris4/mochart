@@ -2373,14 +2373,40 @@ export interface SeriesConfig {
    * in the series.
    *
    * Only affects the `bar` renderer. Narrows each bar within its layout slot
-   * (the full group slot, or the series’ sub-slot when grouped) while keeping
-   * it centered, so a narrow bar can overlay a full-width one from another
-   * series — e.g. a candlestick wick behind its body, or a bullet-chart measure
-   * over its backing range.
+   * (the full group slot, or the series’ sub-slot when grouped), so a narrow
+   * bar can overlay a full-width one from another series — e.g. a candlestick
+   * wick behind its body, or a bullet-chart measure over its backing range. The
+   * narrowed bar is centered by default; `barAlignPercent` moves it within the
+   * slot.
    *
    * @default 1
    */
   barWidthPercent: number;
+  /**
+   * The fraction (0 - 1) of the slot width freed by barWidthPercent placed
+   * before each bar in the series (0 aligns with the slot start, 0.5 centers, 1
+   * aligns with the slot end).
+   *
+   * Only affects the `bar` renderer, and only when `barWidthPercent` is less
+   * than 1. Lets narrowed bars from different series share one slot side by
+   * side — e.g. the left open tick and right close tick of an OHLC bar.
+   *
+   * @default 0.5
+   */
+  barAlignPercent: number;
+  /**
+   * The minimum extent (in pixels) of each bar in the series along the value
+   * direction.
+   *
+   * Only affects the `bar` renderer. A bar whose two ends resolve to (nearly)
+   * the same position — e.g. a ranged bar whose `property` and `rangeProperty`
+   * values are equal — is expanded to this extent, centered on its position, so
+   * it stays visible as a tick mark: e.g. the open/close ticks of an OHLC bar,
+   * or a candlestick doji body.
+   *
+   * @default 0
+   */
+  barMinExtent: number;
   /**
    * The size of the cap (in pixels) to use when drawing caps on a bar series.
    *

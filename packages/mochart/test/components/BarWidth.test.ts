@@ -1,9 +1,11 @@
 /**
- * barWidthPercent tests: bars narrowed within their layout slot stay centered
- * on the full-width bars of a sibling series — the geometry behind candlestick
- * wicks and bullet-chart overlays. Charts are mounted through
- * createDefaultChart in jsdom, and assertions parse the rendered bar paths
- * (uncapped bars are rects: `M{x},{y}h{w}v{h}h{-w}Z`).
+ * Bar slot geometry tests: barWidthPercent narrows bars within their layout
+ * slot (centered on the full-width bars of a sibling series by default),
+ * barAlignPercent moves the narrowed bar within the slot and barMinExtent
+ * keeps zero-extent range bars visible as tick marks — the geometry behind
+ * candlestick wicks, bullet-chart overlays and OHLC open/close ticks. Charts
+ * are mounted through createDefaultChart in jsdom, and assertions parse the
+ * rendered bar paths (uncapped bars are rects: `M{x},{y}h{w}v{h}h{-w}Z`).
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
@@ -34,15 +36,15 @@ function mountChart(config: MochartInputConfig): Element {
   return container;
 }
 
-interface BarRect { x: number; width: number }
+interface BarRect { x: number; y: number; width: number; height: number }
 
 function barRects(container: Element, seriesId: string): BarRect[] {
   const paths = container.querySelectorAll(`.mochart-series-${seriesId} path[class*="mochart-series-bar"]`);
   return Array.from(paths).map((path) => {
     const d = path.getAttribute('d') ?? '';
-    const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)/.exec(d);
+    const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)v(-?[\d.]+)/.exec(d);
     expect(match, `unexpected bar path: ${d}`).not.toBeNull();
-    return { x: Number(match![1]), width: Number(match![3]) };
+    return { x: Number(match![1]), y: Number(match![2]), width: Number(match![3]), height: Number(match![4]) };
   });
 }
 
@@ -126,5 +128,81 @@ describe('barWidthPercent', () => {
     const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', barWidthPercent: 2 }]);
     const { errors } = validateConfig(bad, getDefaults(bad as never) as never);
     expect(errors.join('\n')).toContain('barWidthPercent');
+  });
+});
+
+describe('barAlignPercent', () => {
+  it('aligns a narrowed bar with the slot start at 0 and the slot end at 1', () => {
+    const container = mountChart(makeConfig([
+      { id: 'F', property: 'full', renderer: 'bar' },
+      { id: 'L', property: 'narrow', renderer: 'bar', barWidthPercent: 0.5, barAlignPercent: 0 },
+      { id: 'R', property: 'narrow', renderer: 'bar', barWidthPercent: 0.5, barAlignPercent: 1 }
+    ]));
+    const fullBars = barRects(container, 'F');
+    const leftBars = barRects(container, 'L');
+    const rightBars = barRects(container, 'R');
+    for (let i = 0; i < rows.length; i++) {
+      expect(leftBars[i].x).toBeCloseTo(fullBars[i].x, 6);
+      expect(rightBars[i].x + rightBars[i].width).toBeCloseTo(fullBars[i].x + fullBars[i].width, 6);
+      // the two half-width bars tile the slot, meeting at its center
+      expect(leftBars[i].x + leftBars[i].width).toBeCloseTo(rightBars[i].x, 6);
+    }
+  });
+
+  it('defaults to centered', () => {
+    const container = mountChart(makeConfig([
+      { id: 'F', property: 'full', renderer: 'bar' },
+      { id: 'N', property: 'narrow', renderer: 'bar', barWidthPercent: 0.25, barAlignPercent: 0.5 }
+    ]));
+    const fullBars = barRects(container, 'F');
+    const narrowBars = barRects(container, 'N');
+    for (let i = 0; i < rows.length; i++) {
+      expect(narrowBars[i].x + narrowBars[i].width / 2).toBeCloseTo(fullBars[i].x + fullBars[i].width / 2, 6);
+    }
+  });
+
+  it('rejects out-of-range values in config validation', async () => {
+    const { default: validateConfig } = await import('../../src/config/validation/mochartConfig');
+    const { getDefaults } = await import('../../src/config/defaults/mochartConfig');
+    const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', barAlignPercent: -1 }]);
+    const { errors } = validateConfig(bad, getDefaults(bad as never) as never);
+    expect(errors.join('\n')).toContain('barAlignPercent');
+  });
+});
+
+describe('barMinExtent', () => {
+  it('expands a zero-extent range bar to the minimum extent, centered on its value', () => {
+    const container = mountChart(makeConfig([
+      { id: 'F', property: 'narrow', renderer: 'bar' },
+      { id: 'T', property: 'narrow', rangeProperty: 'narrow', renderer: 'bar', barMinExtent: 4 }
+    ]));
+    const fullBars = barRects(container, 'F');
+    const tickBars = barRects(container, 'T');
+    for (let i = 0; i < rows.length; i++) {
+      expect(tickBars[i].height).toBeCloseTo(4, 6);
+      // centered on the value position, i.e. the top of the base-anchored bar
+      expect(tickBars[i].y + tickBars[i].height / 2).toBeCloseTo(fullBars[i].y, 6);
+    }
+  });
+
+  it('leaves bars taller than the minimum extent untouched', () => {
+    const container = mountChart(makeConfig([
+      { id: 'F', property: 'full', renderer: 'bar' },
+      { id: 'M', property: 'full', renderer: 'bar', barMinExtent: 4 }
+    ]));
+    const fullBars = barRects(container, 'F');
+    const minBars = barRects(container, 'M');
+    for (let i = 0; i < rows.length; i++) {
+      expect(minBars[i].y).toBeCloseTo(fullBars[i].y, 6);
+      expect(minBars[i].height).toBeCloseTo(fullBars[i].height, 6);
+    }
+  });
+
+  it('rejects negative values in config validation', async () => {
+    const { default: validateConfig } = await import('../../src/config/validation/mochartConfig');
+    const { getDefaults } = await import('../../src/config/defaults/mochartConfig');
+    const bad = makeConfig([{ id: 'F', property: 'full', renderer: 'bar', barMinExtent: -1 }]);
+    const { errors } = validateConfig(bad, getDefaults(bad as never) as never);
+    expect(errors.join('\n')).toContain('barMinExtent');
   });
 });

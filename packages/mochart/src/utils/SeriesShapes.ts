@@ -261,7 +261,7 @@ export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionDat
   let pathGenerator: Path;
   let groupValueExtent = Math.max(minColumnSize, seriesPositionData.groupValueExtent);
 
-  const { id, stack, capType, capSize, capExpand, capOnlyStackOuter, seriesStackConfig } = seriesConfig;
+  const { id, stack, capType, capSize, capExpand, capOnlyStackOuter, seriesStackConfig, barMinExtent } = seriesConfig;
   const { outerCapType, outerCapSize, outerCapExpand } = seriesStackConfig ? seriesStackConfig : {};
   const stackPositiveIds = stack ? stackData.filteredOuterPositiveSeriesIds[stack] : null;
   const stackNegativeIds = stack ? stackData.filteredOuterNegativeSeriesIds[stack] : null;
@@ -303,6 +303,16 @@ export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionDat
     }
     else if (inverted && seriesPriorPosition > seriesCurrentPosition) {
       barCapSizeSign = -1;
+    }
+    if (barMinExtent > 0 && Math.abs(seriesCurrentPosition - seriesPriorPosition) < barMinExtent) {
+      // Expand the bar to the minimum extent, centered between its two ends,
+      // so zero-extent range bars (equal property/rangeProperty values) stay
+      // visible as tick marks.
+      tempPosition = (seriesCurrentPosition + seriesPriorPosition) / 2;
+      const halfExtentSign = seriesCurrentPosition <= seriesPriorPosition ? -1 : 1;
+      seriesCurrentPosition = tempPosition + halfExtentSign * barMinExtent / 2;
+      seriesPriorPosition = tempPosition - halfExtentSign * barMinExtent / 2;
+      seriesValueExtent = Math.max(seriesValueExtent, barMinExtent);
     }
     barCapConnector(pathGenerator, groupPosition, seriesCurrentPosition, seriesPriorPosition, groupValueExtent, barCapSizeSign, columnCapSize, columnCapExpand, seriesValueExtent);
     return "" + pathGenerator;

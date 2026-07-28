@@ -41,6 +41,8 @@ export default function getValidators(config: Partial<SeriesConfig>) {
       param: validators.numberMinMax(0, 1).orEqual(undefined)
     }),
     barWidthPercent: validators.numberMinMax(0, 1),
+    barAlignPercent: validators.numberMinMax(0, 1),
+    barMinExtent: validators.numberMin(0),
     capSize: validators.numberMin(0),
     capType: validators.oneOf(CAP_TYPES).orEqual(NONE),
     capExpand: validators.boolean(),

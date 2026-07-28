@@ -72,10 +72,11 @@ export interface CandlestickData {
   seriesConfigs: Partial<SeriesConfig>[];
 }
 
-const GROUP_PROPERTY = 'label';
-const DIRECTIONS: CandlestickDirection[] = ['up', 'down'];
+// Shared with the OHLC helper (src/data/Ohlc.ts); not part of the public API.
+export const GROUP_PROPERTY = 'label';
+export const DIRECTIONS: CandlestickDirection[] = ['up', 'down'];
 
-const DEFAULT_TITLES: Record<CandlestickDirection, string> = {
+export const DEFAULT_TITLES: Record<CandlestickDirection, string> = {
   up: 'Up',
   down: 'Down'
 };
@@ -84,13 +85,13 @@ const DEFAULT_TITLES: Record<CandlestickDirection, string> = {
 // red-green-blindness collision, while this pair stays distinguishable (and
 // ≥3:1 against both light and dark chart surfaces). Matches the waterfall
 // helper's increase/decrease colors.
-const DEFAULT_COLORS: Record<CandlestickDirection, string> = {
+export const DEFAULT_COLORS: Record<CandlestickDirection, string> = {
   up: '#1baf7a',
   down: '#e34948'
 };
 
 const DEFAULT_WICK_WIDTH_PERCENT = 0.15;
-const DEFAULT_RANGE_TITLE = 'Range';
+export const DEFAULT_RANGE_TITLE = 'Range';
 
 export function computeCandlesticks(items: readonly CandlestickItem[]): Candlestick[] {
   return items.map((item) => {
