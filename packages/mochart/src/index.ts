@@ -27,5 +27,7 @@ export { computeWaterfallSteps, createWaterfall } from './data/Waterfall';
 export type { WaterfallDirection, WaterfallItem, WaterfallStep, CreateWaterfallOptions, WaterfallData } from './data/Waterfall';
 export { createHeatmap, createHeatmapColorScale } from './data/Heatmap';
 export type { HeatmapRow, CreateHeatmapOptions, CreateHeatmapColorScaleOptions, HeatmapData } from './data/Heatmap';
+export { computeCandlesticks, createCandlestick } from './data/Candlestick';
+export type { CandlestickDirection, CandlestickItem, Candlestick, CreateCandlestickOptions, CandlestickData } from './data/Candlestick';
 export { mochartCssClasses } from './utils/ChartDom';
 export { isDataProviderValid } from './data/ChartData';

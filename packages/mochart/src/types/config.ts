@@ -2369,6 +2369,19 @@ export interface SeriesConfig {
    */
   curve: SeriesCurve;
   /**
+   * The fraction (0 - 1) of the bar layout slot width to use when drawing bars
+   * in the series.
+   *
+   * Only affects the `bar` renderer. Narrows each bar within its layout slot
+   * (the full group slot, or the series’ sub-slot when grouped) while keeping
+   * it centered, so a narrow bar can overlay a full-width one from another
+   * series — e.g. a candlestick wick behind its body, or a bullet-chart measure
+   * over its backing range.
+   *
+   * @default 1
+   */
+  barWidthPercent: number;
+  /**
    * The size of the cap (in pixels) to use when drawing caps on a bar series.
    *
    * @default 5

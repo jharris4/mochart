@@ -75,6 +75,27 @@ describe('generateChartTypeDataProvider', () => {
     }
   });
 
+  it('candlestick candles stay coherent: low ≤ open/close ≤ high, one direction per day', () => {
+    const candlestick = snapshots.find(snapshot => snapshot.id === 'candlestick')!;
+    const mochartConfig = enhanceConfig(candlestick.config);
+    const provider = generateChartTypeDataProvider('candlestick', mochartConfig, random, 6);
+    const { seriesValues, groupValues } = provider;
+    groupValues!.forEach((_label, index) => {
+      const open = seriesValues!['open'][index]!;
+      const close = seriesValues!['close'][index]!;
+      const high = seriesValues!['high'][index]!;
+      const low = seriesValues!['low'][index]!;
+      expect(low).toBeLessThanOrEqual(Math.min(open, close));
+      expect(high).toBeGreaterThanOrEqual(Math.max(open, close));
+      const up = seriesValues!['up'][index];
+      const down = seriesValues!['down'][index];
+      // the close lands under exactly one direction, with the high mirrored
+      expect(up !== undefined && down !== undefined).toBe(false);
+      expect(up ?? down).toBe(close);
+      expect(up !== undefined ? seriesValues!['upHigh'][index] : seriesValues!['downHigh'][index]).toBe(high);
+    });
+  });
+
   it('waterfall bars always connect: each delta starts at the running total', () => {
     const waterfall = snapshots.find(snapshot => snapshot.id === 'waterfall')!;
     const mochartConfig = enhanceConfig(waterfall.config);
@@ -105,6 +126,6 @@ describe('generateDemoDataProvider', () => {
   });
 
   it('exposes the generator ids', () => {
-    expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap']);
+    expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap', 'candlestick']);
   });
 });

@@ -40,6 +40,7 @@ export default function getValidators(config: Partial<SeriesConfig>) {
       type: validators.oneOf(CURVE_TYPES),
       param: validators.numberMinMax(0, 1).orEqual(undefined)
     }),
+    barWidthPercent: validators.numberMinMax(0, 1),
     capSize: validators.numberMin(0),
     capType: validators.oneOf(CAP_TYPES).orEqual(NONE),
     capExpand: validators.boolean(),

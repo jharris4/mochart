@@ -17,6 +17,7 @@ export default function getDescriptions() {
     skipPartialRange: 'whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one',
     showMissingAtBase: 'whether to use the series axis base value for missing values when drawing the shape for this series',
     curve: 'the d3 curve type and param to use when drawing the series shape',
+    barWidthPercent: 'the fraction (0 - 1) of the bar layout slot width to use when drawing bars in the series',
     capSize: 'the size of the cap (in pixels) to use when drawing caps on a bar series',
     capType: 'the type (point, curve, round, use null for none) of cap to use when drawing caps on a bar series',
     capExpand: 'whether to expand the base of caps on a bar series when the size of the cap is greater than the extent of the bar',
@@ -125,6 +126,7 @@ export function getDetails() {
     skipPartialRange: 'Only affects series with a `rangeProperty` (stacked series are unaffected). By default a group with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such groups count as missing instead, following the configured missing-value treatment: a break in the shape, or skipped over when `skipMissing` is set, or drawn at the base when `showMissingAtBase` is set.',
     showMissingAtBase: 'An alternative missing-value treatment: instead of leaving a gap, missing values are drawn at the series axis base value.',
     valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the series axis `tickLabelFormat` when that is set.',
-    capType: 'Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.'
+    capType: 'Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.',
+    barWidthPercent: 'Only affects the `bar` renderer. Narrows each bar within its layout slot (the full group slot, or the series’ sub-slot when grouped) while keeping it centered, so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range.'
   };
 }

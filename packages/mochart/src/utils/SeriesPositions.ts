@@ -31,7 +31,7 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
 }
 
 export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesConfig: SeriesConfig, groupValueData: GroupAxisData['valueData'], seriesAxisScale: AxisScale, valueObject: SeriesValueObject, seriesLayoutInfo: LayoutInfo): SeriesPositionData {
-  const { seriesAxisConfig, seriesGroupConfig, showMissingAtBase, skipMissing, skipPartialRange, group, stack, rangeProperty } = seriesConfig;
+  const { seriesAxisConfig, seriesGroupConfig, showMissingAtBase, skipMissing, skipPartialRange, group, stack, rangeProperty, barWidthPercent } = seriesConfig;
   const { spacingInfo, positions: groupPositions } = groupValueData;
   const { base } = seriesAxisConfig;
   const { min } = valueObject;
@@ -68,6 +68,11 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
     let groupExtentAndMargins = groupValueExtent / seriesGroupConfig!.seriesConfigs!.length;
     groupValueExtent = groupExtentAndMargins * (1.0 - groupAxisConfig.groupPadding.inner);
     groupValueOffset = groupValueOffset + (seriesGroupConfig!.seriesConfigIndicesById![seriesConfig.id]! * groupExtentAndMargins) + ((groupExtentAndMargins - groupValueExtent) / 2.0);
+  }
+  if (barWidthPercent !== 1) {
+    const fullValueExtent = groupValueExtent;
+    groupValueExtent = fullValueExtent * barWidthPercent;
+    groupValueOffset += (fullValueExtent - groupValueExtent) / 2.0;
   }
 
   // With skipPartialRange, a ranged group missing either of its two values is

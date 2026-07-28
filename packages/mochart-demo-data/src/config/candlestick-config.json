@@ -1,0 +1,80 @@
+{
+  "version": "1.0.0",
+  "titleConfig": {
+    "title": "Daily Share Price (fictional, $)"
+  },
+  "groupAxisConfig": {
+    "property": "label",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesAxisConfigs": [
+    {
+      "title": "$ per share"
+    }
+  ],
+  "seriesConfigs": [
+    {
+      "id": "upWick",
+      "property": "upHigh",
+      "rangeProperty": "low",
+      "renderer": "bar",
+      "barWidthPercent": 0.15,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "showInLegend": false,
+      "valueLabel": "Range",
+      "fillColor": "#1baf7a",
+      "valueFormat": ",.2f"
+    },
+    {
+      "id": "downWick",
+      "property": "downHigh",
+      "rangeProperty": "low",
+      "renderer": "bar",
+      "barWidthPercent": 0.15,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "showInLegend": false,
+      "valueLabel": "Range",
+      "fillColor": "#e34948",
+      "valueFormat": ",.2f"
+    },
+    {
+      "id": "up",
+      "property": "up",
+      "rangeProperty": "open",
+      "renderer": "bar",
+      "barWidthPercent": 1,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "title": "Up",
+      "fillColor": "#1baf7a",
+      "valueFormat": ",.2f"
+    },
+    {
+      "id": "down",
+      "property": "down",
+      "rangeProperty": "open",
+      "renderer": "bar",
+      "barWidthPercent": 1,
+      "skipMissing": true,
+      "skipPartialRange": true,
+      "group": null,
+      "stack": null,
+      "fillOpacity": 1,
+      "title": "Down",
+      "fillColor": "#e34948",
+      "valueFormat": ",.2f"
+    }
+  ]
+}

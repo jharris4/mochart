@@ -31,6 +31,7 @@ export function getRegularDefaults() {
     skipPartialRange: false,
     showMissingAtBase: false,
     curve: { type: CURVE_TYPE_LINEAR },
+    barWidthPercent: 1,
     capSize: 5,
     capType: NONE,
     capExpand: true,

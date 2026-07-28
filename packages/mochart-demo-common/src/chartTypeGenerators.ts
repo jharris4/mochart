@@ -14,8 +14,8 @@
 
 import seedrandom from 'seedrandom';
 
-import { createHistogram, createWaterfall, createHeatmap } from '@mochart/core';
-import type { MochartConfig } from '@mochart/core';
+import { createHistogram, createWaterfall, createHeatmap, createCandlestick } from '@mochart/core';
+import type { CandlestickItem, MochartConfig } from '@mochart/core';
 
 import { generateChartDataProvider } from './randomGenerator';
 
@@ -24,7 +24,7 @@ import type { DataRow, DemoConfig, DemoDataProvider, GroupValue, RandomConfig } 
 type Rng = () => number;
 
 /** The chart-type generator ids usable in a demos.json `generator` field. */
-export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap'] as const;
+export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick'] as const;
 
 export type ChartTypeGenerator = (typeof chartTypeGenerators)[number];
 
@@ -242,11 +242,75 @@ function buildHeatmapSnapshot(): ChartTypeDemoSnapshot {
   };
 }
 
+// --- Candlestick -------------------------------------------------------------
+
+// Twenty June 2026 trading days (weekends skipped — the helper's ordinal axis
+// keeps the candles evenly spaced across the gaps). The fixed pool keeps most
+// labels shared between random steps, so candles animate in place while the
+// tail enters and exits.
+const CANDLESTICK_DAYS = [
+  'Jun 01', 'Jun 02', 'Jun 03', 'Jun 04', 'Jun 05',
+  'Jun 08', 'Jun 09', 'Jun 10', 'Jun 11', 'Jun 12',
+  'Jun 15', 'Jun 16', 'Jun 17', 'Jun 18', 'Jun 19',
+  'Jun 22', 'Jun 23', 'Jun 24', 'Jun 25', 'Jun 26'
+];
+const CANDLESTICK_START_PRICE = 100;
+const CANDLESTICK_MAX_DROPPED_DAYS = 4;
+
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function candlestickItems(rng: Rng, dayCount: number): CandlestickItem[] {
+  let previousClose = CANDLESTICK_START_PRICE * (0.9 + rng() * 0.2);
+  return CANDLESTICK_DAYS.slice(0, dayCount).map(label => {
+    const open = previousClose * (1 + 0.006 * (2 * rng() - 1)); // small overnight gap
+    const close = open * (1 + 0.04 * (2 * rng() - 1)); // intraday drift
+    const high = Math.max(open, close) * (1 + 0.015 * rng());
+    const low = Math.min(open, close) * (1 - 0.015 * rng());
+    previousClose = close;
+    return { label, open: round2(open), high: round2(high), low: round2(low), close: round2(close) };
+  });
+}
+
+// The helper derives `change` from the raw open/close, so it carries float
+// noise (97.13 - 96.54 = 0.589999…); round it for the baked/generated rows.
+function roundCandlestickChanges(rows: DataRow[]): DataRow[] {
+  for (const row of rows) {
+    if (typeof row.change === 'number') {
+      row.change = round2(row.change);
+    }
+  }
+  return rows;
+}
+
+function candlestickRows(rng: Rng): DataRow[] {
+  const dayCount = CANDLESTICK_DAYS.length - Math.floor(rng() * (CANDLESTICK_MAX_DROPPED_DAYS + 1));
+  return roundCandlestickChanges(createCandlestick(candlestickItems(rng, dayCount)).data);
+}
+
+function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
+  const items = candlestickItems(seedrandom('candlestick:baseline'), CANDLESTICK_DAYS.length);
+  const { data, groupAxisConfig, seriesConfigs } = createCandlestick(items);
+  roundCandlestickChanges(data);
+  return {
+    id: 'candlestick',
+    config: {
+      version: '1.0.0',
+      titleConfig: { title: 'Daily Share Price (fictional, $)' },
+      groupAxisConfig,
+      seriesAxisConfigs: [{ title: '$ per share' }],
+      seriesConfigs: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
+    },
+    data
+  };
+}
+
 // --- Dispatch ----------------------------------------------------------------
 
 /** Rebuilds every chart-type demo's static config/data (snapshot script). */
 export function buildChartTypeDemoSnapshots(): ChartTypeDemoSnapshot[] {
-  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot()];
+  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot()];
 }
 
 /**
@@ -268,6 +332,9 @@ export function generateChartTypeDataProvider(
   }
   else if (generator === 'waterfall') {
     rows = waterfallRows(rng);
+  }
+  else if (generator === 'candlestick') {
+    rows = candlestickRows(rng);
   }
   else {
     rows = heatmapRows(rng, random.series.missing.probability);
