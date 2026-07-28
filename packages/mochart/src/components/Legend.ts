@@ -117,9 +117,13 @@ export default class Legend extends Renderer<LegendProps> {
       this.background.set(Background, { config: legendConfig, classKey: 'legendBackground', spacingRelative: true, spacingLayoutInfo: legendLayoutInfo });
 
       const items: RendererItem<LegendItemProps>[] = [];
-      seriesConfigs.forEach((seriesConfig: SeriesConfig, i: number) => {
+      // The measured bounds and layout infos only cover showInLegend series,
+      // so items index into them by legend position, not raw series index.
+      let itemIndex = 0;
+      seriesConfigs.forEach((seriesConfig: SeriesConfig) => {
         const { id, showInLegend } = seriesConfig;
         if (showInLegend) {
+          const i = itemIndex++;
           const seriesIndex = seriesConfigIndicesById[id];
           const seriesIsSuppressed = filteredFlags[id] === true;
           const seriesIsFocused = focusedSeriesId === id;

@@ -105,6 +105,7 @@ export default function getDescriptions() {
     showColorInLegend: 'whether to show the series color as an icon next to the series title in the legend',
     showColorInTooltip: 'whether to show the series color as an icon next to the series title in the tooltip',
     suppressible: 'whether or not the series can be suppressed from being shown in the chart',
+    suppressWith: 'the unique identifier of another series whose legend filtering this series follows (use null for none)',
     focusOnMouseOver: 'whether the series should be focused whenever the user mouses over a part of it in the chart',
     focusOnClick: 'whether the series should be focused whenever the user clicks/taps a part of it in the chart',
     focusGroupOnMouseOver: 'whether the group should be focused whenever the user mouses over a group of the series in the chart',
@@ -127,6 +128,7 @@ export function getDetails() {
     showMissingAtBase: 'An alternative missing-value treatment: instead of leaving a gap, missing values are drawn at the series axis base value.',
     valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the series axis `tickLabelFormat` when that is set.',
     capType: 'Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.',
-    barWidthPercent: 'Only affects the `bar` renderer. Narrows each bar within its layout slot (the full group slot, or the series’ sub-slot when grouped) while keeping it centered, so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range.'
+    barWidthPercent: 'Only affects the `bar` renderer. Narrows each bar within its layout slot (the full group slot, or the series’ sub-slot when grouped) while keeping it centered, so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range.',
+    suppressWith: 'When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering removes the whole mark.'
   };
 }

@@ -3070,6 +3070,19 @@ export interface SeriesConfig {
    */
   suppressible: boolean;
   /**
+   * The unique identifier of another series whose legend filtering this series
+   * follows (use null for none).
+   *
+   * When the referenced series is toggled out of (or back into) the chart via
+   * the legend, this series follows it. For companion series hidden from the
+   * legend (`showInLegend: false`) that visually belong to a legend series —
+   * e.g. a candlestick wick following its body — so filtering removes the whole
+   * mark.
+   *
+   * @default null
+   */
+  suppressWith: string | null;
+  /**
    * Whether the series should be focused whenever the user mouses over a part
    * of it in the chart.
    *

@@ -126,15 +126,21 @@ export class FocusController {
     return this.focus();
   }
 
-  /** Toggle a series in/out of the filtered set. */
-  toggleSeriesFilter(seriesId: string): ChartSeriesFilter {
+  /**
+   * Toggle a series in/out of the filtered set, along with any follower
+   * series (`suppressWith` pointing at it), which take the same state.
+   */
+  toggleSeriesFilter(seriesId: string, followerSeriesIds: readonly string[] = []): ChartSeriesFilter {
     // copy before mutating so snapshots handed to host callbacks stay frozen
     const filteredSeriesIds = { ...this.filteredSeriesIds };
-    if (filteredSeriesIds[seriesId] === true) {
-      delete filteredSeriesIds[seriesId];
-    }
-    else {
-      filteredSeriesIds[seriesId] = true;
+    const filtered = filteredSeriesIds[seriesId] !== true;
+    for (const id of [seriesId, ...followerSeriesIds]) {
+      if (filtered) {
+        filteredSeriesIds[id] = true;
+      }
+      else {
+        delete filteredSeriesIds[id];
+      }
     }
     this.filteredSeriesIds = filteredSeriesIds;
     return { filteredSeriesIds };

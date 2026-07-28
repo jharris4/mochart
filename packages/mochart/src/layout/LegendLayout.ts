@@ -111,7 +111,9 @@ export function getLegendLayoutInfo(mochartConfig: MochartConfig, chartTextBound
     }
 
     const legendWidth = maxX - legendMinSpacingX + legendSpacingWidth;
-    const legendItemTextWidth = legendWidth - legendSpacingWidth - itemSpacingWidth - iconWidth;
+    // Clamped for the no-item legend (every series showInLegend: false), where
+    // the spacing arithmetic would go negative and produce an invalid clip rect.
+    const legendItemTextWidth = Math.max(0, legendWidth - legendSpacingWidth - itemSpacingWidth - iconWidth);
 
     let legendX = legendMinX;
     if (align !== ALIGN_LEFT && legendWidth < legendMaxWidth) {

@@ -127,7 +127,8 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
       axis: { section: 'seriesAxisConfigs', key: 'id' },
       group: { section: 'seriesGroupConfigs', key: 'id' },
       stack: { section: 'seriesStackConfigs', key: 'id' },
-      gradient: { section: ['linearGradientConfigs', 'radialGradientConfigs'], key: 'id' }
+      gradient: { section: ['linearGradientConfigs', 'radialGradientConfigs'], key: 'id' },
+      suppressWith: { section: 'seriesConfigs', key: 'id' }
     },
     commonReferences: {
       stack: { section: 'seriesStackConfigs', key: 'id', commonKey: 'axis' }

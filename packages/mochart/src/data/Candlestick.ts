@@ -131,10 +131,10 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   // group (skipMissing + skipPartialRange skip the other, as in the waterfall
   // helper): a thin low→high wick and a full-width open→close body painted
   // over it. Fills are opaque so the body fully covers the wick where they
-  // overlap. Wicks stay out of the legend (they'd duplicate the body entries;
-  // suppressing a direction from the legend hides its bodies but keeps its
-  // wicks) and label their tooltip row with the shared range title, so each
-  // group shows one body row (open – close) and one range row (low – high).
+  // overlap. Wicks stay out of the legend (they'd duplicate the body entries)
+  // but follow their body's legend filtering via suppressWith, and label
+  // their tooltip row with the shared range title, so each group shows one
+  // body row (open – close) and one range row (low – high).
   const wickConfigs = DIRECTIONS.map((direction) => ({
     id: direction + 'Wick',
     property: direction + 'High',
@@ -147,6 +147,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     stack: null,
     fillOpacity: 1,
     showInLegend: false,
+    suppressWith: direction,
     valueLabel: rangeTitle,
     fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
   } as Partial<SeriesConfig>));

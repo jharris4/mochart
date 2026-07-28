@@ -329,10 +329,18 @@ export function getLegendBounds(mochartConfig: MochartConfig, domAccessors?: Cha
   return legendBounds;
 }
 
+// The DOM only holds legend items for showInLegend series, so the expected
+// list must be filtered the same way — a full seriesConfigs list would never
+// match the element count and every item would fall back to default bounds,
+// leaving phantom legend slots for the hidden series.
+function getLegendSeriesConfigs(mochartConfig: MochartConfig) {
+  return mochartConfig.seriesConfigs.filter(seriesConfig => seriesConfig.showInLegend);
+}
+
 export function getLegendItemTextBounds(mochartConfig: MochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds | TextBounds[] {
   let legendItemTextBounds: TextBounds | TextBounds[] = emptyBounds;
   if (mochartConfig.legendConfig.visible) {
-    legendItemTextBounds = getSvgAllBounds(domAccessors, 'getLegendItemTextDomElements', defaultBounds, mochartConfig.seriesConfigs);
+    legendItemTextBounds = getSvgAllBounds(domAccessors, 'getLegendItemTextDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig));
   }
   return legendItemTextBounds;
 }
@@ -340,7 +348,7 @@ export function getLegendItemTextBounds(mochartConfig: MochartConfig, domAccesso
 export function getLegendItemTextRawBounds(mochartConfig: MochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds | TextBounds[] {
   let legendItemTextBounds: TextBounds | TextBounds[] = emptyBounds;
   if (mochartConfig.legendConfig.visible) {
-    legendItemTextBounds = getSvgAllBounds(domAccessors, 'getLegendItemTextRawDomElements', defaultBounds, mochartConfig.seriesConfigs);
+    legendItemTextBounds = getSvgAllBounds(domAccessors, 'getLegendItemTextRawDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig));
   }
   return legendItemTextBounds;
 }

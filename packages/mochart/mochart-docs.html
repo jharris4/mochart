@@ -2292,6 +2292,12 @@ table thead td { border-bottom-width: 2px; }
 <div>0 (when renderer is none)</div>
 </td>
 </tr>
+<tr id="seriesConfigs.suppressWith">
+<td><a href="#seriesConfigs.suppressWith">suppressWith</a></td><td>the unique identifier of another series whose legend filtering this series follows (use null for none)<br/><br/>When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering removes the whole mark.</td><td><p>should be a string or be equal to null</p>
+<p>should equal the id property of one of the seriesConfigs</p>
+</td><td><div>null</div>
+</td>
+</tr>
 <tr id="seriesConfigs.suppressible">
 <td><a href="#seriesConfigs.suppressible">suppressible</a></td><td>whether or not the series can be suppressed from being shown in the chart</td><td>should be a boolean</td><td><div>true</div>
 </td>

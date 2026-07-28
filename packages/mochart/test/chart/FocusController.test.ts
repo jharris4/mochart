@@ -145,6 +145,24 @@ describe('FocusController focus handling', () => {
     expect(controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S1: true });
   });
 
+  it('toggles follower series (suppressWith) together with their series', () => {
+    const { controller } = makeHarness();
+
+    expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({ S0: true, S0Wick: true });
+    expect(controller.toggleSeriesFilter('S1').filteredSeriesIds).toEqual({ S0: true, S0Wick: true, S1: true });
+    expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({ S1: true });
+  });
+
+  it('snaps followers to the toggled series state even when they diverged', () => {
+    const { controller } = makeHarness();
+    controller.applyExternal({ filteredSeriesIds: { S0Wick: true } });
+
+    // the primary was unfiltered, so toggling filters it — and the follower
+    // stays filtered with it rather than toggling independently
+    expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({ S0: true, S0Wick: true });
+    expect(controller.toggleSeriesFilter('S0', ['S0Wick']).filteredSeriesIds).toEqual({});
+  });
+
   it('applies external controlled values, leaving undefined fields untouched', () => {
     const { controller } = makeHarness();
     controller.applyFocus({ groupIndex: 2, seriesId: 'S0' });

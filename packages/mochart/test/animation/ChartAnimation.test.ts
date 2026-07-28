@@ -128,9 +128,12 @@ describe('getChartDataForValueDelta (range channel with an undefined hole)', () 
     const mid = getChartDataForValueDelta(rangeConfig, cad, 0.5).seriesData.raw.values[rangeSeriesId];
     const end = getChartDataForValueDelta(rangeConfig, cad, 1).seriesData.raw.values[rangeSeriesId];
     // plain animates on both groups; range animates on group 0 but the missing
-    // group-1 range has a zero delta and holds at its start value
+    // group-1 range has a zero delta and holds at its start value. The ranged
+    // series' plain/range keys share one duration (each key at proportional
+    // speed) so the shape's edges arrive together — hence range is at half its
+    // journey at the midpoint, like plain, rather than ahead of it.
     expect(mid.plain).toEqual([5, 10]);
-    expect(mid.range).toEqual([10, 0]);
+    expect(mid.range).toEqual([7.5, 0]);
     expect(end.plain).toEqual([10, 20]);
     expect(end.range).toEqual([15, 0]);
   });

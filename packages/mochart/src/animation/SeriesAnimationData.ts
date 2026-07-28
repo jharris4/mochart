@@ -18,6 +18,8 @@ import {
 
 import { keyPlain, positionKeys, positionOrComputedKeys, positionOrComputedOrExtraKeys, extraAndCopyKeys } from '../data/constants';
 
+import { NONE } from '../config/core/constants';
+
 import { mapMap } from '../utils/utils';
 import type { AnimationConfig, MochartConfig, SeriesConfig, SeriesStackConfig } from '../types/config';
 import type {
@@ -570,11 +572,35 @@ function createRawValueDeltaData(mochartConfig: MochartConfig, startValueObjects
   }
 
   adjustDeltaPercentagesForStackedGroups(mochartConfig.seriesStackConfigs, deltas);
+  adjustDeltaPercentagesForRangedSeries(seriesConfigs, deltas);
 
   return {
     deltaPercentage,
     deltas
   };
+}
+
+// A ranged series (rangeProperty, unstacked) draws one shape between its
+// plain and range values, so the two keys share a duration — the max of the
+// pair, mirroring what adjustDeltaPercentagesForStackedGroups does for
+// stacks. With independent durations each edge travels at the global speed
+// and the nearer one arrives first, so a bar collapsing to the base holds
+// its full extent while it slides and only snaps shut at the end.
+function adjustDeltaPercentagesForRangedSeries(seriesConfigs: SeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
+  for (let seriesConfig of seriesConfigs) {
+    if (seriesConfig.rangeProperty !== NONE && seriesConfig.stack === NONE) {
+      const deltaObject = deltaObjects[seriesConfig.id];
+      const plainDelta = deltaObject.plain;
+      const rangeDelta = deltaObject.range;
+      // zero-delta and copied entries are shared constants — never mutated
+      if (plainDelta.deltaPercentage !== 0 && rangeDelta.deltaPercentage !== 0 &&
+        plainDelta.deltaCopied !== true && rangeDelta.deltaCopied !== true) {
+        const maxDeltaPercentage = Math.max(plainDelta.deltaPercentage, rangeDelta.deltaPercentage);
+        plainDelta.deltaPercentage = maxDeltaPercentage;
+        rangeDelta.deltaPercentage = maxDeltaPercentage;
+      }
+    }
+  }
 }
 
 function adjustDeltaPercentagesForStackedGroups(seriesStackConfigs: SeriesStackConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
@@ -678,6 +704,7 @@ function createFilteredValueDeltaData(mochartConfig: MochartConfig, startFiltere
   };
 
   adjustDeltaPercentagesForStackedGroups(mochartConfig.seriesStackConfigs, deltas);
+  adjustDeltaPercentagesForRangedSeries(seriesConfigs, deltas);
 
   return {
     deltaPercentage,
