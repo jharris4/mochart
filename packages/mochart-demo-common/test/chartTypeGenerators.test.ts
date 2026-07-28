@@ -148,6 +148,6 @@ describe('generateDemoDataProvider', () => {
   });
 
   it('exposes the generator ids', () => {
-    expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap', 'candlestick', 'ohlc']);
+    expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc']);
   });
 });

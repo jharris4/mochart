@@ -91,15 +91,26 @@ function getColor(fillOrStrokeKey: FillOrStrokeKey, mapKey: ColorMapKey, colorPa
   }
 }
 
+/**
+ * A fill-rendered series drawn as an outline only — transparent fill with a
+ * visible stroke, e.g. a hollow candlestick body. The legend/tooltip color
+ * icons fall back to the stroke color and opacities for these, since the fill
+ * ones would produce an invisible icon.
+ */
+function isHollowShape(seriesConfig: SeriesConfig): boolean {
+  return seriesConfig.fillOpacity === 0 && seriesConfig.strokeWidth > 0;
+}
+
 export function getSeriesOpacities(seriesConfig: SeriesConfig) {
   const { renderer } = seriesConfig;
   let opacity, focusedOpacity, defocusedOpacity;
-  if (renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
+  if ((renderer === RENDERER_AREA || renderer === RENDERER_BAR) && !isHollowShape(seriesConfig)) {
     opacity = seriesConfig.fillOpacity;
     focusedOpacity = seriesConfig.focusedFillOpacity;
     defocusedOpacity = seriesConfig.defocusedFillOpacity;
   }
-  else if (renderer === RENDERER_LINE) {
+  else if (renderer === RENDERER_LINE || renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
+    // a line series, or a hollow fill shape falling back to its stroke
     opacity = seriesConfig.strokeOpacity;
     focusedOpacity = seriesConfig.focusedStrokeOpacity;
     defocusedOpacity = seriesConfig.defocusedStrokeOpacity;
@@ -126,10 +137,11 @@ export function getSeriesOpacities(seriesConfig: SeriesConfig) {
 
 export function getSeriesColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...args: ColorArgs): SeriesColor | null {
   const { renderer } = seriesConfig;
-  if (renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
+  if ((renderer === RENDERER_AREA || renderer === RENDERER_BAR) && !isHollowShape(seriesConfig)) {
     return getSeriesFillColor(colorPaletteConfig, seriesConfig, ...args);
   }
-  else if (renderer === RENDERER_LINE) {
+  else if (renderer === RENDERER_LINE || renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
+    // a line series, or a hollow fill shape falling back to its stroke
     return getSeriesStrokeColor(colorPaletteConfig, seriesConfig, ...args);
   }
   else {

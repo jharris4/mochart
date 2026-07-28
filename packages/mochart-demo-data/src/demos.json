@@ -399,6 +399,15 @@
       "generator": "candlestick"
     },
     {
+      "id": "candlestick-hollow",
+      "title": "Hollow Candlestick",
+      "description": "The candlestick's hollow variant (createCandlestick with hollow: true): outlined up bodies, filled down bodies, and wicks split into segments so nothing shows through the hollow interior. Random mode re-runs the price walk, so every candle re-draws while the tail days enter and exit.",
+      "config": "candlestick-hollow-config.json",
+      "data": "candlestick-hollow-data.json",
+      "random": "default-random.json",
+      "generator": "candlestick-hollow"
+    },
+    {
       "id": "ohlc",
       "title": "OHLC Bars",
       "description": "OHLC tick bars from the createOhlc helper: a thin low/high line per trading day with a left open tick and right close tick, direction-colored, on an ordinal axis that skips non-trading days. Random mode re-runs the price walk, so every bar re-draws while the tail days enter and exit.",

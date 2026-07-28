@@ -50,6 +50,16 @@ export interface CreateCandlestickOptions {
    * @default "Range"
    */
   rangeTitle?: string;
+  /**
+   * Draw up candles hollow — outlined open/close bodies instead of filled —
+   * the classic hollow-candle style where a filled body means down. The wicks
+   * split into segments above and below each body so they don't show through
+   * the hollow interior, the tooltip keeps its single low–high range row, and
+   * the data rows gain an `upOpen` column for the below-body wick segment.
+   *
+   * @default false
+   */
+  hollow?: boolean;
 }
 
 export interface CandlestickData {
@@ -68,6 +78,9 @@ export interface CandlestickData {
    * Fragments to spread into the chart config's `seriesConfigs`, wicks first
    * so the bodies paint over them, in up/down order. Directions absent from
    * the data keep their series so the config stays stable across data updates.
+   * With the `hollow` option the wick series turn shapeless (tooltip row
+   * only) and per-direction upper/lower wick segment series slot in between
+   * them and the bodies.
    */
   seriesConfigs: Partial<SeriesConfig>[];
 }
@@ -105,6 +118,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   const wickWidthPercent = options.wickWidthPercent ?? DEFAULT_WICK_WIDTH_PERCENT;
   const bodyWidthPercent = options.bodyWidthPercent ?? 1;
   const rangeTitle = options.rangeTitle ?? DEFAULT_RANGE_TITLE;
+  const hollow = options.hollow ?? false;
 
   const data = candles.map((candle) => ({
     [GROUP_PROPERTY]: candle.label,
@@ -116,6 +130,10 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     down: candle.direction === 'down' ? candle.close : undefined,
     upHigh: candle.direction === 'up' ? candle.high : undefined,
     downHigh: candle.direction === 'down' ? candle.high : undefined,
+    // The below-body wick segment of a hollow up candle spans low→open, and
+    // needs the open under an up-only property (the shared `open` column is
+    // defined on every row, so it can't gate the segment by direction).
+    ...(hollow ? { upOpen: candle.direction === 'up' ? candle.open : undefined } : {}),
     change: candle.change,
     direction: candle.direction
   }));
@@ -136,37 +154,91 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   // but follow their body's legend filtering via followSeries, and label
   // their tooltip row with the shared range title, so each group shows one
   // body row (open – close) and one range row (low – high).
-  const wickConfigs = DIRECTIONS.map((direction) => ({
-    id: direction + 'Wick',
-    property: direction + 'High',
-    rangeProperty: 'low',
-    renderer: 'bar',
-    barWidthPercent: wickWidthPercent,
-    skipMissing: true,
-    skipPartialRange: true,
-    group: null,
-    stack: null,
-    fillOpacity: 1,
-    showInLegend: false,
-    followSeries: direction,
-    valueLabel: rangeTitle,
-    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
-  } as Partial<SeriesConfig>));
+  //
+  // In hollow mode the wick can't run behind the body (it would show through
+  // the see-through up bodies), so this series stops rendering — keeping only
+  // its tooltip range row and interaction targets — and per-direction segment
+  // series draw the wick above and below the body instead.
+  const wickConfigs = DIRECTIONS.map((direction) => {
+    const color = options.colors?.[direction] ?? DEFAULT_COLORS[direction];
+    return {
+      id: direction + 'Wick',
+      property: direction + 'High',
+      rangeProperty: 'low',
+      renderer: hollow ? 'none' : 'bar',
+      barWidthPercent: wickWidthPercent,
+      skipMissing: true,
+      skipPartialRange: true,
+      group: null,
+      stack: null,
+      fillOpacity: 1,
+      showInLegend: false,
+      followSeries: direction,
+      valueLabel: rangeTitle,
+      fillColor: color,
+      // markerShape null overrides the renderer-none default (circle
+      // markers), and the label fill color/opacity color the tooltip icon,
+      // which falls back to them for shapeless series.
+      ...(hollow ? { markerShape: null, labelFillColor: color, labelFillOpacity: 1 } : {})
+    } as Partial<SeriesConfig>;
+  });
 
-  const bodyConfigs = DIRECTIONS.map((direction) => ({
-    id: direction,
-    property: direction,
-    rangeProperty: 'open',
-    renderer: 'bar',
-    barWidthPercent: bodyWidthPercent,
-    skipMissing: true,
-    skipPartialRange: true,
-    group: null,
-    stack: null,
-    fillOpacity: 1,
-    title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
-    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
-  } as Partial<SeriesConfig>));
+  // The visible wick in hollow mode: a segment above the body (body top →
+  // high) and one below (low → body bottom), gated to one direction per row
+  // by skipPartialRange — an up body's top/bottom are the close (`up`) and
+  // the open (`upOpen`), a down body's the open and the close (`down`).
+  // Segments stay out of the tooltip; the shapeless wick series above carries
+  // the single low – high range row.
+  const wickSegmentConfigs = hollow ? DIRECTIONS.flatMap((direction) => {
+    const shared = {
+      renderer: 'bar',
+      barWidthPercent: wickWidthPercent,
+      skipMissing: true,
+      skipPartialRange: true,
+      group: null,
+      stack: null,
+      fillOpacity: 1,
+      showInLegend: false,
+      showInTooltip: false,
+      followSeries: direction,
+      fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
+    };
+    return [
+      { id: direction + 'WickUpper', property: direction + 'High', rangeProperty: direction === 'up' ? 'up' : 'open', ...shared } as Partial<SeriesConfig>,
+      { id: direction + 'WickLower', property: direction === 'up' ? 'upOpen' : 'down', rangeProperty: 'low', ...shared } as Partial<SeriesConfig>
+    ];
+  }) : [];
 
-  return { candles, data, groupAxisConfig, seriesConfigs: [...wickConfigs, ...bodyConfigs] };
+  const bodyConfigs = DIRECTIONS.map((direction) => {
+    const color = options.colors?.[direction] ?? DEFAULT_COLORS[direction];
+    const hollowBody = hollow && direction === 'up';
+    return {
+      id: direction,
+      property: direction,
+      rangeProperty: 'open',
+      renderer: 'bar',
+      barWidthPercent: bodyWidthPercent,
+      skipMissing: true,
+      skipPartialRange: true,
+      group: null,
+      stack: null,
+      fillOpacity: hollowBody ? 0 : 1,
+      title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
+      fillColor: color,
+      // Outline only: the fill stays transparent in every focus state, and
+      // focus thickens the outline instead of the default bar behavior of
+      // thinning it back to 1px.
+      ...(hollowBody ? {
+        focusedFillOpacity: 0,
+        defocusedFillOpacity: 0,
+        strokeColor: color,
+        strokeWidth: 2,
+        strokeOpacity: 1,
+        focusedStrokeWidth: 3,
+        defocusedStrokeWidth: 2
+      } : {})
+    } as Partial<SeriesConfig>;
+  });
+
+  return { candles, data, groupAxisConfig, seriesConfigs: [...wickConfigs, ...wickSegmentConfigs, ...bodyConfigs] };
 }

@@ -133,8 +133,9 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
   the same value→color scale standalone (e.g. for a ramp legend). See
   [Heatmap](/recipes/heatmap).
 - `createCandlestick` turns OHLC items into candles: direction-colored
-  open/close bodies over thin low/high wicks. `computeCandlesticks` is the
-  math alone. See [Candlestick](/recipes/candlestick).
+  open/close bodies over thin low/high wicks, or outlined up bodies with
+  the `hollow` option. `computeCandlesticks` is the math alone. See
+  [Candlestick](/recipes/candlestick).
 - `createOhlc` turns the same OHLC items into tick bars: thin low/high
   lines with a left open tick and a right close tick. See
   [OHLC Bars](/recipes/ohlc).

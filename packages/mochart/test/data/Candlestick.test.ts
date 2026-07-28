@@ -91,4 +91,51 @@ describe('createCandlestick', () => {
     expect(data).toEqual([]);
     expect(seriesConfigs).toHaveLength(4);
   });
+
+  describe('hollow', () => {
+    const items = [
+      { label: 'Mon', open: 1, high: 3, low: 0, close: 2 }, // up
+      { label: 'Tue', open: 2, high: 4, low: 1, close: 1.5 } // down
+    ];
+
+    it('splits each wick into upper and lower segments around the body', () => {
+      const { seriesConfigs } = createCandlestick(items, { hollow: true });
+      expect(seriesConfigs.map((seriesConfig) => seriesConfig.id))
+        .toEqual(['upWick', 'downWick', 'upWickUpper', 'upWickLower', 'downWickUpper', 'downWickLower', 'up', 'down']);
+      const byId = Object.fromEntries(seriesConfigs.map((seriesConfig) => [seriesConfig.id, seriesConfig]));
+      expect(byId.upWickUpper).toMatchObject({ property: 'upHigh', rangeProperty: 'up', renderer: 'bar', showInLegend: false, showInTooltip: false, followSeries: 'up' });
+      expect(byId.upWickLower).toMatchObject({ property: 'upOpen', rangeProperty: 'low', renderer: 'bar', followSeries: 'up' });
+      expect(byId.downWickUpper).toMatchObject({ property: 'downHigh', rangeProperty: 'open', renderer: 'bar', followSeries: 'down' });
+      expect(byId.downWickLower).toMatchObject({ property: 'down', rangeProperty: 'low', renderer: 'bar', followSeries: 'down' });
+    });
+
+    it('keeps the range tooltip row on a shapeless wick series with a matching icon color', () => {
+      const { seriesConfigs } = createCandlestick(items, { hollow: true });
+      const [upWick, downWick] = seriesConfigs;
+      expect(upWick).toMatchObject({ renderer: 'none', markerShape: null, valueLabel: 'Range', followSeries: 'up' });
+      expect(downWick).toMatchObject({ renderer: 'none', markerShape: null, valueLabel: 'Range', followSeries: 'down' });
+      expect(upWick.labelFillColor).toBe(upWick.fillColor);
+      expect(upWick.labelFillOpacity).toBe(1);
+    });
+
+    it('outlines the up body and keeps the down body filled', () => {
+      const { seriesConfigs } = createCandlestick(items, { hollow: true });
+      const byId = Object.fromEntries(seriesConfigs.map((seriesConfig) => [seriesConfig.id, seriesConfig]));
+      expect(byId.up).toMatchObject({
+        fillOpacity: 0, focusedFillOpacity: 0, defocusedFillOpacity: 0,
+        strokeWidth: 2, strokeOpacity: 1, focusedStrokeWidth: 3, defocusedStrokeWidth: 2
+      });
+      expect(byId.up.strokeColor).toBe(byId.up.fillColor);
+      expect(byId.down).toMatchObject({ fillOpacity: 1 });
+      expect(byId.down.strokeColor).toBeUndefined();
+    });
+
+    it('adds the upOpen column only in hollow mode', () => {
+      const hollowData = createCandlestick(items, { hollow: true }).data;
+      expect(hollowData[0].upOpen).toBe(1); // up day
+      expect(hollowData[1].upOpen).toBeUndefined(); // down day
+      const filledData = createCandlestick(items).data;
+      expect('upOpen' in filledData[0]).toBe(false);
+    });
+  });
 });

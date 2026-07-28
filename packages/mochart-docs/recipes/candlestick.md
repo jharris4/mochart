@@ -6,6 +6,7 @@ wick spanning low→high.
 
 <script setup>
 import * as candlestick from '../examples/candlestick'
+import * as candlestickHollow from '../examples/candlestickHollow'
 </script>
 
 <LiveChart :config="candlestick.config" :data="candlestick.data" />
@@ -47,8 +48,23 @@ import * as candlestick from '../examples/candlestick'
   and `direction`, and the computed candles come back under `candles` — or
   call `computeCandlesticks(items)` alone for the math without the chart
   fragments.
-- For hollow candles (up candles drawn as outlines), override the up body
-  after spreading: `{ ...upBody, fillOpacity: 0, strokeColor: '#1baf7a',
-  strokeWidth: 2 }`.
 - For the tick-bar style of the same data — a thin low/high line with open
   and close ticks instead of a body — see [OHLC Bars](/recipes/ohlc).
+
+## Hollow candles
+
+Pass `hollow: true` to draw up candles as outlines — the classic
+hollow-candle style where a filled body means down:
+
+<LiveChart :config="candlestickHollow.config" :data="candlestickHollow.data" />
+
+<<< @/examples/candlestickHollow.ts{20}
+
+In hollow mode the low→high wick can't be painted behind the body (it would
+show through the hollow interior), so the helper splits it into segments
+that stop at the body edges, and the original wick series turns shapeless —
+it keeps the tooltip's single `low – high` range row and its focus/filter
+wiring, but draws nothing. The up body outlines itself via `strokeColor` /
+`strokeWidth` with a transparent fill, and its legend and tooltip icons pick
+up the stroke color automatically. `colors`, `seriesTitles` and the width
+options apply as in filled mode.

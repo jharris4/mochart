@@ -341,6 +341,9 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     const valueFormats = getSeriesFormats(seriesConfigs, seriesAxisConfigs, axisDomains);
     for (let seriesConfig of seriesConfigs) {
+      if (!seriesConfig.showInTooltip) {
+        continue;
+      }
       const { id: seriesId } = seriesConfig;
       const seriesIndex = seriesConfigIndicesById[seriesId];
       // a follower series (followSeries) focuses and filters as its leader,

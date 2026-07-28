@@ -24,7 +24,7 @@ import type { DataRow, DemoConfig, DemoDataProvider, GroupValue, RandomConfig } 
 type Rng = () => number;
 
 /** The chart-type generator ids usable in a demos.json `generator` field. */
-export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'ohlc'] as const;
+export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc'] as const;
 
 export type ChartTypeGenerator = (typeof chartTypeGenerators)[number];
 
@@ -306,6 +306,34 @@ function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
   };
 }
 
+// --- Hollow candlestick ------------------------------------------------------
+
+// The hollow variant shares the candlestick price walk (different seed) and
+// only flips the helper's hollow option: outlined up bodies with the wicks
+// split into segments around them.
+
+function candlestickHollowRows(rng: Rng): DataRow[] {
+  const dayCount = CANDLESTICK_DAYS.length - Math.floor(rng() * (CANDLESTICK_MAX_DROPPED_DAYS + 1));
+  return roundCandlestickChanges(createCandlestick(candlestickItems(rng, dayCount), { hollow: true }).data);
+}
+
+function buildCandlestickHollowSnapshot(): ChartTypeDemoSnapshot {
+  const items = candlestickItems(seedrandom('candlestick-hollow:baseline'), CANDLESTICK_DAYS.length);
+  const { data, groupAxisConfig, seriesConfigs } = createCandlestick(items, { hollow: true });
+  roundCandlestickChanges(data);
+  return {
+    id: 'candlestick-hollow',
+    config: {
+      version: '1.0.0',
+      titleConfig: { title: 'Daily Share Price (fictional, $)' },
+      groupAxisConfig,
+      seriesAxisConfigs: [{ title: '$ per share' }],
+      seriesConfigs: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
+    },
+    data
+  };
+}
+
 // --- OHLC --------------------------------------------------------------------
 
 // The OHLC demo shares the candlestick price walk (different seed) — only the
@@ -338,7 +366,7 @@ function buildOhlcSnapshot(): ChartTypeDemoSnapshot {
 
 /** Rebuilds every chart-type demo's static config/data (snapshot script). */
 export function buildChartTypeDemoSnapshots(): ChartTypeDemoSnapshot[] {
-  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildOhlcSnapshot()];
+  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildCandlestickHollowSnapshot(), buildOhlcSnapshot()];
 }
 
 /**
@@ -363,6 +391,9 @@ export function generateChartTypeDataProvider(
   }
   else if (generator === 'candlestick') {
     rows = candlestickRows(rng);
+  }
+  else if (generator === 'candlestick-hollow') {
+    rows = candlestickHollowRows(rng);
   }
   else if (generator === 'ohlc') {
     rows = ohlcRows(rng);

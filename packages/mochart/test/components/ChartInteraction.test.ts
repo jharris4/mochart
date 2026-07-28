@@ -272,6 +272,18 @@ describe('tooltip', () => {
     expect(text).toContain('N/A');
   });
 
+  it('leaves showInTooltip: false series out of the tooltip', () => {
+    const container = mountChart(makeConfig({
+      seriesConfigs: [{ property: 'sales' }, { property: 'costs', showInTooltip: false }]
+    }));
+    const root = chartRoot(container);
+
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'click', 100, 100);
+    expect(container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S0"]')).not.toBeNull();
+    expect(container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S1"]')).toBeNull();
+  });
+
   it('marks suppressed series values and can hide the line entirely', () => {
     const twoSeries = {
       legendConfig: { visible: true },
