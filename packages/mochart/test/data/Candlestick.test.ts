@@ -58,12 +58,16 @@ describe('createCandlestick', () => {
     expect(down).toMatchObject({ property: 'down', rangeProperty: 'open', barWidthPercent: 1, title: 'Down' });
   });
 
-  it('colors each wick to match its body', () => {
+  it('colors each wick to match its body, with strokes matching the fills', () => {
     const { seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [upWick, downWick, up, down] = seriesConfigs;
     expect(upWick.fillColor).toBe(up.fillColor);
     expect(downWick.fillColor).toBe(down.fillColor);
     expect(up.fillColor).not.toBe(down.fillColor);
+    // the focused 1px outline must not fall back to the palette-index color
+    for (const seriesConfig of seriesConfigs) {
+      expect(seriesConfig.strokeColor).toBe(seriesConfig.fillColor);
+    }
   });
 
   it('honours custom titles, colors, widths and range title', () => {
@@ -127,7 +131,9 @@ describe('createCandlestick', () => {
       });
       expect(byId.up.strokeColor).toBe(byId.up.fillColor);
       expect(byId.down).toMatchObject({ fillOpacity: 1 });
-      expect(byId.down.strokeColor).toBeUndefined();
+      // filled bodies keep the default zero-width stroke, in the fill color
+      expect(byId.down.strokeColor).toBe(byId.down.fillColor);
+      expect(byId.down.strokeWidth).toBeUndefined();
     });
 
     it('adds the upOpen column only in hollow mode', () => {

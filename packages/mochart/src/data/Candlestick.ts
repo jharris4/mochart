@@ -176,6 +176,10 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       followSeries: direction,
       valueLabel: rangeTitle,
       fillColor: color,
+      // strokeColor matches the fill: focused bars grow a 1px outline, and
+      // the default strokeColor is the palette color for the series *index*,
+      // which would rim the wick in an unrelated color.
+      strokeColor: color,
       // markerShape null overrides the renderer-none default (circle
       // markers), and the label fill color/opacity color the tooltip icon,
       // which falls back to them for shapeless series.
@@ -201,7 +205,8 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       showInLegend: false,
       showInTooltip: false,
       followSeries: direction,
-      fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
+      fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+      strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
     };
     return [
       { id: direction + 'WickUpper', property: direction + 'High', rangeProperty: direction === 'up' ? 'up' : 'open', ...shared } as Partial<SeriesConfig>,
@@ -225,13 +230,13 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       fillOpacity: hollowBody ? 0 : 1,
       title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
       fillColor: color,
+      strokeColor: color,
       // Outline only: the fill stays transparent in every focus state, and
       // focus thickens the outline instead of the default bar behavior of
       // thinning it back to 1px.
       ...(hollowBody ? {
         focusedFillOpacity: 0,
         defocusedFillOpacity: 0,
-        strokeColor: color,
         strokeWidth: 2,
         strokeOpacity: 1,
         focusedStrokeWidth: 3,

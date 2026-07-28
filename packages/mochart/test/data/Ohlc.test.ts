@@ -39,7 +39,7 @@ describe('createOhlc', () => {
     expect(downClose).toMatchObject({ property: 'down', rangeProperty: 'close', barWidthPercent: 0.5, barAlignPercent: 1, barMinExtent: 2, showInLegend: false, followSeries: 'down', valueLabel: 'Close' });
   });
 
-  it('colors each tick to match its line', () => {
+  it('colors each tick to match its line, with strokes matching the fills', () => {
     const { seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [up, down, upOpen, downOpen, upClose, downClose] = seriesConfigs;
     expect(upOpen.fillColor).toBe(up.fillColor);
@@ -47,6 +47,10 @@ describe('createOhlc', () => {
     expect(downOpen.fillColor).toBe(down.fillColor);
     expect(downClose.fillColor).toBe(down.fillColor);
     expect(up.fillColor).not.toBe(down.fillColor);
+    // the focused 1px outline must not fall back to the palette-index color
+    for (const seriesConfig of seriesConfigs) {
+      expect(seriesConfig.strokeColor).toBe(seriesConfig.fillColor);
+    }
   });
 
   it('honours custom titles, colors, widths and tooltip labels', () => {

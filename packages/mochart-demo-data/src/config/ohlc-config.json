@@ -28,6 +28,7 @@
       "title": "Up",
       "valueLabel": "Range",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -44,6 +45,7 @@
       "title": "Down",
       "valueLabel": "Range",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -63,6 +65,7 @@
       "followSeries": "up",
       "valueLabel": "Open",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -82,6 +85,7 @@
       "followSeries": "down",
       "valueLabel": "Open",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -101,6 +105,7 @@
       "followSeries": "up",
       "valueLabel": "Close",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -120,6 +125,7 @@
       "followSeries": "down",
       "valueLabel": "Close",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     }
   ]

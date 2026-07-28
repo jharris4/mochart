@@ -29,6 +29,7 @@
       "followSeries": "up",
       "valueLabel": "Range",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "markerShape": null,
       "labelFillColor": "#1baf7a",
       "labelFillOpacity": 1,
@@ -49,6 +50,7 @@
       "followSeries": "down",
       "valueLabel": "Range",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "markerShape": null,
       "labelFillColor": "#e34948",
       "labelFillOpacity": 1,
@@ -69,6 +71,7 @@
       "showInTooltip": false,
       "followSeries": "up",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -86,6 +89,7 @@
       "showInTooltip": false,
       "followSeries": "up",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -103,6 +107,7 @@
       "showInTooltip": false,
       "followSeries": "down",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -120,6 +125,7 @@
       "showInTooltip": false,
       "followSeries": "down",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -135,9 +141,9 @@
       "fillOpacity": 0,
       "title": "Up",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "focusedFillOpacity": 0,
       "defocusedFillOpacity": 0,
-      "strokeColor": "#1baf7a",
       "strokeWidth": 2,
       "strokeOpacity": 1,
       "focusedStrokeWidth": 3,
@@ -157,6 +163,7 @@
       "fillOpacity": 1,
       "title": "Down",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     }
   ]

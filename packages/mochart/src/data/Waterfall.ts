@@ -132,18 +132,25 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
   // skipPartialRange matters because `start` exists on every row: without it
   // the two off-direction series would keep zero-extent bars at `start`
   // instead of skipping the group.
-  const seriesConfigs = DIRECTIONS.map((direction) => ({
-    id: direction,
-    property: direction,
-    rangeProperty: RANGE_PROPERTY,
-    renderer: 'bar',
-    skipMissing: true,
-    skipPartialRange: true,
-    group: null,
-    stack: null,
-    title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
-    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
-  } as Partial<SeriesConfig>));
+  // strokeColor matches the fill: bars grow a 1px outline when focused, and
+  // the default strokeColor is the palette color for the series *index*,
+  // which would rim the bar in an unrelated color.
+  const seriesConfigs = DIRECTIONS.map((direction) => {
+    const color = options.colors?.[direction] ?? DEFAULT_COLORS[direction];
+    return {
+      id: direction,
+      property: direction,
+      rangeProperty: RANGE_PROPERTY,
+      renderer: 'bar',
+      skipMissing: true,
+      skipPartialRange: true,
+      group: null,
+      stack: null,
+      title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
+      fillColor: color,
+      strokeColor: color
+    } as Partial<SeriesConfig>;
+  });
 
   return { steps, data, groupAxisConfig, seriesConfigs };
 }

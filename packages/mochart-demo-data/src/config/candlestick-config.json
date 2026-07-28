@@ -29,6 +29,7 @@
       "followSeries": "up",
       "valueLabel": "Range",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -46,6 +47,7 @@
       "followSeries": "down",
       "valueLabel": "Range",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -61,6 +63,7 @@
       "fillOpacity": 1,
       "title": "Up",
       "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -76,6 +79,7 @@
       "fillOpacity": 1,
       "title": "Down",
       "fillColor": "#e34948",
+      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     }
   ]

@@ -137,7 +137,11 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     fillOpacity: 1,
     title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
     valueLabel: rangeTitle,
-    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
+    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+    // strokeColor matches the fill: focused bars grow a 1px outline, and the
+    // default strokeColor is the palette color for the series *index*, which
+    // would rim the bar in an unrelated color.
+    strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
   } as Partial<SeriesConfig>));
 
   const tickConfigs = (['open', 'close'] as const).flatMap((side) => DIRECTIONS.map((direction) => ({
@@ -156,7 +160,8 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     showInLegend: false,
     followSeries: direction,
     valueLabel: side === 'open' ? openTitle : closeTitle,
-    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
+    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+    strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
   } as Partial<SeriesConfig>)));
 
   return { candles, data, groupAxisConfig, seriesConfigs: [...lineConfigs, ...tickConfigs] };

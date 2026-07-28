@@ -24,7 +24,8 @@
       "group": null,
       "stack": null,
       "title": "Increase",
-      "fillColor": "#1baf7a"
+      "fillColor": "#1baf7a",
+      "strokeColor": "#1baf7a"
     },
     {
       "id": "decrease",
@@ -36,7 +37,8 @@
       "group": null,
       "stack": null,
       "title": "Decrease",
-      "fillColor": "#e34948"
+      "fillColor": "#e34948",
+      "strokeColor": "#e34948"
     },
     {
       "id": "total",
@@ -48,7 +50,8 @@
       "group": null,
       "stack": null,
       "title": "Total",
-      "fillColor": "#2a78d6"
+      "fillColor": "#2a78d6",
+      "strokeColor": "#2a78d6"
     }
   ]
 }
