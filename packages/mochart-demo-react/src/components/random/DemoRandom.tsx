@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { buildMochartDemoConfig, consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import RandomMochartChartTab from './RandomChartTab';
@@ -141,20 +141,12 @@ function getData(mochartConfig: MochartConfig, groupValues: GroupValue[], series
   return data;
 }
 
-// With reuse off, the generator gets a config whose reuse settings are
-// neutralized, so every dataset is generated independently.
-function withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithValid {
-  return {
-    ...config,
-    group: { ...config.group, reuse: { globalPercentage: 0, stepPercentage: 0 } },
-    series: { ...config.series, reuse: { global: false, step: false } }
-  };
-}
-
 function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: number, randomConfig: RandomConfigWithValid, applyReuse: boolean, generator: string | undefined): Pick<ContentState, 'dataProvider' | 'data' | 'randomConfig'> {
   const { mochartConfig } = mochartDemoConfig;
   if (randomConfig.valid) {
-    const generatorConfig = applyReuse ? randomConfig : withReuseNeutralized(randomConfig);
+    // with reuse off the generator gets a config whose reuse settings are
+    // neutralized, so every dataset is generated independently
+    const generatorConfig = applyReuse ? randomConfig : neutralizeRandomReuse(randomConfig);
     const dataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
     const { groupValues = [], seriesValues = {} } = dataProvider;
     const data = getData(mochartConfig, groupValues, seriesValues);
@@ -196,7 +188,11 @@ function RandomMochartDemoContent(props: ContentProps) {
   const [state, setState] = useState<ContentState>(() => {
     // Reuse defaults on to match the generator's historical behavior.
     const applyReuse = initialShared ? initialShared.applyReuse : true;
-    const randomConfig: RandomConfigWithValid = initialShared ? { ...initialShared.randomConfig, valid: true } : initialRandomConfig;
+    // a shared config that no longer validates (e.g. an old link embedding the
+    // generic shape for a chart-type generator demo) falls back to the demo's default
+    const randomConfig: RandomConfigWithValid = initialShared && validateRandomConfig(initialShared.randomConfig, generator)
+      ? { ...initialShared.randomConfig, valid: true }
+      : initialRandomConfig;
     return { applyReuse, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, applyReuse, generator) };
   });
 
@@ -246,7 +242,7 @@ function RandomMochartDemoContent(props: ContentProps) {
           applyReuse={applyReuse} toggleApplyReuse={toggleApplyReuse} />
       </ErrorTab>
       <ErrorTab active={activeKey === eventKeyConfig}>
-        <RandomMochartConfigTab randomConfig={randomConfig} onUpdate={onUpdateConfig} onReset={onResetConfig} />
+        <RandomMochartConfigTab randomConfig={randomConfig} generator={generator} onUpdate={onUpdateConfig} onReset={onResetConfig} />
       </ErrorTab>
       <ErrorTab active={activeKey === eventKeyData}>
         <RandomMochartDataTab data={data} />

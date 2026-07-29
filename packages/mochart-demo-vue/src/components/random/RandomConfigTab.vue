@@ -12,6 +12,8 @@ import type { RandomConfigWithValid } from '../../types';
 interface Props {
   active?: boolean;
   randomConfig: RandomConfigWithValid;
+  /** The current demo's generator id, for schema dispatch. */
+  generator?: string;
   onUpdate: (config: RandomConfigWithValid) => void;
   onReset: () => void;
 }
@@ -35,7 +37,7 @@ function onTextChange(nextConfigText: string) {
 function onUpdateClick() {
   try {
     const newConfig = JSON.parse(configText.value);
-    newConfig.valid = validateRandomConfig(newConfig);
+    newConfig.valid = validateRandomConfig(newConfig, props.generator);
     errorMessage.value = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
     props.onUpdate(newConfig);
   }

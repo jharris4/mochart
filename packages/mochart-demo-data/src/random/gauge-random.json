@@ -1,0 +1,13 @@
+{
+  "value": {
+    "min": 0,
+    "max": 540
+  },
+  "missing": {
+    "probability": 0
+  },
+  "reuse": {
+    "globalPercentage": 0,
+    "stepPercentage": 0.5
+  }
+}

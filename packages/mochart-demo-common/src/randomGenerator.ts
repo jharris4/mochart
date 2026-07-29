@@ -317,19 +317,7 @@ export function generateChartDataProvider(
 ): DemoDataProvider {
   const { groupAxisConfig } = mochartConfig;
   const { displayProperty, scale } = groupAxisConfig;
-  const { error, group } = random;
-  const { probability } = error;
-  if (probability > 0) {
-    // NB: parity with the original JS demo — this compares the PRNG object
-    // itself (not a draw) against probability, so the branch is effectively
-    // inert. Kept as-is to preserve behavior.
-    if ((rng(randomId) as unknown as number) <= probability) {
-      return {
-        getGroupValues: () => [],
-        getError: () => 'A random error'
-      };
-    }
-  }
+  const { group } = random;
 
   const groupData = generateChartGroupValues(mochartConfig, random, randomId);
   let { groupValues } = groupData;

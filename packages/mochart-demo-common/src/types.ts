@@ -1,7 +1,11 @@
 import type { ConfigValidation, MochartConfig } from '@mochart/core';
-import type { RandomConfig } from '@mochart/demo-data';
+import type { DemoRandomConfig } from '@mochart/demo-data';
 
-export type { DataRow, Demo, DemoConfig, DemoData, RandomConfig } from '@mochart/demo-data';
+export type {
+  DataRow, Demo, DemoConfig, DemoData, DemoRandomConfig,
+  ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
+  RandomConfig, WalkRandomConfig, WaterfallRandomConfig
+} from '@mochart/demo-data';
 
 /** A value on the group axis of a generated data set. */
 export type GroupValue = number | string;
@@ -51,7 +55,7 @@ export type OnDemoModeChanged = (nextDemoMode: DemoMode, nextDemoId?: string) =>
 export type OnDemoChanged = (nextDemoId: string) => void;
 
 /** The random config plus the validity flag the random editor tracks. */
-export type RandomConfigWithValid = RandomConfig & { valid: boolean };
+export type RandomConfigWithValid = DemoRandomConfig & { valid: boolean };
 
 /**
  * The derived config bundle returned by buildMochartDemoConfig — the built

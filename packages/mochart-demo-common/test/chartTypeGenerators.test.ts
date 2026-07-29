@@ -182,6 +182,110 @@ describe('generateChartTypeDataProvider', () => {
   });
 });
 
+describe('random config wiring', () => {
+  const configFor = (id: string) => enhanceConfig(snapshots.find(snapshot => snapshot.id === id)!.config);
+
+  it('pie: value.min/max scale the curated pool and missing.probability 1 zeroes the droppable slices', () => {
+    const mochartConfig = configFor('pie');
+    const scaled = generateChartTypeDataProvider('pie', mochartConfig, {
+      value: { min: 0, max: 4200 }, missing: { probability: 0 }, reuse: { globalPercentage: 0, stepPercentage: 0 }
+    }, 3);
+    const values = Object.keys(scaled.seriesValues!).filter(key => /^slice\d+$/.test(key)).map(key => scaled.seriesValues![key][0]!);
+    expect(Math.max(...values)).toBeGreaterThan(2000);
+    expect(values.every(value => value > 0)).toBe(true);
+
+    const dropped = generateChartTypeDataProvider('pie', mochartConfig, {
+      value: { min: 0, max: 420 }, missing: { probability: 1 }, reuse: { globalPercentage: 0, stepPercentage: 0 }
+    }, 3);
+    // Licensing (slice3) and Other (slice5) are the droppable pool entries
+    expect(dropped.seriesValues!['slice3'][0]).toBe(0);
+    expect(dropped.seriesValues!['slice5'][0]).toBe(0);
+    expect(dropped.seriesValues!['slice0'][0]).toBeGreaterThan(0);
+  });
+
+  it('pie: reuse.globalPercentage 1 pins every slice across arbitrary steps', () => {
+    const mochartConfig = configFor('pie');
+    const random = { value: { min: 0, max: 420 }, missing: { probability: 0.25 }, reuse: { globalPercentage: 1, stepPercentage: 0 } };
+    const a = generateChartTypeDataProvider('pie', mochartConfig, random, 3);
+    const b = generateChartTypeDataProvider('pie', mochartConfig, random, 9);
+    expect(b.seriesValues).toEqual(a.seriesValues);
+  });
+
+  it('pie: reuse.stepPercentage 1 persists half the slices across each step boundary', () => {
+    const mochartConfig = configFor('pie');
+    const random = { value: { min: 0, max: 420 }, missing: { probability: 0 }, reuse: { globalPercentage: 0, stepPercentage: 1 } };
+    const sliceProperties = ['slice0', 'slice1', 'slice2', 'slice3', 'slice4', 'slice5'];
+    for (const randomId of [2, 3]) {
+      const a = generateChartTypeDataProvider('pie', mochartConfig, random, randomId);
+      const b = generateChartTypeDataProvider('pie', mochartConfig, random, randomId + 1);
+      const persisted = sliceProperties.filter(property => a.seriesValues![property][0] === b.seriesValues![property][0]);
+      expect(persisted.length).toBe(3);
+    }
+  });
+
+  it('gauge: raising missing.probability drops segments that never drop by default', () => {
+    const mochartConfig = configFor('gauge');
+    const provider = generateChartTypeDataProvider('gauge', mochartConfig, {
+      value: { min: 0, max: 540 }, missing: { probability: 1 }, reuse: { globalPercentage: 0, stepPercentage: 0 }
+    }, 4);
+    const values = ['slice0', 'slice1', 'slice2'].map(property => provider.seriesValues![property][0]);
+    expect(values).toEqual([0, 0, 0]);
+  });
+
+  it('waterfall: value.min/max remap the pool deltas', () => {
+    const mochartConfig = configFor('waterfall');
+    const provider = generateChartTypeDataProvider('waterfall', mochartConfig, {
+      value: { min: -1800, max: 4200 }, missing: { probability: 0 }, reuse: { globalPercentage: 0, stepPercentage: 0 }
+    }, 5);
+    // Product revenue is the pool max, remapped to ~4200 before ±35% jitter
+    expect(provider.seriesValues!['cumulative'][0]!).toBeGreaterThan(2000);
+  });
+
+  it('walk generators honor candles.min/max and the price band', () => {
+    const mochartConfig = configFor('candlestick');
+    const random = { candles: { min: 5, max: 5 }, price: { min: 900, max: 1100, volatility: 0.04 }, reuse: { step: true } };
+    for (const randomId of [0, 4]) {
+      const provider = generateChartTypeDataProvider('candlestick', mochartConfig, random, randomId);
+      expect(provider.getGroupValues()).toHaveLength(5);
+      expect(provider.seriesValues!['open'][0]!).toBeGreaterThan(500);
+    }
+  });
+
+  it('histogram: samples.min/max control the sampled population size', () => {
+    const mochartConfig = configFor('histogram');
+    const provider = generateChartTypeDataProvider('histogram', mochartConfig, {
+      samples: { min: 10, max: 10 }, value: { min: 100, max: 280 }, reuse: { global: false, step: false }
+    }, 2);
+    const total = provider.seriesValues!['count'].reduce((sum: number, count) => sum + (count ?? 0), 0);
+    expect(total).toBe(10);
+  });
+
+  it('heatmap: columns.dropProbability/maxDropped control the column dropouts', () => {
+    const mochartConfig = configFor('heatmap');
+    const none = generateChartTypeDataProvider('heatmap', mochartConfig, {
+      columns: { dropProbability: 1, maxDropped: 0 }, missing: { probability: 0 }, reuse: { global: false, step: false }
+    }, 3);
+    expect(none.getGroupValues()).toHaveLength(12);
+    const three = generateChartTypeDataProvider('heatmap', mochartConfig, {
+      columns: { dropProbability: 1, maxDropped: 3 }, missing: { probability: 0 }, reuse: { global: false, step: false }
+    }, 3);
+    expect(three.getGroupValues()).toHaveLength(9);
+  });
+
+  it('error-bars: months.min/max bound the group count and missing drops points with their bounds', () => {
+    const mochartConfig = configFor('error-bars');
+    const provider = generateChartTypeDataProvider('error-bars', mochartConfig, {
+      months: { min: 3, max: 3 }, margin: { min: 3, max: 7 }, missing: { probability: 1 }, reuse: { global: false, step: false }
+    }, 1);
+    expect(provider.getGroupValues()).toHaveLength(3);
+    for (const property of ['a', 'aLow', 'aHigh', 'b', 'bLow', 'bHigh']) {
+      // no row carries the property, so its series array is never created
+      expect((provider.seriesValues![property] ?? []).every(value => value === undefined)).toBe(true);
+    }
+    expect(provider.seriesValues!['target'].every(value => typeof value === 'number')).toBe(true);
+  });
+});
+
 describe('generateDemoDataProvider', () => {
   it('dispatches to the chart-type generator for known generator ids', () => {
     const heatmap = snapshots.find(snapshot => snapshot.id === 'heatmap')!;

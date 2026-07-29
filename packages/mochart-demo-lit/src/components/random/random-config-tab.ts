@@ -13,6 +13,8 @@ import type { RandomConfigWithValid } from '../../types';
 export class RandomConfigTab extends LightElement {
   @property({ attribute: false }) active = false;
   @property({ attribute: false }) randomConfig!: RandomConfigWithValid;
+  /** The current demo's generator id, for schema dispatch. */
+  @property({ attribute: false }) generator?: string;
   @property({ attribute: false }) onUpdate!: (config: RandomConfigWithValid) => void;
   @property({ attribute: false }) onReset!: () => void;
 
@@ -33,7 +35,7 @@ export class RandomConfigTab extends LightElement {
   private onUpdateClick = (): void => {
     try {
       const newConfig = JSON.parse(this.configText);
-      newConfig.valid = validateRandomConfig(newConfig);
+      newConfig.valid = validateRandomConfig(newConfig, this.generator);
       this.errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       this.onUpdate(newConfig);
     }

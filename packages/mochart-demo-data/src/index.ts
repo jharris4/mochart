@@ -1,8 +1,12 @@
 import demosJson from './demos.json';
 
-import type { DataRow, Demo, DemoConfig, DemoData, DemoManifestEntry, RandomConfig } from './types';
+import type { DataRow, Demo, DemoConfig, DemoData, DemoManifestEntry, DemoRandomConfig } from './types';
 
-export type { DataRow, Demo, DemoConfig, DemoData, DemoManifestEntry, RandomConfig } from './types';
+export type {
+  DataRow, Demo, DemoConfig, DemoData, DemoManifestEntry, DemoRandomConfig,
+  ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
+  RandomConfig, WalkRandomConfig, WaterfallRandomConfig
+} from './types';
 
 type ModuleMap = Record<string, unknown>;
 
@@ -29,7 +33,7 @@ function buildDemo(entry: DemoManifestEntry, configModuleMap: ModuleMap, configD
     description,
     config: Object.assign({}, getModule(configModuleMap, configDir, config) as DemoConfig),
     data: (getModule(dataModules, './data/', data) as DataRow[]).slice(),
-    random: Object.assign({}, getModule(randomModules, './random/', random) as RandomConfig),
+    random: Object.assign({}, getModule(randomModules, './random/', random) as DemoRandomConfig),
     generator
   };
 }

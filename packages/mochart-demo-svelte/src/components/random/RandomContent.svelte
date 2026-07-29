@@ -9,7 +9,7 @@
   import RandomDataTab from './RandomDataTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
 
-  import { consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
+  import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
 
   import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -51,8 +51,13 @@
   // step comes from the randomId in the URL path). Consume it once at mount.
   const sharedState = consumeShareState('random');
   const shared = sharedState && sharedState.mode === 'random' ? sharedState : null;
+  // A shared config that no longer validates (e.g. an old link embedding the
+  // generic shape for a chart-type generator demo) falls back to the demo's
+  // default config instead of erroring.
   // svelte-ignore state_referenced_locally
-  const initialResolvedRandomConfig: RandomConfigWithValid = shared ? { ...shared.randomConfig, valid: true } : initialRandomConfig;
+  const initialResolvedRandomConfig: RandomConfigWithValid = shared && validateRandomConfig(shared.randomConfig, generator)
+    ? { ...shared.randomConfig, valid: true }
+    : initialRandomConfig;
   const initialRate = shared ? shared.interval : undefined;
 
   // svelte-ignore state_referenced_locally
@@ -66,16 +71,6 @@
   function toggleApplyReuse() {
     applyReuse = !applyReuse;
     updateDataProvider();
-  }
-
-  // With reuse off, the generator gets a config whose reuse settings are
-  // neutralized, so every dataset is generated independently.
-  function withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithValid {
-    return {
-      ...config,
-      group: { ...config.group, reuse: { globalPercentage: 0, stepPercentage: 0 } },
-      series: { ...config.series, reuse: { global: false, step: false } }
-    };
   }
 
   function getData(mochartConfig: MochartConfig, groupValues: GroupValue[], seriesValues: Record<string, (number | undefined)[]>) {
@@ -104,7 +99,9 @@
     const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : randomConfig;
 
     if (nextRandomConfig.valid) {
-      const generatorConfig = applyReuse ? nextRandomConfig : withReuseNeutralized(nextRandomConfig);
+      // with reuse off the generator gets a config whose reuse settings are
+      // neutralized, so every dataset is generated independently
+      const generatorConfig = applyReuse ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
       const nextDataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
       const { groupValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = getData(mochartConfig, groupValues, seriesValues);
@@ -195,7 +192,7 @@
                     {applyReuse} {toggleApplyReuse} />
   </ErrorTab>
   <ErrorTab active={activeKey === eventKeyConfig}>
-    <RandomConfigTab active={activeKey === eventKeyConfig} {randomConfig} onUpdate={onUpdateConfig} onReset={onResetConfig} />
+    <RandomConfigTab active={activeKey === eventKeyConfig} {randomConfig} {generator} onUpdate={onUpdateConfig} onReset={onResetConfig} />
   </ErrorTab>
   <ErrorTab active={activeKey === eventKeyData}>
     <RandomDataTab active={activeKey === eventKeyData} {data} />

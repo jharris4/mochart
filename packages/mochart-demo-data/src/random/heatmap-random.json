@@ -1,0 +1,13 @@
+{
+  "columns": {
+    "dropProbability": 0.12,
+    "maxDropped": 3
+  },
+  "missing": {
+    "probability": 0
+  },
+  "reuse": {
+    "global": false,
+    "step": true
+  }
+}

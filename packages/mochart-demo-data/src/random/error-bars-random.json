@@ -1,0 +1,17 @@
+{
+  "months": {
+    "min": 9,
+    "max": 12
+  },
+  "margin": {
+    "min": 3,
+    "max": 7
+  },
+  "missing": {
+    "probability": 0
+  },
+  "reuse": {
+    "global": false,
+    "step": true
+  }
+}

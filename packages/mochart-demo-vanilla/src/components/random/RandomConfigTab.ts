@@ -8,6 +8,8 @@ import type { RandomConfigWithValid } from '../../types';
 export interface RandomConfigTabProps {
   active?: boolean;
   randomConfig: RandomConfigWithValid;
+  /** The current demo's generator id, for schema dispatch (demos switch in place). */
+  getGenerator: () => string | undefined;
   onUpdate: (config: RandomConfigWithValid) => void;
   onReset: () => void;
 }
@@ -19,7 +21,7 @@ export interface RandomConfigTabHandle {
 }
 
 export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHandle {
-  const { onUpdate, onReset } = props;
+  const { getGenerator, onUpdate, onReset } = props;
 
   let randomConfig = props.randomConfig;
   let errorMessage: string | null = null;
@@ -42,7 +44,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
   function onUpdateClick(): void {
     try {
       const newConfig = JSON.parse(textArea.getValue());
-      newConfig.valid = validateRandomConfig(newConfig);
+      newConfig.valid = validateRandomConfig(newConfig, getGenerator());
       errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       onUpdate(newConfig);
     }

@@ -12,11 +12,13 @@
   interface Props {
     active?: boolean;
     randomConfig: RandomConfigWithValid;
+    /** The current demo's generator id, for schema dispatch. */
+    generator?: string;
     onUpdate: (config: RandomConfigWithValid) => void;
     onReset: () => void;
   }
 
-  let { active = false, randomConfig, onUpdate, onReset }: Props = $props();
+  let { active = false, randomConfig, generator = undefined, onUpdate, onReset }: Props = $props();
 
   // Props intentionally seed local state with their initial value only; the
   // $effect.pre below re-syncs on later prop changes.
@@ -44,7 +46,7 @@
   function onUpdateClick() {
     try {
       const newConfig = JSON.parse(configText);
-      newConfig.valid = validateRandomConfig(newConfig);
+      newConfig.valid = validateRandomConfig(newConfig, generator);
       errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       onUpdate(newConfig);
     }

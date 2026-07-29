@@ -1,0 +1,14 @@
+{
+  "samples": {
+    "min": 200,
+    "max": 400
+  },
+  "value": {
+    "min": 100,
+    "max": 280
+  },
+  "reuse": {
+    "global": false,
+    "step": true
+  }
+}

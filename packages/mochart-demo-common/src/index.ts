@@ -1,5 +1,7 @@
 export type {
-  DataRow, Demo, DemoConfig, DemoData, RandomConfig,
+  DataRow, Demo, DemoConfig, DemoData, DemoRandomConfig, RandomConfig,
+  ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
+  WalkRandomConfig, WaterfallRandomConfig,
   GroupValue, FilteredSeriesIds, FocusData, TransitionConfig,
   ChartDataProviderLike, DemoDataProvider, DemoMode,
   OnDemoModeChanged, OnDemoChanged, RandomConfigWithValid, MochartDemoConfig
@@ -32,7 +34,7 @@ export {
 } from './chartTypeGenerators';
 export type { ChartTypeGenerator, ChartTypeDemoSnapshot } from './chartTypeGenerators';
 
-export { validateRandomConfig, formatRandomConfig } from './randomConfig';
+export { validateRandomConfig, formatRandomConfig, neutralizeRandomReuse } from './randomConfig';
 
 export {
   defaultTransitionConfig, getTransitionMochartConfig, getTransitionDataProviders,

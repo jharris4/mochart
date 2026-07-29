@@ -9,7 +9,7 @@ import { RandomConfigTab } from './random-config-tab';
 import { RandomDataTab } from './random-data-tab';
 import { ErrorTab } from '../misc/error-tab';
 
-import { consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -32,7 +32,7 @@ interface EventKeys {
                               [applyReuse]="applyReuse()" [toggleApplyReuse]="toggleApplyReuse" />
       </app-error-tab>
       <app-error-tab [active]="activeKey === eventKeys.eventKeyConfig">
-        <app-random-config-tab [active]="activeKey === eventKeys.eventKeyConfig" [randomConfig]="randomConfig()!" [onUpdate]="onUpdateConfig" [onReset]="onResetConfig" />
+        <app-random-config-tab [active]="activeKey === eventKeys.eventKeyConfig" [randomConfig]="randomConfig()!" [generator]="generator" [onUpdate]="onUpdateConfig" [onReset]="onResetConfig" />
       </app-error-tab>
       <app-error-tab [active]="activeKey === eventKeys.eventKeyData">
         <app-random-data-tab [active]="activeKey === eventKeys.eventKeyData" [data]="data()" />
@@ -66,9 +66,14 @@ export class RandomContent implements OnInit, OnChanges {
     // consume it once at mount, else fall back to the demo's own config.
     const shared = consumeShareState('random');
     const initialShared = shared !== null && shared.mode === 'random' ? shared : null;
+    // A shared config that no longer validates (e.g. an old link embedding
+    // the generic shape for a chart-type generator demo) falls back to the
+    // demo's default config instead of erroring.
     if (initialShared) {
       this.applyReuse.set(initialShared.applyReuse);
       this.initialRate.set(initialShared.interval);
+    }
+    if (initialShared && validateRandomConfig(initialShared.randomConfig, this.generator)) {
       const restored: RandomConfigWithValid = { ...initialShared.randomConfig, valid: true };
       this.randomConfig.set(restored);
       this.updateDataProvider(restored);
@@ -83,16 +88,6 @@ export class RandomContent implements OnInit, OnChanges {
     this.applyReuse.update(applyReuse => !applyReuse);
     this.updateDataProvider();
   };
-
-  // With reuse off, the generator gets a config whose reuse settings are
-  // neutralized, so every dataset is generated independently.
-  private withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithValid {
-    return {
-      ...config,
-      group: { ...config.group, reuse: { globalPercentage: 0, stepPercentage: 0 } },
-      series: { ...config.series, reuse: { global: false, step: false } }
-    };
-  }
 
   private getData(mochartConfig: MochartConfig, groupValues: GroupValue[], seriesValues: Record<string, (number | undefined)[]>): Record<string, any>[] {
     const { groupAxisConfig } = mochartConfig;
@@ -120,7 +115,9 @@ export class RandomContent implements OnInit, OnChanges {
     const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : this.randomConfig()!;
 
     if (nextRandomConfig.valid) {
-      const generatorConfig = this.applyReuse() ? nextRandomConfig : this.withReuseNeutralized(nextRandomConfig);
+      // with reuse off the generator gets a config whose reuse settings are
+      // neutralized, so every dataset is generated independently
+      const generatorConfig = this.applyReuse() ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
       const nextDataProvider = generateDemoDataProvider(this.generator, mochartConfig, generatorConfig, this.randomId);
       const { groupValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = this.getData(mochartConfig, groupValues, seriesValues);

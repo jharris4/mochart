@@ -40,6 +40,8 @@ import type { RandomConfigWithValid } from '../../types';
 export class RandomConfigTab implements OnInit, OnChanges {
   @Input() active = false;
   @Input({ required: true }) randomConfig!: RandomConfigWithValid;
+  /** The current demo's generator id, for schema dispatch. */
+  @Input() generator?: string;
   @Input({ required: true }) onUpdate!: (config: RandomConfigWithValid) => void;
   @Input({ required: true }) onReset!: () => void;
 
@@ -67,7 +69,7 @@ export class RandomConfigTab implements OnInit, OnChanges {
   onUpdateClick = (): void => {
     try {
       const newConfig = JSON.parse(this.configText());
-      newConfig.valid = validateRandomConfig(newConfig);
+      newConfig.valid = validateRandomConfig(newConfig, this.generator);
       this.errorMessage.set(newConfig.valid ? null : demoText.errors.invalidRandomConfigValues);
       this.onUpdate(newConfig);
     }

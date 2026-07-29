@@ -11,7 +11,7 @@ import './random-config-tab';
 import './random-data-tab';
 import '../misc/error-tab';
 
-import { consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -47,16 +47,6 @@ export class RandomContent extends LightElement {
     this.updateDataProvider();
   };
 
-  // With reuse off, the generator gets a config whose reuse settings are
-  // neutralized, so every dataset is generated independently.
-  private withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithValid {
-    return {
-      ...config,
-      group: { ...config.group, reuse: { globalPercentage: 0, stepPercentage: 0 } },
-      series: { ...config.series, reuse: { global: false, step: false } }
-    };
-  }
-
   private getData(mochartConfig: MochartConfig, groupValues: GroupValue[], seriesValues: Record<string, (number | undefined)[]>) {
     const { groupAxisConfig } = mochartConfig;
     const groupProperty = groupAxisConfig.property ?? '';
@@ -83,7 +73,9 @@ export class RandomContent extends LightElement {
     const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : this.randomConfig;
 
     if (nextRandomConfig.valid) {
-      const generatorConfig = this.applyReuse ? nextRandomConfig : this.withReuseNeutralized(nextRandomConfig);
+      // with reuse off the generator gets a config whose reuse settings are
+      // neutralized, so every dataset is generated independently
+      const generatorConfig = this.applyReuse ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
       const nextDataProvider = generateDemoDataProvider(this.generator, mochartConfig, generatorConfig, this.randomId);
       const { groupValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = this.getData(mochartConfig, groupValues, seriesValues);
@@ -123,12 +115,21 @@ export class RandomContent extends LightElement {
       // (the step comes from the randomId in the URL path). Consume it once.
       const shared = consumeShareState('random');
       const sharedRandom = shared && shared.mode === 'random' ? shared : null;
-      if (sharedRandom) {
+      // A shared config that no longer validates (e.g. an old link embedding
+      // the generic shape for a chart-type generator demo) falls back to the
+      // demo's default config instead of erroring.
+      if (sharedRandom && validateRandomConfig(sharedRandom.randomConfig, this.generator)) {
         this.applyReuse = sharedRandom.applyReuse;
         this.initialRate = sharedRandom.interval;
         const restored: RandomConfigWithValid = { ...sharedRandom.randomConfig, valid: true };
         this.randomConfig = restored;
         this.updateDataProvider(restored);
+      }
+      else if (sharedRandom) {
+        this.applyReuse = sharedRandom.applyReuse;
+        this.initialRate = sharedRandom.interval;
+        this.randomConfig = this.initialRandomConfig;
+        this.updateDataProvider(this.initialRandomConfig);
       }
       else {
         this.randomConfig = this.initialRandomConfig;
@@ -173,7 +174,7 @@ export class RandomContent extends LightElement {
             .onRandomizeBack=${this.onRandomizeBack} .onRandomizeNext=${this.onRandomizeNext}
             .applyReuse=${this.applyReuse} .toggleApplyReuse=${this.toggleApplyReuse}></random-chart-tab>`}></error-tab>
       <error-tab .active=${this.activeKey === eventKeyConfig} .content=${() =>
-        html`<random-config-tab .active=${this.activeKey === eventKeyConfig} .randomConfig=${this.randomConfig} .onUpdate=${this.onUpdateConfig} .onReset=${this.onResetConfig}></random-config-tab>`}></error-tab>
+        html`<random-config-tab .active=${this.activeKey === eventKeyConfig} .randomConfig=${this.randomConfig} .generator=${this.generator} .onUpdate=${this.onUpdateConfig} .onReset=${this.onResetConfig}></random-config-tab>`}></error-tab>
       <error-tab .active=${this.activeKey === eventKeyData} .content=${() =>
         html`<random-data-tab .active=${this.activeKey === eventKeyData} .data=${this.data}></random-data-tab>`}></error-tab>
     </div>`;

@@ -368,7 +368,7 @@
       "description": "Raw samples binned into touching bars by the createHistogram helper. Random mode re-samples the distribution, so every bar height changes while bins enter and exit at the edges.",
       "config": "histogram-config.json",
       "data": "histogram-data.json",
-      "random": "default-random.json",
+      "random": "histogram-random.json",
       "generator": "histogram"
     },
     {
@@ -377,7 +377,7 @@
       "description": "Floating increase/decrease bars accumulating into totals, built by the createWaterfall helper. Random mode re-draws step values and drops or restores optional steps, recomputing every running total.",
       "config": "waterfall-config.json",
       "data": "waterfall-data.json",
-      "random": "default-random.json",
+      "random": "waterfall-random.json",
       "generator": "waterfall"
     },
     {
@@ -386,7 +386,7 @@
       "description": "A weekday-by-month grid from the createHeatmap helper: row bands on a tick-labelled axis, cells colored from a shared sequential ramp. Random mode recolors every cell and drops columns in and out.",
       "config": "heatmap-config.json",
       "data": "heatmap-data.json",
-      "random": "default-random.json",
+      "random": "heatmap-random.json",
       "generator": "heatmap"
     },
     {
@@ -395,7 +395,7 @@
       "description": "OHLC candles from the createCandlestick helper: direction-colored open/close bodies over thin low/high wicks, on an ordinal axis that skips non-trading days, with the volume option's pane of direction-colored volume bars along the bottom. Random mode re-runs the price walk, so every candle re-draws while the tail days enter and exit.",
       "config": "candlestick-config.json",
       "data": "candlestick-data.json",
-      "random": "default-random.json",
+      "random": "candlestick-random.json",
       "generator": "candlestick"
     },
     {
@@ -404,7 +404,7 @@
       "description": "The candlestick's hollow variant (createCandlestick with hollow: true): outlined up bodies, filled down bodies, and wicks split into segments so nothing shows through the hollow interior. Random mode re-runs the price walk, so every candle re-draws while the tail days enter and exit.",
       "config": "candlestick-hollow-config.json",
       "data": "candlestick-hollow-data.json",
-      "random": "default-random.json",
+      "random": "candlestick-random.json",
       "generator": "candlestick-hollow"
     },
     {
@@ -413,7 +413,7 @@
       "description": "OHLC tick bars from the createOhlc helper: a thin low/high line per trading day with a left open tick and right close tick, direction-colored, on an ordinal axis that skips non-trading days. Random mode re-runs the price walk, so every bar re-draws while the tail days enter and exit.",
       "config": "ohlc-config.json",
       "data": "ohlc-data.json",
-      "random": "default-random.json",
+      "random": "candlestick-random.json",
       "generator": "ohlc"
     },
     {
@@ -422,7 +422,7 @@
       "description": "Native error bars from the errorLowProperty/errorHighProperty series config: two grouped bar series and a line series each carry absolute confidence bounds, drawn as capped whiskers centered on every bar sub-slot and line point. Random mode redraws the values with fresh margins, so the whiskers stay glued to their moving bars while tail months enter and exit.",
       "config": "error-bars-config.json",
       "data": "error-bars-data.json",
-      "random": "default-random.json",
+      "random": "error-bars-random.json",
       "generator": "error-bars"
     },
     {
@@ -431,7 +431,7 @@
       "description": "A pie chart from the createPie helper and chartConfig.type 'pie': every slice is its own series, so the legend lists the slices, hovering one focuses it and clicking suppresses it (the remaining slices grow to fill the circle). Click the chart for a tooltip with one row per slice. Random mode reshuffles the revenue mix and occasionally zeroes a slice so it animates out and back in.",
       "config": "pie-config.json",
       "data": "pie-data.json",
-      "random": "default-random.json",
+      "random": "pie-random.json",
       "generator": "pie"
     },
     {
@@ -440,16 +440,16 @@
       "description": "The pie chart with an inner radius (pieConfig.innerRadiusPercent) and percent labels at the slice centroids (pieConfig.showLabels); labels on slices thinner than labelMinAnglePercent hide themselves. The tooltip shows each slice's share via the precomputed percent columns and tooltipProperty. Random mode reshuffles the shares.",
       "config": "donut-config.json",
       "data": "donut-data.json",
-      "random": "default-random.json",
+      "random": "donut-random.json",
       "generator": "donut"
     },
     {
       "id": "gauge",
       "title": "Gauge",
-      "description": "A half-donut gauge via pieConfig.startAngle/endAngle (-90 to 90): three sentiment segments with rounded, padded slices, title labels at the centroids, and a live center total (pieConfig.showCenterTotal) that counts along with value changes and suppression. Hovering a legend entry explodes nothing here \u2014 compare the donut demo's focusOffsetPercent. Random mode jitters the response counts; segments never drop out.",
+      "description": "A half-donut gauge via pieConfig.startAngle/endAngle (-90 to 90): three sentiment segments with rounded, padded slices, title labels at the centroids, and a live center total (pieConfig.showCenterTotal) that counts along with value changes and suppression. Hovering a legend entry explodes nothing here \u2014 compare the donut demo's focusOffsetPercent. Random mode jitters the response counts; segments never drop out unless you raise the random config's missing.probability.",
       "config": "gauge-config.json",
       "data": "gauge-data.json",
-      "random": "default-random.json",
+      "random": "gauge-random.json",
       "generator": "gauge"
     }
   ]

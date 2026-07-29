@@ -12,7 +12,7 @@
 
 import { deflateSync, inflateSync } from 'fflate';
 
-import type { DataRow, DemoConfig, RandomConfig } from './types';
+import type { DataRow, DemoConfig, DemoRandomConfig } from './types';
 
 export interface SingleShareState {
   mode: 'single';
@@ -30,7 +30,7 @@ export interface MultiShareState {
 
 export interface RandomShareState {
   mode: 'random';
-  randomConfig: RandomConfig;
+  randomConfig: DemoRandomConfig;
   applyReuse: boolean;
   interval: number;
 }
@@ -103,7 +103,7 @@ export function decodeShareState(encoded: string): ShareState | null {
         if (!isPlainObject(randomConfig) || typeof applyReuse !== 'boolean' || !isFiniteNumber(interval)) {
           return null;
         }
-        return { mode: 'random', randomConfig: randomConfig as unknown as RandomConfig, applyReuse, interval };
+        return { mode: 'random', randomConfig: randomConfig as unknown as DemoRandomConfig, applyReuse, interval };
       }
       default:
         return null;

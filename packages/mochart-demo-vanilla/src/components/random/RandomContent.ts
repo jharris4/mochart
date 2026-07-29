@@ -10,7 +10,7 @@ import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
 
-import { consumeShareState, demoText, generateDemoDataProvider } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -59,7 +59,10 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
   const shared = consumeShareState('random');
   const sharedRandom = shared && shared.mode === 'random' ? shared : null;
 
-  let randomConfig: RandomConfigWithValid = sharedRandom
+  // A shared config that no longer validates (e.g. an old link embedding the
+  // generic shape for a chart-type generator demo) falls back to the demo's
+  // default config instead of erroring.
+  let randomConfig: RandomConfigWithValid = sharedRandom && validateRandomConfig(sharedRandom.randomConfig, generator)
     ? { ...sharedRandom.randomConfig, valid: true }
     : initialRandomConfig;
   let dataProvider: DemoDataProvider | null = null;
@@ -68,16 +71,6 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
   // config's reuse settings were always applied before the toggle worked).
   let applyReuse = sharedRandom ? sharedRandom.applyReuse : true;
   const initialRate = sharedRandom ? sharedRandom.interval : undefined;
-
-  // With reuse off, the generator gets a config whose reuse settings are
-  // neutralized, so every dataset is generated independently.
-  function withReuseNeutralized(config: RandomConfigWithValid): RandomConfigWithValid {
-    return {
-      ...config,
-      group: { ...config.group, reuse: { globalPercentage: 0, stepPercentage: 0 } },
-      series: { ...config.series, reuse: { global: false, step: false } }
-    };
-  }
 
   function getData(mochartConfig: MochartConfig, groupValues: GroupValue[], seriesValues: Record<string, (number | undefined)[]>) {
     const { groupAxisConfig } = mochartConfig;
@@ -105,7 +98,9 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
     const nextRandomConfig = forcedRandomConfig !== undefined ? forcedRandomConfig : randomConfig;
 
     if (nextRandomConfig.valid) {
-      const generatorConfig = applyReuse ? nextRandomConfig : withReuseNeutralized(nextRandomConfig);
+      // with reuse off the generator gets a config whose reuse settings are
+      // neutralized, so every dataset is generated independently
+      const generatorConfig = applyReuse ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
       const nextDataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
       const { groupValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = getData(mochartConfig, groupValues, seriesValues);
@@ -173,6 +168,7 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
   const config: RandomConfigTabHandle = randomConfigTab({
     active: activeKey === eventKeyConfig,
     randomConfig,
+    getGenerator: () => generator,
     onUpdate: onUpdateConfig,
     onReset: onResetConfig
   });

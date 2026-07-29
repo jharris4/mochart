@@ -6,9 +6,8 @@ export type DataRow = Record<string, unknown>;
 /** A demo's editable chart config (the input config plus arbitrary edits). */
 export type DemoConfig = MochartInputConfig & Record<string, unknown>;
 
-/** The random-generation config (see random/*.json). */
+/** The generic per-property random-generation config (see random/*.json). */
 export interface RandomConfig {
-  error: { probability: number };
   group: {
     count: number;
     order: { sort: boolean };
@@ -29,6 +28,90 @@ export interface RandomConfig {
     reuse: { global: boolean; step: boolean };
   };
 }
+
+/**
+ * Random config for the pie/donut/gauge generators. Slices come from a curated
+ * pool; `value` is the range the pool weights are scaled into, `missing` the
+ * chance a droppable slice generates 0 for a step (scaled by the pool's
+ * per-slice drop weight), and `reuse` the fractions of slices whose values
+ * persist across every step / across adjacent steps.
+ */
+export interface PieRandomConfig {
+  value: { min: number; max: number };
+  missing: { probability: number };
+  reuse: { globalPercentage: number; stepPercentage: number };
+}
+
+/**
+ * Random config for the waterfall generator. Same model as PieRandomConfig,
+ * over the curated pool of income-statement steps: `value` remaps the pool
+ * deltas, `missing` drops the optional steps, `reuse` persists step values.
+ */
+export interface WaterfallRandomConfig {
+  value: { min: number; max: number };
+  missing: { probability: number };
+  reuse: { globalPercentage: number; stepPercentage: number };
+}
+
+/**
+ * Random config for the candlestick/hollow/OHLC generators: how many trading
+ * days each step keeps, the band the walk's starting price is drawn from with
+ * the intraday volatility, and whether adjacent steps stay correlated (the
+ * walk reads shared half-step seeds, so playing steps looks like one
+ * instrument drifting instead of unrelated charts).
+ */
+export interface WalkRandomConfig {
+  candles: { min: number; max: number };
+  price: { min: number; max: number; volatility: number };
+  reuse: { step: boolean };
+}
+
+/**
+ * Random config for the histogram generator: the sampled population size, the
+ * value range its normal distribution wanders in, and whether the
+ * distribution parameters pin to a global seed / morph smoothly between
+ * adjacent steps.
+ */
+export interface HistogramRandomConfig {
+  samples: { min: number; max: number };
+  value: { min: number; max: number };
+  reuse: { global: boolean; step: boolean };
+}
+
+/**
+ * Random config for the heatmap generator. Cell values stay on each row's
+ * baked color extents, so there is no value range here: `columns` controls the
+ * per-step column dropouts, `missing` the empty-cell chance, and `reuse`
+ * whether cell values pin globally / morph smoothly between adjacent steps.
+ */
+export interface HeatmapRandomConfig {
+  columns: { dropProbability: number; maxDropped: number };
+  missing: { probability: number };
+  reuse: { global: boolean; step: boolean };
+}
+
+/**
+ * Random config for the error-bars generator: how many months each step
+ * keeps, the whisker half-width range, the chance a point (and its bounds)
+ * drops out, and whether the per-point jitter pins globally / morphs smoothly
+ * between adjacent steps.
+ */
+export interface ErrorBarsRandomConfig {
+  months: { min: number; max: number };
+  margin: { min: number; max: number };
+  missing: { probability: number };
+  reuse: { global: boolean; step: boolean };
+}
+
+/** Any demo's random config: the generic shape or a chart-type generator's. */
+export type DemoRandomConfig =
+  | RandomConfig
+  | PieRandomConfig
+  | WaterfallRandomConfig
+  | WalkRandomConfig
+  | HistogramRandomConfig
+  | HeatmapRandomConfig
+  | ErrorBarsRandomConfig;
 
 /** One entry in the demos.json manifest, referencing files by basename. */
 export interface DemoManifestEntry {
@@ -54,7 +137,7 @@ export interface Demo {
   description?: string;
   config: DemoConfig;
   data: DataRow[];
-  random: RandomConfig;
+  random: DemoRandomConfig;
   /** Chart-type random-mode generator id (see DemoManifestEntry.generator). */
   generator?: string;
 }

@@ -1,0 +1,14 @@
+{
+  "candles": {
+    "min": 16,
+    "max": 20
+  },
+  "price": {
+    "min": 90,
+    "max": 110,
+    "volatility": 0.04
+  },
+  "reuse": {
+    "step": true
+  }
+}

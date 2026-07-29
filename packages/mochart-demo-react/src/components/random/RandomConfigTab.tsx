@@ -11,11 +11,13 @@ import type { RandomConfigWithValid } from '../../types';
 interface Props {
   active?: boolean;
   randomConfig: RandomConfigWithValid;
+  /** The current demo's generator id, for schema dispatch. */
+  generator?: string;
   onUpdate: (config: RandomConfigWithValid) => void;
   onReset: () => void;
 }
 
-export default function RandomMochartConfigTab({ active, randomConfig, onUpdate, onReset }: Props) {
+export default function RandomMochartConfigTab({ active, randomConfig, generator, onUpdate, onReset }: Props) {
   const [configText, setConfigText] = useState(() => formatRandomConfig(randomConfig));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -28,7 +30,7 @@ export default function RandomMochartConfigTab({ active, randomConfig, onUpdate,
   const onUpdateClick = () => {
     try {
       const newConfig = JSON.parse(configText);
-      newConfig.valid = validateRandomConfig(newConfig);
+      newConfig.valid = validateRandomConfig(newConfig, generator);
       setErrorMessage(newConfig.valid ? null : demoText.errors.invalidRandomConfigValues);
       onUpdate(newConfig);
     }
