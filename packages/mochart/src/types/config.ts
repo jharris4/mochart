@@ -2192,6 +2192,7 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    * data the base separates the two directions.
    *
    * Default:
+   * - `0` — when chartConfig.type is pie
    * - `0` — series axis has stacks
    * - `null` — series axis has no stacks
    */
