@@ -280,22 +280,30 @@ html, body {
     min-height: 0;
     overflow: hidden;
 }
+/* min-width: 0 all the way down this chain, or the row's content-based
+   minimum — set by the nowrap controls strip, not the chart — makes it wider
+   than the sizer and the rightmost chart gets clipped away. */
 .mochart-demo-content .editable-charts {
     display: flex;
     flex: 1 1 auto;
     flex-flow: row;
     flex-wrap: nowrap;
+    min-width: 0;
     min-height: 0;
 }
 .mochart-demo-content .editable-chart {
     display: inline-flex;
     flex: 1 1 auto;
+    min-width: 0;
     min-height: 0;
     overflow: hidden;
 }
+/* flex-basis 0 (not auto) so the charts split the row evenly — the width
+   ChartTab measures and hands each chart assumes an even split. */
 .mochart-demo-content .editable-mochart-chart {
     display: inline-flex;
-    flex: 1 1 auto;
+    flex: 1 1 0;
+    min-width: 0;
     min-height: 0;
     overflow: hidden;
 }
@@ -303,6 +311,7 @@ html, body {
     display: flex;
     flex-flow: column;
     flex: 1 1 auto;
+    min-width: 0;
     min-height: 0;
     max-width: 100%;
 }
@@ -364,9 +373,13 @@ html, body {
     border-top: 1px solid var(--demo-border);
     margin-top: 8px;
 }
+/* Wraps when the strip is narrower than its buttons — half-width (two charts
+   shown) or a phone. Shrink-but-don't-grow on the button block keeps the input
+   sitting right after the buttons when there is room to spare. */
 .chart-controls-container {
     display: flex;
     flex-flow: row;
+    flex-wrap: wrap;
     flex: none;
     width: 100%;
     align-items: center;
@@ -377,7 +390,7 @@ html, body {
 }
 .chart-controls-buttons {
     display: flex;
-    flex: none;
+    flex: 0 1 auto;
     min-width: 0;
 }
 .chart-controls-input {
@@ -710,8 +723,11 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     align-items: center;
     gap: 6px;
 }
+/* Groups wrap internally too — a group is otherwise one unbreakable unit, so
+   the whole controls strip could not shrink past its widest group. */
 .demo-btn-group {
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 6px;
 }
