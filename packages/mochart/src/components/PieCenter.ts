@@ -50,7 +50,9 @@ export default class PieCenter extends Renderer<PieCenterProps> {
 
     this.setPresent(true);
     this.root.set({ className: mochartCssClasses['pieCenter'],
-      transform: translate(seriesLayoutInfo.x + radialLayoutInfo.cx, seriesLayoutInfo.y + radialLayoutInfo.cy) });
+      transform: translate(
+        seriesLayoutInfo.x + radialLayoutInfo.cx + pieConfig.centerOffsetXPercent * radialLayoutInfo.outerRadius,
+        seriesLayoutInfo.y + radialLayoutInfo.cy + pieConfig.centerOffsetYPercent * radialLayoutInfo.outerRadius) });
 
     if (showLabel) {
       const labelEl = this.label.set('text', () => {

@@ -133,4 +133,21 @@ describe('getRadialLayoutInfo', () => {
     expect(info.outerRadius).toBeCloseTo(120, 10);
     expect(info.innerRadius).toBeCloseTo(60, 10);
   });
+
+  it('fits a half-pie span into the rect instead of reserving the empty half', () => {
+    const info = getRadialLayoutInfo(layout(400, 300), pieConfig({ startAngle: -90, endAngle: 90 }));
+    // bounding box is 2 wide x 1 tall: radius fits min(400/2, 300/1)
+    expect(info.outerRadius).toBeCloseTo(200, 10);
+    expect(info.cx).toBeCloseTo(200, 10);
+    // the arc (bbox y in [-1, 0]) is vertically centered: pivot at 150 + 100
+    expect(info.cy).toBeCloseTo(250, 10);
+  });
+
+  it('fits a quarter span against its own bounding box', () => {
+    const info = getRadialLayoutInfo(layout(300, 300), pieConfig({ startAngle: 0, endAngle: 90 }));
+    // bbox is the top-right unit square: 1 x 1
+    expect(info.outerRadius).toBeCloseTo(300, 10);
+    expect(info.cx).toBeCloseTo(0, 10);
+    expect(info.cy).toBeCloseTo(300, 10);
+  });
 });

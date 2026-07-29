@@ -19,6 +19,8 @@ export default function getValidators() {
     centerLabel: validators.string().orEqual(NONE),
     showCenterTotal: validators.boolean(),
     centerTotalFormat: validators.numberFormat().orEqual(AUTO),
-    adjustCenterTotalForSuppression: validators.boolean()
+    adjustCenterTotalForSuppression: validators.boolean(),
+    centerOffsetXPercent: validators.numberMinMax(-1, 1),
+    centerOffsetYPercent: validators.numberMinMax(-1, 1)
   };
 }

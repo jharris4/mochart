@@ -27,10 +27,12 @@ export const config: MochartInputConfig = {
     showLabels: true,
     labelType: 'title',
     // the center total tracks the unsuppressed slices, so clicking a legend
-    // entry counts it down
+    // entry counts it down; the negative Y offset lifts it off the gauge
+    // pivot into the hole
     centerLabel: 'responses',
     showCenterTotal: true,
-    centerTotalFormat: ',.0f'
+    centerTotalFormat: ',.0f',
+    centerOffsetYPercent: -0.25
   },
   groupAxisConfig: gauge.groupAxisConfig,
   seriesConfigs: gauge.seriesConfigs

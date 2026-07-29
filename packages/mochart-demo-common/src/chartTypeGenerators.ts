@@ -544,7 +544,9 @@ function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
         labelType: 'title',
         centerLabel: 'responses',
         showCenterTotal: true,
-        centerTotalFormat: ',.0f'
+        centerTotalFormat: ',.0f',
+        // lift the center content off the gauge pivot into the hole
+        centerOffsetYPercent: -0.25
       },
       groupAxisConfig: pie.groupAxisConfig,
       seriesConfigs: pie.seriesConfigs

@@ -16,7 +16,8 @@
     "labelType": "title",
     "centerLabel": "responses",
     "showCenterTotal": true,
-    "centerTotalFormat": ",.0f"
+    "centerTotalFormat": ",.0f",
+    "centerOffsetYPercent": -0.25
   },
   "groupAxisConfig": {
     "property": "group",

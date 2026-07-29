@@ -273,6 +273,21 @@ export interface PieConfig {
    * @default true
    */
   adjustCenterTotalForSuppression: boolean;
+  /**
+   * Offset the center label and total horizontally by this fraction (-1 to 1)
+   * of the outer radius (positive moves right).
+   *
+   * @default 0
+   */
+  centerOffsetXPercent: number;
+  /**
+   * Offset the center label and total vertically by this fraction (-1 to 1) of
+   * the outer radius (positive moves down; e.g. use a negative value to lift
+   * them into a gauge's hole).
+   *
+   * @default 0
+   */
+  centerOffsetYPercent: number;
 }
 
 export interface ColorPalette {

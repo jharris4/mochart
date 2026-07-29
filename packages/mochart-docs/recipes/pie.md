@@ -100,9 +100,15 @@ gauge — an `endAngle` *smaller* than `startAngle` runs counterclockwise.
   Set
   [`adjustCenterTotalForSuppression`](/reference/pieConfig#pieConfig.adjustCenterTotalForSuppression)
   to `false` to keep the full total while slices are suppressed.
+- The center content sits at the circle center (the gauge pivot);
+  [`centerOffsetXPercent`](/reference/pieConfig#pieConfig.centerOffsetXPercent)
+  and
+  [`centerOffsetYPercent`](/reference/pieConfig#pieConfig.centerOffsetYPercent)
+  nudge it by fractions of the outer radius — the example's `-0.25` lifts it
+  into the hole.
 - The center text carries no fill attribute, so it styles via CSS: target
   `.mochart-pie-center text` (the demo dark theme does exactly this).
-- The circle stays centered in the plot, so a half pie leaves its lower
-  half empty — trim it with
-  [`plotConfig.margin`](/reference/plotConfig#plotConfig.margin) or the
-  chart height if the whitespace matters.
+- The layout fits the *configured span's* bounding box into the plot, so a
+  half pie uses the space its missing half would waste (and the radius
+  grows accordingly) instead of staying centered in an empty square. The
+  span comes from the config, so the fit holds still while values animate.

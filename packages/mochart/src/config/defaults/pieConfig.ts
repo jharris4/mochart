@@ -27,7 +27,9 @@ export function getRegularDefaults() {
     centerLabel: NONE,
     showCenterTotal: false,
     centerTotalFormat: AUTO,
-    adjustCenterTotalForSuppression: true
+    adjustCenterTotalForSuppression: true,
+    centerOffsetXPercent: 0,
+    centerOffsetYPercent: 0
   };
 }
 

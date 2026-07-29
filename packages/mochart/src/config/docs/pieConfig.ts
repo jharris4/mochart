@@ -16,6 +16,8 @@ export default function getDescriptions() {
     centerLabel: 'a text label shown at the center of the pie (use null for none; most useful for donut and gauge charts)',
     showCenterTotal: 'whether the total of the slice values should be shown at the center of the pie',
     centerTotalFormat: 'the d3 format specifier used to format the center total (use auto to derive a format)',
-    adjustCenterTotalForSuppression: 'whether the center total counts only the unsuppressed slices (true) or always shows the full total (false)'
+    adjustCenterTotalForSuppression: 'whether the center total counts only the unsuppressed slices (true) or always shows the full total (false)',
+    centerOffsetXPercent: 'offset the center label and total horizontally by this fraction (-1 to 1) of the outer radius (positive moves right)',
+    centerOffsetYPercent: 'offset the center label and total vertically by this fraction (-1 to 1) of the outer radius (positive moves down; e.g. use a negative value to lift them into a gauge\'s hole)'
   };
 }
