@@ -2,7 +2,8 @@
   import { untrack, onDestroy } from 'svelte';
 
   import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
-  import { getChartExportOptions, demoText } from '@mochart/demo-common';
+  import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+  import type { PieSliceInfo } from '@mochart/demo-common';
   import { exportPNG, exportSVG } from '@mochart/export';
   import { Chart } from '@mochart/svelte';
 
@@ -82,6 +83,11 @@
   let seriesValuesText = $state("");
   let selectionMode = $state('group');
   let sequencePlaying = $state(false);
+  // pie-mode slice editing: slices are the series, so the group machinery has
+  // nothing to operate on and a single slice panel replaces both panels
+  let slices = $state.raw<PieSliceInfo[]>([]);
+  let sliceIndex = $state(0);
+  let sliceValueText = $state("");
   let filteredFocusedGroupIndex = $state(-1);
   let orderChanged = $state(false);
 
@@ -148,7 +154,68 @@
         nextFilteredData.push(Object.assign({}, data[i]));
       }
     }
+    slices = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig) : [];
+    if (sliceIndex >= slices.length) {
+      sliceIndex = 0;
+    }
+    sliceValueText = getSliceValueText(nextFilteredData);
     updateFilteredDataState({ orderChanged: false, seriesIndex: 0, groupValuesText: emptyGroupText }, nextFilteredData, []);
+  }
+
+  function getSliceValueText(rows: Row[]): string {
+    if (slices.length === 0 || rows.length === 0) {
+      return "";
+    }
+    const value = rows[0][slices[sliceIndex].property];
+    return value === undefined || value === null ? "" : String(value);
+  }
+
+  function selectSlice(nextSliceIndex: number) {
+    if (nextSliceIndex >= 0 && nextSliceIndex < slices.length) {
+      sliceIndex = nextSliceIndex;
+      sliceValueText = getSliceValueText(filteredData);
+    }
+  }
+
+  function onChartSliceClick({ seriesId }: { seriesId: string }) {
+    selectSlice(slices.findIndex(slice => slice.id === seriesId));
+  }
+
+  function applySliceChanges() {
+    const value = parseFloat(sliceValueText);
+    if (!isNaN(value) && isFinite(value) && filteredData.length > 0 && slices.length > 0) {
+      applyPieSliceValue(filteredData[0], slices, slices[sliceIndex].property, value);
+      updateFilteredDataState({}, filteredData, removedData, false);
+    }
+  }
+
+  function resetSliceChanges() {
+    if (filteredData.length > 0 && data.length > 0 && slices.length > 0) {
+      const property = slices[sliceIndex].property;
+      applyPieSliceValue(filteredData[0], slices, property, data[0][property] as number);
+      sliceValueText = getSliceValueText(filteredData);
+      updateFilteredDataState({}, filteredData, removedData, false);
+    }
+  }
+
+  // The pie analog of the group add/remove sequences: suppress the slices one
+  // at a time (via the shared legend filter, so the remaining slices re-sweep
+  // and center totals count along), then restore them.
+  function startSliceSequence() {
+    const steps = getPieSequenceSteps(slices.map(slice => slice.id));
+    if (steps.length > 0) {
+      sequencePlaying = true;
+      let stepCount = 0;
+      sequenceId = setInterval(() => {
+        onSeriesFilter({ filteredSeriesIds: steps[stepCount] });
+        if (stepCount < steps.length - 1) {
+          stepCount++;
+        }
+        else {
+          stopSequence();
+        }
+      }, 2000);
+    }
   }
 
   initData();
@@ -603,6 +670,8 @@
   const hasPrevSeries = $derived(seriesIndex > 0);
   const hasNextSeries = $derived(seriesIndex < mochartDemoConfig.seriesCount - 1);
 
+  const sliceControlsDisabled = $derived(error || sequencePlaying || slices.length === 0);
+
   function onExportPng() {
     if (chartContentElement) {
       void exportPNG(chartContentElement, getChartExportOptions());
@@ -616,7 +685,7 @@
   }
 </script>
 
-{#snippet commonControls()}
+{#snippet chartCountControl()}
   {#if showChartCountControls}
     <div class="demo-btn-group">
       <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
@@ -626,6 +695,10 @@
       </ButtonWithTooltip>
     </div>
   {/if}
+{/snippet}
+
+{#snippet commonControls()}
+  {@render chartCountControl()}
   <div class="demo-btn-group">
     <ButtonWithTooltip id="edit-mode" label={selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups}
                        tooltipText={selectionMode === 'group'
@@ -659,10 +732,80 @@
              {width} mochartConfig={mochartDemoConfig.mochartConfig} {dataProvider}
              {filteredSeriesIds} focusedGroupIndex={filteredFocusedGroupIndex}
              focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
-             onFocus={onChartFocus} {onSeriesFilter} {onChartClick} />
+             onFocus={onChartFocus} {onSeriesFilter} {onChartClick} onSliceClick={onChartSliceClick} />
     </div>
     <div class="editable-chart-controls">
-      {#if selectionMode === 'group'}
+      {#if mochartDemoConfig.pieMode}
+        <!-- Pie-mode slice panel — replaces both panels when slices are the
+             series: click a slice (or step prev/next) to select it, edit its
+             value, or play the suppress/restore sequence. -->
+        <div class="chart-controls-container">
+          <div class="chart-controls-buttons">
+            <form class="demo-form-row">
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  {@render chartCountControl()}
+                </div>
+              </div>
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
+                    <ButtonWithTooltip id="edit-previous-slice" disabled={sliceControlsDisabled || sliceIndex === 0}
+                                       tooltipText={demoText.editableChart.previousSlice.tooltip} tooltipPlacement="right"
+                                       onClick={() => selectSlice(sliceIndex - 1)} aria-label={demoText.editableChart.previousSlice.aria}>
+                      <Icon size="lg" fixedWidth={true} name="chevron-left" />
+                    </ButtonWithTooltip>
+                  </div>
+                </div>
+              </div>
+              <div class="demo-field">
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{slices.length > 0 ? demoText.editableChart.slicePrefix + slices[sliceIndex].title : demoText.editableChart.selectASliceText}</span>
+              </div>
+              <div class="demo-field">
+                <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-btn-group">
+                    <ButtonWithTooltip id="edit-next-slice" disabled={sliceControlsDisabled || sliceIndex >= slices.length - 1}
+                                       tooltipText={demoText.editableChart.nextSlice.tooltip} tooltipPlacement="right"
+                                       onClick={() => selectSlice(sliceIndex + 1)} aria-label={demoText.editableChart.nextSlice.aria}>
+                      <Icon size="lg" fixedWidth={true} name="chevron-right" />
+                    </ButtonWithTooltip>
+                  </div>
+                  <div class="demo-btn-group">
+                    <ButtonWithTooltip id="edit-reset-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.resetSlice.label}
+                                       tooltipText={demoText.editableChart.resetSlice.tooltip} tooltipPlacement="right"
+                                       onClick={resetSliceChanges} aria-label={demoText.editableChart.resetSlice.aria}>
+                      <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+                    </ButtonWithTooltip>
+                    <ButtonWithTooltip id="edit-apply-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.applySlice.label}
+                                       tooltipText={demoText.editableChart.applySlice.tooltip} tooltipPlacement="right"
+                                       onClick={applySliceChanges} aria-label={demoText.editableChart.applySlice.aria}>
+                      <Icon size="lg" fixedWidth={true} name="check" />
+                    </ButtonWithTooltip>
+                  </div>
+                  <div class="demo-btn-group">
+                    <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 3}
+                                       tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
+                                       onClick={startSliceSequence} aria-label={demoText.editableChart.playSliceSequence.aria}>
+                      <Icon size="lg" fixedWidth={true} name="play" />
+                    </ButtonWithTooltip>
+                    <ButtonWithTooltip id="edit-stop-slices" disabled={error || !sequencePlaying}
+                                       tooltipText={demoText.editableChart.stopSliceSequence.tooltip} tooltipPlacement="right"
+                                       onClick={stopSequence} aria-label={demoText.editableChart.stopSliceSequence.aria}>
+                      <Icon size="lg" fixedWidth={true} name="stop" />
+                    </ButtonWithTooltip>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <span class="chart-controls-input">
+            <form class="demo-form-row">
+              <input type="text" class="demo-input" disabled={sliceControlsDisabled} bind:value={sliceValueText} />
+            </form>
+          </span>
+          {@render exportShareMenu()}
+        </div>
+      {:else if selectionMode === 'group'}
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
             <form class="demo-form-row">

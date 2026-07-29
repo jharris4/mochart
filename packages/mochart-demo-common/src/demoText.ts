@@ -119,7 +119,16 @@ export const demoText = {
     previousSeries: { tooltip: 'Edit the previous series', aria: 'Previous Series' },
     nextSeries: { tooltip: 'Edit the next series', aria: 'Next Series' },
     resetSeries: { label: 'Reset', tooltip: "Discard the edits to this series' values", aria: 'Reset Series Changes' },
-    applySeries: { label: 'Apply', tooltip: 'Apply the edited series values to the chart', aria: 'Apply Series Changes' }
+    applySeries: { label: 'Apply', tooltip: 'Apply the edited series values to the chart', aria: 'Apply Series Changes' },
+    // pie-mode (pie/donut/gauge) slice panel
+    slicePrefix: 'Slice: ',
+    selectASliceText: 'Click a slice to edit its value',
+    previousSlice: { tooltip: 'Select the previous slice', aria: 'Previous Slice' },
+    nextSlice: { tooltip: 'Select the next slice', aria: 'Next Slice' },
+    resetSlice: { label: 'Reset', tooltip: "Restore the selected slice's original value", aria: 'Reset Slice Value' },
+    applySlice: { label: 'Apply', tooltip: 'Apply the entered value to the selected slice', aria: 'Apply Slice Value' },
+    playSliceSequence: { tooltip: 'Animate suppressing the slices one at a time, then restoring them', aria: 'Play Slice Sequence' },
+    stopSliceSequence: { tooltip: 'Stop the slice sequence', aria: 'Stop Slice Sequence' }
   },
   multiChartsTab: {
     gridLabel: 'Grid:',

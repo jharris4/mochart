@@ -5,7 +5,7 @@ import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -41,10 +41,22 @@ interface ChartsTabState {
   chartCols: number;
   rate: number;
   focusedGroupIndices: number[];
+  sliceIds: string[];
 }
 
 function clampGrid(value: number): number {
   return Math.min(4, Math.max(1, Math.round(value)));
+}
+
+// Pie mode steps a suppression pattern instead of data prefixes: chart i at
+// step s suppresses the last (s + i) mod cycle slices, so the grid shows
+// different-sized views of the same pie and stepping animates all charts.
+function stepCycleOf(state: ChartsTabState): number {
+  return state.mochartDemoConfig.pieMode ? Math.max(1, state.sliceIds.length - 1) : state.dataCount;
+}
+
+function resetStepOf(state: ChartsTabState): number {
+  return state.mochartDemoConfig.pieMode ? 0 : state.dataCount;
 }
 
 function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, rate: number, step?: number): ChartsTabState {
@@ -52,10 +64,13 @@ function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, ra
   const { mochartConfig } = mochartDemoConfig;
   const data = demoObject.data;
   const dataCount = data.length;
-  // A shared step seeks the playback position; otherwise start on the full set.
-  const currentDataCount = step !== undefined && dataCount > 0
-    ? ((Math.round(step) % dataCount) + dataCount) % dataCount
-    : dataCount;
+  const sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartConfig).map(slice => slice.id) : [];
+  const stepCycle = mochartDemoConfig.pieMode ? Math.max(1, sliceIds.length - 1) : dataCount;
+  // A shared step seeks the playback position; otherwise start on the full set
+  // (pie mode starts at step 0 — the grid's staggered initial view).
+  const currentDataCount = step !== undefined && stepCycle > 0
+    ? ((Math.round(step) % stepCycle) + stepCycle) % stepCycle
+    : (mochartDemoConfig.pieMode ? 0 : dataCount);
   const dataProviders = getDataProvidersForDataCount(mochartConfig, data, chartRows * chartCols, currentDataCount);
   const focusedGroupIndices = dataProviders.map(() => -1);
   return {
@@ -72,7 +87,8 @@ function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, ra
     chartRows,
     chartCols,
     rate,
-    focusedGroupIndices
+    focusedGroupIndices,
+    sliceIds
   };
 }
 
@@ -131,7 +147,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   const onRowsChange = (chartRows: number) => {
     setState(prev => {
       const { mochartConfig } = prev.mochartDemoConfig;
-      const currentDataCount = prev.dataCount;
+      const currentDataCount = resetStepOf(prev);
       const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, chartRows * prev.chartCols, currentDataCount);
       const focusedGroupIndices = getFocusedGroupIndices(prev, dataProviders);
       return { ...prev, chartRows, currentDataCount, dataProviders, focusedGroupIndices };
@@ -141,7 +157,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   const onColsChange = (chartCols: number) => {
     setState(prev => {
       const { mochartConfig } = prev.mochartDemoConfig;
-      const currentDataCount = prev.dataCount;
+      const currentDataCount = resetStepOf(prev);
       const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * chartCols, currentDataCount);
       const focusedGroupIndices = getFocusedGroupIndices(prev, dataProviders);
       return { ...prev, chartCols, currentDataCount, dataProviders, focusedGroupIndices };
@@ -151,7 +167,10 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   const onStepBackwardClick = () => {
     setState(prev => {
       const { mochartConfig } = prev.mochartDemoConfig;
-      const currentDataCount = prev.dataCount + (prev.currentDataCount - 1) % prev.dataCount;
+      const cycle = stepCycleOf(prev);
+      const currentDataCount = prev.mochartDemoConfig.pieMode
+        ? (prev.currentDataCount - 1 + cycle) % cycle
+        : cycle + (prev.currentDataCount - 1) % cycle;
       const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * prev.chartCols, currentDataCount);
       const focusedGroupIndices = getFocusedGroupIndices(prev, dataProviders);
       return { ...prev, currentDataCount, dataProviders, focusedGroupIndices };
@@ -161,7 +180,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   const onStepForwardClick = () => {
     setState(prev => {
       const { mochartConfig } = prev.mochartDemoConfig;
-      const currentDataCount = (prev.currentDataCount + 1) % prev.dataCount;
+      const currentDataCount = (prev.currentDataCount + 1) % stepCycleOf(prev);
       const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * prev.chartCols, currentDataCount);
       const focusedGroupIndices = getFocusedGroupIndices(prev, dataProviders);
       return { ...prev, currentDataCount, dataProviders, focusedGroupIndices };
@@ -270,12 +289,18 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     mode: 'multi', rows: state.chartRows, cols: state.chartCols, step: state.currentDataCount, interval: state.rate
   });
 
+  // Pie mode unions the stepper's per-chart suppression with the user's
+  // legend filtering, so the legend stays interactive while stepping.
+  const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => mochartDemoConfig.pieMode
+    ? { ...filteredSeriesIds, ...getPieStepSuppressedIds(state.sliceIds, i, state.currentDataCount) }
+    : filteredSeriesIds;
+
   return (
     <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
       <div className="multi-charts-sizer" ref={gridRef}>
         {gridWidth > 0 ?
           <MultiMochartCharts width={gridWidth} height={gridHeight} mochartConfig={mochartConfig} dataProviders={dataProviders}
-            chartRows={chartRows} chartCols={chartCols} filteredSeriesIds={filteredSeriesIds}
+            chartRows={chartRows} chartCols={chartCols} chartFilteredSeriesIds={chartFilteredSeriesIds}
             focusedGroupIndices={focusedGroupIndices} focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId}
             onSeriesFilter={onSeriesFilter} onChartFocus={onChartFocus} />
           : null}
@@ -297,7 +322,7 @@ interface ChartsProps {
   dataProviders: ChartDataProviderLike[];
   chartRows: number;
   chartCols: number;
-  filteredSeriesIds: FilteredSeriesIds;
+  chartFilteredSeriesIds: (chartIndex: number) => FilteredSeriesIds;
   focusedGroupIndices: number[];
   focusedSeriesAxisId?: string | null;
   focusedSeriesId?: string | null;
@@ -306,7 +331,7 @@ interface ChartsProps {
 }
 
 function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chartRows, chartCols,
-  filteredSeriesIds, focusedGroupIndices, focusedSeriesAxisId, focusedSeriesId, onSeriesFilter, onChartFocus }: ChartsProps) {
+  chartFilteredSeriesIds, focusedGroupIndices, focusedSeriesAxisId, focusedSeriesId, onSeriesFilter, onChartFocus }: ChartsProps) {
   const chartWidth = Math.floor((width - scrollWidthOffset) / chartCols);
   const chartHeight = Math.floor(height / chartRows);
 
@@ -317,7 +342,7 @@ function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chart
     charts.push(
       <div key={'chart-' + i} className="multi-mochart-chart">
         <Chart mochartConfig={mochartConfig} dataProvider={dataProviders[i]} width={chartWidth} height={chartHeight}
-          filteredSeriesIds={filteredSeriesIds} focusedGroupIndex={focusedGroupIndices[i] ?? -1}
+          filteredSeriesIds={chartFilteredSeriesIds(i)} focusedGroupIndex={focusedGroupIndices[i] ?? -1}
           focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
           onSeriesFilter={onSeriesFilter} onFocus={(fd) => onChartFocus(chartIndex, fd)} />
       </div>

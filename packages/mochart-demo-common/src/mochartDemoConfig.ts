@@ -1,4 +1,4 @@
-import { migrateConfig, buildMochartConfig, getDefaults, applyDefaults, sectionKeyAllMap, validateConfig } from '@mochart/core';
+import { CHART_TYPE_PIE, migrateConfig, buildMochartConfig, getDefaults, applyDefaults, sectionKeyAllMap, validateConfig } from '@mochart/core';
 
 import type { MochartDemoConfig } from './types';
 
@@ -23,6 +23,7 @@ export default function buildMochartDemoConfig(config: ConfigRecord): MochartDem
   const { groupAxisConfig, seriesConfigs } = mochartConfig;
   const groupProperty = groupAxisConfig ? groupAxisConfig.property : undefined;
   const seriesCount = Array.isArray(seriesConfigs) ? seriesConfigs.length : 0;
+  const pieMode = mochartConfig.chartConfig?.type === CHART_TYPE_PIE;
 
   return {
     config,
@@ -33,7 +34,8 @@ export default function buildMochartDemoConfig(config: ConfigRecord): MochartDem
     mochartConfig,
     valid,
     groupProperty,
-    seriesCount
+    seriesCount,
+    pieMode
   };
 }
 

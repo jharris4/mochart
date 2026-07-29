@@ -16,6 +16,7 @@ export const baseChartProps = {
   /** Explicit pixel height; omit to track the container element's height. */
   height: { type: Number, default: undefined },
   onChartClick: callbackProp,
+  onSliceClick: callbackProp,
   onChartMouseEnter: callbackProp,
   onChartMouseMove: callbackProp,
   onChartMouseLeave: callbackProp,

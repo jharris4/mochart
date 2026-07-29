@@ -48,6 +48,8 @@ interface PieSeriesProps {
   /** Suppress labels while the initial sweep-in is running. */
   hideLabels: boolean;
   onFocus: (focus: PieSeriesFocusUpdate) => void;
+  /** Click-only slice event for selection; independent of the focus flags. */
+  onSliceClick?: (payload: { seriesId: string }) => void;
 }
 
 interface PieSeriesState {
@@ -81,13 +83,14 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
   }
 
   derive(props: PieSeriesProps, _state: PieSeriesState, prevProps: PieSeriesProps | null): Partial<PieSeriesState> | null {
-    const { seriesConfig, focusData, onFocus } = props;
+    const { seriesConfig, focusData, onFocus, onSliceClick } = props;
     let focusedSeriesChanged = false;
     if (prevProps !== null && focusData !== prevProps.focusData) {
       focusedSeriesChanged = focusData === null || prevProps.focusData === null ||
         focusData.focusedSeriesId !== prevProps.focusData.focusedSeriesId;
     }
-    if (prevProps !== null && seriesConfig === prevProps.seriesConfig && onFocus === prevProps.onFocus && !focusedSeriesChanged) {
+    if (prevProps !== null && seriesConfig === prevProps.seriesConfig && onFocus === prevProps.onFocus &&
+        onSliceClick === prevProps.onSliceClick && !focusedSeriesChanged) {
       return null;
     }
     // a follower series (followSeries) focuses as its leader, matching Series
@@ -101,8 +104,13 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       onSeriesEnter = () => { onFocus({ seriesId }); };
       onSeriesLeave = () => { onFocus({ seriesId: null }); };
     }
-    if (seriesConfig.focusOnClick) {
-      onSeriesClick = () => { onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId }); };
+    if (seriesConfig.focusOnClick || onSliceClick) {
+      onSeriesClick = () => {
+        if (seriesConfig.focusOnClick) {
+          onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId });
+        }
+        onSliceClick?.({ seriesId });
+      };
     }
     return { onSeriesEnter, onSeriesLeave, onSeriesClick };
   }

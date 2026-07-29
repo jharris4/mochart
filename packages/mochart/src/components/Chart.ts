@@ -30,7 +30,7 @@ import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
 import { translateObject } from '../utils/utils';
 import { getSeriesGradientColors } from '../utils/SeriesColors';
-import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, InternalFocus } from '../types/chart';
+import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
 import type { LinearGradientConfig, MochartConfig, RadialGradientConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
 import type { AxisData, ChartData, DataProvider, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
@@ -54,6 +54,7 @@ export interface ChartProps {
   onFocus?: (focus: InternalFocus) => void;
   onSeriesFilter?: (seriesId: string) => void;
   onChartClick?: (payload: ChartEventPayload) => void;
+  onSliceClick?: (payload: ChartSliceClickPayload) => void;
   onChartMouseEnter?: (payload: ChartEventPayload) => void;
   onChartMouseMove?: (payload: ChartEventPayload) => void;
   onChartMouseLeave?: (payload: ChartEventPayload) => void;
@@ -1006,7 +1007,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         body.plot.set(RadialPlot, { mochartConfig, gradientIdMap, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData: focusData!,
           initialAnimationPercentage: this.props.initialAnimationPercentage ?? null,
-          onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef });
+          onFocus: onFocus ?? (() => {}), onSliceClick: this.props.onSliceClick,
+          shapeRef: this.setChartRectRef });
       }
       else {
         body.plot.set(Plot, { mochartConfig, gradientIdMap, groupAxisLayoutInfo,

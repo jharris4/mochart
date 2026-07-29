@@ -74,10 +74,21 @@ export interface ChartFactoryContext {
 export type ChartFactoryContent = Node | string | number | false | null | undefined;
 export type ChartContentFactory = (context: ChartFactoryContext) => ChartFactoryContent;
 
+/** A pie/donut/gauge slice click, reported by `onSliceClick`. */
+export interface ChartSliceClickPayload {
+  /** Id of the clicked slice's series (the leader for follower series). */
+  seriesId: string;
+}
+
 /** Optional interaction callbacks accepted by both chart entry points. */
 export interface ChartCallbacks {
   /** The plot area was clicked. */
   onChartClick?: (event: ChartEventPayload) => void;
+  /**
+   * A slice of a pie-type chart was clicked. Unlike `onFocus` (which pointer
+   * hover also drives), this fires only on click, so it can anchor selection.
+   */
+  onSliceClick?: (payload: ChartSliceClickPayload) => void;
   /** The pointer entered the plot area. */
   onChartMouseEnter?: (event: ChartEventPayload) => void;
   /** The pointer moved within the plot area. */

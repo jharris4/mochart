@@ -4,7 +4,7 @@ import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from 
 import { Chart } from '@mochart/angular';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { MultiShareState, ShareState } from '@mochart/demo-common';
 
 import { ChartsControls } from './charts-controls';
@@ -36,7 +36,7 @@ function clampGrid(value: number): number {
               <div class="multi-mochart-chart">
                 <mochart-chart [mochartConfig]="mochartDemoConfig()!.mochartConfig" [dataProvider]="dataProvider"
                                [width]="chartWidth" [height]="chartHeight"
-                               [filteredSeriesIds]="filteredSeriesIds()" [focusedGroupIndex]="focusedGroupIndexAt(i)"
+                               [filteredSeriesIds]="chartFilteredSeriesIds(i)" [focusedGroupIndex]="focusedGroupIndexAt(i)"
                                [focusedSeriesAxisId]="focusedSeriesAxisId()" [focusedSeriesId]="focusedSeriesId()"
                                (seriesFilter)="onSeriesFilter($event)" (focus)="onChartFocus(i, $event)" />
               </div>
@@ -68,6 +68,10 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   mochartDemoConfig = signal<MochartDemoConfig | null>(null);
   data = signal<DataRow[]>([]);
   dataCount = signal(0);
+  // Pie mode steps a suppression pattern instead of data prefixes: chart i at
+  // step s suppresses the last (s + i) mod cycle slices, so the grid shows
+  // different-sized views of the same pie and stepping animates all charts.
+  sliceIds = signal<string[]>([]);
   currentDataCount = signal(0);
   dataProviders = signal<ChartDataProviderLike[]>([]);
   focusedGroupIndices = signal<number[]>([]);
@@ -96,10 +100,13 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     this.data.set(data);
     const dataCount = data.length;
     this.dataCount.set(dataCount);
-    // A shared step seeks the playback position; otherwise start on the full set.
-    const currentDataCount = shared !== null && dataCount > 0
-      ? ((Math.round(shared.step) % dataCount) + dataCount) % dataCount
-      : dataCount;
+    this.sliceIds.set(this.computeSliceIds(mochartDemoConfig));
+    // A shared step seeks the playback position; otherwise start on the full
+    // set (pie mode starts at step 0 — the grid's staggered initial view).
+    const cycle = this.stepCycle();
+    const currentDataCount = shared !== null && cycle > 0
+      ? ((Math.round(shared.step) % cycle) + cycle) % cycle
+      : this.resetStep();
     this.currentDataCount.set(currentDataCount);
     this.dataProviders.set(getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, rows * cols, currentDataCount));
     this.focusedGroupIndices.set(this.dataProviders().map(() => -1));
@@ -108,6 +115,18 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   private consumeMultiShareState(): MultiShareState | null {
     const shared = consumeShareState('multi');
     return shared !== null && shared.mode === 'multi' ? shared : null;
+  }
+
+  private computeSliceIds(mochartDemoConfig: MochartDemoConfig): string[] {
+    return mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
+  }
+
+  private stepCycle(): number {
+    return this.mochartDemoConfig()!.pieMode ? Math.max(1, this.sliceIds().length - 1) : this.dataCount();
+  }
+
+  private resetStep(): number {
+    return this.mochartDemoConfig()!.pieMode ? 0 : this.dataCount();
   }
 
   private getChartContainers(): Element[] {
@@ -154,7 +173,8 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       this.playing.set(false);
       this.data.set(this.demoObject.data);
       this.dataCount.set(this.data().length);
-      this.currentDataCount.set(this.dataCount());
+      this.sliceIds.set(this.computeSliceIds(this.mochartDemoConfig()!));
+      this.currentDataCount.set(this.resetStep());
       this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
       this.focusedGroupIndices.set(this.dataProviders().map(() => -1));
     }
@@ -169,26 +189,29 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   onRowsChange = (nextChartRows: number): void => {
     this.chartRows.set(nextChartRows);
-    this.currentDataCount.set(this.dataCount());
+    this.currentDataCount.set(this.resetStep());
     this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
     this.focusedGroupIndices.set(this.getFocusedGroupIndices(this.dataProviders()));
   };
 
   onColsChange = (nextChartCols: number): void => {
     this.chartCols.set(nextChartCols);
-    this.currentDataCount.set(this.dataCount());
+    this.currentDataCount.set(this.resetStep());
     this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
     this.focusedGroupIndices.set(this.getFocusedGroupIndices(this.dataProviders()));
   };
 
   onStepBackwardClick = (): void => {
-    this.currentDataCount.set(this.dataCount() + (this.currentDataCount() - 1) % this.dataCount());
+    const cycle = this.stepCycle();
+    this.currentDataCount.set(this.mochartDemoConfig()!.pieMode
+      ? (this.currentDataCount() - 1 + cycle) % cycle
+      : cycle + (this.currentDataCount() - 1) % cycle);
     this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
     this.focusedGroupIndices.set(this.getFocusedGroupIndices(this.dataProviders()));
   };
 
   onStepForwardClick = (): void => {
-    this.currentDataCount.set((this.currentDataCount() + 1) % this.dataCount());
+    this.currentDataCount.set((this.currentDataCount() + 1) % this.stepCycle());
     this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
     this.focusedGroupIndices.set(this.getFocusedGroupIndices(this.dataProviders()));
   };
@@ -289,6 +312,14 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   onSeriesFilter = ({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }): void => {
     this.filteredSeriesIds.set({ ...nextFilteredSeriesIds });
   };
+
+  // Pie mode unions the stepper's per-chart suppression with the user's
+  // legend filtering, so the legend stays interactive while stepping.
+  chartFilteredSeriesIds(chartIndex: number): FilteredSeriesIds {
+    return this.mochartDemoConfig()!.pieMode
+      ? { ...this.filteredSeriesIds(), ...getPieStepSuppressedIds(this.sliceIds(), chartIndex, this.currentDataCount()) }
+      : this.filteredSeriesIds();
+  }
 
   get chartWidth(): number {
     return Math.floor((this.gridWidth() - scrollWidthOffset) / this.chartCols());

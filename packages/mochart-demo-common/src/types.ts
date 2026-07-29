@@ -71,4 +71,6 @@ export interface MochartDemoConfig {
   valid: boolean;
   groupProperty: string | undefined;
   seriesCount: number;
+  /** True for pie-type charts (pie/donut/gauge): slices are series, one data row. */
+  pieMode: boolean;
 }

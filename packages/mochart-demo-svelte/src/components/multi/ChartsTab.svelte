@@ -4,7 +4,7 @@
   import { Chart } from '@mochart/svelte';
   import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
   import type { ShareState } from '@mochart/demo-common';
 
   import ChartsControls from './ChartsControls.svelte';
@@ -53,11 +53,18 @@
   let data = $state.raw(demoObject.data);
   // svelte-ignore state_referenced_locally
   let dataCount = $state(demoObject.data.length);
-  // A shared step seeks the playback position; otherwise start on the full set.
+  // Pie mode steps a suppression pattern instead of data prefixes: chart i at
+  // step s suppresses the last (s + i) mod cycle slices, so the grid shows
+  // different-sized views of the same pie and stepping animates all charts.
   // svelte-ignore state_referenced_locally
-  let currentDataCount = $state(shared && demoObject.data.length > 0
-    ? ((Math.round(shared.step) % demoObject.data.length) + demoObject.data.length) % demoObject.data.length
-    : demoObject.data.length);
+  let sliceIds = $state.raw(mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : []);
+  const stepCycle = () => mochartDemoConfig.pieMode ? Math.max(1, sliceIds.length - 1) : dataCount;
+  // A shared step seeks the playback position; otherwise start on the full set
+  // (pie mode starts at step 0 — the grid's staggered initial view).
+  // svelte-ignore state_referenced_locally
+  let currentDataCount = $state(shared && stepCycle() > 0
+    ? ((Math.round(shared.step) % stepCycle()) + stepCycle()) % stepCycle()
+    : (mochartDemoConfig.pieMode ? 0 : demoObject.data.length));
   // svelte-ignore state_referenced_locally
   let dataProviders = $state.raw(getDataProvidersForDataCount(
     mochartDemoConfig.mochartConfig, demoObject.data, initialChartRows * initialChartCols, currentDataCount));
@@ -90,7 +97,8 @@
         playing = false;
         data = nextDemoObject.data;
         dataCount = data.length;
-        currentDataCount = dataCount;
+        sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
+        currentDataCount = resetStep();
         dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
         focusedGroupIndices = dataProviders.map(() => -1);
       }
@@ -105,28 +113,35 @@
     rate = nextRate;
   }
 
+  function resetStep(): number {
+    return mochartDemoConfig.pieMode ? 0 : dataCount;
+  }
+
   function onRowsChange(nextChartRows: number) {
     chartRows = nextChartRows;
-    currentDataCount = dataCount;
+    currentDataCount = resetStep();
     dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
     focusedGroupIndices = getFocusedGroupIndices(dataProviders);
   }
 
   function onColsChange(nextChartCols: number) {
     chartCols = nextChartCols;
-    currentDataCount = dataCount;
+    currentDataCount = resetStep();
     dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
     focusedGroupIndices = getFocusedGroupIndices(dataProviders);
   }
 
   function onStepBackwardClick() {
-    currentDataCount = dataCount + (currentDataCount - 1) % dataCount;
+    const cycle = stepCycle();
+    currentDataCount = mochartDemoConfig.pieMode
+      ? (currentDataCount - 1 + cycle) % cycle
+      : cycle + (currentDataCount - 1) % cycle;
     dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
     focusedGroupIndices = getFocusedGroupIndices(dataProviders);
   }
 
   function onStepForwardClick() {
-    currentDataCount = (currentDataCount + 1) % dataCount;
+    currentDataCount = (currentDataCount + 1) % stepCycle();
     dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
     focusedGroupIndices = getFocusedGroupIndices(dataProviders);
   }
@@ -259,9 +274,15 @@
       <div class="multi-charts">
         {#each dataProviders as dataProvider, i (i)}
           <div class="multi-mochart-chart">
+            <!-- Pie mode unions the stepper's per-chart suppression with the
+                 user's legend filtering, so the legend stays interactive while
+                 stepping. -->
             <Chart mochartConfig={mochartDemoConfig.mochartConfig} {dataProvider}
                    width={chartWidth} height={chartHeight}
-                   {filteredSeriesIds} focusedGroupIndex={focusedGroupIndices[i] ?? -1}
+                   filteredSeriesIds={mochartDemoConfig.pieMode
+                     ? { ...filteredSeriesIds, ...getPieStepSuppressedIds(sliceIds, i, currentDataCount) }
+                     : filteredSeriesIds}
+                   focusedGroupIndex={focusedGroupIndices[i] ?? -1}
                    focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
                    {onSeriesFilter} onFocus={(focusData) => onChartFocus(i, focusData)} />
           </div>

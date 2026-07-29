@@ -4,7 +4,7 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { Chart } from '@mochart/vue';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ChartsControls from './ChartsControls.vue';
@@ -42,10 +42,6 @@ const initialDataCount = props.demoObject.data.length;
 const initialRows = shared ? clampGrid(shared.rows) : defaultChartRows;
 const initialCols = shared ? clampGrid(shared.cols) : defaultChartCols;
 const initialRate = shared ? shared.interval : defaultRate;
-// A shared step seeks the playback position; otherwise start on the full set.
-const initialCurrentDataCount = shared && initialDataCount > 0
-  ? ((Math.round(shared.step) % initialDataCount) + initialDataCount) % initialDataCount
-  : initialDataCount;
 
 const playing = ref(false);
 const chartRows = ref(initialRows);
@@ -54,6 +50,16 @@ const rate = ref(initialRate);
 const mochartDemoConfig = shallowRef(buildMochartDemoConfig(props.demoObject.config));
 const data = shallowRef(props.demoObject.data);
 const dataCount = ref(initialDataCount);
+// Pie mode steps a suppression pattern instead of data prefixes: chart i at
+// step s suppresses the last (s + i) mod cycle slices, so the grid shows
+// different-sized views of the same pie and stepping animates all charts.
+const sliceIds = shallowRef(mochartDemoConfig.value.pieMode ? getPieSlices(mochartDemoConfig.value.mochartConfig).map(slice => slice.id) : []);
+const stepCycle = () => mochartDemoConfig.value.pieMode ? Math.max(1, sliceIds.value.length - 1) : dataCount.value;
+// A shared step seeks the playback position; otherwise start on the full set
+// (pie mode starts at step 0 — the grid's staggered initial view).
+const initialCurrentDataCount = shared && stepCycle() > 0
+  ? ((Math.round(shared.step) % stepCycle()) + stepCycle()) % stepCycle()
+  : (mochartDemoConfig.value.pieMode ? 0 : initialDataCount);
 const currentDataCount = ref(initialCurrentDataCount);
 const dataProviders = shallowRef(getDataProvidersForDataCount(
   mochartDemoConfig.value.mochartConfig, props.demoObject.data, initialRows * initialCols, initialCurrentDataCount));
@@ -79,7 +85,8 @@ watch(
       playing.value = false;
       data.value = nextDemoObject.data;
       dataCount.value = data.value.length;
-      currentDataCount.value = dataCount.value;
+      sliceIds.value = mochartDemoConfig.value.pieMode ? getPieSlices(mochartDemoConfig.value.mochartConfig).map(slice => slice.id) : [];
+      currentDataCount.value = resetStep();
       dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
       focusedGroupIndices.value = dataProviders.value.map(() => -1);
     }
@@ -93,28 +100,35 @@ function onRateChange(nextRate: number) {
   rate.value = nextRate;
 }
 
+function resetStep(): number {
+  return mochartDemoConfig.value.pieMode ? 0 : dataCount.value;
+}
+
 function onRowsChange(nextChartRows: number) {
   chartRows.value = nextChartRows;
-  currentDataCount.value = dataCount.value;
+  currentDataCount.value = resetStep();
   dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
   focusedGroupIndices.value = getFocusedGroupIndices(dataProviders.value);
 }
 
 function onColsChange(nextChartCols: number) {
   chartCols.value = nextChartCols;
-  currentDataCount.value = dataCount.value;
+  currentDataCount.value = resetStep();
   dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
   focusedGroupIndices.value = getFocusedGroupIndices(dataProviders.value);
 }
 
 function onStepBackwardClick() {
-  currentDataCount.value = dataCount.value + (currentDataCount.value - 1) % dataCount.value;
+  const cycle = stepCycle();
+  currentDataCount.value = mochartDemoConfig.value.pieMode
+    ? (currentDataCount.value - 1 + cycle) % cycle
+    : cycle + (currentDataCount.value - 1) % cycle;
   dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
   focusedGroupIndices.value = getFocusedGroupIndices(dataProviders.value);
 }
 
 function onStepForwardClick() {
-  currentDataCount.value = (currentDataCount.value + 1) % dataCount.value;
+  currentDataCount.value = (currentDataCount.value + 1) % stepCycle();
   dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
   focusedGroupIndices.value = getFocusedGroupIndices(dataProviders.value);
 }
@@ -209,6 +223,14 @@ function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filtered
   filteredSeriesIds.value = { ...nextFilteredSeriesIds };
 }
 
+// Pie mode unions the stepper's per-chart suppression with the user's
+// legend filtering, so the legend stays interactive while stepping.
+function chartFilteredSeriesIds(i: number): FilteredSeriesIds {
+  return mochartDemoConfig.value.pieMode
+    ? { ...filteredSeriesIds.value, ...getPieStepSuppressedIds(sliceIds.value, i, currentDataCount.value) }
+    : filteredSeriesIds.value;
+}
+
 // Measured size of the charts grid.
 const { elementRef: gridRef, width: gridWidth, height: gridHeight } = useElementSize();
 
@@ -248,7 +270,7 @@ function getMultiShareState(): ShareState {
         <div v-for="(dataProvider, i) in dataProviders" :key="i" class="multi-mochart-chart">
           <Chart :mochart-config="mochartDemoConfig.mochartConfig" :data-provider="dataProvider"
                  :width="chartWidth" :height="chartHeight"
-                 :filtered-series-ids="filteredSeriesIds" :focused-group-index="focusedGroupIndices[i] ?? -1"
+                 :filtered-series-ids="chartFilteredSeriesIds(i)" :focused-group-index="focusedGroupIndices[i] ?? -1"
                  :focused-series-axis-id="focusedSeriesAxisId ?? null" :focused-series-id="focusedSeriesId ?? null"
                  :on-series-filter="onSeriesFilter" :on-focus="(focusData: any) => onChartFocus(i, focusData)" />
         </div>

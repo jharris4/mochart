@@ -23,6 +23,7 @@ interface PieSeriesContainerProps {
   /** 0..1 while the initial value tween runs (drives the sweep-in), else null. */
   initialAnimationPercentage: number | null;
   onFocus: (focus: { seriesId?: string | null; groupIndex?: number | null }) => void;
+  onSliceClick?: (payload: { seriesId: string }) => void;
   shapeRef: (element: Element | null) => void;
 }
 
@@ -37,7 +38,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, shapeRef } = this.props;
+    const { mochartConfig, seriesLayoutInfo, seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef } = this.props;
     const { pieConfig, colorPaletteConfig, seriesConfigIndicesById } = mochartConfig;
     const { values: filteredValues } = seriesData.filtered;
 
@@ -77,7 +78,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
         labelFraction: pieConfig.adjustLabelsForSuppression
           ? sliceAngles[seriesConfig.id]?.fraction ?? 0
           : rawSliceAngles![seriesConfig.id]?.fraction ?? 0,
-        focusData, gradientIdMap, hideLabels: sweeping, onFocus }
+        focusData, gradientIdMap, hideLabels: sweeping, onFocus, onSliceClick }
     })));
 
     // The center total sums the current (possibly mid-tween) values, so it

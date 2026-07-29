@@ -6,7 +6,7 @@ import type { PropertyValues } from 'lit';
 import { chart } from '@mochart/lit';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -39,6 +39,10 @@ export class ChartsTab extends LightElement {
   @state() private data: DataRow[] = [];
   private dataCount = 0;
   private currentDataCount = 0;
+  // Pie mode steps a suppression pattern instead of data prefixes: chart i at
+  // step s suppresses the last (s + i) mod cycle slices, so the grid shows
+  // different-sized views of the same pie and stepping animates all charts.
+  private sliceIds: string[] = [];
   @state() private dataProviders: ChartDataProviderLike[] = [];
   @state() private focusedGroupIndices: number[] = [];
   private focusedGroupIndex = -1;
@@ -56,16 +60,27 @@ export class ChartsTab extends LightElement {
     this.filteredSeriesIds = {};
   }
 
-  // A shared `step` seeks the playback position; otherwise start on the full set.
+  private stepCycle(): number {
+    return this.mochartDemoConfig.pieMode ? Math.max(1, this.sliceIds.length - 1) : this.dataCount;
+  }
+
+  private resetStep(): number {
+    return this.mochartDemoConfig.pieMode ? 0 : this.dataCount;
+  }
+
+  // A shared `step` seeks the playback position; otherwise start on the full
+  // set (pie mode starts at step 0 — the grid's staggered initial view).
   private initForDemoObject(step?: number): void {
     this.mochartDemoConfig = buildMochartDemoConfig(this.demoObject.config);
     this.initFocusAndFiltered();
     this.playing = false;
     this.data = this.demoObject.data;
     this.dataCount = this.data.length;
-    this.currentDataCount = step !== undefined && this.dataCount > 0
-      ? ((Math.round(step) % this.dataCount) + this.dataCount) % this.dataCount
-      : this.dataCount;
+    this.sliceIds = this.mochartDemoConfig.pieMode ? getPieSlices(this.mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
+    const cycle = this.stepCycle();
+    this.currentDataCount = step !== undefined && cycle > 0
+      ? ((Math.round(step) % cycle) + cycle) % cycle
+      : this.resetStep();
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedGroupIndices = this.dataProviders.map(() => -1);
   }
@@ -131,26 +146,29 @@ export class ChartsTab extends LightElement {
 
   private onRowsChange = (nextChartRows: number): void => {
     this.chartRows = nextChartRows;
-    this.currentDataCount = this.dataCount;
+    this.currentDataCount = this.resetStep();
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedGroupIndices = this.getFocusedGroupIndices(this.dataProviders);
   };
 
   private onColsChange = (nextChartCols: number): void => {
     this.chartCols = nextChartCols;
-    this.currentDataCount = this.dataCount;
+    this.currentDataCount = this.resetStep();
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedGroupIndices = this.getFocusedGroupIndices(this.dataProviders);
   };
 
   private onStepBackwardClick = (): void => {
-    this.currentDataCount = this.dataCount + (this.currentDataCount - 1) % this.dataCount;
+    const cycle = this.stepCycle();
+    this.currentDataCount = this.mochartDemoConfig.pieMode
+      ? (this.currentDataCount - 1 + cycle) % cycle
+      : cycle + (this.currentDataCount - 1) % cycle;
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedGroupIndices = this.getFocusedGroupIndices(this.dataProviders);
   };
 
   private onStepForwardClick = (): void => {
-    this.currentDataCount = (this.currentDataCount + 1) % this.dataCount;
+    this.currentDataCount = (this.currentDataCount + 1) % this.stepCycle();
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
     this.focusedGroupIndices = this.getFocusedGroupIndices(this.dataProviders);
   };
@@ -241,6 +259,11 @@ export class ChartsTab extends LightElement {
   override render(): unknown {
     const chartWidth = Math.floor((this.size.width - scrollWidthOffset) / this.chartCols);
     const chartHeight = Math.floor(this.size.height / this.chartRows);
+    // Pie mode unions the stepper's per-chart suppression with the user's
+    // legend filtering, so the legend stays interactive while stepping.
+    const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => this.mochartDemoConfig.pieMode
+      ? { ...this.filteredSeriesIds, ...getPieStepSuppressedIds(this.sliceIds, i, this.currentDataCount) }
+      : this.filteredSeriesIds;
     return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')}>
       <div ${ref(this.size.attach)} class="multi-charts-sizer">
         ${this.size.width > 0
@@ -251,7 +274,7 @@ export class ChartsTab extends LightElement {
                   dataProvider,
                   width: chartWidth,
                   height: chartHeight,
-                  filteredSeriesIds: this.filteredSeriesIds,
+                  filteredSeriesIds: chartFilteredSeriesIds(i),
                   focusedGroupIndex: this.focusedGroupIndices[i] ?? -1,
                   focusedSeriesAxisId: this.focusedSeriesAxisId ?? null,
                   focusedSeriesId: this.focusedSeriesId ?? null,

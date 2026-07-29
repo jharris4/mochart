@@ -5,12 +5,16 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import { Chart } from '@mochart/react';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { getChartExportOptions, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+
+import type { PieSliceInfo } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import ExportShareMenu from '../misc/ExportShareMenu';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
+
+// The binding forwards all props through to the core chart, but its typed
 
 const emptyGroupText = demoText.editableChart.emptyGroupText;
 
@@ -60,6 +64,11 @@ interface EditableState {
   sequencePlaying: boolean;
   filteredFocusedGroupIndex: number;
   orderChanged: boolean;
+  // pie-mode slice editing: slices are the series, so the group machinery has
+  // nothing to operate on and a single slice panel replaces both panels
+  slices: PieSliceInfo[];
+  sliceIndex: number;
+  sliceValueText: string;
 }
 
 function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, filteredData: Row[], groupIndex: number, seriesIndex: number): string {
@@ -87,6 +96,14 @@ function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, filteredData:
   else {
     return "";
   }
+}
+
+function getSliceValueText(slices: PieSliceInfo[], sliceIndex: number, rows: Row[]): string {
+  if (slices.length === 0 || rows.length === 0) {
+    return "";
+  }
+  const value = rows[0][slices[sliceIndex].property];
+  return value === undefined || value === null ? "" : String(value);
 }
 
 export default function EditableChart(props: Props) {
@@ -146,6 +163,8 @@ export default function EditableChart(props: Props) {
   };
 
   const [state, setState] = useState<EditableState>(() => {
+    const { data, dataError, mochartDemoConfig } = props;
+    const slices = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig) : [];
     const base: EditableState = {
       dataProvider: null,
       groupIndex: -1,
@@ -156,27 +175,39 @@ export default function EditableChart(props: Props) {
       filteredData: null,
       sequencePlaying: false,
       filteredFocusedGroupIndex: -1,
-      orderChanged: false
+      orderChanged: false,
+      slices,
+      sliceIndex: 0,
+      sliceValueText: ""
     };
-    const { data, dataError } = props;
     const filteredData: Row[] = [];
     if (data && !dataError) {
       for (let i = 0; i < data.length; i++) {
         filteredData.push(Object.assign({}, data[i]));
       }
     }
-    return buildFilteredState(base, { orderChanged: false, seriesIndex: 0, groupValuesText: emptyGroupText }, filteredData, [], true);
+    return buildFilteredState(base, {
+      orderChanged: false, seriesIndex: 0, groupValuesText: emptyGroupText,
+      sliceValueText: getSliceValueText(slices, 0, filteredData)
+    }, filteredData, [], true);
   });
 
   function initData() {
-    const { data, dataError } = propsRef.current;
+    const { data, dataError, mochartDemoConfig } = propsRef.current;
     const filteredData: Row[] = [];
     if (data && !dataError) {
       for (let i = 0; i < data.length; i++) {
         filteredData.push(Object.assign({}, data[i]));
       }
     }
-    updateFilteredDataState({ orderChanged: false, seriesIndex: 0, groupValuesText: emptyGroupText }, filteredData, [], true);
+    const slices = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig) : [];
+    setState(prev => {
+      const sliceIndex = prev.sliceIndex >= slices.length ? 0 : prev.sliceIndex;
+      return buildFilteredState(prev, {
+        orderChanged: false, seriesIndex: 0, groupValuesText: emptyGroupText,
+        slices, sliceIndex, sliceValueText: getSliceValueText(slices, sliceIndex, filteredData)
+      }, filteredData, [], true);
+    });
   }
 
   // Reload/remap derived state when the demo config or data changes (the old
@@ -635,13 +666,74 @@ export default function EditableChart(props: Props) {
     }
   };
 
+  const selectSlice = (sliceIndex: number) => {
+    const { slices } = state;
+    if (sliceIndex >= 0 && sliceIndex < slices.length) {
+      const sliceValueText = getSliceValueText(slices, sliceIndex, filteredDataRef.current);
+      setState(prev => ({ ...prev, sliceIndex, sliceValueText }));
+    }
+  };
+
+  const onChartSliceClick = ({ seriesId }: { seriesId: string }) => {
+    selectSlice(state.slices.findIndex(slice => slice.id === seriesId));
+  };
+
+  const sliceValueChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const sliceValueText = event.target.value;
+    setState(prev => ({ ...prev, sliceValueText }));
+  };
+
+  const applySliceChanges = () => {
+    const filteredData = filteredDataRef.current;
+    const removedData = removedDataRef.current;
+    const { slices, sliceIndex, sliceValueText } = state;
+    const value = parseFloat(sliceValueText);
+    if (!isNaN(value) && isFinite(value) && filteredData.length > 0 && slices.length > 0) {
+      applyPieSliceValue(filteredData[0], slices, slices[sliceIndex].property, value);
+      updateFilteredDataState({}, filteredData, removedData, false);
+    }
+  };
+
+  const resetSliceChanges = () => {
+    const { data } = props;
+    const filteredData = filteredDataRef.current;
+    const removedData = removedDataRef.current;
+    const { slices, sliceIndex } = state;
+    if (filteredData.length > 0 && data.length > 0 && slices.length > 0) {
+      const property = slices[sliceIndex].property;
+      applyPieSliceValue(filteredData[0], slices, property, data[0][property] as number);
+      updateFilteredDataState({ sliceValueText: getSliceValueText(slices, sliceIndex, filteredData) }, filteredData, removedData, false);
+    }
+  };
+
+  // The pie analog of the group add/remove sequences: suppress the slices one
+  // at a time (via the shared legend filter, so the remaining slices re-sweep
+  // and center totals count along), then restore them.
+  const startSliceSequence = () => {
+    const { slices } = state;
+    const steps = getPieSequenceSteps(slices.map(slice => slice.id));
+    if (steps.length > 0) {
+      setState(prev => ({ ...prev, sequencePlaying: true }));
+      let stepCount = 0;
+      sequenceIdRef.current = setInterval(() => {
+        propsRef.current.onSeriesFilter({ filteredSeriesIds: steps[stepCount] });
+        if (stepCount < steps.length - 1) {
+          stepCount++;
+        }
+        else {
+          stopSequence();
+        }
+      }, 2000);
+    }
+  };
+
   const {
     width, chartCount, showChartCountControls, showShareButton, onChartCountToggle, onSeriesFilter,
     filteredSeriesIds, focusedSeriesAxisId, focusedSeriesId
   } = props;
   const {
     sequencePlaying, selectionMode, dataProvider, groupValuesText, groupIndex, seriesIndex, seriesValuesText, orderChanged,
-    filteredFocusedGroupIndex
+    filteredFocusedGroupIndex, slices, sliceIndex, sliceValueText
   } = state;
 
   const dataError = !!(dataProvider && dataProvider.getError && dataProvider.getError());
@@ -695,25 +787,102 @@ export default function EditableChart(props: Props) {
     <span className="chart-controls-menu">{exportShareControlContent}</span>
   );
 
+  const chartCountControlContent = showChartCountControls ? (
+    <div className="demo-btn-group" key="chartCountControls">
+      <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
+        tooltipText={chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow} tooltipPlacement="right"
+        onClick={onChartCountToggle} aria-label={demoText.editableChart.secondChart.aria}>
+        <Icon size="lg" fixedWidth={true} name={chartCount === 2 ? "window-maximize" : "window-restore"} />
+      </ButtonWithTooltip>
+    </div>
+  ) : null;
+
   let commonControlContent: React.ReactNode;
-  if (showChartCountControls) {
-    commonControlContent = [
-      <div className="demo-btn-group" key="chartCountControls">
-        <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
-          tooltipText={chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow} tooltipPlacement="right"
-          onClick={onChartCountToggle} aria-label={demoText.editableChart.secondChart.aria}>
-          <Icon size="lg" fixedWidth={true} name={chartCount === 2 ? "window-maximize" : "window-restore"} />
-        </ButtonWithTooltip>
-      </div>,
-      modeControlContent
-    ];
+  if (chartCountControlContent) {
+    commonControlContent = [chartCountControlContent, modeControlContent];
   }
   else {
     commonControlContent = [modeControlContent];
   }
 
   let controlContent: React.ReactNode;
-  if (selectionMode === 'group') {
+  if (mochartDemoConfig.pieMode) {
+    // Pie-mode slice panel — replaces both panels (and the mode toggle) when
+    // slices are the series: click a slice (or step prev/next) to select it,
+    // edit its value, or play the suppress/restore sequence.
+    const sliceControlsDisabled = error || sequencePlaying || slices.length === 0;
+    controlContent = (
+      <div className="chart-controls-container">
+        <div className="chart-controls-buttons">
+          <form className="demo-form-row">
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
+                {chartCountControlContent}
+              </div>
+            </div>
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
+                <div className="demo-btn-group">
+                  <ButtonWithTooltip id="edit-previous-slice" disabled={sliceControlsDisabled || sliceIndex === 0}
+                    tooltipText={demoText.editableChart.previousSlice.tooltip} tooltipPlacement="right"
+                    onClick={() => selectSlice(sliceIndex - 1)} aria-label={demoText.editableChart.previousSlice.aria}>
+                    <Icon size="lg" fixedWidth={true} name="chevron-left" />
+                  </ButtonWithTooltip>
+                </div>
+              </div>
+            </div>
+            <div className="demo-field">
+              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>
+                {slices.length > 0 ? demoText.editableChart.slicePrefix + slices[sliceIndex].title : demoText.editableChart.selectASliceText}
+              </span>
+            </div>
+            <div className="demo-field">
+              <div className="demo-toolbar" role="toolbar">
+                <div className="demo-btn-group">
+                  <ButtonWithTooltip id="edit-next-slice" disabled={sliceControlsDisabled || sliceIndex >= slices.length - 1}
+                    tooltipText={demoText.editableChart.nextSlice.tooltip} tooltipPlacement="right"
+                    onClick={() => selectSlice(sliceIndex + 1)} aria-label={demoText.editableChart.nextSlice.aria}>
+                    <Icon size="lg" fixedWidth={true} name="chevron-right" />
+                  </ButtonWithTooltip>
+                </div>
+                <div className="demo-btn-group">
+                  <ButtonWithTooltip id="edit-reset-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.resetSlice.label}
+                    tooltipText={demoText.editableChart.resetSlice.tooltip} tooltipPlacement="right"
+                    onClick={resetSliceChanges} aria-label={demoText.editableChart.resetSlice.aria}>
+                    <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+                  </ButtonWithTooltip>
+                  <ButtonWithTooltip id="edit-apply-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.applySlice.label}
+                    tooltipText={demoText.editableChart.applySlice.tooltip} tooltipPlacement="right"
+                    onClick={applySliceChanges} aria-label={demoText.editableChart.applySlice.aria}>
+                    <Icon size="lg" fixedWidth={true} name="check" />
+                  </ButtonWithTooltip>
+                </div>
+                <div className="demo-btn-group">
+                  <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 3}
+                    tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
+                    onClick={startSliceSequence} aria-label={demoText.editableChart.playSliceSequence.aria}>
+                    <Icon size="lg" fixedWidth={true} name="play" />
+                  </ButtonWithTooltip>
+                  <ButtonWithTooltip id="edit-stop-slices" disabled={error || !sequencePlaying}
+                    tooltipText={demoText.editableChart.stopSliceSequence.tooltip} tooltipPlacement="right"
+                    onClick={stopSequence} aria-label={demoText.editableChart.stopSliceSequence.aria}>
+                    <Icon size="lg" fixedWidth={true} name="stop" />
+                  </ButtonWithTooltip>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <span className="chart-controls-input">
+          <form className="demo-form-row">
+            <input type="text" className="demo-input" disabled={sliceControlsDisabled} value={sliceValueText} onChange={sliceValueChanged} />
+          </form>
+        </span>
+        {exportShareRightContent}
+      </div>
+    );
+  }
+  else if (selectionMode === 'group') {
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
@@ -880,7 +1049,7 @@ export default function EditableChart(props: Props) {
       width={width} mochartConfig={mochartConfig} dataProvider={dataProvider}
       filteredSeriesIds={filteredSeriesIds} focusedGroupIndex={filteredFocusedGroupIndex}
       focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
-      onFocus={onChartFocus} onSeriesFilter={onSeriesFilter} onChartClick={onChartClick} />
+      onFocus={onChartFocus} onSeriesFilter={onSeriesFilter} onChartClick={onChartClick} onSliceClick={onChartSliceClick} />
   );
 
   return (

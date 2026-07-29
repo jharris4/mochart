@@ -15,6 +15,7 @@ export type PlaceholderComponent = ComponentType<PlaceholderProps>;
 
 export interface ChartCallbackProps {
   onChartClick?: (eventPayload: any) => void;
+  onSliceClick?: (payload: any) => void;
   onChartMouseEnter?: (eventPayload: any) => void;
   onChartMouseMove?: (eventPayload: any) => void;
   onChartMouseLeave?: (eventPayload: any) => void;

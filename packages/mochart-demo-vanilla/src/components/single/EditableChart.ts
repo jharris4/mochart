@@ -1,9 +1,9 @@
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { getChartExportOptions, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
 
-import type { ShareState } from '@mochart/demo-common';
+import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
@@ -93,6 +93,11 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   let seriesValuesText = '';
   let selectionMode = 'group';
   let sequencePlaying = false;
+  // pie-mode slice editing: slices are the series, so the group machinery has
+  // nothing to operate on and a single slice panel replaces both panels
+  let slices: PieSliceInfo[] = [];
+  let sliceIndex = 0;
+  let sliceValueText = '';
   let filteredFocusedGroupIndex = -1;
   let orderChanged = false;
 
@@ -160,7 +165,70 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
         nextFilteredData.push(Object.assign({}, data[i]));
       }
     }
+    slices = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig) : [];
+    if (sliceIndex >= slices.length) {
+      sliceIndex = 0;
+    }
+    sliceValueText = getSliceValueText(nextFilteredData);
     updateFilteredDataState({ orderChanged: false, seriesIndex: 0, groupValuesText: emptyGroupText }, nextFilteredData, []);
+  }
+
+  function getSliceValueText(rows: Row[]): string {
+    if (slices.length === 0 || rows.length === 0) {
+      return '';
+    }
+    const value = rows[0][slices[sliceIndex].property];
+    return value === undefined || value === null ? '' : String(value);
+  }
+
+  function selectSlice(nextSliceIndex: number): void {
+    if (nextSliceIndex >= 0 && nextSliceIndex < slices.length) {
+      sliceIndex = nextSliceIndex;
+      sliceValueText = getSliceValueText(filteredData);
+      sync();
+    }
+  }
+
+  function onChartSliceClick({ seriesId }: { seriesId: string }): void {
+    selectSlice(slices.findIndex(slice => slice.id === seriesId));
+  }
+
+  function applySliceChanges(): void {
+    const value = parseFloat(sliceValueText);
+    if (!isNaN(value) && isFinite(value) && filteredData.length > 0 && slices.length > 0) {
+      applyPieSliceValue(filteredData[0], slices, slices[sliceIndex].property, value);
+      updateFilteredDataState({}, filteredData, removedData, false);
+    }
+  }
+
+  function resetSliceChanges(): void {
+    if (filteredData.length > 0 && data.length > 0 && slices.length > 0) {
+      const property = slices[sliceIndex].property;
+      applyPieSliceValue(filteredData[0], slices, property, data[0][property] as number);
+      sliceValueText = getSliceValueText(filteredData);
+      updateFilteredDataState({}, filteredData, removedData, false);
+    }
+  }
+
+  // The pie analog of the group add/remove sequences: suppress the slices one
+  // at a time (via the shared legend filter, so the remaining slices re-sweep
+  // and center totals count along), then restore them.
+  function startSliceSequence(): void {
+    const steps = getPieSequenceSteps(slices.map(slice => slice.id));
+    if (steps.length > 0) {
+      sequencePlaying = true;
+      let stepCount = 0;
+      sequenceId = setInterval(() => {
+        onSeriesFilter({ filteredSeriesIds: steps[stepCount] });
+        if (stepCount < steps.length - 1) {
+          stepCount++;
+        }
+        else {
+          stopSequence();
+        }
+      }, 2000);
+      sync();
+    }
   }
 
   // mochart reports focus with the new payload shape; adapt it to the
@@ -573,7 +641,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       focusedSeriesId,
       onFocus: onChartFocus,
       onSeriesFilter,
-      onChartClick
+      onChartClick,
+      onSliceClick: onChartSliceClick
     },
     { style: 'flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;' }
   );
@@ -606,10 +675,9 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       : undefined
   });
   const menuSpan = el('span', { className: 'chart-controls-menu' }, [exportShareMenuHandle.el]);
-  const commonControls = [
-    ...(chartCountButton ? [el('div', { className: 'demo-btn-group' }, [chartCountButton.el])] : []),
-    el('div', { className: 'demo-btn-group' }, [modeButton.el])
-  ];
+  const chartCountControl = chartCountButton ? el('div', { className: 'demo-btn-group' }, [chartCountButton.el]) : null;
+  const modeControl = el('div', { className: 'demo-btn-group' }, [modeButton.el]);
+  const commonControls = [...(chartCountControl ? [chartCountControl] : []), modeControl];
 
   // Group-mode panel
   const resetGroupsButton = buttonWithTooltip({
@@ -766,7 +834,79 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     ])
   ]);
 
-  const controls = el('div', { className: 'editable-chart-controls' }, [groupPanel, seriesPanel]);
+  // Pie-mode slice panel — replaces both panels when slices are the series:
+  // click a slice (or step prev/next) to select it, edit its value, or play
+  // the suppress/restore sequence.
+  const previousSliceButton = buttonWithTooltip({
+    id: 'edit-previous-slice', ariaLabel: demoText.editableChart.previousSlice.aria,
+    tooltipText: demoText.editableChart.previousSlice.tooltip,
+    onClick: () => selectSlice(sliceIndex - 1),
+    content: [icon('chevron-left', { size: 'lg', fixedWidth: true })]
+  });
+  const nextSliceButton = buttonWithTooltip({
+    id: 'edit-next-slice', ariaLabel: demoText.editableChart.nextSlice.aria,
+    tooltipText: demoText.editableChart.nextSlice.tooltip,
+    onClick: () => selectSlice(sliceIndex + 1),
+    content: [icon('chevron-right', { size: 'lg', fixedWidth: true })]
+  });
+  const resetSliceButton = buttonWithTooltip({
+    id: 'edit-reset-slice', label: demoText.editableChart.resetSlice.label, ariaLabel: demoText.editableChart.resetSlice.aria,
+    tooltipText: demoText.editableChart.resetSlice.tooltip,
+    onClick: resetSliceChanges,
+    content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
+  });
+  const applySliceButton = buttonWithTooltip({
+    id: 'edit-apply-slice', label: demoText.editableChart.applySlice.label, ariaLabel: demoText.editableChart.applySlice.aria,
+    tooltipText: demoText.editableChart.applySlice.tooltip,
+    onClick: applySliceChanges,
+    content: [icon('check', { size: 'lg', fixedWidth: true })]
+  });
+  const playSliceButton = buttonWithTooltip({
+    id: 'edit-play-slices', ariaLabel: demoText.editableChart.playSliceSequence.aria,
+    tooltipText: demoText.editableChart.playSliceSequence.tooltip,
+    onClick: startSliceSequence,
+    content: [icon('play', { size: 'lg', fixedWidth: true })]
+  });
+  const stopSliceButton = buttonWithTooltip({
+    id: 'edit-stop-slices', ariaLabel: demoText.editableChart.stopSliceSequence.aria,
+    tooltipText: demoText.editableChart.stopSliceSequence.tooltip,
+    onClick: stopSequence,
+    content: [icon('stop', { size: 'lg', fixedWidth: true })]
+  });
+
+  const sliceLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' });
+
+  const sliceInput = el('input', { className: 'demo-input', attrs: { type: 'text' } });
+  sliceInput.addEventListener('input', () => {
+    sliceValueText = sliceInput.value;
+    sync();
+  });
+
+  const sliceCommonToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
+  const sliceForm = el('form', { className: 'demo-form-row' }, [
+    el('div', { className: 'demo-field' }, [sliceCommonToolbar]),
+    el('div', { className: 'demo-field' }, [
+      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+        el('div', { className: 'demo-btn-group' }, [previousSliceButton.el])
+      ])
+    ]),
+    el('div', { className: 'demo-field' }, [sliceLabel]),
+    el('div', { className: 'demo-field' }, [
+      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+        el('div', { className: 'demo-btn-group' }, [nextSliceButton.el]),
+        el('div', { className: 'demo-btn-group' }, [resetSliceButton.el, applySliceButton.el]),
+        el('div', { className: 'demo-btn-group' }, [playSliceButton.el, stopSliceButton.el])
+      ])
+    ])
+  ]);
+  const slicePanel = el('div', { className: 'chart-controls-container' }, [
+    el('div', { className: 'chart-controls-buttons' }, [sliceForm]),
+    el('span', { className: 'chart-controls-input' }, [
+      el('form', { className: 'demo-form-row' }, [sliceInput])
+    ])
+  ]);
+
+  const controls = el('div', { className: 'editable-chart-controls' }, [groupPanel, seriesPanel, slicePanel]);
   const container = el('div', { className: 'editable-mochart-chart' }, [
     el('div', { className: 'editable-chart-container' }, [chartContentElement, controls])
   ]);
@@ -801,11 +941,20 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     const hasPrevSeries = seriesIndex > 0;
     const hasNextSeries = seriesIndex < mochartDemoConfig.seriesCount - 1;
 
-    // panel visibility + common controls placement
+    // panel visibility + common controls placement (pie mode shows only the
+    // slice panel; the group/series machinery has nothing to edit there)
+    const pieMode = mochartDemoConfig.pieMode;
     const groupMode = selectionMode === 'group';
-    groupPanel.style.display = groupMode ? '' : 'none';
-    seriesPanel.style.display = groupMode ? 'none' : '';
-    if (groupMode) {
+    groupPanel.style.display = !pieMode && groupMode ? '' : 'none';
+    seriesPanel.style.display = !pieMode && !groupMode ? '' : 'none';
+    slicePanel.style.display = pieMode ? '' : 'none';
+    if (pieMode) {
+      modeControl.remove();
+      if (chartCountControl && chartCountControl.parentElement !== sliceCommonToolbar) {
+        sliceCommonToolbar.append(chartCountControl);
+      }
+    }
+    else if (groupMode) {
       if (commonControls[0].parentElement !== groupToolbar) {
         groupToolbar.prepend(...commonControls);
       }
@@ -816,7 +965,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
     // Keep the export/share menu as the last child of the visible panel (after
     // its input), so it stays pinned to the far right of the active row.
-    const activePanel = groupMode ? groupPanel : seriesPanel;
+    const activePanel = pieMode ? slicePanel : groupMode ? groupPanel : seriesPanel;
     if (menuSpan.parentElement !== activePanel) {
       activePanel.append(menuSpan);
     }
@@ -859,6 +1008,21 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       seriesInput.value = seriesValuesText;
     }
 
+    if (pieMode) {
+      const sliceControlsDisabled = error || sequencePlaying || slices.length === 0;
+      previousSliceButton.setDisabled(sliceControlsDisabled || sliceIndex === 0);
+      nextSliceButton.setDisabled(sliceControlsDisabled || sliceIndex >= slices.length - 1);
+      resetSliceButton.setDisabled(sliceControlsDisabled);
+      applySliceButton.setDisabled(sliceControlsDisabled);
+      playSliceButton.setDisabled(error || sequencePlaying || slices.length < 3);
+      stopSliceButton.setDisabled(error || !sequencePlaying);
+      sliceLabel.textContent = slices.length > 0 ? demoText.editableChart.slicePrefix + slices[sliceIndex].title : demoText.editableChart.selectASliceText;
+      sliceInput.disabled = sliceControlsDisabled;
+      if (sliceInput.value !== sliceValueText) {
+        sliceInput.value = sliceValueText;
+      }
+    }
+
     // chart props
     if (lastChartProps === null || lastChartProps.width !== width ||
         lastChartProps.mochartConfig !== mochartDemoConfig.mochartConfig ||
@@ -886,7 +1050,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
         focusedSeriesId,
         onFocus: onChartFocus,
         onSeriesFilter,
-        onChartClick
+        onChartClick,
+        onSliceClick: onChartSliceClick
       });
     }
   }

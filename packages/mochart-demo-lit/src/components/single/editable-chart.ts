@@ -4,8 +4,10 @@ import type { PropertyValues } from 'lit';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart } from '@mochart/lit';
+import type { ChartProps } from '@mochart/lit';
 import { exportPNG, exportSVG } from '@mochart/export';
-import { getChartExportOptions, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+import type { PieSliceInfo } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, icon } from '../misc/templates';
@@ -90,6 +92,11 @@ export class EditableChart extends LightElement {
   @state() private seriesValuesText = "";
   @state() private selectionMode = 'group';
   @state() private sequencePlaying = false;
+  // pie-mode slice editing: slices are the series, so the group machinery has
+  // nothing to operate on and a single slice panel replaces both panels
+  @state() private slices: PieSliceInfo[] = [];
+  @state() private sliceIndex = 0;
+  @state() private sliceValueText = "";
   @state() private filteredFocusedGroupIndex = -1;
   @state() private orderChanged = false;
 
@@ -158,8 +165,69 @@ export class EditableChart extends LightElement {
         nextFilteredData.push(Object.assign({}, this.data[i]));
       }
     }
+    this.slices = this.mochartDemoConfig.pieMode ? getPieSlices(this.mochartDemoConfig.mochartConfig) : [];
+    if (this.sliceIndex >= this.slices.length) {
+      this.sliceIndex = 0;
+    }
+    this.sliceValueText = this.getSliceValueText(nextFilteredData);
     this.updateFilteredDataState({ orderChanged: false, seriesIndex: 0, groupValuesText: emptyGroupText }, nextFilteredData, []);
   }
+
+  private getSliceValueText(rows: Row[]): string {
+    if (this.slices.length === 0 || rows.length === 0) {
+      return "";
+    }
+    const value = rows[0][this.slices[this.sliceIndex].property];
+    return value === undefined || value === null ? "" : String(value);
+  }
+
+  private selectSlice(nextSliceIndex: number): void {
+    if (nextSliceIndex >= 0 && nextSliceIndex < this.slices.length) {
+      this.sliceIndex = nextSliceIndex;
+      this.sliceValueText = this.getSliceValueText(this.filteredData);
+    }
+  }
+
+  private onChartSliceClick = ({ seriesId }: { seriesId: string }): void => {
+    this.selectSlice(this.slices.findIndex(slice => slice.id === seriesId));
+  };
+
+  private applySliceChanges = (): void => {
+    const value = parseFloat(this.sliceValueText);
+    if (!isNaN(value) && isFinite(value) && this.filteredData.length > 0 && this.slices.length > 0) {
+      applyPieSliceValue(this.filteredData[0], this.slices, this.slices[this.sliceIndex].property, value);
+      this.updateFilteredDataState({}, this.filteredData, this.removedData, false);
+    }
+  };
+
+  private resetSliceChanges = (): void => {
+    if (this.filteredData.length > 0 && this.data.length > 0 && this.slices.length > 0) {
+      const property = this.slices[this.sliceIndex].property;
+      applyPieSliceValue(this.filteredData[0], this.slices, property, this.data[0][property] as number);
+      this.sliceValueText = this.getSliceValueText(this.filteredData);
+      this.updateFilteredDataState({}, this.filteredData, this.removedData, false);
+    }
+  };
+
+  // The pie analog of the group add/remove sequences: suppress the slices one
+  // at a time (via the shared legend filter, so the remaining slices re-sweep
+  // and center totals count along), then restore them.
+  private startSliceSequence = (): void => {
+    const steps = getPieSequenceSteps(this.slices.map(slice => slice.id));
+    if (steps.length > 0) {
+      this.sequencePlaying = true;
+      let stepCount = 0;
+      this.sequenceId = setInterval(() => {
+        this.onSeriesFilter({ filteredSeriesIds: steps[stepCount] });
+        if (stepCount < steps.length - 1) {
+          stepCount++;
+        }
+        else {
+          this.stopSequence();
+        }
+      }, 2000);
+    }
+  };
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (!this.hasUpdated) {
@@ -725,6 +793,74 @@ export class EditableChart extends LightElement {
     </div>`;
   }
 
+  // Pie-mode slice panel — replaces both panels when slices are the series:
+  // click a slice (or step prev/next) to select it, edit its value, or play
+  // the suppress/restore sequence.
+  private renderSliceControls(error: boolean): unknown {
+    const sliceControlsDisabled = error || this.sequencePlaying || this.slices.length === 0;
+    return html`<div class="chart-controls-container">
+      <div class="chart-controls-buttons">
+        <form class="demo-form-row">
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              ${this.renderChartCountControls()}
+            </div>
+          </div>
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
+                ${buttonWithTooltip(
+                  { id: 'edit-previous-slice', disabled: sliceControlsDisabled || this.sliceIndex === 0, tooltipText: demoText.editableChart.previousSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex - 1), ariaLabel: demoText.editableChart.previousSlice.aria },
+                  icon({ size: 'lg', fixedWidth: true, name: 'chevron-left' })
+                )}
+              </div>
+            </div>
+          </div>
+          <div class="demo-field">
+            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">${this.slices.length > 0 ? demoText.editableChart.slicePrefix + this.slices[this.sliceIndex].title : demoText.editableChart.selectASliceText}</span>
+          </div>
+          <div class="demo-field">
+            <div class="demo-toolbar" role="toolbar">
+              <div class="demo-btn-group">
+                ${buttonWithTooltip(
+                  { id: 'edit-next-slice', disabled: sliceControlsDisabled || this.sliceIndex >= this.slices.length - 1, tooltipText: demoText.editableChart.nextSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex + 1), ariaLabel: demoText.editableChart.nextSlice.aria },
+                  icon({ size: 'lg', fixedWidth: true, name: 'chevron-right' })
+                )}
+              </div>
+              <div class="demo-btn-group">
+                ${buttonWithTooltip(
+                  { id: 'edit-reset-slice', disabled: sliceControlsDisabled, label: demoText.editableChart.resetSlice.label, tooltipText: demoText.editableChart.resetSlice.tooltip, tooltipPlacement: 'right', onClick: this.resetSliceChanges, ariaLabel: demoText.editableChart.resetSlice.aria },
+                  icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
+                )}
+                ${buttonWithTooltip(
+                  { id: 'edit-apply-slice', disabled: sliceControlsDisabled, label: demoText.editableChart.applySlice.label, tooltipText: demoText.editableChart.applySlice.tooltip, tooltipPlacement: 'right', onClick: this.applySliceChanges, ariaLabel: demoText.editableChart.applySlice.aria },
+                  icon({ size: 'lg', fixedWidth: true, name: 'check' })
+                )}
+              </div>
+              <div class="demo-btn-group">
+                ${buttonWithTooltip(
+                  { id: 'edit-play-slices', disabled: error || this.sequencePlaying || this.slices.length < 3, tooltipText: demoText.editableChart.playSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.startSliceSequence, ariaLabel: demoText.editableChart.playSliceSequence.aria },
+                  icon({ size: 'lg', fixedWidth: true, name: 'play' })
+                )}
+                ${buttonWithTooltip(
+                  { id: 'edit-stop-slices', disabled: error || !this.sequencePlaying, tooltipText: demoText.editableChart.stopSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.stopSequence, ariaLabel: demoText.editableChart.stopSliceSequence.aria },
+                  icon({ size: 'lg', fixedWidth: true, name: 'stop' })
+                )}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <span class="chart-controls-input">
+        <form class="demo-form-row">
+          <input type="text" class="demo-input" ?disabled=${sliceControlsDisabled} .value=${this.sliceValueText}
+                 @input=${(event: Event) => { this.sliceValueText = (event.currentTarget as HTMLInputElement).value; }} />
+        </form>
+      </span>
+      ${this.renderExportShareMenu(error)}
+    </div>`;
+  }
+
   override render(): unknown {
     const chartDataError = !!(this.dataProvider && this.dataProvider.getError && this.dataProvider.getError());
     const configError = !this.mochartDemoConfig.valid;
@@ -734,32 +870,36 @@ export class EditableChart extends LightElement {
     const filteredGroupMap = filteredGroupValues.reduce<Record<string, boolean>>((map, group) => { map[group] = true; return map; }, {});
     const disableRemove = this.orderChanged || !selectedGroupValues.some(group => filteredGroupMap[group]);
     const disableAdd = this.orderChanged || !selectedGroupValues.some(group => !filteredGroupMap[group]);
+    // The chart controller picks animated vs static from the config.
+    // Focus/filter is controlled by the parent chart-tab so the 1–2
+    // charts stay in sync; the group index is translated into this
+    // chart's filtered-data coordinates (filteredFocusedGroupIndex).
+    // Width is explicit; height tracks the container.
+    const chartProps: ChartProps = {
+      style: 'flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;',
+      width: this.width,
+      mochartConfig: this.mochartDemoConfig.mochartConfig,
+      dataProvider: this.dataProvider,
+      filteredSeriesIds: this.filteredSeriesIds,
+      focusedGroupIndex: this.filteredFocusedGroupIndex,
+      focusedSeriesAxisId: this.focusedSeriesAxisId ?? null,
+      focusedSeriesId: this.focusedSeriesId ?? null,
+      onFocus: this.onChartFocus,
+      onSeriesFilter: this.onSeriesFilter,
+      onChartClick: this.onChartClick,
+      onSliceClick: this.onChartSliceClick
+    };
     return html`<div class="editable-mochart-chart">
       <div class="editable-chart-container">
         <div class="editable-chart-content">
-          ${chart({
-            // The chart controller picks animated vs static from the config.
-            // Focus/filter is controlled by the parent chart-tab so the 1–2
-            // charts stay in sync; the group index is translated into this
-            // chart's filtered-data coordinates (filteredFocusedGroupIndex).
-            // Width is explicit; height tracks the container.
-            style: 'flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;',
-            width: this.width,
-            mochartConfig: this.mochartDemoConfig.mochartConfig,
-            dataProvider: this.dataProvider,
-            filteredSeriesIds: this.filteredSeriesIds,
-            focusedGroupIndex: this.filteredFocusedGroupIndex,
-            focusedSeriesAxisId: this.focusedSeriesAxisId ?? null,
-            focusedSeriesId: this.focusedSeriesId ?? null,
-            onFocus: this.onChartFocus,
-            onSeriesFilter: this.onSeriesFilter,
-            onChartClick: this.onChartClick
-          })}
+          ${chart(chartProps)}
         </div>
         <div class="editable-chart-controls">
-          ${this.selectionMode === 'group'
-            ? this.renderGroupControls(error, disableAdd, disableRemove)
-            : this.renderSeriesControls(error)}
+          ${this.mochartDemoConfig.pieMode
+            ? this.renderSliceControls(error)
+            : this.selectionMode === 'group'
+              ? this.renderGroupControls(error, disableAdd, disableRemove)
+              : this.renderSeriesControls(error)}
         </div>
       </div>
     </div>`;

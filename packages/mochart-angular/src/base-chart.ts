@@ -47,6 +47,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   @Input() filteredSeriesIds?: Record<string, boolean>;
 
   @Output() chartClick = new EventEmitter<any>();
+  @Output() sliceClick = new EventEmitter<any>();
   @Output() chartMouseEnter = new EventEmitter<any>();
   @Output() chartMouseMove = new EventEmitter<any>();
   @Output() chartMouseLeave = new EventEmitter<any>();
@@ -87,6 +88,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
     // (e.g. clickable-title styling) switch on the presence of a callback.
     const callbacks: [EventEmitter<any>, string][] = [
       [this.chartClick, 'onChartClick'],
+      [this.sliceClick, 'onSliceClick'],
       [this.chartMouseEnter, 'onChartMouseEnter'],
       [this.chartMouseMove, 'onChartMouseMove'],
       [this.chartMouseLeave, 'onChartMouseLeave'],

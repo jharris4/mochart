@@ -1,5 +1,5 @@
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
@@ -47,10 +47,16 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   let mochartDemoConfig = buildMochartDemoConfig(demoObject.config);
   let data = demoObject.data;
   let dataCount = demoObject.data.length;
-  // A shared step seeks the playback position; otherwise start on the full set.
-  let currentDataCount = sharedMulti && dataCount > 0
-    ? ((Math.round(sharedMulti.step) % dataCount) + dataCount) % dataCount
-    : dataCount;
+  // Pie mode steps a suppression pattern instead of data prefixes: chart i at
+  // step s suppresses the last (s + i) mod cycle slices, so the grid shows
+  // different-sized views of the same pie and stepping animates all charts.
+  let sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
+  const stepCycle = () => mochartDemoConfig.pieMode ? Math.max(1, sliceIds.length - 1) : dataCount;
+  // A shared step seeks the playback position; otherwise start on the full set
+  // (pie mode starts at step 0 — the grid's staggered initial view).
+  let currentDataCount = sharedMulti && stepCycle() > 0
+    ? ((Math.round(sharedMulti.step) % stepCycle()) + stepCycle()) % stepCycle()
+    : (mochartDemoConfig.pieMode ? 0 : dataCount);
   let dataProviders = getDataProvidersForDataCount(
     mochartDemoConfig.mochartConfig, demoObject.data, chartRows * chartCols, currentDataCount);
   let focusedGroupIndices: number[] = dataProviders.map(() => -1);
@@ -109,25 +115,32 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     rate = nextRate;
   }
 
+  function resetStep(): number {
+    return mochartDemoConfig.pieMode ? 0 : dataCount;
+  }
+
   function onRowsChange(nextChartRows: number): void {
     chartRows = nextChartRows;
-    currentDataCount = dataCount;
+    currentDataCount = resetStep();
     refreshDataProviders();
   }
 
   function onColsChange(nextChartCols: number): void {
     chartCols = nextChartCols;
-    currentDataCount = dataCount;
+    currentDataCount = resetStep();
     refreshDataProviders();
   }
 
   function onStepBackwardClick(): void {
-    currentDataCount = dataCount + (currentDataCount - 1) % dataCount;
+    const cycle = stepCycle();
+    currentDataCount = mochartDemoConfig.pieMode
+      ? (currentDataCount - 1 + cycle) % cycle
+      : cycle + (currentDataCount - 1) % cycle;
     refreshDataProviders();
   }
 
   function onStepForwardClick(): void {
-    currentDataCount = (currentDataCount + 1) % dataCount;
+    currentDataCount = (currentDataCount + 1) % stepCycle();
     refreshDataProviders();
   }
 
@@ -260,6 +273,12 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
       host.destroy();
       host.el.parentElement?.remove();
     }
+    // Pie mode unions the stepper's per-chart suppression with the user's
+    // legend filtering, so the legend stays interactive while stepping.
+    const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => mochartDemoConfig.pieMode
+      ? { ...filteredSeriesIds, ...getPieStepSuppressedIds(sliceIds, i, currentDataCount) }
+      : filteredSeriesIds;
+
     while (chartHosts.length < dataProviders.length) {
       const i = chartHosts.length;
       const host = mountChart({
@@ -267,7 +286,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         dataProvider: dataProviders[i],
         width: chartWidth,
         height: chartHeight,
-        filteredSeriesIds,
+        filteredSeriesIds: chartFilteredSeriesIds(i),
         focusedGroupIndex: focusedGroupIndices[i] ?? -1,
         focusedSeriesAxisId: focusedSeriesAxisId ?? null,
         focusedSeriesId: focusedSeriesId ?? null,
@@ -283,7 +302,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         dataProvider: dataProviders[i],
         width: chartWidth,
         height: chartHeight,
-        filteredSeriesIds,
+        filteredSeriesIds: chartFilteredSeriesIds(i),
         focusedGroupIndex: focusedGroupIndices[i] ?? -1,
         focusedSeriesAxisId: focusedSeriesAxisId ?? null,
         focusedSeriesId: focusedSeriesId ?? null,
@@ -310,7 +329,8 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         onStopClick();
         data = nextDemoObject.data;
         dataCount = data.length;
-        currentDataCount = dataCount;
+        sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
+        currentDataCount = resetStep();
         dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
         focusedGroupIndices = dataProviders.map(() => -1);
         syncCharts();
