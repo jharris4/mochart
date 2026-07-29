@@ -1,7 +1,7 @@
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
@@ -1012,6 +1012,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     applySeriesButton.setDisabled(error || seriesControlsDisabled);
     groupIndexValue.textContent = '' + groupIndex;
     seriesIndexValue.textContent = '' + seriesIndex;
+    groupIndexLabel.title = getGroupIndexTitle(mochartDemoConfig, filteredData, groupIndex);
+    seriesIndexLabel.title = getSeriesIndexTitle(mochartDemoConfig, seriesIndex);
     seriesInput.disabled = error || seriesControlsDisabled;
     if (seriesInput.value !== seriesValuesText) {
       seriesInput.value = seriesValuesText;

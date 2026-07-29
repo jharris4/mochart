@@ -4,7 +4,7 @@ import type { DataProvider } from '@mochart/core';
 import buildMochartDemoConfig from './mochartDemoConfig';
 import { filterDataProperties, restoreHiddenDataProperties } from './unusedDataProperties';
 
-import type { DataRow, DemoConfig } from './types';
+import type { DataRow, DemoConfig, MochartDemoConfig } from './types';
 
 export function formatData(dataJSON: unknown): string {
   return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
@@ -94,4 +94,26 @@ export function applyDataEdit(text: string, fullData: DataRow[], viewUsedPropert
     return { ok: false, errorMessage: error + ' — details in the browser console', callbackError: error };
   }
   return { ok: true, data: parsedData };
+}
+
+/**
+ * The native tooltip for the group index stepper label: the selected group's
+ * display value when the axis has a displayProperty (that is what the chart
+ * shows), otherwise its raw group value. Empty when no group is selected.
+ */
+export function getGroupIndexTitle({ mochartConfig }: MochartDemoConfig, rows: DataRow[], groupIndex: number): string {
+  const row = groupIndex >= 0 ? rows[groupIndex] : undefined;
+  if (row === undefined) {
+    return '';
+  }
+  const { groupAxisConfig } = mochartConfig;
+  const property = groupAxisConfig.displayProperty ?? groupAxisConfig.property;
+  const value = property === null || property === undefined ? undefined : row[property];
+  return value === undefined || value === null ? '' : String(value);
+}
+
+/** The native tooltip for the series index stepper label: the series title. */
+export function getSeriesIndexTitle({ mochartConfig }: MochartDemoConfig, seriesIndex: number): string {
+  const seriesConfig = mochartConfig.seriesConfigs[seriesIndex];
+  return seriesConfig === undefined ? '' : (seriesConfig.title ?? seriesConfig.id);
 }

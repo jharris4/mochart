@@ -6,7 +6,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import { chart } from '@mochart/lit';
 import type { ChartProps } from '@mochart/lit';
 import { exportPNG, exportSVG } from '@mochart/export';
-import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 import type { PieSliceInfo } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -736,7 +736,7 @@ export class EditableChart extends LightElement {
             </div>
           </div>
           <div class="demo-field">
-            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">${demoText.editableChart.groupIndexPrefix}<span class="demo-index-value">${this.groupIndex}</span></span>
+            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title=${getGroupIndexTitle(this.mochartDemoConfig, this.filteredData, this.groupIndex)}>${demoText.editableChart.groupIndexPrefix}<span class="demo-index-value">${this.groupIndex}</span></span>
           </div>
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
@@ -759,7 +759,7 @@ export class EditableChart extends LightElement {
             </div>
           </div>
           <div class="demo-field">
-            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">${demoText.editableChart.seriesIndexPrefix}<span class="demo-index-value">${this.seriesIndex}</span></span>
+            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title=${getSeriesIndexTitle(this.mochartDemoConfig, this.seriesIndex)}>${demoText.editableChart.seriesIndexPrefix}<span class="demo-index-value">${this.seriesIndex}</span></span>
           </div>
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">

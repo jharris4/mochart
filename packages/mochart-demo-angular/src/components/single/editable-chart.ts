@@ -6,7 +6,7 @@ import { exportPNG, exportSVG } from '@mochart/export';
 
 import { Chart } from '@mochart/angular';
 
-import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 
 import type { PieSliceInfo } from '@mochart/demo-common';
 
@@ -242,7 +242,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                     </div>
                   </div>
                   <div class="demo-field">
-                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ text.groupIndexPrefix }}<span class="demo-index-value">{{ groupIndex() }}</span></span>
+                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" [title]="groupIndexTitle">{{ text.groupIndexPrefix }}<span class="demo-index-value">{{ groupIndex() }}</span></span>
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
@@ -265,7 +265,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                     </div>
                   </div>
                   <div class="demo-field">
-                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ text.seriesIndexPrefix }}<span class="demo-index-value">{{ seriesIndex() }}</span></span>
+                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" [title]="seriesIndexTitle">{{ text.seriesIndexPrefix }}<span class="demo-index-value">{{ seriesIndex() }}</span></span>
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
@@ -1007,5 +1007,15 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   get sliceLabelTitle(): string {
     const slices = this.slices();
     return slices.length > 0 ? slices[this.sliceIndex()].title : '';
+  }
+
+  // Same idea for the group/series index labels: the fixed-width index reads as
+  // the position, the native tooltip names what is selected.
+  get groupIndexTitle(): string {
+    return getGroupIndexTitle(this.mochartDemoConfig, this.filteredData, this.groupIndex());
+  }
+
+  get seriesIndexTitle(): string {
+    return getSeriesIndexTitle(this.mochartDemoConfig, this.seriesIndex());
   }
 }

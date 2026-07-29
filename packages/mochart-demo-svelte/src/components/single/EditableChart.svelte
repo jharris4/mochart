@@ -2,7 +2,7 @@
   import { untrack, onDestroy } from 'svelte';
 
   import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
-  import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+  import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
   import type { PieSliceInfo } from '@mochart/demo-common';
   import { exportPNG, exportSVG } from '@mochart/export';
   import { Chart } from '@mochart/svelte';
@@ -71,8 +71,10 @@
   let chartContentElement = $state<HTMLDivElement | null>(null);
 
   // Working copies of the demo data; mutated in place by the group/series
-  // editing controls (same pattern as the react demo's instance fields).
-  let filteredData: Row[] = [];
+  // editing controls (same pattern as the react demo's instance fields). The
+  // rows are raw state (never a proxy — the data provider holds the same array)
+  // so the group index label's tooltip re-reads them when the set is replaced.
+  let filteredData = $state.raw<Row[]>([]);
   let removedData: Row[] = [];
   let sequenceId: ReturnType<typeof setInterval> | null = null;
 
@@ -886,7 +888,7 @@
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{demoText.editableChart.groupIndexPrefix}<span class="demo-index-value">{groupIndex}</span></span>
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title={getGroupIndexTitle(mochartDemoConfig, filteredData, groupIndex)}>{demoText.editableChart.groupIndexPrefix}<span class="demo-index-value">{groupIndex}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
@@ -911,7 +913,7 @@
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{demoText.editableChart.seriesIndexPrefix}<span class="demo-index-value">{seriesIndex}</span></span>
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title={getSeriesIndexTitle(mochartDemoConfig, seriesIndex)}>{demoText.editableChart.seriesIndexPrefix}<span class="demo-index-value">{seriesIndex}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">

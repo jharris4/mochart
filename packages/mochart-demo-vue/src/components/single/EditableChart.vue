@@ -5,7 +5,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import { Chart } from '@mochart/vue';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -856,7 +856,7 @@ function getSingleShareState(): ShareState {
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ demoText.editableChart.groupIndexPrefix }}<span class="demo-index-value">{{ groupIndex }}</span></span>
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" :title="getGroupIndexTitle(mochartDemoConfig, filteredData, groupIndex)">{{ demoText.editableChart.groupIndexPrefix }}<span class="demo-index-value">{{ groupIndex }}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
@@ -879,7 +879,7 @@ function getSingleShareState(): ShareState {
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ demoText.editableChart.seriesIndexPrefix }}<span class="demo-index-value">{{ seriesIndex }}</span></span>
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" :title="getSeriesIndexTitle(mochartDemoConfig, seriesIndex)">{{ demoText.editableChart.seriesIndexPrefix }}<span class="demo-index-value">{{ seriesIndex }}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">

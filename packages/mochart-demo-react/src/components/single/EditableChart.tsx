@@ -5,7 +5,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import { Chart } from '@mochart/react';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, getChartExportOptions, getPieSequenceSteps, getPieSlices, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 
 import type { PieSliceInfo } from '@mochart/demo-common';
 
@@ -950,6 +950,10 @@ export default function EditableChart(props: Props) {
   else {
     const groupIndexText = demoText.editableChart.groupIndexPrefix;
     const seriesIndexText = demoText.editableChart.seriesIndexPrefix;
+    // the index labels are fixed-width, so which group/series is selected is
+    // named by the native tooltip instead
+    const groupIndexTitle = getGroupIndexTitle(mochartDemoConfig, filteredDataRef.current, groupIndex);
+    const seriesIndexTitle = getSeriesIndexTitle(mochartDemoConfig, seriesIndex);
     const seriesControlsDisabled = sequencePlaying || groupIndex === -1;
     const groupOrderControlsDisabled = sequencePlaying || groupIndex === -1;
     const isFirstGroup = groupIndex === 0;
@@ -978,7 +982,7 @@ export default function EditableChart(props: Props) {
               </div>
             </div>
             <div className="demo-field">
-              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>{groupIndexText}<span className="demo-index-value">{groupIndex}</span></span>
+              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }} title={groupIndexTitle}>{groupIndexText}<span className="demo-index-value">{groupIndex}</span></span>
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
@@ -1003,7 +1007,7 @@ export default function EditableChart(props: Props) {
               </div>
             </div>
             <div className="demo-field">
-              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>{seriesIndexText}<span className="demo-index-value">{seriesIndex}</span></span>
+              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }} title={seriesIndexTitle}>{seriesIndexText}<span className="demo-index-value">{seriesIndex}</span></span>
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">

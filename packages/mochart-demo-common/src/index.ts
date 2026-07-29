@@ -16,7 +16,8 @@ export {
 
 export {
   formatData, formatDataView, isObject, isArrayOfObjects,
-  getJsonError, parseFullData, applyDataEdit
+  getJsonError, parseFullData, applyDataEdit,
+  getGroupIndexTitle, getSeriesIndexTitle
 } from './dataEditing';
 export type { ParsedFullData, DataApplyResult } from './dataEditing';
 
