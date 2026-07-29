@@ -10,7 +10,7 @@ import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -59,10 +59,7 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
   const shared = consumeShareState('random');
   const sharedRandom = shared && shared.mode === 'random' ? shared : null;
 
-  // A shared config that no longer validates (e.g. an old link embedding the
-  // generic shape for a chart-type generator demo) falls back to the demo's
-  // default config instead of erroring.
-  let randomConfig: RandomConfigWithValid = sharedRandom && validateRandomConfig(sharedRandom.randomConfig, generator)
+  let randomConfig: RandomConfigWithValid = sharedRandom
     ? { ...sharedRandom.randomConfig, valid: true }
     : initialRandomConfig;
   let dataProvider: DemoDataProvider | null = null;

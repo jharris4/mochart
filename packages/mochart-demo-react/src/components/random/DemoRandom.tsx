@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { buildMochartDemoConfig, consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import RandomMochartChartTab from './RandomChartTab';
@@ -188,11 +188,7 @@ function RandomMochartDemoContent(props: ContentProps) {
   const [state, setState] = useState<ContentState>(() => {
     // Reuse defaults on to match the generator's historical behavior.
     const applyReuse = initialShared ? initialShared.applyReuse : true;
-    // a shared config that no longer validates (e.g. an old link embedding the
-    // generic shape for a chart-type generator demo) falls back to the demo's default
-    const randomConfig: RandomConfigWithValid = initialShared && validateRandomConfig(initialShared.randomConfig, generator)
-      ? { ...initialShared.randomConfig, valid: true }
-      : initialRandomConfig;
+    const randomConfig: RandomConfigWithValid = initialShared ? { ...initialShared.randomConfig, valid: true } : initialRandomConfig;
     return { applyReuse, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, applyReuse, generator) };
   });
 

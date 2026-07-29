@@ -9,7 +9,7 @@ import { RandomConfigTab } from './random-config-tab';
 import { RandomDataTab } from './random-data-tab';
 import { ErrorTab } from '../misc/error-tab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -66,14 +66,9 @@ export class RandomContent implements OnInit, OnChanges {
     // consume it once at mount, else fall back to the demo's own config.
     const shared = consumeShareState('random');
     const initialShared = shared !== null && shared.mode === 'random' ? shared : null;
-    // A shared config that no longer validates (e.g. an old link embedding
-    // the generic shape for a chart-type generator demo) falls back to the
-    // demo's default config instead of erroring.
     if (initialShared) {
       this.applyReuse.set(initialShared.applyReuse);
       this.initialRate.set(initialShared.interval);
-    }
-    if (initialShared && validateRandomConfig(initialShared.randomConfig, this.generator)) {
       const restored: RandomConfigWithValid = { ...initialShared.randomConfig, valid: true };
       this.randomConfig.set(restored);
       this.updateDataProvider(restored);

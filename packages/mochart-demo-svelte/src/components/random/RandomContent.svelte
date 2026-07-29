@@ -9,7 +9,7 @@
   import RandomDataTab from './RandomDataTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
 
-  import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
+  import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
 
   import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -51,13 +51,8 @@
   // step comes from the randomId in the URL path). Consume it once at mount.
   const sharedState = consumeShareState('random');
   const shared = sharedState && sharedState.mode === 'random' ? sharedState : null;
-  // A shared config that no longer validates (e.g. an old link embedding the
-  // generic shape for a chart-type generator demo) falls back to the demo's
-  // default config instead of erroring.
   // svelte-ignore state_referenced_locally
-  const initialResolvedRandomConfig: RandomConfigWithValid = shared && validateRandomConfig(shared.randomConfig, generator)
-    ? { ...shared.randomConfig, valid: true }
-    : initialRandomConfig;
+  const initialResolvedRandomConfig: RandomConfigWithValid = shared ? { ...shared.randomConfig, valid: true } : initialRandomConfig;
   const initialRate = shared ? shared.interval : undefined;
 
   // svelte-ignore state_referenced_locally

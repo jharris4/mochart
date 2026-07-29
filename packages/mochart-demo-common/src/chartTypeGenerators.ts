@@ -9,9 +9,8 @@
 // enter/exit rather than a full teardown.
 //
 // Each generator reads its demo's random config (the per-generator schemas in
-// demo-data types.ts) defensively: a missing or malformed setting falls back
-// to the schema default, so old share links that embedded the generic config
-// shape degrade to the canonical behavior instead of erroring.
+// demo-data types.ts). Configs are trusted here: the shipped random JSON is
+// complete by construction and user edits are gated by validateRandomConfig.
 //
 // The same canonical inputs also produce the demos' static config/data
 // snapshots (see scripts/generateChartTypeDemos.ts), keeping the baked JSON
@@ -27,31 +26,13 @@ import type { CandlestickItem, MochartConfig, PieItem } from '@mochart/core';
 
 import { generateChartDataProvider } from './randomGenerator';
 
-import type { DataRow, DemoConfig, DemoDataProvider, DemoRandomConfig, GroupValue, RandomConfig } from './types';
+import type {
+  DataRow, DemoConfig, DemoDataProvider, DemoRandomConfig, GroupValue, RandomConfig,
+  ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
+  WalkRandomConfig, WaterfallRandomConfig
+} from './types';
 
 type Rng = () => number;
-
-// --- Random-config access ----------------------------------------------------
-
-function num(value: unknown, fallback: number): number {
-  return typeof value === 'number' && isFinite(value) ? value : fallback;
-}
-
-function bool(value: unknown, fallback: boolean): boolean {
-  return typeof value === 'boolean' ? value : fallback;
-}
-
-function section(config: unknown, key: string): Record<string, unknown> {
-  const value = config !== null && typeof config === 'object' ? (config as Record<string, unknown>)[key] : undefined;
-  return value !== null && typeof value === 'object' ? value as Record<string, unknown> : {};
-}
-
-function range(config: unknown, key: string, fallback: { min: number; max: number }): { min: number; max: number } {
-  const rangeSection = section(config, key);
-  const min = num(rangeSection.min, fallback.min);
-  const max = num(rangeSection.max, fallback.max);
-  return min <= max ? { min, max } : fallback;
-}
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
@@ -146,20 +127,14 @@ function normalSamples(count: number, mean: number, stdDev: number, rng: Rng): n
 // Random config: samples = population size range, value = the band the normal
 // distribution wanders in, reuse = pin the distribution parameters globally /
 // morph them smoothly between adjacent steps.
-function histogramRows(random: unknown, randomId: number): DataRow[] {
-  const samples = range(random, 'samples', { min: 200, max: 400 });
-  const value = range(random, 'value', { min: 100, max: 280 });
-  const reuse = section(random, 'reuse');
-  const reuseGlobal = bool(reuse.global, false);
-  const reuseStep = bool(reuse.step, true);
-
+function histogramRows({ samples, value, reuse }: HistogramRandomConfig, randomId: number): DataRow[] {
   const span = Math.max(1, value.max - value.min);
-  const count = Math.max(1, Math.round(samples.min + reusedDraw('histogram', 'count', randomId, reuseGlobal, reuseStep) * (samples.max - samples.min)));
-  const stdDev = (0.15 + 0.12 * reusedDraw('histogram', 'stdDev', randomId, reuseGlobal, reuseStep)) * span;
-  const mean = value.min + stdDev + reusedDraw('histogram', 'mean', randomId, reuseGlobal, reuseStep) * Math.max(0, span - 2 * stdDev);
+  const count = Math.max(1, Math.round(samples.min + reusedDraw('histogram', 'count', randomId, reuse.global, reuse.step) * (samples.max - samples.min)));
+  const stdDev = (0.15 + 0.12 * reusedDraw('histogram', 'stdDev', randomId, reuse.global, reuse.step)) * span;
+  const mean = value.min + stdDev + reusedDraw('histogram', 'mean', randomId, reuse.global, reuse.step) * Math.max(0, span - 2 * stdDev);
   // with the parameters pinned globally the samples pin too, so the chart is
   // fully static across steps; with step reuse only the parameters correlate
-  const samplesRng = seedrandom('histogram:samples:' + (reuseGlobal ? 'global' : randomId));
+  const samplesRng = seedrandom('histogram:samples:' + (reuse.global ? 'global' : randomId));
   const sampleValues = normalSamples(count, mean, stdDev, samplesRng).map(sample => Math.max(0, sample));
   return createHistogram(sampleValues, { binWidth: HISTOGRAM_BIN_WIDTH, seriesTitle: HISTOGRAM_SERIES_TITLE }).data;
 }
@@ -214,15 +189,10 @@ const WATERFALL_STEP_POOL: WaterfallStepPoolEntry[] = [
 // Random config: value = the range the pool deltas are remapped into, missing
 // = the optional steps' dropout baseline, reuse = fractions of steps whose
 // state persists globally / across adjacent steps.
-function waterfallRows(random: unknown, randomId: number): DataRow[] {
+function waterfallRows({ value, missing, reuse }: WaterfallRandomConfig, randomId: number): DataRow[] {
   const poolValues = WATERFALL_STEP_POOL.filter(step => step.value !== undefined).map(step => step.value!);
   const poolMin = Math.min(...poolValues);
   const poolMax = Math.max(...poolValues);
-  const value = range(random, 'value', { min: poolMin, max: poolMax });
-  const missingProbability = clamp01(num(section(random, 'missing').probability, 0.4));
-  const reuse = section(random, 'reuse');
-  const globalPercentage = clamp01(num(reuse.globalPercentage, 0));
-  const stepPercentage = clamp01(num(reuse.stepPercentage, 0.5));
 
   const items: ({ label: string; total: true } | { label: string; value: number })[] = [];
   WATERFALL_STEP_POOL.forEach((step, index) => {
@@ -232,10 +202,10 @@ function waterfallRows(random: unknown, randomId: number): DataRow[] {
     }
     // one fixed-order stream per entry — [drop roll, value roll] — so a
     // persisted entry keeps its whole state across the shared steps
-    const entryRng = poolEntryRng('waterfall', index, randomId, WATERFALL_STEP_POOL.length, globalPercentage, stepPercentage);
+    const entryRng = poolEntryRng('waterfall', index, randomId, WATERFALL_STEP_POOL.length, reuse.globalPercentage, reuse.stepPercentage);
     const dropRoll = entryRng();
     const valueRoll = entryRng();
-    if ((step.dropWeight ?? 0) > 0 && dropRoll < clamp01(missingProbability * step.dropWeight!)) {
+    if ((step.dropWeight ?? 0) > 0 && dropRoll < clamp01(missing.probability * step.dropWeight!)) {
       return;
     }
     const remapped = value.min + ((step.value! - poolMin) / (poolMax - poolMin)) * (value.max - value.min);
@@ -290,14 +260,8 @@ const HEATMAP_COLUMNS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 // chance, reuse = pin cell values globally / morph them smoothly between
 // adjacent steps. Cell values stay on each row's baked color extents, so
 // there is no value range to configure.
-function heatmapRows(random: unknown, randomId: number): DataRow[] {
-  const columnsSection = section(random, 'columns');
-  const dropProbability = clamp01(num(columnsSection.dropProbability, 0.12));
-  const maxDropped = Math.min(HEATMAP_COLUMNS.length - 1, Math.max(0, Math.round(num(columnsSection.maxDropped, 3))));
-  const missingProbability = clamp01(num(section(random, 'missing').probability, 0));
-  const reuse = section(random, 'reuse');
-  const reuseGlobal = bool(reuse.global, false);
-  const reuseStep = bool(reuse.step, true);
+function heatmapRows({ columns, missing, reuse }: HeatmapRandomConfig, randomId: number): DataRow[] {
+  const maxDropped = Math.min(HEATMAP_COLUMNS.length - 1, Math.max(0, Math.round(columns.maxDropped)));
 
   // Column dropouts churn per step regardless of reuse — they are the group
   // enter/exit the demo shows. Cells key on their column label, so a kept
@@ -306,7 +270,7 @@ function heatmapRows(random: unknown, randomId: number): DataRow[] {
   const columnLabels: string[] = [];
   let dropped = 0;
   for (const label of HEATMAP_COLUMNS) {
-    if (dropped < maxDropped && columnRng() < dropProbability) {
+    if (dropped < maxDropped && columnRng() < columns.dropProbability) {
       dropped++;
     }
     else {
@@ -316,7 +280,7 @@ function heatmapRows(random: unknown, randomId: number): DataRow[] {
 
   const rows = HEATMAP_ROW_PROFILES.map(profile => {
     const values: (number | null)[] = columnLabels.map(column =>
-      Math.round(profile.min + reusedDraw('heatmap', profile.label + ':' + column, randomId, reuseGlobal, reuseStep) * (profile.max - profile.min)));
+      Math.round(profile.min + reusedDraw('heatmap', profile.label + ':' + column, randomId, reuse.global, reuse.step) * (profile.max - profile.min)));
     // Pin one cell to each extent so the row's generated extent matches the
     // per-row colorMin/colorMax baked into the static demo config.
     const positionRng = seedrandom('heatmap:extent:' + randomId + ':' + profile.label);
@@ -330,10 +294,10 @@ function heatmapRows(random: unknown, randomId: number): DataRow[] {
       values[minIndex] = profile.min;
     }
     values[maxIndex] = profile.max;
-    if (missingProbability > 0) {
+    if (missing.probability > 0) {
       const missingRng = seedrandom('heatmap:missing:' + randomId + ':' + profile.label);
       for (let i = 0; i < values.length; i++) {
-        if (i !== minIndex && i !== maxIndex && missingRng() < missingProbability) {
+        if (i !== minIndex && i !== maxIndex && missingRng() < missing.probability) {
           values[i] = null;
         }
       }
@@ -410,19 +374,16 @@ function candlestickItems(rng: Rng, dayCount: number): CandlestickItem[] {
 // overnight gap and wick extents scale off it, at the baseline's 0.15/0.375
 // ratios), reuse.step = correlate the walk with the neighbouring steps so
 // playing steps looks like one instrument drifting.
-function walkItems(scope: string, random: unknown, randomId: number): CandlestickItem[] {
-  const candles = range(random, 'candles', { min: 16, max: 20 });
-  const price = range(random, 'price', { min: 90, max: 110 });
-  const volatility = Math.min(0.5, Math.max(0, num(section(random, 'price').volatility, 0.04)));
-  const reuseStep = bool(section(random, 'reuse').step, true);
+function walkItems(scope: string, { candles, price, reuse }: WalkRandomConfig, randomId: number): CandlestickItem[] {
+  const { volatility } = price;
 
   const dayMax = Math.min(CANDLESTICK_DAYS.length, Math.max(1, Math.round(candles.max)));
   const dayMin = Math.min(dayMax, Math.max(1, Math.round(candles.min)));
   const dayCount = dayMin + Math.floor(seedrandom(scope + ':count:' + randomId)() * (dayMax - dayMin + 1));
 
-  let previousClose = Math.max(0.01, price.min + reusedDraw(scope, 'start', randomId, false, reuseStep) * (price.max - price.min));
+  let previousClose = price.min + reusedDraw(scope, 'start', randomId, false, reuse.step) * (price.max - price.min);
   return CANDLESTICK_DAYS.slice(0, dayCount).map(label => {
-    const draw = (key: string) => reusedDraw(scope, label + ':' + key, randomId, false, reuseStep);
+    const draw = (key: string) => reusedDraw(scope, label + ':' + key, randomId, false, reuse.step);
     const open = previousClose * (1 + (volatility * 0.15) * (2 * draw('gap') - 1));
     const close = open * (1 + volatility * (2 * draw('drift') - 1));
     const high = Math.max(open, close) * (1 + (volatility * 0.375) * draw('high'));
@@ -463,7 +424,7 @@ function roundCandlestickChanges(rows: DataRow[]): DataRow[] {
   return rows;
 }
 
-function candlestickRows(random: unknown, randomId: number): DataRow[] {
+function candlestickRows(random: WalkRandomConfig, randomId: number): DataRow[] {
   return roundCandlestickChanges(createCandlestick(walkVolumes('candlestick', randomId, walkItems('candlestick', random, randomId)), { volume: true }).data);
 }
 
@@ -494,7 +455,7 @@ function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
 // only flips the helper's hollow option: outlined up bodies with the wicks
 // split into segments around them.
 
-function candlestickHollowRows(random: unknown, randomId: number): DataRow[] {
+function candlestickHollowRows(random: WalkRandomConfig, randomId: number): DataRow[] {
   return roundCandlestickChanges(createCandlestick(walkItems('candlestick-hollow', random, randomId), { hollow: true }).data);
 }
 
@@ -521,7 +482,7 @@ function buildCandlestickHollowSnapshot(): ChartTypeDemoSnapshot {
 // helper differs: thin low/high lines with open/close ticks instead of
 // wick-and-body candles.
 
-function ohlcRows(random: unknown, randomId: number): DataRow[] {
+function ohlcRows(random: WalkRandomConfig, randomId: number): DataRow[] {
   return roundCandlestickChanges(createOhlc(walkItems('ohlc', random, randomId)).data);
 }
 
@@ -576,14 +537,9 @@ function errorBarsItems(rng: Rng, monthCount: number): DataRow[] {
 // matching the baseline's tighter CI), missing = the chance a plant's point
 // drops out with its bounds, reuse = pin the per-point jitter globally /
 // morph it smoothly between adjacent steps.
-function errorBarsRandomRows(random: unknown, randomId: number): DataRow[] {
+function errorBarsRandomRows({ months, margin, missing, reuse }: ErrorBarsRandomConfig, randomId: number): DataRow[] {
   const scope = 'error-bars';
-  const months = range(random, 'months', { min: 9, max: 12 });
-  const margin = range(random, 'margin', { min: 3, max: 7 });
-  const missingProbability = clamp01(num(section(random, 'missing').probability, 0));
-  const reuse = section(random, 'reuse');
-  const reuseGlobal = bool(reuse.global, false);
-  const reuseStep = bool(reuse.step, true);
+  const missingProbability = missing.probability;
 
   const monthMax = Math.min(ERROR_BARS_MONTHS.length, Math.max(1, Math.round(months.max)));
   const monthMin = Math.min(monthMax, Math.max(1, Math.round(months.min)));
@@ -591,7 +547,7 @@ function errorBarsRandomRows(random: unknown, randomId: number): DataRow[] {
   const marginSpan = margin.max - margin.min;
 
   return ERROR_BARS_MONTHS.slice(0, monthCount).map((month, m) => {
-    const draw = (key: string) => reusedDraw(scope, month + ':' + key, randomId, reuseGlobal, reuseStep);
+    const draw = (key: string) => reusedDraw(scope, month + ':' + key, randomId, reuse.global, reuse.step);
     const missingRng = seedrandom(scope + ':missing:' + randomId + ':' + month);
     const seasonal = Math.sin((m / ERROR_BARS_MONTHS.length) * 2 * Math.PI);
     const target = 52 + 9 * seasonal;
@@ -673,31 +629,20 @@ const DONUT_SLICE_POOL: PieSlicePoolEntry[] = [
   { label: 'Other', value: 4, jitter: 0.5 }
 ];
 
-/** The pie family's schema defaults, tuned per demo (see random/*.json). */
-interface PiePoolDefaults {
-  value: { min: number; max: number };
-  missingProbability: number;
-}
-
 // Random config: value = the range the pool weights are scaled into (the
 // curated mix keeps its shape; min/max act as a zoom), missing = droppable
 // slices' dropout baseline, reuse = fractions of slices whose state persists
 // globally / across adjacent steps.
-function pieItems(pool: PieSlicePoolEntry[], scope: string, random: unknown, randomId: number, defaults: PiePoolDefaults): PieItem[] {
-  const value = range(random, 'value', defaults.value);
-  const missingProbability = clamp01(num(section(random, 'missing').probability, defaults.missingProbability));
-  const reuse = section(random, 'reuse');
-  const globalPercentage = clamp01(num(reuse.globalPercentage, 0));
-  const stepPercentage = clamp01(num(reuse.stepPercentage, 0.5));
+function pieItems(pool: PieSlicePoolEntry[], scope: string, { value, missing, reuse }: PieRandomConfig, randomId: number): PieItem[] {
   const poolMax = Math.max(...pool.map(slice => slice.value));
 
   return pool.map((slice, index) => {
     // one fixed-order stream per slice — [drop roll, value roll] — so a
     // persisted slice keeps its whole state across the shared steps
-    const sliceRng = poolEntryRng(scope, index, randomId, pool.length, globalPercentage, stepPercentage);
+    const sliceRng = poolEntryRng(scope, index, randomId, pool.length, reuse.globalPercentage, reuse.stepPercentage);
     const dropRoll = sliceRng();
     const valueRoll = sliceRng();
-    if ((slice.dropWeight ?? 0) > 0 && dropRoll < clamp01(missingProbability * slice.dropWeight!)) {
+    if ((slice.dropWeight ?? 0) > 0 && dropRoll < clamp01(missing.probability * slice.dropWeight!)) {
       return { label: slice.label, value: 0 };
     }
     const scaled = value.min + (slice.value / poolMax) * (value.max - value.min);
@@ -705,12 +650,12 @@ function pieItems(pool: PieSlicePoolEntry[], scope: string, random: unknown, ran
   });
 }
 
-function pieRows(random: unknown, randomId: number): DataRow[] {
-  return createPie(pieItems(PIE_SLICE_POOL, 'pie', random, randomId, { value: { min: 0, max: 420 }, missingProbability: 0.25 }), { valueFormat: ',.0f' }).data;
+function pieRows(random: PieRandomConfig, randomId: number): DataRow[] {
+  return createPie(pieItems(PIE_SLICE_POOL, 'pie', random, randomId), { valueFormat: ',.0f' }).data;
 }
 
-function donutRows(random: unknown, randomId: number): DataRow[] {
-  return createPie(pieItems(DONUT_SLICE_POOL, 'donut', random, randomId, { value: { min: 0, max: 62 }, missingProbability: 0.2 }), { tooltipValues: 'percent' }).data;
+function donutRows(random: PieRandomConfig, randomId: number): DataRow[] {
+  return createPie(pieItems(DONUT_SLICE_POOL, 'donut', random, randomId), { tooltipValues: 'percent' }).data;
 }
 
 function buildPieSnapshot(): ChartTypeDemoSnapshot {
@@ -754,8 +699,8 @@ const GAUGE_SLICE_POOL: PieSlicePoolEntry[] = [
   { label: 'Detractors', value: 180, jitter: 0.4, dropWeight: 1 }
 ];
 
-function gaugeRows(random: unknown, randomId: number): DataRow[] {
-  return createPie(pieItems(GAUGE_SLICE_POOL, 'gauge', random, randomId, { value: { min: 0, max: 540 }, missingProbability: 0 }), { tooltipValues: 'percent' }).data;
+function gaugeRows(random: PieRandomConfig, randomId: number): DataRow[] {
+  return createPie(pieItems(GAUGE_SLICE_POOL, 'gauge', random, randomId), { tooltipValues: 'percent' }).data;
 }
 
 function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
@@ -807,36 +752,38 @@ export function generateChartTypeDataProvider(
   random: DemoRandomConfig,
   randomId: number
 ): DemoDataProvider {
+  // DemoRandomConfig has no discriminant, so each branch asserts the schema
+  // its demos.json random file ships.
   let rows: DataRow[];
   if (generator === 'histogram') {
-    rows = histogramRows(random, randomId);
+    rows = histogramRows(random as HistogramRandomConfig, randomId);
   }
   else if (generator === 'waterfall') {
-    rows = waterfallRows(random, randomId);
+    rows = waterfallRows(random as WaterfallRandomConfig, randomId);
   }
   else if (generator === 'candlestick') {
-    rows = candlestickRows(random, randomId);
+    rows = candlestickRows(random as WalkRandomConfig, randomId);
   }
   else if (generator === 'candlestick-hollow') {
-    rows = candlestickHollowRows(random, randomId);
+    rows = candlestickHollowRows(random as WalkRandomConfig, randomId);
   }
   else if (generator === 'ohlc') {
-    rows = ohlcRows(random, randomId);
+    rows = ohlcRows(random as WalkRandomConfig, randomId);
   }
   else if (generator === 'error-bars') {
-    rows = errorBarsRandomRows(random, randomId);
+    rows = errorBarsRandomRows(random as ErrorBarsRandomConfig, randomId);
   }
   else if (generator === 'pie') {
-    rows = pieRows(random, randomId);
+    rows = pieRows(random as PieRandomConfig, randomId);
   }
   else if (generator === 'donut') {
-    rows = donutRows(random, randomId);
+    rows = donutRows(random as PieRandomConfig, randomId);
   }
   else if (generator === 'gauge') {
-    rows = gaugeRows(random, randomId);
+    rows = gaugeRows(random as PieRandomConfig, randomId);
   }
   else {
-    rows = heatmapRows(random, randomId);
+    rows = heatmapRows(random as HeatmapRandomConfig, randomId);
   }
   return toDemoDataProvider(rows, mochartConfig.groupAxisConfig.property ?? '');
 }

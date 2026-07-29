@@ -11,7 +11,7 @@ import './random-config-tab';
 import './random-data-tab';
 import '../misc/error-tab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -115,21 +115,12 @@ export class RandomContent extends LightElement {
       // (the step comes from the randomId in the URL path). Consume it once.
       const shared = consumeShareState('random');
       const sharedRandom = shared && shared.mode === 'random' ? shared : null;
-      // A shared config that no longer validates (e.g. an old link embedding
-      // the generic shape for a chart-type generator demo) falls back to the
-      // demo's default config instead of erroring.
-      if (sharedRandom && validateRandomConfig(sharedRandom.randomConfig, this.generator)) {
+      if (sharedRandom) {
         this.applyReuse = sharedRandom.applyReuse;
         this.initialRate = sharedRandom.interval;
         const restored: RandomConfigWithValid = { ...sharedRandom.randomConfig, valid: true };
         this.randomConfig = restored;
         this.updateDataProvider(restored);
-      }
-      else if (sharedRandom) {
-        this.applyReuse = sharedRandom.applyReuse;
-        this.initialRate = sharedRandom.interval;
-        this.randomConfig = this.initialRandomConfig;
-        this.updateDataProvider(this.initialRandomConfig);
       }
       else {
         this.randomConfig = this.initialRandomConfig;

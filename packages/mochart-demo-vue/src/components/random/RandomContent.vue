@@ -9,7 +9,7 @@ import RandomConfigTab from './RandomConfigTab.vue';
 import RandomDataTab from './RandomDataTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, validateRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -41,13 +41,8 @@ const sharedState = consumeShareState('random');
 const initialShared = sharedState && sharedState.mode === 'random' ? sharedState : null;
 const initialRate = initialShared ? initialShared.interval : undefined;
 
-// A shared config that no longer validates (e.g. an old link embedding the
-// generic shape for a chart-type generator demo) falls back to the demo's
-// default config instead of erroring.
 const randomConfig = shallowRef<RandomConfigWithValid>(
-  initialShared && validateRandomConfig(initialShared.randomConfig, props.generator)
-    ? { ...initialShared.randomConfig, valid: true }
-    : props.initialRandomConfig);
+  initialShared ? { ...initialShared.randomConfig, valid: true } : props.initialRandomConfig);
 const dataProvider = shallowRef<DemoDataProvider | null>(null);
 const data = shallowRef<unknown>(null);
 // Reuse defaults on to match the generator's historical behavior (the
