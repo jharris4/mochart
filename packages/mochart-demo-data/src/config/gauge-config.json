@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "titleConfig": {
+    "title": "Customer Sentiment (fictional survey)"
+  },
+  "chartConfig": {
+    "type": "pie"
+  },
+  "pieConfig": {
+    "startAngle": -90,
+    "endAngle": 90,
+    "innerRadiusPercent": 0.55,
+    "padAngle": 1,
+    "cornerRadius": 3,
+    "showLabels": true,
+    "labelType": "title",
+    "centerLabel": "responses",
+    "showCenterTotal": true,
+    "centerTotalFormat": ",.0f"
+  },
+  "groupAxisConfig": {
+    "property": "group",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesConfigs": [
+    {
+      "id": "slice0",
+      "property": "slice0",
+      "title": "Promoters",
+      "tooltipProperty": "slice0Percent",
+      "valueSuffix": "%"
+    },
+    {
+      "id": "slice1",
+      "property": "slice1",
+      "title": "Passives",
+      "tooltipProperty": "slice1Percent",
+      "valueSuffix": "%"
+    },
+    {
+      "id": "slice2",
+      "property": "slice2",
+      "title": "Detractors",
+      "tooltipProperty": "slice2Percent",
+      "valueSuffix": "%"
+    }
+  ]
+}

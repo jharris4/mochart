@@ -44,7 +44,7 @@ import { getRegularDefaults as getLinearGradientRegularDefaults, getConditionalD
 import getLinearGradientValidators from '../src/config/validation/linearGradientConfig';
 import * as linearGradientDocs from '../src/config/docs/linearGradientConfig';
 
-import getPieDefaults from '../src/config/defaults/pieConfig';
+import { getRegularDefaults as getPieRegularDefaults, getConditionalDefaults as getPieConditionalDefaults } from '../src/config/defaults/pieConfig';
 import getPieValidators from '../src/config/validation/pieConfig';
 import * as pieDocs from '../src/config/docs/pieConfig';
 
@@ -88,6 +88,7 @@ import type {
   GroupAxisConfig,
   LegendConfig,
   LinearGradientConfig,
+  PieConfig,
   RadialGradientConfig,
   SeriesAxisConfig,
   SeriesConfig,
@@ -198,7 +199,7 @@ function getSectionSources(): SectionSource[] {
     { id: 'groupAxisConfig', title: 'Group Axis Config', regularDefaults: getGroupAxisRegularDefaults(), conditionalDefaults: getGroupAxisConditionalDefaults({} as GroupAxisConfig, false, false), validators: getGroupAxisValidators({}), docs: groupAxisDocs },
     { id: 'legendConfig', title: 'Legend Config', regularDefaults: getLegendRegularDefaults(), conditionalDefaults: getLegendConditionalDefaults({} as LegendConfig, 0), validators: getLegendValidators(), docs: legendDocs },
     { id: 'linearGradientConfigs', title: 'Linear Gradient Config', regularDefaults: getLinearGradientRegularDefaults(), conditionalDefaults: getLinearGradientConditionalDefaults({} as LinearGradientConfig, 0), validators: getLinearGradientValidators(), docs: linearGradientDocs },
-    { id: 'pieConfig', title: 'Pie Config', regularDefaults: getPieDefaults(), validators: getPieValidators(), docs: pieDocs },
+    { id: 'pieConfig', title: 'Pie Config', regularDefaults: getPieRegularDefaults(), conditionalDefaults: getPieConditionalDefaults({} as PieConfig), validators: getPieValidators(), docs: pieDocs },
     { id: 'plotConfig', title: 'Plot Config', regularDefaults: getPlotDefaults(), validators: getPlotValidators(), docs: plotDocs },
     { id: 'radialGradientConfigs', title: 'Radial Gradient Config', regularDefaults: getRadialGradientRegularDefaults(), conditionalDefaults: getRadialGradientConditionalDefaults({} as RadialGradientConfig, 0), validators: getRadialGradientValidators(), docs: radialGradientDocs },
     { id: 'seriesAxisConfigs', title: 'Series Axis Config', regularDefaults: getSeriesAxisRegularDefaults(), conditionalDefaults: getSeriesAxisConditionalDefaults({} as SeriesAxisConfig, 0, false, false), validators: getSeriesAxisValidators(), docs: seriesAxisDocs },

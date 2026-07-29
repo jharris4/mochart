@@ -57,16 +57,46 @@ test.describe('pie demo', () => {
   });
 });
 
+test.describe('gauge demo', () => {
+  test('renders a half-donut with title labels and a suppression-aware center total', async ({ page }) => {
+    await openDemo(page, 'gauge');
+    await expect(page.locator('.mochart-series-slice')).toHaveCount(3);
+    await expect(page.locator('.mochart-pie-center-label')).toHaveText('responses');
+    await expect(page.locator('.mochart-pie-center-total')).toHaveText('1,000');
+
+    // suppressing the first segment (Promoters, 540) counts the total down
+    await page.locator('.mochart-legend-item').first().click();
+    await expect(page.locator('.mochart-pie-center-total')).toHaveText('460');
+    await page.locator('.mochart-legend-item').first().click();
+    await expect(page.locator('.mochart-pie-center-total')).toHaveText('1,000');
+  });
+});
+
 test.describe('donut demo', () => {
+  test('hovering a legend entry explodes the slice (focusOffsetPercent)', async ({ page }) => {
+    await openDemo(page, 'donut');
+    const slice = page.locator('[class*="mochart-series-slice0"]');
+    await expect(slice).toBeAttached();
+    const before = await slice.getAttribute('transform');
+
+    await page.locator('.mochart-legend-item').first().hover();
+    await expect.poll(() => slice.getAttribute('transform')).not.toBe(before);
+
+    await page.mouse.move(0, 0);
+    await expect.poll(() => slice.getAttribute('transform')).toBe(before);
+  });
+
   test('renders donut slices with percent labels on the wide slices', async ({ page }) => {
     await openDemo(page, 'donut');
     await expect(page.locator('.mochart-series-slice').first()).toBeAttached();
     const labels = page.locator('.mochart-series-slice-label');
     const sliceCount = await page.locator('.mochart-series-slice').count();
-    // during the initial grow-in the slices are near-equal so every label
-    // shows; once settled the slices under labelMinAnglePercent hide theirs
-    await expect.poll(() => labels.count()).toBeLessThan(sliceCount);
-    expect(await labels.count()).toBeGreaterThan(0);
+    // labels stay hidden during the initial sweep-in; once settled they show
+    // on every slice except those under labelMinAnglePercent
+    await expect.poll(async () => {
+      const count = await labels.count();
+      return count > 0 && count < sliceCount;
+    }).toBe(true);
     await expect(labels.first()).toContainText('%');
   });
 });

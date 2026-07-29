@@ -42,6 +42,8 @@ export interface ChartProps {
   dataProvider: DataProvider;
   chartData: ChartData | null;
   focusData: FocusData | null;
+  /** 0..1 while the initial value tween runs (pie sweep-in), else null. */
+  initialAnimationPercentage?: number | null;
   width: number;
   height: number;
   standalone?: boolean;
@@ -1003,6 +1005,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (mochartConfig.chartConfig.type === CHART_TYPE_PIE) {
         body.plot.set(RadialPlot, { mochartConfig, gradientIdMap, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData: focusData!,
+          initialAnimationPercentage: this.props.initialAnimationPercentage ?? null,
           onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef });
       }
       else {

@@ -39,6 +39,8 @@ interface PieSeriesProps {
   sliceAngles: PieSliceAngles | undefined;
   focusData: FocusData | null;
   gradientIdMap: Record<string, string>;
+  /** Suppress labels while the initial sweep-in is running. */
+  hideLabels: boolean;
   onFocus: (focus: PieSeriesFocusUpdate) => void;
 }
 
@@ -105,7 +107,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
 
   sync() {
     const { colorPaletteConfig, pieConfig, seriesConfig, seriesIndex, seriesLayoutInfo, radialLayoutInfo,
-      sliceAngles, focusData, gradientIdMap } = this.props;
+      sliceAngles, focusData, gradientIdMap, hideLabels } = this.props;
     const { onSeriesEnter, onSeriesLeave, onSeriesClick } = this.state;
 
     if (sliceAngles === undefined || sliceAngles.fraction <= 0 || focusData === null) {
@@ -132,9 +134,20 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       .padAngle(degreesToRadians(pieConfig.padAngle));
     const { startAngle, endAngle, fraction } = sliceAngles;
 
+    // The focused slice "explodes" along its mid-angle; the tweened focus
+    // percentage animates the offset in and out.
+    let offsetX = 0;
+    let offsetY = 0;
+    if (pieConfig.focusOffsetPercent > 0 && seriesFocusPercentage !== null && seriesFocusPercentage > 0) {
+      const offsetMidAngle = (startAngle + endAngle) / 2;
+      const offset = seriesFocusPercentage * pieConfig.focusOffsetPercent * radialLayoutInfo.outerRadius;
+      offsetX = offset * Math.sin(offsetMidAngle);
+      offsetY = -offset * Math.cos(offsetMidAngle);
+    }
+
     this.setPresent(true);
     this.root.set({ className: mochartCssClasses['series'] + seriesConfig.id,
-      transform: translate(seriesLayoutInfo.x + radialLayoutInfo.cx, seriesLayoutInfo.y + radialLayoutInfo.cy) });
+      transform: translate(seriesLayoutInfo.x + radialLayoutInfo.cx + offsetX, seriesLayoutInfo.y + radialLayoutInfo.cy + offsetY) });
 
     this.shape.set('slice', () => svgEl('path'))!.set({
       d: arcGenerator({ startAngle, endAngle }), className: mochartCssClasses['seriesSlice'],
@@ -142,7 +155,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       stroke: strokeColor, strokeWidth, strokeOpacity,
       fill: fillColor, fillOpacity });
 
-    if (pieConfig.showLabels && fraction >= pieConfig.labelMinAnglePercent) {
+    if (pieConfig.showLabels && !hideLabels && fraction >= pieConfig.labelMinAnglePercent) {
       const midAngle = (startAngle + endAngle) / 2;
       const labelRadius = radialLayoutInfo.innerRadius + (radialLayoutInfo.outerRadius - radialLayoutInfo.innerRadius) * pieConfig.labelRadiusPercent;
       const labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);

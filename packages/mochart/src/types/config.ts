@@ -177,6 +177,14 @@ export interface PieConfig {
    */
   startAngle: number;
   /**
+   * The angle (in degrees, clockwise from the top) at which the last slice ends
+   * (use startAngle -90 and endAngle 90 for a half/gauge pie).
+   *
+   * Default:
+   * - `startAngle + 360` — a full circle from startAngle
+   */
+  endAngle: number;
+  /**
    * The angle (in degrees) of the gap between adjacent slices.
    *
    * @default 0
@@ -188,6 +196,13 @@ export interface PieConfig {
    * @default 0
    */
   cornerRadius: number;
+  /**
+   * Offset the focused slice away from the center by this fraction (0 to 1) of
+   * the outer radius (an exploded slice).
+   *
+   * @default 0
+   */
+  focusOffsetPercent: number;
   /**
    * Whether labels should be shown on the slices.
    *
@@ -216,12 +231,33 @@ export interface PieConfig {
    */
   labelRadiusPercent: number;
   /**
-   * Hide the label of any slice whose angle is smaller than this fraction (0 to
-   * 1) of the full circle.
+   * Hide the label of any slice whose value is smaller than this fraction (0 to
+   * 1) of the slice total.
    *
    * @default 0.05
    */
   labelMinAnglePercent: number;
+  /**
+   * A text label shown at the center of the pie (use null for none; most useful
+   * for donut and gauge charts).
+   *
+   * @default null
+   */
+  centerLabel: string | null;
+  /**
+   * Whether the total of the unsuppressed slice values should be shown at the
+   * center of the pie.
+   *
+   * @default false
+   */
+  showCenterTotal: boolean;
+  /**
+   * The d3 format specifier used to format the center total (use auto to derive
+   * a format).
+   *
+   * @default "auto"
+   */
+  centerTotalFormat: string | Auto;
 }
 
 export interface ColorPalette {

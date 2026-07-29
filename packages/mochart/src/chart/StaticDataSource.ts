@@ -9,6 +9,7 @@ export class StaticDataSource implements ChartDataSource {
   readonly animated = false;
   chartData: ChartData | null = null;
   focusData: FocusData | null = null;
+  readonly initialAnimationPercentage = null;
 
   start(input: ChartDataSourceInput): void {
     const { mochartConfig, dataProvider, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = input;

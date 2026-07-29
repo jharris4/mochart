@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getPieSliceAngles, degreesToRadians } from '../../src/data/PieData';
+import { getPieSliceAngles, sweepPieSliceAngles, degreesToRadians } from '../../src/data/PieData';
 import { getRadialLayoutInfo } from '../../src/layout/RadialLayout';
 import type { PieConfig, SeriesConfig } from '../../src/types/config';
 import type { SeriesValueObject } from '../../src/types/data';
@@ -8,9 +8,14 @@ import type { LayoutInfo } from '../../src/types/layout';
 const TWO_PI = Math.PI * 2;
 
 const seriesConfig = (id: string) => ({ id }) as SeriesConfig;
+// Mirrors the built defaults, including the conditional endAngle default of
+// startAngle + 360 (a full circle unless overridden).
 const pieConfig = (overrides: Partial<PieConfig> = {}) => ({
-  innerRadiusPercent: 0, outerRadiusPercent: 1, startAngle: 0, padAngle: 0, cornerRadius: 0,
-  showLabels: false, labelType: 'percent', labelFormat: 'auto', labelRadiusPercent: 0.5, labelMinAnglePercent: 0.05,
+  innerRadiusPercent: 0, outerRadiusPercent: 1, startAngle: 0,
+  endAngle: (overrides.startAngle ?? 0) + 360, padAngle: 0, cornerRadius: 0,
+  focusOffsetPercent: 0, showLabels: false, labelType: 'percent', labelFormat: 'auto',
+  labelRadiusPercent: 0.5, labelMinAnglePercent: 0.05,
+  centerLabel: null, showCenterTotal: false, centerTotalFormat: 'auto',
   ...overrides
 }) as PieConfig;
 const values = (plain: (number | undefined)[] | null) => ({ plain }) as SeriesValueObject;
@@ -65,6 +70,53 @@ describe('getPieSliceAngles', () => {
   it('returns an empty map when the total is not positive', () => {
     expect(getPieSliceAngles([seriesConfig('a')], { a: values([0]) }, pieConfig())).toEqual({});
     expect(getPieSliceAngles([seriesConfig('a')], { a: values(null) }, pieConfig())).toEqual({});
+  });
+
+  it('divides a partial span for half/gauge pies', () => {
+    const angles = getPieSliceAngles(
+      [seriesConfig('a'), seriesConfig('b')],
+      { a: values([1]), b: values([1]) },
+      pieConfig({ startAngle: -90, endAngle: 90 })
+    );
+    expect(angles.a.startAngle).toBeCloseTo(degreesToRadians(-90), 10);
+    expect(angles.a.endAngle).toBeCloseTo(0, 10);
+    expect(angles.b.endAngle).toBeCloseTo(degreesToRadians(90), 10);
+  });
+
+  it('runs counterclockwise when endAngle is less than startAngle', () => {
+    const angles = getPieSliceAngles(
+      [seriesConfig('a')],
+      { a: values([1]) },
+      pieConfig({ startAngle: 90, endAngle: -90 })
+    );
+    expect(angles.a.startAngle).toBeCloseTo(degreesToRadians(90), 10);
+    expect(angles.a.endAngle).toBeCloseTo(degreesToRadians(-90), 10);
+  });
+});
+
+describe('sweepPieSliceAngles', () => {
+  it('scales every slice toward the start angle by the given percentage', () => {
+    const angles = getPieSliceAngles(
+      [seriesConfig('a'), seriesConfig('b')],
+      { a: values([1]), b: values([3]) },
+      pieConfig({ startAngle: 90 })
+    );
+    const swept = sweepPieSliceAngles(angles, pieConfig({ startAngle: 90 }), 0.5);
+    const startOffset = degreesToRadians(90);
+    expect(swept.a.startAngle).toBeCloseTo(startOffset, 10);
+    expect(swept.a.endAngle).toBeCloseTo(startOffset + (angles.a.endAngle - startOffset) * 0.5, 10);
+    expect(swept.b.endAngle).toBeCloseTo(startOffset + Math.PI, 10);
+    // fractions and values survive the sweep (labels/center total rely on them)
+    expect(swept.b.fraction).toBe(angles.b.fraction);
+    expect(swept.b.value).toBe(angles.b.value);
+  });
+
+  it('collapses everything onto the start angle at 0 and is identity at 1', () => {
+    const angles = getPieSliceAngles([seriesConfig('a')], { a: values([2]) }, pieConfig());
+    const collapsed = sweepPieSliceAngles(angles, pieConfig(), 0);
+    expect(collapsed.a.startAngle).toBe(0);
+    expect(collapsed.a.endAngle).toBe(0);
+    expect(sweepPieSliceAngles(angles, pieConfig(), 1)).toBe(angles);
   });
 });
 

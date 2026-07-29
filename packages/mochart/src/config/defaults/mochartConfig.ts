@@ -97,7 +97,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
       groupAxisConfig: getGroupAxisDefaults(inputConfig.groupAxisConfig, inverted, pieMode),
       legendConfig: getLegendDefaults(inputConfig.legendConfig, seriesCount),
       linearGradientConfigs,
-      pieConfig: getPieDefaults(),
+      pieConfig: getPieDefaults(inputConfig.pieConfig),
       plotConfig,
       radialGradientConfigs,
       seriesAxisConfigs,

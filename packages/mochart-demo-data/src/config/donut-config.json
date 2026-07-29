@@ -9,7 +9,8 @@
   "pieConfig": {
     "innerRadiusPercent": 0.6,
     "showLabels": true,
-    "labelType": "percent"
+    "labelType": "percent",
+    "focusOffsetPercent": 0.05
   },
   "groupAxisConfig": {
     "property": "group",

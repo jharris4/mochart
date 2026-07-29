@@ -6,7 +6,7 @@ import {
   mergedIndexForNewIndex, oldIndexForNewIndex, newIndexForMergedIndex, newIndexForOldIndex,
   hasGroupAdditions, hasGroupRemovals, hasGroupReorder } from '../animation/GroupAnimationData';
 import { getFocusAnimationData } from '../animation/FocusAnimationData';
-import { getChartTweenManager, dataTweenValueStart, dataTweenValueComplete } from '../animation/ChartTweens';
+import { getChartTweenManager, dataTweenValueStart, dataTweenValueUpdate, dataTweenValueComplete } from '../animation/ChartTweens';
 import type { ChartTweenManager, DataTweenEvent } from '../animation/ChartTweens';
 import type { ChartData } from '../types/data';
 import type { ChartAnimationData, FocusData } from '../types/animation';
@@ -23,6 +23,8 @@ export class AnimatedDataSource implements ChartDataSource {
   /** Rendered output — null until the data tween's first frame. */
   chartData: ChartData | null = null;
   focusData: FocusData | null = null;
+  /** 0..1 while the initial animation's value tween runs, else null. */
+  initialAnimationPercentage: number | null = null;
 
   private input!: ChartDataSourceInput;
   private chartAnimationData: ChartAnimationData | null = null;
@@ -52,6 +54,7 @@ export class AnimatedDataSource implements ChartDataSource {
     this.valuesTweening = false;
     this.valuesTweened = false;
     this.focusTweening = false;
+    this.initialAnimationPercentage = null;
     this.tweenManager.cancelTweens();
     if (mochartConfig && mochartConfig.validation.valid && isDataProviderValid(dataProvider)) {
       let newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
@@ -170,9 +173,25 @@ export class AnimatedDataSource implements ChartDataSource {
     });
   }
 
-  private updateChartData = (chartData: ChartData, updateType: DataTweenEvent): void => {
+  private updateChartData = (chartData: ChartData, updateType: DataTweenEvent, percentage?: number): void => {
     const { mochartConfig, focusedGroupIndex } = this.input;
     this.chartData = chartData;
+    // Expose the initial value tween's progress (chart types with entrance
+    // effects — the pie sweep-in — consume it); cleared once values settle.
+    if (this.chartAnimationData !== null && this.chartAnimationData.initialAnimation) {
+      if (updateType === dataTweenValueStart) {
+        this.initialAnimationPercentage = 0;
+      }
+      else if (updateType === dataTweenValueUpdate && percentage !== undefined) {
+        this.initialAnimationPercentage = percentage;
+      }
+      else if (updateType === dataTweenValueComplete) {
+        this.initialAnimationPercentage = null;
+      }
+    }
+    else {
+      this.initialAnimationPercentage = null;
+    }
     if ((this.hasGroupAdditions || this.hasGroupReorder) && updateType === dataTweenValueStart) {
       this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithGroupChanges(
         this.focusData!, mochartConfig, chartData, this.chartAnimationData!.groupDeltaData, true, this.focusTweening));

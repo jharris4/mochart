@@ -24,7 +24,7 @@ import type { DataRow, DemoConfig, DemoDataProvider, GroupValue, RandomConfig } 
 type Rng = () => number;
 
 /** The chart-type generator ids usable in a demos.json `generator` field. */
-export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars', 'pie', 'donut'] as const;
+export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars', 'pie', 'donut', 'gauge'] as const;
 
 export type ChartTypeGenerator = (typeof chartTypeGenerators)[number];
 
@@ -504,7 +504,48 @@ function buildDonutSnapshot(): ChartTypeDemoSnapshot {
       version: '1.0.0',
       titleConfig: { title: 'Browser Market Share (fictional)' },
       chartConfig: pie.chartConfig,
-      pieConfig: { ...pie.pieConfig, showLabels: true, labelType: 'percent' },
+      // focusOffsetPercent explodes the hovered slice away from the center
+      pieConfig: { ...pie.pieConfig, showLabels: true, labelType: 'percent', focusOffsetPercent: 0.05 },
+      groupAxisConfig: pie.groupAxisConfig,
+      seriesConfigs: pie.seriesConfigs
+    },
+    data: pie.data
+  };
+}
+
+// A half-donut gauge: survey responses split across three sentiment segments.
+// Segments never drop out (a gauge with a missing segment reads as broken),
+// so random mode only jitters the response counts.
+const GAUGE_SLICE_POOL: PieSlicePoolEntry[] = [
+  { label: 'Promoters', value: 540, jitter: 0.3 },
+  { label: 'Passives', value: 280, jitter: 0.3 },
+  { label: 'Detractors', value: 180, jitter: 0.4 }
+];
+
+function gaugeRows(rng: Rng): DataRow[] {
+  return createPie(pieItems(GAUGE_SLICE_POOL, rng), { tooltipValues: 'percent' }).data;
+}
+
+function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
+  const pie = createPie(GAUGE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { tooltipValues: 'percent' });
+  return {
+    id: 'gauge',
+    config: {
+      version: '1.0.0',
+      titleConfig: { title: 'Customer Sentiment (fictional survey)' },
+      chartConfig: pie.chartConfig,
+      pieConfig: {
+        startAngle: -90,
+        endAngle: 90,
+        innerRadiusPercent: 0.55,
+        padAngle: 1,
+        cornerRadius: 3,
+        showLabels: true,
+        labelType: 'title',
+        centerLabel: 'responses',
+        showCenterTotal: true,
+        centerTotalFormat: ',.0f'
+      },
       groupAxisConfig: pie.groupAxisConfig,
       seriesConfigs: pie.seriesConfigs
     },
@@ -516,7 +557,7 @@ function buildDonutSnapshot(): ChartTypeDemoSnapshot {
 
 /** Rebuilds every chart-type demo's static config/data (snapshot script). */
 export function buildChartTypeDemoSnapshots(): ChartTypeDemoSnapshot[] {
-  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildCandlestickHollowSnapshot(), buildOhlcSnapshot(), buildErrorBarsSnapshot(), buildPieSnapshot(), buildDonutSnapshot()];
+  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildCandlestickHollowSnapshot(), buildOhlcSnapshot(), buildErrorBarsSnapshot(), buildPieSnapshot(), buildDonutSnapshot(), buildGaugeSnapshot()];
 }
 
 /**
@@ -556,6 +597,9 @@ export function generateChartTypeDataProvider(
   }
   else if (generator === 'donut') {
     rows = donutRows(rng);
+  }
+  else if (generator === 'gauge') {
+    rows = gaugeRows(rng);
   }
   else {
     rows = heatmapRows(rng, random.series.missing.probability);

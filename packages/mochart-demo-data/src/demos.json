@@ -442,6 +442,15 @@
       "data": "donut-data.json",
       "random": "default-random.json",
       "generator": "donut"
+    },
+    {
+      "id": "gauge",
+      "title": "Gauge",
+      "description": "A half-donut gauge via pieConfig.startAngle/endAngle (-90 to 90): three sentiment segments with rounded, padded slices, title labels at the centroids, and a live center total (pieConfig.showCenterTotal) that counts along with value changes and suppression. Hovering a legend entry explodes nothing here \u2014 compare the donut demo's focusOffsetPercent. Random mode jitters the response counts; segments never drop out.",
+      "config": "gauge-config.json",
+      "data": "gauge-data.json",
+      "random": "default-random.json",
+      "generator": "gauge"
     }
   ]
 }

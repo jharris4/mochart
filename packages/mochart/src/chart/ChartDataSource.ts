@@ -26,6 +26,11 @@ export interface ChartDataSource {
   /** Current output; the animated source advances these on tween frames. */
   readonly chartData: ChartData | null;
   readonly focusData: FocusData | null;
+  /**
+   * 0..1 while the initial data animation's value tween is running (drives
+   * chart-type-specific entrance effects like the pie sweep-in), else null.
+   */
+  readonly initialAnimationPercentage: number | null;
   /** Initialize from scratch (also used when the animate flag flips). */
   start(input: ChartDataSourceInput): void;
   /** Reconcile with changed input. */

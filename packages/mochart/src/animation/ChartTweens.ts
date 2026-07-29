@@ -25,7 +25,7 @@ export type DataTweenEvent =
 
 type VoidCallback = () => void;
 type FocusUpdateCallback = (focusData: FocusData) => void;
-type DataUpdateCallback = (chartData: AnimationChartData, event: DataTweenEvent) => void;
+type DataUpdateCallback = (chartData: AnimationChartData, event: DataTweenEvent, percentage?: number) => void;
 
 interface Tween {
   readonly id: number;
@@ -393,7 +393,7 @@ function buildDataTween(
   if (valueChangeData.deltaPercentage !== 0) {
     tweenData.push({
       onStart: () => { updateCallback(valueChangeData.start, dataTweenValueStart); startValueChangeCallback(valueChangeData.start); },
-      onUpdate: (percentage) => { updateCallback(getChartDataForValueDelta(mochartConfig, chartAnimationData, percentage), dataTweenValueUpdate); },
+      onUpdate: (percentage) => { updateCallback(getChartDataForValueDelta(mochartConfig, chartAnimationData, percentage), dataTweenValueUpdate, percentage); },
       onComplete: () => { updateCallback(valueChangeData.final, dataTweenValueComplete); completeValueChangeCallback(valueChangeData.final); },
       duration: (chartAnimationData.initialAnimation ? mochartConfig.animationConfig.initialDuration : mochartConfig.animationConfig.valueChangeDuration) * valueChangeData.deltaPercentage
     });

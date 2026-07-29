@@ -25,13 +25,15 @@ html.dark {
     --mochart-dark-tooltip-border: rgba(140, 145, 160, 0.55);
 }
 
-/* Chart, axis, threshold and legend text (SVG). */
+/* Chart, axis, threshold, legend and pie-center text (SVG). The pie center
+ * text sets no fill attribute, so this rule is its only styling. */
 html.dark .mochart-chart .mochart-title text,
 html.dark .mochart-chart .mochart-axis-title text,
 html.dark .mochart-chart .mochart-axis-tick-labels text,
 html.dark .mochart-chart .mochart-axis-size-tick-label text,
 html.dark .mochart-chart .mochart-axis-threshold-container text,
-html.dark .mochart-chart .mochart-legend text {
+html.dark .mochart-chart .mochart-legend text,
+html.dark .mochart-chart .mochart-pie-center text {
     fill: var(--mochart-dark-text);
 }
 

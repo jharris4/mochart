@@ -20,9 +20,10 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   titleConfig: { title: 'Browser Market Share (fictional)' },
   chartConfig: donut.chartConfig,
-  // showLabels puts percent labels at the slice centroids; slices thinner
-  // than labelMinAnglePercent (default 5% of the circle) hide theirs.
-  pieConfig: { ...donut.pieConfig, showLabels: true, labelType: 'percent' },
+  // showLabels puts percent labels at the slice centroids (slices thinner
+  // than labelMinAnglePercent hide theirs), and focusOffsetPercent explodes
+  // the hovered slice away from the center.
+  pieConfig: { ...donut.pieConfig, showLabels: true, labelType: 'percent', focusOffsetPercent: 0.05 },
   groupAxisConfig: donut.groupAxisConfig,
   seriesConfigs: donut.seriesConfigs
 };

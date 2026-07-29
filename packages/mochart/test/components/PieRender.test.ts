@@ -179,6 +179,70 @@ describe('pie chart rendering', () => {
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
   });
 
+  it('renders a partial span for gauge configs', () => {
+    const full = mountChart(...Object.values(pieChartProps(ITEMS)) as [MochartInputConfig, readonly unknown[]]);
+    const { config, data } = pieChartProps(ITEMS, {}, {
+      pieConfig: { startAngle: -90, endAngle: 90 } as Partial<PieConfig>
+    });
+    const gauge = mountChart(config, data);
+    const fullD = slicePaths(full.container)[0]!.getAttribute('d');
+    const gaugeD = slicePaths(gauge.container)[0]!.getAttribute('d');
+    expect(gaugeD).toBeTruthy();
+    expect(gaugeD).not.toBe(fullD);
+  });
+
+  it('explodes the focused slice by focusOffsetPercent', () => {
+    const { config, data } = pieChartProps(ITEMS, {}, {
+      pieConfig: { focusOffsetPercent: 0.1 } as Partial<PieConfig>
+    });
+    const plain = mountChart(config, data);
+    const focused = mountChart(config, data, { focusedSeriesId: 'slice0' });
+    const transformOf = (container: Element) =>
+      container.querySelector('[class*="mochart-series-slice0"]')!.getAttribute('transform');
+    expect(transformOf(focused.container)).not.toBe(transformOf(plain.container));
+    // unfocused slices keep the centered transform
+    const otherTransform = (container: Element) =>
+      container.querySelector('[class*="mochart-series-slice1"]')!.getAttribute('transform');
+    expect(otherTransform(focused.container)).toBe(otherTransform(plain.container));
+  });
+
+  it('renders the center label and a suppression-aware total', () => {
+    const { config, data } = pieChartProps(ITEMS, { donut: true }, {
+      pieConfig: { innerRadiusPercent: 0.6, centerLabel: 'Total', showCenterTotal: true, centerTotalFormat: ',.0f' } as Partial<PieConfig>
+    });
+    const { container } = mountChart(config, data);
+    expect(container.querySelector('.mochart-pie-center-label')!.textContent).toBe('Total');
+    expect(container.querySelector('.mochart-pie-center-total')!.textContent).toBe('100');
+
+    const suppressed = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
+    expect(suppressed.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('38');
+  });
+
+  it('sweeps in on the initial animation, revealing labels only once settled', () => {
+    const pie = mochart.createPie(ITEMS);
+    const config = {
+      version: VERSION,
+      animationConfig: { animate: true },
+      chartConfig: pie.chartConfig,
+      pieConfig: { showLabels: true, labelMinAnglePercent: 0 },
+      groupAxisConfig: pie.groupAxisConfig,
+      seriesConfigs: pie.seriesConfigs
+    } as unknown as MochartInputConfig;
+    const { container } = mountChart(config, pie.data);
+    // a few frames into the initial sweep: slices exist, labels stay hidden
+    for (let frame = 0; frame < 4 && vi.getTimerCount() > 0; frame++) {
+      vi.advanceTimersByTime(FRAME_MS);
+    }
+    expect(slicePaths(container).length).toBeGreaterThan(0);
+    const midSweepD = slicePaths(container).map((path) => path.getAttribute('d'));
+    expect(container.querySelectorAll('.mochart-series-slice-label')).toHaveLength(0);
+
+    runFrames();
+    expect(container.querySelectorAll('.mochart-series-slice-label')).toHaveLength(3);
+    const settledD = slicePaths(container).map((path) => path.getAttribute('d'));
+    expect(settledD).not.toEqual(midSweepD);
+  });
+
   it('settles animated value updates into new slice angles', () => {
     const pie = mochart.createPie(ITEMS);
     const config = {

@@ -107,6 +107,17 @@ describe('pie-mode conditional defaults', () => {
     expect(defaults.pieConfig).toEqual(expect.objectContaining({ innerRadiusPercent: 0, labelType: 'percent' }));
   });
 
+  it('derives pieConfig.endAngle from startAngle so rotation never truncates the pie', () => {
+    const rotated = getDefaults({ version: '1.0.0', chartConfig: { type: 'pie' }, pieConfig: { startAngle: -90 }, groupAxisConfig: { property: 'p' } }) as {
+      pieConfig: { endAngle: number };
+    };
+    expect(rotated.pieConfig.endAngle).toBe(270);
+    const plain = getDefaults({ version: '1.0.0', chartConfig: { type: 'pie' }, groupAxisConfig: { property: 'p' } }) as {
+      pieConfig: { endAngle: number };
+    };
+    expect(plain.pieConfig.endAngle).toBe(360);
+  });
+
   it('keeps the xy defaults when chartConfig.type is omitted', () => {
     const defaults = getDefaults({ version: '1.0.0', groupAxisConfig: { property: 'p' } }) as {
       groupAxisConfig: { visible: boolean };
