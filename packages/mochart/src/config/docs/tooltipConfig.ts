@@ -3,7 +3,7 @@ export default function getDescriptions() {
     visible: 'whether or not to show the tooltip',
     applyFocus: 'whether to change the focused group as the tooltip is shown or hidden',
     snapToGroup: 'whether the tooltip should be centered at the closest group value (true) or at the click/tap position (false)',
-    mouseOver: 'whether the tooltip should be track the mouse position in the chart drawing area',
+    mouseOver: 'whether the tooltip should track the mouse position in the chart drawing area',
     closeOnClick: 'whether to hide the tooltip when the user clicks/taps within it',
     filterOnSeriesClick: 'whether series should be filtered when the user clicks/taps on them in the tooltip',
     focusOnGroupClick: 'whether group values should be focused when the user clicks/taps on them in the tooltip',
