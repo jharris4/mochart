@@ -10,10 +10,10 @@
 // JSDoc description — both are reported as integrity errors, which fail the
 // generator (and so the docs build).
 
-import ts from 'typescript';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+import { parseInterfaces } from './tsSource';
 
 const packageDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const chartTypesPath = path.join(packageDir, 'src', 'types', 'chart.ts');
@@ -186,83 +186,12 @@ const pageSources: PageSource[] = [
   }
 ];
 
-interface ParsedMember {
-  key: string;
-  type: string;
-  optional: boolean;
-  description: string;
-}
-
-interface ParsedInterface {
-  name: string;
-  extendsNames: string[];
-  members: ParsedMember[];
-}
-
-function jsDocText(source: string, member: ts.Node): string {
-  const ranges = ts.getLeadingCommentRanges(source, member.pos) ?? [];
-  const docRange = ranges.filter(range => source.slice(range.pos, range.pos + 3) === '/**').pop();
-  if (docRange === undefined) {
-    return '';
-  }
-  const lines = source
-    .slice(docRange.pos, docRange.end)
-    .replace(/^\/\*\*/, '')
-    .replace(/\*\/$/, '')
-    .split('\n')
-    .map(line => line.replace(/^\s*\*/, '').trim());
-  // JSDoc wraps at 80 columns, so wrapped lines rejoin into one paragraph;
-  // blank lines stay paragraph breaks.
-  return lines
-    .join('\n')
-    .split(/\n\s*\n/)
-    .map(paragraph => paragraph.split('\n').join(' ').trim())
-    .filter(paragraph => paragraph !== '')
-    .join('\n\n')
-    .replace(/\{@link\s+([^}]+)\}/g, '`$1`');
-}
-
-function parseInterfaces(): { interfaces: Map<string, ParsedInterface>; exportedNames: string[] } {
-  const source = fs.readFileSync(chartTypesPath, 'utf-8');
-  const sourceFile = ts.createSourceFile('chart.ts', source, ts.ScriptTarget.Latest, true);
-  const interfaces = new Map<string, ParsedInterface>();
-  const exportedNames: string[] = [];
-
-  for (const statement of sourceFile.statements) {
-    if (!ts.isInterfaceDeclaration(statement)) {
-      continue;
-    }
-    const name = statement.name.text;
-    const isExported = statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword) === true;
-    if (isExported) {
-      exportedNames.push(name);
-    }
-    const extendsNames: string[] = [];
-    for (const heritage of statement.heritageClauses ?? []) {
-      for (const type of heritage.types) {
-        extendsNames.push(type.expression.getText(sourceFile));
-      }
-    }
-    const members: ParsedMember[] = [];
-    for (const member of statement.members) {
-      if (!ts.isPropertySignature(member) || member.name === undefined || !ts.isIdentifier(member.name)) {
-        continue;
-      }
-      members.push({
-        key: member.name.text,
-        type: member.type === undefined ? 'unknown' : member.type.getText(sourceFile).replace(/\s+/g, ' '),
-        optional: member.questionToken !== undefined,
-        description: jsDocText(source, member)
-      });
-    }
-    interfaces.set(name, { name, extendsNames, members });
-  }
-  return { interfaces, exportedNames };
-}
-
 export function buildApiReference(): ApiReferenceResult {
   const integrityErrors: string[] = [];
-  const { interfaces, exportedNames } = parseInterfaces();
+  const interfaces = parseInterfaces(chartTypesPath);
+  const exportedNames = [...interfaces.values()]
+    .filter(parsed => parsed.exported)
+    .map(parsed => parsed.name);
 
   const referenceByInterface = new Map<string, ApiGroupLink>();
   for (const page of pageSources) {

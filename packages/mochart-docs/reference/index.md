@@ -1,9 +1,11 @@
 # Config Reference
 
 Looking for something other than config? The functions and classes are in the
-[API reference](/reference/api), and the props each chart accepts are in
+[API reference](/reference/api); the props each chart accepts are in
 [Chart props](/reference/props) and
-[Callbacks and payloads](/reference/callbacks).
+[Callbacks and payloads](/reference/callbacks); and what the framework
+bindings call those props is in
+[Framework props](/reference/framework-props).
 
 A mochart config is a plain object made of per-concern sections. Every
 section — and every property inside one — is optional and falls back to a

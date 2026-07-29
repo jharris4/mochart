@@ -76,12 +76,10 @@ html`${chart({ mochartConfig, dataProvider, style: 'flex: 1 1 auto; min-width: 0
 ## Callbacks and states
 
 Both directives accept the [chart callbacks](/guide/interaction#callbacks)
-(`onChartClick`, `onChartMouseEnter`, `onChartMouseMove`,
-`onChartMouseLeave`, `onSliceClick`, `onTitleClick`, `onFocus`,
-`onSeriesFilter`, `onSeriesLayoutInfoChange`) and per-state placeholder templates —
-`loadingTemplate`, `errorTemplate`, `noDataTemplate`, `noSizeTemplate`,
-`noSeriesTemplate`, `configErrorTemplate`. Each placeholder prop takes a
-**lit-html template function** that receives the
+under their core names (`onChartClick`, `onFocus`, `onSliceClick`, …) and a
+placeholder prop per state — named `*Template` rather than `*Component`,
+since each takes a
+**lit-html template function** rather than a component class. It receives the
 [chart state context](/guide/chart-states) (`width`, `height`, `error`, …)
 and is rendered while the chart is in that state:
 
@@ -93,6 +91,9 @@ html`${chart({ mochartConfig, dataProvider, loading, loadingTemplate })}`
 
 Both directives also accept `loading` and `error` to force the loading or
 error state.
+
+Every prop, with its type and its core counterpart, is listed in
+[Framework props](/reference/framework-props#lit).
 
 ## See it in action
 

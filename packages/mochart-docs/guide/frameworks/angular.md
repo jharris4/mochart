@@ -77,17 +77,18 @@ container, so size it however you like and the chart follows it:
 ## Inputs, outputs, and states
 
 Both components emit the [chart callbacks](/guide/interaction#callbacks) as
-outputs (`chartClick`, `chartMouseEnter`, `chartMouseMove`,
-`chartMouseLeave`, `sliceClick`, `titleClick`, `focus`, `seriesFilter`,
-`seriesLayoutInfoChange` — usable as `(chartClick)="..."` etc. in templates;
-only subscribed outputs are wired into the chart) and accept per-state
-placeholders — `loadingComponent`, `errorComponent`, `noDataComponent`,
-`noSizeComponent`, `noSeriesComponent`, `configErrorComponent`. Each
-placeholder input takes an **Angular component class** whose declared inputs
-among the [chart state context](/guide/chart-states) names (`width`,
-`height`, `error`, …) are kept up to date while the chart is in that state.
-Both components also accept `loading` and `error` to force the loading or
-error state.
+outputs, dropping the core `on` prefix — `onChartClick` becomes `chartClick`,
+`onSliceClick` becomes `sliceClick` — usable as `(chartClick)="..."` in
+templates; only subscribed outputs are wired into the chart. They also accept
+a placeholder input per state. Each placeholder input takes an **Angular
+component class** whose declared inputs among the
+[chart state context](/guide/chart-states) names (`width`, `height`,
+`error`, …) are kept up to date while the chart is in that state. Both
+components also accept `loading` and `error` to force the loading or error
+state.
+
+Every input and output, with its type and its core counterpart, is listed in
+[Framework props](/reference/framework-props#angular).
 
 ## See it in action
 

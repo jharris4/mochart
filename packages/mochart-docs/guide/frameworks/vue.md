@@ -72,16 +72,15 @@ however you like and the chart follows it:
 ## Callbacks and states
 
 Both components accept the [chart callbacks](/guide/interaction#callbacks)
-(`onChartClick`, `onChartMouseEnter`, `onChartMouseMove`,
-`onChartMouseLeave`, `onSliceClick`, `onTitleClick`, `onFocus`,
-`onSeriesFilter`, `onSeriesLayoutInfoChange` — usable as `@chart-click` etc. in templates) and
-per-state placeholders — `loadingComponent`, `errorComponent`,
-`noDataComponent`, `noSizeComponent`, `noSeriesComponent`,
-`configErrorComponent`. Each placeholder prop takes a **Vue component** that
-receives the [chart state context](/guide/chart-states) (`width`, `height`,
-`error`, …) as props and is rendered while the chart is in that state. Both
-components also accept `loading` and `error` to force the loading or error
-state.
+under their core names (`onChartClick`, `onFocus`, `onSliceClick`, …), usable
+as `@chart-click` etc. in templates, and a placeholder prop per state. Each
+placeholder prop takes a **Vue component** that receives the
+[chart state context](/guide/chart-states) (`width`, `height`, `error`, …) as
+props and is rendered while the chart is in that state. Both components also
+accept `loading` and `error` to force the loading or error state.
+
+Every prop, with its type and its core counterpart, is listed in
+[Framework props](/reference/framework-props#vue).
 
 ## See it in action
 

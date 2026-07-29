@@ -7,8 +7,9 @@ callbacks, and helpers documented here.
 
 The props the entry points accept are listed property by property in
 [Chart props](/reference/props) and
-[Callbacks and payloads](/reference/callbacks); both are generated from the
-library's type declarations.
+[Callbacks and payloads](/reference/callbacks), and the name each binding
+gives them in [Framework props](/reference/framework-props). All three are
+generated from the packages' type declarations.
 
 ```js
 import {

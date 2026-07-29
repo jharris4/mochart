@@ -68,15 +68,15 @@ follows it:
 ## Callbacks and states
 
 Both components accept the [chart callbacks](/guide/interaction#callbacks)
-(`onChartClick`, `onChartMouseEnter`, `onChartMouseMove`,
-`onChartMouseLeave`, `onSliceClick`, `onTitleClick`, `onFocus`,
-`onSeriesFilter`, `onSeriesLayoutInfoChange`) and per-state placeholders — `loadingComponent`,
-`errorComponent`, `noDataComponent`, `noSizeComponent`, `noSeriesComponent`,
-`configErrorComponent`. Each placeholder prop takes a **Svelte component**
+under their core names (`onChartClick`, `onFocus`, `onSliceClick`, …) and a
+placeholder prop per state. Each placeholder prop takes a **Svelte component**
 that receives the [chart state context](/guide/chart-states) (`width`,
 `height`, `error`, …) as props and is rendered while the chart is in that
 state. Both components also accept `loading` and `error` to force the
 loading or error state.
+
+Every prop, with its type and its core counterpart, is listed in
+[Framework props](/reference/framework-props#svelte).
 
 ## See it in action
 

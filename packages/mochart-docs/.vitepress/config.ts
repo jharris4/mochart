@@ -22,10 +22,13 @@ const referenceItems = loadConfigReference().sections.map(section => ({
   link: '/reference/' + section.id
 }));
 
-const apiItems = loadApiReference().pages.map(page => ({
-  text: page.title,
-  link: '/reference/' + page.id
-}));
+const apiItems = [
+  ...loadApiReference().pages.map(page => ({
+    text: page.title,
+    link: '/reference/' + page.id
+  })),
+  { text: 'Framework props', link: '/reference/framework-props' }
+];
 
 export default defineConfig({
   base,
