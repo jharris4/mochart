@@ -42,7 +42,7 @@ type ValueDeltaObject = Record<ValueKey, NumericValuesDelta> & { deltaPercentage
  **/
 
 const nullValueObject: SeriesValueObject = {
-  plain: null, range: null, stack: null, prior: null, marker: null, label: null, color: null, tooltip: null,
+  plain: null, range: null, errorLow: null, errorHigh: null, stack: null, prior: null, marker: null, label: null, color: null, tooltip: null,
   markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, tooltipCopyKey: null, min: null, max: null
 };
 
@@ -573,6 +573,7 @@ function createRawValueDeltaData(mochartConfig: MochartConfig, startValueObjects
 
   adjustDeltaPercentagesForStackedGroups(mochartConfig.seriesStackConfigs, deltas);
   adjustDeltaPercentagesForRangedSeries(seriesConfigs, deltas);
+  adjustDeltaPercentagesForErrorBarSeries(seriesConfigs, deltas);
   adjustDeltaPercentagesForFollowerGroups(seriesConfigs, deltas);
 
   return {
@@ -604,6 +605,37 @@ function adjustDeltaPercentagesForRangedSeries(seriesConfigs: SeriesConfig[], de
   }
 }
 
+// An error-bar series draws its whisker anchored to the shape drawn from the
+// plain/range values, so all of its animated keys share a duration for the
+// same reason ranged series do: with independent durations the whisker's ends
+// arrive before or after the bar edge they're anchored to and the bar slides
+// out from under its whisker mid-tween.
+function adjustDeltaPercentagesForErrorBarSeries(seriesConfigs: SeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
+  const syncKeys = ['plain', 'range', 'errorLow', 'errorHigh'] as const;
+  for (let seriesConfig of seriesConfigs) {
+    if ((seriesConfig.errorLowProperty !== NONE || seriesConfig.errorHighProperty !== NONE) && seriesConfig.stack === NONE) {
+      const deltaObject = deltaObjects[seriesConfig.id];
+      let maxDeltaPercentage = 0;
+      for (let key of syncKeys) {
+        const delta = deltaObject[key];
+        if (delta.deltaPercentage !== 0 && delta.deltaCopied !== true) {
+          maxDeltaPercentage = Math.max(maxDeltaPercentage, delta.deltaPercentage);
+        }
+      }
+      if (maxDeltaPercentage === 0) {
+        continue;
+      }
+      for (let key of syncKeys) {
+        const delta = deltaObject[key];
+        // zero-delta and copied entries are shared constants — never mutated
+        if (delta.deltaPercentage !== 0 && delta.deltaCopied !== true) {
+          delta.deltaPercentage = maxDeltaPercentage;
+        }
+      }
+    }
+  }
+}
+
 // A followSeries group — a leader plus its followers, e.g. a hollow
 // candlestick body with its wick segments — renders one visual mark from
 // several series, so the group shares a duration the same way a stack does:
@@ -624,7 +656,7 @@ function adjustDeltaPercentagesForFollowerGroups(seriesConfigs: SeriesConfig[], 
   if (followerGroups === null) {
     return;
   }
-  const syncKeys = ['plain', 'range'] as const;
+  const syncKeys = ['plain', 'range', 'errorLow', 'errorHigh'] as const;
   for (let seriesConfig of seriesConfigs) {
     const followers = followerGroups[seriesConfig.id];
     if (followers === undefined || seriesConfig.stack !== NONE) {
@@ -734,12 +766,14 @@ function getSeriesValuesDeltas(startValues: NumericValues, endValues: NumericVal
 
 function getMaxDeltaPercentage(valueDeltaObject: ValueDeltaObject): number {
   return Math.max(valueDeltaObject.plain.deltaPercentage, valueDeltaObject.range.deltaPercentage,
+    valueDeltaObject.errorLow.deltaPercentage, valueDeltaObject.errorHigh.deltaPercentage,
     valueDeltaObject.stack.deltaPercentage, valueDeltaObject.marker.deltaPercentage,
     valueDeltaObject.color.deltaPercentage, valueDeltaObject.label.deltaPercentage);
 }
 
 function getAllDeltaCopied(valueDeltaObject: ValueDeltaObject): boolean {
   return valueDeltaObject.plain.deltaCopied === true && valueDeltaObject.range.deltaCopied === true &&
+    valueDeltaObject.errorLow.deltaCopied === true && valueDeltaObject.errorHigh.deltaCopied === true &&
     valueDeltaObject.stack.deltaCopied === true;
 }
 
@@ -764,6 +798,7 @@ function createFilteredValueDeltaData(mochartConfig: MochartConfig, startFiltere
 
   adjustDeltaPercentagesForStackedGroups(mochartConfig.seriesStackConfigs, deltas);
   adjustDeltaPercentagesForRangedSeries(seriesConfigs, deltas);
+  adjustDeltaPercentagesForErrorBarSeries(seriesConfigs, deltas);
   adjustDeltaPercentagesForFollowerGroups(seriesConfigs, deltas);
 
   return {

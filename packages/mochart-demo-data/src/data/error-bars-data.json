@@ -1,0 +1,14 @@
+[
+  {"month":"Jan","a":52.09,"aLow":46.05,"aHigh":58.06,"b":47.73,"bLow":44.04,"bHigh":52.39,"target":52,"targetLow":49.99,"targetHigh":53.76},
+  {"month":"Feb","a":64.1,"aLow":58.47,"aHigh":68.23,"b":50.08,"bLow":43.58,"bHigh":55.87,"target":56.5,"targetLow":54.55,"targetHigh":59.46},
+  {"month":"Mar","a":69.6,"aLow":64.57,"aHigh":75.17,"b":47.06,"bLow":42.71,"bHigh":51.26,"target":59.79,"targetLow":57.73,"targetHigh":61.53},
+  {"month":"Apr","a":65.54,"aLow":58.56,"aHigh":69.45,"b":54.35,"bLow":50.03,"bHigh":60.27,"target":61,"targetLow":58.53,"targetHigh":62.71},
+  {"month":"May","a":59.22,"aLow":53.29,"aHigh":64.15,"b":55.22,"bLow":50.39,"bHigh":59.25,"target":59.79,"targetLow":56.84,"targetHigh":62.79},
+  {"month":"Jun","a":63.18,"aLow":58.94,"aHigh":68.34,"b":46.03,"bLow":41.18,"bHigh":50.75,"target":56.5,"targetLow":53.89,"targetHigh":58.09},
+  {"month":"Jul","a":54.85,"aLow":51.79,"aHigh":60.87,"b":41.67,"bLow":37.83,"bHigh":45.13,"target":52,"targetLow":49.49,"targetHigh":54.47},
+  {"month":"Aug","a":55.16,"aLow":48.21,"aHigh":61.53,"b":38.72,"bLow":34.8,"bHigh":42.2,"target":47.5,"targetLow":45.13,"targetHigh":50.45},
+  {"month":"Sep","a":46.46,"aLow":39.79,"aHigh":51.12,"b":38.48,"bLow":34.72,"bHigh":43.19,"target":44.21,"targetLow":42.67,"targetHigh":47.19},
+  {"month":"Oct","a":45.32,"aLow":40.32,"aHigh":51.55,"b":32.72,"bLow":26.95,"bHigh":37.62,"target":43,"targetLow":41.21,"targetHigh":45.7},
+  {"month":"Nov","a":51.9,"aLow":47.61,"aHigh":54.93,"b":44.97,"bLow":38.26,"bHigh":49.25,"target":44.21,"targetLow":42.07,"targetHigh":47.09},
+  {"month":"Dec","a":54.6,"aLow":48.42,"aHigh":61.5,"b":37.55,"bLow":34.07,"bHigh":44.14,"target":47.5,"targetLow":45.66,"targetHigh":50.03}
+]

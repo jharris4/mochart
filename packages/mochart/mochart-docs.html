@@ -1946,6 +1946,42 @@ table thead td { border-bottom-width: 2px; }
 <div>0 (when renderer is none)</div>
 </td>
 </tr>
+<tr id="seriesConfigs.errorBarCapSize">
+<td><a href="#seriesConfigs.errorBarCapSize">errorBarCapSize</a></td><td>the full width (in pixels) of the horizontal caps drawn at the ends of the series error bars (use 0 to hide the caps)<br/><br/>The caps are the horizontal ticks at the whisker ends. On a `bar` renderer series the cap width is clamped to the bar layout slot so caps never overlap a neighbouring bar; use `0` to draw plain whiskers without caps.</td><td>should be a number >= to 0</td><td><div>6</div>
+</td>
+</tr>
+<tr id="seriesConfigs.errorBarDefocusedStrokeOpacity">
+<td><a href="#seriesConfigs.errorBarDefocusedStrokeOpacity">errorBarDefocusedStrokeOpacity</a></td><td>the defocused stroke opacity (0 - 1) of the series error bars</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+</td>
+</tr>
+<tr id="seriesConfigs.errorBarFocusedStrokeOpacity">
+<td><a href="#seriesConfigs.errorBarFocusedStrokeOpacity">errorBarFocusedStrokeOpacity</a></td><td>the focused stroke opacity (0 - 1) of the series error bars</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="seriesConfigs.errorBarStrokeColor">
+<td><a href="#seriesConfigs.errorBarStrokeColor">errorBarStrokeColor</a></td><td>the stroke color to use for the series error bars (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig series strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig series strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"series"</div>
+</td>
+</tr>
+<tr id="seriesConfigs.errorBarStrokeOpacity">
+<td><a href="#seriesConfigs.errorBarStrokeOpacity">errorBarStrokeOpacity</a></td><td>the stroke opacity (0 - 1) of the series error bars</td><td>should be a number >= to 0 and <= 1</td><td><div>0.9</div>
+</td>
+</tr>
+<tr id="seriesConfigs.errorBarStrokeWidth">
+<td><a href="#seriesConfigs.errorBarStrokeWidth">errorBarStrokeWidth</a></td><td>the stroke width (in pixels) of the series error bars</td><td>should be a number >= to 0</td><td><div>1.5</div>
+</td>
+</tr>
+<tr id="seriesConfigs.errorHighProperty">
+<td><a href="#seriesConfigs.errorHighProperty">errorHighProperty</a></td><td>the property to retrieve from the data provider for the absolute upper error bound values used to draw error bars (use null for none)<br/><br/>See `errorLowProperty` — the same rules apply to the upper bound.</td><td><p>should be equal to null when stack is not null</p>
+<p>should be a defined value or equal to null when stack is null</p>
+</td><td><div>null</div>
+</td>
+</tr>
+<tr id="seriesConfigs.errorLowProperty">
+<td><a href="#seriesConfigs.errorLowProperty">errorLowProperty</a></td><td>the property to retrieve from the data provider for the absolute lower error bound values used to draw error bars (use null for none)<br/><br/>The bounds are absolute values in series axis units, not deltas from the series value, and they join the series axis domain so the whiskers never clip. Either bound can be used alone for a one-sided error bar; a group whose bound is undefined just omits that side of the whisker. Error bars draw on `bar`, `line`, `area` and `none` renderer series (centered on each bar — including grouped sub-slot bars — or on each point), but not on stacked series, where absolute bounds have no meaning against the cumulative stack position.</td><td><p>should be equal to null when stack is not null</p>
+<p>should be a defined value or equal to null when stack is null</p>
+</td><td><div>null</div>
+</td>
+</tr>
 <tr id="seriesConfigs.fillColor">
 <td><a href="#seriesConfigs.fillColor">fillColor</a></td><td>the fill color to use for the series shape (use "seriesIndex" to apply the colorPaletteConfig series fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig series fillColor for the group index)</td><td>should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]</td><td><div>"seriesIndex"</div>
 </td>

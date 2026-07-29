@@ -415,6 +415,15 @@
       "data": "ohlc-data.json",
       "random": "default-random.json",
       "generator": "ohlc"
+    },
+    {
+      "id": "error-bars",
+      "title": "Error Bars",
+      "description": "Native error bars from the errorLowProperty/errorHighProperty series config: two grouped bar series and a line series each carry absolute confidence bounds, drawn as capped whiskers centered on every bar sub-slot and line point. Random mode redraws the values with fresh margins, so the whiskers stay glued to their moving bars while tail months enter and exit.",
+      "config": "error-bars-config.json",
+      "data": "error-bars-data.json",
+      "random": "default-random.json",
+      "generator": "error-bars"
     }
   ]
 }

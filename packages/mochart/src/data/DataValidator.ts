@@ -71,6 +71,12 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
       if (seriesConfig.rangeProperty !== NONE) {
         checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.rangeProperty);
       }
+      if (seriesConfig.errorLowProperty !== NONE) {
+        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.errorLowProperty);
+      }
+      if (seriesConfig.errorHighProperty !== NONE) {
+        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.errorHighProperty);
+      }
       if (seriesConfig.markerProperty !== NONE) {
         checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.markerProperty);
       }

@@ -1,5 +1,7 @@
 export const keyPlain = 'plain';
 export const keyRange = 'range';
+export const keyErrorLow = 'errorLow';
+export const keyErrorHigh = 'errorHigh';
 export const keyStack = 'stack';
 export const keyPrior = 'prior';
 export const keyMarker = 'marker';
@@ -13,20 +15,23 @@ const copyKeyLabel = 'labelCopyKey';
 const copyKeyColor = 'colorCopyKey';
 const copyKeyTooltip = 'tooltipCopyKey';
 
-export type PositionKey = typeof keyPlain | typeof keyRange;
-export type PositionOrComputedKey = typeof keyPlain | typeof keyRange | typeof keyStack | typeof keyPrior;
+// PositionKey is no longer just plain/range: errorLow/errorHigh ride along so error
+// bounds get filtered copies, domain contribution and value tweening for free. Code
+// iterating positionKeys must not assume the key participates in shape positions.
+export type PositionKey = typeof keyPlain | typeof keyRange | typeof keyErrorLow | typeof keyErrorHigh;
+export type PositionOrComputedKey = PositionKey | typeof keyStack | typeof keyPrior;
 export type ExtraKey = typeof keyMarker | typeof keyLabel | typeof keyColor | typeof keyTooltip;
 export type ValueKey = PositionOrComputedKey | ExtraKey;
-export type DomainKey = typeof keyDomain | typeof keyPlain | typeof keyRange | typeof keyStack | typeof keyMarker | typeof keyLabel | typeof keyColor | typeof keyTooltip;
+export type DomainKey = typeof keyDomain | typeof keyPlain | typeof keyRange | typeof keyErrorLow | typeof keyErrorHigh | typeof keyStack | typeof keyMarker | typeof keyLabel | typeof keyColor | typeof keyTooltip;
 export type ExtraCopyKey = typeof copyKeyMarker | typeof copyKeyLabel | typeof copyKeyColor | typeof copyKeyTooltip;
 
-export const valueKeys: ValueKey[] = [keyPlain, keyRange, keyStack, keyPrior, keyMarker, keyLabel, keyColor, keyTooltip];
+export const valueKeys: ValueKey[] = [keyPlain, keyRange, keyErrorLow, keyErrorHigh, keyStack, keyPrior, keyMarker, keyLabel, keyColor, keyTooltip];
 
-export const positionOrComputedOrExtraKeys: ValueKey[] = [keyPlain, keyRange, keyStack, keyPrior, keyMarker, keyLabel, keyColor, keyTooltip];
+export const positionOrComputedOrExtraKeys: ValueKey[] = [keyPlain, keyRange, keyErrorLow, keyErrorHigh, keyStack, keyPrior, keyMarker, keyLabel, keyColor, keyTooltip];
 
-export const positionKeys: PositionKey[] = [keyPlain, keyRange];
+export const positionKeys: PositionKey[] = [keyPlain, keyRange, keyErrorLow, keyErrorHigh];
 
-export const positionOrComputedKeys: PositionOrComputedKey[] = [keyPlain, keyRange, keyStack, keyPrior];
+export const positionOrComputedKeys: PositionOrComputedKey[] = [keyPlain, keyRange, keyErrorLow, keyErrorHigh, keyStack, keyPrior];
 
 export const extraKeys: ExtraKey[] = [keyMarker, keyColor, keyLabel, keyTooltip];
 
@@ -35,4 +40,4 @@ export const extraCopyKeys: ExtraCopyKey[] = [copyKeyMarker, copyKeyLabel, copyK
 export const extraAndCopyKeys: { extraKey: ExtraKey; copyKey: ExtraCopyKey }[] =
   [{extraKey: keyMarker, copyKey: copyKeyMarker}, {extraKey: keyColor, copyKey: copyKeyColor}, {extraKey: keyLabel, copyKey: copyKeyLabel}, {extraKey: keyTooltip, copyKey: copyKeyTooltip}];
 
-export const domainKeys: DomainKey[] = [keyDomain, keyPlain, keyRange, keyStack, keyMarker, keyLabel, keyColor, keyTooltip];
+export const domainKeys: DomainKey[] = [keyDomain, keyPlain, keyRange, keyErrorLow, keyErrorHigh, keyStack, keyMarker, keyLabel, keyColor, keyTooltip];

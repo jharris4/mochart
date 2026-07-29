@@ -1,0 +1,139 @@
+import { Renderer, svgEl } from '../render';
+
+import { mochartCssClasses } from '../utils/ChartDom';
+import { NONE, RENDERER_BAR, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX } from '../config/core/constants';
+import { getSeriesStrokeColor } from '../utils/SeriesColors';
+import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
+import { getFocusValue, getGroupFocusPercentage } from '../utils/FocusValue';
+import type { ElListAdapter, ElProps } from '../render';
+import type { FocusData, FocusPercentage } from '../types/animation';
+import type { ColorPaletteConfig, SeriesColor, SeriesConfig } from '../types/config';
+import type { AxisScale, SeriesPositionData, SeriesValueObject } from '../types/data';
+
+interface ErrorBarItem {
+  key: string;
+  attrs: ElProps;
+}
+
+const errorBarAdapter: ElListAdapter<ErrorBarItem, { root: ReturnType<typeof svgEl> }> = {
+  key: (errorBar) => errorBar.key,
+  create: () => ({ root: svgEl('path') }),
+  update: (handle, errorBar) => {
+    handle.root.set(errorBar.attrs);
+  }
+};
+
+interface SeriesErrorBarsProps {
+  colorPaletteConfig: ColorPaletteConfig;
+  seriesConfig: SeriesConfig;
+  seriesIndex: number;
+  seriesPositionData: SeriesPositionData;
+  seriesAxisScale: AxisScale;
+  filteredValues: SeriesValueObject;
+  inverted: boolean;
+  focusData: FocusData;
+}
+
+function getErrorBarStrokeColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, seriesIndex: number, focusPercentage: FocusPercentage, groupIndex: number): SeriesColor | null {
+  const color = seriesConfig.errorBarStrokeColor;
+  if (color === COLOR_SERIES) {
+    return getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, groupIndex);
+  }
+  if (color === COLOR_SERIES_INDEX) {
+    const colors = colorPaletteConfig.series.strokeColors;
+    return colors[seriesIndex % colors.length];
+  }
+  if (color === COLOR_GROUP_INDEX) {
+    const colors = colorPaletteConfig.series.strokeColors;
+    return colors[groupIndex % colors.length];
+  }
+  return color;
+}
+
+export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
+  root = svgEl('g');
+  errorBars = this.elList<ErrorBarItem>(this.root);
+
+  create() {
+    return this.root.node;
+  }
+
+  sync() {
+    const { colorPaletteConfig, seriesConfig, seriesIndex, seriesPositionData, seriesAxisScale, filteredValues, inverted, focusData } = this.props;
+
+    const hasErrorValues = filteredValues.errorLow !== null || filteredValues.errorHigh !== null;
+    if ((seriesConfig.errorLowProperty !== NONE || seriesConfig.errorHighProperty !== NONE) &&
+      hasErrorValues && seriesConfig.stack === NONE) {
+      const { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
+      const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
+      const { skipMissing, errorBarCapSize, errorBarStrokeWidth } = seriesConfig;
+      const errorLowValues = filteredValues.errorLow;
+      const errorHighValues = filteredValues.errorHigh;
+
+      const { length, getDefined, getSeriesPosition, getGroupPosition, getOffsetGroupPosition, groupValueExtent, skipGroupIndexMap } = seriesPositionData;
+
+      // A bar whisker centers on the bar's layout slot (the grouped sub-slot,
+      // narrowed by barWidthPercent); other renderers center on the point.
+      const isBar = seriesConfig.renderer === RENDERER_BAR;
+      // Caps on bars are clamped to the slot so they never overlap a neighbour.
+      const capHalfSize = (isBar ? Math.min(errorBarCapSize, groupValueExtent) : errorBarCapSize) / 2;
+
+      let errorBars: ErrorBarItem[] = [];
+      for (let i = 0; i < length; i++) {
+        if (getDefined(null, i)) {
+          // Positions are compacted when skipMissing is set, but values and
+          // focus percentages stay indexed by the raw group index.
+          const skipI = skipMissing ? skipGroupIndexMap[i] : i;
+          const errorLow = errorLowValues !== null ? errorLowValues[skipI] : undefined;
+          const errorHigh = errorHighValues !== null ? errorHighValues[skipI] : undefined;
+          if (errorLow === undefined && errorHigh === undefined) {
+            continue;
+          }
+          // A missing bound anchors its whisker end at the series position, so
+          // a one-sided error bar spans from the point to the defined bound.
+          const anchorPosition = getSeriesPosition(null, i)!;
+          const lowPosition = errorLow !== undefined ? Math.floor(seriesAxisScale(errorLow)) : anchorPosition;
+          const highPosition = errorHigh !== undefined ? Math.floor(seriesAxisScale(errorHigh)) : anchorPosition;
+          const center = isBar ? getOffsetGroupPosition(null, i)! + groupValueExtent / 2 : getGroupPosition(null, i)!;
+
+          let d;
+          if (inverted) {
+            d = 'M' + lowPosition + ',' + center + 'H' + highPosition;
+            if (capHalfSize > 0 && errorLow !== undefined) {
+              d += 'M' + lowPosition + ',' + (center - capHalfSize) + 'V' + (center + capHalfSize);
+            }
+            if (capHalfSize > 0 && errorHigh !== undefined) {
+              d += 'M' + highPosition + ',' + (center - capHalfSize) + 'V' + (center + capHalfSize);
+            }
+          }
+          else {
+            d = 'M' + center + ',' + lowPosition + 'V' + highPosition;
+            if (capHalfSize > 0 && errorLow !== undefined) {
+              d += 'M' + (center - capHalfSize) + ',' + lowPosition + 'H' + (center + capHalfSize);
+            }
+            if (capHalfSize > 0 && errorHigh !== undefined) {
+              d += 'M' + (center - capHalfSize) + ',' + highPosition + 'H' + (center + capHalfSize);
+            }
+          }
+
+          const focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
+          const strokeColor = getErrorBarStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, skipI);
+          const strokeOpacity = getFocusValue(focusPercentage, seriesConfig.errorBarStrokeOpacity, seriesConfig.errorBarFocusedStrokeOpacity, seriesConfig.errorBarDefocusedStrokeOpacity);
+
+          errorBars.push({
+            key: 'error-bar-' + i,
+            attrs: { className: mochartCssClasses['seriesErrorBar'] + i, d,
+              stroke: strokeColor, strokeWidth: errorBarStrokeWidth, strokeOpacity, fill: 'none',
+              pointerEvents: 'none' }
+          });
+        }
+      }
+      this.setPresent(true);
+      this.root.set({ className: mochartCssClasses['seriesErrorBars'] });
+      this.errorBars.sync(errorBars, errorBarAdapter);
+    }
+    else {
+      this.setPresent(false);
+    }
+  }
+}

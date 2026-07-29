@@ -105,6 +105,24 @@ describe('getDataErrors', () => {
     ]);
   });
 
+  it('validates error bound properties', () => {
+    const config = makeConfig({
+      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
+      seriesConfigs: [
+        { property: 'sales', errorLowProperty: 'lo', errorHighProperty: 'hi' }
+      ]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { month: 'Jan', sales: 10, lo: 'bad', hi: 12 }
+      ],
+      'month'
+    );
+    expect(getDataErrors(config, provider)).toEqual([
+      'series values must be numeric or undefined for property: lo'
+    ]);
+  });
+
   it('accepts date group values on a date axis', () => {
     const config = makeConfig({
       groupAxisConfig: { property: 'd', type: 'date', scale: 'linear' },

@@ -12,6 +12,7 @@ import { getSeriesFillColor, getSeriesStrokeColor } from '../utils/SeriesColors'
 import { getGradientReference } from '../utils/svgUtils';
 import { getFocusValue, getGroupFocusPercentage } from '../utils/FocusValue';
 
+import SeriesErrorBars from './SeriesErrorBars';
 import SeriesMarkers from './SeriesMarkers';
 import SeriesLabels from './SeriesLabels';
 import type { El, ElListAdapter } from '../render';
@@ -69,6 +70,7 @@ const barAdapter: ElListAdapter<BarData, BarHandle> = {
 export default class Series extends Renderer<SeriesProps, SeriesState> {
   root = svgEl('g');
   shape = this.elSlot(this.root);
+  errorBars = this.slot(this.root); // declaration order fixes DOM order: shape, then error bars, then markers/labels above them
   markers = this.slot(this.root);
   labels = this.slot(this.root);
   barsGroup = svgEl('g');
@@ -299,6 +301,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['series'] + seriesId,
         transform: translateObject(seriesLayoutInfo) });
+      this.errorBars.set(SeriesErrorBars, { colorPaletteConfig, seriesConfig, seriesIndex,
+        seriesPositionData, seriesAxisScale, filteredValues, inverted, focusData });
       this.markers.set(SeriesMarkers, { colorPaletteConfig, seriesConfig, seriesPositionData,
         filteredValues, rawDomains, inverted, seriesIndex,
         focusData, onGroupEnter, onGroupLeave, onGroupClick });

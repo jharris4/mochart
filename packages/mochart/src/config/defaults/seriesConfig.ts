@@ -18,6 +18,8 @@ export default function getDefaults(config: Partial<SeriesConfig> = {}, index: n
 export function getRegularDefaults() {
   return {
     rangeProperty: NONE,
+    errorLowProperty: NONE,
+    errorHighProperty: NONE,
     markerProperty: NONE,
     colorProperty: NONE,
     labelProperty: NONE,
@@ -38,6 +40,12 @@ export function getRegularDefaults() {
     capType: NONE,
     capExpand: true,
     capOnlyStackOuter: false,
+    errorBarCapSize: 6,
+    errorBarStrokeWidth: 1.5,
+    errorBarStrokeColor: COLOR_SERIES,
+    errorBarStrokeOpacity: 0.9,
+    errorBarFocusedStrokeOpacity: 1,
+    errorBarDefocusedStrokeOpacity: 0.5,
     valueLabel: NONE,
     valueFormat: AUTO,
     valuePrefix: NONE,

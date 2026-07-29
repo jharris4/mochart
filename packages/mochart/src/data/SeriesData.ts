@@ -80,6 +80,7 @@ function getRawSeriesBundle(seriesAxisConfigs: SeriesAxisConfig[], seriesConfigs
   let valueObjects = createEmptySeriesValueObjects(seriesConfigs);
   setPlainSeriesValues(seriesConfigs, rawGroupValues, dataProvider, valueObjects);
   setRangeSeriesValues(seriesConfigs, rawGroupValues, dataProvider, valueObjects);
+  setErrorSeriesValues(seriesConfigs, rawGroupValues, dataProvider, valueObjects);
   setStackSeriesValues(seriesConfigs, seriesStackConfigs, rawGroupValues, valueObjects);
   setExtraSeriesValues(seriesConfigs, rawGroupValues, dataProvider, valueObjects);
   setMinMax(valueObjects);
@@ -115,7 +116,7 @@ function getFilteredSeriesBundle(seriesAxisConfigs: SeriesAxisConfig[], seriesCo
 
 function createEmptySeriesValueObjects(seriesConfigs: SeriesConfig[]): SeriesValueObjects {
   return arrayToMap(seriesConfigs, idAccessor, () => ({
-    plain: null, range: null, stack: null, prior: null, marker: null, label: null, color: null, tooltip: null,
+    plain: null, range: null, errorLow: null, errorHigh: null, stack: null, prior: null, marker: null, label: null, color: null, tooltip: null,
     markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, tooltipCopyKey: null, min: null, max: null
   }));
 }
@@ -146,6 +147,15 @@ function setRangeSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: rea
   }
 }
 
+function setErrorSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: readonly GroupValue[], dataProvider: DataProvider, valueObjects: SeriesValueObjects): void {
+  for (let seriesConfig of seriesConfigs) {
+    valueObjects[seriesConfig.id].errorLow = seriesConfig.errorLowProperty !== NONE ?
+      getSeriesValuesForProperty(seriesConfig.errorLowProperty, rawGroupValues, dataProvider) : null;
+    valueObjects[seriesConfig.id].errorHigh = seriesConfig.errorHighProperty !== NONE ?
+      getSeriesValuesForProperty(seriesConfig.errorHighProperty, rawGroupValues, dataProvider) : null;
+  }
+}
+
 function setExtraSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: readonly GroupValue[], dataProvider: DataProvider, valueObjects: SeriesValueObjects): void {
   let valueObject: SeriesValueObject;
   for (let seriesConfig of seriesConfigs) {
@@ -154,6 +164,12 @@ function setExtraSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: rea
     existingProperties[seriesConfig.property!] = 'plain';
     if (seriesConfig.rangeProperty !== NONE) {
       existingProperties[seriesConfig.rangeProperty] = 'range';
+    }
+    if (seriesConfig.errorLowProperty !== NONE) {
+      existingProperties[seriesConfig.errorLowProperty] = 'errorLow';
+    }
+    if (seriesConfig.errorHighProperty !== NONE) {
+      existingProperties[seriesConfig.errorHighProperty] = 'errorHigh';
     }
     setExtraProperty(seriesConfig.markerProperty !== NONE, seriesConfig.markerProperty, 'marker', 'markerCopyKey',
       valueObject, existingProperties, rawGroupValues, dataProvider);
@@ -363,11 +379,15 @@ function getSeriesDomainObject(seriesValueObject: SeriesValueObject): SeriesDoma
     if (seriesValueObject.stack !== null) {
       domain = mergeDomain(seriesDomainObject.stack, seriesDomainObject.prior);
     }
-    else if (seriesValueObject.range !== null) {
-      domain = mergeDomain(seriesDomainObject.plain, seriesDomainObject.range);
-    }
     else {
-      domain = seriesDomainObject.plain;
+      domain = seriesValueObject.range !== null ? mergeDomain(seriesDomainObject.plain, seriesDomainObject.range) : seriesDomainObject.plain;
+      // error bounds join the domain so whiskers never clip (stacked series can't configure them)
+      if (seriesValueObject.errorLow !== null) {
+        domain = mergeDomain(domain, seriesDomainObject.errorLow);
+      }
+      if (seriesValueObject.errorHigh !== null) {
+        domain = mergeDomain(domain, seriesDomainObject.errorHigh);
+      }
     }
   }
   seriesDomainObject.domain = domain;

@@ -11,6 +11,8 @@ export interface SeriesValueObject {
   [key: string]: NumericValues | string | null | undefined;
   plain: NumericValues | null;
   range: NumericValues | null;
+  errorLow: NumericValues | null;
+  errorHigh: NumericValues | null;
   stack: NumericValues | null;
   prior: NumericValues | null;
   marker: NumericValues | null;

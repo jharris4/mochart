@@ -95,6 +95,13 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Series
   const seriesValueText = getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'plain');
   const rangeSeriesValueText = seriesConfig.rangeProperty !== NONE ? getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'range') : null;
   const markerSeriesValueText = seriesConfig.markerProperty !== NONE ? getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'marker') : null;
+  // An undefined error bound is a legitimate one-sided error bar, not missing
+  // data, so it renders nothing rather than the missingValueText.
+  const rawValueObject = series.raw.values[seriesConfig.id];
+  const errorLowValueText = seriesConfig.errorLowProperty !== NONE && rawValueObject.errorLow !== undefined ?
+    getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'errorLow') : null;
+  const errorHighValueText = seriesConfig.errorHighProperty !== NONE && rawValueObject.errorHigh !== undefined ?
+    getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'errorHigh') : null;
 
   let valueText = null;
   if (seriesValueText !== null && rangeSeriesValueText !== null) {
@@ -107,6 +114,12 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Series
   }
   else if (rangeSeriesValueText != null) {
     valueText = rangeSeriesValueText;
+  }
+  const errorValueText = errorLowValueText !== null && errorHighValueText !== null ?
+    errorLowValueText + tooltipConfig.rangeValueText + errorHighValueText :
+    (errorLowValueText ?? errorHighValueText);
+  if (errorValueText !== null) {
+    valueText = valueText === null ? '(' + errorValueText + ')' : valueText + ' (' + errorValueText + ')';
   }
   if (valueText === null && markerSeriesValueText !== null) {
     valueText = '(' + markerSeriesValueText + ')';
@@ -126,6 +139,8 @@ export function getSuppressedValue(chartData: ChartData, seriesConfig: SeriesCon
     newValueObject = {
       plain: null,
       range: null,
+      errorLow: null,
+      errorHigh: null,
       stack: null,
       prior: null,
       marker: null,
@@ -143,6 +158,12 @@ export function getSuppressedValue(chartData: ChartData, seriesConfig: SeriesCon
     newValueObject.plain = chartData.groupData.values.raw.map(groupValue => groupValue !== undefined ? (base ?? undefined) : undefined);
     if (seriesConfig.rangeProperty !== NONE && newValueObject.range === null) {
       newValueObject.range = newValueObject.plain;
+    }
+    if (seriesConfig.errorLowProperty !== NONE && newValueObject.errorLow === null) {
+      newValueObject.errorLow = newValueObject.plain;
+    }
+    if (seriesConfig.errorHighProperty !== NONE && newValueObject.errorHigh === null) {
+      newValueObject.errorHigh = newValueObject.plain;
     }
     if (seriesConfig.markerProperty !== NONE&& newValueObject.marker === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['marker'][0];

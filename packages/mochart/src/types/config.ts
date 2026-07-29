@@ -2228,6 +2228,31 @@ export interface SeriesConfig {
    */
   rangeProperty: string | null;
   /**
+   * The property to retrieve from the data provider for the absolute lower
+   * error bound values used to draw error bars (use null for none).
+   *
+   * The bounds are absolute values in series axis units, not deltas from the
+   * series value, and they join the series axis domain so the whiskers never
+   * clip. Either bound can be used alone for a one-sided error bar; a group
+   * whose bound is undefined just omits that side of the whisker. Error bars
+   * draw on `bar`, `line`, `area` and `none` renderer series (centered on each
+   * bar — including grouped sub-slot bars — or on each point), but not on
+   * stacked series, where absolute bounds have no meaning against the
+   * cumulative stack position.
+   *
+   * @default null
+   */
+  errorLowProperty: string | null;
+  /**
+   * The property to retrieve from the data provider for the absolute upper
+   * error bound values used to draw error bars (use null for none).
+   *
+   * See `errorLowProperty` — the same rules apply to the upper bound.
+   *
+   * @default null
+   */
+  errorHighProperty: string | null;
+  /**
    * The property to retrieve from the data provider for the marker size values
    * (use null for none).
    *
@@ -2448,6 +2473,50 @@ export interface SeriesConfig {
    * @default false
    */
   capOnlyStackOuter: boolean;
+  /**
+   * The full width (in pixels) of the horizontal caps drawn at the ends of the
+   * series error bars (use 0 to hide the caps).
+   *
+   * The caps are the horizontal ticks at the whisker ends. On a `bar` renderer
+   * series the cap width is clamped to the bar layout slot so caps never
+   * overlap a neighbouring bar; use `0` to draw plain whiskers without caps.
+   *
+   * @default 6
+   */
+  errorBarCapSize: number;
+  /**
+   * The stroke width (in pixels) of the series error bars.
+   *
+   * @default 1.5
+   */
+  errorBarStrokeWidth: number;
+  /**
+   * The stroke color to use for the series error bars (use "series" to reuse
+   * the strokeColor, use "seriesIndex" to apply the colorPaletteConfig series
+   * strokeColor for the series index, use "groupIndex" to apply the
+   * colorPaletteConfig series strokeColor for the group index).
+   *
+   * @default "series"
+   */
+  errorBarStrokeColor: SeriesColor;
+  /**
+   * The stroke opacity (0 - 1) of the series error bars.
+   *
+   * @default 0.9
+   */
+  errorBarStrokeOpacity: number;
+  /**
+   * The focused stroke opacity (0 - 1) of the series error bars.
+   *
+   * @default 1
+   */
+  errorBarFocusedStrokeOpacity: number;
+  /**
+   * The defocused stroke opacity (0 - 1) of the series error bars.
+   *
+   * @default 0.5
+   */
+  errorBarDefocusedStrokeOpacity: number;
   /**
    * The label to show before a series value in the tooltip (use null for none).
    *

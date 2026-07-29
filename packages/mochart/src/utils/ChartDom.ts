@@ -49,6 +49,8 @@ export const mochartCssClasses = {
           seriesLine: 'mochart-series-line',
           seriesArea: 'mochart-series-area',
           seriesBar: 'mochart-series-bar mochart-series-bar-',
+          seriesErrorBars: 'mochart-series-error-bars',
+            seriesErrorBar: 'mochart-series-error-bar mochart-series-error-bar-',
           seriesMarkers: 'mochart-series-markers',
             seriesMarker: 'mochart-series-marker mochart-series-marker-',
           seriesLabels: 'mochart-series-labels',

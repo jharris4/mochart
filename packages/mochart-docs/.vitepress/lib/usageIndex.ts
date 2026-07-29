@@ -25,6 +25,7 @@ import * as histogram from '../../examples/histogram';
 import * as waterfall from '../../examples/waterfall';
 import * as sparkline from '../../examples/sparkline';
 import * as heatmap from '../../examples/heatmap';
+import * as errorBars from '../../examples/errorBars';
 
 export interface UsageLink {
   text: string;
@@ -59,7 +60,8 @@ const docsExamples: { config: object; page: UsageLink }[] = [
   { config: histogram.config, page: { text: 'Histogram', link: '/recipes/histogram' } },
   { config: waterfall.config, page: { text: 'Waterfall', link: '/recipes/waterfall' } },
   { config: sparkline.config, page: { text: 'Sparklines', link: '/recipes/sparklines' } },
-  { config: heatmap.config, page: { text: 'Heatmap', link: '/recipes/heatmap' } }
+  { config: heatmap.config, page: { text: 'Heatmap', link: '/recipes/heatmap' } },
+  { config: errorBars.config, page: { text: 'Error Bars', link: '/recipes/error-bars' } }
 ];
 
 const objectSectionIds = new Set([

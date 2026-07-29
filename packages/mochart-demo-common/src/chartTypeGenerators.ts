@@ -24,7 +24,7 @@ import type { DataRow, DemoConfig, DemoDataProvider, GroupValue, RandomConfig } 
 type Rng = () => number;
 
 /** The chart-type generator ids usable in a demos.json `generator` field. */
-export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc'] as const;
+export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars'] as const;
 
 export type ChartTypeGenerator = (typeof chartTypeGenerators)[number];
 
@@ -377,11 +377,67 @@ function buildOhlcSnapshot(): ChartTypeDemoSnapshot {
   };
 }
 
+// --- Error bars --------------------------------------------------------------
+
+// Error bars are first-class series config (errorLowProperty/errorHighProperty),
+// so there is no core helper to re-run — but the generic randomizer would draw
+// value, low and high independently and break low ≤ value ≤ high. This
+// generator draws each point's value and its two error margins instead, and
+// derives the bounds. The fixed month pool keeps most groups shared between
+// random steps, so the bars and whiskers animate in place while tail months
+// enter and exit.
+const ERROR_BARS_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const ERROR_BARS_MAX_DROPPED_MONTHS = 3;
+
+function errorBarsItems(rng: Rng, monthCount: number): DataRow[] {
+  return ERROR_BARS_MONTHS.slice(0, monthCount).map((month, m) => {
+    // a seasonal curve with per-plant jitter; asymmetric margins per bound
+    const seasonal = Math.sin((m / ERROR_BARS_MONTHS.length) * 2 * Math.PI);
+    const a = 55 + 10 * seasonal + 6 * (2 * rng() - 1);
+    const b = 46 + 8 * seasonal + 6 * (2 * rng() - 1);
+    const target = 52 + 9 * seasonal;
+    return {
+      month,
+      a: round2(a), aLow: round2(a - (3 + 4 * rng())), aHigh: round2(a + (3 + 4 * rng())),
+      b: round2(b), bLow: round2(b - (3 + 4 * rng())), bHigh: round2(b + (3 + 4 * rng())),
+      target: round2(target), targetLow: round2(target - (1.5 + 1.5 * rng())), targetHigh: round2(target + (1.5 + 1.5 * rng()))
+    };
+  });
+}
+
+function errorBarsRows(rng: Rng): DataRow[] {
+  const monthCount = ERROR_BARS_MONTHS.length - Math.floor(rng() * (ERROR_BARS_MAX_DROPPED_MONTHS + 1));
+  return errorBarsItems(rng, monthCount);
+}
+
+function buildErrorBarsSnapshot(): ChartTypeDemoSnapshot {
+  const data = errorBarsItems(seedrandom('error-bars:baseline'), ERROR_BARS_MONTHS.length);
+  return {
+    id: 'error-bars',
+    config: {
+      version: '1.0.0',
+      titleConfig: { title: 'Monthly Output with 95% CI (fictional)' },
+      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
+      seriesAxisConfigs: [{ title: 'units per day' }],
+      seriesGroupConfigs: [{ id: 'plants' }],
+      seriesConfigs: [
+        { id: 'a', title: 'Plant A', property: 'a', renderer: 'bar', group: 'plants',
+          errorLowProperty: 'aLow', errorHighProperty: 'aHigh', valueFormat: ',.1f' },
+        { id: 'b', title: 'Plant B', property: 'b', renderer: 'bar', group: 'plants',
+          errorLowProperty: 'bLow', errorHighProperty: 'bHigh', valueFormat: ',.1f' },
+        { id: 'target', title: 'Target', property: 'target', renderer: 'line', group: null,
+          errorLowProperty: 'targetLow', errorHighProperty: 'targetHigh', valueFormat: ',.1f' }
+      ]
+    },
+    data
+  };
+}
+
 // --- Dispatch ----------------------------------------------------------------
 
 /** Rebuilds every chart-type demo's static config/data (snapshot script). */
 export function buildChartTypeDemoSnapshots(): ChartTypeDemoSnapshot[] {
-  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildCandlestickHollowSnapshot(), buildOhlcSnapshot()];
+  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildCandlestickHollowSnapshot(), buildOhlcSnapshot(), buildErrorBarsSnapshot()];
 }
 
 /**
@@ -412,6 +468,9 @@ export function generateChartTypeDataProvider(
   }
   else if (generator === 'ohlc') {
     rows = ohlcRows(rng);
+  }
+  else if (generator === 'error-bars') {
+    rows = errorBarsRows(rng);
   }
   else {
     rows = heatmapRows(rng, random.series.missing.probability);

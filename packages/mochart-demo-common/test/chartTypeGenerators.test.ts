@@ -118,6 +118,22 @@ describe('generateChartTypeDataProvider', () => {
     });
   });
 
+  it('error bars stay coherent: low ≤ value ≤ high for every series and step', () => {
+    const errorBars = snapshots.find(snapshot => snapshot.id === 'error-bars')!;
+    const mochartConfig = enhanceConfig(errorBars.config);
+    for (const randomId of [0, 6, 13]) {
+      const provider = generateChartTypeDataProvider('error-bars', mochartConfig, random, randomId);
+      const { seriesValues, groupValues } = provider;
+      groupValues!.forEach((_label, index) => {
+        for (const property of ['a', 'b', 'target']) {
+          const value = seriesValues![property][index]!;
+          expect(seriesValues![property + 'Low'][index]!).toBeLessThanOrEqual(value);
+          expect(seriesValues![property + 'High'][index]!).toBeGreaterThanOrEqual(value);
+        }
+      });
+    }
+  });
+
   it('waterfall bars always connect: each delta starts at the running total', () => {
     const waterfall = snapshots.find(snapshot => snapshot.id === 'waterfall')!;
     const mochartConfig = enhanceConfig(waterfall.config);
@@ -148,6 +164,6 @@ describe('generateDemoDataProvider', () => {
   });
 
   it('exposes the generator ids', () => {
-    expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc']);
+    expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars']);
   });
 });

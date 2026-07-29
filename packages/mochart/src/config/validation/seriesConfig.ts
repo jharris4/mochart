@@ -7,11 +7,18 @@ import {
 import type { SeriesConfig } from '../../types/config';
 
 type ColorCondition = Pick<SeriesConfig, 'colorProperty' | 'colorBase'>;
+type StackCondition = Pick<SeriesConfig, 'stack'>;
 
 const colorPropertySuffix = 'when colorProperty is not ' + NONE;
 const colorPropertyNoneSuffix = 'when colorProperty is ' + NONE;
 const colorBaseSuffix = 'when colorProperty is not ' + NONE + ' and colorBase is not ' + NONE;
 const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorBase is ' + NONE;
+
+const stackSuffix = 'when stack is not ' + NONE;
+const stackNoneSuffix = 'when stack is ' + NONE;
+
+const stackRule = { condition: ({ stack }: StackCondition) => stack !== NONE, suffix: stackSuffix };
+const stackNoneRule = { condition: ({ stack }: StackCondition) => stack === NONE, suffix: stackNoneSuffix };
 
 const colorPropertyRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty !== NONE, suffix: colorPropertySuffix };
 const colorPropertyNoneRule = { condition: ({ colorProperty }: ColorCondition) => colorProperty === NONE, suffix: colorPropertyNoneSuffix };
@@ -27,6 +34,14 @@ export default function getValidators(config: Partial<SeriesConfig>) {
     group: validators.string().orEqual(NONE),
     property: validators.propertyRequired(),
     rangeProperty: validators.propertyOptional(),
+    errorLowProperty: validators.conditional([
+      { ...stackRule, validator: validators.equal(NONE) },
+      { ...stackNoneRule, validator: validators.propertyOptional() },
+    ], config),
+    errorHighProperty: validators.conditional([
+      { ...stackRule, validator: validators.equal(NONE) },
+      { ...stackNoneRule, validator: validators.propertyOptional() },
+    ], config),
     markerProperty: validators.propertyOptional(),
     colorProperty: validators.propertyOptional(),
     labelProperty: validators.propertyOptional(),
@@ -47,6 +62,12 @@ export default function getValidators(config: Partial<SeriesConfig>) {
     capType: validators.oneOf(CAP_TYPES).orEqual(NONE),
     capExpand: validators.boolean(),
     capOnlyStackOuter: validators.boolean(),
+    errorBarCapSize: validators.numberMin(0),
+    errorBarStrokeWidth: validators.numberMin(0),
+    errorBarStrokeColor: validators.svgColor().orOneOf([COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX]),
+    errorBarStrokeOpacity: validators.opacity(),
+    errorBarFocusedStrokeOpacity: validators.opacity(),
+    errorBarDefocusedStrokeOpacity: validators.opacity(),
     valueLabel: validators.string().orEqual(NONE),
     valueFormat: validators.numberFormat().orOneOf([NONE, AUTO]),
     valuePrefix: validators.string().orEqual(NONE),

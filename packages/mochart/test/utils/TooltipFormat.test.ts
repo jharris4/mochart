@@ -28,6 +28,8 @@ function makeSeriesConfig(over: Partial<SeriesConfig> = {}): SeriesConfig {
   return {
     id: 's1',
     rangeProperty: null,
+    errorLowProperty: null,
+    errorHighProperty: null,
     markerProperty: null,
     tooltipProperty: null,
     followSeries: null,
@@ -170,6 +172,52 @@ describe('getSeriesText', () => {
       false
     );
     expect(valueText).toBe('42 (7)');
+  });
+
+  describe('error bounds', () => {
+    it('appends both error bounds in parentheses joined by the range separator', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig(),
+        makeSeriesConfig({ errorLowProperty: 'lo', errorHighProperty: 'hi' }),
+        identity,
+        makeSlice({ plain: 42, errorLow: 38, errorHigh: 47 }) as never,
+        false
+      );
+      expect(valueText).toBe('42 (38 - 47)');
+    });
+
+    it('appends a sole defined bound without the separator', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig(),
+        makeSeriesConfig({ errorLowProperty: 'lo', errorHighProperty: 'hi' }),
+        identity,
+        makeSlice({ plain: 42, errorLow: 38 }) as never, // errorHigh undefined
+        false
+      );
+      expect(valueText).toBe('42 (38)');
+    });
+
+    it('renders nothing for missing bounds even when missing values are shown', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ showMissingValues: true, missingValueText: 'N/A' }),
+        makeSeriesConfig({ errorLowProperty: 'lo', errorHighProperty: 'hi' }),
+        identity,
+        makeSlice({ plain: 42 }) as never, // both bounds undefined
+        false
+      );
+      expect(valueText).toBe('42');
+    });
+
+    it('combines with a range value', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig(),
+        makeSeriesConfig({ rangeProperty: 'r', errorLowProperty: 'lo', errorHighProperty: 'hi' }),
+        identity,
+        makeSlice({ plain: 42, range: 10, errorLow: 8, errorHigh: 47 }) as never,
+        false
+      );
+      expect(valueText).toBe('10 - 42 (8 - 47)');
+    });
   });
 
   it('shows the tooltipProperty value in place of the plain and range values', () => {
