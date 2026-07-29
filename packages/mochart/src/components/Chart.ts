@@ -11,10 +11,12 @@ import { getAxisData, getAxisDataWithMutations, getAxisDataForGroupChange, getAx
 import { getStackData, getStackDataWithMutations } from '../data/StackData';
 import { getChartTextBoundsData, getChartTextBoundsDataWithMutations, getTooltipBounds, getBoundsWithMutations } from '../utils/TextMeasurement';
 import { mochartCssClasses, getDomAccessors } from '../utils/ChartDom';
+import { CHART_TYPE_PIE } from '../config/core/constants';
 
 import Background from './Background';
 import Title from './Title';
 import Plot from './Plot';
+import RadialPlot from './RadialPlot';
 import PlotEmpty from './PlotEmpty';
 import Legend from './Legend';
 import LegendClip from './LegendClip';
@@ -998,14 +1000,21 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       const { group: groupAxisData } = axisData!;
       const { valueData: groupValueData } = groupAxisData!;
 
-      body.plot.set(Plot, { mochartConfig, gradientIdMap, groupAxisLayoutInfo,
-        seriesAxisLayoutInfos, seriesLayoutInfo,
-        plotLayoutInfo, chartData: chartData!, focusData, axisData: axisData!,
-        stackData: stackData!, groupValueData, onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef,
-        groupAxisTitleClipPathUniqueId,
-        groupAxisTickLabelClipPathUniqueId,
-        seriesAxisTitleClipPathUniqueIds,
-        tooltipClipPathUniqueId });
+      if (mochartConfig.chartConfig.type === CHART_TYPE_PIE) {
+        body.plot.set(RadialPlot, { mochartConfig, gradientIdMap, seriesLayoutInfo,
+          plotLayoutInfo, chartData: chartData!, focusData: focusData!,
+          onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef });
+      }
+      else {
+        body.plot.set(Plot, { mochartConfig, gradientIdMap, groupAxisLayoutInfo,
+          seriesAxisLayoutInfos, seriesLayoutInfo,
+          plotLayoutInfo, chartData: chartData!, focusData, axisData: axisData!,
+          stackData: stackData!, groupValueData, onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef,
+          groupAxisTitleClipPathUniqueId,
+          groupAxisTickLabelClipPathUniqueId,
+          seriesAxisTitleClipPathUniqueIds,
+          tooltipClipPathUniqueId });
+      }
       body.plotEmpty.set(null);
 
       body.tooltip.set(Tooltip, { mochartConfig, tooltipValueObject: tooltipValueObject!, tooltipGroupIndex, focusedGroupIndex,

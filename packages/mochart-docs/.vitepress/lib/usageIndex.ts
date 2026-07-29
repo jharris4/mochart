@@ -66,7 +66,7 @@ const docsExamples: { config: object; page: UsageLink }[] = [
 
 const objectSectionIds = new Set([
   'animationConfig', 'chartConfig', 'colorPaletteConfig', 'crosshairConfig',
-  'groupAxisConfig', 'legendConfig', 'plotConfig', 'titleConfig', 'tooltipConfig'
+  'groupAxisConfig', 'legendConfig', 'pieConfig', 'plotConfig', 'titleConfig', 'tooltipConfig'
 ]);
 
 const listSectionIds = new Set([

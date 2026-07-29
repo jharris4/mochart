@@ -1,10 +1,19 @@
 import { NONE } from '../core/constants';
+import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
-export default function getDefaults() {
+import type { TooltipConfig } from '../../types/config';
+
+export default function getDefaults(config: Partial<TooltipConfig> = {}, pieMode = false): Partial<TooltipConfig> {
+  let regularDefaults = getRegularDefaults();
+  let configWithRegularDefaults = { ...regularDefaults, ...config };
+  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as TooltipConfig, pieMode));
+  return { ...regularDefaults, ...conditionalDefaults } as Partial<TooltipConfig>;
+}
+
+export function getRegularDefaults() {
   return {
     visible: true,
     applyFocus: true,
-    snapToGroup: true,
     mouseOver: false,
     closeOnClick: true,
     filterOnSeriesClick: false,
@@ -43,5 +52,15 @@ export default function getDefaults() {
     suppressedValueCharacter: '-',
     missingValueText: 'N/A',
     rangeValueText: ' - '
+  };
+}
+
+export function getConditionalDefaults(configWithRegularDefaults: TooltipConfig, pieMode = false) {
+  return {
+    snapToGroup: conditionalDefault([
+      { condition: () => pieMode, suffix: "when chartConfig.type is pie", default: false },
+      { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
+      { ...defaultRule, default: true }
+    ], configWithRegularDefaults, pieMode)
   };
 }

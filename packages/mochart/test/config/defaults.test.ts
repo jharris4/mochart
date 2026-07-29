@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { isObject, getValueOrDefault } from '../../src/config/defaults/utils';
 import { conditionalDefault, getActualDefaults, defaultRule } from '../../src/config/defaults/conditionalDefault';
+import { getDefaults } from '../../src/config/defaults/mochartConfig';
 
 describe('isObject', () => {
   it('is true for plain objects and arrays', () => {
@@ -89,5 +90,31 @@ describe('getActualDefaults', () => {
       b: () => 'two'
     });
     expect(actual).toEqual({ a: 1, b: 'two' });
+  });
+});
+
+describe('pie-mode conditional defaults', () => {
+  it('hides the axes and unsnaps the tooltip when chartConfig.type is pie', () => {
+    const defaults = getDefaults({ version: '1.0.0', chartConfig: { type: 'pie' }, groupAxisConfig: { property: 'p' } }) as {
+      groupAxisConfig: { visible: boolean };
+      seriesAxisConfigs: { visible: boolean }[];
+      tooltipConfig: { snapToGroup: boolean };
+      pieConfig: { innerRadiusPercent: number; labelType: string };
+    };
+    expect(defaults.groupAxisConfig.visible).toBe(false);
+    expect(defaults.seriesAxisConfigs[0]!.visible).toBe(false);
+    expect(defaults.tooltipConfig.snapToGroup).toBe(false);
+    expect(defaults.pieConfig).toEqual(expect.objectContaining({ innerRadiusPercent: 0, labelType: 'percent' }));
+  });
+
+  it('keeps the xy defaults when chartConfig.type is omitted', () => {
+    const defaults = getDefaults({ version: '1.0.0', groupAxisConfig: { property: 'p' } }) as {
+      groupAxisConfig: { visible: boolean };
+      seriesAxisConfigs: { visible: boolean }[];
+      tooltipConfig: { snapToGroup: boolean };
+    };
+    expect(defaults.groupAxisConfig.visible).toBe(true);
+    expect(defaults.seriesAxisConfigs[0]!.visible).toBe(true);
+    expect(defaults.tooltipConfig.snapToGroup).toBe(true);
   });
 });

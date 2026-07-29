@@ -123,3 +123,42 @@ describe('non-strict validation', () => {
     expect(lenient.valid).toBe(true);
   });
 });
+
+describe('pie chart config validation', () => {
+  it('accepts a valid pie config with a pieConfig section', () => {
+    const errors = errorsFor({
+      version: V,
+      chartConfig: { type: 'pie' },
+      pieConfig: { innerRadiusPercent: 0.6, startAngle: 45, showLabels: true, labelType: 'percent' },
+      groupAxisConfig: { property: 'p' },
+      seriesConfigs: [{ property: 'a' }, { property: 'b' }]
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('flags an unknown chartConfig.type', () => {
+    const errors = errorsFor({ version: V, chartConfig: { type: 'radar' }, groupAxisConfig: { property: 'p' } });
+    expect(errors.some(error => error.startsWith('chartConfig - type - '))).toBe(true);
+  });
+
+  it('flags out-of-range pieConfig percent values', () => {
+    const errors = errorsFor({
+      version: V,
+      chartConfig: { type: 'pie' },
+      pieConfig: { innerRadiusPercent: 1.5, labelMinAnglePercent: -1 },
+      groupAxisConfig: { property: 'p' }
+    });
+    expect(errors.some(error => error.startsWith('pieConfig - innerRadiusPercent - '))).toBe(true);
+    expect(errors.some(error => error.startsWith('pieConfig - labelMinAnglePercent - '))).toBe(true);
+  });
+
+  it('flags an unknown pieConfig.labelType', () => {
+    const errors = errorsFor({
+      version: V,
+      chartConfig: { type: 'pie' },
+      pieConfig: { labelType: 'nope' },
+      groupAxisConfig: { property: 'p' }
+    });
+    expect(errors.some(error => error.startsWith('pieConfig - labelType - '))).toBe(true);
+  });
+});

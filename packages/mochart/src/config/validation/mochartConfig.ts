@@ -10,6 +10,7 @@ import crosshairValidators from './crosshairConfig';
 import groupAxisValidators from './groupAxisConfig';
 import legendValidators from './legendConfig';
 import linearGradientValidators from './linearGradientConfig';
+import pieValidators from './pieConfig';
 import plotValidators from './plotConfig';
 import radialGradientValidators from './radialGradientConfig';
 import seriesAxisValidators from './seriesAxisConfig';
@@ -101,6 +102,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
     validator: arrayOfObjectsOrEmpty,
     validators: () => linearGradientValidators(),
     uniqueKeys: ['id']
+  },
+  pieConfig: {
+    validator: objectValidator,
+    validators: () => pieValidators()
   },
   plotConfig: {
     validator: objectValidator,

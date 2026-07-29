@@ -31,5 +31,8 @@ export { computeCandlesticks, createCandlestick } from './data/Candlestick';
 export type { CandlestickDirection, CandlestickItem, Candlestick, CreateCandlestickOptions, CandlestickVolumeOptions, CandlestickData } from './data/Candlestick';
 export { createOhlc } from './data/Ohlc';
 export type { CreateOhlcOptions, OhlcData } from './data/Ohlc';
+export { computePieFractions, createPie } from './data/Pie';
+export type { PieItem, CreatePieOptions, PieData } from './data/Pie';
+export { CHART_TYPE_XY, CHART_TYPE_PIE } from './config/core/constants';
 export { mochartCssClasses } from './utils/ChartDom';
 export { isDataProviderValid } from './data/ChartData';

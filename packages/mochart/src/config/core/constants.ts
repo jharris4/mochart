@@ -46,6 +46,21 @@ export const POSITIONS = [
   POSITION_TOP, POSITION_BOTTOM
 ];
 
+export const CHART_TYPE_XY = 'xy';
+export const CHART_TYPE_PIE = 'pie';
+
+export const CHART_TYPES = [
+  CHART_TYPE_XY, CHART_TYPE_PIE
+];
+
+export const PIE_LABEL_TYPE_VALUE = 'value';
+export const PIE_LABEL_TYPE_PERCENT = 'percent';
+export const PIE_LABEL_TYPE_TITLE = 'title';
+
+export const PIE_LABEL_TYPES = [
+  PIE_LABEL_TYPE_VALUE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_TITLE
+];
+
 export const SCALE_ORDINAL = 'ordinal';
 export const SCALE_LINEAR = 'linear';
 
@@ -140,6 +155,8 @@ export type Align = typeof ALIGN_LEFT | typeof ALIGN_CENTER | typeof ALIGN_RIGHT
 export type VerticalAlign = typeof VERTICAL_ALIGN_TOP | typeof VERTICAL_ALIGN_MIDDLE | typeof VERTICAL_ALIGN_BOTTOM;
 export type Anchor = typeof ANCHOR_START | typeof ANCHOR_END | typeof ANCHOR_MIDDLE;
 export type Position = typeof POSITION_TOP | typeof POSITION_BOTTOM;
+export type ChartType = typeof CHART_TYPE_XY | typeof CHART_TYPE_PIE;
+export type PieLabelType = typeof PIE_LABEL_TYPE_VALUE | typeof PIE_LABEL_TYPE_PERCENT | typeof PIE_LABEL_TYPE_TITLE;
 export type Scale = typeof SCALE_ORDINAL | typeof SCALE_LINEAR;
 export type DataType = typeof TYPE_STRING | typeof TYPE_NUMBER | typeof TYPE_DATE;
 export type RendererType = typeof RENDERER_BAR | typeof RENDERER_LINE | typeof RENDERER_AREA | typeof RENDERER_NONE;

@@ -44,6 +44,10 @@ import { getRegularDefaults as getLinearGradientRegularDefaults, getConditionalD
 import getLinearGradientValidators from '../src/config/validation/linearGradientConfig';
 import * as linearGradientDocs from '../src/config/docs/linearGradientConfig';
 
+import getPieDefaults from '../src/config/defaults/pieConfig';
+import getPieValidators from '../src/config/validation/pieConfig';
+import * as pieDocs from '../src/config/docs/pieConfig';
+
 import getPlotDefaults from '../src/config/defaults/plotConfig';
 import getPlotValidators from '../src/config/validation/plotConfig';
 import * as plotDocs from '../src/config/docs/plotConfig';
@@ -72,7 +76,7 @@ import getTitleDefaults from '../src/config/defaults/titleConfig';
 import getTitleValidators from '../src/config/validation/titleConfig';
 import * as titleDocs from '../src/config/docs/titleConfig';
 
-import getTooltipDefaults from '../src/config/defaults/tooltipConfig';
+import { getRegularDefaults as getTooltipRegularDefaults, getConditionalDefaults as getTooltipConditionalDefaults } from '../src/config/defaults/tooltipConfig';
 import getTooltipValidators from '../src/config/validation/tooltipConfig';
 import * as tooltipDocs from '../src/config/docs/tooltipConfig';
 
@@ -88,7 +92,8 @@ import type {
   SeriesAxisConfig,
   SeriesConfig,
   SeriesGroupConfig,
-  SeriesStackConfig
+  SeriesStackConfig,
+  TooltipConfig
 } from '../src/types/config';
 
 type ValidatorMap = Record<string, Validator>;
@@ -190,17 +195,18 @@ function getSectionSources(): SectionSource[] {
     { id: 'chartConfig', title: 'Chart Config', regularDefaults: getChartDefaults(), validators: getChartValidators(), docs: chartDocs },
     { id: 'colorPaletteConfig', title: 'Color Palette Config', regularDefaults: getColorPaletteDefaults(), validators: getColorPaletteValidators(), docs: colorPaletteDocs },
     { id: 'crosshairConfig', title: 'Crosshair Config', regularDefaults: getCrosshairDefaults(), validators: getCrosshairValidators(), docs: crosshairDocs },
-    { id: 'groupAxisConfig', title: 'Group Axis Config', regularDefaults: getGroupAxisRegularDefaults(), conditionalDefaults: getGroupAxisConditionalDefaults({} as GroupAxisConfig, false), validators: getGroupAxisValidators({}), docs: groupAxisDocs },
+    { id: 'groupAxisConfig', title: 'Group Axis Config', regularDefaults: getGroupAxisRegularDefaults(), conditionalDefaults: getGroupAxisConditionalDefaults({} as GroupAxisConfig, false, false), validators: getGroupAxisValidators({}), docs: groupAxisDocs },
     { id: 'legendConfig', title: 'Legend Config', regularDefaults: getLegendRegularDefaults(), conditionalDefaults: getLegendConditionalDefaults({} as LegendConfig, 0), validators: getLegendValidators(), docs: legendDocs },
     { id: 'linearGradientConfigs', title: 'Linear Gradient Config', regularDefaults: getLinearGradientRegularDefaults(), conditionalDefaults: getLinearGradientConditionalDefaults({} as LinearGradientConfig, 0), validators: getLinearGradientValidators(), docs: linearGradientDocs },
+    { id: 'pieConfig', title: 'Pie Config', regularDefaults: getPieDefaults(), validators: getPieValidators(), docs: pieDocs },
     { id: 'plotConfig', title: 'Plot Config', regularDefaults: getPlotDefaults(), validators: getPlotValidators(), docs: plotDocs },
     { id: 'radialGradientConfigs', title: 'Radial Gradient Config', regularDefaults: getRadialGradientRegularDefaults(), conditionalDefaults: getRadialGradientConditionalDefaults({} as RadialGradientConfig, 0), validators: getRadialGradientValidators(), docs: radialGradientDocs },
-    { id: 'seriesAxisConfigs', title: 'Series Axis Config', regularDefaults: getSeriesAxisRegularDefaults(), conditionalDefaults: getSeriesAxisConditionalDefaults({} as SeriesAxisConfig, 0, false), validators: getSeriesAxisValidators(), docs: seriesAxisDocs },
+    { id: 'seriesAxisConfigs', title: 'Series Axis Config', regularDefaults: getSeriesAxisRegularDefaults(), conditionalDefaults: getSeriesAxisConditionalDefaults({} as SeriesAxisConfig, 0, false, false), validators: getSeriesAxisValidators(), docs: seriesAxisDocs },
     { id: 'seriesConfigs', title: 'Series Config', regularDefaults: getSeriesRegularDefaults(), conditionalDefaults: getSeriesConditionalDefaults({} as SeriesConfig, 0, null, null, null, null), validators: getSeriesValidators({}), docs: seriesDocs },
     { id: 'seriesGroupConfigs', title: 'Series Group Config', regularDefaults: getSeriesGroupRegularDefaults(), conditionalDefaults: getSeriesGroupConditionalDefaults({} as SeriesGroupConfig, 0), validators: getSeriesGroupValidators(), docs: seriesGroupDocs },
     { id: 'seriesStackConfigs', title: 'Series Stack Config', regularDefaults: getSeriesStackRegularDefaults(), conditionalDefaults: getSeriesStackConditionalDefaults({} as SeriesStackConfig, 0, null), validators: getSeriesStackValidators(), docs: seriesStackDocs },
     { id: 'titleConfig', title: 'Title Config', regularDefaults: getTitleDefaults(), validators: getTitleValidators(), docs: titleDocs },
-    { id: 'tooltipConfig', title: 'Tooltip Config', regularDefaults: getTooltipDefaults(), validators: getTooltipValidators(), docs: tooltipDocs }
+    { id: 'tooltipConfig', title: 'Tooltip Config', regularDefaults: getTooltipRegularDefaults(), conditionalDefaults: getTooltipConditionalDefaults({} as TooltipConfig, false), validators: getTooltipValidators(), docs: tooltipDocs }
   ];
 }
 

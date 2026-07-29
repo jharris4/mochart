@@ -1,6 +1,7 @@
 import type {
   Auto, Align, VerticalAlign, Anchor, Position, Scale, DataType, RendererType,
-  CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape
+  CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape,
+  ChartType, PieLabelType
 } from '../config/core/constants';
 import type { MarginPadding, InnerOuter } from './geometry';
 
@@ -93,6 +94,13 @@ export interface AnimationConfig {
 
 export interface ChartConfig {
   /**
+   * The type of chart to render: an x/y plot with axes (xy) or a pie/donut
+   * chart (pie).
+   *
+   * @default "xy"
+   */
+  type: ChartType;
+  /**
    * The margin (in pixels) for the top, right, bottom and left sides of the
    * chart.
    *
@@ -144,6 +152,76 @@ export interface PlotConfig {
    * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
    */
   backgroundStyle: BackgroundStyle;
+}
+
+export interface PieConfig {
+  /**
+   * The inner radius of the slices as a fraction (0 to 1) of the outer radius
+   * (use a value greater than 0 for a donut chart).
+   *
+   * @default 0
+   */
+  innerRadiusPercent: number;
+  /**
+   * The outer radius of the slices as a fraction (0 to 1) of the largest radius
+   * that fits within the plot.
+   *
+   * @default 1
+   */
+  outerRadiusPercent: number;
+  /**
+   * The angle (in degrees, clockwise from the top) at which the first slice
+   * starts.
+   *
+   * @default 0
+   */
+  startAngle: number;
+  /**
+   * The angle (in degrees) of the gap between adjacent slices.
+   *
+   * @default 0
+   */
+  padAngle: number;
+  /**
+   * The corner radius (in pixels) applied to the slice corners.
+   *
+   * @default 0
+   */
+  cornerRadius: number;
+  /**
+   * Whether labels should be shown on the slices.
+   *
+   * @default false
+   */
+  showLabels: boolean;
+  /**
+   * The content of the slice labels: the slice value (value), the slice
+   * percentage of the total (percent) or the series title (title).
+   *
+   * @default "percent"
+   */
+  labelType: PieLabelType;
+  /**
+   * The d3 format specifier used to format value and percent slice labels (use
+   * auto to derive a format).
+   *
+   * @default "auto"
+   */
+  labelFormat: string | Auto;
+  /**
+   * The radial position of the slice labels as a fraction (0 to 1) between the
+   * inner radius and the outer radius.
+   *
+   * @default 0.5
+   */
+  labelRadiusPercent: number;
+  /**
+   * Hide the label of any slice whose angle is smaller than this fraction (0 to
+   * 1) of the full circle.
+   *
+   * @default 0.05
+   */
+  labelMinAnglePercent: number;
 }
 
 export interface ColorPalette {
@@ -653,7 +731,9 @@ export interface TooltipConfig {
    * Whether the tooltip should be centered at the closest group value (true) or
    * at the click/tap position (false).
    *
-   * @default true
+   * Default:
+   * - `false` — when chartConfig.type is pie
+   * - `true` — when chartConfig.type is xy
    */
   snapToGroup: boolean;
   /**
@@ -1850,7 +1930,12 @@ export interface AxisConfigBase {
   /**
    * Whether the axis should be visible.
    *
-   * @default true
+   * Group axis defaults:
+   * - `false` — when chartConfig.type is pie
+   * - `true` — when chartConfig.type is xy
+   * Series axis defaults:
+   * - `false` — when chartConfig.type is pie
+   * - `true` — when chartConfig.type is xy
    */
   visible: boolean;
 }
@@ -3413,6 +3498,7 @@ export interface MochartConfig {
   groupAxisConfig: GroupAxisConfig;
   legendConfig: LegendConfig;
   linearGradientConfigs: LinearGradientConfig[];
+  pieConfig: PieConfig;
   plotConfig: PlotConfig;
   radialGradientConfigs: RadialGradientConfig[];
   seriesAxisConfigs: SeriesAxisConfig[];
@@ -3442,6 +3528,7 @@ export interface MochartInputConfig {
   crosshairConfig?: Partial<CrosshairConfig>;
   groupAxisConfig?: Partial<GroupAxisConfig>;
   legendConfig?: Partial<LegendConfig>;
+  pieConfig?: Partial<PieConfig>;
   plotConfig?: Partial<PlotConfig>;
   titleConfig?: Partial<TitleConfig>;
   tooltipConfig?: Partial<TooltipConfig>;

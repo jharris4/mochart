@@ -36,6 +36,19 @@ declare module 'd3-shape' {
 
   export function line(): ShapeGenerator;
   export function area(): ShapeGenerator;
+  export interface ArcDatum {
+    startAngle: number;
+    endAngle: number;
+  }
+  export interface ArcGenerator {
+    (datum: ArcDatum): string | null;
+    innerRadius(value: number): ArcGenerator;
+    outerRadius(value: number): ArcGenerator;
+    cornerRadius(value: number): ArcGenerator;
+    padAngle(value: number): ArcGenerator;
+    centroid(datum: ArcDatum): [number, number];
+  }
+  export function arc(): ArcGenerator;
   export interface SymbolGenerator {
     (): string | null;
     size(value: number): SymbolGenerator;

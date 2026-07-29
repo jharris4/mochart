@@ -13,6 +13,7 @@ const referenceSectionIds = [
   'groupAxisConfig',
   'legendConfig',
   'linearGradientConfigs',
+  'pieConfig',
   'plotConfig',
   'radialGradientConfigs',
   'seriesAxisConfigs',

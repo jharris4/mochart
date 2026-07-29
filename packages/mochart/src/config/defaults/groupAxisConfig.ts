@@ -4,10 +4,10 @@ import { getActualDefaults, conditionalDefault, defaultRule } from './conditiona
 import getAxisDefaults from './axisConfig';
 import type { GroupAxisConfig } from '../../types/config';
 
-export default function getDefaults(config: Partial<GroupAxisConfig> = {}, inverted: boolean): Partial<GroupAxisConfig> {
+export default function getDefaults(config: Partial<GroupAxisConfig> = {}, inverted: boolean, pieMode = false): Partial<GroupAxisConfig> {
   let regularDefaults = getRegularDefaults();
   let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as GroupAxisConfig, inverted));
+  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as GroupAxisConfig, inverted, pieMode));
 
   return { ...regularDefaults, ...conditionalDefaults } as Partial<GroupAxisConfig>;
 }
@@ -43,8 +43,13 @@ export function getRegularDefaults() {
   };
 }
 
-export function getConditionalDefaults(configWithRegularDefaults: GroupAxisConfig, inverted: boolean) {
+export function getConditionalDefaults(configWithRegularDefaults: GroupAxisConfig, inverted: boolean, pieMode = false) {
   return {
+    visible: conditionalDefault([
+      { condition: () => pieMode, suffix: "when chartConfig.type is pie", default: false },
+      { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
+      { ...defaultRule, default: true }
+    ], configWithRegularDefaults, inverted),
     before: conditionalDefault([
       { condition: (_config, inverted) => inverted === true, suffix: "when plotConfig.inverted is true", default: true },
       { condition: (_config, inverted) => inverted === false, suffix: "when plotConfig.inverted is false", default: false },

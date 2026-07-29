@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "titleConfig": {
+    "title": "Revenue by Product (fictional, $k)"
+  },
+  "chartConfig": {
+    "type": "pie"
+  },
+  "groupAxisConfig": {
+    "property": "group",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesConfigs": [
+    {
+      "id": "slice0",
+      "property": "slice0",
+      "title": "Subscriptions",
+      "valueFormat": ",.0f"
+    },
+    {
+      "id": "slice1",
+      "property": "slice1",
+      "title": "Services",
+      "valueFormat": ",.0f"
+    },
+    {
+      "id": "slice2",
+      "property": "slice2",
+      "title": "Hardware",
+      "valueFormat": ",.0f"
+    },
+    {
+      "id": "slice3",
+      "property": "slice3",
+      "title": "Licensing",
+      "valueFormat": ",.0f"
+    },
+    {
+      "id": "slice4",
+      "property": "slice4",
+      "title": "Support",
+      "valueFormat": ",.0f"
+    },
+    {
+      "id": "slice5",
+      "property": "slice5",
+      "title": "Other",
+      "valueFormat": ",.0f"
+    }
+  ]
+}

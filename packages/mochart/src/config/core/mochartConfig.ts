@@ -298,6 +298,9 @@ export function hasConfigStructureChange(configOld: MochartConfig, configNew: Mo
   if (configOld.id !== configNew.id) {
     return true;
   }
+  if (configOld.chartConfig.type !== configNew.chartConfig.type) {
+    return true;
+  }
   const { groupAxisConfig } = configOld;
   const { groupAxisConfig: newGroupAxisConfig } = configNew;
   if (groupAxisConfig.property !== newGroupAxisConfig.property ||

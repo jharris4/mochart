@@ -44,6 +44,9 @@ table thead td { border-bottom-width: 2px; }
 <td>linearGradientConfigs<br/>linearGradientAllConfig</td><td>Configure linear gradients to be applied to series<br/>Configure common properties for all linear gradients</td><td>should be an array with elements that should be an object<br/>should be an object</td><td>[]<br/>{}</td><td><a href="#linearGradientConfigs">Details</a></td>
 </tr>
 <tr>
+<td>pieConfig</td><td>Configure the pie/donut slice geometry and slice labels (applies when chartConfig.type is pie)</td><td>should be an object</td><td>{}</td><td><a href="#pieConfig">Details</a></td>
+</tr>
+<tr>
 <td>plotConfig</td><td>Configure the chart plot content and styling</td><td>should be an object</td><td>{}</td><td><a href="#plotConfig">Details</a></td>
 </tr>
 <tr>
@@ -124,6 +127,10 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="chartConfig.padding">
 <td><a href="#chartConfig.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the chart</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 3, right: 3, bottom: 3, left: 3 }</div>
+</td>
+</tr>
+<tr id="chartConfig.type">
+<td><a href="#chartConfig.type">type</a></td><td>the type of chart to render: an x/y plot with axes (xy) or a pie/donut chart (pie)</td><td>should be one of [ "xy", "pie" ]</td><td><div>"xy"</div>
 </td>
 </tr>
 </table>
@@ -890,7 +897,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.visible">
-<td><a href="#groupAxisConfig.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#groupAxisConfig.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
+<div>true (when chartConfig.type is xy)</div>
 </td>
 </tr>
 </table>
@@ -1038,6 +1046,56 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="linearGradientConfigs.y2">
 <td><a href="#linearGradientConfigs.y2">y2</a></td><td>the x4 property of the svg linear gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="pieConfig">
+<h2>Pie Config</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
+</tr>
+</thead>
+<tr id="pieConfig.cornerRadius">
+<td><a href="#pieConfig.cornerRadius">cornerRadius</a></td><td>the corner radius (in pixels) applied to the slice corners</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="pieConfig.innerRadiusPercent">
+<td><a href="#pieConfig.innerRadiusPercent">innerRadiusPercent</a></td><td>the inner radius of the slices as a fraction (0 to 1) of the outer radius (use a value greater than 0 for a donut chart)</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
+</td>
+</tr>
+<tr id="pieConfig.labelFormat">
+<td><a href="#pieConfig.labelFormat">labelFormat</a></td><td>the d3 format specifier used to format value and percent slice labels (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
+</td>
+</tr>
+<tr id="pieConfig.labelMinAnglePercent">
+<td><a href="#pieConfig.labelMinAnglePercent">labelMinAnglePercent</a></td><td>hide the label of any slice whose angle is smaller than this fraction (0 to 1) of the full circle</td><td>should be a number >= to 0 and <= 1</td><td><div>0.05</div>
+</td>
+</tr>
+<tr id="pieConfig.labelRadiusPercent">
+<td><a href="#pieConfig.labelRadiusPercent">labelRadiusPercent</a></td><td>the radial position of the slice labels as a fraction (0 to 1) between the inner radius and the outer radius</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+</td>
+</tr>
+<tr id="pieConfig.labelType">
+<td><a href="#pieConfig.labelType">labelType</a></td><td>the content of the slice labels: the slice value (value), the slice percentage of the total (percent) or the series title (title)</td><td>should be one of [ "value", "percent", "title" ]</td><td><div>"percent"</div>
+</td>
+</tr>
+<tr id="pieConfig.outerRadiusPercent">
+<td><a href="#pieConfig.outerRadiusPercent">outerRadiusPercent</a></td><td>the outer radius of the slices as a fraction (0 to 1) of the largest radius that fits within the plot</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="pieConfig.padAngle">
+<td><a href="#pieConfig.padAngle">padAngle</a></td><td>the angle (in degrees) of the gap between adjacent slices</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="pieConfig.showLabels">
+<td><a href="#pieConfig.showLabels">showLabels</a></td><td>whether labels should be shown on the slices</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="pieConfig.startAngle">
+<td><a href="#pieConfig.startAngle">startAngle</a></td><td>the angle (in degrees, clockwise from the top) at which the first slice starts</td><td>should be a number</td><td><div>0</div>
 </td>
 </tr>
 </table>
@@ -1790,7 +1848,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.visible">
-<td><a href="#seriesAxisConfigs.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#seriesAxisConfigs.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
+<div>true (when chartConfig.type is xy)</div>
 </td>
 </tr>
 </table>
@@ -2705,7 +2764,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="tooltipConfig.snapToGroup">
-<td><a href="#tooltipConfig.snapToGroup">snapToGroup</a></td><td>whether the tooltip should be centered at the closest group value (true) or at the click/tap position (false)</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#tooltipConfig.snapToGroup">snapToGroup</a></td><td>whether the tooltip should be centered at the closest group value (true) or at the click/tap position (false)</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
+<div>true (when chartConfig.type is xy)</div>
 </td>
 </tr>
 <tr id="tooltipConfig.suppressedValueCharacter">

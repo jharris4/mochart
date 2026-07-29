@@ -11,8 +11,8 @@ describe('config/docs description modules', () => {
   const entries = Object.entries(modules);
 
   it('discovers every docs module', () => {
-    // 17 per-section config docs + the top-level mochartConfig aggregator
-    expect(entries.length).toBeGreaterThanOrEqual(17);
+    // 18 per-section config docs + the top-level mochartConfig aggregator
+    expect(entries.length).toBeGreaterThanOrEqual(18);
   });
 
   for (const [path, mod] of entries) {

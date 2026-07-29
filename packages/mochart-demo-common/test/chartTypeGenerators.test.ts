@@ -152,6 +152,34 @@ describe('generateChartTypeDataProvider', () => {
       running = seriesValues!['cumulative'][index]!;
     });
   });
+
+  it('pie rows keep every slice property from the baked config, absent slices as 0', () => {
+    const pie = snapshots.find(snapshot => snapshot.id === 'pie')!;
+    const mochartConfig = enhanceConfig(pie.config);
+    const bakedProperties = (pie.config.seriesConfigs as { property: string }[]).map(seriesConfig => seriesConfig.property);
+    for (const randomId of [0, 1, 5, 11]) {
+      const provider = generateChartTypeDataProvider('pie', mochartConfig, random, randomId);
+      expect(provider.getGroupValues()).toHaveLength(1);
+      for (const property of bakedProperties) {
+        const value = provider.seriesValues![property][0];
+        expect(typeof value).toBe('number');
+        expect(value).toBeGreaterThanOrEqual(0);
+      }
+    }
+  });
+
+  it('donut percent columns always reflect the generated slice values', () => {
+    const donut = snapshots.find(snapshot => snapshot.id === 'donut')!;
+    const mochartConfig = enhanceConfig(donut.config);
+    const provider = generateChartTypeDataProvider('donut', mochartConfig, random, 6);
+    const sliceProperties = (donut.config.seriesConfigs as { property: string }[]).map(seriesConfig => seriesConfig.property);
+    const total = sliceProperties.reduce((sum: number, property) => sum + provider.seriesValues![property][0]!, 0);
+    expect(total).toBeGreaterThan(0);
+    for (const property of sliceProperties) {
+      const percent = provider.seriesValues![property + 'Percent'][0]!;
+      expect(percent).toBeCloseTo((provider.seriesValues![property][0]! / total) * 100, 0);
+    }
+  });
 });
 
 describe('generateDemoDataProvider', () => {
@@ -164,6 +192,6 @@ describe('generateDemoDataProvider', () => {
   });
 
   it('exposes the generator ids', () => {
-    expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars']);
+    expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars', 'pie', 'donut']);
   });
 });

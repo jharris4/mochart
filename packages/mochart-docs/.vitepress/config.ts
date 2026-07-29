@@ -95,7 +95,8 @@ function guideSidebar() {
         { text: 'Heatmap', link: '/recipes/heatmap' },
         { text: 'Candlestick', link: '/recipes/candlestick' },
         { text: 'OHLC Bars', link: '/recipes/ohlc' },
-        { text: 'Error Bars', link: '/recipes/error-bars' }
+        { text: 'Error Bars', link: '/recipes/error-bars' },
+        { text: 'Pie and Donut', link: '/recipes/pie' }
       ]
     }
   ];

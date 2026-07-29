@@ -14,8 +14,8 @@
 
 import seedrandom from 'seedrandom';
 
-import { createHistogram, createWaterfall, createHeatmap, createCandlestick, createOhlc } from '@mochart/core';
-import type { CandlestickItem, MochartConfig } from '@mochart/core';
+import { createHistogram, createWaterfall, createHeatmap, createCandlestick, createOhlc, createPie } from '@mochart/core';
+import type { CandlestickItem, MochartConfig, PieItem } from '@mochart/core';
 
 import { generateChartDataProvider } from './randomGenerator';
 
@@ -24,7 +24,7 @@ import type { DataRow, DemoConfig, DemoDataProvider, GroupValue, RandomConfig } 
 type Rng = () => number;
 
 /** The chart-type generator ids usable in a demos.json `generator` field. */
-export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars'] as const;
+export const chartTypeGenerators = ['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars', 'pie', 'donut'] as const;
 
 export type ChartTypeGenerator = (typeof chartTypeGenerators)[number];
 
@@ -433,11 +433,90 @@ function buildErrorBarsSnapshot(): ChartTypeDemoSnapshot {
   };
 }
 
+// --- Pie / Donut -------------------------------------------------------------
+
+interface PieSlicePoolEntry {
+  label: string;
+  value: number;
+  /** Relative value jitter applied in random mode (±fraction of value). */
+  jitter?: number;
+  /** Probability the slice is present in a random step (1 when omitted). */
+  presence?: number;
+}
+
+// Slices keep their pool position across random steps — an absent slice
+// generates value 0 (a zero-width slice that animates out) instead of being
+// dropped, so the row's slice{i} properties always match the baked config.
+const PIE_SLICE_POOL: PieSlicePoolEntry[] = [
+  { label: 'Subscriptions', value: 420, jitter: 0.3 },
+  { label: 'Services', value: 210, jitter: 0.35 },
+  { label: 'Hardware', value: 140, jitter: 0.4 },
+  { label: 'Licensing', value: 75, jitter: 0.5, presence: 0.75 },
+  { label: 'Support', value: 65, jitter: 0.4 },
+  { label: 'Other', value: 30, jitter: 0.6, presence: 0.6 }
+];
+
+const DONUT_SLICE_POOL: PieSlicePoolEntry[] = [
+  { label: 'Chrome', value: 62, jitter: 0.25 },
+  { label: 'Safari', value: 20, jitter: 0.3 },
+  { label: 'Edge', value: 6, jitter: 0.5 },
+  { label: 'Firefox', value: 5, jitter: 0.5, presence: 0.8 },
+  { label: 'Opera', value: 3, jitter: 0.6, presence: 0.6 },
+  { label: 'Other', value: 4, jitter: 0.5 }
+];
+
+function pieItems(pool: PieSlicePoolEntry[], rng: Rng): PieItem[] {
+  return pool.map(slice => ({
+    label: slice.label,
+    value: (slice.presence !== undefined && rng() >= slice.presence) ? 0 :
+      Math.max(0, Math.round(slice.value * (1 + (slice.jitter ?? 0) * (2 * rng() - 1))))
+  }));
+}
+
+function pieRows(rng: Rng): DataRow[] {
+  return createPie(pieItems(PIE_SLICE_POOL, rng), { valueFormat: ',.0f' }).data;
+}
+
+function donutRows(rng: Rng): DataRow[] {
+  return createPie(pieItems(DONUT_SLICE_POOL, rng), { tooltipValues: 'percent' }).data;
+}
+
+function buildPieSnapshot(): ChartTypeDemoSnapshot {
+  const pie = createPie(PIE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { valueFormat: ',.0f' });
+  return {
+    id: 'pie',
+    config: {
+      version: '1.0.0',
+      titleConfig: { title: 'Revenue by Product (fictional, $k)' },
+      chartConfig: pie.chartConfig,
+      groupAxisConfig: pie.groupAxisConfig,
+      seriesConfigs: pie.seriesConfigs
+    },
+    data: pie.data
+  };
+}
+
+function buildDonutSnapshot(): ChartTypeDemoSnapshot {
+  const pie = createPie(DONUT_SLICE_POOL.map(({ label, value }) => ({ label, value })), { donut: true, tooltipValues: 'percent' });
+  return {
+    id: 'donut',
+    config: {
+      version: '1.0.0',
+      titleConfig: { title: 'Browser Market Share (fictional)' },
+      chartConfig: pie.chartConfig,
+      pieConfig: { ...pie.pieConfig, showLabels: true, labelType: 'percent' },
+      groupAxisConfig: pie.groupAxisConfig,
+      seriesConfigs: pie.seriesConfigs
+    },
+    data: pie.data
+  };
+}
+
 // --- Dispatch ----------------------------------------------------------------
 
 /** Rebuilds every chart-type demo's static config/data (snapshot script). */
 export function buildChartTypeDemoSnapshots(): ChartTypeDemoSnapshot[] {
-  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildCandlestickHollowSnapshot(), buildOhlcSnapshot(), buildErrorBarsSnapshot()];
+  return [buildHistogramSnapshot(), buildWaterfallSnapshot(), buildHeatmapSnapshot(), buildCandlestickSnapshot(), buildCandlestickHollowSnapshot(), buildOhlcSnapshot(), buildErrorBarsSnapshot(), buildPieSnapshot(), buildDonutSnapshot()];
 }
 
 /**
@@ -471,6 +550,12 @@ export function generateChartTypeDataProvider(
   }
   else if (generator === 'error-bars') {
     rows = errorBarsRows(rng);
+  }
+  else if (generator === 'pie') {
+    rows = pieRows(rng);
+  }
+  else if (generator === 'donut') {
+    rows = donutRows(rng);
   }
   else {
     rows = heatmapRows(rng, random.series.missing.probability);

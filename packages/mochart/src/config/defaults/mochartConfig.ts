@@ -1,5 +1,5 @@
 import { isObject } from './utils';
-import { NONE } from '../core/constants';
+import { CHART_TYPE_PIE, NONE } from '../core/constants';
 import { configWithAll, filterConfigs, filterConfig } from '../core/mochartConfig';
 
 import getAnimationDefaults from './animationConfig';
@@ -9,6 +9,7 @@ import getCrosshairDefaults from './crosshairConfig';
 import getGroupAxisDefaults from './groupAxisConfig';
 import getLegendDefaults from './legendConfig';
 import getLinearGradientDefaults from './linearGradientConfig';
+import getPieDefaults from './pieConfig';
 import getPlotDefaults from './plotConfig';
 import getRadialGradientDefaults from './radialGradientConfig';
 import getSeriesAxisDefaults from './seriesAxisConfig';
@@ -58,7 +59,11 @@ function getConfigCount(configs: unknown): number {
 export function getDefaults(config: MochartInputConfig | unknown): Record<string, unknown> {
   if (isObject(config)) {
     const inputConfig = config as MochartInputConfig;
-    const seriesAxisConfigs = getSeriesAxisListOrSingleDefaults(inputConfig, true);
+    const chartConfig = getChartDefaults();
+    const chartConfigDefault = getWithDefault(inputConfig.chartConfig, null, chartConfig);
+    const pieMode = chartConfigDefault.type === CHART_TYPE_PIE;
+
+    const seriesAxisConfigs = getSeriesAxisListOrSingleDefaults(inputConfig, true, pieMode);
     const soleSeriesAxisId = getOnlyIdWithDefaults(inputConfig.seriesAxisConfigs, inputConfig.seriesAxisAllConfig, seriesAxisConfigs);
 
     const seriesStackConfigs = getListOrSingleDefaults<SeriesStackConfig>(inputConfig.seriesStackConfigs, inputConfig.seriesStackAllConfig, (aConfig, index) => getSeriesStackDefaults(aConfig, index, soleSeriesAxisId));
@@ -86,12 +91,13 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
 
     return {
       animationConfig: getAnimationDefaults(),
-      chartConfig: getChartDefaults(),
+      chartConfig,
       colorPaletteConfig: getColorPaletteDefaults(),
       crosshairConfig: getCrosshairDefaults(),
-      groupAxisConfig: getGroupAxisDefaults(inputConfig.groupAxisConfig, inverted),
+      groupAxisConfig: getGroupAxisDefaults(inputConfig.groupAxisConfig, inverted, pieMode),
       legendConfig: getLegendDefaults(inputConfig.legendConfig, seriesCount),
       linearGradientConfigs,
+      pieConfig: getPieDefaults(),
       plotConfig,
       radialGradientConfigs,
       seriesAxisConfigs,
@@ -99,7 +105,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
       seriesGroupConfigs,
       seriesStackConfigs,
       titleConfig: getTitleDefaults(),
-      tooltipConfig: getTooltipDefaults()
+      tooltipConfig: getTooltipDefaults(inputConfig.tooltipConfig, pieMode)
     };
   }
   else {
@@ -107,7 +113,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
   }
 }
 
-function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDefaultIfEmpty = false): SeriesAxisConfig[] {
+function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDefaultIfEmpty = false, pieMode = false): SeriesAxisConfig[] {
   const rawConfigs = config.seriesAxisConfigs;
   const configs = ((!Array.isArray(rawConfigs) && filterConfig(rawConfigs)) ? [rawConfigs] : filterConfigs(rawConfigs)) as Partial<SeriesAxisConfig>[];
   const allConfig = config.seriesAxisAllConfig;
@@ -126,7 +132,7 @@ function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDef
       stackMap[axis] = true;
     }
   }
-  const getDefaults = (aConfig: Partial<SeriesAxisConfig>, index: number) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id!]);
+  const getDefaults = (aConfig: Partial<SeriesAxisConfig>, index: number) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id!], pieMode);
   if (singleDefaultIfEmpty && configs.length === 0) {
     return [getDefaults(configWithAll({}, allConfig) as Partial<SeriesAxisConfig>, 0) as SeriesAxisConfig];
   }

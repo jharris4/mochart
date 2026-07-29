@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "titleConfig": {
+    "title": "Browser Market Share (fictional)"
+  },
+  "chartConfig": {
+    "type": "pie"
+  },
+  "pieConfig": {
+    "innerRadiusPercent": 0.6,
+    "showLabels": true,
+    "labelType": "percent"
+  },
+  "groupAxisConfig": {
+    "property": "group",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "seriesConfigs": [
+    {
+      "id": "slice0",
+      "property": "slice0",
+      "title": "Chrome",
+      "tooltipProperty": "slice0Percent",
+      "valueSuffix": "%"
+    },
+    {
+      "id": "slice1",
+      "property": "slice1",
+      "title": "Safari",
+      "tooltipProperty": "slice1Percent",
+      "valueSuffix": "%"
+    },
+    {
+      "id": "slice2",
+      "property": "slice2",
+      "title": "Edge",
+      "tooltipProperty": "slice2Percent",
+      "valueSuffix": "%"
+    },
+    {
+      "id": "slice3",
+      "property": "slice3",
+      "title": "Firefox",
+      "tooltipProperty": "slice3Percent",
+      "valueSuffix": "%"
+    },
+    {
+      "id": "slice4",
+      "property": "slice4",
+      "title": "Opera",
+      "tooltipProperty": "slice4Percent",
+      "valueSuffix": "%"
+    },
+    {
+      "id": "slice5",
+      "property": "slice5",
+      "title": "Other",
+      "tooltipProperty": "slice5Percent",
+      "valueSuffix": "%"
+    }
+  ]
+}
