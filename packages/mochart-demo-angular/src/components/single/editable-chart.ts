@@ -242,7 +242,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                     </div>
                   </div>
                   <div class="demo-field">
-                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ text.groupIndexPrefix + groupIndex() }}</span>
+                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ text.groupIndexPrefix }}<span class="demo-index-value">{{ groupIndex() }}</span></span>
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
@@ -265,7 +265,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                     </div>
                   </div>
                   <div class="demo-field">
-                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ text.seriesIndexPrefix + seriesIndex() }}</span>
+                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ text.seriesIndexPrefix }}<span class="demo-index-value">{{ seriesIndex() }}</span></span>
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">

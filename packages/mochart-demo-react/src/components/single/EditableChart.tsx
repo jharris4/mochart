@@ -978,7 +978,7 @@ export default function EditableChart(props: Props) {
               </div>
             </div>
             <div className="demo-field">
-              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>{groupIndexText + groupIndex}</span>
+              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>{groupIndexText}<span className="demo-index-value">{groupIndex}</span></span>
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
@@ -1003,7 +1003,7 @@ export default function EditableChart(props: Props) {
               </div>
             </div>
             <div className="demo-field">
-              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>{seriesIndexText + seriesIndex}</span>
+              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }}>{seriesIndexText}<span className="demo-index-value">{seriesIndex}</span></span>
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">

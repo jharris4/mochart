@@ -790,8 +790,16 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });
 
-  const groupIndexLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' });
-  const seriesIndexLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' });
+  // The index sits in its own fixed-width span so stepping through indexes
+  // never shifts the controls to the right of the label.
+  const groupIndexValue = el('span', { className: 'demo-index-value' });
+  const seriesIndexValue = el('span', { className: 'demo-index-value' });
+  const groupIndexLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' }, [
+    demoText.editableChart.groupIndexPrefix, groupIndexValue
+  ]);
+  const seriesIndexLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' }, [
+    demoText.editableChart.seriesIndexPrefix, seriesIndexValue
+  ]);
 
   const seriesInput = el('input', { className: 'demo-input', attrs: { type: 'text' } });
   seriesInput.addEventListener('input', () => {
@@ -1002,8 +1010,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     nextSeriesButton.setDisabled(error || seriesControlsDisabled || !hasNextSeries);
     resetSeriesButton.setDisabled(error || seriesControlsDisabled);
     applySeriesButton.setDisabled(error || seriesControlsDisabled);
-    groupIndexLabel.textContent = demoText.editableChart.groupIndexPrefix + groupIndex;
-    seriesIndexLabel.textContent = demoText.editableChart.seriesIndexPrefix + seriesIndex;
+    groupIndexValue.textContent = '' + groupIndex;
+    seriesIndexValue.textContent = '' + seriesIndex;
     seriesInput.disabled = error || seriesControlsDisabled;
     if (seriesInput.value !== seriesValuesText) {
       seriesInput.value = seriesValuesText;
