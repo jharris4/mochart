@@ -85,7 +85,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                     </div>
                   </div>
                   <div class="demo-field">
-                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" [title]="sliceLabelTitle">{{ sliceLabelText }}</span>
+                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" [title]="sliceLabelTitle">{{ sliceLabelText }}@if (slices().length > 0) {<span class="demo-index-value">{{ sliceIndex() }}</span>}</span>
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
@@ -997,12 +997,11 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     return this.error || this.sequencePlaying() || this.slices().length === 0;
   }
 
-  // The label shows only the index (a fixed-width string) so the controls to
+  // The label shows only the index, in a fixed-width span, so the controls to
   // its right don't jump as slices are stepped; the slice name is the native
   // tooltip instead.
   get sliceLabelText(): string {
-    const slices = this.slices();
-    return slices.length > 0 ? this.text.sliceIndexPrefix + this.sliceIndex() : this.text.selectASliceText;
+    return this.slices().length > 0 ? this.text.sliceIndexPrefix : this.text.selectASliceText;
   }
 
   get sliceLabelTitle(): string {

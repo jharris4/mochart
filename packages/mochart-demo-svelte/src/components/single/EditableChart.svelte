@@ -759,7 +759,7 @@
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title={slices.length > 0 ? slices[sliceIndex].title : undefined}>{slices.length > 0 ? demoText.editableChart.sliceIndexPrefix + sliceIndex : demoText.editableChart.selectASliceText}</span>
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title={slices.length > 0 ? slices[sliceIndex].title : undefined}>{#if slices.length > 0}{demoText.editableChart.sliceIndexPrefix}<span class="demo-index-value">{sliceIndex}</span>{:else}{demoText.editableChart.selectASliceText}{/if}</span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">

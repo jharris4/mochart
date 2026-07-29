@@ -875,6 +875,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   });
 
   const sliceLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' });
+  const sliceIndexValue = el('span', { className: 'demo-index-value' });
 
   const sliceInput = el('input', { className: 'demo-input', attrs: { type: 'text' } });
   sliceInput.addEventListener('input', () => {
@@ -1016,8 +1017,18 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       applySliceButton.setDisabled(sliceControlsDisabled);
       playSliceButton.setDisabled(error || sequencePlaying || slices.length < 3);
       stopSliceButton.setDisabled(error || !sequencePlaying);
-      sliceLabel.textContent = slices.length > 0 ? demoText.editableChart.sliceIndexPrefix + sliceIndex : demoText.editableChart.selectASliceText;
-      sliceLabel.title = slices.length > 0 ? slices[sliceIndex].title : '';
+      if (slices.length > 0) {
+        // The index lives in its own fixed-width span so stepping slices never
+        // shifts the controls to the right; the slice name is the tooltip.
+        sliceLabel.textContent = demoText.editableChart.sliceIndexPrefix;
+        sliceIndexValue.textContent = '' + sliceIndex;
+        sliceLabel.append(sliceIndexValue);
+        sliceLabel.title = slices[sliceIndex].title;
+      }
+      else {
+        sliceLabel.textContent = demoText.editableChart.selectASliceText;
+        sliceLabel.title = '';
+      }
       sliceInput.disabled = sliceControlsDisabled;
       if (sliceInput.value !== sliceValueText) {
         sliceInput.value = sliceValueText;

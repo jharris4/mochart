@@ -707,7 +707,7 @@ function getSingleShareState(): ShareState {
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" :title="slices.length > 0 ? slices[sliceIndex].title : undefined">{{ slices.length > 0 ? demoText.editableChart.sliceIndexPrefix + sliceIndex : demoText.editableChart.selectASliceText }}</span>
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" :title="slices.length > 0 ? slices[sliceIndex].title : undefined"><template v-if="slices.length > 0">{{ demoText.editableChart.sliceIndexPrefix }}<span class="demo-index-value">{{ sliceIndex }}</span></template><template v-else>{{ demoText.editableChart.selectASliceText }}</template></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">

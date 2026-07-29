@@ -833,7 +833,9 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }} title={slices.length > 0 ? slices[sliceIndex].title : undefined}>
-                {slices.length > 0 ? demoText.editableChart.sliceIndexPrefix + sliceIndex : demoText.editableChart.selectASliceText}
+                {slices.length > 0
+                  ? <>{demoText.editableChart.sliceIndexPrefix}<span className="demo-index-value">{sliceIndex}</span></>
+                  : demoText.editableChart.selectASliceText}
               </span>
             </div>
             <div className="demo-field">

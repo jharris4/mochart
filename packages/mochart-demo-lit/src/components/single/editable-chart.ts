@@ -817,7 +817,9 @@ export class EditableChart extends LightElement {
             </div>
           </div>
           <div class="demo-field">
-            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title=${this.slices.length > 0 ? this.slices[this.sliceIndex].title : ''}>${this.slices.length > 0 ? demoText.editableChart.sliceIndexPrefix + this.sliceIndex : demoText.editableChart.selectASliceText}</span>
+            <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title=${this.slices.length > 0 ? this.slices[this.sliceIndex].title : ''}>${this.slices.length > 0
+              ? html`${demoText.editableChart.sliceIndexPrefix}<span class="demo-index-value">${this.sliceIndex}</span>`
+              : demoText.editableChart.selectASliceText}</span>
           </div>
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">

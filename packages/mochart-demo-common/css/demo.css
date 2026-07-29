@@ -696,6 +696,14 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     font-weight: 500;
 }
 
+/* Index readouts between stepper buttons: reserve three tabular digits so the
+   controls to the right don't shift as the index changes. */
+.demo-index-value {
+    display: inline-block;
+    min-width: 3ch;
+    font-variant-numeric: tabular-nums;
+}
+
 .demo-toolbar {
     display: flex;
     flex-wrap: wrap;
