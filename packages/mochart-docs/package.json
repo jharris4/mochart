@@ -19,7 +19,7 @@
     "build": "npm run gen && vitepress build",
     "preview": "vitepress preview",
     "test": "tsx scripts/checkExamples.ts",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p tsconfig.vue.json"
   },
   "dependencies": {
     "@mochart/core": "^1.0.0",
@@ -28,6 +28,7 @@
   "devDependencies": {
     "tsx": "^4.20.6",
     "vitepress": "^1.6.4",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vue-tsc": "^3.1.5"
   }
 }
