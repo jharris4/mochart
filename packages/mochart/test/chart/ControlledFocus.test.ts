@@ -2,7 +2,7 @@
  * Controlled focus/filter props on createChart: when the host passes
  * focusedGroupIndex / focusedSeriesAxisId / focusedSeriesId /
  * filteredSeriesIds, they override the chart's internal focus state on every
- * update (the marquee-era controlled-chart contract, used by the demos to
+ * update (the controlled-chart contract, used by the demos to
  * sync focus across several charts). Undefined leaves the chart uncontrolled.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
