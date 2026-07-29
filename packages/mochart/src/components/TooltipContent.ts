@@ -319,9 +319,6 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       onFocus, mode, toggleMode: this.toggleMode, minWidth });
     this.linesContainer.set({ className: mochartCssClasses['tooltipLines'], style: { clear: 'both' } });
 
-    const groupText = group.values.parsed;
-    const groupFormat = getGroupFormat(groupAxisConfig);
-
     const lastLineStyle = minWidth !== null ? { ...baseLineStyle, minWidth } : baseLineStyle;
     const lineStyle = {
       ...lastLineStyle, paddingBottom: tooltipConfig.linePadding
@@ -329,15 +326,20 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     const tooltipLines: RendererItem[] = [];
 
-    const groupLabel = groupAxisConfig.valueLabel !== NONE ? groupAxisConfig.valueLabel + ": " : "";
-    tooltipLines.push({
-      key: 'group',
-      ctor: TooltipGroupLine,
-      props: { lineStyle, groupLabel, groupText: groupFormat(groupText!),
-        onMouseEnter: (event: Event) => this.onGroupMouseEnter(event),
-        onMouseLeave: (event: Event) => this.onGroupMouseLeave(event),
-        onClick: (event: Event) => this.onGroupClick(event) }
-    });
+    // pie charts render a single group, so its value is chart-level noise in the tooltip
+    if (tooltipConfig.showGroup) {
+      const groupText = group.values.parsed;
+      const groupFormat = getGroupFormat(groupAxisConfig);
+      const groupLabel = groupAxisConfig.valueLabel !== NONE ? groupAxisConfig.valueLabel + ": " : "";
+      tooltipLines.push({
+        key: 'group',
+        ctor: TooltipGroupLine,
+        props: { lineStyle, groupLabel, groupText: groupFormat(groupText!),
+          onMouseEnter: (event: Event) => this.onGroupMouseEnter(event),
+          onMouseLeave: (event: Event) => this.onGroupMouseLeave(event),
+          onClick: (event: Event) => this.onGroupClick(event) }
+      });
+    }
 
     const valueFormats = getSeriesFormats(seriesConfigs, seriesAxisConfigs, axisDomains);
     for (let seriesConfig of seriesConfigs) {

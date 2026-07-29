@@ -36,7 +36,11 @@ import * as gauge from '../examples/gauge'
   tween — try hovering the legend on the donut below.
 - Clicking the chart opens the tooltip with one row per slice. In pie mode
   [`tooltipConfig.snapToGroup`](/reference/tooltipConfig#tooltipConfig.snapToGroup)
-  defaults to `false`, so the tooltip anchors at the click point.
+  defaults to `false`, so the tooltip anchors at the click point, and
+  [`tooltipConfig.showGroup`](/reference/tooltipConfig#tooltipConfig.showGroup)
+  defaults to `false` — a pie has a single group, so its value (`createPie`
+  writes `'all'`) would head every tooltip. Set `showGroup: true` with a
+  meaningful `groupValue` if you want that line back.
 - The group and series axes still exist structurally (the group column and
   value domains feed the data model and animations) but default to
   [`visible: false`](/reference/groupAxisConfig#groupAxisConfig.visible) in

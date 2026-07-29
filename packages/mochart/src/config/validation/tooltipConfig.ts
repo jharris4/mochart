@@ -14,6 +14,7 @@ export default function getValidators() {
     focusOnSeriesClick: validators.boolean(),
     focusOnGroupMouseOver: validators.boolean(),
     focusOnSeriesMouseOver: validators.boolean(),
+    showGroup: validators.boolean(),
     showControls: validators.boolean(),
     keepInside: validators.boolean(),
     minWidth: validators.numberMin(0),

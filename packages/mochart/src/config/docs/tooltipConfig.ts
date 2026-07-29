@@ -10,6 +10,7 @@ export default function getDescriptions() {
     focusOnSeriesClick: 'whether series should be focused when the user clicks/taps on them in the tooltip',
     focusOnGroupMouseOver: 'whether group values should be focused when the user mouses over them in the tooltip',
     focusOnSeriesMouseOver: 'whether series should be focused when the user mouses over them in the tooltip',
+    showGroup: 'whether the group value should be shown as the first line of the tooltip',
     showControls: 'whether the focus/filter controls should be shown at the top of the tooltip',
     keepInside: 'whether to keep the tooltip within the series drawing area (true) or allow it to overlap the axes (false)',
     minWidth: 'the minimum width (in pixels) for the tooltip',

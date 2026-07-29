@@ -803,7 +803,7 @@ export interface TooltipConfig {
    */
   snapToGroup: boolean;
   /**
-   * Whether the tooltip should be track the mouse position in the chart drawing
+   * Whether the tooltip should track the mouse position in the chart drawing
    * area.
    *
    * @default false
@@ -850,6 +850,14 @@ export interface TooltipConfig {
    * @default false
    */
   focusOnSeriesMouseOver: boolean;
+  /**
+   * Whether the group value should be shown as the first line of the tooltip.
+   *
+   * Default:
+   * - `false` — when chartConfig.type is pie
+   * - `true` — when chartConfig.type is xy
+   */
+  showGroup: boolean;
   /**
    * Whether the focus/filter controls should be shown at the top of the
    * tooltip.

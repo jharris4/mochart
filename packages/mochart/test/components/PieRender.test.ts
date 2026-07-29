@@ -179,6 +179,25 @@ describe('pie chart rendering', () => {
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
   });
 
+  it('leaves the single group value out of the tooltip unless showGroup is set', () => {
+    const hidden = pieChartProps(ITEMS, { groupValue: 'all' });
+    const hiddenChart = mountChart(hidden.config, hidden.data);
+    const hiddenRoot = hiddenChart.container.querySelector('[data-mochart-version]')!;
+    mouse(hiddenRoot, 'mousemove', WIDTH / 2, HEIGHT / 2);
+    mouse(hiddenRoot, 'click', WIDTH / 2, HEIGHT / 2);
+    const hiddenTooltip = hiddenChart.container.querySelector('.mochart-tooltip')!;
+    expect(hiddenTooltip.querySelector('.mochart-tooltip-group-line')).toBeNull();
+    expect(hiddenTooltip.textContent).not.toContain('all');
+
+    const shown = pieChartProps(ITEMS, { groupValue: 'all' }, { tooltipConfig: { showGroup: true } });
+    const shownChart = mountChart(shown.config, shown.data);
+    const shownRoot = shownChart.container.querySelector('[data-mochart-version]')!;
+    mouse(shownRoot, 'mousemove', WIDTH / 2, HEIGHT / 2);
+    mouse(shownRoot, 'click', WIDTH / 2, HEIGHT / 2);
+    const shownTooltip = shownChart.container.querySelector('.mochart-tooltip')!;
+    expect(shownTooltip.querySelector('.mochart-tooltip-group-line')!.textContent).toBe('all');
+  });
+
   it('renders a partial span for gauge configs', () => {
     const full = mountChart(...Object.values(pieChartProps(ITEMS)) as [MochartInputConfig, readonly unknown[]]);
     const { config, data } = pieChartProps(ITEMS, {}, {

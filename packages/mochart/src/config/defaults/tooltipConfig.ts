@@ -61,6 +61,11 @@ export function getConditionalDefaults(configWithRegularDefaults: TooltipConfig,
       { condition: () => pieMode, suffix: "when chartConfig.type is pie", default: false },
       { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
       { ...defaultRule, default: true }
+    ], configWithRegularDefaults, pieMode),
+    showGroup: conditionalDefault([
+      { condition: () => pieMode, suffix: "when chartConfig.type is pie", default: false },
+      { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
+      { ...defaultRule, default: true }
     ], configWithRegularDefaults, pieMode)
   };
 }
