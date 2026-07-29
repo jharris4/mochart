@@ -5,6 +5,11 @@ have their own entry points — see the
 [framework pages](/guide/frameworks/react) — but accept the same props,
 callbacks, and helpers documented here.
 
+The props the entry points accept are listed property by property in
+[Chart props](/reference/props) and
+[Callbacks and payloads](/reference/callbacks); both are generated from the
+library's type declarations.
+
 ```js
 import {
   createDefaultChart, createChart,
@@ -28,12 +33,10 @@ config is validated and enhanced internally on every change, and `data` is
 wrapped in an `ArrayOfObjectsDataProvider` keyed by
 [`groupAxisConfig.property`](/reference/groupAxisConfig#groupAxisConfig.property).
 
-Props: `config`, `data`, `width`, `height`, `style`, `loading`, `error`,
-the [interaction callbacks](/guide/interaction#callbacks), their
-[controlled counterparts](/guide/interaction#controlled-focus-and-filtering)
-(`focusedGroupIndex`, `focusedSeriesId`, `focusedSeriesAxisId`,
-`filteredSeriesIds`), and the
-[state factories](/guide/chart-states#customizing-what-renders).
+Props: `config` and `data`, plus everything in
+[Chart props](/reference/props) — sizing, `loading`/`error`, the controlled
+focus and filter props, the [state factories](/reference/props#factories),
+and the [callbacks](/reference/callbacks).
 
 ## createChart
 
@@ -46,7 +49,8 @@ The lower-level entry point for hosts that manage
 [data providers](/guide/data-providers) themselves. Identical to
 `createDefaultChart` except it takes `mochartConfig` (from `enhanceConfig`)
 and `dataProvider` in place of `config` and `data` — useful when several
-charts share one enhanced config, or when data lives in a custom store.
+charts share one enhanced config, or when data lives in a custom store. Its
+props are listed under [Chart props](/reference/props#managedChartProps).
 
 ## ChartHandle
 

@@ -16,6 +16,7 @@ import {
   type SectionDoc,
   type TopLevelKeyDoc
 } from './configReferenceModel';
+import { buildApiReference } from './apiReferenceModel';
 
 import fs from 'fs';
 import path from 'path';
@@ -162,25 +163,38 @@ function writeFileEnsuringDir(filename: string, contents: string) {
   fs.writeFileSync(filename, contents);
 }
 
-export default function generateDocs(htmlPath: string, jsonPath: string): boolean {
+export default function generateDocs(htmlPath: string, jsonPath: string, apiJsonPath: string): boolean {
   const { model, integrityErrors } = buildConfigReference();
   writeFileEnsuringDir(jsonPath, JSON.stringify(model, null, 2) + '\n');
   writeFileEnsuringDir(htmlPath, renderHtml(model));
+
+  const api = buildApiReference();
+  writeFileEnsuringDir(apiJsonPath, JSON.stringify(api.model, null, 2) + '\n');
+
+  let valid = true;
   if (integrityErrors.length > 0) {
     console.error('config docs sources are out of sync:');
     for (let error of integrityErrors) {
       console.error('  - ' + error);
     }
-    return false;
+    valid = false;
   }
-  return true;
+  if (api.integrityErrors.length > 0) {
+    console.error('api docs sources are out of sync:');
+    for (let error of api.integrityErrors) {
+      console.error('  - ' + error);
+    }
+    valid = false;
+  }
+  return valid;
 }
 
 const runDirectly = process.argv[1] === fileURLToPath(import.meta.url);
 if (runDirectly) {
   const htmlPath = process.argv[2] ?? path.join(packageDir, 'mochart-docs.html');
   const jsonPath = process.argv[3] ?? path.join(packageDir, 'generated', 'config-reference.json');
-  if (!generateDocs(htmlPath, jsonPath)) {
+  const apiJsonPath = process.argv[4] ?? path.join(packageDir, 'generated', 'api-reference.json');
+  if (!generateDocs(htmlPath, jsonPath, apiJsonPath)) {
     process.exitCode = 1;
   }
 }

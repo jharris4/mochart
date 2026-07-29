@@ -68,40 +68,14 @@ createDefaultChart(container, {
   `linkDisabled`)
 - `onSeriesLayoutInfoChange(bounds)` — the plot area was re-laid-out
 
-### Payloads
-
-The four pointer callbacks all receive the same payload:
-
-```ts
-interface ChartEventPayload {
-  chartX: number;            // pointer x relative to the chart container, in px
-  chartY: number;            // pointer y relative to the chart container, in px
-  groupPosition: number;     // pointer position along the group axis, in plot px
-  seriesPosition: number;    // pointer position along the series axis, in plot px
-  groupPercentage: number;   // the same, as a 0–1 fraction of the plot
-  seriesPercentage: number;  // the same, as a 0–1 fraction of the plot
-  groupIndex: number;        // index of the nearest group, -1 when none
-}
-```
-
-`onFocus` receives the whole focus state, and `onSeriesFilter` the whole
-filter map — not just what changed:
-
-```ts
-interface ChartFocus {
-  focusedSeriesAxisId: string | null;  // null when no axis is focused
-  focusedSeriesId: string | null;      // null when no series is focused
-  focusedGroupIndex: number;           // -1 when no group is focused
-}
-
-interface ChartSeriesFilter {
-  filteredSeriesIds: Record<string, boolean>;  // series id → true = filtered out
-}
-```
-
-`onSliceClick` receives `{ seriesId }` — the id of the clicked slice's
-series (the leader, for follower series). Unlike `onFocus`, which pointer
-hover also drives, it fires only on click, so it can anchor a selection.
+The four pointer callbacks share one payload
+([`ChartEventPayload`](/reference/callbacks#chartEventPayload): pointer
+coordinates in three frames, plus the nearest group index).
+[`onFocus`](/reference/callbacks#callbacks.onFocus) and
+[`onSeriesFilter`](/reference/callbacks#callbacks.onSeriesFilter) each
+receive the whole state rather than only what changed. Every callback and
+every payload field is listed in
+[Callbacks and payloads](/reference/callbacks).
 
 ## Controlled focus and filtering
 
@@ -110,9 +84,12 @@ piece of that state has a matching input prop that takes over when it is set
 (not `undefined`), overriding the internal state on every update. Pass back
 what the callbacks report to keep several charts in sync:
 
-- `focusedGroupIndex` (`-1` = none), `focusedSeriesId` and
-  `focusedSeriesAxisId` (`null` = none) — the controlled form of `onFocus`
-- `filteredSeriesIds` — the controlled form of `onSeriesFilter`
+- [`focusedGroupIndex`](/reference/props#props.focusedGroupIndex) (`-1` =
+  none), [`focusedSeriesId`](/reference/props#props.focusedSeriesId) and
+  [`focusedSeriesAxisId`](/reference/props#props.focusedSeriesAxisId)
+  (`null` = none) — the controlled form of `onFocus`
+- [`filteredSeriesIds`](/reference/props#props.filteredSeriesIds) — the
+  controlled form of `onSeriesFilter`
 
 ```js
 chart.update({

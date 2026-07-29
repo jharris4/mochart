@@ -46,7 +46,10 @@ createDefaultChart(container, {
 
 Available factories: `getLoadingComponent`, `getErrorComponent`,
 `getNoDataComponent`, `getNoSizeComponent`, `getNoSeriesComponent`, and
-`getConfigErrorComponent`.
+`getConfigErrorComponent` — see [State factories](/reference/props#factories)
+for what each one renders, and
+[`ChartFactoryContext`](/reference/props#factoryContext) for the context
+fields.
 
 The framework bindings pass these through unchanged, so the same factories
 work in Angular, Lit, React, Svelte, and Vue.

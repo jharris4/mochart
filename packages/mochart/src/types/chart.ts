@@ -62,11 +62,17 @@ export interface ChartDomAccessors {
 }
 
 export interface ChartFactoryContext {
+  /** The chart's current width in pixels. */
   width?: number;
+  /** The chart's current height in pixels. */
   height?: number;
+  /** The enhanced config, or null when the config failed validation. */
   mochartConfig?: MochartConfig | null;
+  /** The current data provider, or null when there is none. */
   dataProvider?: DataProvider | null;
+  /** The `error` prop, when the chart is in its error state. */
   error?: unknown;
+  /** False when the dataset has no groups. */
   hasData?: boolean;
 }
 

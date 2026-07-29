@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress';
 import { loadConfigReference } from './lib/model';
+import { loadApiReference } from './lib/apiModel';
 
 // The deployed site nests the demo galleries next to the docs (see
 // scripts/build-pages.mjs), so demo links resolve only on the assembled site,
@@ -21,6 +22,11 @@ const referenceItems = loadConfigReference().sections.map(section => ({
   link: '/reference/' + section.id
 }));
 
+const apiItems = loadApiReference().pages.map(page => ({
+  text: page.title,
+  link: '/reference/' + page.id
+}));
+
 export default defineConfig({
   base,
   title: 'mochart',
@@ -40,6 +46,7 @@ export default defineConfig({
       '/reference/': [
         { text: 'Overview', link: '/reference/' },
         { text: 'API', link: '/reference/api' },
+        { text: 'Props and callbacks', items: apiItems },
         { text: 'Config sections', items: referenceItems }
       ]
     },
