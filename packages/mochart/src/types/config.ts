@@ -238,6 +238,14 @@ export interface PieConfig {
    */
   labelMinAnglePercent: number;
   /**
+   * Whether percent slice labels (and the labelMinAnglePercent threshold)
+   * renormalize against the unsuppressed slices (true) or always use every
+   * slice's share of the full total (false).
+   *
+   * @default true
+   */
+  adjustLabelsForSuppression: boolean;
+  /**
    * A text label shown at the center of the pie (use null for none; most useful
    * for donut and gauge charts).
    *
@@ -245,8 +253,8 @@ export interface PieConfig {
    */
   centerLabel: string | null;
   /**
-   * Whether the total of the unsuppressed slice values should be shown at the
-   * center of the pie.
+   * Whether the total of the slice values should be shown at the center of the
+   * pie.
    *
    * @default false
    */
@@ -258,6 +266,13 @@ export interface PieConfig {
    * @default "auto"
    */
   centerTotalFormat: string | Auto;
+  /**
+   * Whether the center total counts only the unsuppressed slices (true) or
+   * always shows the full total (false).
+   *
+   * @default true
+   */
+  adjustCenterTotalForSuppression: boolean;
 }
 
 export interface ColorPalette {

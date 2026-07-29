@@ -218,6 +218,34 @@ describe('pie chart rendering', () => {
     expect(suppressed.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('38');
   });
 
+  it('keeps percent labels on the full total when adjustLabelsForSuppression is off', () => {
+    const labelConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
+      pieConfig: { showLabels: true, labelType: 'percent', labelMinAnglePercent: 0, adjustLabelsForSuppression: adjust } as Partial<PieConfig>
+    });
+    const suppressed = { filteredSeriesIds: { slice2: true } };
+
+    const adjusted = mountChart(labelConfig(true).config, labelConfig(true).data, suppressed);
+    const adjustedLabels = Array.from(adjusted.container.querySelectorAll('.mochart-series-slice-label')).map((label) => label.textContent);
+    expect(adjustedLabels).toEqual(['76%', '24%']); // renormalized against 62 + 20
+
+    const unadjusted = mountChart(labelConfig(false).config, labelConfig(false).data, suppressed);
+    const unadjustedLabels = Array.from(unadjusted.container.querySelectorAll('.mochart-series-slice-label')).map((label) => label.textContent);
+    expect(unadjustedLabels).toEqual(['62%', '20%']); // shares of the full total
+  });
+
+  it('keeps the center total on the full total when adjustCenterTotalForSuppression is off', () => {
+    const totalConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
+      pieConfig: { showCenterTotal: true, centerTotalFormat: ',.0f', adjustCenterTotalForSuppression: adjust } as Partial<PieConfig>
+    });
+    const suppressed = { filteredSeriesIds: { slice0: true } };
+
+    const adjusted = mountChart(totalConfig(true).config, totalConfig(true).data, suppressed);
+    expect(adjusted.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('38');
+
+    const unadjusted = mountChart(totalConfig(false).config, totalConfig(false).data, suppressed);
+    expect(unadjusted.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('100');
+  });
+
   it('sweeps in on the initial animation, revealing labels only once settled', () => {
     const pie = mochart.createPie(ITEMS);
     const config = {

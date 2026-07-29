@@ -2,6 +2,7 @@ import { Renderer, svgEl } from '../render';
 
 import { getSeriesConfigsOrderedByFocus } from '../data/FocusData';
 import { getPieSliceAngles, sweepPieSliceAngles } from '../data/PieData';
+import type { PieSliceAngles } from '../data/PieData';
 import { getRadialLayoutInfo } from '../layout/RadialLayout';
 import { mochartCssClasses } from '../utils/ChartDom';
 
@@ -46,6 +47,13 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     let sliceAngles = getPieSliceAngles(mochartConfig.seriesConfigs, filteredValues, pieConfig);
     const radialLayoutInfo = getRadialLayoutInfo(seriesLayoutInfo, pieConfig);
 
+    // When labels or the center total should ignore suppression, their
+    // fractions/total come from the raw values (which keep suppressed series).
+    let rawSliceAngles: Record<string, PieSliceAngles> | null = null;
+    if (!pieConfig.adjustLabelsForSuppression || !pieConfig.adjustCenterTotalForSuppression) {
+      rawSliceAngles = getPieSliceAngles(mochartConfig.seriesConfigs, seriesData.raw.values, pieConfig);
+    }
+
     // On the initial animation the whole pie sweeps in from the start angle;
     // labels stay hidden until the sweep settles.
     const sweeping = initialAnimationPercentage !== null && initialAnimationPercentage < 1;
@@ -66,14 +74,19 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
         seriesIndex: seriesConfigIndicesById[seriesConfig.id],
         seriesLayoutInfo, radialLayoutInfo,
         sliceAngles: sliceAngles[seriesConfig.id],
+        labelFraction: pieConfig.adjustLabelsForSuppression
+          ? sliceAngles[seriesConfig.id]?.fraction ?? 0
+          : rawSliceAngles![seriesConfig.id]?.fraction ?? 0,
         focusData, gradientIdMap, hideLabels: sweeping, onFocus }
     })));
 
     // The center total sums the current (possibly mid-tween) values, so it
-    // counts along with value changes and suppression.
+    // counts along with value changes — and with suppression, unless
+    // adjustCenterTotalForSuppression turns that off.
+    const totalAngles = pieConfig.adjustCenterTotalForSuppression ? sliceAngles : rawSliceAngles!;
     let total = 0;
-    for (const id of Object.keys(sliceAngles)) {
-      total += sliceAngles[id].value;
+    for (const id of Object.keys(totalAngles)) {
+      total += totalAngles[id].value;
     }
     this.center.set(PieCenter, { pieConfig, seriesLayoutInfo, radialLayoutInfo, total });
   }

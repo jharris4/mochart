@@ -23,9 +23,11 @@ export function getRegularDefaults() {
     labelFormat: AUTO,
     labelRadiusPercent: 0.5,
     labelMinAnglePercent: 0.05,
+    adjustLabelsForSuppression: true,
     centerLabel: NONE,
     showCenterTotal: false,
-    centerTotalFormat: AUTO
+    centerTotalFormat: AUTO,
+    adjustCenterTotalForSuppression: true
   };
 }
 

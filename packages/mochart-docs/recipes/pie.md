@@ -64,6 +64,10 @@ value, percent or title labels at the slice centroids.
   Slices thinner than
   [`labelMinAnglePercent`](/reference/pieConfig#pieConfig.labelMinAnglePercent)
   hide their labels. Label colors reuse the per-series `label*` config keys.
+  When slices are suppressed via the legend, percent labels renormalize
+  against the remaining slices — set
+  [`adjustLabelsForSuppression`](/reference/pieConfig#pieConfig.adjustLabelsForSuppression)
+  to `false` to keep every slice's share of the full total instead.
 - With `tooltipValues: 'percent'` the helper precomputes each slice's share
   into the data row and points
   [`tooltipProperty`](/reference/seriesConfigs#seriesConfigs.tooltipProperty)
@@ -93,6 +97,9 @@ gauge — an `endAngle` *smaller* than `startAngle` runs counterclockwise.
   the live total of the unsuppressed slice values, formatted by
   [`centerTotalFormat`](/reference/pieConfig#pieConfig.centerTotalFormat) —
   it counts along with value tweens and suppression (click a legend entry).
+  Set
+  [`adjustCenterTotalForSuppression`](/reference/pieConfig#pieConfig.adjustCenterTotalForSuppression)
+  to `false` to keep the full total while slices are suppressed.
 - The center text carries no fill attribute, so it styles via CSS: target
   `.mochart-pie-center text` (the demo dark theme does exactly this).
 - The circle stays centered in the plot, so a half pie leaves its lower

@@ -15,8 +15,10 @@ export default function getValidators() {
     labelFormat: validators.numberFormat().orEqual(AUTO),
     labelRadiusPercent: validators.numberMinMax(0, 1),
     labelMinAnglePercent: validators.numberMinMax(0, 1),
+    adjustLabelsForSuppression: validators.boolean(),
     centerLabel: validators.string().orEqual(NONE),
     showCenterTotal: validators.boolean(),
-    centerTotalFormat: validators.numberFormat().orEqual(AUTO)
+    centerTotalFormat: validators.numberFormat().orEqual(AUTO),
+    adjustCenterTotalForSuppression: validators.boolean()
   };
 }

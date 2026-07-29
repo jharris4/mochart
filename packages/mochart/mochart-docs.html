@@ -1058,6 +1058,14 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
+<tr id="pieConfig.adjustCenterTotalForSuppression">
+<td><a href="#pieConfig.adjustCenterTotalForSuppression">adjustCenterTotalForSuppression</a></td><td>whether the center total counts only the unsuppressed slices (true) or always shows the full total (false)</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="pieConfig.adjustLabelsForSuppression">
+<td><a href="#pieConfig.adjustLabelsForSuppression">adjustLabelsForSuppression</a></td><td>whether percent slice labels (and the labelMinAnglePercent threshold) renormalize against the unsuppressed slices (true) or always use every slice's share of the full total (false)</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
 <tr id="pieConfig.centerLabel">
 <td><a href="#pieConfig.centerLabel">centerLabel</a></td><td>a text label shown at the center of the pie (use null for none; most useful for donut and gauge charts)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
@@ -1107,7 +1115,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="pieConfig.showCenterTotal">
-<td><a href="#pieConfig.showCenterTotal">showCenterTotal</a></td><td>whether the total of the unsuppressed slice values should be shown at the center of the pie</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#pieConfig.showCenterTotal">showCenterTotal</a></td><td>whether the total of the slice values should be shown at the center of the pie</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="pieConfig.showLabels">

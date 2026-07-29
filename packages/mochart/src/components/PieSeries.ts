@@ -37,6 +37,12 @@ interface PieSeriesProps {
   seriesLayoutInfo: LayoutInfo;
   radialLayoutInfo: RadialLayoutInfo;
   sliceAngles: PieSliceAngles | undefined;
+  /**
+   * The fraction driving the label content and min-angle threshold: the
+   * slice's share of the unsuppressed total, or of the full raw total when
+   * adjustLabelsForSuppression is off.
+   */
+  labelFraction: number;
   focusData: FocusData | null;
   gradientIdMap: Record<string, string>;
   /** Suppress labels while the initial sweep-in is running. */
@@ -50,13 +56,13 @@ interface PieSeriesState {
   onSeriesClick: () => void;
 }
 
-function getPieLabelText(pieConfig: PieConfig, seriesConfig: SeriesConfig, sliceAngles: PieSliceAngles): string {
+function getPieLabelText(pieConfig: PieConfig, seriesConfig: SeriesConfig, sliceAngles: PieSliceAngles, labelFraction: number): string {
   if (pieConfig.labelType === PIE_LABEL_TYPE_TITLE) {
     return seriesConfig.title ?? seriesConfig.id;
   }
   if (pieConfig.labelType === PIE_LABEL_TYPE_PERCENT) {
     const specifier = pieConfig.labelFormat === AUTO ? AUTO_PERCENT_FORMAT : pieConfig.labelFormat;
-    return format(specifier)(sliceAngles.fraction);
+    return format(specifier)(labelFraction);
   }
   const specifier = pieConfig.labelFormat === AUTO ? AUTO_VALUE_FORMAT : pieConfig.labelFormat;
   return format(specifier)(sliceAngles.value);
@@ -107,7 +113,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
 
   sync() {
     const { colorPaletteConfig, pieConfig, seriesConfig, seriesIndex, seriesLayoutInfo, radialLayoutInfo,
-      sliceAngles, focusData, gradientIdMap, hideLabels } = this.props;
+      sliceAngles, labelFraction, focusData, gradientIdMap, hideLabels } = this.props;
     const { onSeriesEnter, onSeriesLeave, onSeriesClick } = this.state;
 
     if (sliceAngles === undefined || sliceAngles.fraction <= 0 || focusData === null) {
@@ -132,7 +138,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       .outerRadius(radialLayoutInfo.outerRadius)
       .cornerRadius(pieConfig.cornerRadius)
       .padAngle(degreesToRadians(pieConfig.padAngle));
-    const { startAngle, endAngle, fraction } = sliceAngles;
+    const { startAngle, endAngle } = sliceAngles;
 
     // The focused slice "explodes" along its mid-angle; the tweened focus
     // percentage animates the offset in and out.
@@ -155,7 +161,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       stroke: strokeColor, strokeWidth, strokeOpacity,
       fill: fillColor, fillOpacity });
 
-    if (pieConfig.showLabels && !hideLabels && fraction >= pieConfig.labelMinAnglePercent) {
+    if (pieConfig.showLabels && !hideLabels && labelFraction >= pieConfig.labelMinAnglePercent) {
       const midAngle = (startAngle + endAngle) / 2;
       const labelRadius = radialLayoutInfo.innerRadius + (radialLayoutInfo.outerRadius - radialLayoutInfo.innerRadius) * pieConfig.labelRadiusPercent;
       const labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
@@ -174,7 +180,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
         textAnchor: 'middle', dy: textDY,
         stroke: labelStrokeColor, strokeWidth: labelStrokeWidth, strokeOpacity: labelStrokeOpacity,
         fill: labelFillColor, fillOpacity: labelFillOpacity });
-      this.labelText.set(getPieLabelText(pieConfig, seriesConfig, sliceAngles));
+      this.labelText.set(getPieLabelText(pieConfig, seriesConfig, sliceAngles, labelFraction));
     }
     else {
       this.label.set(null);
