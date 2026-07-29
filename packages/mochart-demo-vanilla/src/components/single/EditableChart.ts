@@ -1016,7 +1016,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       applySliceButton.setDisabled(sliceControlsDisabled);
       playSliceButton.setDisabled(error || sequencePlaying || slices.length < 3);
       stopSliceButton.setDisabled(error || !sequencePlaying);
-      sliceLabel.textContent = slices.length > 0 ? demoText.editableChart.slicePrefix + slices[sliceIndex].title : demoText.editableChart.selectASliceText;
+      sliceLabel.textContent = slices.length > 0 ? demoText.editableChart.sliceIndexPrefix + sliceIndex : demoText.editableChart.selectASliceText;
+      sliceLabel.title = slices.length > 0 ? slices[sliceIndex].title : '';
       sliceInput.disabled = sliceControlsDisabled;
       if (sliceInput.value !== sliceValueText) {
         sliceInput.value = sliceValueText;

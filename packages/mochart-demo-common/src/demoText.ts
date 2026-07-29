@@ -121,7 +121,7 @@ export const demoText = {
     resetSeries: { label: 'Reset', tooltip: "Discard the edits to this series' values", aria: 'Reset Series Changes' },
     applySeries: { label: 'Apply', tooltip: 'Apply the edited series values to the chart', aria: 'Apply Series Changes' },
     // pie-mode (pie/donut/gauge) slice panel
-    slicePrefix: 'Slice: ',
+    sliceIndexPrefix: 'Slice: ',
     selectASliceText: 'Click a slice to edit its value',
     previousSlice: { tooltip: 'Select the previous slice', aria: 'Previous Slice' },
     nextSlice: { tooltip: 'Select the next slice', aria: 'Next Slice' },

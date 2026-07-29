@@ -707,7 +707,7 @@ function getSingleShareState(): ShareState {
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;">{{ slices.length > 0 ? demoText.editableChart.slicePrefix + slices[sliceIndex].title : demoText.editableChart.selectASliceText }}</span>
+                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" :title="slices.length > 0 ? slices[sliceIndex].title : undefined">{{ slices.length > 0 ? demoText.editableChart.sliceIndexPrefix + sliceIndex : demoText.editableChart.selectASliceText }}</span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
