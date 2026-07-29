@@ -1,7 +1,7 @@
 import type {
   Auto, Align, VerticalAlign, Anchor, Position, Scale, DataType, RendererType,
   CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape,
-  ChartType, PieLabelType
+  ChartType, PieLabelType, PieTooltipLabelType
 } from '../config/core/constants';
 import type { MarginPadding, InnerOuter } from './geometry';
 
@@ -211,18 +211,28 @@ export interface PieConfig {
   showLabels: boolean;
   /**
    * The content of the slice labels: the slice value (value), the slice
-   * percentage of the total (percent) or the series title (title).
+   * percentage of the total (percent), the series title (title), or a
+   * combination of two of them (valuePercent for "value (percent)",
+   * percentValue for "percent (value)", titleValue for "title: value",
+   * titlePercent for "title: percent").
    *
    * @default "percent"
    */
   labelType: PieLabelType;
   /**
-   * The d3 format specifier used to format value and percent slice labels (use
-   * auto to derive a format).
+   * The d3 format specifier used to format the value part of the slice labels
+   * (use auto to derive a format).
    *
    * @default "auto"
    */
-  labelFormat: string | Auto;
+  labelValueFormat: string | Auto;
+  /**
+   * The d3 format specifier used to format the percent part of the slice labels
+   * (use auto to derive a format).
+   *
+   * @default "auto"
+   */
+  labelPercentFormat: string | Auto;
   /**
    * The radial position of the slice labels as a fraction (0 to 1) between the
    * inner radius and the outer radius.
@@ -245,6 +255,24 @@ export interface PieConfig {
    * @default true
    */
   adjustLabelsForSuppression: boolean;
+  /**
+   * The content of the tooltip value for each slice: the slice value (value),
+   * the slice percentage of the total (percent) or a combination of both
+   * (valuePercent for "value (percent)", percentValue for "percent (value)");
+   * the value part is formatted by the series valueFormat, valuePrefix and
+   * valueSuffix, and the percent part renormalizes against the unsuppressed
+   * slices unless tooltipConfig.adjustForSuppression is false.
+   *
+   * @default "value"
+   */
+  tooltipValues: PieTooltipLabelType;
+  /**
+   * The d3 format specifier used to format the percent part of the tooltip
+   * values (use auto to derive a format).
+   *
+   * @default "auto"
+   */
+  tooltipPercentFormat: string | Auto;
   /**
    * A text label shown at the center of the pie (use null for none; most useful
    * for donut and gauge charts).

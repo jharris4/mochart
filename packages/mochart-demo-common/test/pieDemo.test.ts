@@ -20,24 +20,19 @@ describe('getPieSlices', () => {
 });
 
 describe('applyPieSliceValue', () => {
-  it('sets the value and leaves rows without percent columns alone', () => {
-    const slices = getPieSlices(enhanceConfig(pieDemo.config));
+  it('sets the edited slice value', () => {
     const row = { ...pieDemo.data[0] };
-    applyPieSliceValue(row, slices, 'slice0', 999);
+    applyPieSliceValue(row, 'slice0', 999);
     expect(row['slice0']).toBe(999);
-    expect(row['slice0Percent']).toBeUndefined();
   });
 
-  it('recomputes the precomputed percent columns like createPie', () => {
+  it('touches nothing else — shares are derived by the chart, not stored', () => {
     const slices = getPieSlices(enhanceConfig(donutDemo.config));
     const row = { ...donutDemo.data[0] };
-    applyPieSliceValue(row, slices, slices[0].property, 50);
-    let total = 0;
-    for (const slice of slices) {
-      total += row[slice.property] as number;
-    }
-    for (const slice of slices) {
-      expect(row[slice.property + 'Percent']).toBe(Math.round(((row[slice.property] as number) / total) * 1000) / 10);
+    applyPieSliceValue(row, slices[0].property, 50);
+    expect(Object.keys(row)).toEqual(Object.keys(donutDemo.data[0]));
+    for (const slice of slices.slice(1)) {
+      expect(row[slice.property]).toBe(donutDemo.data[0][slice.property]);
     }
   });
 });

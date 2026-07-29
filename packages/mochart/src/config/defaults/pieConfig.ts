@@ -1,4 +1,4 @@
-import { AUTO, NONE, PIE_LABEL_TYPE_PERCENT } from '../core/constants';
+import { AUTO, NONE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE } from '../core/constants';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import type { PieConfig } from '../../types/config';
@@ -20,10 +20,13 @@ export function getRegularDefaults() {
     focusOffsetPercent: 0,
     showLabels: false,
     labelType: PIE_LABEL_TYPE_PERCENT,
-    labelFormat: AUTO,
+    labelValueFormat: AUTO,
+    labelPercentFormat: AUTO,
     labelRadiusPercent: 0.5,
     labelMinAnglePercent: 0.05,
     adjustLabelsForSuppression: true,
+    tooltipValues: PIE_LABEL_TYPE_VALUE,
+    tooltipPercentFormat: AUTO,
     centerLabel: NONE,
     showCenterTotal: false,
     centerTotalFormat: AUTO,

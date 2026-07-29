@@ -86,6 +86,37 @@ test.describe('donut demo', () => {
     await expect.poll(() => slice.getAttribute('transform')).toBe(before);
   });
 
+  // The donut's labels and tooltip both show shares (labelType 'percent',
+  // tooltipValues 'percent'), so suppressing a slice has to move both.
+  test('renormalizes the tooltip shares with the labels when a slice is suppressed', async ({ page }) => {
+    await openDemo(page, 'donut');
+    await expect(page.locator('.mochart-series-slice').first()).toBeAttached();
+
+    const openTooltip = async () => {
+      const box = await page.locator('.mochart-plot-background').boundingBox();
+      if (!box) {
+        throw new Error('plot background has no bounding box');
+      }
+      // click near the top edge of the ring, away from the tooltip's own box
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.1, { steps: 5 });
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height * 0.1);
+      await expect(page.locator('.mochart-tooltip')).toBeVisible();
+    };
+    const safariRow = page.locator('.mochart-tooltip [class*="mochart-tooltip-series-line-slice1"]');
+
+    await openTooltip();
+    await expect(safariRow).toContainText('20.0%'); // Safari's share of all six slices
+    await page.keyboard.press('Escape');
+
+    // suppress Chrome (62), the largest slice — Safari's share must grow
+    await page.locator('.mochart-legend-item').first().click();
+    await openTooltip();
+    await expect(safariRow).toContainText('52.6%');
+    // the same share in the label, rounded by its own auto format (.0% for the
+    // cramped centroid labels, .1% for the tooltip)
+    await expect(page.locator('.mochart-series-slice-label').first()).toContainText('53%');
+  });
+
   test('renders donut slices with percent labels on the wide slices', async ({ page }) => {
     await openDemo(page, 'donut');
     await expect(page.locator('.mochart-series-slice').first()).toBeAttached();

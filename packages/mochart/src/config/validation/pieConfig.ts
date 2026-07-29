@@ -1,5 +1,5 @@
 import validators from './validators';
-import { AUTO, NONE, PIE_LABEL_TYPES } from '../core/constants';
+import { AUTO, NONE, PIE_LABEL_TYPES, PIE_TOOLTIP_LABEL_TYPES } from '../core/constants';
 
 export default function getValidators() {
   return {
@@ -12,10 +12,13 @@ export default function getValidators() {
     focusOffsetPercent: validators.numberMinMax(0, 1),
     showLabels: validators.boolean(),
     labelType: validators.oneOf(PIE_LABEL_TYPES),
-    labelFormat: validators.numberFormat().orEqual(AUTO),
+    labelValueFormat: validators.numberFormat().orEqual(AUTO),
+    labelPercentFormat: validators.numberFormat().orEqual(AUTO),
     labelRadiusPercent: validators.numberMinMax(0, 1),
     labelMinAnglePercent: validators.numberMinMax(0, 1),
     adjustLabelsForSuppression: validators.boolean(),
+    tooltipValues: validators.oneOf(PIE_TOOLTIP_LABEL_TYPES),
+    tooltipPercentFormat: validators.numberFormat().orEqual(AUTO),
     centerLabel: validators.string().orEqual(NONE),
     showCenterTotal: validators.boolean(),
     centerTotalFormat: validators.numberFormat().orEqual(AUTO),

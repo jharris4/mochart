@@ -196,7 +196,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   function applySliceChanges(): void {
     const value = parseFloat(sliceValueText);
     if (!isNaN(value) && isFinite(value) && filteredData.length > 0 && slices.length > 0) {
-      applyPieSliceValue(filteredData[0], slices, slices[sliceIndex].property, value);
+      applyPieSliceValue(filteredData[0], slices[sliceIndex].property, value);
       updateFilteredDataState({}, filteredData, removedData, false);
     }
   }
@@ -204,7 +204,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   function resetSliceChanges(): void {
     if (filteredData.length > 0 && data.length > 0 && slices.length > 0) {
       const property = slices[sliceIndex].property;
-      applyPieSliceValue(filteredData[0], slices, property, data[0][property] as number);
+      applyPieSliceValue(filteredData[0], property, data[0][property] as number);
       sliceValueText = getSliceValueText(filteredData);
       updateFilteredDataState({}, filteredData, removedData, false);
     }

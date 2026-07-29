@@ -52,15 +52,19 @@ describe('createPie', () => {
     expect(seriesConfigs[0]).toMatchObject({ strokeColor: '#ff0000', fillColor: '#ff0000', valueFormat: '.1f' });
   });
 
-  it('precomputes percent columns and wires tooltipProperty when tooltipValues is percent', () => {
-    const { data, seriesConfigs } = createPie(items(), { tooltipValues: 'percent' });
-    expect(data[0].slice0Percent).toBe(62);
-    expect(data[0].slice1Percent).toBe(20);
-    expect(seriesConfigs[0]).toMatchObject({ tooltipProperty: 'slice0Percent', valueSuffix: '%' });
+  it('forwards tooltipValues to the pieConfig fragment, leaving the data alone', () => {
+    const { data, pieConfig, seriesConfigs } = createPie(items(), { tooltipValues: 'percentValue' });
+    // percentages are computed by the chart from the live slice shares, so
+    // nothing is baked into the row and no tooltipProperty is wired up
+    expect(pieConfig).toEqual({ tooltipValues: 'percentValue' });
+    expect(data[0]).toEqual({ group: 'all', slice0: 62, slice1: 20, slice2: 18 });
+    expect(seriesConfigs[0].tooltipProperty).toBeUndefined();
   });
 
   it('emits a donut pieConfig fragment via the donut and innerRadiusPercent options', () => {
     expect(createPie(items()).pieConfig).toEqual({});
+    expect(createPie(items(), { donut: true, tooltipValues: 'percent' }).pieConfig)
+      .toEqual({ tooltipValues: 'percent', innerRadiusPercent: 0.6 });
     expect(createPie(items(), { donut: true }).pieConfig).toEqual({ innerRadiusPercent: 0.6 });
     expect(createPie(items(), { donut: true, innerRadiusPercent: 0.4 }).pieConfig).toEqual({ innerRadiusPercent: 0.4 });
   });

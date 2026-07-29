@@ -689,7 +689,7 @@ export default function EditableChart(props: Props) {
     const { slices, sliceIndex, sliceValueText } = state;
     const value = parseFloat(sliceValueText);
     if (!isNaN(value) && isFinite(value) && filteredData.length > 0 && slices.length > 0) {
-      applyPieSliceValue(filteredData[0], slices, slices[sliceIndex].property, value);
+      applyPieSliceValue(filteredData[0], slices[sliceIndex].property, value);
       updateFilteredDataState({}, filteredData, removedData, false);
     }
   };
@@ -701,7 +701,7 @@ export default function EditableChart(props: Props) {
     const { slices, sliceIndex } = state;
     if (filteredData.length > 0 && data.length > 0 && slices.length > 0) {
       const property = slices[sliceIndex].property;
-      applyPieSliceValue(filteredData[0], slices, property, data[0][property] as number);
+      applyPieSliceValue(filteredData[0], property, data[0][property] as number);
       updateFilteredDataState({ sliceValueText: getSliceValueText(slices, sliceIndex, filteredData) }, filteredData, removedData, false);
     }
   };

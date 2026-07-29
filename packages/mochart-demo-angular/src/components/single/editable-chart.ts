@@ -793,7 +793,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   applySliceChanges = (): void => {
     const value = parseFloat(this.sliceValueText());
     if (!isNaN(value) && isFinite(value) && this.filteredData.length > 0 && this.slices().length > 0) {
-      applyPieSliceValue(this.filteredData[0], this.slices(), this.slices()[this.sliceIndex()].property, value);
+      applyPieSliceValue(this.filteredData[0], this.slices()[this.sliceIndex()].property, value);
       this.updateFilteredDataState({}, this.filteredData, this.removedData, false);
     }
   };
@@ -801,7 +801,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   resetSliceChanges = (): void => {
     if (this.filteredData.length > 0 && this.data.length > 0 && this.slices().length > 0) {
       const property = this.slices()[this.sliceIndex()].property;
-      applyPieSliceValue(this.filteredData[0], this.slices(), property, this.data[0][property] as number);
+      applyPieSliceValue(this.filteredData[0], property, this.data[0][property] as number);
       this.sliceValueText.set(this.getSliceValueText(this.filteredData));
       this.updateFilteredDataState({}, this.filteredData, this.removedData, false);
     }

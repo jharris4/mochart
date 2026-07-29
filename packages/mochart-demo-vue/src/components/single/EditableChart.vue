@@ -172,7 +172,7 @@ function onChartSliceClick({ seriesId }: { seriesId: string }) {
 function applySliceChanges() {
   const value = parseFloat(sliceValueText.value);
   if (!isNaN(value) && isFinite(value) && filteredData.length > 0 && slices.value.length > 0) {
-    applyPieSliceValue(filteredData[0], slices.value, slices.value[sliceIndex.value].property, value);
+    applyPieSliceValue(filteredData[0], slices.value[sliceIndex.value].property, value);
     updateFilteredDataState({}, filteredData, removedData, false);
   }
 }
@@ -180,7 +180,7 @@ function applySliceChanges() {
 function resetSliceChanges() {
   if (filteredData.length > 0 && props.data.length > 0 && slices.value.length > 0) {
     const property = slices.value[sliceIndex.value].property;
-    applyPieSliceValue(filteredData[0], slices.value, property, props.data[0][property] as number);
+    applyPieSliceValue(filteredData[0], property, props.data[0][property] as number);
     sliceValueText.value = getSliceValueText(filteredData);
     updateFilteredDataState({}, filteredData, removedData, false);
   }

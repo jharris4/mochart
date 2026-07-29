@@ -1,5 +1,4 @@
 import { arc } from 'd3-shape';
-import { format } from 'd3-format';
 
 import { Renderer, svgEl, textEl } from '../render';
 
@@ -10,7 +9,8 @@ import { getFocusValue } from '../utils/FocusValue';
 import { getGradientReference } from '../utils/svgUtils';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate, textDY } from '../utils/utils';
-import { NONE, AUTO, PIE_LABEL_TYPE_TITLE, PIE_LABEL_TYPE_PERCENT } from '../config/core/constants';
+import { NONE } from '../config/core/constants';
+import { formatPieLabelType, getPieLabelFormats } from '../data/PieLabel';
 
 import type { ColorPaletteConfig, PieConfig, SeriesConfig } from '../types/config';
 import type { FocusData } from '../types/animation';
@@ -19,11 +19,6 @@ import type { PieSliceAngles } from '../data/PieData';
 import type { RadialLayoutInfo } from '../layout/RadialLayout';
 
 const noOp = () => {};
-
-// Auto formats: whole percents for percent labels, SI-abbreviated values for
-// value labels (pie slices rarely have room for more digits).
-const AUTO_PERCENT_FORMAT = '.0%';
-const AUTO_VALUE_FORMAT = '~s';
 
 interface PieSeriesFocusUpdate {
   seriesId?: string | null;
@@ -59,15 +54,12 @@ interface PieSeriesState {
 }
 
 function getPieLabelText(pieConfig: PieConfig, seriesConfig: SeriesConfig, sliceAngles: PieSliceAngles, labelFraction: number): string {
-  if (pieConfig.labelType === PIE_LABEL_TYPE_TITLE) {
-    return seriesConfig.title ?? seriesConfig.id;
-  }
-  if (pieConfig.labelType === PIE_LABEL_TYPE_PERCENT) {
-    const specifier = pieConfig.labelFormat === AUTO ? AUTO_PERCENT_FORMAT : pieConfig.labelFormat;
-    return format(specifier)(labelFraction);
-  }
-  const specifier = pieConfig.labelFormat === AUTO ? AUTO_VALUE_FORMAT : pieConfig.labelFormat;
-  return format(specifier)(sliceAngles.value);
+  const { valueFormat, percentFormat } = getPieLabelFormats(pieConfig);
+  return formatPieLabelType(pieConfig.labelType, {
+    title: seriesConfig.title ?? seriesConfig.id,
+    value: valueFormat(sliceAngles.value),
+    percent: percentFormat(labelFraction)
+  });
 }
 
 /** One pie/donut slice: an arc path plus an optional centroid label. */

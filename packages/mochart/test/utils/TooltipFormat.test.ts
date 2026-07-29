@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getSeriesText, getSuppressedValue } from '../../src/utils/TooltipFormat';
+import type { PieTooltipValues } from '../../src/utils/TooltipFormat';
 import type { TooltipConfig, SeriesConfig } from '../../src/types/config';
 import type { ChartData, SeriesValueObject } from '../../src/types/data';
 
@@ -263,6 +264,79 @@ describe('getSeriesText', () => {
       false
     );
     expect(valueText).toBe('—');
+  });
+
+  describe('pie tooltip values', () => {
+    // TooltipContent picks the fraction from the filtered or raw slice shares
+    // (see getPieSliceFractionMap) and passes it in with the row's suppression
+    // flag, since a percentage is derived rather than stored per value key.
+    const pieValues = (over: Partial<PieTooltipValues> = {}): PieTooltipValues => ({
+      tooltipValues: 'percent',
+      percentFormat: (fraction: number) => (fraction * 100).toFixed(1) + '%',
+      fraction: 0.25,
+      rawFraction: 0.2,
+      suppressed: false,
+      ...over
+    });
+
+    it('replaces the value with the slice percentage', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig(), makeSeriesConfig(), identity, makeSlice({ plain: 42 }) as never, false, pieValues()
+      );
+      expect(valueText).toBe('25.0%');
+    });
+
+    it('combines the value and the percentage in both orders', () => {
+      const slice = makeSlice({ plain: 42 }) as never;
+      expect(getSeriesText(makeTooltipConfig(), makeSeriesConfig(), identity, slice, false,
+        pieValues({ tooltipValues: 'valuePercent' })).valueText).toBe('42 (25.0%)');
+      expect(getSeriesText(makeTooltipConfig(), makeSeriesConfig(), identity, slice, false,
+        pieValues({ tooltipValues: 'percentValue' })).valueText).toBe('25.0% (42)');
+    });
+
+    it('leaves the plain value alone for the value type', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig(), makeSeriesConfig(), identity, makeSlice({ plain: 42 }) as never, false,
+        pieValues({ tooltipValues: 'value' })
+      );
+      expect(valueText).toBe('42');
+    });
+
+    it('lets an explicit tooltipProperty win over the pie percentages', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig(), makeSeriesConfig({ tooltipProperty: 't' }), identity,
+        makeSlice({ plain: 42, tooltip: 99 }) as never, false, pieValues()
+      );
+      expect(valueText).toBe('99');
+    });
+
+    it('hides the row when the slice has no value, rather than showing a 0% share', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ showMissingValues: false }), makeSeriesConfig(), identity,
+        makeSlice({}) as never, false, pieValues({ fraction: 0 })
+      );
+      expect(valueText).toBe(null);
+    });
+
+    it('masks a suppressed slice\'s percentage, sized from its share of the full total', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ adjustForSuppression: true, suppressedValueCharacter: '#' }),
+        makeSeriesConfig(), identity,
+        makeSlice({ plain: 42 }, { plain: null }, { y: 100 }) as never, // base "100" => 3 chars
+        true,
+        pieValues({ tooltipValues: 'percentValue', fraction: 0, rawFraction: 0.2, suppressed: true })
+      );
+      expect(valueText).toBe('##### (###)'); // raw "20.0%" => 5 chars
+    });
+
+    it('shows the percentage untouched when suppression adjustment is off', () => {
+      const { valueText } = getSeriesText(
+        makeTooltipConfig({ adjustForSuppression: false }), makeSeriesConfig(), identity,
+        makeSlice({ plain: 42 }) as never, false,
+        pieValues({ fraction: 0.2, suppressed: true })
+      );
+      expect(valueText).toBe('20.0%');
+    });
   });
 
   describe('suppression', () => {

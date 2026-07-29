@@ -655,17 +655,18 @@ function pieRows(random: PieRandomConfig, randomId: number): DataRow[] {
 }
 
 function donutRows(random: PieRandomConfig, randomId: number): DataRow[] {
-  return createPie(pieItems(DONUT_SLICE_POOL, 'donut', random, randomId), { tooltipValues: 'percent' }).data;
+  return createPie(pieItems(DONUT_SLICE_POOL, 'donut', random, randomId)).data;
 }
 
 function buildPieSnapshot(): ChartTypeDemoSnapshot {
-  const pie = createPie(PIE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { valueFormat: ',.0f' });
+  const pie = createPie(PIE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { valueFormat: ',.0f', tooltipValues: 'valuePercent' });
   return {
     id: 'pie',
     config: {
       version: '1.0.0',
       titleConfig: { title: 'Revenue by Product (fictional, $k)' },
       chartConfig: pie.chartConfig,
+      pieConfig: pie.pieConfig,
       groupAxisConfig: pie.groupAxisConfig,
       seriesConfigs: pie.seriesConfigs
     },
@@ -700,11 +701,11 @@ const GAUGE_SLICE_POOL: PieSlicePoolEntry[] = [
 ];
 
 function gaugeRows(random: PieRandomConfig, randomId: number): DataRow[] {
-  return createPie(pieItems(GAUGE_SLICE_POOL, 'gauge', random, randomId), { tooltipValues: 'percent' }).data;
+  return createPie(pieItems(GAUGE_SLICE_POOL, 'gauge', random, randomId)).data;
 }
 
 function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
-  const pie = createPie(GAUGE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { tooltipValues: 'percent' });
+  const pie = createPie(GAUGE_SLICE_POOL.map(({ label, value }) => ({ label, value })), { tooltipValues: 'percentValue' });
   return {
     id: 'gauge',
     config: {
@@ -712,6 +713,7 @@ function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
       titleConfig: { title: 'Customer Sentiment (fictional survey)' },
       chartConfig: pie.chartConfig,
       pieConfig: {
+        ...pie.pieConfig,
         startAngle: -90,
         endAngle: 90,
         innerRadiusPercent: 0.55,

@@ -428,7 +428,7 @@
     {
       "id": "pie",
       "title": "Pie",
-      "description": "A pie chart from the createPie helper and chartConfig.type 'pie': every slice is its own series, so the legend lists the slices, hovering one focuses it and clicking suppresses it (the remaining slices grow to fill the circle). Click the chart for a tooltip with one row per slice. Random mode reshuffles the revenue mix and occasionally zeroes a slice so it animates out and back in.",
+      "description": "A pie chart from the createPie helper and chartConfig.type 'pie': every slice is its own series, so the legend lists the slices, hovering one focuses it and clicking suppresses it (the remaining slices grow to fill the circle). Click the chart for a tooltip with one row per slice, each showing the value and its share (pieConfig.tooltipValues 'valuePercent'). Random mode reshuffles the revenue mix and occasionally zeroes a slice so it animates out and back in.",
       "config": "pie-config.json",
       "data": "pie-data.json",
       "random": "pie-random.json",
@@ -437,7 +437,7 @@
     {
       "id": "donut",
       "title": "Donut",
-      "description": "The pie chart with an inner radius (pieConfig.innerRadiusPercent) and percent labels at the slice centroids (pieConfig.showLabels); labels on slices thinner than labelMinAnglePercent hide themselves. The tooltip shows each slice's share via the precomputed percent columns and tooltipProperty. Random mode reshuffles the shares.",
+      "description": "The pie chart with an inner radius (pieConfig.innerRadiusPercent) and percent labels at the slice centroids (pieConfig.showLabels); labels on slices thinner than labelMinAnglePercent hide themselves. The tooltip shows each slice's share too (pieConfig.tooltipValues 'percent'), and both renormalize against the remaining slices as you suppress one. Random mode reshuffles the shares.",
       "config": "donut-config.json",
       "data": "donut-data.json",
       "random": "donut-random.json",
@@ -446,7 +446,7 @@
     {
       "id": "gauge",
       "title": "Gauge",
-      "description": "A half-donut gauge via pieConfig.startAngle/endAngle (-90 to 90): three sentiment segments with rounded, padded slices, title labels at the centroids, and a live center total (pieConfig.showCenterTotal) that counts along with value changes and suppression. Hovering a legend entry explodes nothing here \u2014 compare the donut demo's focusOffsetPercent. Random mode jitters the response counts; segments never drop out unless you raise the random config's missing.probability.",
+      "description": "A half-donut gauge via pieConfig.startAngle/endAngle (-90 to 90): three sentiment segments with rounded, padded slices, title labels at the centroids, and a live center total (pieConfig.showCenterTotal) that counts along with value changes and suppression. Its tooltip pairs each segment's share with its response count (pieConfig.tooltipValues 'percentValue'). Hovering a legend entry explodes nothing here \u2014 compare the donut demo's focusOffsetPercent. Random mode jitters the response counts; segments never drop out unless you raise the random config's missing.probability.",
       "config": "gauge-config.json",
       "data": "gauge-data.json",
       "random": "gauge-random.json",

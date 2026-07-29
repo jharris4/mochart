@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getPieSliceAngles, sweepPieSliceAngles, degreesToRadians } from '../../src/data/PieData';
+import { getPieSliceAngles, getPieSliceFractions, getPieSliceFractionMap, sweepPieSliceAngles, degreesToRadians } from '../../src/data/PieData';
 import { getRadialLayoutInfo } from '../../src/layout/RadialLayout';
 import type { PieConfig, SeriesConfig } from '../../src/types/config';
 import type { SeriesValueObject } from '../../src/types/data';
@@ -19,6 +19,39 @@ const pieConfig = (overrides: Partial<PieConfig> = {}) => ({
   ...overrides
 }) as PieConfig;
 const values = (plain: (number | undefined)[] | null) => ({ plain }) as SeriesValueObject;
+
+describe('getPieSliceFractions', () => {
+  const configs = [seriesConfig('a'), seriesConfig('b'), seriesConfig('c')];
+
+  it('clamps missing, non-finite and non-positive values to 0', () => {
+    const scalars: Record<string, number | null | undefined> = { a: 30, b: -5, c: undefined };
+    const { total, values: clamped, fractions } = getPieSliceFractions(configs, id => scalars[id]);
+    expect(total).toBe(30);
+    expect(clamped).toEqual([30, 0, 0]);
+    expect(fractions).toEqual([1, 0, 0]);
+  });
+
+  it('yields all-zero fractions for a non-positive total', () => {
+    const { total, fractions } = getPieSliceFractions(configs, () => 0);
+    expect(total).toBe(0);
+    expect(fractions).toEqual([0, 0, 0]);
+  });
+
+  it('keys the fraction map by series id', () => {
+    const scalars: Record<string, number | null | undefined> = { a: 30, b: 10, c: null };
+    expect(getPieSliceFractionMap(configs, id => scalars[id])).toEqual({ a: 0.75, b: 0.25, c: 0 });
+  });
+
+  it('normalizes the same way the slice angles do', () => {
+    // the tooltip reads one group's scalars, the slices read per-group arrays —
+    // both must agree on each slice's share
+    const angles = getPieSliceAngles(configs, { a: values([30]), b: values([10]), c: values(null) }, pieConfig());
+    const scalars: Record<string, number | null | undefined> = { a: 30, b: 10, c: null };
+    const fractionMap = getPieSliceFractionMap(configs, id => scalars[id]);
+    expect(fractionMap.a).toBe(angles.a.fraction);
+    expect(fractionMap.b).toBe(angles.b.fraction);
+  });
+});
 
 describe('getPieSliceAngles', () => {
   it('divides the circle proportionally in series config order', () => {

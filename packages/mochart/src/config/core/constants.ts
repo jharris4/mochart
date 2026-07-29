@@ -56,9 +56,20 @@ export const CHART_TYPES = [
 export const PIE_LABEL_TYPE_VALUE = 'value';
 export const PIE_LABEL_TYPE_PERCENT = 'percent';
 export const PIE_LABEL_TYPE_TITLE = 'title';
+export const PIE_LABEL_TYPE_VALUE_PERCENT = 'valuePercent';
+export const PIE_LABEL_TYPE_PERCENT_VALUE = 'percentValue';
+export const PIE_LABEL_TYPE_TITLE_VALUE = 'titleValue';
+export const PIE_LABEL_TYPE_TITLE_PERCENT = 'titlePercent';
 
-export const PIE_LABEL_TYPES = [
-  PIE_LABEL_TYPE_VALUE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_TITLE
+// The tooltip types are the label types minus the title-bearing ones: a
+// tooltip row already renders the series title as its label, so a title in
+// the value would just repeat it.
+export const PIE_TOOLTIP_LABEL_TYPES: PieTooltipLabelType[] = [
+  PIE_LABEL_TYPE_VALUE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE_PERCENT, PIE_LABEL_TYPE_PERCENT_VALUE
+];
+
+export const PIE_LABEL_TYPES: PieLabelType[] = [
+  ...PIE_TOOLTIP_LABEL_TYPES, PIE_LABEL_TYPE_TITLE, PIE_LABEL_TYPE_TITLE_VALUE, PIE_LABEL_TYPE_TITLE_PERCENT
 ];
 
 export const SCALE_ORDINAL = 'ordinal';
@@ -156,7 +167,11 @@ export type VerticalAlign = typeof VERTICAL_ALIGN_TOP | typeof VERTICAL_ALIGN_MI
 export type Anchor = typeof ANCHOR_START | typeof ANCHOR_END | typeof ANCHOR_MIDDLE;
 export type Position = typeof POSITION_TOP | typeof POSITION_BOTTOM;
 export type ChartType = typeof CHART_TYPE_XY | typeof CHART_TYPE_PIE;
-export type PieLabelType = typeof PIE_LABEL_TYPE_VALUE | typeof PIE_LABEL_TYPE_PERCENT | typeof PIE_LABEL_TYPE_TITLE;
+export type PieTooltipLabelType =
+  typeof PIE_LABEL_TYPE_VALUE | typeof PIE_LABEL_TYPE_PERCENT |
+  typeof PIE_LABEL_TYPE_VALUE_PERCENT | typeof PIE_LABEL_TYPE_PERCENT_VALUE;
+export type PieLabelType = PieTooltipLabelType |
+  typeof PIE_LABEL_TYPE_TITLE | typeof PIE_LABEL_TYPE_TITLE_VALUE | typeof PIE_LABEL_TYPE_TITLE_PERCENT;
 export type Scale = typeof SCALE_ORDINAL | typeof SCALE_LINEAR;
 export type DataType = typeof TYPE_STRING | typeof TYPE_NUMBER | typeof TYPE_DATE;
 export type RendererType = typeof RENDERER_BAR | typeof RENDERER_LINE | typeof RENDERER_AREA | typeof RENDERER_NONE;

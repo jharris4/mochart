@@ -1,3 +1,4 @@
+import type { PieTooltipLabelType } from '../config/core/constants';
 import type { ChartConfig, GroupAxisConfig, PieConfig, SeriesConfig } from '../types/config';
 
 export interface PieItem {
@@ -17,13 +18,15 @@ export interface CreatePieOptions {
    */
   groupValue?: string;
   /**
-   * What the tooltip shows for each slice: the raw slice value, or the slice's
-   * percentage of the total (precomputed into the data row, so it reflects the
-   * values passed in — not any later suppression).
+   * What the tooltip shows for each slice: the slice value, its percentage of
+   * the total, or both. Percentages are computed by the chart from the current
+   * slice shares — like the slice labels, they renormalize as slices are
+   * suppressed — so this is forwarded as `pieConfig.tooltipValues` rather than
+   * baked into the data.
    *
    * @default 'value'
    */
-  tooltipValues?: 'value' | 'percent';
+  tooltipValues?: PieTooltipLabelType;
   /** A d3 format specifier forwarded to each slice's series config. */
   valueFormat?: string;
   /**
@@ -42,10 +45,7 @@ export interface PieData {
   total: number;
   /** Each slice's fraction of the total, in item order (all 0 when total is 0). */
   fractions: number[];
-  /**
-   * A single row: the group value plus `slice{i}` per item (and
-   * `slice{i}Percent` when `tooltipValues` is 'percent').
-   */
+  /** A single row: the group value plus `slice{i}` per item. */
   data: Record<string, number | string>[];
   /** Fragment to spread into the chart config's `chartConfig` (sets type: 'pie'). */
   chartConfig: Partial<ChartConfig>;
@@ -82,21 +82,20 @@ export function computePieFractions(values: readonly number[]): { total: number;
  */
 export function createPie(items: readonly PieItem[], options: CreatePieOptions = {}): PieData {
   const { total, fractions } = computePieFractions(items.map((item) => item.value));
-  const percentValues = options.tooltipValues === 'percent';
 
   const row: Record<string, number | string> = {
     [GROUP_PROPERTY]: options.groupValue ?? DEFAULT_GROUP_VALUE
   };
   items.forEach((item, i) => {
     row['slice' + i] = Number.isFinite(item.value) && item.value > 0 ? item.value : 0;
-    if (percentValues) {
-      row['slice' + i + 'Percent'] = Math.round(fractions[i] * 1000) / 10;
-    }
   });
 
   const chartConfig: Partial<ChartConfig> = { type: 'pie' };
 
   const pieConfig: Partial<PieConfig> = {};
+  if (options.tooltipValues !== undefined) {
+    pieConfig.tooltipValues = options.tooltipValues;
+  }
   const innerRadiusPercent = options.innerRadiusPercent ?? (options.donut === true ? DEFAULT_DONUT_INNER_RADIUS_PERCENT : undefined);
   if (innerRadiusPercent !== undefined) {
     pieConfig.innerRadiusPercent = innerRadiusPercent;
@@ -120,10 +119,6 @@ export function createPie(items: readonly PieItem[], options: CreatePieOptions =
     }
     if (options.valueFormat !== undefined) {
       seriesConfig.valueFormat = options.valueFormat;
-    }
-    if (percentValues) {
-      seriesConfig.tooltipProperty = 'slice' + i + 'Percent';
-      seriesConfig.valueSuffix = '%';
     }
     return seriesConfig;
   });

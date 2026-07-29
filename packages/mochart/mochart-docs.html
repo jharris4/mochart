@@ -1098,12 +1098,12 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#pieConfig.innerRadiusPercent">innerRadiusPercent</a></td><td>the inner radius of the slices as a fraction (0 to 1) of the outer radius (use a value greater than 0 for a donut chart)</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
 </td>
 </tr>
-<tr id="pieConfig.labelFormat">
-<td><a href="#pieConfig.labelFormat">labelFormat</a></td><td>the d3 format specifier used to format value and percent slice labels (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
-</td>
-</tr>
 <tr id="pieConfig.labelMinAnglePercent">
 <td><a href="#pieConfig.labelMinAnglePercent">labelMinAnglePercent</a></td><td>hide the label of any slice whose value is smaller than this fraction (0 to 1) of the slice total</td><td>should be a number >= to 0 and <= 1</td><td><div>0.05</div>
+</td>
+</tr>
+<tr id="pieConfig.labelPercentFormat">
+<td><a href="#pieConfig.labelPercentFormat">labelPercentFormat</a></td><td>the d3 format specifier used to format the percent part of the slice labels (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="pieConfig.labelRadiusPercent">
@@ -1111,7 +1111,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="pieConfig.labelType">
-<td><a href="#pieConfig.labelType">labelType</a></td><td>the content of the slice labels: the slice value (value), the slice percentage of the total (percent) or the series title (title)</td><td>should be one of [ "value", "percent", "title" ]</td><td><div>"percent"</div>
+<td><a href="#pieConfig.labelType">labelType</a></td><td>the content of the slice labels: the slice value (value), the slice percentage of the total (percent), the series title (title), or a combination of two of them (valuePercent for "value (percent)", percentValue for "percent (value)", titleValue for "title: value", titlePercent for "title: percent")</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue", "title", "titleValue", "titlePercent" ]</td><td><div>"percent"</div>
+</td>
+</tr>
+<tr id="pieConfig.labelValueFormat">
+<td><a href="#pieConfig.labelValueFormat">labelValueFormat</a></td><td>the d3 format specifier used to format the value part of the slice labels (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="pieConfig.outerRadiusPercent">
@@ -1132,6 +1136,14 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="pieConfig.startAngle">
 <td><a href="#pieConfig.startAngle">startAngle</a></td><td>the angle (in degrees, clockwise from the top) at which the first slice starts</td><td>should be a number</td><td><div>0</div>
+</td>
+</tr>
+<tr id="pieConfig.tooltipPercentFormat">
+<td><a href="#pieConfig.tooltipPercentFormat">tooltipPercentFormat</a></td><td>the d3 format specifier used to format the percent part of the tooltip values (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
+</td>
+</tr>
+<tr id="pieConfig.tooltipValues">
+<td><a href="#pieConfig.tooltipValues">tooltipValues</a></td><td>the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unsuppressed slices unless tooltipConfig.adjustForSuppression is false</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue" ]</td><td><div>"value"</div>
 </td>
 </tr>
 </table>

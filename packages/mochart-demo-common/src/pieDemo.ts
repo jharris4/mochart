@@ -27,29 +27,13 @@ export function getPieSlices(mochartConfig: MochartConfig): PieSliceInfo[] {
 }
 
 /**
- * Apply a slice value edit to the working row, recomputing any precomputed
- * `${property}Percent` columns (from createPie's tooltipValues: 'percent') so
- * tooltip shares stay consistent with the edited values.
+ * Apply a slice value edit to the working row. The single write path for slice
+ * edits: percent labels and tooltip shares are derived by the chart from the
+ * current slice values (pieConfig.labelType / tooltipValues), so an edit only
+ * has to set the value it edits.
  */
-export function applyPieSliceValue(row: DataRow, slices: PieSliceInfo[], property: string, value: number): void {
+export function applyPieSliceValue(row: DataRow, property: string, value: number): void {
   row[property] = value;
-  const percentSlices = slices.filter(slice => row[slice.property + 'Percent'] !== undefined);
-  if (percentSlices.length > 0) {
-    let total = 0;
-    for (const slice of slices) {
-      const sliceValue = row[slice.property];
-      if (typeof sliceValue === 'number') {
-        total += sliceValue;
-      }
-    }
-    for (const slice of percentSlices) {
-      const sliceValue = row[slice.property];
-      // matches createPie: share of the total, one decimal
-      row[slice.property + 'Percent'] = total > 0 && typeof sliceValue === 'number'
-        ? Math.round((sliceValue / total) * 1000) / 10
-        : 0;
-    }
-  }
 }
 
 /**

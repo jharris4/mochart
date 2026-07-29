@@ -13,7 +13,9 @@ const pie = createPie(
     { label: 'Support', value: 65 },
     { label: 'Other', value: 30 }
   ],
-  { valueFormat: ',.0f' }
+  // valuePercent puts each slice's share next to its value in the tooltip,
+  // e.g. "420 (48.8%)"
+  { valueFormat: ',.0f', tooltipValues: 'valuePercent' }
 );
 
 export const config: MochartInputConfig = {
@@ -21,6 +23,7 @@ export const config: MochartInputConfig = {
   titleConfig: { title: 'Revenue by Product (fictional, $k)' },
   // chartConfig.type 'pie' swaps the axis plot for the radial plot.
   chartConfig: pie.chartConfig,
+  pieConfig: pie.pieConfig,
   groupAxisConfig: pie.groupAxisConfig,
   seriesConfigs: pie.seriesConfigs
 };

@@ -1,5 +1,7 @@
-import { NONE } from '../config/core/constants';
+import { NONE, PIE_LABEL_TYPE_PERCENT } from '../config/core/constants';
 import { getSeriesLabel } from './SeriesTitle';
+import { formatPieLabelType, pieLabelTypeUsesPercent } from '../data/PieLabel';
+import type { PieTooltipLabelType } from '../config/core/constants';
 import type { TooltipConfig, SeriesConfig } from '../types/config';
 import type { ChartData, SeriesDomainObjects, SeriesValueObject } from '../types/data';
 import type { ValueKey } from '../data/constants';
@@ -63,7 +65,51 @@ function getValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, 
   return seriesValueText;
 }
 
-export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, valueFormat: ValueFormatter, series: GroupSeriesSlice, adjustForSuppression: boolean) {
+/**
+ * What a pie slice's tooltip value needs beyond its value: the content type,
+ * the percent formatter and the slice's fraction. The caller picks the fraction
+ * from the filtered or raw values (see TooltipContent), so the value and the
+ * percentage in a combined value always come from the same snapshot.
+ */
+export interface PieTooltipValues {
+  tooltipValues: PieTooltipLabelType;
+  percentFormat: (fraction: number) => string;
+  /** The slice's fraction, already chosen from the filtered or raw values. */
+  fraction: number;
+  /** The slice's fraction of the full total, sizing a suppressed placeholder. */
+  rawFraction: number;
+  /**
+   * Whether the slice is suppressed. A percentage is derived rather than stored
+   * per value key, so this comes from the row's filtered flag instead of the
+   * null filtered value getValueText tests.
+   */
+  suppressed: boolean;
+}
+
+function getPieValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, adjustForSuppression: boolean,
+  valueFormat: ValueFormatter, series: GroupSeriesSlice, pieValues: PieTooltipValues): string | null {
+  const { tooltipValues, percentFormat, fraction, rawFraction, suppressed } = pieValues;
+
+  // No value means no row, whichever parts the type asks for — a bare "0.0%"
+  // for a slice that has no value would read as a real zero share.
+  const valueText = getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'plain');
+  if (valueText === null) {
+    return null;
+  }
+
+  // A suppressed slice's filtered fraction is 0, so show the same placeholder
+  // the values use, sized from the slice's share of the full total.
+  const percentText = adjustForSuppression && tooltipConfig.adjustForSuppression && suppressed ?
+    getSuppressedValueText(tooltipConfig, percentFormat(rawFraction)) : percentFormat(fraction);
+
+  if (tooltipValues === PIE_LABEL_TYPE_PERCENT) {
+    return percentText;
+  }
+  return formatPieLabelType(tooltipValues, { title: getSeriesLabel(seriesConfig), value: valueText, percent: percentText });
+}
+
+export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, valueFormat: ValueFormatter, series: GroupSeriesSlice,
+  adjustForSuppression: boolean, pieValues?: PieTooltipValues) {
   const labelText = getSeriesLabel(seriesConfig);
 
   if (seriesConfig.tooltipProperty !== NONE) {
@@ -71,6 +117,13 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Series
       labelText,
       valueText: getValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, 'tooltip')
     };
+  }
+
+  // Pie slices are plain values, so the percentage-bearing types short-circuit
+  // the range/marker/error composition below, which cannot apply to them. An
+  // explicit per-series tooltipProperty still wins (above).
+  if (pieValues !== undefined && pieLabelTypeUsesPercent(pieValues.tooltipValues)) {
+    return { labelText, valueText: getPieValueText(tooltipConfig, seriesConfig, adjustForSuppression, valueFormat, series, pieValues) };
   }
 
   // Mirror the shape's skip semantics (see getSeriesPositionData): with

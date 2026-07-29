@@ -62,21 +62,36 @@ value, percent or title labels at the slice centroids.
 <<< @/examples/donut.ts
 
 - [`labelType`](/reference/pieConfig#pieConfig.labelType) picks the label
-  content (`'value'`, `'percent'` or `'title'`) and
-  [`labelFormat`](/reference/pieConfig#pieConfig.labelFormat) formats it
-  (percent labels format the fraction, so specifiers like `'.1%'` apply).
-  Slices thinner than
+  content: a single part (`'value'`, `'percent'` or `'title'`) or a
+  combination — `'valuePercent'` for `420 (49%)`, `'percentValue'` for
+  `49% (420)`, `'titleValue'` for `Subscriptions: 420` and `'titlePercent'`
+  for `Subscriptions: 49%`.
+  [`labelValueFormat`](/reference/pieConfig#pieConfig.labelValueFormat) and
+  [`labelPercentFormat`](/reference/pieConfig#pieConfig.labelPercentFormat)
+  format the two numeric parts independently (percent parts format the
+  fraction, so specifiers like `'.1%'` apply). Slices thinner than
   [`labelMinAnglePercent`](/reference/pieConfig#pieConfig.labelMinAnglePercent)
   hide their labels. Label colors reuse the per-series `label*` config keys.
   When slices are suppressed via the legend, percent labels renormalize
   against the remaining slices — set
   [`adjustLabelsForSuppression`](/reference/pieConfig#pieConfig.adjustLabelsForSuppression)
   to `false` to keep every slice's share of the full total instead.
-- With `tooltipValues: 'percent'` the helper precomputes each slice's share
-  into the data row and points
-  [`tooltipProperty`](/reference/seriesConfigs#seriesConfigs.tooltipProperty)
-  at it, so the tooltip shows percentages. The percents reflect the values
-  passed to the helper — not any later suppression.
+- [`tooltipValues`](/reference/pieConfig#pieConfig.tooltipValues) does the
+  same for the tooltip rows: `'value'` (the default), `'percent'`, or the
+  `'valuePercent'` / `'percentValue'` combinations. The value part keeps its
+  per-series formatting
+  ([`valueFormat`](/reference/seriesConfigs#seriesConfigs.valueFormat),
+  `valuePrefix`, `valueSuffix`); the percent part is formatted by
+  [`tooltipPercentFormat`](/reference/pieConfig#pieConfig.tooltipPercentFormat).
+  The helper's `tooltipValues` option forwards straight to it.
+- Tooltip percentages are computed from the same slice shares as the labels,
+  so they renormalize as slices are suppressed — set
+  [`tooltipConfig.adjustForSuppression`](/reference/tooltipConfig#tooltipConfig.adjustForSuppression)
+  to `false` to keep every slice's share of the full total (the tooltip
+  equivalent of `adjustLabelsForSuppression`). A suppressed slice's own row
+  shows the usual
+  [`suppressedValueCharacter`](/reference/tooltipConfig#tooltipConfig.suppressedValueCharacter)
+  placeholder in place of both parts.
 - Geometry knobs: [`startAngle`](/reference/pieConfig#pieConfig.startAngle)
   rotates the first slice's starting edge,
   [`padAngle`](/reference/pieConfig#pieConfig.padAngle) opens a gap between

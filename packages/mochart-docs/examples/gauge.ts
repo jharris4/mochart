@@ -10,7 +10,9 @@ const gauge = createPie(
     { label: 'Passives', value: 280 },
     { label: 'Detractors', value: 180 }
   ],
-  { tooltipValues: 'percent' }
+  // percentValue pairs each segment's share with its response count, e.g.
+  // "54.0% (540)"
+  { tooltipValues: 'percentValue' }
 );
 
 export const config: MochartInputConfig = {
@@ -18,6 +20,7 @@ export const config: MochartInputConfig = {
   titleConfig: { title: 'Customer Sentiment (fictional survey)' },
   chartConfig: gauge.chartConfig,
   pieConfig: {
+    ...gauge.pieConfig,
     startAngle: -90,
     endAngle: 90,
     innerRadiusPercent: 0.55,

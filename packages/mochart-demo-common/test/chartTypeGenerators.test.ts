@@ -171,17 +171,15 @@ describe('generateChartTypeDataProvider', () => {
     }
   });
 
-  it('donut percent columns always reflect the generated slice values', () => {
+  it('donut rows carry slice values only — its percent labels and tooltip shares are derived', () => {
     const donut = snapshots.find(snapshot => snapshot.id === 'donut')!;
     const mochartConfig = enhanceConfig(donut.config);
+    expect(mochartConfig.pieConfig.tooltipValues).toBe('percent');
     const provider = generateChartTypeDataProvider('donut', mochartConfig, demoRandom('donut'), 6);
     const sliceProperties = (donut.config.seriesConfigs as { property: string }[]).map(seriesConfig => seriesConfig.property);
     const total = sliceProperties.reduce((sum: number, property) => sum + provider.seriesValues![property][0]!, 0);
     expect(total).toBeGreaterThan(0);
-    for (const property of sliceProperties) {
-      const percent = provider.seriesValues![property + 'Percent'][0]!;
-      expect(percent).toBeCloseTo((provider.seriesValues![property][0]! / total) * 100, 0);
-    }
+    expect(Object.keys(provider.seriesValues!).sort()).toEqual([...sliceProperties].sort());
   });
 });
 

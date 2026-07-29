@@ -3,9 +3,12 @@ import type { El, RendererItem, Slot, TextEl } from '../render';
 
 import { getGroupFormat, getSeriesFormats } from '../utils/ValueFormat';
 import { getSeriesText } from '../utils/TooltipFormat';
+import type { PieTooltipValues } from '../utils/TooltipFormat';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { NONE } from '../config/core/constants';
+import { getPieSliceFractionMap } from '../data/PieData';
+import { getPieTooltipPercentFormat, pieLabelTypeUsesPercent } from '../data/PieLabel';
+import { NONE, CHART_TYPE_PIE } from '../config/core/constants';
 
 import TooltipControls from './TooltipControls';
 import SeriesColorIcon from './SeriesColorIcon';
@@ -306,11 +309,28 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       minWidth = null, adjustForSuppression = true, svgUniqueId, onFocus, seriesAxisFocusPercentages, seriesFocusPercentages } = this.props;
     const { mode } = this.state;
 
-    const { tooltipConfig, groupAxisConfig, seriesAxisConfigs, seriesConfigs, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
+    const { chartConfig, pieConfig, tooltipConfig, groupAxisConfig, seriesAxisConfigs, seriesConfigs, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
 
     const { group, series } = tooltipValueObject;
-    const { raw, filteredFlags } = series;
+    const { raw, filtered, filteredFlags } = series;
     const { axisDomains } = raw;
+
+    // Percent tooltip values are derived from the slice shares, normalized the
+    // same way the slices and their labels are (see getPieSliceFractions), so
+    // the numbers cannot drift apart. The maps are built once per tooltip, not
+    // once per row. Suppression follows tooltipConfig.adjustForSuppression: on
+    // (the default) the percentages renormalize against the unsuppressed slices
+    // like the slice labels do, off freezes them at the full-total shares.
+    const pieTooltipValues = pieConfig.tooltipValues;
+    let piePercentFormat: ((fraction: number) => string) | null = null;
+    let rawFractions: Record<string, number> = {};
+    let adjustedFractions: Record<string, number> = {};
+    if (chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(pieTooltipValues)) {
+      piePercentFormat = getPieTooltipPercentFormat(pieConfig);
+      rawFractions = getPieSliceFractionMap(seriesConfigs, seriesId => raw.values[seriesId]?.plain);
+      adjustedFractions = adjustForSuppression && tooltipConfig.adjustForSuppression ?
+        getPieSliceFractionMap(seriesConfigs, seriesId => filtered.values[seriesId]?.plain) : rawFractions;
+    }
 
     this.root.set({ className: mochartCssClasses['tooltipContent'], onClick: this.onClick });
     this.controlsContainer.set({ className: mochartCssClasses['tooltipControls'] });
@@ -357,7 +377,12 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
       if (!adjustForSuppression || !(seriesIsSuppressed && tooltipConfig.hideSuppressed)) {
         let valueFormat = valueFormats[seriesId];
-        let { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForSuppression);
+        const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {
+          tooltipValues: pieTooltipValues, percentFormat: piePercentFormat,
+          fraction: adjustedFractions[seriesId] ?? 0, rawFraction: rawFractions[seriesId] ?? 0,
+          suppressed: seriesIsSuppressed
+        };
+        let { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForSuppression, pieValues);
         if (valueText !== null) {
           tooltipLines.push({
             key: 'series-' + seriesId,

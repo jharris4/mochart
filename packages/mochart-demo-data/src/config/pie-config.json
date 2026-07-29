@@ -6,6 +6,9 @@
   "chartConfig": {
     "type": "pie"
   },
+  "pieConfig": {
+    "tooltipValues": "valuePercent"
+  },
   "groupAxisConfig": {
     "property": "group",
     "type": "string",

@@ -179,6 +179,86 @@ describe('pie chart rendering', () => {
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
   });
 
+  describe('tooltip values (pieConfig.tooltipValues)', () => {
+    function tooltipRows(items: PieItem[], options: CreatePieOptions, extraProps: Partial<DefaultChartProps> = {}): string[] {
+      const { config, data } = pieChartProps(items, options);
+      const { container } = mountChart(config, data, extraProps);
+      const root = container.querySelector('[data-mochart-version]')!;
+      mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
+      mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
+      return Array.from(container.querySelectorAll('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+        .map(line => line.textContent ?? '');
+    }
+
+    it('shows the slice values by default', () => {
+      expect(tooltipRows(ITEMS, { valueFormat: ',.0f' })).toEqual(['Chrome: 62', 'Safari: 20', 'Firefox: 18']);
+    });
+
+    it('shows each slice\'s share for percent, and both parts for the combinations', () => {
+      expect(tooltipRows(ITEMS, { tooltipValues: 'percent' }))
+        .toEqual(['Chrome: 62.0%', 'Safari: 20.0%', 'Firefox: 18.0%']);
+      expect(tooltipRows(ITEMS, { tooltipValues: 'valuePercent', valueFormat: ',.0f' }))
+        .toEqual(['Chrome: 62 (62.0%)', 'Safari: 20 (20.0%)', 'Firefox: 18 (18.0%)']);
+      expect(tooltipRows(ITEMS, { tooltipValues: 'percentValue', valueFormat: ',.0f' }))
+        .toEqual(['Chrome: 62.0% (62)', 'Safari: 20.0% (20)', 'Firefox: 18.0% (18)']);
+    });
+
+    // The inconsistency this option exists to remove: percent slice labels
+    // renormalize when a slice is suppressed, so the tooltip must too.
+    it('renormalizes the percentages against the unsuppressed slices, like the labels', () => {
+      const rows = tooltipRows(ITEMS, { tooltipValues: 'percent' }, { filteredSeriesIds: { slice0: true } });
+      // Safari 20 and Firefox 18 now split the whole circle
+      expect(rows[1]).toBe('Safari: 52.6%');
+      expect(rows[2]).toBe('Firefox: 47.4%');
+    });
+
+    it('freezes the percentages at the full-total shares when adjustForSuppression is off', () => {
+      const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
+        { tooltipConfig: { adjustForSuppression: false } });
+      const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
+      const root = container.querySelector('[data-mochart-version]')!;
+      mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
+      mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
+      const rows = Array.from(container.querySelectorAll('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+        .map(line => line.textContent ?? '');
+      expect(rows).toEqual(['Chrome: 62.0%', 'Safari: 20.0%', 'Firefox: 18.0%']);
+    });
+
+    it('masks a suppressed slice\'s own row with the suppressed placeholder', () => {
+      const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
+        { tooltipConfig: { suppressedValueText: '--' } });
+      const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
+      const root = container.querySelector('[data-mochart-version]')!;
+      mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
+      mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
+      const rows = Array.from(container.querySelectorAll('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+        .map(line => line.textContent ?? '');
+      expect(rows[0]).toBe('Chrome: --');
+    });
+
+    it('formats the percent part with tooltipPercentFormat and the value part per series', () => {
+      const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percentValue', valueFormat: ',.1f' });
+      // merged, not replaced: the helper's fragment carries tooltipValues
+      (config as { pieConfig: Partial<PieConfig> }).pieConfig = { ...config.pieConfig, tooltipPercentFormat: '.0%' };
+      const { container } = mountChart(config, data);
+      const root = container.querySelector('[data-mochart-version]')!;
+      mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
+      mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
+      const rows = Array.from(container.querySelectorAll('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+        .map(line => line.textContent ?? '');
+      expect(rows[0]).toBe('Chrome: 62% (62.0)');
+    });
+
+    it('renders label combinations from the same shares', () => {
+      const { config, data } = pieChartProps(ITEMS, {}, {
+        pieConfig: { showLabels: true, labelType: 'titlePercent' } as Partial<PieConfig>
+      });
+      const { container } = mountChart(config, data);
+      const labels = Array.from(container.querySelectorAll('.mochart-series-slice-label')).map(label => label.textContent);
+      expect(labels).toEqual(['Chrome: 62%', 'Safari: 20%', 'Firefox: 18%']);
+    });
+  });
+
   it('leaves the single group value out of the tooltip unless showGroup is set', () => {
     const hidden = pieChartProps(ITEMS, { groupValue: 'all' });
     const hiddenChart = mountChart(hidden.config, hidden.data);
