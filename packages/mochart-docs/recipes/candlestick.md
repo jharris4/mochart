@@ -10,7 +10,7 @@ import * as candlestickHollow from '../examples/candlestickHollow'
 import * as candlestickVolume from '../examples/candlestickVolume'
 </script>
 
-<LiveChart :config="candlestick.config" :data="candlestick.data" />
+<LiveChart :config="candlestick.config" :data="candlestick.data" demo="candlestick" />
 
 <<< @/examples/candlestick.ts
 
@@ -57,7 +57,7 @@ import * as candlestickVolume from '../examples/candlestickVolume'
 Pass `hollow: true` to draw up candles as outlines — the classic
 hollow-candle style where a filled body means down:
 
-<LiveChart :config="candlestickHollow.config" :data="candlestickHollow.data" />
+<LiveChart :config="candlestickHollow.config" :data="candlestickHollow.data" demo="candlestick-hollow" />
 
 <<< @/examples/candlestickHollow.ts{20}
 
@@ -76,7 +76,7 @@ Give the items a `volume` and pass `volume: true` (works with `hollow` too,
 and with [OHLC Bars](/recipes/ohlc)) to add the classic pane of
 direction-colored volume bars along the bottom of the plot:
 
-<LiveChart :config="candlestickVolume.config" :data="candlestickVolume.data" />
+<LiveChart :config="candlestickVolume.config" :data="candlestickVolume.data" demo="candlestick" />
 
 <<< @/examples/candlestickVolume.ts{21}
 

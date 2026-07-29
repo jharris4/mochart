@@ -8,7 +8,7 @@ left marking the open and a tick on the right marking the close.
 import * as ohlc from '../examples/ohlc'
 </script>
 
-<LiveChart :config="ohlc.config" :data="ohlc.data" />
+<LiveChart :config="ohlc.config" :data="ohlc.data" demo="ohlc" />
 
 <<< @/examples/ohlc.ts
 

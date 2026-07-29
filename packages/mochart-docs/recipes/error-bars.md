@@ -11,7 +11,7 @@ the chart draws a capped whisker through every bar or line point.
 import * as errorBars from '../examples/errorBars'
 </script>
 
-<LiveChart :config="errorBars.config" :data="errorBars.data" />
+<LiveChart :config="errorBars.config" :data="errorBars.data" demo="error-bars" />
 
 <<< @/examples/errorBars.ts
 

@@ -5,6 +5,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { encodeShareState, shareHashPrefix } from '@mochart/demo-common';
+import type { DemoConfig } from '@mochart/demo-common';
 
 interface ChartHandle {
   update(props: Record<string, unknown>): void;
@@ -17,22 +18,31 @@ const props = withDefaults(defineProps<{
   altData?: Record<string, unknown>[];
   height?: number;
   demoLink?: boolean;
+  /** Vanilla-gallery demo slug to host the share link (see demos.json ids). */
+  demo?: string;
 }>(), {
   altData: undefined,
   height: 320,
-  demoLink: true
+  demoLink: true,
+  demo: 'stacked'
 });
 
 // Deep link into the vanilla gallery with this chart's config/data as the
-// share payload (see demo-common shareState). The host demo route is
-// arbitrary — the payload overrides its config and data. Resolves only on
-// the assembled site, where the galleries sit next to the docs.
+// share payload (see demo-common shareState) — the payload overrides the
+// host demo's config and data, so the chart shown is exactly this example.
+// Pages should pass the closest matching demo slug via `demo` so the URL
+// reads right and stripping the hash lands somewhere sensible. Resolves only
+// on the assembled site, where the galleries sit next to the docs.
 const demoUrl = computed(() => {
   if (!props.demoLink) {
     return null;
   }
-  const payload = encodeShareState({ config: props.config, data: props.data });
-  return import.meta.env.BASE_URL + 'vanilla/single/stacked/' + shareHashPrefix + payload;
+  const payload = encodeShareState({
+    mode: 'single',
+    config: props.config as DemoConfig,
+    data: props.data
+  });
+  return import.meta.env.BASE_URL + 'vanilla/single/' + props.demo + '/' + shareHashPrefix + payload;
 });
 
 // The docs render tooltips at VitePress's 16px body font while the default

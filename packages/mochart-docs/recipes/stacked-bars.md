@@ -9,7 +9,7 @@ only wiring needed.
 import * as stackedBars from '../examples/stackedBars'
 </script>
 
-<LiveChart :config="stackedBars.config" :data="stackedBars.data" :alt-data="stackedBars.altData" />
+<LiveChart :config="stackedBars.config" :data="stackedBars.data" :alt-data="stackedBars.altData" demo="stacked" />
 
 Animate the data and watch the stack move as one unit: each segment's
 baseline follows the tweened top of the segment below it, so the stack never

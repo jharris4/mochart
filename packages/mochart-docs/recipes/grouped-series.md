@@ -9,7 +9,7 @@ automatically, so declaring it is the only wiring needed.
 import * as groupedSeries from '../examples/groupedSeries'
 </script>
 
-<LiveChart :config="groupedSeries.config" :data="groupedSeries.data" :alt-data="groupedSeries.altData" />
+<LiveChart :config="groupedSeries.config" :data="groupedSeries.data" :alt-data="groupedSeries.altData" demo="grouped" />
 
 <<< @/examples/groupedSeries.ts
 

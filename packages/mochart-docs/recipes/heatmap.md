@@ -8,7 +8,7 @@ value colors it from a shared sequential ramp.
 import * as heatmap from '../examples/heatmap'
 </script>
 
-<LiveChart :config="heatmap.config" :data="heatmap.data" />
+<LiveChart :config="heatmap.config" :data="heatmap.data" demo="heatmap" />
 
 <<< @/examples/heatmap.ts
 

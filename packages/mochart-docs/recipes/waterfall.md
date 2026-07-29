@@ -8,7 +8,7 @@ steps drop a full bar back to the base.
 import * as waterfall from '../examples/waterfall'
 </script>
 
-<LiveChart :config="waterfall.config" :data="waterfall.data" />
+<LiveChart :config="waterfall.config" :data="waterfall.data" demo="waterfall" />
 
 <<< @/examples/waterfall.ts
 

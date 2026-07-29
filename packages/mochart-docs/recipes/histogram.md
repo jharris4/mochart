@@ -8,7 +8,7 @@ histogram — contiguous, one bar per bin.
 import * as histogram from '../examples/histogram'
 </script>
 
-<LiveChart :config="histogram.config" :data="histogram.data" />
+<LiveChart :config="histogram.config" :data="histogram.data" demo="histogram" />
 
 <<< @/examples/histogram.ts
 

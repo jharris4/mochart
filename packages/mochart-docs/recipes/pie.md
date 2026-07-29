@@ -11,7 +11,7 @@ import * as pie from '../examples/pie'
 import * as donut from '../examples/donut'
 </script>
 
-<LiveChart :config="pie.config" :data="pie.data" />
+<LiveChart :config="pie.config" :data="pie.data" demo="pie" />
 
 <<< @/examples/pie.ts
 
@@ -46,7 +46,7 @@ An inner radius via
 [`pieConfig.showLabels`](/reference/pieConfig#pieConfig.showLabels) puts
 value, percent or title labels at the slice centroids.
 
-<LiveChart :config="donut.config" :data="donut.data" />
+<LiveChart :config="donut.config" :data="donut.data" demo="donut" />
 
 <<< @/examples/donut.ts
 

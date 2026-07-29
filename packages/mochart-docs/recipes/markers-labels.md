@@ -41,7 +41,7 @@ Markers on their own make a scatter chart: set
 [`renderer`](/reference/seriesConfigs#seriesConfigs.renderer) to `none` so a
 series draws no shape, and only its markers remain.
 
-<LiveChart :config="scatterBubble.config" :data="scatterBubble.data" />
+<LiveChart :config="scatterBubble.config" :data="scatterBubble.data" demo="scatter" />
 
 <<< @/examples/scatterBubble.ts
 

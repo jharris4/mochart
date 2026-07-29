@@ -10,7 +10,7 @@ series at one with
 import * as gradients from '../examples/gradients'
 </script>
 
-<LiveChart :config="gradients.config" :data="gradients.data" />
+<LiveChart :config="gradients.config" :data="gradients.data" demo="gradients" />
 
 <<< @/examples/gradients.ts
 
