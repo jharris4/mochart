@@ -78,7 +78,7 @@ container, so size it however you like and the chart follows it:
 
 Both components emit the [chart callbacks](/guide/interaction#callbacks) as
 outputs (`chartClick`, `chartMouseEnter`, `chartMouseMove`,
-`chartMouseLeave`, `titleClick`, `focus`, `seriesFilter`,
+`chartMouseLeave`, `sliceClick`, `titleClick`, `focus`, `seriesFilter`,
 `seriesLayoutInfoChange` — usable as `(chartClick)="..."` etc. in templates;
 only subscribed outputs are wired into the chart) and accept per-state
 placeholders — `loadingComponent`, `errorComponent`, `noDataComponent`,

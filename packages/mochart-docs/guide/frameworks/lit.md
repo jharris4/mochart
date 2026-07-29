@@ -77,8 +77,8 @@ html`${chart({ mochartConfig, dataProvider, style: 'flex: 1 1 auto; min-width: 0
 
 Both directives accept the [chart callbacks](/guide/interaction#callbacks)
 (`onChartClick`, `onChartMouseEnter`, `onChartMouseMove`,
-`onChartMouseLeave`, `onTitleClick`, `onFocus`, `onSeriesFilter`,
-`onSeriesLayoutInfoChange`) and per-state placeholder templates —
+`onChartMouseLeave`, `onSliceClick`, `onTitleClick`, `onFocus`,
+`onSeriesFilter`, `onSeriesLayoutInfoChange`) and per-state placeholder templates —
 `loadingTemplate`, `errorTemplate`, `noDataTemplate`, `noSizeTemplate`,
 `noSeriesTemplate`, `configErrorTemplate`. Each placeholder prop takes a
 **lit-html template function** that receives the

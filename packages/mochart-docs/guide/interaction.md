@@ -49,6 +49,7 @@ createDefaultChart(container, {
   onFocus: ({ focusedSeriesId, focusedGroupIndex }) => { /* focus changed */ },
   onSeriesFilter: ({ filteredSeriesIds }) => { /* legend filtering changed */ },
   onChartClick: ({ groupIndex, chartX, chartY }) => { /* plot area clicked */ },
+  onSliceClick: ({ seriesId }) => { /* pie slice clicked */ },
   onTitleClick: () => {}
 });
 ```
@@ -60,4 +61,64 @@ createDefaultChart(container, {
 - `onChartClick` / `onChartMouseEnter` / `onChartMouseMove` /
   `onChartMouseLeave` — plot-area pointer events with chart coordinates and
   the nearest group index
+- `onSliceClick(payload)` — a slice of a [pie or donut](/recipes/pie) chart
+  was clicked
+- `onTitleClick()` — the chart title was clicked (see
+  [`titleConfig.link`](/reference/titleConfig#titleConfig.link) and
+  `linkDisabled`)
 - `onSeriesLayoutInfoChange(bounds)` — the plot area was re-laid-out
+
+### Payloads
+
+The four pointer callbacks all receive the same payload:
+
+```ts
+interface ChartEventPayload {
+  chartX: number;            // pointer x relative to the chart container, in px
+  chartY: number;            // pointer y relative to the chart container, in px
+  groupPosition: number;     // pointer position along the group axis, in plot px
+  seriesPosition: number;    // pointer position along the series axis, in plot px
+  groupPercentage: number;   // the same, as a 0–1 fraction of the plot
+  seriesPercentage: number;  // the same, as a 0–1 fraction of the plot
+  groupIndex: number;        // index of the nearest group, -1 when none
+}
+```
+
+`onFocus` receives the whole focus state, and `onSeriesFilter` the whole
+filter map — not just what changed:
+
+```ts
+interface ChartFocus {
+  focusedSeriesAxisId: string | null;  // null when no axis is focused
+  focusedSeriesId: string | null;      // null when no series is focused
+  focusedGroupIndex: number;           // -1 when no group is focused
+}
+
+interface ChartSeriesFilter {
+  filteredSeriesIds: Record<string, boolean>;  // series id → true = filtered out
+}
+```
+
+`onSliceClick` receives `{ seriesId }` — the id of the clicked slice's
+series (the leader, for follower series). Unlike `onFocus`, which pointer
+hover also drives, it fires only on click, so it can anchor a selection.
+
+## Controlled focus and filtering
+
+Focus and legend filtering are managed by the chart internally, but each
+piece of that state has a matching input prop that takes over when it is set
+(not `undefined`), overriding the internal state on every update. Pass back
+what the callbacks report to keep several charts in sync:
+
+- `focusedGroupIndex` (`-1` = none), `focusedSeriesId` and
+  `focusedSeriesAxisId` (`null` = none) — the controlled form of `onFocus`
+- `filteredSeriesIds` — the controlled form of `onSeriesFilter`
+
+```js
+chart.update({
+  focusedGroupIndex: focus.focusedGroupIndex,
+  focusedSeriesId: focus.focusedSeriesId
+});
+```
+
+Leave a prop `undefined` to let the chart keep managing that piece itself.

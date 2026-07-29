@@ -29,7 +29,10 @@ wrapped in an `ArrayOfObjectsDataProvider` keyed by
 [`groupAxisConfig.property`](/reference/groupAxisConfig#groupAxisConfig.property).
 
 Props: `config`, `data`, `width`, `height`, `style`, `loading`, `error`,
-the [interaction callbacks](/guide/interaction#callbacks), and the
+the [interaction callbacks](/guide/interaction#callbacks), their
+[controlled counterparts](/guide/interaction#controlled-focus-and-filtering)
+(`focusedGroupIndex`, `focusedSeriesId`, `focusedSeriesAxisId`,
+`filteredSeriesIds`), and the
 [state factories](/guide/chart-states#customizing-what-renders).
 
 ## createChart
@@ -118,6 +121,7 @@ createWaterfall(items, options?)    // → { steps, data, groupAxisConfig, serie
 createHeatmap(rows, options?)       // → { domain, colorScale, data, groupAxisConfig, seriesAxisConfig, seriesConfigs }
 createCandlestick(items, options?)  // → { candles, data, groupAxisConfig, seriesConfigs }
 createOhlc(items, options?)         // → { candles, data, groupAxisConfig, seriesConfigs }
+createPie(items, options?)          // → { total, fractions, data, chartConfig, pieConfig, groupAxisConfig, seriesConfigs }
 createSparklineConfig(config, options?)  // → config with the sparkline preset applied
 ```
 
@@ -141,6 +145,11 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
 - `createOhlc` turns the same OHLC items into tick bars: thin low/high
   lines with a left open tick and a right close tick, with the same
   `volume` option. See [OHLC Bars](/recipes/ohlc).
+- `createPie` turns labelled values into pie or donut slices — one series
+  per slice, sized by its share of the total. Its `chartConfig` fragment is
+  what switches the chart into pie mode (`type: 'pie'`).
+  `computePieFractions` returns just the total and per-slice fractions. See
+  [Pie and donut](/recipes/pie).
 - `createSparklineConfig` is a config preset rather than a data transform:
   it hides axes, legend, tooltip, crosshairs and markers, and collapses
   margins for tiny inline charts. Values already set on the passed config
@@ -149,9 +158,10 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
 ## Constants
 
 `AUTO` (`'auto'`), `NONE` (`null`), the group axis types `TYPE_STRING` /
-`TYPE_NUMBER` / `TYPE_DATE`, and the scales `SCALE_ORDINAL` /
-`SCALE_LINEAR` — exported so configs built in code can avoid string
-literals.
+`TYPE_NUMBER` / `TYPE_DATE`, the scales `SCALE_ORDINAL` / `SCALE_LINEAR`,
+and the [`chartConfig.type`](/reference/chartConfig#chartConfig.type) values
+`CHART_TYPE_XY` (`'xy'`) / `CHART_TYPE_PIE` (`'pie'`) — exported so configs
+built in code can avoid string literals.
 
 ## Styling hooks
 

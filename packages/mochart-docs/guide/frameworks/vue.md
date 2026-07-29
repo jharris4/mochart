@@ -73,8 +73,8 @@ however you like and the chart follows it:
 
 Both components accept the [chart callbacks](/guide/interaction#callbacks)
 (`onChartClick`, `onChartMouseEnter`, `onChartMouseMove`,
-`onChartMouseLeave`, `onTitleClick`, `onFocus`, `onSeriesFilter`,
-`onSeriesLayoutInfoChange` — usable as `@chart-click` etc. in templates) and
+`onChartMouseLeave`, `onSliceClick`, `onTitleClick`, `onFocus`,
+`onSeriesFilter`, `onSeriesLayoutInfoChange` — usable as `@chart-click` etc. in templates) and
 per-state placeholders — `loadingComponent`, `errorComponent`,
 `noDataComponent`, `noSizeComponent`, `noSeriesComponent`,
 `configErrorComponent`. Each placeholder prop takes a **Vue component** that

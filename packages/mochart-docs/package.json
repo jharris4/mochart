@@ -18,7 +18,7 @@
     "dev": "npm run gen && vitepress dev --port 5181",
     "build": "npm run gen && vitepress build",
     "preview": "vitepress preview",
-    "test": "tsx scripts/checkExamples.ts",
+    "test": "tsx scripts/checkExamples.ts && tsx scripts/checkApiCoverage.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p tsconfig.vue.json"
   },
   "dependencies": {
