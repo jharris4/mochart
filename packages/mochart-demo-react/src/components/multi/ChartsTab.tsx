@@ -5,7 +5,7 @@ import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -52,7 +52,7 @@ function clampGrid(value: number): number {
 // step s suppresses the last (s + i) mod cycle slices, so the grid shows
 // different-sized views of the same pie and stepping animates all charts.
 function stepCycleOf(state: ChartsTabState): number {
-  return state.mochartDemoConfig.pieMode ? Math.max(1, state.sliceIds.length - 1) : state.dataCount;
+  return state.mochartDemoConfig.pieMode ? getPieStepCycle(state.sliceIds) : state.dataCount;
 }
 
 function resetStepOf(state: ChartsTabState): number {
@@ -65,7 +65,7 @@ function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, ra
   const data = demoObject.data;
   const dataCount = data.length;
   const sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartConfig).map(slice => slice.id) : [];
-  const stepCycle = mochartDemoConfig.pieMode ? Math.max(1, sliceIds.length - 1) : dataCount;
+  const stepCycle = mochartDemoConfig.pieMode ? getPieStepCycle(sliceIds) : dataCount;
   // A shared step seeks the playback position; otherwise start on the full set
   // (pie mode starts at step 0 — the grid's staggered initial view).
   const currentDataCount = step !== undefined && stepCycle > 0

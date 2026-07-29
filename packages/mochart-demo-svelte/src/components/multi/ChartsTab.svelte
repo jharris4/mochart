@@ -4,7 +4,7 @@
   import { Chart } from '@mochart/svelte';
   import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
+  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
   import type { ShareState } from '@mochart/demo-common';
 
   import ChartsControls from './ChartsControls.svelte';
@@ -58,7 +58,7 @@
   // different-sized views of the same pie and stepping animates all charts.
   // svelte-ignore state_referenced_locally
   let sliceIds = $state.raw(mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : []);
-  const stepCycle = () => mochartDemoConfig.pieMode ? Math.max(1, sliceIds.length - 1) : dataCount;
+  const stepCycle = () => mochartDemoConfig.pieMode ? getPieStepCycle(sliceIds) : dataCount;
   // A shared step seeks the playback position; otherwise start on the full set
   // (pie mode starts at step 0 — the grid's staggered initial view).
   // svelte-ignore state_referenced_locally

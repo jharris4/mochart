@@ -4,7 +4,7 @@ import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from 
 import { Chart } from '@mochart/angular';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { MultiShareState, ShareState } from '@mochart/demo-common';
 
 import { ChartsControls } from './charts-controls';
@@ -122,7 +122,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   }
 
   private stepCycle(): number {
-    return this.mochartDemoConfig()!.pieMode ? Math.max(1, this.sliceIds().length - 1) : this.dataCount();
+    return this.mochartDemoConfig()!.pieMode ? getPieStepCycle(this.sliceIds()) : this.dataCount();
   }
 
   private resetStep(): number {

@@ -4,7 +4,7 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { Chart } from '@mochart/vue';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ChartsControls from './ChartsControls.vue';
@@ -54,7 +54,7 @@ const dataCount = ref(initialDataCount);
 // step s suppresses the last (s + i) mod cycle slices, so the grid shows
 // different-sized views of the same pie and stepping animates all charts.
 const sliceIds = shallowRef(mochartDemoConfig.value.pieMode ? getPieSlices(mochartDemoConfig.value.mochartConfig).map(slice => slice.id) : []);
-const stepCycle = () => mochartDemoConfig.value.pieMode ? Math.max(1, sliceIds.value.length - 1) : dataCount.value;
+const stepCycle = () => mochartDemoConfig.value.pieMode ? getPieStepCycle(sliceIds.value) : dataCount.value;
 // A shared step seeks the playback position; otherwise start on the full set
 // (pie mode starts at step 0 — the grid's staggered initial view).
 const initialCurrentDataCount = shared && stepCycle() > 0

@@ -728,7 +728,7 @@ function getSingleShareState(): ShareState {
                     </ButtonWithTooltip>
                   </div>
                   <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-play-slices" :disabled="error || sequencePlaying || slices.length < 3" :tooltip-text="demoText.editableChart.playSliceSequence.tooltip" tooltip-placement="right"
+                    <ButtonWithTooltip id="edit-play-slices" :disabled="error || sequencePlaying || slices.length < 2" :tooltip-text="demoText.editableChart.playSliceSequence.tooltip" tooltip-placement="right"
                                        :on-click="startSliceSequence" :aria-label="demoText.editableChart.playSliceSequence.aria">
                       <Icon size="lg" :fixed-width="true" name="play" />
                     </ButtonWithTooltip>

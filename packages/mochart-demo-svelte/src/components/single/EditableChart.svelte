@@ -785,7 +785,7 @@
                     </ButtonWithTooltip>
                   </div>
                   <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 3}
+                    <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
                                        tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
                                        onClick={startSliceSequence} aria-label={demoText.editableChart.playSliceSequence.aria}>
                       <Icon size="lg" fixedWidth={true} name="play" />

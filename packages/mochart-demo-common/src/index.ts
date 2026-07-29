@@ -45,7 +45,7 @@ export type { TransitionConfigEditResult } from './transition';
 
 export { getChartDataCount, getDataProvidersForDataCount } from './multiCharts';
 
-export { getPieSlices, applyPieSliceValue, getPieStepSuppressedIds, getPieSequenceSteps } from './pieDemo';
+export { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepSuppressedIds, getPieSequenceSteps } from './pieDemo';
 export type { PieSliceInfo } from './pieDemo';
 
 export { rotationData, rotationConfigs } from './rotationConfigs';

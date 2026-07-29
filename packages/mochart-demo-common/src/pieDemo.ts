@@ -53,14 +53,23 @@ export function applyPieSliceValue(row: DataRow, slices: PieSliceInfo[], propert
 }
 
 /**
+ * The step cycle of the multi-mode pie stepper: one step per slice, so
+ * suppression runs from none up to all but one — at least one slice always
+ * remains.
+ */
+export function getPieStepCycle(sliceIds: string[]): number {
+  return Math.max(1, sliceIds.length);
+}
+
+/**
  * The multi-mode pie stepper: chart `chartIndex` at step `step` suppresses the
  * last `(step + chartIndex) mod cycle` slices, so every chart in the grid
  * shows a different-sized view of the same pie and stepping/playing animates
- * them all concurrently. The cycle caps suppression so at least two slices
- * always remain (a gauge with one segment reads as broken).
+ * them all concurrently. The cycle caps suppression so at least one slice
+ * always remains.
  */
 export function getPieStepSuppressedIds(sliceIds: string[], chartIndex: number, step: number): FilteredSeriesIds {
-  const cycle = Math.max(1, sliceIds.length - 1);
+  const cycle = getPieStepCycle(sliceIds);
   const count = (((step + chartIndex) % cycle) + cycle) % cycle;
   const suppressed: FilteredSeriesIds = {};
   for (let i = sliceIds.length - count; i < sliceIds.length; i++) {
@@ -71,11 +80,11 @@ export function getPieStepSuppressedIds(sliceIds: string[], chartIndex: number, 
 
 /**
  * The single-mode slice sequence: suppress the slices one at a time from the
- * last down to two remaining, then restore them in reverse, ending fully
+ * last down to one remaining, then restore them in reverse, ending fully
  * restored. Returned as the filter map to show at each 2s tick.
  */
 export function getPieSequenceSteps(sliceIds: string[]): FilteredSeriesIds[] {
-  const maxSuppressed = Math.max(0, sliceIds.length - 2);
+  const maxSuppressed = Math.max(0, sliceIds.length - 1);
   const steps: FilteredSeriesIds[] = [];
   const cumulative = (count: number): FilteredSeriesIds => {
     const suppressed: FilteredSeriesIds = {};

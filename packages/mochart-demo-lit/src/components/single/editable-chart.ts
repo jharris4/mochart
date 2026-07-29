@@ -841,7 +841,7 @@ export class EditableChart extends LightElement {
               </div>
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-play-slices', disabled: error || this.sequencePlaying || this.slices.length < 3, tooltipText: demoText.editableChart.playSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.startSliceSequence, ariaLabel: demoText.editableChart.playSliceSequence.aria },
+                  { id: 'edit-play-slices', disabled: error || this.sequencePlaying || this.slices.length < 2, tooltipText: demoText.editableChart.playSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.startSliceSequence, ariaLabel: demoText.editableChart.playSliceSequence.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'play' })
                 )}
                 ${buttonWithTooltip(

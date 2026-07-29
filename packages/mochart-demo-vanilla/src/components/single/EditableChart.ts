@@ -1025,7 +1025,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       nextSliceButton.setDisabled(sliceControlsDisabled || sliceIndex >= slices.length - 1);
       resetSliceButton.setDisabled(sliceControlsDisabled);
       applySliceButton.setDisabled(sliceControlsDisabled);
-      playSliceButton.setDisabled(error || sequencePlaying || slices.length < 3);
+      playSliceButton.setDisabled(error || sequencePlaying || slices.length < 2);
       stopSliceButton.setDisabled(error || !sequencePlaying);
       if (slices.length > 0) {
         // The index lives in its own fixed-width span so stepping slices never

@@ -4,7 +4,7 @@ import { enhanceConfig } from '@mochart/core';
 
 import demoData from '@mochart/demo-data';
 
-import { getPieSlices, applyPieSliceValue, getPieStepSuppressedIds, getPieSequenceSteps } from '../src/pieDemo';
+import { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepSuppressedIds, getPieSequenceSteps } from '../src/pieDemo';
 
 const pieDemo = demoData.demoObjectMap['pie'];
 const donutDemo = demoData.demoObjectMap['donut'];
@@ -51,30 +51,39 @@ describe('getPieStepSuppressedIds', () => {
     expect(getPieStepSuppressedIds(ids, 2, 1)).toEqual({ s3: true, s4: true, s5: true });
   });
 
-  it('always keeps at least two slices', () => {
+  it('always keeps at least one slice', () => {
     for (let chartIndex = 0; chartIndex < 4; chartIndex++) {
       for (let step = -3; step < 12; step++) {
         const suppressed = Object.keys(getPieStepSuppressedIds(ids, chartIndex, step)).length;
-        expect(ids.length - suppressed).toBeGreaterThanOrEqual(2);
+        expect(ids.length - suppressed).toBeGreaterThanOrEqual(1);
       }
     }
     const gaugeIds = ['a', 'b', 'c'];
     for (let step = 0; step < 5; step++) {
-      expect(gaugeIds.length - Object.keys(getPieStepSuppressedIds(gaugeIds, 0, step)).length).toBeGreaterThanOrEqual(2);
+      expect(gaugeIds.length - Object.keys(getPieStepSuppressedIds(gaugeIds, 0, step)).length).toBeGreaterThanOrEqual(1);
     }
+  });
+
+  it('reaches a single remaining slice within the cycle', () => {
+    expect(getPieStepSuppressedIds(ids, 0, ids.length - 1)).toEqual({ s1: true, s2: true, s3: true, s4: true, s5: true });
+  });
+
+  it('matches getPieStepCycle', () => {
+    expect(getPieStepCycle(ids)).toBe(ids.length);
+    expect(getPieStepCycle([])).toBe(1);
   });
 });
 
 describe('getPieSequenceSteps', () => {
-  it('suppresses down to two remaining, then restores to empty', () => {
+  it('suppresses down to one remaining, then restores to empty', () => {
     const steps = getPieSequenceSteps(['a', 'b', 'c', 'd']);
     expect(steps.map(step => Object.keys(step).sort().join(','))).toEqual([
-      'd', 'c,d', 'd', ''
+      'd', 'c,d', 'b,c,d', 'c,d', 'd', ''
     ]);
   });
 
   it('is empty-ended and short for a three-slice gauge', () => {
     const steps = getPieSequenceSteps(['a', 'b', 'c']);
-    expect(steps.map(step => Object.keys(step).sort().join(','))).toEqual(['c', '']);
+    expect(steps.map(step => Object.keys(step).sort().join(','))).toEqual(['c', 'b,c', 'c', '']);
   });
 });

@@ -1,5 +1,5 @@
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
@@ -51,7 +51,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   // step s suppresses the last (s + i) mod cycle slices, so the grid shows
   // different-sized views of the same pie and stepping animates all charts.
   let sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
-  const stepCycle = () => mochartDemoConfig.pieMode ? Math.max(1, sliceIds.length - 1) : dataCount;
+  const stepCycle = () => mochartDemoConfig.pieMode ? getPieStepCycle(sliceIds) : dataCount;
   // A shared step seeks the playback position; otherwise start on the full set
   // (pie mode starts at step 0 — the grid's staggered initial view).
   let currentDataCount = sharedMulti && stepCycle() > 0

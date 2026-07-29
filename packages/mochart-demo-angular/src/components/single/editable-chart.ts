@@ -106,7 +106,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                         </app-button-with-tooltip>
                       </div>
                       <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-play-slices" [disabled]="error || sequencePlaying() || slices().length < 3" [tooltipText]="text.playSliceSequence.tooltip" tooltipPlacement="right"
+                        <app-button-with-tooltip id="edit-play-slices" [disabled]="error || sequencePlaying() || slices().length < 2" [tooltipText]="text.playSliceSequence.tooltip" tooltipPlacement="right"
                                                  [onClick]="startSliceSequence" [aria-label]="text.playSliceSequence.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="play" />
                         </app-button-with-tooltip>
