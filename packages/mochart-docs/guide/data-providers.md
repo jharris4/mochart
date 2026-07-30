@@ -31,13 +31,16 @@ straight from an existing store without copying.
 
 The config decides which properties the chart pulls from the provider:
 
-- the group value from `groupAxisConfig.property` (and optionally
+- the group value from [`groupAxisConfig.property`](/reference/groupAxisConfig#groupAxisConfig.property) (and optionally
   [`displayProperty`](/reference/groupAxisConfig#groupAxisConfig.displayProperty)
   for friendlier labels)
 - each series' value from its
   [`property`](/reference/seriesConfigs#seriesConfigs.property), plus the
   optional [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty),
-  `markerProperty`, `colorProperty`, and `labelProperty`
+  [`markerProperty`](/reference/seriesConfigs#seriesConfigs.markerProperty), [`colorProperty`](/reference/seriesConfigs#seriesConfigs.colorProperty), [`labelProperty`](/reference/seriesConfigs#seriesConfigs.labelProperty),
+  [`tooltipProperty`](/reference/seriesConfigs#seriesConfigs.tooltipProperty),
+  [`errorLowProperty`](/reference/seriesConfigs#seriesConfigs.errorLowProperty), and
+  [`errorHighProperty`](/reference/seriesConfigs#seriesConfigs.errorHighProperty).
 
 Series values must be numeric or `undefined` — how missing values render is
 controlled per series with
