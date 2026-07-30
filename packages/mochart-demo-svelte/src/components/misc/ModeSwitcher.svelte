@@ -33,7 +33,7 @@
       <button type="button" class={"demo-btn demo-btn-" + (mode === demoMode ? "primary" : "secondary")}
               disabled={mode === demoMode} title={demoText.modeSwitcher.modes[mode].title}
               onclick={() => onModeChanged(mode)}>
-        <Icon size="lg" name={modeIcons[mode]} /><span class="btn-label">{demoText.modeSwitcher.modes[mode].label}</span>
+        <Icon size="lg" fixedWidth={true} name={modeIcons[mode]} /><span class="btn-label">{demoText.modeSwitcher.modes[mode].label}</span>
       </button>
     {/each}
   </div>

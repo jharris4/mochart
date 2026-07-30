@@ -35,7 +35,7 @@ export function modeSwitcher({ demoMode, isPhone, onModeChanged }: ModeSwitcherP
         const current = mode === demoMode;
         const { label, title } = demoText.modeSwitcher.modes[mode];
         return html`<button type="button" class=${'demo-btn demo-btn-' + (current ? 'primary' : 'secondary')}
-            title=${title} ?disabled=${current} @click=${() => onModeChanged(mode)}>${icon({ name: modeIcons[mode], size: 'lg' })}<span class="btn-label">${label}</span></button>`;
+            title=${title} ?disabled=${current} @click=${() => onModeChanged(mode)}>${icon({ name: modeIcons[mode], size: 'lg', fixedWidth: true })}<span class="btn-label">${label}</span></button>`;
       })}
     </div>
   </div>`;
@@ -50,11 +50,11 @@ export function siteRootButton(siteRootUrl: string | undefined): unknown {
     return nothing;
   }
   return html`<a class="demo-btn demo-btn-secondary mochart-demo-site-root-button" href=${siteRootUrl}
-      title=${demoText.siteRootLink.tooltip} aria-label=${demoText.siteRootLink.aria}>${icon({ name: 'house' })}<span class="btn-label">${demoText.siteRootLink.shortLabel}</span></a>`;
+      title=${demoText.siteRootLink.tooltip} aria-label=${demoText.siteRootLink.aria}>${icon({ size: 'lg', fixedWidth: true, name: 'house' })}<span class="btn-label">${demoText.siteRootLink.shortLabel}</span></a>`;
 }
 
 export function backToDemosButton(onBackToDemos: () => void): TemplateResult {
   return html`<button type="button" class="demo-btn demo-btn-secondary mochart-demo-back-button"
       title=${demoText.backToDemos.tooltip} aria-label=${demoText.backToDemos.aria}
-      @click=${() => onBackToDemos()}>${icon({ name: 'chevron-left' })}<span class="btn-label">${demoText.backToDemos.label}</span></button>`;
+      @click=${() => onBackToDemos()}>${icon({ size: 'lg', fixedWidth: true, name: 'chevron-left' })}<span class="btn-label">${demoText.backToDemos.label}</span></button>`;
 }

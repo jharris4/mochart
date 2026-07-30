@@ -31,7 +31,7 @@ const modeIcons: Record<SwitchableDemoMode, string> = {
           <button type="button" [class]="'demo-btn demo-btn-' + (mode === demoMode ? 'primary' : 'secondary')"
                   [disabled]="mode === demoMode" [title]="text.modes[mode].title"
                   (click)="onModeChanged(mode)">
-            <app-icon size="lg" [name]="modeIcons[mode]" /><span class="btn-label">{{ text.modes[mode].label }}</span>
+            <app-icon size="lg" [fixedWidth]="true" [name]="modeIcons[mode]" /><span class="btn-label">{{ text.modes[mode].label }}</span>
           </button>
         }
       </div>
@@ -71,7 +71,7 @@ export class ModeSwitcher implements OnDestroy {
     '[title]': 'text.tooltip',
     '[attr.aria-label]': 'text.aria'
   },
-  template: '<app-icon name="house" /><span class="btn-label">{{ text.shortLabel }}</span>'
+  template: '<app-icon size="lg" [fixedWidth]="true" name="house" /><span class="btn-label">{{ text.shortLabel }}</span>'
 })
 export class SiteRootButton {
   readonly text = demoText.siteRootLink;
@@ -87,7 +87,7 @@ export class SiteRootButton {
     '[title]': 'text.tooltip',
     '[attr.aria-label]': 'text.aria'
   },
-  template: '<app-icon name="chevron-left" /><span class="btn-label">{{ text.label }}</span>'
+  template: '<app-icon size="lg" [fixedWidth]="true" name="chevron-left" /><span class="btn-label">{{ text.label }}</span>'
 })
 export class BackToDemosButton {
   readonly text = demoText.backToDemos;

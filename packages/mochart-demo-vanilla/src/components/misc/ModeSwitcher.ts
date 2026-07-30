@@ -39,7 +39,10 @@ export function modeSwitcher(props: ModeSwitcherProps): ModeSwitcherHandle {
       const button = el('button', {
         className: 'demo-btn demo-btn-' + (current ? 'primary' : 'secondary'),
         attrs: { type: 'button', title }
-      }, [icon(modeIcons[mode], { size: 'lg' }), el('span', { className: 'btn-label', text: label })]);
+      }, [
+        icon(modeIcons[mode], { size: 'lg', fixedWidth: true }),
+        el('span', { className: 'btn-label', text: label })
+      ]);
       button.disabled = current;
       button.addEventListener('click', () => props.onModeChanged(mode));
       return button;
@@ -75,7 +78,10 @@ export function siteRootButton(siteRootUrl: string | undefined): HTMLElement | n
       title: demoText.siteRootLink.tooltip,
       'aria-label': demoText.siteRootLink.aria
     }
-  }, [icon('house'), el('span', { className: 'btn-label', text: demoText.siteRootLink.shortLabel })]);
+  }, [
+    icon('house', { size: 'lg', fixedWidth: true }),
+    el('span', { className: 'btn-label', text: demoText.siteRootLink.shortLabel })
+  ]);
 }
 
 /** Icon-only light/dark toggle; shares the docs site's theme choice. */
@@ -110,7 +116,10 @@ export function backToDemosButton(onBackToDemos: () => void): HTMLElement {
       title: demoText.backToDemos.tooltip,
       'aria-label': demoText.backToDemos.aria
     }
-  }, [icon('chevron-left'), el('span', { className: 'btn-label', text: demoText.backToDemos.label })]);
+  }, [
+    icon('chevron-left', { size: 'lg', fixedWidth: true }),
+    el('span', { className: 'btn-label', text: demoText.backToDemos.label })
+  ]);
   button.addEventListener('click', onBackToDemos);
   return button;
 }

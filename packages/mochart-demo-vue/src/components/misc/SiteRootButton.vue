@@ -17,6 +17,6 @@ const props = withDefaults(defineProps<Props>(), {
 <template>
   <a v-if="props.siteRootUrl !== undefined" class="demo-btn demo-btn-secondary mochart-demo-site-root-button"
      :href="props.siteRootUrl" :title="demoText.siteRootLink.tooltip" :aria-label="demoText.siteRootLink.aria">
-    <Icon name="house" /><span class="btn-label">{{ demoText.siteRootLink.shortLabel }}</span>
+    <Icon size="lg" :fixed-width="true" name="house" /><span class="btn-label">{{ demoText.siteRootLink.shortLabel }}</span>
   </a>
 </template>

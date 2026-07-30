@@ -39,7 +39,7 @@ export function ModeSwitcher({ demoMode, onModeChanged }: ModeSwitcherProps) {
             <button key={mode} type="button" className={"demo-btn demo-btn-" + (current ? 'primary' : 'secondary')}
               disabled={current} title={title}
               onClick={() => { onModeChanged(mode); }}>
-              <Icon size="lg" name={modeIcons[mode]} /><span className="btn-label">{label}</span>
+              <Icon size="lg" fixedWidth={true} name={modeIcons[mode]} /><span className="btn-label">{label}</span>
             </button>
           );
         })}
@@ -59,7 +59,7 @@ export function SiteRootButton({ siteRootUrl }: { siteRootUrl?: string }) {
   return (
     <a className="demo-btn demo-btn-secondary mochart-demo-site-root-button" href={siteRootUrl}
       title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>
-      <Icon name="house" /><span className="btn-label">{demoText.siteRootLink.shortLabel}</span>
+      <Icon size="lg" fixedWidth={true} name="house" /><span className="btn-label">{demoText.siteRootLink.shortLabel}</span>
     </a>
   );
 }
@@ -81,7 +81,7 @@ export function BackToDemosButton({ onBackToDemos }: { onBackToDemos: OnBackToDe
   return (
     <button type="button" className="demo-btn demo-btn-secondary mochart-demo-back-button" title={demoText.backToDemos.tooltip}
       aria-label={demoText.backToDemos.aria} onClick={() => { onBackToDemos(); }}>
-      <Icon name="chevron-left" /><span className="btn-label">{demoText.backToDemos.label}</span>
+      <Icon size="lg" fixedWidth={true} name="chevron-left" /><span className="btn-label">{demoText.backToDemos.label}</span>
     </button>
   );
 }

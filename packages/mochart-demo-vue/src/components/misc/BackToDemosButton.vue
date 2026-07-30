@@ -15,6 +15,6 @@ const props = defineProps<Props>();
   <button type="button" class="demo-btn demo-btn-secondary mochart-demo-back-button"
           :title="demoText.backToDemos.tooltip" :aria-label="demoText.backToDemos.aria"
           @click="props.onBackToDemos()">
-    <Icon name="chevron-left" /><span class="btn-label">{{ demoText.backToDemos.label }}</span>
+    <Icon size="lg" :fixed-width="true" name="chevron-left" /><span class="btn-label">{{ demoText.backToDemos.label }}</span>
   </button>
 </template>

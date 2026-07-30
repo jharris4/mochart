@@ -34,7 +34,7 @@ const modeIcons: Record<SwitchableDemoMode, string> = {
               :class="'demo-btn demo-btn-' + (mode === props.demoMode ? 'primary' : 'secondary')"
               :disabled="mode === props.demoMode" :title="demoText.modeSwitcher.modes[mode].title"
               @click="props.onModeChanged(mode)">
-        <Icon size="lg" :name="modeIcons[mode]" /><span class="btn-label">{{ demoText.modeSwitcher.modes[mode].label }}</span>
+        <Icon size="lg" :fixed-width="true" :name="modeIcons[mode]" /><span class="btn-label">{{ demoText.modeSwitcher.modes[mode].label }}</span>
       </button>
     </div>
   </div>
