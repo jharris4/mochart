@@ -6,6 +6,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import BackToDemosButton from '../misc/BackToDemosButton.vue';
 import ModeSwitcher from '../misc/ModeSwitcher.vue';
+import NotesMenu from '../misc/NotesMenu.vue';
 import SiteRootButton from '../misc/SiteRootButton.vue';
 import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
 import ChartTab from './ChartTab.vue';
@@ -144,6 +145,7 @@ const hasPendingChanges = computed(() =>
             </button>
           </li>
         </ul>
+        <NotesMenu :title="props.demoData.demoObjectMap[props.initialDemoId].title" :notes="props.demoData.demoObjectMap[props.initialDemoId].notes" />
       </div>
       <div class="mochart-demo-nav-group">
         <ModeSwitcher demo-mode="single" :on-mode-changed="props.onModeChanged" />

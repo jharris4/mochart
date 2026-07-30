@@ -2,7 +2,7 @@
   // The standalone demo gallery page (the /demos landing route): the curated
   // demos, the feature-coverage test demos in a collapsed section and the
   // standalone showcase pages.
-  import { getGallerySections } from '@mochart/demo-common';
+  import { demoText, getGallerySections } from '@mochart/demo-common';
   import type { GalleryItem, GallerySection, ShowcaseMode } from '@mochart/demo-common';
 
   import Icon from '../misc/Icon.svelte';
@@ -28,6 +28,13 @@
 
   const sections = $derived(getGallerySections(demoData));
 
+  // Which cards have their notes expanded, keyed the same way the {#each} is.
+  let notesOpen = $state<Record<string, boolean>>({});
+
+  function itemKey(item: GalleryItem): string {
+    return item.kind === 'demo' ? item.id : item.mode;
+  }
+
   function onItemClick(item: GalleryItem) {
     if (item.kind === 'demo') {
       onOpenDemo(item.id);
@@ -45,19 +52,39 @@
   {/if}
 {/snippet}
 
+<!-- A demo's `notes` hang off the card behind a toggle. The toggle and the notes
+     prose are siblings of the open-demo button rather than children of it, since
+     a <button> may not contain interactive content — so the card chrome lives on
+     the .demo-list-entry wrapper (see demo.css). -->
 {#snippet sectionItems(section: GallerySection)}
   <div class="demo-list">
-    {#each section.items as item (item.kind === 'demo' ? item.id : item.mode)}
-      <button type="button" class="demo-list-item"
-              onclick={() => onItemClick(item)}>
-        {#if item.kind === 'page'}
-          <Icon fixedWidth name={pageIcons[item.mode]} />
+    {#each section.items as item (itemKey(item))}
+      <div class="demo-list-entry">
+        <div class="demo-list-row">
+          <button type="button" class="demo-list-item"
+                  onclick={() => onItemClick(item)}>
+            {#if item.kind === 'page'}
+              <Icon fixedWidth name={pageIcons[item.mode]} />
+            {/if}
+            <span class="mochart-demo-item-title">{item.title}</span>
+            {#if item.description !== undefined}
+              <span class="mochart-demo-item-description">{item.description}</span>
+            {/if}
+          </button>
+          {#if item.notes !== undefined}
+            <button type="button"
+                    class={'demo-btn demo-btn-secondary mochart-demo-notes-toggle' + (notesOpen[itemKey(item)] ? ' active' : '')}
+                    aria-expanded={notesOpen[itemKey(item)] ?? false} aria-label={demoText.demoNotes.galleryToggle.aria}
+                    title={notesOpen[itemKey(item)] ? demoText.demoNotes.galleryToggle.tooltipHide : demoText.demoNotes.galleryToggle.tooltipShow}
+                    onclick={() => { notesOpen[itemKey(item)] = !notesOpen[itemKey(item)]; }}>
+              <Icon fixedWidth name="circle-info" />
+            </button>
+          {/if}
+        </div>
+        {#if item.notes !== undefined && notesOpen[itemKey(item)]}
+          <div class="mochart-demo-notes">{item.notes}</div>
         {/if}
-        <span class="mochart-demo-item-title">{item.title}</span>
-        {#if item.description !== undefined}
-          <span class="mochart-demo-item-description">{item.description}</span>
-        {/if}
-      </button>
+      </div>
     {/each}
   </div>
 {/snippet}

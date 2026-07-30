@@ -5,6 +5,7 @@ import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 
 import { RandomContent } from './random-content';
 import { BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
+import { NotesMenu } from '../misc/notes-menu';
 
 import type { DemoData, MochartDemoConfig, RandomConfigWithValid, SwitchableDemoMode } from '../../types';
 
@@ -14,7 +15,7 @@ const eventKeyData = 3;
 
 @Component({
   selector: 'app-demo-random',
-  imports: [RandomContent, BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton],
+  imports: [RandomContent, BackToDemosButton, ModeSwitcher, NotesMenu, SiteRootButton, ThemeToggleButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container multi">
@@ -44,6 +45,7 @@ const eventKeyData = 3;
               </button>
             </li>
           </ul>
+          <app-notes-menu [demoTitle]="demoData.demoObjectMap[initialDemoId].title" [notes]="demoData.demoObjectMap[initialDemoId].notes" />
         </div>
         <div class="mochart-demo-nav-group">
           <app-mode-switcher [demoMode]="'random'" [onModeChanged]="onModeChanged" />

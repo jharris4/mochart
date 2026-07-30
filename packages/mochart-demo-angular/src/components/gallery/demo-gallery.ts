@@ -5,14 +5,9 @@ import { getGallerySections } from '@mochart/demo-common';
 
 import { Icon } from '../misc/icon';
 import { SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
+import { GalleryListItem } from './gallery-list-item';
 
 import type { DemoData, GalleryItem, GallerySection, ShowcaseMode } from '../../types';
-
-const pageIcons: Record<ShowcaseMode, string> = {
-  transition: 'right-left',
-  rotation: 'repeat',
-  sparkline: 'chart-line'
-};
 
 /**
  * The demo gallery landing page (the /demos route): the curated demos, the
@@ -22,7 +17,7 @@ const pageIcons: Record<ShowcaseMode, string> = {
  */
 @Component({
   selector: 'app-demo-gallery',
-  imports: [Icon, SiteRootButton, ThemeToggleButton],
+  imports: [GalleryListItem, Icon, SiteRootButton, ThemeToggleButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container">
@@ -45,15 +40,7 @@ const pageIcons: Record<ShowcaseMode, string> = {
                 </div>
                 <div class="demo-list">
                   @for (item of section.items; track $index) {
-                    <button type="button" class="demo-list-item" (click)="onItemClick(item)">
-                      @if (item.kind === 'page') {
-                        <app-icon [name]="pageIcons[item.mode]" [fixedWidth]="true" />
-                      }
-                      <span class="mochart-demo-item-title">{{ item.title }}</span>
-                      @if (item.description !== undefined) {
-                        <span class="mochart-demo-item-description">{{ item.description }}</span>
-                      }
-                    </button>
+                    <app-gallery-list-item [item]="item" [onOpen]="onItemClick" />
                   }
                 </div>
               </section>
@@ -68,15 +55,7 @@ const pageIcons: Record<ShowcaseMode, string> = {
                 </summary>
                 <div class="demo-list">
                   @for (item of section.items; track $index) {
-                    <button type="button" class="demo-list-item" (click)="onItemClick(item)">
-                      @if (item.kind === 'page') {
-                        <app-icon [name]="pageIcons[item.mode]" [fixedWidth]="true" />
-                      }
-                      <span class="mochart-demo-item-title">{{ item.title }}</span>
-                      @if (item.description !== undefined) {
-                        <span class="mochart-demo-item-description">{{ item.description }}</span>
-                      }
-                    </button>
+                    <app-gallery-list-item [item]="item" [onOpen]="onItemClick" />
                   }
                 </div>
               </details>
@@ -93,20 +72,19 @@ export class DemoGallery implements OnInit {
   @Input({ required: true }) onOpenDemo!: (demoId: string) => void;
   @Input({ required: true }) onOpenPage!: (mode: ShowcaseMode) => void;
 
-  readonly pageIcons = pageIcons;
-
   sections: GallerySection[] = [];
 
   ngOnInit(): void {
     this.sections = getGallerySections(this.demoData);
   }
 
-  onItemClick(item: GalleryItem): void {
+  // Passed to the card as a value, so it is an arrow property, not a method.
+  readonly onItemClick = (item: GalleryItem): void => {
     if (item.kind === 'demo') {
       this.onOpenDemo(item.id);
     }
     else {
       this.onOpenPage(item.mode);
     }
-  }
+  };
 }

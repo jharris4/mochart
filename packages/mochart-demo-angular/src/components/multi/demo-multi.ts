@@ -6,12 +6,13 @@ import { demoText } from '@mochart/demo-common';
 import { ChartsTab } from './charts-tab';
 import { ErrorTab } from '../misc/error-tab';
 import { BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
+import { NotesMenu } from '../misc/notes-menu';
 
 import type { DemoData, SwitchableDemoMode } from '../../types';
 
 @Component({
   selector: 'app-demo-multi',
-  imports: [ChartsTab, ErrorTab, BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton],
+  imports: [ChartsTab, ErrorTab, BackToDemosButton, ModeSwitcher, NotesMenu, SiteRootButton, ThemeToggleButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container multi">
@@ -26,6 +27,7 @@ import type { DemoData, SwitchableDemoMode } from '../../types';
               <button type="button" class="demo-tab active">{{ text.chart }}</button>
             </li>
           </ul>
+          <app-notes-menu [demoTitle]="demoData.demoObjectMap[initialDemoId].title" [notes]="demoData.demoObjectMap[initialDemoId].notes" />
         </div>
         <div class="mochart-demo-nav-group">
           <app-mode-switcher [demoMode]="'multi'" [onModeChanged]="onModeChanged" />

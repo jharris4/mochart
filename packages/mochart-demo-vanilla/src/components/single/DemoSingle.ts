@@ -4,6 +4,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
 import { backToDemosButton, modeSwitcher, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
+import { notesMenu } from '../misc/NotesMenu';
 import { chartTab } from './ChartTab';
 import type { ChartTabHandle } from './ChartTab';
 import { configTab } from './ConfigTab';
@@ -124,6 +125,8 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
   const configNav = navItem(demoText.tabs.config, eventKeyConfig);
   const dataNav = navItem(demoText.tabs.data, eventKeyData);
 
+  const notes = notesMenu(demoData.demoObjectMap[initialDemoId]);
+
   const contentPane = el('div', { className: 'mochart-demo-content-pane' }, [
     el('div', { className: 'mochart-demo-content' }, [
       chartBoundary.el, configBoundary.el, dataBoundary.el
@@ -134,7 +137,8 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
       el('div', { className: 'mochart-demo-nav-group' }, [
         siteRootButton(props.siteRootUrl),
         backToDemosButton(onBackToDemos),
-        el('ul', { className: 'demo-tabs' }, [chartNav.li, configNav.li, dataNav.li])
+        el('ul', { className: 'demo-tabs' }, [chartNav.li, configNav.li, dataNav.li]),
+        notes.el
       ]),
       el('div', { className: 'mochart-demo-nav-group' }, [
         modeSwitcher({ demoMode: 'single', onModeChanged }),
@@ -210,8 +214,10 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
       initialDemoId = nextInitialDemoId;
       activeKey = eventKeyChart;
       demoId = nextInitialDemoId;
-      config = demoData.demoObjectMap[nextInitialDemoId].config;
-      data = demoData.demoObjectMap[nextInitialDemoId].data;
+      const nextDemo = demoData.demoObjectMap[nextInitialDemoId];
+      notes.setDemo(nextDemo.title, nextDemo.notes);
+      config = nextDemo.config;
+      data = nextDemo.data;
       pendingConfig = config;
       pendingData = data;
       chartShown();
@@ -220,6 +226,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
       sync();
     },
     destroy() {
+      notes.destroy();
       chart.destroy();
     }
   };

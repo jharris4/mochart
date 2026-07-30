@@ -8,6 +8,7 @@ import { ConfigTab } from './config-tab';
 import { DataTab } from './data-tab';
 import { ErrorTab } from '../misc/error-tab';
 import { BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
+import { NotesMenu } from '../misc/notes-menu';
 
 import type { DemoData, DemoConfig, DataRow, SwitchableDemoMode } from '../../types';
 
@@ -19,7 +20,7 @@ const eventKeyData = 3;
 
 @Component({
   selector: 'app-demo-single',
-  imports: [ChartTab, ConfigTab, DataTab, ErrorTab, BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton],
+  imports: [ChartTab, ConfigTab, DataTab, ErrorTab, BackToDemosButton, ModeSwitcher, NotesMenu, SiteRootButton, ThemeToggleButton],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container">
@@ -50,6 +51,7 @@ const eventKeyData = 3;
               </button>
             </li>
           </ul>
+          <app-notes-menu [demoTitle]="demoData.demoObjectMap[initialDemoId].title" [notes]="demoData.demoObjectMap[initialDemoId].notes" />
         </div>
         <div class="mochart-demo-nav-group">
           <app-mode-switcher [demoMode]="'single'" [onModeChanged]="onModeChanged" />

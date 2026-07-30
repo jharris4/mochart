@@ -663,22 +663,57 @@ details.mochart-demo-gallery-section > summary {
 details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-title {
     color: var(--demo-text);
 }
-.mochart-demo-gallery .demo-list-item {
+/* The card chrome lives on the entry wrapper, not the button: a demo with
+   `notes` needs a details toggle beside the button and the notes prose below
+   it, and neither may nest inside a <button>. The button itself stays
+   transparent and fills the row, so the click target is unchanged. */
+.mochart-demo-gallery .demo-list-entry {
+    display: flex;
+    flex-flow: column;
     border: 1px solid var(--demo-border);
     border-radius: var(--demo-radius);
-    padding: 8px 14px;
-    color: var(--demo-text);
     background: var(--demo-surface);
     transition: background-color 0.12s ease, border-color 0.12s ease;
 }
-.mochart-demo-gallery .demo-list-item:hover {
-    cursor: pointer;
+.mochart-demo-gallery .demo-list-entry:hover {
     background: var(--demo-hover-bg);
     border-color: var(--demo-hover-border);
+}
+.mochart-demo-gallery .demo-list-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+}
+.mochart-demo-gallery .demo-list-item {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    border-radius: var(--demo-radius);
+    padding: 8px 14px;
+    color: var(--demo-text);
+}
+.mochart-demo-gallery .demo-list-item:hover {
+    cursor: pointer;
 }
 .mochart-demo-gallery .demo-list-item .fa-solid {
     float: left;
     margin: 3px 8px 0 0;
+    color: var(--demo-text-muted);
+}
+.mochart-demo-notes-toggle {
+    flex: none;
+    margin: 5px 7px 0 0;
+    padding: 3px 7px;
+    color: var(--demo-text-muted);
+}
+/* Notes stay in the card, ruled off from the blurb and aligned under it. */
+.mochart-demo-notes {
+    padding: 8px 14px 10px;
+    margin: 0 14px;
+    border-top: 1px dashed var(--demo-border-strong);
+    font-size: 0.9em;
+    line-height: 1.6;
     color: var(--demo-text-muted);
 }
 
@@ -900,6 +935,37 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     height: 1px;
     margin: 6px 4px;
     background: var(--demo-border);
+}
+
+/* The notes panel reuses .demo-menu's popover plumbing (fixed positioning by
+   the opener, escaping ancestor overflow) but holds prose, not menu items — so
+   it is wider and its text wraps. It opens downward from the navigation row. */
+/* Also a .demo-btn-group, whose `display: inline-flex` outranks the user-agent
+   `[hidden] { display: none }` rule — so restate it for demos without notes. */
+.mochart-demo-notes-menu {
+    position: relative;
+}
+.mochart-demo-notes-menu[hidden] {
+    display: none;
+}
+/* Width is duplicated in notesPanel.ts, which clamps the panel's left offset
+   against it — keep the two in step. */
+.demo-menu.demo-menu-notes {
+    width: min(340px, calc(100vw - 32px));
+    padding: 12px 14px;
+    white-space: normal;
+}
+.demo-menu-notes-title {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--demo-text);
+}
+.demo-menu-notes-body {
+    display: block;
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: var(--demo-text-muted);
 }
 
 /* ============================================================

@@ -7,6 +7,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
+import '../misc/notes-menu';
 import '../misc/theme-toggle-button';
 
 import './chart-tab';
@@ -149,6 +150,7 @@ export class DemoSingle extends LightElement {
             ${this.renderTab(eventKeyConfig, demoText.tabs.config)}
             ${this.renderTab(eventKeyData, demoText.tabs.data)}
           </ul>
+          <notes-menu .demoTitle=${this.demoData.demoObjectMap[this.initialDemoId].title} .notes=${this.demoData.demoObjectMap[this.initialDemoId].notes}></notes-menu>
         </div>
         <div class="mochart-demo-nav-group">
           ${modeSwitcher({ demoMode: 'single', onModeChanged: this.onModeChanged })}

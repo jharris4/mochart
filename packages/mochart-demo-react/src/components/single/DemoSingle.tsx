@@ -7,6 +7,7 @@ import MochartDataTab from './DataTab';
 import MochartConfigTab from './ConfigTab';
 import ErrorTab from '../misc/ErrorTab';
 import { ModeSwitcher, SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
+import NotesMenu from '../misc/NotesMenu';
 
 import type { DemoTabProps, DemoConfig, DataRow } from '../../types';
 
@@ -57,6 +58,7 @@ export default function MochartDemoSingle({ demoData, initialDemoId, siteRootUrl
               </button>
             </li>
           </ul>
+          <NotesMenu title={demoData.demoObjectMap[initialDemoId].title} notes={demoData.demoObjectMap[initialDemoId].notes} />
         </div>
         <div className="mochart-demo-nav-group">
           <ModeSwitcher demoMode="single" onModeChanged={onModeChanged} />

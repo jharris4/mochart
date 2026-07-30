@@ -4,6 +4,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
 import { backToDemosButton, modeSwitcher, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
+import { notesMenu } from '../misc/NotesMenu';
 import { chartsTab } from './ChartsTab';
 import type { ChartsTabHandle } from './ChartsTab';
 
@@ -40,12 +41,15 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
     text: demoText.tabs.chart
   });
 
+  const notes = notesMenu(demoData.demoObjectMap[initialDemoId]);
+
   const container = el('div', { className: 'mochart-demo-container multi' }, [
     el('div', { className: 'mochart-demo-tabs-container' }, [
       el('div', { className: 'mochart-demo-nav-group' }, [
         siteRootButton(props.siteRootUrl),
         backToDemosButton(onBackToDemos),
-        el('ul', { className: 'demo-tabs' }, [el('li', { className: 'demo-tab-item' }, [chartNav])])
+        el('ul', { className: 'demo-tabs' }, [el('li', { className: 'demo-tab-item' }, [chartNav])]),
+        notes.el
       ]),
       el('div', { className: 'mochart-demo-nav-group' }, [
         modeSwitcher({ demoMode: 'multi', onModeChanged }),
@@ -64,9 +68,12 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
         return;
       }
       initialDemoId = nextInitialDemoId;
-      chartsBoundary.guard(() => charts.setDemoObject(demoData.demoObjectMap[nextInitialDemoId]));
+      const nextDemo = demoData.demoObjectMap[nextInitialDemoId];
+      notes.setDemo(nextDemo.title, nextDemo.notes);
+      chartsBoundary.guard(() => charts.setDemoObject(nextDemo));
     },
     destroy() {
+      notes.destroy();
       charts.destroy();
     }
   };

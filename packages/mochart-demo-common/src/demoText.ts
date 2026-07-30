@@ -66,6 +66,13 @@ export const demoText = {
   exportShareMenu: {
     trigger: { tooltip: 'Export or share this chart', aria: 'Export and share' }
   },
+  // A demo's `notes` (see demo-data's DemoManifestEntry): the detail kept out
+  // of the one-sentence description. Shown behind the gallery card's toggle and
+  // the notes button in each mode's navigation row.
+  demoNotes: {
+    galleryToggle: { tooltipShow: 'Show more about this demo', tooltipHide: 'Hide the details', aria: 'Toggle demo details' },
+    trigger: { tooltip: 'More about this demo', aria: 'About this demo' }
+  },
   docsLinks: {
     label: 'Reference:',
     tooltipPrefix: 'Open the config reference for '

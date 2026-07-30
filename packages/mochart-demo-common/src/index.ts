@@ -58,6 +58,9 @@ export { demoText } from './demoText';
 export { getGallerySections, switchableDemoModes } from './gallery';
 export type { GalleryDemoItem, GalleryPageItem, GalleryItem, GallerySection, SwitchableDemoMode, ShowcaseMode } from './gallery';
 
+export { getNotesPanelPosition } from './notesPanel';
+export type { NotesPanelPosition } from './notesPanel';
+
 export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, consumeSingleShareState, shareHashPrefix } from './shareState';
 export type { ShareState, SingleShareState, MultiShareState, RandomShareState } from './shareState';
 

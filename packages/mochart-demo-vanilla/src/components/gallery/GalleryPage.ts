@@ -1,4 +1,4 @@
-import { getGallerySections } from '@mochart/demo-common';
+import { demoText, getGallerySections } from '@mochart/demo-common';
 import type { GalleryItem, GallerySection, ShowcaseMode } from '@mochart/demo-common';
 
 import { el, icon } from '../misc/dom';
@@ -26,6 +26,10 @@ const pageIcons: Record<ShowcaseMode, string> = {
 export function galleryPage(props: GalleryPageProps): GalleryPageHandle {
   const { demoData, onOpenDemo, onOpenPage } = props;
 
+  // A demo's `notes` hang off the card behind a toggle. The toggle and the
+  // notes prose are siblings of the open-demo button rather than children of
+  // it, since a <button> may not contain interactive content — so the card
+  // chrome lives on the .demo-list-entry wrapper (see demo.css).
   function galleryItem(item: GalleryItem): HTMLElement {
     const button = el('button', {
       className: 'demo-list-item',
@@ -45,7 +49,35 @@ export function galleryPage(props: GalleryPageProps): GalleryPageHandle {
         onOpenPage(item.mode);
       }
     });
-    return button;
+
+    const row = el('div', { className: 'demo-list-row' }, [button]);
+    const entry = el('div', { className: 'demo-list-entry' }, [row]);
+
+    if (item.notes !== undefined) {
+      const notes = el('div', { className: 'mochart-demo-notes', text: item.notes });
+      notes.hidden = true;
+      const toggle = el('button', {
+        className: 'demo-btn demo-btn-secondary mochart-demo-notes-toggle',
+        attrs: {
+          type: 'button',
+          'aria-expanded': 'false',
+          title: demoText.demoNotes.galleryToggle.tooltipShow,
+          'aria-label': demoText.demoNotes.galleryToggle.aria
+        }
+      }, [icon('circle-info', { fixedWidth: true })]);
+      let open = false;
+      toggle.addEventListener('click', () => {
+        open = !open;
+        notes.hidden = !open;
+        toggle.classList.toggle('active', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.title = open ? demoText.demoNotes.galleryToggle.tooltipHide : demoText.demoNotes.galleryToggle.tooltipShow;
+      });
+      row.append(toggle);
+      entry.append(notes);
+    }
+
+    return entry;
   }
 
   function sectionEl(section: GallerySection): HTMLElement {

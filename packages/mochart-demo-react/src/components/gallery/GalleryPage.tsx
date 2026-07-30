@@ -1,6 +1,8 @@
+import { useState } from 'react';
+
 import Icon from '../misc/Icon';
 
-import { getGallerySections } from '@mochart/demo-common';
+import { demoText, getGallerySections } from '@mochart/demo-common';
 import type { GalleryItem, GallerySection, ShowcaseMode } from '@mochart/demo-common';
 
 import { SiteRootButton, ThemeToggleButton } from '../misc/ModeSwitcher';
@@ -20,21 +22,39 @@ const pageIcons: Record<ShowcaseMode, string> = {
   sparkline: 'chart-line'
 };
 
+// A demo's `notes` hang off the card behind a toggle. The toggle and the notes
+// prose are siblings of the open-demo button rather than children of it, since
+// a <button> may not contain interactive content — so the card chrome lives on
+// the .demo-list-entry wrapper (see demo.css).
 function GalleryListItem({ item, onOpenDemo, onOpenPage }: { item: GalleryItem } & Pick<GalleryPageProps, 'onOpenDemo' | 'onOpenPage'>) {
+  const [notesOpen, setNotesOpen] = useState(false);
   return (
-    <button type="button" className="demo-list-item"
-      onClick={() => {
-        if (item.kind === 'demo') {
-          onOpenDemo(item.id);
-        }
-        else {
-          onOpenPage(item.mode);
-        }
-      }}>
-      {item.kind === 'page' ? <Icon fixedWidth name={pageIcons[item.mode]} /> : null}
-      <span className="mochart-demo-item-title">{item.title}</span>
-      {item.description !== undefined ? <span className="mochart-demo-item-description">{item.description}</span> : null}
-    </button>
+    <div className="demo-list-entry">
+      <div className="demo-list-row">
+        <button type="button" className="demo-list-item"
+          onClick={() => {
+            if (item.kind === 'demo') {
+              onOpenDemo(item.id);
+            }
+            else {
+              onOpenPage(item.mode);
+            }
+          }}>
+          {item.kind === 'page' ? <Icon fixedWidth name={pageIcons[item.mode]} /> : null}
+          <span className="mochart-demo-item-title">{item.title}</span>
+          {item.description !== undefined ? <span className="mochart-demo-item-description">{item.description}</span> : null}
+        </button>
+        {item.notes !== undefined ? (
+          <button type="button" className={'demo-btn demo-btn-secondary mochart-demo-notes-toggle' + (notesOpen ? ' active' : '')}
+            aria-expanded={notesOpen} aria-label={demoText.demoNotes.galleryToggle.aria}
+            title={notesOpen ? demoText.demoNotes.galleryToggle.tooltipHide : demoText.demoNotes.galleryToggle.tooltipShow}
+            onClick={() => setNotesOpen(prev => !prev)}>
+            <Icon fixedWidth name="circle-info" />
+          </button>
+        ) : null}
+      </div>
+      {item.notes !== undefined && notesOpen ? <div className="mochart-demo-notes">{item.notes}</div> : null}
+    </div>
   );
 }
 

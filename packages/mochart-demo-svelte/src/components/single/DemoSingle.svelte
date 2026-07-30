@@ -8,6 +8,7 @@
   import ErrorTab from '../misc/ErrorTab.svelte';
   import BackToDemosButton from '../misc/BackToDemosButton.svelte';
   import ModeSwitcher from '../misc/ModeSwitcher.svelte';
+  import NotesMenu from '../misc/NotesMenu.svelte';
   import SiteRootButton from '../misc/SiteRootButton.svelte';
   import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
 
@@ -152,6 +153,7 @@
           </button>
         </li>
       </ul>
+      <NotesMenu title={demoData.demoObjectMap[initialDemoId].title} notes={demoData.demoObjectMap[initialDemoId].notes} />
     </div>
     <div class="mochart-demo-nav-group">
       <ModeSwitcher demoMode="single" {onModeChanged} />

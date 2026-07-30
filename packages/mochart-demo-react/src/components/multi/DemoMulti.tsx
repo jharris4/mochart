@@ -4,6 +4,7 @@ import { demoText } from '@mochart/demo-common';
 import MultiMochartChartsTab from './ChartsTab';
 import ErrorTab from '../misc/ErrorTab';
 import { ModeSwitcher, SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
+import NotesMenu from '../misc/NotesMenu';
 
 import type { DemoTabProps } from '../../types';
 
@@ -19,6 +20,7 @@ export default function MochartDemoMulti({ demoData, initialDemoId, siteRootUrl,
               <button type="button" className="demo-tab active">{demoText.tabs.chart}</button>
             </li>
           </ul>
+          <NotesMenu title={demoData.demoObjectMap[initialDemoId].title} notes={demoData.demoObjectMap[initialDemoId].notes} />
         </div>
         <div className="mochart-demo-nav-group">
           <ModeSwitcher demoMode="multi" onModeChanged={onModeChanged} />

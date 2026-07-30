@@ -117,8 +117,15 @@ export type DemoRandomConfig =
 export interface DemoManifestEntry {
   id: string;
   title: string;
-  /** One or two sentences on what the demo showcases. */
+  /** One short sentence on what the demo showcases (the gallery blurb). */
   description?: string;
+  /**
+   * The longer explanation, for the curious: which config options are being
+   * exercised, what random mode does to the data. Surfaced on demand (the
+   * gallery card's details toggle and the in-demo notes button), never inline,
+   * so `description` can stay a single sentence.
+   */
+  notes?: string;
   config: string;
   data: string;
   random: string;
@@ -133,8 +140,10 @@ export interface DemoManifestEntry {
 export interface Demo {
   id: string;
   title: string;
-  /** One or two sentences on what the demo showcases. */
+  /** One short sentence on what the demo showcases (the gallery blurb). */
   description?: string;
+  /** The longer explanation (see DemoManifestEntry.notes). */
+  notes?: string;
   config: DemoConfig;
   data: DataRow[];
   random: DemoRandomConfig;

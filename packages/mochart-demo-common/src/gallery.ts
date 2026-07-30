@@ -19,6 +19,8 @@ export interface GalleryDemoItem {
   id: string;
   title: string;
   description?: string;
+  /** The longer explanation, behind the card's details toggle. */
+  notes?: string;
 }
 
 /** The demo modes rendered as standalone showcase pages. */
@@ -30,6 +32,8 @@ export interface GalleryPageItem {
   mode: ShowcaseMode;
   title: string;
   description: string;
+  /** Showcase pages carry no notes; declared so items are uniform to render. */
+  notes?: undefined;
 }
 
 export type GalleryItem = GalleryDemoItem | GalleryPageItem;
@@ -45,8 +49,8 @@ export interface GallerySection {
 }
 
 function toDemoItem(demoData: DemoData, demoId: string): GalleryDemoItem {
-  const { title, description } = demoData.demoObjectMap[demoId];
-  return { kind: 'demo', id: demoId, title, description };
+  const { title, description, notes } = demoData.demoObjectMap[demoId];
+  return { kind: 'demo', id: demoId, title, description, notes };
 }
 
 export function getGallerySections(demoData: DemoData): GallerySection[] {

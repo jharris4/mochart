@@ -11,6 +11,7 @@ import RandomMochartConfigTab from './RandomConfigTab';
 import RandomMochartDataTab from './RandomDataTab';
 import ErrorTab from '../misc/ErrorTab';
 import { ModeSwitcher, SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
+import NotesMenu from '../misc/NotesMenu';
 
 import type {
   DemoData, DemoTabProps, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue
@@ -86,6 +87,7 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
               </button>
             </li>
           </ul>
+          <NotesMenu title={demoData.demoObjectMap[initialDemoId].title} notes={demoData.demoObjectMap[initialDemoId].notes} />
         </div>
         <div className="mochart-demo-nav-group">
           <ModeSwitcher demoMode="random" onModeChanged={onModeChanged} />

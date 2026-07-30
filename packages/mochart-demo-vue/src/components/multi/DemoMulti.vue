@@ -4,6 +4,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import BackToDemosButton from '../misc/BackToDemosButton.vue';
 import ModeSwitcher from '../misc/ModeSwitcher.vue';
+import NotesMenu from '../misc/NotesMenu.vue';
 import SiteRootButton from '../misc/SiteRootButton.vue';
 import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
 import ChartsTab from './ChartsTab.vue';
@@ -33,6 +34,7 @@ const props = defineProps<Props>();
             <button type="button" class="demo-tab active">{{ demoText.tabs.chart }}</button>
           </li>
         </ul>
+        <NotesMenu :title="props.demoData.demoObjectMap[props.initialDemoId].title" :notes="props.demoData.demoObjectMap[props.initialDemoId].notes" />
       </div>
       <div class="mochart-demo-nav-group">
         <ModeSwitcher demo-mode="multi" :on-mode-changed="props.onModeChanged" />
