@@ -2,7 +2,7 @@
 // Single/Multi/Random mode switcher. Transition/rotation are standalone
 // gallery pages, not modes, so they don't appear here.
 
-import { demoText, initTheme, switchableDemoModes } from '@mochart/demo-common';
+import { demoText, getAvailableDemoModes, initTheme, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el, icon } from './dom';
@@ -21,22 +21,43 @@ export interface ModeSwitcherProps {
   onModeChanged: (nextDemoMode: SwitchableDemoMode) => void;
 }
 
-export function modeSwitcher(props: ModeSwitcherProps): HTMLElement {
-  const buttons = switchableDemoModes.map(mode => {
-    const current = mode === props.demoMode;
-    const { label, title } = demoText.modeSwitcher.modes[mode];
-    const button = el('button', {
-      className: 'demo-btn demo-btn-' + (current ? 'primary' : 'secondary'),
-      attrs: { type: 'button', title }
-    }, [icon(modeIcons[mode], { size: 'lg' }), ' ' + label]);
-    button.disabled = current;
-    button.addEventListener('click', () => props.onModeChanged(mode));
-    return button;
-  });
-  return el('div', { className: 'mochart-demo-mode-switcher' }, [
-    el('span', { className: 'demo-label', text: demoText.modeSwitcher.label }),
-    el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, buttons)
-  ]);
+export interface ModeSwitcherHandle {
+  el: HTMLElement;
+  destroy(): void;
+}
+
+export function modeSwitcher(props: ModeSwitcherProps): ModeSwitcherHandle {
+  const toolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
+
+  // Which modes exist depends on the width (Multi is out on a phone), so the
+  // row is rebuilt when the viewport crosses the breakpoint rather than built
+  // once at mount.
+  function render(isPhone: boolean): void {
+    toolbar.replaceChildren(...getAvailableDemoModes(isPhone).map(mode => {
+      const current = mode === props.demoMode;
+      const { label, title } = demoText.modeSwitcher.modes[mode];
+      const button = el('button', {
+        className: 'demo-btn demo-btn-' + (current ? 'primary' : 'secondary'),
+        attrs: { type: 'button', title }
+      }, [icon(modeIcons[mode], { size: 'lg' }), el('span', { className: 'btn-label', text: label })]);
+      button.disabled = current;
+      button.addEventListener('click', () => props.onModeChanged(mode));
+      return button;
+    }));
+  }
+
+  render(isPhoneViewport());
+  const unwatchViewport = watchPhoneViewport(render);
+
+  return {
+    el: el('div', { className: 'mochart-demo-mode-switcher' }, [
+      el('span', { className: 'demo-label', text: demoText.modeSwitcher.label }),
+      toolbar
+    ]),
+    destroy() {
+      unwatchViewport();
+    }
+  };
 }
 
 /**
@@ -54,7 +75,7 @@ export function siteRootButton(siteRootUrl: string | undefined): HTMLElement | n
       title: demoText.siteRootLink.tooltip,
       'aria-label': demoText.siteRootLink.aria
     }
-  }, [icon('house'), ' ' + demoText.siteRootLink.shortLabel]);
+  }, [icon('house'), el('span', { className: 'btn-label', text: demoText.siteRootLink.shortLabel })]);
 }
 
 /** Icon-only light/dark toggle; shares the docs site's theme choice. */
@@ -89,7 +110,7 @@ export function backToDemosButton(onBackToDemos: () => void): HTMLElement {
       title: demoText.backToDemos.tooltip,
       'aria-label': demoText.backToDemos.aria
     }
-  }, [icon('chevron-left'), ' ' + demoText.backToDemos.label]);
+  }, [icon('chevron-left'), el('span', { className: 'btn-label', text: demoText.backToDemos.label })]);
   button.addEventListener('click', onBackToDemos);
   return button;
 }

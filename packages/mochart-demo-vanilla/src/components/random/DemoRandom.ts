@@ -74,6 +74,7 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
   const dataNav = navItem(demoText.tabs.data, eventKeyData);
 
   const notes = notesMenu(demoData.demoObjectMap[initialDemoId]);
+  const modes = modeSwitcher({ demoMode: 'random', onModeChanged });
 
   const container = el('div', { className: 'mochart-demo-container multi' }, [
     el('div', { className: 'mochart-demo-tabs-container' }, [
@@ -84,7 +85,7 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
         notes.el
       ]),
       el('div', { className: 'mochart-demo-nav-group' }, [
-        modeSwitcher({ demoMode: 'random', onModeChanged }),
+        modes.el,
         themeToggleButton()
       ])
     ]),
@@ -131,6 +132,7 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
     },
     destroy() {
       notes.destroy();
+      modes.destroy();
       content.destroy();
     }
   };

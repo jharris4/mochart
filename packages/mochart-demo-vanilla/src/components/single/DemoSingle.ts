@@ -126,6 +126,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
   const dataNav = navItem(demoText.tabs.data, eventKeyData);
 
   const notes = notesMenu(demoData.demoObjectMap[initialDemoId]);
+  const modes = modeSwitcher({ demoMode: 'single', onModeChanged });
 
   const contentPane = el('div', { className: 'mochart-demo-content-pane' }, [
     el('div', { className: 'mochart-demo-content' }, [
@@ -141,7 +142,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
         notes.el
       ]),
       el('div', { className: 'mochart-demo-nav-group' }, [
-        modeSwitcher({ demoMode: 'single', onModeChanged }),
+        modes.el,
         themeToggleButton()
       ])
     ]),
@@ -227,6 +228,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
     },
     destroy() {
       notes.destroy();
+      modes.destroy();
       chart.destroy();
     }
   };

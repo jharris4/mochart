@@ -3,6 +3,7 @@
 
   import demoData from '@mochart/demo-data';
 
+  import { isPhoneViewport, phoneFallbackDemoMode, watchPhoneViewport } from '@mochart/demo-common';
   import type { ShowcaseMode, SwitchableDemoMode } from '@mochart/demo-common';
 
   import GalleryPage from '../src/components/gallery/GalleryPage.svelte';
@@ -72,7 +73,20 @@
     return { notFound: path };
   }
 
-  const route = $derived(resolveRoute(getPath()));
+  let isPhone = $state(isPhoneViewport());
+  $effect(() => watchPhoneViewport(value => { isPhone = value; }));
+
+  // Multi mode is not offered on a phone, so a /multi/<demoId> URL — a shared
+  // link, or a rotation to portrait while multi is open — redirects to the
+  // fallback mode for the same demo like any other unshowable route.
+  function resolveForViewport(resolved: Route): Route {
+    if (resolved.mode === 'multi' && resolved.demoId !== undefined && isPhone) {
+      return { redirect: `/${phoneFallbackDemoMode}/${resolved.demoId}` };
+    }
+    return resolved;
+  }
+
+  const route = $derived(resolveForViewport(resolveRoute(getPath())));
 
   $effect(() => {
     if (route.redirect !== undefined) {

@@ -5,9 +5,11 @@ import { getPath, navigate, subscribe } from './router';
 
 import demoData from '@mochart/demo-data';
 
+import { isDemoModeAvailable, phoneFallbackDemoMode } from '@mochart/demo-common';
 import type { ShowcaseMode, SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../src/components/misc/LightElement';
+import { PhoneViewportController } from '../src/components/misc/PhoneViewportController';
 import '../src/components/gallery/gallery-page';
 import '../src/components/single/demo-single';
 import '../src/components/multi/demo-multi';
@@ -60,6 +62,16 @@ function resolveRoute(path: string): Route {
   return { notFound: path };
 }
 
+// A phone is not offered Multi mode, so a /multi/<demoId> URL — a shared link,
+// or the width crossing the breakpoint while multi is showing — resolves to the
+// fallback mode for the same demo, and redirects so the address bar agrees.
+function applyViewportPolicy(route: Route, isPhone: boolean): Route {
+  if (route.mode === 'multi' && !isDemoModeAvailable('multi', isPhone)) {
+    return { redirect: `/${phoneFallbackDemoMode}/${route.demoId!}` };
+  }
+  return route;
+}
+
 // The site build injects VITE_SITE_ROOT (the docs site root) so the demo can
 // link back to it; standalone dev/build leaves it unset and no link renders.
 // Every view places the link itself (top-left, before its own navigation).
@@ -81,6 +93,14 @@ export class DemoApp extends LightElement {
 
   private unsubscribe: (() => void) | null = null;
 
+  // A width change re-runs the route, so rotating into phone width redirects
+  // away from multi mode just as loading the URL there does.
+  private viewport = new PhoneViewportController(this);
+
+  private get route(): Route {
+    return applyViewportPolicy(resolveRoute(this.path), this.viewport.isPhone);
+  }
+
   override connectedCallback(): void {
     super.connectedCallback();
     this.unsubscribe = subscribe(() => {
@@ -95,7 +115,7 @@ export class DemoApp extends LightElement {
   }
 
   override updated(): void {
-    const route = resolveRoute(this.path);
+    const route = this.route;
     if (route.redirect !== undefined) {
       navigate(route.redirect, { replace: true });
     }
@@ -130,7 +150,7 @@ export class DemoApp extends LightElement {
   };
 
   override render(): unknown {
-    const route = resolveRoute(this.path);
+    const route = this.route;
     if (route.redirect !== undefined) {
       // redirecting (in updated())
       return null;

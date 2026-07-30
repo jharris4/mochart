@@ -42,6 +42,7 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
   });
 
   const notes = notesMenu(demoData.demoObjectMap[initialDemoId]);
+  const modes = modeSwitcher({ demoMode: 'multi', onModeChanged });
 
   const container = el('div', { className: 'mochart-demo-container multi' }, [
     el('div', { className: 'mochart-demo-tabs-container' }, [
@@ -52,7 +53,7 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
         notes.el
       ]),
       el('div', { className: 'mochart-demo-nav-group' }, [
-        modeSwitcher({ demoMode: 'multi', onModeChanged }),
+        modes.el,
         themeToggleButton()
       ])
     ]),
@@ -74,6 +75,7 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
     },
     destroy() {
       notes.destroy();
+      modes.destroy();
       charts.destroy();
     }
   };

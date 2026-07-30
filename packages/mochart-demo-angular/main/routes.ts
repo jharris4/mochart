@@ -13,6 +13,7 @@ import { TransitionPage } from './pages/transition-page';
 import { RotationPage } from './pages/rotation-page';
 import { SparklinePage } from './pages/sparkline-page';
 import { NotFoundPage } from './pages/not-found-page';
+import { multiPhoneFallbackGuard } from './pages/navigation';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'demos' },
@@ -25,7 +26,7 @@ export const routes: Routes = [
   { path: 'random/demos', pathMatch: 'full', redirectTo: 'demos' },
   { path: 'random/demos/:randomId', pathMatch: 'full', redirectTo: 'demos' },
   { path: 'single/:demoId', component: SinglePage },
-  { path: 'multi/:demoId', component: MultiPage },
+  { path: 'multi/:demoId', component: MultiPage, canActivate: [multiPhoneFallbackGuard] },
   { path: 'random/:demoId', pathMatch: 'full', redirectTo: 'random/:demoId/0' },
   { path: 'random/:demoId/:randomId', component: RandomPage },
   { path: 'transition', component: TransitionPage },

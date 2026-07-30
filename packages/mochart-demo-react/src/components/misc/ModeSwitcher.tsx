@@ -5,8 +5,10 @@
 import React from 'react';
 import Icon from './Icon';
 
-import { demoText, initTheme, switchableDemoModes } from '@mochart/demo-common';
+import { demoText, getAvailableDemoModes, initTheme } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
+
+import { usePhoneViewport } from './usePhoneViewport';
 
 import type { OnModeChanged, OnBackToDemos } from '../../types';
 
@@ -25,18 +27,19 @@ interface ModeSwitcherProps {
 }
 
 export function ModeSwitcher({ demoMode, onModeChanged }: ModeSwitcherProps) {
+  const isPhone = usePhoneViewport();
   return (
     <div className="mochart-demo-mode-switcher">
       <span className="demo-label">{demoText.modeSwitcher.label}</span>
       <div className="demo-toolbar" role="toolbar">
-        {switchableDemoModes.map(mode => {
+        {getAvailableDemoModes(isPhone).map(mode => {
           const current = mode === demoMode;
           const { label, title } = demoText.modeSwitcher.modes[mode];
           return (
             <button key={mode} type="button" className={"demo-btn demo-btn-" + (current ? 'primary' : 'secondary')}
               disabled={current} title={title}
               onClick={() => { onModeChanged(mode); }}>
-              <Icon size="lg" name={modeIcons[mode]} /> {label}
+              <Icon size="lg" name={modeIcons[mode]} /><span className="btn-label">{label}</span>
             </button>
           );
         })}
@@ -56,7 +59,7 @@ export function SiteRootButton({ siteRootUrl }: { siteRootUrl?: string }) {
   return (
     <a className="demo-btn demo-btn-secondary mochart-demo-site-root-button" href={siteRootUrl}
       title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>
-      <Icon name="house" /> {demoText.siteRootLink.shortLabel}
+      <Icon name="house" /><span className="btn-label">{demoText.siteRootLink.shortLabel}</span>
     </a>
   );
 }
@@ -78,7 +81,7 @@ export function BackToDemosButton({ onBackToDemos }: { onBackToDemos: OnBackToDe
   return (
     <button type="button" className="demo-btn demo-btn-secondary mochart-demo-back-button" title={demoText.backToDemos.tooltip}
       aria-label={demoText.backToDemos.aria} onClick={() => { onBackToDemos(); }}>
-      <Icon name="chevron-left" /> {demoText.backToDemos.label}
+      <Icon name="chevron-left" /><span className="btn-label">{demoText.backToDemos.label}</span>
     </button>
   );
 }

@@ -6,6 +6,7 @@ import { demoText } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
+import { PhoneViewportController } from '../misc/PhoneViewportController';
 import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
 import '../misc/notes-menu';
 import '../misc/theme-toggle-button';
@@ -24,6 +25,8 @@ export class DemoMulti extends LightElement {
   @property({ attribute: false }) onBackToDemos!: () => void;
 
   @state() private demoId = '';
+
+  private viewport = new PhoneViewportController(this);
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (changed.has('initialDemoId')) {
@@ -45,7 +48,7 @@ export class DemoMulti extends LightElement {
           <notes-menu .demoTitle=${this.demoData.demoObjectMap[this.initialDemoId].title} .notes=${this.demoData.demoObjectMap[this.initialDemoId].notes}></notes-menu>
         </div>
         <div class="mochart-demo-nav-group">
-          ${modeSwitcher({ demoMode: 'multi', onModeChanged: this.onModeChanged })}
+          ${modeSwitcher({ demoMode: 'multi', isPhone: this.viewport.isPhone, onModeChanged: this.onModeChanged })}
           <theme-toggle-button></theme-toggle-button>
         </div>
       </div>

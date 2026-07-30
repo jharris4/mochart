@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router';
 
-import { shareHashPrefix } from '@mochart/demo-common';
+import { phoneFallbackDemoMode, shareHashPrefix } from '@mochart/demo-common';
 
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/solid.min.css';
@@ -19,6 +19,8 @@ import DemoRandom from '../src/components/random/DemoRandom';
 import DemoTransition from '../src/components/transition/DemoTransition';
 import DemoRotation from '../src/components/rotation/DemoRotation';
 import DemoSparkline from '../src/components/sparkline/DemoSparkline';
+
+import { usePhoneViewport } from '../src/components/misc/usePhoneViewport';
 
 import type { DemoTabProps } from '../src/types';
 
@@ -138,6 +140,21 @@ function DemoModeRoute({ Component }: DemoModeRouteProps) {
     onModeChanged={nav.onModeChanged} onBackToDemos={nav.onBackToDemos} />;
 }
 
+// A phone has no room for Multi's grid of charts, so its URL falls back to the
+// same demo in Single. Driving it off the viewport state means a rotation into
+// phone width re-renders this route and redirects a multi view already on
+// screen. Like every RedirectWithSearch this drops the hash, and a multi share
+// payload that did reach Single would be refused by consumeShareState's mode
+// check, so Single opens on its own defaults either way.
+function MultiRoute() {
+  const isPhone = usePhoneViewport();
+  const { demoId } = useParams();
+  if (isPhone) {
+    return <RedirectWithSearch to={`/${phoneFallbackDemoMode}/${demoId}`} />;
+  }
+  return <DemoModeRoute Component={DemoMulti} />;
+}
+
 function RandomRoute() {
   const params = useParams();
   const demoNavigate = useDemoNavigate();
@@ -192,7 +209,7 @@ function App() {
       <Route path="/random/demos" element={<RedirectWithSearch to="/demos" />} />
       <Route path="/random/demos/:randomId" element={<RedirectWithSearch to="/demos" />} />
       <Route path="/single/:demoId" element={<DemoModeRoute Component={DemoSingle} />} />
-      <Route path="/multi/:demoId" element={<DemoModeRoute Component={DemoMulti} />} />
+      <Route path="/multi/:demoId" element={<MultiRoute />} />
       <Route path="/random/:demoId" element={<RandomRedirect />} />
       <Route path="/random/:demoId/:randomId" element={<RandomRoute />} />
       <Route path="/transition" element={<TransitionRoute />} />

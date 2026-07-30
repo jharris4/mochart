@@ -6,6 +6,7 @@ import { consumeSingleShareState, demoText } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
+import { PhoneViewportController } from '../misc/PhoneViewportController';
 import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
 import '../misc/notes-menu';
 import '../misc/theme-toggle-button';
@@ -44,6 +45,8 @@ export class DemoSingle extends LightElement {
   @state() private viewingConfig: DemoConfig | null = null;
   @state() private viewingData: DataRow[] | null = null;
   @state() private viewingDataError: DataError = false;
+
+  private viewport = new PhoneViewportController(this);
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (!changed.has('initialDemoId')) {
@@ -153,7 +156,7 @@ export class DemoSingle extends LightElement {
           <notes-menu .demoTitle=${this.demoData.demoObjectMap[this.initialDemoId].title} .notes=${this.demoData.demoObjectMap[this.initialDemoId].notes}></notes-menu>
         </div>
         <div class="mochart-demo-nav-group">
-          ${modeSwitcher({ demoMode: 'single', onModeChanged: this.onModeChanged })}
+          ${modeSwitcher({ demoMode: 'single', isPhone: this.viewport.isPhone, onModeChanged: this.onModeChanged })}
           <theme-toggle-button></theme-toggle-button>
         </div>
       </div>

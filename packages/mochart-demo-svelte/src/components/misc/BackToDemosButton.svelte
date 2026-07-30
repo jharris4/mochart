@@ -14,5 +14,5 @@
 <button type="button" class="demo-btn demo-btn-secondary mochart-demo-back-button"
         title={demoText.backToDemos.tooltip} aria-label={demoText.backToDemos.aria}
         onclick={onBackToDemos}>
-  <Icon name="chevron-left" /> {demoText.backToDemos.label}
+  <Icon name="chevron-left" /><span class="btn-label">{demoText.backToDemos.label}</span>
 </button>

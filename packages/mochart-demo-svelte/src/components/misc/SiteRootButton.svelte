@@ -15,6 +15,6 @@
 {#if siteRootUrl !== undefined}
   <a class="demo-btn demo-btn-secondary mochart-demo-site-root-button" href={siteRootUrl}
      title={demoText.siteRootLink.tooltip} aria-label={demoText.siteRootLink.aria}>
-    <Icon name="house" /> {demoText.siteRootLink.shortLabel}
+    <Icon name="house" /><span class="btn-label">{demoText.siteRootLink.shortLabel}</span>
   </a>
 {/if}

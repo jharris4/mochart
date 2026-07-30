@@ -5,7 +5,10 @@ import { navigate, getPath } from './router';
 
 import demoData from '@mochart/demo-data';
 
+import { phoneFallbackDemoMode } from '@mochart/demo-common';
 import type { ShowcaseMode, SwitchableDemoMode } from '@mochart/demo-common';
+
+import { usePhoneViewport } from '../src/components/misc/usePhoneViewport';
 
 import GalleryPage from '../src/components/gallery/GalleryPage.vue';
 import DemoSingle from '../src/components/single/DemoSingle.vue';
@@ -41,6 +44,8 @@ function getDebugSiteRootUrl(): string | undefined {
 
 const siteRootUrl = (import.meta.env.VITE_SITE_ROOT as string | undefined) ?? getDebugSiteRootUrl();
 
+const isPhone = usePhoneViewport();
+
 // The gallery at /demos is the landing route; a demo is always viewed at
 // /<mode>/<demoId>. The legacy scheme used a 'demos' pseudo-demo-id for the
 // list ("/single/demos"), so those URLs redirect to the gallery.
@@ -61,6 +66,12 @@ const route = computed((): Route => {
     return { redirect: '/demos' };
   }
   if ((mode === 'single' || mode === 'multi') && segments.length === 2) {
+    // A phone cannot show the multi grid, so its URL redirects to the fallback
+    // mode instead — including on a rotation into phone width, since the flag is
+    // reactive. The fallback never redirects in turn, so this settles in one pass.
+    if (mode === 'multi' && isPhone.value) {
+      return { redirect: `/${phoneFallbackDemoMode}/${demoId}` };
+    }
     return { mode, demoId };
   }
   if (mode === 'random' && segments.length === 2) {

@@ -98,11 +98,20 @@ a:hover {
     text-decoration: underline;
 }
 
+/* The shell is exactly one viewport tall and never scrolls, so the height unit
+   has to mean "what is actually visible". `vh` on a phone means the viewport
+   with the browser chrome *retracted*, so the bottom of the layout — the
+   controls strip — sat behind the toolbar and could not be scrolled to.
+   `dvh` tracks the chrome as it hides and shows; the `vh` line before it is the
+   fallback for engines without `dvh` (which get the old behaviour, not zero
+   height). */
 html, body {
     box-sizing: border-box;
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     max-height: 100vh;
+    max-height: 100dvh;
     overflow: hidden;
     -ms-overflow-style: none;
     font-size: 14px;
@@ -114,7 +123,9 @@ html, body {
     box-sizing: border-box;
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     max-height: 100vh;
+    max-height: 100dvh;
     overflow: hidden;
     -ms-overflow-style: none;
     background: var(--demo-bg);
@@ -288,6 +299,9 @@ html, body {
    each column then split its own height, and the plots came out different
    sizes and vertically offset from each other. Sharing the rows sizes the
    controls row to the taller strip and leaves both plots identical.
+   The two wrappers between this grid and those children are boxless
+   (`display: contents`, below), so the content and controls are the grid items
+   themselves.
    `minmax(0, …)` on both axes (and min-width/min-height: 0 on the items in the
    chain) keeps a track from being stretched past its share by its content:
    the strips are full of nowrap buttons, and without it the row grew wider
@@ -308,21 +322,23 @@ html, body {
     min-height: 0;
     overflow: hidden;
 }
-/* Both wrappers span the two rows and pass them down (subgrid), so each
-   chart's content and controls land in the shared rows. */
+/* Both wrappers are boxless, so each chart's content and controls become direct
+   items of the grid above and land in the shared rows themselves. That is what
+   aligns the two plots; it replaces `grid-template-rows: subgrid` on these
+   wrappers, which did the same job with much narrower browser support.
+   Dropping their boxes is safe because they carry no paint (no border,
+   background or padding), are not a containing block for anything positioned
+   (that is `.mochart-chart`), and are never measured — the ports measure the
+   tab container above and the chart host below. The `min-*`/`overflow` they
+   used to need moved onto the two children. */
 .mochart-demo-content .editable-mochart-chart,
 .mochart-demo-content .editable-chart-container {
-    display: grid;
-    grid-row: 1 / -1;
-    grid-template-rows: subgrid;
-    min-width: 0;
-    min-height: 0;
-    max-width: 100%;
-    overflow: hidden;
+    display: contents;
 }
 .mochart-demo-content .editable-chart-content {
     display: flex;
     flex: 1 1 auto;
+    min-width: 0;
     min-height: 0;
     max-width: 100%;
     overflow: hidden;
@@ -330,6 +346,7 @@ html, body {
 .mochart-demo-content .editable-chart-controls {
     display: flex;
     flex: none;
+    min-width: 0;
     max-width: 100%;
     width: 100%;
     overflow: hidden;
@@ -1083,4 +1100,84 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     font-size: 0.85em;
     color: var(--demo-text-muted);
     padding: 4px 2px 0;
+}
+
+/* ============================================================
+   Narrow viewports — collapse button labels, tighten the chrome
+   ============================================================ */
+/* Two tiers:
+
+   ≤ 900px ("narrow") — every collapsible button drops to its icon. The control
+   strips are the tallest thing after the plot, and with labels they wrap to
+   three or four rows; the nav row is `flex: none` above the plot, so each row it
+   wraps to is a row the chart loses. Icon-only is already the house style for
+   the steppers and transport buttons, and every one of these buttons carries a
+   `title` and a real label, so nothing becomes unidentifiable.
+
+   ≤ 640px ("phone") — space that only a phone needs back: shell padding, gaps
+   and the number inputs. A phone turned sideways is wider than 640px (896×414
+   for the largest), so the second half of that query catches it; height alone
+   would also catch a short desktop window, hence both bounds.
+   `Mode:` is hidden in the tier above, where the switcher's icons take over.
+
+   Labels are taken out of the layout rather than `display: none`d, so a button
+   whose accessible name comes from its visible text keeps that name.
+
+   The tab buttons (`.demo-tab`) are deliberately not in this list — they have no
+   icons, so hiding their labels would leave three blank buttons.
+
+   Keep the phone query in step with `phoneQuery` in src/viewport.ts, which hides
+   Multi mode at exactly the same sizes. */
+@media (max-width: 900px) {
+    .mochart-demo-content .chart-controls-container .btn-label,
+    .mochart-demo-content .multi-controls .btn-label,
+    .mochart-demo-content .random-controls .btn-label,
+    .mochart-demo-content .transition-controls .btn-label,
+    .mochart-demo-mode-switcher .btn-label,
+    .mochart-demo-site-root-button .btn-label,
+    .mochart-demo-back-button .btn-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        border: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+    /* `Mode:` — the three mode icons say it. */
+    .mochart-demo-mode-switcher .demo-label {
+        display: none;
+    }
+    /* The single-mode value input is `flex: none`, so it demanded the UA default
+       text-input width (~200px) and pushed the buttons onto another row on its
+       own. Let it take what is left of the row instead. */
+    .mochart-demo-content .chart-controls-input {
+        flex: 1 1 6em;
+        min-width: 0;
+    }
+    .mochart-demo-content .chart-controls-input input {
+        min-width: 0;
+    }
+}
+@media (max-width: 640px), (max-width: 900px) and (max-height: 480px) {
+    .mochart-demo-container {
+        padding: 10px 10px 12px;
+        gap: 8px;
+    }
+    .mochart-demo-tabs-container {
+        gap: 6px 10px;
+    }
+    .mochart-demo-content .chart-controls-container,
+    .mochart-demo-content .multi-controls,
+    .mochart-demo-content .random-controls,
+    .mochart-demo-content .transition-controls {
+        gap: 6px 8px;
+        padding-top: 8px;
+        margin-top: 6px;
+    }
+    .mochart-demo-content input[type="number"].demo-input {
+        width: 4.5em;
+    }
 }

@@ -1,5 +1,6 @@
 import demoData from '@mochart/demo-data';
 
+import { isPhoneViewport, phoneFallbackDemoMode, watchPhoneViewport } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { getPath, navigate, onNavigate } from './router';
@@ -30,6 +31,10 @@ const { demoObjectMap } = demoData;
 // The gallery at /demos is the landing route; a demo is always viewed at
 // /<mode>/<demoId>. The legacy scheme used a 'demos' pseudo-demo-id for the
 // list ("/single/demos"), so those URLs redirect to the gallery.
+//
+// A phone has no Multi mode (the switcher leaves it out), so a /multi URL —
+// shared link, bookmark, rotation — redirects to the fallback mode rather than
+// rendering a grid the viewport cannot show.
 function resolveRoute(path: string): Route {
   const segments = path.split('/').filter(segment => segment.length > 0);
   if (segments.length === 0) {
@@ -46,6 +51,9 @@ function resolveRoute(path: string): Route {
     return { redirect: '/demos' };
   }
   if ((mode === 'single' || mode === 'multi') && segments.length === 2) {
+    if (mode === 'multi' && isPhoneViewport()) {
+      return { redirect: `/${phoneFallbackDemoMode}/${demoId}` };
+    }
     return { mode, demoId };
   }
   if (mode === 'random' && segments.length === 2) {
@@ -254,5 +262,9 @@ export function mountApp(root: HTMLElement): void {
   }
 
   onNavigate(render);
+  // Rotating a phone into portrait can leave Multi mode on screen; re-resolving
+  // the route takes it to the fallback mode and replaces the URL, exactly as it
+  // would have on a fresh load at that width.
+  watchPhoneViewport(() => render());
   render();
 }

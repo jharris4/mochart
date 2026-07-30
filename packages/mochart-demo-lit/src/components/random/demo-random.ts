@@ -6,6 +6,7 @@ import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
+import { PhoneViewportController } from '../misc/PhoneViewportController';
 import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
 import '../misc/notes-menu';
 import '../misc/theme-toggle-button';
@@ -32,6 +33,8 @@ export class DemoRandom extends LightElement {
   @state() private mochartDemoConfig: MochartDemoConfig | null = null;
   @state() private randomConfig: RandomConfigWithValid | null = null;
   @state() private generator: string | undefined = undefined;
+
+  private viewport = new PhoneViewportController(this);
 
   private buildStateForDemo(demoId: string): { mochartDemoConfig: MochartDemoConfig; randomConfig: RandomConfigWithValid; generator?: string } {
     const demo = this.demoData.demoObjectMap[demoId];
@@ -80,7 +83,7 @@ export class DemoRandom extends LightElement {
           <notes-menu .demoTitle=${this.demoData.demoObjectMap[this.initialDemoId].title} .notes=${this.demoData.demoObjectMap[this.initialDemoId].notes}></notes-menu>
         </div>
         <div class="mochart-demo-nav-group">
-          ${modeSwitcher({ demoMode: 'random', onModeChanged: this.onModeChanged })}
+          ${modeSwitcher({ demoMode: 'random', isPhone: this.viewport.isPhone, onModeChanged: this.onModeChanged })}
           <theme-toggle-button></theme-toggle-button>
         </div>
       </div>

@@ -8,9 +8,12 @@ body {
   color: #222;
 }
 
+/* `dvh` so the bottom of the layout is not left behind mobile browser chrome;
+   the `vh` line is the fallback for engines without it. */
 #app {
   display: flex;
   height: 100vh;
+  height: 100dvh;
 }
 
 #sidebar {

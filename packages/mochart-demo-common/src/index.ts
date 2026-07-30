@@ -58,6 +58,11 @@ export { demoText } from './demoText';
 export { getGallerySections, switchableDemoModes } from './gallery';
 export type { GalleryDemoItem, GalleryPageItem, GalleryItem, GallerySection, SwitchableDemoMode, ShowcaseMode } from './gallery';
 
+export {
+  phoneMaxWidth, landscapePhoneMaxWidth, landscapePhoneMaxHeight, phoneFallbackDemoMode,
+  isPhoneViewport, watchPhoneViewport, isDemoModeAvailable, getAvailableDemoModes
+} from './viewport';
+
 export { getNotesPanelPosition } from './notesPanel';
 export type { NotesPanelPosition } from './notesPanel';
 

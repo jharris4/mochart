@@ -1,10 +1,10 @@
 // The in-demo navigation strip pieces: a back link to the gallery and the
 // Single/Multi/Random mode switcher. Transition/rotation are standalone
 // gallery pages, not modes, so they don't appear here.
-import { Component, Input, signal } from '@angular/core';
+import { Component, Input, computed, signal } from '@angular/core';
 import type { OnDestroy } from '@angular/core';
 
-import { demoText, initTheme, switchableDemoModes } from '@mochart/demo-common';
+import { demoText, getAvailableDemoModes, initTheme, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 
 import { Icon } from './icon';
 
@@ -27,24 +27,35 @@ const modeIcons: Record<SwitchableDemoMode, string> = {
     <div class="mochart-demo-mode-switcher">
       <span class="demo-label">{{ text.label }}</span>
       <div class="demo-toolbar" role="toolbar">
-        @for (mode of modes; track mode) {
+        @for (mode of modes(); track mode) {
           <button type="button" [class]="'demo-btn demo-btn-' + (mode === demoMode ? 'primary' : 'secondary')"
                   [disabled]="mode === demoMode" [title]="text.modes[mode].title"
                   (click)="onModeChanged(mode)">
-            <app-icon size="lg" [name]="modeIcons[mode]" /> {{ text.modes[mode].label }}
+            <app-icon size="lg" [name]="modeIcons[mode]" /><span class="btn-label">{{ text.modes[mode].label }}</span>
           </button>
         }
       </div>
     </div>
   `
 })
-export class ModeSwitcher {
+export class ModeSwitcher implements OnDestroy {
   @Input({ required: true }) demoMode!: SwitchableDemoMode;
   @Input({ required: true }) onModeChanged!: (nextDemoMode: SwitchableDemoMode) => void;
 
   readonly text = demoText.modeSwitcher;
-  readonly modes = switchableDemoModes;
   readonly modeIcons = modeIcons;
+
+  private readonly phone = signal(isPhoneViewport());
+
+  // Multi drops out below the phone breakpoint, so the offered modes have to
+  // follow a rotation as well as the initial width.
+  readonly modes = computed(() => getAvailableDemoModes(this.phone()));
+
+  private readonly unsubscribe = watchPhoneViewport(phone => this.phone.set(phone));
+
+  ngOnDestroy(): void {
+    this.unsubscribe();
+  }
 }
 
 /**
@@ -60,7 +71,7 @@ export class ModeSwitcher {
     '[title]': 'text.tooltip',
     '[attr.aria-label]': 'text.aria'
   },
-  template: '<app-icon name="house" /> {{ text.shortLabel }}'
+  template: '<app-icon name="house" /><span class="btn-label">{{ text.shortLabel }}</span>'
 })
 export class SiteRootButton {
   readonly text = demoText.siteRootLink;
@@ -76,7 +87,7 @@ export class SiteRootButton {
     '[title]': 'text.tooltip',
     '[attr.aria-label]': 'text.aria'
   },
-  template: '<app-icon name="chevron-left" /> {{ text.label }}'
+  template: '<app-icon name="chevron-left" /><span class="btn-label">{{ text.label }}</span>'
 })
 export class BackToDemosButton {
   readonly text = demoText.backToDemos;
