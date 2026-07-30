@@ -8,7 +8,7 @@ bindings call those props is in
 [Framework props](/reference/framework-props).
 
 A mochart config is a plain object made of per-concern sections. Every
-section — and every property inside one — is optional and falls back to a
+section — and almost every property inside one — is optional and falls back to a
 sensible default, so a minimal config only names the data properties to plot
 (see [Getting started](/guide/getting-started)).
 

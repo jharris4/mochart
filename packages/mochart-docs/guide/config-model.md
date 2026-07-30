@@ -1,7 +1,7 @@
 # The config model
 
 A mochart config is a plain, JSON-serializable object made of per-concern
-**sections**. Every section — and every property inside one — is optional and
+**sections**. Every section — and almost every property inside one — is optional and
 falls back to a sensible default, so configs only say what differs from the
 defaults.
 
