@@ -138,18 +138,25 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   axisLayoutInfo.tickTextX = tickTextX;
   axisLayoutInfo.tickTextY = tickTextY;
 
+  // both boxes are offset across the axis (x when vertical, y when horizontal)
+  // and always span its full length along it. The outer side comes first in the
+  // axis' local coordinates, so the title leads for a notAfter axis and the tick
+  // labels lead otherwise - matching tickOffset/titleOffset for the text itself.
+  const titleBoxOffset = notAfter ? 0 : totalTickLabelSize;
+  const tickLabelBoxOffset = notAfter ? totalTitleSize : 0;
+
   const titleLayoutInfo = axisLayoutInfo.titleLayoutInfo = title === NONE ? emptyLayoutInfo : createInnerOuterSpacingLayoutInfo({
-    x: vertical && !before ? axisLayoutInfo.totalTickLabelSize : 0,
-    y: !(vertical && !before) ? axisLayoutInfo.totalTickLabelSize : 0,
+    x: vertical ? titleBoxOffset : 0,
+    y: vertical ? 0 : titleBoxOffset,
     width: vertical ? totalTitleSize : width,
-    height: !vertical ? totalTitleSize : height,
+    height: vertical ? height : totalTitleSize,
   }, vertical, inverted, before, titleMarginInner, titleMarginOuter, titlePaddingInner, titlePaddingOuter);
 
   const tickLabelLayoutInfo = axisLayoutInfo.tickLabelLayoutInfo = createInnerOuterSpacingLayoutInfo({
-    x: vertical && before ? totalTitleSize : 0,
-    y: !(vertical && before) ? totalTitleSize : 0,
+    x: vertical ? tickLabelBoxOffset : 0,
+    y: vertical ? 0 : tickLabelBoxOffset,
     width: vertical ? totalTickLabelSize : width,
-    height: !vertical ? totalTickLabelSize : height,
+    height: vertical ? height : totalTickLabelSize,
   }, vertical, inverted, before, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter);
 
   const { focusRangeApplyToTitle } = axisConfig;

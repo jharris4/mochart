@@ -31,7 +31,7 @@ export const mochartCssClasses = {
               axisTickMark: 'mochart-axis-tick-mark mochart-axis-tick-mark-',
             axisTickLabels: 'mochart-axis-tick-labels',
               axisTickLabel: 'mochart-axis-tick-label mochart-axis-tick-label-',
-                axisTickLabelBackground: 'mochart-axis-title-background',
+                axisTickLabelBackground: 'mochart-axis-tick-label-background',
             axisSizeTickLabel: 'mochart-axis-size-tick-label',
             axisFocusRange: 'mochart-axis-focus-range',
             axisFocusTickMarks: 'mochart-axis-focus-tick-marks',
