@@ -55,4 +55,7 @@ All knobs live in [`animationConfig`](/reference/animationConfig):
 | [`focusDuration`](/reference/animationConfig#animationConfig.focusDuration) | hover/click focus emphasis transitions |
 
 Durations are in milliseconds and are the *maximum* for the phase — smaller
-changes complete proportionally faster.
+changes complete proportionally faster. On an axis running `0` to `100` with
+`valueChangeDuration: 1000`, a bar growing the full height of the axis takes
+1000 ms, one going from `50` to `100` takes 500 ms, and one going from `95` to
+`100` takes 50 ms.
