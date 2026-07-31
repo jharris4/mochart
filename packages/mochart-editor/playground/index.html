@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mochart Config Editor</title>
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">@mochart/editor playground</p>
+          <h1>Edit the chart config</h1>
+          <p>Try completion with <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Space</kbd>, or hover a property for its docs.</p>
+        </div>
+        <div class="actions">
+          <button id="format" type="button">Format JSON</button>
+          <button id="apply" class="primary" type="button">Apply to chart</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <section class="panel editor-panel" aria-labelledby="editor-title">
+          <div class="panel-header">
+            <h2 id="editor-title">MochartConfig</h2>
+            <span id="status" class="status" role="status">Ready</span>
+          </div>
+          <div id="editor"></div>
+        </section>
+
+        <section class="panel preview-panel" aria-labelledby="preview-title">
+          <div class="panel-header">
+            <h2 id="preview-title">Preview</h2>
+          </div>
+          <div id="chart"></div>
+          <div id="problems" class="problems" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

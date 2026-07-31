@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import validateConfig, {
   getUniqueMessage,
   getReferenceMessage,
-  getCommonReferenceMessage
+  getCommonReferenceMessage,
+  validateConfigDetailed
 } from '../../src/config/validation/mochartConfig';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 
@@ -121,6 +122,40 @@ describe('non-strict validation', () => {
     expect(strict.warnings.length).toBeGreaterThan(0);
     expect(strict.valid).toBe(false);
     expect(lenient.valid).toBe(true);
+  });
+});
+
+describe('detailed validation', () => {
+  it('keeps the legacy result shape unchanged', () => {
+    const config = { version: V, groupAxisConfig: { property: 'p' } };
+    const defaults = getDefaults(config as never);
+    expect(Object.keys(validateConfig(config, defaults as never))).toEqual(['valid', 'errors', 'warnings']);
+  });
+
+  it('adds a precise path for a section property error', () => {
+    const config = {
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesConfigs: [{ property: 'a', axis: 'missing' }]
+    };
+    const defaults = getDefaults(config as never);
+    const result = validateConfigDetailed(config, defaults as never);
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      path: ['seriesConfigs', 0, 'axis'],
+      severity: 'error',
+      source: 'mochart'
+    }));
+  });
+
+  it('reports unknown top-level properties as a root warning', () => {
+    const config = { version: V, groupAxisConfig: { property: 'p' }, unknownExtra: true };
+    const defaults = getDefaults(config as never);
+    const result = validateConfigDetailed(config, defaults as never);
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      path: [],
+      severity: 'warning',
+      source: 'mochart'
+    }));
   });
 });
 

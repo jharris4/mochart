@@ -140,6 +140,28 @@ export interface PropertyDoc {
   rules: string[];
   default?: DefaultValue;
   conditionalDefaults?: ConditionalDefaultValue[];
+  /** Machine-readable value information used by config editors. */
+  editor: EditorValueDoc;
+  /** A value selected from ids declared elsewhere in the same config. */
+  reference?: EditorReferenceDoc;
+}
+
+export type EditorValueType = 'any' | 'array' | 'boolean' | 'number' | 'object' | 'string';
+
+export interface EditorValueDoc {
+  types: EditorValueType[];
+  enum?: unknown[];
+  minimum?: number;
+  maximum?: number;
+  format?: string;
+  properties?: Record<string, EditorValueDoc>;
+  items?: EditorValueDoc;
+}
+
+export interface EditorReferenceDoc {
+  sections: string[];
+  key: string;
+  commonKey?: string;
 }
 
 export interface SectionDoc {
@@ -166,6 +188,7 @@ export interface TopLevelKeyDoc {
   allDescription?: string;
   allRules?: string[];
   allDefaultText?: string;
+  editor: EditorValueDoc;
 }
 
 export interface ConfigReferenceModel {
@@ -377,6 +400,95 @@ function getPropertyRules(validator: Validator, sectionRules: string[] | undefin
   return sectionRules && sectionRules.length > 0 ? rules.concat(sectionRules) : rules;
 }
 
+function unique<T>(values: T[]): T[] {
+  return values.filter((value, index) => values.indexOf(value) === index);
+}
+
+function editorTypesForValidator(validator: Validator): EditorValueType[] {
+  const variants = validator.variantValidators ?? [];
+  if (variants.length > 0) {
+    return unique(variants.flatMap(editorTypesForValidator));
+  }
+  switch (validator.validatorName) {
+    case 'any': return ['any'];
+    case 'array':
+    case 'arrayOf':
+    case 'arrayWithLength':
+    case 'arrayWithLengthMin':
+    case 'arrayWithLengthMax':
+    case 'arrayWithLengthMinMax': return ['array'];
+    case 'boolean': return ['boolean'];
+    case 'number':
+    case 'numberMin':
+    case 'numberMax':
+    case 'numberMinMax':
+    case 'integer':
+    case 'integerMin':
+    case 'integerMax':
+    case 'integerMinMax': return ['number'];
+    case 'numeric':
+    case 'numericMin':
+    case 'numericMax':
+    case 'numericMinMax':
+    case 'dateAny': return ['number', 'string'];
+    case 'object':
+    case 'objectWith':
+    case 'objectWithSome':
+    case 'objectWithShape': return ['object'];
+    case 'string':
+    case 'stringWithLength':
+    case 'stringWithLengthMin':
+    case 'stringWithLengthMax':
+    case 'stringWithLengthMinMax':
+    case 'regexp':
+    case 'color':
+    case 'dateISO': return ['string'];
+    case 'equal':
+    case 'oneOf':
+    case 'oneIn': {
+      const values = (validator.allowedValues ?? []).filter(value => value !== undefined && value !== null);
+      if (values.length === 0) return ['any'];
+      return unique(values.map(value => {
+        if (Array.isArray(value)) return 'array';
+        if (typeof value === 'boolean') return 'boolean';
+        if (typeof value === 'number') return 'number';
+        if (typeof value === 'object') return 'object';
+        return 'string';
+      }));
+    }
+    default: return ['any'];
+  }
+}
+
+function buildEditorValue(validator: Validator): EditorValueDoc {
+  const editor: EditorValueDoc = { types: editorTypesForValidator(validator) };
+  const allowed = (validator.allowedValues ?? []).filter(value => value !== undefined);
+  if (allowed.length > 0) {
+    editor.enum = allowed;
+    if (allowed.includes(null) && !editor.types.includes('any')) {
+      // JSON null is represented by the enum rather than as a structural type.
+      editor.types = unique(editor.types);
+    }
+  }
+  if (validator.rangeValues?.min !== undefined) editor.minimum = validator.rangeValues.min;
+  if (validator.rangeValues?.max !== undefined) editor.maximum = validator.rangeValues.max;
+  if (validator.customName) editor.format = validator.customName;
+  if (validator.nestedValues) {
+    editor.properties = Object.fromEntries(Object.entries(validator.nestedValues)
+      .map(([key, nested]) => [key, buildEditorValue(nested)]));
+  }
+  if (validator.itemValidator) editor.items = buildEditorValue(validator.itemValidator);
+  return editor;
+}
+
+function editorReference(reference: SectionReference): EditorReferenceDoc {
+  return {
+    sections: Array.isArray(reference.section) ? reference.section : [reference.section],
+    key: reference.key,
+    ...(reference.commonKey ? { commonKey: reference.commonKey } : {})
+  };
+}
+
 // --- Model assembly ----------------------------------------------------------
 
 function getShapeDefaultText(validator: Validator): string {
@@ -401,8 +513,11 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
     const property: PropertyDoc = {
       key,
       description: descriptions[key],
-      rules: getPropertyRules(source.validators[key], sectionKeyRules[key])
+      rules: getPropertyRules(source.validators[key], sectionKeyRules[key]),
+      editor: buildEditorValue(source.validators[key])
     };
+    const reference = sectionValidator.references?.[key] ?? sectionValidator.commonReferences?.[key];
+    if (reference) property.reference = editorReference(reference);
     if (details[key] !== undefined) {
       property.details = details[key];
     }
@@ -439,7 +554,8 @@ function buildTopLevel(sectionIds: Set<string>): TopLevelKeyDoc[] {
       key,
       description: sectionDescriptions[key],
       rules: [validator.errorMessage],
-      defaultText: getShapeDefaultText(validator)
+      defaultText: getShapeDefaultText(validator),
+      editor: buildEditorValue(validator)
     };
     if (sectionIds.has(key)) {
       doc.sectionId = key;

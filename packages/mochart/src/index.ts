@@ -15,6 +15,7 @@ export { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from './data/D
 export { default as buildMochartConfig, hasConfigStructureChange, applyDefaults, sectionKeyAllMap } from './config/core/mochartConfig';
 export { getDefaults } from './config/defaults/mochartConfig';
 export { default as validateConfig } from './config/validation/mochartConfig';
+export { validateConfigDetailed } from './config/validation/mochartConfig';
 export { default as migrateConfig } from './config/migration/mochartConfig';
 export { enhanceConfig } from './config/helper';
 export { createSparklineConfig } from './config/helper/sparkline';

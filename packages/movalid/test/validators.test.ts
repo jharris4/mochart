@@ -1177,6 +1177,11 @@ describe("validators", () => {
 
   describe("compound validators", () => {
     describe("array of", () => {
+      it("exposes the item validator as metadata", () => {
+        const itemValidator = baseValidators.string();
+        expect(baseValidators.arrayOf(itemValidator).itemValidator).toBe(itemValidator);
+      });
+
       it("should allow an array of undefined values if they are permitted", () => {
         expect(baseValidators.arrayOf(baseValidators.notEqual(null))([undefined, undefined])).toBe(true);
       });
@@ -1328,6 +1333,11 @@ describe("validators", () => {
     });
 
     describe("or", () => {
+      it("exposes its variant validators as metadata", () => {
+        const variants = [baseValidators.equal(1), baseValidators.equal(2)];
+        expect(baseValidators.or(variants).variantValidators).toEqual(variants);
+      });
+
       it("should not allow values when all validators return false", () => {
         expect(baseValidators.or([baseValidators.equal(1), baseValidators.equal(2)])(3)).toIsEqual(false);
       });
@@ -1338,6 +1348,11 @@ describe("validators", () => {
     });
 
     describe("and", () => {
+      it("exposes its variant validators as metadata", () => {
+        const variants = [baseValidators.numberMin(1), baseValidators.numberMax(3)];
+        expect(baseValidators.and(variants).variantValidators).toEqual(variants);
+      });
+
       it("should not allow values when all validators return false", () => {
         expect(baseValidators.and([baseValidators.equal(1), baseValidators.equal(2)])(3)).toIsEqual(false);
       });
@@ -1352,6 +1367,11 @@ describe("validators", () => {
     });
 
     describe("not", () => {
+      it("exposes its wrapped validator as metadata", () => {
+        const variant = baseValidators.equal(1);
+        expect(baseValidators.not(variant).variantValidators).toEqual([variant]);
+      });
+
       it("should allow values that are invalid", () => {
         expect(baseValidators.not(baseValidators.equal(1))(2)).toIsEqual(true);
       });

@@ -3591,6 +3591,19 @@ export interface ConfigValidation {
   warnings: string[];
 }
 
+export type ConfigDiagnosticSeverity = 'error' | 'warning';
+
+export interface ConfigDiagnostic {
+  path: (string | number)[];
+  severity: ConfigDiagnosticSeverity;
+  message: string;
+  source: 'mochart';
+}
+
+export interface DetailedConfigValidation extends ConfigValidation {
+  diagnostics: ConfigDiagnostic[];
+}
+
 /** The fully built config returned by buildMochartConfig (all defaults applied). */
 export interface MochartConfig {
   id?: string;

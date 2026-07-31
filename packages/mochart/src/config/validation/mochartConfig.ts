@@ -20,7 +20,7 @@ import seriesStackValidators from './seriesStackConfig';
 import titleValidators from './titleConfig';
 import tooltipValidators from './tooltipConfig';
 import type { Validator } from '@mochart/movalid';
-import type { ConfigValidation } from '../../types/config';
+import type { ConfigDiagnostic, ConfigValidation, DetailedConfigValidation } from '../../types/config';
 
 type ConfigRecord = Record<string, unknown>;
 type ValidatorMap = Record<string, Validator>;
@@ -257,6 +257,38 @@ export default function validateConfig(configWithoutDefaults: unknown, configDef
     valid,
     errors,
     warnings
+  };
+}
+
+function diagnosticFromMessage(message: string, severity: 'error' | 'warning'): ConfigDiagnostic {
+  const parts = message.split(' - ');
+  const rawLocation = parts.shift() ?? 'config';
+  const location = rawLocation.startsWith(DEFAULT) ? rawLocation.slice(DEFAULT.length) : rawLocation;
+  const match = /^([^[]+)(?:\[(\d+)])?$/.exec(location);
+  const path: (string | number)[] = [];
+  if (match && match[1] !== 'config') {
+    path.push(match[1]);
+    if (match[2] !== undefined) path.push(Number(match[2]));
+  }
+  if (parts.length > 1 && !parts[0].startsWith('had ')) {
+    path.push(parts.shift()!);
+  }
+  return { path, severity, message: parts.join(' - '), source: 'mochart' };
+}
+
+/**
+ * Validate a config and additionally return path-addressable diagnostics for
+ * editor integrations. The legacy validateConfig result deliberately keeps
+ * its exact three-property shape.
+ */
+export function validateConfigDetailed(configWithoutDefaults: unknown, configDefaults: ConfigRecord, strict = true): DetailedConfigValidation {
+  const validation = validateConfig(configWithoutDefaults, configDefaults, strict);
+  return {
+    ...validation,
+    diagnostics: [
+      ...validation.errors.map(message => diagnosticFromMessage(message, 'error')),
+      ...validation.warnings.map(message => diagnosticFromMessage(message, 'warning'))
+    ]
   };
 }
 
