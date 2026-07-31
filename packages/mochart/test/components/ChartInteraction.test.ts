@@ -463,6 +463,25 @@ describe('tooltip', () => {
     expect(filters[1].filteredSeriesIds).toEqual({});
   });
 
+  it('sizes legend icons from measured text by default and preserves numeric sizes', () => {
+    const seriesConfigs = [{ property: 'sales' }, { property: 'costs' }];
+    const automatic = mountChart(makeConfig({
+      legendConfig: { visible: true },
+      seriesConfigs
+    }));
+    const automaticIcon = automatic.querySelector<SVGPathElement>('.mochart-legend-item-icon path')!;
+    // Placeholder text bounds retain the previous 14px icon until a real
+    // browser measurement is available.
+    expect(automaticIcon.getAttribute('transform')).toBe('translate(7,7)');
+
+    const fixed = mountChart(makeConfig({
+      legendConfig: { visible: true, iconSize: 12 },
+      seriesConfigs
+    }));
+    const fixedIcon = fixed.querySelector<SVGPathElement>('.mochart-legend-item-icon path')!;
+    expect(fixedIcon.getAttribute('transform')).toBe('translate(6,6)');
+  });
+
   it('maps pointer position along the y axis and draws horizontal crosshair lines when inverted', () => {
     const moves: ChartEventPayload[] = [];
     const container = mountChart(makeConfig({ plotConfig: { inverted: true } }), {

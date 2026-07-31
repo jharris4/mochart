@@ -21,6 +21,7 @@ interface SeriesColorUniqueIds {
 interface SeriesColorIconProps {
   visible?: boolean;
   renderHTML: boolean;
+  resolvedIconSize?: number;
   seriesContextConfig: LegendConfig | TooltipConfig;
   seriesShowColorProperty: 'showColorInLegend' | 'showColorInTooltip';
   seriesConfig: SeriesConfig;
@@ -39,8 +40,8 @@ interface SeriesColorIconProps {
 // outer SVG viewport follows the inherited font size through `1em`.
 const autoIconViewBoxSize = 16;
 
-function getIconGeometrySize(seriesContextConfig: LegendConfig | TooltipConfig): number {
-  return seriesContextConfig.iconSize === AUTO ? autoIconViewBoxSize : seriesContextConfig.iconSize;
+function getIconGeometrySize(seriesContextConfig: LegendConfig | TooltipConfig, resolvedIconSize?: number): number {
+  return resolvedIconSize ?? (seriesContextConfig.iconSize === AUTO ? autoIconViewBoxSize : seriesContextConfig.iconSize);
 }
 
 export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
@@ -182,7 +183,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     }
 
     const { iconBorderSize, iconBorderColor, iconUnsuppressedColor, showIconShapes } = seriesContextConfig;
-    const iconSize = getIconGeometrySize(seriesContextConfig);
+    const iconSize = getIconGeometrySize(seriesContextConfig, this.props.resolvedIconSize);
     const { gradient, markerShape } = seriesConfig;
 
     const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig);

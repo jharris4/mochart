@@ -1,15 +1,25 @@
-import { ALIGN_LEFT, ALIGN_CENTER } from '../config/core/constants';
+import { ALIGN_LEFT, ALIGN_CENTER, AUTO } from '../config/core/constants';
 import { createSpacingLayoutInfo, getSpacingLeft, getSpacingWidth, getSpacingTop, getSpacingHeight } from './SpacingLayoutInfo';
-import type { Bounds } from '../types/geometry';
-import type { MochartConfig } from '../types/config';
+import type { Bounds, TextBounds } from '../types/geometry';
+import type { LegendConfig, MochartConfig } from '../types/config';
 import type { ChartTextBoundsData, LayoutInfo, LegendLayoutResult, SpacingLayoutInfo } from '../types/layout';
+
+const fallbackLegendIconSize = 14;
+
+export function resolveLegendIconSize(legendConfig: LegendConfig, legendTextBounds: TextBounds): number {
+  if (legendConfig.iconSize !== AUTO) return legendConfig.iconSize;
+  return legendTextBounds.default || legendTextBounds.height <= 0
+    ? fallbackLegendIconSize
+    : legendTextBounds.height;
+}
 
 export function getLegendHeight(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, plotWidthAndX: { x: number; width: number }): number {
   const { legendConfig, seriesConfigs } = mochartConfig;
   if (legendConfig.visible === true && seriesConfigs.length > 0) {
-    const { margin, padding, itemMargin, itemPadding, alignedToAxes, iconSize, iconSpacerSize } = legendConfig;
+    const { margin, padding, itemMargin, itemPadding, alignedToAxes, iconSpacerSize } = legendConfig;
     const { legendItemTextRawBounds, legendItemMaxTextBounds } = chartTextBoundsData;
     const { width } = contentBounds;
+    const iconSize = resolveLegendIconSize(legendConfig, legendItemMaxTextBounds);
 
     const legendSpacingLeft = getSpacingLeft(margin, padding);
     const legendSpacingTop = getSpacingTop(margin, padding);
@@ -58,11 +68,12 @@ export function getLegendHeight(mochartConfig: MochartConfig, chartTextBoundsDat
 export function getLegendLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, legendHeight: number, legendY: number): Partial<LegendLayoutResult> {
   const { legendConfig, seriesConfigs } = mochartConfig;
   if (legendConfig.visible === true && seriesConfigs.length > 0) {
-    const { margin, padding, itemMargin, itemPadding, alignedToAxes, align, iconSize, iconSpacerSize } = legendConfig;
+    const { margin, padding, itemMargin, itemPadding, alignedToAxes, align, iconSpacerSize } = legendConfig;
     const { legendItemTextRawBounds, legendItemMaxTextBounds } = chartTextBoundsData;
-    // `.default` is read off the array itself (not its items), so the first term is
-    // always undefined here; preserved as-is while adding types.
-    const hasDefaultBounds = (legendItemTextRawBounds as typeof legendItemTextRawBounds & { default?: boolean }).default || legendItemMaxTextBounds.default;
+    const iconSize = resolveLegendIconSize(legendConfig, legendItemMaxTextBounds);
+    // Carry the placeholder marker into the item layouts so the rendered icon
+    // uses the same fallback size as the layout pass.
+    const hasDefaultBounds = legendItemTextRawBounds.some(bounds => bounds.default) || legendItemMaxTextBounds.default;
     const { width } = contentBounds;
 
     const legendSpacingLeft = getSpacingLeft(margin, padding);
@@ -122,8 +133,20 @@ export function getLegendLayoutInfo(mochartConfig: MochartConfig, chartTextBound
     }
 
     const legendLayoutInfo = createSpacingLayoutInfo({ x: legendX, y: legendY, width: legendWidth, height: legendHeight, default: hasDefaultBounds }, margin, padding);
-    const legendItemTextLayoutInfo = createSpacingLayoutInfo({ x: itemSpacingLeft + iconWidth, y: 0, width: legendItemTextWidth, height: itemTextHeight }, itemMargin, itemPadding);
-    const legendItemTextRawLayoutInfo = createSpacingLayoutInfo({ x: itemSpacingLeft + iconWidth, y: 0, width: itemTextWidth, height: itemTextHeight }, itemMargin, itemPadding);
+    const legendItemTextLayoutInfo = createSpacingLayoutInfo({
+      x: itemSpacingLeft + iconWidth,
+      y: 0,
+      width: legendItemTextWidth,
+      height: itemTextHeight,
+      default: hasDefaultBounds
+    }, itemMargin, itemPadding);
+    const legendItemTextRawLayoutInfo = createSpacingLayoutInfo({
+      x: itemSpacingLeft + iconWidth,
+      y: 0,
+      width: itemTextWidth,
+      height: itemTextHeight,
+      default: hasDefaultBounds
+    }, itemMargin, itemPadding);
 
     return {
       legendLayoutInfo,

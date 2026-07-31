@@ -1,4 +1,4 @@
-import { NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS } from '../core/constants';
+import { AUTO, NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS } from '../core/constants';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import type { LegendConfig } from '../../types/config';
 
@@ -26,7 +26,7 @@ export function getRegularDefaults() {
     showIconColors: true,
     showIconShapes: true,
     showIconPlaceholders: true,
-    iconSize: 14,
+    iconSize: AUTO,
     iconSpacerSize: 4,
     iconBorderSize: 1,
     iconBorderColor: '#999999',

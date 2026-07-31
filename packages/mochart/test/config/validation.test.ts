@@ -130,8 +130,8 @@ describe('non-strict validation', () => {
   });
 });
 
-describe('tooltip config validation', () => {
-  it('accepts automatic or numeric icon sizes and rejects other strings', () => {
+describe('icon size config validation', () => {
+  it('accepts automatic or numeric tooltip icon sizes and rejects other strings', () => {
     expect(errorsFor({
       version: V,
       groupAxisConfig: { property: 'p' },
@@ -147,6 +147,24 @@ describe('tooltip config validation', () => {
       groupAxisConfig: { property: 'p' },
       tooltipConfig: { iconSize: 'large' }
     })).toContain('tooltipConfig - iconSize - should be a number >= to 0 or be equal to "auto": "large"');
+  });
+
+  it('accepts automatic or numeric legend icon sizes and rejects other strings', () => {
+    expect(errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      legendConfig: { iconSize: 'auto' }
+    })).toEqual([]);
+    expect(errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      legendConfig: { iconSize: 20 }
+    })).toEqual([]);
+    expect(errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      legendConfig: { iconSize: 'large' }
+    })).toContain('legendConfig - iconSize - should be a number >= to 0 or be equal to "auto": "large"');
   });
 });
 

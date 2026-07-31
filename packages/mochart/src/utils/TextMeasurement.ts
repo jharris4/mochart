@@ -107,14 +107,17 @@ function getAllBounds<T>(domAccessors: ChartDomAccessors | null | undefined, get
   }
 }
 
-function getMaxBounds(allBounds: TextBounds | TextBounds[]): Size {
-  const maxBounds = { width: 0, height: 0 };
+function getMaxBounds(allBounds: TextBounds | TextBounds[]): TextBounds {
+  const maxBounds: TextBounds = { width: 0, height: 0 };
   // when the legend is hidden this receives emptyBounds (not an array); the old
   // babel transform-for-of-as-array plugin made for-of silently skip non-arrays
   if (!Array.isArray(allBounds)) {
     return maxBounds;
   }
   for (const bounds of allBounds) {
+    if (bounds.default) {
+      maxBounds.default = true;
+    }
     if (bounds.width > maxBounds.width) {
       maxBounds.width = bounds.width;
     }

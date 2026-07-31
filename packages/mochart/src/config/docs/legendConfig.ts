@@ -15,7 +15,7 @@ export default function getDescriptions() {
     showIconColors: 'whether to show series colors next to series titles in the legend',
     showIconShapes: 'whether to show series marker shape next to series titles in the legend',
     showIconPlaceholders: 'whether to show placeholder icons next to the series titles in the legend',
-    iconSize: 'the width and height (in pixels) of the series icons',
+    iconSize: 'the width and height (in pixels) of the series icons, or "auto" to match the measured legend text height',
     iconSpacerSize: 'the horizontal space (in pixels) to show between series icons and titles',
     iconBorderSize: 'the width (in pixels) of the border drawn around series icons',
     iconBorderColor: 'the color of the border drawn around series icons',

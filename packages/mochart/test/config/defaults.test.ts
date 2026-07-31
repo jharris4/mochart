@@ -104,6 +104,17 @@ describe('tooltip defaults', () => {
   });
 });
 
+describe('legend defaults', () => {
+  it('matches icon size to the measured text height by default', () => {
+    const defaults = getDefaults({
+      version: '1.0.0',
+      groupAxisConfig: { property: 'p' }
+    }) as { legendConfig: { iconSize: string | number } };
+
+    expect(defaults.legendConfig.iconSize).toBe('auto');
+  });
+});
+
 describe('pie-mode conditional defaults', () => {
   it('hides the axes and unsnaps the tooltip when chartConfig.type is pie', () => {
     const defaults = getDefaults({ version: '1.0.0', chartConfig: { type: 'pie' }, groupAxisConfig: { property: 'p' } }) as {

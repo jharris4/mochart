@@ -3,6 +3,7 @@ import type { RendererItem } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
+import { resolveLegendIconSize } from '../layout/LegendLayout';
 import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
 import { translate, translateObject, centerTextY } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
@@ -223,9 +224,10 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   }
 
   sync() {
-    const { legendConfig, seriesConfig, legendItemLayoutInfo, uniqueIds, clipPath, colorPaletteConfig,
+    const { legendConfig, seriesConfig, legendItemLayoutInfo, legendItemTextLayoutInfo, uniqueIds, clipPath, colorPaletteConfig,
       seriesIndex, seriesIsSuppressed, seriesIsFocused, seriesIsDefocused, seriesFocusPercentage } = this.props;
-    const { iconSize, iconSpacerSize, truncationEnabled, truncationValue } = legendConfig;
+    const { iconSpacerSize, truncationEnabled, truncationValue } = legendConfig;
+    const iconSize = resolveLegendIconSize(legendConfig, legendItemTextLayoutInfo);
     const { truncationData } = this.state;
     const seriesLabel = getSeriesTitle(seriesConfig);
     const seriesLabelText = getTruncatedText(truncationEnabled, truncationValue, seriesLabel, truncationData);
@@ -248,7 +250,7 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
     this.icon.set(SeriesColorIcon, { seriesContextConfig: legendConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
       focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,
       seriesShowColorProperty: 'showColorInLegend', uniqueIds,
-      seriesIsSuppressed, renderHTML: false });
+      seriesIsSuppressed, renderHTML: false, resolvedIconSize: iconSize });
     this.textGroup.set({ className: mochartCssClasses['legendItemText'], clipPath });
     this.text.set({ transform: textTransform, dy });
     this.textValue.set(seriesLabelText);

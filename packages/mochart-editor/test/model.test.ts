@@ -23,12 +23,14 @@ describe('Mochart config editor model', () => {
     expect(radius?.editor.maximum).toBe(1);
   });
 
-  it('describes automatic tooltip icon sizing', () => {
-    const tooltip = mochartConfigEditorModel.sections.find(section => section.id === 'tooltipConfig');
-    const iconSize = tooltip?.properties.find(property => property.key === 'iconSize');
+  it('describes automatic tooltip and legend icon sizing', () => {
+    for (const sectionId of ['tooltipConfig', 'legendConfig']) {
+      const section = mochartConfigEditorModel.sections.find(candidate => candidate.id === sectionId);
+      const iconSize = section?.properties.find(property => property.key === 'iconSize');
 
-    expect(iconSize?.editor.types).toEqual(expect.arrayContaining(['number', 'string']));
-    expect(iconSize?.editor.enum).toContain('auto');
-    expect(iconSize?.default?.text).toBe('"auto"');
+      expect(iconSize?.editor.types).toEqual(expect.arrayContaining(['number', 'string']));
+      expect(iconSize?.editor.enum).toContain('auto');
+      expect(iconSize?.default?.text).toBe('"auto"');
+    }
   });
 });

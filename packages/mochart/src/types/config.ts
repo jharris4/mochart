@@ -738,11 +738,12 @@ export interface LegendConfig {
    */
   showIconPlaceholders: boolean;
   /**
-   * The width and height (in pixels) of the series icons.
+   * The width and height (in pixels) of the series icons, or "auto" to match
+   * the measured legend text height.
    *
-   * @default 14
+   * @default "auto"
    */
-  iconSize: number;
+  iconSize: number | Auto;
   /**
    * The horizontal space (in pixels) to show between series icons and titles.
    *
