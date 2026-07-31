@@ -16,6 +16,11 @@ function errorsFor(config: unknown): string[] {
   return validateConfig(config, defaults as never).errors;
 }
 
+function detailedFor(config: unknown) {
+  const defaults = getDefaults(config as never);
+  return validateConfigDetailed(config, defaults as never);
+}
+
 describe('validation message helpers', () => {
   it('getUniqueMessage', () => {
     expect(getUniqueMessage()).toBe('should be unique');
@@ -138,22 +143,89 @@ describe('detailed validation', () => {
       groupAxisConfig: { property: 'p' },
       seriesConfigs: [{ property: 'a', axis: 'missing' }]
     };
-    const defaults = getDefaults(config as never);
-    const result = validateConfigDetailed(config, defaults as never);
-    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+    expect(detailedFor(config).diagnostics).toContainEqual(expect.objectContaining({
       path: ['seriesConfigs', 0, 'axis'],
       severity: 'error',
-      source: 'mochart'
+      source: 'mochart',
+      message: 'should equal the id property of one of the seriesAxisConfigs: "missing"'
     }));
   });
 
   it('reports unknown top-level properties as a root warning', () => {
     const config = { version: V, groupAxisConfig: { property: 'p' }, unknownExtra: true };
-    const defaults = getDefaults(config as never);
-    const result = validateConfigDetailed(config, defaults as never);
-    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+    expect(detailedFor(config).diagnostics).toContainEqual(expect.objectContaining({
       path: [],
       severity: 'warning',
+      source: 'mochart'
+    }));
+  });
+
+  it('locates a root type error at the document root', () => {
+    expect(detailedFor(null).diagnostics).toEqual([
+      {
+        path: [],
+        severity: 'error',
+        message: 'should be an object: null',
+        source: 'mochart'
+      }
+    ]);
+  });
+
+  it('locates warnings on the relevant list entry', () => {
+    const config = {
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesConfigs: [{ property: 'a', unknownExtra: true }]
+    };
+    expect(detailedFor(config).diagnostics).toContainEqual({
+      path: ['seriesConfigs', 0],
+      severity: 'warning',
+      message: 'had 1 invalid properties: unknownExtra',
+      source: 'mochart'
+    });
+  });
+
+  it('locates every duplicate value independently', () => {
+    const config = {
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesConfigs: [{ property: 'a', id: 'X' }, { property: 'b', id: 'X' }]
+    };
+    const paths = detailedFor(config).diagnostics
+      .filter(diagnostic => diagnostic.message === 'should be unique: "X"')
+      .map(diagnostic => diagnostic.path);
+    expect(paths).toEqual([
+      ['seriesConfigs', 0, 'id'],
+      ['seriesConfigs', 1, 'id']
+    ]);
+  });
+
+  it('locates all-config properties without a synthetic list index', () => {
+    const config = {
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesAllConfig: { id: 'shared' },
+      seriesConfigs: [{ property: 'a' }]
+    };
+    expect(detailedFor(config).diagnostics).toContainEqual({
+      path: ['seriesAllConfig', 'id'],
+      severity: 'error',
+      message: 'unique properties cannot be set on an all config',
+      source: 'mochart'
+    });
+  });
+
+  it('locates a common-reference error at the target property', () => {
+    const config = {
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesAxisConfigs: [{ id: 'A' }, { id: 'B' }],
+      seriesStackConfigs: [{ id: 'S', axis: 'A' }],
+      seriesConfigs: [{ property: 'a', stack: 'S', axis: 'B' }]
+    };
+    expect(detailedFor(config).diagnostics).toContainEqual(expect.objectContaining({
+      path: ['seriesConfigs', 0, 'stack'],
+      severity: 'error',
       source: 'mochart'
     }));
   });
