@@ -30,7 +30,8 @@ const config: MochartInputConfig = {
   titleConfig: { title: 'Monthly Revenue' },
   groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
   seriesAllConfig: { renderer: 'bar' },
-  seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+  seriesConfigs: [{ property: 'revenue', title: 'Revenue' }],
+  tooltipConfig: { iconSize: 16 }
 };
 
 const data = [
