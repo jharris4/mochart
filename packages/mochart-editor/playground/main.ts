@@ -2,7 +2,11 @@ import { createDefaultChart, getDefaults, validateConfigDetailed, type MochartIn
 import { createJsonEditor, createMochartConfigSupport, type JsonEditorDiagnostic } from '../src';
 import '@mochart/core/mochart.css';
 import '@mochart/editor/editor.css';
+import '../../mochart-demo-common/css/chart-dark.css';
 import './style.css';
+
+const darkMode = matchMedia('(prefers-color-scheme: dark)').matches;
+document.documentElement.classList.toggle('dark', darkMode);
 
 const config: MochartInputConfig = {
   version: '1.0.0',
@@ -25,24 +29,60 @@ const editorHost = document.querySelector<HTMLElement>('#editor')!;
 const chartHost = document.querySelector<HTMLElement>('#chart')!;
 const status = document.querySelector<HTMLElement>('#status')!;
 const problems = document.querySelector<HTMLElement>('#problems')!;
+const problemList = document.querySelector<HTMLOListElement>('#problem-list')!;
 let diagnostics: readonly JsonEditorDiagnostic[] = [];
+
+function diagnosticLocation(diagnostic: JsonEditorDiagnostic): string {
+  if (!diagnostic.path || diagnostic.path.length === 0) return 'document root';
+  return diagnostic.path.map((segment, index) =>
+    typeof segment === 'number' ? `[${segment}]` : index === 0 ? segment : `.${segment}`
+  ).join('');
+}
 
 function showDiagnostics(nextDiagnostics: readonly JsonEditorDiagnostic[]) {
   diagnostics = nextDiagnostics;
   const errors = diagnostics.filter(diagnostic => diagnostic.severity === 'error');
-  status.textContent = errors.length === 0 ? 'Valid JSON' : `${errors.length} problem${errors.length === 1 ? '' : 's'}`;
-  status.dataset.state = errors.length === 0 ? 'valid' : 'invalid';
-  problems.replaceChildren(...diagnostics.slice(0, 5).map(diagnostic => {
-    const item = document.createElement('p');
-    item.className = `problem ${diagnostic.severity}`;
-    item.textContent = diagnostic.message;
+  const warnings = diagnostics.filter(diagnostic => diagnostic.severity === 'warning');
+  status.textContent = errors.length > 0
+    ? `${errors.length} error${errors.length === 1 ? '' : 's'}`
+    : warnings.length > 0
+      ? `${warnings.length} warning${warnings.length === 1 ? '' : 's'}`
+      : 'No problems';
+  status.dataset.state = errors.length > 0 ? 'invalid' : warnings.length > 0 ? 'warning' : 'valid';
+
+  const visibleDiagnostics = diagnostics.slice(0, 5);
+  problems.hidden = visibleDiagnostics.length === 0;
+  problemList.replaceChildren(...visibleDiagnostics.map(diagnostic => {
+    const item = document.createElement('li');
+    const button = document.createElement('button');
+    const severity = document.createElement('span');
+    const message = document.createElement('span');
+    const location = diagnosticLocation(diagnostic);
+    button.type = 'button';
+    button.className = `problem ${diagnostic.severity}`;
+    button.setAttribute('aria-label', `${diagnostic.severity} at ${location}: ${diagnostic.message}`);
+    button.addEventListener('click', () => editor.focusRange(diagnostic.from, diagnostic.to));
+    severity.className = 'problem-severity';
+    severity.textContent = diagnostic.severity;
+    message.className = 'problem-message';
+    message.textContent = `${location}: ${diagnostic.message}`;
+    button.append(severity, message);
+    item.append(button);
     return item;
   }));
+  if (diagnostics.length > visibleDiagnostics.length) {
+    const item = document.createElement('li');
+    item.className = 'problem-overflow';
+    item.textContent = `${diagnostics.length - visibleDiagnostics.length} more problems`;
+    problemList.append(item);
+  }
 }
 
 const editor = createJsonEditor(editorHost, {
   value: JSON.stringify(config, null, 2),
   ariaLabel: 'Mochart configuration JSON',
+  ariaDescribedBy: 'editor-help',
+  theme: darkMode ? 'dark' : 'light',
   support: createMochartConfigSupport(),
   onChange: () => {
     status.textContent = 'Edited — apply when ready';
@@ -60,7 +100,16 @@ const chart = createDefaultChart(chartHost, {
   height: chartHeight
 });
 
-document.querySelector<HTMLButtonElement>('#format')!.addEventListener('click', () => editor.format());
+document.querySelector<HTMLButtonElement>('#format')!.addEventListener('click', () => {
+  if (editor.format()) {
+    status.textContent = 'Formatted — apply when ready';
+    status.dataset.state = 'edited';
+  }
+  else {
+    status.textContent = 'Cannot format invalid JSON';
+    status.dataset.state = 'invalid';
+  }
+});
 document.querySelector<HTMLButtonElement>('#apply')!.addEventListener('click', () => {
   try {
     const nextConfig: unknown = JSON.parse(editor.getValue());
@@ -68,10 +117,12 @@ document.querySelector<HTMLButtonElement>('#apply')!.addEventListener('click', (
     if (!validation.valid) {
       status.textContent = 'Fix the highlighted problems first';
       status.dataset.state = 'invalid';
+      const firstError = diagnostics.find(diagnostic => diagnostic.severity === 'error');
+      if (firstError) editor.focusRange(firstError.from, firstError.to);
       return;
     }
     chart.update({ config: nextConfig as MochartInputConfig });
-    status.textContent = diagnostics.length === 0 ? 'Applied' : 'Applied with warnings';
+    status.textContent = 'Applied';
     status.dataset.state = 'valid';
   }
   catch {

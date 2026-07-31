@@ -2,6 +2,70 @@ import { describe, expect, it, vi } from 'vitest';
 import { createJsonEditor } from '../src';
 
 describe('JSON editor', () => {
+  it('exposes an accessible multiline editing surface', () => {
+    const help = document.createElement('p');
+    help.id = 'config-help';
+    const host = document.createElement('div');
+    document.body.append(help, host);
+    const editor = createJsonEditor(host, {
+      value: '{"answer":42}',
+      ariaLabel: 'Configuration',
+      ariaDescribedBy: help.id
+    });
+    const content = editor.element.querySelector<HTMLElement>('.cm-content')!;
+
+    expect(content.getAttribute('role')).toBe('textbox');
+    expect(content.getAttribute('aria-label')).toBe('Configuration');
+    expect(content.getAttribute('aria-describedby')).toBe(help.id);
+    expect(content.getAttribute('aria-multiline')).toBe('true');
+    expect(content.getAttribute('aria-invalid')).toBe('false');
+    expect(content.getAttribute('aria-readonly')).toBe('false');
+
+    editor.setReadOnly(true);
+    expect(content.getAttribute('aria-readonly')).toBe('true');
+    editor.destroy();
+    help.remove();
+    host.remove();
+  });
+
+  it('focuses a diagnostic range and clamps it to the document', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const editor = createJsonEditor(host, { value: '{}', ariaLabel: 'Configuration' });
+    const content = editor.element.querySelector<HTMLElement>('.cm-content')!;
+
+    expect(() => editor.focusRange(-20, 200)).not.toThrow();
+    expect(document.activeElement).toBe(content);
+
+    editor.destroy();
+    host.remove();
+  });
+
+  it('marks invalid JSON for assistive technology', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const editor = createJsonEditor(host, { value: '{', ariaLabel: 'Configuration' });
+    const content = editor.element.querySelector<HTMLElement>('.cm-content')!;
+
+    await vi.waitFor(() => expect(content.getAttribute('aria-invalid')).toBe('true'));
+    expect(editor.element.dataset.validity).toBe('invalid');
+
+    editor.destroy();
+    host.remove();
+  });
+
+  it('applies the dark color treatment when requested', () => {
+    const host = document.createElement('div');
+    const editor = createJsonEditor(host, {
+      value: '{}',
+      ariaLabel: 'Configuration',
+      theme: 'dark'
+    });
+    expect(editor.element.dataset.theme).toBe('dark');
+    expect(editor.element.querySelector('.cm-editor')?.className).toContain('cm-editor');
+    editor.destroy();
+  });
+
   it('supports controlled updates, formatting, and cleanup', () => {
     const host = document.createElement('div');
     document.body.appendChild(host);

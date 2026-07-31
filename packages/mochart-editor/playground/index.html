@@ -23,8 +23,12 @@
         <section class="panel editor-panel" aria-labelledby="editor-title">
           <div class="panel-header">
             <h2 id="editor-title">MochartConfig</h2>
-            <span id="status" class="status" role="status">Ready</span>
+            <span id="status" class="status" role="status" aria-atomic="true">Ready</span>
           </div>
+          <p id="editor-help" class="visually-hidden">
+            Strict JSON editor. Press Control-Space, or Command-Space on macOS, for suggestions.
+            Press Tab to move focus out of the editor.
+          </p>
           <div id="editor"></div>
         </section>
 
@@ -32,8 +36,11 @@
           <div class="panel-header">
             <h2 id="preview-title">Preview</h2>
           </div>
-          <div id="chart"></div>
-          <div id="problems" class="problems" aria-live="polite"></div>
+          <div id="chart" role="region" aria-label="Chart preview"></div>
+          <section id="problems" class="problems" aria-labelledby="problems-title" hidden>
+            <h3 id="problems-title">Problems</h3>
+            <ol id="problem-list"></ol>
+          </section>
         </section>
       </div>
     </main>

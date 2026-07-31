@@ -14,6 +14,17 @@ body {
   min-width: 320px;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 button,
 kbd {
   font: inherit;
@@ -88,6 +99,11 @@ button:hover {
   background: #f8f9fb;
 }
 
+button:focus-visible {
+  outline: 3px solid #3659c9;
+  outline-offset: 2px;
+}
+
 button.primary {
   color: #fff;
   background: #3659c9;
@@ -148,6 +164,7 @@ button.primary:hover {
   color: #bd2c3c;
 }
 
+.status[data-state="warning"],
 .status[data-state="edited"] {
   color: #98620c;
 }
@@ -174,22 +191,164 @@ button.primary:hover {
   border-top: 1px solid #e2e5eb;
 }
 
-.problems:empty {
+.problems[hidden] {
   display: none;
 }
 
-.problem {
+.problems h3 {
   margin: 0;
+  padding: 8px 14px 4px;
+  font-size: 12px;
+}
+
+.problems ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.problems li {
+  margin: 0;
+}
+
+.problem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
   padding: 9px 14px;
+  text-align: left;
   color: #7d2935;
   background: #fff6f7;
+  border: 0;
   border-bottom: 1px solid #f3dadd;
+  border-radius: 0;
   font: 12px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.problem:hover {
+  background: #fcebed;
 }
 
 .problem.warning {
   color: #78550b;
   background: #fffbeb;
+}
+
+.problem.warning:hover {
+  background: #fff3c4;
+}
+
+.problem-severity {
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.problem-message {
+  overflow-wrap: anywhere;
+}
+
+.problem-overflow {
+  padding: 8px 14px;
+  color: #637087;
+  font-size: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #e6edf3;
+    background: #0d1117;
+  }
+
+  .page-header p,
+  .problem-overflow {
+    color: #9da7b3;
+  }
+
+  .eyebrow {
+    color: #79c0ff !important;
+  }
+
+  kbd,
+  button {
+    color: #e6edf3;
+    background: #21262d;
+    border-color: #57606a;
+  }
+
+  button:hover {
+    background: #30363d;
+  }
+
+  button.primary {
+    background: #1f6feb;
+    border-color: #58a6ff;
+  }
+
+  button:focus-visible {
+    outline-color: #58a6ff;
+  }
+
+  .panel {
+    background: #161b22;
+    border-color: #30363d;
+    box-shadow: 0 12px 35px rgb(0 0 0 / 35%);
+  }
+
+  .panel-header,
+  .problems {
+    border-color: #30363d;
+  }
+
+  .status {
+    color: #9da7b3;
+  }
+
+  .status[data-state="valid"] {
+    color: #56d4a0;
+  }
+
+  .status[data-state="invalid"] {
+    color: #ff7b72;
+  }
+
+  .status[data-state="warning"],
+  .status[data-state="edited"] {
+    color: #e3b341;
+  }
+
+  .problem {
+    color: #ffb3ad;
+    background: #321c20;
+    border-color: #5a292f;
+  }
+
+  .problem:hover {
+    background: #45242a;
+  }
+
+  .problem.warning {
+    color: #f0ce72;
+    background: #332b16;
+    border-color: #5a4b22;
+  }
+
+  .problem.warning:hover {
+    background: #443919;
+  }
+}
+
+@media (forced-colors: active) {
+  button:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .problem {
+    color: CanvasText;
+    background: Canvas;
+    border-color: CanvasText;
+  }
 }
 
 @media (max-width: 900px) {

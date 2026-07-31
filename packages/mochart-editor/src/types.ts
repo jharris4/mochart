@@ -19,8 +19,12 @@ export interface JsonEditorOptions {
   value?: string;
   /** Accessible name applied to the editor's content element. */
   ariaLabel: string;
+  /** Space-separated ids of elements that provide additional instructions. */
+  ariaDescribedBy?: string;
   /** Indentation used by `format`; defaults to two spaces. */
   indentation?: number | string;
+  /** Color treatment for editor syntax and controls; defaults to light. */
+  theme?: 'light' | 'dark';
   readOnly?: boolean;
   lineNumbers?: boolean;
   /** Optional domain intelligence, such as `createMochartConfigSupport()`. */
@@ -37,6 +41,8 @@ export interface JsonEditorHandle {
   setValue(value: string): void;
   setReadOnly(readOnly: boolean): void;
   focus(): void;
+  /** Select and reveal a source range, then move keyboard focus to the editor. */
+  focusRange(from: number, to?: number): void;
   format(): boolean;
   destroy(): void;
 }
