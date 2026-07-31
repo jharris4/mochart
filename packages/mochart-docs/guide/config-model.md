@@ -78,6 +78,25 @@ const { valid, errors, warnings } = validateConfig(config, getDefaults(config));
 // e.g. "seriesConfigs[1] - had 1 invalid properties: valueFormt"
 ```
 
+Editor and tooling integrations can request structured locations while
+retaining the same validation result:
+
+```js
+import { validateConfigDetailed, getDefaults } from '@mochart/core';
+
+const { diagnostics } = validateConfigDetailed(config, getDefaults(config));
+// [{
+//   path: ['seriesConfigs', 1, 'axis'],
+//   severity: 'error',
+//   message: 'should equal the id property of one of the seriesAxisConfigs: "missing"',
+//   source: 'mochart'
+// }]
+```
+
+`path` contains object keys and array indexes leading to the relevant config
+value. Top-level problems that cannot be assigned to one property use an
+empty path.
+
 Two things validation insists on:
 
 - **`version`** must equal the current config format version (`'1.0.0'`).

@@ -15,7 +15,7 @@ generated from the packages' type declarations.
 import {
   createDefaultChart, createChart,
   ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider,
-  validateConfig, migrateConfig, enhanceConfig, getDefaults, getDataErrors,
+  validateConfig, validateConfigDetailed, migrateConfig, enhanceConfig, getDefaults, getDataErrors,
   createHistogram, createWaterfall, createSparklineConfig, createHeatmap, createCandlestick,
   mochartCssClasses, getVersionString
 } from '@mochart/core';
@@ -95,6 +95,8 @@ See [Data providers](/guide/data-providers) for which properties are read.
 
 ```ts
 validateConfig(config, getDefaults(config))  // → { valid, errors, warnings }
+validateConfigDetailed(config, getDefaults(config))
+                                             // → validation plus path-addressable diagnostics
 migrateConfig(config)                        // → config upgraded to the current format version
 enhanceConfig(config)                        // → MochartConfig (validated, defaults applied)
 getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data problems
@@ -104,6 +106,11 @@ getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data pr
   generate this reference, returning human-readable `errors` and `warnings`
   (unknown properties). See
   [Validation](/guide/config-model#validation).
+- `validateConfigDetailed` performs the same validation without changing the
+  `validateConfig` result shape, and additionally returns `diagnostics`.
+  Each diagnostic contains a config `path`, `severity`, `message`, and
+  `source`, making it suitable for editors that need to highlight the
+  property responsible for a validation problem.
 - `migrateConfig` upgrades a config written against an older
   [`version`](/guide/config-model#validation) to the current format.
 - `enhanceConfig` produces the fully-built `MochartConfig` that
