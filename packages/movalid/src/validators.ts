@@ -24,7 +24,7 @@ export interface Validator {
   allowedValues: any[] | null;
   nestedValues: Record<string, Validator> | null;
   itemValidator: Validator | null;
-  variantValidators: Validator[] | null;
+  alternativeValidators: Validator[] | null;
   rangeValues: RangeValues | null;
   isEnum: boolean;
   errorMessage: string;
@@ -467,10 +467,8 @@ const validatorArgsToItemValidator: Record<string, (...args: any[]) => Validator
   arrayOf: (elementValidator: Validator) => elementValidator
 };
 
-const validatorArgsToVariantValidators: Record<string, (...args: any[]) => Validator[]> = {
-  or: (theValidators: Validator[]) => theValidators,
-  and: (theValidators: Validator[]) => theValidators,
-  not: (theValidator: Validator) => [theValidator]
+const validatorArgsToAlternativeValidators: Record<string, (...args: any[]) => Validator[]> = {
+  or: (theValidators: Validator[]) => theValidators
 };
 
 const minRangeValues = (min: number): RangeValues => ({ min });
@@ -574,7 +572,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
         messageValidatorFunction.isEnum = validatorFunction.isEnum;
         messageValidatorFunction.nestedValues = validatorFunction.nestedValues;
         messageValidatorFunction.itemValidator = validatorFunction.itemValidator;
-        messageValidatorFunction.variantValidators = validatorFunction.variantValidators;
+        messageValidatorFunction.alternativeValidators = validatorFunction.alternativeValidators;
         messageValidatorFunction.rangeValues = validatorFunction.rangeValues;
         messageValidatorFunction.errorMessage = validatorFunction.errorMessage;
         messageValidatorFunction.errorMessages = validatorFunction.errorMessages;
@@ -601,7 +599,9 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
         extensionFunction.isEnum = false;
         extensionFunction.nestedValues = validatorFunction.nestedValues;
         extensionFunction.itemValidator = validatorFunction.itemValidator;
-        extensionFunction.variantValidators = validatorFunction.variantValidators;
+        extensionFunction.alternativeValidators = extensionKey === "or"
+          ? (validatorFunction.alternativeValidators ?? [validatorFunction]).concat(args[0])
+          : validatorFunction.alternativeValidators;
         extensionFunction.rangeValues = validatorFunction.rangeValues;
         if (validatorExtensionArgsToAllowedValues[extensionKey] !== undefined) {
           const extensionAllowedValues = validatorExtensionArgsToAllowedValues[extensionKey](...args);
@@ -633,7 +633,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
     customNameFunction.isEnum = validatorFunction.isEnum;
     customNameFunction.nestedValues = validatorFunction.nestedValues;
     customNameFunction.itemValidator = validatorFunction.itemValidator;
-    customNameFunction.variantValidators = validatorFunction.variantValidators;
+    customNameFunction.alternativeValidators = validatorFunction.alternativeValidators;
     customNameFunction.rangeValues = validatorFunction.rangeValues;
     customNameFunction.errorMessage = validatorFunction.errorMessage;
     customNameFunction.errorMessages = validatorFunction.errorMessages;
@@ -655,7 +655,7 @@ validatorDefinitionKeys.forEach(validatorKey => {
     validatorFunction.allowedValues = null;
     validatorFunction.nestedValues = null;
     validatorFunction.itemValidator = null;
-    validatorFunction.variantValidators = null;
+    validatorFunction.alternativeValidators = null;
     validatorFunction.rangeValues = null;
     validatorFunction.isEnum = false;
     if (validatorArgsToAllowedValues[validatorKey] !== undefined) {
@@ -668,8 +668,8 @@ validatorDefinitionKeys.forEach(validatorKey => {
     if (validatorArgsToItemValidator[validatorKey] !== undefined) {
       validatorFunction.itemValidator = validatorArgsToItemValidator[validatorKey](...args);
     }
-    if (validatorArgsToVariantValidators[validatorKey] !== undefined) {
-      validatorFunction.variantValidators = validatorArgsToVariantValidators[validatorKey](...args);
+    if (validatorArgsToAlternativeValidators[validatorKey] !== undefined) {
+      validatorFunction.alternativeValidators = validatorArgsToAlternativeValidators[validatorKey](...args);
     }
     if (validatorArgsToRangeValues[validatorKey] !== undefined) {
       validatorFunction.rangeValues = validatorArgsToRangeValues[validatorKey](...args);
@@ -695,7 +695,7 @@ validators.conditional = (rules: ConditionalRule[], object: any): Validator => {
   validatorFunction.allowedValues = null;
   validatorFunction.nestedValues = null;
   validatorFunction.itemValidator = null;
-  validatorFunction.variantValidators = rules.map(rule => rule.validator);
+  validatorFunction.alternativeValidators = rules.map(rule => rule.validator);
   validatorFunction.rangeValues = null;
   validatorFunction.isEnum = false;
   validatorFunction.errorMessage = appendSuffix(matchedRule.validator.errorMessage, matchedRule.suffix);

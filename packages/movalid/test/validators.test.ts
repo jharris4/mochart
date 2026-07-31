@@ -1333,9 +1333,9 @@ describe("validators", () => {
     });
 
     describe("or", () => {
-      it("exposes its variant validators as metadata", () => {
-        const variants = [baseValidators.equal(1), baseValidators.equal(2)];
-        expect(baseValidators.or(variants).variantValidators).toEqual(variants);
+      it("exposes its alternative validators as metadata", () => {
+        const alternatives = [baseValidators.equal(1), baseValidators.equal(2)];
+        expect(baseValidators.or(alternatives).alternativeValidators).toEqual(alternatives);
       });
 
       it("should not allow values when all validators return false", () => {
@@ -1348,9 +1348,9 @@ describe("validators", () => {
     });
 
     describe("and", () => {
-      it("exposes its variant validators as metadata", () => {
-        const variants = [baseValidators.numberMin(1), baseValidators.numberMax(3)];
-        expect(baseValidators.and(variants).variantValidators).toEqual(variants);
+      it("does not expose intersections as alternatives", () => {
+        const validators = [baseValidators.numberMin(1), baseValidators.numberMax(3)];
+        expect(baseValidators.and(validators).alternativeValidators).toBeNull();
       });
 
       it("should not allow values when all validators return false", () => {
@@ -1367,9 +1367,8 @@ describe("validators", () => {
     });
 
     describe("not", () => {
-      it("exposes its wrapped validator as metadata", () => {
-        const variant = baseValidators.equal(1);
-        expect(baseValidators.not(variant).variantValidators).toEqual([variant]);
+      it("does not expose a negated validator as an alternative", () => {
+        expect(baseValidators.not(baseValidators.equal(1)).alternativeValidators).toBeNull();
       });
 
       it("should allow values that are invalid", () => {
@@ -1383,6 +1382,15 @@ describe("validators", () => {
   });
 
   describe("conditional validator", () => {
+    it("exposes every possible rule validator as an alternative", () => {
+      const alternatives = [baseValidators.string(), baseValidators.number()];
+      const rules = [
+        { condition: ({ type }) => type === "string", validator: alternatives[0] },
+        { condition: () => true, validator: alternatives[1] }
+      ];
+      expect(baseValidators.conditional(rules, { type: "string" }).alternativeValidators).toEqual(alternatives);
+    });
+
     it("should allow values that are allowed by the validator for the matched rule", () => {
       const rules = [
         {
@@ -1685,6 +1693,12 @@ describe("validators", () => {
       expect(validator.orEqual("abc")("abc")).toBe(true);
       expect(validator.orOneOf(["ab", "abcd"])("abcd")).toBe(true);
       expect(validator.or(baseValidators.equal("abcd"))("abcd")).toBe(true);
+    });
+
+    it("should expose validators added with or as alternatives", () => {
+      const base = baseValidators.string();
+      const alternative = baseValidators.number();
+      expect(base.or(alternative).alternativeValidators).toEqual([base, alternative]);
     });
 
     it("should not change the validation result when the extension does not warrant it", () => {

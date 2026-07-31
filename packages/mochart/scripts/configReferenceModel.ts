@@ -405,9 +405,9 @@ function unique<T>(values: T[]): T[] {
 }
 
 function editorTypesForValidator(validator: Validator): EditorValueType[] {
-  const variants = validator.variantValidators ?? [];
-  if (variants.length > 0) {
-    return unique(variants.flatMap(editorTypesForValidator));
+  const alternatives = validator.alternativeValidators ?? [];
+  if (alternatives.length > 0) {
+    return unique(alternatives.flatMap(editorTypesForValidator));
   }
   switch (validator.validatorName) {
     case 'any': return ['any'];
