@@ -65,8 +65,8 @@ sizing and passes every chart prop through:
 
 ## Explore the demo galleries
 
-Every binding has a full demo app — [Vanilla TypeScript](/vanilla/),
-[Angular](/angular/), [Lit](/lit/), [React](/react/), [Svelte](/svelte/),
-and [Vue](/vue/) — where you can browse dozens of demo charts, edit their
+Every binding has a full demo app — [Vanilla TypeScript](/vanilla/demos),
+[Angular](/angular/demos), [Lit](/lit/demos), [React](/react/demos), [Svelte](/svelte/demos),
+and [Vue](/vue/demos) — where you can browse dozens of demo charts, edit their
 configs and data as JSON, share a link to your edited chart, and export
 charts as SVG/PNG.
