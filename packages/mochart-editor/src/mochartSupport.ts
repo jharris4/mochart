@@ -232,6 +232,16 @@ function semanticDiagnostics(view: import('@codemirror/view').EditorView): Diagn
   });
 }
 
+/**
+ * Internal behavior-test seam. This module is not a package export, so these
+ * implementation details do not become part of @mochart/editor's public API.
+ */
+export const mochartSupportTesting = {
+  completionSource,
+  hoverSource,
+  semanticDiagnostics
+};
+
 /** Add MochartConfig completions, hover documentation, and validation. */
 export function createMochartConfigSupport() {
   return defineSupport('mochart-config', {

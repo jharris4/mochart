@@ -516,7 +516,9 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
       rules: getPropertyRules(source.validators[key], sectionKeyRules[key]),
       editor: buildEditorValue(source.validators[key])
     };
-    const reference = sectionValidator.references?.[key] ?? sectionValidator.commonReferences?.[key];
+    // A common reference is the more specific form: it points at the same
+    // source collection but additionally constrains candidates by commonKey.
+    const reference = sectionValidator.commonReferences?.[key] ?? sectionValidator.references?.[key];
     if (reference) property.reference = editorReference(reference);
     if (details[key] !== undefined) {
       property.details = details[key];
