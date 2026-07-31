@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
+import { computed, h, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart } from '@mochart/vue';
@@ -11,6 +11,8 @@ import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import ExportShareMenu from '../misc/ExportShareMenu.vue';
 import Icon from '../misc/Icon.vue';
+import OverflowMenu from '../misc/OverflowMenu.vue';
+import { usePhoneViewport } from '../misc/usePhoneViewport';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -661,6 +663,142 @@ function onExportSvg() {
 function getSingleShareState(): ShareState {
   return { mode: 'single', config: props.mochartDemoConfig.config, data: props.data };
 }
+
+// ---------------------------------------------------------------------------
+// The phone fold. Which panel folds — and what each sends to the overflow
+// menu — mirrors the vanilla port's placeControls.
+//
+// SFC templates cannot render one template fragment in two alternative places,
+// so every foldable control is defined ONCE below as a small functional
+// component (h() is already house idiom in the vue binding) and rendered in
+// exactly one of the two places — the strip above the phone tier, the overflow
+// panel below it. Same contract as the other ports: no duplicate ids, no
+// second accessible name, no mirrored state (see OverflowMenu.vue).
+// ---------------------------------------------------------------------------
+const isPhone = usePhoneViewport();
+const foldSlice = computed(() => isPhone.value && pieMode.value);
+const foldGroup = computed(() => isPhone.value && !pieMode.value && selectionMode.value === 'group');
+const foldSeries = computed(() => isPhone.value && !pieMode.value && selectionMode.value !== 'group');
+// The series readouts drop their 5px side margins while folded: the phone
+// tier's 6px field gap is separation enough, and the margins' 20px would wrap
+// the ▲ stepper onto a second row at 320px.
+const indexLabelMargin = computed(() => (foldSeries.value ? '0px' : '5px'));
+// The ⋯ anchors to the whole `.chart-controls-menu` span: the export trigger
+// sits to its right, so aligning to the ⋯ alone would stop the panel short of
+// the row's end and hang it off the left edge.
+const menuSpanElement = ref<HTMLElement | null>(null);
+const getMenuAnchor = () => menuSpanElement.value;
+
+const iconChild = (name: string) => () => h(Icon, { size: 'lg', fixedWidth: true, name });
+
+const ChartCountControl = () => (props.showChartCountControls
+  ? h('div', { class: 'demo-btn-group' }, [
+      h(ButtonWithTooltip, {
+        id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: props.chartCount === 2,
+        tooltipText: props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow,
+        tooltipPlacement: 'right', onClick: props.onChartCountToggle, 'aria-label': demoText.editableChart.secondChart.aria
+      }, iconChild(props.chartCount === 2 ? 'window-maximize' : 'window-restore'))
+    ])
+  : null);
+
+const ModeControl = () => h('div', { class: 'demo-btn-group' }, [
+  h(ButtonWithTooltip, {
+    id: 'edit-mode',
+    label: selectionMode.value === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups,
+    tooltipText: selectionMode.value === 'group' ? demoText.editableChart.editMode.tooltipToSeries : demoText.editableChart.editMode.tooltipToGroups,
+    tooltipPlacement: 'right', onClick: onModeToggle, 'aria-label': demoText.editableChart.editMode.aria
+  }, iconChild(selectionMode.value === 'group' ? 'bullseye' : 'sliders'))
+]);
+
+const ResetSliceButton = () => h(ButtonWithTooltip, {
+  id: 'edit-reset-slice', disabled: error.value || sliceControlsDisabled.value, label: demoText.editableChart.resetSlice.label,
+  tooltipText: demoText.editableChart.resetSlice.tooltip, tooltipPlacement: 'right',
+  onClick: resetSliceChanges, 'aria-label': demoText.editableChart.resetSlice.aria
+}, iconChild('arrow-rotate-left'));
+
+const SliceSequenceGroup = () => h('div', { class: 'demo-btn-group' }, [
+  h(ButtonWithTooltip, {
+    id: 'edit-play-slices', disabled: error.value || sequencePlaying.value || slices.value.length < 2,
+    menuLabel: demoText.editableChart.playSliceSequence.menuLabel,
+    tooltipText: demoText.editableChart.playSliceSequence.tooltip, tooltipPlacement: 'right',
+    onClick: startSliceSequence, 'aria-label': demoText.editableChart.playSliceSequence.aria
+  }, iconChild('play')),
+  h(ButtonWithTooltip, {
+    id: 'edit-stop-slices', disabled: error.value || !sequencePlaying.value,
+    menuLabel: demoText.editableChart.stopSliceSequence.menuLabel,
+    tooltipText: demoText.editableChart.stopSliceSequence.tooltip, tooltipPlacement: 'right',
+    onClick: stopSequence, 'aria-label': demoText.editableChart.stopSliceSequence.aria
+  }, iconChild('stop'))
+]);
+
+const ResetGroupsButton = () => h(ButtonWithTooltip, {
+  id: 'edit-reset-groups', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.resetGroups.label,
+  tooltipText: demoText.editableChart.resetGroups.tooltip, tooltipPlacement: 'right',
+  onClick: resetGroups, 'aria-label': demoText.editableChart.resetGroups.aria
+}, iconChild('arrow-rotate-left'));
+
+const ReverseGroupsButton = () => h(ButtonWithTooltip, {
+  id: 'edit-reverse-groups', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.reverseGroups.label,
+  tooltipText: demoText.editableChart.reverseGroups.tooltip, tooltipPlacement: 'right',
+  onClick: reverseGroups, 'aria-label': demoText.editableChart.reverseGroups.aria
+}, iconChild('right-left'));
+
+const AddGroupsButton = () => h(ButtonWithTooltip, {
+  id: 'edit-add-groups', disabled: error.value || sequencePlaying.value || disableAdd.value, label: demoText.editableChart.addGroups.label,
+  tooltipText: demoText.editableChart.addGroups.tooltip, tooltipPlacement: 'right',
+  onClick: addGroups, 'aria-label': demoText.editableChart.addGroups.aria
+}, iconChild('plus'));
+
+const RemoveGroupsButton = () => h(ButtonWithTooltip, {
+  id: 'edit-remove-groups', disabled: error.value || sequencePlaying.value || disableRemove.value, label: demoText.editableChart.removeGroups.label,
+  tooltipText: demoText.editableChart.removeGroups.tooltip, tooltipPlacement: 'right',
+  onClick: removeGroups, 'aria-label': demoText.editableChart.removeGroups.aria
+}, iconChild('minus'));
+
+const playIconPair = (second: string) => () => [
+  h(Icon, { size: 'lg', name: 'play' }),
+  h('span', { style: 'padding-right: 2px;' }),
+  h(Icon, { size: 'lg', name: second })
+];
+
+const PlayAddButton = () => h(ButtonWithTooltip, {
+  id: 'edit-play-add', disabled: error.value || sequencePlaying.value || disableAdd.value,
+  menuLabel: demoText.editableChart.playAddGroups.menuLabel,
+  tooltipText: demoText.editableChart.playAddGroups.tooltip, tooltipPlacement: 'right',
+  onClick: startAddSequence, 'aria-label': demoText.editableChart.playAddGroups.aria
+}, playIconPair('plus'));
+
+const PlayRemoveButton = () => h(ButtonWithTooltip, {
+  id: 'edit-play-remove', disabled: error.value || sequencePlaying.value || disableRemove.value,
+  menuLabel: demoText.editableChart.playRemoveGroups.menuLabel,
+  tooltipText: demoText.editableChart.playRemoveGroups.tooltip, tooltipPlacement: 'right',
+  onClick: startRemoveSequence, 'aria-label': demoText.editableChart.playRemoveGroups.aria
+}, playIconPair('minus'));
+
+const StopGroupsButton = () => h(ButtonWithTooltip, {
+  id: 'edit-stop', disabled: error.value || !sequencePlaying.value,
+  menuLabel: demoText.editableChart.stopSequence.menuLabel,
+  tooltipText: demoText.editableChart.stopSequence.tooltip, tooltipPlacement: 'right',
+  onClick: stopSequence, 'aria-label': demoText.editableChart.stopSequence.aria
+}, iconChild('stop'));
+
+const SelectAllButton = () => h(ButtonWithTooltip, {
+  id: 'edit-select-all', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.selectAllGroups.label,
+  tooltipText: demoText.editableChart.selectAllGroups.tooltip, tooltipPlacement: 'right',
+  onClick: selectAllGroups, 'aria-label': demoText.editableChart.selectAllGroups.aria
+}, iconChild('check-double'));
+
+const ResetSeriesButton = () => h(ButtonWithTooltip, {
+  id: 'edit-reset-series', disabled: error.value || seriesControlsDisabled.value, label: demoText.editableChart.resetSeries.label,
+  tooltipText: demoText.editableChart.resetSeries.tooltip, tooltipPlacement: 'right',
+  onClick: resetSeriesChanges, 'aria-label': demoText.editableChart.resetSeries.aria
+}, iconChild('arrow-rotate-left'));
+
+const ApplySeriesButton = () => h(ButtonWithTooltip, {
+  id: 'edit-apply-series', disabled: error.value || seriesControlsDisabled.value, label: demoText.editableChart.applySeries.label,
+  tooltipText: demoText.editableChart.applySeries.tooltip, tooltipPlacement: 'right',
+  onClick: applySeriesChanges, 'aria-label': demoText.editableChart.applySeries.aria
+}, iconChild('check'));
 </script>
 
 <template>
@@ -682,18 +820,17 @@ function getSingleShareState(): ShareState {
         <!-- Pie-mode slice panel — replaces both panels when slices are the
              series: click a slice (or step prev/next) to select it, edit its
              value, or play the suppress/restore sequence. -->
+        <!-- The fold keeps the steppers, the readout, Apply and the input;
+             Reset and the play/stop pair go to the menu, with the 2nd-chart
+             toggle as the tail. -->
         <div v-if="pieMode" class="chart-controls-container">
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
-              <div class="demo-field">
+              <!-- Kept on desktop even when empty — the empty field's gap is
+                   part of the unfolded layout. -->
+              <div v-if="!foldSlice" class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div v-if="props.showChartCountControls" class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-chart-count" :label="demoText.editableChart.secondChart.label" :pressed="props.chartCount === 2"
-                                       :tooltip-text="props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow" tooltip-placement="right"
-                                       :on-click="props.onChartCountToggle" :aria-label="demoText.editableChart.secondChart.aria">
-                      <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
-                    </ButtonWithTooltip>
-                  </div>
+                  <ChartCountControl />
                 </div>
               </div>
               <div class="demo-field">
@@ -718,25 +855,13 @@ function getSingleShareState(): ShareState {
                     </ButtonWithTooltip>
                   </div>
                   <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-reset-slice" :disabled="error || sliceControlsDisabled" :label="demoText.editableChart.resetSlice.label" :tooltip-text="demoText.editableChart.resetSlice.tooltip" tooltip-placement="right"
-                                       :on-click="resetSliceChanges" :aria-label="demoText.editableChart.resetSlice.aria">
-                      <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
-                    </ButtonWithTooltip>
+                    <ResetSliceButton v-if="!foldSlice" />
                     <ButtonWithTooltip id="edit-apply-slice" :disabled="error || sliceControlsDisabled" :label="demoText.editableChart.applySlice.label" :tooltip-text="demoText.editableChart.applySlice.tooltip" tooltip-placement="right"
                                        :on-click="applySliceChanges" :aria-label="demoText.editableChart.applySlice.aria">
                       <Icon size="lg" :fixed-width="true" name="check" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-play-slices" :disabled="error || sequencePlaying || slices.length < 2" :tooltip-text="demoText.editableChart.playSliceSequence.tooltip" tooltip-placement="right"
-                                       :on-click="startSliceSequence" :aria-label="demoText.editableChart.playSliceSequence.aria">
-                      <Icon size="lg" :fixed-width="true" name="play" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-stop-slices" :disabled="error || !sequencePlaying" :tooltip-text="demoText.editableChart.stopSliceSequence.tooltip" tooltip-placement="right"
-                                       :on-click="stopSequence" :aria-label="demoText.editableChart.stopSliceSequence.aria">
-                      <Icon size="lg" :fixed-width="true" name="stop" />
-                    </ButtonWithTooltip>
-                  </div>
+                  <SliceSequenceGroup v-if="!foldSlice" />
                 </div>
               </div>
             </form>
@@ -746,66 +871,52 @@ function getSingleShareState(): ShareState {
               <input type="text" class="demo-input" :disabled="error || sliceControlsDisabled" v-model="sliceValueText" />
             </form>
           </span>
-          <span class="chart-controls-menu">
-            <ExportShareMenu id-prefix="edit" :disabled="error"
+          <span class="chart-controls-menu" ref="menuSpanElement">
+            <OverflowMenu v-if="foldSlice" :text="demoText.overflowMenu.chart"
+                          :placement="{ side: 'top', align: 'end', gap: 4 }"
+                          :get-anchor="getMenuAnchor"
+                          :disabled="error" :active="props.isActive">
+              <div class="demo-btn-group"><ResetSliceButton /></div>
+              <div class="demo-menu-divider"></div>
+              <SliceSequenceGroup />
+              <template v-if="props.showChartCountControls">
+                <div class="demo-menu-divider"></div>
+                <ChartCountControl />
+              </template>
+            </OverflowMenu>
+            <ExportShareMenu id-prefix="edit" :disabled="error" :active="props.isActive"
                              :export-png="onExportPng" :export-svg="onExportSvg"
                              :get-share-state="props.showShareButton ? getSingleShareState : undefined" />
           </span>
         </div>
+        <!-- The fold keeps Add and Remove — they act on what is typed in the
+             input beside them — plus the input; everything else goes to the
+             menu, split into the same sections the vanilla port uses (order
+             edits, then the sequence transport, then the shared controls). -->
         <div v-else-if="selectionMode === 'group'" class="chart-controls-container">
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div v-if="props.showChartCountControls" class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-chart-count" :label="demoText.editableChart.secondChart.label" :pressed="props.chartCount === 2"
-                                       :tooltip-text="props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow" tooltip-placement="right"
-                                       :on-click="props.onChartCountToggle" :aria-label="demoText.editableChart.secondChart.aria">
-                      <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
-                    </ButtonWithTooltip>
-                  </div>
+                  <template v-if="!foldGroup">
+                    <ChartCountControl />
+                    <ModeControl />
+                  </template>
                   <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups"
-                                       :tooltip-text="selectionMode === 'group'
-                                         ? demoText.editableChart.editMode.tooltipToSeries
-                                         : demoText.editableChart.editMode.tooltipToGroups" tooltip-placement="right"
-                                       :on-click="onModeToggle" :aria-label="demoText.editableChart.editMode.aria">
-                      <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
-                    </ButtonWithTooltip>
-                  </div>
-                  <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-reset-groups" :disabled="error || sequencePlaying" :label="demoText.editableChart.resetGroups.label" :tooltip-text="demoText.editableChart.resetGroups.tooltip" tooltip-placement="right"
-                                       :on-click="resetGroups" :aria-label="demoText.editableChart.resetGroups.aria">
-                      <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-reverse-groups" :disabled="error || sequencePlaying" :label="demoText.editableChart.reverseGroups.label" :tooltip-text="demoText.editableChart.reverseGroups.tooltip" tooltip-placement="right"
-                                       :on-click="reverseGroups" :aria-label="demoText.editableChart.reverseGroups.aria">
-                      <Icon size="lg" :fixed-width="true" name="right-left" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-add-groups" :disabled="error || sequencePlaying || disableAdd" :label="demoText.editableChart.addGroups.label" :tooltip-text="demoText.editableChart.addGroups.tooltip" tooltip-placement="right"
-                                       :on-click="addGroups" :aria-label="demoText.editableChart.addGroups.aria">
-                      <Icon size="lg" :fixed-width="true" name="plus" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-remove-groups" :disabled="error || sequencePlaying || disableRemove" :label="demoText.editableChart.removeGroups.label" :tooltip-text="demoText.editableChart.removeGroups.tooltip" tooltip-placement="right"
-                                       :on-click="removeGroups" :aria-label="demoText.editableChart.removeGroups.aria">
-                      <Icon size="lg" :fixed-width="true" name="minus" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-play-add" :disabled="error || sequencePlaying || disableAdd" :tooltip-text="demoText.editableChart.playAddGroups.tooltip" tooltip-placement="right"
-                                       :on-click="startAddSequence" :aria-label="demoText.editableChart.playAddGroups.aria">
-                      <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="plus" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-play-remove" :disabled="error || sequencePlaying || disableRemove" :tooltip-text="demoText.editableChart.playRemoveGroups.tooltip" tooltip-placement="right"
-                                       :on-click="startRemoveSequence" :aria-label="demoText.editableChart.playRemoveGroups.aria">
-                      <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="minus" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-stop" :disabled="error || !sequencePlaying" :tooltip-text="demoText.editableChart.stopSequence.tooltip" tooltip-placement="right"
-                                       :on-click="stopSequence" :aria-label="demoText.editableChart.stopSequence.aria">
-                      <Icon size="lg" :fixed-width="true" name="stop" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-select-all" :disabled="error || sequencePlaying" :label="demoText.editableChart.selectAllGroups.label" :tooltip-text="demoText.editableChart.selectAllGroups.tooltip" tooltip-placement="right"
-                                       :on-click="selectAllGroups" :aria-label="demoText.editableChart.selectAllGroups.aria">
-                      <Icon size="lg" :fixed-width="true" name="check-double" />
-                    </ButtonWithTooltip>
+                    <template v-if="foldGroup">
+                      <AddGroupsButton />
+                      <RemoveGroupsButton />
+                    </template>
+                    <template v-else>
+                      <ResetGroupsButton />
+                      <ReverseGroupsButton />
+                      <AddGroupsButton />
+                      <RemoveGroupsButton />
+                      <PlayAddButton />
+                      <PlayRemoveButton />
+                      <StopGroupsButton />
+                      <SelectAllButton />
+                    </template>
                   </div>
                 </div>
               </div>
@@ -816,33 +927,38 @@ function getSingleShareState(): ShareState {
               <input type="text" class="demo-input" :disabled="error || sequencePlaying" v-model="groupValuesText" />
             </form>
           </span>
-          <span class="chart-controls-menu">
-            <ExportShareMenu id-prefix="edit" :disabled="error"
+          <span class="chart-controls-menu" ref="menuSpanElement">
+            <OverflowMenu v-if="foldGroup" :text="demoText.overflowMenu.chart"
+                          :placement="{ side: 'top', align: 'end', gap: 4 }"
+                          :get-anchor="getMenuAnchor"
+                          :disabled="error" :active="props.isActive">
+              <div class="demo-btn-group"><ResetGroupsButton /><ReverseGroupsButton /><SelectAllButton /></div>
+              <div class="demo-menu-divider"></div>
+              <div class="demo-btn-group"><PlayAddButton /><PlayRemoveButton /><StopGroupsButton /></div>
+              <div class="demo-menu-divider"></div>
+              <ChartCountControl />
+              <ModeControl />
+            </OverflowMenu>
+            <ExportShareMenu id-prefix="edit" :disabled="error" :active="props.isActive"
                              :export-png="onExportPng" :export-svg="onExportSvg"
                              :get-share-state="props.showShareButton ? getSingleShareState : undefined" />
           </span>
         </div>
+        <!-- The fold keeps the steppers and their readouts — they are how a
+             group and a series get picked at all. Apply stays visible too, but
+             moves DOWN, onto the input row beside the JSON it applies: with it
+             out of the stepper row the panel holds two rows even at 320x568.
+             Reset is the one button with no partner anywhere, so it folds into
+             the menu. The readout prefixes shrink to their one-letter,
+             aria-hidden stand-ins (the full prefixes are sr-only clipped by
+             the phone tier and keep carrying the accessible name). -->
         <div v-else class="chart-controls-container">
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
-              <div class="demo-field">
+              <div v-if="!foldSeries" class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div v-if="props.showChartCountControls" class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-chart-count" :label="demoText.editableChart.secondChart.label" :pressed="props.chartCount === 2"
-                                       :tooltip-text="props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow" tooltip-placement="right"
-                                       :on-click="props.onChartCountToggle" :aria-label="demoText.editableChart.secondChart.aria">
-                      <Icon size="lg" :fixed-width="true" :name="props.chartCount === 2 ? 'window-maximize' : 'window-restore'" />
-                    </ButtonWithTooltip>
-                  </div>
-                  <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-mode" :label="selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups"
-                                       :tooltip-text="selectionMode === 'group'
-                                         ? demoText.editableChart.editMode.tooltipToSeries
-                                         : demoText.editableChart.editMode.tooltipToGroups" tooltip-placement="right"
-                                       :on-click="onModeToggle" :aria-label="demoText.editableChart.editMode.aria">
-                      <Icon size="lg" :fixed-width="true" :name="selectionMode === 'group' ? 'bullseye' : 'sliders'" />
-                    </ButtonWithTooltip>
-                  </div>
+                  <ChartCountControl />
+                  <ModeControl />
                 </div>
               </div>
               <div class="demo-field">
@@ -856,7 +972,7 @@ function getSingleShareState(): ShareState {
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" :title="getGroupIndexTitle(mochartDemoConfig, filteredData, groupIndex)">{{ demoText.editableChart.groupIndexPrefix }}<span class="demo-index-value">{{ groupIndex }}</span></span>
+                <span class="demo-label" :style="{ marginLeft: indexLabelMargin, marginRight: indexLabelMargin }" :title="getGroupIndexTitle(mochartDemoConfig, filteredData, groupIndex)"><span class="demo-label-prefix">{{ demoText.editableChart.groupIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ demoText.editableChart.groupIndexPrefixCompact }}</span><span class="demo-index-value">{{ groupIndex }}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
@@ -879,7 +995,7 @@ function getSingleShareState(): ShareState {
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" :title="getSeriesIndexTitle(mochartDemoConfig, seriesIndex)">{{ demoText.editableChart.seriesIndexPrefix }}<span class="demo-index-value">{{ seriesIndex }}</span></span>
+                <span class="demo-label" :style="{ marginLeft: indexLabelMargin, marginRight: indexLabelMargin }" :title="getSeriesIndexTitle(mochartDemoConfig, seriesIndex)"><span class="demo-label-prefix">{{ demoText.editableChart.seriesIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ demoText.editableChart.seriesIndexPrefixCompact }}</span><span class="demo-index-value">{{ seriesIndex }}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
@@ -889,15 +1005,9 @@ function getSingleShareState(): ShareState {
                       <Icon size="lg" :fixed-width="true" name="chevron-up" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-reset-series" :disabled="error || seriesControlsDisabled" :tooltip-text="demoText.editableChart.resetSeries.tooltip" tooltip-placement="right"
-                                       :on-click="resetSeriesChanges" :aria-label="demoText.editableChart.resetSeries.aria">
-                      <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-apply-series" :disabled="error || seriesControlsDisabled" :tooltip-text="demoText.editableChart.applySeries.tooltip" tooltip-placement="right"
-                                       :on-click="applySeriesChanges" :aria-label="demoText.editableChart.applySeries.aria">
-                      <Icon size="lg" :fixed-width="true" name="check" />
-                    </ButtonWithTooltip>
+                  <div v-if="!foldSeries" class="demo-btn-group">
+                    <ResetSeriesButton />
+                    <ApplySeriesButton />
                   </div>
                 </div>
               </div>
@@ -906,10 +1016,20 @@ function getSingleShareState(): ShareState {
           <span class="chart-controls-input">
             <form class="demo-form-row">
               <input type="text" class="demo-input" :disabled="error || seriesControlsDisabled" v-model="seriesValuesText" />
+              <ApplySeriesButton v-if="foldSeries" />
             </form>
           </span>
-          <span class="chart-controls-menu">
-            <ExportShareMenu id-prefix="edit" :disabled="error"
+          <span class="chart-controls-menu" ref="menuSpanElement">
+            <OverflowMenu v-if="foldSeries" :text="demoText.overflowMenu.chart"
+                          :placement="{ side: 'top', align: 'end', gap: 4 }"
+                          :get-anchor="getMenuAnchor"
+                          :disabled="error" :active="props.isActive">
+              <div class="demo-btn-group"><ResetSeriesButton /></div>
+              <div class="demo-menu-divider"></div>
+              <ChartCountControl />
+              <ModeControl />
+            </OverflowMenu>
+            <ExportShareMenu id-prefix="edit" :disabled="error" :active="props.isActive"
                              :export-png="onExportPng" :export-svg="onExportSvg"
                              :get-share-state="props.showShareButton ? getSingleShareState : undefined" />
           </span>

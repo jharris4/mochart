@@ -5,11 +5,9 @@ import { DefaultChart } from '@mochart/vue';
 
 import { demoText, inlineSparklineMetrics, tableSparklineMetrics } from '@mochart/demo-common';
 
-import BackToDemosButton from '../misc/BackToDemosButton.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import Icon from '../misc/Icon.vue';
-import SiteRootButton from '../misc/SiteRootButton.vue';
-import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
+import TopBar from '../misc/TopBar.vue';
 
 interface Props {
   siteRootUrl?: string;
@@ -34,13 +32,7 @@ function onRandomize() {
 
 <template>
   <div class="mochart-demo-container">
-    <div class="mochart-demo-tabs-container">
-      <div class="mochart-demo-nav-group">
-        <SiteRootButton :site-root-url="props.siteRootUrl" />
-        <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
-      </div>
-      <ThemeToggleButton />
-    </div>
+    <TopBar :site-root-url="props.siteRootUrl" :on-back-to-demos="props.onBackToDemos" />
     <div class="sparkline-page">
       <!-- The intro paragraph: copy segments with the inline metrics between
            them. Keep {{ segment }} and the span adjacent so the segments'

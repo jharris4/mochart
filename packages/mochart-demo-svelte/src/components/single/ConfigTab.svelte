@@ -1,12 +1,14 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import DocsLinks from '../misc/DocsLinks.svelte';
   import Icon from '../misc/Icon.svelte';
+  import OverflowMenu from '../misc/OverflowMenu.svelte';
+  import { createPhoneViewport } from '../misc/phoneViewport.svelte';
 
   import type { DemoConfig } from '../../types';
 
@@ -121,42 +123,96 @@
   const invertedIcon = $derived(inverted ? 'chart-bar' : 'chart-column');
   const slow = $derived(demoConfig.configWithDefaults.animationConfig === slowAnimationConfig);
   const slowIcon = $derived(slow ? 'hourglass' : 'hourglass-end');
+
+  // The phone fold. Apply stays beside the editor it applies, and the
+  // `role="alert"` error span stays inline — a message that has to be read
+  // cannot live behind a tap. Everything else, including the reference links,
+  // goes to the `⋯` menu. Each control renders in exactly one of the two
+  // places (see OverflowMenu.svelte).
+  const phone = createPhoneViewport();
+  const hasDocsLinks = $derived(getReferenceSectionIds(demoConfig.configWithoutDefaults).length > 0);
+  let footerElement = $state<HTMLElement | null>(null);
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")}>
+{#snippet resetButton()}
+  <ButtonWithTooltip id="config-reset" label={demoText.configTab.reset.label} tooltipText={demoText.configTab.reset.tooltip} tooltipPlacement="top-start"
+                     onClick={resetConfig} aria-label={demoText.configTab.reset.aria}>
+    <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet defaultsButton()}
+  <ButtonWithTooltip id="config-defaults" label={demoText.configTab.defaults.label} pressed={showDefaults}
+                     tooltipText={demoText.configTab.defaults.tooltip} tooltipPlacement="top-start"
+                     onClick={toggleConfigDefaults} aria-label={demoText.configTab.defaults.aria}>
+    <Icon size="lg" fixedWidth={true} name={showDefaults ? 'eye' : 'eye-slash'} />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet invertedButton()}
+  <ButtonWithTooltip id="config-inverted" label={demoText.configTab.invert.label} pressed={inverted}
+                     tooltipText={demoText.configTab.invert.tooltip} tooltipPlacement="top-start"
+                     onClick={toggleConfigInverted} aria-label={demoText.configTab.invert.aria}>
+    <Icon size="lg" fixedWidth={true} name={invertedIcon} />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet slowButton()}
+  <ButtonWithTooltip id="config-animate-slow" label={demoText.configTab.slow.label} pressed={slow}
+                     tooltipText={demoText.configTab.slow.tooltip} tooltipPlacement="top-start"
+                     onClick={toggleConfigAnimationSlow} aria-label={demoText.configTab.slow.aria}>
+    <Icon size="lg" fixedWidth={true} name={slowIcon} />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet applyButton()}
+  <ButtonWithTooltip id="config-apply" label={demoText.configTab.apply.label} disabled={jsonError !== null}
+                     tooltipText={demoText.configTab.apply.tooltip} tooltipPlacement="top-start"
+                     onClick={applyConfig} aria-label={demoText.configTab.apply.aria}>
+    <Icon size="lg" fixedWidth={true} name="check" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet docsLinks()}
+  <DocsLinks config={demoConfig.configWithoutDefaults} />
+{/snippet}
+
+<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
     <TextAreaContent value={configText} onChange={onTextChange} />
   </div>
-  <div class="mochart-demo-tab-footer">
+  <div class="mochart-demo-tab-footer" bind:this={footerElement}>
     <div class="demo-toolbar" role="toolbar">
-      <ButtonWithTooltip id="config-reset" label={demoText.configTab.reset.label} tooltipText={demoText.configTab.reset.tooltip} tooltipPlacement="top-start"
-                         onClick={resetConfig} aria-label={demoText.configTab.reset.aria}>
-        <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
-      </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-defaults" label={demoText.configTab.defaults.label} pressed={showDefaults}
-                         tooltipText={demoText.configTab.defaults.tooltip} tooltipPlacement="top-start"
-                         onClick={toggleConfigDefaults} aria-label={demoText.configTab.defaults.aria}>
-        <Icon size="lg" fixedWidth={true} name={showDefaults ? 'eye' : 'eye-slash'} />
-      </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-inverted" label={demoText.configTab.invert.label} pressed={inverted}
-                         tooltipText={demoText.configTab.invert.tooltip} tooltipPlacement="top-start"
-                         onClick={toggleConfigInverted} aria-label={demoText.configTab.invert.aria}>
-        <Icon size="lg" fixedWidth={true} name={invertedIcon} />
-      </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-animate-slow" label={demoText.configTab.slow.label} pressed={slow}
-                         tooltipText={demoText.configTab.slow.tooltip} tooltipPlacement="top-start"
-                         onClick={toggleConfigAnimationSlow} aria-label={demoText.configTab.slow.aria}>
-        <Icon size="lg" fixedWidth={true} name={slowIcon} />
-      </ButtonWithTooltip>
-      <ButtonWithTooltip id="config-apply" label={demoText.configTab.apply.label} disabled={jsonError !== null}
-                         tooltipText={demoText.configTab.apply.tooltip} tooltipPlacement="top-start"
-                         onClick={applyConfig} aria-label={demoText.configTab.apply.aria}>
-        <Icon size="lg" fixedWidth={true} name="check" />
-      </ButtonWithTooltip>
-      {#if footerError}
-        <span class="mochart-demo-footer-error" role="alert">{footerError}</span>
+      {#if phone.isPhone}
+        {@render applyButton()}
+        <!-- `.editor`, not `.chart`: what folds here edits the JSON, and
+             "more chart controls" would tell a screen-reader user the wrong
+             thing. Anchored to the full-width footer — the trigger sits
+             mid-row, left of an error span that comes and goes. -->
+        <OverflowMenu text={demoText.overflowMenu.editor}
+                      placement={{ side: 'top', align: 'end', gap: 4 }}
+                      getAnchor={() => footerElement}
+                      active={active !== false}>
+          <div class="demo-btn-group">{@render resetButton()}{@render defaultsButton()}{@render invertedButton()}{@render slowButton()}</div>
+          {#if hasDocsLinks}
+            <div class="demo-menu-divider"></div>
+            {@render docsLinks()}
+          {/if}
+        </OverflowMenu>
+        {#if footerError}
+          <span class="mochart-demo-footer-error" role="alert">{footerError}</span>
+        {/if}
+      {:else}
+        {@render resetButton()}
+        {@render defaultsButton()}
+        {@render invertedButton()}
+        {@render slowButton()}
+        {@render applyButton()}
+        {#if footerError}
+          <span class="mochart-demo-footer-error" role="alert">{footerError}</span>
+        {/if}
       {/if}
     </div>
-    <DocsLinks config={demoConfig.configWithoutDefaults} />
+    {#if !phone.isPhone}{@render docsLinks()}{/if}
   </div>
 </div>

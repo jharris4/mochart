@@ -1,6 +1,9 @@
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer, textAreaContent } from '../misc/dom';
+import { menuDivider, overflowMenu } from '../misc/OverflowMenu';
+
+import type { MenuItem } from '../misc/OverflowMenu';
 
 import type { DemoConfig } from '../../types';
 
@@ -15,6 +18,7 @@ export interface ConfigTabHandle {
   el: HTMLElement;
   setActive(active: boolean): void;
   setConfig(config: DemoConfig): void;
+  destroy(): void;
 }
 
 export function configTab(props: ConfigTabProps): ConfigTabHandle {
@@ -25,6 +29,14 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   let errorMessage: string | null = null;
   let mochartDemoConfig = buildMochartDemoConfig(config);
   let demoConfig = copyDemoConfig(mochartDemoConfig);
+
+  // The phone fold. Read once up front and kept current by the watcher below;
+  // `sync()` re-lays the footer out from it (see placeControls).
+  let isPhone = isPhoneViewport();
+  const unwatchViewport = watchPhoneViewport(next => {
+    isPhone = next;
+    sync();
+  });
 
   const textArea = textAreaContent(formatMochartDemoConfig(demoConfig, false), onTextChange);
 
@@ -133,8 +145,26 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   // config actually uses.
   const docsLinks = el('div', { className: 'mochart-demo-docs-links' });
 
+  // The section list the row was last built from, and whether it produced any
+  // links at all.
+  //
+  // `syncDocsLinks` runs on every keystroke but its input — the config's own
+  // section ids — only changes when the config does, and rebuilding the row
+  // regardless is not free once the row is hosted by the overflow panel: it
+  // would detach and re-insert a link the user may be about to follow. It also
+  // keeps the row itself one stable element, which is what lets `setItems`'
+  // identity bail-out work (the panel holds `docsLinks`, not its children).
+  let docsLinkKey: string | null = null;
+  let hasDocsLinks = false;
+
   function syncDocsLinks(): void {
     const sectionIds = getReferenceSectionIds(demoConfig.configWithoutDefaults);
+    const nextKey = sectionIds.join(',');
+    if (nextKey === docsLinkKey) {
+      return;
+    }
+    docsLinkKey = nextKey;
+    hasDocsLinks = sectionIds.length > 0;
     docsLinks.replaceChildren();
     if (sectionIds.length === 0) {
       return;
@@ -151,17 +181,63 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     });
   }
 
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')
-  }, [
+  // `.editor`, not `.chart`: the folded rows are the config editor's own
+  // controls and a list of reference links, and naming them "chart controls" to
+  // a screen reader would be a promise this panel does not keep.
+  const overflowMenuHandle = overflowMenu({
+    text: demoText.overflowMenu.editor,
+    // Opens upward — the footer is at the bottom of the pane — and right-aligned
+    // against the footer rather than the trigger. The trigger sits mid-row, left
+    // of an error span that comes and goes; anchoring to it would both move the
+    // panel as the error appears and, on a phone, push a 320px panel off the
+    // left edge. The footer is full width, so its right edge is the row's end.
+    placement: { side: 'top', align: 'end', gap: 4 },
+    getAnchor: () => footer
+  });
+
+  // Menu-side home for the folded footer buttons — a cached `.demo-btn-group`;
+  // OverflowMenu.ts's header says why that shape.
+  const menuActionGroup = el('div', { className: 'demo-btn-group' });
+  const menuActionButtons = [resetButton.el, defaultsButton.el, invertedButton.el, slowButton.el];
+
+  // The footer's order at desktop widths; also the list the unfold restores, so
+  // the desktop layout has exactly one definition.
+  const toolbarItems = [
+    resetButton.el, defaultsButton.el, invertedButton.el, slowButton.el, applyButton.el, footerError
+  ];
+  // Apply stays beside the editor it applies, and the error span carries
+  // `role="alert"` — a message that has to be read cannot live behind a tap.
+  const foldedToolbarItems = [applyButton.el, overflowMenuHandle.el, footerError];
+  const toolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, toolbarItems);
+  const footerItems = [toolbar, docsLinks];
+  const footer = el('div', { className: 'mochart-demo-tab-footer' }, footerItems);
+
+  const container = tabContainer('demo-layout-col config', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
-    el('div', { className: 'mochart-demo-tab-footer' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-        resetButton.el, defaultsButton.el, invertedButton.el, slowButton.el, applyButton.el, footerError
-      ]),
-      docsLinks
-    ])
+    footer
   ]);
+
+  /**
+   * Where every footer control lives right now. Reparenting, never
+   * duplication — see OverflowMenu.ts's header.
+   */
+  function placeControls(): void {
+    // Do this first: emptying the panel detaches whatever it was hosting, so the
+    // restores below see honest child lists rather than believing the controls
+    // are already placed.
+    //
+    // The links tail is omitted rather than left as a trailing divider when the
+    // config uses no documented sections: `setItems` drops nulls but keeps
+    // dividers, so the unconditional form would rule off the bottom of the panel
+    // with nothing under it.
+    const linksTail: MenuItem[] = hasDocsLinks ? [menuDivider, docsLinks] : [];
+    overflowMenuHandle.setItems(isPhone ? [menuActionGroup, ...linksTail] : []);
+    if (isPhone) {
+      setChildren(menuActionGroup, menuActionButtons);
+    }
+    setChildren(toolbar, isPhone ? foldedToolbarItems : toolbarItems);
+    setChildren(footer, isPhone ? [toolbar] : footerItems);
+  }
 
   // Patch every derived bit of the footer from the current state (the vanilla
   // stand-in for the framework demos' derived values).
@@ -183,13 +259,21 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     slowButton.setPressed(slow);
     slowButton.setContent([icon(slow ? 'hourglass' : 'hourglass-end', { size: 'lg', fixedWidth: true })]);
 
+    // Before placeControls: whether the links row goes into the panel at all
+    // depends on whether this run left it with any links in it.
     syncDocsLinks();
+    placeControls();
   }
   sync();
 
   return {
     el: container,
     setActive(active: boolean) {
+      // An open panel is `position: fixed`, so marking the pane inert would
+      // leave it painting over the pane that replaced this one.
+      if (!active) {
+        overflowMenuHandle.close();
+      }
       setActiveClass(container, active);
     },
     setConfig(nextConfig: DemoConfig) {
@@ -201,6 +285,10 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
         errorMessage = null;
         sync();
       }
+    },
+    destroy() {
+      unwatchViewport();
+      overflowMenuHandle.destroy();
     }
   };
 }

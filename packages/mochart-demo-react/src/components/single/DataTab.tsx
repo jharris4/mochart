@@ -5,6 +5,8 @@ import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoT
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
+import OverflowMenu from '../misc/OverflowMenu';
+import { usePhoneViewport } from '../misc/usePhoneViewport';
 
 import type { DemoConfig, DataRow } from '../../types';
 
@@ -36,6 +38,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
 
   const [dataText, setDataText] = useState(() => renderView(data ?? [], false));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
 
   const parseCurrentFullData = (text: string) => parseFullData(text, fullDataRef.current, viewUsedRef.current);
 
@@ -92,28 +95,57 @@ export default function MochartDataTab({ active, config = null, data = null, onD
   const jsonError = useMemo(() => getJsonError(dataText), [dataText]);
   const footerError = jsonError ?? errorMessage;
 
+  // Same fold as the config footer — Apply and the `role="alert"` error stay
+  // inline, the rest goes to the `⋯`; the reasons live on ConfigTab's fold.
+  const isPhone = usePhoneViewport();
+
+  const resetButton = (
+    <ButtonWithTooltip id="data-reset" label={demoText.dataTab.reset.label} tooltipText={demoText.dataTab.reset.tooltip} tooltipPlacement="top-start"
+      onClick={resetData} aria-label={demoText.dataTab.reset.aria}>
+      <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+    </ButtonWithTooltip>
+  );
+  const unusedButton = (
+    <ButtonWithTooltip id="data-unused" label={demoText.dataTab.unused.label} pressed={showUnused}
+      tooltipText={demoText.dataTab.unused.tooltip} tooltipPlacement="top-start"
+      onClick={toggleShowUnused} aria-label={demoText.dataTab.unused.aria}>
+      <Icon size="lg" fixedWidth={true} name={showUnused ? 'eye' : 'eye-slash'} />
+    </ButtonWithTooltip>
+  );
+  const applyButton = (
+    <ButtonWithTooltip id="data-apply" label={demoText.dataTab.apply.label} disabled={jsonError !== null}
+      tooltipText={demoText.dataTab.apply.tooltip} tooltipPlacement="top-start"
+      onClick={applyData} aria-label={demoText.dataTab.apply.aria}>
+      <Icon size="lg" fixedWidth={true} name="check" />
+    </ButtonWithTooltip>
+  );
+  const errorSpan = footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null;
+
   return (
-    <div className={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")} inert={!active}>
       <div className="mochart-demo-tab-content">
         <TextAreaContent value={dataText} onChange={(text: string) => { setDataText(text); setErrorMessage(null); }} />
       </div>
-      <div className="mochart-demo-tab-footer">
+      <div className="mochart-demo-tab-footer" ref={footerRef}>
         <div className="demo-toolbar" role="toolbar">
-          <ButtonWithTooltip id="data-reset" label={demoText.dataTab.reset.label} tooltipText={demoText.dataTab.reset.tooltip} tooltipPlacement="top-start"
-            onClick={resetData} aria-label={demoText.dataTab.reset.aria}>
-            <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
-          </ButtonWithTooltip>
-          <ButtonWithTooltip id="data-unused" label={demoText.dataTab.unused.label} pressed={showUnused}
-            tooltipText={demoText.dataTab.unused.tooltip} tooltipPlacement="top-start"
-            onClick={toggleShowUnused} aria-label={demoText.dataTab.unused.aria}>
-            <Icon size="lg" fixedWidth={true} name={showUnused ? 'eye' : 'eye-slash'} />
-          </ButtonWithTooltip>
-          <ButtonWithTooltip id="data-apply" label={demoText.dataTab.apply.label} disabled={jsonError !== null}
-            tooltipText={demoText.dataTab.apply.tooltip} tooltipPlacement="top-start"
-            onClick={applyData} aria-label={demoText.dataTab.apply.aria}>
-            <Icon size="lg" fixedWidth={true} name="check" />
-          </ButtonWithTooltip>
-          {footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null}
+          {isPhone ? (
+            <>
+              {applyButton}
+              <OverflowMenu text={demoText.overflowMenu.editor}
+                placement={{ side: 'top', align: 'end', gap: 4 }}
+                anchorRef={footerRef} active={active !== false}>
+                <div className="demo-btn-group">{resetButton}{unusedButton}</div>
+              </OverflowMenu>
+              {errorSpan}
+            </>
+          ) : (
+            <>
+              {resetButton}
+              {unusedButton}
+              {applyButton}
+              {errorSpan}
+            </>
+          )}
         </div>
       </div>
     </div>

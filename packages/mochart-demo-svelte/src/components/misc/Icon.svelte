@@ -6,9 +6,11 @@
     size?: string;
     fixedWidth?: boolean;
     flip?: string;
+    /** Inline style, for the rare icon that carries its own layout (`margin-left: auto`). */
+    style?: string;
   }
 
-  let { name, size = undefined, fixedWidth = false, flip = undefined }: Props = $props();
+  let { name, size = undefined, fixedWidth = false, flip = undefined, style = undefined }: Props = $props();
 
   const classes = $derived.by(() => {
     const list = ['fa-solid', `fa-${name}`];
@@ -25,4 +27,4 @@
   });
 </script>
 
-<span aria-hidden="true" class={classes}></span>
+<span aria-hidden="true" class={classes} {style}></span>

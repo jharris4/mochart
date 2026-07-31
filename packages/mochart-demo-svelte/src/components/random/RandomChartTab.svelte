@@ -11,6 +11,8 @@
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import ExportShareMenu from '../misc/ExportShareMenu.svelte';
   import Icon from '../misc/Icon.svelte';
+  import OverflowMenu from '../misc/OverflowMenu.svelte';
+  import { createPhoneViewport } from '../misc/phoneViewport.svelte';
 
   import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
@@ -41,6 +43,10 @@
     applyReuse,
     toggleApplyReuse
   }: Props = $props();
+
+  // The phone fold (see the comment above the markup).
+  const phone = createPhoneViewport();
+  let controlsElement = $state<HTMLElement | null>(null);
 
   let intervalId: ReturnType<typeof setInterval> | null = null;
 
@@ -116,12 +122,55 @@
   });
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
+{#snippet playButton()}
+  <ButtonWithTooltip id="play" disabled={playing} menuLabel={demoText.randomChartTab.play.menuLabel}
+                     tooltipText={demoText.randomChartTab.play.tooltip} tooltipPlacement="top-start"
+                     onClick={onPlayClick} aria-label={demoText.randomChartTab.play.aria}>
+    <Icon size="lg" fixedWidth={true} name="play" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet stopButton()}
+  <ButtonWithTooltip id="stop" disabled={!playing} menuLabel={demoText.randomChartTab.stop.menuLabel}
+                     tooltipText={demoText.randomChartTab.stop.tooltip} tooltipPlacement="top-start"
+                     onClick={onStopClick} aria-label={demoText.randomChartTab.stop.aria}>
+    <Icon size="lg" fixedWidth={true} name="stop" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet reuseButton()}
+  <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
+                     tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
+                     onClick={toggleApplyReuse} aria-label={demoText.randomChartTab.reuse.aria}>
+    <Icon size="lg" fixedWidth={true} name="recycle" />
+  </ButtonWithTooltip>
+{/snippet}
+
+<!-- `.demo-menu-keep-open` so a press inside the field — the number input's
+     own spinners in particular — cannot dismiss the panel it is hosted in.
+     The class paints nothing, so it is unconditional. -->
+{#snippet rateField()}
+  <div class="demo-field demo-menu-keep-open">
+    <label class="demo-label" for="random-rate">{demoText.randomChartTab.intervalLabel}</label>
+    <input id="random-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="demo-input" value={rateText}
+           oninput={rateChanged} aria-label={demoText.randomChartTab.intervalAria} />
+  </div>
+{/snippet}
+
+{#snippet exportMenu()}
+  <ExportShareMenu idPrefix="random" active={active !== false} exportPng={onExportPng} exportSvg={onExportSvg} {getShareState} />
+{/snippet}
+
+<!-- The phone fold keeps the dice pair (Back / Randomize) inline — stepping by
+     hand is the mode's primary interaction — and demotes the automation
+     transport (Play / Stop) with the Reuse toggle and the interval field. Each
+     control renders in exactly one of the two places (see OverflowMenu.svelte). -->
+<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
   <div class="random-chart-sizer" bind:this={chartSizerElement}>
     <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
            {mochartConfig} {dataProvider} />
   </div>
-  <div class="random-controls">
+  <div class="random-controls" bind:this={controlsElement}>
     <form class="demo-form-row">
       <div class="demo-field">
         <div class="demo-toolbar" role="toolbar">
@@ -136,30 +185,32 @@
                                onClick={onRandomizeNext} aria-label={demoText.randomChartTab.randomize.aria}>
               <Icon size="lg" fixedWidth={true} name="dice" />
             </ButtonWithTooltip>
-            <ButtonWithTooltip id="play" disabled={playing} tooltipText={demoText.randomChartTab.play.tooltip} tooltipPlacement="top-start"
-                               onClick={onPlayClick} aria-label={demoText.randomChartTab.play.aria}>
-              <Icon size="lg" fixedWidth={true} name="play" />
-            </ButtonWithTooltip>
-            <ButtonWithTooltip id="stop" disabled={!playing} tooltipText={demoText.randomChartTab.stop.tooltip} tooltipPlacement="top-start"
-                               onClick={onStopClick} aria-label={demoText.randomChartTab.stop.aria}>
-              <Icon size="lg" fixedWidth={true} name="stop" />
-            </ButtonWithTooltip>
+            {#if !phone.isPhone}{@render playButton()}{@render stopButton()}{/if}
           </div>
-          <div class="demo-field">
-            <label class="demo-label" for="random-rate">{demoText.randomChartTab.intervalLabel}</label>
-            <input id="random-rate" disabled={playing} type="number" min="5" max="60000" step="100" class="demo-input" value={rateText}
-                   oninput={rateChanged} aria-label={demoText.randomChartTab.intervalAria} />
-          </div>
+          {#if !phone.isPhone}{@render rateField()}{/if}
         </div>
         <div class="demo-toolbar" role="toolbar">
-          <div class="demo-btn-group">
-            <ButtonWithTooltip id="reuse" disabled={playing} label={demoText.randomChartTab.reuse.label} pressed={applyReuse}
-                               tooltipText={demoText.randomChartTab.reuse.tooltip} tooltipPlacement="top-start"
-                               onClick={toggleApplyReuse} aria-label={demoText.randomChartTab.reuse.aria}>
-              <Icon size="lg" fixedWidth={true} name="recycle" />
-            </ButtonWithTooltip>
-          </div>
-          <ExportShareMenu idPrefix="random" exportPng={onExportPng} exportSvg={onExportSvg} {getShareState} />
+          {#if phone.isPhone}
+            <div class="demo-btn-group">
+              <!-- Anchored to the whole strip: `align: 'end'` pins the panel's
+                   right edge to the anchor's, and the export trigger sits to
+                   the ⋯'s right. -->
+              <OverflowMenu text={demoText.overflowMenu.random}
+                            placement={{ side: 'top', align: 'end', gap: 4 }}
+                            getAnchor={() => controlsElement}
+                            active={active !== false}>
+                <div class="demo-btn-group">{@render playButton()}{@render stopButton()}</div>
+                <div class="demo-menu-divider"></div>
+                <div class="demo-btn-group">{@render reuseButton()}</div>
+                <div class="demo-menu-divider"></div>
+                {@render rateField()}
+              </OverflowMenu>
+              {@render exportMenu()}
+            </div>
+          {:else}
+            <div class="demo-btn-group">{@render reuseButton()}</div>
+            {@render exportMenu()}
+          {/if}
         </div>
       </div>
     </form>

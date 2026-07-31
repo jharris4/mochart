@@ -121,7 +121,7 @@ const chartWidth = computed(() => Math.floor((width.value - scrollWidthOffset) /
 </script>
 
 <template>
-  <div :ref="attachSizer" :class="'mochart-demo-tab-container demo-layout-row chart' + (props.active ? ' active' : '')">
+  <div :ref="attachSizer" :class="'mochart-demo-tab-container demo-layout-row chart' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="editable-charts-sizer">
       <div class="editable-charts">
         <template v-if="mochartDemoConfig && width > 0">

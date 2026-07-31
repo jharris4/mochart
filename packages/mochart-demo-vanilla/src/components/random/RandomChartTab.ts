@@ -1,12 +1,13 @@
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { getChartExportOptions, demoText } from '@mochart/demo-common';
+import { getChartExportOptions, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon, setActiveClass } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 import { exportShareMenu } from '../misc/ExportShareMenu';
+import { menuDivider, overflowMenu } from '../misc/OverflowMenu';
 
 import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
@@ -44,6 +45,14 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   let playing = false;
   // A share link restores the interval; otherwise start on the default.
   let rate = props.initialRate ?? defaultRate;
+
+  // The phone fold. Read once up front and kept current by the watcher below;
+  // `sync()` re-lays the strip out from it (see placeControls).
+  let isPhone = isPhoneViewport();
+  const unwatchViewport = watchPhoneViewport(next => {
+    isPhone = next;
+    sync();
+  });
 
   const chartHost = mountChart(
     { mochartConfig, dataProvider },
@@ -94,13 +103,13 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     content: [icon('dice', { size: 'lg', fixedWidth: true })]
   });
   const playButton = buttonWithTooltip({
-    id: 'play', ariaLabel: demoText.randomChartTab.play.aria,
+    id: 'play', menuLabel: demoText.randomChartTab.play.menuLabel, ariaLabel: demoText.randomChartTab.play.aria,
     tooltipText: demoText.randomChartTab.play.tooltip,
     onClick: onPlayClick,
     content: [icon('play', { size: 'lg', fixedWidth: true })]
   });
   const stopButton = buttonWithTooltip({
-    id: 'stop', disabled: true, ariaLabel: demoText.randomChartTab.stop.aria,
+    id: 'stop', disabled: true, menuLabel: demoText.randomChartTab.stop.menuLabel, ariaLabel: demoText.randomChartTab.stop.aria,
     tooltipText: demoText.randomChartTab.stop.tooltip,
     onClick: onStopClick,
     content: [icon('stop', { size: 'lg', fixedWidth: true })]
@@ -120,30 +129,88 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     getShareState: (): ShareState => ({ mode: 'random', randomConfig, applyReuse, interval: rate })
   });
 
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')
-  }, [
-    chartSizer,
-    el('div', { className: 'random-controls' }, [
-      el('form', { className: 'demo-form-row' }, [
-        el('div', { className: 'demo-field' }, [
-          el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-            el('div', { className: 'demo-btn-group' }, [backButton.el, nextButton.el, playButton.el, stopButton.el]),
-            el('div', { className: 'demo-field' }, [
-              el('label', { className: 'demo-label', attrs: { for: 'random-rate' }, text: demoText.randomChartTab.intervalLabel }),
-              rateInput
-            ])
-          ]),
-          el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-            el('div', { className: 'demo-btn-group' }, [reuseButton.el]),
-            menu.el
-          ])
-        ])
-      ])
+  // The strip's order at desktop widths; also the lists the unfold restores, so
+  // the desktop layout has exactly one definition.
+  //
+  // The fold keeps the dice pair (Back / Randomize) inline and demotes the
+  // automation transport (Play / Stop) instead: stepping by hand is the mode's
+  // primary interaction, playback is the set-and-forget one, and splitting the
+  // mirrored dice across the menu boundary read worse than a menu'd Play.
+  // Two 44px buttons plus the two menu triggers want ~202px, so the row fits
+  // even at 320x568 (278px) with no per-width branch.
+  const transportButtons = [backButton.el, nextButton.el, playButton.el, stopButton.el];
+  const foldedTransportButtons = [backButton.el, nextButton.el];
+  const transportGroup = el('div', { className: 'demo-btn-group' }, transportButtons);
+  // `.demo-menu-keep-open` so a press inside the field — the number input's own
+  // spinners in particular — cannot dismiss the panel it is hosted in. The class
+  // paints nothing, so it is set once here rather than toggled by the fold.
+  const rateField = el('div', { className: 'demo-field demo-menu-keep-open' }, [
+    el('label', { className: 'demo-label', attrs: { for: 'random-rate' }, text: demoText.randomChartTab.intervalLabel }),
+    rateInput
+  ]);
+  const transportToolbarItems = [transportGroup, rateField];
+  const transportToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, transportToolbarItems);
+
+  const reuseGroup = el('div', { className: 'demo-btn-group' }, [reuseButton.el]);
+  // Menu-side home for Play and Stop — a cached `.demo-btn-group`;
+  // OverflowMenu.ts's header says why that shape.
+  const menuTransportGroup = el('div', { className: 'demo-btn-group' });
+  const overflowMenuHandle = overflowMenu({
+    text: demoText.overflowMenu.random,
+    // Opens upward over the chart (the strip is at the bottom of the pane) and
+    // right-aligned.
+    placement: { side: 'top', align: 'end', gap: 4 },
+    // Measured against the whole strip, not the trigger and not the trailing
+    // group either.
+    //
+    // `align: 'end'` pins the panel's right edge to the anchor's, so the anchor
+    // has to reach the end of the row or the panel is pushed left by the
+    // difference. The single-mode strip can measure from its trailing group
+    // because `.chart-controls-menu` carries `margin-left: auto` and so *is* the
+    // row's end; nothing pushes this strip's menus right, and its controls are
+    // left-packed inside a shrink-to-fit form. Measured at 390x844 the trailing
+    // group ends at x=281 of a 369px row, which put a 320px panel at left=-39 —
+    // the "Back" and "Interval (ms):" labels were off the screen. The strip is
+    // full width, so its right edge is the row's end: left=49 (and left=11 at
+    // 320x568, matching the two editor footers).
+    getAnchor: () => controls
+  });
+  const menuGroup = el('div', { className: 'demo-btn-group' }, [overflowMenuHandle.el, menu.el]);
+  const trailingToolbarItems = [reuseGroup, menuGroup];
+  const trailingToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, trailingToolbarItems);
+
+  const controls = el('div', { className: 'random-controls' }, [
+    el('form', { className: 'demo-form-row' }, [
+      el('div', { className: 'demo-field' }, [transportToolbar, trailingToolbar])
     ])
   ]);
 
+  const container = tabContainer('demo-layout-col chart', active, [chartSizer, controls]);
+
+  /**
+   * Where every control of the strip lives right now. Reparenting, never
+   * duplication — see OverflowMenu.ts's header.
+   */
+  function placeControls(): void {
+    // Do this first: emptying the panel detaches whatever it was hosting, so the
+    // restores below see honest child lists rather than believing the controls
+    // are already placed.
+    overflowMenuHandle.setItems(isPhone
+      ? [menuTransportGroup, menuDivider, reuseGroup, menuDivider, rateField]
+      : []);
+    setChildren(transportGroup, isPhone ? foldedTransportButtons : transportButtons);
+    if (isPhone) {
+      setChildren(menuTransportGroup, [playButton.el, stopButton.el]);
+    }
+    setChildren(transportToolbar, isPhone ? [transportGroup] : transportToolbarItems);
+    // The reuse group moves into the panel whole rather than being emptied, so
+    // no stray zero-width flex item is left behind spending one of the toolbar's
+    // gaps.
+    setChildren(trailingToolbar, isPhone ? [menuGroup] : trailingToolbarItems);
+  }
+
   function sync(): void {
+    placeControls();
     backButton.setDisabled(playing);
     nextButton.setDisabled(playing);
     playButton.setDisabled(playing);
@@ -159,6 +226,12 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     setActive(nextActive: boolean) {
       if (nextActive !== active) {
         active = nextActive;
+        // Before the pane goes inert: an open panel is `position: fixed`, so it
+        // would keep painting over whichever pane replaced this one.
+        if (!nextActive) {
+          overflowMenuHandle.close();
+          menu.close();
+        }
         setActiveClass(container, nextActive);
         onStopClick();
       }
@@ -178,6 +251,8 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
         clearInterval(intervalId);
         intervalId = null;
       }
+      unwatchViewport();
+      overflowMenuHandle.destroy();
       menu.destroy();
       chartHost.destroy();
     }

@@ -39,7 +39,7 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
   };
 
   return (
-    <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
       <div className="transition-chart-sizer">
         {/* Chart self-measures when width/height are omitted. */}
         <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}

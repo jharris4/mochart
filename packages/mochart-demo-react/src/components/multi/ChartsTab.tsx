@@ -296,7 +296,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     : filteredSeriesIds;
 
   return (
-    <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
+    <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
       <div className="multi-charts-sizer" ref={gridRef}>
         {gridWidth > 0 ?
           <MultiMochartCharts width={gridWidth} height={gridHeight} mochartConfig={mochartConfig} dataProviders={dataProviders}

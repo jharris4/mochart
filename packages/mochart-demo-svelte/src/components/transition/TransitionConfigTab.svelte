@@ -64,7 +64,7 @@
   const footerError = $derived(jsonError ?? errorMessage);
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
     <TextAreaContent value={configText} onChange={onTextChange} />
   </div>

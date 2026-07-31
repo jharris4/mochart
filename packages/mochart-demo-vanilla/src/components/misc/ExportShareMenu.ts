@@ -1,4 +1,4 @@
-import { buildShareUrl, demoText } from '@mochart/demo-common';
+import { buildShareUrl, createMenuController, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { el, icon } from './dom';
@@ -8,11 +8,12 @@ import { el, icon } from './dom';
 // share state is provided) a copy-share-link item. The caller supplies the
 // export actions so this component stays agnostic about single vs. tiled charts.
 //
-// The controls strips (and chart panes) use `overflow: hidden`, which would
-// clip a normal absolutely-positioned dropdown that opens upward over the
-// chart — and the chart's transparent interaction rect would steal clicks. So
-// the menu is positioned `fixed` (measured from the trigger) at a high z-index,
-// which escapes ancestor clipping and stacks above the chart.
+// Open/close, the fixed-position arithmetic, dismissal, focus and the
+// disclosure ARIA all live in demo-common's `createMenuController` — including
+// the reason any of it is hand-rolled (the controls strips clip an
+// absolutely-positioned dropdown, and the chart's interaction rect eats clicks
+// through anything stacked below it). What stays here is what the controller
+// does not know about: the items, the copied-link feedback, and `disabled`.
 export interface ExportShareMenuProps {
   idPrefix: string;
   exportPng: () => void;
@@ -25,32 +26,37 @@ export interface ExportShareMenuProps {
 export interface ExportShareMenuHandle {
   el: HTMLElement;
   setDisabled(disabled: boolean): void;
+  /**
+   * Dismiss without waiting for a press. Needed because the pane a menu hangs
+   * off can be taken off screen without anything being pressed — switching tabs
+   * only marks the old pane `inert`, and an open panel is `position: fixed`, so
+   * it would go on floating over the pane that replaced it.
+   */
+  close(): void;
   destroy(): void;
 }
 
 const copiedFeedbackMs = 1500;
-const menuGap = 4;
 
 export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHandle {
   const { idPrefix, exportPng, exportSvg, getShareState } = props;
 
-  let open = false;
   let copied = false;
   let revertTimer: ReturnType<typeof setTimeout> | null = null;
 
+  // No `aria-haspopup`/`aria-expanded` here: the controller wires the
+  // disclosure ARIA itself (and strips `aria-haspopup`, which promised a
+  // keyboard menu this markup never implemented).
   const trigger = el('button', {
     id: idPrefix + '-export-share',
     className: 'demo-btn demo-btn-secondary demo-menu-trigger',
     attrs: {
       type: 'button',
-      'aria-haspopup': 'true',
-      'aria-expanded': 'false',
       title: demoText.exportShareMenu.trigger.tooltip,
       'aria-label': demoText.exportShareMenu.trigger.aria
     }
   }, [icon('share-nodes', { size: 'lg', fixedWidth: true })]);
   trigger.disabled = props.disabled ?? false;
-  trigger.addEventListener('click', () => toggle());
 
   const pngItem = el('button', {
     className: 'demo-menu-item',
@@ -89,6 +95,15 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
 
   const root = el('div', { className: 'demo-btn-group demo-menu-up mochart-export-share-menu' }, [trigger, menu]);
 
+  // Opens upward (the controls row sits at the bottom of the pane) and
+  // right-aligned (the trigger is the last control in the row). The controller
+  // binds the trigger's click to `toggle()` itself.
+  const controller = createMenuController({
+    trigger,
+    panel: menu,
+    placement: { side: 'top', align: 'end', gap: 4 }
+  });
+
   function renderShare(): void {
     if (shareItem === null || shareIconEl === null || shareLabelSpan === null) {
       return;
@@ -99,76 +114,9 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     shareLabelSpan.textContent = copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label;
   }
 
-  // Anchor the fixed menu just above the trigger's top-right corner, so it
-  // opens upward and right-aligned; measured before it is shown to avoid a flash.
-  function positionMenu(): void {
-    const rect = trigger.getBoundingClientRect();
-    menu.style.position = 'fixed';
-    menu.style.bottom = (window.innerHeight - rect.top + menuGap) + 'px';
-    menu.style.right = (window.innerWidth - rect.right) + 'px';
-    menu.style.margin = '0';
-    menu.style.zIndex = '1080';
-  }
-
-  function openMenu(): void {
-    if (open) {
-      return;
-    }
-    open = true;
-    positionMenu();
-    menu.classList.add('open');
-    trigger.classList.add('active');
-    trigger.setAttribute('aria-expanded', 'true');
-    document.addEventListener('mousedown', onDocMouseDown);
-    document.addEventListener('keydown', onKeyDown);
-    // A fixed menu would drift on scroll/resize; just close it instead.
-    window.addEventListener('scroll', onReflow, true);
-    window.addEventListener('resize', onReflow);
-  }
-
-  function closeMenu(): void {
-    if (!open) {
-      return;
-    }
-    open = false;
-    menu.classList.remove('open');
-    trigger.classList.remove('active');
-    trigger.setAttribute('aria-expanded', 'false');
-    menu.removeAttribute('style');
-    document.removeEventListener('mousedown', onDocMouseDown);
-    document.removeEventListener('keydown', onKeyDown);
-    window.removeEventListener('scroll', onReflow, true);
-    window.removeEventListener('resize', onReflow);
-  }
-
-  function toggle(): void {
-    if (open) {
-      closeMenu();
-    }
-    else {
-      openMenu();
-    }
-  }
-
-  function onDocMouseDown(event: MouseEvent): void {
-    if (!root.contains(event.target as Node)) {
-      closeMenu();
-    }
-  }
-
-  function onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      closeMenu();
-    }
-  }
-
-  function onReflow(): void {
-    closeMenu();
-  }
-
   function runAndClose(action: () => void): void {
     action();
-    closeMenu();
+    controller.close();
   }
 
   function onShare(): void {
@@ -192,19 +140,26 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
       // user copy the link manually instead of failing silently.
       window.prompt(demoText.shareButton.tooltip, url);
     });
-    closeMenu();
+    controller.close();
   }
 
   return {
     el: root,
     setDisabled(disabled: boolean) {
       trigger.disabled = disabled;
+      // The controller knows nothing about `disabled`. A disabled button fires
+      // no `click`, so it cannot be opened — but a menu that is already open
+      // when its trigger is disabled would otherwise stay open with no way back
+      // to it.
       if (disabled) {
-        closeMenu();
+        controller.close();
       }
     },
+    close() {
+      controller.close();
+    },
     destroy() {
-      closeMenu();
+      controller.destroy();
       if (revertTimer !== null) {
         clearTimeout(revertTimer);
         revertTimer = null;

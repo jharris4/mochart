@@ -62,7 +62,7 @@
   }
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
   <div class="transition-chart-sizer">
     <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
            {mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />

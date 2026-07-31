@@ -1,4 +1,5 @@
-import { Component, Input, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
@@ -7,34 +8,58 @@ import type { ParsedFullData } from '@mochart/demo-common';
 import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { Icon } from '../misc/icon';
+import { OverflowMenu } from '../misc/overflow-menu';
+import { phoneViewport } from '../misc/phone-viewport';
 
 import type { DemoConfig, DataRow } from '../../types';
 
 @Component({
   selector: 'app-data-tab',
-  imports: [TextAreaContent, ButtonWithTooltip, Icon],
+  imports: [TextAreaContent, ButtonWithTooltip, Icon, NgTemplateOutlet, OverflowMenu],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container demo-layout-col data' + (active ? ' active' : '')">
+    <ng-template #resetButton>
+      <app-button-with-tooltip id="data-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
+                               [onClick]="resetData" [aria-label]="text.reset.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #unusedButton>
+      <app-button-with-tooltip id="data-unused" [label]="text.unused.label" [pressed]="showUnused()"
+                               [tooltipText]="text.unused.tooltip" tooltipPlacement="top-start"
+                               [onClick]="toggleShowUnused" [aria-label]="text.unused.aria">
+        <app-icon size="lg" [fixedWidth]="true" [name]="showUnused() ? 'eye' : 'eye-slash'" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #applyButton>
+      <app-button-with-tooltip id="data-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
+                               [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
+                               [onClick]="applyData" [aria-label]="text.apply.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="check" />
+      </app-button-with-tooltip>
+    </ng-template>
+
+    <!-- Same fold as the config footer — Apply and the \`role="alert"\` error
+         stay inline, the rest goes to the \`⋯\`; the reasons live on ConfigTab. -->
+    <div [class]="'mochart-demo-tab-container demo-layout-col data' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
         <app-text-area-content [value]="dataText()" [onChange]="onTextChange" />
       </div>
-      <div class="mochart-demo-tab-footer">
+      <div class="mochart-demo-tab-footer" #footer>
         <div class="demo-toolbar" role="toolbar">
-          <app-button-with-tooltip id="data-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
-                                   [onClick]="resetData" [aria-label]="text.reset.aria">
-            <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
-          </app-button-with-tooltip>
-          <app-button-with-tooltip id="data-unused" [label]="text.unused.label" [pressed]="showUnused()"
-                                   [tooltipText]="text.unused.tooltip" tooltipPlacement="top-start"
-                                   [onClick]="toggleShowUnused" [aria-label]="text.unused.aria">
-            <app-icon size="lg" [fixedWidth]="true" [name]="showUnused() ? 'eye' : 'eye-slash'" />
-          </app-button-with-tooltip>
-          <app-button-with-tooltip id="data-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
-                                   [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
-                                   [onClick]="applyData" [aria-label]="text.apply.aria">
-            <app-icon size="lg" [fixedWidth]="true" name="check" />
-          </app-button-with-tooltip>
+          @if (phone()) {
+            <ng-container [ngTemplateOutlet]="applyButton" />
+            <app-overflow-menu [text]="overflowText" [placement]="editorPlacement" [getAnchor]="getFooterAnchor" [active]="active">
+              <div class="demo-btn-group">
+                <ng-container [ngTemplateOutlet]="resetButton" />
+                <ng-container [ngTemplateOutlet]="unusedButton" />
+              </div>
+            </app-overflow-menu>
+          } @else {
+            <ng-container [ngTemplateOutlet]="resetButton" />
+            <ng-container [ngTemplateOutlet]="unusedButton" />
+            <ng-container [ngTemplateOutlet]="applyButton" />
+          }
           @if (footerError) {
             <span class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>
           }
@@ -45,6 +70,13 @@ import type { DemoConfig, DataRow } from '../../types';
 })
 export class DataTab implements OnInit, OnChanges {
   @Input() active = false;
+
+  // The phone fold (see the comment above the pane in the template).
+  @ViewChild('footer', { static: true }) footerElement!: ElementRef<HTMLDivElement>;
+  readonly phone = phoneViewport();
+  readonly overflowText = demoText.overflowMenu.editor;
+  readonly editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+  readonly getFooterAnchor = (): HTMLElement => this.footerElement.nativeElement;
   @Input({ required: true }) config!: DemoConfig;
   @Input({ required: true }) data!: DataRow[];
   @Input({ required: true }) onDataChange!: (data: DataRow[]) => void;

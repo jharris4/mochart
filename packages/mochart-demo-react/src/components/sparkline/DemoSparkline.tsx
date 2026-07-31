@@ -7,7 +7,7 @@ import type { SparklineMetric } from '@mochart/demo-common';
 
 import Icon from '../misc/Icon';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
-import { SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
+import TopBar from '../misc/TopBar';
 
 import type { OnBackToDemos } from '../../types';
 
@@ -43,13 +43,7 @@ export default function DemoSparkline({ siteRootUrl, onBackToDemos }: DemoSparkl
 
   return (
     <div className="mochart-demo-container">
-      <div className="mochart-demo-tabs-container">
-        <div className="mochart-demo-nav-group">
-          <SiteRootButton siteRootUrl={siteRootUrl} />
-          <BackToDemosButton onBackToDemos={onBackToDemos} />
-        </div>
-        <ThemeToggleButton />
-      </div>
+      <TopBar siteRootUrl={siteRootUrl} onBackToDemos={onBackToDemos} />
       <div className="sparkline-page">
         {/* The intro paragraph: copy segments with the inline metrics between them. */}
         <p className="sparkline-intro">

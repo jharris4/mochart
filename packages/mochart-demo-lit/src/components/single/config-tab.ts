@@ -7,9 +7,14 @@ import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConf
 import type { DemoConfigView } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
+import { PhoneViewportController } from '../misc/PhoneViewportController';
 import { textAreaContent, buttonWithTooltip, docsLinks, icon } from '../misc/templates';
+import '../misc/overflow-menu';
 
 import type { DemoConfig, MochartDemoConfig } from '../../types';
+
+/** The footer sits at the bottom of the pane, so its menu opens upward. */
+const editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
 
 @customElement('config-tab')
 export class ConfigTab extends LightElement {
@@ -23,6 +28,8 @@ export class ConfigTab extends LightElement {
   @state() private demoConfig!: DemoConfigView;
   @state() private configText = '';
   @state() private errorMessage: string | null = null;
+
+  private viewport = new PhoneViewportController(this);
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (changed.has('config')) {
@@ -109,38 +116,58 @@ export class ConfigTab extends LightElement {
     const slowIcon = slow ? 'hourglass' : 'hourglass-end';
     const jsonError = this.jsonError;
     const footerError = jsonError ?? this.errorMessage;
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')}>
+    // The phone fold. Apply stays beside the editor it applies, and the
+    // `role="alert"` error span stays inline — a message that has to be read
+    // cannot live behind a tap. Everything else, including the reference
+    // links, goes to the `⋯` menu.
+    const folded = this.viewport.isPhone;
+    const resetButton = buttonWithTooltip(
+      { id: 'config-reset', label: demoText.configTab.reset.label, tooltipText: demoText.configTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: this.resetConfig, ariaLabel: demoText.configTab.reset.aria },
+      icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
+    );
+    const defaultsButton = buttonWithTooltip(
+      { id: 'config-defaults', label: demoText.configTab.defaults.label, pressed: this.showDefaults, tooltipText: demoText.configTab.defaults.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigDefaults, ariaLabel: demoText.configTab.defaults.aria },
+      icon({ size: 'lg', fixedWidth: true, name: this.showDefaults ? 'eye' : 'eye-slash' })
+    );
+    const invertedButton = buttonWithTooltip(
+      { id: 'config-inverted', label: demoText.configTab.invert.label, pressed: !!inverted, tooltipText: demoText.configTab.invert.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigInverted, ariaLabel: demoText.configTab.invert.aria },
+      icon({ size: 'lg', fixedWidth: true, name: invertedIcon })
+    );
+    const slowButton = buttonWithTooltip(
+      { id: 'config-animate-slow', label: demoText.configTab.slow.label, pressed: slow, tooltipText: demoText.configTab.slow.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigAnimationSlow, ariaLabel: demoText.configTab.slow.aria },
+      icon({ size: 'lg', fixedWidth: true, name: slowIcon })
+    );
+    const applyButton = buttonWithTooltip(
+      { id: 'config-apply', label: demoText.configTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.configTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.applyConfig, ariaLabel: demoText.configTab.apply.aria },
+      icon({ size: 'lg', fixedWidth: true, name: 'check' })
+    );
+    const links = docsLinks(this.demoConfig.configWithoutDefaults);
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="demo-toolbar" role="toolbar">
-          ${buttonWithTooltip(
-            { id: 'config-reset', label: demoText.configTab.reset.label, tooltipText: demoText.configTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: this.resetConfig, ariaLabel: demoText.configTab.reset.aria },
-            icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
-          )}
-          ${buttonWithTooltip(
-            { id: 'config-defaults', label: demoText.configTab.defaults.label, pressed: this.showDefaults, tooltipText: demoText.configTab.defaults.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigDefaults, ariaLabel: demoText.configTab.defaults.aria },
-            icon({ size: 'lg', fixedWidth: true, name: this.showDefaults ? 'eye' : 'eye-slash' })
-          )}
-          ${buttonWithTooltip(
-            { id: 'config-inverted', label: demoText.configTab.invert.label, pressed: !!inverted, tooltipText: demoText.configTab.invert.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigInverted, ariaLabel: demoText.configTab.invert.aria },
-            icon({ size: 'lg', fixedWidth: true, name: invertedIcon })
-          )}
-          ${buttonWithTooltip(
-            { id: 'config-animate-slow', label: demoText.configTab.slow.label, pressed: slow, tooltipText: demoText.configTab.slow.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigAnimationSlow, ariaLabel: demoText.configTab.slow.aria },
-            icon({ size: 'lg', fixedWidth: true, name: slowIcon })
-          )}
-          ${buttonWithTooltip(
-            { id: 'config-apply', label: demoText.configTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.configTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.applyConfig, ariaLabel: demoText.configTab.apply.aria },
-            icon({ size: 'lg', fixedWidth: true, name: 'check' })
-          )}
+          ${folded
+            ? html`${applyButton}
+              <!-- \`.editor\`, not \`.chart\`: what folds here edits the JSON,
+                   and "more chart controls" would tell a screen-reader user
+                   the wrong thing. Anchored to the full-width footer — the
+                   trigger sits mid-row, left of an error span that comes and
+                   goes. -->
+              <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${editorPlacement}
+                .getAnchor=${this.getFooterAnchor} .active=${this.active}
+                .items=${() => html`<div class="demo-btn-group">${resetButton}${defaultsButton}${invertedButton}${slowButton}</div>
+                  ${links === nothing ? nothing : html`<div class="demo-menu-divider"></div>${links}`}`}></overflow-menu>`
+            : html`${resetButton}${defaultsButton}${invertedButton}${slowButton}${applyButton}`}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}
         </div>
-        ${docsLinks(this.demoConfig.configWithoutDefaults)}
+        ${folded ? nothing : links}
       </div>
     </div>`;
   }
+
+  private getFooterAnchor = (): HTMLElement | null => this.querySelector('.mochart-demo-tab-footer');
 }
 
 declare global {

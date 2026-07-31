@@ -8,8 +8,7 @@ import type { SparklineMetric } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, icon } from '../misc/templates';
-import { backToDemosButton, siteRootButton } from '../misc/mode-switcher';
-import '../misc/theme-toggle-button';
+import '../misc/top-bar';
 
 const text = demoText.sparklinePage;
 
@@ -52,13 +51,7 @@ export class DemoSparkline extends LightElement {
 
   override render(): unknown {
     return html`<div class="mochart-demo-container">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          ${siteRootButton(this.siteRootUrl)}
-          ${backToDemosButton(this.onBackToDemos)}
-        </div>
-        <theme-toggle-button></theme-toggle-button>
-      </div>
+      <top-bar .siteRootUrl=${this.siteRootUrl} .onBackToDemos=${this.onBackToDemos}></top-bar>
       <div class="sparkline-page">
         ${this.renderIntro()}
         <div class="sparkline-controls">

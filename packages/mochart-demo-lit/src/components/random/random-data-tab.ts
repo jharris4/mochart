@@ -21,7 +21,7 @@ export class RandomDataTab extends LightElement {
   }
 
   override render(): unknown {
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')}>
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.dataText, onChange: () => {} })}
       </div>

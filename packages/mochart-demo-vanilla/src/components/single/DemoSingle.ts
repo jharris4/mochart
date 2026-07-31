@@ -3,8 +3,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
-import { backToDemosButton, modeSwitcher, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
-import { notesMenu } from '../misc/NotesMenu';
+import { topBar } from '../misc/TopBar';
 import { chartTab } from './ChartTab';
 import type { ChartTabHandle } from './ChartTab';
 import { configTab } from './ConfigTab';
@@ -125,29 +124,20 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
   const configNav = navItem(demoText.tabs.config, eventKeyConfig);
   const dataNav = navItem(demoText.tabs.data, eventKeyData);
 
-  const notes = notesMenu(demoData.demoObjectMap[initialDemoId]);
-  const modes = modeSwitcher({ demoMode: 'single', onModeChanged });
+  const bar = topBar({
+    siteRootUrl: props.siteRootUrl,
+    onBackToDemos,
+    tabs: [chartNav.li, configNav.li, dataNav.li],
+    notes: demoData.demoObjectMap[initialDemoId],
+    modes: { demoMode: 'single', onModeChanged }
+  });
 
   const contentPane = el('div', { className: 'mochart-demo-content-pane' }, [
     el('div', { className: 'mochart-demo-content' }, [
       chartBoundary.el, configBoundary.el, dataBoundary.el
     ])
   ]);
-  const container = el('div', { className: 'mochart-demo-container' }, [
-    el('div', { className: 'mochart-demo-tabs-container' }, [
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        siteRootButton(props.siteRootUrl),
-        backToDemosButton(onBackToDemos),
-        el('ul', { className: 'demo-tabs' }, [chartNav.li, configNav.li, dataNav.li]),
-        notes.el
-      ]),
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        modes.el,
-        themeToggleButton()
-      ])
-    ]),
-    contentPane
-  ]);
+  const container = el('div', { className: 'mochart-demo-container' }, [bar.el, contentPane]);
 
   function chartShown(): void {
     if (pendingConfig !== null || pendingData !== null || pendingDataError !== null) {
@@ -216,7 +206,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
       activeKey = eventKeyChart;
       demoId = nextInitialDemoId;
       const nextDemo = demoData.demoObjectMap[nextInitialDemoId];
-      notes.setDemo(nextDemo.title, nextDemo.notes);
+      bar.setDemo(nextDemo.title, nextDemo.notes);
       config = nextDemo.config;
       data = nextDemo.data;
       pendingConfig = config;
@@ -227,9 +217,12 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
       sync();
     },
     destroy() {
-      notes.destroy();
-      modes.destroy();
+      bar.destroy();
       chart.destroy();
+      // Both editors now hold a viewport subscription and an overflow menu (the
+      // phone fold of their footers), so they have teardown to do.
+      configEditor.destroy();
+      dataEditor.destroy();
     }
   };
 }

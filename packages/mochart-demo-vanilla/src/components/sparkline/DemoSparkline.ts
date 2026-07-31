@@ -2,7 +2,7 @@ import { demoText, inlineSparklineMetrics, tableSparklineMetrics } from '@mochar
 import type { SparklineMetric } from '@mochart/demo-common';
 
 import { el, buttonWithTooltip, icon } from '../misc/dom';
-import { backToDemosButton, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
+import { topBar } from '../misc/TopBar';
 import { mountDefaultChart } from '../misc/chartHost';
 import type { ChartHostHandle } from '../misc/chartHost';
 
@@ -86,14 +86,10 @@ export function demoSparkline(props: DemoSparklineProps): DemoSparklineHandle {
     el('tbody', {}, tableRows)
   ]);
 
+  const bar = topBar({ siteRootUrl: props.siteRootUrl, onBackToDemos: props.onBackToDemos });
+
   const container = el('div', { className: 'mochart-demo-container' }, [
-    el('div', { className: 'mochart-demo-tabs-container' }, [
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        siteRootButton(props.siteRootUrl),
-        backToDemosButton(props.onBackToDemos)
-      ]),
-      themeToggleButton()
-    ]),
+    bar.el,
     el('div', { className: 'sparkline-page' }, [
       intro,
       el('div', { className: 'sparkline-controls' }, [randomize.el]),
@@ -104,6 +100,7 @@ export function demoSparkline(props: DemoSparklineProps): DemoSparklineHandle {
   return {
     el: container,
     destroy() {
+      bar.destroy();
       for (const cell of cells) {
         cell.host.destroy();
       }

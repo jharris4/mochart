@@ -4,6 +4,14 @@
 //
 // Naming convention per button: { label, tooltip, aria }. Buttons without a
 // visible label omit `label`.
+//
+// `menuLabel` is a fourth, narrower key: text shown *only* once a button has
+// been folded into a phone overflow menu, where an icon-only button would
+// otherwise be a bare glyph in a column of bare glyphs. It is deliberately not
+// spelled `label`, because `label` renders a `.btn-label` span that is visible
+// at every width above 900px — giving these buttons one would put new text in
+// the desktop toolbars. The ports render `menuLabel` in a `.btn-menu-label`
+// span instead, which demo.css hides everywhere except inside a menu.
 export const demoText = {
   tabs: {
     demos: 'Demos',
@@ -40,6 +48,11 @@ export const demoText = {
   backToDemos: { label: 'Demos', tooltip: 'Back to the demo gallery', aria: 'Back to the demo gallery' },
   modeSwitcher: {
     label: 'Mode:',
+    // Heading over the mode rows in the phone nav overflow menu, where the
+    // strip's `Mode:` label is display:none'd and "Single / Random" would
+    // otherwise sit unexplained between the notes row and the theme toggle.
+    // Rendered via `.demo-menu-section-label`, which uppercases it.
+    menuSectionLabel: 'Mode',
     modes: {
       single: { label: 'Single', title: 'One chart with editable config, data, groups and series' },
       multi: { label: 'Multi', title: 'A grid of charts stepping through datasets together' },
@@ -66,6 +79,23 @@ export const demoText = {
   exportShareMenu: {
     trigger: { tooltip: 'Export or share this chart', aria: 'Export and share' }
   },
+  // Phone-only overflow menus: the controls that do not fit across ~360px are
+  // moved behind a trigger rather than wrapped onto another row. A single view
+  // can show two of these at once — the navigation row's and the control
+  // strip's — so each trigger names what it holds instead of all of them
+  // saying "More", which would leave two identically-labelled buttons on screen
+  // and no way to tell which one has the thing you are looking for.
+  overflowMenu: {
+    nav: { tooltip: 'More options', aria: 'More options' },
+    chart: { tooltip: 'More chart controls', aria: 'More chart controls' },
+    random: { tooltip: 'More random controls', aria: 'More random controls' },
+    // The Config and Data tab footers. Named separately from `chart` because
+    // what folds there edits the JSON — Reset, Defaults, Invert, Slow and the
+    // reference links — and a screen-reader user who hears "more chart
+    // controls" on the Config tab has been told the wrong thing. Two triggers
+    // are never on screen at once, but they are on adjacent tabs.
+    editor: { tooltip: 'More editor controls', aria: 'More editor controls' }
+  },
   // A demo's `notes` (see demo-data's DemoManifestEntry): the detail kept out
   // of the one-sentence description. Shown behind the gallery card's toggle and
   // the notes button in each mode's navigation row.
@@ -84,9 +114,12 @@ export const demoText = {
     aria: 'Back to the Mochart site'
   },
   themeToggle: {
-    // Icon-only button (sun/moon) in every view's navigation row.
+    // Icon-only button (sun/moon) in every view's navigation row — so it needs
+    // menu text for both states once it folds, not just a tooltip.
     tooltipToDark: 'Switch to the dark theme',
     tooltipToLight: 'Switch to the light theme',
+    menuLabelToDark: 'Dark theme',
+    menuLabelToLight: 'Light theme',
     aria: 'Toggle color theme'
   },
   shareButton: {
@@ -100,6 +133,13 @@ export const demoText = {
     selectAGroupText: 'Select a Group',
     groupIndexPrefix: 'Group: ',
     seriesIndexPrefix: 'Series: ',
+    // Phone-tier stand-ins for the two prefixes above. The full prefixes are
+    // sr-only clipped there (the strip cannot spare their width), but a bare
+    // `-1` between two arrows names nothing visually either — so a one-letter,
+    // aria-hidden prefix carries the meaning for sighted users while the
+    // clipped full text keeps carrying the accessible name.
+    groupIndexPrefixCompact: 'G',
+    seriesIndexPrefixCompact: 'S',
     secondChart: {
       label: '2nd Chart',
       tooltipShow: 'Show a second chart sharing the same data',
@@ -117,9 +157,9 @@ export const demoText = {
     reverseGroups: { label: 'Reverse', tooltip: 'Reverse the order of the groups', aria: 'Reverse Groups' },
     addGroups: { label: 'Add', tooltip: 'Add the groups selected in the input to the chart', aria: 'Add Selected Groups' },
     removeGroups: { label: 'Remove', tooltip: 'Remove the groups selected in the input from the chart', aria: 'Remove Selected Groups' },
-    playAddGroups: { tooltip: 'Animate adding the selected groups one at a time', aria: 'Play Add Selected Groups' },
-    playRemoveGroups: { tooltip: 'Animate removing the selected groups one at a time', aria: 'Play Remove Selected Groups' },
-    stopSequence: { tooltip: 'Stop the add/remove animation', aria: 'Stop Selected Group Sequence' },
+    playAddGroups: { menuLabel: 'Play Add', tooltip: 'Animate adding the selected groups one at a time', aria: 'Play Add Selected Groups' },
+    playRemoveGroups: { menuLabel: 'Play Remove', tooltip: 'Animate removing the selected groups one at a time', aria: 'Play Remove Selected Groups' },
+    stopSequence: { menuLabel: 'Stop', tooltip: 'Stop the add/remove animation', aria: 'Stop Selected Group Sequence' },
     selectAllGroups: { label: 'Select All', tooltip: 'Put every group into the selection input', aria: 'Select All Groups' },
     decreaseGroupOrder: { tooltip: 'Move the focused group one position earlier', aria: 'Decrease Group Order' },
     increaseGroupOrder: { tooltip: 'Move the focused group one position later', aria: 'Increase Group Order' },
@@ -134,8 +174,8 @@ export const demoText = {
     nextSlice: { tooltip: 'Select the next slice', aria: 'Next Slice' },
     resetSlice: { label: 'Reset', tooltip: "Restore the selected slice's original value", aria: 'Reset Slice Value' },
     applySlice: { label: 'Apply', tooltip: 'Apply the entered value to the selected slice', aria: 'Apply Slice Value' },
-    playSliceSequence: { tooltip: 'Animate suppressing the slices one at a time, then restoring them', aria: 'Play Slice Sequence' },
-    stopSliceSequence: { tooltip: 'Stop the slice sequence', aria: 'Stop Slice Sequence' }
+    playSliceSequence: { menuLabel: 'Play Slices', tooltip: 'Animate suppressing the slices one at a time, then restoring them', aria: 'Play Slice Sequence' },
+    stopSliceSequence: { menuLabel: 'Stop', tooltip: 'Stop the slice sequence', aria: 'Stop Slice Sequence' }
   },
   multiChartsTab: {
     gridLabel: 'Grid:',
@@ -152,8 +192,8 @@ export const demoText = {
   randomChartTab: {
     back: { label: 'Back', tooltip: 'Go back to the previous random dataset', aria: 'Randomize Back' },
     randomize: { label: 'Randomize', tooltip: 'Generate the next random dataset', aria: 'Randomize Next' },
-    play: { tooltip: 'Keep generating random datasets at the interval', aria: 'Play Randomize' },
-    stop: { tooltip: 'Stop generating', aria: 'Stop' },
+    play: { menuLabel: 'Play', tooltip: 'Keep generating random datasets at the interval', aria: 'Play Randomize' },
+    stop: { menuLabel: 'Stop', tooltip: 'Stop generating', aria: 'Stop' },
     intervalLabel: 'Interval (ms):',
     intervalAria: 'Randomize interval in milliseconds',
     reuse: {

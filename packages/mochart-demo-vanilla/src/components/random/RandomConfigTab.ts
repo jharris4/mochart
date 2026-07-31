@@ -1,5 +1,5 @@
 
-import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, tabContainer, textAreaContent } from '../misc/dom';
 
 import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
 
@@ -71,9 +71,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
   const footerError = el('span', { className: 'mochart-demo-footer-error', attrs: { role: 'alert' } });
   footerError.hidden = true;
 
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')
-  }, [
+  const container = tabContainer('demo-layout-col config', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
     el('div', { className: 'mochart-demo-tab-footer' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [

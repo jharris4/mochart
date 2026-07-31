@@ -16,7 +16,7 @@ import type { ChartDataProviderLike } from '../../types';
   imports: [Chart, ButtonWithTooltip, Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')">
+    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="transition-chart-sizer">
         <mochart-chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                        [mochartConfig]="mochartConfig" [dataProvider]="dataProviders[dataProviderIndex()]" />

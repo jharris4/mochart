@@ -4,11 +4,7 @@
 
   import ChartsTab from './ChartsTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
-  import BackToDemosButton from '../misc/BackToDemosButton.svelte';
-  import ModeSwitcher from '../misc/ModeSwitcher.svelte';
-  import NotesMenu from '../misc/NotesMenu.svelte';
-  import SiteRootButton from '../misc/SiteRootButton.svelte';
-  import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
+  import TopBar from '../misc/TopBar.svelte';
 
   import type { DemoData } from '../../types';
 
@@ -38,24 +34,17 @@
 </script>
 
 <div class="mochart-demo-container multi">
-  <div class="mochart-demo-tabs-container">
-    <div class="mochart-demo-nav-group">
-      <SiteRootButton {siteRootUrl} />
-      <BackToDemosButton {onBackToDemos} />
-      <ul class="demo-tabs">
-        <li class="demo-tab-item">
-          <button type="button" class="demo-tab active">
-            {demoText.tabs.chart}
-          </button>
-        </li>
-      </ul>
-      <NotesMenu title={demoData.demoObjectMap[demoId].title} notes={demoData.demoObjectMap[demoId].notes} />
-    </div>
-    <div class="mochart-demo-nav-group">
-      <ModeSwitcher demoMode="multi" {onModeChanged} />
-      <ThemeToggleButton />
-    </div>
-  </div>
+  <TopBar {siteRootUrl} {onBackToDemos}
+          notes={demoData.demoObjectMap[demoId]}
+          modes={{ demoMode: 'multi', onModeChanged }}>
+    {#snippet tabs()}
+      <li class="demo-tab-item">
+        <button type="button" class="demo-tab active">
+          {demoText.tabs.chart}
+        </button>
+      </li>
+    {/snippet}
+  </TopBar>
   <div class="mochart-demo-content-pane">
     <div class="mochart-demo-content">
       <ErrorTab active={true}>

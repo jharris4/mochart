@@ -268,7 +268,7 @@
   const chartHeight = $derived(Math.floor(gridHeight / chartRows));
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")}>
+<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
   <div class="multi-charts-sizer" bind:this={gridElement} bind:clientWidth={gridWidth} bind:clientHeight={gridHeight}>
     {#if gridWidth > 0}
       <div class="multi-charts">

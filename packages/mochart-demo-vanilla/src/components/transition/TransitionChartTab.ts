@@ -2,7 +2,7 @@ import type { MochartConfig } from '@mochart/core';
 
 import { demoText } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon, setActiveClass } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, tabContainer } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 
 import type { ChartDataProviderLike } from '../../types';
@@ -62,9 +62,7 @@ export function transitionChartTab(props: TransitionChartTabProps): TransitionCh
     content: [icon('forward-step', { size: 'lg', fixedWidth: true })]
   });
 
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')
-  }, [
+  const container = tabContainer('demo-layout-col chart', props.active, [
     chartSizer,
     el('div', { className: 'transition-controls' }, [
       el('form', { className: 'demo-form-row' }, [

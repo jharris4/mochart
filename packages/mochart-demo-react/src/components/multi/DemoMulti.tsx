@@ -3,30 +3,21 @@ import { demoText } from '@mochart/demo-common';
 
 import MultiMochartChartsTab from './ChartsTab';
 import ErrorTab from '../misc/ErrorTab';
-import { ModeSwitcher, SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
-import NotesMenu from '../misc/NotesMenu';
+import TopBar from '../misc/TopBar';
 
 import type { DemoTabProps } from '../../types';
 
 export default function MochartDemoMulti({ demoData, initialDemoId, siteRootUrl, onModeChanged, onBackToDemos }: DemoTabProps) {
   return (
     <div className="mochart-demo-container multi">
-      <div className="mochart-demo-tabs-container">
-        <div className="mochart-demo-nav-group">
-          <SiteRootButton siteRootUrl={siteRootUrl} />
-          <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <ul className="demo-tabs">
-            <li className="demo-tab-item">
-              <button type="button" className="demo-tab active">{demoText.tabs.chart}</button>
-            </li>
-          </ul>
-          <NotesMenu title={demoData.demoObjectMap[initialDemoId].title} notes={demoData.demoObjectMap[initialDemoId].notes} />
-        </div>
-        <div className="mochart-demo-nav-group">
-          <ModeSwitcher demoMode="multi" onModeChanged={onModeChanged} />
-          <ThemeToggleButton />
-        </div>
-      </div>
+      <TopBar siteRootUrl={siteRootUrl} onBackToDemos={onBackToDemos}
+        notes={demoData.demoObjectMap[initialDemoId]}
+        modes={{ demoMode: 'multi', onModeChanged }}
+        tabs={
+          <li className="demo-tab-item">
+            <button type="button" className="demo-tab active">{demoText.tabs.chart}</button>
+          </li>
+        } />
       <div className="mochart-demo-content-pane">
         <div className="mochart-demo-content">
           <ErrorTab active>

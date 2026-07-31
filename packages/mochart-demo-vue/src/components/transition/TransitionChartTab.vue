@@ -51,7 +51,7 @@ function onStepForward() {
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="transition-chart-sizer">
       <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
              :mochart-config="props.mochartConfig" :data-provider="props.dataProviders[dataProviderIndex]" />

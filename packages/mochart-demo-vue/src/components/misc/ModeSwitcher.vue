@@ -26,14 +26,21 @@ const modeIcons: Record<SwitchableDemoMode, string> = {
 };
 </script>
 
+<!-- How the current mode is marked depends on the width. In the strip it is a
+     filled, disabled segment — plainly "you are here". On a phone the switcher
+     lives in the nav overflow menu, where `.demo-menu-overflow .demo-btn:disabled`
+     greys a row out and a greyed row in a list of destinations reads as
+     unavailable rather than current — so there it gets the panel's `.active`
+     tint plus `aria-current`, and is simply inert when tapped. -->
 <template>
   <div class="mochart-demo-mode-switcher">
     <span class="demo-label">{{ demoText.modeSwitcher.label }}</span>
     <div class="demo-toolbar" role="toolbar">
       <button v-for="mode in availableModes" :key="mode" type="button"
-              :class="'demo-btn demo-btn-' + (mode === props.demoMode ? 'primary' : 'secondary')"
-              :disabled="mode === props.demoMode" :title="demoText.modeSwitcher.modes[mode].title"
-              @click="props.onModeChanged(mode)">
+              :class="'demo-btn demo-btn-' + (mode === props.demoMode ? 'primary' : 'secondary') + (mode === props.demoMode && isPhone ? ' active' : '')"
+              :disabled="mode === props.demoMode && !isPhone" :title="demoText.modeSwitcher.modes[mode].title"
+              :aria-current="mode === props.demoMode && isPhone ? 'true' : undefined"
+              @click="mode !== props.demoMode && props.onModeChanged(mode)">
         <Icon size="lg" :fixed-width="true" :name="modeIcons[mode]" /><span class="btn-label">{{ demoText.modeSwitcher.modes[mode].label }}</span>
       </button>
     </div>

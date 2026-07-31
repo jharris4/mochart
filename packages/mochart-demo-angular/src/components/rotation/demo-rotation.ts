@@ -6,7 +6,7 @@ import { DefaultChart } from '@mochart/angular';
 import { configs, data, minWidth } from './rotationConfigs';
 
 import { createElementSize } from '../misc/element-size';
-import { BackToDemosButton, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
+import { TopBar } from '../misc/top-bar';
 
 /**
  * Columns are sized from the card's measured width (not the window) so the
@@ -14,19 +14,11 @@ import { BackToDemosButton, SiteRootButton, ThemeToggleButton } from '../misc/mo
  */
 @Component({
   selector: 'app-demo-rotation',
-  imports: [DefaultChart, BackToDemosButton, SiteRootButton, ThemeToggleButton],
+  imports: [DefaultChart, TopBar],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          @if (siteRootUrl !== undefined) {
-            <a appSiteRootButton [href]="siteRootUrl"></a>
-          }
-          <button appBackToDemosButton (click)="onBackToDemos()"></button>
-        </div>
-        <button appThemeToggleButton></button>
-      </div>
+      <app-top-bar [siteRootUrl]="siteRootUrl" [onBackToDemos]="onBackToDemos" />
       <div #charts class="rotation-charts">
         @if (colWidth > 0) {
           @for (config of configs; track $index; let i = $index) {

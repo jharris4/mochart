@@ -4,9 +4,7 @@
 
   import TransitionChartTab from './TransitionChartTab.svelte';
   import TransitionConfigTab from './TransitionConfigTab.svelte';
-  import BackToDemosButton from '../misc/BackToDemosButton.svelte';
-  import SiteRootButton from '../misc/SiteRootButton.svelte';
-  import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
+  import TopBar from '../misc/TopBar.svelte';
 
   import type { TransitionConfig } from '../../types';
 
@@ -44,27 +42,22 @@
 </script>
 
 <div class="mochart-demo-container multi">
-  <div class="mochart-demo-tabs-container">
-    <div class="mochart-demo-nav-group">
-      <SiteRootButton {siteRootUrl} />
-      <BackToDemosButton {onBackToDemos} />
-      <ul class="demo-tabs">
-        <li class="demo-tab-item">
-          <button type="button" class={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
-                  onclick={() => handleSelect(eventKeyChart)}>
-            {demoText.tabs.chart}
-          </button>
-        </li>
-        <li class="demo-tab-item">
-          <button type="button" class={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")}
-                  onclick={() => handleSelect(eventKeyConfig)}>
-            {demoText.tabs.transitionConfig}
-          </button>
-        </li>
-      </ul>
-    </div>
-    <ThemeToggleButton />
-  </div>
+  <TopBar {siteRootUrl} {onBackToDemos}>
+    {#snippet tabs()}
+      <li class="demo-tab-item">
+        <button type="button" class={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
+                onclick={() => handleSelect(eventKeyChart)}>
+          {demoText.tabs.chart}
+        </button>
+      </li>
+      <li class="demo-tab-item">
+        <button type="button" class={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")}
+                onclick={() => handleSelect(eventKeyConfig)}>
+          {demoText.tabs.transitionConfig}
+        </button>
+      </li>
+    {/snippet}
+  </TopBar>
   <div class="mochart-demo-content-pane">
     <div class="mochart-demo-content">
       <TransitionChartTab {mochartConfig} {dataProviders} active={activeKey === eventKeyChart} />

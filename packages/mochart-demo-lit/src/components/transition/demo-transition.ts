@@ -4,8 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import { backToDemosButton, siteRootButton } from '../misc/mode-switcher';
-import '../misc/theme-toggle-button';
+import '../misc/top-bar';
 import './transition-chart-tab';
 import './transition-config-tab';
 
@@ -42,23 +41,15 @@ export class DemoTransition extends LightElement {
 
   override render(): unknown {
     return html`<div class="mochart-demo-container multi">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          ${siteRootButton(this.siteRootUrl)}
-          ${backToDemosButton(this.onBackToDemos)}
-          <ul class="demo-tabs">
-            <li class="demo-tab-item">
-              <button type="button" class=${'demo-tab' + (this.activeKey === eventKeyChart ? ' active' : '')}
-                      @click=${() => this.handleSelect(eventKeyChart)}>${demoText.tabs.chart}</button>
-            </li>
-            <li class="demo-tab-item">
-              <button type="button" class=${'demo-tab' + (this.activeKey === eventKeyConfig ? ' active' : '')}
-                      @click=${() => this.handleSelect(eventKeyConfig)}>${demoText.tabs.transitionConfig}</button>
-            </li>
-          </ul>
-        </div>
-        <theme-toggle-button></theme-toggle-button>
-      </div>
+      <top-bar .siteRootUrl=${this.siteRootUrl} .onBackToDemos=${this.onBackToDemos}
+               .tabs=${() => html`<li class="demo-tab-item">
+                 <button type="button" class=${'demo-tab' + (this.activeKey === eventKeyChart ? ' active' : '')}
+                         @click=${() => this.handleSelect(eventKeyChart)}>${demoText.tabs.chart}</button>
+               </li>
+               <li class="demo-tab-item">
+                 <button type="button" class=${'demo-tab' + (this.activeKey === eventKeyConfig ? ' active' : '')}
+                         @click=${() => this.handleSelect(eventKeyConfig)}>${demoText.tabs.transitionConfig}</button>
+               </li>`}></top-bar>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
           <transition-chart-tab .mochartConfig=${this.mochartConfig} .dataProviders=${this.dataProviders} .active=${this.activeKey === eventKeyChart}></transition-chart-tab>

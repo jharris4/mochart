@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 
@@ -13,6 +14,8 @@ import type { PieSliceInfo } from '@mochart/demo-common';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { ExportShareMenu } from '../misc/export-share-menu';
 import { Icon } from '../misc/icon';
+import { OverflowMenu } from '../misc/overflow-menu';
+import { phoneViewport } from '../misc/phone-viewport';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -37,9 +40,120 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
 
 @Component({
   selector: 'app-editable-chart',
-  imports: [Chart, ButtonWithTooltip, ExportShareMenu, Icon],
+  imports: [Chart, ButtonWithTooltip, ExportShareMenu, Icon, NgTemplateOutlet, OverflowMenu],
   styles: [':host { display: contents; }'],
   template: `
+    <!-- The phone fold's foldable controls, each defined ONCE and rendered
+         through an outlet in exactly one place — the strip above the phone
+         tier, the overflow panel below it. Angular's answer to the react
+         port's JSX consts and the svelte port's snippets; it also retires the
+         triple duplication these three branches used to carry. -->
+    <ng-template #chartCountControl>
+      @if (showChartCountControls) {
+        <div class="demo-btn-group">
+          <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
+                                   [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
+                                   [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
+            <app-icon size="lg" [fixedWidth]="true" [name]="chartCount === 2 ? 'window-maximize' : 'window-restore'" />
+          </app-button-with-tooltip>
+        </div>
+      }
+    </ng-template>
+    <ng-template #modeControl>
+      <div class="demo-btn-group">
+        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToGroups"
+                                 [tooltipText]="selectionMode() === 'group'
+                                   ? text.editMode.tooltipToSeries
+                                   : text.editMode.tooltipToGroups" tooltipPlacement="right"
+                                 [onClick]="onModeToggle" [aria-label]="text.editMode.aria">
+          <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
+        </app-button-with-tooltip>
+      </div>
+    </ng-template>
+    <ng-template #resetSliceButton>
+      <app-button-with-tooltip id="edit-reset-slice" [disabled]="sliceControlsDisabled" [label]="text.resetSlice.label" [tooltipText]="text.resetSlice.tooltip" tooltipPlacement="right"
+                               [onClick]="resetSliceChanges" [aria-label]="text.resetSlice.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #sliceSequenceGroup>
+      <div class="demo-btn-group">
+        <app-button-with-tooltip id="edit-play-slices" [disabled]="error || sequencePlaying() || slices().length < 2"
+                                 [menuLabel]="text.playSliceSequence.menuLabel" [tooltipText]="text.playSliceSequence.tooltip" tooltipPlacement="right"
+                                 [onClick]="startSliceSequence" [aria-label]="text.playSliceSequence.aria">
+          <app-icon size="lg" [fixedWidth]="true" name="play" />
+        </app-button-with-tooltip>
+        <app-button-with-tooltip id="edit-stop-slices" [disabled]="error || !sequencePlaying()"
+                                 [menuLabel]="text.stopSliceSequence.menuLabel" [tooltipText]="text.stopSliceSequence.tooltip" tooltipPlacement="right"
+                                 [onClick]="stopSequence" [aria-label]="text.stopSliceSequence.aria">
+          <app-icon size="lg" [fixedWidth]="true" name="stop" />
+        </app-button-with-tooltip>
+      </div>
+    </ng-template>
+    <ng-template #resetGroupsButton>
+      <app-button-with-tooltip id="edit-reset-groups" [disabled]="error || sequencePlaying()" [label]="text.resetGroups.label" [tooltipText]="text.resetGroups.tooltip" tooltipPlacement="right"
+                               [onClick]="resetGroups" [aria-label]="text.resetGroups.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #reverseGroupsButton>
+      <app-button-with-tooltip id="edit-reverse-groups" [disabled]="error || sequencePlaying()" [label]="text.reverseGroups.label" [tooltipText]="text.reverseGroups.tooltip" tooltipPlacement="right"
+                               [onClick]="reverseGroups" [aria-label]="text.reverseGroups.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="right-left" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #addGroupsButton>
+      <app-button-with-tooltip id="edit-add-groups" [disabled]="error || sequencePlaying() || disableAdd" [label]="text.addGroups.label" [tooltipText]="text.addGroups.tooltip" tooltipPlacement="right"
+                               [onClick]="addGroups" [aria-label]="text.addGroups.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="plus" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #removeGroupsButton>
+      <app-button-with-tooltip id="edit-remove-groups" [disabled]="error || sequencePlaying() || disableRemove" [label]="text.removeGroups.label" [tooltipText]="text.removeGroups.tooltip" tooltipPlacement="right"
+                               [onClick]="removeGroups" [aria-label]="text.removeGroups.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="minus" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #playAddButton>
+      <app-button-with-tooltip id="edit-play-add" [disabled]="error || sequencePlaying() || disableAdd"
+                               [menuLabel]="text.playAddGroups.menuLabel" [tooltipText]="text.playAddGroups.tooltip" tooltipPlacement="right"
+                               [onClick]="startAddSequence" [aria-label]="text.playAddGroups.aria">
+        <app-icon size="lg" name="play" /><span style="padding-right: 2px;"></span><app-icon size="lg" name="plus" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #playRemoveButton>
+      <app-button-with-tooltip id="edit-play-remove" [disabled]="error || sequencePlaying() || disableRemove"
+                               [menuLabel]="text.playRemoveGroups.menuLabel" [tooltipText]="text.playRemoveGroups.tooltip" tooltipPlacement="right"
+                               [onClick]="startRemoveSequence" [aria-label]="text.playRemoveGroups.aria">
+        <app-icon size="lg" name="play" /><span style="padding-right: 2px;"></span><app-icon size="lg" name="minus" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #stopGroupsButton>
+      <app-button-with-tooltip id="edit-stop" [disabled]="error || !sequencePlaying()"
+                               [menuLabel]="text.stopSequence.menuLabel" [tooltipText]="text.stopSequence.tooltip" tooltipPlacement="right"
+                               [onClick]="stopSequence" [aria-label]="text.stopSequence.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="stop" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #selectAllButton>
+      <app-button-with-tooltip id="edit-select-all" [disabled]="error || sequencePlaying()" [label]="text.selectAllGroups.label" [tooltipText]="text.selectAllGroups.tooltip" tooltipPlacement="right"
+                               [onClick]="selectAllGroups" [aria-label]="text.selectAllGroups.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="check-double" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #resetSeriesButton>
+      <app-button-with-tooltip id="edit-reset-series" [disabled]="error || seriesControlsDisabled" [label]="text.resetSeries.label" [tooltipText]="text.resetSeries.tooltip" tooltipPlacement="right"
+                               [onClick]="resetSeriesChanges" [aria-label]="text.resetSeries.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #applySeriesButton>
+      <app-button-with-tooltip id="edit-apply-series" [disabled]="error || seriesControlsDisabled" [label]="text.applySeries.label" [tooltipText]="text.applySeries.tooltip" tooltipPlacement="right"
+                               [onClick]="applySeriesChanges" [aria-label]="text.applySeries.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="check" />
+      </app-button-with-tooltip>
+    </ng-template>
+
     <div class="editable-mochart-chart">
       <div class="editable-chart-container">
         <div class="editable-chart-content" #chartContent>
@@ -58,22 +172,21 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                series: click a slice (or step prev/next) to select it, edit its
                value, or play the suppress/restore sequence. -->
           @if (mochartDemoConfig.pieMode) {
+            <!-- The fold keeps the steppers, the readout, Apply and the input;
+                 Reset and the play/stop pair go to the menu, with the
+                 2nd-chart toggle as the tail. -->
             <div class="chart-controls-container">
               <div class="chart-controls-buttons">
                 <form class="demo-form-row">
-                  <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
-                      @if (showChartCountControls) {
-                        <div class="demo-btn-group">
-                          <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
-                                                   [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
-                                                   [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
-                            <app-icon size="lg" [fixedWidth]="true" [name]="chartCount === 2 ? 'window-maximize' : 'window-restore'" />
-                          </app-button-with-tooltip>
-                        </div>
-                      }
+                  @if (!foldSlice()) {
+                    <!-- Kept on desktop even when empty — the empty field's
+                         gap is part of the unfolded layout. -->
+                    <div class="demo-field">
+                      <div class="demo-toolbar" role="toolbar">
+                        <ng-container [ngTemplateOutlet]="chartCountControl" />
+                      </div>
                     </div>
-                  </div>
+                  }
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
                       <div class="demo-btn-group">
@@ -96,25 +209,17 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                         </app-button-with-tooltip>
                       </div>
                       <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-reset-slice" [disabled]="sliceControlsDisabled" [label]="text.resetSlice.label" [tooltipText]="text.resetSlice.tooltip" tooltipPlacement="right"
-                                                 [onClick]="resetSliceChanges" [aria-label]="text.resetSlice.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
-                        </app-button-with-tooltip>
+                        @if (!foldSlice()) {
+                          <ng-container [ngTemplateOutlet]="resetSliceButton" />
+                        }
                         <app-button-with-tooltip id="edit-apply-slice" [disabled]="sliceControlsDisabled" [label]="text.applySlice.label" [tooltipText]="text.applySlice.tooltip" tooltipPlacement="right"
                                                  [onClick]="applySliceChanges" [aria-label]="text.applySlice.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="check" />
                         </app-button-with-tooltip>
                       </div>
-                      <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-play-slices" [disabled]="error || sequencePlaying() || slices().length < 2" [tooltipText]="text.playSliceSequence.tooltip" tooltipPlacement="right"
-                                                 [onClick]="startSliceSequence" [aria-label]="text.playSliceSequence.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="play" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-stop-slices" [disabled]="error || !sequencePlaying()" [tooltipText]="text.stopSliceSequence.tooltip" tooltipPlacement="right"
-                                                 [onClick]="stopSequence" [aria-label]="text.stopSliceSequence.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="stop" />
-                        </app-button-with-tooltip>
-                      </div>
+                      @if (!foldSlice()) {
+                        <ng-container [ngTemplateOutlet]="sliceSequenceGroup" />
+                      }
                     </div>
                   </div>
                 </form>
@@ -125,69 +230,53 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                          [value]="sliceValueText()" (input)="onSliceValueInput($event)" />
                 </form>
               </span>
-              <span class="chart-controls-menu">
-                <app-export-share-menu idPrefix="edit" [disabled]="error"
+              <span class="chart-controls-menu" #menuSpan>
+                @if (foldSlice()) {
+                  <app-overflow-menu [text]="overflowText" [placement]="chartPlacement" [getAnchor]="getMenuAnchor"
+                                     [disabled]="error" [active]="isActive">
+                    <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="resetSliceButton" /></div>
+                    <div class="demo-menu-divider"></div>
+                    <ng-container [ngTemplateOutlet]="sliceSequenceGroup" />
+                    @if (showChartCountControls) {
+                      <div class="demo-menu-divider"></div>
+                      <ng-container [ngTemplateOutlet]="chartCountControl" />
+                    }
+                  </app-overflow-menu>
+                }
+                <app-export-share-menu idPrefix="edit" [disabled]="error" [active]="isActive"
                                        [exportPng]="onExportPng" [exportSvg]="onExportSvg"
                                        [getShareState]="showShareButton ? getShareState : undefined" />
               </span>
             </div>
           } @else if (selectionMode() === 'group') {
+            <!-- The fold keeps Add and Remove — they act on what is typed in
+                 the input beside them — plus the input; everything else goes
+                 to the menu, split into the same sections the vanilla port
+                 uses (order edits, then the sequence transport, then the
+                 shared controls). -->
             <div class="chart-controls-container">
               <div class="chart-controls-buttons">
                 <form class="demo-form-row">
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
-                      @if (showChartCountControls) {
-                        <div class="demo-btn-group">
-                          <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
-                                                   [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
-                                                   [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
-                            <app-icon size="lg" [fixedWidth]="true" [name]="chartCount === 2 ? 'window-maximize' : 'window-restore'" />
-                          </app-button-with-tooltip>
-                        </div>
+                      @if (!foldGroup()) {
+                        <ng-container [ngTemplateOutlet]="chartCountControl" />
+                        <ng-container [ngTemplateOutlet]="modeControl" />
                       }
                       <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToGroups"
-                                                 [tooltipText]="selectionMode() === 'group'
-                                                   ? text.editMode.tooltipToSeries
-                                                   : text.editMode.tooltipToGroups" tooltipPlacement="right"
-                                                 [onClick]="onModeToggle" [aria-label]="text.editMode.aria">
-                          <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
-                        </app-button-with-tooltip>
-                      </div>
-                      <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-reset-groups" [disabled]="error || sequencePlaying()" [label]="text.resetGroups.label" [tooltipText]="text.resetGroups.tooltip" tooltipPlacement="right"
-                                                 [onClick]="resetGroups" [aria-label]="text.resetGroups.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-reverse-groups" [disabled]="error || sequencePlaying()" [label]="text.reverseGroups.label" [tooltipText]="text.reverseGroups.tooltip" tooltipPlacement="right"
-                                                 [onClick]="reverseGroups" [aria-label]="text.reverseGroups.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="right-left" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-add-groups" [disabled]="error || sequencePlaying() || disableAdd" [label]="text.addGroups.label" [tooltipText]="text.addGroups.tooltip" tooltipPlacement="right"
-                                                 [onClick]="addGroups" [aria-label]="text.addGroups.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="plus" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-remove-groups" [disabled]="error || sequencePlaying() || disableRemove" [label]="text.removeGroups.label" [tooltipText]="text.removeGroups.tooltip" tooltipPlacement="right"
-                                                 [onClick]="removeGroups" [aria-label]="text.removeGroups.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="minus" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-play-add" [disabled]="error || sequencePlaying() || disableAdd" [tooltipText]="text.playAddGroups.tooltip" tooltipPlacement="right"
-                                                 [onClick]="startAddSequence" [aria-label]="text.playAddGroups.aria">
-                          <app-icon size="lg" name="play" /><span style="padding-right: 2px;"></span><app-icon size="lg" name="plus" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-play-remove" [disabled]="error || sequencePlaying() || disableRemove" [tooltipText]="text.playRemoveGroups.tooltip" tooltipPlacement="right"
-                                                 [onClick]="startRemoveSequence" [aria-label]="text.playRemoveGroups.aria">
-                          <app-icon size="lg" name="play" /><span style="padding-right: 2px;"></span><app-icon size="lg" name="minus" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-stop" [disabled]="error || !sequencePlaying()" [tooltipText]="text.stopSequence.tooltip" tooltipPlacement="right"
-                                                 [onClick]="stopSequence" [aria-label]="text.stopSequence.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="stop" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-select-all" [disabled]="error || sequencePlaying()" [label]="text.selectAllGroups.label" [tooltipText]="text.selectAllGroups.tooltip" tooltipPlacement="right"
-                                                 [onClick]="selectAllGroups" [aria-label]="text.selectAllGroups.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="check-double" />
-                        </app-button-with-tooltip>
+                        @if (foldGroup()) {
+                          <ng-container [ngTemplateOutlet]="addGroupsButton" />
+                          <ng-container [ngTemplateOutlet]="removeGroupsButton" />
+                        } @else {
+                          <ng-container [ngTemplateOutlet]="resetGroupsButton" />
+                          <ng-container [ngTemplateOutlet]="reverseGroupsButton" />
+                          <ng-container [ngTemplateOutlet]="addGroupsButton" />
+                          <ng-container [ngTemplateOutlet]="removeGroupsButton" />
+                          <ng-container [ngTemplateOutlet]="playAddButton" />
+                          <ng-container [ngTemplateOutlet]="playRemoveButton" />
+                          <ng-container [ngTemplateOutlet]="stopGroupsButton" />
+                          <ng-container [ngTemplateOutlet]="selectAllButton" />
+                        }
                       </div>
                     </div>
                   </div>
@@ -199,38 +288,55 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                          [value]="groupValuesText()" (input)="onGroupValuesInput($event)" />
                 </form>
               </span>
-              <span class="chart-controls-menu">
-                <app-export-share-menu idPrefix="edit" [disabled]="error"
+              <span class="chart-controls-menu" #menuSpan>
+                @if (foldGroup()) {
+                  <app-overflow-menu [text]="overflowText" [placement]="chartPlacement" [getAnchor]="getMenuAnchor"
+                                     [disabled]="error" [active]="isActive">
+                    <div class="demo-btn-group">
+                      <ng-container [ngTemplateOutlet]="resetGroupsButton" />
+                      <ng-container [ngTemplateOutlet]="reverseGroupsButton" />
+                      <ng-container [ngTemplateOutlet]="selectAllButton" />
+                    </div>
+                    <div class="demo-menu-divider"></div>
+                    <div class="demo-btn-group">
+                      <ng-container [ngTemplateOutlet]="playAddButton" />
+                      <ng-container [ngTemplateOutlet]="playRemoveButton" />
+                      <ng-container [ngTemplateOutlet]="stopGroupsButton" />
+                    </div>
+                    <div class="demo-menu-divider"></div>
+                    <ng-container [ngTemplateOutlet]="chartCountControl" />
+                    <ng-container [ngTemplateOutlet]="modeControl" />
+                  </app-overflow-menu>
+                }
+                <app-export-share-menu idPrefix="edit" [disabled]="error" [active]="isActive"
                                        [exportPng]="onExportPng" [exportSvg]="onExportSvg"
                                        [getShareState]="showShareButton ? getShareState : undefined" />
               </span>
             </div>
           } @else {
+            <!-- The fold keeps the steppers and their readouts — they are how
+                 a group and a series get picked at all. Apply stays visible
+                 too, but moves DOWN, onto the input row beside the JSON it
+                 applies: with it out of the stepper row the panel holds two
+                 rows even at 320x568. Reset is the one button with no partner
+                 anywhere, so it folds into the menu. The readout prefixes
+                 shrink to their one-letter, aria-hidden stand-ins (the full
+                 prefixes are sr-only clipped by the phone tier and keep
+                 carrying the accessible name), and the labels drop their 5px
+                 side margins — the phone tier's 6px field gap is separation
+                 enough, and the margins' 20px would wrap the ▲ stepper onto a
+                 second row at 320px. -->
             <div class="chart-controls-container">
               <div class="chart-controls-buttons">
                 <form class="demo-form-row">
-                  <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
-                      @if (showChartCountControls) {
-                        <div class="demo-btn-group">
-                          <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
-                                                   [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
-                                                   [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
-                            <app-icon size="lg" [fixedWidth]="true" [name]="chartCount === 2 ? 'window-maximize' : 'window-restore'" />
-                          </app-button-with-tooltip>
-                        </div>
-                      }
-                      <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToGroups"
-                                                 [tooltipText]="selectionMode() === 'group'
-                                                   ? text.editMode.tooltipToSeries
-                                                   : text.editMode.tooltipToGroups" tooltipPlacement="right"
-                                                 [onClick]="onModeToggle" [aria-label]="text.editMode.aria">
-                          <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
-                        </app-button-with-tooltip>
+                  @if (!foldSeries()) {
+                    <div class="demo-field">
+                      <div class="demo-toolbar" role="toolbar">
+                        <ng-container [ngTemplateOutlet]="chartCountControl" />
+                        <ng-container [ngTemplateOutlet]="modeControl" />
                       </div>
                     </div>
-                  </div>
+                  }
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
                       <div class="demo-btn-group">
@@ -242,7 +348,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                     </div>
                   </div>
                   <div class="demo-field">
-                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" [title]="groupIndexTitle">{{ text.groupIndexPrefix }}<span class="demo-index-value">{{ groupIndex() }}</span></span>
+                    <span class="demo-label" [style.margin-left]="indexLabelMargin()" [style.margin-right]="indexLabelMargin()" [title]="groupIndexTitle"><span class="demo-label-prefix">{{ text.groupIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ text.groupIndexPrefixCompact }}</span><span class="demo-index-value">{{ groupIndex() }}</span></span>
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
@@ -265,7 +371,7 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                     </div>
                   </div>
                   <div class="demo-field">
-                    <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" [title]="seriesIndexTitle">{{ text.seriesIndexPrefix }}<span class="demo-index-value">{{ seriesIndex() }}</span></span>
+                    <span class="demo-label" [style.margin-left]="indexLabelMargin()" [style.margin-right]="indexLabelMargin()" [title]="seriesIndexTitle"><span class="demo-label-prefix">{{ text.seriesIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ text.seriesIndexPrefixCompact }}</span><span class="demo-index-value">{{ seriesIndex() }}</span></span>
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
@@ -275,16 +381,12 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-up" />
                         </app-button-with-tooltip>
                       </div>
-                      <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-reset-series" [disabled]="error || seriesControlsDisabled" [tooltipText]="text.resetSeries.tooltip" tooltipPlacement="right"
-                                                 [onClick]="resetSeriesChanges" [aria-label]="text.resetSeries.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
-                        </app-button-with-tooltip>
-                        <app-button-with-tooltip id="edit-apply-series" [disabled]="error || seriesControlsDisabled" [tooltipText]="text.applySeries.tooltip" tooltipPlacement="right"
-                                                 [onClick]="applySeriesChanges" [aria-label]="text.applySeries.aria">
-                          <app-icon size="lg" [fixedWidth]="true" name="check" />
-                        </app-button-with-tooltip>
-                      </div>
+                      @if (!foldSeries()) {
+                        <div class="demo-btn-group">
+                          <ng-container [ngTemplateOutlet]="resetSeriesButton" />
+                          <ng-container [ngTemplateOutlet]="applySeriesButton" />
+                        </div>
+                      }
                     </div>
                   </div>
                 </form>
@@ -293,10 +395,22 @@ const selectAGroupText = demoText.editableChart.selectAGroupText;
                 <form class="demo-form-row">
                   <input type="text" class="demo-input" [disabled]="error || seriesControlsDisabled"
                          [value]="seriesValuesText()" (input)="onSeriesValuesInput($event)" />
+                  @if (foldSeries()) {
+                    <ng-container [ngTemplateOutlet]="applySeriesButton" />
+                  }
                 </form>
               </span>
-              <span class="chart-controls-menu">
-                <app-export-share-menu idPrefix="edit" [disabled]="error"
+              <span class="chart-controls-menu" #menuSpan>
+                @if (foldSeries()) {
+                  <app-overflow-menu [text]="overflowText" [placement]="chartPlacement" [getAnchor]="getMenuAnchor"
+                                     [disabled]="error" [active]="isActive">
+                    <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="resetSeriesButton" /></div>
+                    <div class="demo-menu-divider"></div>
+                    <ng-container [ngTemplateOutlet]="chartCountControl" />
+                    <ng-container [ngTemplateOutlet]="modeControl" />
+                  </app-overflow-menu>
+                }
+                <app-export-share-menu idPrefix="edit" [disabled]="error" [active]="isActive"
                                        [exportPng]="onExportPng" [exportSvg]="onExportSvg"
                                        [getShareState]="showShareButton ? getShareState : undefined" />
               </span>
@@ -330,6 +444,46 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   @Input({ required: true }) onChartCountToggle!: () => void;
 
   @ViewChild('chartContent', { static: true }) chartContentElement!: ElementRef<HTMLDivElement>;
+
+  // ------------------------------------------------------------------------
+  // The phone fold. Which panel folds — and what each sends to the overflow
+  // menu — mirrors the vanilla port's placeControls.
+  // ------------------------------------------------------------------------
+  readonly overflowText = demoText.overflowMenu.chart;
+  readonly chartPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+
+  private readonly phone = phoneViewport();
+
+  /**
+   * Only one of the three branches renders, so this query resolves to that
+   * branch's `.chart-controls-menu`. The ⋯ anchors to the whole span because
+   * the export trigger sits to its right — aligning to the ⋯ alone would stop
+   * the panel short of the row's end and hang it off the left edge.
+   */
+  @ViewChild('menuSpan') menuSpanElement?: ElementRef<HTMLElement>;
+
+  readonly getMenuAnchor = (): HTMLElement | null => this.menuSpanElement?.nativeElement ?? null;
+
+  foldSlice(): boolean {
+    return this.phone() && this.mochartDemoConfig.pieMode;
+  }
+
+  foldGroup(): boolean {
+    return this.phone() && !this.mochartDemoConfig.pieMode && this.selectionMode() === 'group';
+  }
+
+  foldSeries(): boolean {
+    return this.phone() && !this.mochartDemoConfig.pieMode && this.selectionMode() !== 'group';
+  }
+
+  /**
+   * The series readouts drop their 5px side margins while folded: the phone
+   * tier's 6px field gap is separation enough, and the margins' 20px would
+   * wrap the ▲ stepper onto a second row at 320px.
+   */
+  indexLabelMargin(): string {
+    return this.foldSeries() ? '0px' : '5px';
+  }
 
   // Working copies of the demo data; mutated in place by the group/series
   // editing controls (same pattern as the react demo's instance fields).

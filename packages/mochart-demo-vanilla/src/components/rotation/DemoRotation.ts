@@ -1,7 +1,7 @@
 import { rotationConfigs as configs, rotationData as data } from '@mochart/demo-common';
 
 import { el, observeSize } from '../misc/dom';
-import { backToDemosButton, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
+import { topBar } from '../misc/TopBar';
 import { mountDefaultChart } from '../misc/chartHost';
 import type { ChartHostHandle } from '../misc/chartHost';
 
@@ -23,17 +23,10 @@ export function demoRotation(props: DemoRotationProps): DemoRotationHandle {
   let chartsWidth = 0;
   let cells: { wrapper: HTMLDivElement; host: ChartHostHandle }[] = [];
 
+  const bar = topBar({ siteRootUrl: props.siteRootUrl, onBackToDemos: props.onBackToDemos });
+
   const chartsContainer = el('div', { className: 'rotation-charts' });
-  const container = el('div', { className: 'mochart-demo-container' }, [
-    el('div', { className: 'mochart-demo-tabs-container' }, [
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        siteRootButton(props.siteRootUrl),
-        backToDemosButton(props.onBackToDemos)
-      ]),
-      themeToggleButton()
-    ]),
-    chartsContainer
-  ]);
+  const container = el('div', { className: 'mochart-demo-container' }, [bar.el, chartsContainer]);
 
   function destroyCells(): void {
     for (const cell of cells) {
@@ -75,6 +68,7 @@ export function demoRotation(props: DemoRotationProps): DemoRotationHandle {
   return {
     el: container,
     destroy() {
+      bar.destroy();
       stopObserving();
       destroyCells();
     }

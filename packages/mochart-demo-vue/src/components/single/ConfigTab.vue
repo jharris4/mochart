@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, h, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import DocsLinks from '../misc/DocsLinks.vue';
 import Icon from '../misc/Icon.vue';
+import OverflowMenu from '../misc/OverflowMenu.vue';
+import { usePhoneViewport } from '../misc/usePhoneViewport';
 
 import type { DemoConfig } from '../../types';
 
@@ -108,42 +110,85 @@ const jsonError = computed(() => {
   }
 });
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
+
+// ---------------------------------------------------------------------------
+// The phone fold. Apply stays beside the editor it applies, and the
+// `role="alert"` error span stays inline — a message that has to be read
+// cannot live behind a tap. Everything else, including the reference links,
+// goes to the `⋯` menu. Each foldable control is a functional component
+// rendered in exactly one of the two places (see OverflowMenu.vue).
+// ---------------------------------------------------------------------------
+const isPhone = usePhoneViewport();
+const hasDocsLinks = computed(() => getReferenceSectionIds(demoConfig.value.configWithoutDefaults).length > 0);
+const footerElement = ref<HTMLElement | null>(null);
+const getFooterAnchor = () => footerElement.value;
+
+const iconChild = (name: string) => () => h(Icon, { size: 'lg', fixedWidth: true, name });
+
+const ResetButton = () => h(ButtonWithTooltip, {
+  id: 'config-reset', label: demoText.configTab.reset.label, tooltipText: demoText.configTab.reset.tooltip,
+  tooltipPlacement: 'top-start', onClick: resetConfig, 'aria-label': demoText.configTab.reset.aria
+}, iconChild('arrow-rotate-left'));
+
+const DefaultsButton = () => h(ButtonWithTooltip, {
+  id: 'config-defaults', label: demoText.configTab.defaults.label, pressed: showDefaults.value,
+  tooltipText: demoText.configTab.defaults.tooltip, tooltipPlacement: 'top-start',
+  onClick: toggleConfigDefaults, 'aria-label': demoText.configTab.defaults.aria
+}, iconChild(showDefaults.value ? 'eye' : 'eye-slash'));
+
+const InvertedButton = () => h(ButtonWithTooltip, {
+  id: 'config-inverted', label: demoText.configTab.invert.label, pressed: !!inverted.value,
+  tooltipText: demoText.configTab.invert.tooltip, tooltipPlacement: 'top-start',
+  onClick: toggleConfigInverted, 'aria-label': demoText.configTab.invert.aria
+}, iconChild(invertedIcon.value));
+
+const SlowButton = () => h(ButtonWithTooltip, {
+  id: 'config-animate-slow', label: demoText.configTab.slow.label, pressed: slow.value,
+  tooltipText: demoText.configTab.slow.tooltip, tooltipPlacement: 'top-start',
+  onClick: toggleConfigAnimationSlow, 'aria-label': demoText.configTab.slow.aria
+}, iconChild(slowIcon.value));
+
+const ApplyButton = () => h(ButtonWithTooltip, {
+  id: 'config-apply', label: demoText.configTab.apply.label, disabled: jsonError.value !== null,
+  tooltipText: demoText.configTab.apply.tooltip, tooltipPlacement: 'top-start',
+  onClick: applyConfig, 'aria-label': demoText.configTab.apply.aria
+}, iconChild('check'));
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
       <TextAreaContent :value="configText" :on-change="onTextChange" />
     </div>
-    <div class="mochart-demo-tab-footer">
+    <div class="mochart-demo-tab-footer" ref="footerElement">
       <div class="demo-toolbar" role="toolbar">
-        <ButtonWithTooltip id="config-reset" :label="demoText.configTab.reset.label" :tooltip-text="demoText.configTab.reset.tooltip" tooltip-placement="top-start"
-                           :on-click="resetConfig" :aria-label="demoText.configTab.reset.aria">
-          <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
-        </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-defaults" :label="demoText.configTab.defaults.label" :pressed="showDefaults"
-                           :tooltip-text="demoText.configTab.defaults.tooltip" tooltip-placement="top-start"
-                           :on-click="toggleConfigDefaults" :aria-label="demoText.configTab.defaults.aria">
-          <Icon size="lg" :fixed-width="true" :name="showDefaults ? 'eye' : 'eye-slash'" />
-        </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-inverted" :label="demoText.configTab.invert.label" :pressed="!!inverted"
-                           :tooltip-text="demoText.configTab.invert.tooltip" tooltip-placement="top-start"
-                           :on-click="toggleConfigInverted" :aria-label="demoText.configTab.invert.aria">
-          <Icon size="lg" :fixed-width="true" :name="invertedIcon" />
-        </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-animate-slow" :label="demoText.configTab.slow.label" :pressed="slow"
-                           :tooltip-text="demoText.configTab.slow.tooltip" tooltip-placement="top-start"
-                           :on-click="toggleConfigAnimationSlow" :aria-label="demoText.configTab.slow.aria">
-          <Icon size="lg" :fixed-width="true" :name="slowIcon" />
-        </ButtonWithTooltip>
-        <ButtonWithTooltip id="config-apply" :label="demoText.configTab.apply.label" :disabled="jsonError !== null"
-                           :tooltip-text="demoText.configTab.apply.tooltip" tooltip-placement="top-start"
-                           :on-click="applyConfig" :aria-label="demoText.configTab.apply.aria">
-          <Icon size="lg" :fixed-width="true" name="check" />
-        </ButtonWithTooltip>
+        <template v-if="isPhone">
+          <ApplyButton />
+          <!-- `.editor`, not `.chart`: what folds here edits the JSON, and
+               "more chart controls" would tell a screen-reader user the wrong
+               thing. Anchored to the full-width footer — the trigger sits
+               mid-row, left of an error span that comes and goes. -->
+          <OverflowMenu :text="demoText.overflowMenu.editor"
+                        :placement="{ side: 'top', align: 'end', gap: 4 }"
+                        :get-anchor="getFooterAnchor"
+                        :active="props.active">
+            <div class="demo-btn-group"><ResetButton /><DefaultsButton /><InvertedButton /><SlowButton /></div>
+            <template v-if="hasDocsLinks">
+              <div class="demo-menu-divider"></div>
+              <DocsLinks :config="demoConfig.configWithoutDefaults" />
+            </template>
+          </OverflowMenu>
+        </template>
+        <template v-else>
+          <ResetButton />
+          <DefaultsButton />
+          <InvertedButton />
+          <SlowButton />
+          <ApplyButton />
+        </template>
         <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>
       </div>
-      <DocsLinks :config="demoConfig.configWithoutDefaults" />
+      <DocsLinks v-if="!isPhone" :config="demoConfig.configWithoutDefaults" />
     </div>
   </div>
 </template>

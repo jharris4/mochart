@@ -2,7 +2,7 @@
 import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
-import { backToDemosButton, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
+import { topBar } from '../misc/TopBar';
 import { transitionChartTab } from './TransitionChartTab';
 import { transitionConfigTab } from './TransitionConfigTab';
 
@@ -65,15 +65,14 @@ export function demoTransition(props: DemoTransitionProps): DemoTransitionHandle
   const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
   const configNav = navItem(demoText.tabs.transitionConfig, eventKeyConfig);
 
+  const bar = topBar({
+    siteRootUrl: props.siteRootUrl,
+    onBackToDemos: props.onBackToDemos,
+    tabs: [chartNav.li, configNav.li]
+  });
+
   const container = el('div', { className: 'mochart-demo-container multi' }, [
-    el('div', { className: 'mochart-demo-tabs-container' }, [
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        siteRootButton(props.siteRootUrl),
-        backToDemosButton(props.onBackToDemos),
-        el('ul', { className: 'demo-tabs' }, [chartNav.li, configNav.li])
-      ]),
-      themeToggleButton()
-    ]),
+    bar.el,
     el('div', { className: 'mochart-demo-content-pane' }, [
       el('div', { className: 'mochart-demo-content' }, [chart.el, config.el])
     ])
@@ -90,6 +89,7 @@ export function demoTransition(props: DemoTransitionProps): DemoTransitionHandle
   return {
     el: container,
     destroy() {
+      bar.destroy();
       chart.destroy();
     }
   };

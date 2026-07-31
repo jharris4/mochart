@@ -2,8 +2,7 @@ import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el } from '../misc/dom';
-import { backToDemosButton, modeSwitcher, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
-import { notesMenu } from '../misc/NotesMenu';
+import { topBar } from '../misc/TopBar';
 import { randomContent } from './RandomContent';
 import type { RandomContentHandle } from './RandomContent';
 
@@ -73,22 +72,16 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
   const configNav = navItem(demoText.tabs.randomConfig, eventKeyConfig);
   const dataNav = navItem(demoText.tabs.data, eventKeyData);
 
-  const notes = notesMenu(demoData.demoObjectMap[initialDemoId]);
-  const modes = modeSwitcher({ demoMode: 'random', onModeChanged });
+  const bar = topBar({
+    siteRootUrl: props.siteRootUrl,
+    onBackToDemos,
+    tabs: [chartNav.li, configNav.li, dataNav.li],
+    notes: demoData.demoObjectMap[initialDemoId],
+    modes: { demoMode: 'random', onModeChanged }
+  });
 
   const container = el('div', { className: 'mochart-demo-container multi' }, [
-    el('div', { className: 'mochart-demo-tabs-container' }, [
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        siteRootButton(props.siteRootUrl),
-        backToDemosButton(onBackToDemos),
-        el('ul', { className: 'demo-tabs' }, [chartNav.li, configNav.li, dataNav.li]),
-        notes.el
-      ]),
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        modes.el,
-        themeToggleButton()
-      ])
-    ]),
+    bar.el,
     el('div', { className: 'mochart-demo-content-pane' }, [content.el])
   ]);
 
@@ -118,7 +111,7 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
         initialDemoId = nextInitialDemoId;
         activeKey = eventKeyChart;
         const nextDemo = demoData.demoObjectMap[nextInitialDemoId];
-        notes.setDemo(nextDemo.title, nextDemo.notes);
+        bar.setDemo(nextDemo.title, nextDemo.notes);
         demoState = buildStateForDemo(nextInitialDemoId);
       }
       randomId = nextRandomId;
@@ -131,8 +124,7 @@ export function demoRandom(props: DemoRandomProps): DemoRandomHandle {
       sync();
     },
     destroy() {
-      notes.destroy();
-      modes.destroy();
+      bar.destroy();
       content.destroy();
     }
   };

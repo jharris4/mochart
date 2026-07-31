@@ -22,7 +22,7 @@ onErrorCaptured((error) => {
 </script>
 
 <template>
-  <div v-if="failed" :class="'mochart-demo-tab-container error' + (props.active ? ' active' : '')">
+  <div v-if="failed" :class="'mochart-demo-tab-container error' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="demo-alert demo-alert-error demo-text-center mochart-demo-error-message" role="alert">
       {{ demoText.errors.errorOccurred }}
     </div>

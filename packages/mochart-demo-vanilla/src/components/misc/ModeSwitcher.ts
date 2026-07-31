@@ -32,19 +32,34 @@ export function modeSwitcher(props: ModeSwitcherProps): ModeSwitcherHandle {
   // Which modes exist depends on the width (Multi is out on a phone), so the
   // row is rebuilt when the viewport crosses the breakpoint rather than built
   // once at mount.
+  //
+  // How the current mode is marked depends on the width as well, because on a
+  // phone this whole switcher is folded into the navigation row's overflow menu
+  // and the segmented control's own idiom stops working there. In the strip the
+  // current mode is a filled, disabled segment — plainly "you are here". As a
+  // full-width menu row, `.demo-menu-overflow .demo-btn:disabled` greys it out
+  // (and outranks the panel's selected tint), and a greyed row in a list of
+  // destinations reads as unavailable rather than as current. So on a phone it
+  // is marked with the panel's own `.active` tint plus `aria-current`, and is
+  // simply inert when tapped.
   function render(isPhone: boolean): void {
     toolbar.replaceChildren(...getAvailableDemoModes(isPhone).map(mode => {
       const current = mode === props.demoMode;
       const { label, title } = demoText.modeSwitcher.modes[mode];
       const button = el('button', {
-        className: 'demo-btn demo-btn-' + (current ? 'primary' : 'secondary'),
-        attrs: { type: 'button', title }
+        className: 'demo-btn demo-btn-' + (current ? 'primary' : 'secondary')
+          + (current && isPhone ? ' active' : ''),
+        attrs: { type: 'button', title, 'aria-current': current && isPhone ? 'true' : undefined }
       }, [
         icon(modeIcons[mode], { size: 'lg', fixedWidth: true }),
         el('span', { className: 'btn-label', text: label })
       ]);
-      button.disabled = current;
-      button.addEventListener('click', () => props.onModeChanged(mode));
+      button.disabled = current && !isPhone;
+      button.addEventListener('click', () => {
+        if (!current) {
+          props.onModeChanged(mode);
+        }
+      });
       return button;
     }));
   }
@@ -84,28 +99,61 @@ export function siteRootButton(siteRootUrl: string | undefined): HTMLElement | n
   ]);
 }
 
-/** Icon-only light/dark toggle; shares the docs site's theme choice. */
-export function themeToggleButton(): HTMLElement {
+export interface ThemeToggleHandle {
+  el: HTMLElement;
+  /** Drops the theme subscription the button holds. */
+  destroy(): void;
+}
+
+/**
+ * Icon-only light/dark toggle; shares the docs site's theme choice.
+ *
+ * The subscription is handed back rather than dropped on the floor: `theme` is
+ * an app-lifetime singleton, so a toggle that never unsubscribes keeps its
+ * button (and the whole view it was mounted in) alive for as long as the tab
+ * lives — one leaked view per navigation between demo modes.
+ */
+export function themeToggle(): ThemeToggleHandle {
   const button = el('button', {
     className: 'demo-btn demo-btn-secondary mochart-demo-theme-toggle',
     attrs: { type: 'button', 'aria-label': demoText.themeToggle.aria }
   });
+  // The button is icon-only in every bar it appears in, so folded into the
+  // navigation row's overflow menu it would be the one row with nothing to read.
+  // `.btn-menu-label` is `display: none` everywhere except inside a `.demo-menu`
+  // — and a `display: none` child is not a flex item, so it costs the bars
+  // neither a box nor one of `.demo-btn`'s gaps. It names the theme the button
+  // switches TO, exactly as the tooltip beside it does.
+  const menuLabel = el('span', { className: 'btn-menu-label' });
+  button.append(menuLabel);
+
   let iconEl: HTMLElement | null = null;
   function render(dark: boolean): void {
     const nextIcon = icon(dark ? 'sun' : 'moon', { size: 'lg', fixedWidth: true });
     if (iconEl === null) {
-      button.append(nextIcon);
+      // Before the label, not after it.
+      button.prepend(nextIcon);
     }
     else {
       button.replaceChild(nextIcon, iconEl);
     }
     iconEl = nextIcon;
     button.title = dark ? demoText.themeToggle.tooltipToLight : demoText.themeToggle.tooltipToDark;
+    menuLabel.textContent = dark ? demoText.themeToggle.menuLabelToLight : demoText.themeToggle.menuLabelToDark;
   }
   render(theme.isDark());
   button.addEventListener('click', () => theme.toggle());
-  theme.onChange(render);
-  return button;
+  const unsubscribe = theme.onChange(render);
+  return { el: button, destroy: unsubscribe };
+}
+
+/**
+ * Element-only form, for the one caller that cannot use the handle: the gallery
+ * header, whose own component returns `{ el }` and has no teardown at all to
+ * hang an unsubscribe on. Every other caller should take `themeToggle()`.
+ */
+export function themeToggleButton(): HTMLElement {
+  return themeToggle().el;
 }
 
 export function backToDemosButton(onBackToDemos: () => void): HTMLElement {

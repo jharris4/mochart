@@ -1,7 +1,8 @@
-import { Component, Input, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -9,49 +10,96 @@ import { TextAreaContent } from '../misc/text-area-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { DocsLinks } from '../misc/docs-links';
 import { Icon } from '../misc/icon';
+import { OverflowMenu } from '../misc/overflow-menu';
+import { phoneViewport } from '../misc/phone-viewport';
 
 import type { DemoConfig, MochartDemoConfig } from '../../types';
 
 @Component({
   selector: 'app-config-tab',
-  imports: [TextAreaContent, ButtonWithTooltip, DocsLinks, Icon],
+  imports: [TextAreaContent, ButtonWithTooltip, DocsLinks, Icon, NgTemplateOutlet, OverflowMenu],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')">
+    <ng-template #resetButton>
+      <app-button-with-tooltip id="config-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
+                               [onClick]="resetConfig" [aria-label]="text.reset.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #defaultsButton>
+      <app-button-with-tooltip id="config-defaults" [label]="text.defaults.label" [pressed]="showDefaults()"
+                               [tooltipText]="text.defaults.tooltip" tooltipPlacement="top-start"
+                               [onClick]="toggleConfigDefaults" [aria-label]="text.defaults.aria">
+        <app-icon size="lg" [fixedWidth]="true" [name]="showDefaults() ? 'eye' : 'eye-slash'" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #invertedButton>
+      <app-button-with-tooltip id="config-inverted" [label]="text.invert.label" [pressed]="!!inverted"
+                               [tooltipText]="text.invert.tooltip" tooltipPlacement="top-start"
+                               [onClick]="toggleConfigInverted" [aria-label]="text.invert.aria">
+        <app-icon size="lg" [fixedWidth]="true" [name]="invertedIcon" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #slowButton>
+      <app-button-with-tooltip id="config-animate-slow" [label]="text.slow.label" [pressed]="slow"
+                               [tooltipText]="text.slow.tooltip" tooltipPlacement="top-start"
+                               [onClick]="toggleConfigAnimationSlow" [aria-label]="text.slow.aria">
+        <app-icon size="lg" [fixedWidth]="true" [name]="slowIcon" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #applyButton>
+      <app-button-with-tooltip id="config-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
+                               [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
+                               [onClick]="applyConfig" [aria-label]="text.apply.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="check" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #docsLinks>
+      <app-docs-links [config]="demoConfig()?.configWithoutDefaults" />
+    </ng-template>
+
+    <!-- The phone fold. Apply stays beside the editor it applies, and the
+         \`role="alert"\` error span stays inline — a message that has to be read
+         cannot live behind a tap. Everything else, including the reference
+         links, goes to the \`⋯\` menu. -->
+    <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
         <app-text-area-content [value]="configText()" [onChange]="onTextChange" />
       </div>
-      <div class="mochart-demo-tab-footer">
+      <div class="mochart-demo-tab-footer" #footer>
         <div class="demo-toolbar" role="toolbar">
-          <app-button-with-tooltip id="config-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
-                                   [onClick]="resetConfig" [aria-label]="text.reset.aria">
-            <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
-          </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-defaults" [label]="text.defaults.label" [pressed]="showDefaults()"
-                                   [tooltipText]="text.defaults.tooltip" tooltipPlacement="top-start"
-                                   [onClick]="toggleConfigDefaults" [aria-label]="text.defaults.aria">
-            <app-icon size="lg" [fixedWidth]="true" [name]="showDefaults() ? 'eye' : 'eye-slash'" />
-          </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-inverted" [label]="text.invert.label" [pressed]="!!inverted"
-                                   [tooltipText]="text.invert.tooltip" tooltipPlacement="top-start"
-                                   [onClick]="toggleConfigInverted" [aria-label]="text.invert.aria">
-            <app-icon size="lg" [fixedWidth]="true" [name]="invertedIcon" />
-          </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-animate-slow" [label]="text.slow.label" [pressed]="slow"
-                                   [tooltipText]="text.slow.tooltip" tooltipPlacement="top-start"
-                                   [onClick]="toggleConfigAnimationSlow" [aria-label]="text.slow.aria">
-            <app-icon size="lg" [fixedWidth]="true" [name]="slowIcon" />
-          </app-button-with-tooltip>
-          <app-button-with-tooltip id="config-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
-                                   [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
-                                   [onClick]="applyConfig" [aria-label]="text.apply.aria">
-            <app-icon size="lg" [fixedWidth]="true" name="check" />
-          </app-button-with-tooltip>
+          @if (phone()) {
+            <ng-container [ngTemplateOutlet]="applyButton" />
+            <!-- \`.editor\`, not \`.chart\`: what folds here edits the JSON, and
+                 "more chart controls" would tell a screen-reader user the
+                 wrong thing. Anchored to the full-width footer — the trigger
+                 sits mid-row, left of an error span that comes and goes. -->
+            <app-overflow-menu [text]="overflowText" [placement]="editorPlacement" [getAnchor]="getFooterAnchor" [active]="active">
+              <div class="demo-btn-group">
+                <ng-container [ngTemplateOutlet]="resetButton" />
+                <ng-container [ngTemplateOutlet]="defaultsButton" />
+                <ng-container [ngTemplateOutlet]="invertedButton" />
+                <ng-container [ngTemplateOutlet]="slowButton" />
+              </div>
+              @if (hasDocsLinks) {
+                <div class="demo-menu-divider"></div>
+                <ng-container [ngTemplateOutlet]="docsLinks" />
+              }
+            </app-overflow-menu>
+          } @else {
+            <ng-container [ngTemplateOutlet]="resetButton" />
+            <ng-container [ngTemplateOutlet]="defaultsButton" />
+            <ng-container [ngTemplateOutlet]="invertedButton" />
+            <ng-container [ngTemplateOutlet]="slowButton" />
+            <ng-container [ngTemplateOutlet]="applyButton" />
+          }
           @if (footerError) {
             <span class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>
           }
         </div>
-        <app-docs-links [config]="demoConfig()?.configWithoutDefaults" />
+        @if (!phone()) {
+          <ng-container [ngTemplateOutlet]="docsLinks" />
+        }
       </div>
     </div>
   `
@@ -61,6 +109,17 @@ export class ConfigTab implements OnInit, OnChanges {
   @Input({ required: true }) config!: DemoConfig;
   @Input({ required: true }) onConfigChange!: (config: DemoConfig) => void;
   @Input({ required: true }) onConfigReset!: () => void;
+
+  // The phone fold (see the comment above the pane in the template).
+  @ViewChild('footer', { static: true }) footerElement!: ElementRef<HTMLDivElement>;
+  readonly phone = phoneViewport();
+  readonly overflowText = demoText.overflowMenu.editor;
+  readonly editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+  readonly getFooterAnchor = (): HTMLElement => this.footerElement.nativeElement;
+
+  get hasDocsLinks(): boolean {
+    return getReferenceSectionIds(this.demoConfig()?.configWithoutDefaults).length > 0;
+  }
 
   readonly text = demoText.configTab;
 

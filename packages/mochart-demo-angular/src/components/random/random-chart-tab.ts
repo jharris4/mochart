@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 
@@ -11,6 +12,8 @@ import type { ShareState } from '@mochart/demo-common';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { ExportShareMenu } from '../misc/export-share-menu';
 import { Icon } from '../misc/icon';
+import { OverflowMenu } from '../misc/overflow-menu';
+import { phoneViewport } from '../misc/phone-viewport';
 
 import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 
@@ -18,15 +21,51 @@ const defaultRate = 2000;
 
 @Component({
   selector: 'app-random-chart-tab',
-  imports: [Chart, ButtonWithTooltip, ExportShareMenu, Icon],
+  imports: [Chart, ButtonWithTooltip, ExportShareMenu, Icon, NgTemplateOutlet, OverflowMenu],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')">
+    <ng-template #playButton>
+      <app-button-with-tooltip id="play" [disabled]="playing()" [menuLabel]="text.play.menuLabel"
+                               [tooltipText]="text.play.tooltip" tooltipPlacement="top-start"
+                               [onClick]="onPlayClick" [aria-label]="text.play.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="play" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #stopButton>
+      <app-button-with-tooltip id="stop" [disabled]="!playing()" [menuLabel]="text.stop.menuLabel"
+                               [tooltipText]="text.stop.tooltip" tooltipPlacement="top-start"
+                               [onClick]="onStopClick" [aria-label]="text.stop.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="stop" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <ng-template #reuseButton>
+      <app-button-with-tooltip id="reuse" [disabled]="playing()" [label]="text.reuse.label" [pressed]="applyReuse"
+                               [tooltipText]="text.reuse.tooltip" tooltipPlacement="top-start"
+                               [onClick]="toggleApplyReuse" [aria-label]="text.reuse.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="recycle" />
+      </app-button-with-tooltip>
+    </ng-template>
+    <!-- \`.demo-menu-keep-open\` so a press inside the field — the number
+         input's own spinners in particular — cannot dismiss the panel it is
+         hosted in. The class paints nothing, so it is unconditional. -->
+    <ng-template #rateField>
+      <div class="demo-field demo-menu-keep-open">
+        <label class="demo-label" for="random-rate">{{ text.intervalLabel }}</label>
+        <input id="random-rate" [disabled]="playing()" type="number" min="5" max="60000" step="100" class="demo-input" [value]="rateText()"
+               [attr.aria-label]="text.intervalAria" (input)="rateChanged($event)" />
+      </div>
+    </ng-template>
+
+    <!-- The phone fold keeps the dice pair (Back / Randomize) inline —
+         stepping by hand is the mode's primary interaction — and demotes the
+         automation transport (Play / Stop) with the Reuse toggle and the
+         interval field. -->
+    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="random-chart-sizer" #chartSizer>
         <mochart-chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                        [mochartConfig]="mochartConfig" [dataProvider]="dataProvider" />
       </div>
-      <div class="random-controls">
+      <div class="random-controls" #controls>
         <form class="demo-form-row">
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
@@ -41,30 +80,37 @@ const defaultRate = 2000;
                                          [onClick]="onRandomizeNext" [aria-label]="text.randomize.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="dice" />
                 </app-button-with-tooltip>
-                <app-button-with-tooltip id="play" [disabled]="playing()" [tooltipText]="text.play.tooltip" tooltipPlacement="top-start"
-                                         [onClick]="onPlayClick" [aria-label]="text.play.aria">
-                  <app-icon size="lg" [fixedWidth]="true" name="play" />
-                </app-button-with-tooltip>
-                <app-button-with-tooltip id="stop" [disabled]="!playing()" [tooltipText]="text.stop.tooltip" tooltipPlacement="top-start"
-                                         [onClick]="onStopClick" [aria-label]="text.stop.aria">
-                  <app-icon size="lg" [fixedWidth]="true" name="stop" />
-                </app-button-with-tooltip>
+                @if (!phone()) {
+                  <ng-container [ngTemplateOutlet]="playButton" />
+                  <ng-container [ngTemplateOutlet]="stopButton" />
+                }
               </div>
-              <div class="demo-field">
-                <label class="demo-label" for="random-rate">{{ text.intervalLabel }}</label>
-                <input id="random-rate" [disabled]="playing()" type="number" min="5" max="60000" step="100" class="demo-input" [value]="rateText()"
-                       [attr.aria-label]="text.intervalAria" (input)="rateChanged($event)" />
-              </div>
+              @if (!phone()) {
+                <ng-container [ngTemplateOutlet]="rateField" />
+              }
             </div>
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-group">
-                <app-button-with-tooltip id="reuse" [disabled]="playing()" [label]="text.reuse.label" [pressed]="applyReuse"
-                                         [tooltipText]="text.reuse.tooltip" tooltipPlacement="top-start"
-                                         [onClick]="toggleApplyReuse" [aria-label]="text.reuse.aria">
-                  <app-icon size="lg" [fixedWidth]="true" name="recycle" />
-                </app-button-with-tooltip>
-              </div>
-              <app-export-share-menu idPrefix="random" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
+              @if (phone()) {
+                <!-- Anchored to the whole strip: \`align: 'end'\` pins the
+                     panel's right edge to the anchor's, and the export trigger
+                     sits to the ⋯'s right. -->
+                <div class="demo-btn-group">
+                  <app-overflow-menu [text]="overflowText" [placement]="randomPlacement" [getAnchor]="getControlsAnchor" [active]="active">
+                    <div class="demo-btn-group">
+                      <ng-container [ngTemplateOutlet]="playButton" />
+                      <ng-container [ngTemplateOutlet]="stopButton" />
+                    </div>
+                    <div class="demo-menu-divider"></div>
+                    <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="reuseButton" /></div>
+                    <div class="demo-menu-divider"></div>
+                    <ng-container [ngTemplateOutlet]="rateField" />
+                  </app-overflow-menu>
+                  <app-export-share-menu idPrefix="random" [active]="active" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
+                </div>
+              } @else {
+                <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="reuseButton" /></div>
+                <app-export-share-menu idPrefix="random" [active]="active" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
+              }
             </div>
           </div>
         </form>
@@ -86,6 +132,13 @@ export class RandomChartTab implements OnInit, OnChanges, OnDestroy {
   @Input({ required: true }) toggleApplyReuse!: () => void;
 
   @ViewChild('chartSizer', { static: true }) chartSizerElement!: ElementRef<HTMLDivElement>;
+  @ViewChild('controls', { static: true }) controlsElement!: ElementRef<HTMLDivElement>;
+
+  // The phone fold (see the comment above the strip in the template).
+  readonly phone = phoneViewport();
+  readonly overflowText = demoText.overflowMenu.random;
+  readonly randomPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+  readonly getControlsAnchor = (): HTMLElement => this.controlsElement.nativeElement;
 
   private intervalId: ReturnType<typeof setInterval> | null = null;
 

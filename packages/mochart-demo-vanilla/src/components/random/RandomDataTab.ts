@@ -1,6 +1,6 @@
 import { formatData } from '@mochart/demo-common';
 
-import { el, setActiveClass, textAreaContent } from '../misc/dom';
+import { el, setActiveClass, tabContainer, textAreaContent } from '../misc/dom';
 
 export interface RandomDataTabProps {
   active?: boolean;
@@ -18,9 +18,7 @@ export function randomDataTab(props: RandomDataTabProps): RandomDataTabHandle {
 
   const textArea = textAreaContent(formatData(data), () => {});
 
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')
-  }, [
+  const container = tabContainer('demo-layout-col data', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [textArea.el])
   ]);
 

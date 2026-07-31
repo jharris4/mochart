@@ -264,7 +264,7 @@ export class ChartsTab extends LightElement {
     const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => this.mochartDemoConfig.pieMode
       ? { ...this.filteredSeriesIds, ...getPieStepSuppressedIds(this.sliceIds, i, this.currentDataCount) }
       : this.filteredSeriesIds;
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')}>
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div ${ref(this.size.attach)} class="multi-charts-sizer">
         ${this.size.width > 0
           ? html`<div class="multi-charts">

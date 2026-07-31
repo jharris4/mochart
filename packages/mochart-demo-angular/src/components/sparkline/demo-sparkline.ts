@@ -7,7 +7,7 @@ import type { DataRow, SparklineMetric } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { Icon } from '../misc/icon';
-import { BackToDemosButton, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
+import { TopBar } from '../misc/top-bar';
 
 interface TableRow {
   metric: SparklineMetric;
@@ -24,19 +24,11 @@ interface TableRow {
  */
 @Component({
   selector: 'app-demo-sparkline',
-  imports: [DefaultChart, ButtonWithTooltip, Icon, BackToDemosButton, SiteRootButton, ThemeToggleButton],
+  imports: [DefaultChart, ButtonWithTooltip, Icon, TopBar],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          @if (siteRootUrl !== undefined) {
-            <a appSiteRootButton [href]="siteRootUrl"></a>
-          }
-          <button appBackToDemosButton (click)="onBackToDemos()"></button>
-        </div>
-        <button appThemeToggleButton></button>
-      </div>
+      <app-top-bar [siteRootUrl]="siteRootUrl" [onBackToDemos]="onBackToDemos" />
       <div class="sparkline-page">
         <p class="sparkline-intro">@for (segment of text.intro; track $index) {{{ segment }}@if (inlineMetrics[$index]; as metric) {<span class="sparkline-inline"><mochart-default-chart [config]="metric.config" [data]="inlineData()[$index]" [width]="metric.width" [height]="metric.height" /></span>}}</p>
         <div class="sparkline-controls">

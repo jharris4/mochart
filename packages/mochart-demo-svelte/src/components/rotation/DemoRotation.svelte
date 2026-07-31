@@ -7,9 +7,7 @@
 <script lang="ts">
   import { DefaultChart } from '@mochart/svelte';
 
-  import BackToDemosButton from '../misc/BackToDemosButton.svelte';
-  import SiteRootButton from '../misc/SiteRootButton.svelte';
-  import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
+  import TopBar from '../misc/TopBar.svelte';
 
   interface Props {
     siteRootUrl?: string;
@@ -27,13 +25,7 @@
 </script>
 
 <div class="mochart-demo-container">
-  <div class="mochart-demo-tabs-container">
-    <div class="mochart-demo-nav-group">
-      <SiteRootButton {siteRootUrl} />
-      <BackToDemosButton {onBackToDemos} />
-    </div>
-    <ThemeToggleButton />
-  </div>
+  <TopBar {siteRootUrl} {onBackToDemos} />
   <div class="rotation-charts" bind:clientWidth={chartsWidth}>
     {#if colWidth > 0}
       {#each configs as config, i (i)}

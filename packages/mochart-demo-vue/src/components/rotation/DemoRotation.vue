@@ -3,9 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { DefaultChart } from '@mochart/vue';
 
-import BackToDemosButton from '../misc/BackToDemosButton.vue';
-import SiteRootButton from '../misc/SiteRootButton.vue';
-import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
+import TopBar from '../misc/TopBar.vue';
 
 import { configs, data, minWidth } from './rotationConfigs';
 
@@ -46,13 +44,7 @@ const colWidth = computed(() => Math.floor(chartsWidth.value / cols.value));
 
 <template>
   <div class="mochart-demo-container">
-    <div class="mochart-demo-tabs-container">
-      <div class="mochart-demo-nav-group">
-        <SiteRootButton :site-root-url="props.siteRootUrl" />
-        <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
-      </div>
-      <ThemeToggleButton />
-    </div>
+    <TopBar :site-root-url="props.siteRootUrl" :on-back-to-demos="props.onBackToDemos" />
     <div ref="chartsElement" class="rotation-charts">
       <template v-if="colWidth > 0">
         <div v-for="(config, i) in configs" :key="i"

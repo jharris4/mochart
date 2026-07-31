@@ -5,6 +5,11 @@
 // attributes (e.g. aria-label) fall through to the button element.
 // `label` renders visible text beside the icon; `pressed` marks the button
 // as a toggle (aria-pressed + active styling).
+// `menuLabel` is text shown ONLY once the button is folded into a phone
+// overflow menu, where an icon-only button would be a bare glyph in a column
+// of bare glyphs. Deliberately not `label`: a real label renders visible text
+// in the strips above 900px, where these buttons are icon-only by design.
+// `.btn-menu-label` is `display: none` everywhere except inside a menu.
 interface Props {
   id: string;
   tooltipText?: string;
@@ -13,6 +18,7 @@ interface Props {
   onClick: () => void;
   color?: string;
   label?: string;
+  menuLabel?: string;
   pressed?: boolean;
 }
 
@@ -24,6 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   color: 'secondary',
   label: undefined,
+  menuLabel: undefined,
   pressed: undefined
 });
 </script>
@@ -34,7 +41,7 @@ const props = withDefaults(defineProps<Props>(), {
             :disabled="props.disabled" :title="props.tooltipText"
             :aria-pressed="props.pressed === undefined ? undefined : props.pressed"
             v-bind="$attrs" @click="props.onClick()">
-      <slot></slot><span v-if="props.label" class="btn-label">{{ props.label }}</span>
+      <slot></slot><span v-if="props.menuLabel" class="btn-menu-label">{{ props.menuLabel }}</span><span v-if="props.label" class="btn-label">{{ props.label }}</span>
     </button>
   </span>
 </template>

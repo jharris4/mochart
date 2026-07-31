@@ -1,150 +1,82 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, ViewChild, computed, inject, signal } from '@angular/core';
-import type { OnChanges, OnDestroy } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import type { OnChanges, OnDestroy, OnInit } from '@angular/core';
 
-import { demoText, getNotesPanelPosition } from '@mochart/demo-common';
-import type { NotesPanelPosition } from '@mochart/demo-common';
+import { createMenuController, demoText } from '@mochart/demo-common';
+import type { MenuController } from '@mochart/demo-common';
 
 import { Icon } from './icon';
 
 /**
- * The "about this demo" button in each mode's navigation row: an info icon that
- * opens the demo's `notes` (the detail kept out of its one-sentence gallery
- * description) in a popover panel.
+ * The "about this demo" button in each mode's navigation row: an info icon
+ * that opens the demo's `notes` (the detail kept out of its one-sentence
+ * gallery description) in a popover panel. This is the desktop shape; below
+ * the phone breakpoint the navigation row folds into an overflow menu, where a
+ * popover cannot come along — its panel would be a descendant of an element
+ * the menu hides with `display: none` — so TopBar renders NotesMenuItem (a
+ * disclosure row inside the panel) instead of this.
  *
- * Positioning follows ExportShareMenu: the surrounding panes use
- * `overflow: hidden`, which would clip a normally-positioned dropdown, so the
- * panel is `fixed` at coordinates measured from the trigger. This one opens
- * downward from the navigation row (the export menu opens upward from the
- * controls row) and is closed on scroll/resize rather than repositioned.
+ * Open/close, positioning, dismissal, focus return and the disclosure ARIA all
+ * come from demo-common's `createMenuController`. Note what that means for the
+ * template: the trigger and panel carry STATIC classes and no `aria-expanded`,
+ * because the controller writes those itself — a binding on the same element
+ * would be re-applied by change detection and wipe them. It also means the
+ * `ChangeDetectorRef.detectChanges()` dance this component used to need is
+ * gone: open/close never goes through Angular at all.
+ *
+ * Whether there are notes to show is the caller's business (TopBar guards with
+ * `@if`), so the elements here are unconditional and the controller can be
+ * built once, in `ngOnInit`.
  */
 @Component({
   selector: 'app-notes-menu',
   imports: [Icon],
   styles: [':host { display: contents; }'],
   template: `
-    @if (notes !== undefined) {
-      <div #root class="demo-btn-group mochart-demo-notes-menu">
-        <button type="button" #trigger
-                [class]="'demo-btn demo-btn-secondary mochart-demo-notes-trigger' + (open() ? ' active' : '')"
-                aria-haspopup="true" [attr.aria-expanded]="open()"
-                [attr.title]="text.trigger.tooltip" [attr.aria-label]="text.trigger.aria"
-                (click)="toggle()">
-          <app-icon size="lg" [fixedWidth]="true" name="circle-info" />
-        </button>
-        <div [class]="'demo-menu demo-menu-notes' + (menuOpen() ? ' open' : '')"
-             [style.position]="menuOpen() ? 'fixed' : null"
-             [style.top.px]="menuOpen() ? coords()!.top : null"
-             [style.left.px]="menuOpen() ? coords()!.left : null"
-             [style.margin]="menuOpen() ? '0' : null"
-             [style.z-index]="menuOpen() ? 1080 : null">
-          <span class="demo-menu-notes-title">{{ demoTitle }}</span>
-          <span class="demo-menu-notes-body">{{ notes }}</span>
-        </div>
+    <div class="demo-btn-group mochart-demo-notes-menu">
+      <button type="button" #trigger class="demo-btn demo-btn-secondary mochart-demo-notes-trigger"
+              [attr.title]="text.trigger.tooltip" [attr.aria-label]="text.trigger.aria"
+              (click)="controller?.toggle()">
+        <app-icon size="lg" [fixedWidth]="true" name="circle-info" />
+      </button>
+      <div #panel class="demo-menu demo-menu-notes">
+        <span class="demo-menu-notes-title">{{ demoTitle }}</span>
+        <span class="demo-menu-notes-body">{{ notes }}</span>
       </div>
-    }
+    </div>
   `
 })
-export class NotesMenu implements OnChanges, OnDestroy {
+export class NotesMenu implements OnInit, OnChanges, OnDestroy {
   readonly text = demoText.demoNotes;
 
   /** Demo title, shown as the panel heading (not `title`, which is native). */
   @Input({ required: true }) demoTitle!: string;
-  /** The demo's notes; nothing renders when there are none. */
+  /** The demo's notes. The caller renders nothing when there are none. */
   @Input() notes?: string;
 
-  @ViewChild('root') rootElement?: ElementRef<HTMLDivElement>;
-  @ViewChild('trigger') triggerElement?: ElementRef<HTMLButtonElement>;
+  @ViewChild('trigger', { static: true }) triggerElement!: ElementRef<HTMLButtonElement>;
+  @ViewChild('panel', { static: true }) panelElement!: ElementRef<HTMLDivElement>;
 
-  readonly open = signal(false);
-  readonly coords = signal<NotesPanelPosition | null>(null);
+  controller?: MenuController;
 
-  // Only show/position the panel once we've measured the trigger.
-  readonly menuOpen = computed(() => this.open() && this.coords() !== null);
-
-  private readonly changeDetector = inject(ChangeDetectorRef);
-  private listening = false;
-
-  // The close listeners fire outside Angular (native document/window handlers),
-  // and this is a zoneless app, so a signal write there only *schedules* change
-  // detection — the DOM would still show the open panel until the next tick.
-  // Flush synchronously so the panel's shown/hidden state always matches the
-  // signal the instant it changes.
-  private syncView(): void {
-    this.changeDetector.detectChanges();
+  ngOnInit(): void {
+    // Downward from the navigation row, left-aligned, clamped so a 340px panel
+    // opened from a right-hand trigger stays on screen. The width must match
+    // `.demo-menu-notes` in demo.css — a closed panel measures 0, so the clamp
+    // has to be told the width the stylesheet will give it.
+    this.controller = createMenuController({
+      trigger: this.triggerElement.nativeElement,
+      panel: this.panelElement.nativeElement,
+      placement: { side: 'bottom', align: 'start', gap: 6, width: 340, viewportMargin: 32 },
+      bindTrigger: false
+    });
   }
 
   // Close whenever the demo changes under us (history navigation between demos).
   ngOnChanges(): void {
-    this.close();
-  }
-
-  toggle(): void {
-    if (this.open()) {
-      this.close();
-      return;
-    }
-    // Measured now to avoid a positioning flash.
-    const rect = this.triggerElement?.nativeElement.getBoundingClientRect();
-    if (rect) {
-      this.coords.set(getNotesPanelPosition(rect, window.innerWidth));
-    }
-    this.open.set(true);
-    this.addListeners();
-    this.syncView();
-  }
-
-  close(): void {
-    if (!this.open()) {
-      return;
-    }
-    this.open.set(false);
-    this.coords.set(null);
-    this.removeListeners();
-    this.syncView();
+    this.controller?.close();
   }
 
   ngOnDestroy(): void {
-    this.removeListeners();
-  }
-
-  // Close on an outside click, Escape, or a scroll/resize that would leave the
-  // fixed panel drifting away from its trigger.
-  private onDocMouseDown = (event: MouseEvent): void => {
-    const root = this.rootElement?.nativeElement;
-    if (root && !root.contains(event.target as Node)) {
-      this.close();
-    }
-  };
-
-  private onKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') {
-      this.close();
-    }
-  };
-
-  private onReflow = (): void => {
-    this.close();
-  };
-
-  private addListeners(): void {
-    if (this.listening) {
-      return;
-    }
-    this.listening = true;
-    document.addEventListener('mousedown', this.onDocMouseDown);
-    document.addEventListener('keydown', this.onKeyDown);
-    window.addEventListener('scroll', this.onReflow, true);
-    window.addEventListener('resize', this.onReflow);
-  }
-
-  private removeListeners(): void {
-    if (!this.listening) {
-      return;
-    }
-    this.listening = false;
-    document.removeEventListener('mousedown', this.onDocMouseDown);
-    document.removeEventListener('keydown', this.onKeyDown);
-    window.removeEventListener('scroll', this.onReflow, true);
-    window.removeEventListener('resize', this.onReflow);
+    this.controller?.destroy();
   }
 }

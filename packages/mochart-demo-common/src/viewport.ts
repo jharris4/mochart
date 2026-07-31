@@ -25,11 +25,67 @@ export const landscapePhoneMaxHeight = 480;
 const phoneQuery = '(max-width: ' + phoneMaxWidth + 'px), '
   + '(max-width: ' + landscapePhoneMaxWidth + 'px) and (max-height: ' + landscapePhoneMaxHeight + 'px)';
 
+/**
+ * The custom property demo.css sets to `0` on `:root` and to `1` from inside
+ * its phone media block — i.e. the stylesheet's own answer, rather than a
+ * second derivation of the same numbers.
+ */
+const phoneTierProperty = '--demo-phone';
+
+/**
+ * Dev-only guard against the two copies of the phone breakpoint drifting.
+ *
+ * `phoneQuery` above and the `@media (max-width: 640px), (max-width: 900px) and
+ * (max-height: 480px)` block at the bottom of demo.css are the same rule
+ * written twice, in two languages, and until now nothing but a comment in each
+ * asked them to stay in step. The two directions of drift fail very
+ * differently, which is why this is worth a check rather than a comment:
+ *
+ * - Stylesheet narrower than the JS: the JS drops Multi mode from the switcher
+ *   at a width the stylesheet still lays out as a desktop. Cosmetic, and the
+ *   missing button is right there to see.
+ * - Stylesheet wider than the JS: the stylesheet applies `flex-wrap: nowrap` to
+ *   a navigation row whose surplus controls the JS has *not* folded into the
+ *   overflow menu, inside a container with `overflow: hidden`. The controls
+ *   past the right edge are simply gone — no wrap, no scrollbar, no clue on
+ *   screen that anything is missing. That failure can survive review.
+ *
+ * Development builds only; this is a development aid, not behaviour. It is also
+ * quiet whenever it cannot get a real answer — during SSR/prerender, and in
+ * jsdom-style test environments where demo.css was never loaded and the
+ * property resolves to the empty string — so it can never turn a missing
+ * stylesheet into console noise.
+ */
+function assertPhoneTierInSync(matches: boolean): void {
+  if (import.meta.env?.DEV !== true) {
+    return;
+  }
+  if (typeof document === 'undefined' || typeof getComputedStyle !== 'function') {
+    return;
+  }
+  const declared = getComputedStyle(document.documentElement).getPropertyValue(phoneTierProperty).trim();
+  if (declared === '') {
+    return;
+  }
+  const stylesheetSaysPhone = declared === '1';
+  if (stylesheetSaysPhone !== matches) {
+    console.error(
+      '[demo-common] phone breakpoint drift: demo.css says ' + phoneTierProperty + ': ' + declared
+        + ' (phone=' + String(stylesheetSaysPhone) + ') but matchMedia("' + phoneQuery + '") says '
+        + String(matches) + '. The phone @media block in demo-common/css/demo.css and phoneQuery in '
+        + 'demo-common/src/viewport.ts have to describe the same viewports.'
+    );
+  }
+}
+
 /** False during SSR/prerender, where there is no viewport to ask. */
 export function isPhoneViewport(): boolean {
-  return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-    ? window.matchMedia(phoneQuery).matches
-    : false;
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false;
+  }
+  const matches = window.matchMedia(phoneQuery).matches;
+  assertPhoneTierInSync(matches);
+  return matches;
 }
 
 /**
@@ -42,7 +98,13 @@ export function watchPhoneViewport(onChange: (isPhone: boolean) => void): () => 
     return () => {};
   }
   const query = window.matchMedia(phoneQuery);
-  const listener = (event: MediaQueryListEvent): void => onChange(event.matches);
+  // Checked on every crossing as well as on read: a resize is the moment the
+  // two tiers are actually being asked the same question, and a drift of a
+  // single pixel only shows up in the band between the two breakpoints.
+  const listener = (event: MediaQueryListEvent): void => {
+    assertPhoneTierInSync(event.matches);
+    onChange(event.matches);
+  };
   query.addEventListener('change', listener);
   return () => query.removeEventListener('change', listener);
 }

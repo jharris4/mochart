@@ -4,7 +4,7 @@ import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTrans
 
 import { TransitionChartTab } from './transition-chart-tab';
 import { TransitionConfigTab } from './transition-config-tab';
-import { BackToDemosButton, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
+import { TopBar } from '../misc/top-bar';
 
 import type { TransitionConfig } from '../../types';
 
@@ -13,33 +13,20 @@ const eventKeyConfig = 2;
 
 @Component({
   selector: 'app-demo-transition',
-  imports: [TransitionChartTab, TransitionConfigTab, BackToDemosButton, SiteRootButton, ThemeToggleButton],
+  imports: [TransitionChartTab, TransitionConfigTab, TopBar],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container multi">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          @if (siteRootUrl !== undefined) {
-            <a appSiteRootButton [href]="siteRootUrl"></a>
-          }
-          <button appBackToDemosButton (click)="onBackToDemos()"></button>
-          <ul class="demo-tabs">
-            <li class="demo-tab-item">
-              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyChart ? ' active' : '')"
-                      (click)="handleSelect(eventKeyChart)">
-                {{ text.chart }}
-              </button>
-            </li>
-            <li class="demo-tab-item">
-              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyConfig ? ' active' : '')"
-                      (click)="handleSelect(eventKeyConfig)">
-                {{ text.transitionConfig }}
-              </button>
-            </li>
-          </ul>
-        </div>
-        <button appThemeToggleButton></button>
-      </div>
+      <app-top-bar [siteRootUrl]="siteRootUrl" [onBackToDemos]="onBackToDemos" [hasTabs]="true">
+        <li class="demo-tab-item">
+          <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyChart ? ' active' : '')"
+                  (click)="handleSelect(eventKeyChart)">{{ text.chart }}</button>
+        </li>
+        <li class="demo-tab-item">
+          <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyConfig ? ' active' : '')"
+                  (click)="handleSelect(eventKeyConfig)">{{ text.transitionConfig }}</button>
+        </li>
+      </app-top-bar>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
           <app-transition-chart-tab [mochartConfig]="mochartConfig()" [dataProviders]="dataProviders()" [active]="activeKey() === eventKeyChart" />

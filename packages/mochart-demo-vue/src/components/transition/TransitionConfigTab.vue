@@ -56,7 +56,7 @@ const footerError = computed(() => jsonError.value ?? errorMessage.value);
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
       <TextAreaContent :value="configText" :on-change="onTextChange" />
     </div>

@@ -10,8 +10,7 @@ import RandomMochartChartTab from './RandomChartTab';
 import RandomMochartConfigTab from './RandomConfigTab';
 import RandomMochartDataTab from './RandomDataTab';
 import ErrorTab from '../misc/ErrorTab';
-import { ModeSwitcher, SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
-import NotesMenu from '../misc/NotesMenu';
+import TopBar from '../misc/TopBar';
 
 import type {
   DemoData, DemoTabProps, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue
@@ -66,11 +65,11 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
 
   return (
     <div className="mochart-demo-container multi">
-      <div className="mochart-demo-tabs-container">
-        <div className="mochart-demo-nav-group">
-          <SiteRootButton siteRootUrl={siteRootUrl} />
-          <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <ul className="demo-tabs">
+      <TopBar siteRootUrl={siteRootUrl} onBackToDemos={onBackToDemos}
+        notes={demoData.demoObjectMap[initialDemoId]}
+        modes={{ demoMode: 'random', onModeChanged }}
+        tabs={
+          <>
             <li className="demo-tab-item">
               <button type="button" className={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")} onClick={() => { handleSelect(eventKeyChart); }}>
                 {demoText.tabs.chart}
@@ -86,14 +85,8 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
                 {demoText.tabs.data}
               </button>
             </li>
-          </ul>
-          <NotesMenu title={demoData.demoObjectMap[initialDemoId].title} notes={demoData.demoObjectMap[initialDemoId].notes} />
-        </div>
-        <div className="mochart-demo-nav-group">
-          <ModeSwitcher demoMode="random" onModeChanged={onModeChanged} />
-          <ThemeToggleButton />
-        </div>
-      </div>
+          </>
+        } />
       <div className="mochart-demo-content-pane">
         <RandomMochartDemoContent mochartDemoConfig={mochartDemoConfig} initialRandomConfig={randomConfig}
           generator={generator} initialDemoId={initialDemoId} activeKey={activeKey}

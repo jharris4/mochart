@@ -31,6 +31,8 @@
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",
     "test:e2e": "npm run test:e2e -w @mochart/demo-basic",
+    "screenshots": "node scripts/screenshots/capture.mjs",
+    "screenshots:compare": "node scripts/screenshots/compare.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {

@@ -3,9 +3,7 @@ import { ref, shallowRef } from 'vue';
 
 import { defaultTransitionConfig, demoText, getTransitionDataProviders, getTransitionMochartConfig } from '@mochart/demo-common';
 
-import BackToDemosButton from '../misc/BackToDemosButton.vue';
-import SiteRootButton from '../misc/SiteRootButton.vue';
-import ThemeToggleButton from '../misc/ThemeToggleButton.vue';
+import TopBar from '../misc/TopBar.vue';
 import TransitionChartTab from './TransitionChartTab.vue';
 import TransitionConfigTab from './TransitionConfigTab.vue';
 
@@ -46,27 +44,22 @@ function onResetConfig() {
 
 <template>
   <div class="mochart-demo-container multi">
-    <div class="mochart-demo-tabs-container">
-      <div class="mochart-demo-nav-group">
-        <SiteRootButton :site-root-url="props.siteRootUrl" />
-        <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
-        <ul class="demo-tabs">
-          <li class="demo-tab-item">
-            <button type="button" :class="'demo-tab' + (activeKey === eventKeyChart ? ' active' : '')"
-                    @click="handleSelect(eventKeyChart)">
-              {{ demoText.tabs.chart }}
-            </button>
-          </li>
-          <li class="demo-tab-item">
-            <button type="button" :class="'demo-tab' + (activeKey === eventKeyConfig ? ' active' : '')"
-                    @click="handleSelect(eventKeyConfig)">
-              {{ demoText.tabs.transitionConfig }}
-            </button>
-          </li>
-        </ul>
-      </div>
-      <ThemeToggleButton />
-    </div>
+    <TopBar :site-root-url="props.siteRootUrl" :on-back-to-demos="props.onBackToDemos">
+      <template #tabs>
+        <li class="demo-tab-item">
+          <button type="button" :class="'demo-tab' + (activeKey === eventKeyChart ? ' active' : '')"
+                  @click="handleSelect(eventKeyChart)">
+            {{ demoText.tabs.chart }}
+          </button>
+        </li>
+        <li class="demo-tab-item">
+          <button type="button" :class="'demo-tab' + (activeKey === eventKeyConfig ? ' active' : '')"
+                  @click="handleSelect(eventKeyConfig)">
+            {{ demoText.tabs.transitionConfig }}
+          </button>
+        </li>
+      </template>
+    </TopBar>
     <div class="mochart-demo-content-pane">
       <div class="mochart-demo-content">
         <TransitionChartTab :mochart-config="mochartConfig" :data-providers="dataProviders" :active="activeKey === eventKeyChart" />

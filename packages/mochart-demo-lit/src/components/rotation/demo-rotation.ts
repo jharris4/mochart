@@ -4,8 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { defaultChart } from '@mochart/lit';
 
 import { LightElement } from '../misc/LightElement';
-import { backToDemosButton, siteRootButton } from '../misc/mode-switcher';
-import '../misc/theme-toggle-button';
+import '../misc/top-bar';
 
 import { configs, data, minWidth } from './rotationConfigs';
 
@@ -42,13 +41,7 @@ export class DemoRotation extends LightElement {
     const cols = Math.max(1, Math.floor(this.chartsWidth / minWidth));
     const colWidth = Math.floor(this.chartsWidth / cols);
     return html`<div class="mochart-demo-container">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          ${siteRootButton(this.siteRootUrl)}
-          ${backToDemosButton(this.onBackToDemos)}
-        </div>
-        <theme-toggle-button></theme-toggle-button>
-      </div>
+      <top-bar .siteRootUrl=${this.siteRootUrl} .onBackToDemos=${this.onBackToDemos}></top-bar>
       <div class="rotation-charts">
         ${colWidth > 0 ? configs.map((config, i) => html`<div
             class=${'rotation-chart rotation-chart-' + i}

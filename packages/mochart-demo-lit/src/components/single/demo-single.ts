@@ -6,10 +6,7 @@ import { consumeSingleShareState, demoText } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import { PhoneViewportController } from '../misc/PhoneViewportController';
-import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
-import '../misc/notes-menu';
-import '../misc/theme-toggle-button';
+import '../misc/top-bar';
 
 import './chart-tab';
 import './config-tab';
@@ -46,7 +43,6 @@ export class DemoSingle extends LightElement {
   @state() private viewingData: DataRow[] | null = null;
   @state() private viewingDataError: DataError = false;
 
-  private viewport = new PhoneViewportController(this);
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (!changed.has('initialDemoId')) {
@@ -144,22 +140,10 @@ export class DemoSingle extends LightElement {
 
   override render(): unknown {
     return html`<div class="mochart-demo-container">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          ${siteRootButton(this.siteRootUrl)}
-          ${backToDemosButton(this.onBackToDemos)}
-          <ul class="demo-tabs">
-            ${this.renderTab(eventKeyChart, demoText.tabs.chart)}
-            ${this.renderTab(eventKeyConfig, demoText.tabs.config)}
-            ${this.renderTab(eventKeyData, demoText.tabs.data)}
-          </ul>
-          <notes-menu .demoTitle=${this.demoData.demoObjectMap[this.initialDemoId].title} .notes=${this.demoData.demoObjectMap[this.initialDemoId].notes}></notes-menu>
-        </div>
-        <div class="mochart-demo-nav-group">
-          ${modeSwitcher({ demoMode: 'single', isPhone: this.viewport.isPhone, onModeChanged: this.onModeChanged })}
-          <theme-toggle-button></theme-toggle-button>
-        </div>
-      </div>
+      <top-bar .siteRootUrl=${this.siteRootUrl} .onBackToDemos=${this.onBackToDemos}
+               .notes=${this.demoData.demoObjectMap[this.initialDemoId]}
+               .modes=${{ demoMode: 'single' as const, onModeChanged: this.onModeChanged }}
+               .tabs=${() => html`${this.renderTab(eventKeyChart, demoText.tabs.chart)}${this.renderTab(eventKeyConfig, demoText.tabs.config)}${this.renderTab(eventKeyData, demoText.tabs.data)}`}></top-bar>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
           <error-tab .active=${this.activeKey === eventKeyChart} .content=${() =>

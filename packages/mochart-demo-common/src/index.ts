@@ -63,8 +63,11 @@ export {
   isPhoneViewport, watchPhoneViewport, isDemoModeAvailable, getAvailableDemoModes
 } from './viewport';
 
-export { getNotesPanelPosition } from './notesPanel';
-export type { NotesPanelPosition } from './notesPanel';
+export { getMenuPosition, watchMenuDismiss, createMenuController, menuZIndex } from './menu';
+export type {
+  MenuSide, MenuAlign, MenuAnchorRect, MenuViewport, MenuPlacement, MenuPosition,
+  MenuDismissOptions, MenuControllerOptions, MenuController
+} from './menu';
 
 export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, consumeSingleShareState, shareHashPrefix } from './shareState';
 export type { ShareState, SingleShareState, MultiShareState, RandomShareState } from './shareState';

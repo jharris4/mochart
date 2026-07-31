@@ -4,9 +4,10 @@
 import { Component, Input, computed, signal } from '@angular/core';
 import type { OnDestroy } from '@angular/core';
 
-import { demoText, getAvailableDemoModes, initTheme, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
+import { demoText, getAvailableDemoModes, initTheme } from '@mochart/demo-common';
 
 import { Icon } from './icon';
+import { phoneViewport } from './phone-viewport';
 
 import type { SwitchableDemoMode } from '../../types';
 
@@ -23,14 +24,22 @@ const modeIcons: Record<SwitchableDemoMode, string> = {
   selector: 'app-mode-switcher',
   imports: [Icon],
   styles: [':host { display: contents; }'],
+  // How the current mode is marked depends on the width. In the strip it is a
+  // filled, disabled segment — plainly "you are here". On a phone the switcher
+  // lives in the nav overflow menu, where `.demo-menu-overflow .demo-btn:disabled`
+  // greys a row out and a greyed row in a list of destinations reads as
+  // unavailable rather than current — so there it gets the panel's `.active`
+  // tint plus `aria-current`, and is simply inert when tapped.
   template: `
     <div class="mochart-demo-mode-switcher">
       <span class="demo-label">{{ text.label }}</span>
       <div class="demo-toolbar" role="toolbar">
         @for (mode of modes(); track mode) {
-          <button type="button" [class]="'demo-btn demo-btn-' + (mode === demoMode ? 'primary' : 'secondary')"
-                  [disabled]="mode === demoMode" [title]="text.modes[mode].title"
-                  (click)="onModeChanged(mode)">
+          <button type="button"
+                  [class]="'demo-btn demo-btn-' + (mode === demoMode ? 'primary' : 'secondary') + (mode === demoMode && phone() ? ' active' : '')"
+                  [disabled]="mode === demoMode && !phone()" [title]="text.modes[mode].title"
+                  [attr.aria-current]="mode === demoMode && phone() ? 'true' : null"
+                  (click)="onSelect(mode)">
             <app-icon size="lg" [fixedWidth]="true" [name]="modeIcons[mode]" /><span class="btn-label">{{ text.modes[mode].label }}</span>
           </button>
         }
@@ -38,23 +47,23 @@ const modeIcons: Record<SwitchableDemoMode, string> = {
     </div>
   `
 })
-export class ModeSwitcher implements OnDestroy {
+export class ModeSwitcher {
   @Input({ required: true }) demoMode!: SwitchableDemoMode;
   @Input({ required: true }) onModeChanged!: (nextDemoMode: SwitchableDemoMode) => void;
 
   readonly text = demoText.modeSwitcher;
   readonly modeIcons = modeIcons;
 
-  private readonly phone = signal(isPhoneViewport());
+  readonly phone = phoneViewport();
 
   // Multi drops out below the phone breakpoint, so the offered modes have to
   // follow a rotation as well as the initial width.
   readonly modes = computed(() => getAvailableDemoModes(this.phone()));
 
-  private readonly unsubscribe = watchPhoneViewport(phone => this.phone.set(phone));
-
-  ngOnDestroy(): void {
-    this.unsubscribe();
+  onSelect(mode: SwitchableDemoMode): void {
+    if (mode !== this.demoMode) {
+      this.onModeChanged(mode);
+    }
   }
 }
 
@@ -93,7 +102,13 @@ export class BackToDemosButton {
   readonly text = demoText.backToDemos;
 }
 
-/** Icon-only light/dark toggle; shares the docs site's theme choice. */
+/**
+ * Icon-only light/dark toggle; shares the docs site's theme choice.
+ *
+ * The `.btn-menu-label` span is text for the phone fold only: folded into the
+ * nav overflow menu this would be the one row with nothing to read, and the
+ * class is `display: none` everywhere except inside a `.demo-menu`.
+ */
 @Component({
   selector: 'button[appThemeToggleButton]',
   imports: [Icon],
@@ -104,7 +119,7 @@ export class BackToDemosButton {
     '[attr.aria-label]': 'text.aria',
     '(click)': 'toggle()'
   },
-  template: `<app-icon size="lg" [name]="dark() ? 'sun' : 'moon'" [fixedWidth]="true" />`
+  template: `<app-icon size="lg" [name]="dark() ? 'sun' : 'moon'" [fixedWidth]="true" /><span class="btn-menu-label">{{ dark() ? text.menuLabelToLight : text.menuLabelToDark }}</span>`
 })
 export class ThemeToggleButton implements OnDestroy {
   readonly text = demoText.themeToggle;

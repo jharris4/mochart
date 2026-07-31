@@ -11,6 +11,8 @@ import type { PieSliceInfo } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import ExportShareMenu from '../misc/ExportShareMenu';
+import OverflowMenu, { MenuDivider } from '../misc/OverflowMenu';
+import { usePhoneViewport } from '../misc/usePhoneViewport';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -727,6 +729,13 @@ export default function EditableChart(props: Props) {
     }
   };
 
+  // The phone fold. Which panel folds — and what each sends to the overflow
+  // menu — mirrors the vanilla port's placeControls; the react expression of
+  // "reparent, never duplicate" is that every control renders in exactly one
+  // of the two places from the same element (see OverflowMenu.tsx).
+  const isPhone = usePhoneViewport();
+  const menuSpanRef = useRef<HTMLSpanElement>(null);
+
   const {
     width, chartCount, showChartCountControls, showShareButton, onChartCountToggle, onSeriesFilter,
     filteredSeriesIds, focusedSeriesAxisId, focusedSeriesId
@@ -775,6 +784,7 @@ export default function EditableChart(props: Props) {
   // offered on the chart flagged for it (the first, when two are shown).
   const exportShareControlContent = (
     <ExportShareMenu key="exportShareControls" idPrefix="edit" disabled={error}
+      active={props.isActive !== false}
       exportPng={onExportPng} exportSvg={onExportSvg}
       getShareState={showShareButton ? () => {
         const { mochartDemoConfig, data } = propsRef.current;
@@ -782,9 +792,26 @@ export default function EditableChart(props: Props) {
       } : undefined} />
   );
 
-  // Pushed to the far right of the controls row (past the group/series input).
-  const exportShareRightContent = (
-    <span className="chart-controls-menu">{exportShareControlContent}</span>
+  const foldSlice = isPhone && mochartDemoConfig.pieMode;
+  const foldGroup = isPhone && !mochartDemoConfig.pieMode && selectionMode === 'group';
+  const foldSeries = isPhone && !mochartDemoConfig.pieMode && selectionMode !== 'group';
+
+  // The strip's trailing menus, pushed to the far right of the controls row.
+  // The ⋯ renders only while its panel is folded, and it lives INSIDE the
+  // `.chart-controls-menu` span: the panel anchors to the whole span because
+  // the export trigger sits to the ⋯'s right, so aligning to the ⋯ alone would
+  // stop the panel short of the row's end and hang it off the left edge.
+  const controlsMenu = (overflowChildren: React.ReactNode) => (
+    <span className="chart-controls-menu" ref={menuSpanRef}>
+      {overflowChildren !== null ? (
+        <OverflowMenu text={demoText.overflowMenu.chart}
+          placement={{ side: 'top', align: 'end', gap: 4 }}
+          anchorRef={menuSpanRef} disabled={error} active={props.isActive !== false}>
+          {overflowChildren}
+        </OverflowMenu>
+      ) : null}
+      {exportShareControlContent}
+    </span>
   );
 
   const chartCountControlContent = showChartCountControls ? (
@@ -810,16 +837,47 @@ export default function EditableChart(props: Props) {
     // Pie-mode slice panel — replaces both panels (and the mode toggle) when
     // slices are the series: click a slice (or step prev/next) to select it,
     // edit its value, or play the suppress/restore sequence.
+    //
+    // The fold keeps the steppers, the readout, Apply and the input; Reset and
+    // the play/stop pair go to the menu, with the 2nd-chart toggle as the tail
+    // (never offered on a phone, but the fold can run in a narrow window).
     const sliceControlsDisabled = error || sequencePlaying || slices.length === 0;
+    const resetSliceButton = (
+      <ButtonWithTooltip id="edit-reset-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.resetSlice.label}
+        tooltipText={demoText.editableChart.resetSlice.tooltip} tooltipPlacement="right"
+        onClick={resetSliceChanges} aria-label={demoText.editableChart.resetSlice.aria}>
+        <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+      </ButtonWithTooltip>
+    );
+    const sliceSequenceGroup = (
+      <div className="demo-btn-group">
+        <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
+          menuLabel={demoText.editableChart.playSliceSequence.menuLabel}
+          tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
+          onClick={startSliceSequence} aria-label={demoText.editableChart.playSliceSequence.aria}>
+          <Icon size="lg" fixedWidth={true} name="play" />
+        </ButtonWithTooltip>
+        <ButtonWithTooltip id="edit-stop-slices" disabled={error || !sequencePlaying}
+          menuLabel={demoText.editableChart.stopSliceSequence.menuLabel}
+          tooltipText={demoText.editableChart.stopSliceSequence.tooltip} tooltipPlacement="right"
+          onClick={stopSequence} aria-label={demoText.editableChart.stopSliceSequence.aria}>
+          <Icon size="lg" fixedWidth={true} name="stop" />
+        </ButtonWithTooltip>
+      </div>
+    );
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
           <form className="demo-form-row">
-            <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
-                {chartCountControlContent}
+            {foldSlice ? null : (
+              // Kept on desktop even when empty — the empty field's gap is
+              // part of the unfolded layout.
+              <div className="demo-field">
+                <div className="demo-toolbar" role="toolbar">
+                  {chartCountControlContent}
+                </div>
               </div>
-            </div>
+            )}
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
                 <div className="demo-btn-group">
@@ -848,29 +906,14 @@ export default function EditableChart(props: Props) {
                   </ButtonWithTooltip>
                 </div>
                 <div className="demo-btn-group">
-                  <ButtonWithTooltip id="edit-reset-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.resetSlice.label}
-                    tooltipText={demoText.editableChart.resetSlice.tooltip} tooltipPlacement="right"
-                    onClick={resetSliceChanges} aria-label={demoText.editableChart.resetSlice.aria}>
-                    <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
-                  </ButtonWithTooltip>
+                  {foldSlice ? null : resetSliceButton}
                   <ButtonWithTooltip id="edit-apply-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.applySlice.label}
                     tooltipText={demoText.editableChart.applySlice.tooltip} tooltipPlacement="right"
                     onClick={applySliceChanges} aria-label={demoText.editableChart.applySlice.aria}>
                     <Icon size="lg" fixedWidth={true} name="check" />
                   </ButtonWithTooltip>
                 </div>
-                <div className="demo-btn-group">
-                  <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
-                    tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
-                    onClick={startSliceSequence} aria-label={demoText.editableChart.playSliceSequence.aria}>
-                    <Icon size="lg" fixedWidth={true} name="play" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-stop-slices" disabled={error || !sequencePlaying}
-                    tooltipText={demoText.editableChart.stopSliceSequence.tooltip} tooltipPlacement="right"
-                    onClick={stopSequence} aria-label={demoText.editableChart.stopSliceSequence.aria}>
-                    <Icon size="lg" fixedWidth={true} name="stop" />
-                  </ButtonWithTooltip>
-                </div>
+                {foldSlice ? null : sliceSequenceGroup}
               </div>
             </div>
           </form>
@@ -880,59 +923,92 @@ export default function EditableChart(props: Props) {
             <input type="text" className="demo-input" disabled={sliceControlsDisabled} value={sliceValueText} onChange={sliceValueChanged} />
           </form>
         </span>
-        {exportShareRightContent}
+        {controlsMenu(foldSlice ? (
+          <>
+            <div className="demo-btn-group">{resetSliceButton}</div>
+            <MenuDivider />
+            {sliceSequenceGroup}
+            {chartCountControlContent !== null ? <><MenuDivider />{chartCountControlContent}</> : null}
+          </>
+        ) : null)}
       </div>
     );
   }
   else if (selectionMode === 'group') {
+    // The fold keeps Add and Remove — they act on what is typed in the input
+    // beside them — plus the input; everything else goes to the menu, split
+    // into the same sections the vanilla port uses (order edits, then the
+    // sequence transport, then the shared controls).
+    const resetGroupsButton = (
+      <ButtonWithTooltip id="edit-reset-groups" disabled={error || sequencePlaying} label={demoText.editableChart.resetGroups.label}
+        tooltipText={demoText.editableChart.resetGroups.tooltip} tooltipPlacement="right"
+        onClick={resetGroups} aria-label={demoText.editableChart.resetGroups.aria}>
+        <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+      </ButtonWithTooltip>
+    );
+    const reverseGroupsButton = (
+      <ButtonWithTooltip id="edit-reverse-groups" disabled={error || sequencePlaying} label={demoText.editableChart.reverseGroups.label}
+        tooltipText={demoText.editableChart.reverseGroups.tooltip} tooltipPlacement="right"
+        onClick={reverseGroups} aria-label={demoText.editableChart.reverseGroups.aria}>
+        <Icon size="lg" fixedWidth={true} name="right-left" />
+      </ButtonWithTooltip>
+    );
+    const addGroupsButton = (
+      <ButtonWithTooltip id="edit-add-groups" disabled={error || sequencePlaying || disableAdd} label={demoText.editableChart.addGroups.label}
+        tooltipText={demoText.editableChart.addGroups.tooltip} tooltipPlacement="right"
+        onClick={addGroups} aria-label={demoText.editableChart.addGroups.aria}>
+        <Icon size="lg" fixedWidth={true} name="plus" />
+      </ButtonWithTooltip>
+    );
+    const removeGroupsButton = (
+      <ButtonWithTooltip id="edit-remove-groups" disabled={error || sequencePlaying || disableRemove} label={demoText.editableChart.removeGroups.label}
+        tooltipText={demoText.editableChart.removeGroups.tooltip} tooltipPlacement="right"
+        onClick={removeGroups} aria-label={demoText.editableChart.removeGroups.aria}>
+        <Icon size="lg" fixedWidth={true} name="minus" />
+      </ButtonWithTooltip>
+    );
+    const playAddButton = (
+      <ButtonWithTooltip id="edit-play-add" disabled={error || sequencePlaying || disableAdd}
+        menuLabel={demoText.editableChart.playAddGroups.menuLabel}
+        tooltipText={demoText.editableChart.playAddGroups.tooltip} tooltipPlacement="right"
+        onClick={startAddSequence} aria-label={demoText.editableChart.playAddGroups.aria}>
+        <Icon size="lg" name="play" /><span style={{ paddingRight: 2 }}></span><Icon size="lg" name="plus" />
+      </ButtonWithTooltip>
+    );
+    const playRemoveButton = (
+      <ButtonWithTooltip id="edit-play-remove" disabled={error || sequencePlaying || disableRemove}
+        menuLabel={demoText.editableChart.playRemoveGroups.menuLabel}
+        tooltipText={demoText.editableChart.playRemoveGroups.tooltip} tooltipPlacement="right"
+        onClick={startRemoveSequence} aria-label={demoText.editableChart.playRemoveGroups.aria}>
+        <Icon size="lg" name="play" /><span style={{ paddingRight: 2 }}></span><Icon size="lg" name="minus" />
+      </ButtonWithTooltip>
+    );
+    const stopButton = (
+      <ButtonWithTooltip id="edit-stop" disabled={error || !sequencePlaying}
+        menuLabel={demoText.editableChart.stopSequence.menuLabel}
+        tooltipText={demoText.editableChart.stopSequence.tooltip} tooltipPlacement="right"
+        onClick={stopSequence} aria-label={demoText.editableChart.stopSequence.aria}>
+        <Icon size="lg" fixedWidth={true} name="stop" />
+      </ButtonWithTooltip>
+    );
+    const selectAllButton = (
+      <ButtonWithTooltip id="edit-select-all" disabled={error || sequencePlaying} label={demoText.editableChart.selectAllGroups.label}
+        tooltipText={demoText.editableChart.selectAllGroups.tooltip} tooltipPlacement="right"
+        onClick={selectAllGroups} aria-label={demoText.editableChart.selectAllGroups.aria}>
+        <Icon size="lg" fixedWidth={true} name="check-double" />
+      </ButtonWithTooltip>
+    );
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
           <form className="demo-form-row">
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                {commonControlContent}
+                {foldGroup ? null : commonControlContent}
                 <div className="demo-btn-group">
-                  <ButtonWithTooltip id="edit-reset-groups" disabled={error || sequencePlaying} label={demoText.editableChart.resetGroups.label}
-                    tooltipText={demoText.editableChart.resetGroups.tooltip} tooltipPlacement="right"
-                    onClick={resetGroups} aria-label={demoText.editableChart.resetGroups.aria}>
-                    <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-reverse-groups" disabled={error || sequencePlaying} label={demoText.editableChart.reverseGroups.label}
-                    tooltipText={demoText.editableChart.reverseGroups.tooltip} tooltipPlacement="right"
-                    onClick={reverseGroups} aria-label={demoText.editableChart.reverseGroups.aria}>
-                    <Icon size="lg" fixedWidth={true} name="right-left" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-add-groups" disabled={error || sequencePlaying || disableAdd} label={demoText.editableChart.addGroups.label}
-                    tooltipText={demoText.editableChart.addGroups.tooltip} tooltipPlacement="right"
-                    onClick={addGroups} aria-label={demoText.editableChart.addGroups.aria}>
-                    <Icon size="lg" fixedWidth={true} name="plus" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-remove-groups" disabled={error || sequencePlaying || disableRemove} label={demoText.editableChart.removeGroups.label}
-                    tooltipText={demoText.editableChart.removeGroups.tooltip} tooltipPlacement="right"
-                    onClick={removeGroups} aria-label={demoText.editableChart.removeGroups.aria}>
-                    <Icon size="lg" fixedWidth={true} name="minus" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-play-add" disabled={error || sequencePlaying || disableAdd}
-                    tooltipText={demoText.editableChart.playAddGroups.tooltip} tooltipPlacement="right"
-                    onClick={startAddSequence} aria-label={demoText.editableChart.playAddGroups.aria}>
-                    <Icon size="lg" name="play" /><span style={{ paddingRight: 2 }}></span><Icon size="lg" name="plus" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-play-remove" disabled={error || sequencePlaying || disableRemove}
-                    tooltipText={demoText.editableChart.playRemoveGroups.tooltip} tooltipPlacement="right"
-                    onClick={startRemoveSequence} aria-label={demoText.editableChart.playRemoveGroups.aria}>
-                    <Icon size="lg" name="play" /><span style={{ paddingRight: 2 }}></span><Icon size="lg" name="minus" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-stop" disabled={error || !sequencePlaying}
-                    tooltipText={demoText.editableChart.stopSequence.tooltip} tooltipPlacement="right"
-                    onClick={stopSequence} aria-label={demoText.editableChart.stopSequence.aria}>
-                    <Icon size="lg" fixedWidth={true} name="stop" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-select-all" disabled={error || sequencePlaying} label={demoText.editableChart.selectAllGroups.label}
-                    tooltipText={demoText.editableChart.selectAllGroups.tooltip} tooltipPlacement="right"
-                    onClick={selectAllGroups} aria-label={demoText.editableChart.selectAllGroups.aria}>
-                    <Icon size="lg" fixedWidth={true} name="check-double" />
-                  </ButtonWithTooltip>
+                  {foldGroup
+                    ? <>{addGroupsButton}{removeGroupsButton}</>
+                    : <>{resetGroupsButton}{reverseGroupsButton}{addGroupsButton}{removeGroupsButton}{playAddButton}{playRemoveButton}{stopButton}{selectAllButton}</>}
                 </div>
               </div>
             </div>
@@ -943,7 +1019,15 @@ export default function EditableChart(props: Props) {
             <input type="text" className="demo-input" disabled={error || sequencePlaying} value={groupValuesText} onChange={groupValuesChanged} />
           </form>
         </span>
-        {exportShareRightContent}
+        {controlsMenu(foldGroup ? (
+          <>
+            <div className="demo-btn-group">{resetGroupsButton}{reverseGroupsButton}{selectAllButton}</div>
+            <MenuDivider />
+            <div className="demo-btn-group">{playAddButton}{playRemoveButton}{stopButton}</div>
+            <MenuDivider />
+            {commonControlContent}
+          </>
+        ) : null)}
       </div>
     );
   }
@@ -961,15 +1045,42 @@ export default function EditableChart(props: Props) {
     const hasPrevSeries = seriesIndex > 0;
     const hasNextSeries = seriesIndex < mochartDemoConfig.seriesCount - 1;
 
+    // The fold keeps the steppers and their readouts — they are how a group
+    // and a series get picked at all. Apply stays visible too, but moves DOWN,
+    // onto the input row beside the JSON it applies: with it out of the
+    // stepper row the panel holds two rows even at 320x568. Reset is the one
+    // button with no partner anywhere, so it folds into the menu. The readout
+    // prefixes shrink to their one-letter, aria-hidden stand-ins there (the
+    // full prefixes are sr-only clipped by the phone tier and keep carrying
+    // the accessible name), and the labels drop their 5px side margins — the
+    // phone tier's 6px field gap is separation enough, and the margins' 20px
+    // would wrap the ▲ stepper onto a second row at 320px.
+    const resetSeriesButton = (
+      <ButtonWithTooltip id="edit-reset-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.resetSeries.label}
+        tooltipText={demoText.editableChart.resetSeries.tooltip} tooltipPlacement="right"
+        onClick={resetSeriesChanges} aria-label={demoText.editableChart.resetSeries.aria}>
+        <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+      </ButtonWithTooltip>
+    );
+    const applySeriesButton = (
+      <ButtonWithTooltip id="edit-apply-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.applySeries.label}
+        tooltipText={demoText.editableChart.applySeries.tooltip} tooltipPlacement="right"
+        onClick={applySeriesChanges} aria-label={demoText.editableChart.applySeries.aria}>
+        <Icon size="lg" fixedWidth={true} name="check" />
+      </ButtonWithTooltip>
+    );
+    const indexLabelMargin = foldSeries ? 0 : 5;
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
           <form className="demo-form-row">
-            <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
-                {commonControlContent}
+            {foldSeries ? null : (
+              <div className="demo-field">
+                <div className="demo-toolbar" role="toolbar">
+                  {commonControlContent}
+                </div>
               </div>
-            </div>
+            )}
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
                 <div className="demo-btn-group">
@@ -982,7 +1093,11 @@ export default function EditableChart(props: Props) {
               </div>
             </div>
             <div className="demo-field">
-              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }} title={groupIndexTitle}>{groupIndexText}<span className="demo-index-value">{groupIndex}</span></span>
+              <span className="demo-label" style={{ marginLeft: indexLabelMargin, marginRight: indexLabelMargin }} title={groupIndexTitle}>
+                <span className="demo-label-prefix">{groupIndexText}</span>
+                <span className="demo-label-prefix-compact" aria-hidden="true">{demoText.editableChart.groupIndexPrefixCompact}</span>
+                <span className="demo-index-value">{groupIndex}</span>
+              </span>
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
@@ -1007,7 +1122,11 @@ export default function EditableChart(props: Props) {
               </div>
             </div>
             <div className="demo-field">
-              <span className="demo-label" style={{ marginLeft: 5, marginRight: 5 }} title={seriesIndexTitle}>{seriesIndexText}<span className="demo-index-value">{seriesIndex}</span></span>
+              <span className="demo-label" style={{ marginLeft: indexLabelMargin, marginRight: indexLabelMargin }} title={seriesIndexTitle}>
+                <span className="demo-label-prefix">{seriesIndexText}</span>
+                <span className="demo-label-prefix-compact" aria-hidden="true">{demoText.editableChart.seriesIndexPrefixCompact}</span>
+                <span className="demo-index-value">{seriesIndex}</span>
+              </span>
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
@@ -1018,18 +1137,12 @@ export default function EditableChart(props: Props) {
                     <Icon size="lg" fixedWidth={true} name="chevron-up" />
                   </ButtonWithTooltip>
                 </div>
-                <div className="demo-btn-group">
-                  <ButtonWithTooltip id="edit-reset-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.resetSeries.label}
-                    tooltipText={demoText.editableChart.resetSeries.tooltip} tooltipPlacement="right"
-                    onClick={resetSeriesChanges} aria-label={demoText.editableChart.resetSeries.aria}>
-                    <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
-                  </ButtonWithTooltip>
-                  <ButtonWithTooltip id="edit-apply-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.applySeries.label}
-                    tooltipText={demoText.editableChart.applySeries.tooltip} tooltipPlacement="right"
-                    onClick={applySeriesChanges} aria-label={demoText.editableChart.applySeries.aria}>
-                    <Icon size="lg" fixedWidth={true} name="check" />
-                  </ButtonWithTooltip>
-                </div>
+                {foldSeries ? null : (
+                  <div className="demo-btn-group">
+                    {resetSeriesButton}
+                    {applySeriesButton}
+                  </div>
+                )}
               </div>
             </div>
           </form>
@@ -1037,9 +1150,16 @@ export default function EditableChart(props: Props) {
         <span className="chart-controls-input">
           <form className="demo-form-row">
             <input type="text" className="demo-input" disabled={error || seriesControlsDisabled} value={seriesValuesText} onChange={seriesValuesChanged} />
+            {foldSeries ? applySeriesButton : null}
           </form>
         </span>
-        {exportShareRightContent}
+        {controlsMenu(foldSeries ? (
+          <>
+            <div className="demo-btn-group">{resetSeriesButton}</div>
+            <MenuDivider />
+            {commonControlContent}
+          </>
+        ) : null)}
       </div>
     );
   }

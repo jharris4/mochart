@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, h, ref, watch } from 'vue';
 
 import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import Icon from '../misc/Icon.vue';
+import OverflowMenu from '../misc/OverflowMenu.vue';
+import { usePhoneViewport } from '../misc/usePhoneViewport';
 
 import type { DemoConfig, DataRow } from '../../types';
 
@@ -97,29 +99,54 @@ function applyData() {
 
 const jsonError = computed(() => getJsonError(dataText.value));
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
+
+// Same fold as the config footer — Apply and the `role="alert"` error stay
+// inline, the rest goes to the `⋯`; the reasons live on ConfigTab's fold.
+const isPhone = usePhoneViewport();
+const footerElement = ref<HTMLElement | null>(null);
+const getFooterAnchor = () => footerElement.value;
+
+const iconChild = (name: string) => () => h(Icon, { size: 'lg', fixedWidth: true, name });
+
+const ResetButton = () => h(ButtonWithTooltip, {
+  id: 'data-reset', label: demoText.dataTab.reset.label, tooltipText: demoText.dataTab.reset.tooltip,
+  tooltipPlacement: 'top-start', onClick: resetData, 'aria-label': demoText.dataTab.reset.aria
+}, iconChild('arrow-rotate-left'));
+
+const UnusedButton = () => h(ButtonWithTooltip, {
+  id: 'data-unused', label: demoText.dataTab.unused.label, pressed: showUnused.value,
+  tooltipText: demoText.dataTab.unused.tooltip, tooltipPlacement: 'top-start',
+  onClick: toggleShowUnused, 'aria-label': demoText.dataTab.unused.aria
+}, iconChild(showUnused.value ? 'eye' : 'eye-slash'));
+
+const ApplyButton = () => h(ButtonWithTooltip, {
+  id: 'data-apply', label: demoText.dataTab.apply.label, disabled: jsonError.value !== null,
+  tooltipText: demoText.dataTab.apply.tooltip, tooltipPlacement: 'top-start',
+  onClick: applyData, 'aria-label': demoText.dataTab.apply.aria
+}, iconChild('check'));
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')">
+  <div :class="'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
       <TextAreaContent :value="dataText" :on-change="onTextChange" />
     </div>
-    <div class="mochart-demo-tab-footer">
+    <div class="mochart-demo-tab-footer" ref="footerElement">
       <div class="demo-toolbar" role="toolbar">
-        <ButtonWithTooltip id="data-reset" :label="demoText.dataTab.reset.label" :tooltip-text="demoText.dataTab.reset.tooltip" tooltip-placement="top-start"
-                           :on-click="resetData" :aria-label="demoText.dataTab.reset.aria">
-          <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />
-        </ButtonWithTooltip>
-        <ButtonWithTooltip id="data-unused" :label="demoText.dataTab.unused.label" :pressed="showUnused"
-                           :tooltip-text="demoText.dataTab.unused.tooltip" tooltip-placement="top-start"
-                           :on-click="toggleShowUnused" :aria-label="demoText.dataTab.unused.aria">
-          <Icon size="lg" :fixed-width="true" :name="showUnused ? 'eye' : 'eye-slash'" />
-        </ButtonWithTooltip>
-        <ButtonWithTooltip id="data-apply" :label="demoText.dataTab.apply.label" :disabled="jsonError !== null"
-                           :tooltip-text="demoText.dataTab.apply.tooltip" tooltip-placement="top-start"
-                           :on-click="applyData" :aria-label="demoText.dataTab.apply.aria">
-          <Icon size="lg" :fixed-width="true" name="check" />
-        </ButtonWithTooltip>
+        <template v-if="isPhone">
+          <ApplyButton />
+          <OverflowMenu :text="demoText.overflowMenu.editor"
+                        :placement="{ side: 'top', align: 'end', gap: 4 }"
+                        :get-anchor="getFooterAnchor"
+                        :active="props.active">
+            <div class="demo-btn-group"><ResetButton /><UnusedButton /></div>
+          </OverflowMenu>
+        </template>
+        <template v-else>
+          <ResetButton />
+          <UnusedButton />
+          <ApplyButton />
+        </template>
         <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>
       </div>
     </div>

@@ -12,13 +12,15 @@ interface IconProps {
   size?: string;
   fixedWidth?: boolean;
   flip?: string;
+  /** For the rare icon that carries its own layout (`margin-left: auto`). */
+  style?: string;
 }
 
 /**
  * Font Awesome 6 solid icon (css classes only), same as the Vue demo's Icon
  * component. Relies on the `@fortawesome/fontawesome-free` css being imported.
  */
-export function icon({ name, size, fixedWidth, flip }: IconProps): TemplateResult {
+export function icon({ name, size, fixedWidth, flip, style }: IconProps): TemplateResult {
   const list = ['fa-solid', `fa-${name}`];
   if (size) {
     list.push(`fa-${size}`);
@@ -29,7 +31,7 @@ export function icon({ name, size, fixedWidth, flip }: IconProps): TemplateResul
   if (flip) {
     list.push(`fa-flip-${flip}`);
   }
-  return html`<span aria-hidden="true" class=${list.join(' ')}></span>`;
+  return html`<span aria-hidden="true" class=${list.join(' ')} style=${style ?? nothing}></span>`;
 }
 
 interface ButtonWithTooltipProps {
@@ -43,6 +45,12 @@ interface ButtonWithTooltipProps {
   // `label` renders visible text beside the icon; `pressed` marks the button
   // as a toggle (aria-pressed + active styling).
   label?: string;
+  // Text shown ONLY once the button has been folded into a phone overflow
+  // menu, where an icon-only button would be a bare glyph in a column of bare
+  // glyphs. Deliberately not `label`: a real label renders visible text in the
+  // strips above 900px, where these buttons are icon-only by design.
+  // `.btn-menu-label` is `display: none` everywhere except inside a menu.
+  menuLabel?: string;
   pressed?: boolean;
 }
 
@@ -52,14 +60,14 @@ interface ButtonWithTooltipProps {
  * but unused.
  */
 export function buttonWithTooltip(
-  { id, tooltipText, disabled = false, onClick, color = 'secondary', ariaLabel, label, pressed }: ButtonWithTooltipProps,
+  { id, tooltipText, disabled = false, onClick, color = 'secondary', ariaLabel, label, menuLabel, pressed }: ButtonWithTooltipProps,
   children: unknown
 ): TemplateResult {
   return html`<span class="button-with-tooltip">
     <button id=${id} type="button" class=${`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')} ?disabled=${disabled}
             title=${tooltipText ?? nothing} aria-label=${ariaLabel ?? nothing}
             aria-pressed=${pressed === undefined ? nothing : String(pressed)} @click=${() => onClick()}>
-      ${children}${label ? html`<span class="btn-label">${label}</span>` : nothing}
+      ${children}${menuLabel ? html`<span class="btn-menu-label">${menuLabel}</span>` : nothing}${label ? html`<span class="btn-label">${label}</span>` : nothing}
     </button>
   </span>`;
 }

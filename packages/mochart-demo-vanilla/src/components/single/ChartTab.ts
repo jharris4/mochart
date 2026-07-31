@@ -2,7 +2,7 @@ import { hasConfigStructureChange } from '@mochart/core';
 
 import { buildMochartDemoConfig } from '@mochart/demo-common';
 
-import { el, observeSize, setActiveClass } from '../misc/dom';
+import { el, observeSize, setActiveClass, tabContainer } from '../misc/dom';
 import { editableChart } from './EditableChart';
 import type { EditableChartHandle } from './EditableChart';
 
@@ -79,9 +79,7 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
 
   const chartsHost = el('div', { className: 'editable-charts' });
   const sizer = el('div', { className: 'editable-charts-sizer' }, [chartsHost]);
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-row chart' + (active ? ' active' : '')
-  }, [sizer]);
+  const container = tabContainer('demo-layout-row chart', active, [sizer]);
 
   const stopObserving = observeSize(container, (nextWidth) => {
     width = nextWidth;
@@ -158,6 +156,13 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
     el: container,
     setActive(nextActive: boolean) {
       active = nextActive;
+      // Before the pane goes inert, not after: an open menu is `position: fixed`
+      // and would keep painting over whichever pane took this one's place.
+      if (!nextActive) {
+        for (const chart of charts) {
+          chart.closeMenus();
+        }
+      }
       setActiveClass(container, nextActive);
       syncCharts();
     },

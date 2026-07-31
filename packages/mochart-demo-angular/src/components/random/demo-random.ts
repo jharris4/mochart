@@ -4,8 +4,7 @@ import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { buildMochartDemoConfig, demoText } from '@mochart/demo-common';
 
 import { RandomContent } from './random-content';
-import { BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton } from '../misc/mode-switcher';
-import { NotesMenu } from '../misc/notes-menu';
+import { TopBar } from '../misc/top-bar';
 
 import type { DemoData, MochartDemoConfig, RandomConfigWithValid, SwitchableDemoMode } from '../../types';
 
@@ -15,43 +14,26 @@ const eventKeyData = 3;
 
 @Component({
   selector: 'app-demo-random',
-  imports: [RandomContent, BackToDemosButton, ModeSwitcher, NotesMenu, SiteRootButton, ThemeToggleButton],
+  imports: [RandomContent, TopBar],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container multi">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          @if (siteRootUrl !== undefined) {
-            <a appSiteRootButton [href]="siteRootUrl"></a>
-          }
-          <button appBackToDemosButton (click)="onBackToDemos()"></button>
-          <ul class="demo-tabs">
-            <li class="demo-tab-item">
-              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeys.eventKeyChart ? ' active' : '')"
-                      (click)="handleSelect(eventKeys.eventKeyChart)">
-                {{ text.chart }}
-              </button>
-            </li>
-            <li class="demo-tab-item">
-              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeys.eventKeyConfig ? ' active' : '')"
-                      (click)="handleSelect(eventKeys.eventKeyConfig)">
-                {{ text.randomConfig }}
-              </button>
-            </li>
-            <li class="demo-tab-item">
-              <button type="button" [class]="'demo-tab' + (activeKey() === eventKeys.eventKeyData ? ' active' : '')"
-                      (click)="handleSelect(eventKeys.eventKeyData)">
-                {{ text.data }}
-              </button>
-            </li>
-          </ul>
-          <app-notes-menu [demoTitle]="demoData.demoObjectMap[initialDemoId].title" [notes]="demoData.demoObjectMap[initialDemoId].notes" />
-        </div>
-        <div class="mochart-demo-nav-group">
-          <app-mode-switcher [demoMode]="'random'" [onModeChanged]="onModeChanged" />
-          <button appThemeToggleButton></button>
-        </div>
-      </div>
+      <app-top-bar [siteRootUrl]="siteRootUrl" [onBackToDemos]="onBackToDemos" [hasTabs]="true"
+                   [notes]="demoData.demoObjectMap[initialDemoId]"
+                   [modes]="{ demoMode: 'random', onModeChanged }">
+        <li class="demo-tab-item">
+          <button type="button" [class]="'demo-tab' + (activeKey() === eventKeys.eventKeyChart ? ' active' : '')"
+                  (click)="handleSelect(eventKeys.eventKeyChart)">{{ text.chart }}</button>
+        </li>
+        <li class="demo-tab-item">
+          <button type="button" [class]="'demo-tab' + (activeKey() === eventKeys.eventKeyConfig ? ' active' : '')"
+                  (click)="handleSelect(eventKeys.eventKeyConfig)">{{ text.randomConfig }}</button>
+        </li>
+        <li class="demo-tab-item">
+          <button type="button" [class]="'demo-tab' + (activeKey() === eventKeys.eventKeyData ? ' active' : '')"
+                  (click)="handleSelect(eventKeys.eventKeyData)">{{ text.data }}</button>
+        </li>
+      </app-top-bar>
       <div class="mochart-demo-content-pane">
         <app-random-content [mochartDemoConfig]="mochartDemoConfig()!" [initialRandomConfig]="randomConfig()!"
                             [generator]="generator()" [activeKey]="activeKey()" [eventKeys]="eventKeys"

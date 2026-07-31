@@ -1,6 +1,7 @@
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, isPhoneViewport, parseFullData, watchPhoneViewport } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer, textAreaContent } from '../misc/dom';
+import { overflowMenu } from '../misc/OverflowMenu';
 
 import type { DemoConfig, DataRow } from '../../types';
 
@@ -18,6 +19,7 @@ export interface DataTabHandle {
   setActive(active: boolean): void;
   setConfig(config: DemoConfig): void;
   setData(data: DataRow[]): void;
+  destroy(): void;
 }
 
 export function dataTab(props: DataTabProps): DataTabHandle {
@@ -34,6 +36,14 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   let fullData = data;
   let usedProperties = collectUsedDataProperties(buildMochartDemoConfig(config).mochartConfig);
   let viewUsedProperties: Set<string> | null = null;
+
+  // The phone fold. Read once up front and kept current by the watcher below;
+  // `sync()` re-lays the footer out from it (see placeControls).
+  let isPhone = isPhoneViewport();
+  const unwatchViewport = watchPhoneViewport(next => {
+    isPhone = next;
+    sync();
+  });
 
   const textArea = textAreaContent('', () => {
     errorMessage = null;
@@ -107,16 +117,48 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   const footerError = el('span', { className: 'mochart-demo-footer-error', attrs: { role: 'alert' } });
   footerError.hidden = true;
 
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')
-  }, [
+  // Same fold as the config footer — same trigger copy (the data editor's own
+  // controls, not chart controls), same upward placement, same full-width
+  // footer anchor. The reasons live on ConfigTab's overflowMenu call.
+  const overflowMenuHandle = overflowMenu({
+    text: demoText.overflowMenu.editor,
+    placement: { side: 'top', align: 'end', gap: 4 },
+    getAnchor: () => footer
+  });
+
+  // Menu-side home for the folded footer buttons — a cached `.demo-btn-group`;
+  // OverflowMenu.ts's header says why that shape.
+  const menuActionGroup = el('div', { className: 'demo-btn-group' });
+  const menuActionButtons = [resetButton.el, unusedButton.el];
+
+  // The footer's order at desktop widths; also the list the unfold restores, so
+  // the desktop layout has exactly one definition.
+  const toolbarItems = [resetButton.el, unusedButton.el, applyButton.el, footerError];
+  // Apply stays beside the editor it applies, and the error span carries
+  // `role="alert"` — a message that has to be read cannot live behind a tap.
+  const foldedToolbarItems = [applyButton.el, overflowMenuHandle.el, footerError];
+  const toolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, toolbarItems);
+  const footer = el('div', { className: 'mochart-demo-tab-footer' }, [toolbar]);
+
+  const container = tabContainer('demo-layout-col data', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
-    el('div', { className: 'mochart-demo-tab-footer' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-        resetButton.el, unusedButton.el, applyButton.el, footerError
-      ])
-    ])
+    footer
   ]);
+
+  /**
+   * Where every footer control lives right now. Reparenting, never
+   * duplication — see OverflowMenu.ts's header.
+   */
+  function placeControls(): void {
+    // Do this first: emptying the panel detaches whatever it was hosting, so the
+    // restore below sees an honest child list rather than believing the controls
+    // are already placed.
+    overflowMenuHandle.setItems(isPhone ? [menuActionGroup] : []);
+    if (isPhone) {
+      setChildren(menuActionGroup, menuActionButtons);
+    }
+    setChildren(toolbar, isPhone ? foldedToolbarItems : toolbarItems);
+  }
 
   function sync(): void {
     const currentJsonError = getJsonError(textArea.getValue());
@@ -127,6 +169,8 @@ export function dataTab(props: DataTabProps): DataTabHandle {
 
     unusedButton.setPressed(showUnused);
     unusedButton.setContent([icon(showUnused ? 'eye' : 'eye-slash', { size: 'lg', fixedWidth: true })]);
+
+    placeControls();
   }
   render();
   sync();
@@ -134,6 +178,11 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   return {
     el: container,
     setActive(active: boolean) {
+      // An open panel is `position: fixed`, so marking the pane inert would
+      // leave it painting over the pane that replaced this one.
+      if (!active) {
+        overflowMenuHandle.close();
+      }
       setActiveClass(container, active);
     },
     setConfig(nextConfig: DemoConfig) {
@@ -159,6 +208,10 @@ export function dataTab(props: DataTabProps): DataTabHandle {
         render();
         sync();
       }
+    },
+    destroy() {
+      unwatchViewport();
+      overflowMenuHandle.destroy();
     }
   };
 }

@@ -7,11 +7,9 @@
 <script lang="ts">
   import { DefaultChart } from '@mochart/svelte';
 
-  import BackToDemosButton from '../misc/BackToDemosButton.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
-  import SiteRootButton from '../misc/SiteRootButton.svelte';
-  import ThemeToggleButton from '../misc/ThemeToggleButton.svelte';
+  import TopBar from '../misc/TopBar.svelte';
 
   interface Props {
     siteRootUrl?: string;
@@ -33,13 +31,7 @@
 </script>
 
 <div class="mochart-demo-container">
-  <div class="mochart-demo-tabs-container">
-    <div class="mochart-demo-nav-group">
-      <SiteRootButton {siteRootUrl} />
-      <BackToDemosButton {onBackToDemos} />
-    </div>
-    <ThemeToggleButton />
-  </div>
+  <TopBar {siteRootUrl} {onBackToDemos} />
   <div class="sparkline-page">
     <p class="sparkline-intro">
       {#each text.intro as segment, i (i)}

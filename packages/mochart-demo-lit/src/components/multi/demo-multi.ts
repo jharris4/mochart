@@ -6,10 +6,7 @@ import { demoText } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import { PhoneViewportController } from '../misc/PhoneViewportController';
-import { backToDemosButton, modeSwitcher, siteRootButton } from '../misc/mode-switcher';
-import '../misc/notes-menu';
-import '../misc/theme-toggle-button';
+import '../misc/top-bar';
 
 import './charts-tab';
 import '../misc/error-tab';
@@ -26,7 +23,6 @@ export class DemoMulti extends LightElement {
 
   @state() private demoId = '';
 
-  private viewport = new PhoneViewportController(this);
 
   override willUpdate(changed: PropertyValues<this>): void {
     if (changed.has('initialDemoId')) {
@@ -36,22 +32,12 @@ export class DemoMulti extends LightElement {
 
   override render(): unknown {
     return html`<div class="mochart-demo-container multi">
-      <div class="mochart-demo-tabs-container">
-        <div class="mochart-demo-nav-group">
-          ${siteRootButton(this.siteRootUrl)}
-          ${backToDemosButton(this.onBackToDemos)}
-          <ul class="demo-tabs">
-            <li class="demo-tab-item">
-              <button type="button" class="demo-tab active">${demoText.tabs.chart}</button>
-            </li>
-          </ul>
-          <notes-menu .demoTitle=${this.demoData.demoObjectMap[this.initialDemoId].title} .notes=${this.demoData.demoObjectMap[this.initialDemoId].notes}></notes-menu>
-        </div>
-        <div class="mochart-demo-nav-group">
-          ${modeSwitcher({ demoMode: 'multi', isPhone: this.viewport.isPhone, onModeChanged: this.onModeChanged })}
-          <theme-toggle-button></theme-toggle-button>
-        </div>
-      </div>
+      <top-bar .siteRootUrl=${this.siteRootUrl} .onBackToDemos=${this.onBackToDemos}
+               .notes=${this.demoData.demoObjectMap[this.initialDemoId]}
+               .modes=${{ demoMode: 'multi' as const, onModeChanged: this.onModeChanged }}
+               .tabs=${() => html`<li class="demo-tab-item">
+                 <button type="button" class="demo-tab active">${demoText.tabs.chart}</button>
+               </li>`}></top-bar>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
           <error-tab .active=${true} .content=${() =>

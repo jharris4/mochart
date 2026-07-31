@@ -13,13 +13,19 @@ interface Props {
   // `label` renders visible text beside the icon; `pressed` marks the button
   // as a toggle (aria-pressed + active styling).
   label?: string;
+  // Text shown ONLY once the button is folded into a phone overflow menu,
+  // where an icon-only button would be a bare glyph in a column of bare
+  // glyphs. Deliberately not `label`: a real label renders visible text in the
+  // strips above 900px, where these buttons are icon-only by design.
+  // `.btn-menu-label` is `display: none` everywhere except inside a menu.
+  menuLabel?: string;
   pressed?: boolean;
   [key: string]: unknown;
 }
 
 export default function ButtonWithTooltip(props: Props) {
   // tooltipPlacement is intentionally destructured out and ignored.
-  const { children, tooltipText, tooltipPlacement, id, disabled, onClick, color = 'secondary', label, pressed, ...buttonProps } = props;
+  const { children, tooltipText, tooltipPlacement, id, disabled, onClick, color = 'secondary', label, menuLabel, pressed, ...buttonProps } = props;
 
   return (
     <span className="button-with-tooltip">
@@ -27,7 +33,7 @@ export default function ButtonWithTooltip(props: Props) {
         disabled={disabled} title={tooltipText}
         aria-pressed={pressed === undefined ? undefined : pressed} onClick={onClick}
         {...(buttonProps as Record<string, unknown>)}>
-        {children}{label ? <span className="btn-label">{label}</span> : null}
+        {children}{menuLabel ? <span className="btn-menu-label">{menuLabel}</span> : null}{label ? <span className="btn-label">{label}</span> : null}
       </button>
     </span>
   );

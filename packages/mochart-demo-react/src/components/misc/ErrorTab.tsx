@@ -29,7 +29,7 @@ export default class ErrorTab extends Component<Props, State> {
     const { hasError } = this.state;
     if (hasError) {
       return (
-        <div className={"mochart-demo-tab-container error" + (active ? " active" : "")}>
+        <div className={"mochart-demo-tab-container error" + (active ? " active" : "")} inert={!active}>
           <div className="demo-alert demo-alert-error demo-text-center mochart-demo-error-message" role="alert">
             {demoText.errors.errorOccurred}
           </div>

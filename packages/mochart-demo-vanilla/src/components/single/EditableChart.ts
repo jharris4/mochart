@@ -1,13 +1,16 @@
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setChildren, withPreservedFocus } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 import { exportShareMenu } from '../misc/ExportShareMenu';
+import { menuDivider, overflowMenu } from '../misc/OverflowMenu';
+
+import type { MenuItem } from '../misc/OverflowMenu';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -50,6 +53,14 @@ export interface EditableChartUpdate {
 export interface EditableChartHandle {
   el: HTMLElement;
   update(next: EditableChartUpdate): void;
+  /**
+   * Dismiss both of this strip's popovers. The tab that owns this chart calls it
+   * on the way out: a pane is deactivated by being marked `inert` and shifted a
+   * viewport-width left, and an open panel is `position: fixed` — inert stops it
+   * being usable but not being *seen*, so it would hang over the pane that
+   * replaced it.
+   */
+  closeMenus(): void;
   destroy(): void;
 }
 
@@ -100,6 +111,14 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   let sliceValueText = '';
   let filteredFocusedGroupIndex = -1;
   let orderChanged = false;
+
+  // The phone fold. Read once up front and kept current by the watcher below;
+  // `sync()` re-lays the controls out from it (see placeControls).
+  let isPhone = isPhoneViewport();
+  const unwatchViewport = watchPhoneViewport(next => {
+    isPhone = next;
+    sync();
+  });
 
   function getFilteredFocusedGroupIndex(nextFilteredData: Row[]): number {
     let nextFilteredFocusedGroupIndex = -1;
@@ -674,7 +693,26 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       ? (): ShareState => ({ mode: 'single', config: mochartDemoConfig.config, data })
       : undefined
   });
-  const menuSpan = el('span', { className: 'chart-controls-menu' }, [exportShareMenuHandle.el]);
+  // The phone fold's trigger. It deliberately lives inside `menuSpan` rather
+  // than beside the panels: `.editable-mochart-chart` and
+  // `.editable-chart-container` are `display: contents`, so their children ARE
+  // the grid items of `.editable-charts` — a third child of the container would
+  // start a second implicit column and knock the two plots out of row alignment
+  // when two charts are shown (fixed once already in 6ad187d). Inside
+  // `menuSpan` it also inherits the re-parenting sync() already does to keep
+  // the menus pinned to the right of whichever panel is visible.
+  const overflowMenuHandle = overflowMenu({
+    text: demoText.overflowMenu.chart,
+    // Opens upward over the chart (the strip is at the bottom of the pane) and
+    // right-aligned.
+    placement: { side: 'top', align: 'end', gap: 4 },
+    // Measured against the whole trailing group, not the trigger: the
+    // export/share trigger sits to the ⋯'s right, so aligning to the ⋯ alone
+    // would stop the panel ~50px short of the row's end — and on a 390px phone
+    // a 320px panel pushed that far left hangs off the opposite edge.
+    getAnchor: () => menuSpan
+  });
+  const menuSpan = el('span', { className: 'chart-controls-menu' }, [overflowMenuHandle.el, exportShareMenuHandle.el]);
   const chartCountControl = chartCountButton ? el('div', { className: 'demo-btn-group' }, [chartCountButton.el]) : null;
   const modeControl = el('div', { className: 'demo-btn-group' }, [modeButton.el]);
   const commonControls = [...(chartCountControl ? [chartCountControl] : []), modeControl];
@@ -704,20 +742,26 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     onClick: removeGroups,
     content: [icon('minus', { size: 'lg', fixedWidth: true })]
   });
+  // The three transport buttons are icon-only at every width by design, so they
+  // carry `menuLabel` for the fold — without it they read as a column of bare
+  // glyphs once they are inside the overflow panel.
   const playAddButton = buttonWithTooltip({
     id: 'edit-play-add', ariaLabel: demoText.editableChart.playAddGroups.aria,
+    menuLabel: demoText.editableChart.playAddGroups.menuLabel,
     tooltipText: demoText.editableChart.playAddGroups.tooltip,
     onClick: startAddSequence,
     content: [icon('play', { size: 'lg' }), el('span', { style: 'padding-right: 2px;' }), icon('plus', { size: 'lg' })]
   });
   const playRemoveButton = buttonWithTooltip({
     id: 'edit-play-remove', ariaLabel: demoText.editableChart.playRemoveGroups.aria,
+    menuLabel: demoText.editableChart.playRemoveGroups.menuLabel,
     tooltipText: demoText.editableChart.playRemoveGroups.tooltip,
     onClick: startRemoveSequence,
     content: [icon('play', { size: 'lg' }), el('span', { style: 'padding-right: 2px;' }), icon('minus', { size: 'lg' })]
   });
   const stopButton = buttonWithTooltip({
     id: 'edit-stop', ariaLabel: demoText.editableChart.stopSequence.aria,
+    menuLabel: demoText.editableChart.stopSequence.menuLabel,
     tooltipText: demoText.editableChart.stopSequence.tooltip,
     onClick: stopSequence,
     content: [icon('stop', { size: 'lg', fixedWidth: true })]
@@ -735,12 +779,18 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     sync();
   });
 
-  const groupToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-    el('div', { className: 'demo-btn-group' }, [
-      resetGroupsButton.el, reverseGroupsButton.el, addGroupsButton.el, removeGroupsButton.el,
-      playAddButton.el, playRemoveButton.el, stopButton.el, selectAllButton.el
-    ])
-  ]);
+  // The strip's order at desktop widths; also the list the fold restores.
+  const groupButtons = [
+    resetGroupsButton.el, reverseGroupsButton.el, addGroupsButton.el, removeGroupsButton.el,
+    playAddButton.el, playRemoveButton.el, stopButton.el, selectAllButton.el
+  ];
+  const groupButtonGroup = el('div', { className: 'demo-btn-group' }, groupButtons);
+  const groupToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [groupButtonGroup]);
+
+  // Menu-side homes for the loose buttons the fold takes out of the strip —
+  // cached `.demo-btn-group`s; OverflowMenu.ts's header says why that shape.
+  const menuOrderGroup = el('div', { className: 'demo-btn-group' });
+  const menuSequenceGroup = el('div', { className: 'demo-btn-group' });
   const groupPanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [
       el('form', { className: 'demo-form-row' }, [
@@ -792,13 +842,29 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // The index sits in its own fixed-width span so stepping through indexes
   // never shifts the controls to the right of the label.
+  //
+  // The `Group: ` / `Series: ` prefixes get a span of their own so the phone
+  // tier can take them out of the layout — see `.demo-label-prefix` in the
+  // stylesheet's phone block, and the width arithmetic beside the margin
+  // toggle in placeControls. They are CLIPPED there, not removed: the readout
+  // has no other accessible name.
+  //
+  // The compact spans are the phone-tier stand-ins: a bare `-1` between two
+  // arrows names nothing visually, so `G` / `S` carry the meaning in the space
+  // the strip can actually spare. `aria-hidden`, so the accessible name stays
+  // the clipped full prefix and never doubles up as "Group: G -1". Hidden by
+  // the base stylesheet at every other width.
   const groupIndexValue = el('span', { className: 'demo-index-value' });
   const seriesIndexValue = el('span', { className: 'demo-index-value' });
   const groupIndexLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' }, [
-    demoText.editableChart.groupIndexPrefix, groupIndexValue
+    el('span', { className: 'demo-label-prefix', text: demoText.editableChart.groupIndexPrefix }),
+    el('span', { className: 'demo-label-prefix-compact', attrs: { 'aria-hidden': 'true' }, text: demoText.editableChart.groupIndexPrefixCompact }),
+    groupIndexValue
   ]);
   const seriesIndexLabel = el('span', { className: 'demo-label', style: 'margin-left: 5px; margin-right: 5px;' }, [
-    demoText.editableChart.seriesIndexPrefix, seriesIndexValue
+    el('span', { className: 'demo-label-prefix', text: demoText.editableChart.seriesIndexPrefix }),
+    el('span', { className: 'demo-label-prefix-compact', attrs: { 'aria-hidden': 'true' }, text: demoText.editableChart.seriesIndexPrefixCompact }),
+    seriesIndexValue
   ]);
 
   const seriesInput = el('input', { className: 'demo-input', attrs: { type: 'text' } });
@@ -807,6 +873,12 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     sync();
   });
 
+  // Named (rather than inlined into the tree below) so the fold can swap its
+  // contents: Reset moves into the menu on a phone, Apply stays beside the
+  // input it applies. `seriesActionButtons` is also the list the unfold
+  // restores, so the desktop order has exactly one definition.
+  const seriesActionButtons = [resetSeriesButton.el, applySeriesButton.el];
+  const seriesActionGroup = el('div', { className: 'demo-btn-group' }, seriesActionButtons);
   const seriesForm = el('form', { className: 'demo-form-row' }, [
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
@@ -828,18 +900,26 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
         el('div', { className: 'demo-btn-group' }, [nextSeriesButton.el]),
-        el('div', { className: 'demo-btn-group' }, [resetSeriesButton.el, applySeriesButton.el])
+        seriesActionGroup
       ])
     ])
   ]);
+  // Menu-side home for Reset (a cached `.demo-btn-group` — see OverflowMenu.ts).
+  const menuSeriesActionGroup = el('div', { className: 'demo-btn-group' });
   const seriesCommonToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
-  seriesForm.prepend(el('div', { className: 'demo-field' }, [seriesCommonToolbar]));
+  // Emptied by the fold (commonControls move into the menu), and an empty flex
+  // item still spends one of `.demo-form-row`'s 10px column gaps — which the
+  // tightest strip of the three cannot spare. placeControls hides it for the
+  // duration of the fold.
+  const seriesCommonField = el('div', { className: 'demo-field' }, [seriesCommonToolbar]);
+  seriesForm.prepend(seriesCommonField);
 
+  // Named so the fold can move Apply in beside the input it applies — see the
+  // series branch of placeControls.
+  const seriesInputForm = el('form', { className: 'demo-form-row' }, [seriesInput]);
   const seriesPanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [seriesForm]),
-    el('span', { className: 'chart-controls-input' }, [
-      el('form', { className: 'demo-form-row' }, [seriesInput])
-    ])
+    el('span', { className: 'chart-controls-input' }, [seriesInputForm])
   ]);
 
   // Pie-mode slice panel — replaces both panels when slices are the series:
@@ -869,14 +949,19 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     onClick: applySliceChanges,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });
+  // Icon-only at every width by design, so — like the group panel's transport
+  // buttons — they carry `menuLabel` for the fold, which renders only inside a
+  // menu and so leaves the desktop strip untouched.
   const playSliceButton = buttonWithTooltip({
     id: 'edit-play-slices', ariaLabel: demoText.editableChart.playSliceSequence.aria,
+    menuLabel: demoText.editableChart.playSliceSequence.menuLabel,
     tooltipText: demoText.editableChart.playSliceSequence.tooltip,
     onClick: startSliceSequence,
     content: [icon('play', { size: 'lg', fixedWidth: true })]
   });
   const stopSliceButton = buttonWithTooltip({
     id: 'edit-stop-slices', ariaLabel: demoText.editableChart.stopSliceSequence.aria,
+    menuLabel: demoText.editableChart.stopSliceSequence.menuLabel,
     tooltipText: demoText.editableChart.stopSliceSequence.tooltip,
     onClick: stopSequence,
     content: [icon('stop', { size: 'lg', fixedWidth: true })]
@@ -892,21 +977,32 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   });
 
   const sliceCommonToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
+  // Same split as the series panel: Reset folds out of the action group, and
+  // the whole play/stop group folds out of the toolbar (moving the group itself
+  // rather than emptying it, so no empty flex item is left spending a gap).
+  const sliceActionButtons = [resetSliceButton.el, applySliceButton.el];
+  const sliceStepGroup = el('div', { className: 'demo-btn-group' }, [nextSliceButton.el]);
+  const sliceActionGroup = el('div', { className: 'demo-btn-group' }, sliceActionButtons);
+  const sliceSequenceGroup = el('div', { className: 'demo-btn-group' }, [playSliceButton.el, stopSliceButton.el]);
+  const sliceToolbarGroups = [sliceStepGroup, sliceActionGroup, sliceSequenceGroup];
+  const sliceToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, sliceToolbarGroups);
+  const menuSliceActionGroup = el('div', { className: 'demo-btn-group' });
+  // The slice menu's optional tail. Built once, and empty rather than
+  // `[divider, null]` when there is no second-chart button: `setItems` drops
+  // nulls but keeps dividers, so the unconditional form would rule off the
+  // bottom of the panel with nothing under it — which on a phone (where the
+  // second chart is never offered) is the usual case, not the corner one.
+  const sliceMenuTail: MenuItem[] = chartCountControl ? [menuDivider, chartCountControl] : [];
+  const sliceCommonField = el('div', { className: 'demo-field' }, [sliceCommonToolbar]);
   const sliceForm = el('form', { className: 'demo-form-row' }, [
-    el('div', { className: 'demo-field' }, [sliceCommonToolbar]),
+    sliceCommonField,
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
         el('div', { className: 'demo-btn-group' }, [previousSliceButton.el])
       ])
     ]),
     el('div', { className: 'demo-field' }, [sliceLabel]),
-    el('div', { className: 'demo-field' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'demo-btn-group' }, [nextSliceButton.el]),
-        el('div', { className: 'demo-btn-group' }, [resetSliceButton.el, applySliceButton.el]),
-        el('div', { className: 'demo-btn-group' }, [playSliceButton.el, stopSliceButton.el])
-      ])
-    ])
+    el('div', { className: 'demo-field' }, [sliceToolbar])
   ]);
   const slicePanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [sliceForm]),
@@ -934,6 +1030,106 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     focusedSeriesId: string | null;
   } | null = null;
 
+  /**
+   * Where every shared control lives right now — the single place that moves
+   * `commonControls` between the three panels' toolbars, and (on a phone) folds
+   * whichever panel is showing into the overflow menu.
+   *
+   * Reparenting, never duplication — see OverflowMenu.ts's header.
+   *
+   * Only the visible panel folds. The other two are `display: none` at this
+   * point, so their strips are restored unconditionally — that is also what
+   * pulls their controls back out of the menu when the active panel changes
+   * (switching Edit Groups → Edit Series swaps the whole item list, which
+   * detaches the group panel's menu rows; the restore below re-homes them).
+   */
+  function placeControls(pieMode: boolean, groupMode: boolean): void {
+    const foldGroup = isPhone && !pieMode && groupMode;
+    const foldSeries = isPhone && !pieMode && !groupMode;
+    const foldSlice = isPhone && pieMode;
+
+    // Do this first: emptying the panel detaches whatever it was hosting, so
+    // the parent-identity guards below see an honest `null` and put the
+    // controls back rather than believing they are already placed.
+    //
+    // The slice list carries `chartCountControl` but not `modeControl`: there
+    // are no group/series panels to switch to in pie mode, which is why the
+    // desktop branch removes that button rather than placing it.
+    overflowMenuHandle.setItems(
+      foldGroup ? [menuOrderGroup, menuDivider, menuSequenceGroup, menuDivider, ...commonControls]
+        : foldSeries ? [menuSeriesActionGroup, menuDivider, ...commonControls]
+          : foldSlice ? [menuSliceActionGroup, menuDivider, sliceSequenceGroup, ...sliceMenuTail]
+            : []);
+
+    // Group panel. Add/Remove act on what is typed in the input beside them, so
+    // they stay in the strip; everything else folds.
+    setChildren(groupButtonGroup, foldGroup ? [addGroupsButton.el, removeGroupsButton.el] : groupButtons);
+    if (foldGroup) {
+      setChildren(menuOrderGroup, [resetGroupsButton.el, reverseGroupsButton.el, selectAllButton.el]);
+      setChildren(menuSequenceGroup, [playAddButton.el, playRemoveButton.el, stopButton.el]);
+    }
+
+    // Series panel. The steppers and their readouts stay — they are how a group
+    // and a series get picked at all. Apply stays visible too, but moves DOWN,
+    // onto the input row beside the JSON it applies: with it gone the stepper
+    // row is four buttons and two readouts, which is what lets the panel hold
+    // two rows even at 320x568 (five buttons wrapped it to three). Reset is the
+    // one button with no partner anywhere, so it folds into the menu. The
+    // emptied action group is `display: none`d by `.demo-btn-group:empty`.
+    setChildren(seriesActionGroup, foldSeries ? [] : seriesActionButtons);
+    setChildren(seriesInputForm, foldSeries ? [seriesInput, applySeriesButton.el] : [seriesInput]);
+    if (foldSeries) {
+      setChildren(menuSeriesActionGroup, [resetSeriesButton.el]);
+    }
+    seriesCommonField.style.display = foldSeries ? 'none' : '';
+    // The readouts' own 5px side margins go too: the folded stepper row (four
+    // 44px buttons plus the two compact readouts) fits 320x568's ~274px with
+    // only a few pixels to spare, and the margins' 20px would wrap the ▲
+    // stepper onto a second row. The phone tier's 6px field gap either side is
+    // already separation enough for a two-character readout.
+    //
+    // Inline, because the desktop values are inline too — a stylesheet rule
+    // could not win against them without `!important`. Written on every sync
+    // rather than toggled, so the desktop branch always restores the exact
+    // string the elements were built with.
+    const indexLabelMargin = foldSeries ? '0px' : '5px';
+    groupIndexLabel.style.marginLeft = indexLabelMargin;
+    groupIndexLabel.style.marginRight = indexLabelMargin;
+    seriesIndexLabel.style.marginLeft = indexLabelMargin;
+    seriesIndexLabel.style.marginRight = indexLabelMargin;
+
+    // Slice panel. Same shape: steppers, readout, Apply and the input stay; the
+    // play/stop pair folds as a whole group rather than being emptied, so no
+    // stray empty flex item is left behind spending a gap.
+    setChildren(sliceToolbar, foldSlice ? [sliceStepGroup, sliceActionGroup] : sliceToolbarGroups);
+    setChildren(sliceActionGroup, foldSlice ? [applySliceButton.el] : sliceActionButtons);
+    if (foldSlice) {
+      setChildren(menuSliceActionGroup, [resetSliceButton.el]);
+    }
+    // Hidden only while folded, never merely because it is empty: above the
+    // phone tier this field is empty in pie mode whenever the second chart is
+    // not on offer, and that empty field's gap is part of today's layout.
+    sliceCommonField.style.display = foldSlice ? 'none' : '';
+
+    if (pieMode) {
+      modeControl.remove();
+      if (!foldSlice && chartCountControl && chartCountControl.parentElement !== sliceCommonToolbar) {
+        sliceCommonToolbar.append(chartCountControl);
+      }
+    }
+    else if (foldGroup || foldSeries) {
+      // commonControls are hosted by the overflow panel; setItems put them there.
+    }
+    else if (groupMode) {
+      if (commonControls[0].parentElement !== groupToolbar) {
+        groupToolbar.prepend(...commonControls);
+      }
+    }
+    else if (commonControls[0].parentElement !== seriesCommonToolbar) {
+      seriesCommonToolbar.append(...commonControls);
+    }
+  }
+
   function sync(): void {
     const chartDataError = !!(dataProvider && dataProvider.getError && dataProvider.getError());
     const configError = !mochartDemoConfig.valid;
@@ -954,29 +1150,23 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     // slice panel; the group/series machinery has nothing to edit there)
     const pieMode = mochartDemoConfig.pieMode;
     const groupMode = selectionMode === 'group';
+    placeControls(pieMode, groupMode);
     groupPanel.style.display = !pieMode && groupMode ? '' : 'none';
     seriesPanel.style.display = !pieMode && !groupMode ? '' : 'none';
     slicePanel.style.display = pieMode ? '' : 'none';
-    if (pieMode) {
-      modeControl.remove();
-      if (chartCountControl && chartCountControl.parentElement !== sliceCommonToolbar) {
-        sliceCommonToolbar.append(chartCountControl);
-      }
-    }
-    else if (groupMode) {
-      if (commonControls[0].parentElement !== groupToolbar) {
-        groupToolbar.prepend(...commonControls);
-      }
-    }
-    else if (commonControls[0].parentElement !== seriesCommonToolbar) {
-      seriesCommonToolbar.append(...commonControls);
-    }
 
     // Keep the export/share menu as the last child of the visible panel (after
     // its input), so it stays pinned to the far right of the active row.
+    //
+    // `withPreservedFocus` because on a phone `menuSpan` carries the overflow
+    // panel too, and the press that switches panels is usually made *inside* it
+    // — Edit Series is one of the rows the fold puts there. Moving the span
+    // detaches the button that was just pressed, which drops focus to <body>
+    // and, with it, the menu controller's ability to hand focus back to the
+    // trigger when it closes a moment later.
     const activePanel = pieMode ? slicePanel : groupMode ? groupPanel : seriesPanel;
     if (menuSpan.parentElement !== activePanel) {
-      activePanel.append(menuSpan);
+      withPreservedFocus(() => activePanel.append(menuSpan));
     }
 
     modeButton.setLabel(groupMode ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups);
@@ -990,6 +1180,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       chartCountButton.setContent([icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]);
     }
     exportShareMenuHandle.setDisabled(!!error);
+    overflowMenuHandle.setDisabled(!!error);
 
     resetGroupsButton.setDisabled(error || sequencePlaying);
     reverseGroupsButton.setDisabled(error || sequencePlaying);
@@ -1112,8 +1303,14 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
         stopSequence();
       }
     },
+    closeMenus() {
+      overflowMenuHandle.close();
+      exportShareMenuHandle.close();
+    },
     destroy() {
       stopSequenceInternal();
+      unwatchViewport();
+      overflowMenuHandle.destroy();
       exportShareMenuHandle.destroy();
       chartHost.destroy();
     }

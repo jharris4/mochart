@@ -3,8 +3,7 @@ import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
-import { backToDemosButton, modeSwitcher, siteRootButton, themeToggleButton } from '../misc/ModeSwitcher';
-import { notesMenu } from '../misc/NotesMenu';
+import { topBar } from '../misc/TopBar';
 import { chartsTab } from './ChartsTab';
 import type { ChartsTabHandle } from './ChartsTab';
 
@@ -41,22 +40,16 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
     text: demoText.tabs.chart
   });
 
-  const notes = notesMenu(demoData.demoObjectMap[initialDemoId]);
-  const modes = modeSwitcher({ demoMode: 'multi', onModeChanged });
+  const bar = topBar({
+    siteRootUrl: props.siteRootUrl,
+    onBackToDemos,
+    tabs: [el('li', { className: 'demo-tab-item' }, [chartNav])],
+    notes: demoData.demoObjectMap[initialDemoId],
+    modes: { demoMode: 'multi', onModeChanged }
+  });
 
   const container = el('div', { className: 'mochart-demo-container multi' }, [
-    el('div', { className: 'mochart-demo-tabs-container' }, [
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        siteRootButton(props.siteRootUrl),
-        backToDemosButton(onBackToDemos),
-        el('ul', { className: 'demo-tabs' }, [el('li', { className: 'demo-tab-item' }, [chartNav])]),
-        notes.el
-      ]),
-      el('div', { className: 'mochart-demo-nav-group' }, [
-        modes.el,
-        themeToggleButton()
-      ])
-    ]),
+    bar.el,
     el('div', { className: 'mochart-demo-content-pane' }, [
       el('div', { className: 'mochart-demo-content' }, [chartsBoundary.el])
     ])
@@ -70,12 +63,11 @@ export function demoMulti(props: DemoMultiProps): DemoMultiHandle {
       }
       initialDemoId = nextInitialDemoId;
       const nextDemo = demoData.demoObjectMap[nextInitialDemoId];
-      notes.setDemo(nextDemo.title, nextDemo.notes);
+      bar.setDemo(nextDemo.title, nextDemo.notes);
       chartsBoundary.guard(() => charts.setDemoObject(nextDemo));
     },
     destroy() {
-      notes.destroy();
-      modes.destroy();
+      bar.destroy();
       charts.destroy();
     }
   };

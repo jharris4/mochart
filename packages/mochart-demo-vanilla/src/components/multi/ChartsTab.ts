@@ -3,7 +3,7 @@ import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDa
 import type { ShareState } from '@mochart/demo-common';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { el, observeSize, setActiveClass } from '../misc/dom';
+import { el, observeSize, setActiveClass, tabContainer } from '../misc/dom';
 import { mountChart } from '../misc/chartHost';
 import type { ChartHostHandle } from '../misc/chartHost';
 import { chartsControls } from './ChartsControls';
@@ -242,9 +242,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     getShareState
   });
 
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')
-  }, [sizer, controls.el]);
+  const container = tabContainer('demo-layout-col chart', active, [sizer, controls.el]);
 
   const stopObserving = observeSize(sizer, (nextWidth, nextHeight) => {
     gridWidth = nextWidth;

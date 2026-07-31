@@ -1,23 +1,33 @@
 import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 
-import { demoText, getNotesPanelPosition } from '@mochart/demo-common';
-import type { NotesPanelPosition } from '@mochart/demo-common';
+import { createMenuController, demoText } from '@mochart/demo-common';
+import type { MenuController } from '@mochart/demo-common';
 
 import { LightElement } from './LightElement';
 import { icon } from './templates';
 
 /**
- * The "about this demo" button in each mode's navigation row: an info icon that
- * opens the demo's `notes` (the detail kept out of its one-sentence gallery
- * description) in a popover panel.
+ * The "about this demo" button in each mode's navigation row: an info icon
+ * that opens the demo's `notes` (the detail kept out of its one-sentence
+ * gallery description) in a popover panel. This is the desktop shape; below
+ * the phone breakpoint the navigation row folds into an overflow menu, where a
+ * popover cannot come along — its panel would be a descendant of an element
+ * the menu hides with `display: none` — so TopBar renders `<notes-menu-item>`
+ * (a disclosure row inside the panel) instead.
  *
- * Positioning follows ExportShareMenu: the surrounding panes use
- * `overflow: hidden`, which would clip a normally-positioned dropdown, so the
- * panel is `fixed` at coordinates measured from the trigger. This one opens
- * downward from the navigation row (the export menu opens upward from the
- * controls row) and is closed on scroll/resize rather than repositioned.
+ * Open/close, positioning, dismissal, focus return and the disclosure ARIA all
+ * come from demo-common's `createMenuController`. Note what that means for the
+ * template: the trigger and panel carry STATIC classes and no `aria-expanded`
+ * or `style` binding, because the controller writes those itself and an
+ * interpolated attribute would clobber them on the next render. The controller
+ * is built in `firstUpdated` because `@query` cannot see the elements until
+ * the first render has committed.
+ *
+ * Whether there are notes to show is the caller's business (TopBar guards),
+ * but this keeps its own `nothing` guard for the same reason it always had
+ * one — a demo without notes must render no trigger.
  */
 @customElement('notes-menu')
 export class NotesMenu extends LightElement {
@@ -26,103 +36,62 @@ export class NotesMenu extends LightElement {
   /** The demo's notes; nothing renders when there are none. */
   @property({ attribute: false }) notes: string | undefined = undefined;
 
-  @state() private open = false;
-  @state() private coords: NotesPanelPosition | null = null;
+  @query('.mochart-demo-notes-trigger') private triggerElement?: HTMLButtonElement;
+  @query('.demo-menu-notes') private panelElement?: HTMLElement;
 
-  @query('.mochart-demo-notes-trigger') private trigger?: HTMLButtonElement;
+  private controller: MenuController | null = null;
 
-  private listening = false;
+  override firstUpdated(): void {
+    this.syncController();
+  }
+
+  // Close whenever the demo changes under us (history navigation between
+  // demos). The controller is rebuilt when the notes appear or disappear,
+  // since that takes the whole trigger/panel pair in and out of the DOM.
+  override updated(changed: PropertyValues<this>): void {
+    if (changed.has('notes')) {
+      this.syncController();
+    }
+    else if (changed.has('demoTitle')) {
+      this.controller?.close();
+    }
+  }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.removeCloseListeners();
+    this.controller?.destroy();
+    this.controller = null;
   }
 
-  // Close whenever the demo changes under us (history navigation between demos).
-  override willUpdate(changed: PropertyValues<this>): void {
-    if (changed.has('demoTitle') || changed.has('notes')) {
-      this.close();
-    }
-  }
-
-  private onDocMouseDown = (event: MouseEvent): void => {
-    if (!this.contains(event.target as Node)) {
-      this.close();
-    }
-  };
-
-  private onKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') {
-      this.close();
-    }
-  };
-
-  // A fixed panel would drift on scroll/resize; just close it instead.
-  private onReflow = (): void => {
-    this.close();
-  };
-
-  private addCloseListeners(): void {
-    if (this.listening) {
+  private syncController(): void {
+    this.controller?.destroy();
+    this.controller = null;
+    const trigger = this.triggerElement;
+    const panel = this.panelElement;
+    if (trigger === undefined || panel === undefined) {
       return;
     }
-    this.listening = true;
-    document.addEventListener('mousedown', this.onDocMouseDown);
-    document.addEventListener('keydown', this.onKeyDown);
-    window.addEventListener('scroll', this.onReflow, true);
-    window.addEventListener('resize', this.onReflow);
+    // Downward from the navigation row, left-aligned, clamped so a 340px panel
+    // opened from a right-hand trigger stays on screen. The width must match
+    // `.demo-menu-notes` in demo.css — a closed panel measures 0, so the clamp
+    // has to be told the width the stylesheet will give it.
+    this.controller = createMenuController({
+      trigger,
+      panel,
+      placement: { side: 'bottom', align: 'start', gap: 6, width: 340, viewportMargin: 32 },
+      bindTrigger: false
+    });
   }
-
-  private removeCloseListeners(): void {
-    if (!this.listening) {
-      return;
-    }
-    this.listening = false;
-    document.removeEventListener('mousedown', this.onDocMouseDown);
-    document.removeEventListener('keydown', this.onKeyDown);
-    window.removeEventListener('scroll', this.onReflow, true);
-    window.removeEventListener('resize', this.onReflow);
-  }
-
-  private close(): void {
-    if (!this.open) {
-      return;
-    }
-    this.open = false;
-    this.coords = null;
-    this.removeCloseListeners();
-  }
-
-  // Measured synchronously off the trigger the click landed on, so the panel is
-  // positioned before it's shown.
-  private onToggle = (): void => {
-    if (this.open) {
-      this.close();
-      return;
-    }
-    const rect = this.trigger?.getBoundingClientRect();
-    if (rect) {
-      this.coords = getNotesPanelPosition(rect, window.innerWidth);
-    }
-    this.open = true;
-    this.addCloseListeners();
-  };
 
   override render(): unknown {
     if (this.notes === undefined) {
       return nothing;
     }
-    const menuOpen = this.open && this.coords !== null;
     return html`<div class="demo-btn-group mochart-demo-notes-menu">
-      <button type="button"
-              class=${'demo-btn demo-btn-secondary mochart-demo-notes-trigger' + (this.open ? ' active' : '')}
-              aria-haspopup="true" aria-expanded=${this.open}
+      <button type="button" class="demo-btn demo-btn-secondary mochart-demo-notes-trigger"
               title=${demoText.demoNotes.trigger.tooltip} aria-label=${demoText.demoNotes.trigger.aria}
-              @click=${this.onToggle}>
-        ${icon({ size: 'lg', fixedWidth: true, name: 'circle-info' })}
-      </button>
-      <div class=${'demo-menu demo-menu-notes' + (menuOpen ? ' open' : '')}
-           style=${menuOpen ? `position: fixed; top: ${this.coords!.top}px; left: ${this.coords!.left}px; margin: 0; z-index: 1080;` : nothing}>
+              @click=${() => this.controller?.toggle()}>${icon({ size: 'lg', fixedWidth: true, name: 'circle-info' })}</button>
+      <div class="demo-menu demo-menu-notes">
         <span class="demo-menu-notes-title">${this.demoTitle}</span>
         <span class="demo-menu-notes-body">${this.notes}</span>
       </div>

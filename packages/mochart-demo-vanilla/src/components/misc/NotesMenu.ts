@@ -1,4 +1,4 @@
-import { demoText, getNotesPanelPosition } from '@mochart/demo-common';
+import { createMenuController, demoText } from '@mochart/demo-common';
 
 import { el, icon } from './dom';
 
@@ -6,11 +6,21 @@ import { el, icon } from './dom';
 // opens the demo's `notes` (the detail kept out of its one-sentence gallery
 // description) in a popover panel.
 //
-// Positioning follows ExportShareMenu: the surrounding panes use
-// `overflow: hidden`, which would clip a normally-positioned dropdown, so the
-// panel is `fixed` at coordinates measured from the trigger. This one opens
-// downward from the navigation row (the export menu opens upward from the
-// controls row) and is closed on scroll/resize rather than repositioned.
+// Open/close, positioning, dismissal, focus and the disclosure ARIA come from
+// demo-common's `createMenuController`; this component owns the panel's content
+// and which demo it describes.
+//
+// Two representations of the same notes, because a phone has room for only one
+// of them. Above the phone breakpoint the ⓘ button sits in the navigation row
+// and opens the popover. Below it the whole row folds into an overflow menu —
+// and the popover CANNOT come along: its panel would be a descendant of an
+// element that menu hides with `display: none`, so it would be invisible while
+// the menu was open and taken away the moment the menu closed. So the fold gets
+// `menuItemEl` instead: a menu row that expands the same title and body inline,
+// inside the panel that is already open. That panel is `overflow-y: auto` under
+// a `max-height`, so a long note scrolls there rather than overrunning a screen
+// that does not scroll (the longest in the gallery, `candlestick`, is a little
+// over a thousand characters).
 export interface NotesMenuProps {
   /** Demo title, shown as the panel heading. */
   title: string;
@@ -20,25 +30,44 @@ export interface NotesMenuProps {
 
 export interface NotesMenuHandle {
   el: HTMLElement;
+  /**
+   * The phone fold's stand-in for the trigger/panel pair: a `.demo-menu-item`
+   * button and the block it discloses, for the navigation row's overflow menu to
+   * host. Deliberately NOT a child of `el` — it stays detached until the fold
+   * hands it over, so it can never render in the bar.
+   */
+  menuItemEl: HTMLElement;
+  /** False for a demo with no notes, where neither representation is offered. */
+  hasNotes(): boolean;
+  /** Hide the popover trigger while the fold is showing the disclosure instead. */
+  setFolded(folded: boolean): void;
   /** Re-point at another demo (history navigation between demos). */
   setDemo(title: string, notes?: string): void;
   destroy(): void;
 }
 
-export function notesMenu(props: NotesMenuProps): NotesMenuHandle {
-  let open = false;
+/**
+ * Duplicates `.demo-menu-notes`'s `width: min(340px, calc(100vw - 32px))` in
+ * demo.css — a `display: none` panel measures 0, so the left-edge clamp has to
+ * be told the width the stylesheet will give it. Keep the two in step.
+ */
+const notesPanelWidth = 340;
+const notesViewportMargin = 32;
 
+/** `aria-controls` has to point at an id, and ids have to be unique. */
+let disclosureIdCounter = 0;
+
+export function notesMenu(props: NotesMenuProps): NotesMenuHandle {
+  // No `aria-haspopup`/`aria-expanded` here: the controller owns the disclosure
+  // ARIA (and removes `aria-haspopup`, which announced a menu this is not).
   const trigger = el('button', {
     className: 'demo-btn demo-btn-secondary mochart-demo-notes-trigger',
     attrs: {
       type: 'button',
-      'aria-haspopup': 'true',
-      'aria-expanded': 'false',
       title: demoText.demoNotes.trigger.tooltip,
       'aria-label': demoText.demoNotes.trigger.aria
     }
   }, [icon('circle-info', { size: 'lg', fixedWidth: true })]);
-  trigger.addEventListener('click', () => (open ? closeMenu() : openMenu()));
 
   const titleEl = el('span', { className: 'demo-menu-notes-title', text: props.title });
   const bodyEl = el('span', { className: 'demo-menu-notes-body', text: props.notes ?? '' });
@@ -46,73 +75,114 @@ export function notesMenu(props: NotesMenuProps): NotesMenuHandle {
 
   const root = el('div', { className: 'demo-btn-group mochart-demo-notes-menu' }, [trigger, menu]);
 
-  function positionMenu(): void {
-    const { top, left } = getNotesPanelPosition(trigger.getBoundingClientRect(), window.innerWidth);
-    menu.style.position = 'fixed';
-    menu.style.top = top + 'px';
-    menu.style.left = left + 'px';
-    menu.style.margin = '0';
-    menu.style.zIndex = '1080';
+  // Opens downward from the navigation row and left-aligned with the trigger,
+  // clamped so a 340px panel opened from a right-hand trigger stays on screen.
+  const controller = createMenuController({
+    trigger,
+    panel: menu,
+    placement: {
+      side: 'bottom',
+      align: 'start',
+      gap: 6,
+      width: notesPanelWidth,
+      viewportMargin: notesViewportMargin
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // the phone fold's inline disclosure
+  // ---------------------------------------------------------------------
+
+  disclosureIdCounter += 1;
+  const disclosureId = 'demo-notes-disclosure-' + disclosureIdCounter;
+
+  const menuTitleEl = el('span', { className: 'demo-menu-notes-title' });
+  const menuBodyEl = el('span', { className: 'demo-menu-notes-body' });
+  // `.demo-field` is the overflow panel's existing hook for a row that is not a
+  // `.demo-btn` — the only thing that gives such a row the same inset the button
+  // rows get from their own padding (see the rule beside it in demo.css). It
+  // carries no layout of its own outside a form, so the title and body keep the
+  // block flow their own classes give them and their text wraps as prose.
+  const disclosureEl = el('div', { className: 'demo-field', id: disclosureId }, [menuTitleEl, menuBodyEl]);
+  disclosureEl.hidden = true;
+
+  // Inline rather than a stylesheet rule: `.demo-menu-item` is a flex row shared
+  // by every menu in the demo, and this is the only one of them with a trailing
+  // affordance to push to the far edge.
+  const disclosureIcon = icon('chevron-down', { fixedWidth: true });
+  disclosureIcon.setAttribute('style', 'margin-left: auto;');
+
+  const disclosureButton = el('button', {
+    className: 'demo-menu-item',
+    attrs: {
+      type: 'button',
+      title: demoText.demoNotes.trigger.tooltip,
+      'aria-expanded': 'false',
+      'aria-controls': disclosureId
+    }
+  }, [
+    icon('circle-info', { fixedWidth: true }), ' ',
+    el('span', { className: 'mochart-menu-item-label', text: demoText.demoNotes.trigger.aria }),
+    disclosureIcon
+  ]);
+
+  // `.demo-menu-keep-open` on the pair, so the overflow menu's delegated close
+  // handler leaves the panel open when the disclosure is toggled — otherwise the
+  // note would be revealed and taken away again in the same tap.
+  const menuItemEl = el('div', {
+    className: 'mochart-demo-notes-item demo-menu-keep-open'
+  }, [disclosureButton, disclosureEl]);
+
+  let expanded = false;
+
+  function setExpanded(nextExpanded: boolean): void {
+    expanded = nextExpanded;
+    disclosureEl.hidden = !nextExpanded;
+    disclosureButton.setAttribute('aria-expanded', String(nextExpanded));
+    disclosureIcon.classList.toggle('fa-chevron-down', !nextExpanded);
+    disclosureIcon.classList.toggle('fa-chevron-up', nextExpanded);
   }
 
-  function openMenu(): void {
-    if (open) {
-      return;
-    }
-    open = true;
-    positionMenu();
-    menu.classList.add('open');
-    trigger.classList.add('active');
-    trigger.setAttribute('aria-expanded', 'true');
-    document.addEventListener('mousedown', onDocMouseDown);
-    document.addEventListener('keydown', onKeyDown);
-    window.addEventListener('scroll', closeMenu, true);
-    window.addEventListener('resize', closeMenu);
-  }
+  disclosureButton.addEventListener('click', () => setExpanded(!expanded));
 
-  function closeMenu(): void {
-    if (!open) {
-      return;
-    }
-    open = false;
-    menu.classList.remove('open');
-    trigger.classList.remove('active');
-    trigger.setAttribute('aria-expanded', 'false');
-    menu.removeAttribute('style');
-    document.removeEventListener('mousedown', onDocMouseDown);
-    document.removeEventListener('keydown', onKeyDown);
-    window.removeEventListener('scroll', closeMenu, true);
-    window.removeEventListener('resize', closeMenu);
-  }
+  // ---------------------------------------------------------------------
 
-  function onDocMouseDown(event: MouseEvent): void {
-    if (!root.contains(event.target as Node)) {
-      closeMenu();
-    }
-  }
-
-  function onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      closeMenu();
-    }
-  }
+  let folded = false;
+  let currentNotes = props.notes;
 
   function render(title: string, notes?: string): void {
+    currentNotes = notes;
     titleEl.textContent = title;
     bodyEl.textContent = notes ?? '';
-    root.hidden = notes === undefined;
+    menuTitleEl.textContent = title;
+    menuBodyEl.textContent = notes ?? '';
+    // Hidden both when there is nothing to say and when the fold is showing the
+    // disclosure instead — two ways into one note would be one too many.
+    root.hidden = notes === undefined || folded;
   }
 
   render(props.title, props.notes);
 
   return {
     el: root,
+    menuItemEl,
+    hasNotes: () => currentNotes !== undefined,
+    setFolded(nextFolded: boolean) {
+      if (nextFolded === folded) {
+        return;
+      }
+      folded = nextFolded;
+      controller.close();
+      setExpanded(false);
+      root.hidden = currentNotes === undefined || folded;
+    },
     setDemo(title: string, notes?: string) {
-      closeMenu();
+      controller.close();
+      setExpanded(false);
       render(title, notes);
     },
     destroy() {
-      closeMenu();
+      controller.destroy();
     }
   };
 }

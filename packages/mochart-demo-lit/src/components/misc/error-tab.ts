@@ -21,7 +21,7 @@ export class ErrorTab extends LightElement {
 
   override render(): unknown {
     if (this.failed) {
-      return html`<div class=${'mochart-demo-tab-container error' + (this.active ? ' active' : '')}>
+      return html`<div class=${'mochart-demo-tab-container error' + (this.active ? ' active' : '')} ?inert=${!this.active}>
         <div class="demo-alert demo-alert-error demo-text-center mochart-demo-error-message" role="alert">
           ${demoText.errors.errorOccurred}
         </div>

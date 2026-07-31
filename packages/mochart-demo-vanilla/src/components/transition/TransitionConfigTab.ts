@@ -1,7 +1,7 @@
 
 import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon, setActiveClass, textAreaContent } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, tabContainer, textAreaContent } from '../misc/dom';
 
 import type { TransitionConfig } from '../../types';
 
@@ -67,9 +67,7 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
   const footerError = el('span', { className: 'mochart-demo-footer-error', attrs: { role: 'alert' } });
   footerError.hidden = true;
 
-  const container = el('div', {
-    className: 'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')
-  }, [
+  const container = tabContainer('demo-layout-col config', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
     el('div', { className: 'mochart-demo-tab-footer' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [

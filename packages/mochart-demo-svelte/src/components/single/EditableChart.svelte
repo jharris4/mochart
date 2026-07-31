@@ -7,9 +7,13 @@
   import { exportPNG, exportSVG } from '@mochart/export';
   import { Chart } from '@mochart/svelte';
 
+  import type { Snippet } from 'svelte';
+
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import ExportShareMenu from '../misc/ExportShareMenu.svelte';
   import Icon from '../misc/Icon.svelte';
+  import OverflowMenu from '../misc/OverflowMenu.svelte';
+  import { createPhoneViewport } from '../misc/phoneViewport.svelte';
 
   import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
@@ -674,6 +678,20 @@
 
   const sliceControlsDisabled = $derived(error || sequencePlaying || slices.length === 0);
 
+  // The phone fold. Which panel folds — and what each sends to the overflow
+  // menu — mirrors the vanilla port's placeControls; the svelte expression of
+  // "reparent, never duplicate" is that every control renders in exactly one
+  // of the two places from the same snippet (see OverflowMenu.svelte).
+  const phone = createPhoneViewport();
+  const foldSlice = $derived(phone.isPhone && mochartDemoConfig.pieMode);
+  const foldGroup = $derived(phone.isPhone && !mochartDemoConfig.pieMode && selectionMode === 'group');
+  const foldSeries = $derived(phone.isPhone && !mochartDemoConfig.pieMode && selectionMode !== 'group');
+  // The series readouts drop their 5px side margins while folded: the phone
+  // tier's 6px field gap is separation enough, and the margins' 20px would
+  // wrap the ▲ stepper onto a second row at 320px.
+  const indexLabelMargin = $derived(foldSeries ? 0 : 5);
+  let menuSpanElement = $state<HTMLElement | null>(null);
+
   function onExportPng() {
     if (chartContentElement) {
       void exportPNG(chartContentElement, getChartExportOptions());
@@ -712,14 +730,158 @@
   </div>
 {/snippet}
 
-{#snippet exportShareMenu()}
-  <!-- Pushed to the far right of the controls row (past the group/series input).
-       Share is only offered on the chart flagged for it (the first, when two
-       are shown). -->
-  <span class="chart-controls-menu">
-    <ExportShareMenu idPrefix="edit" disabled={!!error} exportPng={onExportPng} exportSvg={onExportSvg}
+{#snippet controlsMenu(overflowItems: Snippet | null)}
+  <!-- The strip's trailing menus, pushed to the far right of the controls row
+       (past the group/series input). Share is only offered on the chart
+       flagged for it (the first, when two are shown). The ⋯ renders only
+       while its panel is folded, and it lives INSIDE the span: the panel
+       anchors to the whole span because the export trigger sits to the ⋯'s
+       right, so aligning to the ⋯ alone would stop the panel short of the
+       row's end and hang it off the left edge. -->
+  <span class="chart-controls-menu" bind:this={menuSpanElement}>
+    {#if overflowItems !== null}
+      <OverflowMenu text={demoText.overflowMenu.chart}
+                    placement={{ side: 'top', align: 'end', gap: 4 }}
+                    getAnchor={() => menuSpanElement}
+                    disabled={!!error} active={isActive}>
+        {@render overflowItems()}
+      </OverflowMenu>
+    {/if}
+    <ExportShareMenu idPrefix="edit" disabled={!!error} active={isActive} exportPng={onExportPng} exportSvg={onExportSvg}
                      getShareState={showShareButton ? () => ({ mode: 'single', config: mochartDemoConfig.config, data }) : undefined} />
   </span>
+{/snippet}
+
+{#snippet resetSliceButton()}
+  <ButtonWithTooltip id="edit-reset-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.resetSlice.label}
+                     tooltipText={demoText.editableChart.resetSlice.tooltip} tooltipPlacement="right"
+                     onClick={resetSliceChanges} aria-label={demoText.editableChart.resetSlice.aria}>
+    <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet sliceSequenceGroup()}
+  <div class="demo-btn-group">
+    <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
+                       menuLabel={demoText.editableChart.playSliceSequence.menuLabel}
+                       tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
+                       onClick={startSliceSequence} aria-label={demoText.editableChart.playSliceSequence.aria}>
+      <Icon size="lg" fixedWidth={true} name="play" />
+    </ButtonWithTooltip>
+    <ButtonWithTooltip id="edit-stop-slices" disabled={error || !sequencePlaying}
+                       menuLabel={demoText.editableChart.stopSliceSequence.menuLabel}
+                       tooltipText={demoText.editableChart.stopSliceSequence.tooltip} tooltipPlacement="right"
+                       onClick={stopSequence} aria-label={demoText.editableChart.stopSliceSequence.aria}>
+      <Icon size="lg" fixedWidth={true} name="stop" />
+    </ButtonWithTooltip>
+  </div>
+{/snippet}
+
+{#snippet sliceMenuItems()}
+  <div class="demo-btn-group">{@render resetSliceButton()}</div>
+  <div class="demo-menu-divider"></div>
+  {@render sliceSequenceGroup()}
+  {#if showChartCountControls}
+    <div class="demo-menu-divider"></div>
+    {@render chartCountControl()}
+  {/if}
+{/snippet}
+
+{#snippet resetGroupsButton()}
+  <ButtonWithTooltip id="edit-reset-groups" disabled={error || sequencePlaying} label={demoText.editableChart.resetGroups.label}
+                     tooltipText={demoText.editableChart.resetGroups.tooltip} tooltipPlacement="right"
+                     onClick={resetGroups} aria-label={demoText.editableChart.resetGroups.aria}>
+    <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet reverseGroupsButton()}
+  <ButtonWithTooltip id="edit-reverse-groups" disabled={error || sequencePlaying} label={demoText.editableChart.reverseGroups.label}
+                     tooltipText={demoText.editableChart.reverseGroups.tooltip} tooltipPlacement="right"
+                     onClick={reverseGroups} aria-label={demoText.editableChart.reverseGroups.aria}>
+    <Icon size="lg" fixedWidth={true} name="right-left" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet addGroupsButton()}
+  <ButtonWithTooltip id="edit-add-groups" disabled={error || sequencePlaying || disableAdd} label={demoText.editableChart.addGroups.label}
+                     tooltipText={demoText.editableChart.addGroups.tooltip} tooltipPlacement="right"
+                     onClick={addGroups} aria-label={demoText.editableChart.addGroups.aria}>
+    <Icon size="lg" fixedWidth={true} name="plus" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet removeGroupsButton()}
+  <ButtonWithTooltip id="edit-remove-groups" disabled={error || sequencePlaying || disableRemove} label={demoText.editableChart.removeGroups.label}
+                     tooltipText={demoText.editableChart.removeGroups.tooltip} tooltipPlacement="right"
+                     onClick={removeGroups} aria-label={demoText.editableChart.removeGroups.aria}>
+    <Icon size="lg" fixedWidth={true} name="minus" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet playAddButton()}
+  <ButtonWithTooltip id="edit-play-add" disabled={error || sequencePlaying || disableAdd}
+                     menuLabel={demoText.editableChart.playAddGroups.menuLabel}
+                     tooltipText={demoText.editableChart.playAddGroups.tooltip} tooltipPlacement="right"
+                     onClick={startAddSequence} aria-label={demoText.editableChart.playAddGroups.aria}>
+    <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="plus" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet playRemoveButton()}
+  <ButtonWithTooltip id="edit-play-remove" disabled={error || sequencePlaying || disableRemove}
+                     menuLabel={demoText.editableChart.playRemoveGroups.menuLabel}
+                     tooltipText={demoText.editableChart.playRemoveGroups.tooltip} tooltipPlacement="right"
+                     onClick={startRemoveSequence} aria-label={demoText.editableChart.playRemoveGroups.aria}>
+    <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="minus" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet stopGroupsButton()}
+  <ButtonWithTooltip id="edit-stop" disabled={error || !sequencePlaying}
+                     menuLabel={demoText.editableChart.stopSequence.menuLabel}
+                     tooltipText={demoText.editableChart.stopSequence.tooltip} tooltipPlacement="right"
+                     onClick={stopSequence} aria-label={demoText.editableChart.stopSequence.aria}>
+    <Icon size="lg" fixedWidth={true} name="stop" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet selectAllButton()}
+  <ButtonWithTooltip id="edit-select-all" disabled={error || sequencePlaying} label={demoText.editableChart.selectAllGroups.label}
+                     tooltipText={demoText.editableChart.selectAllGroups.tooltip} tooltipPlacement="right"
+                     onClick={selectAllGroups} aria-label={demoText.editableChart.selectAllGroups.aria}>
+    <Icon size="lg" fixedWidth={true} name="check-double" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet groupMenuItems()}
+  <div class="demo-btn-group">{@render resetGroupsButton()}{@render reverseGroupsButton()}{@render selectAllButton()}</div>
+  <div class="demo-menu-divider"></div>
+  <div class="demo-btn-group">{@render playAddButton()}{@render playRemoveButton()}{@render stopGroupsButton()}</div>
+  <div class="demo-menu-divider"></div>
+  {@render commonControls()}
+{/snippet}
+
+{#snippet resetSeriesButton()}
+  <ButtonWithTooltip id="edit-reset-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.resetSeries.label}
+                     tooltipText={demoText.editableChart.resetSeries.tooltip} tooltipPlacement="right"
+                     onClick={resetSeriesChanges} aria-label={demoText.editableChart.resetSeries.aria}>
+    <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet applySeriesButton()}
+  <ButtonWithTooltip id="edit-apply-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.applySeries.label}
+                     tooltipText={demoText.editableChart.applySeries.tooltip} tooltipPlacement="right"
+                     onClick={applySeriesChanges} aria-label={demoText.editableChart.applySeries.aria}>
+    <Icon size="lg" fixedWidth={true} name="check" />
+  </ButtonWithTooltip>
+{/snippet}
+
+{#snippet seriesMenuItems()}
+  <div class="demo-btn-group">{@render resetSeriesButton()}</div>
+  <div class="demo-menu-divider"></div>
+  {@render commonControls()}
 {/snippet}
 
 <div class="editable-mochart-chart">
@@ -744,11 +906,15 @@
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
-              <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
-                  {@render chartCountControl()}
+              {#if !foldSlice}
+                <!-- Kept on desktop even when empty — the empty field's gap is
+                     part of the unfolded layout. -->
+                <div class="demo-field">
+                  <div class="demo-toolbar" role="toolbar">
+                    {@render chartCountControl()}
+                  </div>
                 </div>
-              </div>
+              {/if}
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
                   <div class="demo-btn-group">
@@ -773,29 +939,14 @@
                     </ButtonWithTooltip>
                   </div>
                   <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-reset-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.resetSlice.label}
-                                       tooltipText={demoText.editableChart.resetSlice.tooltip} tooltipPlacement="right"
-                                       onClick={resetSliceChanges} aria-label={demoText.editableChart.resetSlice.aria}>
-                      <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
-                    </ButtonWithTooltip>
+                    {#if !foldSlice}{@render resetSliceButton()}{/if}
                     <ButtonWithTooltip id="edit-apply-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.applySlice.label}
                                        tooltipText={demoText.editableChart.applySlice.tooltip} tooltipPlacement="right"
                                        onClick={applySliceChanges} aria-label={demoText.editableChart.applySlice.aria}>
                       <Icon size="lg" fixedWidth={true} name="check" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
-                                       tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
-                                       onClick={startSliceSequence} aria-label={demoText.editableChart.playSliceSequence.aria}>
-                      <Icon size="lg" fixedWidth={true} name="play" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-stop-slices" disabled={error || !sequencePlaying}
-                                       tooltipText={demoText.editableChart.stopSliceSequence.tooltip} tooltipPlacement="right"
-                                       onClick={stopSequence} aria-label={demoText.editableChart.stopSliceSequence.aria}>
-                      <Icon size="lg" fixedWidth={true} name="stop" />
-                    </ButtonWithTooltip>
-                  </div>
+                  {#if !foldSlice}{@render sliceSequenceGroup()}{/if}
                 </div>
               </div>
             </form>
@@ -805,56 +956,25 @@
               <input type="text" class="demo-input" disabled={sliceControlsDisabled} bind:value={sliceValueText} />
             </form>
           </span>
-          {@render exportShareMenu()}
+          {@render controlsMenu(foldSlice ? sliceMenuItems : null)}
         </div>
       {:else if selectionMode === 'group'}
+        <!-- The fold keeps Add and Remove — they act on what is typed in the
+             input beside them — plus the input; everything else goes to the
+             menu, split into the same sections the vanilla port uses (order
+             edits, then the sequence transport, then the shared controls). -->
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  {@render commonControls()}
+                  {#if !foldGroup}{@render commonControls()}{/if}
                   <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-reset-groups" disabled={error || sequencePlaying} label={demoText.editableChart.resetGroups.label}
-                                       tooltipText={demoText.editableChart.resetGroups.tooltip} tooltipPlacement="right"
-                                       onClick={resetGroups} aria-label={demoText.editableChart.resetGroups.aria}>
-                      <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-reverse-groups" disabled={error || sequencePlaying} label={demoText.editableChart.reverseGroups.label}
-                                       tooltipText={demoText.editableChart.reverseGroups.tooltip} tooltipPlacement="right"
-                                       onClick={reverseGroups} aria-label={demoText.editableChart.reverseGroups.aria}>
-                      <Icon size="lg" fixedWidth={true} name="right-left" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-add-groups" disabled={error || sequencePlaying || disableAdd} label={demoText.editableChart.addGroups.label}
-                                       tooltipText={demoText.editableChart.addGroups.tooltip} tooltipPlacement="right"
-                                       onClick={addGroups} aria-label={demoText.editableChart.addGroups.aria}>
-                      <Icon size="lg" fixedWidth={true} name="plus" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-remove-groups" disabled={error || sequencePlaying || disableRemove} label={demoText.editableChart.removeGroups.label}
-                                       tooltipText={demoText.editableChart.removeGroups.tooltip} tooltipPlacement="right"
-                                       onClick={removeGroups} aria-label={demoText.editableChart.removeGroups.aria}>
-                      <Icon size="lg" fixedWidth={true} name="minus" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-play-add" disabled={error || sequencePlaying || disableAdd}
-                                       tooltipText={demoText.editableChart.playAddGroups.tooltip} tooltipPlacement="right"
-                                       onClick={startAddSequence} aria-label={demoText.editableChart.playAddGroups.aria}>
-                      <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="plus" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-play-remove" disabled={error || sequencePlaying || disableRemove}
-                                       tooltipText={demoText.editableChart.playRemoveGroups.tooltip} tooltipPlacement="right"
-                                       onClick={startRemoveSequence} aria-label={demoText.editableChart.playRemoveGroups.aria}>
-                      <Icon size="lg" name="play" /><span style="padding-right: 2px;"></span><Icon size="lg" name="minus" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-stop" disabled={error || !sequencePlaying}
-                                       tooltipText={demoText.editableChart.stopSequence.tooltip} tooltipPlacement="right"
-                                       onClick={stopSequence} aria-label={demoText.editableChart.stopSequence.aria}>
-                      <Icon size="lg" fixedWidth={true} name="stop" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-select-all" disabled={error || sequencePlaying} label={demoText.editableChart.selectAllGroups.label}
-                                       tooltipText={demoText.editableChart.selectAllGroups.tooltip} tooltipPlacement="right"
-                                       onClick={selectAllGroups} aria-label={demoText.editableChart.selectAllGroups.aria}>
-                      <Icon size="lg" fixedWidth={true} name="check-double" />
-                    </ButtonWithTooltip>
+                    {#if foldGroup}
+                      {@render addGroupsButton()}{@render removeGroupsButton()}
+                    {:else}
+                      {@render resetGroupsButton()}{@render reverseGroupsButton()}{@render addGroupsButton()}{@render removeGroupsButton()}{@render playAddButton()}{@render playRemoveButton()}{@render stopGroupsButton()}{@render selectAllButton()}
+                    {/if}
                   </div>
                 </div>
               </div>
@@ -865,17 +985,27 @@
               <input type="text" class="demo-input" disabled={error || sequencePlaying} bind:value={groupValuesText} />
             </form>
           </span>
-          {@render exportShareMenu()}
+          {@render controlsMenu(foldGroup ? groupMenuItems : null)}
         </div>
       {:else}
+        <!-- The fold keeps the steppers and their readouts — they are how a
+             group and a series get picked at all. Apply stays visible too, but
+             moves DOWN, onto the input row beside the JSON it applies: with it
+             out of the stepper row the panel holds two rows even at 320x568.
+             Reset is the one button with no partner anywhere, so it folds into
+             the menu. The readout prefixes shrink to their one-letter,
+             aria-hidden stand-ins (the full prefixes are sr-only clipped by
+             the phone tier and keep carrying the accessible name). -->
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
-              <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
-                  {@render commonControls()}
+              {#if !foldSeries}
+                <div class="demo-field">
+                  <div class="demo-toolbar" role="toolbar">
+                    {@render commonControls()}
+                  </div>
                 </div>
-              </div>
+              {/if}
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
                   <div class="demo-btn-group">
@@ -888,7 +1018,7 @@
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title={getGroupIndexTitle(mochartDemoConfig, filteredData, groupIndex)}>{demoText.editableChart.groupIndexPrefix}<span class="demo-index-value">{groupIndex}</span></span>
+                <span class="demo-label" style={`margin-left: ${indexLabelMargin}px; margin-right: ${indexLabelMargin}px;`} title={getGroupIndexTitle(mochartDemoConfig, filteredData, groupIndex)}><span class="demo-label-prefix">{demoText.editableChart.groupIndexPrefix}</span><span class="demo-label-prefix-compact" aria-hidden="true">{demoText.editableChart.groupIndexPrefixCompact}</span><span class="demo-index-value">{groupIndex}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
@@ -913,7 +1043,7 @@
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title={getSeriesIndexTitle(mochartDemoConfig, seriesIndex)}>{demoText.editableChart.seriesIndexPrefix}<span class="demo-index-value">{seriesIndex}</span></span>
+                <span class="demo-label" style={`margin-left: ${indexLabelMargin}px; margin-right: ${indexLabelMargin}px;`} title={getSeriesIndexTitle(mochartDemoConfig, seriesIndex)}><span class="demo-label-prefix">{demoText.editableChart.seriesIndexPrefix}</span><span class="demo-label-prefix-compact" aria-hidden="true">{demoText.editableChart.seriesIndexPrefixCompact}</span><span class="demo-index-value">{seriesIndex}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
@@ -924,18 +1054,12 @@
                       <Icon size="lg" fixedWidth={true} name="chevron-up" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-reset-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.resetSeries.label}
-                                       tooltipText={demoText.editableChart.resetSeries.tooltip} tooltipPlacement="right"
-                                       onClick={resetSeriesChanges} aria-label={demoText.editableChart.resetSeries.aria}>
-                      <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
-                    </ButtonWithTooltip>
-                    <ButtonWithTooltip id="edit-apply-series" disabled={error || seriesControlsDisabled} label={demoText.editableChart.applySeries.label}
-                                       tooltipText={demoText.editableChart.applySeries.tooltip} tooltipPlacement="right"
-                                       onClick={applySeriesChanges} aria-label={demoText.editableChart.applySeries.aria}>
-                      <Icon size="lg" fixedWidth={true} name="check" />
-                    </ButtonWithTooltip>
-                  </div>
+                  {#if !foldSeries}
+                    <div class="demo-btn-group">
+                      {@render resetSeriesButton()}
+                      {@render applySeriesButton()}
+                    </div>
+                  {/if}
                 </div>
               </div>
             </form>
@@ -943,9 +1067,10 @@
           <span class="chart-controls-input">
             <form class="demo-form-row">
               <input type="text" class="demo-input" disabled={error || seriesControlsDisabled} bind:value={seriesValuesText} />
+              {#if foldSeries}{@render applySeriesButton()}{/if}
             </form>
           </span>
-          {@render exportShareMenu()}
+          {@render controlsMenu(foldSeries ? seriesMenuItems : null)}
         </div>
       {/if}
     </div>

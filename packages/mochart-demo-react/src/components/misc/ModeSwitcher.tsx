@@ -35,10 +35,19 @@ export function ModeSwitcher({ demoMode, onModeChanged }: ModeSwitcherProps) {
         {getAvailableDemoModes(isPhone).map(mode => {
           const current = mode === demoMode;
           const { label, title } = demoText.modeSwitcher.modes[mode];
+          // How the current mode is marked depends on the width. In the strip
+          // it is a filled, disabled segment — plainly "you are here". On a
+          // phone the switcher lives in the nav overflow menu, where
+          // `.demo-menu-overflow .demo-btn:disabled` greys a row out and a
+          // greyed row in a list of destinations reads as unavailable rather
+          // than current — so there it gets the panel's `.active` tint plus
+          // `aria-current`, and is simply inert when tapped.
           return (
-            <button key={mode} type="button" className={"demo-btn demo-btn-" + (current ? 'primary' : 'secondary')}
-              disabled={current} title={title}
-              onClick={() => { onModeChanged(mode); }}>
+            <button key={mode} type="button"
+              className={"demo-btn demo-btn-" + (current ? 'primary' : 'secondary') + (current && isPhone ? ' active' : '')}
+              disabled={current && !isPhone} title={title}
+              aria-current={current && isPhone ? 'true' : undefined}
+              onClick={() => { if (!current) { onModeChanged(mode); } }}>
               <Icon size="lg" fixedWidth={true} name={modeIcons[mode]} /><span className="btn-label">{label}</span>
             </button>
           );
@@ -64,7 +73,14 @@ export function SiteRootButton({ siteRootUrl }: { siteRootUrl?: string }) {
   );
 }
 
-/** Icon-only light/dark toggle; shares the docs site's theme choice. */
+/**
+ * Icon-only light/dark toggle; shares the docs site's theme choice.
+ *
+ * The `.btn-menu-label` span is text for the phone fold only: folded into the
+ * nav overflow menu this would be the one row with nothing to read, and the
+ * class is `display: none` everywhere except inside a `.demo-menu` — as a
+ * hidden child it costs the bars neither a box nor one of the button's gaps.
+ */
 export function ThemeToggleButton() {
   const [dark, setDark] = React.useState(theme.isDark());
   React.useEffect(() => theme.onChange(setDark), []);
@@ -73,6 +89,7 @@ export function ThemeToggleButton() {
       title={dark ? demoText.themeToggle.tooltipToLight : demoText.themeToggle.tooltipToDark}
       aria-label={demoText.themeToggle.aria} onClick={() => { theme.toggle(); }}>
       <Icon size="lg" name={dark ? 'sun' : 'moon'} fixedWidth />
+      <span className="btn-menu-label">{dark ? demoText.themeToggle.menuLabelToLight : demoText.themeToggle.menuLabelToDark}</span>
     </button>
   );
 }

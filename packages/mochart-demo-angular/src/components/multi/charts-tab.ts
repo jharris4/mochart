@@ -28,7 +28,7 @@ function clampGrid(value: number): number {
   imports: [Chart, ChartsControls],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')">
+    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div #grid class="multi-charts-sizer">
         @if (gridWidth() > 0) {
           <div class="multi-charts">

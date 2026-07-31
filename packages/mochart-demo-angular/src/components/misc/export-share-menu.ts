@@ -1,13 +1,12 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, ViewChild, computed, inject, signal } from '@angular/core';
-import type { OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, ViewChild, inject, signal } from '@angular/core';
+import type { OnChanges, OnDestroy, OnInit } from '@angular/core';
 
-import { buildShareUrl, demoText } from '@mochart/demo-common';
-import type { ShareState } from '@mochart/demo-common';
+import { buildShareUrl, createMenuController, demoText } from '@mochart/demo-common';
+import type { MenuController, ShareState } from '@mochart/demo-common';
 
 import { Icon } from './icon';
 
 const copiedFeedbackMs = 1500;
-const menuGap = 4;
 
 /**
  * A collapsed export/share menu placed at the end of each mode's controls row.
@@ -15,31 +14,32 @@ const menuGap = 4;
  * share state is provided) a copy-share-link item. The parent supplies the
  * export actions so this component stays agnostic about single vs. tiled charts.
  *
- * The controls strips (and chart panes) use `overflow: hidden`, which would
- * clip a normal absolutely-positioned dropdown that opens upward over the
- * chart — and the chart's transparent interaction rect would steal clicks. So
- * the menu is positioned `fixed` (measured from the trigger) at a high z-index,
- * which escapes ancestor clipping and stacks above the chart.
+ * Open/close, positioning, dismissal, focus return and the disclosure ARIA all
+ * come from demo-common's `createMenuController` — including the reason any of
+ * it is hand-rolled (the controls strips clip an absolutely-positioned dropdown,
+ * and the chart's interaction rect eats clicks through anything stacked below
+ * it). What stays here is what the controller does not know about: the items,
+ * the copied-link feedback, and `disabled`.
+ *
+ * The trigger and panel carry STATIC classes and no `aria-expanded`, because
+ * the controller writes those itself; a binding on the same element would be
+ * re-applied by change detection and wipe them. `copied()` is still a signal,
+ * so that one *does* need the zoneless `detectChanges()` flush — see `onShare`.
  */
 @Component({
   selector: 'app-export-share-menu',
   imports: [Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div #root class="demo-btn-group demo-menu-up mochart-export-share-menu">
+    <div class="demo-btn-group demo-menu-up mochart-export-share-menu">
       <button [id]="idPrefix + '-export-share'" type="button" #trigger
-              [class]="'demo-btn demo-btn-secondary demo-menu-trigger' + (open() ? ' active' : '')"
-              [disabled]="disabled" aria-haspopup="true" [attr.aria-expanded]="open()"
+              class="demo-btn demo-btn-secondary demo-menu-trigger"
+              [disabled]="disabled"
               [attr.title]="text.trigger.tooltip" [attr.aria-label]="text.trigger.aria"
-              (click)="toggle()">
+              (click)="controller?.toggle()">
         <app-icon size="lg" [fixedWidth]="true" name="share-nodes" />
       </button>
-      <div [class]="'demo-menu' + (menuOpen() ? ' open' : '')"
-           [style.position]="menuOpen() ? 'fixed' : null"
-           [style.bottom.px]="menuOpen() ? coords()!.bottom : null"
-           [style.right.px]="menuOpen() ? coords()!.right : null"
-           [style.margin]="menuOpen() ? '0' : null"
-           [style.z-index]="menuOpen() ? 1080 : null">
+      <div #panel class="demo-menu">
         <button type="button" class="demo-menu-item" (click)="runAndClose(exportPng)"
                 [attr.aria-label]="exportText.png.aria">
           <app-icon [fixedWidth]="true" name="file-image" /> <span class="mochart-menu-item-label">{{ exportText.png.label }}</span>
@@ -59,7 +59,7 @@ const menuGap = 4;
     </div>
   `
 })
-export class ExportShareMenu implements OnDestroy {
+export class ExportShareMenu implements OnInit, OnChanges, OnDestroy {
   readonly text = demoText.exportShareMenu;
   readonly exportText = demoText.exportButtons;
   readonly shareText = demoText.shareButton;
@@ -70,62 +70,53 @@ export class ExportShareMenu implements OnDestroy {
   /** Omit to hide the Share item (e.g. a chart whose state isn't shareable). */
   @Input() getShareState?: () => ShareState;
   @Input() disabled = false;
+  /**
+   * The hosting pane's active state. A deactivated pane is only marked inert,
+   * and an open panel is `position: fixed` — it would keep painting over the
+   * pane that replaced this one. False closes the menu.
+   */
+  @Input() active = true;
 
-  @ViewChild('root') rootElement?: ElementRef<HTMLDivElement>;
-  @ViewChild('trigger') triggerElement?: ElementRef<HTMLButtonElement>;
+  @ViewChild('trigger', { static: true }) triggerElement!: ElementRef<HTMLButtonElement>;
+  @ViewChild('panel', { static: true }) panelElement!: ElementRef<HTMLDivElement>;
 
-  readonly open = signal(false);
   readonly copied = signal(false);
-  readonly coords = signal<{ bottom: number; right: number } | null>(null);
 
-  // Only show/position the menu once we've measured the trigger.
-  readonly menuOpen = computed(() => this.open() && this.coords() !== null);
+  controller?: MenuController;
 
   private readonly changeDetector = inject(ChangeDetectorRef);
   private revertTimer: ReturnType<typeof setTimeout> | null = null;
-  private listening = false;
 
-  // The close listeners fire outside Angular (native document/window handlers),
-  // and this is a zoneless app, so a signal write there only *schedules* change
-  // detection — the DOM would still show the open menu until the next tick. Flush
-  // synchronously so the menu's shown/hidden state always matches the signal the
-  // instant it changes (open on click, closed on Escape/outside-click).
-  private syncView(): void {
-    this.changeDetector.detectChanges();
+  ngOnInit(): void {
+    // Opens upward (the controls row sits at the bottom of the pane) and
+    // right-aligned (the trigger is the last control in the row).
+    this.controller = createMenuController({
+      trigger: this.triggerElement.nativeElement,
+      panel: this.panelElement.nativeElement,
+      placement: { side: 'top', align: 'end', gap: 4 },
+      bindTrigger: false
+    });
   }
 
-  toggle(): void {
-    if (this.open()) {
-      this.close();
-      return;
+  // A disabled trigger fires no click, so the menu cannot be opened — but one
+  // already open when its trigger is disabled would be stranded.
+  ngOnChanges(): void {
+    if (this.disabled || !this.active) {
+      this.controller?.close();
     }
-    // Anchor the fixed menu just above the trigger's top-right corner, so it
-    // opens upward and right-aligned. Measured now to avoid a positioning flash.
-    const rect = this.triggerElement?.nativeElement.getBoundingClientRect();
-    if (rect) {
-      this.coords.set({
-        bottom: window.innerHeight - rect.top + menuGap,
-        right: window.innerWidth - rect.right
-      });
-    }
-    this.open.set(true);
-    this.addListeners();
-    this.syncView();
   }
 
-  close(): void {
-    if (!this.open()) {
-      return;
+  ngOnDestroy(): void {
+    if (this.revertTimer !== null) {
+      clearTimeout(this.revertTimer);
+      this.revertTimer = null;
     }
-    this.open.set(false);
-    this.coords.set(null);
-    this.removeListeners();
-    this.syncView();
+    this.controller?.destroy();
   }
 
   runAndClose(action: () => void): void {
     action();
-    this.close();
+    this.controller?.close();
   }
 
   onShare(): void {
@@ -135,67 +126,23 @@ export class ExportShareMenu implements OnDestroy {
     const url = buildShareUrl(this.getShareState());
     navigator.clipboard.writeText(url).then(() => {
       this.copied.set(true);
+      // The clipboard promise resolves outside Angular, and this is a zoneless
+      // app, so the signal write there only *schedules* change detection —
+      // flush it so the "Link copied" label appears on the spot.
+      this.changeDetector.detectChanges();
       if (this.revertTimer !== null) {
         clearTimeout(this.revertTimer);
       }
       this.revertTimer = setTimeout(() => {
         this.copied.set(false);
         this.revertTimer = null;
+        this.changeDetector.detectChanges();
       }, copiedFeedbackMs);
     }, () => {
       // Clipboard access can be unavailable (e.g. insecure context); let the
       // user copy the link manually instead of failing silently.
-      window.prompt(demoText.shareButton.tooltip, url);
+      window.prompt(this.shareText.tooltip, url);
     });
-    this.close();
-  }
-
-  ngOnDestroy(): void {
-    if (this.revertTimer !== null) {
-      clearTimeout(this.revertTimer);
-      this.revertTimer = null;
-    }
-    this.removeListeners();
-  }
-
-  // Close on an outside click, Escape, or a scroll/resize that would leave the
-  // fixed menu drifting away from its trigger.
-  private onDocMouseDown = (event: MouseEvent): void => {
-    const root = this.rootElement?.nativeElement;
-    if (root && !root.contains(event.target as Node)) {
-      this.close();
-    }
-  };
-
-  private onKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') {
-      this.close();
-    }
-  };
-
-  private onReflow = (): void => {
-    this.close();
-  };
-
-  private addListeners(): void {
-    if (this.listening) {
-      return;
-    }
-    this.listening = true;
-    document.addEventListener('mousedown', this.onDocMouseDown);
-    document.addEventListener('keydown', this.onKeyDown);
-    window.addEventListener('scroll', this.onReflow, true);
-    window.addEventListener('resize', this.onReflow);
-  }
-
-  private removeListeners(): void {
-    if (!this.listening) {
-      return;
-    }
-    this.listening = false;
-    document.removeEventListener('mousedown', this.onDocMouseDown);
-    document.removeEventListener('keydown', this.onKeyDown);
-    window.removeEventListener('scroll', this.onReflow, true);
-    window.removeEventListener('resize', this.onReflow);
+    this.controller?.close();
   }
 }

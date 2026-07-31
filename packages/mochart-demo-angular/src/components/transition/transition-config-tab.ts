@@ -14,7 +14,7 @@ import type { TransitionConfig } from '../../types';
   imports: [TextAreaContent, ButtonWithTooltip, Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')">
+    <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
         <app-text-area-content [value]="configText()" [onChange]="onTextChange" />
       </div>

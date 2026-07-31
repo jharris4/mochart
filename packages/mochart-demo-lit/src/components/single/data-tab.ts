@@ -6,9 +6,14 @@ import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoT
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
+import { PhoneViewportController } from '../misc/PhoneViewportController';
 import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
+import '../misc/overflow-menu';
 
 import type { DemoConfig, DataRow } from '../../types';
+
+/** The footer sits at the bottom of the pane, so its menu opens upward. */
+const editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
 
 @customElement('data-tab')
 export class DataTab extends LightElement {
@@ -21,6 +26,8 @@ export class DataTab extends LightElement {
 
   @state() private dataText = '';
   @state() private errorMessage: string | null = null;
+
+  private viewport = new PhoneViewportController(this);
   // Data properties the chart config does not read are hidden by default; the
   // Unused button toggles them. fullData is the complete dataset backing the
   // textarea, viewUsedProperties the used-set its current content was rendered
@@ -95,29 +102,40 @@ export class DataTab extends LightElement {
   override render(): unknown {
     const jsonError = getJsonError(this.dataText);
     const footerError = jsonError ?? this.errorMessage;
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')}>
+    // Same fold as the config footer — Apply and the `role="alert"` error stay
+    // inline, the rest goes to the `⋯`; the reasons live on config-tab.
+    const folded = this.viewport.isPhone;
+    const resetButton = buttonWithTooltip(
+      { id: 'data-reset', label: demoText.dataTab.reset.label, tooltipText: demoText.dataTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: this.resetData, ariaLabel: demoText.dataTab.reset.aria },
+      icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
+    );
+    const unusedButton = buttonWithTooltip(
+      { id: 'data-unused', label: demoText.dataTab.unused.label, pressed: this.showUnused, tooltipText: demoText.dataTab.unused.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleShowUnused, ariaLabel: demoText.dataTab.unused.aria },
+      icon({ size: 'lg', fixedWidth: true, name: this.showUnused ? 'eye' : 'eye-slash' })
+    );
+    const applyButton = buttonWithTooltip(
+      { id: 'data-apply', label: demoText.dataTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.dataTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.applyData, ariaLabel: demoText.dataTab.apply.aria },
+      icon({ size: 'lg', fixedWidth: true, name: 'check' })
+    );
+    return html`<div class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
         ${textAreaContent({ value: this.dataText, onChange: this.onTextChange })}
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="demo-toolbar" role="toolbar">
-          ${buttonWithTooltip(
-            { id: 'data-reset', label: demoText.dataTab.reset.label, tooltipText: demoText.dataTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: this.resetData, ariaLabel: demoText.dataTab.reset.aria },
-            icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
-          )}
-          ${buttonWithTooltip(
-            { id: 'data-unused', label: demoText.dataTab.unused.label, pressed: this.showUnused, tooltipText: demoText.dataTab.unused.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleShowUnused, ariaLabel: demoText.dataTab.unused.aria },
-            icon({ size: 'lg', fixedWidth: true, name: this.showUnused ? 'eye' : 'eye-slash' })
-          )}
-          ${buttonWithTooltip(
-            { id: 'data-apply', label: demoText.dataTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.dataTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.applyData, ariaLabel: demoText.dataTab.apply.aria },
-            icon({ size: 'lg', fixedWidth: true, name: 'check' })
-          )}
+          ${folded
+            ? html`${applyButton}
+              <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${editorPlacement}
+                .getAnchor=${this.getFooterAnchor} .active=${this.active}
+                .items=${() => html`<div class="demo-btn-group">${resetButton}${unusedButton}</div>`}></overflow-menu>`
+            : html`${resetButton}${unusedButton}${applyButton}`}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}
         </div>
       </div>
     </div>`;
   }
+
+  private getFooterAnchor = (): HTMLElement | null => this.querySelector('.mochart-demo-tab-footer');
 }
 
 declare global {

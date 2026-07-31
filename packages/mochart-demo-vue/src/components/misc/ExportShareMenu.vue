@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { onBeforeUnmount, ref, watch } from 'vue';
 
 import { buildShareUrl, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import Icon from './Icon.vue';
+import { useMenu } from './useMenu';
 
 // A collapsed export/share menu placed at the end of each mode's controls row.
 // The trigger uses a share icon; the menu holds PNG / SVG downloads and (when a
 // share state is provided) a copy-share-link item. The parent supplies the
 // export actions so this component stays agnostic about single vs. tiled charts.
 //
-// The controls strips (and chart panes) use `overflow: hidden`, which would
-// clip a normal absolutely-positioned dropdown that opens upward over the
-// chart — and the chart's transparent interaction rect would steal clicks. So
-// the menu is positioned `fixed` (measured from the trigger) at a high z-index,
-// which escapes ancestor clipping and stacks above the chart.
+// Positioning, dismissal, focus return and the disclosure ARIA come from
+// `useMenu` (demo-common's menu geometry + dismissal under vue state) —
+// including the reason any of it is hand-rolled (the controls strips clip an
+// absolutely-positioned dropdown, and the chart's interaction rect eats clicks
+// through anything stacked below it). What stays here is what the composable
+// does not know about: the items, the copied-link feedback, and `disabled`.
 interface Props {
   idPrefix: string;
   exportPng: () => void;
@@ -23,78 +25,37 @@ interface Props {
   /** Omit to hide the Share item (e.g. a chart whose state isn't shareable). */
   getShareState?: () => ShareState;
   disabled?: boolean;
+  /**
+   * The hosting pane's active state. A deactivated pane is only marked inert,
+   * and an open panel is `position: fixed` — it would keep painting over the
+   * pane that replaced this one. False closes the menu.
+   */
+  active?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   getShareState: undefined,
-  disabled: false
+  disabled: false,
+  active: true
 });
 
 const copiedFeedbackMs = 1500;
-const menuGap = 4;
 
-const open = ref(false);
 const copied = ref(false);
-const coords = ref<{ bottom: number; right: number } | null>(null);
-const rootElement = ref<HTMLDivElement | null>(null);
-const triggerElement = ref<HTMLButtonElement | null>(null);
 let revertTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Only reveal the menu once it's positioned, to avoid a flash at the origin.
-const menuOpen = computed(() => open.value && coords.value !== null);
+// Opens upward (the controls row sits at the bottom of the pane) and
+// right-aligned (the trigger is the last control in the row).
+const { open, close, setTrigger, setPanel, triggerProps, panelProps, isPositioned } = useMenu({
+  placement: { side: 'top', align: 'end', gap: 4 },
+  triggerId: props.idPrefix + '-export-share'
+});
 
-function onDocMouseDown(event: MouseEvent) {
-  if (rootElement.value && !rootElement.value.contains(event.target as Node)) {
-    open.value = false;
-  }
-}
-
-function onKeyDown(event: KeyboardEvent) {
-  if (event.key === 'Escape') {
-    open.value = false;
-  }
-}
-
-// A fixed menu would drift on scroll/resize; just close it instead.
-function onReflow() {
-  open.value = false;
-}
-
-function removeListeners() {
-  document.removeEventListener('mousedown', onDocMouseDown);
-  document.removeEventListener('keydown', onKeyDown);
-  window.removeEventListener('scroll', onReflow, true);
-  window.removeEventListener('resize', onReflow);
-}
-
-// Anchor the fixed menu just above the trigger's top-right corner, so it opens
-// upward and right-aligned. Measured (before it's shown) to avoid a flash.
-function toggle() {
-  if (open.value) {
-    open.value = false;
-    return;
-  }
-  const rect = triggerElement.value?.getBoundingClientRect();
-  if (rect) {
-    coords.value = {
-      bottom: window.innerHeight - rect.top + menuGap,
-      right: window.innerWidth - rect.right
-    };
-  }
-  open.value = true;
-}
-
-// Attach the outside-close listeners while the menu is open.
-watch(open, (isOpen) => {
-  if (isOpen) {
-    document.addEventListener('mousedown', onDocMouseDown);
-    document.addEventListener('keydown', onKeyDown);
-    window.addEventListener('scroll', onReflow, true);
-    window.addEventListener('resize', onReflow);
-  }
-  else {
-    coords.value = null;
-    removeListeners();
+// A disabled trigger fires no click, so the menu cannot be opened — but one
+// already open when its trigger is disabled would be stranded.
+watch(() => [props.disabled, props.active], () => {
+  if (props.disabled || !props.active) {
+    close();
   }
 });
 
@@ -102,12 +63,11 @@ onBeforeUnmount(() => {
   if (revertTimer !== null) {
     clearTimeout(revertTimer);
   }
-  removeListeners();
 });
 
 function runAndClose(action: () => void) {
   action();
-  open.value = false;
+  close();
 }
 
 function onShare() {
@@ -126,21 +86,20 @@ function onShare() {
     // user copy the link manually instead of failing silently.
     window.prompt(demoText.shareButton.tooltip, url);
   });
-  open.value = false;
+  close();
 }
 </script>
 
 <template>
-  <div ref="rootElement" class="demo-btn-group demo-menu-up mochart-export-share-menu">
-    <button :id="props.idPrefix + '-export-share'" ref="triggerElement" type="button"
+  <div class="demo-btn-group demo-menu-up mochart-export-share-menu">
+    <button :ref="setTrigger" type="button" v-bind="triggerProps"
             :class="'demo-btn demo-btn-secondary demo-menu-trigger' + (open ? ' active' : '')"
-            :disabled="props.disabled" aria-haspopup="true" :aria-expanded="open"
-            :title="demoText.exportShareMenu.trigger.tooltip" :aria-label="demoText.exportShareMenu.trigger.aria"
-            @click="toggle">
+            :disabled="props.disabled"
+            :title="demoText.exportShareMenu.trigger.tooltip" :aria-label="demoText.exportShareMenu.trigger.aria">
       <Icon size="lg" :fixed-width="true" name="share-nodes" />
     </button>
-    <div :class="'demo-menu' + (menuOpen ? ' open' : '')"
-         :style="menuOpen && coords ? { position: 'fixed', bottom: coords.bottom + 'px', right: coords.right + 'px', margin: '0', zIndex: 1080 } : undefined">
+    <div :ref="setPanel" v-bind="panelProps"
+         :class="'demo-menu' + (isPositioned ? ' open' : '')">
       <button type="button" class="demo-menu-item" :aria-label="demoText.exportButtons.png.aria" @click="runAndClose(props.exportPng)">
         <Icon :fixed-width="true" name="file-image" /> <span class="mochart-menu-item-label">{{ demoText.exportButtons.png.label }}</span>
       </button>

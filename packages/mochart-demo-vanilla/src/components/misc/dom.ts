@@ -48,9 +48,112 @@ export function el<K extends keyof HTMLElementTagNameMap>(
   return element;
 }
 
-/** Toggle the `active` class the demo css uses to show/hide mounted tabs. */
+/**
+ * Show or hide a mounted tab pane.
+ *
+ * Two things, because the demo shell hides a pane by MOVING it rather than by
+ * taking it out of the layout. `.mochart-demo-tab-container` stacks every pane
+ * with `margin-left: -100%` and orders the `.active` one last, so an inactive
+ * pane is still rendered, still laid out, and still focusable — one screen's
+ * width to the left. Tabbing out of the top bar used to walk straight into the
+ * Config pane's textarea and buttons while the Chart pane was on screen.
+ *
+ * `inert` is what closes that: it makes the whole subtree unfocusable,
+ * unclickable and invisible to assistive tech in one attribute, without a
+ * `display: none` that would throw away the pane's layout (and with it the
+ * measured widths its charts are built from) every time a tab is switched.
+ *
+ * It also matters more since the phone fold: each strip now carries its own `…`
+ * trigger, so an offscreen pane contributed a focusable button whose measured
+ * rect is a full viewport-width to the left — opening it positioned a panel off
+ * the screen entirely.
+ *
+ * Do NOT add `aria-hidden` alongside it: `inert` already implies it, and the
+ * pair is redundant at best and contradictory at worst.
+ */
 export function setActiveClass(element: HTMLElement, active: boolean): void {
   element.classList.toggle('active', active);
+  // `toggleAttribute` rather than the `inert` IDL property: the attribute is
+  // what the CSS/DOM contract is written in, and it needs no lib.dom version
+  // that happens to declare the property.
+  element.toggleAttribute('inert', !active);
+}
+
+/**
+ * A tab pane, with its active/inert state applied from the start.
+ *
+ * Every pane used to build its own `class="… active"` string, which set the
+ * class but never the `inert` attribute that has to travel with it — the two
+ * would then only agree once something called `setActiveClass`. Going through
+ * one constructor keeps them inseparable.
+ */
+export function tabContainer(
+  className: string,
+  // `undefined` reads as inactive, which is what the `props.active ? …` strings
+  // this replaced already did for the panes whose prop is optional.
+  active: boolean | undefined,
+  children: Child[] = []
+): HTMLDivElement {
+  const element = el('div', { className: 'mochart-demo-tab-container ' + className }, children);
+  setActiveClass(element, active === true);
+  return element;
+}
+
+/**
+ * Run a DOM edit, then hand focus back if the edit dropped it on the floor.
+ *
+ * `append` and `replaceChildren` MOVE nodes, and a move is a detach followed by
+ * an insert — so if the focused element is anywhere in what moved, the browser
+ * resets focus to `<body>` on the way past and never puts it back, even though
+ * the element is still there a microsecond later.
+ *
+ * That is a live case here rather than a theoretical one: the phone fold works
+ * by moving controls between a strip and a menu panel, and pressing one of those
+ * controls can be exactly what triggers the next move. Pressing Edit Series from
+ * inside the chart panel re-homes the whole menu onto the series strip, taking
+ * the button that was just pressed with it — and losing focus there also defeats
+ * the menu controller's own restoration, which only fires while the panel still
+ * holds focus, so the press ended with focus at the top of the document.
+ *
+ * Only restores when the edit left focus nowhere: an edit that deliberately
+ * moved focus somewhere else must be allowed to keep it. And only to an element
+ * that is still in the document — a control that genuinely went away should not
+ * drag focus after it.
+ */
+export function withPreservedFocus(mutate: () => void): void {
+  const focused = document.activeElement;
+  mutate();
+  if (focused instanceof HTMLElement && focused.isConnected
+      && (document.activeElement === null || document.activeElement === document.body)) {
+    focused.focus();
+  }
+}
+
+/**
+ * `replaceChildren` guarded by identity.
+ *
+ * The phone fold's placeControls implementations run from their component's
+ * `sync()`, which runs on every keystroke — and an unguarded `replaceChildren`
+ * with an identical list is not a no-op: it detaches and re-inserts every
+ * node, which blurs any focused descendant (several folded controls live in an
+ * overflow panel) and forces a layout. The lists involved are 1-8 nodes, so
+ * the comparison is far cheaper than the write.
+ */
+export function setChildren(parent: HTMLElement, children: readonly Node[]): void {
+  const current = parent.childNodes;
+  if (current.length === children.length) {
+    let same = true;
+    for (let i = 0; i < children.length; i++) {
+      if (current[i] !== children[i]) {
+        same = false;
+        break;
+      }
+    }
+    if (same) {
+      return;
+    }
+  }
+  parent.replaceChildren(...children);
 }
 
 // ---------------------------------------------------------------------------
@@ -91,6 +194,17 @@ export interface ButtonOptions {
   onClick: () => void;
   color?: string;
   label?: string;
+  /**
+   * Text shown ONLY when the button is hosted inside a menu — the phone fold
+   * reparents icon-only transport buttons (play/stop, prev/next) into an
+   * overflow panel, where a column of bare glyphs has nothing to read.
+   *
+   * Deliberately a second span rather than `label`: a real `label` renders
+   * visible text in the strips above 900px, where these buttons are icon-only
+   * by design. `.btn-menu-label` is `display: none` everywhere except inside a
+   * `.demo-menu`.
+   */
+  menuLabel?: string;
   pressed?: boolean;
   ariaLabel?: string;
   content: Child[];
@@ -123,12 +237,21 @@ export function buttonWithTooltip(options: ButtonOptions): ButtonHandle {
   const labelSpan = el('span', { className: 'btn-label' });
   let hasLabel = false;
 
+  // Only minted when asked for: `.demo-btn` is `inline-flex` with `gap: 6px`, so
+  // an always-present empty span would add a stray gap after every icon.
+  const menuLabelSpan = options.menuLabel === undefined
+    ? null
+    : el('span', { className: 'btn-menu-label', text: options.menuLabel });
+
   function setContent(content: Child[]): void {
     button.replaceChildren();
     for (const child of content) {
       if (child !== null && child !== undefined) {
         button.append(child);
       }
+    }
+    if (menuLabelSpan !== null) {
+      button.append(menuLabelSpan);
     }
     if (hasLabel) {
       button.append(labelSpan);
@@ -209,7 +332,7 @@ export function errorTab(create: () => HTMLElement, active: boolean): ErrorTabHa
   function fail(error: unknown): void {
     console.error(error);
     failed = true;
-    failedPane = el('div', { className: 'mochart-demo-tab-container error' + (isActive ? ' active' : '') }, [
+    failedPane = tabContainer('error', isActive, [
       el('div', {
         className: 'demo-alert demo-alert-error demo-text-center mochart-demo-error-message',
         attrs: { role: 'alert' },

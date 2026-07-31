@@ -6,8 +6,7 @@ import MochartChartTab from './ChartTab';
 import MochartDataTab from './DataTab';
 import MochartConfigTab from './ConfigTab';
 import ErrorTab from '../misc/ErrorTab';
-import { ModeSwitcher, SiteRootButton, BackToDemosButton, ThemeToggleButton } from '../misc/ModeSwitcher';
-import NotesMenu from '../misc/NotesMenu';
+import TopBar from '../misc/TopBar';
 
 import type { DemoTabProps, DemoConfig, DataRow } from '../../types';
 
@@ -35,11 +34,11 @@ export default function MochartDemoSingle({ demoData, initialDemoId, siteRootUrl
 
   return (
     <div className="mochart-demo-container">
-      <div className="mochart-demo-tabs-container">
-        <div className="mochart-demo-nav-group">
-          <SiteRootButton siteRootUrl={siteRootUrl} />
-          <BackToDemosButton onBackToDemos={onBackToDemos} />
-          <ul className="demo-tabs">
+      <TopBar siteRootUrl={siteRootUrl} onBackToDemos={onBackToDemos}
+        notes={demoData.demoObjectMap[initialDemoId]}
+        modes={{ demoMode: 'single', onModeChanged }}
+        tabs={
+          <>
             <li className="demo-tab-item">
               <button type="button" className={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
                 title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : undefined}
@@ -57,14 +56,8 @@ export default function MochartDemoSingle({ demoData, initialDemoId, siteRootUrl
                 {demoText.tabs.data}
               </button>
             </li>
-          </ul>
-          <NotesMenu title={demoData.demoObjectMap[initialDemoId].title} notes={demoData.demoObjectMap[initialDemoId].notes} />
-        </div>
-        <div className="mochart-demo-nav-group">
-          <ModeSwitcher demoMode="single" onModeChanged={onModeChanged} />
-          <ThemeToggleButton />
-        </div>
-      </div>
+          </>
+        } />
       <MochartDemoContent activeKey={activeKey} demoData={demoData} initialDemoId={initialDemoId}
         onPendingChanged={setHasPending} />
     </div>
