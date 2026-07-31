@@ -1,4 +1,4 @@
-import { NONE } from '../core/constants';
+import { AUTO, NONE } from '../core/constants';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import type { TooltipConfig } from '../../types/config';
@@ -38,7 +38,7 @@ export function getRegularDefaults() {
     showIconColors: true,
     showIconShapes: true,
     showIconPlaceholders: true,
-    iconSize: 14,
+    iconSize: AUTO,
     iconSpacerSize: 4,
     iconBorderSize: 1,
     iconBorderColor: '#999999',

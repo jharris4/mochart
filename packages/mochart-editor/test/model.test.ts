@@ -22,4 +22,13 @@ describe('Mochart config editor model', () => {
     expect(radius?.editor.minimum).toBe(0);
     expect(radius?.editor.maximum).toBe(1);
   });
+
+  it('describes automatic tooltip icon sizing', () => {
+    const tooltip = mochartConfigEditorModel.sections.find(section => section.id === 'tooltipConfig');
+    const iconSize = tooltip?.properties.find(property => property.key === 'iconSize');
+
+    expect(iconSize?.editor.types).toEqual(expect.arrayContaining(['number', 'string']));
+    expect(iconSize?.editor.enum).toContain('auto');
+    expect(iconSize?.default?.text).toBe('"auto"');
+  });
 });

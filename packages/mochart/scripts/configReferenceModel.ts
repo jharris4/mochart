@@ -404,6 +404,14 @@ function unique<T>(values: T[]): T[] {
   return values.filter((value, index) => values.indexOf(value) === index);
 }
 
+function editorTypeForValue(value: unknown): EditorValueType {
+  if (Array.isArray(value)) return 'array';
+  if (typeof value === 'boolean') return 'boolean';
+  if (typeof value === 'number') return 'number';
+  if (typeof value === 'object') return 'object';
+  return 'string';
+}
+
 function editorTypesForValidator(validator: Validator): EditorValueType[] {
   const alternatives = validator.alternativeValidators ?? [];
   if (alternatives.length > 0) {
@@ -448,21 +456,23 @@ function editorTypesForValidator(validator: Validator): EditorValueType[] {
     case 'oneIn': {
       const values = (validator.allowedValues ?? []).filter(value => value !== undefined && value !== null);
       if (values.length === 0) return ['any'];
-      return unique(values.map(value => {
-        if (Array.isArray(value)) return 'array';
-        if (typeof value === 'boolean') return 'boolean';
-        if (typeof value === 'number') return 'number';
-        if (typeof value === 'object') return 'object';
-        return 'string';
-      }));
+      return unique(values.map(editorTypeForValue));
     }
     default: return ['any'];
   }
 }
 
 function buildEditorValue(validator: Validator): EditorValueDoc {
-  const editor: EditorValueDoc = { types: editorTypesForValidator(validator) };
   const allowed = (validator.allowedValues ?? []).filter(value => value !== undefined);
+  // Extensions such as numberMin(0).orEqual("auto") retain the base
+  // validator's name, so include the literal alternatives in the editor type
+  // union as well as exposing them as enum completions.
+  const literalTypes = allowed
+    .filter(value => value !== null)
+    .map(editorTypeForValue);
+  const editor: EditorValueDoc = {
+    types: unique(editorTypesForValidator(validator).concat(literalTypes))
+  };
   if (allowed.length > 0) {
     editor.enum = allowed;
     if (allowed.includes(null) && !editor.types.includes('any')) {

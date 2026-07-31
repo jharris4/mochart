@@ -1,6 +1,6 @@
 import validators from './validators';
 
-import { NONE } from '../core/constants';
+import { AUTO, NONE } from '../core/constants';
 
 export default function getValidators() {
   return {
@@ -32,7 +32,7 @@ export default function getValidators() {
     showIconColors: validators.boolean(),
     showIconShapes: validators.boolean(),
     showIconPlaceholders: validators.boolean(),
-    iconSize: validators.numberMin(0),
+    iconSize: validators.numberMin(0).orEqual(AUTO),
     iconSpacerSize: validators.numberMin(0),
     iconBorderSize: validators.numberMin(0),
     iconBorderColor: validators.color(),

@@ -327,6 +327,30 @@ describe('tooltip', () => {
       .toBe('Month: Jan');
   });
 
+  it('sizes tooltip icons from the font by default and preserves numeric sizes', () => {
+    const automatic = mountChart(makeConfig());
+    const automaticRoot = chartRoot(automatic);
+    mouse(automaticRoot, 'mouseenter', 100, 100);
+    mouse(automaticRoot, 'click', 100, 100);
+
+    const automaticIcon = automatic.querySelector<SVGElement>('.mochart-tooltip .mochart-tooltip-line-icon svg')!;
+    expect(automaticIcon.getAttribute('width')).toBe('1em');
+    expect(automaticIcon.getAttribute('height')).toBe('1em');
+    expect(automaticIcon.getAttribute('viewBox')).toBe('0 0 16 16');
+    expect(automaticIcon.parentElement!.style.width).toBe('calc(1em + 4px)');
+
+    const fixed = mountChart(makeConfig({ tooltipConfig: { iconSize: 20 } }));
+    const fixedRoot = chartRoot(fixed);
+    mouse(fixedRoot, 'mouseenter', 100, 100);
+    mouse(fixedRoot, 'click', 100, 100);
+
+    const fixedIcon = fixed.querySelector<SVGElement>('.mochart-tooltip .mochart-tooltip-line-icon svg')!;
+    expect(fixedIcon.getAttribute('width')).toBe('20');
+    expect(fixedIcon.getAttribute('height')).toBe('20');
+    expect(fixedIcon.getAttribute('viewBox')).toBe('0 0 20 20');
+    expect(fixedIcon.parentElement!.style.width).toBe('24px');
+  });
+
   it('focuses and filters series from tooltip line clicks', () => {
     const focuses: ChartFocus[] = [];
     const filters: Array<{ filteredSeriesIds: Record<string, boolean> }> = [];

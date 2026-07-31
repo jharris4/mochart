@@ -93,6 +93,17 @@ describe('getActualDefaults', () => {
   });
 });
 
+describe('tooltip defaults', () => {
+  it('matches icon size to the font by default', () => {
+    const automatic = getDefaults({
+      version: '1.0.0',
+      groupAxisConfig: { property: 'p' }
+    }) as { tooltipConfig: { iconSize: string | number } };
+
+    expect(automatic.tooltipConfig.iconSize).toBe('auto');
+  });
+});
+
 describe('pie-mode conditional defaults', () => {
   it('hides the axes and unsnaps the tooltip when chartConfig.type is pie', () => {
     const defaults = getDefaults({ version: '1.0.0', chartConfig: { type: 'pie' }, groupAxisConfig: { property: 'p' } }) as {

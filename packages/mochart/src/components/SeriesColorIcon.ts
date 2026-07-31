@@ -5,7 +5,7 @@ import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
 import SeriesColorGradient from './SeriesColorGradient';
 
-import { NONE } from '../config/core/constants';
+import { AUTO, NONE } from '../config/core/constants';
 import { getSeriesColor, getSeriesOpacities, getSeriesGradientColors } from '../utils/SeriesColors';
 import { getSymbolGenerator } from '../utils/shapeUtils';
 import { translate } from '../utils/utils';
@@ -33,6 +33,14 @@ interface SeriesColorIconProps {
   iconClassName?: string | null;
   svgUniqueId?: string;
   uniqueIds?: SeriesColorUniqueIds;
+}
+
+// Auto-sized tooltip icons use a stable internal coordinate system while the
+// outer SVG viewport follows the inherited font size through `1em`.
+const autoIconViewBoxSize = 16;
+
+function getIconGeometrySize(seriesContextConfig: LegendConfig | TooltipConfig): number {
+  return seriesContextConfig.iconSize === AUTO ? autoIconViewBoxSize : seriesContextConfig.iconSize;
 }
 
 export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
@@ -77,22 +85,29 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
 
     if (showSeriesColor || showIconPlaceholders) {
       const { iconSize, iconSpacerSize } = seriesContextConfig;
+      const geometrySize = getIconGeometrySize(seriesContextConfig);
+      const displaySize = iconSize === AUTO ? '1em' : iconSize;
       const colorStyle = {
         display: 'inline-block',
-        width: iconSize + iconSpacerSize,
+        width: iconSize === AUTO ? `calc(1em + ${iconSpacerSize}px)` : iconSize + iconSpacerSize,
         verticalAlign: 'middle'
       };
       const spacerStyle = {
         display: 'inline-block',
         width: iconSpacerSize,
-        height: iconSize
+        height: displaySize
       };
 
       const gradientId = svgUniqueId! + '-' + seriesConfig.id;
 
       this.setPresent(true);
       this.span.set({ className: iconClassName, style: colorStyle });
-      this.svg.set({ xmlns: 'http://www.w3.org/2000/svg', width: iconSize, height: iconSize });
+      this.svg.set({
+        xmlns: 'http://www.w3.org/2000/svg',
+        width: displaySize,
+        height: displaySize,
+        viewBox: `0 0 ${geometrySize} ${geometrySize}`
+      });
       this.spacer.set({ style: spacerStyle });
       this.syncColorDefs(gradientId);
       this.syncColorContent(showSeriesColor, gradientId, null);
@@ -166,7 +181,8 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
       return;
     }
 
-    const { iconSize, iconBorderSize, iconBorderColor, iconUnsuppressedColor, showIconShapes } = seriesContextConfig;
+    const { iconBorderSize, iconBorderColor, iconUnsuppressedColor, showIconShapes } = seriesContextConfig;
+    const iconSize = getIconGeometrySize(seriesContextConfig);
     const { gradient, markerShape } = seriesConfig;
 
     const { opacity, focusedOpacity, defocusedOpacity } = getSeriesOpacities(seriesConfig);

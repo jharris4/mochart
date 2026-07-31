@@ -130,6 +130,26 @@ describe('non-strict validation', () => {
   });
 });
 
+describe('tooltip config validation', () => {
+  it('accepts automatic or numeric icon sizes and rejects other strings', () => {
+    expect(errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      tooltipConfig: { iconSize: 'auto' }
+    })).toEqual([]);
+    expect(errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      tooltipConfig: { iconSize: 20 }
+    })).toEqual([]);
+    expect(errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      tooltipConfig: { iconSize: 'large' }
+    })).toContain('tooltipConfig - iconSize - should be a number >= to 0 or be equal to "auto": "large"');
+  });
+});
+
 describe('detailed validation', () => {
   it('keeps the legacy result shape unchanged', () => {
     const config = { version: V, groupAxisConfig: { property: 'p' } };
