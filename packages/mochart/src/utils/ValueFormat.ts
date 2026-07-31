@@ -24,7 +24,7 @@ export function getGroupFormat(groupAxisConfig: GroupAxisConfig): (group: GroupV
     }
   }
   if (groupAxisConfig.valueFormat !== NONE) {
-    let timeFormatter = groupAxisConfig.dateUTC ? utcFormat : timeFormat;
+    const timeFormatter = groupAxisConfig.dateUTC ? utcFormat : timeFormat;
     if (groupAxisConfig.valueFormat === AUTO) {
       if (groupAxisConfig.tickLabelFormat !== NONE) {
         if (groupAxisConfig.tickLabelFormat === AUTO) {
@@ -65,7 +65,7 @@ export function getGroupFormat(groupAxisConfig: GroupAxisConfig): (group: GroupV
 }
 
 export function getSeriesFormats(seriesConfigs: SeriesConfig[], seriesAxisConfigs: SeriesAxisConfig[], seriesAxisDomains: AxisDomains): Record<string, ValueFormatter> {
-  let seriesAxisScales = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => scaleLinear().domain(seriesAxisDomains[seriesAxisConfig.id]));
+  const seriesAxisScales = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => scaleLinear().domain(seriesAxisDomains[seriesAxisConfig.id]));
   return arrayToMap(seriesConfigs, idAccessor, seriesConfig =>
     getSeriesFormat(seriesConfig, seriesConfig.seriesAxisConfig, seriesAxisScales[seriesConfig.seriesAxisConfig.id]));
 }
@@ -74,7 +74,7 @@ export function getSeriesFormat(seriesConfig: SeriesConfig, seriesAxisConfig: Se
   let valueFormat: ValueFormatter = value => value;
   if (seriesConfig.valueFormat !== NONE) {
     if (seriesConfig.valueFormat === AUTO) {
-      let formatSpecifier = seriesAxisConfig.tickLabelFormat === AUTO ? autoValueFormatNumber : seriesAxisConfig.tickLabelFormat;
+      const formatSpecifier = seriesAxisConfig.tickLabelFormat === AUTO ? autoValueFormatNumber : seriesAxisConfig.tickLabelFormat;
       valueFormat = seriesAxisScale.tickFormat(10, formatSpecifier);
     }
     else {

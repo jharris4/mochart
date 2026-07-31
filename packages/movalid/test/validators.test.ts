@@ -55,7 +55,7 @@ const customValidator: CustomValidator = v => v === 123;
 customValidator.message = "should be the magic number 123!";
 
 describe("validators", () => {
-  let validatorInputs: Record<string, { args: any[]; valid?: any; invalid?: any }> = {
+  const validatorInputs: Record<string, { args: any[]; valid?: any; invalid?: any }> = {
     boolean: { args: [], valid: true, invalid: "true" },
     number: { args: [], valid: 123.45, invalid: "123.45" },
     string: { args: [], valid: "hello", invalid: true },
@@ -1364,31 +1364,31 @@ describe("validators", () => {
 
   describe("conditional validator", () => {
     it("should allow values that are allowed by the validator for the matched rule", () => {
-      let rules = [
+      const rules = [
         {
           condition: ({ type }) => type === "string",
           suffix: "when type is string",
           validator: baseValidators.string()
         }
       ];
-      let object = { type: "string" };
+      const object = { type: "string" };
       expect(baseValidators.conditional(rules, object)("a")).toIsEqual(true);
     });
 
     it("should not allow values that are not allowed by the validator for the matched rule", () => {
-      let rules = [
+      const rules = [
         {
           condition: ({ type }) => type === "string",
           suffix: "when type is string",
           validator: baseValidators.string()
         }
       ];
-      let object = { type: "string" };
+      const object = { type: "string" };
       expect(baseValidators.conditional(rules, object)(1)).toIsEqual(false);
     });
 
     it("should use the validator for the first matched rule", () => {
-      let rules = [
+      const rules = [
         {
           condition: ({ type }) => type === "string",
           suffix: "when type is string",
@@ -1396,14 +1396,14 @@ describe("validators", () => {
         },
         { condition: () => true, validator: baseValidators.equal(123) }
       ];
-      let object = { type: "string" };
+      const object = { type: "string" };
       expect(baseValidators.conditional(rules, object)("a")).toIsEqual(true);
       expect(baseValidators.conditional(rules, object)(123)).toIsEqual(false);
     });
 
     it("should check the conditions for all rules until a match is found", () => {
       let count = 0;
-      let rules = [
+      const rules = [
         {
           condition: ({ type }) => {
             count++;
@@ -1428,13 +1428,13 @@ describe("validators", () => {
           validator: baseValidators.equal(123)
         }
       ];
-      let object = { type: "abc" };
+      const object = { type: "abc" };
       expect(baseValidators.conditional(rules, object)(123)).toIsEqual(true);
       expect(count).toIsEqual(rules.length);
     });
 
     it("should have an errorMessages array with one message per rule", () => {
-      let rules = [
+      const rules = [
         {
           condition: ({ type }) => type === "string",
           suffix: "when type is string",
@@ -1447,8 +1447,8 @@ describe("validators", () => {
         },
         { condition: () => true, validator: baseValidators.equal(123) }
       ];
-      let object = {};
-      let validator = baseValidators.conditional(rules, object);
+      const object = {};
+      const validator = baseValidators.conditional(rules, object);
       expect(validator.errorMessages.length).toIsEqual(3);
       expect(validator.errorMessages).toIsEqual([
         "should be a string when type is string",
@@ -1458,7 +1458,7 @@ describe("validators", () => {
     });
 
     it("should set the error message to the message of the validator for the matched rule", () => {
-      let rules = [
+      const rules = [
         {
           condition: ({ type }) => type === "string",
           suffix: "when type is string",
@@ -1471,8 +1471,8 @@ describe("validators", () => {
         },
         { condition: () => true, validator: baseValidators.equal(123) }
       ];
-      let object = {};
-      let validator = baseValidators.conditional(rules, object);
+      const object = {};
+      const validator = baseValidators.conditional(rules, object);
       expect(validator.errorMessage).toIsEqual("should be equal to 123");
     });
   });
@@ -1630,7 +1630,7 @@ describe("validators", () => {
     });
 
     it("should return null for all validators that do not have nestedValues", () => {
-      let nestedValidatorNames = { objectWith: true, objectWithSome: true, objectWithShape: true };
+      const nestedValidatorNames = { objectWith: true, objectWithSome: true, objectWithShape: true };
       let validator;
       regularValidatorKeys.forEach(validatorKey => {
         if (nestedValidatorNames[validatorKey] !== true) {
@@ -1642,7 +1642,7 @@ describe("validators", () => {
   });
 
   describe("extensions", () => {
-    let getErrorMessageEnd = ": undefined";
+    const getErrorMessageEnd = ": undefined";
 
     it("should output validator extensions for all validators", () => {
       let validator;
@@ -1650,7 +1650,7 @@ describe("validators", () => {
         validator = baseValidators[validatorKey](...validatorInputs[validatorKey].args);
         expect(validator).toBeInstanceOf(Function);
         extensionKeys.forEach(extensionKey => {
-          let extension = validator[extensionKey](...extensionInputs[extensionKey].args);
+          const extension = validator[extensionKey](...extensionInputs[extensionKey].args);
           expect(extension).toBeInstanceOf(Function);
           expect(extension.errorMessage).toBeTruthy();
           expect(extension.getErrorMessage).toBeInstanceOf(Function);
@@ -1660,7 +1660,7 @@ describe("validators", () => {
     });
 
     it("should change the validation result when the extension warrants it", () => {
-      let validator = baseValidators.number();
+      const validator = baseValidators.number();
       expect(validator("abc")).toBe(false);
       expect(validator.orEqual("abc")("abc")).toBe(true);
       expect(validator.orOneOf(["ab", "abcd"])("abcd")).toBe(true);
@@ -1668,7 +1668,7 @@ describe("validators", () => {
     });
 
     it("should not change the validation result when the extension does not warrant it", () => {
-      let validator = baseValidators.number();
+      const validator = baseValidators.number();
       expect(validator("abc")).toBe(false);
       expect(validator.orEqual(5)("abc")).toBe(false);
       expect(validator.orOneOf(["ab", "abc"])("abcd")).toBe(false);
@@ -1676,15 +1676,15 @@ describe("validators", () => {
     });
 
     it("should append the extension error message to the validator error message", () => {
-      let validator = baseValidators.number();
+      const validator = baseValidators.number();
       expect(validator.errorMessage).toBeTruthy();
-      let extension = validator.orEqual(1);
+      const extension = validator.orEqual(1);
       expect(extension.errorMessage).toBeTruthy();
       expect(extension.errorMessage.startsWith(validator.errorMessage)).toBe(true);
     });
 
     it("should support changing all validator messages", () => {
-      let customMessage = "hello";
+      const customMessage = "hello";
 
       let validator;
       validatorKeys.forEach(validatorKey => {
@@ -1703,7 +1703,7 @@ describe("validators", () => {
     });
 
     it("should support changing all validator extension messages", () => {
-      let customMessage = "hello";
+      const customMessage = "hello";
 
       let validator;
       regularValidatorKeys.forEach(validatorKey => {
@@ -1729,7 +1729,7 @@ describe("validators", () => {
     });
 
     it("should support prepending to all validator messages", () => {
-      let customMessage = "hello";
+      const customMessage = "hello";
 
       let validator;
       validatorKeys.forEach(validatorKey => {
@@ -1748,7 +1748,7 @@ describe("validators", () => {
     });
 
     it("should support prepending to all validator extension messages", () => {
-      let customMessage = "hello";
+      const customMessage = "hello";
 
       let validator;
       regularValidatorKeys.forEach(validatorKey => {
@@ -1769,7 +1769,7 @@ describe("validators", () => {
     });
 
     it("should support appending to all validator messages", () => {
-      let customMessage = "hello";
+      const customMessage = "hello";
 
       let validator;
       validatorKeys.forEach(validatorKey => {
@@ -1788,8 +1788,8 @@ describe("validators", () => {
           )
         ).toIsEqual(customMessage);
         expect(validator.getErrorMessage).toBeInstanceOf(Function);
-        let fullErrorMessage = validator.getErrorMessage();
-        let expectedCustomMessageStart = fullErrorMessage.length - getErrorMessageEnd.length - customMessage.length;
+        const fullErrorMessage = validator.getErrorMessage();
+        const expectedCustomMessageStart = fullErrorMessage.length - getErrorMessageEnd.length - customMessage.length;
         expect(
           fullErrorMessage.substring(expectedCustomMessageStart, expectedCustomMessageStart + customMessage.length)
         ).toIsEqual(customMessage);
@@ -1797,7 +1797,7 @@ describe("validators", () => {
     });
 
     it("should support appending to all validator extension messages", () => {
-      let customMessage = "hello";
+      const customMessage = "hello";
 
       let validator;
       regularValidatorKeys.forEach(validatorKey => {
@@ -1817,8 +1817,8 @@ describe("validators", () => {
             )
           ).toIsEqual(customMessage);
           expect(extension.getErrorMessage).toBeInstanceOf(Function);
-          let fullErrorMessage = extension.getErrorMessage();
-          let expectedCustomMessageStart = fullErrorMessage.length - getErrorMessageEnd.length - customMessage.length;
+          const fullErrorMessage = extension.getErrorMessage();
+          const expectedCustomMessageStart = fullErrorMessage.length - getErrorMessageEnd.length - customMessage.length;
           expect(
             extension
               .getErrorMessage()
@@ -1904,8 +1904,8 @@ describe("validators", () => {
       it("should return the range values for all validators that have them", () => {
         validatorKeys.forEach(validatorKey => {
           if (isRangedValidatorNames[validatorKey] === true) {
-            let args = validatorInputs[validatorKey].args;
-            let rangeValues = baseValidators[validatorKey](...args).rangeValues;
+            const args = validatorInputs[validatorKey].args;
+            const rangeValues = baseValidators[validatorKey](...args).rangeValues;
             expect(rangeValues).not.toIsEqual(null);
             if (validatorKey.indexOf("MinMax") !== -1) {
               expect(rangeValues.min).toIsEqual(args[0]);
@@ -1975,7 +1975,7 @@ describe("validators", () => {
     });
 
     it("should support nested extensions", () => {
-      let validator = baseValidators
+      const validator = baseValidators
         .equal("a")
         .appendMessage(" <a>")
         .orEqual("b")
@@ -2011,7 +2011,7 @@ describe("validators", () => {
         regularValidatorKeys.forEach(validatorKey => {
           validator = baseValidators[validatorKey](...validatorInputs[validatorKey].args);
           extensionKeys.forEach(extensionKey => {
-            let extension = validator[extensionKey](...extensionInputs[extensionKey].args);
+            const extension = validator[extensionKey](...extensionInputs[extensionKey].args);
             expect(extension.validatorName).toIsEqual(validatorKey);
           });
         });
@@ -2064,7 +2064,7 @@ describe("validators", () => {
         regularValidatorKeys.forEach(validatorKey => {
           validator = baseValidators[validatorKey](...validatorInputs[validatorKey].args);
           extensionKeys.forEach(extensionKey => {
-            let extension = validator[extensionKey](...extensionInputs[extensionKey].args);
+            const extension = validator[extensionKey](...extensionInputs[extensionKey].args);
             expect(extension.extensionNames).toIsEqual([extensionKey]);
           });
         });
@@ -2119,7 +2119,7 @@ describe("validators", () => {
         regularValidatorKeys.forEach(validatorKey => {
           validator = baseValidators[validatorKey](...validatorInputs[validatorKey].args);
           extensionKeys.forEach(extensionKey => {
-            let extension = validator[extensionKey](...extensionInputs[extensionKey].args);
+            const extension = validator[extensionKey](...extensionInputs[extensionKey].args);
             expect(extension.withCustomName("custom" + validatorKey).customName).toIsEqual("custom" + validatorKey);
           });
         });
@@ -2132,7 +2132,7 @@ describe("validators", () => {
             "custom" + validatorKey
           );
           extensionKeys.forEach(extensionKey => {
-            let extension = validator[extensionKey](...extensionInputs[extensionKey].args);
+            const extension = validator[extensionKey](...extensionInputs[extensionKey].args);
             expect(extension.customName).toIsEqual("custom" + validatorKey);
           });
         });

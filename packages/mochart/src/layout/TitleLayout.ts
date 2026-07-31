@@ -12,7 +12,7 @@ function createTitleLayoutInfo(x: number, y: number, width: number, height: numb
   if (width > 0 && height < titleSpacingHeight) {
     const extraHeight = titleSpacingHeight - height;
     if (expand > 0) {
-      let expansion = Math.min(extraHeight, expand);
+      const expansion = Math.min(extraHeight, expand);
       height+= expansion;
       if (verticalAlign === VERTICAL_ALIGN_TOP) {
         padding = {...padding, bottom: padding.bottom + expansion};

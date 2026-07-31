@@ -64,10 +64,10 @@ export class FocusController {
     else if (dataProvider !== oldDataProvider) {
       if (oldDataProvider && dataProvider) {
         if (this.focusedGroupIndex >= 0) {
-          let oldGroupValues = oldDataProvider.getGroupValues();
-          let newGroupValues = dataProvider.getGroupValues();
+          const oldGroupValues = oldDataProvider.getGroupValues();
+          const newGroupValues = dataProvider.getGroupValues();
           if (oldGroupValues && newGroupValues) {
-            let groupValue = oldGroupValues[this.focusedGroupIndex];
+            const groupValue = oldGroupValues[this.focusedGroupIndex];
             this.focusedGroupIndex = newGroupValues.indexOf(groupValue);
           }
           else {

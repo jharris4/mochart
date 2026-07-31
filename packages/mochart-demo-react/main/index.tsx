@@ -64,7 +64,12 @@ function RouteNotFound() {
 function useDemoNavigate() {
   const navigate = useNavigate();
   const { search } = useLocation();
-  return (pathname: string, options: { replace?: boolean } = {}) => navigate({ pathname, search }, options);
+  // Returns void, not the router's promise: every caller is a click handler or
+  // a `void`-typed prop, and leaking the promise upward made each of them an
+  // unhandled-rejection site.
+  return (pathname: string, options: { replace?: boolean } = {}): void => {
+    void navigate({ pathname, search }, options);
+  };
 }
 
 // A share link's payload lives in the URL hash; the mounted view decodes it on
@@ -80,7 +85,7 @@ function useClearShareHash() {
   useEffect(() => {
     if (!cleared.current && location.hash.startsWith(shareHashPrefix)) {
       cleared.current = true;
-      navigate({ pathname: location.pathname, search: location.search, hash: '' }, { replace: true });
+      void navigate({ pathname: location.pathname, search: location.search, hash: '' }, { replace: true });
     }
   }, [location, navigate]);
 }

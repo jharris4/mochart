@@ -213,7 +213,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
     const { showControls, focusOnGroupMouseOver } = tooltipConfig;
-    let shouldFocus = focusOnGroupMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const shouldFocus = focusOnGroupMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
       onFocus({ groupIndex: tooltipGroupIndex });
     }
@@ -224,7 +224,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
     const { showControls, focusOnGroupMouseOver } = tooltipConfig;
-    let shouldFocus = focusOnGroupMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const shouldFocus = focusOnGroupMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
       onFocus({ groupIndex: null });
     }
@@ -235,7 +235,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
     const { showControls, focusOnGroupClick } = tooltipConfig;
-    let shouldFocus = showControls ? mode === MODE_FOCUS : focusOnGroupClick;
+    const shouldFocus = showControls ? mode === MODE_FOCUS : focusOnGroupClick;
     if (shouldFocus) {
       event.stopPropagation();
       onFocus({ groupIndex: focusedGroupIndex === tooltipGroupIndex ? -1 : tooltipGroupIndex });
@@ -258,7 +258,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mode } = this.state;
     const { tooltipConfig } = mochartConfig;
     const { showControls, focusOnSeriesMouseOver } = tooltipConfig;
-    let shouldFocus = focusOnSeriesMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const shouldFocus = focusOnSeriesMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
       onFocus({ seriesId: null });
     }
@@ -269,8 +269,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
     const { tooltipConfig } = mochartConfig;
     const { showControls, focusOnSeriesClick, filterOnSeriesClick } = tooltipConfig;
-    let shouldFocus = showControls ? mode === MODE_FOCUS : focusOnSeriesClick;
-    let shouldFilter = showControls ? mode === MODE_FILTER : filterOnSeriesClick;
+    const shouldFocus = showControls ? mode === MODE_FOCUS : focusOnSeriesClick;
+    const shouldFilter = showControls ? mode === MODE_FILTER : filterOnSeriesClick;
     if (shouldFocus || shouldFilter) {
       event.stopPropagation();
       if (shouldFocus) {
@@ -362,7 +362,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     }
 
     const valueFormats = getSeriesFormats(seriesConfigs, seriesAxisConfigs, axisDomains);
-    for (let seriesConfig of seriesConfigs) {
+    for (const seriesConfig of seriesConfigs) {
       if (!seriesConfig.showInTooltip) {
         continue;
       }
@@ -376,13 +376,13 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
       if (!adjustForSuppression || !(seriesIsSuppressed && tooltipConfig.hideSuppressed)) {
-        let valueFormat = valueFormats[seriesId];
+        const valueFormat = valueFormats[seriesId];
         const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {
           tooltipValues: pieTooltipValues, percentFormat: piePercentFormat,
           fraction: adjustedFractions[seriesId] ?? 0, rawFraction: rawFractions[seriesId] ?? 0,
           suppressed: seriesIsSuppressed
         };
-        let { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForSuppression, pieValues);
+        const { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForSuppression, pieValues);
         if (valueText !== null) {
           tooltipLines.push({
             key: 'series-' + seriesId,

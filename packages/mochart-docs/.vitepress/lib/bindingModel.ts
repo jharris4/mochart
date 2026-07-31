@@ -11,9 +11,6 @@ import type { BindingReferenceModel } from '../../scripts/bindingReferenceModel'
 export type {
   BindingDoc,
   BindingGroupDoc,
-  BindingMappingRow,
-  BindingNote,
-  BindingPropDoc,
   BindingReferenceModel
 } from '../../scripts/bindingReferenceModel';
 

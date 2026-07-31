@@ -36,7 +36,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
       JSON.parse(textArea.getValue());
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }
@@ -48,7 +48,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
       errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       onUpdate(newConfig);
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Random Config JSON: ' + textArea.getValue());
       errorMessage = demoText.errors.invalidJson;
     }

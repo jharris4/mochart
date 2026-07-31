@@ -45,7 +45,7 @@ export function createGroupAxisLayoutInfo(mochartConfig: MochartConfig, chartTex
   const { before, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = groupAxisConfig;
   const groupAxisOffset = before ? 0 : (collapsed ? seriesInnerExtent - groupAxisSize : seriesInnerExtent);
 
-  let groupAxisLayoutInfo = createInnerOuterSpacingLayoutInfo({
+  const groupAxisLayoutInfo = createInnerOuterSpacingLayoutInfo({
       x: inverted ? seriesY + groupAxisOffset : groupY + groupAxesOffset.before,
       y: inverted ? groupY + groupAxesOffset.before : seriesY + groupAxisOffset,
       width: inverted ? groupAxisSize : groupInnerExtent,

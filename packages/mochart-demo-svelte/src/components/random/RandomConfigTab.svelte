@@ -50,7 +50,7 @@
       errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       onUpdate(newConfig);
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Random Config JSON: ' + configText);
       errorMessage = demoText.errors.invalidJson;
     }
@@ -61,7 +61,7 @@
       JSON.parse(configText);
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   });

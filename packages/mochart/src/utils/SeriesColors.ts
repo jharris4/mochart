@@ -180,7 +180,7 @@ export function getSeriesLabelStrokeColor(colorPaletteConfig: ColorPaletteConfig
 }
 
 function getColorInterpolator(seriesConfig: SeriesConfig): ColorInterpolator | null {
-  let colorInterpolation = seriesConfig.colorInterpolation;
+  const colorInterpolation = seriesConfig.colorInterpolation;
   if (colorInterpolation === COLOR_INTERPOLATION_RGB) {
     return interpolateRgb;
   }
@@ -205,13 +205,13 @@ function buildScale(colorRange: readonly (string | null)[], colorDomain: readonl
 
 export function getSeriesColorGenerator(seriesConfig: SeriesConfig, _focusPercentage: FocusPercentage, rawDomains: SeriesDomainObject, filteredValues: SeriesValueObject): (index: number) => string {
   const colorValues = filteredValues.color as NumericValues;
-  let interpolator = getColorInterpolator(seriesConfig);
+  const interpolator = getColorInterpolator(seriesConfig);
 
   if (seriesConfig.colorBase !== NONE) {
     const { colorBase } = seriesConfig;
-    let aboveColorScale = buildScale([seriesConfig.colorBaseAboveMin, seriesConfig.colorBaseAboveMax],
+    const aboveColorScale = buildScale([seriesConfig.colorBaseAboveMin, seriesConfig.colorBaseAboveMax],
       [colorBase, Math.max(rawDomains.color[1]!, colorBase)], interpolator);
-    let belowColorScale = buildScale([seriesConfig.colorBaseBelowMin, seriesConfig.colorBaseBelowMax],
+    const belowColorScale = buildScale([seriesConfig.colorBaseBelowMin, seriesConfig.colorBaseBelowMax],
       [Math.min(rawDomains.color[0]!, colorBase), colorBase], interpolator);
 
     return function getColor(index: number) {
@@ -226,7 +226,7 @@ export function getSeriesColorGenerator(seriesConfig: SeriesConfig, _focusPercen
     }
   }
   else {
-    let colorScale = buildScale([seriesConfig.colorMin, seriesConfig.colorMax], rawDomains.color as [number, number], interpolator);
+    const colorScale = buildScale([seriesConfig.colorMin, seriesConfig.colorMax], rawDomains.color as [number, number], interpolator);
     return function getColor(index: number) {
       // TODO - what if color property-value is undefined?!?!
       const colorValue = colorValues[index]!;

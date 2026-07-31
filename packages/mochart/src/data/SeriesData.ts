@@ -77,15 +77,15 @@ export function getSeriesDataWithDomains(seriesData: SeriesData, domains: Series
  *
  **/
 function getRawSeriesBundle(seriesAxisConfigs: SeriesAxisConfig[], seriesConfigs: SeriesConfig[], seriesStackConfigs: SeriesStackConfig[], rawGroupValues: readonly GroupValue[], dataProvider: DataProvider): SeriesBundle {
-  let valueObjects = createEmptySeriesValueObjects(seriesConfigs);
+  const valueObjects = createEmptySeriesValueObjects(seriesConfigs);
   setPlainSeriesValues(seriesConfigs, rawGroupValues, dataProvider, valueObjects);
   setRangeSeriesValues(seriesConfigs, rawGroupValues, dataProvider, valueObjects);
   setErrorSeriesValues(seriesConfigs, rawGroupValues, dataProvider, valueObjects);
   setStackSeriesValues(seriesConfigs, seriesStackConfigs, rawGroupValues, valueObjects);
   setExtraSeriesValues(seriesConfigs, rawGroupValues, dataProvider, valueObjects);
   setMinMax(valueObjects);
-  let domainObjects = getSeriesDomainObjects(valueObjects);
-  let axisDomains = getSeriesAxisDomains(seriesAxisConfigs, domainObjects);
+  const domainObjects = getSeriesDomainObjects(valueObjects);
+  const axisDomains = getSeriesAxisDomains(seriesAxisConfigs, domainObjects);
   return {
     data: {
       axisDomains,
@@ -96,15 +96,15 @@ function getRawSeriesBundle(seriesAxisConfigs: SeriesAxisConfig[], seriesConfigs
 }
 
 function getFilteredSeriesBundle(seriesAxisConfigs: SeriesAxisConfig[], seriesConfigs: SeriesConfig[], seriesStackConfigs: SeriesStackConfig[], rawGroupValues: readonly GroupValue[], rawSeriesValuesBundle: SeriesBundle, seriesFilteredFlags: Record<string, boolean>): SeriesBundle {
-  let valueObjects = createEmptySeriesValueObjects(seriesConfigs);
-  for (let key of positionKeys) {
+  const valueObjects = createEmptySeriesValueObjects(seriesConfigs);
+  for (const key of positionKeys) {
     setFilteredSeriesValues(valueObjects, rawSeriesValuesBundle.data.values, key, seriesFilteredFlags);
   }
   setFilteredStackSeriesValues(seriesConfigs, seriesStackConfigs, rawGroupValues, valueObjects, rawSeriesValuesBundle.data.values);
   setFilteredExtraSeriesValues(rawSeriesValuesBundle.data.values, valueObjects, seriesFilteredFlags);
   setMinMax(valueObjects);
-  let domainObjects = getSeriesDomainObjects(valueObjects);
-  let axisDomains = getSeriesAxisDomains(seriesAxisConfigs, domainObjects);
+  const domainObjects = getSeriesDomainObjects(valueObjects);
+  const axisDomains = getSeriesAxisDomains(seriesAxisConfigs, domainObjects);
   return {
     data: {
       axisDomains,
@@ -122,7 +122,7 @@ function createEmptySeriesValueObjects(seriesConfigs: SeriesConfig[]): SeriesVal
 }
 
 function getSeriesValuesForProperty(seriesProperty: string, rawGroupValues: readonly GroupValue[], dataProvider: DataProvider): NumericValues {
-  let seriesValues: NumericValues = [];
+  const seriesValues: NumericValues = [];
   const groupCount = rawGroupValues.length;
   for (let groupIndex = 0; groupIndex < groupCount; groupIndex++) {
     seriesValues.push(dataProvider.getSeriesValue(rawGroupValues[groupIndex], groupIndex, seriesProperty) as number | undefined);
@@ -131,13 +131,13 @@ function getSeriesValuesForProperty(seriesProperty: string, rawGroupValues: read
 }
 
 function setPlainSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: readonly GroupValue[], dataProvider: DataProvider, valueObjects: SeriesValueObjects): void {
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     valueObjects[seriesConfig.id].plain = getSeriesValuesForProperty(seriesConfig.property!, rawGroupValues, dataProvider);
   }
 }
 
 function setRangeSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: readonly GroupValue[], dataProvider: DataProvider, valueObjects: SeriesValueObjects): void {
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     if (seriesConfig.rangeProperty !== NONE) {
       valueObjects[seriesConfig.id].range = getSeriesValuesForProperty(seriesConfig.rangeProperty, rawGroupValues, dataProvider);
     }
@@ -148,7 +148,7 @@ function setRangeSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: rea
 }
 
 function setErrorSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: readonly GroupValue[], dataProvider: DataProvider, valueObjects: SeriesValueObjects): void {
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     valueObjects[seriesConfig.id].errorLow = seriesConfig.errorLowProperty !== NONE ?
       getSeriesValuesForProperty(seriesConfig.errorLowProperty, rawGroupValues, dataProvider) : null;
     valueObjects[seriesConfig.id].errorHigh = seriesConfig.errorHighProperty !== NONE ?
@@ -158,9 +158,9 @@ function setErrorSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: rea
 
 function setExtraSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: readonly GroupValue[], dataProvider: DataProvider, valueObjects: SeriesValueObjects): void {
   let valueObject: SeriesValueObject;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     valueObject = valueObjects[seriesConfig.id];
-    let existingProperties: Record<string, ValueKey> = {};
+    const existingProperties: Record<string, ValueKey> = {};
     existingProperties[seriesConfig.property!] = 'plain';
     if (seriesConfig.rangeProperty !== NONE) {
       existingProperties[seriesConfig.rangeProperty] = 'range';
@@ -185,7 +185,7 @@ function setExtraSeriesValues(seriesConfigs: SeriesConfig[], rawGroupValues: rea
 function setExtraProperty(hasProperty: boolean, property: string | null, valueKey: ExtraKey, valueCopyKey: ExtraCopyKey, valueObject: SeriesValueObject, existingProperties: Record<string, ValueKey>, rawGroupValues: readonly GroupValue[], dataProvider: DataProvider): void {
   if (hasProperty) {
     const definedProperty = property!;
-    let existingProperty = existingProperties[definedProperty];
+    const existingProperty = existingProperties[definedProperty];
     if (existingProperty) {
       valueObject[valueKey] = valueObject[existingProperty];
       valueObject[valueCopyKey] = existingProperty;
@@ -203,23 +203,23 @@ function setExtraProperty(hasProperty: boolean, property: string | null, valueKe
 }
 
 function setFilteredExtraSeriesValues(rawValueObjects: SeriesValueObjects, valueObjects: SeriesValueObjects, seriesFilteredFlags: Record<string, boolean>): void {
-  let seriesIds = Object.keys(rawValueObjects);
+  const seriesIds = Object.keys(rawValueObjects);
 
   let rawValueObject, valueObject;
-  for (let seriesId of seriesIds) {
+  for (const seriesId of seriesIds) {
     rawValueObject = rawValueObjects[seriesId];
     valueObject = valueObjects[seriesId];
     if (seriesFilteredFlags[seriesId] === true) {
-      for (let extraKey of extraKeys) {
+      for (const extraKey of extraKeys) {
         valueObject[extraKey] = null;
       }
     }
     else {
-      for (let extraKey of extraKeys) {
+      for (const extraKey of extraKeys) {
         valueObject[extraKey] = rawValueObject[extraKey];
       }
     }
-    for (let extraCopyKey of extraCopyKeys) {
+    for (const extraCopyKey of extraCopyKeys) {
       valueObject[extraCopyKey] = rawValueObject[extraCopyKey];
     }
   }
@@ -227,29 +227,29 @@ function setFilteredExtraSeriesValues(rawValueObjects: SeriesValueObjects, value
 
 function setStackSeriesValues(seriesConfigs: SeriesConfig[], seriesStackConfigs: SeriesStackConfig[], rawGroupValues: readonly GroupValue[], valueObjects: SeriesValueObjects): void {
   let valueObject: SeriesValueObject;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     valueObject = valueObjects[seriesConfig.id];
     valueObject.stack = null;
     valueObject.prior = null;
   }
-  for (let seriesStackConfig of seriesStackConfigs) {
-    let groupCount = rawGroupValues.length;
-    let positiveStackValues = createArrayFilledWithZero(groupCount);
-    let negativeStackValues = createArrayFilledWithZero(groupCount);
+  for (const seriesStackConfig of seriesStackConfigs) {
+    const groupCount = rawGroupValues.length;
+    const positiveStackValues = createArrayFilledWithZero(groupCount);
+    const negativeStackValues = createArrayFilledWithZero(groupCount);
     const stackSeriesConfigs = seriesStackConfig.seriesConfigs!;
-    for (let seriesConfig of stackSeriesConfigs) {
-      let values = valueObjects[seriesConfig.id][keyPlain]!;
+    for (const seriesConfig of stackSeriesConfigs) {
+      const values = valueObjects[seriesConfig.id][keyPlain]!;
       setStackSingleSeriesValues(valueObjects[seriesConfig.id], positiveStackValues, negativeStackValues, values);
     }
   }
 }
 
 function setStackSingleSeriesValues(valueObject: SeriesValueObject, positiveStackValues: number[], negativeStackValues: number[], values: NumericValues): void {
-  let i, count = values.length;
+  const count = values.length;
   let priorValues: NumericValues = [];
-  let stackValues: NumericValues = [];
+  const stackValues: NumericValues = [];
   let value: number | undefined, tempValue: number | undefined;
-  for (i=0; i<count; i++) {
+  for (let i=0; i<count; i++) {
     value = values[i];
     if (value === undefined) {
       priorValues.push(positiveStackValues[i]);
@@ -276,10 +276,10 @@ function setStackSingleSeriesValues(valueObject: SeriesValueObject, positiveStac
 }
 
 function getStackPriorValues(positiveStackValues: number[], negativeStackValues: number[], values: NumericValues): NumericValues {
-  let priorValues: NumericValues = [];
+  const priorValues: NumericValues = [];
   let value: number | undefined;
-  let i, count = values.length;
-  for (i = 0; i < count; i++) {
+  const count = values.length;
+  for (let i = 0; i < count; i++) {
     value = values[i];
     if (value === undefined || value >= 0) {
       priorValues.push(positiveStackValues[i]);
@@ -292,9 +292,9 @@ function getStackPriorValues(positiveStackValues: number[], negativeStackValues:
 }
 
 function incrementStackValues(positiveStackValues: number[], negativeStackValues: number[], values: NumericValues): void {
-  let i, value: number | undefined, count = values.length;
-  for (i=0; i<count; i++) {
-    value = values[i];
+  const count = values.length;
+  for (let i=0; i<count; i++) {
+    const value = values[i];
     if (value !== undefined) {
       if (value > 0) {
         positiveStackValues[i]+= value;
@@ -308,21 +308,21 @@ function incrementStackValues(positiveStackValues: number[], negativeStackValues
 
 function setFilteredStackSeriesValues(seriesConfigs: SeriesConfig[], seriesStackConfigs: SeriesStackConfig[], rawGroupValues: readonly GroupValue[], filteredValueObjects: SeriesValueObjects, rawValueObjects: SeriesValueObjects): void {
   let filteredValueObject: SeriesValueObject;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     filteredValueObject = filteredValueObjects[seriesConfig.id];
     filteredValueObject.stack = null;
     filteredValueObject.prior = null;
   }
-  for (let seriesStackConfig of seriesStackConfigs) {
+  for (const seriesStackConfig of seriesStackConfigs) {
     let filteredSeriesFound = false;
-    let groupCount = rawGroupValues.length;
-    let positiveStackValues = createArrayFilledWithZero(groupCount);
-    let negativeStackValues = createArrayFilledWithZero(groupCount);
+    const groupCount = rawGroupValues.length;
+    const positiveStackValues = createArrayFilledWithZero(groupCount);
+    const negativeStackValues = createArrayFilledWithZero(groupCount);
     const stackSeriesConfigs = seriesStackConfig.seriesConfigs!;
     let rawValueObject: SeriesValueObject;
-    for (let seriesConfig of stackSeriesConfigs) {
+    for (const seriesConfig of stackSeriesConfigs) {
       filteredValueObject = filteredValueObjects[seriesConfig.id];
-      let values = filteredValueObject[keyPlain];
+      const values = filteredValueObject[keyPlain];
       if (values !== null) {
         if (filteredSeriesFound) {
           setStackSingleSeriesValues(filteredValueObject, positiveStackValues, negativeStackValues, values);
@@ -344,9 +344,9 @@ function setFilteredStackSeriesValues(seriesConfigs: SeriesConfig[], seriesStack
 }
 
 export function setMinMax(valueObjects: Record<string, Partial<SeriesValueObject>>): void {
-  let seriesIds = Object.keys(valueObjects);
+  const seriesIds = Object.keys(valueObjects);
   let valueObject;
-  for (let seriesId of seriesIds) {
+  for (const seriesId of seriesIds) {
     valueObject = valueObjects[seriesId];
     if (valueObject.stack !== null) {
       valueObject.max = valueObject.stack;
@@ -360,18 +360,18 @@ export function setMinMax(valueObjects: Record<string, Partial<SeriesValueObject
 }
 
 function getSeriesDomainObjects(seriesValueObjects: SeriesValueObjects): SeriesDomainObjects {
-  let seriesDomainObjects: SeriesDomainObjects = {};
+  const seriesDomainObjects: SeriesDomainObjects = {};
 
-  let seriesIds = Object.keys(seriesValueObjects);
-  for (let seriesId of seriesIds) {
+  const seriesIds = Object.keys(seriesValueObjects);
+  for (const seriesId of seriesIds) {
     seriesDomainObjects[seriesId] = getSeriesDomainObject(seriesValueObjects[seriesId]);
   }
   return seriesDomainObjects;
 }
 
 function getSeriesDomainObject(seriesValueObject: SeriesValueObject): SeriesDomainObject {
-  let seriesDomainObject: SeriesDomainObject = {};
-  for (let key of positionOrComputedOrExtraKeys) {
+  const seriesDomainObject: SeriesDomainObject = {};
+  for (const key of positionOrComputedOrExtraKeys) {
     setSeriesDomain(seriesDomainObject, seriesValueObject, key);
   }
   let domain = nullDomain;
@@ -404,16 +404,16 @@ function setSeriesDomain(seriesDomainObject: SeriesDomainObject, seriesValuesObj
 }
 
 function getSeriesFilteredFlags(seriesConfigs: SeriesConfig[], filteredSeriesMap: Record<string, unknown>): Record<string, boolean> {
-  let seriesFilteredFlags: Record<string, boolean> = {};
-  for (let seriesConfig of seriesConfigs) {
+  const seriesFilteredFlags: Record<string, boolean> = {};
+  for (const seriesConfig of seriesConfigs) {
     seriesFilteredFlags[seriesConfig.id] = filteredSeriesMap[seriesConfig.id] !== undefined;
   }
   return seriesFilteredFlags;
 }
 
 function setFilteredSeriesValues(valueObjects: SeriesValueObjects, rawValueObjects: SeriesValueObjects, valueKey: PositionKey, seriesFilteredFlags: Record<string, boolean>): void {
-  let seriesIds = Object.keys(valueObjects);
-  for (let seriesId of seriesIds) {
+  const seriesIds = Object.keys(valueObjects);
+  for (const seriesId of seriesIds) {
     if (seriesFilteredFlags[seriesId] === true) {
       valueObjects[seriesId][valueKey] = null;
     }
@@ -433,10 +433,10 @@ function getSeriesAxisDomain(seriesAxisConfig: SeriesAxisConfig, seriesDomainObj
 }
 
 function calculateSeriesAxisDomain(seriesAxisConfig: SeriesAxisConfig, seriesDomainObjects: SeriesDomainObjects): NullableDomain {
-  let axisDomain: NullableDomain = [null, null];
+  const axisDomain: NullableDomain = [null, null];
   const seriesConfigs = seriesAxisConfig.seriesConfigs!;
-  for (let seriesConfig of seriesConfigs) {
-    let seriesDomain = seriesDomainObjects[seriesConfig.id].domain;
+  for (const seriesConfig of seriesConfigs) {
+    const seriesDomain = seriesDomainObjects[seriesConfig.id].domain;
     if (seriesDomain[0] !== null && (axisDomain[0] === null || seriesDomain[0] < axisDomain[0])) {
       axisDomain[0] = seriesDomain[0];
     }
@@ -462,7 +462,7 @@ export function getSeriesContainerFilteredSeriesCounts(seriesContainerConfigs: S
 function getSeriesContainerFilteredSeriesCount(seriesContainerConfig: SeriesContainerConfig, filteredSeriesFlags: Record<string, boolean>): number {
   let seriesCount = 0;
   const seriesConfigs = seriesContainerConfig.seriesConfigs!;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     if (filteredSeriesFlags[seriesConfig.id] === false) {
       seriesCount++;
     }
@@ -471,9 +471,9 @@ function getSeriesContainerFilteredSeriesCount(seriesContainerConfig: SeriesCont
 }
 
 function getGroupSeriesValueObject(seriesValueObject: SeriesValueObject, groupIndex: number): Partial<Record<ValueKey, number | null | undefined>> {
-  let groupSeriesValueObject: Partial<Record<ValueKey, number | null | undefined>> = {};
+  const groupSeriesValueObject: Partial<Record<ValueKey, number | null | undefined>> = {};
   let keyValues: NumericValues | null;
-  for (let key of valueKeys) {
+  for (const key of valueKeys) {
     keyValues = seriesValueObject[key];
     if (keyValues !== undefined) {
       if (keyValues === null) {

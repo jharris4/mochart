@@ -1,6 +1,6 @@
 export type {
-  DataRow, Demo, DemoConfig, DemoData, RandomConfig,
+  DataRow, Demo, DemoConfig, DemoData,
   GroupValue, FilteredSeriesIds, FocusData, TransitionConfig,
-  ChartDataProviderLike, DemoDataProvider, DemoMode,
-  OnDemoModeChanged, OnDemoChanged, RandomConfigWithValid, MochartDemoConfig
+  ChartDataProviderLike, DemoDataProvider,
+  RandomConfigWithValid, MochartDemoConfig
 } from '@mochart/demo-common';

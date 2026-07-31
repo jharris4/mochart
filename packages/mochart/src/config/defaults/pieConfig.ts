@@ -4,9 +4,9 @@ import { getActualDefaults, conditionalDefault, defaultRule } from './conditiona
 import type { PieConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<PieConfig> = {}): Partial<PieConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as PieConfig));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as PieConfig));
   return { ...regularDefaults, ...conditionalDefaults } as Partial<PieConfig>;
 }
 

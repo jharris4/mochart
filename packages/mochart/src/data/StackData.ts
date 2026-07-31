@@ -32,7 +32,7 @@ function getStackOuterSeriesIds(seriesStackConfigs: SeriesStackConfig[], groupCo
   for (let i=0; i<groupCount; i++) {
     emptyGroupValues.push(undefined);
   }
-  for (let { id } of seriesStackConfigs) {
+  for (const { id } of seriesStackConfigs) {
     outerSeriesIds = emptyGroupValues.slice();
     stackOuterSeriesIds[id] = outerSeriesIds;
   }
@@ -51,14 +51,14 @@ export function getStackData(mochartConfig: MochartConfig, chartData: ChartData)
   const outerNegativeSeriesIds = getStackOuterSeriesIds(seriesStackConfigs, groupValues.length);
   const filteredOuterNegativeSeriesIds = getStackOuterSeriesIds(seriesStackConfigs, groupValues.length);
   let stackPositiveIds, stackPositiveFilteredIds, stackNegativeIds, stackNegativeFilteredIds, id;
-  for (let seriesStackConfig of seriesStackConfigs) {
+  for (const seriesStackConfig of seriesStackConfigs) {
     const { id: stackId } = seriesStackConfig;
     const seriesConfigs = seriesStackConfig.seriesConfigs!;
     stackPositiveIds = outerPositiveSeriesIds[stackId];
     stackPositiveFilteredIds = filteredOuterPositiveSeriesIds[stackId];
     stackNegativeIds = outerNegativeSeriesIds[stackId];
     stackNegativeFilteredIds = filteredOuterNegativeSeriesIds[stackId];
-    for (let seriesConfig of seriesConfigs) {
+    for (const seriesConfig of seriesConfigs) {
       id = seriesConfig.id;
       assignIdIfPositive(stackPositiveIds, seriesConfig, rawValues[id][keyStack]);
       assignIdIfPositive(stackPositiveFilteredIds, seriesConfig, filteredValues[id][keyStack]);

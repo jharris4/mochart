@@ -102,8 +102,8 @@
     if (focusedGroupIndex >= 0) {
       const groupProperty = mochartDemoConfig.groupProperty ?? '';
       const groupValue = data[focusedGroupIndex][groupProperty];
-      let i, count = nextFilteredData.length;
-      for (i = 0; i < count; i++) {
+      const count = nextFilteredData.length;
+      for (let i = 0; i < count; i++) {
         if (nextFilteredData[i][groupProperty] === groupValue) {
           nextFilteredFocusedGroupIndex = i;
           break;
@@ -155,8 +155,8 @@
   function initData() {
     const nextFilteredData = [];
     if (data && !dataError) {
-      let i, count = data.length;
-      for (i = 0; i < count; i++) {
+      const count = data.length;
+      for (let i = 0; i < count; i++) {
         nextFilteredData.push(Object.assign({}, data[i]));
       }
     }
@@ -278,8 +278,8 @@
       if (nextFilteredFocusedGroupIndex >= 0) {
         const groupProperty = mochartDemoConfig.groupProperty ?? '';
         const groupValue = filteredData[nextFilteredFocusedGroupIndex][groupProperty];
-        let i, count = data.length;
-        for (i = 0; i < count; i++) {
+        const count = data.length;
+        for (let i = 0; i < count; i++) {
           if (data[i][groupProperty] === groupValue) {
             newFocusedGroupIndex = i;
             break;
@@ -303,8 +303,8 @@
     }
     else if (selectionMode === 'group') {
       const dataGroupValues: any[] = [];
-      let i, count = filteredData.length;
-      for (i = 0; i < count; i++) {
+      const count = filteredData.length;
+      for (let i = 0; i < count; i++) {
         dataGroupValues.push(filteredData[i][groupProperty]);
       }
       let parsedGroupValues = groupValuesText === emptyGroupText ? [] : groupValuesText.split(',');
@@ -327,8 +327,8 @@
   function selectAllGroups() {
     const groupProperty = mochartDemoConfig.groupProperty ?? '';
     const allGroupValues: any[] = [];
-    let i, count = data.length;
-    for (i = 0; i < count; i++) {
+    const count = data.length;
+    for (let i = 0; i < count; i++) {
       allGroupValues.push(data[i][groupProperty]);
     }
     groupValuesText = allGroupValues.join(',');
@@ -391,9 +391,10 @@
     oldRemovedData.forEach(removedObject => {
       removedMap[removedObject[groupProperty]] = removedObject;
     });
-    let i, fi, count = data.length, filteredCount = oldFilteredData.length;
+    const count = data.length;
+    const filteredCount = oldFilteredData.length;
     const nextFilteredData: Row[] = [];
-    for (i = 0, fi = 0; i < count; i++) {
+    for (let i = 0, fi = 0; i < count; i++) {
       if (fi < filteredCount) {
         if (data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
           if (groupValueToAddMap[data[i][groupProperty]] === true) {
@@ -429,9 +430,9 @@
     groupValuesToRemove.forEach(groupValueToRemove => {
       groupValueToRemoveMap[groupValueToRemove] = true;
     });
-    let i, count = oldFilteredData.length;
+    const count = oldFilteredData.length;
     const nextFilteredData: Row[] = [];
-    for (i = 0; i < count; i++) {
+    for (let i = 0; i < count; i++) {
       if (groupValueToRemoveMap[oldFilteredData[i][groupProperty]] !== true) {
         nextFilteredData.push(oldFilteredData[i]);
       }
@@ -456,8 +457,9 @@
       removedIndexMap[removedObject[groupProperty]] = removedIndex;
     });
     const groupObjectsToAdd: { removedIndex: number; dataIndex: number }[] = [];
-    let i, fi, count = data.length, filteredCount = oldFilteredData.length;
-    for (i = 0, fi = 0; i < count; i++) {
+    const count = data.length;
+    const filteredCount = oldFilteredData.length;
+    for (let i = 0, fi = 0; i < count; i++) {
       if (fi < filteredCount) {
         if (data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
           if (groupValueToAddMap[data[i][groupProperty]] === true) {
@@ -508,8 +510,9 @@
       removedIndexMap[removedObject[groupProperty]] = removedIndex;
     });
     const groupObjectsToRemove: { removedIndex: number; dataIndex: number }[] = [];
-    let i, fi, ri, count = data.length, filteredCount = oldFilteredData.length;
-    for (i = 0, fi = 0, ri = 0; i < count && fi < filteredCount; i++) {
+    const count = data.length;
+    const filteredCount = oldFilteredData.length;
+    for (let i = 0, fi = 0, ri = 0; i < count && fi < filteredCount; i++) {
       if (data[i][groupProperty] === oldFilteredData[fi][groupProperty]) {
         if (groupValueToRemoveMap[data[i][groupProperty]] === true) {
           groupObjectsToRemove.push({
@@ -618,7 +621,7 @@
         }
         updateFilteredDataState({}, filteredData, removedData, false);
       }
-      catch (error) {
+      catch {
 
       }
     }
@@ -631,8 +634,9 @@
     if (seriesConfigs.length > 0) {
       const filteredDataObject = filteredData[groupIndex];
       const filteredGroupValue = filteredDataObject[groupProperty];
-      let i, count = data.length, dataObject: Row | null = null;
-      for (i = 0; i < count; i++) {
+      const count = data.length;
+      let dataObject: Row | null = null;
+      for (let i = 0; i < count; i++) {
         if (data[i][groupProperty] === filteredGroupValue) {
           dataObject = data[i];
         }

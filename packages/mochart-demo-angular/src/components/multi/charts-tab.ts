@@ -276,8 +276,8 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     let nextFocusedGroupIndices = this.focusedGroupIndices();
     if (groupIndex !== undefined && groupIndex >= 0) {
       const groupValue = this.dataProviders()[chartIndex].getGroupValues()[groupIndex];
-      let i, count = this.data().length;
-      for (i = 0; i < count; i++) {
+      const count = this.data().length;
+      for (let i = 0; i < count; i++) {
         if (this.data()[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
           groupIndex = i;
           break;

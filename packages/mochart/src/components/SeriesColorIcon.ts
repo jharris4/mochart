@@ -192,8 +192,8 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     if (showIconShapes && markerShape !== NONE) {
       const symbolSize = shapeSize - 3;
       const halfSize = Math.floor(iconSize / 2.0);
-      let symbolGenerator = getSymbolGenerator(symbolSize, markerShape);
-      let symbolTransform = translate(halfSize, halfSize);
+      const symbolGenerator = getSymbolGenerator(symbolSize, markerShape);
+      const symbolTransform = translate(halfSize, halfSize);
       this.shapeSlot.set('path', () => svgEl('path'))!.set({ d: symbolGenerator(), transform: symbolTransform, ...commonProps });
     }
     else {

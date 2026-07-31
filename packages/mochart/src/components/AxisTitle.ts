@@ -109,7 +109,7 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
     if (this.checkTruncation && this.present) {
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getAxisTitleCssSelector());
       const { axisConfig, axisLayoutInfo } = this.props;
-      let maxLength = axisLayoutInfo.vertical ? axisLayoutInfo.height : axisLayoutInfo.width;
+      const maxLength = axisLayoutInfo.vertical ? axisLayoutInfo.height : axisLayoutInfo.width;
       const { title, titleTruncationValue } = axisConfig;
       const { checkTruncation, truncationData } = updateTruncation(titleTruncationValue, this.state.truncationData, title!, maxLength, domElement);
       if (checkTruncation) {

@@ -9,11 +9,11 @@ import type {
 } from '../types/animation';
 
 export function getFocusAnimationData(_mochartConfig: MochartConfig, oldFocusData: FocusData, newFocusData: FocusData): FocusAnimationData {
-  let startFocusData = oldFocusData;
-  let endFocusData = newFocusData;
-  let groupFocusDeltaData = getGroupFocusDeltaData(startFocusData.groupFocusPercentages, endFocusData.groupFocusPercentages);
-  let seriesAxisFocusDeltaData = getSeriesAxisFocusDeltaData(oldFocusData.seriesAxisFocusPercentages, newFocusData.seriesAxisFocusPercentages);
-  let seriesFocusDeltaData = getSeriesFocusDeltaData(oldFocusData.seriesFocusPercentages, newFocusData.seriesFocusPercentages);
+  const startFocusData = oldFocusData;
+  const endFocusData = newFocusData;
+  const groupFocusDeltaData = getGroupFocusDeltaData(startFocusData.groupFocusPercentages, endFocusData.groupFocusPercentages);
+  const seriesAxisFocusDeltaData = getSeriesAxisFocusDeltaData(oldFocusData.seriesAxisFocusPercentages, newFocusData.seriesAxisFocusPercentages);
+  const seriesFocusDeltaData = getSeriesFocusDeltaData(oldFocusData.seriesFocusPercentages, newFocusData.seriesFocusPercentages);
   return {
     start: startFocusData,
     deltaPercentage: Math.max(groupFocusDeltaData.deltaPercentage, seriesAxisFocusDeltaData.deltaPercentage, seriesFocusDeltaData.deltaPercentage),
@@ -34,8 +34,8 @@ function getFocusDelta(newFocusPercentage: FocusPercentage, oldFocusPercentage: 
 function getGroupFocusDeltaData(oldFocusPercentages: FocusPercentage[], newFocusPercentages: FocusPercentage[]): ArrayFocusDeltaData {
   const focusDeltas: number[] = [];
   let focusDelta, maxDelta = 0;
-  let i, count = oldFocusPercentages.length;
-  for (i=0; i<count; i++) {
+  const count = oldFocusPercentages.length;
+  for (let i=0; i<count; i++) {
     focusDelta = getFocusDelta(newFocusPercentages[i], oldFocusPercentages[i]);
     focusDeltas.push(focusDelta);
     if (Math.abs(focusDelta) > maxDelta) {
@@ -48,7 +48,7 @@ function getGroupFocusDeltaData(oldFocusPercentages: FocusPercentage[], newFocus
     deltaPercentages = [];
     deltaFactors = [];
     let focusDelta;
-    for (i=0; i<count; i++) {
+    for (let i=0; i<count; i++) {
       focusDelta = Math.abs(focusDeltas[i]);
       if (focusDelta > 0) {
         deltaPercentages.push(focusDelta / maxDelta);
@@ -73,8 +73,8 @@ function getGroupFocusDeltaData(oldFocusPercentages: FocusPercentage[], newFocus
 function getSeriesAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFocusPercentages: FocusPercentageMap): MapFocusDeltaData {
   const focusDeltas: Record<string, number> = {};
   let focusDelta, maxDelta = 0;
-  let seriesAxisIds = Object.keys(oldFocusPercentages);
-  for (let seriesAxisId of seriesAxisIds) {
+  const seriesAxisIds = Object.keys(oldFocusPercentages);
+  for (const seriesAxisId of seriesAxisIds) {
     focusDelta = getFocusDelta(newFocusPercentages[seriesAxisId], oldFocusPercentages[seriesAxisId]);
     focusDeltas[seriesAxisId] = focusDelta;
     if (Math.abs(focusDelta) > maxDelta) {
@@ -87,7 +87,7 @@ function getSeriesAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, ne
     deltaPercentages = {};
     deltaFactors = {};
     let focusDelta;
-    for (let seriesAxisId of seriesAxisIds) {
+    for (const seriesAxisId of seriesAxisIds) {
       focusDelta = Math.abs(focusDeltas[seriesAxisId]);
       if (focusDelta > 0) {
         deltaPercentages[seriesAxisId] = focusDelta / maxDelta;
@@ -112,8 +112,8 @@ function getSeriesAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, ne
 function getSeriesFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFocusPercentages: FocusPercentageMap): MapFocusDeltaData {
   const focusDeltas: Record<string, number> = {};
   let focusDelta, maxDelta = 0;
-  let seriesIds = Object.keys(oldFocusPercentages);
-  for (let seriesId of seriesIds) {
+  const seriesIds = Object.keys(oldFocusPercentages);
+  for (const seriesId of seriesIds) {
     focusDelta = getFocusDelta(newFocusPercentages[seriesId], oldFocusPercentages[seriesId]);
     focusDeltas[seriesId] = focusDelta;
     if (Math.abs(focusDelta) > maxDelta) {
@@ -126,7 +126,7 @@ function getSeriesFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFoc
     deltaPercentages = {};
     deltaFactors = {};
     let focusDelta;
-    for (let seriesId of seriesIds) {
+    for (const seriesId of seriesIds) {
       focusDelta = Math.abs(focusDeltas[seriesId]);
       if (focusDelta > 0) {
         deltaPercentages[seriesId] = focusDelta / maxDelta;

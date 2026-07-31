@@ -13,6 +13,7 @@
     "@mochart/core": "^1.0.0"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
   }
 }

@@ -41,7 +41,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
     const { domains: rawDomains, axisDomains: rawSeriesAxisDomains } = raw;
     const { values: filteredValues } = filtered;
 
-    let orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
+    const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
     this.root.set({ className: mochartCssClasses['seriesContainer'] });
     this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef });

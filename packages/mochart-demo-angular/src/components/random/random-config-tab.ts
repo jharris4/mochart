@@ -73,7 +73,7 @@ export class RandomConfigTab implements OnInit, OnChanges {
       this.errorMessage.set(newConfig.valid ? null : demoText.errors.invalidRandomConfigValues);
       this.onUpdate(newConfig);
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Random Config JSON: ' + this.configText());
       this.errorMessage.set(demoText.errors.invalidJson);
     }
@@ -84,7 +84,7 @@ export class RandomConfigTab implements OnInit, OnChanges {
       JSON.parse(this.configText());
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }

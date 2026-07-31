@@ -4,9 +4,9 @@ import { getActualDefaults, conditionalDefault, defaultRule } from './conditiona
 import type { SeriesStackConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<SeriesStackConfig> = {}, index: number, soleSeriesAxisId: string | null): Partial<SeriesStackConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesStackConfig, index, soleSeriesAxisId));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesStackConfig, index, soleSeriesAxisId));
 
   return { ...regularDefaults, ...conditionalDefaults } as Partial<SeriesStackConfig>;
 }

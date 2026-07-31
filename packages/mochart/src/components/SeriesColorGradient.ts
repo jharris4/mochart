@@ -23,7 +23,7 @@ export default class SeriesColorGradient extends Renderer<SeriesColorGradientPro
   sync() {
     const { uniqueId, seriesConfig } = this.props;
 
-    let colors = getSeriesGradientColors(seriesConfig);
+    const colors = getSeriesGradientColors(seriesConfig);
 
     if (colors) {
       this.setPresent(true);

@@ -115,7 +115,7 @@ function renderTopLevel(topLevel: TopLevelKeyDoc[]): string {
   let out = '<div>\n<h2>Mochart Config</h2>\n<table>\n<thead>\n<tr>\n';
   out += tags('th', ['Property', 'Description', 'Validation Rules', 'Default', 'Details']);
   out += '</tr>\n</thead>\n';
-  for (let doc of topLevel) {
+  for (const doc of topLevel) {
     out += renderTopLevelRow(doc);
   }
   out += '</table>\n</div>\n';
@@ -128,7 +128,7 @@ function renderSection(section: SectionDoc): string {
   out += '<table>\n<thead>\n<tr>\n';
   out += tags('th', ['Property', 'Description', 'Validation Rules', 'Default']);
   out += '</tr>\n</thead>\n';
-  for (let property of section.properties) {
+  for (const property of section.properties) {
     const keyId = section.id + '.' + property.key;
     out += '<tr id="' + keyId + '">\n';
     out += tags('td', [
@@ -146,7 +146,7 @@ function renderSection(section: SectionDoc): string {
 export function renderHtml(model: ConfigReferenceModel): string {
   let out = htmlHeader();
   out += renderTopLevel(model.topLevel);
-  for (let section of model.sections) {
+  for (const section of model.sections) {
     out += renderSection(section);
   }
   out += htmlFooter();
@@ -174,14 +174,14 @@ export default function generateDocs(htmlPath: string, jsonPath: string, apiJson
   let valid = true;
   if (integrityErrors.length > 0) {
     console.error('config docs sources are out of sync:');
-    for (let error of integrityErrors) {
+    for (const error of integrityErrors) {
       console.error('  - ' + error);
     }
     valid = false;
   }
   if (api.integrityErrors.length > 0) {
     console.error('api docs sources are out of sync:');
-    for (let error of api.integrityErrors) {
+    for (const error of api.integrityErrors) {
       console.error('  - ' + error);
     }
     valid = false;

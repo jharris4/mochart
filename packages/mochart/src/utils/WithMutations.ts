@@ -11,7 +11,7 @@ export function getWithMutations(oldValue: unknown, newValue: unknown, customMut
   }
   else if (Array.isArray(oldValue) && Array.isArray(newValue)) {
     if (oldValue.length === newValue.length) {
-      let newArray = oldValue.map((v, i) => getWithMutations(v, newValue[i], customMutator));
+      const newArray = oldValue.map((v, i) => getWithMutations(v, newValue[i], customMutator));
       if (oldValue.some((v, i) => v !== newArray[i])) {
         return newArray;
       }
@@ -26,11 +26,11 @@ export function getWithMutations(oldValue: unknown, newValue: unknown, customMut
   else if (typeof oldValue === "object" && typeof newValue === "object") {
     const oldObject = oldValue as Record<string, unknown>;
     const incomingObject = newValue as Record<string, unknown>;
-    let oldKeys = Object.keys(oldValue);
-    let newKeys = Object.keys(newValue);
-    let oldKeyMap = oldKeys.reduce<Record<string, boolean>>((map, key) => { map[key] = true; return map }, {});
-    let newObject: Record<string, unknown> = {};
-    for (let newKey of newKeys) {
+    const oldKeys = Object.keys(oldValue);
+    const newKeys = Object.keys(newValue);
+    const oldKeyMap = oldKeys.reduce<Record<string, boolean>>((map, key) => { map[key] = true; return map }, {});
+    const newObject: Record<string, unknown> = {};
+    for (const newKey of newKeys) {
       if (oldKeyMap[newKey]) {
         newObject[newKey] = getWithMutations(oldObject[newKey], incomingObject[newKey], customMutator);
       }

@@ -86,8 +86,8 @@ function getFilteredFocusedGroupIndex(nextFilteredData: Row[]): number {
   if (props.focusedGroupIndex >= 0) {
     const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
     const groupValue = props.data[props.focusedGroupIndex][groupProperty];
-    let i, count = nextFilteredData.length;
-    for (i = 0; i < count; i++) {
+    const count = nextFilteredData.length;
+    for (let i = 0; i < count; i++) {
       if (nextFilteredData[i][groupProperty] === groupValue) {
         nextFilteredFocusedGroupIndex = i;
         break;
@@ -139,8 +139,8 @@ function updateFilteredDataState(
 function initData() {
   const nextFilteredData = [];
   if (props.data && !props.dataError) {
-    let i, count = props.data.length;
-    for (i = 0; i < count; i++) {
+    const count = props.data.length;
+    for (let i = 0; i < count; i++) {
       nextFilteredData.push(Object.assign({}, props.data[i]));
     }
   }
@@ -241,8 +241,8 @@ function onLocalFocus({ seriesAxisId, seriesId, groupIndex: nextGroupIndex }: Fo
     if (nextFilteredFocusedGroupIndex >= 0) {
       const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
       const groupValue = filteredData[nextFilteredFocusedGroupIndex][groupProperty];
-      let i, count = props.data.length;
-      for (i = 0; i < count; i++) {
+      const count = props.data.length;
+      for (let i = 0; i < count; i++) {
         if (props.data[i][groupProperty] === groupValue) {
           newFocusedGroupIndex = i;
           break;
@@ -266,8 +266,8 @@ function onChartClick({ groupIndex: clickedGroupIndex }: { groupIndex: number })
   }
   else if (selectionMode.value === 'group') {
     const dataGroupValues: any[] = [];
-    let i, count = filteredData.length;
-    for (i = 0; i < count; i++) {
+    const count = filteredData.length;
+    for (let i = 0; i < count; i++) {
       dataGroupValues.push(filteredData[i][groupProperty]);
     }
     let parsedGroupValues = groupValuesText.value === emptyGroupText ? [] : groupValuesText.value.split(',');
@@ -290,8 +290,8 @@ function onModeToggle() {
 function selectAllGroups() {
   const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
   const allGroupValues: any[] = [];
-  let i, count = props.data.length;
-  for (i = 0; i < count; i++) {
+  const count = props.data.length;
+  for (let i = 0; i < count; i++) {
     allGroupValues.push(props.data[i][groupProperty]);
   }
   groupValuesText.value = allGroupValues.join(',');
@@ -354,9 +354,10 @@ function addGroups() {
   oldRemovedData.forEach(removedObject => {
     removedMap[removedObject[groupProperty]] = removedObject;
   });
-  let i, fi, count = props.data.length, filteredCount = oldFilteredData.length;
+  const count = props.data.length;
+  const filteredCount = oldFilteredData.length;
   const nextFilteredData: Row[] = [];
-  for (i = 0, fi = 0; i < count; i++) {
+  for (let i = 0, fi = 0; i < count; i++) {
     if (fi < filteredCount) {
       if (props.data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
         if (groupValueToAddMap[props.data[i][groupProperty]] === true) {
@@ -392,9 +393,9 @@ function removeGroups() {
   groupValuesToRemove.forEach(groupValueToRemove => {
     groupValueToRemoveMap[groupValueToRemove] = true;
   });
-  let i, count = oldFilteredData.length;
+  const count = oldFilteredData.length;
   const nextFilteredData: Row[] = [];
-  for (i = 0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     if (groupValueToRemoveMap[oldFilteredData[i][groupProperty]] !== true) {
       nextFilteredData.push(oldFilteredData[i]);
     }
@@ -419,8 +420,9 @@ function startAddSequence() {
     removedIndexMap[removedObject[groupProperty]] = removedIndex;
   });
   const groupObjectsToAdd: { removedIndex: number; dataIndex: number }[] = [];
-  let i, fi, count = props.data.length, filteredCount = oldFilteredData.length;
-  for (i = 0, fi = 0; i < count; i++) {
+  const count = props.data.length;
+  const filteredCount = oldFilteredData.length;
+  for (let i = 0, fi = 0; i < count; i++) {
     if (fi < filteredCount) {
       if (props.data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
         if (groupValueToAddMap[props.data[i][groupProperty]] === true) {
@@ -471,8 +473,9 @@ function startRemoveSequence() {
     removedIndexMap[removedObject[groupProperty]] = removedIndex;
   });
   const groupObjectsToRemove: { removedIndex: number; dataIndex: number }[] = [];
-  let i, fi, ri, count = props.data.length, filteredCount = oldFilteredData.length;
-  for (i = 0, fi = 0, ri = 0; i < count && fi < filteredCount; i++) {
+  const count = props.data.length;
+  const filteredCount = oldFilteredData.length;
+  for (let i = 0, fi = 0, ri = 0; i < count && fi < filteredCount; i++) {
     if (props.data[i][groupProperty] === oldFilteredData[fi][groupProperty]) {
       if (groupValueToRemoveMap[props.data[i][groupProperty]] === true) {
         groupObjectsToRemove.push({
@@ -581,7 +584,7 @@ function applySeriesChanges() {
       }
       updateFilteredDataState({}, filteredData, removedData, false);
     }
-    catch (error) {
+    catch {
 
     }
   }
@@ -594,8 +597,9 @@ function resetSeriesChanges() {
   if (seriesConfigs.length > 0) {
     const filteredDataObject = filteredData[groupIndex.value];
     const filteredGroupValue = filteredDataObject[groupProperty];
-    let i, count = props.data.length, dataObject: Row | null = null;
-    for (i = 0; i < count; i++) {
+    const count = props.data.length;
+    let dataObject: Row | null = null;
+    for (let i = 0; i < count; i++) {
       if (props.data[i][groupProperty] === filteredGroupValue) {
         dataObject = props.data[i];
       }

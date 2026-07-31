@@ -38,8 +38,10 @@ export interface UseMenuOptions {
 
 export interface MenuState {
   open: Ref<boolean>;
-  toggle(): void;
-  close(): void;
+  // Properties rather than method shorthands — see the note in the react port:
+  // these have no `this`, and shorthand would claim otherwise.
+  toggle: () => void;
+  close: () => void;
   trigger: Ref<HTMLButtonElement | null>;
   panel: Ref<HTMLElement | null>;
   /** Bind with `:ref="setTrigger"` — templates unwrap a bare ref to its value. */

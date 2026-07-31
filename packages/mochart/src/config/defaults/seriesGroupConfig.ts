@@ -2,9 +2,9 @@ import { getActualDefaults, conditionalDefault, defaultRule } from './conditiona
 import type { SeriesGroupConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<SeriesGroupConfig> = {}, index: number): Partial<SeriesGroupConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesGroupConfig, index));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesGroupConfig, index));
 
   return { ...regularDefaults, ...conditionalDefaults } as Partial<SeriesGroupConfig>;
 }

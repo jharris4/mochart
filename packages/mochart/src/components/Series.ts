@@ -84,7 +84,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
 
   derive(props: SeriesProps, state: SeriesState, prevProps: SeriesProps | null): Partial<SeriesState> | null {
     if (prevProps === null) {
-      let initial = this.computeSeriesPositionData(props);
+      const initial = this.computeSeriesPositionData(props);
       const { seriesPositionData } = initial;
       return { ...initial, ...this.buildEventListeners(props, seriesPositionData) };
     }
@@ -102,7 +102,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         seriesFocusChanged = focusData.focusedSeriesId !== prevProps.focusData.focusedSeriesId;
       }
     }
-    let oldSeriesAxisScale = prevProps.seriesAxisScale;
+    const oldSeriesAxisScale = prevProps.seriesAxisScale;
     let seriesAxisScaleChanged = false;
     if (seriesAxisScale !== oldSeriesAxisScale) {
       if (seriesAxisScale === null || oldSeriesAxisScale === null) {
@@ -198,21 +198,21 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
 
     if (filteredValues.plain !== null && seriesPositionData !== null && focusData !== null) {
       const { inverted } = seriesLayoutInfo;
-      let { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
+      const { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
 
-      let seriesStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
+      const seriesStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       let seriesFillColor = seriesConfig.renderer === RENDERER_LINE ? 'none' : getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       let seriesColorGenerator = null;
       if (seriesConfig.colorProperty !== NONE) {
         seriesColorGenerator = getSeriesColorGenerator(seriesConfig, seriesFocusPercentage, rawDomains, filteredValues);
       }
-      let seriesStrokeWidth = getFocusValue(seriesFocusPercentage, seriesConfig.strokeWidth, seriesConfig.focusedStrokeWidth, seriesConfig.defocusedStrokeWidth);
-      let seriesStrokeOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.strokeOpacity, seriesConfig.focusedStrokeOpacity, seriesConfig.defocusedStrokeOpacity);
-      let seriesFillOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.fillOpacity, seriesConfig.focusedFillOpacity, seriesConfig.defocusedFillOpacity);
+      const seriesStrokeWidth = getFocusValue(seriesFocusPercentage, seriesConfig.strokeWidth, seriesConfig.focusedStrokeWidth, seriesConfig.defocusedStrokeWidth);
+      const seriesStrokeOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.strokeOpacity, seriesConfig.focusedStrokeOpacity, seriesConfig.defocusedStrokeOpacity);
+      const seriesFillOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.fillOpacity, seriesConfig.focusedFillOpacity, seriesConfig.defocusedFillOpacity);
 
       if (seriesConfig.renderer === RENDERER_LINE) { // TODO - consider drawing a second line for range series...
-        let lineGenerator = getLineGenerator(seriesConfig, seriesPositionData, inverted);
+        const lineGenerator = getLineGenerator(seriesConfig, seriesPositionData, inverted);
         this.shape.set('line', () => svgEl('path'))!.set({
           d: lineGenerator(), className: mochartCssClasses['seriesLine'], strokeWidth: seriesStrokeWidth,
           stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor,
@@ -222,15 +222,15 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         if (seriesConfig.gradient !== NONE) {
           seriesFillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
         }
-        let areaGenerator = getAreaGenerator(seriesConfig, seriesPositionData, inverted);
+        const areaGenerator = getAreaGenerator(seriesConfig, seriesPositionData, inverted);
         this.shape.set('area', () => svgEl('path'))!.set({
           d: areaGenerator(), className: mochartCssClasses['seriesArea'], strokeWidth: seriesStrokeWidth,
           stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor, fillOpacity: seriesFillOpacity,
           onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
       }
       else if (seriesConfig.renderer === RENDERER_BAR) {
-        let bars: BarData[] = [];
-        let columnGenerator = getColumnGenerator(seriesConfig, seriesPositionData, inverted, stackData);
+        const bars: BarData[] = [];
+        const columnGenerator = getColumnGenerator(seriesConfig, seriesPositionData, inverted, stackData);
         let barStrokeColor = seriesStrokeColor;
         let barFillColor = seriesFillColor;
         if (seriesConfig.gradient !== NONE) {
@@ -239,9 +239,9 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         let barStrokeOpacity = seriesStrokeOpacity;
         let barFillOpacity = seriesFillOpacity;
         let barStrokeWidth = seriesStrokeWidth;
-        let hasDifferentStrokeColors = seriesConfig.strokeColor === COLOR_GROUP_INDEX;
-        let hasDifferentFillColors = seriesConfig.fillColor === COLOR_GROUP_INDEX;
-        let hasDifferentColors = hasDifferentStrokeColors || hasDifferentFillColors;
+        const hasDifferentStrokeColors = seriesConfig.strokeColor === COLOR_GROUP_INDEX;
+        const hasDifferentFillColors = seriesConfig.fillColor === COLOR_GROUP_INDEX;
+        const hasDifferentColors = hasDifferentStrokeColors || hasDifferentFillColors;
         let focusPercentage;
         const { skipMissing } = seriesConfig;
         const { skipGroupIndexMap } = seriesPositionData;
@@ -250,7 +250,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
           if (seriesPositionData.getDefined(null, i)) {
             // Positions are compacted when skipMissing is set, but focus and
             // color values stay indexed by the raw group index.
-            let skipI = skipMissing ? skipGroupIndexMap[i] : i;
+            const skipI = skipMissing ? skipGroupIndexMap[i] : i;
             focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
             if (seriesColorGenerator !== null) {
               barStrokeColor = seriesColorGenerator(skipI);

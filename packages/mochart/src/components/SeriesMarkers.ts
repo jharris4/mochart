@@ -56,18 +56,18 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor, markerStrokeOpacity, markerFillOpacity, markerStrokeWidth;
       const { skipMissing, markerShape, markerShowMissing, markerSize, minMarkerSize } = seriesConfig;
-      let markers: MarkerItem[] = [];
+      const markers: MarkerItem[] = [];
       let markerSizes: Array<number | undefined> | null = null;
       if (seriesConfig.markerProperty !== NONE) {
         markerSizes = [];
-        let markerValues = filteredValues.marker!;
-        let markerDomain = rawDomains.marker;
+        const markerValues = filteredValues.marker!;
+        const markerDomain = rawDomains.marker;
         // TODO - should use a linear scale here...
-        let markerMin = markerDomain[0]!;
-        let markerMax = markerDomain[1]!;
-        let markerExtent = Math.max(1, (markerMax - markerMin));
-        let markerSizeExtent = markerSize - minMarkerSize;
-        let count = markerValues.length;
+        const markerMin = markerDomain[0]!;
+        const markerMax = markerDomain[1]!;
+        const markerExtent = Math.max(1, (markerMax - markerMin));
+        const markerSizeExtent = markerSize - minMarkerSize;
+        const count = markerValues.length;
         for (let m = 0; m < count; m++) {
           const markerValue = markerValues[m];
           if (markerValue !== undefined) {
@@ -79,8 +79,8 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
         }
       }
 
-      let symbolGenerator = getSymbolGenerator(markerSize, markerShape);
-      let globalSymbol = symbolGenerator();
+      const symbolGenerator = getSymbolGenerator(markerSize, markerShape);
+      const globalSymbol = symbolGenerator();
 
       const max = filteredValues.max!;
 
@@ -89,7 +89,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
       const { length, getDefined, getSeriesPosition, getGroupPosition, skipGroupIndexMap } = seriesPositionData;
 
       for (let i = 0; i < length; i++) {
-        let skipI = skipMissing ? skipGroupIndexMap[i] : i;
+        const skipI = skipMissing ? skipGroupIndexMap[i] : i;
         if (getDefined(null, i) && (markerShowMissing || max[skipI] !== undefined)) {
           focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);

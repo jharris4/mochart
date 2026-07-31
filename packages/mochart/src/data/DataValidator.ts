@@ -5,13 +5,13 @@ import type { MochartConfig } from '../types/config';
 import type { DataProvider, GroupValue } from '../types/data';
 
 function getDuplicates(values: readonly GroupValue[]): GroupValue[] {
-  let valueMap: Record<string, number> = {};
-  for (let value of values) {
+  const valueMap: Record<string, number> = {};
+  for (const value of values) {
     const key = String(value);
     valueMap[key] = (valueMap[key] ?? 0) + 1;
   }
-  let duplicates: GroupValue[] = [];
-  for (let value of values) {
+  const duplicates: GroupValue[] = [];
+  for (const value of values) {
     const key = String(value);
     if (valueMap[key] > 1) {
       duplicates.push(value);
@@ -22,26 +22,26 @@ function getDuplicates(values: readonly GroupValue[]): GroupValue[] {
 }
 
 function checkProperty(dataErrors: string[], dataProvider: DataProvider, groupValues: readonly GroupValue[], property: string): void {
-  let numberValidator = validators.number().orEqual(undefined);
+  const numberValidator = validators.number().orEqual(undefined);
   if (groupValues.some((g, i) => !numberValidator(dataProvider.getSeriesValue(g, i, property)))) {
     dataErrors.push('series values must be numeric or undefined for property: ' + property);
   }
 }
 
 export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataProvider | null | undefined): string[] {
-  let dataErrors: string[] = [];
+  const dataErrors: string[] = [];
   if (mochartConfig.validation.valid && dataProvider != null && isDataProviderValid(dataProvider)) {
     const { groupAxisConfig, seriesConfigs } = mochartConfig;
 
-    let groupValues = dataProvider.getGroupValues();
-    let numberValidator = validators.number();
-    let stringValidator = validators.string();
+    const groupValues = dataProvider.getGroupValues();
+    const numberValidator = validators.number();
+    const stringValidator = validators.string();
     let getGroupValue: (index: number) => unknown;
     if (groupAxisConfig.displayProperty !== NONE) {
       if (groupValues.some(g => !(stringValidator(g) || numberValidator(g)))) {
         dataErrors.push('raw group values must be number or string when display property is set');
       }
-      let displayProperty = groupAxisConfig.displayProperty;
+      const displayProperty = groupAxisConfig.displayProperty;
       getGroupValue = i => dataProvider.getSeriesValue(groupValues[i], i, displayProperty);
     }
     else {
@@ -61,12 +61,12 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
       dataErrors.push((groupAxisConfig.displayProperty !== NONE ? 'display ' : '') + 'group values must all match the specified type');
     }
     if (dataErrors.length === 0) { // duplicate matching needs all the values to be primitives...
-      let duplicates = getDuplicates(groupValues);
+      const duplicates = getDuplicates(groupValues);
       if (duplicates.length > 0) {
         dataErrors.push('group values must be unique, duplicates: ' + duplicates.join(', '));
       }
     }
-    for (let seriesConfig of seriesConfigs) {
+    for (const seriesConfig of seriesConfigs) {
       checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.property!);
       if (seriesConfig.rangeProperty !== NONE) {
         checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.rangeProperty);

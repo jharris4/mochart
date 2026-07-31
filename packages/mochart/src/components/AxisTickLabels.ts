@@ -133,7 +133,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
     const truncationEnabled = axisConfig.tickLabelTruncationEnabled ?? false;
     const truncationValue = axisConfig.tickLabelTruncationValue ?? '';
     const useSeriesFocus = axisConfig.useSeriesFocus ?? false;
-    let tickLabels = getTruncatedText(truncationEnabled, truncationValue, axisTicks.map(tick => String(tick.label)), truncationData);
+    const tickLabels = getTruncatedText(truncationEnabled, truncationValue, axisTicks.map(tick => String(tick.label)), truncationData);
 
     const clipPath = truncationEnabled && tickLabelClipPathUniqueId ? getClipPathReference(tickLabelClipPathUniqueId) : null;
 

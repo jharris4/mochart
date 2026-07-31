@@ -20,8 +20,8 @@ function getSuppressedValueText(tooltipConfig: TooltipConfig, defaultValueText: 
     seriesValueText = tooltipConfig.suppressedValueText;
   }
   else if (tooltipConfig.suppressedValueCharacter !== NONE) {
-    let suppressedCharacter = tooltipConfig.suppressedValueCharacter;
-    let characterCount = defaultValueText.length;
+    const suppressedCharacter = tooltipConfig.suppressedValueCharacter;
+    const characterCount = defaultValueText.length;
     seriesValueText = '';
     for (let i = 0; i < characterCount; i++) {
       seriesValueText+= suppressedCharacter;

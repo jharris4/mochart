@@ -5,9 +5,9 @@ import getAxisDefaults from './axisConfig';
 import type { GroupAxisConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<GroupAxisConfig> = {}, inverted: boolean, pieMode = false): Partial<GroupAxisConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as GroupAxisConfig, inverted, pieMode));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as GroupAxisConfig, inverted, pieMode));
 
   return { ...regularDefaults, ...conditionalDefaults } as Partial<GroupAxisConfig>;
 }

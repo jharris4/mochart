@@ -69,7 +69,7 @@ describe('Chart', () => {
     flushSync();
     expect(el.querySelector('svg')!.getAttribute('width')).toBe('500');
 
-    unmount(instance);
+    void unmount(instance);
     flushSync();
     expect(el.querySelector('svg')).toBeNull();
     el.remove();
@@ -110,7 +110,7 @@ describe('Chart auto-sizing', () => {
       expect(svg!.getAttribute('width')).toBe('500');
       expect(svg!.getAttribute('height')).toBe('400');
 
-      unmount(instance);
+      void unmount(instance);
       el.remove();
     } finally {
       rectSpy.mockRestore();
@@ -143,7 +143,7 @@ describe('placeholder components', () => {
     flushSync();
     expect(el.textContent).not.toContain('Loading');
 
-    unmount(instance);
+    void unmount(instance);
     flushSync();
     el.remove();
   });
@@ -166,7 +166,7 @@ describe('placeholder components', () => {
     flushSync();
     expect(el.textContent).toContain('Bad config 400x300');
 
-    unmount(instance);
+    void unmount(instance);
     flushSync();
     el.remove();
   });
@@ -192,7 +192,7 @@ describe('DefaultChart', () => {
     flushSync();
     expect(el.textContent).toContain('D');
 
-    unmount(instance);
+    void unmount(instance);
     flushSync();
     expect(el.querySelector('svg')).toBeNull();
     el.remove();
@@ -218,7 +218,7 @@ describe('DefaultChart', () => {
     flushSync();
     expect(el.textContent).not.toContain('Loading');
 
-    unmount(instance);
+    void unmount(instance);
     flushSync();
     el.remove();
   });

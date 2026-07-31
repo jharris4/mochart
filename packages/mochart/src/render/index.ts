@@ -1,10 +1,8 @@
 export { El, TextEl, svgEl, htmlEl, textEl } from './el';
 export type { ElProps } from './el';
 export { Renderer } from './renderer';
-export type { RendererClass, StateUpdate } from './renderer';
 export { Slot } from './slot';
 export { ElSlot } from './elslot';
 export { ElList, RendererList } from './list';
-export type { ElBlock, ElListAdapter, RendererItem, ListKey } from './list';
-export { shallowEqual, enqueue, beginWork, endWork } from './shared';
-export { setProperty, SVG_NAMESPACE } from './dom';
+export type { ElListAdapter, RendererItem } from './list';
+export { shallowEqual } from './shared';

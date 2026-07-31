@@ -80,7 +80,7 @@ export class TransitionConfigTab implements OnInit, OnChanges {
       JSON.parse(this.configText());
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }

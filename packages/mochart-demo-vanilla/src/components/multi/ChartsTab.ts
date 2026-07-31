@@ -169,8 +169,8 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     let nextFocusedGroupIndices = focusedGroupIndices;
     if (groupIndex !== undefined && groupIndex >= 0) {
       const groupValue = dataProviders[chartIndex].getGroupValues()[groupIndex];
-      let i, count = data.length;
-      for (i = 0; i < count; i++) {
+      const count = data.length;
+      for (let i = 0; i < count; i++) {
         if (data[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
           groupIndex = i;
           break;

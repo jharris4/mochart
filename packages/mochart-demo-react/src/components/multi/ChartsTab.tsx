@@ -208,7 +208,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
   // Stop playback when active toggles (matches the old cWRP behavior).
   useEffect(() => {
     onStopClick();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [active]);
 
   // Clean up the interval on unmount.

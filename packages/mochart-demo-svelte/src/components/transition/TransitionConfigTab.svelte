@@ -57,7 +57,7 @@
       JSON.parse(configText);
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   });

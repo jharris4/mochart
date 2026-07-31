@@ -91,7 +91,7 @@ function initMochartTween(): TweenEngine {
     return Date.now();
   };
 
-  let _tweens: Record<string, Tween> = {};
+  const _tweens: Record<string, Tween> = {};
   let _pendingTweens: Record<string, Tween> = {};
   let _nextTweenId = 0;
 
@@ -120,7 +120,7 @@ function initMochartTween(): TweenEngine {
     while (tweenIds.length > 0 && ++passes <= MAX_UPDATE_PASSES) {
 			_pendingTweens = {};
 
-      for (let tweenId of tweenIds) {
+      for (const tweenId of tweenIds) {
         if (_tweens[tweenId] !== undefined && _tweens[tweenId].update(time) === false) {
           delete _tweens[tweenId];
         }
@@ -176,7 +176,7 @@ function initMochartTween(): TweenEngine {
 					onCompleteCallback();
 				}
 
-        for (let chainedTween of chainedTweens) {
+        for (const chainedTween of chainedTweens) {
           chainedTween.start(startTime+duration);
         }
 
@@ -187,7 +187,7 @@ function initMochartTween(): TweenEngine {
     };
 
     const stopChainedTweens = function(): void {
-      for (let chainedTween of chainedTweens) {
+      for (const chainedTween of chainedTweens) {
         chainedTween.stop();
       }
     }
@@ -338,12 +338,12 @@ function buildFocusTween(
     completeCallback = () => {},
     startCallback = () => {}
   }: FocusTweenOptions & { updateCallback: FocusUpdateCallback }): Tween {
-  let focusDuration = mochartConfig.animationConfig.focusDuration;
-  let duration = focusAnimationData.deltaPercentage * focusDuration;
+  const focusDuration = mochartConfig.animationConfig.focusDuration;
+  const duration = focusAnimationData.deltaPercentage * focusDuration;
   // delay the start of the focus tween by a few milliseconds to allow it to be canceled if another tween is built
   // immediately after, like when we mouseover the series, and then mouseout but immediately mouseover a series marker
-  let delay = 5;
-  let focusTween = MochartTween.create(duration, delay);
+  const delay = 5;
+  const focusTween = MochartTween.create(duration, delay);
   focusTween.onStart(() => {
     updateCallback(focusAnimationData.start);
     startCallback();
@@ -434,7 +434,7 @@ function buildDataTween(
   let firstTween: Tween | null = null;
   let lastTween: Tween | null = null;
   for (let i=0; i<tweenData.length; i++) {
-    let newTween = MochartTween.create(tweenData[i].duration);
+    const newTween = MochartTween.create(tweenData[i].duration);
     if (i === 0) {
       newTween.onStart(() => {
         tweenData[i].onStart();

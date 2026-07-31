@@ -61,17 +61,17 @@ export function getChartDataForAxisDelta(
     return axisDeltaData.end;
   }
   else {
-    let deltaPercentage = axisDeltaData.deltaPercentage * percentage;
-    let groupAxisDomain = getGroupAxisDomainForDelta(mochartConfig.groupAxisConfig, axisDeltaData.start.groupData.axisDomain as AxisDomain, axisDeltaData.end.groupData.axisDomain as AxisDomain,
+    const deltaPercentage = axisDeltaData.deltaPercentage * percentage;
+    const groupAxisDomain = getGroupAxisDomainForDelta(mochartConfig.groupAxisConfig, axisDeltaData.start.groupData.axisDomain as AxisDomain, axisDeltaData.end.groupData.axisDomain as AxisDomain,
       axisDeltaData.deltas.domain.axis.group, deltaPercentage, percentage);
-    let rawSeriesAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.raw.axisDomains, axisDeltaData.end.seriesData.raw.axisDomains,
+    const rawSeriesAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.raw.axisDomains, axisDeltaData.end.seriesData.raw.axisDomains,
       axisDeltaData.deltas.domain.axis.series.raw, deltaPercentage, percentage);
-    let filteredSeriesAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.filtered.axisDomains, axisDeltaData.end.seriesData.filtered.axisDomains,
+    const filteredSeriesAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.filtered.axisDomains, axisDeltaData.end.seriesData.filtered.axisDomains,
       axisDeltaData.deltas.domain.axis.series.filtered, deltaPercentage, percentage);
-    let numericGroupValues = getNumericGroupValuesForDelta(axisDeltaData, deltaPercentage, percentage);
-    let rawSeriesDomains = getSeriesDomainsForDeltas(axisDeltaData.start.seriesData.raw.domains, axisDeltaData.end.seriesData.raw.domains,
+    const numericGroupValues = getNumericGroupValuesForDelta(axisDeltaData, deltaPercentage, percentage);
+    const rawSeriesDomains = getSeriesDomainsForDeltas(axisDeltaData.start.seriesData.raw.domains, axisDeltaData.end.seriesData.raw.domains,
       axisDeltaData.deltas.domain.series.raw, deltaPercentage, percentage);
-    let filteredSeriesDomains = getSeriesDomainsForDeltas(axisDeltaData.start.seriesData.filtered.domains, axisDeltaData.end.seriesData.filtered.domains,
+    const filteredSeriesDomains = getSeriesDomainsForDeltas(axisDeltaData.start.seriesData.filtered.domains, axisDeltaData.end.seriesData.filtered.domains,
       axisDeltaData.deltas.domain.series.filtered, deltaPercentage, percentage);
     let chartData: AnimationChartData = getChartDataWithAxisDomains(axisDeltaData.start, groupAxisDomain, rawSeriesAxisDomains, filteredSeriesAxisDomains);
     chartData = getChartDataWithSeriesDomains(chartData, rawSeriesDomains, filteredSeriesDomains);
@@ -86,12 +86,12 @@ function getNumericGroupValuesForDelta(axisDeltaData: AxisDeltaData, deltaPercen
   const groupValueDeltaData = axisDeltaData.deltas.values.group;
   if (groupValueDeltaData !== null) {
     if (groupValueDeltaData.deltaPercentage >= deltaPercentage) {
-      let deltaFactorPercentage = groupValueDeltaData.deltaFactor! * percentage;
-      let startGroupValues = groupValueDeltaData.start;
-      let groupValueDeltas = groupValueDeltaData.deltas;
+      const deltaFactorPercentage = groupValueDeltaData.deltaFactor! * percentage;
+      const startGroupValues = groupValueDeltaData.start;
+      const groupValueDeltas = groupValueDeltaData.deltas;
       const groupValues: number[] = [];
-      let i, count = startGroupValues.length;
-      for (i=0; i<count; i++) {
+      const count = startGroupValues.length;
+      for (let i=0; i<count; i++) {
         groupValues.push(startGroupValues[i] + deltaFactorPercentage * groupValueDeltas[i]);
       }
       return groupValues;
@@ -167,8 +167,8 @@ function getAxisDomainsForDeltas(
     if (deltas === null) {
       return endAxisDomains;
     }
-    let axisIds = Object.keys(startAxisDomains);
-    for (let axisId of axisIds) {
+    const axisIds = Object.keys(startAxisDomains);
+    for (const axisId of axisIds) {
       axisDomains[axisId] = getDomainForDelta(startAxisDomains[axisId] as NumericDomain, endAxisDomains[axisId] as NumericDomain, deltas[axisId], deltaPercentage, percentage);
     }
     return axisDomains;
@@ -191,8 +191,8 @@ function getSeriesDomainsForDeltas(
     if (deltas === null) {
       return endSeriesDomains;
     }
-    let seriesIds = Object.keys(startSeriesDomains);
-    for (let seriesId of seriesIds) {
+    const seriesIds = Object.keys(startSeriesDomains);
+    for (const seriesId of seriesIds) {
       seriesDomains[seriesId] = getSeriesDomainForDelta(startSeriesDomains[seriesId], endSeriesDomains[seriesId], deltas[seriesId], deltaPercentage, percentage);
     }
     return seriesDomains;
@@ -211,7 +211,7 @@ function getSeriesDomainForDelta(
   }
   else {
     const seriesDomainObject: SeriesDomainObject = {};
-    for (let key of domainKeys) {
+    for (const key of domainKeys) {
       setKeyedSeriesDomainForDelta(seriesDomainObject, key, startSeriesDomainObject, endSeriesDomainObject, domainDelta, deltaPercentage, percentage);
     }
     return seriesDomainObject;
@@ -247,9 +247,9 @@ export function getChartDataForValueDelta(
     return valueDeltaData.end;
   }
   else {
-    let deltaPercentage = valueDeltaData.deltaPercentage * percentage;
-    let rawValues = getValueObjectsForDelta(valueDeltaData.start.seriesData.raw.values as unknown as SeriesValueObjects, valueDeltaData.end.seriesData.raw.values as unknown as SeriesValueObjects, valueDeltaData.deltas.raw, deltaPercentage, percentage);
-    let filteredValues = getFilteredValueObjectsForDelta(valueDeltaData.start.seriesData.filtered.values as unknown as SeriesValueObjects, valueDeltaData.end.seriesData.filtered.values as unknown as SeriesValueObjects, valueDeltaData.deltas.filtered, rawValues, deltaPercentage, percentage);
+    const deltaPercentage = valueDeltaData.deltaPercentage * percentage;
+    const rawValues = getValueObjectsForDelta(valueDeltaData.start.seriesData.raw.values as unknown as SeriesValueObjects, valueDeltaData.end.seriesData.raw.values as unknown as SeriesValueObjects, valueDeltaData.deltas.raw, deltaPercentage, percentage);
+    const filteredValues = getFilteredValueObjectsForDelta(valueDeltaData.start.seriesData.filtered.values as unknown as SeriesValueObjects, valueDeltaData.end.seriesData.filtered.values as unknown as SeriesValueObjects, valueDeltaData.deltas.filtered, rawValues, deltaPercentage, percentage);
     
     enhanceValueObjects(rawValues);
     enhanceValueObjects(filteredValues);
@@ -288,10 +288,10 @@ function getValueObjectsForDelta(
     return endValueObjects;
   }
   else {
-    let valueDeltaObjects = valueDeltaObjectData.deltas;
+    const valueDeltaObjects = valueDeltaObjectData.deltas;
     const valueObjects: SeriesValueObjects = {};
-    let seriesIds = Object.keys(startValueObjects);
-    for (let seriesId of seriesIds) {
+    const seriesIds = Object.keys(startValueObjects);
+    for (const seriesId of seriesIds) {
       valueObjects[seriesId] = getValueObjectForDelta(startValueObjects[seriesId], endValueObjects[seriesId], valueDeltaObjects[seriesId], deltaPercentage, percentage);
     }
     return valueObjects;
@@ -313,10 +313,10 @@ function getFilteredValueObjectsForDelta(
     return endValueObjects;
   }
   else {
-    let valueDeltaObjects = valueDeltaObjectData.deltas;
+    const valueDeltaObjects = valueDeltaObjectData.deltas;
     const valueObjects: SeriesValueObjects = {};
-    let seriesIds = Object.keys(startValueObjects);
-    for (let seriesId of seriesIds) {
+    const seriesIds = Object.keys(startValueObjects);
+    for (const seriesId of seriesIds) {
       valueObjects[seriesId] = getFilteredValueObjectForDelta(startValueObjects[seriesId], endValueObjects[seriesId], valueDeltaObjects[seriesId], rawValueObjects[seriesId], deltaPercentage, percentage);
     }
     return valueObjects;
@@ -335,10 +335,10 @@ function getValueObjectForDelta(
   }
   else {
     const valueObject = {} as SeriesValueObject;
-    for (let key of positionOrComputedKeys) {
+    for (const key of positionOrComputedKeys) {
       setValueSeriesValuesForDelta(valueObject, startValueObject, endValueObject, valueDeltaObject, key, deltaPercentage, percentage);
     }
-    for (let { extraKey, copyKey } of extraAndCopyKeys) {
+    for (const { extraKey, copyKey } of extraAndCopyKeys) {
       setExtraValueSeriesValuesForDelta(valueObject, startValueObject, endValueObject, valueDeltaObject, extraKey, copyKey, deltaPercentage, percentage);
     }
     return valueObject;
@@ -381,10 +381,10 @@ function getFilteredValueObjectForDelta(
   }
   else {
     const valueObject = {} as SeriesValueObject;
-    for (let key of positionOrComputedKeys) {
+    for (const key of positionOrComputedKeys) {
       setFilteredValueSeriesValuesForDelta(valueObject, startValueObject, endValueObject, valueDeltaObject, rawValueObject, key, deltaPercentage, percentage);
     }
-    for (let { extraKey, copyKey } of extraAndCopyKeys) {
+    for (const { extraKey, copyKey } of extraAndCopyKeys) {
       setFilteredExtraValueSeriesValuesForDelta(valueObject, startValueObject, endValueObject, valueDeltaObject, rawValueObject, extraKey, copyKey, deltaPercentage, percentage);
     }
     return valueObject;
@@ -464,8 +464,8 @@ function getValuesForDelta(startValues: number[], valueDeltas: number[], percent
 function getValuesForDelta(startValues: NumericValues, valueDeltas: number[], percentage: number): NumericValues;
 function getValuesForDelta(startValues: NumericValues, valueDeltas: number[], percentage: number): NumericValues {
   const values = startValues.slice();
-  let i, count = startValues.length;
-  for (i=0; i<count; i++) {
+  const count = startValues.length;
+  for (let i=0; i<count; i++) {
     if (valueDeltas[i] !== 0) {
       values[i] = values[i]! + valueDeltas[i] * percentage;
     }

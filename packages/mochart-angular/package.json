@@ -45,13 +45,13 @@
     "@angular/compiler-cli": "^22.0.7",
     "@angular/core": "^22.0.7",
     "@angular/platform-browser": "^22.0.7",
-    "rxjs": "^7.8.2",
-    "tslib": "^2.8.1"
+    "rxjs": "^7.8.2"
   },
   "scripts": {
     "build": "ngc -p tsconfig.build.json",
     "prepack": "npm run build",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
   }
 }

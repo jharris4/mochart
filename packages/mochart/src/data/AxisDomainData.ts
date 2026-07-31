@@ -13,7 +13,7 @@ type AxisDomainConfig = AxisConfigBase & {
 type AxisDomainCalculator = () => GroupAxisDomain;
 
 export function getAxisDomain(axisConfig: AxisDomainConfig, axisDomainCalculator: AxisDomainCalculator): GroupAxisDomain {
-  let axisDomain = getAxisDomainWithMinAndMax(axisConfig, axisDomainCalculator);
+  const axisDomain = getAxisDomainWithMinAndMax(axisConfig, axisDomainCalculator);
   adjustAxisDomainForOffsets(axisConfig, axisDomain);
   return axisDomain;
 }

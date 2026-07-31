@@ -4,9 +4,9 @@ import type { AxisScale, GroupAxisData, SeriesPosition, SeriesPositionAccessor, 
 import type { LayoutInfo } from '../types/layout';
 
 function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorPositions: SeriesPosition[] | null, seriesBasePosition: number, inverted: boolean): void {
-  let temp, i, length = seriesPositions.length;
+  const length = seriesPositions.length;
   if (seriesPriorPositions !== null) {
-    for (i = 0; i < length; i++) {
+    for (let i = 0; i < length; i++) {
       if (seriesPositions[i] === undefined) {
         if (seriesPriorPositions[i] !== undefined) {
           seriesPositions[i] = seriesPriorPositions[i];
@@ -19,9 +19,9 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
         seriesPriorPositions[i] = seriesPositions[i];
       }
       else {
-        let swapPosition = inverted ? seriesPositions[i]! < seriesPriorPositions[i]! : seriesPositions[i]! > seriesPriorPositions[i]!
+        const swapPosition = inverted ? seriesPositions[i]! < seriesPriorPositions[i]! : seriesPositions[i]! > seriesPriorPositions[i]!
         if(swapPosition) {
-          temp = seriesPositions[i];
+          const temp = seriesPositions[i];
           seriesPositions[i] = seriesPriorPositions[i];
           seriesPriorPositions[i] = temp;
         }
@@ -65,7 +65,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
   let { groupValueExtent, groupValueOffset } = spacingInfo;
   groupValueOffset*= -1;
   if (group !== NONE) {
-    let groupExtentAndMargins = groupValueExtent / seriesGroupConfig!.seriesConfigs!.length;
+    const groupExtentAndMargins = groupValueExtent / seriesGroupConfig!.seriesConfigs!.length;
     groupValueExtent = groupExtentAndMargins * (1.0 - groupAxisConfig.groupPadding.inner);
     groupValueOffset = groupValueOffset + (seriesGroupConfig!.seriesConfigIndicesById![seriesConfig.id]! * groupExtentAndMargins) + ((groupExtentAndMargins - groupValueExtent) / 2.0);
   }
@@ -187,7 +187,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
       getPriorSeriesPosition = (_d, i) => sp[i] !== undefined && sp[i]! < seriesBasePosition ? seriesBasePosition : sp[i];
     }
     if (inverted) {
-      let temp = getCurrentSeriesPosition;
+      const temp = getCurrentSeriesPosition;
       getCurrentSeriesPosition = getPriorSeriesPosition;
       getPriorSeriesPosition = temp;
     }

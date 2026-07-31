@@ -48,7 +48,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
   // Stop playback when the tab toggles active (matches the old cWRP behavior).
   useEffect(() => {
     onStopClick();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [active]);
 
   // Clean up the interval on unmount.

@@ -65,12 +65,12 @@ const emptyNotCopiedValueDelta = {
 
 
 export function getInitialValueChangeData(mochartConfig: MochartConfig, newChartData: ChartData): ValueChangeData {
-  let initialValues = getInitialSeriesValueObjects(mochartConfig.seriesConfigs, newChartData.seriesData.raw.domains,
+  const initialValues = getInitialSeriesValueObjects(mochartConfig.seriesConfigs, newChartData.seriesData.raw.domains,
     newChartData.seriesData.raw.values, newChartData.seriesData.raw.priorIndices, newChartData.seriesData.axisBases);
-  let initialFilteredValues = getInitialFilteredSeriesValueObjects(mochartConfig.seriesStackConfigs,
+  const initialFilteredValues = getInitialFilteredSeriesValueObjects(mochartConfig.seriesStackConfigs,
     initialValues, newChartData.seriesData.filteredFlags);
 
-  let startChartData = getChartDataWithSeriesData(newChartData, getSeriesDataWithSeriesValues(newChartData.seriesData, initialValues, initialFilteredValues));
+  const startChartData = getChartDataWithSeriesData(newChartData, getSeriesDataWithSeriesValues(newChartData.seriesData, initialValues, initialFilteredValues));
 
   return createValueDeltaData(mochartConfig, startChartData, newChartData, newChartData, newChartData.seriesData.raw.axisDomains,
     newChartData.seriesData.filtered.axisDomains, newChartData.seriesData.raw.domains, null);
@@ -82,7 +82,7 @@ export function getFilterDeltaData(mochartConfig: MochartConfig, oldSeriesData: 
   let stackSeriesCounts = oldSeriesData.stackSeriesCounts;
   let groupSeriesCounts = oldSeriesData.groupSeriesCounts;
   if (!areMapsEqual(oldSeriesData.filteredFlags, newSeriesData.filteredFlags)) {
-    let filteredFlags = getFilteredFlagsFromValues(oldSeriesData, newSeriesData);
+    const filteredFlags = getFilteredFlagsFromValues(oldSeriesData, newSeriesData);
     filtersChanged = true;
     axisSeriesCounts = getSeriesContainerFilteredSeriesCounts(mochartConfig.seriesAxisConfigs, filteredFlags);
     stackSeriesCounts = getSeriesContainerFilteredSeriesCounts(mochartConfig.seriesStackConfigs, filteredFlags);
@@ -97,19 +97,17 @@ export function getFilterDeltaData(mochartConfig: MochartConfig, oldSeriesData: 
 }
 
 function getFilteredFlagsFromValues(oldSeriesData: SeriesData, newSeriesData: SeriesData): Record<string, boolean> {
-  let filteredFlags: Record<string, boolean> = {};
-  let oldFilteredValueObjects = oldSeriesData.filtered.values;
-  let newFilteredValueObjects = newSeriesData.filtered.values;
-  let seriesIds = Object.keys(oldFilteredValueObjects);
-  for (let seriesId of seriesIds) {
+  const filteredFlags: Record<string, boolean> = {};
+  const oldFilteredValueObjects = oldSeriesData.filtered.values;
+  const newFilteredValueObjects = newSeriesData.filtered.values;
+  const seriesIds = Object.keys(oldFilteredValueObjects);
+  for (const seriesId of seriesIds) {
     filteredFlags[seriesId] = (oldFilteredValueObjects[seriesId][keyPlain] === null && newFilteredValueObjects[seriesId][keyPlain] === null);
   }
   return filteredFlags;
 }
 
 export function getTransitionValueChangeData(mochartConfig: MochartConfig, prevChartData: ChartData, newChartData: ChartData, groupDeltaData: GroupDeltaData): ValueChangeData {
-  let startValues: SeriesValueObjects, startFilteredValues: SeriesValueObjects;
-  let endValues: SeriesValueObjects, endFilteredValues: SeriesValueObjects;
   const { seriesData: prevSeriesData } = prevChartData;
 
   let startGroupData = prevChartData.groupData;
@@ -119,7 +117,7 @@ export function getTransitionValueChangeData(mochartConfig: MochartConfig, prevC
   let groupOrderOffsets: number[] | null = null;
 
   if (hasGroupChanges(groupDeltaData)) {
-    let mergedNumericValues = getMergedNumericValues(mochartConfig.groupAxisConfig, startGroupData.values.numeric, groupDeltaData);
+    const mergedNumericValues = getMergedNumericValues(mochartConfig.groupAxisConfig, startGroupData.values.numeric, groupDeltaData);
     let mergedGroupData = getGroupDataFromValues(mochartConfig.groupAxisConfig, groupDeltaData.values.merged, groupDeltaData.values.displayMerged);
     mergedGroupData = getGroupDataWithAxisDomain(mergedGroupData, prevChartData.groupData.axisDomain);
     startGroupData = mergedGroupData;
@@ -135,20 +133,20 @@ export function getTransitionValueChangeData(mochartConfig: MochartConfig, prevC
 
   groupOrderOffsets = getNumericValueOffsets(mochartConfig.groupAxisConfig, startGroupData);
 
-  startValues = getSeriesValueObjectsWithChanges(prevSeriesData.raw, groupDeltaData.indices.old, groupDeltaData.indices.added);
-  startFilteredValues = getFilteredSeriesValueObjectsWithChanges(prevSeriesData.filtered, prevSeriesData.raw,
+  const startValues: SeriesValueObjects = getSeriesValueObjectsWithChanges(prevSeriesData.raw, groupDeltaData.indices.old, groupDeltaData.indices.added);
+  const startFilteredValues: SeriesValueObjects = getFilteredSeriesValueObjectsWithChanges(prevSeriesData.filtered, prevSeriesData.raw,
     startValues, groupDeltaData.indices.old, groupDeltaData.indices.added);
 
   // TODO - here is where the series values from the prev series data all need to be rearranged if necessary
 
-  endValues = getSeriesValueObjectsWithChanges(newChartData.seriesData.raw, groupDeltaData.indices.new, groupDeltaData.indices.removed);
-  endFilteredValues = getFilteredSeriesValueObjectsWithChanges(newChartData.seriesData.filtered, newChartData.seriesData.raw,
+  const endValues: SeriesValueObjects = getSeriesValueObjectsWithChanges(newChartData.seriesData.raw, groupDeltaData.indices.new, groupDeltaData.indices.removed);
+  const endFilteredValues: SeriesValueObjects = getFilteredSeriesValueObjectsWithChanges(newChartData.seriesData.filtered, newChartData.seriesData.raw,
     endValues, groupDeltaData.indices.new, groupDeltaData.indices.removed);
   finalGroupData = getGroupDataWithNumericValues(finalGroupData, groupDeltaData.indices.new);
 
-  let startSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, startValues, startFilteredValues);
+  const startSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, startValues, startFilteredValues);
 
-  let endSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, endValues, endFilteredValues);
+  const endSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, endValues, endFilteredValues);
   let finalSeriesData = getSeriesDataWithAxisDomains(newChartData.seriesData, prevSeriesData.raw.axisDomains, prevSeriesData.filtered.axisDomains);
   finalSeriesData = getSeriesDataWithDomains(finalSeriesData, prevSeriesData.raw.domains, prevSeriesData.filtered.domains);
 
@@ -165,8 +163,8 @@ export function getTransitionValueChangeData(mochartConfig: MochartConfig, prevC
 }
 
 export function enhanceValueObjects(valueObjects: SeriesValueObjects): void {
-  let seriesIds = Object.keys(valueObjects);
-  for (let seriesId of seriesIds) {
+  const seriesIds = Object.keys(valueObjects);
+  for (const seriesId of seriesIds) {
     enhanceValueObject(valueObjects[seriesId]);
   }
 }
@@ -189,8 +187,8 @@ function enhanceValueObject(valueObject: SeriesValueObject): void {
  **/
 
 function getInitialSeriesValueObjects(seriesConfigs: SeriesConfig[], seriesDomains: SeriesDomainObjects, rawSeriesValueObjects: SeriesValueObjects, _seriesPriorIndices: number[] | undefined, axisBases: Record<string, number | null>): SeriesValueObjects {
-  let valueObjects = mapMap(rawSeriesValueObjects, () => ({} as SeriesValueObject));
-  for (let positionOrComputedKey of positionOrComputedKeys) {
+  const valueObjects = mapMap(rawSeriesValueObjects, () => ({} as SeriesValueObject));
+  for (const positionOrComputedKey of positionOrComputedKeys) {
     setInitialSeriesValues(valueObjects, seriesConfigs, rawSeriesValueObjects, positionOrComputedKey, axisBases);
   }
   setAllInitialExtraSeriesValues(valueObjects, seriesConfigs, seriesDomains, rawSeriesValueObjects, axisBases);
@@ -200,7 +198,7 @@ function getInitialSeriesValueObjects(seriesConfigs: SeriesConfig[], seriesDomai
 }
 
 function setInitialSeriesValues(valueObjects: SeriesValueObjects, seriesConfigs: SeriesConfig[], rawValueObjects: SeriesValueObjects, valueKey: PositionOrComputedKey, axisBases: Record<string, number | null>): void {
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     const { id, axis } = seriesConfig;
     if (rawValueObjects[id][valueKey] !== null) {
       valueObjects[id][valueKey] = createArrayWithValueIfNotUndefined(rawValueObjects[id][valueKey]!, axisBases[axis!] ?? undefined);
@@ -213,7 +211,7 @@ function setInitialSeriesValues(valueObjects: SeriesValueObjects, seriesConfigs:
 
 function setAllInitialExtraSeriesValues(seriesValueObjects: SeriesValueObjects, seriesConfigs: SeriesConfig[], seriesDomains: SeriesDomainObjects, rawSeriesValueObjects: SeriesValueObjects, axisBases: Record<string, number | null>): void {
   let valueObject, rawValueObject;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     const { id, axis } = seriesConfig;
     valueObject = seriesValueObjects[id];
     rawValueObject = rawSeriesValueObjects[id];
@@ -242,9 +240,9 @@ function setInitialExtraSeriesValues(valueObject: SeriesValueObject, rawValueObj
 }
 
 function getInitialFilteredSeriesValueObjects(seriesStackConfigs: SeriesStackConfig[], initialValueObjects: SeriesValueObjects, seriesFilteredFlags: Record<string, boolean>): SeriesValueObjects {
-  let valueObjects = mapMap(initialValueObjects, valueObject => valueObject);
-  let seriesIds = Object.keys(initialValueObjects);
-  for (let seriesId of seriesIds) {
+  const valueObjects = mapMap(initialValueObjects, valueObject => valueObject);
+  const seriesIds = Object.keys(initialValueObjects);
+  for (const seriesId of seriesIds) {
     if (seriesFilteredFlags[seriesId] === true) {
       valueObjects[seriesId] = nullValueObject;
     }
@@ -255,11 +253,11 @@ function getInitialFilteredSeriesValueObjects(seriesStackConfigs: SeriesStackCon
 }
 
 function setInitialStackAndPriorSeriesValues(seriesStackConfigs: SeriesStackConfig[], initialFilteredValueObjects: SeriesValueObjects): void {
-  for (let seriesStackConfig of seriesStackConfigs) {
+  for (const seriesStackConfig of seriesStackConfigs) {
     let filteredSeriesFound = false;
     let valueObject: SeriesValueObject, stackValues: NumericValues | null, priorValues: NumericValues | null = null;
-    let stackedSeriesConfigs = seriesStackConfig.seriesConfigs!;
-    for (let seriesConfig of stackedSeriesConfigs) {
+    const stackedSeriesConfigs = seriesStackConfig.seriesConfigs!;
+    for (const seriesConfig of stackedSeriesConfigs) {
       valueObject = initialFilteredValueObjects[seriesConfig.id];
       stackValues = valueObject.stack;
       if (stackValues === null) {
@@ -279,8 +277,8 @@ function setInitialStackAndPriorSeriesValues(seriesStackConfigs: SeriesStackConf
 }
 
 function getSeriesValueObjectsWithChanges(valueHolder: SeriesDataSet, baseIndices: number[], changedIndices: number[]): SeriesValueObjects {
-  let valueObjects = mapMap(valueHolder.values, () => ({} as SeriesValueObject));
-  for (let key of positionOrComputedKeys) {
+  const valueObjects = mapMap(valueHolder.values, () => ({} as SeriesValueObject));
+  for (const key of positionOrComputedKeys) {
     setAllSeriesValuesWithChanges(valueObjects, valueHolder.values, key, baseIndices, changedIndices);
   }
   setAllExtraSeriesValuesWithChanges(valueObjects, valueHolder.values, baseIndices, changedIndices);
@@ -289,12 +287,12 @@ function getSeriesValueObjectsWithChanges(valueHolder: SeriesDataSet, baseIndice
 }
 
 function setAllExtraSeriesValuesWithChanges(targetValueObjects: SeriesValueObjects, valueObjects: SeriesValueObjects, baseIndices: number[], changedIndices: number[]): void {
-  let seriesIds = Object.keys(valueObjects);
+  const seriesIds = Object.keys(valueObjects);
   let targetValueObject, valueObject;
-  for (let seriesId of seriesIds) {
+  for (const seriesId of seriesIds) {
     targetValueObject = targetValueObjects[seriesId];
     valueObject = valueObjects[seriesId];
-    for (let { extraKey, copyKey } of extraAndCopyKeys) {
+    for (const { extraKey, copyKey } of extraAndCopyKeys) {
       setExtraSeriesValuesWithChanges(targetValueObject, valueObject, extraKey, copyKey, baseIndices, changedIndices);
     }
   }
@@ -318,8 +316,8 @@ function setExtraSeriesValuesWithChanges(targetValueObject: SeriesValueObject, v
 }
 
 function getFilteredSeriesValueObjectsWithChanges(filteredValueHolder: SeriesDataSet, valueHolder: SeriesDataSet, valueObjectsWithChanges: SeriesValueObjects, baseIndices: number[], changedIndices: number[]): SeriesValueObjects {
-  let valueObjects = mapMap(filteredValueHolder.values, () => ({} as SeriesValueObject));
-  for (let key of positionOrComputedKeys) {
+  const valueObjects = mapMap(filteredValueHolder.values, () => ({} as SeriesValueObject));
+  for (const key of positionOrComputedKeys) {
     setAllFilteredSeriesValuesWithChanges(valueObjects, filteredValueHolder.values, valueHolder.values, valueObjectsWithChanges, key, baseIndices, changedIndices);
   }
   setAllFilteredExtraSeriesValuesWithChanges(valueObjects, filteredValueHolder.values, valueHolder.values, valueObjectsWithChanges, baseIndices, changedIndices);
@@ -328,14 +326,14 @@ function getFilteredSeriesValueObjectsWithChanges(filteredValueHolder: SeriesDat
 }
 
 function setAllFilteredExtraSeriesValuesWithChanges(targetValueObjects: SeriesValueObjects, filteredValueObjects: SeriesValueObjects, rawValueObjects: SeriesValueObjects, valueObjectsWithChanges: SeriesValueObjects, baseIndices: number[], changedIndices: number[]): void {
-  let seriesIds = Object.keys(rawValueObjects);
+  const seriesIds = Object.keys(rawValueObjects);
   let targetValueObject, filteredValueObject, rawValueObject, valueObjectWithChanges;
-  for (let seriesId of seriesIds) {
+  for (const seriesId of seriesIds) {
     targetValueObject = targetValueObjects[seriesId];
     filteredValueObject = filteredValueObjects[seriesId];
     rawValueObject = rawValueObjects[seriesId];
     valueObjectWithChanges = valueObjectsWithChanges[seriesId];
-    for (let { extraKey, copyKey } of extraAndCopyKeys) {
+    for (const { extraKey, copyKey } of extraAndCopyKeys) {
       setFilteredExtraSeriesValuesWithChanges(targetValueObject, filteredValueObject, rawValueObject, valueObjectWithChanges,
         extraKey, copyKey, baseIndices, changedIndices);
     }
@@ -361,15 +359,15 @@ function setFilteredExtraSeriesValuesWithChanges(targetValueObject: SeriesValueO
 }
 
 function setAllSeriesValuesWithChanges(targetValueObjects: SeriesValueObjects, valueObjects: SeriesValueObjects, valueKey: PositionOrComputedKey, baseIndices: number[], changedIndices: number[]): void {
-  let seriesIds = Object.keys(valueObjects);
-  for (let seriesId of seriesIds) {
+  const seriesIds = Object.keys(valueObjects);
+  for (const seriesId of seriesIds) {
     targetValueObjects[seriesId][valueKey] = getSeriesValuesWithChanges(valueObjects[seriesId][valueKey], baseIndices, changedIndices);
   }
 }
 
 function setAllFilteredSeriesValuesWithChanges(targetValueObjects: SeriesValueObjects, filteredValueObjects: SeriesValueObjects, valueObjects: SeriesValueObjects, valueObjectsWithChanges: SeriesValueObjects, valueKey: PositionOrComputedKey, baseIndices: number[], changedIndices: number[]): void {
-  let seriesIds = Object.keys(valueObjects);
-  for (let seriesId of seriesIds) {
+  const seriesIds = Object.keys(valueObjects);
+  for (const seriesId of seriesIds) {
     if (filteredValueObjects[seriesId][valueKey] === valueObjects[seriesId][valueKey]) {
       targetValueObjects[seriesId][valueKey] = valueObjectsWithChanges[seriesId][valueKey];
     }
@@ -384,10 +382,10 @@ function getSeriesValuesWithChanges(values: NumericValues | null, baseIndices: n
     return null;
   }
   else {
-    let changedCount = changedIndices.length;
-    let baseCount = baseIndices.length;
+    const changedCount = changedIndices.length;
+    const baseCount = baseIndices.length;
     let i;
-    let seriesValues: NumericValues = createArrayFilledWithUndefined(baseCount + changedCount);
+    const seriesValues: NumericValues = createArrayFilledWithUndefined(baseCount + changedCount);
     for (i = 0; i < baseCount; i++) {
       seriesValues[baseIndices[i]] = values[i];
     }
@@ -396,32 +394,32 @@ function getSeriesValuesWithChanges(values: NumericValues | null, baseIndices: n
 }
 
 function setAllBaseValuesForChanges(seriesConfigs: SeriesConfig[], startSeriesData: SeriesData, endSeriesData: SeriesData): void {
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     const { id, axis } = seriesConfig;
-    let axisBase = startSeriesData.axisBases[axis!] ?? undefined;
-    let startValueObject = startSeriesData.raw.values[id];
-    let endValueObject = endSeriesData.raw.values[id];
+    const axisBase = startSeriesData.axisBases[axis!] ?? undefined;
+    const startValueObject = startSeriesData.raw.values[id];
+    const endValueObject = endSeriesData.raw.values[id];
 
-    for (let key of positionKeys) {
+    for (const key of positionKeys) {
       setBaseValuesForChanges(startValueObject, endValueObject, key, axisBase);
     }
 
-    let startRawSeriesDomainObject = startSeriesData.raw.domains[id];
+    const startRawSeriesDomainObject = startSeriesData.raw.domains[id];
 
-    for (let { extraKey, copyKey } of extraAndCopyKeys) {
+    for (const { extraKey, copyKey } of extraAndCopyKeys) {
       setBaseExtraValuesForChanges(startValueObject, endValueObject, extraKey, copyKey, axisBase, startRawSeriesDomainObject, extraKey !== 'label');
     }
     setStackBaseValuesForChanges(startValueObject, endValueObject);
 
-    let startFilteredValueObject = startSeriesData.filtered.values[id];
-    let endFilteredValueObject = endSeriesData.filtered.values[id];
+    const startFilteredValueObject = startSeriesData.filtered.values[id];
+    const endFilteredValueObject = endSeriesData.filtered.values[id];
 
-    for (let key of positionKeys) {
+    for (const key of positionKeys) {
       if (areValueReferencesDifferent(startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, key)) {
         setBaseValuesForChanges(startFilteredValueObject, endFilteredValueObject, key, axisBase);
       }
     }
-    for (let { extraKey, copyKey } of extraAndCopyKeys) {
+    for (const { extraKey, copyKey } of extraAndCopyKeys) {
       if (areValueReferencesDifferent(startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, extraKey)) {
         setBaseExtraValuesForChanges(startFilteredValueObject, endFilteredValueObject, extraKey, copyKey, axisBase, startRawSeriesDomainObject, extraKey !== 'label');
       }
@@ -447,8 +445,8 @@ function setBaseExtraValuesForChanges(startValueObject: SeriesValueObject, endVa
 }
 
 function setBaseValuesForChanges(startValueObject: SeriesValueObject, endValueObject: SeriesValueObject, valueKey: ValueKey, axisBase: number | undefined): void {
-  let startValues = startValueObject[valueKey];
-  let endValues = endValueObject[valueKey];
+  const startValues = startValueObject[valueKey];
+  const endValues = endValueObject[valueKey];
   if (startValues !== endValues) { // not both null
     if (startValues === null) {
       startValueObject[valueKey] = createArrayWithValueIfNotUndefined(endValues!, axisBase);
@@ -464,9 +462,9 @@ function setBaseValuesForChanges(startValueObject: SeriesValueObject, endValueOb
 
 function setStackBaseValuesForChanges(startValueObject: SeriesValueObject, endValueObject: SeriesValueObject): void {
   let startStackValues = startValueObject.stack;
-  let startPriorValues = startValueObject.prior;
+  const startPriorValues = startValueObject.prior;
   let endStackValues = endValueObject.stack;
-  let endPriorValues = endValueObject.prior;
+  const endPriorValues = endValueObject.prior;
 
   if (startStackValues !== endStackValues) { // not both null
     if (startPriorValues !== null) {
@@ -486,24 +484,24 @@ function setStackBaseValuesForChanges(startValueObject: SeriesValueObject, endVa
 }
 
 function setAllBaseValuesForOuterChanges(_animationConfig: AnimationConfig, seriesConfigs: SeriesConfig[], startSeriesData: SeriesData, endSeriesData: SeriesData, oldSeriesData: SeriesData, newSeriesData: SeriesData, outerCounts: { added: OuterChangeCounts; removed: OuterChangeCounts }): void {
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     const { id } = seriesConfig;
     if (seriesConfig.animateBaseFromAdjacent) {
-      let startValueObject = startSeriesData.raw.values[id];
-      let endValueObject = endSeriesData.raw.values[id];
-      let oldValueObject = oldSeriesData.raw.values[id];
-      let newValueObject = newSeriesData.raw.values[id];
+      const startValueObject = startSeriesData.raw.values[id];
+      const endValueObject = endSeriesData.raw.values[id];
+      const oldValueObject = oldSeriesData.raw.values[id];
+      const newValueObject = newSeriesData.raw.values[id];
 
-      for (let key of positionKeys) {
+      for (const key of positionKeys) {
         setBaseValuesForOuterChanges(startValueObject, endValueObject, oldValueObject, newValueObject, key, outerCounts);
       }
 
-      let startFilteredValueObject = startSeriesData.filtered.values[id];
-      let endFilteredValueObject = endSeriesData.filtered.values[id];
-      let oldFilteredValueObject = oldSeriesData.filtered.values[id];
-      let newFilteredValueObject = newSeriesData.filtered.values[id];
+      const startFilteredValueObject = startSeriesData.filtered.values[id];
+      const endFilteredValueObject = endSeriesData.filtered.values[id];
+      const oldFilteredValueObject = oldSeriesData.filtered.values[id];
+      const newFilteredValueObject = newSeriesData.filtered.values[id];
 
-      for (let key of positionKeys) {
+      for (const key of positionKeys) {
         if (areValueReferencesDifferent(startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, key)) {
           setBaseValuesForOuterChanges(startFilteredValueObject, endFilteredValueObject,
             oldFilteredValueObject, newFilteredValueObject, key, outerCounts);
@@ -530,17 +528,17 @@ function setBaseValuesForOuterChange(targetValues: NumericValues | null, sourceV
 }
 
 function createValueDeltaData(mochartConfig: MochartConfig, startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, rawSeriesAxisDomains: AxisDomains, filteredSeriesAxisDomains: AxisDomains, rawSeriesDomains: SeriesDomainObjects, ordinalGroupOrderOffets: number[] | null): ValueChangeData {
-  let rawSeriesAxisExtents = getDomainExtents(rawSeriesAxisDomains);
-  let filteredSeriesAxisExtents = getDomainExtents(filteredSeriesAxisDomains);
-  let valueDeltaData = createRawValueDeltaData(mochartConfig, startChartData.seriesData.raw.values,
+  const rawSeriesAxisExtents = getDomainExtents(rawSeriesAxisDomains);
+  const filteredSeriesAxisExtents = getDomainExtents(filteredSeriesAxisDomains);
+  const valueDeltaData = createRawValueDeltaData(mochartConfig, startChartData.seriesData.raw.values,
     endChartData.seriesData.raw.values, rawSeriesAxisExtents, rawSeriesDomains);
-  let filteredValueDeltaData = createFilteredValueDeltaData(mochartConfig,
+  const filteredValueDeltaData = createFilteredValueDeltaData(mochartConfig,
     startChartData.seriesData.filtered.values, endChartData.seriesData.filtered.values,
     startChartData.seriesData.raw.values, endChartData.seriesData.raw.values, valueDeltaData, filteredSeriesAxisExtents, rawSeriesDomains);
 
-  let groupOrderDeltaData = createGroupOrderDeltaData(mochartConfig, startChartData, endChartData, ordinalGroupOrderOffets);
+  const groupOrderDeltaData = createGroupOrderDeltaData(mochartConfig, startChartData, endChartData, ordinalGroupOrderOffets);
 
-  let deltaPercentage = Math.max(valueDeltaData.deltaPercentage, filteredValueDeltaData.deltaPercentage, groupOrderDeltaData.deltaPercentage);
+  const deltaPercentage = Math.max(valueDeltaData.deltaPercentage, filteredValueDeltaData.deltaPercentage, groupOrderDeltaData.deltaPercentage);
   setValueDeltaFactors(valueDeltaData, deltaPercentage);
   setValueDeltaFactors(filteredValueDeltaData, deltaPercentage);
   setGroupOrderDeltaFactors(groupOrderDeltaData, deltaPercentage);
@@ -560,10 +558,11 @@ function createValueDeltaData(mochartConfig: MochartConfig, startChartData: Char
 
 function createRawValueDeltaData(mochartConfig: MochartConfig, startValueObjects: SeriesValueObjects, endValueObjects: SeriesValueObjects, seriesAxisExtents: AxisExtents, seriesDomains: SeriesDomainObjects): SeriesValueDeltaMap {
   let deltaPercentage = 0;
-  let deltas: Record<string, ValueDeltaObject> = {}, deltaObject: ValueDeltaObject;
+  const deltas: Record<string, ValueDeltaObject> = {};
+  let deltaObject: ValueDeltaObject;
 
-  let seriesConfigs = mochartConfig.seriesConfigs;
-  for (let seriesConfig of seriesConfigs) {
+  const seriesConfigs = mochartConfig.seriesConfigs;
+  for (const seriesConfig of seriesConfigs) {
     const { id, axis } = seriesConfig;
     deltaObject = createRawValueDeltaDataObject(startValueObjects[id], endValueObjects[id],
       seriesAxisExtents[axis!]!, seriesDomains[id]!);
@@ -589,7 +588,7 @@ function createRawValueDeltaData(mochartConfig: MochartConfig, startValueObjects
 // and the nearer one arrives first, so a bar collapsing to the base holds
 // its full extent while it slides and only snaps shut at the end.
 function adjustDeltaPercentagesForRangedSeries(seriesConfigs: SeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     if (seriesConfig.rangeProperty !== NONE && seriesConfig.stack === NONE) {
       const deltaObject = deltaObjects[seriesConfig.id];
       const plainDelta = deltaObject.plain;
@@ -612,11 +611,11 @@ function adjustDeltaPercentagesForRangedSeries(seriesConfigs: SeriesConfig[], de
 // out from under its whisker mid-tween.
 function adjustDeltaPercentagesForErrorBarSeries(seriesConfigs: SeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
   const syncKeys = ['plain', 'range', 'errorLow', 'errorHigh'] as const;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     if ((seriesConfig.errorLowProperty !== NONE || seriesConfig.errorHighProperty !== NONE) && seriesConfig.stack === NONE) {
       const deltaObject = deltaObjects[seriesConfig.id];
       let maxDeltaPercentage = 0;
-      for (let key of syncKeys) {
+      for (const key of syncKeys) {
         const delta = deltaObject[key];
         if (delta.deltaPercentage !== 0 && delta.deltaCopied !== true) {
           maxDeltaPercentage = Math.max(maxDeltaPercentage, delta.deltaPercentage);
@@ -625,7 +624,7 @@ function adjustDeltaPercentagesForErrorBarSeries(seriesConfigs: SeriesConfig[], 
       if (maxDeltaPercentage === 0) {
         continue;
       }
-      for (let key of syncKeys) {
+      for (const key of syncKeys) {
         const delta = deltaObject[key];
         // zero-delta and copied entries are shared constants — never mutated
         if (delta.deltaPercentage !== 0 && delta.deltaCopied !== true) {
@@ -647,7 +646,7 @@ function adjustDeltaPercentagesForErrorBarSeries(seriesConfigs: SeriesConfig[], 
 // coincident through every frame.
 function adjustDeltaPercentagesForFollowerGroups(seriesConfigs: SeriesConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
   let followerGroups: Record<string, SeriesConfig[]> | null = null;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     if (seriesConfig.followSeries !== NONE && seriesConfig.stack === NONE) {
       followerGroups ??= {};
       (followerGroups[seriesConfig.followSeries] ??= []).push(seriesConfig);
@@ -657,16 +656,16 @@ function adjustDeltaPercentagesForFollowerGroups(seriesConfigs: SeriesConfig[], 
     return;
   }
   const syncKeys = ['plain', 'range', 'errorLow', 'errorHigh'] as const;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     const followers = followerGroups[seriesConfig.id];
     if (followers === undefined || seriesConfig.stack !== NONE) {
       continue;
     }
     const members = [seriesConfig, ...followers];
     let maxDeltaPercentage = 0;
-    for (let member of members) {
+    for (const member of members) {
       const deltaObject = deltaObjects[member.id];
-      for (let key of syncKeys) {
+      for (const key of syncKeys) {
         const delta = deltaObject[key];
         if (delta.deltaPercentage !== 0 && delta.deltaCopied !== true) {
           maxDeltaPercentage = Math.max(maxDeltaPercentage, delta.deltaPercentage);
@@ -676,10 +675,10 @@ function adjustDeltaPercentagesForFollowerGroups(seriesConfigs: SeriesConfig[], 
     if (maxDeltaPercentage === 0) {
       continue;
     }
-    for (let member of members) {
+    for (const member of members) {
       const deltaObject = deltaObjects[member.id];
       let adjusted = false;
-      for (let key of syncKeys) {
+      for (const key of syncKeys) {
         const delta = deltaObject[key];
         // zero-delta and copied entries are shared constants — never mutated
         if (delta.deltaPercentage !== 0 && delta.deltaCopied !== true) {
@@ -697,16 +696,16 @@ function adjustDeltaPercentagesForFollowerGroups(seriesConfigs: SeriesConfig[], 
 function adjustDeltaPercentagesForStackedGroups(seriesStackConfigs: SeriesStackConfig[], deltaObjects: Record<string, ValueDeltaObject>): void {
   let maxDeltaPercentage;
   let currentDeltaObject;
-  for (let seriesStackConfig of seriesStackConfigs) {
+  for (const seriesStackConfig of seriesStackConfigs) {
     maxDeltaPercentage = 0;
-    let stackedSeriesConfigs = seriesStackConfig.seriesConfigs!;
-    for (let seriesConfig of stackedSeriesConfigs) {
+    const stackedSeriesConfigs = seriesStackConfig.seriesConfigs!;
+    for (const seriesConfig of stackedSeriesConfigs) {
       const { id } = seriesConfig;
       maxDeltaPercentage = Math.max(maxDeltaPercentage, deltaObjects[id].stack.deltaPercentage, deltaObjects[id].prior.deltaPercentage);
     };
 
     if (maxDeltaPercentage !== 0) {
-      for (let seriesConfig of stackedSeriesConfigs) {
+      for (const seriesConfig of stackedSeriesConfigs) {
         currentDeltaObject = deltaObjects[seriesConfig.id];
         if (currentDeltaObject.stack.deltaPercentage !== 0) {
           currentDeltaObject.stack.deltaPercentage = maxDeltaPercentage;
@@ -722,11 +721,11 @@ function adjustDeltaPercentagesForStackedGroups(seriesStackConfigs: SeriesStackC
 }
 
 function createRawValueDeltaDataObject(startValueObject: SeriesValueObject, endValueObject: SeriesValueObject, seriesAxisExtent: number, seriesDomain: SeriesDomainObject): ValueDeltaObject {
-  let valueDeltaObject = {} as ValueDeltaObject;
-  for (let key of positionOrComputedKeys) {
+  const valueDeltaObject = {} as ValueDeltaObject;
+  for (const key of positionOrComputedKeys) {
     setRawSeriesValueDeltas(valueDeltaObject, startValueObject, endValueObject, key, seriesAxisExtent);
   }
-  for (let { extraKey, copyKey } of extraAndCopyKeys) {
+  for (const { extraKey, copyKey } of extraAndCopyKeys) {
     setRawExtraSeriesValueDeltas(valueDeltaObject, startValueObject, endValueObject, extraKey, copyKey, seriesAxisExtent, seriesDomain, extraKey !== 'label');
   }
   valueDeltaObject.deltaPercentage = getMaxDeltaPercentage(valueDeltaObject);
@@ -756,8 +755,8 @@ function setRawSeriesValueDeltas(valueDeltaObject: ValueDeltaObject, startValueO
 }
 
 function getSeriesValuesDeltas(startValues: NumericValues, endValues: NumericValues, seriesAxisExtent: number): NumericValuesDelta {
-  let deltas = getArrayDeltas(startValues as number[], endValues);
-  let deltaPercentage = seriesAxisExtent > 0 ? getMaxAbsoluteValue(deltas) / seriesAxisExtent : 0;
+  const deltas = getArrayDeltas(startValues as number[], endValues);
+  const deltaPercentage = seriesAxisExtent > 0 ? getMaxAbsoluteValue(deltas) / seriesAxisExtent : 0;
   return deltaPercentage === 0 ? emptyValueDelta : {
     deltaPercentage,
     deltas
@@ -780,11 +779,11 @@ function getAllDeltaCopied(valueDeltaObject: ValueDeltaObject): boolean {
 function createFilteredValueDeltaData(mochartConfig: MochartConfig, startFilteredValueObjects: SeriesValueObjects, endFilteredValueObjects: SeriesValueObjects, startValueObjects: SeriesValueObjects, endValueObjects: SeriesValueObjects, valueDeltaData: SeriesValueDeltaMap, seriesAxisExtents: AxisExtents, seriesDomains: SeriesDomainObjects): SeriesValueDeltaMap {
   let deltaPercentage = 0;
   let deltaCopied = true;
-  let deltas: Record<string, ValueDeltaObject> = {};
+  const deltas: Record<string, ValueDeltaObject> = {};
   let deltaObject: ValueDeltaObject;
 
-  let seriesConfigs = mochartConfig.seriesConfigs;
-  for (let seriesConfig of seriesConfigs) {
+  const seriesConfigs = mochartConfig.seriesConfigs;
+  for (const seriesConfig of seriesConfigs) {
     const { id, axis } = seriesConfig;
     deltaObject = createFilteredValueDeltaDataObject(
       startFilteredValueObjects[id], endFilteredValueObjects[id],
@@ -809,11 +808,11 @@ function createFilteredValueDeltaData(mochartConfig: MochartConfig, startFiltere
 }
 
 function createFilteredValueDeltaDataObject(startFilteredValueObject: SeriesValueObject, endFilteredValueObject: SeriesValueObject, startValueObject: SeriesValueObject, endValueObject: SeriesValueObject, rawValueDeltaObject: ValueDeltaObject, seriesAxisExtent: number, seriesDomain: SeriesDomainObject): ValueDeltaObject {
-  let valueDeltaObject = {} as ValueDeltaObject;
-  for (let key of positionOrComputedKeys) {
+  const valueDeltaObject = {} as ValueDeltaObject;
+  for (const key of positionOrComputedKeys) {
     setFilteredSeriesValueDeltas(valueDeltaObject, startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, rawValueDeltaObject, key, seriesAxisExtent);
   }
-  for (let { extraKey, copyKey } of extraAndCopyKeys) {
+  for (const { extraKey, copyKey } of extraAndCopyKeys) {
     setFilteredExtraSeriesValueDeltas(valueDeltaObject, startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, rawValueDeltaObject, extraKey, copyKey, seriesAxisExtent, seriesDomain, extraKey !== 'label');
   }
   valueDeltaObject.deltaPercentage = getMaxDeltaPercentage(valueDeltaObject);
@@ -835,7 +834,7 @@ function setFilteredExtraSeriesValueDeltas(valueDeltaObject: ValueDeltaObject, s
 }
 
 function setFilteredSeriesValueDeltas(valueDeltaObject: ValueDeltaObject, startFilteredValueObject: SeriesValueObject, endFilteredValueObject: SeriesValueObject, startValueObject: SeriesValueObject, endValueObject: SeriesValueObject, rawValueDeltaObject: ValueDeltaObject, valueKey: ValueKey, seriesAxisExtent: number): void {
-  let filteredIsNotCopy = areValueReferencesDifferent(startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, valueKey);
+  const filteredIsNotCopy = areValueReferencesDifferent(startFilteredValueObject, endFilteredValueObject, startValueObject, endValueObject, valueKey);
   if (startFilteredValueObject[valueKey] !== null && filteredIsNotCopy) {
     valueDeltaObject[valueKey] = getSeriesValuesDeltas(startFilteredValueObject[valueKey]!, endFilteredValueObject[valueKey]!, seriesAxisExtent);
     valueDeltaObject[valueKey].deltaCopied = false;
@@ -850,22 +849,22 @@ function areValueReferencesDifferent(startFilteredValueObject: SeriesValueObject
 }
 
 function setValueDeltaFactors(valueDeltaObject: SeriesValueDeltaMap, deltaPercentage: number): void {
-  let deltas = valueDeltaObject.deltas;
-  let seriesIds = Object.keys(deltas);
-  for (let seriesId of seriesIds) {
+  const deltas = valueDeltaObject.deltas;
+  const seriesIds = Object.keys(deltas);
+  for (const seriesId of seriesIds) {
     setValueDeltaFactorForObject(deltas[seriesId], deltaPercentage);
   }
 }
 
 function setValueDeltaFactorForObject(valueDeltaDataObject: SeriesValueDelta, deltaPercentage: number): void {
-  for (let key of positionOrComputedOrExtraKeys) {
+  for (const key of positionOrComputedOrExtraKeys) {
     setValueDeltaFactorForValues(valueDeltaDataObject, key, deltaPercentage);
   }
 }
 
 function setValueDeltaFactorForValues(valueDeltaDataObject: SeriesValueDelta, valueKey: ValueKey, deltaPercentage: number): void {
   const valuesDelta = valueDeltaDataObject[valueKey] as NumericValuesDelta;
-  let valuesDeltaPercentage = valuesDelta.deltaPercentage;
+  const valuesDeltaPercentage = valuesDelta.deltaPercentage;
   if (valuesDeltaPercentage === 0) {
     valuesDelta.deltaFactor = 0;
   }

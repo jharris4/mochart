@@ -24,7 +24,7 @@ describe('config validation', () => {
     expect(mochartConfig).toEqual({
       validation: {
         valid: false,
-        errors: ['config - should be an object: \"a\"'],
+        errors: ['config - should be an object: "a"'],
         warnings: []
       }
     });
@@ -35,7 +35,7 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'version - should be equal to \"' + VERSION_STRING + '\": undefined',
+        'version - should be equal to "' + VERSION_STRING + '": undefined',
         'groupAxisConfig - property - should be a defined value: undefined'
       ],
       warnings: []
@@ -137,7 +137,7 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - should be an object: \"123\"'
+        'seriesAllConfig - should be an object: "123"'
       ],
       warnings: []
     });
@@ -173,7 +173,7 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ \"seriesIndex\", \"groupIndex\" ]: \"#WWW\"'
+        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
       ],
       warnings: []
     });
@@ -196,7 +196,7 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ \"seriesIndex\", \"groupIndex\" ]: \"#WWW\"'
+        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
       ],
       warnings: []
     });
@@ -219,8 +219,8 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ \"seriesIndex\", \"groupIndex\" ]: \"#WWW\"',
-        'seriesConfigs[0] - fillColor - should be a valid svg color or be one of [ \"seriesIndex\", \"groupIndex\" ]: \"#ZZZ\"'
+        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"',
+        'seriesConfigs[0] - fillColor - should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]: "#ZZZ"'
       ],
       warnings: []
     });

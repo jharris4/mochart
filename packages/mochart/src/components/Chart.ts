@@ -349,8 +349,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       position = event;
     }
     const chartRect = this.chartRectRef!.getBoundingClientRect();
-    let chartX = position.clientX - chartRect.left;
-    let chartY = position.clientY - chartRect.top;
+    const chartX = position.clientX - chartRect.left;
+    const chartY = position.clientY - chartRect.top;
     if (chartX > 0 && chartY > 0 && chartX < chartRect.width && chartY < chartRect.height) {
       mouseInCallback(chartX, chartY);
     }
@@ -369,12 +369,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     if (state.layoutInfo !== null) {
       state.layoutInfo = getChartLayoutInfoWithMutations(this.state.layoutInfo, state.layoutInfo);
       if (this.state.layoutInfo !== state.layoutInfo) {
-        let newBounds = getBoundsForSeriesLayoutInfo(state.layoutInfo.seriesLayoutInfo);
+        const newBounds = getBoundsForSeriesLayoutInfo(state.layoutInfo.seriesLayoutInfo);
         if (this.state.layoutInfo === null) {
           this.onSeriesLayoutInfoChange(newBounds);
         }
         else if (state.layoutInfo.seriesLayoutInfo !== this.state.layoutInfo.seriesLayoutInfo) {
-          let oldBounds = getBoundsForSeriesLayoutInfo(this.state.layoutInfo.seriesLayoutInfo);
+          const oldBounds = getBoundsForSeriesLayoutInfo(this.state.layoutInfo.seriesLayoutInfo);
           if (getBoundsAreDifferent(oldBounds, newBounds)) {
             this.onSeriesLayoutInfoChange(newBounds);
           }
@@ -411,19 +411,19 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const groupAxisTitleClipPathUniqueId = groupAxisTitleClipPathIdPrefix + uniqueId;
     const groupAxisTickLabelClipPathUniqueId = gridAxisTickLabelClipPathIdPrefix + uniqueId;
     const seriesAxisTitleClipPathUniqueIds: Record<string, string> = {};
-    for (let { id } of seriesAxisConfigs) {
+    for (const { id } of seriesAxisConfigs) {
       seriesAxisTitleClipPathUniqueIds[id] = seriesAxisTitleClipPathIdPrefix + uniqueId + '__' + id;
     }
     const linearGradientIdMap: Record<string, string> = {};
-    for (let { id } of linearGradientConfigs) {
+    for (const { id } of linearGradientConfigs) {
       linearGradientIdMap[id] = linearGradientIdPrefix + uniqueId + '__' + id;
     }
     const radialGradientIdMap: Record<string, string> = {};
-    for (let { id } of radialGradientConfigs) {
+    for (const { id } of radialGradientConfigs) {
       radialGradientIdMap[id] = radialGradientIdPrefix + uniqueId + '__' + id;
     }
     const seriesColorGradientUniqueIds: Record<string, string> = {};
-    for (let { id } of seriesConfigs) {
+    for (const { id } of seriesConfigs) {
       seriesColorGradientUniqueIds[id] = seriesColorGradientIdPrefix + uniqueId + '__' + id;
     }
     const gradientIdMap = { ...linearGradientIdMap, ...radialGradientIdMap };
@@ -437,17 +437,17 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   init(props: ChartProps, warn = false): ChartStateUpdate {
     const { mochartConfig, chartData, width, height, standalone } = props;
-    let newState = getInitialState();
+    const newState = getInitialState();
     if (mochartConfig) {
       const { validation } = mochartConfig;
       const { valid, errors, warnings } = validation;
 
       if (valid) {
-        let uniqueIdState = this.constructUniqueIds(props);
+        const uniqueIdState = this.constructUniqueIds(props);
         const domAccessors = this.chartRef ? getDomAccessors(this.chartRef) : null;
-        let chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
+        const chartTextBoundsData = getChartTextBoundsData(mochartConfig, domAccessors);
 
-        let layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
+        const layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
         let axisData = null;
         let stackData = null;
         if (chartData !== null && getChartDataGroupCount(chartData) > 0) {
@@ -473,7 +473,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig } = this.props;
     let { tooltipBounds } = this.state;
     tooltipBounds = getBoundsWithMutations(tooltipBounds, getTooltipBounds(mochartConfig, getDomAccessors(this.chartRef!)));
-    let tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
+    const tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
       this.getTooltipLayoutInfo(this.props, { tooltipBounds }));
     this.setState({ tooltipBounds, tooltipLayoutInfo });
   }
@@ -512,7 +512,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (tooltipVisible) {
         let { tooltipBounds } = this.state;
         tooltipBounds = getBoundsWithMutations(tooltipBounds, getTooltipBounds(mochartConfig, domAccessors));
-        let tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
+        const tooltipLayoutInfo = getTooltipLayoutInfoWithMutations(this.state.tooltipLayoutInfo,
           this.getTooltipLayoutInfo(this.props, { tooltipBounds }));
         newState.tooltipBounds = tooltipBounds;
         newState.tooltipLayoutInfo = tooltipLayoutInfo;
@@ -608,10 +608,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           if (dataChanged && prevProps.chartData !== null) {
             let { tooltipGroupIndex, tooltipValueObject } = this.state;
             if (tooltipGroupIndex >= 0) {
-              let oldGroupValues = prevProps.chartData.groupData.values.raw;
-              let newGroupValues = chartData.groupData.values.raw;
+              const oldGroupValues = prevProps.chartData.groupData.values.raw;
+              const newGroupValues = chartData.groupData.values.raw;
               if (oldGroupValues && newGroupValues) {
-                let groupValue = oldGroupValues[tooltipGroupIndex];
+                const groupValue = oldGroupValues[tooltipGroupIndex];
                 tooltipGroupIndex = newGroupValues.indexOf(groupValue);
                 tooltipValueObject = getGroupSeriesValueObject(chartData, tooltipGroupIndex);
                 tooltipStateSource = { ...this.state, tooltipGroupIndex, tooltipValueObject };
@@ -733,22 +733,22 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { seriesLayoutInfo } = layoutInfo!;
     const { plotConfig } = mochartConfig;
 
-    let groupPosition = plotConfig.inverted ? chartY : chartX;
-    let groupPercentage = groupPosition / seriesLayoutInfo.groupExtent;
+    const groupPosition = plotConfig.inverted ? chartY : chartX;
+    const groupPercentage = groupPosition / seriesLayoutInfo.groupExtent;
     let groupIndex = -1;
     let groupDifference = Number.MAX_VALUE;
     const groupCount = dataGroupPositions.length;
     let dataGroupPosition;
     for (let dataGroupIndex = 0; dataGroupIndex < groupCount; dataGroupIndex++) {
       dataGroupPosition = dataGroupPositions[dataGroupIndex];
-      let currentDifference = Math.abs(dataGroupPosition - groupPosition);
+      const currentDifference = Math.abs(dataGroupPosition - groupPosition);
       if (currentDifference <= groupDifference) { // <= means we'll pick the greater group value on a tie
         groupDifference = currentDifference;
         groupIndex = dataGroupIndex;
       }
     }
-    let seriesPosition = plotConfig.inverted ? chartX : chartY;
-    let seriesPercentage = seriesPosition / seriesLayoutInfo.seriesExtent;
+    const seriesPosition = plotConfig.inverted ? chartX : chartY;
+    const seriesPercentage = seriesPosition / seriesLayoutInfo.seriesExtent;
 
     return {
       chartX, chartY, groupPosition, seriesPosition, groupPercentage, seriesPercentage, groupIndex
@@ -757,7 +757,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   onChartMouseEnter = (chartX: number, chartY: number): void => {
     const { mochartConfig, onChartMouseEnter } = this.props;
-    let eventPayload = this.getChartEventPayload(chartX, chartY);
+    const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseEnter?.(eventPayload);
     if (mochartConfig.tooltipConfig.mouseOver) {
       this.toggleTooltip(eventPayload);
@@ -766,10 +766,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   onChartMouseMove = (chartX: number, chartY: number): void => {
     const { mochartConfig, onFocus, onChartMouseMove } = this.props;
-    let eventPayload = this.getChartEventPayload(chartX, chartY);
+    const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseMove?.(eventPayload);
     if (mochartConfig.tooltipConfig.mouseOver) {
-      let { seriesPercentage, groupIndex } = eventPayload;
+      const { seriesPercentage, groupIndex } = eventPayload;
       if (mochartConfig.tooltipConfig.visible) {
         onFocus?.({ groupIndex });
         this.setState({ tooltipSeriesPercentage: seriesPercentage });
@@ -782,7 +782,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   onChartMouseLeave = (chartX: number, chartY: number): void => {
     const { mochartConfig, onChartMouseLeave } = this.props;
-    let eventPayload = this.getChartEventPayload(chartX, chartY);
+    const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseLeave?.(eventPayload);
     if (mochartConfig.tooltipConfig.mouseOver) {
       this.toggleTooltip(eventPayload);
@@ -791,7 +791,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   onChartClick = (chartX: number, chartY: number): void => {
     const { mochartConfig, onChartClick } = this.props;
-    let eventPayload = this.getChartEventPayload(chartX, chartY);
+    const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartClick?.(eventPayload);
     if (!mochartConfig.tooltipConfig.mouseOver) {
       this.toggleTooltip(eventPayload);

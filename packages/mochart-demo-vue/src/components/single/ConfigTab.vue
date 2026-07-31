@@ -66,7 +66,7 @@ function updateShowDefaults(nextShowDefaults: boolean) {
       errorMessage.value = demoText.errors.invalidChartConfig;
     }
   }
-  catch (error) {
+  catch {
     console.warn('Invalid Chart Config JSON: ' + configText.value);
     errorMessage.value = demoText.errors.invalidJson;
   }
@@ -105,7 +105,7 @@ const jsonError = computed(() => {
     JSON.parse(configText.value);
     return null;
   }
-  catch (error) {
+  catch {
     return demoText.errors.invalidJson;
   }
 });

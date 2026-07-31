@@ -2,7 +2,7 @@ import type { Bounds, Size } from '../types/geometry';
 import type { LayoutInfo } from '../types/layout';
 
 export function createLayoutInfo(groupPosition: number, seriesPosition: number, groupExtent: number, seriesExtent: number, inverted: boolean): LayoutInfo {
-  let layoutInfo = {
+  const layoutInfo = {
     groupPosition,
     seriesPosition,
     groupExtent,

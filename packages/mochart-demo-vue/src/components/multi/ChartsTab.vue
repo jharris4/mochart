@@ -192,8 +192,8 @@ function onChartFocus(chartIndex: number, focusData: { focusedSeriesAxisId?: str
   let nextFocusedGroupIndices = focusedGroupIndices.value;
   if (groupIndex !== undefined && groupIndex >= 0) {
     const groupValue = dataProviders.value[chartIndex].getGroupValues()[groupIndex];
-    let i, count = data.value.length;
-    for (i = 0; i < count; i++) {
+    const count = data.value.length;
+    for (let i = 0; i < count; i++) {
       if (data.value[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
         groupIndex = i;
         break;

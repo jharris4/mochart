@@ -159,7 +159,7 @@ export function applyTransitionConfigEdit(configText: string): TransitionConfigE
       return { ok: false, errorMessage: 'Transition config should be an object' };
     }
   }
-  catch (error) {
+  catch {
     console.warn('Invalid Transition Config JSON: ', configText);
     return { ok: false, errorMessage: 'Invalid JSON' };
   }

@@ -34,15 +34,11 @@ export function getMessage(prefix: string, message: string): string {
 }
 
 export function addErrorMessage(prefix: string, config: unknown, validator: Validator, errorMessages: string[]): void {
-  let isValid = validator(config);
+  const isValid = validator(config);
   if (!isValid) {
     errorMessages.push(
       prefixErrorMessage(prefix, validator.getErrorMessage(config)));
   }
-}
-
-export function addErrorMessages(prefix: string, config: unknown, validatorMap: ValidatorMap, errorMessages: string[], i: number | undefined = undefined): void {
-  addErrorMessagesInternal(prefix, config, validatorMap, errorMessages, i, true);
 }
 
 function addErrorMessagesInternal(prefix: string, config: unknown, validatorMap: ValidatorMap, errorMessages: string[], i: number | undefined = undefined, all = false): void {
@@ -51,9 +47,9 @@ function addErrorMessagesInternal(prefix: string, config: unknown, validatorMap:
     const configKeys = Object.keys(config);
     const keys = all ? validatorKeys : configKeys.filter(configKey => validatorMap[configKey] !== undefined)
 
-    for (let key of keys) {
+    for (const key of keys) {
       const validator = validatorMap[key]!;
-      let isValid = validator(config[key]);
+      const isValid = validator(config[key]);
       if (!isValid) {
         errorMessages.push(
           prefixPropertyErrorMessage(prefix, key, validator.getErrorMessage(config[key]), i));
@@ -68,10 +64,10 @@ export function addWarningMessages(prefix: string, config: unknown, propertyMap:
 
 function addWarningMessagesInternal(prefix: string, config: unknown, propertyMap: Record<string, unknown>, warningMessages: string[], i: number | undefined = undefined, _all = false): void {
   if (objectValidator(config) && isConfigObject(config)) {
-    let invalidProperties: string[] = [];
+    const invalidProperties: string[] = [];
     let invalidPropertyCount = 0;
     const properties = Object.keys(config);
-    for (let property of properties) {
+    for (const property of properties) {
       if (!propertyMap[property]) {
         if (invalidProperties.length < maxInvalidProperties) {
           invalidProperties.push(property);
@@ -93,7 +89,7 @@ function addWarningMessagesInternal(prefix: string, config: unknown, propertyMap
 
 function objectWithKeys<T>(object: Record<string, T>, keys: string[]): Record<string, T> {
   const clone: Record<string, T> = {};
-  for (let key of keys) {
+  for (const key of keys) {
     if (object[key] !== undefined) {
       clone[key] = object[key];
     }
@@ -126,7 +122,7 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
     if ((i === undefined || i === 0)) {
       const uniqueAllKeys = (Array.isArray(uniqueKeys) ? uniqueKeys : []).filter(uniqueKey => all[uniqueKey] !== undefined)
 
-      for (let uniqueAllKey of uniqueAllKeys) {
+      for (const uniqueAllKey of uniqueAllKeys) {
         errorMessages.push(
           prefixPropertyErrorMessage(allKey ?? sectionKey, uniqueAllKey, 'unique properties cannot be set on an all config', i));
       }

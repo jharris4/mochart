@@ -43,7 +43,7 @@ export default class TooltipClip extends Renderer<TooltipClipProps> {
       this.setPresent(true);
       this.root.set({ id: tooltipClipPathUniqueId, clipRule: 'evenodd' });
       if (tooltipShown) {
-        let pathPoints = getCutoutRectanglePath(0, 0, width, height, tooltipLayoutInfo.x - chartContentLayoutInfo.x,
+        const pathPoints = getCutoutRectanglePath(0, 0, width, height, tooltipLayoutInfo.x - chartContentLayoutInfo.x,
           tooltipLayoutInfo.y - chartContentLayoutInfo.y, tooltipLayoutInfo.width, tooltipLayoutInfo.height);
         this.setShape('path').set({ fillRule: 'evenodd', d: pathPoints });
       }

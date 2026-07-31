@@ -30,11 +30,6 @@ function addProperty(used: Set<string>, property: string | null | undefined): vo
   }
 }
 
-export function removeUnusedDataProperties(data: DataRow[], mochartConfig: MochartConfig): DataRow[] {
-  const usedProperties = collectUsedDataProperties(mochartConfig);
-  return usedProperties === null ? data : filterDataProperties(data, usedProperties);
-}
-
 export function filterDataProperties(data: DataRow[], usedProperties: Set<string>): DataRow[] {
   return data.map(row => {
     const filtered: DataRow = {};

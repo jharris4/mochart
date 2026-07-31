@@ -34,7 +34,7 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
       JSON.parse(textArea.getValue());
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }

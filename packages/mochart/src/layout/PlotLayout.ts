@@ -23,7 +23,7 @@ export function getRotatedTickBounds(axisConfig: AxisConfigBase, tickBounds: Tex
 
 function getCollapsedAfterSizeConsumption(axisConfigs: SeriesAxisConfig[], axisSizeArray: Record<string, number>): number {
   let totalSize = 0;
-  for (let axisConfig of axisConfigs) {
+  for (const axisConfig of axisConfigs) {
     if (axisConfig.collapsed === true && axisConfig.before === false) {
       totalSize += axisSizeArray[axisConfig.id];
     }
@@ -110,7 +110,8 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   if (tickLabelSize === AUTO) {
     tickLabelSize = axisLayoutInfo.tickLabelSize;
   }
-  let { tickLabelSizeOffset, tickLabelParallel } = axisLayoutInfo;
+  let { tickLabelSizeOffset } = axisLayoutInfo;
+  const { tickLabelParallel } = axisLayoutInfo;
   if (!vertical && notAfter && !tickLabelParallel) {
     // AxisTickInfo never defines tickTextAnchor (only tickLabelAnchor), so this is always
     // undefined and the else branch always runs; preserved as-is while adding types.

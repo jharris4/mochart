@@ -49,7 +49,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
       JSON.parse(getConfigText());
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }
@@ -81,7 +81,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
         errorMessage = demoText.errors.invalidChartConfig;
       }
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Chart Config JSON: ' + getConfigText());
       errorMessage = demoText.errors.invalidJson;
     }

@@ -48,12 +48,12 @@ export function getAxisDataWithMutations(axisData: AxisData | null, mochartConfi
 }
 
 export function getAxisDataForGroupChange(axisData: AxisData, mochartConfig: MochartConfig, chartLayoutInfo: ChartLayoutInfo, chartData: ChartData | null): AxisData {
-  let groupAxisData = getGroupAxisData(mochartConfig.groupAxisConfig, chartLayoutInfo.groupAxisLayoutInfo, chartData);
+  const groupAxisData = getGroupAxisData(mochartConfig.groupAxisConfig, chartLayoutInfo.groupAxisLayoutInfo, chartData);
   return getWithMutations(axisData, Object.assign({}, axisData, { group: groupAxisData }), scaleMutator);
 }
 
 export function getAxisDataForSeriesChange(axisData: AxisData, mochartConfig: MochartConfig, chartLayoutInfo: ChartLayoutInfo, chartData: ChartData | null): AxisData {
-  let seriesAxisData = getSeriesAxisData(mochartConfig.plotConfig, mochartConfig.seriesAxisConfigs, chartLayoutInfo.seriesAxisLayoutInfos, chartData);
+  const seriesAxisData = getSeriesAxisData(mochartConfig.plotConfig, mochartConfig.seriesAxisConfigs, chartLayoutInfo.seriesAxisLayoutInfos, chartData);
   return getWithMutations(axisData, Object.assign({}, axisData, { series: seriesAxisData }), scaleMutator);
 }
 
@@ -92,8 +92,8 @@ function getSeriesAxisData(plotConfig: PlotConfig, seriesAxisConfigs: SeriesAxis
 export function getGroupSpacingInfo(groupAxisConfig: GroupAxisConfig, groupAxisDomain: GroupAxisDomain, groupAxisExtent: number): GroupSpacingInfo {
   let minPosition = 0;
   let maxPosition = groupAxisExtent;
-  let groupAxisDomainExtent = groupAxisDomain[0] === null || groupAxisDomain[1] === null ? 0 : Math.abs(+groupAxisDomain[1] - +groupAxisDomain[0]);
-  let groupCountPadding = groupAxisConfig.groupCountPadding;
+  const groupAxisDomainExtent = groupAxisDomain[0] === null || groupAxisDomain[1] === null ? 0 : Math.abs(+groupAxisDomain[1] - +groupAxisDomain[0]);
+  const groupCountPadding = groupAxisConfig.groupCountPadding;
   let groupValueExtent;
   if (groupAxisDomainExtent === 0 && groupCountPadding === 0) {
     groupValueExtent = maxPosition;
@@ -107,7 +107,7 @@ export function getGroupSpacingInfo(groupAxisConfig: GroupAxisConfig, groupAxisD
     groupValueExtent = maxPosition / groupAxisDomainExtent;
   }
   groupValueExtent =  Math.max(groupAxisConfig.minGroupValueExtent, Math.floor(groupValueExtent * (1.0 - groupAxisConfig.groupPadding.outer)));
-  let groupValueOffset = Math.floor(groupValueExtent / 2.0);
+  const groupValueOffset = Math.floor(groupValueExtent / 2.0);
   return {
     groupRange: [minPosition, maxPosition] as [number, number],
     groupValueExtent,
@@ -116,17 +116,17 @@ export function getGroupSpacingInfo(groupAxisConfig: GroupAxisConfig, groupAxisD
 }
 
 function getGroupValuePositions(groupAxisConfig: GroupAxisConfig, scale: AxisScale, valueData: GroupValues): number[] {
-  let positions: number[] = [];
-  let values = groupAxisConfig.scale === SCALE_ORDINAL ? valueData.numeric : valueData.parsed;
-  let i, count = values.length;
-  for (i=0; i<count; i++) {
+  const positions: number[] = [];
+  const values = groupAxisConfig.scale === SCALE_ORDINAL ? valueData.numeric : valueData.parsed;
+  const count = values.length;
+  for (let i=0; i<count; i++) {
     positions.push(scale(values[i] as number | Date));
   }
   return positions;
 }
 
 function getGroupAxisScale(axisConfig: GroupAxisConfig, axisDomain: GroupAxisDomain, groupSpacingInfo: GroupSpacingInfo): AxisScale {
-  let axisScale = (axisConfig.type === TYPE_DATE && axisConfig.scale === SCALE_LINEAR) ? (axisConfig.dateUTC ? scaleUtc() : scaleTime()) : scaleLinear();
+  const axisScale = (axisConfig.type === TYPE_DATE && axisConfig.scale === SCALE_LINEAR) ? (axisConfig.dateUTC ? scaleUtc() : scaleTime()) : scaleLinear();
   axisScale.domain(axisDomain);
   axisScale.range(groupSpacingInfo.groupRange);
   return axisScale;
@@ -134,7 +134,7 @@ function getGroupAxisScale(axisConfig: GroupAxisConfig, axisDomain: GroupAxisDom
 
 function getSeriesAxisScales(seriesAxisConfigs: SeriesAxisConfig[], rawAxisDomainArray: Record<string, NullableDomain>, filteredAxisDomainArray: Record<string, NullableDomain>, axisLayountInfoArray: ChartLayoutInfo['seriesAxisLayoutInfos'], vertical: boolean): Record<string, AxisScale> {
   return arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
-    let axisId = seriesAxisConfig.id;
+    const axisId = seriesAxisConfig.id;
     return getSeriesAxisScale(seriesAxisConfig, rawAxisDomainArray[axisId], filteredAxisDomainArray[axisId], axisLayountInfoArray[axisId], vertical);
   });
 }
@@ -144,7 +144,7 @@ function getSeriesAxisScale(axisConfig: SeriesAxisConfig, rawAxisDomain: Nullabl
 }
 
 function getSeriesAxisScaleForDomain(_axisConfig: SeriesAxisConfig, axisLayoutInfo: AxisLayoutInfo, axisDomain: NullableDomain, vertical: boolean): AxisScale {
-  let axisScale = scaleLinear();
+  const axisScale = scaleLinear();
   axisScale.domain(axisDomain);
   if (vertical) {
     axisScale.range([axisLayoutInfo.seriesExtent, 0]);
@@ -175,8 +175,8 @@ function createOrdinalTickObject(scaleTickValue: number, groupValues: readonly G
 
 function getGroupAxisTickData(axisConfig: GroupAxisConfig, axisLayoutInfo: GroupAxisLayoutInfo, axisScale: AxisScale, axisDomain: GroupAxisDomain, groupValues: readonly GroupValue[], groupPositions: number[]): AxisTick[] {
   let ticks: AxisTick[] = [];
-  let groupAxisRangeExtent = axisScale.range()[1] - axisScale.range()[0]; // different because of bar offset??
-  let groupAxisDomainExtent = +axisScale.domain()[1] - +axisScale.domain()[0];
+  const groupAxisRangeExtent = axisScale.range()[1] - axisScale.range()[0]; // different because of bar offset??
+  const groupAxisDomainExtent = +axisScale.domain()[1] - +axisScale.domain()[0];
 
   if (groupValues.length > 0) {
     let scaleTicks: AxisValue[];
@@ -187,8 +187,8 @@ function getGroupAxisTickData(axisConfig: GroupAxisConfig, axisLayoutInfo: Group
         scaleTicks = [0];
       }
       else {
-        let axisMin = axisScale.domain()[0];
-        let axisMax = axisScale.domain()[1];
+        const axisMin = axisScale.domain()[0];
+        const axisMax = axisScale.domain()[1];
         if (axisMin !== axisMax) {
           scaleTicks = [axisMin, axisMax];
         }
@@ -234,7 +234,7 @@ function getGroupAxisTickData(axisConfig: GroupAxisConfig, axisLayoutInfo: Group
       tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, axisScale, scaleTicks.length);
     }
     if (axisConfig.scale === SCALE_ORDINAL) {
-      let tickInterval = Math.ceil(groupValues.length / tickCount);
+      const tickInterval = Math.ceil(groupValues.length / tickCount);
       if (axisConfig.tickLabelTruncationEnabled && axisLayoutInfo.tickLabelParallel) {
         ticks = scaleTicks.map((scaleTick, i) => createOrdinalTickObject(scaleTick as number, groupValues, groupPositions, tickLabelFormatter, () => i % tickInterval !== 0));
       }
@@ -260,8 +260,8 @@ function getGroupAxisTickData(axisConfig: GroupAxisConfig, axisLayoutInfo: Group
       }
     }
     else {
-      let { preTicks, postTicks } = getLinearAxisExtraTicks(axisDomain, axisScale, scaleTicks);
-      let tickInterval = scaleTicks.length > tickCount ? 2 : 1
+      const { preTicks, postTicks } = getLinearAxisExtraTicks(axisDomain, axisScale, scaleTicks);
+      const tickInterval = scaleTicks.length > tickCount ? 2 : 1
 
       if (axisLayoutInfo.tickLabelParallel) {
         const { before, after, groupExtent, tickLabelSpace, tickLabelAnchor } = axisLayoutInfo;
@@ -301,7 +301,7 @@ function getMaxTickLabelLength(_groupAxisConfig: GroupAxisConfig, groupValues: r
 
 function getSeriesAxisTickData(axisConfigArray: SeriesAxisConfig[], axisLayoutInfoArray: ChartLayoutInfo['seriesAxisLayoutInfos'], rawAxisDomainArray: Record<string, NullableDomain>, filteredAxisDomainArray: Record<string, NullableDomain>, filteredSeriesCountArray: Record<string, number>, axisScaleArray: Record<string, AxisScale>, vertical: boolean): Record<string, AxisTick[]> {
   return arrayToMap(axisConfigArray, idAccessor, axisConfig => {
-    let axisId = axisConfig.id;
+    const axisId = axisConfig.id;
     return getSeriesAxisTickDataObject(axisConfig, axisLayoutInfoArray[axisId], rawAxisDomainArray[axisId], filteredAxisDomainArray[axisId], filteredSeriesCountArray[axisId], axisScaleArray[axisId], vertical);
   });
 }
@@ -331,7 +331,7 @@ function getSeriesAxisTickDataObject(axisConfig: SeriesAxisConfig, axisLayoutInf
     let scaleTicks: AxisValue[];
     const adjustForSuppression = axisConfig.adjustForSuppression;
     const adjustTickLabelsForSuppression = adjustForSuppression && axisConfig.adjustTickLabelSizeForSuppression;
-    let seriesAxisDomain = adjustForSuppression ? filteredSeriesAxisDomain : rawSeriesAxisDomain;
+    const seriesAxisDomain = adjustForSuppression ? filteredSeriesAxisDomain : rawSeriesAxisDomain;
     const tickBoundsSeriesAxisDomain = adjustTickLabelsForSuppression ? filteredSeriesAxisDomain : rawSeriesAxisDomain;
     if (seriesAxisDomain[0] === seriesAxisDomain[1]) {
       if (seriesAxisDomain[0] === null) {
@@ -344,7 +344,7 @@ function getSeriesAxisTickDataObject(axisConfig: SeriesAxisConfig, axisLayoutInf
       }
     }
     else {
-      let seriesAxisDomainExtent = seriesAxisDomain[1]! - seriesAxisDomain[0]!;
+      const seriesAxisDomainExtent = seriesAxisDomain[1]! - seriesAxisDomain[0]!;
       tickCount = getTickCount(axisConfig, axisLayoutInfo.seriesExtent, seriesAxisDomainExtent, axisLayoutInfo.tickLabelSpace);
       if (tickCount === 1) {
         scaleTicks = [seriesAxisDomain[0]!];
@@ -354,9 +354,9 @@ function getSeriesAxisTickDataObject(axisConfig: SeriesAxisConfig, axisLayoutInf
       }
     }
     const formatAxisScale = adjustTickLabelsForSuppression ? axisScale : getSeriesAxisScaleForDomain(axisConfig, axisLayoutInfo, rawSeriesAxisDomain, vertical);
-    let tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, formatAxisScale, scaleTicks.length);
-    let { preTicks, postTicks } = getLinearAxisExtraTicks(tickBoundsSeriesAxisDomain, axisScale, scaleTicks);
-    let tickInterval = scaleTicks.length > tickCount ? 2 : 1
+    const tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, formatAxisScale, scaleTicks.length);
+    const { preTicks, postTicks } = getLinearAxisExtraTicks(tickBoundsSeriesAxisDomain, axisScale, scaleTicks);
+    const tickInterval = scaleTicks.length > tickCount ? 2 : 1
     ticks = scaleTicks.map((scaleTick, i) => createLinearTickObject(scaleTick, axisScale, tickLabelFormatter, () => i % tickInterval !== 0));
     if (preTicks.length > 0) {
       ticks = preTicks.map(preTick => createLinearTickObject(preTick, axisScale, tickLabelFormatter, () => true)).concat(ticks);
@@ -369,11 +369,11 @@ function getSeriesAxisTickDataObject(axisConfig: SeriesAxisConfig, axisLayoutInf
 }
 
 function getLinearAxisExtraTicks(axisDomain: GroupAxisDomain, _axisScale: AxisScale, scaleTicks: AxisValue[]): { preTicks: AxisValue[]; postTicks: AxisValue[] } {
-  let preTicks: AxisValue[] = [];
-  let postTicks: AxisValue[] = [];
+  const preTicks: AxisValue[] = [];
+  const postTicks: AxisValue[] = [];
   if (scaleTicks.length > 1) {
-    let minTickValue = scaleTicks[0];
-    let maxTickValue = scaleTicks[scaleTicks.length - 1];
+    const minTickValue = scaleTicks[0];
+    const maxTickValue = scaleTicks[scaleTicks.length - 1];
     if (axisDomain[0] !== null && +axisDomain[0] < +minTickValue) {
       preTicks.push(axisDomain[0]);
     }
@@ -427,7 +427,7 @@ function getTickCount(axisConfig: AxisConfigBase, axisRangeExtent: number, axisD
   if (tickCount === AUTO) {
     count = Math.max(1, Math.floor((axisRangeExtent + minTickSpacing) / (tickLabelSpace + minTickSpacing)));
     if (minTickInterval > 0) {
-      let intervalCount = Math.max(1, Math.floor(axisDomainExtent / minTickInterval) + 1);
+      const intervalCount = Math.max(1, Math.floor(axisDomainExtent / minTickInterval) + 1);
       count = Math.min(intervalCount, count);
     }
     if (maxTickCount > 0) {
@@ -457,7 +457,7 @@ function getLinearScaleTickLabelFormatter(axisConfig: GroupAxisConfig | SeriesAx
         tickLabelFormatter = axisScale.tickFormat();
       }
       else {
-        let timeFormatter = 'dateUTC' in axisConfig && axisConfig.dateUTC ? utcFormat : timeFormat;
+        const timeFormatter = 'dateUTC' in axisConfig && axisConfig.dateUTC ? utcFormat : timeFormat;
         if (axisConfig.tickLabelFormat === AUTO) {
           const formatter = timeFormatter(autoTickLabelFormatDate);
           tickLabelFormatter = tick => formatter(tick as Date);
@@ -475,8 +475,8 @@ function getLinearScaleTickLabelFormatter(axisConfig: GroupAxisConfig | SeriesAx
 function getDomainForValues(values: readonly GroupValue[]): [AxisValue, AxisValue] {
   let min: AxisValue | null = null;
   let max: AxisValue | null = null;
-  let i, count = values.length;
-  for (i=0; i<count; i++) {
+  const count = values.length;
+  for (let i=0; i<count; i++) {
     const value = values[i] as AxisValue;
     if (max === null || +value > +max) {
       max = value;
@@ -496,7 +496,7 @@ function getOrdinalScaleTickLabelFormatter(axisConfig: GroupAxisConfig, axisScal
     let tickLabelFormatter: TickLabelFormatter = tick => tick;
     if (axisConfig.tickLabelFormat !== NONE) {
       if (axisConfig.type === TYPE_NUMBER) {
-        let formatSpecifier = axisConfig.tickLabelFormat === AUTO ? autoTickLabelFormatNumber : axisConfig.tickLabelFormat;
+        const formatSpecifier = axisConfig.tickLabelFormat === AUTO ? autoTickLabelFormatNumber : axisConfig.tickLabelFormat;
         // Experimental code to try to create a nice uniform tick format for ordinal number scales. may need work...
         if (enableOrdinalExperimentalMode) {
           tickLabelFormatter = scaleLinear().domain(getDomainForValues(values)).tickFormat(tickCount, formatSpecifier);
@@ -507,7 +507,7 @@ function getOrdinalScaleTickLabelFormatter(axisConfig: GroupAxisConfig, axisScal
         }
       }
       else if (axisConfig.type === TYPE_DATE) {
-        let timeFormatter = axisConfig.dateUTC ? utcFormat : timeFormat;
+        const timeFormatter = axisConfig.dateUTC ? utcFormat : timeFormat;
         if (axisConfig.tickLabelFormat === AUTO) {
           // Experimental code to try to create a nice uniform tick format for ordinal date scales. needs work...
           if (enableOrdinalExperimentalMode) {
@@ -530,7 +530,7 @@ function getOrdinalScaleTickLabelFormatter(axisConfig: GroupAxisConfig, axisScal
 
 function getTickLabelFormatterForPrefixAndSuffix(axisConfig: AxisConfigBase, tickLabelFormatter: TickLabelFormatter): TickLabelFormatter {
   if (axisConfig.tickLabelPrefix !== NONE || axisConfig.tickLabelSuffix !== NONE) {
-    let oldTickLabelFormatter = tickLabelFormatter;
+    const oldTickLabelFormatter = tickLabelFormatter;
     if (axisConfig.tickLabelPrefix !== NONE && axisConfig.tickLabelSuffix !== NONE) {
       const prefix = axisConfig.tickLabelPrefix!;
       const suffix = axisConfig.tickLabelSuffix!;

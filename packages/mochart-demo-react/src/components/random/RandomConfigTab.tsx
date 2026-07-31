@@ -34,7 +34,7 @@ export default function RandomMochartConfigTab({ active, randomConfig, generator
       setErrorMessage(newConfig.valid ? null : demoText.errors.invalidRandomConfigValues);
       onUpdate(newConfig);
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Random Config JSON: ' + configText);
       setErrorMessage(demoText.errors.invalidJson);
     }
@@ -45,7 +45,7 @@ export default function RandomMochartConfigTab({ active, randomConfig, generator
       JSON.parse(configText);
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }, [configText]);

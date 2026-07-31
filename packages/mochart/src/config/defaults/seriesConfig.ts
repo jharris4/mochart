@@ -8,9 +8,9 @@ import { getActualDefaults, conditionalDefault, defaultRule } from './conditiona
 import type { SeriesColor, SeriesConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<SeriesConfig> = {}, index: number, soleSeriesAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null): Partial<SeriesConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = {...regularDefaults, ...config};
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = {...regularDefaults, ...config};
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId));
 
   return {...regularDefaults, ...conditionalDefaults} as Partial<SeriesConfig>;
 }

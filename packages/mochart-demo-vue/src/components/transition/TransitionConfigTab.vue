@@ -48,7 +48,7 @@ const jsonError = computed(() => {
     JSON.parse(configText.value);
     return null;
   }
-  catch (error) {
+  catch {
     return demoText.errors.invalidJson;
   }
 });

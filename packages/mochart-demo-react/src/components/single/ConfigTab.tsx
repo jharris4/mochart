@@ -71,7 +71,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
         setErrorMessage(demoText.errors.invalidChartConfig);
       }
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Chart Config JSON: ' + state.configText);
       setErrorMessage(demoText.errors.invalidJson);
     }
@@ -111,7 +111,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
       JSON.parse(configText);
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }, [configText]);

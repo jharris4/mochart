@@ -3,9 +3,9 @@ import { getActualDefaults, conditionalDefault, defaultRule } from './conditiona
 import type { LegendConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<LegendConfig> = {}, seriesCount: number): Partial<LegendConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as LegendConfig, seriesCount));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as LegendConfig, seriesCount));
 
   return { ...regularDefaults, ...conditionalDefaults } as Partial<LegendConfig>;
 }

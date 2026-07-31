@@ -34,8 +34,12 @@ export interface UseMenuOptions {
 
 export interface MenuState {
   open: boolean;
-  toggle(): void;
-  close(): void;
+  // Declared as properties, not method shorthands: these are `useCallback`
+  // arrows with no `this`, and components destructure them off the returned
+  // object. Method shorthand would promise a `this` binding that does not
+  // exist — which is what `@typescript-eslint/unbound-method` flags.
+  toggle: () => void;
+  close: () => void;
   triggerRef: RefObject<HTMLButtonElement | null>;
   panelRef: RefObject<HTMLDivElement | null>;
   /** Spread onto the trigger `<button>`. */

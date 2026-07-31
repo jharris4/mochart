@@ -19,7 +19,7 @@ function isObject(v: unknown): v is ConfigRecord {
 const configsToIdMap = <T>(configs: ConfigRecord[], value: (config: ConfigRecord) => T): Record<string, T> => {
   const map: Record<string, T> = {};
   if (Array.isArray(configs)) {
-    for (let config of configs) {
+    for (const config of configs) {
       map[String(config.id)] = value(config);
     }
   }
@@ -42,7 +42,7 @@ const orderComparator = (a: unknown, b: unknown): number => (isObject(a) && isOb
 
 const configsToOrderedList = (configs: ConfigRecord[]): ConfigRecord[] => {
   if (Array.isArray(configs)) {
-    let ordered = configs.slice();
+    const ordered = configs.slice();
     ordered.sort(orderComparator);
     return ordered;
   }
@@ -51,7 +51,7 @@ const configsToOrderedList = (configs: ConfigRecord[]): ConfigRecord[] => {
 
 const addToIdMap = (idMap: Record<string, ConfigRecord[]>, configs: ConfigRecord[], key: string): void => {
   if (Array.isArray(configs)) {
-    for (let config of configs) {
+    for (const config of configs) {
       const reference = config[key];
       if (isObject(config) && typeof reference === 'string' && reference !== NONE && idMap[reference] !== undefined) {
         idMap[reference]!.push(config);
@@ -62,7 +62,7 @@ const addToIdMap = (idMap: Record<string, ConfigRecord[]>, configs: ConfigRecord
 
 const assignConfigReferences = (configs: ConfigRecord[], referenceKey: string, referenceName: string, configMap: Record<string, ConfigRecord>, configDescriptor: string): void => {
   if (Array.isArray(configs)) {
-    for (let config of configs) {
+    for (const config of configs) {
       if (isObject(config) && config[referenceKey] !== undefined) {
         if (config[referenceName] !== undefined) {
           console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
@@ -75,7 +75,7 @@ const assignConfigReferences = (configs: ConfigRecord[], referenceKey: string, r
 
 const assignConfigListReferences = (configs: ConfigRecord[], referenceName: string, configListMap: Record<string, ConfigRecord[]>, configDescriptor: string): void => {
   if (Array.isArray(configs)) {
-    for (let config of configs) {
+    for (const config of configs) {
       if (isObject(config)) {
         if (config[referenceName] !== undefined) {
           console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
@@ -88,7 +88,7 @@ const assignConfigListReferences = (configs: ConfigRecord[], referenceName: stri
 
 const assignConfigListIndexReferences = (configs: ConfigRecord[], referenceName: string, listReferenceName: string, configDescriptor: string): void => {
   if (Array.isArray(configs)) {
-    for (let config of configs) {
+    for (const config of configs) {
       if (isObject(config)) {
         if (config[referenceName] !== undefined) {
           console.warn('mochartConfig.' + configDescriptor + '[' + config.id + '] had a ' + referenceName + ' property that will be overriden');
@@ -143,7 +143,7 @@ function withoutUndefined(object: ConfigRecord): ConfigRecord {
   const keysFiltered = keys.filter(key => object[key] !== undefined);
   if (keysFiltered.length < keys.length) {
     const clone: ConfigRecord = {};
-    for (let key of keysFiltered) {
+    for (const key of keysFiltered) {
       clone[key] = object[key];
     }
     return clone;
@@ -156,7 +156,7 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
     const config = { ...configWithoutDefaults };
     const sectionKeys = Object.keys(defaults);
     let allSection: ConfigRecord, configSection: unknown, defaultsSection: unknown, listCount: number, i: number, aConfig: unknown, allKey: string | undefined;
-    for (let sectionKey of sectionKeys) {
+    for (const sectionKey of sectionKeys) {
       allKey = sectionKeyAllMap[sectionKey];
       const possibleAllSection = allKey ? config[allKey] : undefined;
       allSection = isObject(possibleAllSection) ? possibleAllSection : {};
@@ -316,8 +316,8 @@ export function hasConfigStructureChange(configOld: MochartConfig, configNew: Mo
     return true;
   }
   for (let seriesAxisIndex = 0; seriesAxisIndex < seriesAxisConfigs.length; seriesAxisIndex++) {
-    let seriesAxisConfig = seriesAxisConfigs[seriesAxisIndex];
-    let newSeriesAxisConfig = newSeriesAxisConfigs[seriesAxisIndex];
+    const seriesAxisConfig = seriesAxisConfigs[seriesAxisIndex];
+    const newSeriesAxisConfig = newSeriesAxisConfigs[seriesAxisIndex];
     if (seriesAxisConfig.id !== newSeriesAxisConfig.id) {
       return true;
     }
@@ -329,8 +329,8 @@ export function hasConfigStructureChange(configOld: MochartConfig, configNew: Mo
     return true;
   }
   for (let seriesStackIndex = 0; seriesStackIndex < seriesStackConfigs.length; seriesStackIndex++) {
-    let seriesStackConfig = seriesStackConfigs[seriesStackIndex];
-    let newSeriesStackConfig = newSeriesStackConfigs[seriesStackIndex];
+    const seriesStackConfig = seriesStackConfigs[seriesStackIndex];
+    const newSeriesStackConfig = newSeriesStackConfigs[seriesStackIndex];
     if (seriesStackConfig.id !== newSeriesStackConfig.id ||
         seriesStackConfig.axis !== newSeriesStackConfig.axis) {
       return true;
@@ -344,8 +344,8 @@ export function hasConfigStructureChange(configOld: MochartConfig, configNew: Mo
   }
 
   for (let seriesIndex = 0; seriesIndex < seriesConfigs.length; seriesIndex++) {
-    let seriesConfig = seriesConfigs[seriesIndex];
-    let newSeriesConfig = newSeriesConfigs[seriesIndex];
+    const seriesConfig = seriesConfigs[seriesIndex];
+    const newSeriesConfig = newSeriesConfigs[seriesIndex];
     if (seriesConfig.property !== newSeriesConfig.property ||
         seriesConfig.rangeProperty !== newSeriesConfig.rangeProperty ||
         seriesConfig.errorLowProperty !== newSeriesConfig.errorLowProperty ||

@@ -40,7 +40,7 @@ function getCombinedFocusPercentage(percentageA: FocusPercentage, percentageB: F
 export function getAggregateSeriesFocusPercentage(seriesConfigs: SeriesConfig[], seriesFocusPercentages: FocusPercentageMap): FocusPercentage {
   let maxPercentage: FocusPercentage = null;
   let seriesFocusPercentage: FocusPercentage;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     seriesFocusPercentage = seriesFocusPercentages[seriesConfig.id];
     if (seriesFocusPercentage !== null) {
       if (maxPercentage === null || seriesFocusPercentage > maxPercentage) {

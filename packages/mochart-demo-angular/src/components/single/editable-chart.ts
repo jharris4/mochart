@@ -527,8 +527,8 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     if (this.focusedGroupIndex >= 0) {
       const groupProperty = this.mochartDemoConfig.groupProperty ?? '';
       const groupValue = this.data[this.focusedGroupIndex][groupProperty];
-      let i, count = nextFilteredData.length;
-      for (i = 0; i < count; i++) {
+      const count = nextFilteredData.length;
+      for (let i = 0; i < count; i++) {
         if (nextFilteredData[i][groupProperty] === groupValue) {
           nextFilteredFocusedGroupIndex = i;
           break;
@@ -580,8 +580,8 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   private initData(): void {
     const nextFilteredData: Row[] = [];
     if (this.data && !this.dataError) {
-      let i, count = this.data.length;
-      for (i = 0; i < count; i++) {
+      const count = this.data.length;
+      for (let i = 0; i < count; i++) {
         nextFilteredData.push(Object.assign({}, this.data[i]));
       }
     }
@@ -630,8 +630,8 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
       if (nextFilteredFocusedGroupIndex >= 0) {
         const groupProperty = this.mochartDemoConfig.groupProperty ?? '';
         const groupValue = this.filteredData[nextFilteredFocusedGroupIndex][groupProperty];
-        let i, count = this.data.length;
-        for (i = 0; i < count; i++) {
+        const count = this.data.length;
+        for (let i = 0; i < count; i++) {
           if (this.data[i][groupProperty] === groupValue) {
             newFocusedGroupIndex = i;
             break;
@@ -655,8 +655,8 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     }
     else if (this.selectionMode() === 'group') {
       const dataGroupValues: any[] = [];
-      let i, count = this.filteredData.length;
-      for (i = 0; i < count; i++) {
+      const count = this.filteredData.length;
+      for (let i = 0; i < count; i++) {
         dataGroupValues.push(this.filteredData[i][groupProperty]);
       }
       let parsedGroupValues = this.groupValuesText() === emptyGroupText ? [] : this.groupValuesText().split(',');
@@ -691,8 +691,8 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   selectAllGroups = (): void => {
     const groupProperty = this.mochartDemoConfig.groupProperty ?? '';
     const allGroupValues: any[] = [];
-    let i, count = this.data.length;
-    for (i = 0; i < count; i++) {
+    const count = this.data.length;
+    for (let i = 0; i < count; i++) {
       allGroupValues.push(this.data[i][groupProperty]);
     }
     this.groupValuesText.set(allGroupValues.join(','));
@@ -755,9 +755,10 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     oldRemovedData.forEach(removedObject => {
       removedMap[removedObject[groupProperty]] = removedObject;
     });
-    let i, fi, count = this.data.length, filteredCount = oldFilteredData.length;
+    const count = this.data.length;
+    const filteredCount = oldFilteredData.length;
     const nextFilteredData: Row[] = [];
-    for (i = 0, fi = 0; i < count; i++) {
+    for (let i = 0, fi = 0; i < count; i++) {
       if (fi < filteredCount) {
         if (this.data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
           if (groupValueToAddMap[this.data[i][groupProperty]] === true) {
@@ -793,9 +794,9 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     groupValuesToRemove.forEach(groupValueToRemove => {
       groupValueToRemoveMap[groupValueToRemove] = true;
     });
-    let i, count = oldFilteredData.length;
+    const count = oldFilteredData.length;
     const nextFilteredData: Row[] = [];
-    for (i = 0; i < count; i++) {
+    for (let i = 0; i < count; i++) {
       if (groupValueToRemoveMap[oldFilteredData[i][groupProperty]] !== true) {
         nextFilteredData.push(oldFilteredData[i]);
       }
@@ -820,8 +821,9 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
       removedIndexMap[removedObject[groupProperty]] = removedIndex;
     });
     const groupObjectsToAdd: { removedIndex: number; dataIndex: number }[] = [];
-    let i, fi, count = this.data.length, filteredCount = oldFilteredData.length;
-    for (i = 0, fi = 0; i < count; i++) {
+    const count = this.data.length;
+    const filteredCount = oldFilteredData.length;
+    for (let i = 0, fi = 0; i < count; i++) {
       if (fi < filteredCount) {
         if (this.data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
           if (groupValueToAddMap[this.data[i][groupProperty]] === true) {
@@ -872,8 +874,9 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
       removedIndexMap[removedObject[groupProperty]] = removedIndex;
     });
     const groupObjectsToRemove: { removedIndex: number; dataIndex: number }[] = [];
-    let i, fi, ri, count = this.data.length, filteredCount = oldFilteredData.length;
-    for (i = 0, fi = 0, ri = 0; i < count && fi < filteredCount; i++) {
+    const count = this.data.length;
+    const filteredCount = oldFilteredData.length;
+    for (let i = 0, fi = 0, ri = 0; i < count && fi < filteredCount; i++) {
       if (this.data[i][groupProperty] === oldFilteredData[fi][groupProperty]) {
         if (groupValueToRemoveMap[this.data[i][groupProperty]] === true) {
           groupObjectsToRemove.push({
@@ -1047,7 +1050,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
         }
         this.updateFilteredDataState({}, this.filteredData, this.removedData, false);
       }
-      catch (error) {
+      catch {
 
       }
     }
@@ -1060,8 +1063,9 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     if (seriesConfigs.length > 0) {
       const filteredDataObject = this.filteredData[this.groupIndex()];
       const filteredGroupValue = filteredDataObject[groupProperty];
-      let i, count = this.data.length, dataObject: Row | null = null;
-      for (i = 0; i < count; i++) {
+      const count = this.data.length;
+      let dataObject: Row | null = null;
+      for (let i = 0; i < count; i++) {
         if (this.data[i][groupProperty] === filteredGroupValue) {
           dataObject = this.data[i];
         }

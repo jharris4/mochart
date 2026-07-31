@@ -28,7 +28,11 @@
   let {
     id,
     tooltipText,
-    tooltipPlacement = undefined,
+    // Destructured only to keep it OUT of `...rest`: no port implements
+    // tooltip placement (it predates the bootstrap removal and is accepted for
+    // call-site parity across the six ports), so letting it fall through would
+    // spread an unknown attribute onto the DOM.
+    tooltipPlacement: _tooltipPlacement = undefined,
     disabled = false,
     onClick,
     color = 'secondary',

@@ -2,9 +2,9 @@ import { getActualDefaults, conditionalDefault, defaultRule } from './conditiona
 import type { RadialGradientConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<RadialGradientConfig> = {}, index: number): Partial<RadialGradientConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as RadialGradientConfig, index));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as RadialGradientConfig, index));
 
   return { ...regularDefaults, ...conditionalDefaults } as Partial<RadialGradientConfig>;
 }

@@ -31,7 +31,7 @@ export function getJsonError(text: string): string | null {
     JSON.parse(text);
     return null;
   }
-  catch (error) {
+  catch {
     return 'Invalid JSON';
   }
 }
@@ -48,7 +48,7 @@ export function parseFullData(text: string, fullData: DataRow[], viewUsedPropert
   try {
     parsed = JSON.parse(text);
   }
-  catch (error) {
+  catch {
     return { error: 'json' };
   }
   if (!isArrayOfObjects(parsed)) {

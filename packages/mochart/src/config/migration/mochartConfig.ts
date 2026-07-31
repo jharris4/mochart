@@ -17,7 +17,7 @@ export default function migrateConfig(config: LegacyConfig): LegacyConfig {
   // Each step should set version to the version it migrates to.
 
   let migratedConfig = config;
-  for (let migrationStep of migrationSteps) {
+  for (const migrationStep of migrationSteps) {
     migratedConfig = migrationStep(migratedConfig);
   }
   return migratedConfig;

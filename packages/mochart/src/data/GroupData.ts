@@ -79,7 +79,7 @@ function getParsedGroupValues(groupAxisConfig: GroupAxisConfig, groupValues: rea
   let parsedGroupValues: readonly GroupValue[] = groupValues;
   if (groupAxisConfig.type === TYPE_DATE) {
     parsedGroupValues = [];
-    for (let groupValue of groupValues) {
+    for (const groupValue of groupValues) {
       (parsedGroupValues as Date[]).push(groupValue instanceof Date ? new Date(groupValue.getTime()) : new Date(groupValue));
     }
   }
@@ -94,7 +94,7 @@ export function getNumericGroupValues(
   let numericGroupValues: number[];
   if (groupAxisConfig.scale === SCALE_ORDINAL) {
     numericGroupValues = [];
-    let groupCount = parsedGroupValues.length;
+    const groupCount = parsedGroupValues.length;
     if (numericGroupValueOffsets !== null) {
       for (let ordinalIndex = 0; ordinalIndex < groupCount; ordinalIndex++) {
         numericGroupValues.push(ordinalIndex - numericGroupValueOffsets[ordinalIndex]);
@@ -108,7 +108,7 @@ export function getNumericGroupValues(
   }
   else if (groupAxisConfig.type === TYPE_DATE) {
     numericGroupValues = [];
-    for (let groupValue of parsedGroupValues) {
+    for (const groupValue of parsedGroupValues) {
       numericGroupValues.push((groupValue as Date).getTime());
     }
   }

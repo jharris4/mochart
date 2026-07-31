@@ -1,7 +1,7 @@
 import { path } from 'd3-path';
 
 export function getCutoutRectanglePath(x: number, y: number, width: number, height: number, cx: number, cy: number, cwidth: number, cheight: number): string {
-  let pathGenerator = path();
+  const pathGenerator = path();
   pathGenerator.moveTo(x, y);
   pathGenerator.lineTo(x + width, y);
   pathGenerator.lineTo(x + width, y + height);

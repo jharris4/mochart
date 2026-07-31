@@ -51,6 +51,7 @@
     "build": "svelte-package -i src -o dist",
     "prepack": "npm run build",
     "test": "vitest run",
-    "typecheck": "svelte-check --tsconfig ./tsconfig.json"
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json",
+    "lint": "eslint ."
   }
 }

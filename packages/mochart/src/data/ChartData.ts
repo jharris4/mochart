@@ -4,13 +4,13 @@ import type { MochartConfig } from '../types/config';
 import type { AxisDomains, ChartData, DataProvider, GroupAxisDomain, GroupData, SeriesData, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
 
 export function isDataProviderValid(dataProvider: DataProvider | null | undefined): boolean {
-  let dataProviderError = dataProvider && dataProvider.getError && dataProvider.getError instanceof Function && dataProvider.getError();
+  const dataProviderError = dataProvider && dataProvider.getError && dataProvider.getError instanceof Function && dataProvider.getError();
   return !!dataProvider && !dataProviderError;
 }
 
 export function getChartData(mochartConfig: MochartConfig, dataProvider: DataProvider, filteredSeriesMap: Record<string, unknown>): ChartData {
-  let groupData = getGroupData(mochartConfig.groupAxisConfig, dataProvider);
-  let seriesData = getSeriesData(mochartConfig, dataProvider, filteredSeriesMap, groupData);
+  const groupData = getGroupData(mochartConfig.groupAxisConfig, dataProvider);
+  const seriesData = getSeriesData(mochartConfig, dataProvider, filteredSeriesMap, groupData);
 
   return {
     groupData,

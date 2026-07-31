@@ -53,7 +53,7 @@ function applyCurve(generator: ShapeGenerator, curveOption: SeriesCurve): ShapeG
 }
 
 export function getLineGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
-  let lineGenerator = applyCurve(line().defined(seriesPositionData.getDefined), seriesConfig.curve);
+  const lineGenerator = applyCurve(line().defined(seriesPositionData.getDefined), seriesConfig.curve);
   if (inverted) {
     lineGenerator.x(seriesPositionData.getSeriesPosition).y(seriesPositionData.getGroupPosition);
   }
@@ -64,7 +64,7 @@ export function getLineGenerator(seriesConfig: SeriesConfig, seriesPositionData:
 }
 
 export function getAreaGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
-  let areaGenerator = applyCurve(area().defined(seriesPositionData.getDefined), seriesConfig.curve);
+  const areaGenerator = applyCurve(area().defined(seriesPositionData.getDefined), seriesConfig.curve);
   if (inverted) {
     areaGenerator.y(seriesPositionData.getGroupPosition).x1(seriesPositionData.getCurrentSeriesPosition).x0(seriesPositionData.getPriorSeriesPosition);
   }
@@ -126,7 +126,7 @@ const getXYOffset: OffsetCalculator = (x1, y1, y2, xExtent, offsetSign, offset, 
 };
 
 const connectPointInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) => {
-  let { x, y, yOffset } = getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, size);
+  const { x, y, yOffset } = getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, size);
   pathGenerator.moveTo(x, y);
 
   pathGenerator.lineTo(x1, y + yOffset / 2);
@@ -140,7 +140,7 @@ const connectPointInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, off
 };
 
 const connectPoint: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) => {
-  let { x, y, xOffset } = getXYOffset(x1, y1, y2, xExtent, offsetSign, offset, expand, size);
+  const { x, y, xOffset } = getXYOffset(x1, y1, y2, xExtent, offsetSign, offset, expand, size);
   pathGenerator.moveTo(x, y);
 
   pathGenerator.lineTo(x + xOffset / 2, y1);
@@ -154,7 +154,7 @@ const connectPoint: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign,
 };
 
 const connectCurveInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size) => {
-  let { x, y, yOffset } = getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, size);
+  const { x, y, yOffset } = getXYOffsetInverted(x1, y1, x2, yExtent, offsetSign, offset, expand, size);
   pathGenerator.moveTo(x, y);
 
   pathGenerator.quadraticCurveTo(x1 + offsetSign * Math.min(offset, size), y + yOffset / 2, x, y + yOffset);
@@ -167,7 +167,7 @@ const connectCurveInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, off
 };
 
 const connectCurve: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign, offset, expand, size) => {
-  let { x, y, xOffset } = getXYOffset(x1, y1, y2, xExtent, offsetSign, offset, expand, size);
+  const { x, y, xOffset } = getXYOffset(x1, y1, y2, xExtent, offsetSign, offset, expand, size);
   pathGenerator.moveTo(x, y);
 
   pathGenerator.quadraticCurveTo(x + xOffset / 2, y1 - offsetSign * Math.min(offset, size), x + xOffset, y);
@@ -184,17 +184,17 @@ const connectRoundInverted: Connector = (pathGenerator, y1, x1, x2, yExtent, off
     connectNoneInverted(pathGenerator, y1, x1, x2, yExtent, offsetSign, offset, expand, size);
     return;
   }
-  let x = x2;
+  const x = x2;
   let y = y1;
   let yOffset = yExtent;
 
-  let radius = Math.min(offset, (yExtent - minFlatForRounded) / 2, Math.abs(x1 - x2));
+  const radius = Math.min(offset, (yExtent - minFlatForRounded) / 2, Math.abs(x1 - x2));
   if (size < offset && !expand) {
-    let diff = Math.min(offset - size, (yExtent - minFlatForRounded) / 2);
+    const diff = Math.min(offset - size, (yExtent - minFlatForRounded) / 2);
     y = y1 + diff / 2;
     yOffset = yExtent - diff;
   }
-  let y2 = y + yOffset;
+  const y2 = y + yOffset;
   pathGenerator.moveTo(x, y);
   pathGenerator.arcTo(x1, y1, x1, y + radius, radius);
   pathGenerator.lineTo(x1, y2 - radius);
@@ -213,16 +213,16 @@ const connectRound: Connector = (pathGenerator, x1, y1, y2, xExtent, offsetSign,
     return;
   }
   let x = x1;
-  let y = y2;
+  const y = y2;
   let xOffset = xExtent;
 
-  let radius = Math.min(offset, (xExtent - minFlatForRounded) / 2, Math.abs(y1 - y2));
+  const radius = Math.min(offset, (xExtent - minFlatForRounded) / 2, Math.abs(y1 - y2));
   if (size < offset && !expand) {
-    let diff = Math.min(offset - size, (xExtent - minFlatForRounded) / 2);
+    const diff = Math.min(offset - size, (xExtent - minFlatForRounded) / 2);
     x = x1 + diff / 2;
     xOffset = xExtent - diff;
   }
-  let x2 = x + xOffset;
+  const x2 = x + xOffset;
   pathGenerator.moveTo(x, y);
   pathGenerator.arcTo(x, y1, x + radius, y1, radius);
   pathGenerator.lineTo(x2 - radius, y1);
@@ -257,9 +257,8 @@ function getConnector(capType: CapType | null | undefined, inverted: boolean): C
 }
 
 export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean, stackData: StackData): (index: number) => string {
-  let columnGenerator: (index: number) => string;
   let pathGenerator: Path;
-  let groupValueExtent = Math.max(minColumnSize, seriesPositionData.groupValueExtent);
+  const groupValueExtent = Math.max(minColumnSize, seriesPositionData.groupValueExtent);
 
   const { id, stack, capType, capSize, capExpand, capOnlyStackOuter, seriesStackConfig, barMinExtent } = seriesConfig;
   const { outerCapType, outerCapSize, outerCapExpand } = seriesStackConfig ? seriesStackConfig : {};
@@ -271,7 +270,7 @@ export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionDat
   const columnCapExpand = capType !== NONE ? capExpand : outerCapType ? (outerCapExpand ?? false) : false;
   const applyStackOuter = stack && (capType !== NONE && capOnlyStackOuter) || (capType === NONE && outerCapType && outerCapType !== NONE);
 
-  let connector = getConnector(columnCapType, inverted);
+  const connector = getConnector(columnCapType, inverted);
 
   let groupPosition;
   let seriesValueExtent;
@@ -279,7 +278,7 @@ export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionDat
   let seriesPriorPosition;
   let seriesCurrentPosition;
   let tempPosition, barCapSizeSign, barCapConnector;
-  columnGenerator = (i: number) => {
+  const columnGenerator: (index: number) => string = (i: number) => {
     pathGenerator = path();
     groupPosition = seriesPositionData.getOffsetGroupPosition(null, i)!;
     seriesValueExtent = Math.max(minColumnSize, seriesPositionData.getSeriesExtent(null, i));

@@ -122,7 +122,7 @@ function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDef
     stackConfigs = [stackConfigs];
   }
   const stackMap: Record<string, boolean> = {};
-  for (let stackConfig of stackConfigs) {
+  for (const stackConfig of stackConfigs) {
     const { axis } = stackConfig;
     // Make sure the stackConfig.axis is never undefined. Use the first seriesConfig if necessary
     if (axis === undefined) {

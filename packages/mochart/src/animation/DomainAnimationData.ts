@@ -55,7 +55,7 @@ export const emptyAxisDeltaData = {
  **/
 
 function getPositiveDomainDelta(fromDomain: NullableDomain, toDomain: NullableDomain): NumericDomain {
-  let domainDelta: NumericDomain = [0,0];
+  const domainDelta: NumericDomain = [0,0];
   const fromMin = fromDomain[0]!;
   const fromMax = fromDomain[1]!;
   const toMin = toDomain[0]!;
@@ -71,7 +71,7 @@ function getPositiveDomainDelta(fromDomain: NullableDomain, toDomain: NullableDo
 
 function getPositiveDomainDeltaPercentage(domainDelta: NumericDomain, domainExtent: number): number {
   if (domainDelta[0] < 0 || domainDelta[1] > 0) {
-    let domainDeltaExtent = Math.abs(domainDelta[0]) + domainDelta[1];
+    const domainDeltaExtent = Math.abs(domainDelta[0]) + domainDelta[1];
     return domainDeltaExtent / (domainDeltaExtent + domainExtent);
   }
   else {
@@ -84,28 +84,26 @@ function getDomainExtentWithValueGetter(domain: GroupAxisDomain, getValue: (valu
 }
 
 export function getMaxAxisDomains(domains: AxisDomains, otherDomains: AxisDomains): AxisDomains {
-  let maxDomains: AxisDomains = {};
-  let axisIds = Object.keys(domains);
-  for (let axisId of axisIds) {
+  const maxDomains: AxisDomains = {};
+  const axisIds = Object.keys(domains);
+  for (const axisId of axisIds) {
     maxDomains[axisId] = getMaxDomain(domains[axisId], otherDomains[axisId]);
   }
   return maxDomains;
 }
 
 function getMaxSeriesDomain(domainObject: SeriesDomainObject, otherDomainObject: SeriesDomainObject): SeriesDomainObject {
-  let newDomainObject: SeriesDomainObject = {};
-  let i, length = domainKeys.length, key;
-  for (i=0; i<length; i++) {
-    key = domainKeys[i];
+  const newDomainObject: SeriesDomainObject = {};
+  for (const key of domainKeys) {
     newDomainObject[key] = getMaxDomain(domainObject[key], otherDomainObject[key]);
   }
   return newDomainObject;
 }
 
 function getMaxSeriesDomains(domainObjects: SeriesDomainObjects, otherDomainObjects: SeriesDomainObjects): SeriesDomainObjects {
-  let newDomainObjects: SeriesDomainObjects = {};
-  let seriesIds = Object.keys(domainObjects);
-  for (let seriesId of seriesIds) {
+  const newDomainObjects: SeriesDomainObjects = {};
+  const seriesIds = Object.keys(domainObjects);
+  for (const seriesId of seriesIds) {
     newDomainObjects[seriesId] = getMaxSeriesDomain(domainObjects[seriesId], otherDomainObjects[seriesId]);
   }
   return newDomainObjects;
@@ -120,8 +118,8 @@ function copySeriesDomains(seriesDomainObjects: SeriesDomainObjects): SeriesDoma
 }
 
 function copySeriesDomain(seriesDomainObject: SeriesDomainObject): SeriesDomainObject {
-  let domainObject: SeriesDomainObject = {};
-  for (let key of domainKeys) {
+  const domainObject: SeriesDomainObject = {};
+  for (const key of domainKeys) {
     domainObject[key] = copyDomain(seriesDomainObject[key]);
   }
   return domainObject;
@@ -162,7 +160,7 @@ export function getTransitionAxisExpansionData(mochartConfig: MochartConfig, pre
     setBaseDomainForChanges(startGroupAxisDomain, endGroupAxisDomain);
   }
 
-  let groupAxisDomainDelta = getGroupAxisDomainDelta(startGroupAxisDomain, endGroupAxisDomain);
+  const groupAxisDomainDelta = getGroupAxisDomainDelta(startGroupAxisDomain, endGroupAxisDomain);
   if (groupAxisDomainDelta.deltaPercentage !== 0) {
     finalGroupAxisDomain = endGroupAxisDomain;
     groupValueDeltaData = getExpansionGroupValueDeltaData(groupAxisConfig, groupDeltaData, prevChartData, newChartData, endGroupAxisDomain);
@@ -182,17 +180,17 @@ export function getTransitionAxisExpansionData(mochartConfig: MochartConfig, pre
   let finalFilteredSeriesAxisDomains = prevChartData.seriesData.filtered.axisDomains;
   let finalSeriesAxisBases = prevChartData.seriesData.axisBases;
 
-  let startRawSeriesAxisDomains = copySeriesAxisDomains(prevChartData.seriesData.raw.axisDomains);
-  let startFilteredSeriesAxisDomains = copySeriesAxisDomains(prevChartData.seriesData.filtered.axisDomains);
+  const startRawSeriesAxisDomains = copySeriesAxisDomains(prevChartData.seriesData.raw.axisDomains);
+  const startFilteredSeriesAxisDomains = copySeriesAxisDomains(prevChartData.seriesData.filtered.axisDomains);
   let endRawSeriesAxisDomains = copySeriesAxisDomains(newChartData.seriesData.raw.axisDomains);
   let endFilteredSeriesAxisDomains = copySeriesAxisDomains(newChartData.seriesData.filtered.axisDomains);
   setAllBaseAxisDomainsForChanges(startRawSeriesAxisDomains, endRawSeriesAxisDomains);
   setAllBaseAxisDomainsForChanges(startFilteredSeriesAxisDomains, endFilteredSeriesAxisDomains);
 
-  let rawSeriesAxisExtents = getDomainExtents(startRawSeriesAxisDomains);
-  let filteredSeriesAxisExtents = getDomainExtents(startFilteredSeriesAxisDomains);
-  let rawSeriesAxisDomainDeltas = getSeriesAxisDomainDeltas(startRawSeriesAxisDomains, endRawSeriesAxisDomains, rawSeriesAxisExtents);
-  let filteredSeriesAxisDomainDeltas = getSeriesAxisDomainDeltas(startFilteredSeriesAxisDomains, endFilteredSeriesAxisDomains, filteredSeriesAxisExtents);
+  const rawSeriesAxisExtents = getDomainExtents(startRawSeriesAxisDomains);
+  const filteredSeriesAxisExtents = getDomainExtents(startFilteredSeriesAxisDomains);
+  const rawSeriesAxisDomainDeltas = getSeriesAxisDomainDeltas(startRawSeriesAxisDomains, endRawSeriesAxisDomains, rawSeriesAxisExtents);
+  const filteredSeriesAxisDomainDeltas = getSeriesAxisDomainDeltas(startFilteredSeriesAxisDomains, endFilteredSeriesAxisDomains, filteredSeriesAxisExtents);
 
   if (rawSeriesAxisDomainDeltas.deltaPercentage !== 0) {
     endRawSeriesAxisDomains = getMaxAxisDomains(startRawSeriesAxisDomains, endRawSeriesAxisDomains);
@@ -213,15 +211,15 @@ export function getTransitionAxisExpansionData(mochartConfig: MochartConfig, pre
   let finalRawSeriesDomains = prevChartData.seriesData.raw.domains;
   let finalFilteredSeriesDomains = prevChartData.seriesData.filtered.domains;
 
-  let startRawSeriesDomains = copySeriesDomains(prevChartData.seriesData.raw.domains);
-  let startFilteredSeriesDomains = copySeriesDomains(prevChartData.seriesData.filtered.domains);
+  const startRawSeriesDomains = copySeriesDomains(prevChartData.seriesData.raw.domains);
+  const startFilteredSeriesDomains = copySeriesDomains(prevChartData.seriesData.filtered.domains);
   let endRawSeriesDomains = copySeriesDomains(newChartData.seriesData.raw.domains);
   let endFilteredSeriesDomains = copySeriesDomains(newChartData.seriesData.filtered.domains);
   setAllBaseSeriesDomainsForChanges(startRawSeriesDomains, endRawSeriesDomains);
   setAllBaseSeriesDomainsForChanges(startFilteredSeriesDomains, endFilteredSeriesDomains);
 
-  let rawSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, startRawSeriesDomains, endRawSeriesDomains, rawSeriesAxisExtents);
-  let filteredSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, startFilteredSeriesDomains, endFilteredSeriesDomains, filteredSeriesAxisExtents);
+  const rawSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, startRawSeriesDomains, endRawSeriesDomains, rawSeriesAxisExtents);
+  const filteredSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, startFilteredSeriesDomains, endFilteredSeriesDomains, filteredSeriesAxisExtents);
 
   if (rawSeriesDomainDeltas.deltaPercentage !== 0) {
     endRawSeriesDomains = getMaxSeriesDomains(startRawSeriesDomains, endRawSeriesDomains);
@@ -268,13 +266,13 @@ export function getTransitionAxisCollapseData(mochartConfig: MochartConfig, prev
 
   let groupValueDeltaData: CompleteNumericArrayDelta | null = null;
 
-  let startGroupAxisDomain = copyDomain(prevChartData.groupData.axisDomain);
-  let endGroupAxisDomain = copyDomain(newChartData.groupData.axisDomain);
+  const startGroupAxisDomain = copyDomain(prevChartData.groupData.axisDomain);
+  const endGroupAxisDomain = copyDomain(newChartData.groupData.axisDomain);
   setBaseDomainForChanges(startGroupAxisDomain, endGroupAxisDomain);
 
   const { groupAxisConfig, seriesAxisConfigs, seriesConfigs } = mochartConfig;
 
-  let groupAxisDomainDelta = getGroupAxisDomainDelta(endGroupAxisDomain, startGroupAxisDomain);
+  const groupAxisDomainDelta = getGroupAxisDomainDelta(endGroupAxisDomain, startGroupAxisDomain);
   if (groupAxisDomainDelta.deltaPercentage !== 0) {
     groupValueDeltaData = getCollapseGroupValueDeltaData(groupAxisConfig, groupDeltaData, prevChartData, newChartData, startGroupAxisDomain);
 
@@ -285,27 +283,27 @@ export function getTransitionAxisCollapseData(mochartConfig: MochartConfig, prev
   let startSeriesData = newChartData.seriesData;
   let endSeriesData = newChartData.seriesData;
 
-  let startRawSeriesAxisDomains = copySeriesAxisDomains(prevChartData.seriesData.raw.axisDomains);
-  let startFilteredSeriesAxisDomains = copySeriesAxisDomains(prevChartData.seriesData.filtered.axisDomains);
-  let endRawSeriesAxisDomains = copySeriesAxisDomains(newChartData.seriesData.raw.axisDomains);
-  let endFilteredSeriesAxisDomains = copySeriesAxisDomains(newChartData.seriesData.filtered.axisDomains);
+  const startRawSeriesAxisDomains = copySeriesAxisDomains(prevChartData.seriesData.raw.axisDomains);
+  const startFilteredSeriesAxisDomains = copySeriesAxisDomains(prevChartData.seriesData.filtered.axisDomains);
+  const endRawSeriesAxisDomains = copySeriesAxisDomains(newChartData.seriesData.raw.axisDomains);
+  const endFilteredSeriesAxisDomains = copySeriesAxisDomains(newChartData.seriesData.filtered.axisDomains);
   setAllBaseAxisDomainsForChanges(startRawSeriesAxisDomains, endRawSeriesAxisDomains);
   setAllBaseAxisDomainsForChanges(startFilteredSeriesAxisDomains, endFilteredSeriesAxisDomains);
 
-  let rawSeriesAxisExtents = getDomainExtents(endRawSeriesAxisDomains);
-  let filteredSeriesAxisExtents = getDomainExtents(endFilteredSeriesAxisDomains);
-  let rawSeriesAxisDomainDeltas = getSeriesAxisDomainDeltas(endRawSeriesAxisDomains, startRawSeriesAxisDomains, rawSeriesAxisExtents);
-  let filteredSeriesAxisDomainDeltas = getSeriesAxisDomainDeltas(endFilteredSeriesAxisDomains, startFilteredSeriesAxisDomains, filteredSeriesAxisExtents);
+  const rawSeriesAxisExtents = getDomainExtents(endRawSeriesAxisDomains);
+  const filteredSeriesAxisExtents = getDomainExtents(endFilteredSeriesAxisDomains);
+  const rawSeriesAxisDomainDeltas = getSeriesAxisDomainDeltas(endRawSeriesAxisDomains, startRawSeriesAxisDomains, rawSeriesAxisExtents);
+  const filteredSeriesAxisDomainDeltas = getSeriesAxisDomainDeltas(endFilteredSeriesAxisDomains, startFilteredSeriesAxisDomains, filteredSeriesAxisExtents);
 
-  let startRawSeriesDomains = copySeriesDomains(prevChartData.seriesData.raw.domains);
-  let startFilteredSeriesDomains = copySeriesDomains(prevChartData.seriesData.filtered.domains);
-  let endRawSeriesDomains = copySeriesDomains(newChartData.seriesData.raw.domains);
-  let endFilteredSeriesDomains = copySeriesDomains(newChartData.seriesData.filtered.domains);
+  const startRawSeriesDomains = copySeriesDomains(prevChartData.seriesData.raw.domains);
+  const startFilteredSeriesDomains = copySeriesDomains(prevChartData.seriesData.filtered.domains);
+  const endRawSeriesDomains = copySeriesDomains(newChartData.seriesData.raw.domains);
+  const endFilteredSeriesDomains = copySeriesDomains(newChartData.seriesData.filtered.domains);
   setAllBaseSeriesDomainsForChanges(startRawSeriesDomains, endRawSeriesDomains);
   setAllBaseSeriesDomainsForChanges(startFilteredSeriesDomains, endFilteredSeriesDomains);
 
-  let rawSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, endRawSeriesDomains, startRawSeriesDomains, rawSeriesAxisExtents);
-  let filteredSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, endFilteredSeriesDomains, startFilteredSeriesDomains, filteredSeriesAxisExtents);
+  const rawSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, endRawSeriesDomains, startRawSeriesDomains, rawSeriesAxisExtents);
+  const filteredSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, endFilteredSeriesDomains, startFilteredSeriesDomains, filteredSeriesAxisExtents);
 
   if (rawSeriesAxisDomainDeltas.deltaPercentage !== 0 || filteredSeriesAxisDomainDeltas.deltaPercentage !== 0 ||
     rawSeriesDomainDeltas.deltaPercentage !== 0 || filteredSeriesDomainDeltas.deltaPercentage !== 0) {
@@ -315,8 +313,8 @@ export function getTransitionAxisCollapseData(mochartConfig: MochartConfig, prev
     endSeriesData = getSeriesDataWithDomains(endSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
   }
 
-  let startChartData = getChartDataWithData(newChartData, startGroupData, startSeriesData);
-  let endChartData = getChartDataWithData(newChartData, endGroupData, endSeriesData);
+  const startChartData = getChartDataWithData(newChartData, startGroupData, startSeriesData);
+  const endChartData = getChartDataWithData(newChartData, endGroupData, endSeriesData);
 
   adjustFilteredAxisDomainDeltas(seriesAxisConfigs, rawSeriesAxisDomainDeltas, filteredSeriesAxisDomainDeltas);
 
@@ -332,7 +330,7 @@ function adjustFilteredAxisDomainDeltas(seriesAxisConfigs: SeriesAxisConfig[], r
     let newDeltaPercentage = 0;
     let filteredDeltaPercentage;
 
-    for (let axisConfig of seriesAxisConfigs) {
+    for (const axisConfig of seriesAxisConfigs) {
       filteredDeltaPercentage = filteredDeltas![axisConfig.id]!.deltaPercentage;
       if (filteredDeltaPercentage !== 0 && !axisConfig.adjustForSuppression) {
         filteredDeltaPercentage = filteredDeltas![axisConfig.id]!.deltaPercentage = rawDeltas !== null ? rawDeltas[axisConfig.id]!.deltaPercentage : 0;
@@ -354,7 +352,7 @@ function getSeriesAxisDomainDeltas(fromSeriesAxisDomains: AxisDomains, toSeriesA
 
   let axisDelta, axisDeltaPercentage;
   const seriesAxisIds = Object.keys(fromSeriesAxisDomains);
-  for (let id of seriesAxisIds) {
+  for (const id of seriesAxisIds) {
     axisDelta = getPositiveDomainDelta(fromSeriesAxisDomains[id], toSeriesAxisDomains[id]);
     axisDeltaPercentage = getPositiveDomainDeltaPercentage(axisDelta, fromSeriesAxisDomainExtents[id]);
     deltaPercentage = Math.max(deltaPercentage, axisDeltaPercentage);
@@ -370,7 +368,7 @@ function getSeriesAxisDomainDeltas(fromSeriesAxisDomains: AxisDomains, toSeriesA
 }
 
 function getGroupAxisDomainDelta(fromGroupAxisDomain: GroupAxisDomain, toGroupAxisDomain: GroupAxisDomain): DomainDelta {
-  let delta: NumericDomain = [0, 0];
+  const delta: NumericDomain = [0, 0];
 
   const getValue = (groupValue: GroupAxisDomain[number]): number => groupValue === null ? 0 : groupValue instanceof Date ? groupValue.getTime() : groupValue;
 
@@ -381,7 +379,7 @@ function getGroupAxisDomainDelta(fromGroupAxisDomain: GroupAxisDomain, toGroupAx
     delta[1] = getValue(toGroupAxisDomain[1]) - getValue(fromGroupAxisDomain[1]);
   }
 
-  let deltaPercentage = getPositiveDomainDeltaPercentage(delta, getDomainExtentWithValueGetter(fromGroupAxisDomain, getValue));
+  const deltaPercentage = getPositiveDomainDeltaPercentage(delta, getDomainExtentWithValueGetter(fromGroupAxisDomain, getValue));
 
   return deltaPercentage === 0 ? emptyGroupAxisDomainDelta : {
     deltaPercentage,
@@ -391,9 +389,9 @@ function getGroupAxisDomainDelta(fromGroupAxisDomain: GroupAxisDomain, toGroupAx
 
 function getSeriesDomainDeltas(seriesConfigs: SeriesConfig[], fromDomainObjects: SeriesDomainObjects, toDomainObjects: SeriesDomainObjects, fromAxisExtents: Record<string, number>): SeriesDomainDeltaMap {
   let deltaPercentage = 0;
-  let deltas: Record<string, SeriesDomainDelta> = {};
+  const deltas: Record<string, SeriesDomainDelta> = {};
   let domainDelta;
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     const { id } = seriesConfig;
     domainDelta = getSeriesDomainDelta(fromDomainObjects[id]!, toDomainObjects[id]!, fromAxisExtents[seriesConfig.axis!]!);
     deltaPercentage = Math.max(deltaPercentage, domainDelta.deltaPercentage);
@@ -406,11 +404,11 @@ function getSeriesDomainDeltas(seriesConfigs: SeriesConfig[], fromDomainObjects:
 }
 
 function getSeriesDomainDelta(fromDomainObject: SeriesDomainObject, toDomainObject: SeriesDomainObject, fromAxisExtent: number): SeriesDomainDelta {
-  let newDomainObject = {} as SeriesDomainDelta;
+  const newDomainObject = {} as SeriesDomainDelta;
   let deltaPercentage = 0;
   let key, domainDelta, domainDeltaPercentage;
-  let i, length = domainKeys.length;
-  for (i=0; i<length; i++) {
+  const length = domainKeys.length;
+  for (let i=0; i<length; i++) {
     key = domainKeys[i];
     domainDelta = getPositiveDomainDelta(fromDomainObject[key], toDomainObject[key]);
     domainDeltaPercentage = getPositiveDomainDeltaPercentage(domainDelta, fromAxisExtent);
@@ -426,7 +424,7 @@ function getSeriesDomainDelta(fromDomainObject: SeriesDomainObject, toDomainObje
 
 function createAxisDeltaData(startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, groupAxisDomainDelta: DomainDelta, rawSeriesAxisDomainDeltas: DomainDeltaMap,
                              filteredSeriesAxisDomainDeltas: DomainDeltaMap, rawSeriesDomainDeltas: SeriesDomainDeltaMap, filteredSeriesDomainDeltas: SeriesDomainDeltaMap, groupValueDeltaData: CompleteNumericArrayDelta | null): AxisDeltaData {
-  let deltaPercentage = Math.max(groupAxisDomainDelta.deltaPercentage, rawSeriesAxisDomainDeltas.deltaPercentage,
+  const deltaPercentage = Math.max(groupAxisDomainDelta.deltaPercentage, rawSeriesAxisDomainDeltas.deltaPercentage,
     filteredSeriesAxisDomainDeltas.deltaPercentage, rawSeriesDomainDeltas.deltaPercentage, groupValueDeltaData ? groupValueDeltaData.deltaPercentage : 0);
   setDeltaFactor(groupAxisDomainDelta, deltaPercentage);
   setGroupValueDeltaFactor(groupValueDeltaData, deltaPercentage);
@@ -478,9 +476,9 @@ function setGroupValueDeltaFactor(deltaObject: CompleteNumericArrayDelta | null,
 
 function setAxisDeltaFactors(axisDeltaObjectHolder: DomainDeltaMap, deltaPercentage: number): void {
   if (axisDeltaObjectHolder.deltas !== null) {
-    let axisDeltaObjects = axisDeltaObjectHolder.deltas;
-    let axisIds = Object.keys(axisDeltaObjects);
-    for (let axisId of axisIds) {
+    const axisDeltaObjects = axisDeltaObjectHolder.deltas;
+    const axisIds = Object.keys(axisDeltaObjects);
+    for (const axisId of axisIds) {
       setDeltaFactor(axisDeltaObjects[axisId], deltaPercentage);
     }
   }
@@ -488,9 +486,9 @@ function setAxisDeltaFactors(axisDeltaObjectHolder: DomainDeltaMap, deltaPercent
 
 function setDomainDeltaFactors(domainDeltaObjectHolder: SeriesDomainDeltaMap, deltaPercentage: number): void {
   if (domainDeltaObjectHolder.deltas !== null) {
-    let domainDeltaObjects = domainDeltaObjectHolder.deltas;
-    let seriesIds = Object.keys(domainDeltaObjects);
-    for (let seriesId of seriesIds) {
+    const domainDeltaObjects = domainDeltaObjectHolder.deltas;
+    const seriesIds = Object.keys(domainDeltaObjects);
+    for (const seriesId of seriesIds) {
       setDomainDeltaFactor(domainDeltaObjects[seriesId], deltaPercentage);
     }
   }
@@ -498,7 +496,7 @@ function setDomainDeltaFactors(domainDeltaObjectHolder: SeriesDomainDeltaMap, de
 
 function setDomainDeltaFactor(domainDeltaObject: SeriesDomainDelta, deltaPercentage: number): void {
   setDeltaFactor(domainDeltaObject, deltaPercentage);
-  for (let key of domainKeys) {
+  for (const key of domainKeys) {
     setDeltaFactor(domainDeltaObject[key], deltaPercentage);
   }
 }
@@ -507,25 +505,25 @@ function invertAxisDeltas(axisDeltaData: AxisDeltaData): AxisDeltaData {
   if (axisDeltaData.deltas.domain.axis.group.delta !== null) {
     invertDomainDeltas(axisDeltaData.deltas.domain.axis.group.delta);
   }
-  let rawSeriesAxisDeltas = axisDeltaData.deltas.domain.axis.series.raw.deltas;
+  const rawSeriesAxisDeltas = axisDeltaData.deltas.domain.axis.series.raw.deltas;
   if (rawSeriesAxisDeltas !== null) {
-    let axisIds = Object.keys(rawSeriesAxisDeltas);
-    for (let axisId of axisIds) {
+    const axisIds = Object.keys(rawSeriesAxisDeltas);
+    for (const axisId of axisIds) {
       invertDomainDeltas(rawSeriesAxisDeltas[axisId].delta!);
     }
   }
-  let filteredSeriesAxisDeltas = axisDeltaData.deltas.domain.axis.series.filtered.deltas;
+  const filteredSeriesAxisDeltas = axisDeltaData.deltas.domain.axis.series.filtered.deltas;
   if (filteredSeriesAxisDeltas !== null) {
-    let axisIds = Object.keys(filteredSeriesAxisDeltas);
-    for (let axisId of axisIds) {
+    const axisIds = Object.keys(filteredSeriesAxisDeltas);
+    for (const axisId of axisIds) {
       invertDomainDeltas(filteredSeriesAxisDeltas[axisId].delta!);
     }
   }
-  let rawSeriesDomainDeltas = axisDeltaData.deltas.domain.series.raw.deltas;
+  const rawSeriesDomainDeltas = axisDeltaData.deltas.domain.series.raw.deltas;
   if (rawSeriesDomainDeltas !== null) {
     invertSeriesDomainDeltas(rawSeriesDomainDeltas);
   }
-  let filteredSeriesDomainDeltas = axisDeltaData.deltas.domain.series.filtered.deltas;
+  const filteredSeriesDomainDeltas = axisDeltaData.deltas.domain.series.filtered.deltas;
   if (filteredSeriesDomainDeltas !== null) {
     invertSeriesDomainDeltas(filteredSeriesDomainDeltas);
   }
@@ -533,14 +531,14 @@ function invertAxisDeltas(axisDeltaData: AxisDeltaData): AxisDeltaData {
 }
 
 function invertSeriesDomainDeltas(seriesDomainDeltas: Record<string, SeriesDomainDelta>): void {
-  let seriesIds = Object.keys(seriesDomainDeltas);
-  for (let seriesId of seriesIds) {
+  const seriesIds = Object.keys(seriesDomainDeltas);
+  for (const seriesId of seriesIds) {
     invertSeriesDomainDeltaObject(seriesDomainDeltas[seriesId]);
   }
 }
 
 function invertSeriesDomainDeltaObject(seriesDomainDeltaObject: SeriesDomainDelta): void {
-  for (let key of domainKeys) {
+  for (const key of domainKeys) {
     invertDomainDeltas(seriesDomainDeltaObject[key].delta!);
   }
 }
@@ -551,8 +549,8 @@ function invertDomainDeltas(domainDelta: NumericDomain): void {
 }
 
 function setAllBaseAxisDomainsForChanges(startAxisDomains: AxisDomains, endAxisDomains: AxisDomains): void {
-  let axisIds = Object.keys(startAxisDomains);
-  for (let axisId of axisIds) {
+  const axisIds = Object.keys(startAxisDomains);
+  for (const axisId of axisIds) {
     setBaseDomainForChanges(startAxisDomains[axisId], endAxisDomains[axisId]);
   }
 }
@@ -569,14 +567,14 @@ function setBaseDomainForChanges<T extends number | Date>(startAxisDomain: Nulla
 }
 
 function setAllBaseSeriesDomainsForChanges(startDomainObjects: SeriesDomainObjects, endDomainObjects: SeriesDomainObjects): void {
-  let seriesIds = Object.keys(startDomainObjects);
-  for (let seriesId of seriesIds) {
+  const seriesIds = Object.keys(startDomainObjects);
+  for (const seriesId of seriesIds) {
     setBaseSeriesDomainForChanges(startDomainObjects[seriesId], endDomainObjects[seriesId]);
   }
 }
 
 function setBaseSeriesDomainForChanges(startDomainObject: SeriesDomainObject, endDomainObject: SeriesDomainObject): void {
-  for (let key of domainKeys) {
+  for (const key of domainKeys) {
     setBaseKeyedSeriesDomainForChanges(startDomainObject, endDomainObject, key);
   }
 }

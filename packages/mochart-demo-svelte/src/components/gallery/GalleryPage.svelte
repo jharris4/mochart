@@ -29,7 +29,7 @@
   const sections = $derived(getGallerySections(demoData));
 
   // Which cards have their notes expanded, keyed the same way the {#each} is.
-  let notesOpen = $state<Record<string, boolean>>({});
+  const notesOpen = $state<Record<string, boolean>>({});
 
   function itemKey(item: GalleryItem): string {
     return item.kind === 'demo' ? item.id : item.mode;

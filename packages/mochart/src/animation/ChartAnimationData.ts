@@ -50,7 +50,7 @@ export function getChartAnimationData(
     const filterDeltaData = getFilterDeltaData(mochartConfig, oldChartData.seriesData, newChartData.seriesData);
     let startSeriesData = getSeriesDataWithSeriesCounts(oldChartData.seriesData, filterDeltaData.axisSeriesCounts, filterDeltaData.stackSeriesCounts, filterDeltaData.groupSeriesCounts);
     startSeriesData = getSeriesDataWithFilteredFlags(startSeriesData, newChartData.seriesData.filteredFlags);
-    let startChartData = getChartDataWithSeriesData(oldChartData, startSeriesData);
+    const startChartData = getChartDataWithSeriesData(oldChartData, startSeriesData);
     axisExpansionData = getTransitionAxisExpansionData(mochartConfig, startChartData, newChartData, groupDeltaData) as AxisTransitionData;
     if (axisExpansionData.final === null || axisExpansionData.final === undefined) {
       throw new Error('Axis expansion did not produce final chart data');

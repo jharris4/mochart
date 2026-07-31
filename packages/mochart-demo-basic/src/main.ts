@@ -207,7 +207,7 @@ function toggleAutoplay(): void {
 }
 
 randomizeButton.addEventListener('click', randomizeValues);
-exportPngButton.addEventListener('click', () => { exportPNG(chartHost); });
+exportPngButton.addEventListener('click', () => { void exportPNG(chartHost); });
 exportSvgButton.addEventListener('click', () => { exportSVG(chartHost); });
 addGroupButton.addEventListener('click', addGroup);
 removeGroupButton.addEventListener('click', removeGroup);

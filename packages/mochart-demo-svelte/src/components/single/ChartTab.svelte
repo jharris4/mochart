@@ -77,8 +77,8 @@
             const property = mochartConfig.groupAxisConfig.property ?? '';
             const groupValue = previousData[focusedGroupIndex][property];
             let newFocusedGroupIndex = -1;
-            let i, count = nextData.length;
-            for (i = 0; i < count; i++) {
+            const count = nextData.length;
+            for (let i = 0; i < count; i++) {
               if (nextData[i][property] === groupValue) {
                 newFocusedGroupIndex = i;
                 break;

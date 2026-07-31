@@ -57,7 +57,7 @@ export class AnimatedDataSource implements ChartDataSource {
     this.initialAnimationPercentage = null;
     this.tweenManager.cancelTweens();
     if (mochartConfig && mochartConfig.validation.valid && isDataProviderValid(dataProvider)) {
-      let newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
+      const newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
       this.chartAnimationData = getChartAnimationData(mochartConfig, null, newChartData);
 
       this.startDataTween(input, this.chartAnimationData);
@@ -99,8 +99,8 @@ export class AnimatedDataSource implements ChartDataSource {
     else if (dataProviderValid && configValid && (configChanged || dataChanged || focusChanged)) {
       let groupsChanged = false;
       if (configChanged || dataChanged) {
-        let chartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
-        let chartAnimationData = this.chartAnimationData = getChartAnimationData(mochartConfig, this.chartData, chartData);
+        const chartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
+        const chartAnimationData = this.chartAnimationData = getChartAnimationData(mochartConfig, this.chartData, chartData);
 
         this.startDataTween(input, chartAnimationData);
         groupsChanged = this.hasGroupAdditions || this.hasGroupRemovals || this.hasGroupReorder;
@@ -159,9 +159,9 @@ export class AnimatedDataSource implements ChartDataSource {
 
   private startFocusTween(input: ChartDataSourceInput, overrideFocusedGroupIndex?: number): void {
     const { mochartConfig, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = input;
-    let newFocusedGroupIndex = overrideFocusedGroupIndex !== undefined ? overrideFocusedGroupIndex : focusedGroupIndex;
-    let focusData = getFocusDataWithMutations(this.focusData!, getFocusData(mochartConfig, this.chartData!, newFocusedGroupIndex, focusedSeriesAxisId, focusedSeriesId));
-    let focusAnimationData = getFocusAnimationData(mochartConfig, this.focusData!, focusData);
+    const newFocusedGroupIndex = overrideFocusedGroupIndex !== undefined ? overrideFocusedGroupIndex : focusedGroupIndex;
+    const focusData = getFocusDataWithMutations(this.focusData!, getFocusData(mochartConfig, this.chartData!, newFocusedGroupIndex, focusedSeriesAxisId, focusedSeriesId));
+    const focusAnimationData = getFocusAnimationData(mochartConfig, this.focusData!, focusData);
     this.focusTweening = true;
     this.tweenManager.tweenFocus(mochartConfig, focusAnimationData, this.updateFocusData, {
       startCallback: () => {
@@ -197,7 +197,7 @@ export class AnimatedDataSource implements ChartDataSource {
         this.focusData!, mochartConfig, chartData, this.chartAnimationData!.groupDeltaData, true, this.focusTweening));
       this.focusData = getFocusDataWithMutations(this.focusData!, getFocusDataWithDomainPercentages(this.focusData!, mochartConfig, chartData));
       if (this.focusTweening || focusedGroupIndex >= 0) {
-        let newFocusedGroupIndex = focusedGroupIndex >= 0 ? mergedIndexForNewIndex(this.chartAnimationData!.groupDeltaData, focusedGroupIndex) : -1;
+        const newFocusedGroupIndex = focusedGroupIndex >= 0 ? mergedIndexForNewIndex(this.chartAnimationData!.groupDeltaData, focusedGroupIndex) : -1;
         this.startFocusTween(this.input, newFocusedGroupIndex);
       }
     }

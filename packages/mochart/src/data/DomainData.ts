@@ -11,8 +11,8 @@ export function getGroupDomainForValues<T extends DomainValue>(values: readonly 
   let min: T | null = null;
   let max: T | null = null;
   let value: T;
-  let i, valueCount = values.length;
-  for (i=0; i<valueCount; i++) {
+  const valueCount = values.length;
+  for (let i=0; i<valueCount; i++) {
     value = values[i];
     if (min === null || numericValue(value) < numericValue(min)) {
       min = value;
@@ -29,8 +29,8 @@ export function getDomainForValues(values: readonly (number | undefined)[] | nul
   let max: number | null = null;
   if (values !== null) {
     let value;
-    let i, valueCount = values.length;
-    for (i=0; i<valueCount; i++) {
+    const valueCount = values.length;
+    for (let i=0; i<valueCount; i++) {
       value = values[i];
       if (value !== undefined) {
         if (min === null || value < min) {

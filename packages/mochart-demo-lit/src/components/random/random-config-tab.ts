@@ -39,7 +39,7 @@ export class RandomConfigTab extends LightElement {
       this.errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       this.onUpdate(newConfig);
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Random Config JSON: ' + this.configText);
       this.errorMessage = demoText.errors.invalidJson;
     }
@@ -50,7 +50,7 @@ export class RandomConfigTab extends LightElement {
       JSON.parse(this.configText);
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }

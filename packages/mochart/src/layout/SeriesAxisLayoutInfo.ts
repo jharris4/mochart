@@ -11,7 +11,7 @@ export const emptyLayoutInfo: Bounds = {
 
 function getSeriesAxisSizeConsumption(axisConfigs: SeriesAxisConfig[], axisSizes: Record<string, number>, isBefore: boolean): number {
   let totalSize = 0;
-  for (let axisConfig of axisConfigs) {
+  for (const axisConfig of axisConfigs) {
     if (axisConfig.collapsed === false && axisConfig.before === isBefore) {
       totalSize+= axisSizes[axisConfig.id];
     }
@@ -59,8 +59,8 @@ export function createSeriesAxisLayoutInfos(mochartConfig: MochartConfig, chartT
     else {
       seriesAxisOffset += (before ? currentSeriesOffsetBefore : currentSeriesOffsetAfter + groupAxesOffset.before + groupInnerExtent);
     }
-    let seriesAxisSize = seriesAxisSizes[id];
-    let seriesAxisLayoutInfo = createInnerOuterSpacingLayoutInfo({
+    const seriesAxisSize = seriesAxisSizes[id];
+    const seriesAxisLayoutInfo = createInnerOuterSpacingLayoutInfo({
       x: inverted ? seriesY + seriesAxesOffset.before : seriesAxisOffset,
       y: inverted ? seriesAxisOffset : seriesY + seriesAxesOffset.before,
       width: inverted ? seriesInnerExtent : seriesAxisSize,

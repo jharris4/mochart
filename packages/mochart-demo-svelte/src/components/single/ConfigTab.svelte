@@ -79,7 +79,7 @@
         errorMessage = demoText.errors.invalidChartConfig;
       }
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Chart Config JSON: ' + configText);
       errorMessage = demoText.errors.invalidJson;
     }
@@ -113,7 +113,7 @@
       JSON.parse(configText);
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   });

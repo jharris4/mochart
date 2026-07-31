@@ -247,12 +247,12 @@ function getAddedRemoved(a: Defaults, b: Defaults, whitelist: Record<string, boo
   }
   const added: string[] = [];
   const removed: string[] = [];
-  for (let aKey of aKeys) {
+  for (const aKey of aKeys) {
     if (b[aKey] === undefined && whitelist[aKey] !== true) {
       removed.push(aKey);
     }
   }
-  for (let bKey of bKeys) {
+  for (const bKey of bKeys) {
     if (a[bKey] === undefined) {
       added.push(bKey);
     }
@@ -278,7 +278,7 @@ function checkKeyIntegrity(section: SectionSource, errors: string[]) {
   if (descriptionDiff.hasChanges) {
     errors.push(`${id}: descriptions and validators have different keys (missing description: ${JSON.stringify(descriptionDiff.removed)}, missing validator: ${JSON.stringify(descriptionDiff.added)})`);
   }
-  for (let detailKey of Object.keys(details)) {
+  for (const detailKey of Object.keys(details)) {
     if (validators[detailKey] === undefined) {
       errors.push(`${id}: details entry '${detailKey}' has no matching validator`);
     }
@@ -459,7 +459,7 @@ export function buildConfigReference(): ConfigReferenceResult {
   const integrityErrors: string[] = [];
   const sources = getSectionSources();
   const sectionValidators = mochartConfigSectionValidators as SectionValidatorMap;
-  for (let source of sources) {
+  for (const source of sources) {
     checkKeyIntegrity(source, integrityErrors);
   }
   const sections = sources.map(source => buildSectionDoc(source, sectionValidators));

@@ -625,7 +625,7 @@ export default function EditableChart(props: Props) {
         }
         updateFilteredDataState({}, filteredData, removedData, false);
       }
-      catch (error) {
+      catch {
         // ignore invalid JSON
       }
     }

@@ -19,7 +19,8 @@
     "build": "npm run gen && vitepress build",
     "preview": "vitepress preview",
     "test": "npm run gen && tsx scripts/checkExamples.ts && tsx scripts/checkApiCoverage.ts",
-    "typecheck": "tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p tsconfig.vue.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p tsconfig.vue.json",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@mochart/core": "^1.0.0",

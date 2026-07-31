@@ -4,9 +4,9 @@ import { getActualDefaults, conditionalDefault, defaultRule } from './conditiona
 import type { TooltipConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<TooltipConfig> = {}, pieMode = false): Partial<TooltipConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as TooltipConfig, pieMode));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as TooltipConfig, pieMode));
   return { ...regularDefaults, ...conditionalDefaults } as Partial<TooltipConfig>;
 }
 

@@ -89,7 +89,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
       if (domainMin !== null && domainMax !== null) {
         const domainExtent = domainMax - domainMin;
         const base = hasBase ? Math.min(Math.max(seriesAxisConfig.base!, domainMin), domainMax) : domainMin;
-        let labels: SeriesLabelData[] = [];
+        const labels: SeriesLabelData[] = [];
         const { max: maxValuesNullable, min: minValues, label: labelValuesNullable } = filteredValues;
         const maxValues = maxValuesNullable!;
         const labelValues = labelValuesNullable!;
@@ -172,7 +172,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         if (seriesConfig.labelMinRangePercent !== NONE) {
           const oldWithinPercentages = withinPercentages;
           const hasStack = seriesConfig.stack !== NONE;
-          let minAbsoluteValue = domainExtent === 0 ? domainMin + 1 : seriesConfig.labelMinRangePercent * domainExtent;
+          const minAbsoluteValue = domainExtent === 0 ? domainMin + 1 : seriesConfig.labelMinRangePercent * domainExtent;
 
           if (hasStack) {
             if (hasBase) {
@@ -222,7 +222,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         const { length, getDefined, getSeriesPosition, getGroupPosition, skipGroupIndexMap } = seriesPositionData;
 
         for (let i = 0; i < length; i++) {
-          let skipI = skipMissing ? skipGroupIndexMap[i] : i;
+          const skipI = skipMissing ? skipGroupIndexMap[i] : i;
           if (getDefined(null, i) && labelValues[skipI] !== undefined && withinPercentages(maxValues[skipI]!, minValues ? minValues[skipI] : null)) {
             aboveBase = !hasBase || maxValues[skipI]! >= base;
             textAnchor = aboveBase ? aboveBaseTextAnchor : belowBaseTextAnchor;

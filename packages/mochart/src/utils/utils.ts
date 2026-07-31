@@ -5,17 +5,17 @@ export function arrayToMap<T, V = T>(
   keyAccessor: (element: NoInfer<T>) => string,
   valueFormatter: (element: NoInfer<T>) => V = element => element as unknown as V
 ): Record<string, V> {
-  let map: Record<string, V> = {};
-  for (let element of theArray) {
+  const map: Record<string, V> = {};
+  for (const element of theArray) {
     map[keyAccessor(element)] = valueFormatter(element);
   }
   return map;
 }
 
 export function mapMap<V, R>(map: Record<string, V>, mapFunction: (value: V) => R): Record<string, R> {
-  let mapKeys = Object.keys(map);
-  let newMap: Record<string, R> = {};
-  for (let mapKey of mapKeys) {
+  const mapKeys = Object.keys(map);
+  const newMap: Record<string, R> = {};
+  for (const mapKey of mapKeys) {
     newMap[mapKey] = mapFunction(map[mapKey]);
   }
   return newMap;
@@ -54,25 +54,25 @@ export function centerTextY(textBounds: { x?: number; y?: number; height: number
 }
 
 export function createArrayFilledWithUndefined(count: number): undefined[] {
-  let i, theArray: undefined[] = [];
-  for (i=0; i<count; i++) {
+  const theArray: undefined[] = [];
+  for (let i=0; i<count; i++) {
     theArray.push(undefined);
   }
   return theArray;
 }
 
 export function createArrayFilledWithZero(count: number): number[] {
-  let i, theArray: number[] = [];
-  for (i=0; i<count; i++) {
+  const theArray: number[] = [];
+  for (let i=0; i<count; i++) {
     theArray.push(0);
   }
   return theArray;
 }
 
 export function createArrayWithValueIfNotUndefined<T, V>(source: readonly T[], value: V): (V | undefined)[] {
-  let i, theArray: (V | undefined)[] = [];
-  let count = source.length;
-  for (i=0; i<count; i++) {
+  const theArray: (V | undefined)[] = [];
+  const count = source.length;
+  for (let i=0; i<count; i++) {
     if (source[i] !== undefined) {
       theArray.push(value);
     }
@@ -84,9 +84,9 @@ export function createArrayWithValueIfNotUndefined<T, V>(source: readonly T[], v
 }
 
 export function copyArrayWithValueIfNotUndefined<T, U>(source: readonly T[], otherSource: readonly U[]): (T | undefined)[] {
-  let i, theArray: (T | undefined)[] = [];
-  let count = source.length;
-  for (i=0; i<count; i++) {
+  const theArray: (T | undefined)[] = [];
+  const count = source.length;
+  for (let i=0; i<count; i++) {
     if (otherSource[i] === undefined) {
       theArray.push(undefined);
     }
@@ -98,8 +98,8 @@ export function copyArrayWithValueIfNotUndefined<T, U>(source: readonly T[], oth
 }
 
 export function replaceArrayUndefinedWithValue<T>(array: (T | undefined)[], value: T): void {
-  let i, count = array.length;
-  for (i=0; i<count; i++) {
+  const count = array.length;
+  for (let i=0; i<count; i++) {
     if (array[i] === undefined) {
       array[i] = value;
     }
@@ -108,7 +108,7 @@ export function replaceArrayUndefinedWithValue<T>(array: (T | undefined)[], valu
 
 export function copyWithValueOnlyIfOtherUndefined<T, U>(source: T[], otherSource: readonly (U | undefined)[], value: T): T[] {
   let i, found = -1;
-  let count = source.length;
+  const count = source.length;
   for (i=0; i<count; i++) {
     if (otherSource[i] === undefined) {
       found = i;
@@ -116,7 +116,7 @@ export function copyWithValueOnlyIfOtherUndefined<T, U>(source: T[], otherSource
     }
   }
   if (found >= 0) {
-    let copy = source.slice();
+    const copy = source.slice();
     for (i=found; i<count; i++) {
       if (otherSource[i] === undefined) {
         copy[i] = value;
@@ -130,11 +130,11 @@ export function copyWithValueOnlyIfOtherUndefined<T, U>(source: T[], otherSource
 }
 
 export function areMapsEqual(mapA: Record<string, unknown>, mapB: Record<string, unknown>): boolean {
-  let keys = Object.keys(mapA);
+  const keys = Object.keys(mapA);
   if (keys.length !== Object.keys(mapB).length) {
     return false;
   }
-  for (let key of keys) {
+  for (const key of keys) {
     if (!(key in mapB) || mapA[key] !== mapB[key]) {
       return false;
     }
@@ -145,7 +145,7 @@ export function areMapsEqual(mapA: Record<string, unknown>, mapB: Record<string,
 export function areArraysAndEqual(oldValue: unknown, newValue: unknown): boolean {
   if (Array.isArray(oldValue) && Array.isArray(newValue)) {
     if (oldValue.length === newValue.length) {
-      let count = oldValue.length;
+      const count = oldValue.length;
       for (let i=0; i<count; i++) {
         if (oldValue[i] !== newValue[i]) {
           return false;
@@ -163,17 +163,17 @@ export function areArraysAndEqual(oldValue: unknown, newValue: unknown): boolean
 }
 
 export function getValuesAtIndices<T>(source: readonly T[], indices: readonly number[]): T[] {
-  let values: T[] = [];
-  let i, count = indices.length;
-  for (i=0; i<count; i++) {
+  const values: T[] = [];
+  const count = indices.length;
+  for (let i=0; i<count; i++) {
     values.push(source[indices[i]]);
   }
   return values;
 }
 
 export function setArrayValuesIfOneIsUndefined<T>(array: (T | undefined)[], otherArray: (T | undefined)[], value: T): void {
-  let i, count = array.length;
-  for (i=0; i<count; i++) {
+  const count = array.length;
+  for (let i=0; i<count; i++) {
     if (array[i] !== otherArray[i]) {
       if (array[i] === undefined) {
         array[i] = value;
@@ -191,8 +191,8 @@ export function setArrayValuesFromSourcesIfOneIsUndefined<T>(
   sourceArray: readonly T[],
   otherSourceArray: readonly T[]
 ): void {
-  let i, count = array.length;
-  for (i=0; i<count; i++) {
+  const count = array.length;
+  for (let i=0; i<count; i++) {
     if (array[i] !== otherArray[i]) {
       if (array[i] === undefined) {
         array[i] = sourceArray[i];
@@ -224,7 +224,7 @@ export function hasUndefinedForRange(array: readonly unknown[], min: number, max
 export function getMaxAbsoluteValue(values: readonly (number | null | undefined)[] | null): number {
   let max = 0;
   if (values !== null) {
-    let count = values.length;
+    const count = values.length;
     let i, temp;
     for (i=0; i<count; i++) {
       temp = values[i];
@@ -237,8 +237,8 @@ export function getMaxAbsoluteValue(values: readonly (number | null | undefined)
 }
 
 export function getArrayDeltas(array: readonly number[], otherArray: readonly (number | undefined)[]): number[] {
-  let count = array.length;
-  let deltas: number[] = [];
+  const count = array.length;
+  const deltas: number[] = [];
   for (let i=0; i<count; i++) {
     if (otherArray[i] !== undefined) { // if one is undefined, both should be undefined
       deltas.push((otherArray[i] as number) - array[i]);

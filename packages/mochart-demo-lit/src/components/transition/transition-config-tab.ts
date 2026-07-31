@@ -46,7 +46,7 @@ export class TransitionConfigTab extends LightElement {
       JSON.parse(this.configText);
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }

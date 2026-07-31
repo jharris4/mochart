@@ -89,10 +89,10 @@ export function getFocusData(mochartConfig: MochartConfig, chartData: ChartData,
 
 export function getFocusDataWithDomainPercentages(focusData: FocusData, mochartConfig: MochartConfig, chartData: ChartData): FocusData {
   const { focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId, groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
-  let groupFocusDomainPercentages = getGroupFocusDomainPercentages(mochartConfig, chartData.groupData, focusedGroupIndex);
-  let seriesAxisFocusDomainPercentages = getSeriesAxisFocusDomainPercentages(mochartConfig, chartData.seriesData, focusedSeriesAxisId);
-  let seriesFocusDomainPercentages = getSeriesFocusDomainPercentages(mochartConfig, chartData.seriesData, focusedGroupIndex, focusedSeriesId);
-  let seriesAxisComputedFocusDomainPercentages = getSeriesAxisComputedFocusDomainPercentages(mochartConfig, focusedSeriesId, seriesFocusDomainPercentages);
+  const groupFocusDomainPercentages = getGroupFocusDomainPercentages(mochartConfig, chartData.groupData, focusedGroupIndex);
+  const seriesAxisFocusDomainPercentages = getSeriesAxisFocusDomainPercentages(mochartConfig, chartData.seriesData, focusedSeriesAxisId);
+  const seriesFocusDomainPercentages = getSeriesFocusDomainPercentages(mochartConfig, chartData.seriesData, focusedGroupIndex, focusedSeriesId);
+  const seriesAxisComputedFocusDomainPercentages = getSeriesAxisComputedFocusDomainPercentages(mochartConfig, focusedSeriesId, seriesFocusDomainPercentages);
   return {
     focusedGroupIndex,
     focusedSeriesAxisId,
@@ -116,8 +116,8 @@ export function getFocusDataWithGroupChanges(focusData: FocusData, mochartConfig
     groupFocusPercentages = groupDeltaData.values.merged.map(() => initValue);
     if (copyPercentages) {
       const oldIndices = groupDeltaData.indices.old;
-      let i, count = oldIndices.length;
-      for (i=0; i<count; i++) {
+      const count = oldIndices.length;
+      for (let i=0; i<count; i++) {
         groupFocusPercentages[oldIndices[i]] = oldGroupFocusPercentages[i];
       }
     }
@@ -136,8 +136,8 @@ export function getFocusDataWithGroupChanges(focusData: FocusData, mochartConfig
 
     if (copyPercentages) {
       const newIndices = groupDeltaData.indices.new;
-      let i, count = newIndices.length;
-      for (i=0; i<count; i++) {
+      const count = newIndices.length;
+      for (let i=0; i<count; i++) {
         groupFocusPercentages[i] = oldGroupFocusPercentages[newIndices[i]];
       }
     }
@@ -176,7 +176,7 @@ export function getSeriesConfigsOrderedByFocus(mochartConfig: MochartConfig, foc
     const focusedSeriesAxisConfig = mochartConfig.seriesAxisConfigsById[focusedSeriesAxisId];
     if (focusedSeriesAxisConfig) {
       const seriesAxisFocusedSeriesConfigs = focusedSeriesAxisConfig.seriesConfigs!;
-      for (let seriesConfig of seriesAxisFocusedSeriesConfigs) {
+      for (const seriesConfig of seriesAxisFocusedSeriesConfigs) {
         focusedSeriesIdsMap[seriesConfig.id] = true;
       }
     }
@@ -186,17 +186,17 @@ export function getSeriesConfigsOrderedByFocus(mochartConfig: MochartConfig, foc
     if (focusedSeriesConfig !== undefined) {
       if (focusedSeriesConfig.group !== NONE) {
         const groupFocusedSeriesConfigs = focusedSeriesConfig.seriesGroupConfig!.seriesConfigs!;
-        for (let seriesConfig of groupFocusedSeriesConfigs) {
+        for (const seriesConfig of groupFocusedSeriesConfigs) {
           focusedSeriesIdsMap[seriesConfig.id] = true;
         }
       }
       if (focusedSeriesConfig.stack !== NONE) {
         const stackFocusedSeriesConfigs = focusedSeriesConfig.seriesStackConfig!.seriesConfigs!;
-        for (let seriesConfig of stackFocusedSeriesConfigs) {
+        for (const seriesConfig of stackFocusedSeriesConfigs) {
           focusedSeriesIdsMap[seriesConfig.id] = true;
         }
       }
-      for (let seriesConfig of seriesConfigs) {
+      for (const seriesConfig of seriesConfigs) {
         if (seriesConfig.followSeries === focusedSeriesId) {
           focusedSeriesIdsMap[seriesConfig.id] = true;
         }
@@ -206,7 +206,7 @@ export function getSeriesConfigsOrderedByFocus(mochartConfig: MochartConfig, foc
 
   const defocusedSeriesConfigs: SeriesConfig[] = [];
   const focusedSeriesConfigs: SeriesConfig[] = [];
-  for (let seriesConfig of seriesConfigs) {
+  for (const seriesConfig of seriesConfigs) {
     const { id } = seriesConfig;
     if (id !== focusedSeriesId) {
       if ((seriesFocusPercentages[id] !== null && seriesFocusPercentages[id] > 0) || focusedSeriesIdsMap[id] === true) {

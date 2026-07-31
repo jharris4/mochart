@@ -3,7 +3,7 @@ import demosJson from './demos.json';
 import type { DataRow, Demo, DemoConfig, DemoData, DemoManifestEntry, DemoRandomConfig } from './types';
 
 export type {
-  DataRow, Demo, DemoConfig, DemoData, DemoManifestEntry, DemoRandomConfig,
+  DataRow, Demo, DemoConfig, DemoData, DemoRandomConfig,
   ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
   RandomConfig, WalkRandomConfig, WaterfallRandomConfig
 } from './types';

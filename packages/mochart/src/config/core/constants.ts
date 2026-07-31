@@ -75,17 +75,11 @@ export const PIE_LABEL_TYPES: PieLabelType[] = [
 export const SCALE_ORDINAL = 'ordinal';
 export const SCALE_LINEAR = 'linear';
 
-export const SCALES = [
-  SCALE_ORDINAL, SCALE_LINEAR
-];
 
 export const TYPE_STRING = 'string';
 export const TYPE_NUMBER = 'number';
 export const TYPE_DATE = 'date';
 
-export const TYPES = [
-  TYPE_STRING, TYPE_NUMBER, TYPE_DATE
-];
 
 export const RENDERER_BAR = 'bar';
 export const RENDERER_LINE = 'line';
@@ -133,9 +127,6 @@ export const COLOR_SAME = 'same';
 export const COLOR_SERIES_INDEX = 'seriesIndex';
 export const COLOR_GROUP_INDEX ='groupIndex';
 
-export const COLORS = [
-  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX
-];
 
 export const COLOR_INTERPOLATION_RGB = 'rgb';
 export const COLOR_INTERPOLATION_HSL = 'hsl';
@@ -160,7 +151,6 @@ export const MARKER_SHAPES = [
 ];
 // Literal union types derived from the constant values above.
 export type Auto = typeof AUTO;
-export type None = typeof NONE;
 
 export type Align = typeof ALIGN_LEFT | typeof ALIGN_CENTER | typeof ALIGN_RIGHT;
 export type VerticalAlign = typeof VERTICAL_ALIGN_TOP | typeof VERTICAL_ALIGN_MIDDLE | typeof VERTICAL_ALIGN_BOTTOM;

@@ -5,9 +5,9 @@ import getAxisDefaults from './axisConfig';
 import type { SeriesAxisConfig } from '../../types/config';
 
 export default function getDefaults(config: Partial<SeriesAxisConfig> = {}, index: number, hasStack: boolean, pieMode = false): Partial<SeriesAxisConfig> {
-  let regularDefaults = getRegularDefaults();
-  let configWithRegularDefaults = { ...regularDefaults, ...config };
-  let conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesAxisConfig, index, hasStack, pieMode));
+  const regularDefaults = getRegularDefaults();
+  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesAxisConfig, index, hasStack, pieMode));
   return { ...regularDefaults, ...conditionalDefaults } as Partial<SeriesAxisConfig>;
 }
 

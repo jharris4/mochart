@@ -37,7 +37,7 @@ class PlaceholderSlot {
     }
     Object.assign(this.props, context);
     if (this.instance && this.mounted !== this.component) {
-      unmount(this.instance);
+      void unmount(this.instance);
       this.instance = null;
     }
     if (!this.instance) {
@@ -49,7 +49,7 @@ class PlaceholderSlot {
 
   destroy(): void {
     if (this.instance) {
-      unmount(this.instance);
+      void unmount(this.instance);
       this.instance = null;
     }
   }

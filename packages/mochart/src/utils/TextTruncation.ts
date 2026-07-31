@@ -12,7 +12,7 @@ function resetTruncationData(truncationData: TruncationData): TruncationData {
 
 export function prepareTruncation(truncationEnabled: boolean, truncationChanged: boolean, oldTruncationData: TruncationDataValue, integrityChanged = true) {
   let truncationData: TruncationDataValue = null;
-  let checkTruncation = truncationEnabled && (truncationChanged || oldTruncationData === null);
+  const checkTruncation = truncationEnabled && (truncationChanged || oldTruncationData === null);
   if (truncationEnabled) {
     if (truncationChanged) {
       if (oldTruncationData !== null && integrityChanged) {
@@ -99,7 +99,7 @@ export function updateTruncation(truncationValue: string, oldTruncationData: Tru
 }
 
 export function truncateSVGText(textElement: SVGTextContentElement, maxTextLength: number, _truncationText: string, truncationData: TruncationData): TruncationData {
-  let { text, truncatedText = text, lastText } = truncationData;
+  const { text, truncatedText = text, lastText } = truncationData;
   if (text.length === 0) {
     return {
       text,
@@ -110,10 +110,10 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
   else if (lastText !== undefined && truncatedText === lastText) {
     return truncationData;
   }
-  let textLength = textElement.getComputedTextLength();
+  const textLength = textElement.getComputedTextLength();
   if (textLength > maxTextLength) {
     if (lastText === undefined) {
-      let initialTruncatedLength = Math.min(text.length -1, Math.floor((maxTextLength / textLength) * text.length));
+      const initialTruncatedLength = Math.min(text.length -1, Math.floor((maxTextLength / textLength) * text.length));
       return {
         text,
         truncatedText: text.substr(0, initialTruncatedLength),

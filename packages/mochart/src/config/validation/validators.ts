@@ -4,6 +4,9 @@ import { NONE, MARGIN_KEYS, PADDING_KEYS } from '../core/constants';
 const dashArrayRegexp = /(\d+)(,\s*\d+)*/;
 
 // specified by d3, https://github.com/d3/d3-format/blob/master/src/formatSpecifier.js
+// Transcribed verbatim from d3's formatSpecifier so the two stay diff-able; the
+// escapes are redundant inside a character class but are not ours to re-derive.
+// eslint-disable-next-line no-useless-escape
 const numberFormatRegexp = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?([a-z%])?$/i;
 
 const svgColorValidator = validators.color().orEqual('none').withCustomName('svgColor').withMessage('should be a valid svg color');

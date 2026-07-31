@@ -34,7 +34,7 @@ export function parseConfig(configText: string): DemoConfig | null {
   try {
     return JSON.parse(configText);
   }
-  catch (error) {
+  catch {
     console.warn('Invalid Chart Config JSON: ' + configText);
     return null;
   }

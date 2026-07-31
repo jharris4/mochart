@@ -72,8 +72,8 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
   sync() {
     const { mochartConfig, minWidth, mode } = this.props;
     if (mochartConfig.tooltipConfig.showControls) {
-      let modeWidth = 'calc(100% - ' + (buttonWidth * 2) + 'px)';
-      let controlsStyle: Record<string, string | number> = {
+      const modeWidth = 'calc(100% - ' + (buttonWidth * 2) + 'px)';
+      const controlsStyle: Record<string, string | number> = {
         float: 'left',
         clear: 'both',
         width: '100%'

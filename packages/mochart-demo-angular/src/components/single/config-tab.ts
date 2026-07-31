@@ -175,7 +175,7 @@ export class ConfigTab implements OnInit, OnChanges {
         this.errorMessage.set(demoText.errors.invalidChartConfig);
       }
     }
-    catch (error) {
+    catch {
       console.warn('Invalid Chart Config JSON: ' + this.configText());
       this.errorMessage.set(demoText.errors.invalidJson);
     }
@@ -225,7 +225,7 @@ export class ConfigTab implements OnInit, OnChanges {
       JSON.parse(this.configText());
       return null;
     }
-    catch (error) {
+    catch {
       return demoText.errors.invalidJson;
     }
   }

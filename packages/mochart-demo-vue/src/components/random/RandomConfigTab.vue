@@ -41,7 +41,7 @@ function onUpdateClick() {
     errorMessage.value = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
     props.onUpdate(newConfig);
   }
-  catch (error) {
+  catch {
     console.warn('Invalid Random Config JSON: ' + configText.value);
     errorMessage.value = demoText.errors.invalidJson;
   }
@@ -52,7 +52,7 @@ const jsonError = computed(() => {
     JSON.parse(configText.value);
     return null;
   }
-  catch (error) {
+  catch {
     return demoText.errors.invalidJson;
   }
 });

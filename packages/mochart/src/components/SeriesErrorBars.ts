@@ -78,7 +78,7 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
       // Caps on bars are clamped to the slot so they never overlap a neighbour.
       const capHalfSize = (isBar ? Math.min(errorBarCapSize, groupValueExtent) : errorBarCapSize) / 2;
 
-      let errorBars: ErrorBarItem[] = [];
+      const errorBars: ErrorBarItem[] = [];
       for (let i = 0; i < length; i++) {
         if (getDefined(null, i)) {
           // Positions are compacted when skipMissing is set, but values and

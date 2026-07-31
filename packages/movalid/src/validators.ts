@@ -107,6 +107,10 @@ const colorRGBRegex = /^(rgb\()(.*)(\))$/;
 const colorThreeDigitRegex = /^[0-9]{1,3}$/;
 const colorAlphaRegex = /^(0(\.\d+)?|1(\.0+)?)$/;
 
+// The canonical ISO-8601 pattern, kept byte-identical to its upstream form. Its
+// redundant escapes are harmless, and rewriting a regex this dense for cosmetics
+// is pure downside.
+// eslint-disable-next-line no-useless-escape
 const dateISORegex = /^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/;
 
 const customTypeValidatorDefinitions = {
@@ -128,19 +132,19 @@ const customTypeValidatorDefinitions = {
       }
       let matches = v.match(colorRGBARegex);
       if (matches !== null) {
-        let parts = matches[2].split(",");
+        const parts = matches[2].split(",");
         if (parts.length === 4) {
           for (let i = 0; i < 3; i++) {
-            let part = parts[i].trim();
+            const part = parts[i].trim();
             if (colorThreeDigitRegex.test(part) === false) {
               return false;
             }
-            let rgb = parseInt(part, 10);
+            const rgb = parseInt(part, 10);
             if (rgb < 0 || rgb > 255) {
               return false;
             }
           }
-          let alpha = parts[3].trim();
+          const alpha = parts[3].trim();
           if (colorAlphaRegex.test(alpha) === false) {
             return false;
           }
@@ -149,14 +153,14 @@ const customTypeValidatorDefinitions = {
       }
       matches = v.match(colorRGBRegex);
       if (matches !== null) {
-        let parts = matches[2].split(",");
+        const parts = matches[2].split(",");
         if (parts.length === 3) {
           for (let i = 0; i < 3; i++) {
-            let part = parts[i].trim();
+            const part = parts[i].trim();
             if (colorThreeDigitRegex.test(part) === false) {
               return false;
             }
-            let rgb = parseInt(part, 10);
+            const rgb = parseInt(part, 10);
             if (rgb < 0 || rgb > 255) {
               return false;
             }
@@ -310,7 +314,7 @@ const compoundValidatorDefinitions = {
       if (!typeValidators.array(v) || (v.length === 0 && allowEmpty === false)) {
         return false;
       }
-      let someInvalid = v.some((av: any) => {
+      const someInvalid = v.some((av: any) => {
         if (!elementValidator(av)) {
           return true;
         }
@@ -326,7 +330,7 @@ const compoundValidatorDefinitions = {
       if (!typeValidators.object(v) || Object.keys(v).length !== properties.length) {
         return false;
       }
-      let someInvalid = properties.some(property => {
+      const someInvalid = properties.some(property => {
         if (!propertyValidator(v[property])) {
           return true;
         }
@@ -342,15 +346,15 @@ const compoundValidatorDefinitions = {
   },
   objectWithSome: {
     validator: (properties: string[], propertyValidator: Validator) => v => {
-      let valueKeys = Object.keys(v);
+      const valueKeys = Object.keys(v);
       if (!typeValidators.object(v) || valueKeys.length === 0 || valueKeys.length > properties.length) {
         return false;
       }
-      let propertyMap: Record<string, string> = {};
+      const propertyMap: Record<string, string> = {};
       properties.forEach(property => {
         propertyMap[property] = property;
       });
-      let someInvalid = valueKeys.some(valueKey => {
+      const someInvalid = valueKeys.some(valueKey => {
         if (propertyMap[valueKey] === undefined || !propertyValidator(v[valueKey])) {
           return true;
         }
@@ -369,7 +373,7 @@ const compoundValidatorDefinitions = {
       if (!typeValidators.object(v)) {
         return false;
       }
-      let shapeKeys = Object.keys(propertyToValidatorMap);
+      const shapeKeys = Object.keys(propertyToValidatorMap);
       let someInvalid = shapeKeys.some(shapeKey => {
         if (!propertyToValidatorMap[shapeKey](v[shapeKey])) {
           return true;
@@ -377,7 +381,7 @@ const compoundValidatorDefinitions = {
         return false;
       });
       if (!someInvalid && !allowExtraProperties) {
-        let valueKeys = Object.keys(v);
+        const valueKeys = Object.keys(v);
         someInvalid = valueKeys.some(valueKey => {
           if (propertyToValidatorMap[valueKey] === undefined) {
             return true;
@@ -388,8 +392,8 @@ const compoundValidatorDefinitions = {
       return !someInvalid;
     },
     message: (propertyToValidatorMap: Record<string, Validator>, allowExtraProperties: boolean = false) => {
-      let validatorMessageMap: Record<string, string> = {};
-      let shapePropertyKeys = Object.keys(propertyToValidatorMap);
+      const validatorMessageMap: Record<string, string> = {};
+      const shapePropertyKeys = Object.keys(propertyToValidatorMap);
       shapePropertyKeys.forEach(shapePropertyKey => {
         validatorMessageMap[shapePropertyKey] = propertyToValidatorMap[shapePropertyKey].errorMessage;
       });
@@ -438,14 +442,14 @@ const validatorArgsToAllowedValues: Record<string, (...args: any[]) => any[] | n
 
 const validatorArgsToNestedValues: Record<string, (...args: any[]) => Record<string, Validator>> = {
   objectWith: (properties: string[], propertyValidator: Validator) => {
-    let propertyToValidatorMap: Record<string, Validator> = {};
+    const propertyToValidatorMap: Record<string, Validator> = {};
     properties.forEach(property => {
       propertyToValidatorMap[property] = propertyValidator;
     });
     return propertyToValidatorMap;
   },
   objectWithSome: (properties: string[], propertyValidator: Validator) => {
-    let propertyToValidatorMap: Record<string, Validator> = {};
+    const propertyToValidatorMap: Record<string, Validator> = {};
     if (propertyValidator.allowedValues === null || propertyValidator.allowedValues.indexOf(undefined) === -1) {
       propertyValidator = propertyValidator.orEqual(undefined);
     }
@@ -550,7 +554,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
   if (messageExtensions) {
     validatorMessageExtensionKeys.forEach(messageExtensionKey => {
       (validatorFunction as any)[messageExtensionKey] = (message: string): Validator => {
-        let messageValidatorFunction = ((v?: any) => validatorFunction(v)) as Validator;
+        const messageValidatorFunction = ((v?: any) => validatorFunction(v)) as Validator;
         messageValidatorFunction.validatorName = validatorFunction.validatorName;
         messageValidatorFunction.extensionNames = validatorFunction.extensionNames;
         messageValidatorFunction.customName = validatorFunction.customName;
@@ -570,7 +574,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
   if (extensions) {
     validatorExtensionKeys.forEach(extensionKey => {
       (validatorFunction as any)[extensionKey] = (...args: any[]): Validator => {
-        let extensionFunction = ((v?: any) =>
+        const extensionFunction = ((v?: any) =>
           validatorFunction(v) || validatorExtensionDefinitions[extensionKey].validator(...args)(v)) as Validator;
         extensionFunction.validatorName = validatorFunction.validatorName;
         if (validatorFunction.extensionNames === null) {
@@ -584,7 +588,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
         extensionFunction.nestedValues = validatorFunction.nestedValues;
         extensionFunction.rangeValues = validatorFunction.rangeValues;
         if (validatorExtensionArgsToAllowedValues[extensionKey] !== undefined) {
-          let extensionAllowedValues = validatorExtensionArgsToAllowedValues[extensionKey](...args);
+          const extensionAllowedValues = validatorExtensionArgsToAllowedValues[extensionKey](...args);
           extensionFunction.isEnum = validatorFunction.isEnum && validatorExtensionArgsToIsEnum[extensionKey](...args);
           if (extensionAllowedValues !== null) {
             if (typeValidators.array(validatorFunction.allowedValues)) {
@@ -605,7 +609,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
   }
 
   validatorFunction.withCustomName = (customName: string): Validator => {
-    let customNameFunction = ((v?: any) => validatorFunction(v)) as Validator;
+    const customNameFunction = ((v?: any) => validatorFunction(v)) as Validator;
     customNameFunction.validatorName = validatorFunction.validatorName;
     customNameFunction.extensionNames = validatorFunction.extensionNames;
     customNameFunction.customName = customName;
@@ -624,7 +628,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
 const validators = {} as Validators;
 validatorDefinitionKeys.forEach(validatorKey => {
   (validators as any)[validatorKey] = (...args: any[]): Validator => {
-    let validatorFunction = (validatorDefinitions as Record<string, ValidatorDefinition>)[validatorKey].validator(
+    const validatorFunction = (validatorDefinitions as Record<string, ValidatorDefinition>)[validatorKey].validator(
       ...args
     ) as Validator;
     validatorFunction.validatorName = validatorKey;
@@ -657,8 +661,8 @@ const appendSuffix = (message: string, suffix?: string): string =>
   suffix !== undefined ? message + " " + suffix : message;
 
 validators.conditional = (rules: ConditionalRule[], object: any): Validator => {
-  let matchedRule = rules.find(rule => rule.condition(object))!;
-  let validatorFunction = ((v?: any) => matchedRule.validator(v)) as Validator;
+  const matchedRule = rules.find(rule => rule.condition(object))!;
+  const validatorFunction = ((v?: any) => matchedRule.validator(v)) as Validator;
   validatorFunction.validatorName = "conditional";
   validatorFunction.customName = null;
   validatorFunction.extensionNames = null;

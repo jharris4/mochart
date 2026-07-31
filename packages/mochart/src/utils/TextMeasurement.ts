@@ -114,7 +114,7 @@ function getMaxBounds(allBounds: TextBounds | TextBounds[]): Size {
   if (!Array.isArray(allBounds)) {
     return maxBounds;
   }
-  for (let bounds of allBounds) {
+  for (const bounds of allBounds) {
     if (bounds.width > maxBounds.width) {
       maxBounds.width = bounds.width;
     }
@@ -152,7 +152,7 @@ export function getSvgMaxWidthAndHeight(domElements: ArrayLike<SVGGraphicsElemen
     maxWidth = Number.MIN_VALUE;
     maxHeight = Number.MIN_VALUE;
     let boundingBox;
-    let count = domElements.length;
+    const count = domElements.length;
     for (let i = 0; i < count; i++) {
       boundingBox = domElements[i].getBBox();
       if (boundingBox.width > maxWidth) {
@@ -173,7 +173,7 @@ export function getSvgWidthAndHeight(domElement: SVGGraphicsElement | null): Siz
   let width = 0;
   let height = 0;
   if (domElement !== null) {
-    let boundingBox = domElement.getBBox();
+    const boundingBox = domElement.getBBox();
     width = Math.ceil(boundingBox.width);
     height = Math.ceil(boundingBox.height);
   }
@@ -186,7 +186,7 @@ export function getHtmlWidthAndHeight(domElement: Element | null): Size {
   let width = 0;
   let height = 0;
   if (domElement !== null) {
-    let boundingBox = domElement.getBoundingClientRect();
+    const boundingBox = domElement.getBoundingClientRect();
     width = Math.ceil(boundingBox.width);
     height = Math.ceil(boundingBox.height);
   }
@@ -261,21 +261,12 @@ export function getGroupAxisThresholdTitleBounds(mochartConfig: MochartConfig, d
   return groupAxisThresholdTitleBounds;
 }
 
-export function getGroupAxisThresholdMinTitleBounds(_mochartConfig: MochartConfig, _domAccessors?: ChartDomAccessors | null): void {
 
-}
 
-export function getGroupAxisThresholdMaxTitleBounds(_mochartConfig: MochartConfig, _domAccessors?: ChartDomAccessors | null): void {
-
-}
-
-export function getGroupAxisThresholdRangeTitleBounds(_mochartConfig: MochartConfig, _domAccessors?: ChartDomAccessors | null): void {
-
-}
 
 export function getSeriesAxisTickLabelBounds(mochartConfig: MochartConfig, domAccessors?: ChartDomAccessors | null): Record<string, TextBounds> {
   const { seriesAxisConfigs } = mochartConfig;
-  let seriesAxisTickBounds = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
+  const seriesAxisTickBounds = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
     let aSeriesAxisTickBounds: TextBounds = emptyBounds;
     if (seriesAxisConfig.visible) {
       aSeriesAxisTickBounds = getSvgMaxBounds(domAccessors, ['getSeriesAxisTicksDomElementsForId', seriesAxisConfig.id], defaultBounds);
@@ -287,7 +278,7 @@ export function getSeriesAxisTickLabelBounds(mochartConfig: MochartConfig, domAc
 
 export function getSeriesAxisTitleBounds(mochartConfig: MochartConfig, domAccessors?: ChartDomAccessors | null): Record<string, TextBounds> {
   const { seriesAxisConfigs } = mochartConfig;
-  let seriesAxisTitleBounds = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
+  const seriesAxisTitleBounds = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
     let aSeriesAxisTitleBounds: TextBounds = emptyBounds;
     if (seriesAxisConfig.visible && seriesAxisConfig.title !== NONE) {
       aSeriesAxisTitleBounds = getSvgBounds(domAccessors, ['getSeriesAxisTitleDomElementForId', seriesAxisConfig.id], defaultBounds);
@@ -299,7 +290,7 @@ export function getSeriesAxisTitleBounds(mochartConfig: MochartConfig, domAccess
 
 export function getSeriesAxisThresholdTitleBounds(mochartConfig: MochartConfig, domAccessors?: ChartDomAccessors | null): Record<string, TextBounds> {
   const { seriesAxisConfigs } = mochartConfig;
-  let seriesAxisThresholdTitleBounds = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
+  const seriesAxisThresholdTitleBounds = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
     let aSeriesAxisThresholdTitleBounds: TextBounds = emptyBounds;
     if (seriesAxisConfig.visible && seriesAxisConfig.threshold !== NONE && seriesAxisConfig.thresholdTitle !== NONE) {
       aSeriesAxisThresholdTitleBounds = getSvgBounds(domAccessors, ['getSeriesAxisThresholdTitleDomElementForId', seriesAxisConfig.id], defaultBounds);
@@ -309,17 +300,8 @@ export function getSeriesAxisThresholdTitleBounds(mochartConfig: MochartConfig, 
   return seriesAxisThresholdTitleBounds;
 }
 
-export function getSeriesAxisThresholdMinTitleBounds(_mochartConfig: MochartConfig, _domAccessors?: ChartDomAccessors | null): void {
 
-}
 
-export function getSeriesAxisThresholdMaxTitleBounds(_mochartConfig: MochartConfig, _domAccessors?: ChartDomAccessors | null): void {
-
-}
-
-export function getSeriesAxisThresholdRangeTitleBounds(_mochartConfig: MochartConfig, _domAccessors?: ChartDomAccessors | null): void {
-
-}
 
 export function getLegendBounds(mochartConfig: MochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds {
   let legendBounds: TextBounds = emptyBounds;

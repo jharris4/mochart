@@ -34,10 +34,10 @@ export default class GroupAxisTickLabelClip extends Renderer<GroupAxisTickLabelC
           tickLabelTruncationMaxPercent * (inverted ? chartContentLayoutInfo.width : chartContentLayoutInfo.height));
       }
       const tickRotationTransform = tickLabelRotation === 0 ? null : 'rotate(' + tickLabelRotation + ')';
-      let x = tickLabelAnchor !== ANCHOR_MIDDLE ? (tickLabelAnchor === ANCHOR_END ? -1 * maxTickLabelLength : 0) : -1 * maxTickLabelLength / 2;
-      let y = -1 * tickHeight;
-      let width = maxTickLabelLength;
-      let height = 2 * tickHeight;
+      const x = tickLabelAnchor !== ANCHOR_MIDDLE ? (tickLabelAnchor === ANCHOR_END ? -1 * maxTickLabelLength : 0) : -1 * maxTickLabelLength / 2;
+      const y = -1 * tickHeight;
+      const width = maxTickLabelLength;
+      const height = 2 * tickHeight;
 
       this.setPresent(true);
       this.root.set({ id: groupAxisTickLabelClipPathUniqueId });

@@ -46,7 +46,7 @@ export default class Background extends Renderer<BackgroundProps> {
     const bounds = 'marginBounds' in spacingLayoutInfo
       ? (spacingRelative ? spacingLayoutInfo.marginRelativeBounds : spacingLayoutInfo.marginBounds)
       : spacingLayoutInfo;
-    let { x, y, width, height } = bounds;
+    const { x, y, width, height } = bounds;
     const backgroundStyle = config[configStyleKey];
     const backgroundProps = backgroundStyle ? backgroundStyle : {};
     this.root.set({ className: mochartCssClasses[classKey], onClick: this.backgroundClick });

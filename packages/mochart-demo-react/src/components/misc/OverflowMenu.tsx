@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import type { ReactNode, RefObject } from 'react';
 
-import { demoText } from '@mochart/demo-common';
 import type { MenuPlacement } from '@mochart/demo-common';
 
 import Icon from './Icon';
@@ -89,6 +88,3 @@ export function MenuDivider() {
 export function MenuSectionLabel({ children }: { children: ReactNode }) {
   return <div className="demo-menu-section-label">{children}</div>;
 }
-
-/** The nav-row trigger copy, re-exported so page components need one import. */
-export const overflowMenuText = demoText.overflowMenu;

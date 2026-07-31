@@ -1,39 +1,28 @@
 export type {
-  DataRow, Demo, DemoConfig, DemoData, DemoRandomConfig, RandomConfig,
-  ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
-  WalkRandomConfig, WaterfallRandomConfig,
+  DataRow, Demo, DemoConfig, DemoData,
   GroupValue, FilteredSeriesIds, FocusData, TransitionConfig,
-  ChartDataProviderLike, DemoDataProvider, DemoMode,
-  OnDemoModeChanged, OnDemoChanged, RandomConfigWithValid, MochartDemoConfig
+  ChartDataProviderLike, DemoDataProvider,
+  RandomConfigWithValid, MochartDemoConfig
 } from './types';
 
 export { default as buildMochartDemoConfig } from './mochartDemoConfig';
 
-export {
-  collectUsedDataProperties, removeUnusedDataProperties,
-  filterDataProperties, restoreHiddenDataProperties
-} from './unusedDataProperties';
+export { collectUsedDataProperties } from './unusedDataProperties';
 
 export {
-  formatData, formatDataView, isObject, isArrayOfObjects,
+  formatData, formatDataView,
   getJsonError, parseFullData, applyDataEdit,
   getGroupIndexTitle, getSeriesIndexTitle
 } from './dataEditing';
-export type { ParsedFullData, DataApplyResult } from './dataEditing';
+export type { ParsedFullData } from './dataEditing';
 
 export {
-  slowAnimationConfig, formatConfig, formatMochartDemoConfig,
+  slowAnimationConfig, formatMochartDemoConfig,
   copyDemoConfig, parseConfig, toggleConfigProperty, toggleConfigSection
 } from './configEditing';
 export type { DemoConfigView } from './configEditing';
 
-export { generateChartDataProvider } from './randomGenerator';
-
-export {
-  chartTypeGenerators, isChartTypeGenerator,
-  generateChartTypeDataProvider, generateDemoDataProvider, buildChartTypeDemoSnapshots
-} from './chartTypeGenerators';
-export type { ChartTypeGenerator, ChartTypeDemoSnapshot } from './chartTypeGenerators';
+export { generateDemoDataProvider } from './chartTypeGenerators';
 
 export { validateRandomConfig, formatRandomConfig, neutralizeRandomReuse } from './randomConfig';
 
@@ -41,9 +30,8 @@ export {
   defaultTransitionConfig, getTransitionMochartConfig, getTransitionDataProviders,
   formatTransitionConfig, applyTransitionConfigEdit
 } from './transition';
-export type { TransitionConfigEditResult } from './transition';
 
-export { getChartDataCount, getDataProvidersForDataCount } from './multiCharts';
+export { getDataProvidersForDataCount } from './multiCharts';
 
 export { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepSuppressedIds, getPieSequenceSteps } from './pieDemo';
 export type { PieSliceInfo } from './pieDemo';
@@ -55,24 +43,20 @@ export type { SparklineMetric } from './sparklines';
 
 export { demoText } from './demoText';
 
-export { getGallerySections, switchableDemoModes } from './gallery';
-export type { GalleryDemoItem, GalleryPageItem, GalleryItem, GallerySection, SwitchableDemoMode, ShowcaseMode } from './gallery';
+export { getGallerySections } from './gallery';
+export type { GalleryItem, GallerySection, SwitchableDemoMode, ShowcaseMode } from './gallery';
 
 export {
-  phoneMaxWidth, landscapePhoneMaxWidth, landscapePhoneMaxHeight, phoneFallbackDemoMode,
+  phoneFallbackDemoMode,
   isPhoneViewport, watchPhoneViewport, isDemoModeAvailable, getAvailableDemoModes
 } from './viewport';
 
 export { getMenuPosition, watchMenuDismiss, createMenuController, menuZIndex } from './menu';
-export type {
-  MenuSide, MenuAlign, MenuAnchorRect, MenuViewport, MenuPlacement, MenuPosition,
-  MenuDismissOptions, MenuControllerOptions, MenuController
-} from './menu';
+export type { MenuPlacement, MenuController } from './menu';
 
-export { encodeShareState, decodeShareState, buildShareUrl, consumeShareState, consumeSingleShareState, shareHashPrefix } from './shareState';
-export type { ShareState, SingleShareState, MultiShareState, RandomShareState } from './shareState';
+export { encodeShareState, buildShareUrl, consumeShareState, consumeSingleShareState, shareHashPrefix } from './shareState';
+export type { ShareState, MultiShareState } from './shareState';
 
-export { getDocsBaseUrl, getReferenceSectionIds, getReferenceSectionUrl } from './docsLinks';
+export { getReferenceSectionIds, getReferenceSectionUrl } from './docsLinks';
 
 export { initTheme, getChartExportOptions } from './theme';
-export type { ThemeController } from './theme';
