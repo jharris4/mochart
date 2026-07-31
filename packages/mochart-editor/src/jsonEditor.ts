@@ -59,6 +59,7 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
   const supports = options.support ? (Array.isArray(options.support) ? options.support : [options.support]) : [];
   const implementations = supports.map(supportImplementation);
   const readOnly = new Compartment();
+  const theme = new Compartment();
   let externalUpdate = false;
 
   const syntaxLinter = jsonParseLinter();
@@ -97,6 +98,7 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
     json(),
     diagnosticsExtension,
     readOnly.of(EditorState.readOnly.of(options.readOnly === true)),
+    theme.of(options.theme === 'dark' ? darkTheme : []),
     EditorView.contentAttributes.of(contentAttributes),
     EditorView.updateListener.of(update => {
       if (update.docChanged && !externalUpdate) options.onChange?.(update.state.doc.toString());
@@ -107,7 +109,6 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
       '.cm-content': { minHeight: '100%' }
     }),
     ...implementations.flatMap(implementation => implementation.extensions),
-    ...(options.theme === 'dark' ? darkTheme : [])
   ];
   if (options.lineNumbers === false) {
     // basicSetup includes a gutter; hide it without disabling folding/search.
@@ -131,6 +132,11 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
     setReadOnly(value: boolean) {
       view.dispatch({ effects: readOnly.reconfigure(EditorState.readOnly.of(value)) });
       view.contentDOM.setAttribute('aria-readonly', String(value));
+    },
+    setTheme(value: 'light' | 'dark') {
+      if (element.dataset.theme === value) return;
+      element.dataset.theme = value;
+      view.dispatch({ effects: theme.reconfigure(value === 'dark' ? darkTheme : []) });
     },
     focus: () => view.focus(),
     focusRange(from: number, to = from) {

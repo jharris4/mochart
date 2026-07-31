@@ -40,6 +40,8 @@ export interface JsonEditorHandle {
   getValue(): string;
   setValue(value: string): void;
   setReadOnly(readOnly: boolean): void;
+  /** Change the editor color treatment without replacing its document or history. */
+  setTheme(theme: 'light' | 'dark'): void;
   focus(): void;
   /** Select and reveal a source range, then move keyboard focus to the editor. */
   focusRange(from: number, to?: number): void;

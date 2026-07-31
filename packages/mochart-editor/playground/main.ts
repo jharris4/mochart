@@ -5,8 +5,25 @@ import '@mochart/editor/editor.css';
 import '../../mochart-demo-common/css/chart-dark.css';
 import './style.css';
 
-const darkMode = matchMedia('(prefers-color-scheme: dark)').matches;
-document.documentElement.classList.toggle('dark', darkMode);
+type ThemePreference = 'system' | 'light' | 'dark';
+type ResolvedTheme = Exclude<ThemePreference, 'system'>;
+
+const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+const themeSelect = document.querySelector<HTMLSelectElement>('#theme')!;
+let themePreference: ThemePreference = 'system';
+
+function resolveTheme(): ResolvedTheme {
+  return themePreference === 'system'
+    ? systemTheme.matches ? 'dark' : 'light'
+    : themePreference;
+}
+
+function applyDocumentTheme(theme: ResolvedTheme) {
+  document.documentElement.classList.toggle('dark', theme === 'dark');
+}
+
+const initialTheme = resolveTheme();
+applyDocumentTheme(initialTheme);
 
 const config: MochartInputConfig = {
   version: '1.0.0',
@@ -82,13 +99,27 @@ const editor = createJsonEditor(editorHost, {
   value: JSON.stringify(config, null, 2),
   ariaLabel: 'Mochart configuration JSON',
   ariaDescribedBy: 'editor-help',
-  theme: darkMode ? 'dark' : 'light',
+  theme: initialTheme,
   support: createMochartConfigSupport(),
   onChange: () => {
     status.textContent = 'Edited — apply when ready';
     status.dataset.state = 'edited';
   },
   onDiagnostics: showDiagnostics
+});
+
+function applyTheme() {
+  const theme = resolveTheme();
+  applyDocumentTheme(theme);
+  editor.setTheme(theme);
+}
+
+themeSelect.addEventListener('change', () => {
+  themePreference = themeSelect.value as ThemePreference;
+  applyTheme();
+});
+systemTheme.addEventListener('change', () => {
+  if (themePreference === 'system') applyTheme();
 });
 
 let chartWidth = Math.max(1, Math.round(chartHost.clientWidth));

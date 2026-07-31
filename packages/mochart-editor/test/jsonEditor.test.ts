@@ -54,7 +54,7 @@ describe('JSON editor', () => {
     host.remove();
   });
 
-  it('applies the dark color treatment when requested', () => {
+  it('applies and updates the requested color treatment', () => {
     const host = document.createElement('div');
     const editor = createJsonEditor(host, {
       value: '{}',
@@ -63,6 +63,11 @@ describe('JSON editor', () => {
     });
     expect(editor.element.dataset.theme).toBe('dark');
     expect(editor.element.querySelector('.cm-editor')?.className).toContain('cm-editor');
+
+    editor.setTheme('light');
+    expect(editor.element.dataset.theme).toBe('light');
+    expect(() => editor.setTheme('dark')).not.toThrow();
+    expect(editor.element.dataset.theme).toBe('dark');
     editor.destroy();
   });
 

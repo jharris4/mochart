@@ -22,6 +22,7 @@ const editor = createJsonEditor(document.querySelector('#editor')!, {
 
 editor.format();
 editor.setValue(nextValue);
+editor.setTheme('dark');
 editor.focusRange(diagnostic.from, diagnostic.to);
 editor.destroy();
 ```
@@ -33,11 +34,12 @@ The Mochart support provides:
 - hover documentation, defaults, and validation rules;
 - syntax and path-aware Mochart validation diagnostics.
 
-Pass `theme: 'dark'` for the bundled dark syntax treatment. Both themes use
-CSS custom properties, so hosts can override the editor surface, focus, border,
-and gutter colors. The editable element receives `aria-invalid` as diagnostics
-change, and `ariaDescribedBy` can connect it to keyboard instructions or other
-help text.
+Pass `theme: 'dark'` for the bundled dark syntax treatment, then use
+`setTheme('light' | 'dark')` to change it without replacing the document or
+undo history. Both themes use CSS custom properties, so hosts can override the
+editor surface, focus, border, and gutter colors. The editable element receives
+`aria-invalid` as diagnostics change, and `ariaDescribedBy` can connect it to
+keyboard instructions or other help text.
 
 Run `npm run dev:editor` from the repository root for the isolated editor and
 live-chart playground.
