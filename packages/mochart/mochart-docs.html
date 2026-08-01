@@ -118,7 +118,7 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="chartConfig.backgroundStyle">
-<td><a href="#chartConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the chart background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#chartConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the chart background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="chartConfig.margin">
@@ -194,11 +194,15 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="crosshairConfig.lineColor">
-<td><a href="#crosshairConfig.lineColor">lineColor</a></td><td>the color to use when showing the crosshair lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: rgba(0,0,0,0.3)"></span></div>
+<td><a href="#crosshairConfig.lineColor">lineColor</a></td><td>the color to use when showing the crosshair lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="crosshairConfig.lineDashArray">
 <td><a href="#crosshairConfig.lineDashArray">lineDashArray</a></td><td>the dash array pattern to use when drawing the crosshair lines (use null for none)</td><td>should be a valid dash array or be equal to null</td><td><div>"10, 5"</div>
+</td>
+</tr>
+<tr id="crosshairConfig.lineOpacity">
+<td><a href="#crosshairConfig.lineOpacity">lineOpacity</a></td><td>the opacity (0 - 1) of the crosshair lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.3</div>
 </td>
 </tr>
 <tr id="crosshairConfig.lineWidth">
@@ -236,7 +240,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineColor">
-<td><a href="#groupAxisConfig.axisLineColor">axisLineColor</a></td><td>the color of the line shown along the axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.axisLineColor">axisLineColor</a></td><td>the color of the line shown along the axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineDashArray">
@@ -244,19 +248,19 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineDefocusedColor">
-<td><a href="#groupAxisConfig.axisLineDefocusedColor">axisLineDefocusedColor</a></td><td>the color of the line shown along the defocused axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.axisLineDefocusedColor">axisLineDefocusedColor</a></td><td>the color of the line shown along the defocused axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineDefocusedOpacity">
-<td><a href="#groupAxisConfig.axisLineDefocusedOpacity">axisLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the defocused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#groupAxisConfig.axisLineDefocusedOpacity">axisLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the defocused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineFocusedColor">
-<td><a href="#groupAxisConfig.axisLineFocusedColor">axisLineFocusedColor</a></td><td>the color of the line shown along the focused axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.axisLineFocusedColor">axisLineFocusedColor</a></td><td>the color of the line shown along the focused axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineFocusedOpacity">
-<td><a href="#groupAxisConfig.axisLineFocusedOpacity">axisLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the focused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.axisLineFocusedOpacity">axisLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the focused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineFront">
@@ -268,7 +272,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineOpacity">
-<td><a href="#groupAxisConfig.axisLineOpacity">axisLineOpacity</a></td><td>the opacity (0 - 1) of the line shown along the axis</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.axisLineOpacity">axisLineOpacity</a></td><td>the opacity (0 - 1) of the line shown along the axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.axisLineWidth">
@@ -280,7 +284,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.backgroundStyle">
-<td><a href="#groupAxisConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#groupAxisConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.before">
@@ -313,7 +317,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.focusRangeFillColor">
-<td><a href="#groupAxisConfig.focusRangeFillColor">focusRangeFillColor</a></td><td>the fill color of the focus range</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #aaccff"></span></div>
+<td><a href="#groupAxisConfig.focusRangeFillColor">focusRangeFillColor</a></td><td>the fill color of the focus range</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: #aaccff"></span></div>
 </td>
 </tr>
 <tr id="groupAxisConfig.focusRangeFillOpacity">
@@ -325,7 +329,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.focusRangeStrokeColor">
-<td><a href="#groupAxisConfig.focusRangeStrokeColor">focusRangeStrokeColor</a></td><td>the stroke color of the focus range</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000033"></span></div>
+<td><a href="#groupAxisConfig.focusRangeStrokeColor">focusRangeStrokeColor</a></td><td>the stroke color of the focus range</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: #000033"></span></div>
 </td>
 </tr>
 <tr id="groupAxisConfig.focusRangeStrokeOpacity">
@@ -337,7 +341,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.focusTickMarkColor">
-<td><a href="#groupAxisConfig.focusTickMarkColor">focusTickMarkColor</a></td><td>the color of the focus tick mark line(s)</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #0000ff"></span></div>
+<td><a href="#groupAxisConfig.focusTickMarkColor">focusTickMarkColor</a></td><td>the color of the focus tick mark line(s)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: #0000ff"></span></div>
 </td>
 </tr>
 <tr id="groupAxisConfig.focusTickMarkMargin">
@@ -365,7 +369,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.gridLineColor">
-<td><a href="#groupAxisConfig.gridLineColor">gridLineColor</a></td><td>the color of the axis grid lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #e5e5e5"></span></div>
+<td><a href="#groupAxisConfig.gridLineColor">gridLineColor</a></td><td>the color of the axis grid lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.gridLineDashArray">
@@ -373,23 +377,23 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.gridLineDefocusedColor">
-<td><a href="#groupAxisConfig.gridLineDefocusedColor">gridLineDefocusedColor</a></td><td>the color of the defocused axis grid lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #e5e5e5"></span></div>
+<td><a href="#groupAxisConfig.gridLineDefocusedColor">gridLineDefocusedColor</a></td><td>the color of the defocused axis grid lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.gridLineDefocusedOpacity">
-<td><a href="#groupAxisConfig.gridLineDefocusedOpacity">gridLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#groupAxisConfig.gridLineDefocusedOpacity">gridLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.09</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.gridLineFocusedColor">
-<td><a href="#groupAxisConfig.gridLineFocusedColor">gridLineFocusedColor</a></td><td>the color of the focused axis grid lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #e5e5e5"></span></div>
+<td><a href="#groupAxisConfig.gridLineFocusedColor">gridLineFocusedColor</a></td><td>the color of the focused axis grid lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.gridLineFocusedOpacity">
-<td><a href="#groupAxisConfig.gridLineFocusedOpacity">gridLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.gridLineFocusedOpacity">gridLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.17</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.gridLineOpacity">
-<td><a href="#groupAxisConfig.gridLineOpacity">gridLineOpacity</a></td><td>the opacity (0 - 1) of the axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.75</div>
+<td><a href="#groupAxisConfig.gridLineOpacity">gridLineOpacity</a></td><td>the opacity (0 - 1) of the axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.13</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.gridLineWidth">
@@ -504,7 +508,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdColor">
-<td><a href="#groupAxisConfig.thresholdColor">thresholdColor</a></td><td>the color of the threshold line</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.thresholdColor">thresholdColor</a></td><td>the color of the threshold line (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdDashArray">
@@ -512,19 +516,19 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdDefocusedColor">
-<td><a href="#groupAxisConfig.thresholdDefocusedColor">thresholdDefocusedColor</a></td><td>the color of the defocused threshold line</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.thresholdDefocusedColor">thresholdDefocusedColor</a></td><td>the color of the defocused threshold line (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdDefocusedOpacity">
-<td><a href="#groupAxisConfig.thresholdDefocusedOpacity">thresholdDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#groupAxisConfig.thresholdDefocusedOpacity">thresholdDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdFocusedColor">
-<td><a href="#groupAxisConfig.thresholdFocusedColor">thresholdFocusedColor</a></td><td>the color of the focused threshold line</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.thresholdFocusedColor">thresholdFocusedColor</a></td><td>the color of the focused threshold line (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdFocusedOpacity">
-<td><a href="#groupAxisConfig.thresholdFocusedOpacity">thresholdFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.thresholdFocusedOpacity">thresholdFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdFront">
@@ -532,7 +536,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdOpacity">
-<td><a href="#groupAxisConfig.thresholdOpacity">thresholdOpacity</a></td><td>the opacity (0 - 1) of the threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.thresholdOpacity">thresholdOpacity</a></td><td>the opacity (0 - 1) of the threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitle">
@@ -540,7 +544,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleBackgroundStyle">
-<td><a href="#groupAxisConfig.thresholdTitleBackgroundStyle">thresholdTitleBackgroundStyle</a></td><td>the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#groupAxisConfig.thresholdTitleBackgroundStyle">thresholdTitleBackgroundStyle</a></td><td>the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleBefore">
@@ -548,7 +552,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleDefocusedFillColor">
-<td><a href="#groupAxisConfig.thresholdTitleDefocusedFillColor">thresholdTitleDefocusedFillColor</a></td><td>the fill color to use for the defocused threshold title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.thresholdTitleDefocusedFillColor">thresholdTitleDefocusedFillColor</a></td><td>the fill color to use for the defocused threshold title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleDefocusedFillOpacity">
@@ -556,7 +560,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleDefocusedStrokeColor">
-<td><a href="#groupAxisConfig.thresholdTitleDefocusedStrokeColor">thresholdTitleDefocusedStrokeColor</a></td><td>the stroke color to use for the defocused threshold title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.thresholdTitleDefocusedStrokeColor">thresholdTitleDefocusedStrokeColor</a></td><td>the stroke color to use for the defocused threshold title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleDefocusedStrokeOpacity">
@@ -564,7 +568,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFillColor">
-<td><a href="#groupAxisConfig.thresholdTitleFillColor">thresholdTitleFillColor</a></td><td>the fill color to use for the threshold title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.thresholdTitleFillColor">thresholdTitleFillColor</a></td><td>the fill color to use for the threshold title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFillOpacity">
@@ -572,7 +576,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFocusedFillColor">
-<td><a href="#groupAxisConfig.thresholdTitleFocusedFillColor">thresholdTitleFocusedFillColor</a></td><td>the fill color to use for the focused threshold title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.thresholdTitleFocusedFillColor">thresholdTitleFocusedFillColor</a></td><td>the fill color to use for the focused threshold title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFocusedFillOpacity">
@@ -580,7 +584,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFocusedStrokeColor">
-<td><a href="#groupAxisConfig.thresholdTitleFocusedStrokeColor">thresholdTitleFocusedStrokeColor</a></td><td>the stroke color to use for the focused threshold title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.thresholdTitleFocusedStrokeColor">thresholdTitleFocusedStrokeColor</a></td><td>the stroke color to use for the focused threshold title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleFocusedStrokeOpacity">
@@ -600,7 +604,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleStrokeColor">
-<td><a href="#groupAxisConfig.thresholdTitleStrokeColor">thresholdTitleStrokeColor</a></td><td>the stroke color to use for the threshold title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.thresholdTitleStrokeColor">thresholdTitleStrokeColor</a></td><td>the stroke color to use for the threshold title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.thresholdTitleStrokeOpacity">
@@ -620,11 +624,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelBackgroundStyle">
-<td><a href="#groupAxisConfig.tickLabelBackgroundStyle">tickLabelBackgroundStyle</a></td><td>the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#groupAxisConfig.tickLabelBackgroundStyle">tickLabelBackgroundStyle</a></td><td>the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelDefocusedFillColor">
-<td><a href="#groupAxisConfig.tickLabelDefocusedFillColor">tickLabelDefocusedFillColor</a></td><td>the fill color to use for the defocused axis tick labels text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.tickLabelDefocusedFillColor">tickLabelDefocusedFillColor</a></td><td>the fill color to use for the defocused axis tick labels text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelDefocusedFillOpacity">
@@ -632,7 +636,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelDefocusedStrokeColor">
-<td><a href="#groupAxisConfig.tickLabelDefocusedStrokeColor">tickLabelDefocusedStrokeColor</a></td><td>the stroke color to use for the defocused axis tick labels text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.tickLabelDefocusedStrokeColor">tickLabelDefocusedStrokeColor</a></td><td>the stroke color to use for the defocused axis tick labels text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelDefocusedStrokeOpacity">
@@ -640,7 +644,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelFillColor">
-<td><a href="#groupAxisConfig.tickLabelFillColor">tickLabelFillColor</a></td><td>the fill color to use for the axis tick labels text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.tickLabelFillColor">tickLabelFillColor</a></td><td>the fill color to use for the axis tick labels text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelFillOpacity">
@@ -648,7 +652,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelFocusedFillColor">
-<td><a href="#groupAxisConfig.tickLabelFocusedFillColor">tickLabelFocusedFillColor</a></td><td>the fill color to use for the focused axis tick labels text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.tickLabelFocusedFillColor">tickLabelFocusedFillColor</a></td><td>the fill color to use for the focused axis tick labels text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelFocusedFillOpacity">
@@ -656,7 +660,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelFocusedStrokeColor">
-<td><a href="#groupAxisConfig.tickLabelFocusedStrokeColor">tickLabelFocusedStrokeColor</a></td><td>the stroke color to use for the focused axis tick labels text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.tickLabelFocusedStrokeColor">tickLabelFocusedStrokeColor</a></td><td>the stroke color to use for the focused axis tick labels text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelFocusedStrokeOpacity">
@@ -703,7 +707,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelStrokeColor">
-<td><a href="#groupAxisConfig.tickLabelStrokeColor">tickLabelStrokeColor</a></td><td>the stroke color to use for the axis tick labels text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.tickLabelStrokeColor">tickLabelStrokeColor</a></td><td>the stroke color to use for the axis tick labels text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelStrokeOpacity">
@@ -738,23 +742,23 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.tickMarkColor">
-<td><a href="#groupAxisConfig.tickMarkColor">tickMarkColor</a></td><td>the color of the axis tick mark lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.tickMarkColor">tickMarkColor</a></td><td>the color of the axis tick mark lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickMarkDefocusedColor">
-<td><a href="#groupAxisConfig.tickMarkDefocusedColor">tickMarkDefocusedColor</a></td><td>the color of the defocused axis tick mark lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.tickMarkDefocusedColor">tickMarkDefocusedColor</a></td><td>the color of the defocused axis tick mark lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickMarkDefocusedOpacity">
-<td><a href="#groupAxisConfig.tickMarkDefocusedOpacity">tickMarkDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#groupAxisConfig.tickMarkDefocusedOpacity">tickMarkDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickMarkFocusedColor">
-<td><a href="#groupAxisConfig.tickMarkFocusedColor">tickMarkFocusedColor</a></td><td>the color of the focused axis tick mark lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.tickMarkFocusedColor">tickMarkFocusedColor</a></td><td>the color of the focused axis tick mark lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickMarkFocusedOpacity">
-<td><a href="#groupAxisConfig.tickMarkFocusedOpacity">tickMarkFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.tickMarkFocusedOpacity">tickMarkFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickMarkFront">
@@ -766,7 +770,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.tickMarkOpacity">
-<td><a href="#groupAxisConfig.tickMarkOpacity">tickMarkOpacity</a></td><td>the opacity (0 - 1) of the axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#groupAxisConfig.tickMarkOpacity">tickMarkOpacity</a></td><td>the opacity (0 - 1) of the axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickMarkSize">
@@ -786,11 +790,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.titleBackgroundStyle">
-<td><a href="#groupAxisConfig.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#groupAxisConfig.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.titleDefocusedFillColor">
-<td><a href="#groupAxisConfig.titleDefocusedFillColor">titleDefocusedFillColor</a></td><td>the fill color of the defocused axis title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.titleDefocusedFillColor">titleDefocusedFillColor</a></td><td>the fill color of the defocused axis title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.titleDefocusedFillOpacity">
@@ -798,7 +802,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.titleDefocusedStrokeColor">
-<td><a href="#groupAxisConfig.titleDefocusedStrokeColor">titleDefocusedStrokeColor</a></td><td>the stroke color of the defocused axis title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.titleDefocusedStrokeColor">titleDefocusedStrokeColor</a></td><td>the stroke color of the defocused axis title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.titleDefocusedStrokeOpacity">
@@ -806,7 +810,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.titleFillColor">
-<td><a href="#groupAxisConfig.titleFillColor">titleFillColor</a></td><td>the fill color of the axis title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.titleFillColor">titleFillColor</a></td><td>the fill color of the axis title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.titleFillOpacity">
@@ -814,7 +818,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.titleFocusedFillColor">
-<td><a href="#groupAxisConfig.titleFocusedFillColor">titleFocusedFillColor</a></td><td>the fill color of the focused axis title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#groupAxisConfig.titleFocusedFillColor">titleFocusedFillColor</a></td><td>the fill color of the focused axis title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.titleFocusedFillOpacity">
@@ -822,7 +826,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.titleFocusedStrokeColor">
-<td><a href="#groupAxisConfig.titleFocusedStrokeColor">titleFocusedStrokeColor</a></td><td>the stroke color of the focused axis title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.titleFocusedStrokeColor">titleFocusedStrokeColor</a></td><td>the stroke color of the focused axis title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.titleFocusedStrokeOpacity">
@@ -854,7 +858,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="groupAxisConfig.titleStrokeColor">
-<td><a href="#groupAxisConfig.titleStrokeColor">titleStrokeColor</a></td><td>the stroke color of the axis title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#groupAxisConfig.titleStrokeColor">titleStrokeColor</a></td><td>the stroke color of the axis title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.titleStrokeOpacity">
@@ -920,7 +924,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="legendConfig.backgroundStyle">
-<td><a href="#legendConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the legend background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#legendConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the legend background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="legendConfig.filterOnClick">
@@ -960,7 +964,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="legendConfig.itemBackgroundStyle">
-<td><a href="#legendConfig.itemBackgroundStyle">itemBackgroundStyle</a></td><td>the styles to apply to the legend item backgrounds (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#legendConfig.itemBackgroundStyle">itemBackgroundStyle</a></td><td>the styles to apply to the legend item backgrounds (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="legendConfig.itemMargin">
@@ -969,6 +973,10 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="legendConfig.itemPadding">
 <td><a href="#legendConfig.itemPadding">itemPadding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the legend items</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 1, right: 1, bottom: 1, left: 1 }</div>
+</td>
+</tr>
+<tr id="legendConfig.itemTextStyle">
+<td><a href="#legendConfig.itemTextStyle">itemTextStyle</a></td><td>the styles to apply to the legend item text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page's css color and theme)</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }</div>
 </td>
 </tr>
 <tr id="legendConfig.margin">
@@ -1070,6 +1078,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#pieConfig.centerLabel">centerLabel</a></td><td>a text label shown at the center of the pie (use null for none; most useful for donut and gauge charts)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
 </tr>
+<tr id="pieConfig.centerLabelTextStyle">
+<td><a href="#pieConfig.centerLabelTextStyle">centerLabelTextStyle</a></td><td>the styles to apply to the center label text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page's css color and theme)</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }</div>
+</td>
+</tr>
 <tr id="pieConfig.centerOffsetXPercent">
 <td><a href="#pieConfig.centerOffsetXPercent">centerOffsetXPercent</a></td><td>offset the center label and total horizontally by this fraction (-1 to 1) of the outer radius (positive moves right)</td><td>should be a number >= to -1 and <= 1</td><td><div>0</div>
 </td>
@@ -1080,6 +1092,10 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="pieConfig.centerTotalFormat">
 <td><a href="#pieConfig.centerTotalFormat">centerTotalFormat</a></td><td>the d3 format specifier used to format the center total (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
+</td>
+</tr>
+<tr id="pieConfig.centerTotalTextStyle">
+<td><a href="#pieConfig.centerTotalTextStyle">centerTotalTextStyle</a></td><td>the styles to apply to the center total text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page's css color and theme)</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }</div>
 </td>
 </tr>
 <tr id="pieConfig.cornerRadius">
@@ -1157,7 +1173,7 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="plotConfig.backgroundStyle">
-<td><a href="#plotConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the plot background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#plotConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the plot background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="plotConfig.inverted">
@@ -1243,7 +1259,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineColor">
-<td><a href="#seriesAxisConfigs.axisLineColor">axisLineColor</a></td><td>the color of the line shown along the axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.axisLineColor">axisLineColor</a></td><td>the color of the line shown along the axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineDashArray">
@@ -1251,19 +1267,19 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineDefocusedColor">
-<td><a href="#seriesAxisConfigs.axisLineDefocusedColor">axisLineDefocusedColor</a></td><td>the color of the line shown along the defocused axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.axisLineDefocusedColor">axisLineDefocusedColor</a></td><td>the color of the line shown along the defocused axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineDefocusedOpacity">
-<td><a href="#seriesAxisConfigs.axisLineDefocusedOpacity">axisLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the defocused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#seriesAxisConfigs.axisLineDefocusedOpacity">axisLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the defocused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineFocusedColor">
-<td><a href="#seriesAxisConfigs.axisLineFocusedColor">axisLineFocusedColor</a></td><td>the color of the line shown along the focused axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.axisLineFocusedColor">axisLineFocusedColor</a></td><td>the color of the line shown along the focused axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineFocusedOpacity">
-<td><a href="#seriesAxisConfigs.axisLineFocusedOpacity">axisLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the focused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.axisLineFocusedOpacity">axisLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the focused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineFront">
@@ -1275,7 +1291,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineOpacity">
-<td><a href="#seriesAxisConfigs.axisLineOpacity">axisLineOpacity</a></td><td>the opacity (0 - 1) of the line shown along the axis</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.axisLineOpacity">axisLineOpacity</a></td><td>the opacity (0 - 1) of the line shown along the axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLineWidth">
@@ -1287,7 +1303,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.backgroundStyle">
-<td><a href="#seriesAxisConfigs.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#seriesAxisConfigs.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.base">
@@ -1301,7 +1317,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineColor">
-<td><a href="#seriesAxisConfigs.baseLineColor">baseLineColor</a></td><td>the color to use when drawing the line shown along the base of the axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.baseLineColor">baseLineColor</a></td><td>the color to use when drawing the line shown along the base of the axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineDashArray">
@@ -1309,19 +1325,19 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineDefocusedColor">
-<td><a href="#seriesAxisConfigs.baseLineDefocusedColor">baseLineDefocusedColor</a></td><td>the color to use when drawing the line shown along the base of the defocused axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.baseLineDefocusedColor">baseLineDefocusedColor</a></td><td>the color to use when drawing the line shown along the base of the defocused axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineDefocusedOpacity">
-<td><a href="#seriesAxisConfigs.baseLineDefocusedOpacity">baseLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the base of the defocused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#seriesAxisConfigs.baseLineDefocusedOpacity">baseLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the base of the defocused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineFocusedColor">
-<td><a href="#seriesAxisConfigs.baseLineFocusedColor">baseLineFocusedColor</a></td><td>the color to use when drawing the line shown along the base of the focused axis</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.baseLineFocusedColor">baseLineFocusedColor</a></td><td>the color to use when drawing the line shown along the base of the focused axis (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineFocusedOpacity">
-<td><a href="#seriesAxisConfigs.baseLineFocusedOpacity">baseLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the base of the focused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.baseLineFocusedOpacity">baseLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the line shown along the base of the focused axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineFront">
@@ -1329,7 +1345,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineOpacity">
-<td><a href="#seriesAxisConfigs.baseLineOpacity">baseLineOpacity</a></td><td>the opacity (0 - 1) of the line shown along the base of the axis</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.baseLineOpacity">baseLineOpacity</a></td><td>the opacity (0 - 1) of the line shown along the base of the axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.baseLineWidth">
@@ -1365,7 +1381,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.focusRangeFillColor">
-<td><a href="#seriesAxisConfigs.focusRangeFillColor">focusRangeFillColor</a></td><td>the fill color of the focus range</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #aaccff"></span></div>
+<td><a href="#seriesAxisConfigs.focusRangeFillColor">focusRangeFillColor</a></td><td>the fill color of the focus range</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: #aaccff"></span></div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.focusRangeFillOpacity">
@@ -1377,7 +1393,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.focusRangeStrokeColor">
-<td><a href="#seriesAxisConfigs.focusRangeStrokeColor">focusRangeStrokeColor</a></td><td>the stroke color of the focus range</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000033"></span></div>
+<td><a href="#seriesAxisConfigs.focusRangeStrokeColor">focusRangeStrokeColor</a></td><td>the stroke color of the focus range</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: #000033"></span></div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.focusRangeStrokeOpacity">
@@ -1389,7 +1405,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.focusTickMarkColor">
-<td><a href="#seriesAxisConfigs.focusTickMarkColor">focusTickMarkColor</a></td><td>the color of the focus tick mark line(s)</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #0000ff"></span></div>
+<td><a href="#seriesAxisConfigs.focusTickMarkColor">focusTickMarkColor</a></td><td>the color of the focus tick mark line(s)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: #0000ff"></span></div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.focusTickMarkMargin">
@@ -1417,7 +1433,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.gridLineColor">
-<td><a href="#seriesAxisConfigs.gridLineColor">gridLineColor</a></td><td>the color of the axis grid lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #e5e5e5"></span></div>
+<td><a href="#seriesAxisConfigs.gridLineColor">gridLineColor</a></td><td>the color of the axis grid lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.gridLineDashArray">
@@ -1425,23 +1441,23 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.gridLineDefocusedColor">
-<td><a href="#seriesAxisConfigs.gridLineDefocusedColor">gridLineDefocusedColor</a></td><td>the color of the defocused axis grid lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #e5e5e5"></span></div>
+<td><a href="#seriesAxisConfigs.gridLineDefocusedColor">gridLineDefocusedColor</a></td><td>the color of the defocused axis grid lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.gridLineDefocusedOpacity">
-<td><a href="#seriesAxisConfigs.gridLineDefocusedOpacity">gridLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#seriesAxisConfigs.gridLineDefocusedOpacity">gridLineDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.09</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.gridLineFocusedColor">
-<td><a href="#seriesAxisConfigs.gridLineFocusedColor">gridLineFocusedColor</a></td><td>the color of the focused axis grid lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #e5e5e5"></span></div>
+<td><a href="#seriesAxisConfigs.gridLineFocusedColor">gridLineFocusedColor</a></td><td>the color of the focused axis grid lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.gridLineFocusedOpacity">
-<td><a href="#seriesAxisConfigs.gridLineFocusedOpacity">gridLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.gridLineFocusedOpacity">gridLineFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.17</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.gridLineOpacity">
-<td><a href="#seriesAxisConfigs.gridLineOpacity">gridLineOpacity</a></td><td>the opacity (0 - 1) of the axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.75</div>
+<td><a href="#seriesAxisConfigs.gridLineOpacity">gridLineOpacity</a></td><td>the opacity (0 - 1) of the axis grid lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.13</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.gridLineWidth">
@@ -1537,7 +1553,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdColor">
-<td><a href="#seriesAxisConfigs.thresholdColor">thresholdColor</a></td><td>the color of the threshold line</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.thresholdColor">thresholdColor</a></td><td>the color of the threshold line (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdDashArray">
@@ -1545,19 +1561,19 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdDefocusedColor">
-<td><a href="#seriesAxisConfigs.thresholdDefocusedColor">thresholdDefocusedColor</a></td><td>the color of the defocused threshold line</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.thresholdDefocusedColor">thresholdDefocusedColor</a></td><td>the color of the defocused threshold line (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdDefocusedOpacity">
-<td><a href="#seriesAxisConfigs.thresholdDefocusedOpacity">thresholdDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#seriesAxisConfigs.thresholdDefocusedOpacity">thresholdDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdFocusedColor">
-<td><a href="#seriesAxisConfigs.thresholdFocusedColor">thresholdFocusedColor</a></td><td>the color of the focused threshold line</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.thresholdFocusedColor">thresholdFocusedColor</a></td><td>the color of the focused threshold line (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdFocusedOpacity">
-<td><a href="#seriesAxisConfigs.thresholdFocusedOpacity">thresholdFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.thresholdFocusedOpacity">thresholdFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdFront">
@@ -1565,7 +1581,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdOpacity">
-<td><a href="#seriesAxisConfigs.thresholdOpacity">thresholdOpacity</a></td><td>the opacity (0 - 1) of the threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.thresholdOpacity">thresholdOpacity</a></td><td>the opacity (0 - 1) of the threshold line</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitle">
@@ -1573,7 +1589,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleBackgroundStyle">
-<td><a href="#seriesAxisConfigs.thresholdTitleBackgroundStyle">thresholdTitleBackgroundStyle</a></td><td>the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleBackgroundStyle">thresholdTitleBackgroundStyle</a></td><td>the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleBefore">
@@ -1581,7 +1597,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleDefocusedFillColor">
-<td><a href="#seriesAxisConfigs.thresholdTitleDefocusedFillColor">thresholdTitleDefocusedFillColor</a></td><td>the fill color to use for the defocused threshold title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.thresholdTitleDefocusedFillColor">thresholdTitleDefocusedFillColor</a></td><td>the fill color to use for the defocused threshold title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleDefocusedFillOpacity">
@@ -1589,7 +1605,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleDefocusedStrokeColor">
-<td><a href="#seriesAxisConfigs.thresholdTitleDefocusedStrokeColor">thresholdTitleDefocusedStrokeColor</a></td><td>the stroke color to use for the defocused threshold title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleDefocusedStrokeColor">thresholdTitleDefocusedStrokeColor</a></td><td>the stroke color to use for the defocused threshold title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleDefocusedStrokeOpacity">
@@ -1597,7 +1613,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFillColor">
-<td><a href="#seriesAxisConfigs.thresholdTitleFillColor">thresholdTitleFillColor</a></td><td>the fill color to use for the threshold title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.thresholdTitleFillColor">thresholdTitleFillColor</a></td><td>the fill color to use for the threshold title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFillOpacity">
@@ -1605,7 +1621,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFocusedFillColor">
-<td><a href="#seriesAxisConfigs.thresholdTitleFocusedFillColor">thresholdTitleFocusedFillColor</a></td><td>the fill color to use for the focused threshold title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.thresholdTitleFocusedFillColor">thresholdTitleFocusedFillColor</a></td><td>the fill color to use for the focused threshold title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFocusedFillOpacity">
@@ -1613,7 +1629,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFocusedStrokeColor">
-<td><a href="#seriesAxisConfigs.thresholdTitleFocusedStrokeColor">thresholdTitleFocusedStrokeColor</a></td><td>the stroke color to use for the focused threshold title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleFocusedStrokeColor">thresholdTitleFocusedStrokeColor</a></td><td>the stroke color to use for the focused threshold title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleFocusedStrokeOpacity">
@@ -1633,7 +1649,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleStrokeColor">
-<td><a href="#seriesAxisConfigs.thresholdTitleStrokeColor">thresholdTitleStrokeColor</a></td><td>the stroke color to use for the threshold title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.thresholdTitleStrokeColor">thresholdTitleStrokeColor</a></td><td>the stroke color to use for the threshold title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.thresholdTitleStrokeOpacity">
@@ -1653,11 +1669,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelBackgroundStyle">
-<td><a href="#seriesAxisConfigs.tickLabelBackgroundStyle">tickLabelBackgroundStyle</a></td><td>the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#seriesAxisConfigs.tickLabelBackgroundStyle">tickLabelBackgroundStyle</a></td><td>the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelDefocusedFillColor">
-<td><a href="#seriesAxisConfigs.tickLabelDefocusedFillColor">tickLabelDefocusedFillColor</a></td><td>the fill color to use for the defocused axis tick labels text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.tickLabelDefocusedFillColor">tickLabelDefocusedFillColor</a></td><td>the fill color to use for the defocused axis tick labels text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelDefocusedFillOpacity">
@@ -1665,7 +1681,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelDefocusedStrokeColor">
-<td><a href="#seriesAxisConfigs.tickLabelDefocusedStrokeColor">tickLabelDefocusedStrokeColor</a></td><td>the stroke color to use for the defocused axis tick labels text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.tickLabelDefocusedStrokeColor">tickLabelDefocusedStrokeColor</a></td><td>the stroke color to use for the defocused axis tick labels text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelDefocusedStrokeOpacity">
@@ -1673,7 +1689,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelFillColor">
-<td><a href="#seriesAxisConfigs.tickLabelFillColor">tickLabelFillColor</a></td><td>the fill color to use for the axis tick labels text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.tickLabelFillColor">tickLabelFillColor</a></td><td>the fill color to use for the axis tick labels text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelFillOpacity">
@@ -1681,7 +1697,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelFocusedFillColor">
-<td><a href="#seriesAxisConfigs.tickLabelFocusedFillColor">tickLabelFocusedFillColor</a></td><td>the fill color to use for the focused axis tick labels text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.tickLabelFocusedFillColor">tickLabelFocusedFillColor</a></td><td>the fill color to use for the focused axis tick labels text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelFocusedFillOpacity">
@@ -1689,7 +1705,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelFocusedStrokeColor">
-<td><a href="#seriesAxisConfigs.tickLabelFocusedStrokeColor">tickLabelFocusedStrokeColor</a></td><td>the stroke color to use for the focused axis tick labels text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.tickLabelFocusedStrokeColor">tickLabelFocusedStrokeColor</a></td><td>the stroke color to use for the focused axis tick labels text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelFocusedStrokeOpacity">
@@ -1733,7 +1749,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelStrokeColor">
-<td><a href="#seriesAxisConfigs.tickLabelStrokeColor">tickLabelStrokeColor</a></td><td>the stroke color to use for the axis tick labels text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.tickLabelStrokeColor">tickLabelStrokeColor</a></td><td>the stroke color to use for the axis tick labels text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickLabelStrokeOpacity">
@@ -1749,23 +1765,23 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickMarkColor">
-<td><a href="#seriesAxisConfigs.tickMarkColor">tickMarkColor</a></td><td>the color of the axis tick mark lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.tickMarkColor">tickMarkColor</a></td><td>the color of the axis tick mark lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickMarkDefocusedColor">
-<td><a href="#seriesAxisConfigs.tickMarkDefocusedColor">tickMarkDefocusedColor</a></td><td>the color of the defocused axis tick mark lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.tickMarkDefocusedColor">tickMarkDefocusedColor</a></td><td>the color of the defocused axis tick mark lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickMarkDefocusedOpacity">
-<td><a href="#seriesAxisConfigs.tickMarkDefocusedOpacity">tickMarkDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<td><a href="#seriesAxisConfigs.tickMarkDefocusedOpacity">tickMarkDefocusedOpacity</a></td><td>the opacity (0 - 1) of the defocused axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickMarkFocusedColor">
-<td><a href="#seriesAxisConfigs.tickMarkFocusedColor">tickMarkFocusedColor</a></td><td>the color of the focused axis tick mark lines</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.tickMarkFocusedColor">tickMarkFocusedColor</a></td><td>the color of the focused axis tick mark lines (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickMarkFocusedOpacity">
-<td><a href="#seriesAxisConfigs.tickMarkFocusedOpacity">tickMarkFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.tickMarkFocusedOpacity">tickMarkFocusedOpacity</a></td><td>the opacity (0 - 1) of the focused axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickMarkFront">
@@ -1777,7 +1793,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickMarkOpacity">
-<td><a href="#seriesAxisConfigs.tickMarkOpacity">tickMarkOpacity</a></td><td>the opacity (0 - 1) of the axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<td><a href="#seriesAxisConfigs.tickMarkOpacity">tickMarkOpacity</a></td><td>the opacity (0 - 1) of the axis tick mark lines</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.tickMarkSize">
@@ -1801,11 +1817,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleBackgroundStyle">
-<td><a href="#seriesAxisConfigs.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#seriesAxisConfigs.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleDefocusedFillColor">
-<td><a href="#seriesAxisConfigs.titleDefocusedFillColor">titleDefocusedFillColor</a></td><td>the fill color of the defocused axis title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.titleDefocusedFillColor">titleDefocusedFillColor</a></td><td>the fill color of the defocused axis title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleDefocusedFillOpacity">
@@ -1813,7 +1829,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleDefocusedStrokeColor">
-<td><a href="#seriesAxisConfigs.titleDefocusedStrokeColor">titleDefocusedStrokeColor</a></td><td>the stroke color of the defocused axis title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.titleDefocusedStrokeColor">titleDefocusedStrokeColor</a></td><td>the stroke color of the defocused axis title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleDefocusedStrokeOpacity">
@@ -1821,7 +1837,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleFillColor">
-<td><a href="#seriesAxisConfigs.titleFillColor">titleFillColor</a></td><td>the fill color of the axis title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.titleFillColor">titleFillColor</a></td><td>the fill color of the axis title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleFillOpacity">
@@ -1829,7 +1845,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleFocusedFillColor">
-<td><a href="#seriesAxisConfigs.titleFocusedFillColor">titleFocusedFillColor</a></td><td>the fill color of the focused axis title text</td><td>should be a valid svg color</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesAxisConfigs.titleFocusedFillColor">titleFocusedFillColor</a></td><td>the fill color of the focused axis title text (use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleFocusedFillOpacity">
@@ -1837,7 +1853,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleFocusedStrokeColor">
-<td><a href="#seriesAxisConfigs.titleFocusedStrokeColor">titleFocusedStrokeColor</a></td><td>the stroke color of the focused axis title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.titleFocusedStrokeColor">titleFocusedStrokeColor</a></td><td>the stroke color of the focused axis title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleFocusedStrokeOpacity">
@@ -1869,7 +1885,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleStrokeColor">
-<td><a href="#seriesAxisConfigs.titleStrokeColor">titleStrokeColor</a></td><td>the stroke color of the axis title text</td><td>should be a valid svg color</td><td><div>"none"</div>
+<td><a href="#seriesAxisConfigs.titleStrokeColor">titleStrokeColor</a></td><td>the stroke color of the axis title text</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.titleStrokeOpacity">
@@ -2026,7 +2042,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.defocusedFillColor">
-<td><a href="#seriesConfigs.defocusedFillColor">defocusedFillColor</a></td><td>the defocused fill color to use for the series shape (use "same" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig seriesDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesDefocused fillColor for the group index)</td><td>should be a valid svg color or be one of [ "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.defocusedFillColor">defocusedFillColor</a></td><td>the defocused fill color to use for the series shape (use "same" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig seriesDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesDefocused fillColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.defocusedFillOpacity">
@@ -2037,7 +2053,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.defocusedStrokeColor">
-<td><a href="#seriesConfigs.defocusedStrokeColor">defocusedStrokeColor</a></td><td>the defocused stroke color to use for the series shape (use "same" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig seriesDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesDefocused strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.defocusedStrokeColor">defocusedStrokeColor</a></td><td>the defocused stroke color to use for the series shape (use "same" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig seriesDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesDefocused strokeColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.defocusedStrokeOpacity">
@@ -2067,7 +2083,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.errorBarStrokeColor">
-<td><a href="#seriesConfigs.errorBarStrokeColor">errorBarStrokeColor</a></td><td>the stroke color to use for the series error bars (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig series strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig series strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"series"</div>
+<td><a href="#seriesConfigs.errorBarStrokeColor">errorBarStrokeColor</a></td><td>the stroke color to use for the series error bars (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig series strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig series strokeColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"series"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.errorBarStrokeOpacity">
@@ -2091,7 +2107,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.fillColor">
-<td><a href="#seriesConfigs.fillColor">fillColor</a></td><td>the fill color to use for the series shape (use "seriesIndex" to apply the colorPaletteConfig series fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig series fillColor for the group index)</td><td>should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]</td><td><div>"seriesIndex"</div>
+<td><a href="#seriesConfigs.fillColor">fillColor</a></td><td>the fill color to use for the series shape (use "seriesIndex" to apply the colorPaletteConfig series fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig series fillColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]</td><td><div>"seriesIndex"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.fillOpacity">
@@ -2118,7 +2134,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.focusedFillColor">
-<td><a href="#seriesConfigs.focusedFillColor">focusedFillColor</a></td><td>the focused fill color to use for the series shape (use "same" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig seriesFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesFocused fillColor for the group index)</td><td>should be a valid svg color or be one of [ "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.focusedFillColor">focusedFillColor</a></td><td>the focused fill color to use for the series shape (use "same" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig seriesFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesFocused fillColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.focusedFillOpacity">
@@ -2129,7 +2145,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.focusedStrokeColor">
-<td><a href="#seriesConfigs.focusedStrokeColor">focusedStrokeColor</a></td><td>the focused stroke color to use for the series shape (use "same" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig seriesFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesFocused strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.focusedStrokeColor">focusedStrokeColor</a></td><td>the focused stroke color to use for the series shape (use "same" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig seriesFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesFocused strokeColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.focusedStrokeOpacity">
@@ -2207,7 +2223,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.labelDefocusedFillColor">
-<td><a href="#seriesConfigs.labelDefocusedFillColor">labelDefocusedFillColor</a></td><td>the defocused fill color to use for the series label values (use "series" to reuse the defocusedFillColor, use "same" to reuse the labelFillColor, use "seriesIndex" to apply the colorPaletteConfig labelDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelDefocused fillColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.labelDefocusedFillColor">labelDefocusedFillColor</a></td><td>the defocused fill color to use for the series label values (use "series" to reuse the defocusedFillColor, use "same" to reuse the labelFillColor, use "seriesIndex" to apply the colorPaletteConfig labelDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelDefocused fillColor for the group index, use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelDefocusedFillOpacity">
@@ -2215,7 +2231,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.labelDefocusedStrokeColor">
-<td><a href="#seriesConfigs.labelDefocusedStrokeColor">labelDefocusedStrokeColor</a></td><td>the defocused stroke color to use for the series label values (use "series" to reuse the defocusedStrokeColor, use "same" to reuse the labelStrokeColor, use "seriesIndex" to apply the colorPaletteConfig labelDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelDefocused strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.labelDefocusedStrokeColor">labelDefocusedStrokeColor</a></td><td>the defocused stroke color to use for the series label values (use "series" to reuse the defocusedStrokeColor, use "same" to reuse the labelStrokeColor, use "seriesIndex" to apply the colorPaletteConfig labelDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelDefocused strokeColor for the group index, use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelDefocusedStrokeOpacity">
@@ -2227,7 +2243,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.labelFillColor">
-<td><a href="#seriesConfigs.labelFillColor">labelFillColor</a></td><td>the fill color to use for the series label values (use "series" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig label fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig label fillColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesConfigs.labelFillColor">labelFillColor</a></td><td>the fill color to use for the series label values (use "series" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig label fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig label fillColor for the group index, use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelFillOpacity">
@@ -2235,7 +2251,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.labelFocusedFillColor">
-<td><a href="#seriesConfigs.labelFocusedFillColor">labelFocusedFillColor</a></td><td>the focused fill color to use for the series label values (use "series" to reuse the focusedFillColor, use "same" to reuse the labelFillColor, use "seriesIndex" to apply the colorPaletteConfig labelFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelFocused fillColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.labelFocusedFillColor">labelFocusedFillColor</a></td><td>the focused fill color to use for the series label values (use "series" to reuse the focusedFillColor, use "same" to reuse the labelFillColor, use "seriesIndex" to apply the colorPaletteConfig labelFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelFocused fillColor for the group index, use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelFocusedFillOpacity">
@@ -2243,7 +2259,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.labelFocusedStrokeColor">
-<td><a href="#seriesConfigs.labelFocusedStrokeColor">labelFocusedStrokeColor</a></td><td>the focused stroke color to use for the series label values (use "series" to reuse the focusedStrokeColor, use "same" to reuse the labelStrokeColor, use "seriesIndex" to apply the colorPaletteConfig labelFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelFocused strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.labelFocusedStrokeColor">labelFocusedStrokeColor</a></td><td>the focused stroke color to use for the series label values (use "series" to reuse the focusedStrokeColor, use "same" to reuse the labelStrokeColor, use "seriesIndex" to apply the colorPaletteConfig labelFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelFocused strokeColor for the group index, use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelFocusedStrokeOpacity">
@@ -2283,7 +2299,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.labelStrokeColor">
-<td><a href="#seriesConfigs.labelStrokeColor">labelStrokeColor</a></td><td>the stroke color to use for the series label values (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig label strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig label strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div><span class="colorIcon" style="background-color: #000000"></span></div>
+<td><a href="#seriesConfigs.labelStrokeColor">labelStrokeColor</a></td><td>the stroke color to use for the series label values (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig label strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig label strokeColor for the group index, use "currentColor" to follow the host page's css color and theme)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelStrokeOpacity">
@@ -2295,7 +2311,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.markerDefocusedFillColor">
-<td><a href="#seriesConfigs.markerDefocusedFillColor">markerDefocusedFillColor</a></td><td>the defocused fill color to use for the series marker (use "series" to reuse the defocusedFillColor, use "same" to reuse the markerFillColor, use "seriesIndex" to apply the colorPaletteConfig markerDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerDefocused fillColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.markerDefocusedFillColor">markerDefocusedFillColor</a></td><td>the defocused fill color to use for the series marker (use "series" to reuse the defocusedFillColor, use "same" to reuse the markerFillColor, use "seriesIndex" to apply the colorPaletteConfig markerDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerDefocused fillColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.markerDefocusedFillOpacity">
@@ -2303,7 +2319,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.markerDefocusedStrokeColor">
-<td><a href="#seriesConfigs.markerDefocusedStrokeColor">markerDefocusedStrokeColor</a></td><td>the defocused stroke color to use for the series marker (use "series" to reuse the defocusedStrokeColor, use "same" to reuse the markerStrokeColor, use "seriesIndex" to apply the colorPaletteConfig markerDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerDefocused strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.markerDefocusedStrokeColor">markerDefocusedStrokeColor</a></td><td>the defocused stroke color to use for the series marker (use "series" to reuse the defocusedStrokeColor, use "same" to reuse the markerStrokeColor, use "seriesIndex" to apply the colorPaletteConfig markerDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerDefocused strokeColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.markerDefocusedStrokeOpacity">
@@ -2315,7 +2331,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.markerFillColor">
-<td><a href="#seriesConfigs.markerFillColor">markerFillColor</a></td><td>the fill color to use for the series marker (use "series" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig marker fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig marker fillColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"series"</div>
+<td><a href="#seriesConfigs.markerFillColor">markerFillColor</a></td><td>the fill color to use for the series marker (use "series" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig marker fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig marker fillColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"series"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.markerFillOpacity">
@@ -2323,7 +2339,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.markerFocusedFillColor">
-<td><a href="#seriesConfigs.markerFocusedFillColor">markerFocusedFillColor</a></td><td>the focused fill color to use for the series marker (use "series" to reuse the focusedFillColor, use "same" to reuse the markerFillColor, use "seriesIndex" to apply the colorPaletteConfig markerFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerFocused fillColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.markerFocusedFillColor">markerFocusedFillColor</a></td><td>the focused fill color to use for the series marker (use "series" to reuse the focusedFillColor, use "same" to reuse the markerFillColor, use "seriesIndex" to apply the colorPaletteConfig markerFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerFocused fillColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.markerFocusedFillOpacity">
@@ -2331,7 +2347,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.markerFocusedStrokeColor">
-<td><a href="#seriesConfigs.markerFocusedStrokeColor">markerFocusedStrokeColor</a></td><td>the focused stroke color to use for the series marker (use "series" to reuse the focusedStrokeColor, use "same" to reuse the markerStrokeColor, use "seriesIndex" to apply the colorPaletteConfig markerFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerFocused strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
+<td><a href="#seriesConfigs.markerFocusedStrokeColor">markerFocusedStrokeColor</a></td><td>the focused stroke color to use for the series marker (use "series" to reuse the focusedStrokeColor, use "same" to reuse the markerStrokeColor, use "seriesIndex" to apply the colorPaletteConfig markerFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerFocused strokeColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "groupIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.markerFocusedStrokeOpacity">
@@ -2362,7 +2378,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.markerStrokeColor">
-<td><a href="#seriesConfigs.markerStrokeColor">markerStrokeColor</a></td><td>the stroke color to use for the series marker (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig marker strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig marker strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"series"</div>
+<td><a href="#seriesConfigs.markerStrokeColor">markerStrokeColor</a></td><td>the stroke color to use for the series marker (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig marker strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig marker strokeColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "groupIndex" ]</td><td><div>"series"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.markerStrokeOpacity">
@@ -2433,7 +2449,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesConfigs.strokeColor">
-<td><a href="#seriesConfigs.strokeColor">strokeColor</a></td><td>the stroke color to use for the series shape (use "seriesIndex" to apply the colorPaletteConfig series strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig series strokeColor for the group index)</td><td>should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]</td><td><div>"seriesIndex"</div>
+<td><a href="#seriesConfigs.strokeColor">strokeColor</a></td><td>the stroke color to use for the series shape (use "seriesIndex" to apply the colorPaletteConfig series strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig series strokeColor for the group index)</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]</td><td><div>"seriesIndex"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.strokeOpacity">
@@ -2555,7 +2571,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="titleConfig.backgroundStyle">
-<td><a href="#titleConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#titleConfig.backgroundStyle">backgroundStyle</a></td><td>the styles to apply to the title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.link">
@@ -2579,7 +2595,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="titleConfig.prefixBackgroundStyle">
-<td><a href="#titleConfig.prefixBackgroundStyle">prefixBackgroundStyle</a></td><td>the styles to apply to the title prefix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#titleConfig.prefixBackgroundStyle">prefixBackgroundStyle</a></td><td>the styles to apply to the title prefix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.prefixMargin">
@@ -2591,11 +2607,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="titleConfig.prefixTextStyle">
-<td><a href="#titleConfig.prefixTextStyle">prefixTextStyle</a></td><td>the styles to apply to the title prefix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }</div>
+<td><a href="#titleConfig.prefixTextStyle">prefixTextStyle</a></td><td>the styles to apply to the title prefix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page's css color and theme)</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }</div>
 </td>
 </tr>
 <tr id="titleConfig.suffixBackgroundStyle">
-<td><a href="#titleConfig.suffixBackgroundStyle">suffixBackgroundStyle</a></td><td>the styles to apply to the title suffix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#titleConfig.suffixBackgroundStyle">suffixBackgroundStyle</a></td><td>the styles to apply to the title suffix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.suffixMargin">
@@ -2607,7 +2623,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="titleConfig.suffixTextStyle">
-<td><a href="#titleConfig.suffixTextStyle">suffixTextStyle</a></td><td>the styles to apply to the title suffix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }</div>
+<td><a href="#titleConfig.suffixTextStyle">suffixTextStyle</a></td><td>the styles to apply to the title suffix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page's css color and theme)</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }</div>
 </td>
 </tr>
 <tr id="titleConfig.textMargin">
@@ -2623,7 +2639,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="titleConfig.titleBackgroundStyle">
-<td><a href="#titleConfig.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the title text background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
+<td><a href="#titleConfig.titleBackgroundStyle">titleBackgroundStyle</a></td><td>the styles to apply to the title text background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }</div>
 </td>
 </tr>
 <tr id="titleConfig.titlePrefix">
@@ -2635,7 +2651,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="titleConfig.titleTextStyle">
-<td><a href="#titleConfig.titleTextStyle">titleTextStyle</a></td><td>the styles to apply to the title text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))</td><td>should be an object with exact properties { stroke: should be a valid svg color or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }</div>
+<td><a href="#titleConfig.titleTextStyle">titleTextStyle</a></td><td>the styles to apply to the title text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page's css color and theme)</td><td>should be an object with exact properties { stroke: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fill: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null }</td><td><div>{ stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }</div>
 </td>
 </tr>
 <tr id="titleConfig.truncationEnabled">

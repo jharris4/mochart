@@ -1,4 +1,4 @@
-import { NONE, TYPE_NUMBER, SCALE_LINEAR } from '../core/constants';
+import { NONE, TYPE_NUMBER, SCALE_LINEAR, COLOR_CURRENT } from '../core/constants';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import getAxisDefaults from './axisConfig';
@@ -24,12 +24,12 @@ export function getRegularDefaults() {
     baseLineFront: false,
     baseLineWidth: 1,
     baseLineDashArray: NONE,
-    baseLineColor: '#000000',
-    baseLineFocusedColor: '#000000',
-    baseLineDefocusedColor: '#000000',
-    baseLineOpacity: 1,
-    baseLineFocusedOpacity: 1,
-    baseLineDefocusedOpacity: 0.5,
+    baseLineColor: COLOR_CURRENT,
+    baseLineFocusedColor: COLOR_CURRENT,
+    baseLineDefocusedColor: COLOR_CURRENT,
+    baseLineOpacity: 0.65,
+    baseLineFocusedOpacity: 0.65,
+    baseLineDefocusedOpacity: 0.325,
 
     focusOnMouseOver: true,
     focusOnClick: false,

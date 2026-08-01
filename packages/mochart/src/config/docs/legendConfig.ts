@@ -12,6 +12,7 @@ export default function getDescriptions() {
     itemMargin: 'the margin (in pixels) for the top, right, bottom and left sides of the legend items',
     itemPadding: 'the padding (in pixels) for the top, right, bottom and left sides of the legend items',
     itemBackgroundStyle: 'the styles to apply to the legend item backgrounds (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    itemTextStyle: 'the styles to apply to the legend item text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)',
     showIconColors: 'whether to show series colors next to series titles in the legend',
     showIconShapes: 'whether to show series marker shape next to series titles in the legend',
     showIconPlaceholders: 'whether to show placeholder icons next to the series titles in the legend',

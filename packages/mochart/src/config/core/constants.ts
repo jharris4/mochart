@@ -127,6 +127,12 @@ export const COLOR_SAME = 'same';
 export const COLOR_SERIES_INDEX = 'seriesIndex';
 export const COLOR_GROUP_INDEX ='groupIndex';
 
+// Not a palette resolution mode like the ones above: the others are resolved to
+// a concrete color by utils/SeriesColors, this one is the svg/css keyword and is
+// written to the dom attribute as is, so the browser resolves it against the
+// host page's css color. It is deliberately not part of the ColorMode union.
+export const COLOR_CURRENT = 'currentColor';
+
 
 export const COLOR_INTERPOLATION_RGB = 'rgb';
 export const COLOR_INTERPOLATION_HSL = 'hsl';

@@ -23,8 +23,9 @@ interface PieCenterProps {
 
 /**
  * The pie center content: an optional text label and/or the live total of the
- * unsuppressed slice values (which counts along with the value tweens). Colors
- * are left to CSS (the text defaults to black and can be restyled via the
+ * unsuppressed slice values (which counts along with the value tweens). The
+ * label and total text are styled by `centerLabelTextStyle` and
+ * `centerTotalTextStyle` (and can be further restyled via the
  * mochart-pie-center classes).
  */
 export default class PieCenter extends Renderer<PieCenterProps> {
@@ -40,7 +41,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
 
   sync() {
     const { pieConfig, seriesLayoutInfo, radialLayoutInfo, total } = this.props;
-    const { centerLabel, showCenterTotal } = pieConfig;
+    const { centerLabel, showCenterTotal, centerLabelTextStyle, centerTotalTextStyle } = pieConfig;
     const showLabel = centerLabel !== NONE;
 
     if (!showLabel && !showCenterTotal) {
@@ -60,7 +61,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
         el.append(this.labelText);
         return el;
       });
-      labelEl!.set({ className: mochartCssClasses['pieCenterLabel'],
+      labelEl!.set({ ...centerLabelTextStyle, className: mochartCssClasses['pieCenterLabel'],
         textAnchor: 'middle', dy: showCenterTotal ? '-0.35em' : textDY });
       this.labelText.set(centerLabel!);
     }
@@ -75,7 +76,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
         el.append(this.totalText);
         return el;
       });
-      totalEl!.set({ className: mochartCssClasses['pieCenterTotal'],
+      totalEl!.set({ ...centerTotalTextStyle, className: mochartCssClasses['pieCenterTotal'],
         textAnchor: 'middle', dy: showLabel ? '1.0em' : textDY });
       this.totalText.set(format(specifier)(total));
     }

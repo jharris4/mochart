@@ -281,12 +281,28 @@ export interface PieConfig {
    */
   centerLabel: string | null;
   /**
+   * The styles to apply to the center label text (stroke, strokeOpacity,
+   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
+   * follow the host page's css color and theme).
+   *
+   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   */
+  centerLabelTextStyle: TextStyle;
+  /**
    * Whether the total of the slice values should be shown at the center of the
    * pie.
    *
    * @default false
    */
   showCenterTotal: boolean;
+  /**
+   * The styles to apply to the center total text (stroke, strokeOpacity,
+   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
+   * follow the host page's css color and theme).
+   *
+   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   */
+  centerTotalTextStyle: TextStyle;
   /**
    * The d3 format specifier used to format the center total (use auto to derive
    * a format).
@@ -421,11 +437,18 @@ export interface CrosshairConfig {
    */
   showSeries: boolean;
   /**
-   * The color to use when showing the crosshair lines.
+   * The color to use when showing the crosshair lines (use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default 'rgba(0,0,0,0.3)'
+   * @default "currentColor"
    */
   lineColor: string;
+  /**
+   * The opacity (0 - 1) of the crosshair lines.
+   *
+   * @default 0.3
+   */
+  lineOpacity: number;
   /**
    * The stroke width (in pixels) of the crosshair lines.
    *
@@ -600,9 +623,10 @@ export interface TitleConfig {
   titleBackgroundStyle: BackgroundStyle;
   /**
    * The styles to apply to the title text (stroke, strokeOpacity, strokeWidth,
-   * fill, fillOpacity (use null for none)).
+   * fill, fillOpacity (use null for none), use "currentColor" to follow the
+   * host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }
+   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
    */
   titleTextStyle: TextStyle;
   /**
@@ -614,9 +638,10 @@ export interface TitleConfig {
   prefixBackgroundStyle: BackgroundStyle;
   /**
    * The styles to apply to the title prefix text (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }
+   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
    */
   prefixTextStyle: TextStyle;
   /**
@@ -628,9 +653,10 @@ export interface TitleConfig {
   suffixBackgroundStyle: BackgroundStyle;
   /**
    * The styles to apply to the title suffix text (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: null, fillOpacity: null }
+   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
    */
   suffixTextStyle: TextStyle;
 }
@@ -719,6 +745,14 @@ export interface LegendConfig {
    * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
    */
   itemBackgroundStyle: BackgroundStyle;
+  /**
+   * The styles to apply to the legend item text (stroke, strokeOpacity,
+   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
+   * follow the host page's css color and theme).
+   *
+   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   */
+  itemTextStyle: TextStyle;
   /**
    * Whether to show series colors next to series titles in the legend.
    *
@@ -1119,39 +1153,42 @@ export interface AxisConfigBase {
    */
   axisLineMargin: number;
   /**
-   * The color of the line shown along the axis.
+   * The color of the line shown along the axis (use "currentColor" to follow
+   * the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   axisLineColor: string;
   /**
-   * The color of the line shown along the focused axis.
+   * The color of the line shown along the focused axis (use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   axisLineFocusedColor: string;
   /**
-   * The color of the line shown along the defocused axis.
+   * The color of the line shown along the defocused axis (use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   axisLineDefocusedColor: string;
   /**
    * The opacity (0 - 1) of the line shown along the axis.
    *
-   * @default 1
+   * @default 0.65
    */
   axisLineOpacity: number;
   /**
    * The opacity (0 - 1) of the line shown along the focused axis.
    *
-   * @default 1
+   * @default 0.65
    */
   axisLineFocusedOpacity: number;
   /**
    * The opacity (0 - 1) of the line shown along the defocused axis.
    *
-   * @default 0.5
+   * @default 0.325
    */
   axisLineDefocusedOpacity: number;
 
@@ -1321,39 +1358,42 @@ export interface AxisConfigBase {
    */
   gridLineDashArray: string | null;
   /**
-   * The color of the axis grid lines.
+   * The color of the axis grid lines (use "currentColor" to follow the host
+   * page's css color and theme).
    *
-   * @default '#e5e5e5'
+   * @default "currentColor"
    */
   gridLineColor: string;
   /**
-   * The color of the focused axis grid lines.
+   * The color of the focused axis grid lines (use "currentColor" to follow the
+   * host page's css color and theme).
    *
-   * @default '#e5e5e5'
+   * @default "currentColor"
    */
   gridLineFocusedColor: string;
   /**
-   * The color of the defocused axis grid lines.
+   * The color of the defocused axis grid lines (use "currentColor" to follow
+   * the host page's css color and theme).
    *
-   * @default '#e5e5e5'
+   * @default "currentColor"
    */
   gridLineDefocusedColor: string;
   /**
    * The opacity (0 - 1) of the axis grid lines.
    *
-   * @default 0.75
+   * @default 0.13
    */
   gridLineOpacity: number;
   /**
    * The opacity (0 - 1) of the focused axis grid lines.
    *
-   * @default 1
+   * @default 0.17
    */
   gridLineFocusedOpacity: number;
   /**
    * The opacity (0 - 1) of the defocused axis grid lines.
    *
-   * @default 0.5
+   * @default 0.09
    */
   gridLineDefocusedOpacity: number;
 
@@ -1536,21 +1576,24 @@ export interface AxisConfigBase {
    */
   thresholdTitleDefocusedStrokeColor: string;
   /**
-   * The fill color to use for the threshold title text.
+   * The fill color to use for the threshold title text (use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   thresholdTitleFillColor: string;
   /**
-   * The fill color to use for the focused threshold title text.
+   * The fill color to use for the focused threshold title text (use
+   * "currentColor" to follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   thresholdTitleFocusedFillColor: string;
   /**
-   * The fill color to use for the defocused threshold title text.
+   * The fill color to use for the defocused threshold title text (use
+   * "currentColor" to follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   thresholdTitleDefocusedFillColor: string;
   /**
@@ -1609,39 +1652,42 @@ export interface AxisConfigBase {
    */
   thresholdDashArray: string | null;
   /**
-   * The color of the threshold line.
+   * The color of the threshold line (use "currentColor" to follow the host
+   * page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   thresholdColor: string;
   /**
-   * The color of the focused threshold line.
+   * The color of the focused threshold line (use "currentColor" to follow the
+   * host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   thresholdFocusedColor: string;
   /**
-   * The color of the defocused threshold line.
+   * The color of the defocused threshold line (use "currentColor" to follow the
+   * host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   thresholdDefocusedColor: string;
   /**
    * The opacity (0 - 1) of the threshold line.
    *
-   * @default 1
+   * @default 0.65
    */
   thresholdOpacity: number;
   /**
    * The opacity (0 - 1) of the focused threshold line.
    *
-   * @default 1
+   * @default 0.65
    */
   thresholdFocusedOpacity: number;
   /**
    * The opacity (0 - 1) of the defocused threshold line.
    *
-   * @default 0.5
+   * @default 0.325
    */
   thresholdDefocusedOpacity: number;
 
@@ -1761,21 +1807,24 @@ export interface AxisConfigBase {
    */
   tickLabelDefocusedStrokeColor: string;
   /**
-   * The fill color to use for the axis tick labels text.
+   * The fill color to use for the axis tick labels text (use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   tickLabelFillColor: string;
   /**
-   * The fill color to use for the focused axis tick labels text.
+   * The fill color to use for the focused axis tick labels text (use
+   * "currentColor" to follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   tickLabelFocusedFillColor: string;
   /**
-   * The fill color to use for the defocused axis tick labels text.
+   * The fill color to use for the defocused axis tick labels text (use
+   * "currentColor" to follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   tickLabelDefocusedFillColor: string;
   /**
@@ -1848,39 +1897,42 @@ export interface AxisConfigBase {
    */
   tickMarkWidth: number;
   /**
-   * The color of the axis tick mark lines.
+   * The color of the axis tick mark lines (use "currentColor" to follow the
+   * host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   tickMarkColor: string;
   /**
-   * The color of the focused axis tick mark lines.
+   * The color of the focused axis tick mark lines (use "currentColor" to follow
+   * the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   tickMarkFocusedColor: string;
   /**
-   * The color of the defocused axis tick mark lines.
+   * The color of the defocused axis tick mark lines (use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   tickMarkDefocusedColor: string;
   /**
    * The opacity (0 - 1) of the axis tick mark lines.
    *
-   * @default 1
+   * @default 0.65
    */
   tickMarkOpacity: number;
   /**
    * The opacity (0 - 1) of the focused axis tick mark lines.
    *
-   * @default 1
+   * @default 0.65
    */
   tickMarkFocusedOpacity: number;
   /**
    * The opacity (0 - 1) of the defocused axis tick mark lines.
    *
-   * @default 0.5
+   * @default 0.325
    */
   tickMarkDefocusedOpacity: number;
 
@@ -1978,21 +2030,24 @@ export interface AxisConfigBase {
    */
   titleDefocusedStrokeColor: string;
   /**
-   * The fill color of the axis title text.
+   * The fill color of the axis title text (use "currentColor" to follow the
+   * host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   titleFillColor: string;
   /**
-   * The fill color of the focused axis title text.
+   * The fill color of the focused axis title text (use "currentColor" to follow
+   * the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   titleFocusedFillColor: string;
   /**
-   * The fill color of the defocused axis title text.
+   * The fill color of the defocused axis title text (use "currentColor" to
+   * follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   titleDefocusedFillColor: string;
   /**
@@ -2262,41 +2317,43 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    */
   baseLineDashArray: string | null;
   /**
-   * The color to use when drawing the line shown along the base of the axis.
+   * The color to use when drawing the line shown along the base of the axis
+   * (use "currentColor" to follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   baseLineColor: string;
   /**
    * The color to use when drawing the line shown along the base of the focused
-   * axis.
+   * axis (use "currentColor" to follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   baseLineFocusedColor: string;
   /**
    * The color to use when drawing the line shown along the base of the
-   * defocused axis.
+   * defocused axis (use "currentColor" to follow the host page's css color and
+   * theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   baseLineDefocusedColor: string;
   /**
    * The opacity (0 - 1) of the line shown along the base of the axis.
    *
-   * @default 1
+   * @default 0.65
    */
   baseLineOpacity: number;
   /**
    * The opacity (0 - 1) of the line shown along the base of the focused axis.
    *
-   * @default 1
+   * @default 0.65
    */
   baseLineFocusedOpacity: number;
   /**
    * The opacity (0 - 1) of the line shown along the base of the defocused axis.
    *
-   * @default 0.5
+   * @default 0.325
    */
   baseLineDefocusedOpacity: number;
   /**
@@ -2763,9 +2820,10 @@ export interface SeriesConfig {
    * The stroke color to use for the series label values (use "series" to reuse
    * the strokeColor, use "seriesIndex" to apply the colorPaletteConfig label
    * strokeColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig label strokeColor for the group index).
+   * colorPaletteConfig label strokeColor for the group index, use
+   * "currentColor" to follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   labelStrokeColor: SeriesColor;
   /**
@@ -2773,7 +2831,8 @@ export interface SeriesConfig {
    * to reuse the focusedStrokeColor, use "same" to reuse the labelStrokeColor,
    * use "seriesIndex" to apply the colorPaletteConfig labelFocused strokeColor
    * for the series index, use "groupIndex" to apply the colorPaletteConfig
-   * labelFocused strokeColor for the group index).
+   * labelFocused strokeColor for the group index, use "currentColor" to follow
+   * the host page's css color and theme).
    *
    * @default "same"
    */
@@ -2783,7 +2842,8 @@ export interface SeriesConfig {
    * to reuse the defocusedStrokeColor, use "same" to reuse the
    * labelStrokeColor, use "seriesIndex" to apply the colorPaletteConfig
    * labelDefocused strokeColor for the series index, use "groupIndex" to apply
-   * the colorPaletteConfig labelDefocused strokeColor for the group index).
+   * the colorPaletteConfig labelDefocused strokeColor for the group index, use
+   * "currentColor" to follow the host page's css color and theme).
    *
    * @default "same"
    */
@@ -2792,9 +2852,10 @@ export interface SeriesConfig {
    * The fill color to use for the series label values (use "series" to reuse
    * the fillColor, use "seriesIndex" to apply the colorPaletteConfig label
    * fillColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig label fillColor for the group index).
+   * colorPaletteConfig label fillColor for the group index, use "currentColor"
+   * to follow the host page's css color and theme).
    *
-   * @default '#000000'
+   * @default "currentColor"
    */
   labelFillColor: SeriesColor;
   /**
@@ -2802,7 +2863,8 @@ export interface SeriesConfig {
    * reuse the focusedFillColor, use "same" to reuse the labelFillColor, use
    * "seriesIndex" to apply the colorPaletteConfig labelFocused fillColor for
    * the series index, use "groupIndex" to apply the colorPaletteConfig
-   * labelFocused fillColor for the group index).
+   * labelFocused fillColor for the group index, use "currentColor" to follow
+   * the host page's css color and theme).
    *
    * @default "same"
    */
@@ -2812,7 +2874,8 @@ export interface SeriesConfig {
    * to reuse the defocusedFillColor, use "same" to reuse the labelFillColor,
    * use "seriesIndex" to apply the colorPaletteConfig labelDefocused fillColor
    * for the series index, use "groupIndex" to apply the colorPaletteConfig
-   * labelDefocused fillColor for the group index).
+   * labelDefocused fillColor for the group index, use "currentColor" to follow
+   * the host page's css color and theme).
    *
    * @default "same"
    */

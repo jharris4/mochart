@@ -1,5 +1,5 @@
 import validators from '@mochart/movalid';
-import { NONE, MARGIN_KEYS, PADDING_KEYS } from '../core/constants';
+import { NONE, MARGIN_KEYS, PADDING_KEYS, COLOR_CURRENT } from '../core/constants';
 
 const dashArrayRegexp = /(\d+)(,\s*\d+)*/;
 
@@ -9,7 +9,12 @@ const dashArrayRegexp = /(\d+)(,\s*\d+)*/;
 // eslint-disable-next-line no-useless-escape
 const numberFormatRegexp = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?([a-z%])?$/i;
 
-const svgColorValidator = validators.color().orEqual('none').withCustomName('svgColor').withMessage('should be a valid svg color');
+// 'currentColor' is accepted here and only here: an svg color is written
+// straight to a dom attribute, so the browser resolves it against the host
+// page's css color. The bare validators.color() used for the series color
+// scale bounds (colorMin/colorMax/colorBase*) must stay strict - those values
+// are handed to d3 scale ranges and a keyword would interpolate to NaN.
+const svgColorValidator = validators.color().orOneOf(['none', COLOR_CURRENT]).withCustomName('svgColor').withMessage('should be a valid svg color (or "none" / "currentColor")');
 
 const styleKeyMap = {
   stroke: svgColorValidator.orEqual(NONE),

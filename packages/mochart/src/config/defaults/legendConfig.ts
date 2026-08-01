@@ -1,4 +1,4 @@
-import { AUTO, NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS } from '../core/constants';
+import { AUTO, NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS, COLOR_CURRENT } from '../core/constants';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 import type { LegendConfig } from '../../types/config';
 
@@ -23,6 +23,7 @@ export function getRegularDefaults() {
     itemMargin: { top: 1, right: 1, bottom: 1, left: 1 },
     itemPadding: { top: 1, right: 1, bottom: 1, left: 1 },
     itemBackgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
+    itemTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
     showIconColors: true,
     showIconShapes: true,
     showIconPlaceholders: true,

@@ -65,7 +65,8 @@ class Crosshair extends Renderer<CrosshairProps> {
 
           handle.root.set({ className: mochartCssClasses['crosshairLine'],
             x1: groupX1, y1: groupY1, x2: groupX2, y2: groupY2, stroke: crosshairConfig.lineColor,
-            strokeWidth: crosshairConfig.lineWidth, strokeDasharray: crosshairConfig.lineDashArray });
+            strokeOpacity: crosshairConfig.lineOpacity, strokeWidth: crosshairConfig.lineWidth,
+            strokeDasharray: crosshairConfig.lineDashArray });
         }
       });
 
@@ -81,7 +82,8 @@ class Crosshair extends Renderer<CrosshairProps> {
 
           handle.root.set({ className: mochartCssClasses['crosshairLine'],
             x1: seriesX1, y1: seriesY1, x2: seriesX2, y2: seriesY2, stroke: crosshairConfig.lineColor,
-            strokeWidth: crosshairConfig.lineWidth, strokeDasharray: crosshairConfig.lineDashArray });
+            strokeOpacity: crosshairConfig.lineOpacity, strokeWidth: crosshairConfig.lineWidth,
+            strokeDasharray: crosshairConfig.lineDashArray });
         }
       });
     }

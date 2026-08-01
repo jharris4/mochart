@@ -16,8 +16,6 @@
   "seriesStackConfigs": {},
   "seriesAllConfig": {
     "labelPosition": "outside",
-    "labelStrokeColor": "#000000",
-    "labelFillColor": "#000000",
     "labelMinRangePercent": 0.05,
     "renderer": "area"
   },

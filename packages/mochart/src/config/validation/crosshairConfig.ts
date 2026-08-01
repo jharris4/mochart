@@ -9,6 +9,7 @@ export default function getValidators() {
     showGroup: validators.boolean(),
     showSeries: validators.boolean(),
     lineColor: validators.svgColor(),
+    lineOpacity: validators.opacity(),
     lineWidth: validators.numberMin(0),
     lineDashArray: validators.dashArray().orEqual(NONE),
     showBehindTooltip: validators.boolean()

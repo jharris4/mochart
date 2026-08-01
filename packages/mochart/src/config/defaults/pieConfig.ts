@@ -1,4 +1,4 @@
-import { AUTO, NONE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE } from '../core/constants';
+import { AUTO, NONE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE, COLOR_CURRENT } from '../core/constants';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import type { PieConfig } from '../../types/config';
@@ -28,7 +28,9 @@ export function getRegularDefaults() {
     tooltipValues: PIE_LABEL_TYPE_VALUE,
     tooltipPercentFormat: AUTO,
     centerLabel: NONE,
+    centerLabelTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
     showCenterTotal: false,
+    centerTotalTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
     centerTotalFormat: AUTO,
     adjustCenterTotalForSuppression: true,
     centerOffsetXPercent: 0,

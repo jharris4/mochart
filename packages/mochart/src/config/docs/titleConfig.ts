@@ -22,10 +22,10 @@ export default function getDescriptions() {
     suffixPadding: 'the padding (in pixels) for the top, right, bottom and left sides of the title suffix',
     backgroundStyle: 'the styles to apply to the title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
     titleBackgroundStyle: 'the styles to apply to the title text background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
-    titleTextStyle: 'the styles to apply to the title text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    titleTextStyle: 'the styles to apply to the title text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)',
     prefixBackgroundStyle: 'the styles to apply to the title prefix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
-    prefixTextStyle: 'the styles to apply to the title prefix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    prefixTextStyle: 'the styles to apply to the title prefix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)',
     suffixBackgroundStyle: 'the styles to apply to the title suffix background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
-    suffixTextStyle: 'the styles to apply to the title suffix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))'
+    suffixTextStyle: 'the styles to apply to the title suffix text (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'
   };
 }

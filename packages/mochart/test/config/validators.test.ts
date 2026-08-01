@@ -7,11 +7,12 @@ import configValidators from '../../src/config/validation/validators';
 describe('svgColor', () => {
   const validate = configValidators.svgColor();
 
-  it('accepts hex and rgb colors and the keyword "none"', () => {
+  it('accepts hex and rgb colors and the keywords "none" and "currentColor"', () => {
     expect(validate('#fff')).toBe(true);
     expect(validate('#ffffff')).toBe(true);
     expect(validate('rgb(1,2,3)')).toBe(true);
     expect(validate('none')).toBe(true);
+    expect(validate('currentColor')).toBe(true);
   });
 
   it('rejects malformed hex and named/hsl colors', () => {

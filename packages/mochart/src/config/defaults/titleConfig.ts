@@ -1,4 +1,4 @@
-import { NONE, POSITION_TOP, ALIGN_CENTER, VERTICAL_ALIGN_MIDDLE, ELLIPSIS } from '../core/constants';
+import { NONE, POSITION_TOP, ALIGN_CENTER, VERTICAL_ALIGN_MIDDLE, ELLIPSIS, COLOR_CURRENT } from '../core/constants';
 
 export default function getDefaults() {
   return {
@@ -24,10 +24,10 @@ export default function getDefaults() {
     suffixPadding: { top: 0, right: 0, bottom: 0, left: 5 },
     backgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
     titleBackgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
-    titleTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: NONE, fillOpacity: NONE },
+    titleTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
     prefixBackgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
-    prefixTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: NONE, fillOpacity: NONE },
+    prefixTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
     suffixBackgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
-    suffixTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: NONE, fillOpacity: NONE }
+    suffixTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE }
   };
 }

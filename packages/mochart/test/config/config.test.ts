@@ -173,7 +173,7 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
+        'seriesAllConfig - fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
       ],
       warnings: []
     });
@@ -196,7 +196,7 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
+        'seriesAllConfig - fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
       ],
       warnings: []
     });
@@ -219,8 +219,8 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"',
-        'seriesConfigs[0] - fillColor - should be a valid svg color or be one of [ "seriesIndex", "groupIndex" ]: "#ZZZ"'
+        'seriesAllConfig - fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"',
+        'seriesConfigs[0] - fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#ZZZ"'
       ],
       warnings: []
     });

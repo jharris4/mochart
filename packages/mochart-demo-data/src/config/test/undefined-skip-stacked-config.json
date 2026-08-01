@@ -11,7 +11,6 @@
     "before": false,
     "title": "Group Axis",
     "gridLines": true,
-    "gridLineColor": "#e5e5e5",
     "gridLineWidth": 1,
     "gridLineDashArray": "5, 5",
     "min": "auto",

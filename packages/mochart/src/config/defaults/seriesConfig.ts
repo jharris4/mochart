@@ -1,6 +1,6 @@
 import {
   AUTO, NONE, RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE, MARKER_SHAPE_CIRCLE, CURVE_TYPE_LINEAR,
-  COLOR_SAME, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX, LABEL_POSITION_CENTER,
+  COLOR_SAME, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX, COLOR_CURRENT, LABEL_POSITION_CENTER,
   COLOR_INTERPOLATION_HCL
 } from '../core/constants';
 
@@ -53,10 +53,10 @@ export function getRegularDefaults() {
     useTitleForValueLabel: true,
     title: NONE,
     labelFormat: AUTO,
-    labelStrokeColor: '#000000',
+    labelStrokeColor: COLOR_CURRENT,
     labelFocusedStrokeColor: COLOR_SAME,
     labelDefocusedStrokeColor: COLOR_SAME,
-    labelFillColor: '#000000',
+    labelFillColor: COLOR_CURRENT,
     labelFocusedFillColor: COLOR_SAME,
     labelDefocusedFillColor: COLOR_SAME,
     labelMinPositionPercent: NONE,

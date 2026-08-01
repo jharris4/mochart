@@ -15,6 +15,7 @@ export default function getValidators() {
     itemMargin: validators.margin(),
     itemPadding: validators.padding(),
     itemBackgroundStyle: validators.style(),
+    itemTextStyle: validators.style(),
     showIconColors: validators.boolean(),
     showIconShapes: validators.boolean(),
     showIconPlaceholders: validators.boolean(),
