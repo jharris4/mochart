@@ -732,7 +732,7 @@ export interface SeriesIconConfig {
   showIconPlaceholders: boolean;
   /**
    * The width and height (in pixels) of the series icons, or "auto" to match
-   * the measured legend text height.
+   * the legend text font size.
    *
    * In tooltipConfig: the width and height (in pixels) of the series icons, or
    * "auto" to match the inherited font size.

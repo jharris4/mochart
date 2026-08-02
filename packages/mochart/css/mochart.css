@@ -38,19 +38,11 @@
 }
 
 /* Inline color icons inside tooltip rows. Resets commonly force
- * `svg { display: block }`, which wraps the icon's spacer onto a second line
- * and knocks the row text out of vertical alignment. */
+ * `svg { display: block }`, which wraps the icon's spacer onto a second line.
+ * Only `display` is re-asserted — the default baseline alignment is what puts
+ * the icon on the row text. */
 .mochart-tooltip-container svg {
   display: inline-block;
-  vertical-align: middle;
-}
-
-/* Match the adjacent series text to the icon wrapper's middle alignment.
- * Without this, the icon is centered on the line while the label remains on
- * the browser's default text baseline. */
-.mochart-tooltip-line-label,
-.mochart-tooltip-line-text {
-  vertical-align: middle;
 }
 
 /* Message overlays (and any custom factory content dropped into them). */

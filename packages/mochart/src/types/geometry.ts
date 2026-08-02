@@ -23,9 +23,11 @@ export interface InnerOuter {
 /**
  * Measured text bounds. `empty` marks the shared zero bounds used when the
  * measured element is hidden; `default` marks the placeholder bounds used
- * before the DOM can be measured.
+ * before the DOM can be measured. `fontSize` is the computed font size in
+ * pixels, captured only where it is measured.
  */
 export interface TextBounds extends Size {
   empty?: boolean;
   default?: boolean;
+  fontSize?: number;
 }

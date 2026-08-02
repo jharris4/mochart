@@ -2,7 +2,7 @@ import type { Anchor } from '../config/core/constants';
 import type { Bounds, TextBounds } from './geometry';
 
 /** Bounds input accepted by createSpacingLayoutInfo; `default` marks placeholder text bounds. */
-export type SpacingBoundsInput = Bounds & { default?: boolean };
+export type SpacingBoundsInput = Bounds & { default?: boolean; fontSize?: number };
 
 /** Bounds plus the margin/padding-adjusted bounds produced by createSpacingLayoutInfo. */
 export interface SpacingLayoutInfo extends Bounds {
@@ -11,6 +11,8 @@ export interface SpacingLayoutInfo extends Bounds {
   paddingBounds: Bounds;
   paddingRelativeBounds: Bounds;
   default?: boolean;
+  /** measured font size of the text these bounds came from, where one was captured */
+  fontSize?: number;
 }
 
 /** Orientation-aware bounds produced by createLayoutInfo. */

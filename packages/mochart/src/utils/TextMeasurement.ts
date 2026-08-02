@@ -124,6 +124,9 @@ function getMaxBounds(allBounds: TextBounds | TextBounds[]): TextBounds {
     if (bounds.height > maxBounds.height) {
       maxBounds.height = bounds.height;
     }
+    if (bounds.fontSize !== undefined && bounds.fontSize > (maxBounds.fontSize ?? 0)) {
+      maxBounds.fontSize = bounds.fontSize;
+    }
   }
   return maxBounds;
 }
@@ -134,6 +137,10 @@ function getSvgBounds(domAccessors: ChartDomAccessors | null | undefined, getDom
 
 function getSvgAllBounds(domAccessors: ChartDomAccessors | null | undefined, getDomElementKey: AccessorSpec, fallbackBounds: TextBounds, list: readonly unknown[]): TextBounds[] {
   return getAllBounds<SVGGraphicsElement>(domAccessors, getDomElementKey, fallbackBounds, getSvgWidthAndHeight, list);
+}
+
+function getSvgAllBoundsWithFontSize(domAccessors: ChartDomAccessors | null | undefined, getDomElementKey: AccessorSpec, fallbackBounds: TextBounds, list: readonly unknown[]): TextBounds[] {
+  return getAllBounds<SVGGraphicsElement>(domAccessors, getDomElementKey, fallbackBounds, getSvgWidthHeightAndFontSize, list);
 }
 
 function getSvgMaxBounds(domAccessors: ChartDomAccessors | null | undefined, getDomElementKey: AccessorSpec, fallbackBounds: TextBounds): TextBounds {
@@ -183,6 +190,18 @@ export function getSvgWidthAndHeight(domElement: SVGGraphicsElement | null): Siz
   return {
     width, height
   };
+}
+
+// measured height is the font's em box (1.15–1.25em), so anything sized to match the text needs the font size itself
+export function getSvgWidthHeightAndFontSize(domElement: SVGGraphicsElement | null): TextBounds {
+  const bounds: TextBounds = getSvgWidthAndHeight(domElement);
+  if (domElement !== null && typeof getComputedStyle === 'function') {
+    const fontSize = parseFloat(getComputedStyle(domElement).fontSize);
+    if (isFinite(fontSize) && fontSize > 0) {
+      bounds.fontSize = fontSize;
+    }
+  }
+  return bounds;
 }
 
 export function getHtmlWidthAndHeight(domElement: Element | null): Size {
@@ -325,7 +344,7 @@ function getLegendSeriesConfigs(mochartConfig: MochartConfig) {
 export function getLegendItemTextBounds(mochartConfig: MochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds | TextBounds[] {
   let legendItemTextBounds: TextBounds | TextBounds[] = emptyBounds;
   if (mochartConfig.legendConfig.visible) {
-    legendItemTextBounds = getSvgAllBounds(domAccessors, 'getLegendItemTextDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig));
+    legendItemTextBounds = getSvgAllBoundsWithFontSize(domAccessors, 'getLegendItemTextDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig));
   }
   return legendItemTextBounds;
 }

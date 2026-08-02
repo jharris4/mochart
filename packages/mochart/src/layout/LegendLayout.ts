@@ -6,11 +6,12 @@ import type { ChartTextBoundsData, LayoutInfo, LegendLayoutResult, SpacingLayout
 
 const fallbackLegendIconSize = 14;
 
+// 'auto' tracks the label's font size (like the tooltip's 1em icon), falling back to the measured em box
 export function resolveLegendIconSize(legendConfig: LegendConfig, legendTextBounds: TextBounds): number {
   if (legendConfig.iconSize !== AUTO) return legendConfig.iconSize;
-  return legendTextBounds.default || legendTextBounds.height <= 0
-    ? fallbackLegendIconSize
-    : legendTextBounds.height;
+  if (legendTextBounds.default || legendTextBounds.height <= 0) return fallbackLegendIconSize;
+  const { fontSize } = legendTextBounds;
+  return fontSize !== undefined && fontSize > 0 ? Math.round(fontSize) : legendTextBounds.height;
 }
 
 export function getLegendHeight(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, plotWidthAndX: { x: number; width: number }): number {
@@ -133,19 +134,23 @@ export function getLegendLayoutInfo(mochartConfig: MochartConfig, chartTextBound
     }
 
     const legendLayoutInfo = createSpacingLayoutInfo({ x: legendX, y: legendY, width: legendWidth, height: legendHeight, default: hasDefaultBounds }, margin, padding);
+    // the font size rides along so the rendered icon resolves 'auto' the same way this pass did
+    const { fontSize } = legendItemMaxTextBounds;
     const legendItemTextLayoutInfo = createSpacingLayoutInfo({
       x: itemSpacingLeft + iconWidth,
       y: 0,
       width: legendItemTextWidth,
       height: itemTextHeight,
-      default: hasDefaultBounds
+      default: hasDefaultBounds,
+      fontSize
     }, itemMargin, itemPadding);
     const legendItemTextRawLayoutInfo = createSpacingLayoutInfo({
       x: itemSpacingLeft + iconWidth,
       y: 0,
       width: itemTextWidth,
       height: itemTextHeight,
-      default: hasDefaultBounds
+      default: hasDefaultBounds,
+      fontSize
     }, itemMargin, itemPadding);
 
     return {
