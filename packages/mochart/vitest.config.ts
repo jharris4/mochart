@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    // Golden demos with 2000ms animations re-render hundreds of frames; slow CI runners exceed the 5s default.
+    testTimeout: 30000,
     coverage: {
       provider: 'v8',
       include: ['src/**'],
