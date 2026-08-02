@@ -26,6 +26,8 @@ export interface PropertyDoc {
   rules: string[];
   default?: DefaultValue;
   conditionalDefaults?: ConditionalDefaultValue[];
+  /** The members of a nested object property, documented the same way. */
+  properties?: PropertyDoc[];
 }
 
 export interface SectionDoc {

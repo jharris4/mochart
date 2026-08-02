@@ -1,4 +1,5 @@
 import { NONE } from './constants';
+import { deepMerge, deepMergeAll, withoutUndefined } from './deepMerge';
 import type { ConfigValidation, MochartConfig } from '../../types/config';
 
 type ConfigRecord = Record<string, unknown>;
@@ -138,19 +139,6 @@ export function filterConfig(config: unknown): config is ConfigRecord {
   return isObject(config) && config.ignore !== true
 }
 
-function withoutUndefined(object: ConfigRecord): ConfigRecord {
-  const keys = Object.keys(object);
-  const keysFiltered = keys.filter(key => object[key] !== undefined);
-  if (keysFiltered.length < keys.length) {
-    const clone: ConfigRecord = {};
-    for (const key of keysFiltered) {
-      clone[key] = object[key];
-    }
-    return clone;
-  }
-  return object;
-}
-
 export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRecord): ConfigRecord {
   if (isObject(configWithoutDefaults)) {
     const config = { ...configWithoutDefaults };
@@ -169,13 +157,13 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
           for (i = 0; i < listCount; i++) {
             aConfig = filteredConfigSection[i];
             if (isObject(aConfig) && isObject(defaultsSection[i])) {
-              filteredConfigSection[i] = { ...withoutUndefined(defaultsSection[i]), ...allSection, ...aConfig };
+              filteredConfigSection[i] = deepMergeAll<ConfigRecord>(defaultsSection[i], allSection, aConfig);
             }
           }
           config[sectionKey] = filteredConfigSection;
         }
         else if (isObject(configSection)) {
-          config[sectionKey] = [{ ...(isObject(defaultsSection[0]) ? withoutUndefined(defaultsSection[0]) : {}), ...configSection }];
+          config[sectionKey] = [deepMerge<ConfigRecord>(isObject(defaultsSection[0]) ? defaultsSection[0] : {}, configSection)];
         }
         else if (configSection === undefined) {
           config[sectionKey] = defaultsSection;
@@ -183,7 +171,7 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
       }
       else if (isObject(defaultsSection)) {
         if (isObject(configSection)) {
-          config[sectionKey] = { ...withoutUndefined(defaultsSection), ...configSection };
+          config[sectionKey] = deepMerge<ConfigRecord>(defaultsSection, configSection);
         }
         else if (configSection === undefined) {
           config[sectionKey] = withoutUndefined(defaultsSection);
@@ -198,7 +186,7 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
 function applyAllConfig(configs: ConfigRecord[], allConfig: unknown): ConfigRecord[] {
   if (isObject(allConfig)) {
     if (Array.isArray(configs)) {
-      configs = configs.map(config => isObject(config) ? {...allConfig, ...config} : allConfig);
+      configs = configs.map(config => isObject(config) ? deepMerge<ConfigRecord>(allConfig, config) : allConfig);
     }
   }
   return configs;
@@ -368,7 +356,7 @@ export function configWithAll(config: unknown, allConfig: unknown): unknown {
       return config.map(aConfig => configWithAll(aConfig, allConfig));
     }
     else if (isObject(config)) {
-      return { ...allConfig, ...config };
+      return deepMerge<ConfigRecord>(allConfig, config);
     }
     else {
       return { ...allConfig };

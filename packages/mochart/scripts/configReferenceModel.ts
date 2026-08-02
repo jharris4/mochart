@@ -84,6 +84,7 @@ import validators from '@mochart/movalid';
 import type { Validator } from '@mochart/movalid';
 
 import type { ConditionalDefaultRule } from '../src/config/defaults/conditionalDefault';
+import type { DescriptionEntry, DescriptionMap } from '../src/config/docs/shared';
 import type {
   GroupAxisConfig,
   LegendConfig,
@@ -99,9 +100,36 @@ import type {
 
 type ValidatorMap = Record<string, Validator>;
 type Defaults = Record<string, unknown>;
-type Descriptions = Record<string, string>;
+type Descriptions = DescriptionMap;
 type AnyRule = ConditionalDefaultRule<unknown, unknown, unknown>;
-type ConditionalDefaults = Record<string, { rules?: AnyRule[] } | undefined>;
+
+/** A conditional-default leaf: the thunk `conditionalDefault()` returns. */
+type ConditionalDefaultLeaf = (() => unknown) & { rules?: AnyRule[] };
+
+/** A conditional-defaults tree, nesting the way the config nests. A branch has no `rules`, so leaf and branch are told apart by type, not truthiness. */
+interface ConditionalDefaults {
+  [key: string]: ConditionalDefaultLeaf | ConditionalDefaults | undefined;
+}
+
+function isConditionalDefaultLeaf(value: ConditionalDefaultLeaf | ConditionalDefaults | undefined): value is ConditionalDefaultLeaf {
+  return typeof value === 'function';
+}
+
+function conditionalDefaultBranch(value: ConditionalDefaultLeaf | ConditionalDefaults | undefined): ConditionalDefaults {
+  return value === undefined || isConditionalDefaultLeaf(value) ? {} : value;
+}
+
+function nestedDefaults(value: unknown): Defaults {
+  return value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Defaults : {};
+}
+
+function descriptionText(entry: DescriptionEntry | undefined): string | undefined {
+  return typeof entry === 'string' ? entry : entry?.description;
+}
+
+function nestedDescriptions(entry: DescriptionEntry | undefined): DescriptionMap {
+  return typeof entry === 'object' && entry !== null ? entry.properties : {};
+}
 
 type SectionReference = { section: string | string[]; key: string; commonKey?: string };
 interface SectionValidatorInfo {
@@ -144,6 +172,8 @@ export interface PropertyDoc {
   editor: EditorValueDoc;
   /** A value selected from ids declared elsewhere in the same config. */
   reference?: EditorReferenceDoc;
+  /** Members of a nested object property; their anchor ids extend the parent's. */
+  properties?: PropertyDoc[];
 }
 
 export type EditorValueType = 'any' | 'array' | 'boolean' | 'number' | 'object' | 'string';
@@ -234,7 +264,8 @@ function getSectionSources(): SectionSource[] {
   ];
 }
 
-// Properties that intentionally have no default (they must be set by the user).
+// Properties that intentionally have no default. Keyed by path within the
+// section, so a nested member is named `parent.member`.
 const missingDefaultWhitelist: Record<string, Record<string, boolean>> = {
   groupAxisConfig: {
     property: true
@@ -246,7 +277,9 @@ const missingDefaultWhitelist: Record<string, Record<string, boolean>> = {
     stops: true
   },
   seriesConfigs: {
-    property: true
+    property: true,
+    // Left unset so each d3 curve applies its own tension/alpha.
+    'curve.param': true
   }
 };
 
@@ -262,7 +295,8 @@ const noChange = {
   removed: [] as string[]
 };
 
-function getAddedRemoved(a: Defaults, b: Defaults, whitelist: Record<string, boolean> = {}) {
+/** Compare a validator map against a companion source (defaults, descriptions), naming keys by their path within the section. */
+function getAddedRemoved(a: Record<string, unknown>, b: Record<string, unknown>, prefix: string, whitelist: Record<string, boolean> = {}) {
   const aKeys = Object.keys(a);
   const bKeys = Object.keys(b);
   if (arrayEqual([...aKeys].sort(), [...bKeys].sort())) {
@@ -271,13 +305,13 @@ function getAddedRemoved(a: Defaults, b: Defaults, whitelist: Record<string, boo
   const added: string[] = [];
   const removed: string[] = [];
   for (const aKey of aKeys) {
-    if (b[aKey] === undefined && whitelist[aKey] !== true) {
-      removed.push(aKey);
+    if (b[aKey] === undefined && whitelist[prefix + aKey] !== true) {
+      removed.push(prefix + aKey);
     }
   }
   for (const bKey of bKeys) {
     if (a[bKey] === undefined) {
-      added.push(bKey);
+      added.push(prefix + bKey);
     }
   }
   return {
@@ -287,25 +321,86 @@ function getAddedRemoved(a: Defaults, b: Defaults, whitelist: Record<string, boo
   };
 }
 
-function checkKeyIntegrity(section: SectionSource, errors: string[]) {
-  const { id, validators } = section;
-  const defaults = { ...section.regularDefaults, ...section.conditionalDefaults };
-  const descriptions = section.docs.default();
-  const details = section.docs.getDetails ? section.docs.getDetails() : {};
-
-  const defaultDiff = getAddedRemoved(validators, defaults, missingDefaultWhitelist[id]);
-  if (defaultDiff.hasChanges) {
-    errors.push(`${id}: defaults and validators have different keys (missing default: ${JSON.stringify(defaultDiff.removed)}, missing validator: ${JSON.stringify(defaultDiff.added)})`);
+/** Keys with a default at this level, computed per level so a conditional branch naming one nested member does not read as replacing the whole regular default. */
+function defaultPresence(regularDefaults: Defaults, conditionalDefaults: ConditionalDefaults): Record<string, unknown> {
+  const presence: Record<string, unknown> = {};
+  for (const key of Object.keys(regularDefaults)) {
+    if (regularDefaults[key] !== undefined) presence[key] = true;
   }
-  const descriptionDiff = getAddedRemoved(validators, descriptions);
+  for (const key of Object.keys(conditionalDefaults)) {
+    if (conditionalDefaults[key] !== undefined) presence[key] = true;
+  }
+  return presence;
+}
+
+interface IntegrityLevel {
+  id: string;
+  /** Path within the section, `''` at the top and `'backgroundStyle.'` inside it. */
+  prefix: string;
+  validators: ValidatorMap;
+  regularDefaults: Defaults;
+  conditionalDefaults: ConditionalDefaults;
+  /** False below a conditional leaf, whose members have no static defaults. */
+  checkDefaults: boolean;
+  descriptions: Descriptions;
+  details: Descriptions;
+  whitelist: Record<string, boolean>;
+}
+
+function checkLevelIntegrity(level: IntegrityLevel, errors: string[]) {
+  const { id, prefix, validators, descriptions, details } = level;
+
+  if (level.checkDefaults) {
+    const defaults = defaultPresence(level.regularDefaults, level.conditionalDefaults);
+    const defaultDiff = getAddedRemoved(validators, defaults, prefix, level.whitelist);
+    if (defaultDiff.hasChanges) {
+      errors.push(`${id}: defaults and validators have different keys (missing default: ${JSON.stringify(defaultDiff.removed)}, missing validator: ${JSON.stringify(defaultDiff.added)})`);
+    }
+  }
+  const descriptionDiff = getAddedRemoved(validators, descriptions, prefix);
   if (descriptionDiff.hasChanges) {
     errors.push(`${id}: descriptions and validators have different keys (missing description: ${JSON.stringify(descriptionDiff.removed)}, missing validator: ${JSON.stringify(descriptionDiff.added)})`);
   }
   for (const detailKey of Object.keys(details)) {
     if (validators[detailKey] === undefined) {
-      errors.push(`${id}: details entry '${detailKey}' has no matching validator`);
+      errors.push(`${id}: details entry '${prefix + detailKey}' has no matching validator`);
     }
   }
+
+  // nested shapes are checked the same way, so a new style member cannot ship without a default and a description
+  for (const key of Object.keys(validators)) {
+    const nested = validators[key]!.nestedValues;
+    if (!nested) {
+      continue;
+    }
+    const conditional = level.conditionalDefaults[key];
+    checkLevelIntegrity({
+      id,
+      prefix: prefix + key + '.',
+      validators: nested,
+      regularDefaults: nestedDefaults(level.regularDefaults[key]),
+      conditionalDefaults: conditionalDefaultBranch(conditional),
+      // a conditional leaf produces the whole object, so its members have no regular defaults of their own
+      checkDefaults: level.checkDefaults && !isConditionalDefaultLeaf(conditional),
+      descriptions: nestedDescriptions(descriptions[key]),
+      details: nestedDescriptions(details[key]),
+      whitelist: level.whitelist
+    }, errors);
+  }
+}
+
+function checkKeyIntegrity(section: SectionSource, errors: string[]) {
+  checkLevelIntegrity({
+    id: section.id,
+    prefix: '',
+    validators: section.validators,
+    regularDefaults: section.regularDefaults,
+    conditionalDefaults: section.conditionalDefaults ?? {},
+    checkDefaults: true,
+    descriptions: section.docs.default(),
+    details: section.docs.getDetails ? section.docs.getDetails() : {},
+    whitelist: missingDefaultWhitelist[section.id] ?? {}
+  }, errors);
 }
 
 // --- Default value formatting ------------------------------------------------
@@ -320,7 +415,11 @@ function isColorArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.length > 0 && !value.some(aValue => !isColor(aValue));
 }
 
-function formatLiteral(value: unknown): string {
+// Levels of nesting a default literal spells out before collapsing to `{ … }`;
+// a collapsed object's members are documented as nested properties of their own.
+const literalObjectDepth = 1;
+
+function formatLiteral(value: unknown, depth = 0): string {
   if (value === undefined) {
     return '';
   }
@@ -331,11 +430,14 @@ function formatLiteral(value: unknown): string {
     return '"' + value + '"';
   }
   if (Array.isArray(value)) {
-    return '[' + value.map(formatLiteral).join(', ') + ']';
+    return '[' + value.map(item => formatLiteral(item, depth + 1)).join(', ') + ']';
   }
   if (typeof value === 'object') {
+    if (depth >= literalObjectDepth) {
+      return '{ … }';
+    }
     const record = value as Record<string, unknown>;
-    return '{ ' + Object.keys(record).map(key => key + ': ' + formatLiteral(record[key])).join(', ') + ' }';
+    return '{ ' + Object.keys(record).map(key => key + ': ' + formatLiteral(record[key], depth + 1)).join(', ') + ' }';
   }
   return String(value);
 }
@@ -442,7 +544,8 @@ function editorTypesForValidator(validator: Validator): EditorValueType[] {
     case 'object':
     case 'objectWith':
     case 'objectWithSome':
-    case 'objectWithShape': return ['object'];
+    case 'objectWithShape':
+    case 'partialObjectWithShape': return ['object'];
     case 'string':
     case 'stringWithLength':
     case 'stringWithLengthMin':
@@ -511,37 +614,81 @@ function getShapeDefaultText(validator: Validator): string {
   return '';
 }
 
+interface PropertySource {
+  key: string;
+  validator: Validator;
+  description: DescriptionEntry | undefined;
+  detail: DescriptionEntry | undefined;
+  regularDefault: unknown;
+  conditionalDefault: ConditionalDefaultLeaf | ConditionalDefaults | undefined;
+  /** Section-level rules (uniqueness, references); top-level properties only. */
+  sectionRules: string[] | undefined;
+  /** Id reference constraint; top-level properties only. */
+  reference?: SectionReference;
+}
+
+/** Document one property and, when its validator describes a shape, each of its members in turn. */
+function buildPropertyDoc(source: PropertySource): PropertyDoc {
+  const { key, validator, description, detail, regularDefault, conditionalDefault } = source;
+  const property: PropertyDoc = {
+    key,
+    description: descriptionText(description) as string,
+    rules: getPropertyRules(validator, source.sectionRules),
+    editor: buildEditorValue(validator)
+  };
+  if (source.reference) {
+    property.reference = editorReference(source.reference);
+  }
+  const detailText = descriptionText(detail);
+  if (detailText !== undefined) {
+    property.details = detailText;
+  }
+  if (isConditionalDefaultLeaf(conditionalDefault)) {
+    property.conditionalDefaults = formatConditionalDefaults(conditionalDefault);
+  }
+  else {
+    // a nested branch is a default for members, not for this property, which keeps its regular default
+    property.default = formatDefaultValue(regularDefault);
+  }
+  const nested = validator.nestedValues;
+  if (nested) {
+    const nestedRegular = nestedDefaults(regularDefault);
+    const nestedConditional = conditionalDefaultBranch(conditionalDefault);
+    const memberDescriptions = nestedDescriptions(description);
+    const memberDetails = nestedDescriptions(detail);
+    property.properties = Object.keys(nested).sort().map(memberKey => buildPropertyDoc({
+      key: memberKey,
+      validator: nested[memberKey]!,
+      description: memberDescriptions[memberKey],
+      detail: memberDetails[memberKey],
+      regularDefault: nestedRegular[memberKey],
+      conditionalDefault: nestedConditional[memberKey],
+      sectionRules: undefined
+    }));
+  }
+  return property;
+}
+
 function buildSectionDoc(source: SectionSource, sectionValidators: SectionValidatorMap): SectionDoc {
-  const sectionDescriptions: Descriptions = getSectionDescriptions();
+  const sectionDescriptions: Record<string, string> = getSectionDescriptions();
   const descriptions = source.docs.default();
   const details = source.docs.getDetails ? source.docs.getDetails() : {};
   const sectionValidator = sectionValidators[source.id];
   const sectionKeyRules = getSectionKeyRules(sectionValidator);
   const allKey = sectionKeyAllMap[source.id];
 
-  const properties = Object.keys(source.validators).sort().map(key => {
-    const property: PropertyDoc = {
-      key,
-      description: descriptions[key],
-      rules: getPropertyRules(source.validators[key], sectionKeyRules[key]),
-      editor: buildEditorValue(source.validators[key])
-    };
+  const properties = Object.keys(source.validators).sort().map(key => buildPropertyDoc({
+    key,
+    validator: source.validators[key],
+    description: descriptions[key],
+    detail: details[key],
+    regularDefault: source.regularDefaults[key],
+    conditionalDefault: source.conditionalDefaults?.[key],
+    sectionRules: sectionKeyRules[key],
     // A common reference is the more specific form: it points at the same
     // source collection but additionally constrains candidates by commonKey.
-    const reference = sectionValidator.commonReferences?.[key] ?? sectionValidator.references?.[key];
-    if (reference) property.reference = editorReference(reference);
-    if (details[key] !== undefined) {
-      property.details = details[key];
-    }
-    const conditionalDefault = source.conditionalDefaults?.[key];
-    if (conditionalDefault) {
-      property.conditionalDefaults = formatConditionalDefaults(conditionalDefault);
-    }
-    else {
-      property.default = formatDefaultValue(source.regularDefaults[key]);
-    }
-    return property;
-  });
+    reference: sectionValidator.commonReferences?.[key] ?? sectionValidator.references?.[key]
+  }));
 
   const section: SectionDoc = {
     id: source.id,
@@ -559,7 +706,7 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
 
 function buildTopLevel(sectionIds: Set<string>): TopLevelKeyDoc[] {
   const sectionValidators = mochartConfigSectionValidators as SectionValidatorMap;
-  const sectionDescriptions: Descriptions = getSectionDescriptions();
+  const sectionDescriptions: Record<string, string> = getSectionDescriptions();
   return Object.keys(sectionValidators).sort().map(key => {
     const validator = sectionValidators[key].validator;
     const doc: TopLevelKeyDoc = {

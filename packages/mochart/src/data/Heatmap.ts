@@ -1,7 +1,7 @@
 import { interpolateRgb, interpolateHsl, interpolateLab, interpolateHcl } from 'd3-interpolate';
 
 import type { ColorInterpolation } from '../config/core/constants';
-import type { GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
 
 export interface HeatmapRow {
   /** The row title, e.g. shown in the legend and tooltip. */
@@ -74,7 +74,7 @@ export interface HeatmapData {
   /** Fragment to spread into the chart config's (sole) series axis config. */
   seriesAxisConfig: Partial<SeriesAxisConfig>;
   /** Fragments to spread into the chart config's `seriesConfigs`, one per row. */
-  seriesConfigs: Partial<SeriesConfig>[];
+  seriesConfigs: DeepPartial<SeriesConfig>[];
 }
 
 const GROUP_PROPERTY = 'column';
@@ -120,7 +120,7 @@ export function createHeatmapColorScale(domain: [number, number], options: Creat
  * built from `colorScale` makes the better legend.
  *
  * The core color scale spans each series' own color-value extent, so each
- * row's `colorMin`/`colorMax` is the global ramp sampled at that row's
+ * row's `colorScale.min`/`colorScale.max` is the global ramp sampled at that row's
  * min/max — linear interpolation restricted to a sub-interval reproduces the
  * global scale, keeping cell colors comparable across rows.
  *
@@ -177,21 +177,23 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
       id: 'row' + r,
       property: 'row' + r,
       rangeProperty: 'row' + r + 'Start',
-      colorProperty: 'row' + r + 'Value',
       tooltipProperty: 'row' + r + 'Value',
-      colorMin: colorScale(rowDomain[0]),
-      colorMax: colorScale(rowDomain[1]),
-      colorInterpolation: options.colorInterpolation ?? DEFAULT_COLOR_INTERPOLATION,
+      colorProperty: 'row' + r + 'Value',
+      colorScale: {
+        interpolation: options.colorInterpolation ?? DEFAULT_COLOR_INTERPOLATION,
+        min: colorScale(rowDomain[0]),
+        max: colorScale(rowDomain[1])
+      },
       renderer: 'bar',
       skipMissing: true,
       group: null,
       stack: null,
-      fillOpacity: 1,
+      shapeStyle: { normal: { fillOpacity: 1 } },
       // Rows are named by the axis ticks; a legend entry per row would only
       // invite suppressing rows, which reads as data rather than a hidden series.
       showInLegend: false,
       title: row.label
-    } as Partial<SeriesConfig>;
+    } as DeepPartial<SeriesConfig>;
   });
 
   return { domain, colorScale, data, groupAxisConfig, seriesAxisConfig, seriesConfigs };

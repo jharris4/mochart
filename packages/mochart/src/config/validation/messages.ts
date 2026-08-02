@@ -1,4 +1,5 @@
 import validators from './validators';
+import { isPlainObject } from '../core/deepMerge';
 import type { Validator } from '@mochart/movalid';
 
 type ConfigObject = Record<string, unknown>;
@@ -19,12 +20,25 @@ export interface LocatedValidationMessage {
   message: string;
 }
 
-function messagePath(prefix: string, i: number | undefined, property?: string): (string | number)[] {
+function messagePath(prefix: string, i: number | undefined, ...properties: string[]): (string | number)[] {
   const section = prefix.startsWith(DEFAULT) ? prefix.slice(DEFAULT.length) : prefix;
   const path: (string | number)[] = section === 'config' || section === '' ? [] : [section];
   if (i !== undefined) path.push(i);
-  if (property !== undefined) path.push(property);
+  for (const property of properties) {
+    path.push(property);
+  }
   return path;
+}
+
+/** The property part of a message for a nested key: `backgroundStyle.fillColor`. */
+function joinProperties(properties: string[]): string {
+  return properties.join('.');
+}
+
+/** The member validators an object validator publishes as `nestedValues`; null for every other validator. */
+function nestedValidators(validator: unknown): ValidatorMap | null {
+  const nested = (validator as Validator | undefined)?.nestedValues;
+  return nested !== undefined && nested !== null ? nested : null;
 }
 
 function prefixMessage(prefix: string, i: number | undefined = undefined): string {
@@ -57,6 +71,34 @@ export function addErrorMessage(prefix: string, config: unknown, validator: Vali
   }
 }
 
+/**
+ * Report the failure of one (possibly nested) config value, drilling into the members that actually
+ * failed so a path reaches `['axisConfig', 'backgroundStyle', 'fillColor']` rather than stopping at the
+ * object. The aggregate message is only used when no single member accounts for the failure.
+ */
+function addErrorMessageForKey(prefix: string, properties: string[], value: unknown, validator: Validator, errorMessages: string[], errorDetails: LocatedValidationMessage[], i: number | undefined): void {
+  if (validator(value)) {
+    return;
+  }
+  const nested = nestedValidators(validator);
+  if (nested !== null && isPlainObject(value)) {
+    const failedKeys = Object.keys(value).filter(nestedKey => {
+      const nestedValidator = nested[nestedKey];
+      return nestedValidator !== undefined && value[nestedKey] !== undefined && !nestedValidator(value[nestedKey]);
+    });
+    if (failedKeys.length > 0) {
+      for (const nestedKey of failedKeys) {
+        addErrorMessageForKey(prefix, [...properties, nestedKey], value[nestedKey], nested[nestedKey]!,
+          errorMessages, errorDetails, i);
+      }
+      return;
+    }
+  }
+  const message = validator.getErrorMessage(value);
+  errorMessages.push(prefixPropertyErrorMessage(prefix, joinProperties(properties), message, i));
+  errorDetails.push({ path: messagePath(prefix, i, ...properties), message });
+}
+
 function addErrorMessagesInternal(prefix: string, config: unknown, validatorMap: ValidatorMap, errorMessages: string[], errorDetails: LocatedValidationMessage[], i: number | undefined = undefined, all = false): void {
   if (objectValidator(config) && isConfigObject(config)) {
     const validatorKeys = Object.keys(validatorMap);
@@ -64,14 +106,7 @@ function addErrorMessagesInternal(prefix: string, config: unknown, validatorMap:
     const keys = all ? validatorKeys : configKeys.filter(configKey => validatorMap[configKey] !== undefined)
 
     for (const key of keys) {
-      const validator = validatorMap[key]!;
-      const isValid = validator(config[key]);
-      if (!isValid) {
-        const message = validator.getErrorMessage(config[key]);
-        errorMessages.push(
-          prefixPropertyErrorMessage(prefix, key, message, i));
-        errorDetails.push({ path: messagePath(prefix, i, key), message });
-      }
+      addErrorMessageForKey(prefix, [key], config[key], validatorMap[key]!, errorMessages, errorDetails, i);
     }
   }
 }
@@ -81,11 +116,16 @@ export function addWarningMessages(prefix: string, config: unknown, propertyMap:
 }
 
 function addWarningMessagesInternal(prefix: string, config: unknown, propertyMap: Record<string, unknown>, warningMessages: string[], warningDetails: LocatedValidationMessage[], i: number | undefined = undefined, _all = false): void {
+  addWarningMessagesForObject(prefix, [], config, propertyMap, warningMessages, warningDetails, i);
+}
+
+/** Warn about the keys an object has that its shape does not, then recurse, so a typo inside a nested style is not swallowed. */
+function addWarningMessagesForObject(prefix: string, properties: string[], config: unknown, propertyMap: Record<string, unknown>, warningMessages: string[], warningDetails: LocatedValidationMessage[], i: number | undefined): void {
   if (objectValidator(config) && isConfigObject(config)) {
     const invalidProperties: string[] = [];
     let invalidPropertyCount = 0;
-    const properties = Object.keys(config);
-    for (const property of properties) {
+    const configProperties = Object.keys(config);
+    for (const property of configProperties) {
       if (!propertyMap[property]) {
         if (invalidProperties.length < maxInvalidProperties) {
           invalidProperties.push(property);
@@ -101,8 +141,17 @@ function addWarningMessagesInternal(prefix: string, config: unknown, propertyMap
       else {
         message = 'had ' + invalidPropertyCount + ' invalid properties: ' + invalidProperties;
       }
-      warningMessages.push(prefixErrorMessage(prefix, message, i));
-      warningDetails.push({ path: messagePath(prefix, i), message });
+      warningMessages.push(properties.length === 0
+        ? prefixErrorMessage(prefix, message, i)
+        : prefixPropertyErrorMessage(prefix, joinProperties(properties), message, i));
+      warningDetails.push({ path: messagePath(prefix, i, ...properties), message });
+    }
+    for (const property of configProperties) {
+      const nested = nestedValidators(propertyMap[property]);
+      if (nested !== null && isPlainObject(config[property])) {
+        addWarningMessagesForObject(prefix, [...properties, property], config[property], nested,
+          warningMessages, warningDetails, i);
+      }
     }
   }
 }

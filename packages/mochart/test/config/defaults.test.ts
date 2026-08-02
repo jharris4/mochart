@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { isObject, getValueOrDefault } from '../../src/config/defaults/utils';
 import { conditionalDefault, getActualDefaults, defaultRule } from '../../src/config/defaults/conditionalDefault';
+import { deepMerge } from '../../src/config/core/deepMerge';
 import { getDefaults } from '../../src/config/defaults/mochartConfig';
 
 describe('isObject', () => {
@@ -91,6 +92,30 @@ describe('getActualDefaults', () => {
     });
     expect(actual).toEqual({ a: 1, b: 'two' });
   });
+
+  it('recurses into a nested map so a conditional default can target a nested path', () => {
+    const actual = getActualDefaults({
+      renderer: () => 'bar',
+      shapeStyle: {
+        normal: { fillOpacity: () => 0.8 },
+        focused: { fillOpacity: () => 1 }
+      }
+    });
+    expect(actual).toEqual({
+      renderer: 'bar',
+      shapeStyle: { normal: { fillOpacity: 0.8 }, focused: { fillOpacity: 1 } }
+    });
+  });
+
+  it('leaves the members of a nested default the recursion does not name alone', () => {
+    // the conditional map names one member and deepMerge keeps the siblings
+    const regularDefaults = { shapeStyle: { normal: { strokeColor: '#000000', fillOpacity: 0.5 } } };
+    const conditionalDefaults = getActualDefaults({
+      shapeStyle: { normal: { fillOpacity: () => 0.9 } }
+    });
+    expect(deepMerge(regularDefaults, conditionalDefaults))
+      .toEqual({ shapeStyle: { normal: { strokeColor: '#000000', fillOpacity: 0.9 } } });
+  });
 });
 
 describe('tooltip defaults', () => {
@@ -112,6 +137,38 @@ describe('legend defaults', () => {
     }) as { legendConfig: { iconSize: string | number } };
 
     expect(defaults.legendConfig.iconSize).toBe('auto');
+  });
+});
+
+describe('series color-icon defaults', () => {
+  function showColorFlags(shapeStyle?: Record<string, unknown>) {
+    const defaults = getDefaults({
+      version: '1.0.0',
+      groupAxisConfig: { property: 'p' },
+      seriesConfigs: [{ property: 'a', ...(shapeStyle ? { shapeStyle } : {}) }]
+    }) as { seriesConfigs: { showColorInLegend: boolean; showColorInTooltip: boolean }[] };
+    const { showColorInLegend, showColorInTooltip } = defaults.seriesConfigs[0]!;
+    return { showColorInLegend, showColorInTooltip };
+  }
+
+  it('shows the color icon for a series with a color of its own', () => {
+    expect(showColorFlags()).toEqual({ showColorInLegend: true, showColorInTooltip: true });
+  });
+
+  it('hides the color icon for a series colored by group index', () => {
+    // every group paints it differently, so a single swatch would be arbitrary
+    expect(showColorFlags({ normal: { strokeColor: 'groupIndex', fillColor: 'groupIndex' } }))
+      .toEqual({ showColorInLegend: false, showColorInTooltip: false });
+    // either member is enough
+    expect(showColorFlags({ normal: { fillColor: 'groupIndex' } }))
+      .toEqual({ showColorInLegend: false, showColorInTooltip: false });
+    expect(showColorFlags({ normal: { strokeColor: 'groupIndex' } }))
+      .toEqual({ showColorInLegend: false, showColorInTooltip: false });
+  });
+
+  it('keeps the icon when only a focus state names the group index', () => {
+    expect(showColorFlags({ focused: { fillColor: 'groupIndex' } }))
+      .toEqual({ showColorInLegend: true, showColorInTooltip: true });
   });
 });
 

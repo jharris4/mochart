@@ -87,15 +87,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-/** All `${sectionId}.${propertyKey}` pairs a raw config sets explicitly. */
+/** All `${sectionId}.${propertyPath}` keys a raw config sets explicitly, nested objects included. */
 function collectPropertyKeys(config: Record<string, unknown>): Set<string> {
   const keys = new Set<string>();
-  const addSectionKeys = (sectionId: string, section: unknown) => {
+  const addSectionKeys = (prefix: string, section: unknown) => {
     if (!isRecord(section)) {
       return;
     }
-    for (const key of Object.keys(section)) {
-      keys.add(sectionId + '.' + key);
+    for (const [key, value] of Object.entries(section)) {
+      const path = prefix + '.' + key;
+      keys.add(path);
+      addSectionKeys(path, value);
     }
   };
   for (const [topKey, value] of Object.entries(config)) {

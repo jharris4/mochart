@@ -1,3 +1,18 @@
+import type { NestedDescription } from './shared';
+
+// Not the shared style prose: the tooltip is html, so an opacity is composited into its color rather
+// than written as a separate svg attribute.
+const backgroundStyle: NestedDescription = {
+  description: 'the styles to apply to the tooltip box (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))',
+  properties: {
+    strokeColor: 'the color of the border around the tooltip (use null for none)',
+    strokeOpacity: 'the opacity (0 - 1) to composite into the border color, or null to use the color exactly as written',
+    strokeWidth: 'the width (in pixels) of the border around the tooltip (use null for none)',
+    fillColor: 'the background color for the interior of the tooltip (use null for none)',
+    fillOpacity: 'the opacity (0 - 1) to composite into the background color, or null to use the color exactly as written'
+  }
+};
+
 export default function getDescriptions() {
   return {
     visible: 'whether or not to show the tooltip',
@@ -17,9 +32,7 @@ export default function getDescriptions() {
     padding: 'the padding (in pixels) to show on each side of the tooltip',
     linePadding: 'the padding (in pixels) betwen each line of the tooltip',
     alignValues: 'whether to right-align the values shown in the tooltip',
-    backgroundColor: 'the background color for the interior of the tooltip',
-    borderColor: 'the color of the border around the tooltip',
-    borderWidth: 'the width (in pixels) of the the border around the tooltip',
+    backgroundStyle,
     borderRadius: 'the radius (in pixels) of the corners of the tooltip',
     dropShadowColor: 'the color of the drop shadow effect used for the tooltip',
     dropShadowOffsetX: 'the x offset (in pixels) of the drop shadow effect used for the tooltip',
@@ -32,8 +45,10 @@ export default function getDescriptions() {
     iconSpacerSize: 'the horizontal space (in pixels) to show between series icons and titles',
     iconBorderSize: 'the width (in pixels) of the border drawn around series icons',
     iconBorderColor: 'the color of the border drawn around series icons',
+    iconBorderOpacity: 'the opacity (0 - 1) of the border drawn around series icons',
     iconSuppressedColor: 'the color to use for the series icon when the corresponding series is suppressed',
     iconUnsuppressedColor: 'the color to use for the placeholder series icons when the corresponding series is not suppressed',
+    showSuppressionOnLabels: 'whether to strike through the label text of suppressed series',
     adjustForSuppression: 'whether to adjust the series values when series suppression changes',
     adjustSizeForSuppression: 'whether to adjust the width of the tooltip when the series values change due to suppression changes',
     hideSuppressed: 'whether to hide series that have been suppressed from the tooltip',
@@ -42,5 +57,11 @@ export default function getDescriptions() {
     suppressedValueText: 'the text to show for series that have been suppressed (use null for none)',
     suppressedValueCharacter: 'the character to show in place of each digit of a series value that has been suppressed (use null for none)',
     rangeValueText: 'the text to use when joining the values for a series that has more than one value'
+  };
+}
+
+export function getDetails() {
+  return {
+    showSuppressionOnLabels: 'When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `alignValues` is `false`, where the label and the value are one piece of text and both are struck.'
   };
 }

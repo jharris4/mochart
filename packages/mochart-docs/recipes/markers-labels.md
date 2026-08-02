@@ -17,7 +17,10 @@ import * as scatterBubble from '../examples/scatterBubble'
 - [`markerShape`](/reference/seriesConfigs#seriesConfigs.markerShape) picks
   from `circle`, `cross`, `diamond`, `square`, `star`, `triangle`, `wye`;
   [`markerSize`](/reference/seriesConfigs#seriesConfigs.markerSize) sets its
-  size and the `marker*` color/opacity properties style it. Point
+  size and
+  [`markerStyle`](/reference/seriesConfigs#seriesConfigs.markerStyle) paints
+  it — a `normal`/`focused`/`defocused` set of stroke and fill colors,
+  opacities and widths. Point
   [`markerProperty`](/reference/seriesConfigs#seriesConfigs.markerProperty)
   at a data property to scale marker size per value — bubble charts.
 - Labels come from
@@ -31,9 +34,14 @@ import * as scatterBubble from '../examples/scatterBubble'
   `labelMin*Percent` guards hide labels that wouldn't fit (the
   `labelMinRangePercent` above hides labels on bars shorter than 5% of the
   axis).
-- Label colors accept the palette modes (`series`, `seriesIndex`,
-  `groupIndex`) as well as literal colors — see
-  [`colorPaletteConfig`](/reference/colorPaletteConfig).
+- [`labelTextStyle`](/reference/seriesConfigs#seriesConfigs.labelTextStyle)
+  paints the label text, again per focus state. Its colors accept the palette
+  modes (`series`, `seriesIndex`, `groupIndex`) as well as literal colors —
+  see [`colorPaletteConfig`](/reference/colorPaletteConfig). The example above
+  sets only
+  [`labelTextStyle.normal`](/reference/seriesConfigs#seriesConfigs.labelTextStyle.normal)`.strokeColor`
+  and `.fillColor`; every other member, including both other states, keeps its
+  default.
 
 ## Scatter and bubble charts
 

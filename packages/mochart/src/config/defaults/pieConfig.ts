@@ -1,13 +1,14 @@
 import { AUTO, NONE, PIE_LABEL_TYPE_PERCENT, PIE_LABEL_TYPE_VALUE, COLOR_CURRENT } from '../core/constants';
+import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
-import type { PieConfig } from '../../types/config';
+import type { DeepPartial, PieConfig } from '../../types/config';
 
-export default function getDefaults(config: Partial<PieConfig> = {}): Partial<PieConfig> {
+export default function getDefaults(config: DeepPartial<PieConfig> = {}): Partial<PieConfig> {
   const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const configWithRegularDefaults = deepMerge(regularDefaults, config);
   const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as PieConfig));
-  return { ...regularDefaults, ...conditionalDefaults } as Partial<PieConfig>;
+  return deepMerge(regularDefaults, conditionalDefaults) as Partial<PieConfig>;
 }
 
 export function getRegularDefaults() {
@@ -28,9 +29,9 @@ export function getRegularDefaults() {
     tooltipValues: PIE_LABEL_TYPE_VALUE,
     tooltipPercentFormat: AUTO,
     centerLabel: NONE,
-    centerLabelTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
+    centerLabelTextStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
     showCenterTotal: false,
-    centerTotalTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
+    centerTotalTextStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
     centerTotalFormat: AUTO,
     adjustCenterTotalForSuppression: true,
     centerOffsetXPercent: 0,

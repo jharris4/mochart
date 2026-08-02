@@ -3,7 +3,7 @@ import {
   PRICE_AXIS_ID, getVolumeOptions, buildVolumeSeriesAxisConfigs, buildVolumeSeriesConfigs
 } from './Candlestick';
 import type { Candlestick, CandlestickDirection, CandlestickItem, CandlestickVolumeOptions } from './Candlestick';
-import type { GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
 
 export interface CreateOhlcOptions {
   /** The per-direction series titles, e.g. shown in the legend. */
@@ -84,7 +84,7 @@ export interface OhlcData {
    * series so the config stays stable across data updates. With the `volume`
    * option per-direction volume bar series are appended.
    */
-  seriesConfigs: Partial<SeriesConfig>[];
+  seriesConfigs: DeepPartial<SeriesConfig>[];
   /**
    * Fragments to spread into the chart config's `seriesAxisConfigs` — only
    * present with the `volume` option: the `price` axis the price series
@@ -161,15 +161,19 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     skipPartialRange: true,
     group: null,
     stack: null,
-    fillOpacity: 1,
     title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
     valueLabel: rangeTitle,
-    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
-    // strokeColor matches the fill: focused bars grow a 1px outline, and the
-    // default strokeColor is the palette color for the series *index*, which
-    // would rim the bar in an unrelated color.
-    strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
-  } as Partial<SeriesConfig>));
+    // the shape's strokeColor matches its fill: focused bars grow a 1px
+    // outline, and the default strokeColor is the palette color for the series
+    // *index*, which would rim the bar in an unrelated color.
+    shapeStyle: {
+      normal: {
+        strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+        fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+        fillOpacity: 1
+      }
+    }
+  } as DeepPartial<SeriesConfig>));
 
   const tickConfigs = (['open', 'close'] as const).flatMap((side) => DIRECTIONS.map((direction) => ({
     id: direction + (side === 'open' ? 'Open' : 'Close'),
@@ -184,13 +188,17 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     skipPartialRange: true,
     group: null,
     stack: null,
-    fillOpacity: 1,
     showInLegend: false,
     followSeries: direction,
     valueLabel: side === 'open' ? openTitle : closeTitle,
-    fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
-    strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
-  } as Partial<SeriesConfig>)));
+    shapeStyle: {
+      normal: {
+        strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+        fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+        fillOpacity: 1
+      }
+    }
+  } as DeepPartial<SeriesConfig>)));
 
   return {
     candles,

@@ -110,6 +110,11 @@ describe("validators", () => {
       valid: { a: 10, b: 15 },
       invalid: { a: 4, b: 15 }
     },
+    partialObjectWithShape: {
+      args: [{ a: baseValidators.numberMin(5), b: baseValidators.numberMin(10) }],
+      valid: { a: 10 },
+      invalid: { a: 4 }
+    },
     or: { args: [[baseValidators.equal("one"), baseValidators.equal("two")]], valid: "one", invalid: "three" },
     and: { args: [[baseValidators.numberMin(5), baseValidators.numberMax(15)]], valid: 10, invalid: 16 },
     not: { args: [baseValidators.equal("equal")], valid: "not", invalid: "equal" },
@@ -1332,6 +1337,62 @@ describe("validators", () => {
       });
     });
 
+    describe("partial object with shape", () => {
+      const shape = () => ({
+        a: baseValidators.numberMin(5),
+        b: baseValidators.numberMin(5),
+        c: baseValidators.numberMin(5)
+      });
+
+      it("should allow empty objects", () => {
+        expect(baseValidators.partialObjectWithShape({ a: baseValidators.notEqual(undefined) })({})).toBe(true);
+      });
+
+      it("should allow an object with only some of the shape properties", () => {
+        expect(baseValidators.partialObjectWithShape(shape())({ b: 6 })).toBe(true);
+      });
+
+      it("should allow an object with all of the shape properties", () => {
+        expect(baseValidators.partialObjectWithShape(shape())({ a: 6, b: 7, c: 8 })).toBe(true);
+      });
+
+      it("should not allow a present property whose value fails its validator", () => {
+        expect(baseValidators.partialObjectWithShape(shape())({ b: 4 })).toBe(false);
+      });
+
+      it("should treat a present but undefined property as unspecified", () => {
+        expect(baseValidators.partialObjectWithShape(shape())({ b: undefined })).toBe(true);
+      });
+
+      it("should allow a null property when the property validator allows null", () => {
+        expect(
+          baseValidators.partialObjectWithShape({ a: baseValidators.numberMin(5).orEqual(null) })({ a: null })
+        ).toBe(true);
+      });
+
+      it("should not allow a null property when the property validator does not allow null", () => {
+        expect(baseValidators.partialObjectWithShape(shape())({ a: null })).toBe(false);
+      });
+
+      it("should not allow an object with extra properties", () => {
+        expect(baseValidators.partialObjectWithShape(shape())({ a: 6, d: 7 })).toBe(false);
+      });
+
+      it("should allow an object with extra properties when they are permitted", () => {
+        expect(baseValidators.partialObjectWithShape(shape(), true)({ a: 6, d: 7 })).toBe(true);
+      });
+
+      it("should not allow arrays", () => {
+        expect(baseValidators.partialObjectWithShape(shape())([])).toBe(false);
+      });
+
+      it("should not allow non objects", () => {
+        expect(baseValidators.partialObjectWithShape(shape())(undefined)).toBe(false);
+        expect(baseValidators.partialObjectWithShape(shape())(null)).toBe(false);
+        expect(baseValidators.partialObjectWithShape(shape())("a")).toBe(false);
+      });
+    });
+
     describe("or", () => {
       it("exposes its alternative validators as metadata", () => {
         const alternatives = [baseValidators.equal(1), baseValidators.equal(2)];
@@ -1658,7 +1719,7 @@ describe("validators", () => {
     });
 
     it("should return null for all validators that do not have nestedValues", () => {
-      const nestedValidatorNames = { objectWith: true, objectWithSome: true, objectWithShape: true };
+      const nestedValidatorNames = { objectWith: true, objectWithSome: true, objectWithShape: true, partialObjectWithShape: true };
       let validator;
       regularValidatorKeys.forEach(validatorKey => {
         if (nestedValidatorNames[validatorKey] !== true) {

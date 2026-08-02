@@ -1,5 +1,6 @@
 import { isObject } from './utils';
 import { CHART_TYPE_PIE, NONE } from '../core/constants';
+import { deepMergeAll } from '../core/deepMerge';
 import { configWithAll, filterConfigs, filterConfig } from '../core/mochartConfig';
 
 import getAnimationDefaults from './animationConfig';
@@ -19,16 +20,12 @@ import getSeriesStackDefaults from './seriesStackConfig';
 import getTitleDefaults from './titleConfig';
 import getTooltipDefaults from './tooltipConfig';
 import type {
-  LinearGradientConfig, MochartInputConfig, RadialGradientConfig,
+  DeepPartial, LinearGradientConfig, MochartInputConfig, RadialGradientConfig,
   SeriesAxisConfig, SeriesConfig, SeriesGroupConfig, SeriesStackConfig
 } from '../../types/config';
 
 function getWithDefault<T extends object>(config: unknown, configAll: unknown, defaults: T): T {
-  return {
-    ...defaults,
-    ...(isObject(configAll) ? configAll : {}),
-    ...(isObject(config) ? config : {})
-  };
+  return deepMergeAll<T>(defaults, isObject(configAll) ? configAll : {}, isObject(config) ? config : {});
 }
 
 function getOnlyIdWithDefaults<T extends { id?: string }>(configs: unknown, configAll: unknown, defaults: T[]): string | null {
@@ -86,7 +83,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
     const plotConfigDefault = getWithDefault(inputConfig.plotConfig, null, plotConfig);
     const { inverted } = plotConfigDefault;
 
-    const seriesDefaults = (aConfig: Partial<SeriesConfig>, index: number) =>
+    const seriesDefaults = (aConfig: DeepPartial<SeriesConfig>, index: number) =>
       getSeriesDefaults(aConfig, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId);
 
     return {
@@ -115,7 +112,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
 
 function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDefaultIfEmpty = false, pieMode = false): SeriesAxisConfig[] {
   const rawConfigs = config.seriesAxisConfigs;
-  const configs = ((!Array.isArray(rawConfigs) && filterConfig(rawConfigs)) ? [rawConfigs] : filterConfigs(rawConfigs)) as Partial<SeriesAxisConfig>[];
+  const configs = ((!Array.isArray(rawConfigs) && filterConfig(rawConfigs)) ? [rawConfigs] : filterConfigs(rawConfigs)) as DeepPartial<SeriesAxisConfig>[];
   const allConfig = config.seriesAxisAllConfig;
   let stackConfigs = config.seriesStackConfigs || [];
   if (!Array.isArray(stackConfigs) && isObject(stackConfigs)) {
@@ -132,17 +129,17 @@ function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDef
       stackMap[axis] = true;
     }
   }
-  const getDefaults = (aConfig: Partial<SeriesAxisConfig>, index: number) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id!], pieMode);
+  const getDefaults = (aConfig: DeepPartial<SeriesAxisConfig>, index: number) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id!], pieMode);
   if (singleDefaultIfEmpty && configs.length === 0) {
-    return [getDefaults(configWithAll({}, allConfig) as Partial<SeriesAxisConfig>, 0) as SeriesAxisConfig];
+    return [getDefaults(configWithAll({}, allConfig) as DeepPartial<SeriesAxisConfig>, 0) as SeriesAxisConfig];
   }
-  return (configWithAll(configs, allConfig) as Partial<SeriesAxisConfig>[]).map((config, i) => getDefaults(config, i) as SeriesAxisConfig);
+  return (configWithAll(configs, allConfig) as DeepPartial<SeriesAxisConfig>[]).map((config, i) => getDefaults(config, i) as SeriesAxisConfig);
 }
 
-function getListOrSingleDefaults<T extends object>(configs: unknown, allConfig: unknown, getDefaults: (config: Partial<T>, index: number) => Partial<T>, singleDefaultIfEmpty = false): T[] {
+function getListOrSingleDefaults<T extends object>(configs: unknown, allConfig: unknown, getDefaults: (config: DeepPartial<T>, index: number) => Partial<T>, singleDefaultIfEmpty = false): T[] {
   const filteredConfigs = (!Array.isArray(configs) && filterConfig(configs)) ? [configs] : filterConfigs(configs);
   if (singleDefaultIfEmpty && filteredConfigs.length === 0) {
-    return [getDefaults(configWithAll({}, allConfig) as Partial<T>, 0) as T];
+    return [getDefaults(configWithAll({}, allConfig) as DeepPartial<T>, 0) as T];
   }
-  return (configWithAll(filteredConfigs, allConfig) as Partial<T>[]).map((config, i) => getDefaults(config, i) as T);
+  return (configWithAll(filteredConfigs, allConfig) as DeepPartial<T>[]).map((config, i) => getDefaults(config, i) as T);
 }

@@ -569,6 +569,120 @@ describe('tooltip', () => {
   });
 });
 
+describe('showSuppressionOnLabels', () => {
+  const twoSeries = {
+    legendConfig: { visible: true },
+    seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+  };
+
+  function suppress(container: Element, seriesId: string): void {
+    container.querySelector(`[class*="mochart-legend-item-${seriesId}"]`)!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  }
+
+  function openTooltip(container: Element): void {
+    const root = chartRoot(container);
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'click', 100, 100);
+  }
+
+  // Two texts per item: the visible one and the hidden sizer, which must match.
+  function legendTextDecorations(container: Element, seriesId: string): (string | null)[] {
+    const item = container.querySelector(`[class*="mochart-legend-item-${seriesId}"]`)!;
+    return Array.from(item.querySelectorAll('text')).map(text => text.getAttribute('text-decoration'));
+  }
+
+  it('strikes through the legend text of a suppressed series when enabled', () => {
+    const container = mountChart(makeConfig({
+      ...twoSeries,
+      legendConfig: { visible: true, showSuppressionOnLabels: true }
+    }));
+    expect(legendTextDecorations(container, 'S1')).toEqual([null, null]);
+
+    suppress(container, 'S1');
+    expect(legendTextDecorations(container, 'S1')).toEqual(['line-through', 'line-through']);
+    expect(legendTextDecorations(container, 'S0')).toEqual([null, null]);
+  });
+
+  it('leaves the legend text undecorated when disabled (the default)', () => {
+    const container = mountChart(makeConfig(twoSeries));
+    suppress(container, 'S1');
+    expect(legendTextDecorations(container, 'S1')).toEqual([null, null]);
+  });
+
+  it('strikes through the tooltip label of a suppressed series when enabled', () => {
+    const container = mountChart(makeConfig({
+      ...twoSeries,
+      tooltipConfig: { showSuppressionOnLabels: true }
+    }));
+    suppress(container, 'S1');
+    openTooltip(container);
+
+    const suppressedLabel = container.querySelector<HTMLElement>(
+      '.mochart-tooltip [class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-label')!;
+    const shownLabel = container.querySelector<HTMLElement>(
+      '.mochart-tooltip [class*="mochart-tooltip-series-line-S0"] .mochart-tooltip-line-label')!;
+    expect(suppressedLabel.style.textDecoration).toBe('line-through');
+    expect(shownLabel.style.textDecoration).toBe('');
+    const suppressedValue = container.querySelector<HTMLElement>(
+      '.mochart-tooltip [class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-value')!;
+    expect(suppressedValue.style.textDecoration).toBe('');
+  });
+
+  it('leaves the tooltip label undecorated when disabled (the default)', () => {
+    const container = mountChart(makeConfig(twoSeries));
+    suppress(container, 'S1');
+    openTooltip(container);
+
+    const suppressedLabel = container.querySelector<HTMLElement>(
+      '.mochart-tooltip [class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-label')!;
+    expect(suppressedLabel.style.textDecoration).toBe('');
+  });
+
+  it('strikes the whole line when alignValues puts the label and value together', () => {
+    const container = mountChart(makeConfig({
+      ...twoSeries,
+      tooltipConfig: { alignValues: false, showSuppressionOnLabels: true }
+    }));
+    suppress(container, 'S1');
+    openTooltip(container);
+
+    const suppressedText = container.querySelector<HTMLElement>(
+      '.mochart-tooltip [class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-text')!;
+    expect(suppressedText.style.textDecoration).toBe('line-through');
+  });
+
+  it('paints a suppressed legend icon with iconSuppressedColor', () => {
+    function suppressedIconFill(legendConfig: Record<string, unknown>): string | null {
+      const container = mountChart(makeConfig({ ...twoSeries, legendConfig: { visible: true, ...legendConfig } }));
+      suppress(container, 'S1');
+      const iconGroup = container.querySelector(
+        '[class*="mochart-legend-item-S1"] .mochart-legend-item-icon')!;
+      return iconGroup.firstElementChild!.getAttribute('fill');
+    }
+
+    // the default is fully transparent, so a suppressed icon reads as its border alone
+    expect(suppressedIconFill({})).toBe('rgba(255,255,255,0)');
+    expect(suppressedIconFill({ iconSuppressedColor: '#cccccc' })).toBe('#cccccc');
+  });
+
+  it('decorates the hidden sizer copy of the tooltip the same way', () => {
+    const container = mountChart(makeConfig({
+      ...twoSeries,
+      tooltipConfig: { showSuppressionOnLabels: true }
+    }));
+    suppress(container, 'S1');
+    openTooltip(container);
+
+    const labels = container.querySelectorAll<HTMLElement>(
+      '[class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-label');
+    expect(labels.length).toBe(2);
+    for (const label of labels) {
+      expect(label.style.textDecoration).toBe('line-through');
+    }
+  });
+});
+
 describe('followSeries follower focus', () => {
   // A candlestick-style pair: a hidden thin wick series that follows the body
   // series via followSeries, plus an unrelated series to show the defocused

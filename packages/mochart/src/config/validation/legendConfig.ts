@@ -22,9 +22,12 @@ export default function getValidators() {
     iconSize: validators.numberMin(0).orEqual(AUTO),
     iconSpacerSize: validators.numberMin(0),
     iconBorderSize: validators.numberMin(0),
-    iconBorderColor: validators.color(),
-    iconSuppressedColor: validators.color(),
-    iconUnsuppressedColor: validators.color(),
+    // svgColor, not color: the icons are svg, so 'currentColor' and 'none' are valid here.
+    iconBorderColor: validators.svgColor(),
+    iconBorderOpacity: validators.opacity(),
+    iconSuppressedColor: validators.svgColor(),
+    iconUnsuppressedColor: validators.svgColor(),
+    showSuppressionOnLabels: validators.boolean(),
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),
     filterOnClick: validators.boolean()

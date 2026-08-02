@@ -160,4 +160,28 @@ describe('series axis focus range placement', () => {
     // bottom of the axis
     expect(range.y + range.height).toBe(axisHeight);
   });
+
+  // The golden snapshots never activate an axis focus, so its style is pinned here.
+  it('paints the focus range with the host page color', () => {
+    const container = mountChart(makeConfig());
+    focusSeries(container, 'S1');
+    const el = axisGroup(container, 'mochart-series-axis-SA1')
+      .querySelector('.mochart-axis-focus-range rect')!;
+    expect(el.getAttribute('stroke')).toBe('currentColor');
+    expect(el.getAttribute('fill')).toBe('currentColor');
+    // subtle under the plot on a light page, still readable on a dark one
+    expect(el.getAttribute('stroke-opacity')).toBe('0.2');
+    expect(el.getAttribute('fill-opacity')).toBe('0.12');
+  });
+
+  it('paints the focus tick marks with the host page color', () => {
+    const container = mountChart(makeConfig({
+      seriesAxisAllConfig: { focusTickMarks: true }
+    }));
+    focusSeries(container, 'S1');
+    const el = axisGroup(container, 'mochart-series-axis-SA1')
+      .querySelector('.mochart-axis-focus-tick-marks line')!;
+    expect(el.getAttribute('stroke')).toBe('currentColor');
+    expect(el.getAttribute('stroke-opacity')).toBe('1');
+  });
 });

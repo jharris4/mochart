@@ -80,11 +80,11 @@ describe('createHeatmap', () => {
   it('computes the domain from all cells and samples each row color range from the global ramp', () => {
     const heatmap = createHeatmap(rows());
     expect(heatmap.domain).toEqual([0, 10]);
-    expect(heatmap.seriesConfigs[0].colorMin).toBe(heatmap.colorScale(0));
-    expect(heatmap.seriesConfigs[0].colorMax).toBe(heatmap.colorScale(10));
-    expect(heatmap.seriesConfigs[1].colorMin).toBe(heatmap.colorScale(2));
-    expect(heatmap.seriesConfigs[1].colorMax).toBe(heatmap.colorScale(8));
-    expect(heatmap.seriesConfigs.every((seriesConfig) => /^#[0-9a-f]{6}$/.test(seriesConfig.colorMin as string))).toBe(true);
+    expect(heatmap.seriesConfigs[0]!.colorScale!.min).toBe(heatmap.colorScale(0));
+    expect(heatmap.seriesConfigs[0]!.colorScale!.max).toBe(heatmap.colorScale(10));
+    expect(heatmap.seriesConfigs[1]!.colorScale!.min).toBe(heatmap.colorScale(2));
+    expect(heatmap.seriesConfigs[1]!.colorScale!.max).toBe(heatmap.colorScale(8));
+    expect(heatmap.seriesConfigs.every((seriesConfig) => /^#[0-9a-f]{6}$/.test(seriesConfig.colorScale!.min as string))).toBe(true);
   });
 
   it('reproduces the global scale when the core interpolates each row over its own extent', () => {
@@ -93,7 +93,7 @@ describe('createHeatmap', () => {
       const values = row.values.filter((value): value is number => value != null);
       // What SeriesColors.getSeriesColorGenerator builds for the series.
       const coreScale = (scaleLinear() as unknown as TestColorScale)
-        .range([heatmap.seriesConfigs[r].colorMin, heatmap.seriesConfigs[r].colorMax])
+        .range([heatmap.seriesConfigs[r]!.colorScale!.min, heatmap.seriesConfigs[r]!.colorScale!.max])
         .domain([Math.min(...values), Math.max(...values)])
         .interpolate(interpolateLab);
       for (const value of values) {
@@ -107,8 +107,8 @@ describe('createHeatmap', () => {
     expect(heatmap.domain).toEqual([7, 7]);
     const midpoint = heatmap.colorScale(7);
     expect(heatmap.colorScale(0)).toBe(midpoint);
-    expect(heatmap.seriesConfigs[0].colorMin).toBe(midpoint);
-    expect(heatmap.seriesConfigs[1].colorMax).toBe(midpoint);
+    expect(heatmap.seriesConfigs[0]!.colorScale!.min).toBe(midpoint);
+    expect(heatmap.seriesConfigs[1]!.colorScale!.max).toBe(midpoint);
   });
 
   it('produces a valid chart config and data', () => {

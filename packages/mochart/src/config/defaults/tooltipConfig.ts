@@ -1,13 +1,14 @@
-import { AUTO, NONE } from '../core/constants';
+import { AUTO, NONE, COLOR_CURRENT } from '../core/constants';
+import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
-import type { TooltipConfig } from '../../types/config';
+import type { DeepPartial, TooltipConfig } from '../../types/config';
 
-export default function getDefaults(config: Partial<TooltipConfig> = {}, pieMode = false): Partial<TooltipConfig> {
+export default function getDefaults(config: DeepPartial<TooltipConfig> = {}, pieMode = false): Partial<TooltipConfig> {
   const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const configWithRegularDefaults = deepMerge(regularDefaults, config);
   const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as TooltipConfig, pieMode));
-  return { ...regularDefaults, ...conditionalDefaults } as Partial<TooltipConfig>;
+  return deepMerge(regularDefaults, conditionalDefaults) as Partial<TooltipConfig>;
 }
 
 export function getRegularDefaults() {
@@ -27,9 +28,8 @@ export function getRegularDefaults() {
     padding: 2,
     linePadding: 3,
     alignValues: true,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderColor: 'rgba(0,0,0,0.3)',
-    borderWidth: 2,
+    // Html, not svg: a null opacity leaves the color's own alpha alone, a named one is composited into it (utils/style cssStyleColor).
+    backgroundStyle: { strokeColor: 'rgba(0,0,0,0.3)', strokeOpacity: NONE, strokeWidth: 2, fillColor: 'rgba(255,255,255,0.9)', fillOpacity: NONE },
     borderRadius: 4,
     dropShadowColor: 'rgba(0,0,0,0.3)',
     dropShadowOffsetX: 0,
@@ -41,9 +41,12 @@ export function getRegularDefaults() {
     iconSize: AUTO,
     iconSpacerSize: 4,
     iconBorderSize: 1,
-    iconBorderColor: '#999999',
+    // The series icons are svg even inside the html tooltip, so they take the legend icon colors.
+    iconBorderColor: COLOR_CURRENT,
+    iconBorderOpacity: 0.65,
     iconSuppressedColor: 'rgba(255,255,255,0)',
     iconUnsuppressedColor: 'rgba(0,0,0,0.5)',
+    showSuppressionOnLabels: false,
     adjustForSuppression: true,
     adjustSizeForSuppression: false,
     hideSuppressed: false,

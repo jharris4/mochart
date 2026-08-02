@@ -8,7 +8,7 @@ import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
-import type { MochartInputConfig, PieConfig } from '../../src/types/config';
+import type { DeepPartial, MochartInputConfig, PieConfig } from '../../src/types/config';
 import type { PieItem, CreatePieOptions } from '../../src/data/Pie';
 
 const VERSION = '1.0.0';
@@ -239,7 +239,7 @@ describe('pie chart rendering', () => {
     it('formats the percent part with tooltipPercentFormat and the value part per series', () => {
       const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percentValue', valueFormat: ',.1f' });
       // merged, not replaced: the helper's fragment carries tooltipValues
-      (config as { pieConfig: Partial<PieConfig> }).pieConfig = { ...config.pieConfig, tooltipPercentFormat: '.0%' };
+      (config as { pieConfig: DeepPartial<PieConfig> }).pieConfig = { ...config.pieConfig, tooltipPercentFormat: '.0%' };
       const { container } = mountChart(config, data);
       const root = container.querySelector('[data-mochart-version]')!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);

@@ -30,10 +30,11 @@ import * as heatmap from '../examples/heatmap'
   [`colorProperty`](/reference/seriesConfigs#seriesConfigs.colorProperty):
   each cell's value drives its fill. The core color scale spans each
   series' *own* extent, so the helper sets every row's
-  [`colorMin`](/reference/seriesConfigs#seriesConfigs.colorMin)/[`colorMax`](/reference/seriesConfigs#seriesConfigs.colorMax)
+  [`colorScale.min`](/reference/seriesConfigs#seriesConfigs.colorScale.min)/[`colorScale.max`](/reference/seriesConfigs#seriesConfigs.colorScale.max)
   to the global ramp sampled at that row's min/max — keeping cell colors
   comparable across rows. The default ramp is a light-to-dark sequential
-  blue; override with `colorMin`, `colorMax` and `colorInterpolation`, or
+  blue; override it with the helper's `colorMin`, `colorMax` and
+  `colorInterpolation` options (which land in each row's `colorScale`), or
   fix the scale across datasets with `domain`.
 - Each series sets
   [`tooltipProperty`](/reference/seriesConfigs#seriesConfigs.tooltipProperty)

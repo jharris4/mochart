@@ -8,9 +8,8 @@ export default function getValidators() {
     applyFocus: validators.boolean(),
     showGroup: validators.boolean(),
     showSeries: validators.boolean(),
-    lineColor: validators.svgColor(),
-    lineOpacity: validators.opacity(),
-    lineWidth: validators.numberMin(0),
+    groupLineStyle: validators.strokeStyle(),
+    seriesLineStyle: validators.strokeStyle(),
     lineDashArray: validators.dashArray().orEqual(NONE),
     showBehindTooltip: validators.boolean()
   };

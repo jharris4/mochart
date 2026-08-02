@@ -19,14 +19,22 @@
     "property": "value7",
     "title": "Color Property Series",
     "renderer": "bar",
-    "fillOpacity": 1,
-    "strokeOpacity": 1,
+    "shapeStyle": {
+      "normal": {
+        "strokeOpacity": 1,
+        "fillOpacity": 1
+      }
+    },
     "colorProperty": "value7",
-    "colorBaseAboveMin": "#8f8fff",
-    "colorBaseAboveMax": "#0000ff",
-    "colorBase": 0,
-    "colorBaseBelowMin": "#ff0000",
-    "colorBaseBelowMax": "#ff8f8f",
-    "colorInterpolation": "hcl"
+    "colorScale": {
+      "interpolation": "hcl",
+      "base": {
+        "value": 0,
+        "aboveMin": "#8f8fff",
+        "aboveMax": "#0000ff",
+        "belowMin": "#ff0000",
+        "belowMax": "#ff8f8f"
+      }
+    }
   }
 }

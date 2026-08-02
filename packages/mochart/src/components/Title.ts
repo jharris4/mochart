@@ -6,10 +6,11 @@ import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/
 import { NONE } from '../config/core/constants';
 import { onClickDisabled, centerTextY, translate, translateObject } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
+import { styleToAttributes } from '../utils/style';
 import { getSpacingWidth } from '../layout/SpacingLayoutInfo';
 import Background from './Background';
 import type { El, TextEl } from '../render';
-import type { BackgroundStyle, MochartConfig, TextStyle } from '../types/config';
+import type { MochartConfig, Style } from '../types/config';
 import type { SpacingLayoutInfo } from '../types/layout';
 import type { TruncationDataValue } from '../utils/TextTruncation';
 
@@ -101,7 +102,7 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     return section;
   }
 
-  syncSection(wrapperEl: El, titleKey: TitleSectionKey, titleBackgroundKey: TitleBackgroundKey, titleValue: string | null, titleSectionLayoutInfo: SpacingLayoutInfo, backgroundStyle: BackgroundStyle, textStyle: TextStyle, visible: boolean, clipPath: string | null = null): void {
+  syncSection(wrapperEl: El, titleKey: TitleSectionKey, titleBackgroundKey: TitleBackgroundKey, titleValue: string | null, titleSectionLayoutInfo: SpacingLayoutInfo, backgroundStyle: Style, textStyle: Style, visible: boolean, clipPath: string | null = null): void {
     if (titleValue) {
       const section = this.getSection(titleKey);
       const { paddingBounds } = titleSectionLayoutInfo;
@@ -117,7 +118,7 @@ export default class Title extends Renderer<TitleProps, TitleState> {
         section.backgroundSlot.set(null);
       }
       section.clipGroup.set({ clipPath });
-      section.text.set({ ...textStyle, className: mochartCssClasses[titleKey], dy, transform });
+      section.text.set({ ...styleToAttributes(textStyle), className: mochartCssClasses[titleKey], dy, transform });
       section.value.set(titleValue);
       wrapperEl.node.appendChild(section.root.node);
     }

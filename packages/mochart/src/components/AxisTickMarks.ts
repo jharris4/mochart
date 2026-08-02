@@ -2,7 +2,8 @@ import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate } from '../utils/utils';
-import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import { getAxisFocusStyle } from '../utils/FocusValue';
+import { styleToAttributes } from '../utils/style';
 import type { AxisTick } from '../types/data';
 import type { AxisConfigBase } from '../types/config';
 import type { AxisLayoutInfo } from '../types/layout';
@@ -41,10 +42,8 @@ export default class AxisTickMarks extends Renderer<AxisTickMarksProps> {
       let tickX = 0;
       let tickY = 0;
 
-      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
-        axisConfig.tickMarkColor, axisConfig.tickMarkFocusedColor, axisConfig.tickMarkDefocusedColor);
-      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
-        axisConfig.tickMarkOpacity, axisConfig.tickMarkFocusedOpacity, axisConfig.tickMarkDefocusedOpacity);
+      const styleAttributes = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
+        axisConfig.useSeriesFocus ?? false, axisConfig.tickMarkStyle));
       const strokeWidth = axisConfig.tickMarkWidth;
 
       this.setPresent(true);
@@ -66,7 +65,7 @@ export default class AxisTickMarks extends Renderer<AxisTickMarksProps> {
           }
           handle.root.set({ className: mochartCssClasses['axisTickMark'] + i, transform: translate(tickX, tickY) });
           handle.line.set({ x1: tickMarkX1, y1: tickMarkY1, x2: tickMarkX2, y2: tickMarkY2, style: tick.hidden ? hiddenStyle : null,
-            stroke, strokeOpacity, strokeWidth });
+            ...styleAttributes, strokeWidth });
         }
       });
     }

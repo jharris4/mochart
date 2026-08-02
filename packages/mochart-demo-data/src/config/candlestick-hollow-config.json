@@ -24,15 +24,23 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1baf7a",
+          "fillColor": "#1baf7a",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "followSeries": "up",
       "valueLabel": "Range",
-      "fillColor": "#1baf7a",
-      "strokeColor": "#1baf7a",
       "markerShape": null,
-      "labelFillColor": "#1baf7a",
-      "labelFillOpacity": 1,
+      "labelTextStyle": {
+        "normal": {
+          "fillColor": "#1baf7a",
+          "fillOpacity": 1
+        }
+      },
       "valueFormat": ",.2f"
     },
     {
@@ -45,15 +53,23 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#e34948",
+          "fillColor": "#e34948",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "followSeries": "down",
       "valueLabel": "Range",
-      "fillColor": "#e34948",
-      "strokeColor": "#e34948",
       "markerShape": null,
-      "labelFillColor": "#e34948",
-      "labelFillOpacity": 1,
+      "labelTextStyle": {
+        "normal": {
+          "fillColor": "#e34948",
+          "fillOpacity": 1
+        }
+      },
       "valueFormat": ",.2f"
     },
     {
@@ -66,12 +82,16 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1baf7a",
+          "fillColor": "#1baf7a",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "showInTooltip": false,
       "followSeries": "up",
-      "fillColor": "#1baf7a",
-      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -84,12 +104,16 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1baf7a",
+          "fillColor": "#1baf7a",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "showInTooltip": false,
       "followSeries": "up",
-      "fillColor": "#1baf7a",
-      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -102,12 +126,16 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#e34948",
+          "fillColor": "#e34948",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "showInTooltip": false,
       "followSeries": "down",
-      "fillColor": "#e34948",
-      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -120,12 +148,16 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#e34948",
+          "fillColor": "#e34948",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "showInTooltip": false,
       "followSeries": "down",
-      "fillColor": "#e34948",
-      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -138,16 +170,24 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 0,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1baf7a",
+          "strokeOpacity": 1,
+          "strokeWidth": 2,
+          "fillColor": "#1baf7a",
+          "fillOpacity": 0
+        },
+        "focused": {
+          "strokeWidth": 3,
+          "fillOpacity": 0
+        },
+        "defocused": {
+          "strokeWidth": 2,
+          "fillOpacity": 0
+        }
+      },
       "title": "Up",
-      "fillColor": "#1baf7a",
-      "strokeColor": "#1baf7a",
-      "focusedFillOpacity": 0,
-      "defocusedFillOpacity": 0,
-      "strokeWidth": 2,
-      "strokeOpacity": 1,
-      "focusedStrokeWidth": 3,
-      "defocusedStrokeWidth": 2,
       "valueFormat": ",.2f"
     },
     {
@@ -160,10 +200,14 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#e34948",
+          "fillColor": "#e34948",
+          "fillOpacity": 1
+        }
+      },
       "title": "Down",
-      "fillColor": "#e34948",
-      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     }
   ]

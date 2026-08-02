@@ -2,7 +2,7 @@ import validators from './validators';
 
 import { AUTO, NONE, TYPE_NUMBER, SCALE_LINEAR } from '../core/constants';
 
-import getAxisValidators from './axisConfig';
+import getAxisValidators, { axisStyleValidators } from './axisConfig';
 
 export default function getValidators() {
   return {
@@ -19,12 +19,7 @@ export default function getValidators() {
     baseLineFront: validators.boolean(),
     baseLineWidth: validators.numberMin(0),
     baseLineDashArray: validators.dashArray().orEqual(NONE),
-    baseLineColor: validators.svgColor(),
-    baseLineFocusedColor: validators.svgColor(),
-    baseLineDefocusedColor: validators.svgColor(),
-    baseLineOpacity: validators.opacity(),
-    baseLineFocusedOpacity: validators.opacity(),
-    baseLineDefocusedOpacity: validators.opacity(),
+    baseLineStyle: axisStyleValidators.styleStates(axisStyleValidators.lineMembers),
 
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),

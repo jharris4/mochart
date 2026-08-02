@@ -1,4 +1,4 @@
-import getAxisDescriptions from './axisConfig';
+import getAxisDescriptions, { axisStyleStatesDescription, axisStrokeMembers } from './axisConfig';
 
 export default function getDescriptions() {
   return {
@@ -12,12 +12,7 @@ export default function getDescriptions() {
     baseLineFront: 'whether the base line should be shown in front (true) or behind (false) the series shapes',
     baseLineWidth: 'the stroke width (in pixels) of the line shown along the base of the axis',
     baseLineDashArray: 'the dash array pattern to use when drawing the line shown along the base of the axis',
-    baseLineColor: 'the color to use when drawing the line shown along the base of the axis (use "currentColor" to follow the host page\'s css color and theme)',
-    baseLineFocusedColor: 'the color to use when drawing the line shown along the base of the focused axis (use "currentColor" to follow the host page\'s css color and theme)',
-    baseLineDefocusedColor: 'the color to use when drawing the line shown along the base of the defocused axis (use "currentColor" to follow the host page\'s css color and theme)',
-    baseLineOpacity: 'the opacity (0 - 1) of the line shown along the base of the axis',
-    baseLineFocusedOpacity: 'the opacity (0 - 1) of the line shown along the base of the focused axis',
-    baseLineDefocusedOpacity: 'the opacity (0 - 1) of the line shown along the base of the defocused axis',
+    baseLineStyle: axisStyleStatesDescription('the style of the line shown along the base of the axis', axisStrokeMembers),
     adjustForSuppression: 'whether to adjust the domain of the axis as series belonging to it are suppressed',
     adjustTickLabelSizeForSuppression: 'whether to adjust the size of the axis tick label bounds as series belonging to it are suppressed',
     alwaysVisible: 'whether the axis should be visible when all series belonging to it are suppressed',

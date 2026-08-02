@@ -9,6 +9,7 @@ import { translate, translateObject, centerTextY } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
 import { getSeriesTitle } from '../utils/SeriesTitle';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
+import { styleToAttributes } from '../utils/style';
 import Background from './Background';
 import SeriesColorIcon from './SeriesColorIcon';
 import type { ColorPaletteConfig, LegendConfig, MochartConfig, SeriesConfig } from '../types/config';
@@ -226,7 +227,10 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   sync() {
     const { legendConfig, seriesConfig, legendItemLayoutInfo, legendItemTextLayoutInfo, uniqueIds, clipPath, colorPaletteConfig,
       seriesIndex, seriesIsSuppressed, seriesIsFocused, seriesIsDefocused, seriesFocusPercentage } = this.props;
-    const { iconSpacerSize, truncationEnabled, truncationValue, itemTextStyle } = legendConfig;
+    const { iconSpacerSize, truncationEnabled, truncationValue, itemTextStyle, showSuppressionOnLabels } = legendConfig;
+    const itemTextAttributes = styleToAttributes(itemTextStyle);
+    // a camelCase prop, not a style: the dom layer kebab-cases it into the svg attribute, and null leaves it off
+    const textDecoration = showSuppressionOnLabels && seriesIsSuppressed ? 'line-through' : null;
     const iconSize = resolveLegendIconSize(legendConfig, legendItemTextLayoutInfo);
     const { truncationData } = this.state;
     const seriesLabel = getSeriesTitle(seriesConfig);
@@ -252,11 +256,11 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       seriesShowColorProperty: 'showColorInLegend', uniqueIds,
       seriesIsSuppressed, renderHTML: false, resolvedIconSize: iconSize });
     this.textGroup.set({ className: mochartCssClasses['legendItemText'], clipPath });
-    this.text.set({ ...itemTextStyle, transform: textTransform, dy });
+    this.text.set({ ...itemTextAttributes, textDecoration, transform: textTransform, dy });
     this.textValue.set(seriesLabelText);
     this.textRawGroup.set({ className: mochartCssClasses['legendItemTextRaw'], style: hiddenStyle });
     // the hidden measurement text carries the same style so its metrics match the visible text
-    this.textRaw.set({ ...itemTextStyle, transform: textTransform, dy });
+    this.textRaw.set({ ...itemTextAttributes, textDecoration, transform: textTransform, dy });
     this.textRawValue.set(seriesLabel);
   }
 

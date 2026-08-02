@@ -16,16 +16,24 @@
       "rangeProperty": "range-min",
       "title": "Range",
       "renderer": "area",
-      "fillColor": "#9467bd",
-      "strokeColor": "#9467bd",
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#9467bd",
+          "fillColor": "#9467bd"
+        }
+      },
       "markerShape": null
     },
     {
       "property": "middle",
       "title": "Middle",
       "renderer": "line",
-      "fillColor": "#1f77b4",
-      "strokeColor": "#1f77b4",
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1f77b4",
+          "fillColor": "#1f77b4"
+        }
+      },
       "markerSize": 8,
       "markerShape": "star"
     }

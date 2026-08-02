@@ -23,8 +23,8 @@ interface AxisThresholdLineProps {
   seriesLayoutInfo: LayoutInfo;
   axisLayoutInfo: AxisLayoutInfo;
   axisThresholdLineClass: string;
-  stroke: string;
-  strokeOpacity: number;
+  stroke: string | null;
+  strokeOpacity: number | null;
   strokeWidth: number;
   strokeDashArray: string | null;
   vertical: boolean;
@@ -33,10 +33,11 @@ interface AxisThresholdLineProps {
   thresholdTitleSnapToValue: boolean;
   thresholdTitleMargin: MarginPadding;
   thresholdTitlePadding: MarginPadding;
-  titleStroke: string;
-  titleStrokeOpacity: number;
-  titleFill: string;
-  titleFillOpacity: number;
+  titleStroke: string | null;
+  titleStrokeOpacity: number | null;
+  titleStrokeWidth: number | null;
+  titleFill: string | null;
+  titleFillOpacity: number | null;
 }
 
 export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> {
@@ -74,7 +75,7 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
       const { thresholdTitle } = this.props;
       if (thresholdTitle !== NONE) {
         const { before } = axisConfig;
-        const { axisLayoutInfo, thresholdTitleBefore, thresholdTitleSnapToValue, titleStroke, titleStrokeOpacity, titleFill, titleFillOpacity } = this.props;
+        const { axisLayoutInfo, thresholdTitleBefore, thresholdTitleSnapToValue, titleStroke, titleStrokeOpacity, titleStrokeWidth, titleFill, titleFillOpacity } = this.props;
         const { thresholdTitleLayoutInfo } = axisLayoutInfo;
         let titleX = thresholdX;
         let titleY = thresholdY;
@@ -173,7 +174,7 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
         titleGroup.set({ transform: translate(titleX, titleY) });
         titleGroup.textHandle.set({ transform: translateRotate(paddingX, paddingY, vertical ? 0 : 90),
           fill: titleFill, fillOpacity: titleFillOpacity,
-          stroke: titleStroke, strokeOpacity: titleStrokeOpacity, dy: '0.35em' });
+          stroke: titleStroke, strokeOpacity: titleStrokeOpacity, strokeWidth: titleStrokeWidth, dy: '0.35em' });
         titleGroup.valueHandle.set(thresholdTitle);
       }
       else {

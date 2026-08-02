@@ -56,15 +56,21 @@
       "property": "row0",
       "rangeProperty": "row0Start",
       "colorProperty": "row0Value",
+      "colorScale": {
+        "interpolation": "lab",
+        "min": "#899ec4",
+        "max": "#1b3d72"
+      },
       "tooltipProperty": "row0Value",
-      "colorMin": "#899ec4",
-      "colorMax": "#1b3d72",
-      "colorInterpolation": "lab",
       "renderer": "bar",
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "title": "Mon",
       "valueFormat": ",.0f"
@@ -74,15 +80,21 @@
       "property": "row1",
       "rangeProperty": "row1Start",
       "colorProperty": "row1Value",
+      "colorScale": {
+        "interpolation": "lab",
+        "min": "#899ec4",
+        "max": "#1b3d72"
+      },
       "tooltipProperty": "row1Value",
-      "colorMin": "#899ec4",
-      "colorMax": "#1b3d72",
-      "colorInterpolation": "lab",
       "renderer": "bar",
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "title": "Tue",
       "valueFormat": ",.0f"
@@ -92,15 +104,21 @@
       "property": "row2",
       "rangeProperty": "row2Start",
       "colorProperty": "row2Value",
+      "colorScale": {
+        "interpolation": "lab",
+        "min": "#8398bf",
+        "max": "#0d366b"
+      },
       "tooltipProperty": "row2Value",
-      "colorMin": "#8398bf",
-      "colorMax": "#0d366b",
-      "colorInterpolation": "lab",
       "renderer": "bar",
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "title": "Wed",
       "valueFormat": ",.0f"
@@ -110,15 +128,21 @@
       "property": "row3",
       "rangeProperty": "row3Start",
       "colorProperty": "row3Value",
+      "colorScale": {
+        "interpolation": "lab",
+        "min": "#899ec4",
+        "max": "#1f4074"
+      },
       "tooltipProperty": "row3Value",
-      "colorMin": "#899ec4",
-      "colorMax": "#1f4074",
-      "colorInterpolation": "lab",
       "renderer": "bar",
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "title": "Thu",
       "valueFormat": ",.0f"
@@ -128,15 +152,21 @@
       "property": "row4",
       "rangeProperty": "row4Start",
       "colorProperty": "row4Value",
+      "colorScale": {
+        "interpolation": "lab",
+        "min": "#95aace",
+        "max": "#3d5789"
+      },
       "tooltipProperty": "row4Value",
-      "colorMin": "#95aace",
-      "colorMax": "#3d5789",
-      "colorInterpolation": "lab",
       "renderer": "bar",
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "title": "Fri",
       "valueFormat": ",.0f"
@@ -146,15 +176,21 @@
       "property": "row5",
       "rangeProperty": "row5Start",
       "colorProperty": "row5Value",
+      "colorScale": {
+        "interpolation": "lab",
+        "min": "#c7dcf6",
+        "max": "#95aace"
+      },
       "tooltipProperty": "row5Value",
-      "colorMin": "#c7dcf6",
-      "colorMax": "#95aace",
-      "colorInterpolation": "lab",
       "renderer": "bar",
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "title": "Sat",
       "valueFormat": ",.0f"
@@ -164,15 +200,21 @@
       "property": "row6",
       "rangeProperty": "row6Start",
       "colorProperty": "row6Value",
+      "colorScale": {
+        "interpolation": "lab",
+        "min": "#cde2fb",
+        "max": "#a1b6d8"
+      },
       "tooltipProperty": "row6Value",
-      "colorMin": "#cde2fb",
-      "colorMax": "#a1b6d8",
-      "colorInterpolation": "lab",
       "renderer": "bar",
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "title": "Sun",
       "valueFormat": ",.0f"

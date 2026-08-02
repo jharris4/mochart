@@ -25,6 +25,8 @@ export interface EditorPropertyModel {
   conditionalDefaults?: { value: { kind: string; text?: string }; condition: string }[];
   editor: EditorValueModel;
   reference?: EditorReferenceModel;
+  /** The documented members of a nested object property. */
+  properties?: EditorPropertyModel[];
 }
 
 export interface EditorSectionModel {

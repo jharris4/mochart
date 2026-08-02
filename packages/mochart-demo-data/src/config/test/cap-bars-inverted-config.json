@@ -52,8 +52,12 @@
       "capSize": 15,
       "capType": "round",
       "capExpand": false,
-      "fillColor": "#1f77b4",
-      "strokeColor": "#1f77b4"
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1f77b4",
+          "fillColor": "#1f77b4"
+        }
+      }
     },
     {
       "title": "Curve",
@@ -61,8 +65,12 @@
       "capSize": 15,
       "capType": "curve",
       "capExpand": false,
-      "fillColor": "#ff7f0e",
-      "strokeColor": "#ff7f0e"
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#ff7f0e",
+          "fillColor": "#ff7f0e"
+        }
+      }
     },
     {
       "title": "Point",
@@ -70,8 +78,12 @@
       "capSize": 15,
       "capType": "point",
       "capExpand": false,
-      "fillColor": "#2ca02c",
-      "strokeColor": "#2ca02c"
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#2ca02c",
+          "fillColor": "#2ca02c"
+        }
+      }
     },
     {
       "title": "Round Expand",
@@ -79,8 +91,12 @@
       "capSize": 15,
       "capType": "round",
       "capExpand": true,
-      "fillColor": "#aec7e8",
-      "strokeColor": "#aec7e8"
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#aec7e8",
+          "fillColor": "#aec7e8"
+        }
+      }
     },
     {
       "title": "Curve Expand",
@@ -88,8 +104,12 @@
       "capSize": 15,
       "capType": "curve",
       "capExpand": true,
-      "fillColor": "#ffbb78",
-      "strokeColor": "#ffbb78"
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#ffbb78",
+          "fillColor": "#ffbb78"
+        }
+      }
     },
     {
       "title": "Point Expand",
@@ -97,16 +117,24 @@
       "capSize": 15,
       "capType": "point",
       "capExpand": true,
-      "fillColor": "#98df8a",
-      "strokeColor": "#98df8a"
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#98df8a",
+          "fillColor": "#98df8a"
+        }
+      }
     },
     {
       "title": "None",
       "property": "value4",
       "capSize": 15,
       "capType": null,
-      "fillColor": "#d62728",
-      "strokeColor": "#d62728"
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#d62728",
+          "fillColor": "#d62728"
+        }
+      }
     }
   ]
 }

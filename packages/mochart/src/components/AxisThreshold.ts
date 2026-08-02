@@ -2,7 +2,8 @@ import { Renderer, svgEl } from '../render';
 
 import AxisThresholdLine from './AxisThresholdLine';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import { getAxisFocusStyle } from '../utils/FocusValue';
+import { styleToAttributes } from '../utils/style';
 import type { ThresholdAxisConfig } from './AxisThresholdLine';
 import type { AxisLayoutInfo, LayoutInfo } from '../types/layout';
 import type { PlotConfig } from '../types/config';
@@ -35,12 +36,7 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
       const { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisDomain, vertical, axisFocusPercentage, seriesFocusPercentage, axisThresholdClass, front } = this.props;
       const { threshold, thresholdFront, thresholdWidth, thresholdDashArray,
         thresholdTitle, thresholdTitleBefore, thresholdTitleSnapToValue, thresholdTitleMargin, thresholdTitlePadding,
-        thresholdTitleStrokeColor, thresholdTitleFocusedStrokeColor, thresholdTitleDefocusedStrokeColor,
-        thresholdTitleFillColor, thresholdTitleFocusedFillColor, thresholdTitleDefocusedFillColor,
-        thresholdTitleStrokeOpacity, thresholdTitleFocusedStrokeOpacity, thresholdTitleDefocusedStrokeOpacity,
-        thresholdTitleFillOpacity, thresholdTitleFocusedFillOpacity, thresholdTitleDefocusedFillOpacity,
-        thresholdColor, thresholdFocusedColor, thresholdDefocusedColor,
-        thresholdOpacity, thresholdFocusedOpacity, thresholdDefocusedOpacity,
+        thresholdStyle, thresholdTitleTextStyle,
         useSeriesFocus = false
       } = axisConfig;
 
@@ -51,16 +47,15 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
         this.line.set(null);
       }
       else {
+        const line = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdStyle));
+        const title = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdTitleTextStyle));
         this.line.set(AxisThresholdLine, { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisThresholdLineClass: mochartCssClasses['axisThreshold'], vertical,
           threshold, axisDomain, thresholdTitle, thresholdTitleBefore, thresholdTitleSnapToValue,
           thresholdTitleMargin, thresholdTitlePadding,
-          stroke: getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdColor, thresholdFocusedColor, thresholdDefocusedColor),
-          strokeOpacity: getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdOpacity, thresholdFocusedOpacity, thresholdDefocusedOpacity),
+          stroke: line.stroke ?? null, strokeOpacity: line.strokeOpacity ?? null,
           strokeWidth: thresholdWidth, strokeDashArray: thresholdDashArray,
-          titleStroke: getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdTitleStrokeColor, thresholdTitleFocusedStrokeColor, thresholdTitleDefocusedStrokeColor),
-          titleStrokeOpacity: getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdTitleStrokeOpacity, thresholdTitleFocusedStrokeOpacity, thresholdTitleDefocusedStrokeOpacity),
-          titleFill: getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdTitleFillColor, thresholdTitleFocusedFillColor, thresholdTitleDefocusedFillColor),
-          titleFillOpacity: getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdTitleFillOpacity, thresholdTitleFocusedFillOpacity, thresholdTitleDefocusedFillOpacity) });
+          titleStroke: title.stroke ?? null, titleStrokeOpacity: title.strokeOpacity ?? null, titleStrokeWidth: title.strokeWidth ?? null,
+          titleFill: title.fill ?? null, titleFillOpacity: title.fillOpacity ?? null });
       }
     }
     else {

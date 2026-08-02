@@ -44,8 +44,8 @@ describe('createCandlestick', () => {
       expect(seriesConfig.skipPartialRange).toBe(true);
       expect(seriesConfig.group).toBeNull();
       expect(seriesConfig.stack).toBeNull();
-      expect(seriesConfig.fillOpacity).toBe(1);
-      expect(seriesConfig.fillColor).toMatch(/^#/);
+      expect(seriesConfig.shapeStyle!.normal!.fillOpacity).toBe(1);
+      expect(seriesConfig.shapeStyle!.normal!.fillColor).toMatch(/^#/);
     }
   });
 
@@ -61,12 +61,12 @@ describe('createCandlestick', () => {
   it('colors each wick to match its body, with strokes matching the fills', () => {
     const { seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [upWick, downWick, up, down] = seriesConfigs;
-    expect(upWick.fillColor).toBe(up.fillColor);
-    expect(downWick.fillColor).toBe(down.fillColor);
-    expect(up.fillColor).not.toBe(down.fillColor);
+    expect(upWick.shapeStyle!.normal!.fillColor).toBe(up.shapeStyle!.normal!.fillColor);
+    expect(downWick.shapeStyle!.normal!.fillColor).toBe(down.shapeStyle!.normal!.fillColor);
+    expect(up.shapeStyle!.normal!.fillColor).not.toBe(down.shapeStyle!.normal!.fillColor);
     // the focused 1px outline must not fall back to the palette-index color
     for (const seriesConfig of seriesConfigs) {
-      expect(seriesConfig.strokeColor).toBe(seriesConfig.fillColor);
+      expect(seriesConfig.shapeStyle!.normal!.strokeColor).toBe(seriesConfig.shapeStyle!.normal!.fillColor);
     }
   });
 
@@ -81,8 +81,8 @@ describe('createCandlestick', () => {
     const [upWick, downWick, up, down] = seriesConfigs;
     expect(up.title).toBe('Gain');
     expect(down.title).toBe('Down');
-    expect(downWick.fillColor).toBe('#123456');
-    expect(down.fillColor).toBe('#123456');
+    expect(downWick.shapeStyle!.normal!.fillColor).toBe('#123456');
+    expect(down.shapeStyle!.normal!.fillColor).toBe('#123456');
     expect(upWick.barWidthPercent).toBe(0.1);
     expect(up.barWidthPercent).toBe(0.7);
     expect(upWick.valueLabel).toBe('Low – High');
@@ -119,7 +119,7 @@ describe('createCandlestick', () => {
         property: 'upVolume', axis: 'volume', renderer: 'bar', skipMissing: true,
         showInLegend: false, followSeries: 'up', valueLabel: 'Volume'
       });
-      expect(upVolume.fillColor).toBe(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'up')!.fillColor);
+      expect(upVolume.shapeStyle!.normal!.fillColor).toBe(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'up')!.shapeStyle!.normal!.fillColor);
     });
 
     it('moves the price series onto the price axis and splits the panes with margins', () => {
@@ -168,22 +168,23 @@ describe('createCandlestick', () => {
       const [upWick, downWick] = seriesConfigs;
       expect(upWick).toMatchObject({ renderer: 'none', markerShape: null, valueLabel: 'Range', followSeries: 'up' });
       expect(downWick).toMatchObject({ renderer: 'none', markerShape: null, valueLabel: 'Range', followSeries: 'down' });
-      expect(upWick.labelFillColor).toBe(upWick.fillColor);
-      expect(upWick.labelFillOpacity).toBe(1);
+      expect(upWick.labelTextStyle!.normal!.fillColor).toBe(upWick.shapeStyle!.normal!.fillColor);
+      expect(upWick.labelTextStyle!.normal!.fillOpacity).toBe(1);
     });
 
     it('outlines the up body and keeps the down body filled', () => {
       const { seriesConfigs } = createCandlestick(items, { hollow: true });
       const byId = Object.fromEntries(seriesConfigs.map((seriesConfig) => [seriesConfig.id, seriesConfig]));
-      expect(byId.up).toMatchObject({
-        fillOpacity: 0, focusedFillOpacity: 0, defocusedFillOpacity: 0,
-        strokeWidth: 2, strokeOpacity: 1, focusedStrokeWidth: 3, defocusedStrokeWidth: 2
+      expect(byId.up!.shapeStyle).toMatchObject({
+        normal: { strokeOpacity: 1, strokeWidth: 2, fillOpacity: 0 },
+        focused: { strokeWidth: 3, fillOpacity: 0 },
+        defocused: { strokeWidth: 2, fillOpacity: 0 }
       });
-      expect(byId.up.strokeColor).toBe(byId.up.fillColor);
-      expect(byId.down).toMatchObject({ fillOpacity: 1 });
+      expect(byId.up!.shapeStyle!.normal!.strokeColor).toBe(byId.up!.shapeStyle!.normal!.fillColor);
+      expect(byId.down!.shapeStyle!.normal!.fillOpacity).toBe(1);
       // filled bodies keep the default zero-width stroke, in the fill color
-      expect(byId.down.strokeColor).toBe(byId.down.fillColor);
-      expect(byId.down.strokeWidth).toBeUndefined();
+      expect(byId.down!.shapeStyle!.normal!.strokeColor).toBe(byId.down!.shapeStyle!.normal!.fillColor);
+      expect(byId.down!.shapeStyle!.normal!.strokeWidth).toBeUndefined();
     });
 
     it('supports the volume pane in hollow mode too', () => {

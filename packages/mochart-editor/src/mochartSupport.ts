@@ -43,6 +43,7 @@ function topLevelProperties(): EditorPropertyModel[] {
 
 const rootProperties = topLevelProperties();
 
+// Fallback for a nested value the docs model does not describe.
 function nestedProperty(key: string, editor: EditorValueModel): EditorPropertyModel {
   return {
     key,
@@ -52,6 +53,19 @@ function nestedProperty(key: string, editor: EditorValueModel): EditorPropertyMo
   };
 }
 
+/** The documented members of a property, or the bare value shape when it has none. */
+function nestedProperties(property: EditorPropertyModel | null): EditorPropertyModel[] {
+  if (property?.properties && property.properties.length > 0) return property.properties;
+  return Object.entries(property?.editor.properties ?? {}).map(([key, editor]) => nestedProperty(key, editor));
+}
+
+function nestedPropertyFor(property: EditorPropertyModel | null, key: string): EditorPropertyModel | null {
+  const documented = property?.properties?.find(candidate => candidate.key === key);
+  if (documented) return documented;
+  const editor = property?.editor.properties?.[key];
+  return editor ? nestedProperty(key, editor) : null;
+}
+
 function propertyForPath(path: JsonPath): EditorPropertyModel | null {
   const keys = path.filter((segment): segment is string => typeof segment === 'string');
   if (keys.length === 1) return rootProperties.find(property => property.key === keys[0]) ?? null;
@@ -59,9 +73,8 @@ function propertyForPath(path: JsonPath): EditorPropertyModel | null {
   if (!section || keys.length < 2) return null;
   let property = section.properties.find(candidate => candidate.key === keys[1]) ?? null;
   for (const key of keys.slice(2)) {
-    const editor = property?.editor.properties?.[key];
-    if (!editor) return null;
-    property = nestedProperty(key, editor);
+    property = nestedPropertyFor(property, key);
+    if (!property) return null;
   }
   return property;
 }
@@ -72,9 +85,9 @@ function propertiesForObject(path: JsonPath): EditorPropertyModel[] {
   const section = sectionForPath(path);
   if (!section) return [];
   if (keys.length === 1) return section.properties;
-  let value = section.properties.find(property => property.key === keys[1])?.editor;
-  for (const key of keys.slice(2)) value = value?.properties?.[key];
-  return Object.entries(value?.properties ?? {}).map(([key, editor]) => nestedProperty(key, editor));
+  let property = section.properties.find(candidate => candidate.key === keys[1]) ?? null;
+  for (const key of keys.slice(2)) property = nestedPropertyFor(property, key);
+  return nestedProperties(property);
 }
 
 function placeholder(value: EditorValueModel): string {

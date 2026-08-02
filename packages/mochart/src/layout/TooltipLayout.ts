@@ -16,7 +16,9 @@ export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds
   const { tooltipConfig, plotConfig } = mochartConfig;
   const { chartContentLayoutInfo, seriesLayoutInfo, containerLayoutInfo } = layoutInfo!;
   let { width, height } = tooltipBounds;
-  const extraWidth = 2 * (tooltipConfig.borderWidth + tooltipConfig.padding);
+  // A null border width leaves the css unset, so the border occupies nothing.
+  const borderWidth = tooltipConfig.backgroundStyle.strokeWidth ?? 0;
+  const extraWidth = 2 * (borderWidth + tooltipConfig.padding);
   width+= extraWidth;
   height+= extraWidth;
   const groupOffset = tooltipConfig.snapToGroup ? groupValueData!.positions[focusedGroupIndex] : tooltipGroupPercentage * seriesLayoutInfo.groupExtent;

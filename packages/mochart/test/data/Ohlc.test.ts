@@ -23,8 +23,8 @@ describe('createOhlc', () => {
       expect(seriesConfig.skipPartialRange).toBe(true);
       expect(seriesConfig.group).toBeNull();
       expect(seriesConfig.stack).toBeNull();
-      expect(seriesConfig.fillOpacity).toBe(1);
-      expect(seriesConfig.fillColor).toMatch(/^#/);
+      expect(seriesConfig.shapeStyle!.normal!.fillOpacity).toBe(1);
+      expect(seriesConfig.shapeStyle!.normal!.fillColor).toMatch(/^#/);
     }
   });
 
@@ -42,14 +42,14 @@ describe('createOhlc', () => {
   it('colors each tick to match its line, with strokes matching the fills', () => {
     const { seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [up, down, upOpen, downOpen, upClose, downClose] = seriesConfigs;
-    expect(upOpen.fillColor).toBe(up.fillColor);
-    expect(upClose.fillColor).toBe(up.fillColor);
-    expect(downOpen.fillColor).toBe(down.fillColor);
-    expect(downClose.fillColor).toBe(down.fillColor);
-    expect(up.fillColor).not.toBe(down.fillColor);
+    expect(upOpen.shapeStyle!.normal!.fillColor).toBe(up.shapeStyle!.normal!.fillColor);
+    expect(upClose.shapeStyle!.normal!.fillColor).toBe(up.shapeStyle!.normal!.fillColor);
+    expect(downOpen.shapeStyle!.normal!.fillColor).toBe(down.shapeStyle!.normal!.fillColor);
+    expect(downClose.shapeStyle!.normal!.fillColor).toBe(down.shapeStyle!.normal!.fillColor);
+    expect(up.shapeStyle!.normal!.fillColor).not.toBe(down.shapeStyle!.normal!.fillColor);
     // the focused 1px outline must not fall back to the palette-index color
     for (const seriesConfig of seriesConfigs) {
-      expect(seriesConfig.strokeColor).toBe(seriesConfig.fillColor);
+      expect(seriesConfig.shapeStyle!.normal!.strokeColor).toBe(seriesConfig.shapeStyle!.normal!.fillColor);
     }
   });
 
@@ -67,7 +67,7 @@ describe('createOhlc', () => {
     const [up, down, upOpen, , upClose] = seriesConfigs;
     expect(up.title).toBe('Gain');
     expect(down.title).toBe('Down');
-    expect(down.fillColor).toBe('#123456');
+    expect(down.shapeStyle!.normal!.fillColor).toBe('#123456');
     expect(up.barWidthPercent).toBe(0.1);
     expect(upOpen.barWidthPercent).toBe(0.4);
     expect(upOpen.barMinExtent).toBe(3);

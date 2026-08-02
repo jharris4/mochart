@@ -1,4 +1,4 @@
-import type { GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
 
 export type CandlestickDirection = 'up' | 'down';
 
@@ -120,7 +120,7 @@ export interface CandlestickData {
    * them and the bodies. With the `volume` option per-direction volume bar
    * series are appended.
    */
-  seriesConfigs: Partial<SeriesConfig>[];
+  seriesConfigs: DeepPartial<SeriesConfig>[];
   /**
    * Fragments to spread into the chart config's `seriesAxisConfigs` — only
    * present with the `volume` option: the `price` axis the price series
@@ -209,7 +209,7 @@ export function buildVolumeSeriesAxisConfigs(volumeOptions: Required<Candlestick
 // out of the legend but following their direction series, so filtering and
 // focusing a direction takes its volume bars along, and the tooltip shows a
 // single volume row per group.
-export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolumeOptions>, colors: Partial<Record<CandlestickDirection, string>> | undefined): Partial<SeriesConfig>[] {
+export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolumeOptions>, colors: Partial<Record<CandlestickDirection, string>> | undefined): DeepPartial<SeriesConfig>[] {
   return DIRECTIONS.map((direction) => {
     const color = colors?.[direction] ?? DEFAULT_COLORS[direction];
     return {
@@ -220,13 +220,11 @@ export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolu
       skipMissing: true,
       group: null,
       stack: null,
-      fillOpacity: 1,
       showInLegend: false,
       followSeries: direction,
       valueLabel: volumeOptions.valueLabel,
-      fillColor: color,
-      strokeColor: color
-    } as Partial<SeriesConfig>;
+      shapeStyle: { normal: { strokeColor: color, fillColor: color, fillOpacity: 1 } }
+    } as DeepPartial<SeriesConfig>;
   });
 }
 
@@ -295,20 +293,18 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       skipPartialRange: true,
       group: null,
       stack: null,
-      fillOpacity: 1,
       showInLegend: false,
       followSeries: direction,
       valueLabel: rangeTitle,
-      fillColor: color,
-      // strokeColor matches the fill: focused bars grow a 1px outline, and
-      // the default strokeColor is the palette color for the series *index*,
-      // which would rim the wick in an unrelated color.
-      strokeColor: color,
+      // the shape's strokeColor matches its fill: focused bars grow a 1px
+      // outline, and the default strokeColor is the palette color for the
+      // series *index*, which would rim the wick in an unrelated color.
+      shapeStyle: { normal: { strokeColor: color, fillColor: color, fillOpacity: 1 } },
       // markerShape null overrides the renderer-none default (circle
       // markers), and the label fill color/opacity color the tooltip icon,
       // which falls back to them for shapeless series.
-      ...(hollow ? { markerShape: null, labelFillColor: color, labelFillOpacity: 1 } : {})
-    } as Partial<SeriesConfig>;
+      ...(hollow ? { markerShape: null, labelTextStyle: { normal: { fillColor: color, fillOpacity: 1 } } } : {})
+    } as DeepPartial<SeriesConfig>;
   });
 
   // The visible wick in hollow mode: a segment above the body (body top →
@@ -326,16 +322,20 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       skipPartialRange: true,
       group: null,
       stack: null,
-      fillOpacity: 1,
       showInLegend: false,
       showInTooltip: false,
       followSeries: direction,
-      fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
-      strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction]
+      shapeStyle: {
+        normal: {
+          strokeColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+          fillColor: options.colors?.[direction] ?? DEFAULT_COLORS[direction],
+          fillOpacity: 1
+        }
+      }
     };
     return [
-      { id: direction + 'WickUpper', property: direction + 'High', rangeProperty: direction === 'up' ? 'up' : 'open', ...shared } as Partial<SeriesConfig>,
-      { id: direction + 'WickLower', property: direction === 'up' ? 'upOpen' : 'down', rangeProperty: 'low', ...shared } as Partial<SeriesConfig>
+      { id: direction + 'WickUpper', property: direction + 'High', rangeProperty: direction === 'up' ? 'up' : 'open', ...shared } as DeepPartial<SeriesConfig>,
+      { id: direction + 'WickLower', property: direction === 'up' ? 'upOpen' : 'down', rangeProperty: 'low', ...shared } as DeepPartial<SeriesConfig>
     ];
   }) : [];
 
@@ -353,22 +353,18 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       skipPartialRange: true,
       group: null,
       stack: null,
-      fillOpacity: hollowBody ? 0 : 1,
       title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
-      fillColor: color,
-      strokeColor: color,
-      // Outline only: the fill stays transparent in every focus state, and
-      // focus thickens the outline instead of the default bar behavior of
-      // thinning it back to 1px.
-      ...(hollowBody ? {
-        focusedFillOpacity: 0,
-        defocusedFillOpacity: 0,
-        strokeWidth: 2,
-        strokeOpacity: 1,
-        focusedStrokeWidth: 3,
-        defocusedStrokeWidth: 2
-      } : {})
-    } as Partial<SeriesConfig>;
+      // Outline only for a hollow body: the fill stays transparent in every
+      // focus state, and focus thickens the outline instead of the default bar
+      // behavior of thinning it back to 1px.
+      shapeStyle: hollowBody ? {
+        normal: { strokeColor: color, strokeOpacity: 1, strokeWidth: 2, fillColor: color, fillOpacity: 0 },
+        focused: { strokeWidth: 3, fillOpacity: 0 },
+        defocused: { strokeWidth: 2, fillOpacity: 0 }
+      } : {
+        normal: { strokeColor: color, fillColor: color, fillOpacity: 1 }
+      }
+    } as DeepPartial<SeriesConfig>;
   });
 
   return {

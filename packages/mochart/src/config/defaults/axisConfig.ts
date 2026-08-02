@@ -1,4 +1,4 @@
-import { AUTO, NONE, ELLIPSIS, COLOR_CURRENT } from '../core/constants';
+import { AUTO, NONE, ELLIPSIS, COLOR_CURRENT, COLOR_SAME } from '../core/constants';
 
 export default function getDefaults() {
   return {
@@ -7,14 +7,13 @@ export default function getDefaults() {
     axisLineWidth: 1,
     axisLineDashArray: NONE,
     axisLineMargin: 0,
-    axisLineColor: COLOR_CURRENT,
-    axisLineFocusedColor: COLOR_CURRENT,
-    axisLineDefocusedColor: COLOR_CURRENT,
-    axisLineOpacity: 0.65,
-    axisLineFocusedOpacity: 0.65,
-    axisLineDefocusedOpacity: 0.325,
+    axisLineStyle: {
+      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325 }
+    },
 
-    backgroundStyle: { stroke: '#000000', strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
+    backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
     backgroundFront: false,
 
     before: true,
@@ -24,20 +23,15 @@ export default function getDefaults() {
     focusRange: true,
     focusRangeFront: false,
     focusRangeApplyToTitle: false,
-    focusRangeStrokeColor: '#000033',
-    focusRangeFillColor: '#aaccff',
-    focusRangeStrokeOpacity: 0.2,
-    focusRangeFillOpacity: 0.3,
-    focusRangeStrokeWidth: 1,
+    // 0.2 / 0.12 matches the old '#000033' / '#aaccff' wash on a light page and stays legible on a dark one.
+    focusRangeStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.2, strokeWidth: 1, fillColor: COLOR_CURRENT, fillOpacity: 0.12 },
     focusRangeDashArray: NONE,
 
     focusTickMarks: false,
     focusTickMarksFront: false,
     focusTickMarkSize: 9,
     focusTickMarkMargin: 3,
-    focusTickMarkWidth: 3,
-    focusTickMarkColor: '#0000ff',
-    focusTickMarkOpacity: 1,
+    focusTickMarkStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 1, strokeWidth: 3 },
 
     gridLines: false,
     gridLinesFront: false,
@@ -46,12 +40,11 @@ export default function getDefaults() {
     // The old '#e5e5e5' at 0.75 over white is about '#ececec'; currentColor at
     // 0.13 sits between matching that on a light page and matching a dark
     // page's grid, so one value reads as a grid line in either theme.
-    gridLineColor: COLOR_CURRENT,
-    gridLineFocusedColor: COLOR_CURRENT,
-    gridLineDefocusedColor: COLOR_CURRENT,
-    gridLineOpacity: 0.13,
-    gridLineFocusedOpacity: 0.17,
-    gridLineDefocusedOpacity: 0.09,
+    gridLineStyle: {
+      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.13 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.17 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.09 }
+    },
 
     marginInner: 0,
     marginOuter: 1,
@@ -80,71 +73,55 @@ export default function getDefaults() {
     thresholdTitleSnapToValue: true,
     thresholdTitleMargin: { top: 0, right: 0, bottom: 0, left: 0 },
     thresholdTitlePadding: { top: 0, right: 0, bottom: 0, left: 0 },
-    thresholdTitleStrokeColor: 'none',
-    thresholdTitleFocusedStrokeColor: 'none',
-    thresholdTitleDefocusedStrokeColor: 'none',
-    thresholdTitleFillColor: COLOR_CURRENT,
-    thresholdTitleFocusedFillColor: COLOR_CURRENT,
-    thresholdTitleDefocusedFillColor: COLOR_CURRENT,
-    thresholdTitleStrokeOpacity: 1,
-    thresholdTitleFocusedStrokeOpacity: 1,
-    thresholdTitleDefocusedStrokeOpacity: 1,
-    thresholdTitleFillOpacity: 1,
-    thresholdTitleFocusedFillOpacity: 1,
-    thresholdTitleDefocusedFillOpacity: 1,
-    thresholdTitleBackgroundStyle: { stroke: '#000000', strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
+    // 'none' rather than null: stroke="none" firewalls a host-css stroke inheriting onto the text.
+    thresholdTitleTextStyle: {
+      normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, fillColor: COLOR_SAME, fillOpacity: 1 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, fillColor: COLOR_SAME, fillOpacity: 1 }
+    },
+    thresholdTitleBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
     thresholdWidth: 1,
     thresholdDashArray: NONE,
-    thresholdColor: COLOR_CURRENT,
-    thresholdFocusedColor: COLOR_CURRENT,
-    thresholdDefocusedColor: COLOR_CURRENT,
-    thresholdOpacity: 0.65,
-    thresholdFocusedOpacity: 0.65,
-    thresholdDefocusedOpacity: 0.325,
+    thresholdStyle: {
+      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325 }
+    },
 
     tickCount: AUTO,
 
     tickLabelFront: false,
     tickLabelAnchor: AUTO,
-    tickLabelBackgroundStyle: { stroke: '#000000', strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
+    tickLabelBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
     tickLabelSize: AUTO,
     tickLabelMarginInner: 2,
     tickLabelMarginOuter: 1,
     tickLabelPaddingInner: 5,
     tickLabelPaddingOuter: 5,
-    tickLabelStrokeWidth: 0,
     tickLabelFormat: AUTO,
     tickLabelPrefix: NONE,
     tickLabelSuffix: NONE,
     tickLabelRotation: 0,
-    tickLabelStrokeColor: 'none',
-    tickLabelFocusedStrokeColor: 'none',
-    tickLabelDefocusedStrokeColor: 'none',
-    tickLabelFillColor: COLOR_CURRENT,
-    tickLabelFocusedFillColor: COLOR_CURRENT,
-    tickLabelDefocusedFillColor: COLOR_CURRENT,
-    tickLabelStrokeOpacity: 1,
-    tickLabelFocusedStrokeOpacity: 1,
-    tickLabelDefocusedStrokeOpacity: 0.5,
-    tickLabelFillOpacity: 1,
-    tickLabelFocusedFillOpacity: 1,
-    tickLabelDefocusedFillOpacity: 0.5,
+    tickLabelTextStyle: {
+      normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: 1 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 0, fillColor: COLOR_SAME, fillOpacity: 1 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 0, fillColor: COLOR_SAME, fillOpacity: 0.5 }
+    },
 
     tickMarks: true,
     tickMarkFront: false,
     tickMarkSize: 3,
     tickMarkMargin: 0,
     tickMarkWidth: 1,
-    tickMarkColor: COLOR_CURRENT,
-    tickMarkFocusedColor: COLOR_CURRENT,
-    tickMarkDefocusedColor: COLOR_CURRENT,
-    tickMarkOpacity: 0.65,
-    tickMarkFocusedOpacity: 0.65,
-    tickMarkDefocusedOpacity: 0.325,
+    tickMarkStyle: {
+      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325 }
+    },
 
     title: NONE,
     titleFront: false,
-    titleBackgroundStyle: { stroke: '#000000', strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
+    titleBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
     titleTruncationEnabled: true,
     titleTruncationValue: ELLIPSIS,
     titleSize: AUTO,
@@ -152,19 +129,11 @@ export default function getDefaults() {
     titleMarginOuter: 2,
     titlePaddingInner: 3,
     titlePaddingOuter: 3,
-    titleStrokeWidth: 0,
-    titleStrokeColor: 'none',
-    titleFocusedStrokeColor: 'none',
-    titleDefocusedStrokeColor: 'none',
-    titleFillColor: COLOR_CURRENT,
-    titleFocusedFillColor: COLOR_CURRENT,
-    titleDefocusedFillColor: COLOR_CURRENT,
-    titleStrokeOpacity: 1,
-    titleFocusedStrokeOpacity: 1,
-    titleDefocusedStrokeOpacity: 0.5,
-    titleFillOpacity: 1,
-    titleFocusedFillOpacity: 1,
-    titleDefocusedFillOpacity: 0.5,
+    titleTextStyle: {
+      normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: 1 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 0, fillColor: COLOR_SAME, fillOpacity: 1 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 0, fillColor: COLOR_SAME, fillOpacity: 0.5 }
+    },
     visible: true
   };
 }

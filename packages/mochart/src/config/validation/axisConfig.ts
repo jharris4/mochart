@@ -1,6 +1,47 @@
 import validators from './validators';
 
-import { AUTO, NONE, ANCHORS } from '../core/constants';
+import { AUTO, NONE, ANCHORS, COLOR_SAME } from '../core/constants';
+
+import type { Validator } from '@mochart/movalid';
+
+export type StyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'fillColor' | 'fillOpacity';
+
+/** A line's stroke width is a flat property, so its style carries color and opacity only. */
+const lineMembers: StyleMember[] = ['strokeColor', 'strokeOpacity'];
+const styleMembers: StyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity'];
+
+function memberValidator(member: StyleMember, allowSame: boolean): Validator {
+  switch (member) {
+    // Never null: an axis writes stroke="none" so a host-css stroke cannot inherit onto its text.
+    case 'strokeColor':
+    case 'fillColor':
+      return allowSame ? validators.svgColor().orEqual(COLOR_SAME) : validators.svgColor();
+    case 'strokeOpacity':
+    case 'fillOpacity':
+      return validators.opacity();
+    case 'strokeWidth':
+      return validators.numberMin(0).orEqual(NONE);
+  }
+}
+
+// Partial, and extra members pass: an unknown member is reported once by the unknown-key walk.
+function styleShape(members: StyleMember[], allowSame: boolean) {
+  const shape: Record<string, Validator> = {};
+  for (const member of members) {
+    shape[member] = memberValidator(member, allowSame);
+  }
+  return validators.partialObjectWithShape(shape, true);
+}
+
+function styleStates(members: StyleMember[]) {
+  return validators.partialObjectWithShape({
+    normal: styleShape(members, false),
+    focused: styleShape(members, true),
+    defocused: styleShape(members, true)
+  }, true);
+}
+
+export const axisStyleValidators = { styleShape, styleStates, lineMembers, styleMembers };
 
 export default function getValidators() {
   return {
@@ -9,16 +50,7 @@ export default function getValidators() {
     axisLineDashArray: validators.dashArray().orEqual(NONE),
     axisLineMargin: validators.numberMin(0),
     axisLineWidth: validators.numberMin(0),
-    /* focus start */
-    axisLineColor: validators.svgColor(),
-    axisLineFocusedColor: validators.svgColor(),
-    axisLineDefocusedColor: validators.svgColor(),
-    /* focus end */
-    /* focus start */
-    axisLineOpacity: validators.opacity(),
-    axisLineFocusedOpacity: validators.opacity(),
-    axisLineDefocusedOpacity: validators.opacity(),
-    /* focus end */
+    axisLineStyle: styleStates(lineMembers),
 
     backgroundStyle: validators.style(),
     backgroundFront: validators.boolean(),
@@ -30,34 +62,19 @@ export default function getValidators() {
     focusRange: validators.boolean(),
     focusRangeFront: validators.boolean(),
     focusRangeApplyToTitle: validators.boolean(),
-    focusRangeStrokeColor: validators.svgColor(),
-    focusRangeFillColor: validators.svgColor(),
-    focusRangeStrokeOpacity: validators.opacity(),
-    focusRangeFillOpacity: validators.opacity(),
-    focusRangeStrokeWidth: validators.numberMin(0),
+    focusRangeStyle: styleShape(styleMembers, false),
     focusRangeDashArray: validators.dashArray().orEqual(NONE),
 
     focusTickMarks: validators.boolean(),
     focusTickMarksFront: validators.boolean(),
     focusTickMarkSize: validators.numberMin(0),
     focusTickMarkMargin: validators.numberMin(0),
-    focusTickMarkWidth: validators.numberMin(0),
-    focusTickMarkColor: validators.svgColor(),
-    focusTickMarkOpacity: validators.opacity(),
+    focusTickMarkStyle: styleShape(['strokeColor', 'strokeOpacity', 'strokeWidth'], false),
 
     gridLines: validators.boolean(),
     gridLinesFront: validators.boolean(),
-    /* focus start */
-    gridLineColor: validators.svgColor(),
-    gridLineFocusedColor: validators.svgColor(),
-    gridLineDefocusedColor: validators.svgColor(),
-    /* focus end */
+    gridLineStyle: styleStates(lineMembers),
     gridLineDashArray: validators.dashArray().orEqual(NONE),
-    /* focus start */
-    gridLineOpacity: validators.opacity(),
-    gridLineFocusedOpacity: validators.opacity(),
-    gridLineDefocusedOpacity: validators.opacity(),
-    /* focus end */
     gridLineWidth: validators.numberMin(0),
 
     marginInner: validators.numberMin(0),
@@ -77,27 +94,11 @@ export default function getValidators() {
     thresholdTitleSnapToValue: validators.boolean(),
     thresholdTitleMargin: validators.margin(),
     thresholdTitlePadding: validators.padding(),
-    thresholdTitleStrokeColor: validators.svgColor(),
-    thresholdTitleFocusedStrokeColor: validators.svgColor(),
-    thresholdTitleDefocusedStrokeColor: validators.svgColor(),
-    thresholdTitleFillColor: validators.svgColor(),
-    thresholdTitleFocusedFillColor: validators.svgColor(),
-    thresholdTitleDefocusedFillColor: validators.svgColor(),
-    thresholdTitleStrokeOpacity: validators.opacity(),
-    thresholdTitleFocusedStrokeOpacity: validators.opacity(),
-    thresholdTitleDefocusedStrokeOpacity: validators.opacity(),
-    thresholdTitleFillOpacity: validators.opacity(),
-    thresholdTitleFocusedFillOpacity: validators.opacity(),
-    thresholdTitleDefocusedFillOpacity: validators.opacity(),
+    thresholdTitleTextStyle: styleStates(styleMembers),
     thresholdTitleBackgroundStyle: validators.style(),
     thresholdWidth: validators.numberMin(0),
     thresholdDashArray: validators.dashArray().orEqual(NONE),
-    thresholdColor: validators.svgColor(),
-    thresholdFocusedColor: validators.svgColor(),
-    thresholdDefocusedColor: validators.svgColor(),
-    thresholdOpacity: validators.opacity(),
-    thresholdFocusedOpacity: validators.opacity(),
-    thresholdDefocusedOpacity: validators.opacity(),
+    thresholdStyle: styleStates(lineMembers),
 
     tickCount: validators.integerMin(0).orEqual(AUTO),
 
@@ -108,47 +109,18 @@ export default function getValidators() {
     tickLabelMarginOuter: validators.numberMin(0),
     tickLabelPaddingInner: validators.numberMin(0),
     tickLabelPaddingOuter: validators.numberMin(0),
-    tickLabelStrokeWidth: validators.numberMin(0),
     tickLabelPrefix: validators.string().orEqual(NONE),
     tickLabelSuffix: validators.string().orEqual(NONE),
     tickLabelRotation: validators.numberMinMax(-90, 90),
     tickLabelAnchor: validators.oneOf(ANCHORS.concat([AUTO])),
-    /* focus start */
-    tickLabelStrokeColor: validators.svgColor(),
-    tickLabelFocusedStrokeColor: validators.svgColor(),
-    tickLabelDefocusedStrokeColor: validators.svgColor(),
-    /* focus end */
-    /* focus start */
-    tickLabelFillColor: validators.svgColor(),
-    tickLabelFocusedFillColor: validators.svgColor(),
-    tickLabelDefocusedFillColor: validators.svgColor(),
-    /* focus end */
-    /* focus start */
-    tickLabelStrokeOpacity: validators.opacity(),
-    tickLabelFocusedStrokeOpacity: validators.opacity(),
-    tickLabelDefocusedStrokeOpacity: validators.opacity(),
-    /* focus end */
-    /* focus start */
-    tickLabelFillOpacity: validators.opacity(),
-    tickLabelFocusedFillOpacity: validators.opacity(),
-    tickLabelDefocusedFillOpacity: validators.opacity(),
-    /* focus end */
+    tickLabelTextStyle: styleStates(styleMembers),
 
     tickMarks: validators.boolean(),
     tickMarkFront: validators.boolean(),
     tickMarkSize: validators.numberMin(0),
     tickMarkMargin: validators.numberMin(0),
     tickMarkWidth: validators.numberMin(0),
-    /* focus start */
-    tickMarkColor: validators.svgColor(),
-    tickMarkFocusedColor: validators.svgColor(),
-    tickMarkDefocusedColor: validators.svgColor(),
-    /* focus end */
-    /* focus start */
-    tickMarkOpacity: validators.opacity(),
-    tickMarkFocusedOpacity: validators.opacity(),
-    tickMarkDefocusedOpacity: validators.opacity(),
-    /* focus end */
+    tickMarkStyle: styleStates(lineMembers),
 
     title: validators.string().orEqual(NONE),
     titleFront: validators.boolean(),
@@ -160,27 +132,7 @@ export default function getValidators() {
     titleMarginOuter: validators.numberMin(0),
     titlePaddingInner: validators.numberMin(0),
     titlePaddingOuter: validators.numberMin(0),
-    titleStrokeWidth: validators.numberMin(0),
-    /* focus start */
-    titleStrokeColor: validators.svgColor(),
-    titleFocusedStrokeColor: validators.svgColor(),
-    titleDefocusedStrokeColor: validators.svgColor(),
-    /* focus end */
-    /* focus start */
-    titleFillColor: validators.svgColor(),
-    titleFocusedFillColor: validators.svgColor(),
-    titleDefocusedFillColor: validators.svgColor(),
-    /* focus end */
-    /* focus start */
-    titleStrokeOpacity: validators.opacity(),
-    titleFocusedStrokeOpacity: validators.opacity(),
-    titleDefocusedStrokeOpacity: validators.opacity(),
-    /* focus end */
-    /* focus start */
-    titleFillOpacity: validators.opacity(),
-    titleFocusedFillOpacity: validators.opacity(),
-    titleDefocusedFillOpacity: validators.opacity(),
-    /* focus end */
+    titleTextStyle: styleStates(styleMembers),
 
     visible: validators.boolean()
   };

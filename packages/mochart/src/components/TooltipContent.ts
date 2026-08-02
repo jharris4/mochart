@@ -156,6 +156,9 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
     this.root.set({ className: mochartCssClasses['tooltipSeriesLine'] + seriesConfig.id, style,
       onMouseEnter, onMouseLeave, onClick });
 
+    // html, so this has to be a style: a top-level prop would be written as an attribute, which means nothing here
+    const labelStyle = { textDecoration: tooltipConfig.showSuppressionOnLabels && seriesIsSuppressed ? 'line-through' : null };
+
     const iconProps = {
       seriesContextConfig: tooltipConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
       focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,
@@ -169,7 +172,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       container.set({ style: alignedLineStyle });
       container.leftHandle.set({ style: { float: 'left' } });
       this.iconSlot.set(SeriesColorIcon, iconProps);
-      container.labelHandle.set({ className: mochartCssClasses['tooltipLineLabel'] });
+      container.labelHandle.set({ className: mochartCssClasses['tooltipLineLabel'], style: labelStyle });
       this.labelValue!.set(labelText);
       container.spacerHandle.set({ style: { float: 'left', width: 2, height: 4 } });
       container.valueHandle.set({ className: mochartCssClasses['tooltipLineValue'], style: { float: 'right' } });
@@ -179,7 +182,8 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       const container = this.line.set('plain', () => this.buildPlainLine()) as PlainLineEl;
       container.set({ className: mochartCssClasses['tooltipLineIcon'] });
       this.iconSlot.set(SeriesColorIcon, iconProps);
-      container.textHandle.set({ className: mochartCssClasses['tooltipLineText'] });
+      // label and value share one text node here, so the strike-through covers both
+      container.textHandle.set({ className: mochartCssClasses['tooltipLineText'], style: labelStyle });
       this.labelValue!.set(labelText + valueText);
     }
   }

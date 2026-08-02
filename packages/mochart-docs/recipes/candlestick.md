@@ -65,10 +65,12 @@ In hollow mode the low→high wick can't be painted behind the body (it would
 show through the hollow interior), so the helper splits it into segments
 that stop at the body edges, and the original wick series turns shapeless —
 it keeps the tooltip's single `low – high` range row and its focus/filter
-wiring, but draws nothing. The up body outlines itself via `strokeColor` /
-`strokeWidth` with a transparent fill, and its legend and tooltip icons pick
-up the stroke color automatically. `colors`, `seriesTitles` and the width
-options apply as in filled mode.
+wiring, but draws nothing. The up body outlines itself through
+[`shapeStyle`](/reference/seriesConfigs#seriesConfigs.shapeStyle) — a stroke
+color and width against `fillOpacity: 0`, pinned to 0 in the focused and
+defocused states too so hovering thickens the outline rather than filling it
+— and its legend and tooltip icons pick up the stroke color automatically.
+`colors`, `seriesTitles` and the width options apply as in filled mode.
 
 ## Volume pane
 

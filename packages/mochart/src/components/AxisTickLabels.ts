@@ -6,7 +6,8 @@ import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/
 import { SCALE_ORDINAL } from '../config/core/constants';
 import { translate } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
-import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import { getAxisFocusStyle } from '../utils/FocusValue';
+import { styleToAttributes } from '../utils/style';
 import Background from './Background';
 import type { El, TextEl } from '../render';
 import type { AxisConfigBase, GroupAxisConfig, SeriesAxisConfig } from '../types/config';
@@ -137,14 +138,9 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
 
     const clipPath = truncationEnabled && tickLabelClipPathUniqueId ? getClipPathReference(tickLabelClipPathUniqueId) : null;
 
-    const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
-      axisConfig.tickLabelStrokeColor, axisConfig.tickLabelFocusedStrokeColor, axisConfig.tickLabelDefocusedStrokeColor);
-    const fill = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
-      axisConfig.tickLabelFillColor, axisConfig.tickLabelFocusedFillColor, axisConfig.tickLabelDefocusedFillColor);
-    const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
-      axisConfig.tickLabelStrokeOpacity, axisConfig.tickLabelFocusedStrokeOpacity, axisConfig.tickLabelDefocusedStrokeOpacity);
-    const fillOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
-      axisConfig.tickLabelFillOpacity, axisConfig.tickLabelFocusedFillOpacity, axisConfig.tickLabelDefocusedFillOpacity);
+    // destructured rather than spread whole: this attribute order is what the golden snapshots record
+    const { stroke, strokeOpacity, strokeWidth, fill, fillOpacity } = styleToAttributes(
+      getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, axisConfig.tickLabelTextStyle));
 
     this.root.set({ className: mochartCssClasses['axisTickLabels'] });
     this.background.set(Background, { config: axisConfig, configStyleKey: 'tickLabelBackgroundStyle', classKey: 'axisTickLabelBackground', spacingRelative: false, spacingLayoutInfo: axisLayoutInfo.tickLabelLayoutInfo });
@@ -169,7 +165,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
         handle.root.set({ className: mochartCssClasses['axisTickLabel'] + i,
           transform: translate(tickX + tickTextX, tickY + tickTextY), clipPath });
         handle.text.set({ style: tick.hidden ? hiddenTickTextStyle : tickTextStyle, dy: tickTextDY, transform: tickRotationTransform,
-          stroke, strokeOpacity, fill, fillOpacity, strokeWidth: axisConfig.tickLabelStrokeWidth });
+          stroke, strokeOpacity, fill, fillOpacity, strokeWidth });
         handle.value.set(tickLabels[i]);
       }
     });

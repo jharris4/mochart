@@ -6,7 +6,8 @@ import {
   getFocusedDefocused,
   getFocusPercentageColor,
   getAxisFocusColor,
-  getAxisFocusOpacity
+  getAxisFocusOpacity,
+  getAxisFocusStyle
 } from '../../src/utils/FocusValue';
 import type { SeriesConfig } from '../../src/types/config';
 
@@ -84,6 +85,11 @@ describe('getFocusPercentageColor', () => {
     expect(getFocusPercentageColor(-0.5, 'n', 'f', 'd')).toBe('d');
     expect(getFocusPercentageColor(null, 'n', 'f', 'd')).toBe('n');
   });
+
+  it('resolves "same" to the normal color', () => {
+    expect(getFocusPercentageColor(0.5, 'n', 'same', 'd')).toBe('n');
+    expect(getFocusPercentageColor(-0.5, 'n', 'f', 'same')).toBe('n');
+  });
 });
 
 describe('getAxisFocusColor', () => {
@@ -121,5 +127,51 @@ describe('getAxisFocusOpacity', () => {
 
   it('uses only the axis focus when useSeriesFocus is false', () => {
     expect(getAxisFocusOpacity(1, null, false, NORMAL, FOCUSED, DEFOCUSED)).toBe(FOCUSED);
+  });
+});
+
+describe('getAxisFocusStyle', () => {
+  const textStyle = {
+    normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: 0, fillColor: 'currentColor', fillOpacity: 1 },
+    focused: { strokeColor: 'same', strokeOpacity: 1, strokeWidth: 0, fillColor: '#ff0000', fillOpacity: 1 },
+    defocused: { strokeColor: 'same', strokeOpacity: 0.5, strokeWidth: 0, fillColor: 'same', fillOpacity: 0.5 }
+  };
+
+  it('resolves to the normal state when nothing is focused', () => {
+    expect(getAxisFocusStyle(null, null, true, textStyle)).toEqual(textStyle.normal);
+  });
+
+  it('switches colors by state and resolves "same" against the normal state', () => {
+    expect(getAxisFocusStyle(1, null, true, textStyle)).toEqual({
+      strokeColor: 'none', strokeOpacity: 1, strokeWidth: 0, fillColor: '#ff0000', fillOpacity: 1
+    });
+    expect(getAxisFocusStyle(-1, null, true, textStyle)).toEqual({
+      strokeColor: 'none', strokeOpacity: 0.5, strokeWidth: 0, fillColor: 'currentColor', fillOpacity: 0.5
+    });
+  });
+
+  it('moves numbers continuously between states', () => {
+    // half defocused: opacity travels half the way from 1 to 0.5
+    expect(getAxisFocusStyle(-0.5, null, true, textStyle).fillOpacity).toBe(0.75);
+  });
+
+  it('resolves only the members the normal state has', () => {
+    // a line's stroke width is a flat config property, so its style has none
+    const lineStyle = {
+      normal: { strokeColor: 'currentColor', strokeOpacity: 0.65 },
+      focused: { strokeColor: 'same', strokeOpacity: 0.65 },
+      defocused: { strokeColor: 'same', strokeOpacity: 0.325 }
+    };
+    expect(getAxisFocusStyle(-1, null, true, lineStyle))
+      .toEqual({ strokeColor: 'currentColor', strokeOpacity: 0.325 });
+  });
+
+  it('leaves a member with nothing to interpolate at the normal value', () => {
+    const style = {
+      normal: { strokeColor: 'none', strokeWidth: null },
+      focused: { strokeColor: 'same', strokeWidth: null },
+      defocused: { strokeColor: 'same', strokeWidth: null }
+    };
+    expect(getAxisFocusStyle(1, null, true, style)).toEqual({ strokeColor: 'none', strokeWidth: null });
   });
 });

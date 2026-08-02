@@ -122,6 +122,25 @@ function renderTopLevel(topLevel: TopLevelKeyDoc[]): string {
   return out;
 }
 
+// a member's anchor extends its parent's, matching the docs site
+function renderPropertyRows(sectionId: string, property: PropertyDoc, parentPath: string[]): string {
+  const path = [...parentPath, property.key];
+  const keyId = sectionId + '.' + path.join('.');
+  const indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(parentPath.length);
+  let out = '<tr id="' + keyId + '">\n';
+  out += tags('td', [
+    indent + '<a href="#' + keyId + '">' + path.join('.') + '</a>',
+    renderDescription(property),
+    renderRules(property.rules),
+    renderPropertyDefault(property)
+  ]);
+  out += '</tr>\n';
+  for (const nested of property.properties ?? []) {
+    out += renderPropertyRows(sectionId, nested, path);
+  }
+  return out;
+}
+
 function renderSection(section: SectionDoc): string {
   let out = '<div id="' + section.id + '">\n';
   out += '<h2>' + section.title + '</h2>\n';
@@ -129,15 +148,7 @@ function renderSection(section: SectionDoc): string {
   out += tags('th', ['Property', 'Description', 'Validation Rules', 'Default']);
   out += '</tr>\n</thead>\n';
   for (const property of section.properties) {
-    const keyId = section.id + '.' + property.key;
-    out += '<tr id="' + keyId + '">\n';
-    out += tags('td', [
-      '<a href="#' + keyId + '">' + property.key + '</a>',
-      renderDescription(property),
-      renderRules(property.rules),
-      renderPropertyDefault(property)
-    ]);
-    out += '</tr>\n';
+    out += renderPropertyRows(section.id, property, []);
   }
   out += '</table>\n</div>\n';
   return out;

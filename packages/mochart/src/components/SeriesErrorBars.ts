@@ -1,13 +1,13 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import { NONE, RENDERER_BAR, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX } from '../config/core/constants';
-import { getSeriesStrokeColor } from '../utils/SeriesColors';
+import { NONE, RENDERER_BAR } from '../config/core/constants';
+import { getSeriesErrorBarStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { getFocusValue, getGroupFocusPercentage } from '../utils/FocusValue';
 import type { ElListAdapter, ElProps } from '../render';
-import type { FocusData, FocusPercentage } from '../types/animation';
-import type { ColorPaletteConfig, SeriesColor, SeriesConfig } from '../types/config';
+import type { FocusData } from '../types/animation';
+import type { ColorPaletteConfig, SeriesConfig } from '../types/config';
 import type { AxisScale, SeriesPositionData, SeriesValueObject } from '../types/data';
 
 interface ErrorBarItem {
@@ -34,22 +34,6 @@ interface SeriesErrorBarsProps {
   focusData: FocusData;
 }
 
-function getErrorBarStrokeColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, seriesIndex: number, focusPercentage: FocusPercentage, groupIndex: number): SeriesColor | null {
-  const color = seriesConfig.errorBarStrokeColor;
-  if (color === COLOR_SERIES) {
-    return getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, groupIndex);
-  }
-  if (color === COLOR_SERIES_INDEX) {
-    const colors = colorPaletteConfig.series.strokeColors;
-    return colors[seriesIndex % colors.length];
-  }
-  if (color === COLOR_GROUP_INDEX) {
-    const colors = colorPaletteConfig.series.strokeColors;
-    return colors[groupIndex % colors.length];
-  }
-  return color;
-}
-
 export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
   root = svgEl('g');
   errorBars = this.elList<ErrorBarItem>(this.root);
@@ -66,7 +50,8 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
       hasErrorValues && seriesConfig.stack === NONE) {
       const { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
-      const { skipMissing, errorBarCapSize, errorBarStrokeWidth } = seriesConfig;
+      const { skipMissing, errorBarCapSize } = seriesConfig;
+      const { normal: errorBarNormal, focused: errorBarFocused, defocused: errorBarDefocused } = seriesConfig.errorBarStyle;
       const errorLowValues = filteredValues.errorLow;
       const errorHighValues = filteredValues.errorHigh;
 
@@ -117,8 +102,9 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
           }
 
           const focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
-          const strokeColor = getErrorBarStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, skipI);
-          const strokeOpacity = getFocusValue(focusPercentage, seriesConfig.errorBarStrokeOpacity, seriesConfig.errorBarFocusedStrokeOpacity, seriesConfig.errorBarDefocusedStrokeOpacity);
+          const strokeColor = getSeriesErrorBarStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
+          const strokeOpacity = getFocusValue(focusPercentage, errorBarNormal.strokeOpacity!, errorBarFocused.strokeOpacity!, errorBarDefocused.strokeOpacity!);
+          const errorBarStrokeWidth = getFocusValue(focusPercentage, errorBarNormal.strokeWidth!, errorBarFocused.strokeWidth!, errorBarDefocused.strokeWidth!);
 
           errorBars.push({
             key: 'error-bar-' + i,

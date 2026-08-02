@@ -16,12 +16,27 @@ const numberFormatRegexp = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\
 // are handed to d3 scale ranges and a keyword would interpolate to NaN.
 const svgColorValidator = validators.color().orOneOf(['none', COLOR_CURRENT]).withCustomName('svgColor').withMessage('should be a valid svg color (or "none" / "currentColor")');
 
+// The tooltip's colors become css declarations, where 'none' is not a color at all: it would be dropped
+// as an invalid declaration and leave the property inheriting, so it is rejected rather than accepted.
+const cssColorValidator = validators.color().orEqual(COLOR_CURRENT).withCustomName('cssColor').withMessage('should be a valid css color (or "currentColor")');
+
+const opacityValidator = validators.numberMinMax(0, 1).orEqual(NONE);
+const strokeWidthValidator = validators.numberMin(0).orEqual(NONE);
+
 const styleKeyMap = {
-  stroke: svgColorValidator.orEqual(NONE),
-  strokeOpacity: validators.numberMinMax(0, 1).orEqual(NONE),
-  fill: svgColorValidator.orEqual(NONE),
-  fillOpacity: validators.numberMinMax(0, 1).orEqual(NONE),
-  strokeWidth: validators.numberMin(0).orEqual(NONE)
+  strokeColor: svgColorValidator.orEqual(NONE),
+  strokeOpacity: opacityValidator,
+  fillColor: svgColorValidator.orEqual(NONE),
+  fillOpacity: opacityValidator,
+  strokeWidth: strokeWidthValidator
+};
+
+const cssStyleKeyMap = {
+  strokeColor: cssColorValidator.orEqual(NONE),
+  strokeOpacity: opacityValidator,
+  fillColor: cssColorValidator.orEqual(NONE),
+  fillOpacity: opacityValidator,
+  strokeWidth: strokeWidthValidator
 };
 
 const dashArray = () => validators.regexp(dashArrayRegexp).withCustomName('dashArray').withMessage('should be a valid dash array');
@@ -31,9 +46,18 @@ const propertyRequired = () => validators.notOneOf([undefined, NONE]).withCustom
 const propertyOptional = () => validators.notEqual(undefined).orEqual(NONE).withCustomName('propertyOptional').withMessage('should be a defined value or equal to null');
 const margin = () => validators.objectWith(MARGIN_KEYS, validators.numberMin(0));
 const padding = () => validators.objectWith(PADDING_KEYS, validators.numberMin(0));
-const style = () => validators.objectWithShape(styleKeyMap);
+// Partial (a style is deep-merged over its default), and extra members pass so that an unknown member
+// is reported once by the unknown-key walk rather than as an error as well.
+const style = () => validators.partialObjectWithShape(styleKeyMap, true);
+const cssStyle = () => validators.partialObjectWithShape(cssStyleKeyMap, true);
+const strokeStyle = () => validators.partialObjectWithShape({
+  strokeColor: styleKeyMap.strokeColor,
+  strokeOpacity: styleKeyMap.strokeOpacity,
+  strokeWidth: styleKeyMap.strokeWidth
+}, true);
 const opacity = () => validators.numberMinMax(0, 1);
 const svgColor = () => svgColorValidator;
+const cssColor = () => cssColorValidator;
 
 // Object.assign (not object spread) so TypeScript keeps the keys of movalid's
 // mapped Validators type — spreading it into a literal collapses them.
@@ -46,8 +70,11 @@ const configValidators = Object.assign({}, validators, {
   margin,
   padding,
   style,
+  cssStyle,
+  strokeStyle,
   opacity,
-  svgColor
+  svgColor,
+  cssColor
 });
 
 export default configValidators;

@@ -6,9 +6,8 @@ export default function getDefaults() {
     applyFocus: true,
     showGroup: true,
     showSeries: true,
-    lineColor: COLOR_CURRENT,
-    lineOpacity: 0.3,
-    lineWidth:  3,
+    groupLineStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.3, strokeWidth: 3 },
+    seriesLineStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.3, strokeWidth: 3 },
     lineDashArray: '10, 5',
     showBehindTooltip: false
   };

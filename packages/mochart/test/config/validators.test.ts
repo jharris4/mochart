@@ -22,6 +22,41 @@ describe('svgColor', () => {
   });
 });
 
+describe('cssColor', () => {
+  const validate = configValidators.cssColor();
+
+  it('accepts hex and rgb colors and the keyword "currentColor"', () => {
+    expect(validate('#fff')).toBe(true);
+    expect(validate('rgba(0,0,0,0.3)')).toBe(true);
+    expect(validate('currentColor')).toBe(true);
+  });
+
+  it('rejects "none", which is not a css color', () => {
+    // in a css declaration 'none' is dropped as invalid, it does not switch the paint off
+    expect(validate('none')).toBe(false);
+  });
+
+  it('rejects malformed colors', () => {
+    expect(validate('#WWW')).toBe(false);
+    expect(validate('not-a-color')).toBe(false);
+  });
+});
+
+describe('cssStyle', () => {
+  const validate = configValidators.cssStyle();
+
+  it('accepts a partial style with currentColor', () => {
+    expect(validate({ fillColor: 'currentColor' })).toBe(true);
+    expect(validate({ strokeColor: 'rgba(0,0,0,0.3)', strokeWidth: 2 })).toBe(true);
+    expect(validate({ fillColor: null })).toBe(true);
+  });
+
+  it('rejects "none" in either color member', () => {
+    expect(validate({ fillColor: 'none' })).toBe(false);
+    expect(validate({ strokeColor: 'none' })).toBe(false);
+  });
+});
+
 describe('dashArray', () => {
   const validate = configValidators.dashArray();
 

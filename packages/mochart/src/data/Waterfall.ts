@@ -1,4 +1,4 @@
-import type { GroupAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, GroupAxisConfig, SeriesConfig } from '../types/config';
 
 export type WaterfallDirection = 'increase' | 'decrease' | 'total';
 
@@ -65,7 +65,7 @@ export interface WaterfallData {
    * direction in increase/decrease/total order. Directions absent from the
    * data keep their series so the config stays stable across data updates.
    */
-  seriesConfigs: Partial<SeriesConfig>[];
+  seriesConfigs: DeepPartial<SeriesConfig>[];
 }
 
 const GROUP_PROPERTY = 'label';
@@ -132,9 +132,9 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
   // skipPartialRange matters because `start` exists on every row: without it
   // the two off-direction series would keep zero-extent bars at `start`
   // instead of skipping the group.
-  // strokeColor matches the fill: bars grow a 1px outline when focused, and
-  // the default strokeColor is the palette color for the series *index*,
-  // which would rim the bar in an unrelated color.
+  // The shape's strokeColor matches its fill: bars grow a 1px outline when
+  // focused, and the default strokeColor is the palette color for the series
+  // *index*, which would rim the bar in an unrelated color.
   const seriesConfigs = DIRECTIONS.map((direction) => {
     const color = options.colors?.[direction] ?? DEFAULT_COLORS[direction];
     return {
@@ -147,9 +147,8 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
       group: null,
       stack: null,
       title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
-      fillColor: color,
-      strokeColor: color
-    } as Partial<SeriesConfig>;
+      shapeStyle: { normal: { strokeColor: color, fillColor: color } }
+    } as DeepPartial<SeriesConfig>;
   });
 
   return { steps, data, groupAxisConfig, seriesConfigs };

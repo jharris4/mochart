@@ -45,12 +45,66 @@ Every list section has a companion `*AllConfig` section — `seriesAllConfig`,
 the list. A value set on an individual entry wins over the shared one:
 
 ```js
-seriesAllConfig: { renderer: 'bar', strokeWidth: 2 },
+seriesAllConfig: { renderer: 'bar', valueFormat: ',.0f' },
 seriesConfigs: [
-  { property: 'revenue' },                      // bar, strokeWidth 2
-  { property: 'target', renderer: 'line' }      // line, strokeWidth 2
+  { property: 'revenue' },                      // bar, ',.0f'
+  { property: 'target', renderer: 'line' }      // line, ',.0f'
 ]
 ```
+
+## Styles and focus states
+
+Everything the chart draws is painted by a **style** object rather than by a
+flat set of color properties. A style holds `strokeColor`, `strokeOpacity`
+and `strokeWidth`, plus `fillColor` and `fillOpacity` for shapes that have an
+interior. Lines — grid lines, tick marks, thresholds, crosshairs, error-bar
+whiskers — take the stroke half only.
+
+Most elements are painted differently depending on what has focus, so their
+style is nested one level deeper, under `normal`, `focused` and `defocused`:
+
+```js
+seriesConfigs: [{
+  property: 'revenue',
+  shapeStyle: {
+    normal:    { fillColor: '#3366cc', fillOpacity: 0.8 },
+    focused:   { fillOpacity: 1 },
+    defocused: { fillOpacity: 0.3 }
+  }
+}]
+```
+
+In the `focused` and `defocused` states a color may be the literal `'same'`,
+meaning "whatever the `normal` state resolved to". That is the default almost
+everywhere: elements change opacity or width on focus but keep their color.
+`'same'` applies to colors only — opacities and widths are always concrete
+numbers.
+
+Series styles additionally accept the palette modes `'series'`,
+`'seriesIndex'` and `'groupIndex'` in place of a color; see
+[`colorPaletteConfig`](/reference/colorPaletteConfig). Any style color also
+accepts `'currentColor'` to follow the host page's CSS `color`, and `'none'`
+to switch that half of the style off.
+
+Reference pages link to nested members with dotted anchors, so
+[`shapeStyle.normal.fillColor`](/reference/seriesConfigs#seriesConfigs.shapeStyle.normal.fillColor)
+is addressable in its own right.
+
+## Partial overrides
+
+Config layers are merged member by member at every depth, so a config only
+names what it changes. In the example above `shapeStyle.normal.strokeColor`,
+`strokeWidth` and both other states' colors keep their defaults — writing one
+member never blanks out its siblings. The same holds when a `*All` section
+merges into an individual list entry.
+
+Two values do not merge:
+
+- **Arrays replace wholesale.** `ticks`, gradient `stops` and the palette
+  color lists are values, not structures to merge element-wise.
+- **`null` is a real value, not a hole.** `{ strokeColor: null }` overrides a
+  non-null default and leaves the SVG attribute unset so CSS can supply it.
+  Use `undefined` (or simply omit the key) to mean "not specified".
 
 ## Cross-references and id defaulting
 

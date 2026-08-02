@@ -1,14 +1,15 @@
-import { NONE, TYPE_NUMBER, SCALE_LINEAR, COLOR_CURRENT } from '../core/constants';
+import { NONE, TYPE_NUMBER, SCALE_LINEAR, COLOR_CURRENT, COLOR_SAME } from '../core/constants';
+import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import getAxisDefaults from './axisConfig';
-import type { SeriesAxisConfig } from '../../types/config';
+import type { DeepPartial, SeriesAxisConfig } from '../../types/config';
 
-export default function getDefaults(config: Partial<SeriesAxisConfig> = {}, index: number, hasStack: boolean, pieMode = false): Partial<SeriesAxisConfig> {
+export default function getDefaults(config: DeepPartial<SeriesAxisConfig> = {}, index: number, hasStack: boolean, pieMode = false): Partial<SeriesAxisConfig> {
   const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const configWithRegularDefaults = deepMerge(regularDefaults, config);
   const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesAxisConfig, index, hasStack, pieMode));
-  return { ...regularDefaults, ...conditionalDefaults } as Partial<SeriesAxisConfig>;
+  return deepMerge(regularDefaults, conditionalDefaults) as Partial<SeriesAxisConfig>;
 }
 
 export function getRegularDefaults() {
@@ -24,12 +25,11 @@ export function getRegularDefaults() {
     baseLineFront: false,
     baseLineWidth: 1,
     baseLineDashArray: NONE,
-    baseLineColor: COLOR_CURRENT,
-    baseLineFocusedColor: COLOR_CURRENT,
-    baseLineDefocusedColor: COLOR_CURRENT,
-    baseLineOpacity: 0.65,
-    baseLineFocusedOpacity: 0.65,
-    baseLineDefocusedOpacity: 0.325,
+    baseLineStyle: {
+      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325 }
+    },
 
     focusOnMouseOver: true,
     focusOnClick: false,

@@ -407,6 +407,37 @@ const compoundValidatorDefinitions = {
       );
     }
   },
+  partialObjectWithShape: {
+    validator: (propertyToValidatorMap: Record<string, Validator>, allowExtraProperties: boolean = false) => v => {
+      if (!typeValidators.object(v) || Array.isArray(v)) {
+        return false;
+      }
+      const valueKeys = Object.keys(v);
+      const someInvalid = valueKeys.some(valueKey => {
+        const propertyValidator = propertyToValidatorMap[valueKey];
+        if (propertyValidator === undefined) {
+          // an unknown property is invalid unless extras were opted into
+          return !allowExtraProperties;
+        }
+        // present but undefined counts as "not specified", so only a real value has to validate
+        return v[valueKey] !== undefined && !propertyValidator(v[valueKey]);
+      });
+      return !someInvalid;
+    },
+    message: (propertyToValidatorMap: Record<string, Validator>, allowExtraProperties: boolean = false) => {
+      const validatorMessageMap: Record<string, string> = {};
+      const shapePropertyKeys = Object.keys(propertyToValidatorMap);
+      shapePropertyKeys.forEach(shapePropertyKey => {
+        validatorMessageMap[shapePropertyKey] = propertyToValidatorMap[shapePropertyKey].errorMessage;
+      });
+      return (
+        "should be an object with any of the" +
+        (allowExtraProperties ? "" : " exact") +
+        " properties " +
+        printObject(validatorMessageMap, false)
+      );
+    }
+  },
   or: {
     validator: (validators: Validator[]) => v => validators.some(validator => validator(v)),
     message: (validators: Validator[]) =>
@@ -460,7 +491,8 @@ const validatorArgsToNestedValues: Record<string, (...args: any[]) => Record<str
     });
     return propertyToValidatorMap;
   },
-  objectWithShape: (propertyToValidatorMap: Record<string, Validator>) => propertyToValidatorMap
+  objectWithShape: (propertyToValidatorMap: Record<string, Validator>) => propertyToValidatorMap,
+  partialObjectWithShape: (propertyToValidatorMap: Record<string, Validator>) => propertyToValidatorMap
 };
 
 const validatorArgsToItemValidator: Record<string, (...args: any[]) => Validator> = {

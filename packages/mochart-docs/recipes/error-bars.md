@@ -37,13 +37,22 @@ import * as errorBars from '../examples/errorBars'
   `rangeValueText`: `56.5 (53.9 - 58.6)`.
 - Styling: [`errorBarCapSize`](/reference/seriesConfigs#seriesConfigs.errorBarCapSize)
   sets the cap width in pixels (`0` hides the caps; on bars the caps clamp to
-  the bar slot), [`errorBarStrokeWidth`](/reference/seriesConfigs#seriesConfigs.errorBarStrokeWidth)
-  the whisker thickness, and
-  [`errorBarStrokeColor`](/reference/seriesConfigs#seriesConfigs.errorBarStrokeColor)
-  the color — the default `"series"` follows the series stroke color through
-  focus and defocus, with the
-  [`errorBarStrokeOpacity`](/reference/seriesConfigs#seriesConfigs.errorBarStrokeOpacity)
-  trio dimming whiskers alongside their series.
+  the bar slot), and
+  [`errorBarStyle`](/reference/seriesConfigs#seriesConfigs.errorBarStyle)
+  paints the whisker itself. Being a line, it takes a stroke-only style —
+  [`strokeColor`](/reference/seriesConfigs#seriesConfigs.errorBarStyle.normal.strokeColor),
+  [`strokeOpacity`](/reference/seriesConfigs#seriesConfigs.errorBarStyle.normal.strokeOpacity)
+  and
+  [`strokeWidth`](/reference/seriesConfigs#seriesConfigs.errorBarStyle.normal.strokeWidth)
+  — once per focus state. The default `strokeColor` is `"series"` in
+  [`normal`](/reference/seriesConfigs#seriesConfigs.errorBarStyle.normal) and
+  `"same"` in
+  [`focused`](/reference/seriesConfigs#seriesConfigs.errorBarStyle.focused) and
+  [`defocused`](/reference/seriesConfigs#seriesConfigs.errorBarStyle.defocused),
+  so whiskers follow their series' color through focus, while the opacities
+  (`0.9` normally, `1` focused, `0.5` defocused) dim them alongside it. Only
+  the members you name are overridden, so thickening just the focused whisker
+  is `errorBarStyle: { focused: { strokeWidth: 3 } }`.
 - Whiskers animate with their series: value transitions share one duration
   across the point and its bounds, so the whisker stays glued to a moving
   bar, and entering groups grow their whisker out of the axis base with the

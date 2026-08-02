@@ -11,46 +11,27 @@ import type { FocusPercentage } from '../types/animation';
 import type { ColorPaletteConfig, SeriesColor, SeriesConfig } from '../types/config';
 import type { NumericValues, SeriesDomainObject, SeriesValueObject } from '../types/data';
 
-const colorLookupMap = {
-  strokeColors: {
-    series: {
-      normal: { paletteKey: 'series', configKey: 'strokeColor' },
-      focused: { paletteKey: 'seriesFocused', configKey: 'focusedStrokeColor' },
-      defocused: { paletteKey: 'seriesDefocused', configKey: 'defocusedStrokeColor' }
-    },
-    marker: {
-      normal: { paletteKey: 'marker', configKey: 'markerStrokeColor' },
-      focused: { paletteKey: 'markerFocused', configKey: 'markerFocusedStrokeColor' },
-      defocused: { paletteKey: 'markerDefocused', configKey: 'markerDefocusedStrokeColor' }
-    },
-    label: {
-      normal: { paletteKey: 'label', configKey: 'labelStrokeColor' },
-      focused: { paletteKey: 'labelFocused', configKey: 'labelFocusedStrokeColor' },
-      defocused: { paletteKey: 'labelDefocused', configKey: 'labelDefocusedStrokeColor' }
-    }
-  },
-  fillColors: {
-    series: {
-      normal: { paletteKey: 'series', configKey: 'fillColor' },
-      focused: { paletteKey: 'seriesFocused', configKey: 'focusedFillColor' },
-      defocused: { paletteKey: 'seriesDefocused', configKey: 'defocusedFillColor' }
-    },
-    marker: {
-      normal: { paletteKey: 'marker', configKey: 'markerFillColor' },
-      focused: { paletteKey: 'markerFocused', configKey: 'markerFocusedFillColor' },
-      defocused: { paletteKey: 'markerDefocused', configKey: 'markerDefocusedFillColor' }
-    },
-    label: {
-      normal: { paletteKey: 'label', configKey: 'labelFillColor' },
-      focused: { paletteKey: 'labelFocused', configKey: 'labelFocusedFillColor' },
-      defocused: { paletteKey: 'labelDefocused', configKey: 'labelDefocusedFillColor' }
-    }
-  }
+// A colour resolves along two axes: `'series'` hops the element axis (a marker
+// defers to the shape) and `'same'` hops the focus axis (focused defers to
+// normal); both end at the shape's normal colour, so a chain is at most two hops.
+// Each element's styleKey (the series config style it reads) and paletteKey (the
+// colorPaletteConfig entry its palette keywords index into) must stay in lockstep.
+const elementKeys = {
+  series: { styleKey: 'shapeStyle', paletteKey: 'series' },
+  marker: { styleKey: 'markerStyle', paletteKey: 'marker' },
+  label: { styleKey: 'labelTextStyle', paletteKey: 'label' },
+  errorBar: { styleKey: 'errorBarStyle', paletteKey: 'errorBar' }
 } as const;
 
-type FillOrStrokeKey = keyof typeof colorLookupMap;
-type ColorMapKey = keyof (typeof colorLookupMap)['strokeColors'];
+const styleMemberKeys = {
+  strokeColors: 'strokeColor',
+  fillColors: 'fillColor'
+} as const;
+
+type FillOrStrokeKey = keyof typeof styleMemberKeys;
+type ColorMapKey = keyof typeof elementKeys;
 type FocusKey = 'normal' | 'focused' | 'defocused';
+type StyleStateRecord = Record<FocusKey, Record<string, SeriesColor | number | null | undefined>>;
 type ColorArgs = [seriesIndex?: number, focusPercentage?: FocusPercentage, defaultColor?: SeriesColor | null, groupIndex?: number];
 type ColorInterpolator = (start: string, end: string) => (value: number) => string;
 interface ColorScale {
@@ -60,29 +41,33 @@ interface ColorScale {
   interpolate(interpolator: ColorInterpolator): ColorScale;
 }
 
+function readColor(seriesConfig: SeriesConfig, mapKey: ColorMapKey, focusKey: FocusKey, member: 'strokeColor' | 'fillColor'): SeriesColor {
+  const styleStates = seriesConfig[elementKeys[mapKey].styleKey] as unknown as StyleStateRecord;
+  return styleStates[focusKey][member] as SeriesColor;
+}
+
 function getColor(fillOrStrokeKey: FillOrStrokeKey, mapKey: ColorMapKey, colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, seriesIndex = 0, focusPercentage: FocusPercentage = null, defaultColor: SeriesColor | null = '', groupIndex?: number): SeriesColor | null {
   const { focused, defocused } = getFocusedDefocused(focusPercentage);
+  const member = styleMemberKeys[fillOrStrokeKey];
   let focusKey: FocusKey = focused ? 'focused' : (defocused ? 'defocused' : 'normal');
-  let { configKey, paletteKey } = colorLookupMap[fillOrStrokeKey][mapKey][focusKey];
   for (let i = 0; i < 2; i++) {
-    if ((seriesConfig[configKey] as SeriesColor) === COLOR_SERIES) {
+    const value = readColor(seriesConfig, mapKey, focusKey, member);
+    if (value === COLOR_SERIES) {
       mapKey = 'series';
-      ({ configKey, paletteKey } = colorLookupMap[fillOrStrokeKey][mapKey][focusKey]);
     }
-    else if ((seriesConfig[configKey] as SeriesColor) === COLOR_SAME) {
+    else if (value === COLOR_SAME) {
       focusKey = 'normal';
-      ({ configKey, paletteKey } = colorLookupMap[fillOrStrokeKey][mapKey][focusKey]);
     }
   }
-  const color = seriesConfig[configKey] as SeriesColor;
+  const color = readColor(seriesConfig, mapKey, focusKey, member);
   if (color === COLOR_SERIES_INDEX) {
-    const colors = colorPaletteConfig[paletteKey][fillOrStrokeKey];
-    return colors[seriesIndex % colors.length];
+    const colors = colorPaletteConfig[elementKeys[mapKey].paletteKey][focusKey][fillOrStrokeKey];
+    return colors[seriesIndex % colors.length]!;
   }
   else if (color === COLOR_GROUP_INDEX) {
     if (groupIndex !== undefined) {
-      const colors = colorPaletteConfig[paletteKey][fillOrStrokeKey];
-      return colors[groupIndex % colors.length];
+      const colors = colorPaletteConfig[elementKeys[mapKey].paletteKey][focusKey][fillOrStrokeKey];
+      return colors[groupIndex % colors.length]!;
     }
     return defaultColor;
   }
@@ -98,35 +83,32 @@ function getColor(fillOrStrokeKey: FillOrStrokeKey, mapKey: ColorMapKey, colorPa
  * ones would produce an invisible icon.
  */
 function isHollowShape(seriesConfig: SeriesConfig): boolean {
-  return seriesConfig.fillOpacity === 0 && seriesConfig.strokeWidth > 0;
+  const { fillOpacity, strokeWidth } = seriesConfig.shapeStyle.normal;
+  return fillOpacity === 0 && strokeWidth! > 0;
 }
 
 export function getSeriesOpacities(seriesConfig: SeriesConfig) {
   const { renderer } = seriesConfig;
   let opacity, focusedOpacity, defocusedOpacity;
   if ((renderer === RENDERER_AREA || renderer === RENDERER_BAR) && !isHollowShape(seriesConfig)) {
-    opacity = seriesConfig.fillOpacity;
-    focusedOpacity = seriesConfig.focusedFillOpacity;
-    defocusedOpacity = seriesConfig.defocusedFillOpacity;
+    const { normal, focused, defocused } = seriesConfig.shapeStyle;
+    opacity = normal.fillOpacity!;
+    focusedOpacity = focused.fillOpacity!;
+    defocusedOpacity = defocused.fillOpacity!;
   }
   else if (renderer === RENDERER_LINE || renderer === RENDERER_AREA || renderer === RENDERER_BAR) {
     // a line series, or a hollow fill shape falling back to its stroke
-    opacity = seriesConfig.strokeOpacity;
-    focusedOpacity = seriesConfig.focusedStrokeOpacity;
-    defocusedOpacity = seriesConfig.defocusedStrokeOpacity;
+    const { normal, focused, defocused } = seriesConfig.shapeStyle;
+    opacity = normal.strokeOpacity!;
+    focusedOpacity = focused.strokeOpacity!;
+    defocusedOpacity = defocused.strokeOpacity!;
   }
   else {
     const { markerShape } = seriesConfig;
-    if (markerShape !== NONE) {
-      opacity = seriesConfig.markerFillOpacity;
-      focusedOpacity = seriesConfig.markerFocusedFillOpacity;
-      defocusedOpacity = seriesConfig.markerDefocusedFillOpacity;
-    }
-    else {
-      opacity = seriesConfig.labelFillOpacity;
-      focusedOpacity = seriesConfig.labelFocusedFillOpacity;
-      defocusedOpacity = seriesConfig.labelDefocusedFillOpacity;
-    }
+    const { normal, focused, defocused } = markerShape !== NONE ? seriesConfig.markerStyle : seriesConfig.labelTextStyle;
+    opacity = normal.fillOpacity!;
+    focusedOpacity = focused.fillOpacity!;
+    defocusedOpacity = defocused.fillOpacity!;
   }
   return {
     opacity,
@@ -179,8 +161,12 @@ export function getSeriesLabelStrokeColor(colorPaletteConfig: ColorPaletteConfig
   return getColor('strokeColors', 'label', colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex);
 }
 
+export function getSeriesErrorBarStrokeColor(colorPaletteConfig: ColorPaletteConfig, seriesConfig: SeriesConfig, ...[seriesIndex, focusPercentage, defaultColor, groupIndex]: ColorArgs): SeriesColor | null {
+  return getColor('strokeColors', 'errorBar', colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, defaultColor, groupIndex);
+}
+
 function getColorInterpolator(seriesConfig: SeriesConfig): ColorInterpolator | null {
-  const colorInterpolation = seriesConfig.colorInterpolation;
+  const colorInterpolation = seriesConfig.colorScale.interpolation;
   if (colorInterpolation === COLOR_INTERPOLATION_RGB) {
     return interpolateRgb;
   }
@@ -207,11 +193,12 @@ export function getSeriesColorGenerator(seriesConfig: SeriesConfig, _focusPercen
   const colorValues = filteredValues.color as NumericValues;
   const interpolator = getColorInterpolator(seriesConfig);
 
-  if (seriesConfig.colorBase !== NONE) {
-    const { colorBase } = seriesConfig;
-    const aboveColorScale = buildScale([seriesConfig.colorBaseAboveMin, seriesConfig.colorBaseAboveMax],
+  const { min, max, base } = seriesConfig.colorScale;
+  if (base.value !== NONE) {
+    const colorBase = base.value;
+    const aboveColorScale = buildScale([base.aboveMin, base.aboveMax],
       [colorBase, Math.max(rawDomains.color[1]!, colorBase)], interpolator);
-    const belowColorScale = buildScale([seriesConfig.colorBaseBelowMin, seriesConfig.colorBaseBelowMax],
+    const belowColorScale = buildScale([base.belowMin, base.belowMax],
       [Math.min(rawDomains.color[0]!, colorBase), colorBase], interpolator);
 
     return function getColor(index: number) {
@@ -226,7 +213,7 @@ export function getSeriesColorGenerator(seriesConfig: SeriesConfig, _focusPercen
     }
   }
   else {
-    const colorScale = buildScale([seriesConfig.colorMin, seriesConfig.colorMax], rawDomains.color as [number, number], interpolator);
+    const colorScale = buildScale([min, max], rawDomains.color as [number, number], interpolator);
     return function getColor(index: number) {
       // TODO - what if color property-value is undefined?!?!
       const colorValue = colorValues[index]!;
@@ -236,14 +223,14 @@ export function getSeriesColorGenerator(seriesConfig: SeriesConfig, _focusPercen
 }
 
 export function getSeriesGradientColors(seriesConfig: SeriesConfig): string[] | null {
-  const { colorBase, colorMin, colorMax, colorBaseAboveMin, colorBaseAboveMax, colorBaseBelowMin, colorBaseBelowMax } = seriesConfig;
+  const { min, max, base } = seriesConfig.colorScale;
   let colors = null;
-  if (colorBase === NONE && colorMin !== NONE && colorMax !== NONE) {
-    colors = [colorMin, colorMax];
+  if (base.value === NONE && min !== NONE && max !== NONE) {
+    colors = [min, max];
   }
-  else if (colorBase !== NONE && colorBaseAboveMin !== NONE && colorBaseAboveMax !== NONE &&
-    colorBaseBelowMin !== NONE && colorBaseBelowMax !== NONE) {
-    colors = [colorBaseBelowMin, colorBaseBelowMax, colorBaseAboveMin, colorBaseAboveMax];
+  else if (base.value !== NONE && base.aboveMin !== NONE && base.aboveMax !== NONE &&
+    base.belowMin !== NONE && base.belowMax !== NONE) {
+    colors = [base.belowMin, base.belowMax, base.aboveMin, base.aboveMax];
   }
   return colors;
 }

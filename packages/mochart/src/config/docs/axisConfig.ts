@@ -1,3 +1,35 @@
+import { style, spacing, styleDescriptions } from './shared';
+import type { DescriptionMap, NestedDescription } from './shared';
+
+const strokeMembers = ['strokeColor', 'strokeOpacity'];
+const lineMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth'];
+
+const sameNote = ', or "same" to use the color of the normal state';
+
+function styleMembers(members: string[], allowSame: boolean): DescriptionMap {
+  const descriptions: DescriptionMap = {};
+  for (const member of members) {
+    const description = styleDescriptions[member] as string;
+    descriptions[member] = allowSame && member.endsWith('Color') ? description + sameNote : description;
+  }
+  return descriptions;
+}
+
+function partialStyle(description: string, members: string[]): NestedDescription {
+  return { description, properties: styleMembers(members, false) };
+}
+
+function styleStates(description: string, members: string[]): NestedDescription {
+  return {
+    description,
+    properties: {
+      normal: { description: description + ', while the axis is neither focused nor defocused', properties: styleMembers(members, false) },
+      focused: { description: description + ', while the axis is focused', properties: styleMembers(members, true) },
+      defocused: { description: description + ', while the axis is defocused', properties: styleMembers(members, true) }
+    }
+  };
+}
+
 export default function getDescriptions() {
   return {
     axisLine: 'whether to show a line along the length of the axis',
@@ -5,14 +37,9 @@ export default function getDescriptions() {
     axisLineDashArray: 'the dash array pattern to use when drawing the line shown along the axis (use null for none)',
     axisLineMargin: 'the margin (in pixels) between the line shown along the axis and the inner boundary of the axis',
     axisLineWidth: 'the stroke width (in pixels) of the line shown along the axis',
-    axisLineColor: 'the color of the line shown along the axis (use "currentColor" to follow the host page\'s css color and theme)',
-    axisLineFocusedColor: 'the color of the line shown along the focused axis (use "currentColor" to follow the host page\'s css color and theme)',
-    axisLineDefocusedColor: 'the color of the line shown along the defocused axis (use "currentColor" to follow the host page\'s css color and theme)',
-    axisLineOpacity: 'the opacity (0 - 1) of the line shown along the axis',
-    axisLineFocusedOpacity: 'the opacity (0 - 1) of the line shown along the focused axis',
-    axisLineDefocusedOpacity: 'the opacity (0 - 1) of the line shown along the defocused axis',
+    axisLineStyle: styleStates('the style of the line shown along the axis', strokeMembers),
 
-    backgroundStyle: 'the styles to apply to the axis background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    backgroundStyle: style('the styles to apply to the axis background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     backgroundFront: 'whether the axis background should be shown in front (true) or behind (false) the series shapes',
 
     before: 'whether the axis should be position before (top/left) or after (bottom/right) the chart',
@@ -22,30 +49,19 @@ export default function getDescriptions() {
     focusRange: 'whether to show the focus range on the axis when it has a focused series domain or group value',
     focusRangeFront: 'whether the focus range should be shown in front (true) or behind (false) the series shapes',
     focusRangeApplyToTitle: 'whether to show the focus range only over tick labels (false) or over both tick labels and title (true)',
-    focusRangeStrokeColor: 'the stroke color of the focus range',
-    focusRangeFillColor: 'the fill color of the focus range',
-    focusRangeStrokeOpacity: 'the stroke opacity of the focus range',
-    focusRangeFillOpacity: 'the fill opacity of the focus range',
-    focusRangeStrokeWidth: 'the stroke width of the focus range',
+    focusRangeStyle: style('the style of the focus range'),
     focusRangeDashArray: 'the stroke dash array of the focus range',
 
     focusTickMarks: 'whether to show lines perpendicular to the axis showing the focused series domain or group value',
     focusTickMarksFront: 'whether the focus tick marks should be shown in front (true) or behind (false) the series shapes',
     focusTickMarkSize: 'the length (in pixels) of the focus tick mark line(s)',
     focusTickMarkMargin: 'the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)',
-    focusTickMarkWidth: 'the stroke width (in pixels) of the focus tick mark line(s)',
-    focusTickMarkColor: 'the color of the focus tick mark line(s)',
-    focusTickMarkOpacity: 'the opacity (0 - 1) of the focus tick mark line(s)',
+    focusTickMarkStyle: partialStyle('the style of the focus tick mark line(s)', lineMembers),
 
     gridLines: 'whether to show grid lines perpendicular to each tick on the axis',
     gridLinesFront: 'whether the axis grid lines should be shown in front (true) or behind (false) the series shapes',
-    gridLineColor: 'the color of the axis grid lines (use "currentColor" to follow the host page\'s css color and theme)',
-    gridLineFocusedColor: 'the color of the focused axis grid lines (use "currentColor" to follow the host page\'s css color and theme)',
-    gridLineDefocusedColor: 'the color of the defocused axis grid lines (use "currentColor" to follow the host page\'s css color and theme)',
+    gridLineStyle: styleStates('the style of the axis grid lines', strokeMembers),
     gridLineDashArray: 'the dash array pattern to use when drawing the axis grid lines (use null for none)',
-    gridLineOpacity: 'the opacity (0 - 1) of the axis grid lines',
-    gridLineFocusedOpacity: 'the opacity (0 - 1) of the focused axis grid lines',
-    gridLineDefocusedOpacity: 'the opacity (0 - 1) of the defocused axis grid lines',
     gridLineWidth: 'the stroke width (in pixels) of the axis grid lines',
 
     marginInner: 'the inner (closest to chart) margin (in pixels) of the axis',
@@ -64,72 +80,39 @@ export default function getDescriptions() {
     thresholdTitle: 'The title to show next to the threshold line (use null for none)',
     thresholdTitleBefore: 'whether the threshold title should be positioned on the smaller (true) or larger (false) value side of the threshold line',
     thresholdTitleSnapToValue: 'whether to ignore titleBefore if the label has no room on that side of the threshold line',
-    thresholdTitleMargin: 'The margin (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation',
-    thresholdTitlePadding: 'The padding (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation',
-    thresholdTitleStrokeColor: 'the stroke color to use for the threshold title text',
-    thresholdTitleFocusedStrokeColor: 'the stroke color to use for the focused threshold title text',
-    thresholdTitleDefocusedStrokeColor: 'the stroke color to use for the defocused threshold title text',
-    thresholdTitleFillColor: 'the fill color to use for the threshold title text (use "currentColor" to follow the host page\'s css color and theme)',
-    thresholdTitleFocusedFillColor: 'the fill color to use for the focused threshold title text (use "currentColor" to follow the host page\'s css color and theme)',
-    thresholdTitleDefocusedFillColor: 'the fill color to use for the defocused threshold title text (use "currentColor" to follow the host page\'s css color and theme)',
-    thresholdTitleStrokeOpacity: 'the stroke opacity (0 - 1) of the threshold title text',
-    thresholdTitleFocusedStrokeOpacity: 'the stroke opacity (0 - 1) of the focused threshold title text',
-    thresholdTitleDefocusedStrokeOpacity: 'the stroke opacity (0 - 1) of the defocused threshold title text',
-    thresholdTitleFillOpacity: 'the fill opacity (0 - 1) of the threshold title text',
-    thresholdTitleFocusedFillOpacity: 'the fill opacity (0 - 1) of the focused threshold title text',
-    thresholdTitleDefocusedFillOpacity: 'the fill opacity (0 - 1) of the defocused threshold title text',
-    thresholdTitleBackgroundStyle: 'the styles to apply to the threshold title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    thresholdTitleMargin: spacing('The margin (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation'),
+    thresholdTitlePadding: spacing('The padding (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation'),
+    thresholdTitleTextStyle: styleStates('the style of the threshold title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity']),
+    thresholdTitleBackgroundStyle: style('the styles to apply to the threshold title background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     thresholdWidth: 'the width (in pixels) of the threshold line',
     thresholdDashArray: 'the dash array pattern to use when drawing the threshold line',
-    thresholdColor: 'the color of the threshold line (use "currentColor" to follow the host page\'s css color and theme)',
-    thresholdFocusedColor: 'the color of the focused threshold line (use "currentColor" to follow the host page\'s css color and theme)',
-    thresholdDefocusedColor: 'the color of the defocused threshold line (use "currentColor" to follow the host page\'s css color and theme)',
-    thresholdOpacity: 'the opacity (0 - 1) of the threshold line',
-    thresholdFocusedOpacity: 'the opacity (0 - 1) of the focused threshold line',
-    thresholdDefocusedOpacity: 'the opacity (0 - 1) of the defocused threshold line',
+    thresholdStyle: styleStates('the style of the threshold line', strokeMembers),
 
     tickCount: 'the number of ticks to show along the length of the axis (use "auto" to derive the tick count from the data)',
 
     tickLabelFront: 'whether the axis tick labels should be shown in front (true) or behind (false) the series shapes',
-    tickLabelBackgroundStyle: 'the styles to apply to the axis tick label background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    tickLabelBackgroundStyle: style('the styles to apply to the axis tick label background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     tickLabelSize: 'the space (in pixels) perpendicular to the axis direction to allocate for the tick labels (use "auto" to derive from the font size)',
     tickLabelMarginInner: 'the margin (in pixels) to show between the tick labels and the inside of the axis',
     tickLabelMarginOuter: 'the margin (in pixels) to show between the tick labels and the outside of the axis',
     tickLabelPaddingInner: 'the padding (in pixels) to show between the tick labels and the inside of the axis',
     tickLabelPaddingOuter: 'the padding (in pixels) to show between the tick labels and the outside of the axis',
-    tickLabelStrokeWidth: 'the stroke width (in pixels) to use for the axis tick labels text',
     tickLabelPrefix: 'the string to prefix to the text of each axis tick label (use null for none)',
     tickLabelSuffix: 'the string to append to the text of each axis tick label (use null for none)',
     tickLabelRotation: 'the rotation (in degrees) to apply to each axis tick label',
     tickLabelAnchor: 'the anchor to use for all axis tick labels (start, end, middle) (use "auto" to determine automatically)',
-    tickLabelStrokeColor: 'the stroke color to use for the axis tick labels text',
-    tickLabelFocusedStrokeColor: 'the stroke color to use for the focused axis tick labels text',
-    tickLabelDefocusedStrokeColor: 'the stroke color to use for the defocused axis tick labels text',
-    tickLabelFillColor: 'the fill color to use for the axis tick labels text (use "currentColor" to follow the host page\'s css color and theme)',
-    tickLabelFocusedFillColor: 'the fill color to use for the focused axis tick labels text (use "currentColor" to follow the host page\'s css color and theme)',
-    tickLabelDefocusedFillColor: 'the fill color to use for the defocused axis tick labels text (use "currentColor" to follow the host page\'s css color and theme)',
-    tickLabelStrokeOpacity: 'the stroke opacity (0 - 1) to use for the axis tick labels text',
-    tickLabelFocusedStrokeOpacity: 'the stroke opacity (0 - 1) to use for the focused axis tick labels text',
-    tickLabelDefocusedStrokeOpacity: 'the stroke opacity (0 - 1) to use for the defocused axis tick labels text',
-    tickLabelFillOpacity: 'the fill opacity (0 - 1) to use for the axis tick labels text',
-    tickLabelFocusedFillOpacity: 'the fill opacity (0 - 1) to use for the focused axis tick labels text',
-    tickLabelDefocusedFillOpacity: 'the fill opacity (0 - 1) to use for the defocused axis tick labels text',
+    tickLabelTextStyle: styleStates('the style of the axis tick label text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity']),
 
     tickMarks: 'whether to show lines perpendicular to each tick value along the axis',
     tickMarkFront: 'whether the axis tick marks should be shown in front (true) or behind (false) the series shapes',
     tickMarkSize: 'the length (in pixels) of the axis tick mark lines',
     tickMarkMargin: 'the margin (in pixels) to show between the inside of the axis and the axis tick mark lines',
     tickMarkWidth: 'the stroke width (in pixels) of axis the tick mark lines',
-    tickMarkColor: 'the color of the axis tick mark lines (use "currentColor" to follow the host page\'s css color and theme)',
-    tickMarkFocusedColor: 'the color of the focused axis tick mark lines (use "currentColor" to follow the host page\'s css color and theme)',
-    tickMarkDefocusedColor: 'the color of the defocused axis tick mark lines (use "currentColor" to follow the host page\'s css color and theme)',
-    tickMarkOpacity: 'the opacity (0 - 1) of the axis tick mark lines',
-    tickMarkFocusedOpacity: 'the opacity (0 - 1) of the focused axis tick mark lines',
-    tickMarkDefocusedOpacity: 'the opacity (0 - 1) of the defocused axis tick mark lines',
+    tickMarkStyle: styleStates('the style of the axis tick mark lines', strokeMembers),
 
     title: 'the title text to be shown along side to the axis (use null for no title)',
     titleFront: 'whether the axis title should be shown in front (true) or behind (false) the series shapes',
-    titleBackgroundStyle: 'the styles to apply to the axis title background (stroke, strokeOpacity, strokeWidth, fill, fillOpacity (use null for none))',
+    titleBackgroundStyle: style('the styles to apply to the axis title background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     titleTruncationEnabled: 'whether to apply text truncation to the contents of the axis title when it would overflow the axis bounds',
     titleTruncationValue: 'the truncation text to append to the axis title when its length exceeds the bounds of the axis',
     titleSize: 'the space (in pixels) perpendicular to the axis direction to allocate for the axis title (use "auto" to derive from the font size)',
@@ -137,19 +120,7 @@ export default function getDescriptions() {
     titleMarginOuter: 'the margin (in pixels) to show between the axis title and the outside of the axis',
     titlePaddingInner: 'the padding (in pixels) to show between the axis title and the inside of the axis',
     titlePaddingOuter: 'the padding (in pixels) to show between the axis title and the outside of the axis',
-    titleStrokeWidth: 'the stroke width (in pixels) of the axis title text',
-    titleStrokeColor: 'the stroke color of the axis title text',
-    titleFocusedStrokeColor: 'the stroke color of the focused axis title text',
-    titleDefocusedStrokeColor: 'the stroke color of the defocused axis title text',
-    titleFillColor: 'the fill color of the axis title text (use "currentColor" to follow the host page\'s css color and theme)',
-    titleFocusedFillColor: 'the fill color of the focused axis title text (use "currentColor" to follow the host page\'s css color and theme)',
-    titleDefocusedFillColor: 'the fill color of the defocused axis title text (use "currentColor" to follow the host page\'s css color and theme)',
-    titleStrokeOpacity: 'the stroke opacity (0 - 1) of the axis title text',
-    titleFocusedStrokeOpacity: 'the stroke opacity (0 - 1) of the focused axis title text',
-    titleDefocusedStrokeOpacity: 'the stroke opacity (0 - 1) of the defocused axis title text',
-    titleFillOpacity: 'the fill opacity (0 - 1) of the axis title text',
-    titleFocusedFillOpacity: 'the fill opacity (0 - 1) of the focused axis title text',
-    titleDefocusedFillOpacity: 'the fill opacity (0 - 1) of the defocused axis title text',
+    titleTextStyle: styleStates('the style of the axis title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity']),
 
     min: 'the forced minimum numeric value for the axis (use "auto" to compute from the values)',
     max: 'the forced maximum numeric value for the axis (use "auto" to compute from the values)',
@@ -161,3 +132,5 @@ export default function getDescriptions() {
     visible: 'whether the axis should be visible'
   };
 }
+
+export { styleStates as axisStyleStatesDescription, strokeMembers as axisStrokeMembers };

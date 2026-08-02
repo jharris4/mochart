@@ -4,6 +4,7 @@ import { Renderer, svgEl, textEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate, textDY } from '../utils/utils';
+import { styleToAttributes } from '../utils/style';
 import { NONE, AUTO } from '../config/core/constants';
 
 import type { PieConfig } from '../types/config';
@@ -61,7 +62,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
         el.append(this.labelText);
         return el;
       });
-      labelEl!.set({ ...centerLabelTextStyle, className: mochartCssClasses['pieCenterLabel'],
+      labelEl!.set({ ...styleToAttributes(centerLabelTextStyle), className: mochartCssClasses['pieCenterLabel'],
         textAnchor: 'middle', dy: showCenterTotal ? '-0.35em' : textDY });
       this.labelText.set(centerLabel!);
     }
@@ -76,7 +77,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
         el.append(this.totalText);
         return el;
       });
-      totalEl!.set({ ...centerTotalTextStyle, className: mochartCssClasses['pieCenterTotal'],
+      totalEl!.set({ ...styleToAttributes(centerTotalTextStyle), className: mochartCssClasses['pieCenterTotal'],
         textAnchor: 'middle', dy: showLabel ? '1.0em' : textDY });
       this.totalText.set(format(specifier)(total));
     }

@@ -16,10 +16,13 @@ plays the staged series transition:
 ## Focus
 
 Hovering or clicking a series (per its `focusOnMouseOver` / `focusOnClick`
-config) focuses it: the focused series gets its `focused*` styling and every
-other series its `defocused*` styling, animated over
+config) focuses it: the focused series is painted from the `focused` state of
+its [styles](/guide/config-model#styles-and-focus-states) and every other
+series from their `defocused` state, animated over
 [`focusDuration`](/reference/animationConfig#animationConfig.focusDuration).
-The legend can drive the same focus via
+By default those states change only opacity and width — their colors are
+`'same'`, meaning "keep the normal state's color". The legend can drive the
+same focus via
 [`legendConfig.focusOnMouseOver`](/reference/legendConfig#legendConfig.focusOnMouseOver).
 
 ## Legend filtering
@@ -27,7 +30,12 @@ The legend can drive the same focus via
 With [`legendConfig.filterOnClick`](/reference/legendConfig#legendConfig.filterOnClick)
 enabled, clicking a legend item toggles its series out of (and back into) the
 chart. The item stays in the legend so the series can be restored, and the
-removal/return animates as a series transition.
+removal/return animates as a series transition. Its color icon goes hollow to
+mark it suppressed; set
+[`legendConfig.showSuppressionOnLabels`](/reference/legendConfig#legendConfig.showSuppressionOnLabels)
+to strike through the item text as well, and
+[`tooltipConfig.showSuppressionOnLabels`](/reference/tooltipConfig#tooltipConfig.showSuppressionOnLabels)
+to do the same to the series' tooltip label. Both default to `false`.
 
 ## Tooltip and crosshair
 

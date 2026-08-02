@@ -1,7 +1,8 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import type { BackgroundStyle } from '../types/config';
+import { styleToAttributes } from '../utils/style';
+import type { Style } from '../types/config';
 import type { SpacingLayoutInfo } from '../types/layout';
 import type { Bounds } from '../types/geometry';
 
@@ -10,10 +11,10 @@ type CssClassKey = keyof typeof mochartCssClasses;
 type BackgroundStyleKey = 'backgroundStyle' | 'tickLabelBackgroundStyle' | 'titleBackgroundStyle' | 'itemBackgroundStyle';
 
 interface BackgroundConfig {
-  backgroundStyle: BackgroundStyle;
-  tickLabelBackgroundStyle?: BackgroundStyle;
-  titleBackgroundStyle?: BackgroundStyle;
-  itemBackgroundStyle?: BackgroundStyle;
+  backgroundStyle: Style;
+  tickLabelBackgroundStyle?: Style;
+  titleBackgroundStyle?: Style;
+  itemBackgroundStyle?: Style;
 }
 
 interface BackgroundProps {
@@ -47,8 +48,7 @@ export default class Background extends Renderer<BackgroundProps> {
       ? (spacingRelative ? spacingLayoutInfo.marginRelativeBounds : spacingLayoutInfo.marginBounds)
       : spacingLayoutInfo;
     const { x, y, width, height } = bounds;
-    const backgroundStyle = config[configStyleKey];
-    const backgroundProps = backgroundStyle ? backgroundStyle : {};
+    const backgroundProps = styleToAttributes(config[configStyleKey]);
     this.root.set({ className: mochartCssClasses[classKey], onClick: this.backgroundClick });
     this.rect.set({ x, y, width, height, ...backgroundProps });
   }

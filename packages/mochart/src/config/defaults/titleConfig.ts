@@ -22,12 +22,13 @@ export default function getDefaults() {
     prefixPadding: { top: 0, right: 5, bottom: 0, left: 0 },
     suffixMargin: { top: 0, right: 0, bottom: 0, left: 5 },
     suffixPadding: { top: 0, right: 0, bottom: 0, left: 5 },
-    backgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
-    titleBackgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
-    titleTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
-    prefixBackgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
-    prefixTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
-    suffixBackgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
-    suffixTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE }
+    // 'none' rather than null on the text styles: stroke="none" firewalls a host-css stroke inheriting onto the text.
+    backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
+    titleBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
+    titleTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE },
+    prefixBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
+    prefixTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE },
+    suffixBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
+    suffixTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE }
   };
 }

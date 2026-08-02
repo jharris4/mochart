@@ -1,12 +1,13 @@
+import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
-import type { LinearGradientConfig } from '../../types/config';
+import type { DeepPartial, LinearGradientConfig } from '../../types/config';
 
-export default function getDefaults(config: Partial<LinearGradientConfig> = {}, index: number): Partial<LinearGradientConfig> {
+export default function getDefaults(config: DeepPartial<LinearGradientConfig> = {}, index: number): Partial<LinearGradientConfig> {
   const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const configWithRegularDefaults = deepMerge(regularDefaults, config);
   const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as LinearGradientConfig, index));
 
-  return { ...regularDefaults, ...conditionalDefaults } as Partial<LinearGradientConfig>;
+  return deepMerge(regularDefaults, conditionalDefaults) as Partial<LinearGradientConfig>;
 }
 
 export function getRegularDefaults() {

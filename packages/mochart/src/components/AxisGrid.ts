@@ -2,7 +2,8 @@ import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate } from '../utils/utils';
-import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import { getAxisFocusStyle } from '../utils/FocusValue';
+import { styleToAttributes } from '../utils/style';
 import type { AxisTick } from '../types/data';
 import type { AxisConfigBase } from '../types/config';
 import type { LayoutInfo } from '../types/layout';
@@ -40,10 +41,8 @@ export default class AxisGrid extends Renderer<AxisGridProps> {
       let tickX = 0;
       let tickY = 0;
 
-      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
-        axisConfig.gridLineColor, axisConfig.gridLineFocusedColor, axisConfig.gridLineDefocusedColor);
-      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
-        axisConfig.gridLineOpacity, axisConfig.gridLineFocusedOpacity, axisConfig.gridLineDefocusedOpacity);
+      const styleAttributes = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
+        axisConfig.useSeriesFocus ?? false, axisConfig.gridLineStyle));
       const strokeWidth = axisConfig.gridLineWidth;
       const strokeDashArray = axisConfig.gridLineDashArray;
 
@@ -68,7 +67,7 @@ export default class AxisGrid extends Renderer<AxisGridProps> {
           handle.line.set({ x1: seriesLayoutInfo.x, y1: seriesLayoutInfo.y, style: tick.hidden ? hiddenStyle : null,
             x2: vertical ? seriesLayoutInfo.x + seriesLayoutInfo.width : seriesLayoutInfo.x,
             y2: vertical ? seriesLayoutInfo.y : seriesLayoutInfo.y + seriesLayoutInfo.height,
-            stroke, strokeOpacity, strokeWidth,
+            ...styleAttributes, strokeWidth,
             strokeDasharray: strokeDashArray });
         }
       });

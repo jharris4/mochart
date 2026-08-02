@@ -19,7 +19,11 @@
     "property": "value2",
     "title": "Christmas Tree Bar Series",
     "renderer": "bar",
-    "fillColor": "groupIndex",
-    "strokeColor": "groupIndex"
+    "shapeStyle": {
+      "normal": {
+        "strokeColor": "groupIndex",
+        "fillColor": "groupIndex"
+      }
+    }
   }
 }

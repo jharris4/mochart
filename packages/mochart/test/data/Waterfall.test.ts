@@ -89,7 +89,7 @@ describe('createWaterfall', () => {
       expect(seriesConfig.skipPartialRange).toBe(true);
       expect(seriesConfig.group).toBeNull();
       expect(seriesConfig.stack).toBeNull();
-      expect(seriesConfig.fillColor).toMatch(/^#/);
+      expect(seriesConfig.shapeStyle!.normal!.fillColor).toMatch(/^#/);
     }
   });
 
@@ -102,7 +102,7 @@ describe('createWaterfall', () => {
     expect(steps[0].start).toBe(50);
     expect(seriesConfigs[0].title).toBe('Gains');
     expect(seriesConfigs[1].title).toBe('Decrease');
-    expect(seriesConfigs[1].fillColor).toBe('#123456');
+    expect(seriesConfigs[1]!.shapeStyle!.normal!.fillColor).toBe('#123456');
   });
 
   it('returns empty data for empty input', () => {

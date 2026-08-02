@@ -52,7 +52,9 @@ function lineConfig(renderer: 'line' | 'area', color: string): DemoConfig {
     // The preset hides series axes through seriesAxisAllConfig, which only
     // merges into *declared* axes — so declare the (otherwise defaulted) one.
     seriesAxisConfigs: [{}],
-    seriesConfigs: [{ property: 'value', renderer, strokeColor: color, fillColor: color }]
+    seriesConfigs: [
+      { property: 'value', renderer, shapeStyle: { normal: { strokeColor: color, fillColor: color } } }
+    ]
   }) as DemoConfig;
 }
 
@@ -91,8 +93,8 @@ const winLossMetric: SparklineMetric = {
     groupAxisConfig: { property: 'i', type: 'string', scale: 'ordinal' },
     seriesAxisConfigs: [{ base: 0, min: -1, max: 1 }],
     seriesConfigs: [
-      { property: 'up', renderer: 'bar', skipMissing: true, fillColor: AQUA },
-      { property: 'down', renderer: 'bar', skipMissing: true, fillColor: RED }
+      { property: 'up', renderer: 'bar', skipMissing: true, shapeStyle: { normal: { fillColor: AQUA } } },
+      { property: 'down', renderer: 'bar', skipMissing: true, shapeStyle: { normal: { fillColor: RED } } }
     ]
   }) as DemoConfig,
   generate(step) {

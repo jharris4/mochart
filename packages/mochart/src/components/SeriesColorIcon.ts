@@ -182,7 +182,7 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
       return;
     }
 
-    const { iconBorderSize, iconBorderColor, iconUnsuppressedColor, showIconShapes } = seriesContextConfig;
+    const { iconBorderSize, iconBorderColor, iconBorderOpacity, iconSuppressedColor, iconUnsuppressedColor, showIconShapes } = seriesContextConfig;
     const iconSize = getIconGeometrySize(seriesContextConfig, this.props.resolvedIconSize);
     const { gradient, markerShape } = seriesConfig;
 
@@ -193,13 +193,17 @@ export default class SeriesColorIcon extends Renderer<SeriesColorIconProps> {
     const gradientFillColor = getGradientReference(gradientId);
     const seriesColor = getSeriesColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, iconUnsuppressedColor);
 
+    // a suppressed icon takes iconSuppressedColor as given: it stands in for the series color rather
+    // than dimming it, so it carries its own alpha and ignores the focus opacity
     const stroke = iconBorderColor;
     const strokeWidth = (seriesIsSuppressed ? 1.5 : 1) * iconBorderSize;
-    const fill = showSeriesColor ? (seriesGradientColors ? gradientFillColor : seriesColor) : iconUnsuppressedColor;
-    const fillOpacity = seriesIsSuppressed ? 0 : getFocusValue(focusPercentage, opacity, focusedOpacity, defocusedOpacity);
+    const unsuppressedFill = showSeriesColor ? (seriesGradientColors ? gradientFillColor : seriesColor) : iconUnsuppressedColor;
+    const fill = seriesIsSuppressed ? iconSuppressedColor : unsuppressedFill;
+    const fillOpacity = seriesIsSuppressed ? 1 : getFocusValue(focusPercentage, opacity, focusedOpacity, defocusedOpacity);
 
     const commonProps = {
       stroke,
+      strokeOpacity: iconBorderOpacity,
       strokeWidth,
       fill,
       fillOpacity,

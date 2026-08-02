@@ -20,8 +20,7 @@ export const config: MochartInputConfig = {
       rangeProperty: 'p5',
       title: 'p5–p95 range',
       renderer: 'area',
-      fillOpacity: 0.25,
-      strokeOpacity: 0
+      shapeStyle: { normal: { strokeOpacity: 0, fillOpacity: 0.25 } }
     },
     { property: 'median', title: 'Median', renderer: 'line' }
   ]

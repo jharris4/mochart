@@ -26,16 +26,24 @@
     {
       "property": "value1",
       "title": "Bubble 1",
-      "strokeColor": "#9467bd",
-      "fillColor": "#9467bd",
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#9467bd",
+          "fillColor": "#9467bd"
+        }
+      },
       "markerProperty": "marker1",
       "markerShape": "circle"
     },
     {
       "property": "value2",
       "title": "Bubble 2",
-      "strokeColor": "#ffbb78",
-      "fillColor": "#ffbb78",
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#ffbb78",
+          "fillColor": "#ffbb78"
+        }
+      },
       "markerProperty": "marker2",
       "markerShape": "cross"
     }

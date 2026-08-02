@@ -13,15 +13,66 @@ import type { MarginPadding, InnerOuter } from './geometry';
  */
 export type SeriesColor = ColorMode | (string & {});
 
-export interface BackgroundStyle {
-  stroke: string | null;
+/**
+ * The stroke half of a style: everything needed to draw an outline (or a bare
+ * line, which has no fill).
+ */
+export interface StrokeStyle<C = string> {
+  /**
+   * The color of the stroke (outline): use null to leave the svg stroke
+   * attribute unset so that css can supply it, "none" to switch the stroke off,
+   * or "currentColor" to follow the host page's css color.
+   */
+  strokeColor: C | null;
+  /**
+   * The opacity (0 - 1) of the stroke, or null to leave the svg stroke-opacity
+   * attribute unset.
+   */
   strokeOpacity: number | null;
-  strokeWidth: number | null;
-  fill: string | null;
+  /**
+   * The width (in pixels) of the stroke, or null to leave the svg stroke-width
+   * attribute unset.
+   */
+  strokeWidth?: number | null;
+}
+
+/**
+ * A full style: a stroke plus a fill, for shapes that have an interior
+ * (backgrounds, bars, markers, text).
+ */
+export interface Style<C = string> extends StrokeStyle<C> {
+  /**
+   * The color of the fill: use null to leave the svg fill attribute unset so
+   * that css can supply it, "none" to switch the fill off, or "currentColor" to
+   * follow the host page's css color.
+   */
+  fillColor: C | null;
+  /**
+   * The opacity (0 - 1) of the fill, or null to leave the svg fill-opacity
+   * attribute unset.
+   */
   fillOpacity: number | null;
 }
 
-export type TextStyle = BackgroundStyle;
+/**
+ * A line style in each of its three focus states. `'same'` in the focused /
+ * defocused states means "inherit the normal state's value".
+ */
+export interface StrokeStyleStates<C = string> {
+  normal: StrokeStyle<C>;
+  focused: StrokeStyle<C | 'same'>;
+  defocused: StrokeStyle<C | 'same'>;
+}
+
+/**
+ * A full style in each of its three focus states. `'same'` in the focused /
+ * defocused states means "inherit the normal state's value".
+ */
+export interface StyleStates<C = string> {
+  normal: Style<C>;
+  focused: Style<C | 'same'>;
+  defocused: Style<C | 'same'>;
+}
 
 export interface AnimationConfig {
   /**
@@ -115,12 +166,12 @@ export interface ChartConfig {
    */
   padding: MarginPadding;
   /**
-   * The styles to apply to the chart background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the chart background (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  backgroundStyle: BackgroundStyle;
+  backgroundStyle: Style;
 }
 
 export interface PlotConfig {
@@ -146,12 +197,12 @@ export interface PlotConfig {
    */
   padding: MarginPadding;
   /**
-   * The styles to apply to the plot background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the plot background (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  backgroundStyle: BackgroundStyle;
+  backgroundStyle: Style;
 }
 
 export interface PieConfig {
@@ -281,13 +332,13 @@ export interface PieConfig {
    */
   centerLabel: string | null;
   /**
-   * The styles to apply to the center label text (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
-   * follow the host page's css color and theme).
+   * The styles to apply to the center label text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, fillColor: "currentColor", fillOpacity: null }
    */
-  centerLabelTextStyle: TextStyle;
+  centerLabelTextStyle: Style;
   /**
    * Whether the total of the slice values should be shown at the center of the
    * pie.
@@ -296,13 +347,13 @@ export interface PieConfig {
    */
   showCenterTotal: boolean;
   /**
-   * The styles to apply to the center total text (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
-   * follow the host page's css color and theme).
+   * The styles to apply to the center total text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, fillColor: "currentColor", fillOpacity: null }
    */
-  centerTotalTextStyle: TextStyle;
+  centerTotalTextStyle: Style;
   /**
    * The d3 format specifier used to format the center total (use auto to derive
    * a format).
@@ -335,13 +386,35 @@ export interface PieConfig {
 }
 
 export interface ColorPalette {
+  /**
+   * The colors to use for strokes, taken by series or group index and wrapping
+   * around when there are more series than colors.
+   */
   strokeColors: string[];
+  /**
+   * The colors to use for fills, taken by series or group index and wrapping
+   * around when there are more series than colors.
+   */
   fillColors: string[];
+}
+
+/**
+ * A color palette in each of the three focus states. Unlike a style, a palette
+ * entry is never `'same'`: the states hold whole arrays, so each one names its
+ * own colors.
+ */
+export interface ColorPaletteStates {
+  /** The palette to use while nothing has focus. */
+  normal: ColorPalette;
+  /** The palette to use for the focused shapes. */
+  focused: ColorPalette;
+  /** The palette to use for the defocused shapes. */
+  defocused: ColorPalette;
 }
 
 export interface ColorPaletteConfig {
   /**
-   * The color palette to use for series shapes that are colored by series or
+   * The color palettes to use for series shapes that are colored by series or
    * group index.
    *
    * The fallback coloring for series that do not set explicit colors: each
@@ -349,65 +422,30 @@ export interface ColorPaletteConfig {
    * for series configured to color by group index). The focused/defocused
    * variants apply while another element has focus.
    *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  series: ColorPalette;
+  series: ColorPaletteStates;
   /**
-   * The color palette to use for focused series shapes that are colored by
-   * series or group index.
-   *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
-   */
-  seriesFocused: ColorPalette;
-  /**
-   * The color palette to use for defocused series shapes that are colored by
-   * series or group index.
-   *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
-   */
-  seriesDefocused: ColorPalette;
-  /**
-   * The color palette to use for series markers that are colored by series or
+   * The color palettes to use for series markers that are colored by series or
    * group index.
    *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  marker: ColorPalette;
+  marker: ColorPaletteStates;
   /**
-   * The color palette to use for focused series markers that are colored by
-   * series or group index.
-   *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
-   */
-  markerFocused: ColorPalette;
-  /**
-   * The color palette to use for defocused series markers that are colored by
-   * series or group index.
-   *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
-   */
-  markerDefocused: ColorPalette;
-  /**
-   * The color palette to use for series labels that are colored by series or
+   * The color palettes to use for series labels that are colored by series or
    * group index.
    *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  label: ColorPalette;
+  label: ColorPaletteStates;
   /**
-   * The color palette to use for focused series labels that are colored by
-   * series or group index.
+   * The color palettes to use for series error bars that are colored by series
+   * or group index.
    *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  labelFocused: ColorPalette;
-  /**
-   * The color palette to use for defocused series labels that are colored by
-   * series or group index.
-   *
-   * @default { strokeColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"], fillColors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"] }
-   */
-  labelDefocused: ColorPalette;
+  errorBar: ColorPaletteStates;
 }
 
 export interface CrosshairConfig {
@@ -437,24 +475,17 @@ export interface CrosshairConfig {
    */
   showSeries: boolean;
   /**
-   * The color to use when showing the crosshair lines (use "currentColor" to
-   * follow the host page's css color and theme).
+   * The style of the crosshair lines shown for the focused group.
    *
-   * @default "currentColor"
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3 }
    */
-  lineColor: string;
+  groupLineStyle: StrokeStyle;
   /**
-   * The opacity (0 - 1) of the crosshair lines.
+   * The style of the crosshair lines shown for the focused series.
    *
-   * @default 0.3
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3 }
    */
-  lineOpacity: number;
-  /**
-   * The stroke width (in pixels) of the crosshair lines.
-   *
-   * @default 3
-   */
-  lineWidth: number;
+  seriesLineStyle: StrokeStyle;
   /**
    * The dash array pattern to use when drawing the crosshair lines (use null
    * for none).
@@ -608,60 +639,148 @@ export interface TitleConfig {
    */
   suffixPadding: MarginPadding;
   /**
-   * The styles to apply to the title background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the title background (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  backgroundStyle: BackgroundStyle;
+  backgroundStyle: Style;
   /**
-   * The styles to apply to the title text background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the title text background (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  titleBackgroundStyle: BackgroundStyle;
+  titleBackgroundStyle: Style;
   /**
-   * The styles to apply to the title text (stroke, strokeOpacity, strokeWidth,
-   * fill, fillOpacity (use null for none), use "currentColor" to follow the
-   * host page's css color and theme).
+   * The styles to apply to the title text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
    */
-  titleTextStyle: TextStyle;
+  titleTextStyle: Style;
   /**
-   * The styles to apply to the title prefix background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the title prefix background (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  prefixBackgroundStyle: BackgroundStyle;
+  prefixBackgroundStyle: Style;
   /**
-   * The styles to apply to the title prefix text (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
-   * follow the host page's css color and theme).
+   * The styles to apply to the title prefix text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
    */
-  prefixTextStyle: TextStyle;
+  prefixTextStyle: Style;
   /**
-   * The styles to apply to the title suffix background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the title suffix background (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  suffixBackgroundStyle: BackgroundStyle;
+  suffixBackgroundStyle: Style;
   /**
-   * The styles to apply to the title suffix text (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
-   * follow the host page's css color and theme).
+   * The styles to apply to the title suffix text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
    */
-  suffixTextStyle: TextStyle;
+  suffixTextStyle: Style;
 }
 
-export interface LegendConfig {
+/**
+ * The series icons shown beside series titles, configured identically by the
+ * legend and by the tooltip.
+ *
+ * Both sections show the same icons and take the same values for them, so the
+ * properties are declared once here and extended by each: the two surfaces
+ * cannot drift apart. Only the prose differs between them (a legend icon sizes
+ * itself against the measured legend text, a tooltip icon against the
+ * inherited font size), so each section keeps its own descriptions.
+ */
+export interface SeriesIconConfig {
+  /**
+   * Whether to show series colors next to series titles in the legend.
+   *
+   * In tooltipConfig: whether to show series colors next to series titles in
+   * the tooltip.
+   *
+   * @default true
+   */
+  showIconColors: boolean;
+  /**
+   * Whether to show series marker shape next to series titles in the legend.
+   *
+   * In tooltipConfig: whether to show series marker shape next to series titles
+   * in the tooltip.
+   *
+   * @default true
+   */
+  showIconShapes: boolean;
+  /**
+   * Whether to show placeholder icons next to the series titles in the legend.
+   *
+   * In tooltipConfig: whether to show placeholder icons next to the series
+   * titles in the tooltip.
+   *
+   * @default true
+   */
+  showIconPlaceholders: boolean;
+  /**
+   * The width and height (in pixels) of the series icons, or "auto" to match
+   * the measured legend text height.
+   *
+   * In tooltipConfig: the width and height (in pixels) of the series icons, or
+   * "auto" to match the inherited font size.
+   *
+   * @default "auto"
+   */
+  iconSize: number | Auto;
+  /**
+   * The horizontal space (in pixels) to show between series icons and titles.
+   *
+   * @default 4
+   */
+  iconSpacerSize: number;
+  /**
+   * The width (in pixels) of the border drawn around series icons.
+   *
+   * @default 1
+   */
+  iconBorderSize: number;
+  /**
+   * The color of the border drawn around series icons.
+   *
+   * @default "currentColor"
+   */
+  iconBorderColor: string;
+  /**
+   * The opacity (0 - 1) of the border drawn around series icons.
+   *
+   * @default 0.65
+   */
+  iconBorderOpacity: number;
+  /**
+   * The color to use for the series icon when the corresponding series is
+   * suppressed.
+   *
+   * @default 'rgba(255,255,255,0)'
+   */
+  iconSuppressedColor: string;
+  /**
+   * The color to use for the placeholder series icons when the corresponding
+   * series is not suppressed.
+   *
+   * @default 'rgba(0,0,0,0.5)'
+   */
+  iconUnsuppressedColor: string;
+}
+
+export interface LegendConfig extends SeriesIconConfig {
   /**
    * Whether the legend should be visible.
    *
@@ -718,12 +837,12 @@ export interface LegendConfig {
    */
   padding: MarginPadding;
   /**
-   * The styles to apply to the legend background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the legend background (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  backgroundStyle: BackgroundStyle;
+  backgroundStyle: Style;
   /**
    * The margin (in pixels) for the top, right, bottom and left sides of the
    * legend items.
@@ -739,77 +858,32 @@ export interface LegendConfig {
    */
   itemPadding: MarginPadding;
   /**
-   * The styles to apply to the legend item backgrounds (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the legend item backgrounds (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: null, strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  itemBackgroundStyle: BackgroundStyle;
+  itemBackgroundStyle: Style;
   /**
-   * The styles to apply to the legend item text (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none), use "currentColor" to
-   * follow the host page's css color and theme).
+   * The styles to apply to the legend item text (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
+   * to follow the host page's css color and theme).
    *
-   * @default { stroke: null, strokeOpacity: null, strokeWidth: null, fill: "currentColor", fillOpacity: null }
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
    */
-  itemTextStyle: TextStyle;
+  itemTextStyle: Style;
   /**
-   * Whether to show series colors next to series titles in the legend.
+   * Whether to strike through the item text of suppressed series.
    *
-   * @default true
-   */
-  showIconColors: boolean;
-  /**
-   * Whether to show series marker shape next to series titles in the legend.
+   * When `true`, the item text of a series that has been filtered out of the
+   * chart is drawn with a line through it, so the legend shows at a glance
+   * which series are suppressed. The strike-through covers the item text only,
+   * never its color icon — the icon already says the same thing by going
+   * hollow.
    *
-   * @default true
+   * @default false
    */
-  showIconShapes: boolean;
-  /**
-   * Whether to show placeholder icons next to the series titles in the legend.
-   *
-   * @default true
-   */
-  showIconPlaceholders: boolean;
-  /**
-   * The width and height (in pixels) of the series icons, or "auto" to match
-   * the measured legend text height.
-   *
-   * @default "auto"
-   */
-  iconSize: number | Auto;
-  /**
-   * The horizontal space (in pixels) to show between series icons and titles.
-   *
-   * @default 4
-   */
-  iconSpacerSize: number;
-  /**
-   * The width (in pixels) of the border drawn around series icons.
-   *
-   * @default 1
-   */
-  iconBorderSize: number;
-  /**
-   * The color of the border drawn around series icons.
-   *
-   * @default '#999999'
-   */
-  iconBorderColor: string;
-  /**
-   * The color to use for the series icon when the corresponding series is
-   * suppressed.
-   *
-   * @default 'rgba(255,255,255,0)'
-   */
-  iconSuppressedColor: string;
-  /**
-   * The color to use for the placeholder series icons when the corresponding
-   * series is not suppressed.
-   *
-   * @default 'rgba(0,0,0,0.5)'
-   */
-  iconUnsuppressedColor: string;
+  showSuppressionOnLabels: boolean;
   /**
    * Whether to focus a series when the mouse is moved over the series icon or
    * title.
@@ -843,7 +917,7 @@ export interface LegendConfig {
   filterOnClick: boolean;
 }
 
-export interface TooltipConfig {
+export interface TooltipConfig extends SeriesIconConfig {
   /**
    * Whether or not to show the tooltip.
    *
@@ -960,23 +1034,12 @@ export interface TooltipConfig {
    */
   alignValues: boolean;
   /**
-   * The background color for the interior of the tooltip.
+   * The styles to apply to the tooltip box (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default 'rgba(255,255,255,0.9)'
+   * @default { strokeColor: "rgba(0,0,0,0.3)", strokeOpacity: null, strokeWidth: 2, fillColor: "rgba(255,255,255,0.9)", fillOpacity: null }
    */
-  backgroundColor: string;
-  /**
-   * The color of the border around the tooltip.
-   *
-   * @default 'rgba(0,0,0,0.3)'
-   */
-  borderColor: string;
-  /**
-   * The width (in pixels) of the the border around the tooltip.
-   *
-   * @default 2
-   */
-  borderWidth: number;
+  backgroundStyle: Style;
   /**
    * The radius (in pixels) of the corners of the tooltip.
    *
@@ -1008,62 +1071,17 @@ export interface TooltipConfig {
    */
   dropShadowBlurRadius: number;
   /**
-   * Whether to show series colors next to series titles in the tooltip.
+   * Whether to strike through the label text of suppressed series.
    *
-   * @default true
-   */
-  showIconColors: boolean;
-  /**
-   * Whether to show series marker shape next to series titles in the tooltip.
+   * When `true`, the label of a series that has been filtered out of the chart
+   * is drawn with a line through it. The strike-through covers the label only,
+   * so the value beside it stays legible — except when `alignValues` is
+   * `false`, where the label and the value are one piece of text and both are
+   * struck.
    *
-   * @default true
+   * @default false
    */
-  showIconShapes: boolean;
-  /**
-   * Whether to show placeholder icons next to the series titles in the tooltip.
-   *
-   * @default true
-   */
-  showIconPlaceholders: boolean;
-  /**
-   * The width and height (in pixels) of the series icons, or "auto" to match
-   * the inherited font size.
-   *
-   * @default "auto"
-   */
-  iconSize: number | Auto;
-  /**
-   * The horizontal space (in pixels) to show between series icons and titles.
-   *
-   * @default 4
-   */
-  iconSpacerSize: number;
-  /**
-   * The width (in pixels) of the border drawn around series icons.
-   *
-   * @default 1
-   */
-  iconBorderSize: number;
-  /**
-   * The color of the border drawn around series icons.
-   *
-   * @default '#999999'
-   */
-  iconBorderColor: string;
-  /**
-   * The color to use for the series icon when the corresponding series is
-   * suppressed.
-   *
-   * @default 'rgba(255,255,255,0)'
-   */
-  iconSuppressedColor: string;
-  /**
-   * The color to use for the placeholder series icons when the corresponding
-   * series is not suppressed.
-   *
-   * @default 'rgba(0,0,0,0.5)'
-   */
-  iconUnsuppressedColor: string;
+  showSuppressionOnLabels: boolean;
   /**
    * Whether to adjust the series values when series suppression changes.
    *
@@ -1153,52 +1171,19 @@ export interface AxisConfigBase {
    */
   axisLineMargin: number;
   /**
-   * The color of the line shown along the axis (use "currentColor" to follow
-   * the host page's css color and theme).
+   * The style of the line shown along the axis.
    *
-   * @default "currentColor"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  axisLineColor: string;
-  /**
-   * The color of the line shown along the focused axis (use "currentColor" to
-   * follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  axisLineFocusedColor: string;
-  /**
-   * The color of the line shown along the defocused axis (use "currentColor" to
-   * follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  axisLineDefocusedColor: string;
-  /**
-   * The opacity (0 - 1) of the line shown along the axis.
-   *
-   * @default 0.65
-   */
-  axisLineOpacity: number;
-  /**
-   * The opacity (0 - 1) of the line shown along the focused axis.
-   *
-   * @default 0.65
-   */
-  axisLineFocusedOpacity: number;
-  /**
-   * The opacity (0 - 1) of the line shown along the defocused axis.
-   *
-   * @default 0.325
-   */
-  axisLineDefocusedOpacity: number;
+  axisLineStyle: StrokeStyleStates;
 
   /**
-   * The styles to apply to the axis background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the axis background (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  backgroundStyle: BackgroundStyle;
+  backgroundStyle: Style;
   /**
    * Whether the axis background should be shown in front (true) or behind
    * (false) the series shapes.
@@ -1248,35 +1233,11 @@ export interface AxisConfigBase {
    */
   focusRangeApplyToTitle: boolean;
   /**
-   * The stroke color of the focus range.
+   * The style of the focus range.
    *
-   * @default '#000033'
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.2, strokeWidth: 1, fillColor: "currentColor", fillOpacity: 0.12 }
    */
-  focusRangeStrokeColor: string;
-  /**
-   * The fill color of the focus range.
-   *
-   * @default '#aaccff'
-   */
-  focusRangeFillColor: string;
-  /**
-   * The stroke opacity of the focus range.
-   *
-   * @default 0.2
-   */
-  focusRangeStrokeOpacity: number;
-  /**
-   * The fill opacity of the focus range.
-   *
-   * @default 0.3
-   */
-  focusRangeFillOpacity: number;
-  /**
-   * The stroke width of the focus range.
-   *
-   * @default 1
-   */
-  focusRangeStrokeWidth: number;
+  focusRangeStyle: Style;
   /**
    * The stroke dash array of the focus range.
    *
@@ -1313,23 +1274,11 @@ export interface AxisConfigBase {
    */
   focusTickMarkMargin: number;
   /**
-   * The stroke width (in pixels) of the focus tick mark line(s).
+   * The style of the focus tick mark line(s).
    *
-   * @default 3
+   * @default { strokeColor: "currentColor", strokeOpacity: 1, strokeWidth: 3 }
    */
-  focusTickMarkWidth: number;
-  /**
-   * The color of the focus tick mark line(s).
-   *
-   * @default '#0000ff'
-   */
-  focusTickMarkColor: string;
-  /**
-   * The opacity (0 - 1) of the focus tick mark line(s).
-   *
-   * @default 1
-   */
-  focusTickMarkOpacity: number;
+  focusTickMarkStyle: StrokeStyle;
 
   /**
    * Whether to show grid lines perpendicular to each tick on the axis.
@@ -1358,44 +1307,11 @@ export interface AxisConfigBase {
    */
   gridLineDashArray: string | null;
   /**
-   * The color of the axis grid lines (use "currentColor" to follow the host
-   * page's css color and theme).
+   * The style of the axis grid lines.
    *
-   * @default "currentColor"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  gridLineColor: string;
-  /**
-   * The color of the focused axis grid lines (use "currentColor" to follow the
-   * host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  gridLineFocusedColor: string;
-  /**
-   * The color of the defocused axis grid lines (use "currentColor" to follow
-   * the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  gridLineDefocusedColor: string;
-  /**
-   * The opacity (0 - 1) of the axis grid lines.
-   *
-   * @default 0.13
-   */
-  gridLineOpacity: number;
-  /**
-   * The opacity (0 - 1) of the focused axis grid lines.
-   *
-   * @default 0.17
-   */
-  gridLineFocusedOpacity: number;
-  /**
-   * The opacity (0 - 1) of the defocused axis grid lines.
-   *
-   * @default 0.09
-   */
-  gridLineDefocusedOpacity: number;
+  gridLineStyle: StrokeStyleStates;
 
   /**
    * The inner (closest to chart) margin (in pixels) of the axis.
@@ -1558,87 +1474,18 @@ export interface AxisConfigBase {
    */
   thresholdTitlePadding: MarginPadding;
   /**
-   * The stroke color to use for the threshold title text.
+   * The style of the threshold title text.
    *
-   * @default "none"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  thresholdTitleStrokeColor: string;
+  thresholdTitleTextStyle: StyleStates;
   /**
-   * The stroke color to use for the focused threshold title text.
+   * The styles to apply to the threshold title background (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default "none"
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  thresholdTitleFocusedStrokeColor: string;
-  /**
-   * The stroke color to use for the defocused threshold title text.
-   *
-   * @default "none"
-   */
-  thresholdTitleDefocusedStrokeColor: string;
-  /**
-   * The fill color to use for the threshold title text (use "currentColor" to
-   * follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  thresholdTitleFillColor: string;
-  /**
-   * The fill color to use for the focused threshold title text (use
-   * "currentColor" to follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  thresholdTitleFocusedFillColor: string;
-  /**
-   * The fill color to use for the defocused threshold title text (use
-   * "currentColor" to follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  thresholdTitleDefocusedFillColor: string;
-  /**
-   * The stroke opacity (0 - 1) of the threshold title text.
-   *
-   * @default 1
-   */
-  thresholdTitleStrokeOpacity: number;
-  /**
-   * The stroke opacity (0 - 1) of the focused threshold title text.
-   *
-   * @default 1
-   */
-  thresholdTitleFocusedStrokeOpacity: number;
-  /**
-   * The stroke opacity (0 - 1) of the defocused threshold title text.
-   *
-   * @default 1
-   */
-  thresholdTitleDefocusedStrokeOpacity: number;
-  /**
-   * The fill opacity (0 - 1) of the threshold title text.
-   *
-   * @default 1
-   */
-  thresholdTitleFillOpacity: number;
-  /**
-   * The fill opacity (0 - 1) of the focused threshold title text.
-   *
-   * @default 1
-   */
-  thresholdTitleFocusedFillOpacity: number;
-  /**
-   * The fill opacity (0 - 1) of the defocused threshold title text.
-   *
-   * @default 1
-   */
-  thresholdTitleDefocusedFillOpacity: number;
-  /**
-   * The styles to apply to the threshold title background (stroke,
-   * strokeOpacity, strokeWidth, fill, fillOpacity (use null for none)).
-   *
-   * @default { stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
-   */
-  thresholdTitleBackgroundStyle: BackgroundStyle;
+  thresholdTitleBackgroundStyle: Style;
   /**
    * The width (in pixels) of the threshold line.
    *
@@ -1652,44 +1499,11 @@ export interface AxisConfigBase {
    */
   thresholdDashArray: string | null;
   /**
-   * The color of the threshold line (use "currentColor" to follow the host
-   * page's css color and theme).
+   * The style of the threshold line.
    *
-   * @default "currentColor"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  thresholdColor: string;
-  /**
-   * The color of the focused threshold line (use "currentColor" to follow the
-   * host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  thresholdFocusedColor: string;
-  /**
-   * The color of the defocused threshold line (use "currentColor" to follow the
-   * host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  thresholdDefocusedColor: string;
-  /**
-   * The opacity (0 - 1) of the threshold line.
-   *
-   * @default 0.65
-   */
-  thresholdOpacity: number;
-  /**
-   * The opacity (0 - 1) of the focused threshold line.
-   *
-   * @default 0.65
-   */
-  thresholdFocusedOpacity: number;
-  /**
-   * The opacity (0 - 1) of the defocused threshold line.
-   *
-   * @default 0.325
-   */
-  thresholdDefocusedOpacity: number;
+  thresholdStyle: StrokeStyleStates;
 
   /**
    * The number of ticks to show along the length of the axis (use "auto" to
@@ -1714,12 +1528,12 @@ export interface AxisConfigBase {
    */
   tickLabelAnchor: Anchor | Auto;
   /**
-   * The styles to apply to the axis tick label background (stroke,
-   * strokeOpacity, strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the axis tick label background (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  tickLabelBackgroundStyle: BackgroundStyle;
+  tickLabelBackgroundStyle: Style;
   /**
    * The space (in pixels) perpendicular to the axis direction to allocate for
    * the tick labels (use "auto" to derive from the font size).
@@ -1756,12 +1570,6 @@ export interface AxisConfigBase {
    */
   tickLabelPaddingOuter: number;
   /**
-   * The stroke width (in pixels) to use for the axis tick labels text.
-   *
-   * @default 0
-   */
-  tickLabelStrokeWidth: number;
-  /**
    * The d3 format string to be applied to the group values when displayed in
    * axis tick labels (use null for none, use "auto" to derive from data).
    *
@@ -1789,80 +1597,11 @@ export interface AxisConfigBase {
    */
   tickLabelRotation: number;
   /**
-   * The stroke color to use for the axis tick labels text.
+   * The style of the axis tick label text.
    *
-   * @default "none"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  tickLabelStrokeColor: string;
-  /**
-   * The stroke color to use for the focused axis tick labels text.
-   *
-   * @default "none"
-   */
-  tickLabelFocusedStrokeColor: string;
-  /**
-   * The stroke color to use for the defocused axis tick labels text.
-   *
-   * @default "none"
-   */
-  tickLabelDefocusedStrokeColor: string;
-  /**
-   * The fill color to use for the axis tick labels text (use "currentColor" to
-   * follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  tickLabelFillColor: string;
-  /**
-   * The fill color to use for the focused axis tick labels text (use
-   * "currentColor" to follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  tickLabelFocusedFillColor: string;
-  /**
-   * The fill color to use for the defocused axis tick labels text (use
-   * "currentColor" to follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  tickLabelDefocusedFillColor: string;
-  /**
-   * The stroke opacity (0 - 1) to use for the axis tick labels text.
-   *
-   * @default 1
-   */
-  tickLabelStrokeOpacity: number;
-  /**
-   * The stroke opacity (0 - 1) to use for the focused axis tick labels text.
-   *
-   * @default 1
-   */
-  tickLabelFocusedStrokeOpacity: number;
-  /**
-   * The stroke opacity (0 - 1) to use for the defocused axis tick labels text.
-   *
-   * @default 0.5
-   */
-  tickLabelDefocusedStrokeOpacity: number;
-  /**
-   * The fill opacity (0 - 1) to use for the axis tick labels text.
-   *
-   * @default 1
-   */
-  tickLabelFillOpacity: number;
-  /**
-   * The fill opacity (0 - 1) to use for the focused axis tick labels text.
-   *
-   * @default 1
-   */
-  tickLabelFocusedFillOpacity: number;
-  /**
-   * The fill opacity (0 - 1) to use for the defocused axis tick labels text.
-   *
-   * @default 0.5
-   */
-  tickLabelDefocusedFillOpacity: number;
+  tickLabelTextStyle: StyleStates;
 
   /**
    * Whether to show lines perpendicular to each tick value along the axis.
@@ -1897,44 +1636,11 @@ export interface AxisConfigBase {
    */
   tickMarkWidth: number;
   /**
-   * The color of the axis tick mark lines (use "currentColor" to follow the
-   * host page's css color and theme).
+   * The style of the axis tick mark lines.
    *
-   * @default "currentColor"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  tickMarkColor: string;
-  /**
-   * The color of the focused axis tick mark lines (use "currentColor" to follow
-   * the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  tickMarkFocusedColor: string;
-  /**
-   * The color of the defocused axis tick mark lines (use "currentColor" to
-   * follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  tickMarkDefocusedColor: string;
-  /**
-   * The opacity (0 - 1) of the axis tick mark lines.
-   *
-   * @default 0.65
-   */
-  tickMarkOpacity: number;
-  /**
-   * The opacity (0 - 1) of the focused axis tick mark lines.
-   *
-   * @default 0.65
-   */
-  tickMarkFocusedOpacity: number;
-  /**
-   * The opacity (0 - 1) of the defocused axis tick mark lines.
-   *
-   * @default 0.325
-   */
-  tickMarkDefocusedOpacity: number;
+  tickMarkStyle: StrokeStyleStates;
 
   /**
    * The title text to be shown along side to the axis (use null for no title).
@@ -1950,12 +1656,12 @@ export interface AxisConfigBase {
    */
   titleFront: boolean;
   /**
-   * The styles to apply to the axis title background (stroke, strokeOpacity,
-   * strokeWidth, fill, fillOpacity (use null for none)).
+   * The styles to apply to the axis title background (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { stroke: "#000000", strokeOpacity: 0, strokeWidth: null, fill: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  titleBackgroundStyle: BackgroundStyle;
+  titleBackgroundStyle: Style;
   /**
    * Whether to apply text truncation to the contents of the axis title when it
    * would overflow the axis bounds.
@@ -2006,86 +1712,11 @@ export interface AxisConfigBase {
    */
   titlePaddingOuter: number;
   /**
-   * The stroke width (in pixels) of the axis title text.
+   * The style of the axis title text.
    *
-   * @default 0
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  titleStrokeWidth: number;
-  /**
-   * The stroke color of the axis title text.
-   *
-   * @default "none"
-   */
-  titleStrokeColor: string;
-  /**
-   * The stroke color of the focused axis title text.
-   *
-   * @default "none"
-   */
-  titleFocusedStrokeColor: string;
-  /**
-   * The stroke color of the defocused axis title text.
-   *
-   * @default "none"
-   */
-  titleDefocusedStrokeColor: string;
-  /**
-   * The fill color of the axis title text (use "currentColor" to follow the
-   * host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  titleFillColor: string;
-  /**
-   * The fill color of the focused axis title text (use "currentColor" to follow
-   * the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  titleFocusedFillColor: string;
-  /**
-   * The fill color of the defocused axis title text (use "currentColor" to
-   * follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  titleDefocusedFillColor: string;
-  /**
-   * The stroke opacity (0 - 1) of the axis title text.
-   *
-   * @default 1
-   */
-  titleStrokeOpacity: number;
-  /**
-   * The stroke opacity (0 - 1) of the focused axis title text.
-   *
-   * @default 1
-   */
-  titleFocusedStrokeOpacity: number;
-  /**
-   * The stroke opacity (0 - 1) of the defocused axis title text.
-   *
-   * @default 0.5
-   */
-  titleDefocusedStrokeOpacity: number;
-  /**
-   * The fill opacity (0 - 1) of the axis title text.
-   *
-   * @default 1
-   */
-  titleFillOpacity: number;
-  /**
-   * The fill opacity (0 - 1) of the focused axis title text.
-   *
-   * @default 1
-   */
-  titleFocusedFillOpacity: number;
-  /**
-   * The fill opacity (0 - 1) of the defocused axis title text.
-   *
-   * @default 0.5
-   */
-  titleDefocusedFillOpacity: number;
+  titleTextStyle: StyleStates;
   /**
    * Whether the axis should be visible.
    *
@@ -2317,45 +1948,11 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    */
   baseLineDashArray: string | null;
   /**
-   * The color to use when drawing the line shown along the base of the axis
-   * (use "currentColor" to follow the host page's css color and theme).
+   * The style of the line shown along the base of the axis.
    *
-   * @default "currentColor"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  baseLineColor: string;
-  /**
-   * The color to use when drawing the line shown along the base of the focused
-   * axis (use "currentColor" to follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  baseLineFocusedColor: string;
-  /**
-   * The color to use when drawing the line shown along the base of the
-   * defocused axis (use "currentColor" to follow the host page's css color and
-   * theme).
-   *
-   * @default "currentColor"
-   */
-  baseLineDefocusedColor: string;
-  /**
-   * The opacity (0 - 1) of the line shown along the base of the axis.
-   *
-   * @default 0.65
-   */
-  baseLineOpacity: number;
-  /**
-   * The opacity (0 - 1) of the line shown along the base of the focused axis.
-   *
-   * @default 0.65
-   */
-  baseLineFocusedOpacity: number;
-  /**
-   * The opacity (0 - 1) of the line shown along the base of the defocused axis.
-   *
-   * @default 0.325
-   */
-  baseLineDefocusedOpacity: number;
+  baseLineStyle: StrokeStyleStates;
   /**
    * Whether the series axis should be focused whenever the user mouses over a
    * part of it in the chart.
@@ -2434,9 +2031,77 @@ export interface SeriesAxisConfig extends AxisConfigBase {
 }
 
 export interface SeriesCurve {
+  /** The d3-shape curve to interpolate the series shape with. */
   type: CurveType;
-  /** Passed to the selected D3 curve's tension/alpha configurator. */
+  /**
+   * The tension/alpha value passed to the curve types that take one, or
+   * undefined to use the curve's own default.
+   */
   param?: number;
+}
+
+/**
+ * The two-sided half of a series color scale: a data threshold plus the color
+ * ramps either side of it. `value` is a data value, not a color, which is why
+ * it lives here rather than as a `colorBase` colour alongside `min` / `max`.
+ */
+export interface SeriesColorScaleBase {
+  /**
+   * The base value to use for color interpolation, allowing 2 distinct sets of
+   * min & max colors for interpolation (use null for none).
+   */
+  value: number | null;
+  /**
+   * The minimum color to use when interpolating the series shape color with a
+   * color property value that is above the base value (use null for none).
+   */
+  aboveMin: string | null;
+  /**
+   * The maximum color to use when interpolating the series shape color with a
+   * color property value that is above the base value (use null for none).
+   */
+  aboveMax: string | null;
+  /**
+   * The minimum color to use when interpolating the series shape color with a
+   * color property value that is below the base value (use null for none).
+   */
+  belowMin: string | null;
+  /**
+   * The maximum color to use when interpolating the series shape color with a
+   * color property value that is below the base value (use null for none).
+   */
+  belowMax: string | null;
+}
+
+/**
+ * The color ramp a series' `colorProperty` values are mapped through: the color
+ * space to interpolate in, and either a single `min`/`max` ramp or, when
+ * `base.value` is set, a ramp either side of that threshold.
+ *
+ * These colors are handed to d3 scale ranges, so unlike a style's colors they
+ * must be real colors — `'currentColor'` would interpolate to `NaN`.
+ */
+export interface SeriesColorScale {
+  /**
+   * The type of d3 color interpolation to apply when using a color property
+   * (rgb, hsl, lab, hcl) (use null for none).
+   */
+  interpolation: ColorInterpolation | null;
+  /**
+   * The minimum color to use when interpolating the series shape color with a
+   * color property (use null for none).
+   */
+  min: string | null;
+  /**
+   * The maximum color to use when interpolating the series shape color with a
+   * color property (use null for none).
+   */
+  max: string | null;
+  /**
+   * The data threshold that splits the color ramp in two, and the two ramps
+   * either side of it.
+   */
+  base: SeriesColorScaleBase;
 }
 
 export interface SeriesConfig {
@@ -2507,13 +2172,6 @@ export interface SeriesConfig {
    */
   markerProperty: string | null;
   /**
-   * The property to retrieve from the data provider for the series color values
-   * (use null for none).
-   *
-   * @default null
-   */
-  colorProperty: string | null;
-  /**
    * The property to retrieve from the data provider for the series label values
    * (use null for none).
    *
@@ -2528,6 +2186,19 @@ export interface SeriesConfig {
    * @default null
    */
   tooltipProperty: string | null;
+  /**
+   * The property to retrieve from the data provider for the series color values
+   * (use null for none, to color by style instead).
+   *
+   * @default null
+   */
+  colorProperty: string | null;
+  /**
+   * The color ramp the series color values are mapped through.
+   *
+   * @default { interpolation: null, min: null, max: null, base: { … } }
+   */
+  colorScale: SeriesColorScale;
   /**
    * The unique identifier of the axis that the series belongs to.
    *
@@ -2732,38 +2403,11 @@ export interface SeriesConfig {
    */
   errorBarCapSize: number;
   /**
-   * The stroke width (in pixels) of the series error bars.
+   * The style of the series error bars.
    *
-   * @default 1.5
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  errorBarStrokeWidth: number;
-  /**
-   * The stroke color to use for the series error bars (use "series" to reuse
-   * the strokeColor, use "seriesIndex" to apply the colorPaletteConfig series
-   * strokeColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig series strokeColor for the group index).
-   *
-   * @default "series"
-   */
-  errorBarStrokeColor: SeriesColor;
-  /**
-   * The stroke opacity (0 - 1) of the series error bars.
-   *
-   * @default 0.9
-   */
-  errorBarStrokeOpacity: number;
-  /**
-   * The focused stroke opacity (0 - 1) of the series error bars.
-   *
-   * @default 1
-   */
-  errorBarFocusedStrokeOpacity: number;
-  /**
-   * The defocused stroke opacity (0 - 1) of the series error bars.
-   *
-   * @default 0.5
-   */
-  errorBarDefocusedStrokeOpacity: number;
+  errorBarStyle: StrokeStyleStates<SeriesColor>;
   /**
    * The label to show before a series value in the tooltip (use null for none).
    *
@@ -2817,69 +2461,11 @@ export interface SeriesConfig {
    */
   labelFormat: string | Auto;
   /**
-   * The stroke color to use for the series label values (use "series" to reuse
-   * the strokeColor, use "seriesIndex" to apply the colorPaletteConfig label
-   * strokeColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig label strokeColor for the group index, use
-   * "currentColor" to follow the host page's css color and theme).
+   * The style of the series label values.
    *
-   * @default "currentColor"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  labelStrokeColor: SeriesColor;
-  /**
-   * The focused stroke color to use for the series label values (use "series"
-   * to reuse the focusedStrokeColor, use "same" to reuse the labelStrokeColor,
-   * use "seriesIndex" to apply the colorPaletteConfig labelFocused strokeColor
-   * for the series index, use "groupIndex" to apply the colorPaletteConfig
-   * labelFocused strokeColor for the group index, use "currentColor" to follow
-   * the host page's css color and theme).
-   *
-   * @default "same"
-   */
-  labelFocusedStrokeColor: SeriesColor;
-  /**
-   * The defocused stroke color to use for the series label values (use "series"
-   * to reuse the defocusedStrokeColor, use "same" to reuse the
-   * labelStrokeColor, use "seriesIndex" to apply the colorPaletteConfig
-   * labelDefocused strokeColor for the series index, use "groupIndex" to apply
-   * the colorPaletteConfig labelDefocused strokeColor for the group index, use
-   * "currentColor" to follow the host page's css color and theme).
-   *
-   * @default "same"
-   */
-  labelDefocusedStrokeColor: SeriesColor;
-  /**
-   * The fill color to use for the series label values (use "series" to reuse
-   * the fillColor, use "seriesIndex" to apply the colorPaletteConfig label
-   * fillColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig label fillColor for the group index, use "currentColor"
-   * to follow the host page's css color and theme).
-   *
-   * @default "currentColor"
-   */
-  labelFillColor: SeriesColor;
-  /**
-   * The focused fill color to use for the series label values (use "series" to
-   * reuse the focusedFillColor, use "same" to reuse the labelFillColor, use
-   * "seriesIndex" to apply the colorPaletteConfig labelFocused fillColor for
-   * the series index, use "groupIndex" to apply the colorPaletteConfig
-   * labelFocused fillColor for the group index, use "currentColor" to follow
-   * the host page's css color and theme).
-   *
-   * @default "same"
-   */
-  labelFocusedFillColor: SeriesColor;
-  /**
-   * The defocused fill color to use for the series label values (use "series"
-   * to reuse the defocusedFillColor, use "same" to reuse the labelFillColor,
-   * use "seriesIndex" to apply the colorPaletteConfig labelDefocused fillColor
-   * for the series index, use "groupIndex" to apply the colorPaletteConfig
-   * labelDefocused fillColor for the group index, use "currentColor" to follow
-   * the host page's css color and theme).
-   *
-   * @default "same"
-   */
-  labelDefocusedFillColor: SeriesColor;
+  labelTextStyle: StyleStates<SeriesColor>;
   /**
    * The minimum position percentage (0 - 1) from the domain minimum for which
    * series labels should be shown (use null for none).
@@ -2974,278 +2560,11 @@ export interface SeriesConfig {
    */
   labelBelowBasePosition: LabelPosition | Auto;
   /**
-   * The stroke width (in pixels) for the series label text.
+   * The style of the series shape.
    *
-   * @default 1
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  labelStrokeWidth: number;
-  /**
-   * The focused stroke width (in pixels) for the series label text.
-   *
-   * @default 1
-   */
-  labelFocusedStrokeWidth: number;
-  /**
-   * The defocused stroke width (in pixels) for the series label text.
-   *
-   * @default 1
-   */
-  labelDefocusedStrokeWidth: number;
-  /**
-   * The stroke opacity (0 - 1) for the series label text.
-   *
-   * @default 0.8
-   */
-  labelStrokeOpacity: number;
-  /**
-   * The fill opacity (0 - 1) for the series label text.
-   *
-   * @default 0.8
-   */
-  labelFillOpacity: number;
-  /**
-   * The focused stroke opacity (0 - 1) for the series label text.
-   *
-   * @default 1
-   */
-  labelFocusedStrokeOpacity: number;
-  /**
-   * The focused fill opacity (0 - 1) for the series label text.
-   *
-   * @default 1
-   */
-  labelFocusedFillOpacity: number;
-  /**
-   * The defocused stroke opacity (0 - 1) for the series label text.
-   *
-   * @default 1
-   */
-  labelDefocusedStrokeOpacity: number;
-  /**
-   * The defocused fill opacity (0 - 1) for the series label text.
-   *
-   * @default 1
-   */
-  labelDefocusedFillOpacity: number;
-  /**
-   * The stroke color to use for the series shape (use "seriesIndex" to apply
-   * the colorPaletteConfig series strokeColor for the series index, use
-   * "groupIndex" to apply the colorPaletteConfig series strokeColor for the
-   * group index).
-   *
-   * @default "seriesIndex"
-   */
-  strokeColor: SeriesColor;
-  /**
-   * The focused stroke color to use for the series shape (use "same" to reuse
-   * the strokeColor, use "seriesIndex" to apply the colorPaletteConfig
-   * seriesFocused strokeColor for the series index, use "groupIndex" to apply
-   * the colorPaletteConfig seriesFocused strokeColor for the group index).
-   *
-   * @default "same"
-   */
-  focusedStrokeColor: SeriesColor;
-  /**
-   * The defocused stroke color to use for the series shape (use "same" to reuse
-   * the strokeColor, use "seriesIndex" to apply the colorPaletteConfig
-   * seriesDefocused strokeColor for the series index, use "groupIndex" to apply
-   * the colorPaletteConfig seriesDefocused strokeColor for the group index).
-   *
-   * @default "same"
-   */
-  defocusedStrokeColor: SeriesColor;
-  /**
-   * The fill color to use for the series shape (use "seriesIndex" to apply the
-   * colorPaletteConfig series fillColor for the series index, use "groupIndex"
-   * to apply the colorPaletteConfig series fillColor for the group index).
-   *
-   * @default "seriesIndex"
-   */
-  fillColor: SeriesColor;
-  /**
-   * The focused fill color to use for the series shape (use "same" to reuse the
-   * fillColor, use "seriesIndex" to apply the colorPaletteConfig seriesFocused
-   * fillColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig seriesFocused fillColor for the group index).
-   *
-   * @default "same"
-   */
-  focusedFillColor: SeriesColor;
-  /**
-   * The defocused fill color to use for the series shape (use "same" to reuse
-   * the fillColor, use "seriesIndex" to apply the colorPaletteConfig
-   * seriesDefocused fillColor for the series index, use "groupIndex" to apply
-   * the colorPaletteConfig seriesDefocused fillColor for the group index).
-   *
-   * @default "same"
-   */
-  defocusedFillColor: SeriesColor;
-  /**
-   * The stroke opacity (0 - 1) of the series shape.
-   *
-   * Default:
-   * - `0.8` — when renderer is bar
-   * - `0.9` — when renderer is line
-   * - `0.8` — when renderer is area
-   * - `0.9` — when renderer is none
-   */
-  strokeOpacity: number;
-  /**
-   * The fill opacity (0 - 1) of the series shape.
-   *
-   * Default:
-   * - `0.8` — when renderer is bar
-   * - `0.9` — when renderer is line
-   * - `0.8` — when renderer is area
-   * - `0.9` — when renderer is none
-   */
-  fillOpacity: number;
-  /**
-   * The focused stroke opacity (0 - 1) of the series shape.
-   *
-   * Default:
-   * - `1` — when renderer is bar
-   * - `1` — when renderer is line
-   * - `1` — when renderer is area
-   * - `1` — when renderer is none
-   */
-  focusedStrokeOpacity: number;
-  /**
-   * The focused fill opacity (0 - 1) of the series shape.
-   *
-   * Default:
-   * - `1` — when renderer is bar
-   * - `1` — when renderer is line
-   * - `1` — when renderer is area
-   * - `1` — when renderer is none
-   */
-  focusedFillOpacity: number;
-  /**
-   * The defocused stroke opacity (0 - 1) of the series shape.
-   *
-   * Default:
-   * - `0.5` — when renderer is bar
-   * - `0.8` — when renderer is line
-   * - `0.5` — when renderer is area
-   * - `0.8` — when renderer is none
-   */
-  defocusedStrokeOpacity: number;
-  /**
-   * The defocused fill opacity (0 - 1) of the series shape.
-   *
-   * Default:
-   * - `0.5` — when renderer is bar
-   * - `0.8` — when renderer is line
-   * - `0.5` — when renderer is area
-   * - `0.8` — when renderer is none
-   */
-  defocusedFillOpacity: number;
-  /**
-   * The stroke width (in pixels) of the series shape.
-   *
-   * Default:
-   * - `0` — when renderer is bar
-   * - `3` — when renderer is line
-   * - `0` — when renderer is area
-   * - `0` — when renderer is none
-   */
-  strokeWidth: number;
-  /**
-   * The focused stroke width (in pixels) of the series shape.
-   *
-   * Default:
-   * - `1` — when renderer is bar
-   * - `4` — when renderer is line
-   * - `1` — when renderer is area
-   * - `0` — when renderer is none
-   */
-  focusedStrokeWidth: number;
-  /**
-   * The defocused stroke width (in pixels) of the series shape.
-   *
-   * Default:
-   * - `0` — when renderer is bar
-   * - `2` — when renderer is line
-   * - `0` — when renderer is area
-   * - `0` — when renderer is none
-   */
-  defocusedStrokeWidth: number;
-  /**
-   * The type of d3 color interpolation to apply when using a color property
-   * (rgb, hsl, lab, hcl) (use null for none).
-   *
-   * Default:
-   * - `null` — when colorProperty is null
-   * - `"hcl"` — when colorProperty is not null
-   */
-  colorInterpolation: ColorInterpolation | null;
-  /**
-   * The minimum color to use when interpolating the series shape color with a
-   * colorProperty (use null for none).
-   *
-   * Default:
-   * - `null` — when colorProperty is null
-   * - `'#8f8fff'` — when colorProperty is not null and colorBase is null
-   * - `null` — when colorProperty is not null and colorBase is not null
-   */
-  colorMin: string | null;
-  /**
-   * The maximum color to use when interpolating the series shape color with a
-   * colorProperty (use null for none).
-   *
-   * Default:
-   * - `null` — when colorProperty is null
-   * - `'#0000ff'` — when colorProperty is not null and colorBase is null
-   * - `null` — when colorProperty is not null and colorBase is not null
-   */
-  colorMax: string | null;
-  /**
-   * The minimum color to use when interpolating the series shape color with a
-   * colorProperty value that is above the colorBase (use null for none).
-   *
-   * Default:
-   * - `null` — when colorProperty is null
-   * - `null` — when colorProperty is not null and colorBase is null
-   * - `'#8f8fff'` — when colorProperty is not null and colorBase is not null
-   */
-  colorBaseAboveMin: string | null;
-  /**
-   * The maximum color to use when interpolating the series shape color with a
-   * colorProperty value that is above the colorBase (use null for none).
-   *
-   * Default:
-   * - `null` — when colorProperty is null
-   * - `null` — when colorProperty is not null and colorBase is null
-   * - `'#0000ff'` — when colorProperty is not null and colorBase is not null
-   */
-  colorBaseAboveMax: string | null;
-  /**
-   * The base value to use for color interpolation, allowing 2 distinct sets of
-   * min & max colors for interpolation (use null for none).
-   *
-   * @default null
-   */
-  colorBase: number | null;
-  /**
-   * The minimum color to use when interpolating the series shape color with a
-   * colorProperty value that is below the colorBase (use null for none).
-   *
-   * Default:
-   * - `null` — when colorProperty is null
-   * - `null` — when colorProperty is not null and colorBase is null
-   * - `'#ff8f8f'` — when colorProperty is not null and colorBase is not null
-   */
-  colorBaseBelowMin: string | null;
-  /**
-   * The maximum color to use when interpolating the series shape color with a
-   * colorProperty value that is below the colorBase (use null for none).
-   *
-   * Default:
-   * - `null` — when colorProperty is null
-   * - `null` — when colorProperty is not null and colorBase is null
-   * - `'#ff0000'` — when colorProperty is not null and colorBase is not null
-   */
-  colorBaseBelowMax: string | null;
+  shapeStyle: StyleStates<SeriesColor>;
   /**
    * The minimum marker size (in pixels) to use when interpolating the marker
    * size based on a marker property value.
@@ -3280,117 +2599,11 @@ export interface SeriesConfig {
    */
   markerShape: MarkerShape | null;
   /**
-   * The stroke color to use for the series marker (use "series" to reuse the
-   * strokeColor, use "seriesIndex" to apply the colorPaletteConfig marker
-   * strokeColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig marker strokeColor for the group index).
+   * The style of the series marker.
    *
-   * @default "series"
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
-  markerStrokeColor: SeriesColor;
-  /**
-   * The focused stroke color to use for the series marker (use "series" to
-   * reuse the focusedStrokeColor, use "same" to reuse the markerStrokeColor,
-   * use "seriesIndex" to apply the colorPaletteConfig markerFocused strokeColor
-   * for the series index, use "groupIndex" to apply the colorPaletteConfig
-   * markerFocused strokeColor for the group index).
-   *
-   * @default "same"
-   */
-  markerFocusedStrokeColor: SeriesColor;
-  /**
-   * The defocused stroke color to use for the series marker (use "series" to
-   * reuse the defocusedStrokeColor, use "same" to reuse the markerStrokeColor,
-   * use "seriesIndex" to apply the colorPaletteConfig markerDefocused
-   * strokeColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig markerDefocused strokeColor for the group index).
-   *
-   * @default "same"
-   */
-  markerDefocusedStrokeColor: SeriesColor;
-  /**
-   * The fill color to use for the series marker (use "series" to reuse the
-   * fillColor, use "seriesIndex" to apply the colorPaletteConfig marker
-   * fillColor for the series index, use "groupIndex" to apply the
-   * colorPaletteConfig marker fillColor for the group index).
-   *
-   * @default "series"
-   */
-  markerFillColor: SeriesColor;
-  /**
-   * The focused fill color to use for the series marker (use "series" to reuse
-   * the focusedFillColor, use "same" to reuse the markerFillColor, use
-   * "seriesIndex" to apply the colorPaletteConfig markerFocused fillColor for
-   * the series index, use "groupIndex" to apply the colorPaletteConfig
-   * markerFocused fillColor for the group index).
-   *
-   * @default "same"
-   */
-  markerFocusedFillColor: SeriesColor;
-  /**
-   * The defocused fill color to use for the series marker (use "series" to
-   * reuse the defocusedFillColor, use "same" to reuse the markerFillColor, use
-   * "seriesIndex" to apply the colorPaletteConfig markerDefocused fillColor for
-   * the series index, use "groupIndex" to apply the colorPaletteConfig
-   * markerDefocused fillColor for the group index).
-   *
-   * @default "same"
-   */
-  markerDefocusedFillColor: SeriesColor;
-  /**
-   * The stroke width (in pixels) for the series marker shape.
-   *
-   * @default 1
-   */
-  markerStrokeWidth: number;
-  /**
-   * The focused stroke width (in pixels) for the series marker shape.
-   *
-   * @default 3
-   */
-  markerFocusedStrokeWidth: number;
-  /**
-   * The defocused stroke width (in pixels) for the series marker shape.
-   *
-   * @default 1
-   */
-  markerDefocusedStrokeWidth: number;
-  /**
-   * The stroke opacity (0 -1) for the series marker shape.
-   *
-   * @default 0.9
-   */
-  markerStrokeOpacity: number;
-  /**
-   * The fill opacity (0 -1) for the series marker shape.
-   *
-   * @default 0.9
-   */
-  markerFillOpacity: number;
-  /**
-   * The focused stroke opacity (0 -1) for the series marker shape.
-   *
-   * @default 1
-   */
-  markerFocusedStrokeOpacity: number;
-  /**
-   * The focused fill opacity (0 -1) for the series marker shape.
-   *
-   * @default 1
-   */
-  markerFocusedFillOpacity: number;
-  /**
-   * The defocused stroke opacity (0 -1) for the series marker shape.
-   *
-   * @default 0.8
-   */
-  markerDefocusedStrokeOpacity: number;
-  /**
-   * The defocused fill opacity (0 -1) for the series marker shape.
-   *
-   * @default 0.8
-   */
-  markerDefocusedFillOpacity: number;
+  markerStyle: StyleStates<SeriesColor>;
   /**
    * Whether to show the series in the legend.
    *
@@ -3408,8 +2621,10 @@ export interface SeriesConfig {
    * legend.
    *
    * Default:
-   * - `false` — when color is groupIndex
-   * - `true` — when color is not groupIndex
+   * - `false` — when shapeStyle.normal.strokeColor or
+   *   shapeStyle.normal.fillColor is groupIndex
+   * - `true` — when neither shapeStyle.normal.strokeColor nor
+   *   shapeStyle.normal.fillColor is groupIndex
    */
   showColorInLegend: boolean;
   /**
@@ -3417,8 +2632,10 @@ export interface SeriesConfig {
    * tooltip.
    *
    * Default:
-   * - `false` — when color is groupIndex
-   * - `true` — when color is not groupIndex
+   * - `false` — when shapeStyle.normal.strokeColor or
+   *   shapeStyle.normal.fillColor is groupIndex
+   * - `true` — when neither shapeStyle.normal.strokeColor nor
+   *   shapeStyle.normal.fillColor is groupIndex
    */
   showColorInTooltip: boolean;
   /**
@@ -3699,30 +2916,50 @@ export interface MochartConfig {
 
 type OneOrMany<T> = T | T[];
 
+/** Everything a config value can be that is a value rather than a structure. */
+type ConfigLeaf = string | number | boolean | bigint | symbol | null | undefined;
+
+/**
+ * `Partial`, applied all the way down: a nested config object may be given with
+ * only the members that differ from the default, because the config machinery
+ * deep-merges each layer.
+ *
+ * Arrays are left alone rather than becoming arrays of partials — a `stops` or
+ * `ticks` array replaces the default wholesale, so its entries are whole
+ * entries. Primitives are left alone too, which is what keeps `SeriesColor`'s
+ * `ColorMode | (string & {})` from being mangled into `{}`.
+ */
+export type DeepPartial<T> =
+  T extends ConfigLeaf ? T :
+  T extends (...args: any[]) => any ? T :
+  T extends readonly any[] ? T :
+  T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } :
+  T;
+
 /** The user-facing config accepted by buildMochartConfig, before defaults are applied. */
 export interface MochartInputConfig {
   id?: string;
   version?: string;
-  animationConfig?: Partial<AnimationConfig>;
-  chartConfig?: Partial<ChartConfig>;
-  colorPaletteConfig?: Partial<ColorPaletteConfig>;
-  crosshairConfig?: Partial<CrosshairConfig>;
-  groupAxisConfig?: Partial<GroupAxisConfig>;
-  legendConfig?: Partial<LegendConfig>;
-  pieConfig?: Partial<PieConfig>;
-  plotConfig?: Partial<PlotConfig>;
-  titleConfig?: Partial<TitleConfig>;
-  tooltipConfig?: Partial<TooltipConfig>;
-  linearGradientConfigs?: OneOrMany<Partial<LinearGradientConfig>>;
-  linearGradientAllConfig?: Partial<LinearGradientConfig>;
-  radialGradientConfigs?: OneOrMany<Partial<RadialGradientConfig>>;
-  radialGradientAllConfig?: Partial<RadialGradientConfig>;
-  seriesAxisConfigs?: OneOrMany<Partial<SeriesAxisConfig>>;
-  seriesAxisAllConfig?: Partial<SeriesAxisConfig>;
-  seriesConfigs?: OneOrMany<Partial<SeriesConfig>>;
-  seriesAllConfig?: Partial<SeriesConfig>;
-  seriesGroupConfigs?: OneOrMany<Partial<SeriesGroupConfig>>;
-  seriesGroupAllConfig?: Partial<SeriesGroupConfig>;
-  seriesStackConfigs?: OneOrMany<Partial<SeriesStackConfig>>;
-  seriesStackAllConfig?: Partial<SeriesStackConfig>;
+  animationConfig?: DeepPartial<AnimationConfig>;
+  chartConfig?: DeepPartial<ChartConfig>;
+  colorPaletteConfig?: DeepPartial<ColorPaletteConfig>;
+  crosshairConfig?: DeepPartial<CrosshairConfig>;
+  groupAxisConfig?: DeepPartial<GroupAxisConfig>;
+  legendConfig?: DeepPartial<LegendConfig>;
+  pieConfig?: DeepPartial<PieConfig>;
+  plotConfig?: DeepPartial<PlotConfig>;
+  titleConfig?: DeepPartial<TitleConfig>;
+  tooltipConfig?: DeepPartial<TooltipConfig>;
+  linearGradientConfigs?: OneOrMany<DeepPartial<LinearGradientConfig>>;
+  linearGradientAllConfig?: DeepPartial<LinearGradientConfig>;
+  radialGradientConfigs?: OneOrMany<DeepPartial<RadialGradientConfig>>;
+  radialGradientAllConfig?: DeepPartial<RadialGradientConfig>;
+  seriesAxisConfigs?: OneOrMany<DeepPartial<SeriesAxisConfig>>;
+  seriesAxisAllConfig?: DeepPartial<SeriesAxisConfig>;
+  seriesConfigs?: OneOrMany<DeepPartial<SeriesConfig>>;
+  seriesAllConfig?: DeepPartial<SeriesConfig>;
+  seriesGroupConfigs?: OneOrMany<DeepPartial<SeriesGroupConfig>>;
+  seriesGroupAllConfig?: DeepPartial<SeriesGroupConfig>;
+  seriesStackConfigs?: OneOrMany<DeepPartial<SeriesStackConfig>>;
+  seriesStackAllConfig?: DeepPartial<SeriesStackConfig>;
 }

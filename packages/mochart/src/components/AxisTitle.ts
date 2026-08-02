@@ -4,7 +4,8 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
 import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
 import { getClipPathReference } from '../utils/svgUtils';
-import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import { getAxisFocusStyle } from '../utils/FocusValue';
+import { styleToAttributes } from '../utils/style';
 import { NONE } from '../config/core/constants';
 import Background from './Background';
 import type { AxisConfigBase, SeriesAxisConfig } from '../types/config';
@@ -79,21 +80,16 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
       const clipPath = axisConfig.titleTruncationEnabled ? getClipPathReference(titleClipPathUniqueId) : null;
 
       const useSeriesFocus = axisConfig.useSeriesFocus ?? false;
-      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
-        axisConfig.titleStrokeColor, axisConfig.titleFocusedStrokeColor, axisConfig.titleDefocusedStrokeColor);
-      const fill = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
-        axisConfig.titleFillColor, axisConfig.titleFocusedFillColor, axisConfig.titleDefocusedFillColor);
-      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
-        axisConfig.titleStrokeOpacity, axisConfig.titleFocusedStrokeOpacity, axisConfig.titleDefocusedStrokeOpacity);
-      const fillOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
-        axisConfig.titleFillOpacity, axisConfig.titleFocusedFillOpacity, axisConfig.titleDefocusedFillOpacity);
+      // destructured rather than spread whole: this attribute order is what the golden snapshots record
+      const { stroke, strokeOpacity, strokeWidth, fill, fillOpacity } = styleToAttributes(
+        getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, axisConfig.titleTextStyle));
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['axisTitle'], clipPath });
       this.background.set(Background, { config: axisConfig, configStyleKey: 'titleBackgroundStyle', classKey: 'axisTitleBackground', spacingRelative: false, spacingLayoutInfo: axisLayoutInfo.titleLayoutInfo });
       this.text.set({ transform: titleTextTransform, textAnchor: titleTextAnchor, dy: titleTextDY,
         stroke, strokeOpacity,
-        fill, fillOpacity, strokeWidth: axisConfig.titleStrokeWidth });
+        fill, fillOpacity, strokeWidth });
       this.textValue.set(title);
     }
     else {

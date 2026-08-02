@@ -1,7 +1,8 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import { getAxisFocusColor, getAxisFocusOpacity } from '../utils/FocusValue';
+import { getAxisFocusStyle } from '../utils/FocusValue';
+import { styleToAttributes } from '../utils/style';
 import type { AxisConfigBase } from '../types/config';
 import type { AxisLayoutInfo } from '../types/layout';
 
@@ -27,15 +28,13 @@ export default class AxisLine extends Renderer<AxisLineProps> {
       const { axisLayoutInfo, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { axisLineX1, axisLineY1, axisLineX2, axisLineY2 } = axisLayoutInfo;
 
-      const stroke = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
-        axisConfig.axisLineColor, axisConfig.axisLineFocusedColor, axisConfig.axisLineDefocusedColor);
-      const strokeOpacity = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, axisConfig.useSeriesFocus ?? false,
-        axisConfig.axisLineOpacity, axisConfig.axisLineFocusedOpacity, axisConfig.axisLineDefocusedOpacity);
+      const style = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
+        axisConfig.useSeriesFocus ?? false, axisConfig.axisLineStyle));
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['axisLine'] });
       this.line.set({ x1: axisLineX1, y1: axisLineY1, x2: axisLineX2, y2: axisLineY2,
-        stroke, strokeOpacity, strokeWidth: axisConfig.axisLineWidth,
+        ...style, strokeWidth: axisConfig.axisLineWidth,
         strokeDasharray: axisConfig.axisLineDashArray });
     }
     else {

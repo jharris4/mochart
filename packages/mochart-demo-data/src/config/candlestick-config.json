@@ -33,12 +33,16 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1baf7a",
+          "fillColor": "#1baf7a",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "followSeries": "up",
       "valueLabel": "Range",
-      "fillColor": "#1baf7a",
-      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -52,12 +56,16 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#e34948",
+          "fillColor": "#e34948",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "followSeries": "down",
       "valueLabel": "Range",
-      "fillColor": "#e34948",
-      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -71,10 +79,14 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1baf7a",
+          "fillColor": "#1baf7a",
+          "fillOpacity": 1
+        }
+      },
       "title": "Up",
-      "fillColor": "#1baf7a",
-      "strokeColor": "#1baf7a",
       "valueFormat": ",.2f"
     },
     {
@@ -88,10 +100,14 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#e34948",
+          "fillColor": "#e34948",
+          "fillOpacity": 1
+        }
+      },
       "title": "Down",
-      "fillColor": "#e34948",
-      "strokeColor": "#e34948",
       "valueFormat": ",.2f"
     },
     {
@@ -102,12 +118,16 @@
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#1baf7a",
+          "fillColor": "#1baf7a",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "followSeries": "up",
       "valueLabel": "Volume",
-      "fillColor": "#1baf7a",
-      "strokeColor": "#1baf7a",
       "valueFormat": ",.0f"
     },
     {
@@ -118,12 +138,16 @@
       "skipMissing": true,
       "group": null,
       "stack": null,
-      "fillOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#e34948",
+          "fillColor": "#e34948",
+          "fillOpacity": 1
+        }
+      },
       "showInLegend": false,
       "followSeries": "down",
       "valueLabel": "Volume",
-      "fillColor": "#e34948",
-      "strokeColor": "#e34948",
       "valueFormat": ",.0f"
     }
   ]

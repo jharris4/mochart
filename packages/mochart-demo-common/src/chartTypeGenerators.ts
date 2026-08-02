@@ -282,7 +282,7 @@ function heatmapRows({ columns, missing, reuse }: HeatmapRandomConfig, randomId:
     const values: (number | null)[] = columnLabels.map(column =>
       Math.round(profile.min + reusedDraw('heatmap', profile.label + ':' + column, randomId, reuse.global, reuse.step) * (profile.max - profile.min)));
     // Pin one cell to each extent so the row's generated extent matches the
-    // per-row colorMin/colorMax baked into the static demo config.
+    // per-row colorScale.min/colorScale.max baked into the static demo config.
     const positionRng = seedrandom('heatmap:extent:' + randomId + ':' + profile.label);
     const minIndex = Math.floor(positionRng() * values.length);
     let maxIndex = minIndex;

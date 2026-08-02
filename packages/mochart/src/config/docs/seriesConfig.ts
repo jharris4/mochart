@@ -1,3 +1,35 @@
+import { styleDescriptions } from './shared';
+import type { DescriptionMap, NestedDescription } from './shared';
+
+const lineMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth'];
+const styleMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity'];
+
+const seriesNote = ', or "series" to use the color of the series shape';
+const sameNote = ', or "same" to use the color of the normal state';
+const paletteNote = ', or "seriesIndex" / "groupIndex" to take the matching colorPaletteConfig color by series or group index';
+
+function members(memberKeys: string[], element: string, allowSeries: boolean, allowSame: boolean): DescriptionMap {
+  const descriptions: DescriptionMap = {};
+  for (const member of memberKeys) {
+    const description = styleDescriptions[member] as string;
+    descriptions[member] = member.endsWith('Color')
+      ? description + (allowSeries ? seriesNote : '') + (allowSame ? sameNote : '') + paletteNote.replace('colorPaletteConfig', 'colorPaletteConfig ' + element)
+      : description;
+  }
+  return descriptions;
+}
+
+function styleStates(description: string, memberKeys: string[], element: string, allowSeries: boolean): NestedDescription {
+  return {
+    description,
+    properties: {
+      normal: { description: description + ', while the series is neither focused nor defocused', properties: members(memberKeys, element, allowSeries, false) },
+      focused: { description: description + ', while the series is focused', properties: members(memberKeys, element, allowSeries, true) },
+      defocused: { description: description + ', while the series is defocused', properties: members(memberKeys, element, allowSeries, true) }
+    }
+  };
+}
+
 export default function getDescriptions() {
   return {
     id: 'the unique identifier for the series',
@@ -10,15 +42,39 @@ export default function getDescriptions() {
     errorLowProperty: 'the property to retrieve from the data provider for the absolute lower error bound values used to draw error bars (use null for none)',
     errorHighProperty: 'the property to retrieve from the data provider for the absolute upper error bound values used to draw error bars (use null for none)',
     markerProperty: 'the property to retrieve from the data provider for the marker size values (use null for none)',
-    colorProperty: 'the property to retrieve from the data provider for the series color values (use null for none)',
     labelProperty: 'the property to retrieve from the data provider for the series label values (use null for none)',
     tooltipProperty: 'the property to retrieve from the data provider for the values shown for the series in the tooltip in place of the series values (use null for none)',
+    colorProperty: 'the property to retrieve from the data provider for the series color values (use null for none, to color by style instead)',
+    colorScale: {
+      description: 'the color ramp the series color values are mapped through',
+      properties: {
+        interpolation: 'the type of d3 color interpolation to apply when using a color property (rgb, hsl, lab, hcl) (use null for none)',
+        min: 'the minimum color to use when interpolating the series shape color with a color property (use null for none)',
+        max: 'the maximum color to use when interpolating the series shape color with a color property (use null for none)',
+        base: {
+          description: 'the data threshold that splits the color ramp in two, and the two ramps either side of it',
+          properties: {
+            value: 'the base value to use for color interpolation, allowing 2 distinct sets of min & max colors for interpolation (use null for none)',
+            aboveMin: 'the minimum color to use when interpolating the series shape color with a color property value that is above the base value (use null for none)',
+            aboveMax: 'the maximum color to use when interpolating the series shape color with a color property value that is above the base value (use null for none)',
+            belowMin: 'the minimum color to use when interpolating the series shape color with a color property value that is below the base value (use null for none)',
+            belowMax: 'the maximum color to use when interpolating the series shape color with a color property value that is below the base value (use null for none)'
+          }
+        }
+      }
+    },
     ignore: 'whether to ignore this series and treat it as though it were not specified',
     renderer: 'the shape renderer to use when drawing the series shape (line, area, bar, none)',
     skipMissing: 'whether to skip undefined values when drawing the shape for this series',
     skipPartialRange: 'whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one',
     showMissingAtBase: 'whether to use the series axis base value for missing values when drawing the shape for this series',
-    curve: 'the d3 curve type and param to use when drawing the series shape',
+    curve: {
+      description: 'the d3 curve type and param to use when drawing the series shape',
+      properties: {
+        type: 'the d3-shape curve to interpolate the series shape with',
+        param: 'the tension/alpha value passed to the curve types that take one, or undefined to use the curve\'s own default'
+      }
+    },
     barWidthPercent: 'the fraction (0 - 1) of the bar layout slot width to use when drawing bars in the series',
     barAlignPercent: 'the fraction (0 - 1) of the slot width freed by barWidthPercent placed before each bar in the series (0 aligns with the slot start, 0.5 centers, 1 aligns with the slot end)',
     barMinExtent: 'the minimum extent (in pixels) of each bar in the series along the value direction',
@@ -27,33 +83,16 @@ export default function getDescriptions() {
     capExpand: 'whether to expand the base of caps on a bar series when the size of the cap is greater than the extent of the bar',
     capOnlyStackOuter: 'whether to only show the cap on bars in the series when they are an outer series of a stack',
     errorBarCapSize: 'the full width (in pixels) of the horizontal caps drawn at the ends of the series error bars (use 0 to hide the caps)',
-    errorBarStrokeWidth: 'the stroke width (in pixels) of the series error bars',
-    errorBarStrokeColor: 'the stroke color to use for the series error bars (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig series strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig series strokeColor for the group index)',
-    errorBarStrokeOpacity: 'the stroke opacity (0 - 1) of the series error bars',
-    errorBarFocusedStrokeOpacity: 'the focused stroke opacity (0 - 1) of the series error bars',
-    errorBarDefocusedStrokeOpacity: 'the defocused stroke opacity (0 - 1) of the series error bars',
+    errorBarStyle: styleStates('the style of the series error bars', lineMembers, 'errorBar', true),
     valueLabel: 'the label to show before a series value in the tooltip (use null for none)',
     valueFormat: 'the d3 format string to be applied to the series value when displayed in the tooltip (use null for none, use "auto" to derive from data ("auto" will use the series axis tick label format if it is set))',
     valuePrefix: 'the text to prefix series values with when showing them in the tooltip (use null for none)',
     valueSuffix: 'the text to append series values with when showing them in the tooltip (use null for none)',
     useTitleForValueLabel: 'whether to use the title value for the valueLabel value when the valueLabel is not set',
     title: 'the title to display for the series in the legend (use null for none)',
-    strokeWidth: 'the stroke width (in pixels) of the series shape',
-    focusedStrokeWidth: 'the focused stroke width (in pixels) of the series shape',
-    defocusedStrokeWidth: 'the defocused stroke width (in pixels) of the series shape',
-    strokeOpacity: 'the stroke opacity (0 - 1) of the series shape',
-    focusedStrokeOpacity: 'the focused stroke opacity (0 - 1) of the series shape',
-    defocusedStrokeOpacity: 'the defocused stroke opacity (0 - 1) of the series shape',
-    fillOpacity: 'the fill opacity (0 - 1) of the series shape',
-    focusedFillOpacity: 'the focused fill opacity (0 - 1) of the series shape',
-    defocusedFillOpacity: 'the defocused fill opacity (0 - 1) of the series shape',
+    shapeStyle: styleStates('the style of the series shape', styleMembers, 'series', false),
     labelFormat: 'the d3 format string to be applied to the series label values (use null for none, use "auto" to derive from data)',
-    labelStrokeColor: 'the stroke color to use for the series label values (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig label strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig label strokeColor for the group index, use "currentColor" to follow the host page\'s css color and theme)',
-    labelFocusedStrokeColor: 'the focused stroke color to use for the series label values (use "series" to reuse the focusedStrokeColor, use "same" to reuse the labelStrokeColor, use "seriesIndex" to apply the colorPaletteConfig labelFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelFocused strokeColor for the group index, use "currentColor" to follow the host page\'s css color and theme)',
-    labelDefocusedStrokeColor: 'the defocused stroke color to use for the series label values (use "series" to reuse the defocusedStrokeColor, use "same" to reuse the labelStrokeColor, use "seriesIndex" to apply the colorPaletteConfig labelDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelDefocused strokeColor for the group index, use "currentColor" to follow the host page\'s css color and theme)',
-    labelFillColor: 'the fill color to use for the series label values (use "series" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig label fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig label fillColor for the group index, use "currentColor" to follow the host page\'s css color and theme)',
-    labelFocusedFillColor: 'the focused fill color to use for the series label values (use "series" to reuse the focusedFillColor, use "same" to reuse the labelFillColor, use "seriesIndex" to apply the colorPaletteConfig labelFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelFocused fillColor for the group index, use "currentColor" to follow the host page\'s css color and theme)',
-    labelDefocusedFillColor: 'the defocused fill color to use for the series label values (use "series" to reuse the defocusedFillColor, use "same" to reuse the labelFillColor, use "seriesIndex" to apply the colorPaletteConfig labelDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig labelDefocused fillColor for the group index, use "currentColor" to follow the host page\'s css color and theme)',
+    labelTextStyle: styleStates('the style of the series label values', styleMembers, 'label', true),
     labelMinPositionPercent: 'the minimum position percentage (0 - 1) from the domain minimum for which series labels should be shown (use null for none)',
     labelMaxPositionPercent: 'the maximum position percentage (0 - 1) from the domain maximum for which series labels should be shown (use null for none)',
     labelMinRangePercent: 'the minimum position percentage (0 - 1) between two series values for which series labels should be shown (use null for none)',
@@ -67,49 +106,12 @@ export default function getDescriptions() {
     labelBelowBaseOffset: 'the series position offset (in pixels) to apply to all series label positions that are below the base value (use "auto" to derive from the labelOffset)',
     labelAboveBasePosition: 'whether to position the series labels inside or outside of the series shape for series shapes that are above the base value',
     labelBelowBasePosition: 'whether to position the series labels inside or outside of the series shape for series shapes that are below the base value',
-    labelStrokeWidth: 'the stroke width (in pixels) for the series label text',
-    labelFocusedStrokeWidth: 'the focused stroke width (in pixels) for the series label text',
-    labelDefocusedStrokeWidth: 'the defocused stroke width (in pixels) for the series label text',
-    labelStrokeOpacity: 'the stroke opacity (0 - 1) for the series label text',
-    labelFocusedStrokeOpacity: 'the focused stroke opacity (0 - 1) for the series label text',
-    labelDefocusedStrokeOpacity: 'the defocused stroke opacity (0 - 1) for the series label text',
-    labelFillOpacity: 'the fill opacity (0 - 1) for the series label text',
-    labelFocusedFillOpacity: 'the focused fill opacity (0 - 1) for the series label text',
-    labelDefocusedFillOpacity: 'the defocused fill opacity (0 - 1) for the series label text',
     gradient: 'the unique id of the gradient config to be used when coloring the series shape (use null for none)',
-    strokeColor: 'the stroke color to use for the series shape (use "seriesIndex" to apply the colorPaletteConfig series strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig series strokeColor for the group index)',
-    focusedStrokeColor: 'the focused stroke color to use for the series shape (use "same" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig seriesFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesFocused strokeColor for the group index)',
-    defocusedStrokeColor: 'the defocused stroke color to use for the series shape (use "same" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig seriesDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesDefocused strokeColor for the group index)',
-    fillColor: 'the fill color to use for the series shape (use "seriesIndex" to apply the colorPaletteConfig series fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig series fillColor for the group index)',
-    focusedFillColor: 'the focused fill color to use for the series shape (use "same" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig seriesFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesFocused fillColor for the group index)',
-    defocusedFillColor: 'the defocused fill color to use for the series shape (use "same" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig seriesDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig seriesDefocused fillColor for the group index)',
-    colorMin: 'the minimum color to use when interpolating the series shape color with a colorProperty (use null for none)',
-    colorMax: 'the maximum color to use when interpolating the series shape color with a colorProperty (use null for none)',
-    colorBaseAboveMin: 'the minimum color to use when interpolating the series shape color with a colorProperty value that is above the colorBase (use null for none)',
-    colorBaseAboveMax: 'the maximum color to use when interpolating the series shape color with a colorProperty value that is above the colorBase (use null for none)',
-    colorBase: 'the base value to use for color interpolation, allowing 2 distinct sets of min & max colors for interpolation (use null for none)',
-    colorBaseBelowMin: 'the minimum color to use when interpolating the series shape color with a colorProperty value that is below the colorBase (use null for none)',
-    colorBaseBelowMax: 'the maximum color to use when interpolating the series shape color with a colorProperty value that is below the colorBase (use null for none)',
-    colorInterpolation: 'the type of d3 color interpolation to apply when using a color property (rgb, hsl, lab, hcl) (use null for none)',
-    markerStrokeColor: 'the stroke color to use for the series marker (use "series" to reuse the strokeColor, use "seriesIndex" to apply the colorPaletteConfig marker strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig marker strokeColor for the group index)',
-    markerFocusedStrokeColor: 'the focused stroke color to use for the series marker (use "series" to reuse the focusedStrokeColor, use "same" to reuse the markerStrokeColor, use "seriesIndex" to apply the colorPaletteConfig markerFocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerFocused strokeColor for the group index)',
-    markerDefocusedStrokeColor: 'the defocused stroke color to use for the series marker (use "series" to reuse the defocusedStrokeColor, use "same" to reuse the markerStrokeColor, use "seriesIndex" to apply the colorPaletteConfig markerDefocused strokeColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerDefocused strokeColor for the group index)',
-    markerFillColor: 'the fill color to use for the series marker (use "series" to reuse the fillColor, use "seriesIndex" to apply the colorPaletteConfig marker fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig marker fillColor for the group index)',
-    markerFocusedFillColor: 'the focused fill color to use for the series marker (use "series" to reuse the focusedFillColor, use "same" to reuse the markerFillColor, use "seriesIndex" to apply the colorPaletteConfig markerFocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerFocused fillColor for the group index)',
-    markerDefocusedFillColor: 'the defocused fill color to use for the series marker (use "series" to reuse the defocusedFillColor, use "same" to reuse the markerFillColor, use "seriesIndex" to apply the colorPaletteConfig markerDefocused fillColor for the series index, use "groupIndex" to apply the colorPaletteConfig markerDefocused fillColor for the group index)',
+    markerStyle: styleStates('the style of the series marker', styleMembers, 'marker', true),
     markerShape: 'the shape to use when drawing the series marker (circle, cross, diamond, square, star, triangle, wye) (use null for none)',
     minMarkerSize: 'the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value',
     markerShowMissing: 'whether to show the marker when the value is missing (can be used in conjunction with showMissingAtBase)',
     markerSize: 'the maximum marker size (in pixels) to use when interpolating the marker size based on a marker property value, or the marker size when no marker property is used',
-    markerStrokeWidth: 'the stroke width (in pixels) for the series marker shape',
-    markerFocusedStrokeWidth: 'the focused stroke width (in pixels) for the series marker shape',
-    markerDefocusedStrokeWidth: 'the defocused stroke width (in pixels) for the series marker shape',
-    markerStrokeOpacity: 'the stroke opacity (0 -1) for the series marker shape',
-    markerFocusedStrokeOpacity: 'the focused stroke opacity (0 -1) for the series marker shape',
-    markerDefocusedStrokeOpacity: 'the defocused stroke opacity (0 -1) for the series marker shape',
-    markerFillOpacity: 'the fill opacity (0 -1) for the series marker shape',
-    markerFocusedFillOpacity: 'the focused fill opacity (0 -1) for the series marker shape',
-    markerDefocusedFillOpacity: 'the defocused fill opacity (0 -1) for the series marker shape',
     showInLegend: 'whether to show the series in the legend',
     showInTooltip: 'whether to show the series in the tooltip',
     showColorInLegend: 'whether to show the series color as an icon next to the series title in the legend',

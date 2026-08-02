@@ -57,6 +57,59 @@ const sectionInterfaceMap: Record<string, string> = {
   tooltipConfig: 'TooltipConfig'
 };
 
+/**
+ * Interfaces that are the value of nested config properties (a style, a palette entry) rather than a
+ * section of their own, documented from one representative use of the shape. Defaults are left off:
+ * the shape is used with different defaults at every site, so each using property documents its own.
+ */
+interface SharedInterfaceSource {
+  interfaceName: string;
+  sectionId: string;
+  /** Dotted path to a use of the shape, e.g. `backgroundStyle` or `series.normal`. */
+  propertyKey: string;
+  /** The members this interface declares. Omit to take all of them; set it when the interface extends another. */
+  members?: string[];
+}
+
+const sharedInterfaceSources: SharedInterfaceSource[] = [
+  { interfaceName: 'StrokeStyle', sectionId: 'chartConfig', propertyKey: 'backgroundStyle', members: ['strokeColor', 'strokeOpacity', 'strokeWidth'] },
+  { interfaceName: 'Style', sectionId: 'chartConfig', propertyKey: 'backgroundStyle', members: ['fillColor', 'fillOpacity'] },
+  { interfaceName: 'ColorPaletteStates', sectionId: 'colorPaletteConfig', propertyKey: 'series' },
+  { interfaceName: 'ColorPalette', sectionId: 'colorPaletteConfig', propertyKey: 'series.normal' },
+  { interfaceName: 'SeriesCurve', sectionId: 'seriesConfigs', propertyKey: 'curve' },
+  { interfaceName: 'SeriesColorScale', sectionId: 'seriesConfigs', propertyKey: 'colorScale' },
+  { interfaceName: 'SeriesColorScaleBase', sectionId: 'seriesConfigs', propertyKey: 'colorScale.base' }
+];
+
+/**
+ * Interfaces that several config sections extend, documented from those sections: the prose comes
+ * from the first, and any section that words it differently has its wording documented alongside.
+ */
+interface SharedSectionInterface {
+  interfaceName: string;
+  /** The sections that extend it, in the order their prose is documented. */
+  sections: { id: string; name: string }[];
+  members: string[];
+}
+
+const sharedSectionInterfaces: SharedSectionInterface[] = [
+  {
+    interfaceName: 'SeriesIconConfig',
+    sections: [{ id: 'legendConfig', name: 'legendConfig' }, { id: 'tooltipConfig', name: 'tooltipConfig' }],
+    members: ['showIconColors', 'showIconShapes', 'showIconPlaceholders', 'iconSize', 'iconSpacerSize',
+      'iconBorderSize', 'iconBorderColor', 'iconBorderOpacity', 'iconSuppressedColor', 'iconUnsuppressedColor']
+  }
+];
+
+function findPropertyDoc(properties: Map<string, PropertyDoc> | undefined, propertyKey: string): PropertyDoc | undefined {
+  const [head, ...rest] = propertyKey.split('.');
+  let property = properties?.get(head!);
+  for (const step of rest) {
+    property = property?.properties?.find(member => member.key === step);
+  }
+  return property;
+}
+
 function defaultValueText(value: DefaultValue): string | undefined {
   switch (value.kind) {
     case 'color':
@@ -79,13 +132,16 @@ function conditionalDefaultLines(conditionals: ConditionalDefaultValue[]): strin
   return lines;
 }
 
-function toMemberDoc(property: PropertyDoc): MemberDoc {
+function toMemberDoc(property: PropertyDoc, includeDefault = true): MemberDoc {
   const doc: MemberDoc = {
     description: upperFirst(property.description) + '.',
     defaultLines: []
   };
   if (property.details !== undefined) {
     doc.details = property.details;
+  }
+  if (!includeDefault) {
+    return doc;
   }
   if (property.conditionalDefaults) {
     doc.defaultLines = conditionalDefaultLines(property.conditionalDefaults);
@@ -146,7 +202,49 @@ function mergedAxisMemberDoc(groupProperty: PropertyDoc, seriesProperty: Propert
   return doc;
 }
 
-function buildInterfaceDocs(sections: SectionDoc[]): Map<string, Map<string, MemberDoc>> {
+/** The first section's prose, then any section wording it differently, then the default: one tag when the sections agree, a line each when they do not. */
+function sharedSectionMemberDoc(entries: { name: string; property: PropertyDoc }[]): MemberDoc {
+  const first = entries[0]!;
+  const doc: MemberDoc = {
+    description: upperFirst(first.property.description) + '.',
+    defaultLines: []
+  };
+  const detailLines: string[] = [];
+  const details = entries.map(entry => entry.property.details).find(detail => detail !== undefined);
+  if (details !== undefined) {
+    detailLines.push(details);
+  }
+  for (const entry of entries.slice(1)) {
+    if (entry.property.description !== first.property.description) {
+      detailLines.push('In ' + entry.name + ': ' + entry.property.description + '.');
+    }
+  }
+  if (detailLines.length > 0) {
+    doc.details = detailLines.join(' ');
+  }
+  const texts = entries.map(entry => entry.property.conditionalDefaults
+    ? undefined
+    : defaultValueText(entry.property.default ?? { kind: 'none' }));
+  const allSimple = entries.every(entry => !entry.property.conditionalDefaults);
+  if (allSimple && texts.every(text => text === texts[0])) {
+    if (texts[0] !== undefined) {
+      doc.defaultTag = texts[0];
+    }
+    return doc;
+  }
+  for (const [index, entry] of entries.entries()) {
+    if (entry.property.conditionalDefaults) {
+      doc.defaultLines.push(entry.name + ' defaults:');
+      doc.defaultLines.push(...conditionalDefaultLines(entry.property.conditionalDefaults).slice(1));
+    }
+    else if (texts[index] !== undefined) {
+      doc.defaultLines.push(entry.name + ' default: `' + texts[index] + '`.');
+    }
+  }
+  return doc;
+}
+
+function buildInterfaceDocs(sections: SectionDoc[], warnings: string[]): Map<string, Map<string, MemberDoc>> {
   const bySection = new Map<string, Map<string, PropertyDoc>>();
   for (const section of sections) {
     bySection.set(section.id, new Map(section.properties.map(property => [property.key, property])));
@@ -178,6 +276,50 @@ function buildInterfaceDocs(sections: SectionDoc[]): Map<string, Map<string, Mem
       }
     }
     interfaceDocs.set('AxisConfigBase', memberDocs);
+  }
+
+  for (const shared of sharedSectionInterfaces) {
+    const memberDocs = new Map<string, MemberDoc>();
+    for (const member of shared.members) {
+      const entries: { name: string; property: PropertyDoc }[] = [];
+      for (const section of shared.sections) {
+        const property = bySection.get(section.id)?.get(member);
+        if (property) {
+          entries.push({ name: section.name, property });
+        }
+        else {
+          warnings.push(shared.interfaceName + '.' + member + ': not documented at ' + section.id);
+        }
+      }
+      if (entries.length > 0) {
+        memberDocs.set(member, sharedSectionMemberDoc(entries));
+      }
+    }
+    interfaceDocs.set(shared.interfaceName, memberDocs);
+  }
+
+  for (const shared of sharedInterfaceSources) {
+    const property = findPropertyDoc(bySection.get(shared.sectionId), shared.propertyKey);
+    const nested = property?.properties;
+    if (!nested || nested.length === 0) {
+      warnings.push(shared.interfaceName + ': no nested properties documented at '
+        + shared.sectionId + '.' + shared.propertyKey);
+      continue;
+    }
+    const memberDocs = new Map<string, MemberDoc>();
+    for (const member of nested) {
+      if (shared.members !== undefined && !shared.members.includes(member.key)) {
+        continue;
+      }
+      memberDocs.set(member.key, toMemberDoc(member, false));
+    }
+    for (const memberKey of shared.members ?? []) {
+      if (!memberDocs.has(memberKey)) {
+        warnings.push(shared.interfaceName + '.' + memberKey + ': not documented at '
+          + shared.sectionId + '.' + shared.propertyKey);
+      }
+    }
+    interfaceDocs.set(shared.interfaceName, memberDocs);
   }
 
   return interfaceDocs;
@@ -250,7 +392,7 @@ interface Edit {
 export function buildDocumentedTypesSource(source: string): { output: string; warnings: string[] } {
   const { model, integrityErrors } = buildConfigReference();
   const warnings = [...integrityErrors];
-  const interfaceDocs = buildInterfaceDocs(model.sections);
+  const interfaceDocs = buildInterfaceDocs(model.sections, warnings);
 
   const sourceFile = ts.createSourceFile('config.ts', source, ts.ScriptTarget.Latest, true);
   const edits: Edit[] = [];
@@ -308,11 +450,26 @@ export function buildDocumentedTypesSource(source: string): { output: string; wa
     ...(usedKeys.get('GroupAxisConfig') ?? new Set<string>()),
     ...(usedKeys.get('SeriesAxisConfig') ?? new Set<string>())
   ]);
+  // the same holds for members a section declares on a shared interface it extends
+  const sharedInherited = new Map<string, Set<string>>();
+  for (const shared of sharedSectionInterfaces) {
+    for (const section of shared.sections) {
+      const interfaceName = sectionInterfaceMap[section.id];
+      if (interfaceName === undefined) {
+        continue;
+      }
+      const members = sharedInherited.get(interfaceName) ?? new Set<string>();
+      for (const member of shared.members) {
+        members.add(member);
+      }
+      sharedInherited.set(interfaceName, members);
+    }
+  }
   for (const [interfaceName, memberDocs] of interfaceDocs) {
     const used = usedKeys.get(interfaceName) ?? new Set();
     const inherited = interfaceName === 'GroupAxisConfig' || interfaceName === 'SeriesAxisConfig'
       ? axisBaseUsed
-      : interfaceName === 'AxisConfigBase' ? axisConcreteUsed : new Set();
+      : interfaceName === 'AxisConfigBase' ? axisConcreteUsed : sharedInherited.get(interfaceName) ?? new Set<string>();
     for (const key of memberDocs.keys()) {
       if (!used.has(key) && !inherited.has(key)) {
         warnings.push(interfaceName + '.' + key + ': documented in the config model but not found in types/config.ts');

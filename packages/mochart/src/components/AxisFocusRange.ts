@@ -1,6 +1,7 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import { styleToAttributes } from '../utils/style';
 import type { AxisConfigBase } from '../types/config';
 import type { AxisLayoutInfo } from '../types/layout';
 
@@ -28,7 +29,9 @@ export default class AxisFocusRange extends Renderer<AxisFocusRangeProps> {
       this.root.set({ className: mochartCssClasses['axisFocusRange'] });
 
       if (length === 1 || length === 2) {
-        const { focusRangeStrokeColor, focusRangeFillColor, focusRangeStrokeOpacity, focusRangeFillOpacity, focusRangeStrokeWidth, focusRangeDashArray } = axisConfig;
+        // destructured rather than spread whole: this attribute order is what the golden snapshots record
+        const { stroke, strokeOpacity, strokeWidth, fill, fillOpacity } = styleToAttributes(axisConfig.focusRangeStyle);
+        const { focusRangeDashArray } = axisConfig;
         const { vertical, focusRangeLayoutInfo } = axisLayoutInfo;
         let { x, y, width, height } = focusRangeLayoutInfo;
         if (length === 1) {
@@ -55,9 +58,9 @@ export default class AxisFocusRange extends Renderer<AxisFocusRangeProps> {
           }
         }
         this.range.set('rect', () => svgEl('rect'))!.set({ x, y, width, height,
-          stroke: focusRangeStrokeColor, strokeOpacity: focusRangeStrokeOpacity,
-          fill: focusRangeFillColor, fillOpacity: focusRangeFillOpacity,
-          strokeWidth: focusRangeStrokeWidth, strokeDasharray: focusRangeDashArray });
+          stroke, strokeOpacity,
+          fill, fillOpacity,
+          strokeWidth, strokeDasharray: focusRangeDashArray });
       }
       else {
         this.range.set(null);

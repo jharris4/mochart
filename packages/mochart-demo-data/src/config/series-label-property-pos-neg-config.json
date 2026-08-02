@@ -26,8 +26,12 @@
     "renderer": "bar",
     "labelProperty": "value7",
     "labelPosition": "inside",
-    "labelStrokeColor": "#ffffff",
-    "labelFillColor": "#ffffff",
+    "labelTextStyle": {
+      "normal": {
+        "strokeColor": "#ffffff",
+        "fillColor": "#ffffff"
+      }
+    },
     "labelMinPositionPercent": 0.05,
     "labelMinRangePercent": 0.05,
     "labelOffset": -2

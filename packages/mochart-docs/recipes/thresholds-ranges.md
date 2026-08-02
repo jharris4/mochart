@@ -17,14 +17,24 @@ import * as thresholdRange from '../examples/thresholdRange'
 - [`threshold`](/reference/seriesAxisConfigs#seriesAxisConfigs.threshold) on
   a value axis draws a line at that value;
   [`thresholdTitle`](/reference/seriesAxisConfigs#seriesAxisConfigs.thresholdTitle)
-  labels it, and the `threshold*` properties style the line, title, and
-  their focused/defocused variants. The group axis supports the same
-  threshold properties for a vertical reference line.
+  labels it.
+  [`thresholdStyle`](/reference/seriesAxisConfigs#seriesAxisConfigs.thresholdStyle)
+  paints the line and
+  [`thresholdTitleTextStyle`](/reference/seriesAxisConfigs#seriesAxisConfigs.thresholdTitleTextStyle)
+  the title, each in its `normal`, `focused` and `defocused` states, while
+  [`thresholdDashArray`](/reference/seriesAxisConfigs#seriesAxisConfigs.thresholdDashArray)
+  and the other `threshold*` properties cover the non-color settings. The
+  group axis supports the same threshold properties for a vertical reference
+  line.
 - The band is an ordinary `area` series with
   [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty):
   the shape spans from the `rangeProperty` value (here `p5`) to the
   `property` value (`p95`) instead of starting at the axis base. Dropping
-  `strokeOpacity` to 0 and `fillOpacity` low keeps it as background context.
+  [`shapeStyle.normal.strokeOpacity`](/reference/seriesConfigs#seriesConfigs.shapeStyle.normal.strokeOpacity)
+  to 0 and
+  [`fillOpacity`](/reference/seriesConfigs#seriesConfigs.shapeStyle.normal.fillOpacity)
+  low keeps it as background context — the shape's colors and its focused and
+  defocused states are left at their defaults.
 - The axis grows to fit the threshold if the data alone wouldn't reach it —
   use [`softMax`](/reference/seriesAxisConfigs#seriesAxisConfigs.softMax) to
   guarantee headroom above it.

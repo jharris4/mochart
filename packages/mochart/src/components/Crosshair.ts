@@ -2,6 +2,7 @@ import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { getClipPathReference } from '../utils/svgUtils';
+import { styleToAttributes } from '../utils/style';
 import type { MochartConfig } from '../types/config';
 import type { LayoutInfo } from '../types/layout';
 
@@ -42,6 +43,9 @@ class Crosshair extends Renderer<CrosshairProps> {
 
       const clipPath = crosshairConfig.showBehindTooltip ? null : getClipPathReference(tooltipClipPathUniqueId);
 
+      const groupLineAttributes = styleToAttributes(crosshairConfig.groupLineStyle);
+      const seriesLineAttributes = styleToAttributes(crosshairConfig.seriesLineStyle);
+
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['crosshair'], clipPath });
       this.groupLinesGroup.set({ className: mochartCssClasses['crosshairGroupLines'] });
@@ -64,8 +68,7 @@ class Crosshair extends Renderer<CrosshairProps> {
           const groupY2 = inverted ? groupPosition : maxY;
 
           handle.root.set({ className: mochartCssClasses['crosshairLine'],
-            x1: groupX1, y1: groupY1, x2: groupX2, y2: groupY2, stroke: crosshairConfig.lineColor,
-            strokeOpacity: crosshairConfig.lineOpacity, strokeWidth: crosshairConfig.lineWidth,
+            x1: groupX1, y1: groupY1, x2: groupX2, y2: groupY2, ...groupLineAttributes,
             strokeDasharray: crosshairConfig.lineDashArray });
         }
       });
@@ -81,8 +84,7 @@ class Crosshair extends Renderer<CrosshairProps> {
           const seriesY2 = inverted ? maxY : seriesPosition;
 
           handle.root.set({ className: mochartCssClasses['crosshairLine'],
-            x1: seriesX1, y1: seriesY1, x2: seriesX2, y2: seriesY2, stroke: crosshairConfig.lineColor,
-            strokeOpacity: crosshairConfig.lineOpacity, strokeWidth: crosshairConfig.lineWidth,
+            x1: seriesX1, y1: seriesY1, x2: seriesX2, y2: seriesY2, ...seriesLineAttributes,
             strokeDasharray: crosshairConfig.lineDashArray });
         }
       });

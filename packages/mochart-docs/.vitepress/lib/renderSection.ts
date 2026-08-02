@@ -35,9 +35,17 @@ function renderUsage(key: string, usage: UsageIndex): string | null {
   return '- **Used in:** ' + rendered + (extra !== undefined ? ' · +' + extra + ' more' : '');
 }
 
-function renderProperty(sectionId: string, property: PropertyDoc, usage: UsageIndex): string {
+/** Heading level for a property: `###` at the top, one deeper per nesting level. */
+function headingPrefix(depth: number): string {
+  return '#'.repeat(Math.min(3 + depth, 6));
+}
+
+/** Render one property, then each member of the object it holds; a member's anchor extends its parent's. */
+function renderProperty(sectionId: string, property: PropertyDoc, usage: UsageIndex, parentPath: string[] = []): string {
+  const path = [...parentPath, property.key];
+  const anchor = sectionId + '.' + path.join('.');
   const lines: string[] = [];
-  lines.push('### ' + property.key + ' {#' + sectionId + '.' + property.key + '}');
+  lines.push(headingPrefix(parentPath.length) + ' ' + path.join('.') + ' {#' + anchor + '}');
   lines.push('');
   lines.push(upperFirst(property.description) + '.');
   lines.push('');
@@ -61,11 +69,14 @@ function renderProperty(sectionId: string, property: PropertyDoc, usage: UsageIn
     lines.push('- **Default:** ' + renderDefaultValue(property.default ?? { kind: 'none' }));
   }
   lines.push('- **Validation:** ' + renderRules(property.rules));
-  const usageLine = renderUsage(sectionId + '.' + property.key, usage);
+  const usageLine = renderUsage(anchor, usage);
   if (usageLine !== null) {
     lines.push(usageLine);
   }
   lines.push('');
+  for (const nested of property.properties ?? []) {
+    lines.push(renderProperty(sectionId, nested, usage, path));
+  }
   return lines.join('\n');
 }
 
@@ -96,7 +107,8 @@ export function renderSectionPage(section: SectionDoc, usage: UsageIndex): strin
     'Every property is optional' +
     (section.id === 'seriesConfigs' || section.id === 'groupAxisConfig' ? ' except `property`' : '') +
     ' and falls back to its default. Property anchors are stable: link to any entry as' +
-    ' `#' + section.id + '.propertyName`.'
+    ' `#' + section.id + '.propertyName`, and to a member of a nested property as' +
+    ' `#' + section.id + '.propertyName.memberName`.'
   );
   lines.push('');
   lines.push('## Properties');

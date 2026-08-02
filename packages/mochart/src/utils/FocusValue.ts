@@ -1,5 +1,6 @@
+import { COLOR_SAME } from '../config/core/constants';
 import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
-import type { SeriesConfig } from '../types/config';
+import type { Style, SeriesConfig } from '../types/config';
 
 export function getFocusValue(focusPercentage: FocusPercentage, normalValue: number, focusedValue: number, defocusedValue: number): number {
   // TODO - this assumes that focusedValue >= normalValue >= defocusedValue. This should be validated or improved...
@@ -58,13 +59,18 @@ export function getFocusedDefocused(focusPercentage: FocusPercentage): { focused
   };
 }
 
+/** `'same'` defers to whatever color the normal state uses. */
+export function getSameColor(color: string, normalColor: string): string {
+  return color === COLOR_SAME ? normalColor : color;
+}
+
 export function getFocusPercentageColor(focusPercentage: FocusPercentage, normalColor: string, focusedColor: string, defocusedColor: string): string {
   const { focused, defocused } = getFocusedDefocused(focusPercentage);
   if (focused) {
-    return focusedColor;
+    return getSameColor(focusedColor, normalColor);
   }
   else if (defocused) {
-    return defocusedColor;
+    return getSameColor(defocusedColor, normalColor);
   }
   else {
     return normalColor;
@@ -91,4 +97,40 @@ export function getAxisFocusOpacity(axisFocusPercentage: FocusPercentage | undef
     opacity = getFocusValue(percentage, normalOpacity, focusedOpacity, defocusedOpacity);
   }
   return opacity;
+}
+
+export interface AxisStyleStates {
+  normal: Partial<Style>;
+  focused: Partial<Style>;
+  defocused: Partial<Style>;
+}
+
+const emptyStyle: Partial<Style> = {};
+
+const styleColorMembers = new Set<string>(['strokeColor', 'fillColor']);
+
+/** Only members the normal state has are resolved, so anything it leaves out produces no attribute. */
+export function getAxisFocusStyle(axisFocusPercentage: FocusPercentage | undefined, seriesFocusPercentage: FocusPercentage | undefined, useSeriesFocus: boolean, styleStates: AxisStyleStates): Partial<Style> {
+  const normal = (styleStates.normal ?? emptyStyle) as Record<string, unknown>;
+  const focused = (styleStates.focused ?? emptyStyle) as Record<string, unknown>;
+  const defocused = (styleStates.defocused ?? emptyStyle) as Record<string, unknown>;
+  const style: Record<string, unknown> = {};
+  for (const member of Object.keys(normal)) {
+    const normalValue = normal[member];
+    const focusedValue = focused[member] === undefined ? normalValue : focused[member];
+    const defocusedValue = defocused[member] === undefined ? normalValue : defocused[member];
+    if (styleColorMembers.has(member)) {
+      style[member] = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
+        normalValue as string, focusedValue as string, defocusedValue as string);
+    }
+    else if (typeof normalValue === 'number' && typeof focusedValue === 'number' && typeof defocusedValue === 'number') {
+      style[member] = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
+        normalValue, focusedValue, defocusedValue);
+    }
+    else {
+      // nothing to move between: an unset (null) width stays unset in every state
+      style[member] = normalValue;
+    }
+  }
+  return style as Partial<Style>;
 }

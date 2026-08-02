@@ -49,7 +49,7 @@ describe('createPie', () => {
   it('honors groupValue, explicit colors and valueFormat', () => {
     const { data, seriesConfigs } = createPie([{ label: 'A', value: 1, color: '#ff0000' }], { groupValue: 'total', valueFormat: '.1f' });
     expect(data[0].group).toBe('total');
-    expect(seriesConfigs[0]).toMatchObject({ strokeColor: '#ff0000', fillColor: '#ff0000', valueFormat: '.1f' });
+    expect(seriesConfigs[0]).toMatchObject({ shapeStyle: { normal: { strokeColor: '#ff0000', fillColor: '#ff0000' } }, valueFormat: '.1f' });
   });
 
   it('forwards tooltipValues to the pieConfig fragment, leaving the data alone', () => {

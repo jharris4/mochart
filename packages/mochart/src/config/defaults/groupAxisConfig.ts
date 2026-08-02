@@ -1,15 +1,16 @@
 import { AUTO, NONE, TYPE_STRING, SCALE_LINEAR, SCALE_ORDINAL, ELLIPSIS } from '../core/constants';
+import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
 import getAxisDefaults from './axisConfig';
-import type { GroupAxisConfig } from '../../types/config';
+import type { DeepPartial, GroupAxisConfig } from '../../types/config';
 
-export default function getDefaults(config: Partial<GroupAxisConfig> = {}, inverted: boolean, pieMode = false): Partial<GroupAxisConfig> {
+export default function getDefaults(config: DeepPartial<GroupAxisConfig> = {}, inverted: boolean, pieMode = false): Partial<GroupAxisConfig> {
   const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const configWithRegularDefaults = deepMerge(regularDefaults, config);
   const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as GroupAxisConfig, inverted, pieMode));
 
-  return { ...regularDefaults, ...conditionalDefaults } as Partial<GroupAxisConfig>;
+  return deepMerge(regularDefaults, conditionalDefaults) as Partial<GroupAxisConfig>;
 }
 
 export function getRegularDefaults() {

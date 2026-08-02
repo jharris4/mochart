@@ -150,7 +150,7 @@ describe('config validation', () => {
         property: "p"
       },
       seriesAllConfig: {
-        fillColor: '#fff'
+        shapeStyle: { normal: { fillColor: '#fff' } }
       }
     });
     expect(mochartConfig.validation).toEqual({
@@ -167,13 +167,13 @@ describe('config validation', () => {
         property: "p"
       },
       seriesAllConfig: {
-        fillColor: '#WWW'
+        shapeStyle: { normal: { fillColor: '#WWW' } }
       }
     });
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
+        'seriesAllConfig - shapeStyle.normal.fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
       ],
       warnings: []
     });
@@ -186,17 +186,17 @@ describe('config validation', () => {
         property: "p"
       },
       seriesAllConfig: {
-        fillColor: '#WWW'
+        shapeStyle: { normal: { fillColor: '#WWW' } }
       },
       seriesConfigs: {
         property: "p",
-        fillColor: '#fff'
+        shapeStyle: { normal: { fillColor: '#fff' } }
       }
     });
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
+        'seriesAllConfig - shapeStyle.normal.fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"'
       ],
       warnings: []
     });
@@ -209,18 +209,18 @@ describe('config validation', () => {
         property: "p"
       },
       seriesAllConfig: {
-        fillColor: '#WWW'
+        shapeStyle: { normal: { fillColor: '#WWW' } }
       },
       seriesConfigs: {
         property: "p",
-        fillColor: '#ZZZ'
+        shapeStyle: { normal: { fillColor: '#ZZZ' } }
       }
     });
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'seriesAllConfig - fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"',
-        'seriesConfigs[0] - fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#ZZZ"'
+        'seriesAllConfig - shapeStyle.normal.fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#WWW"',
+        'seriesConfigs[0] - shapeStyle.normal.fillColor - should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "groupIndex" ]: "#ZZZ"'
       ],
       warnings: []
     });

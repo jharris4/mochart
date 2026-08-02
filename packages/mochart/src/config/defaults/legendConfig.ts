@@ -1,13 +1,14 @@
 import { AUTO, NONE, POSITION_BOTTOM, ALIGN_CENTER, ELLIPSIS, COLOR_CURRENT } from '../core/constants';
+import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
-import type { LegendConfig } from '../../types/config';
+import type { DeepPartial, LegendConfig } from '../../types/config';
 
-export default function getDefaults(config: Partial<LegendConfig> = {}, seriesCount: number): Partial<LegendConfig> {
+export default function getDefaults(config: DeepPartial<LegendConfig> = {}, seriesCount: number): Partial<LegendConfig> {
   const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const configWithRegularDefaults = deepMerge(regularDefaults, config);
   const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as LegendConfig, seriesCount));
 
-  return { ...regularDefaults, ...conditionalDefaults } as Partial<LegendConfig>;
+  return deepMerge(regularDefaults, conditionalDefaults) as Partial<LegendConfig>;
 }
 
 export function getRegularDefaults() {
@@ -19,20 +20,24 @@ export function getRegularDefaults() {
     align: ALIGN_CENTER,
     margin: { top: 5, right: 0, bottom: 0, left: 0 },
     padding: { top: 0, right: 0, bottom: 0, left: 0 },
-    backgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
+    backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
     itemMargin: { top: 1, right: 1, bottom: 1, left: 1 },
     itemPadding: { top: 1, right: 1, bottom: 1, left: 1 },
-    itemBackgroundStyle: { stroke: NONE, strokeOpacity: 0, strokeWidth: NONE, fill: NONE, fillOpacity: 0 },
-    itemTextStyle: { stroke: NONE, strokeOpacity: NONE, strokeWidth: NONE, fill: COLOR_CURRENT, fillOpacity: NONE },
+    itemBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
+    // 'none' rather than null: stroke="none" firewalls a host-css stroke inheriting onto the text.
+    itemTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE },
     showIconColors: true,
     showIconShapes: true,
     showIconPlaceholders: true,
     iconSize: AUTO,
     iconSpacerSize: 4,
     iconBorderSize: 1,
-    iconBorderColor: '#999999',
+    // The other two stay literal: they carry their own alpha, which 'currentColor' cannot.
+    iconBorderColor: COLOR_CURRENT,
+    iconBorderOpacity: 0.65,
     iconSuppressedColor: 'rgba(255,255,255,0)',
     iconUnsuppressedColor: 'rgba(0,0,0,0.5)',
+    showSuppressionOnLabels: false,
     focusOnMouseOver: true,
     focusOnClick: false,
     filterOnClick: true

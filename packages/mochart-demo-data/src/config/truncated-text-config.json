@@ -14,9 +14,9 @@
       "left": 3
     },
     "backgroundStyle": {
-      "stroke": "#808080",
+      "strokeColor": "#808080",
       "strokeOpacity": 1,
-      "fill": null,
+      "fillColor": null,
       "fillOpacity": 0,
       "strokeWidth": 1
     }
@@ -30,9 +30,9 @@
       "top": 8, "right": 8, "bottom": 8, "left": 8
     },
     "backgroundStyle": {
-      "stroke": "#808080",
+      "strokeColor": "#808080",
       "strokeOpacity": 1,
-      "fill": null,
+      "fillColor": null,
       "fillOpacity": 0,
       "strokeWidth": 1
     }
@@ -67,30 +67,30 @@
       "top": 1, "right": 1, "bottom": 1, "left": 1
     },
     "backgroundStyle": {
-      "stroke": "#808080",
+      "strokeColor": "#808080",
       "strokeOpacity": 1,
-      "fill": "#808080",
+      "fillColor": "#808080",
       "fillOpacity": 0.25,
       "strokeWidth": 1
     },
     "titleBackgroundStyle": {
-      "stroke": "#808080",
+      "strokeColor": "#808080",
       "strokeOpacity": 1,
-      "fill": "#808080",
+      "fillColor": "#808080",
       "fillOpacity": 0.1,
       "strokeWidth": 1
     },
     "prefixBackgroundStyle": {
-      "stroke": "#808080",
+      "strokeColor": "#808080",
       "strokeOpacity": 1,
-      "fill": "#808080",
+      "fillColor": "#808080",
       "fillOpacity": 0.15,
       "strokeWidth": 1
     },
     "suffixBackgroundStyle": {
-      "stroke": "#808080",
+      "strokeColor": "#808080",
       "strokeOpacity": 1,
-      "fill": "#808080",
+      "fillColor": "#808080",
       "fillOpacity": 0.15,
       "strokeWidth": 1
     },
@@ -123,16 +123,16 @@
       "left": 2
     },
     "backgroundStyle": {
-      "stroke": "#808080",
+      "strokeColor": "#808080",
       "strokeOpacity": 1,
-      "fill": "#808080",
+      "fillColor": "#808080",
       "fillOpacity": 0.25,
       "strokeWidth": 1
     },
     "itemBackgroundStyle": {
-      "stroke": "#808080",
+      "strokeColor": "#808080",
       "strokeOpacity": 1,
-      "fill": "#808080",
+      "fillColor": "#808080",
       "fillOpacity": 0.15,
       "strokeWidth": 1
     }

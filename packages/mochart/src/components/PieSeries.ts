@@ -129,9 +129,10 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     if (seriesConfig.gradient !== NONE) {
       fillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
     }
-    const strokeWidth = getFocusValue(seriesFocusPercentage, seriesConfig.strokeWidth, seriesConfig.focusedStrokeWidth, seriesConfig.defocusedStrokeWidth);
-    const strokeOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.strokeOpacity, seriesConfig.focusedStrokeOpacity, seriesConfig.defocusedStrokeOpacity);
-    const fillOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.fillOpacity, seriesConfig.focusedFillOpacity, seriesConfig.defocusedFillOpacity);
+    const { normal: shapeNormal, focused: shapeFocused, defocused: shapeDefocused } = seriesConfig.shapeStyle;
+    const strokeWidth = getFocusValue(seriesFocusPercentage, shapeNormal.strokeWidth!, shapeFocused.strokeWidth!, shapeDefocused.strokeWidth!);
+    const strokeOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
+    const fillOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
 
     const arcGenerator = arc()
       .innerRadius(radialLayoutInfo.innerRadius)
@@ -166,9 +167,10 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       const labelRadius = radialLayoutInfo.innerRadius + (radialLayoutInfo.outerRadius - radialLayoutInfo.innerRadius) * pieConfig.labelRadiusPercent;
       const labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       const labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
-      const labelStrokeWidth = getFocusValue(seriesFocusPercentage, seriesConfig.labelStrokeWidth, seriesConfig.labelFocusedStrokeWidth, seriesConfig.labelDefocusedStrokeWidth);
-      const labelStrokeOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.labelStrokeOpacity, seriesConfig.labelFocusedStrokeOpacity, seriesConfig.labelDefocusedStrokeOpacity);
-      const labelFillOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.labelFillOpacity, seriesConfig.labelFocusedFillOpacity, seriesConfig.labelDefocusedFillOpacity);
+      const { normal: labelNormal, focused: labelFocused, defocused: labelDefocused } = seriesConfig.labelTextStyle;
+      const labelStrokeWidth = getFocusValue(seriesFocusPercentage, labelNormal.strokeWidth!, labelFocused.strokeWidth!, labelDefocused.strokeWidth!);
+      const labelStrokeOpacity = getFocusValue(seriesFocusPercentage, labelNormal.strokeOpacity!, labelFocused.strokeOpacity!, labelDefocused.strokeOpacity!);
+      const labelFillOpacity = getFocusValue(seriesFocusPercentage, labelNormal.fillOpacity!, labelFocused.fillOpacity!, labelDefocused.fillOpacity!);
 
       const labelEl = this.label.set('text', () => {
         const el = svgEl('text');

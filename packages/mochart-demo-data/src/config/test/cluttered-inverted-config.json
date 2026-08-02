@@ -16,9 +16,11 @@
   },
   "tooltipConfig": {
     "padding": 1,
-    "backgroundColor": "rgba(205,205,205,0.7)",
-    "borderColor": "rgba(0,0,0,0.8)",
-    "borderWidth": 3
+    "backgroundStyle": {
+      "strokeColor": "rgba(0,0,0,0.8)",
+      "strokeWidth": 3,
+      "fillColor": "rgba(205,205,205,0.7)"
+    }
   },
   "groupAxisConfig": {
     "title": "Group Axis",
@@ -71,8 +73,12 @@
     {
       "renderer": "bar",
       "title": "Value 1",
-      "fillColor": "#000",
-      "strokeColor": "#ccc",
+      "shapeStyle": {
+        "normal": {
+          "strokeColor": "#ccc",
+          "fillColor": "#000"
+        }
+      },
       "markerShape": null,
       "axis": "SA0",
       "group": null,

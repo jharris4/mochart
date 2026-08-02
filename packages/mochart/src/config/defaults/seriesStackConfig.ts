@@ -1,14 +1,15 @@
 import { NONE } from '../core/constants';
 
+import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
-import type { SeriesStackConfig } from '../../types/config';
+import type { DeepPartial, SeriesStackConfig } from '../../types/config';
 
-export default function getDefaults(config: Partial<SeriesStackConfig> = {}, index: number, soleSeriesAxisId: string | null): Partial<SeriesStackConfig> {
+export default function getDefaults(config: DeepPartial<SeriesStackConfig> = {}, index: number, soleSeriesAxisId: string | null): Partial<SeriesStackConfig> {
   const regularDefaults = getRegularDefaults();
-  const configWithRegularDefaults = { ...regularDefaults, ...config };
+  const configWithRegularDefaults = deepMerge(regularDefaults, config);
   const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesStackConfig, index, soleSeriesAxisId));
 
-  return { ...regularDefaults, ...conditionalDefaults } as Partial<SeriesStackConfig>;
+  return deepMerge(regularDefaults, conditionalDefaults) as Partial<SeriesStackConfig>;
 }
 
 export function getRegularDefaults() {

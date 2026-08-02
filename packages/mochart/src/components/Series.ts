@@ -201,15 +201,16 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       const { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
 
+      const { normal: shapeNormal, focused: shapeFocused, defocused: shapeDefocused } = seriesConfig.shapeStyle;
       const seriesStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       let seriesFillColor = seriesConfig.renderer === RENDERER_LINE ? 'none' : getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       let seriesColorGenerator = null;
       if (seriesConfig.colorProperty !== NONE) {
         seriesColorGenerator = getSeriesColorGenerator(seriesConfig, seriesFocusPercentage, rawDomains, filteredValues);
       }
-      const seriesStrokeWidth = getFocusValue(seriesFocusPercentage, seriesConfig.strokeWidth, seriesConfig.focusedStrokeWidth, seriesConfig.defocusedStrokeWidth);
-      const seriesStrokeOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.strokeOpacity, seriesConfig.focusedStrokeOpacity, seriesConfig.defocusedStrokeOpacity);
-      const seriesFillOpacity = getFocusValue(seriesFocusPercentage, seriesConfig.fillOpacity, seriesConfig.focusedFillOpacity, seriesConfig.defocusedFillOpacity);
+      const seriesStrokeWidth = getFocusValue(seriesFocusPercentage, shapeNormal.strokeWidth!, shapeFocused.strokeWidth!, shapeDefocused.strokeWidth!);
+      const seriesStrokeOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
+      const seriesFillOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
 
       if (seriesConfig.renderer === RENDERER_LINE) { // TODO - consider drawing a second line for range series...
         const lineGenerator = getLineGenerator(seriesConfig, seriesPositionData, inverted);
@@ -239,8 +240,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         let barStrokeOpacity = seriesStrokeOpacity;
         let barFillOpacity = seriesFillOpacity;
         let barStrokeWidth = seriesStrokeWidth;
-        const hasDifferentStrokeColors = seriesConfig.strokeColor === COLOR_GROUP_INDEX;
-        const hasDifferentFillColors = seriesConfig.fillColor === COLOR_GROUP_INDEX;
+        const hasDifferentStrokeColors = shapeNormal.strokeColor === COLOR_GROUP_INDEX;
+        const hasDifferentFillColors = shapeNormal.fillColor === COLOR_GROUP_INDEX;
         const hasDifferentColors = hasDifferentStrokeColors || hasDifferentFillColors;
         let focusPercentage;
         const { skipMissing } = seriesConfig;
@@ -276,9 +277,9 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
                 barFillColor = seriesFillColor;
               }
             }
-            barStrokeWidth = getFocusValue(focusPercentage, seriesConfig.strokeWidth, seriesConfig.focusedStrokeWidth, seriesConfig.defocusedStrokeWidth);
-            barStrokeOpacity = getFocusValue(focusPercentage, seriesConfig.strokeOpacity, seriesConfig.focusedStrokeOpacity, seriesConfig.defocusedStrokeOpacity);
-            barFillOpacity = getFocusValue(focusPercentage, seriesConfig.fillOpacity, seriesConfig.focusedFillOpacity, seriesConfig.defocusedFillOpacity);
+            barStrokeWidth = getFocusValue(focusPercentage, shapeNormal.strokeWidth!, shapeFocused.strokeWidth!, shapeDefocused.strokeWidth!);
+            barStrokeOpacity = getFocusValue(focusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
+            barFillOpacity = getFocusValue(focusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
             bars.push({
               key: 'bar-' + i,
               attrs: { d: columnGenerator(i), className: mochartCssClasses['seriesBar'] + i,

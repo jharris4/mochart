@@ -24,12 +24,18 @@
       "property": "value7",
       "title": "Color Property Series",
       "renderer": "bar",
-      "fillOpacity": 1,
-      "strokeOpacity": 1,
+      "shapeStyle": {
+        "normal": {
+          "strokeOpacity": 1,
+          "fillOpacity": 1
+        }
+      },
       "colorProperty": "value7",
-      "colorMin": "#8f8fff",
-      "colorMax": "#0000ff",
-      "colorInterpolation": "hcl"
+      "colorScale": {
+        "interpolation": "hcl",
+        "min": "#8f8fff",
+        "max": "#0000ff"
+      }
     }
   ]
 }

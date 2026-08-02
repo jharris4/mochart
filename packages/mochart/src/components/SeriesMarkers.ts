@@ -56,6 +56,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor, markerStrokeOpacity, markerFillOpacity, markerStrokeWidth;
       const { skipMissing, markerShape, markerShowMissing, markerSize, minMarkerSize } = seriesConfig;
+      const { normal: markerNormal, focused: markerFocused, defocused: markerDefocused } = seriesConfig.markerStyle;
       const markers: MarkerItem[] = [];
       let markerSizes: Array<number | undefined> | null = null;
       if (seriesConfig.markerProperty !== NONE) {
@@ -94,9 +95,9 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
           focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
-          markerStrokeWidth = getFocusValue(focusPercentage, seriesConfig.markerStrokeWidth, seriesConfig.markerFocusedStrokeWidth, seriesConfig.markerDefocusedStrokeWidth);
-          markerStrokeOpacity = getFocusValue(focusPercentage, seriesConfig.markerStrokeOpacity, seriesConfig.markerFocusedStrokeOpacity, seriesConfig.markerDefocusedStrokeOpacity);
-          markerFillOpacity = getFocusValue(focusPercentage, seriesConfig.markerFillOpacity, seriesConfig.markerFocusedFillOpacity, seriesConfig.markerDefocusedFillOpacity);
+          markerStrokeWidth = getFocusValue(focusPercentage, markerNormal.strokeWidth!, markerFocused.strokeWidth!, markerDefocused.strokeWidth!);
+          markerStrokeOpacity = getFocusValue(focusPercentage, markerNormal.strokeOpacity!, markerFocused.strokeOpacity!, markerDefocused.strokeOpacity!);
+          markerFillOpacity = getFocusValue(focusPercentage, markerNormal.fillOpacity!, markerFocused.fillOpacity!, markerDefocused.fillOpacity!);
           let cx, cy;
           if (inverted) {
             cx = getSeriesPosition(null, i)!;

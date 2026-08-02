@@ -1,5 +1,5 @@
 import type { PieTooltipLabelType } from '../config/core/constants';
-import type { ChartConfig, GroupAxisConfig, PieConfig, SeriesConfig } from '../types/config';
+import type { ChartConfig, DeepPartial, GroupAxisConfig, PieConfig, SeriesConfig } from '../types/config';
 
 export interface PieItem {
   /** The slice title, e.g. shown in the legend and tooltip. */
@@ -54,7 +54,7 @@ export interface PieData {
   /** Fragment to spread into the chart config's `groupAxisConfig`. */
   groupAxisConfig: Partial<GroupAxisConfig>;
   /** Fragments to spread into the chart config's `seriesConfigs`, one per slice. */
-  seriesConfigs: Partial<SeriesConfig>[];
+  seriesConfigs: DeepPartial<SeriesConfig>[];
 }
 
 const GROUP_PROPERTY = 'group';
@@ -108,14 +108,13 @@ export function createPie(items: readonly PieItem[], options: CreatePieOptions =
   };
 
   const seriesConfigs = items.map((item, i) => {
-    const seriesConfig: Partial<SeriesConfig> = {
+    const seriesConfig: DeepPartial<SeriesConfig> = {
       id: 'slice' + i,
       property: 'slice' + i,
       title: item.label
     };
     if (item.color !== undefined) {
-      seriesConfig.strokeColor = item.color;
-      seriesConfig.fillColor = item.color;
+      seriesConfig.shapeStyle = { normal: { strokeColor: item.color, fillColor: item.color } };
     }
     if (options.valueFormat !== undefined) {
       seriesConfig.valueFormat = options.valueFormat;

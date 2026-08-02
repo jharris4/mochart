@@ -3,6 +3,7 @@ import { Renderer, htmlEl } from '../render';
 import TooltipContent from './TooltipContent';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import { cssStyleColor } from '../utils/style';
 import type { MochartConfig } from '../types/config';
 import type { FocusPercentageMap } from '../types/animation';
 import type { SpacingLayoutInfo } from '../types/layout';
@@ -60,15 +61,19 @@ export default class Tooltip extends Renderer<TooltipProps> {
         visibility: 'hidden'
       };
 
+      // the tooltip is html: the fill is the box's background and the stroke its border, and css has
+      // nowhere to put a separate opacity, so each opacity is composited into its color
+      const { backgroundStyle } = tooltipConfig;
+
       const tooltipStyle = {
         position: 'absolute',
         left: x,
         top: y,
-        background: tooltipConfig.backgroundColor,
+        background: cssStyleColor(backgroundStyle.fillColor, backgroundStyle.fillOpacity),
         borderStyle: 'solid',
         padding: tooltipConfig.padding,
-        borderWidth: tooltipConfig.borderWidth,
-        borderColor: tooltipConfig.borderColor,
+        borderWidth: backgroundStyle.strokeWidth,
+        borderColor: cssStyleColor(backgroundStyle.strokeColor, backgroundStyle.strokeOpacity),
         borderRadius: tooltipConfig.borderRadius,
         boxShadow: boxShadowStyle,
         visibility: tooltipBounds !== null ? 'visible' : 'hidden'

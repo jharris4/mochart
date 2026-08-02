@@ -80,6 +80,17 @@ declare module 'd3-path' {
   export function path(): Path;
 }
 
+declare module 'd3-color' {
+  export interface Color {
+    /** The alpha channel, 0 - 1, of the parsed color. */
+    opacity: number;
+    /** The css color string, carrying `opacity` as its alpha. */
+    toString(): string;
+  }
+  /** Parses a css color string, or returns null when it is not one. */
+  export function color(specifier: string): Color | null;
+}
+
 declare module 'd3-interpolate' {
   export type ColorInterpolator = (start: string, end: string) => (value: number) => string;
   export const interpolateRgb: ColorInterpolator;

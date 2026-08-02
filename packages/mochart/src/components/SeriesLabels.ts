@@ -94,6 +94,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         const maxValues = maxValuesNullable!;
         const labelValues = labelValuesNullable!;
         let labelStrokeColor, labelFillColor, labelStrokeWidth, labelStrokeOpacity, labelFillOpacity;
+        const { normal: labelNormal, focused: labelFocused, defocused: labelDefocused } = seriesConfig.labelTextStyle;
 
         let withinPercentages = (_seriesValue: number, _minSeriesValue?: number | null) => {
           return true;
@@ -231,9 +232,9 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
             labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
             labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
-            labelStrokeWidth = getFocusValue(focusPercentage, seriesConfig.labelStrokeWidth, seriesConfig.labelFocusedStrokeWidth, seriesConfig.labelDefocusedStrokeWidth);
-            labelStrokeOpacity = getFocusValue(focusPercentage, seriesConfig.labelStrokeOpacity, seriesConfig.labelFocusedStrokeOpacity, seriesConfig.labelDefocusedStrokeOpacity);
-            labelFillOpacity = getFocusValue(focusPercentage, seriesConfig.labelFillOpacity, seriesConfig.labelFocusedFillOpacity, seriesConfig.labelDefocusedFillOpacity);
+            labelStrokeWidth = getFocusValue(focusPercentage, labelNormal.strokeWidth!, labelFocused.strokeWidth!, labelDefocused.strokeWidth!);
+            labelStrokeOpacity = getFocusValue(focusPercentage, labelNormal.strokeOpacity!, labelFocused.strokeOpacity!, labelDefocused.strokeOpacity!);
+            labelFillOpacity = getFocusValue(focusPercentage, labelNormal.fillOpacity!, labelFocused.fillOpacity!, labelDefocused.fillOpacity!);
             seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);
             x = inverted ? seriesPosition : getGroupPosition(null, i)!;
             y = inverted ? getGroupPosition(null, i)! : seriesPosition;

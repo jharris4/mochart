@@ -71,7 +71,10 @@ value, percent or title labels at the slice centroids.
   format the two numeric parts independently (percent parts format the
   fraction, so specifiers like `'.1%'` apply). Slices thinner than
   [`labelMinAnglePercent`](/reference/pieConfig#pieConfig.labelMinAnglePercent)
-  hide their labels. Label colors reuse the per-series `label*` config keys.
+  hide their labels. Label colors reuse the per-series
+  [`labelTextStyle`](/reference/seriesConfigs#seriesConfigs.labelTextStyle)
+  style — each slice is a series, so a slice's label is painted by its own
+  series entry.
   When slices are suppressed via the legend, percent labels renormalize
   against the remaining slices — set
   [`adjustLabelsForSuppression`](/reference/pieConfig#pieConfig.adjustLabelsForSuppression)
@@ -125,8 +128,14 @@ gauge — an `endAngle` *smaller* than `startAngle` runs counterclockwise.
   [`centerOffsetYPercent`](/reference/pieConfig#pieConfig.centerOffsetYPercent)
   nudge it by fractions of the outer radius — the example's `-0.25` lifts it
   into the hole.
-- The center text carries no fill attribute, so it styles via CSS: target
-  `.mochart-pie-center text` (the demo dark theme does exactly this).
+- The center text is painted by
+  [`centerLabelTextStyle`](/reference/pieConfig#pieConfig.centerLabelTextStyle)
+  and
+  [`centerTotalTextStyle`](/reference/pieConfig#pieConfig.centerTotalTextStyle),
+  both defaulting to `fillColor: 'currentColor'` so the text follows the host
+  page's CSS `color`. It can also be restyled directly: CSS wins over the
+  presentation attribute, so targeting `.mochart-pie-center text` works (the
+  demo dark theme does exactly this).
 - The layout fits the *configured span's* bounding box into the plot, so a
   half pie uses the space its missing half would waste (and the radius
   grows accordingly) instead of staying centered in an empty square. The

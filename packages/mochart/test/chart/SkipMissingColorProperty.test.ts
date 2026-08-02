@@ -58,7 +58,8 @@ describe('skipMissing bar series with a colorProperty', () => {
       seriesAxisConfigs: [{ id: 'sa' }],
       seriesConfigs: [{
         axis: 'sa', property: 'value', renderer: 'bar', skipMissing: true,
-        colorProperty: 'heat', colorMin: '#000000', colorMax: '#ffffff', colorInterpolation: 'rgb'
+        colorProperty: 'heat',
+        colorScale: { interpolation: 'rgb', min: '#000000', max: '#ffffff' }
       }]
     });
     // The middle group has no value, so positions compact to two bars while
