@@ -248,3 +248,46 @@ describe('config validation', () => {
     });
   });
 });
+// Regression: sole-id defaults read the raw section arrays, so ignored entries
+// blocked the sole-entry semantics; and a fully-ignored list section built zero
+// entries instead of falling back to defaults like an unspecified section.
+describe('ignored entries and sole-id defaults', () => {
+  const base = { version: VERSION_STRING, groupAxisConfig: { property: 'g' } };
+
+  it('an ignored second axis does not block the sole-axis default', () => {
+    const mochartConfig = enhance({ ...base,
+      seriesConfigs: [{ property: 'v' }],
+      seriesAxisConfigs: [{ id: 'a' }, { id: 'b', ignore: true }]
+    });
+    expect(mochartConfig.validation.valid).toBe(true);
+    expect(mochartConfig.seriesAxisConfigs.map(axisConfig => axisConfig.id)).toEqual(['a']);
+    expect(mochartConfig.seriesConfigs[0].axis).toBe('a');
+  });
+
+  it('a fully-ignored axis section behaves like an unspecified one', () => {
+    for (const seriesAxisConfigs of [[{ id: 'X', ignore: true }], [], { id: 'X', ignore: true }]) {
+      const mochartConfig = enhance({ ...base, seriesConfigs: [{ property: 'v' }], seriesAxisConfigs });
+      expect(mochartConfig.validation.valid).toBe(true);
+      expect(mochartConfig.seriesAxisConfigs.map(axisConfig => axisConfig.id)).toEqual(['SA0']);
+      expect(mochartConfig.seriesConfigs[0].axis).toBe('SA0');
+    }
+  });
+
+  it('an ignored second stack does not block the sole-stack default', () => {
+    const mochartConfig = enhance({ ...base,
+      seriesConfigs: [{ property: 'v' }, { property: 'w' }],
+      seriesStackConfigs: [{ id: 'st' }, { id: 'dead', ignore: true }]
+    });
+    expect(mochartConfig.validation.valid).toBe(true);
+    expect(mochartConfig.seriesConfigs.map(seriesConfig => seriesConfig.stack)).toEqual(['st', 'st']);
+  });
+
+  it('two active axes still require an explicit series axis', () => {
+    const mochartConfig = enhance({ ...base,
+      seriesConfigs: [{ property: 'v' }],
+      seriesAxisConfigs: [{ id: 'a' }, { id: 'b' }]
+    });
+    expect(mochartConfig.validation.valid).toBe(false);
+    expect(mochartConfig.validation.errors).toEqual(['seriesConfigs[0] - axis - should be a string: undefined']);
+  });
+});

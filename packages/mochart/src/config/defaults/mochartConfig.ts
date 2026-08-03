@@ -29,19 +29,13 @@ function getWithDefault<T extends object>(config: unknown, configAll: unknown, d
 }
 
 function getOnlyIdWithDefaults<T extends { id?: string }>(configs: unknown, configAll: unknown, defaults: T[]): string | null {
-  if (Array.isArray(configs)) {
-    if (configs.length === 1) {
-      const only = getWithDefault(configs[0], configAll, defaults[0]);
-      const { id } = only;
-      return id !== undefined ? id : NONE;
-    }
-  }
-  else if (isObject(configs)) {
-    const only = getWithDefault(configs, configAll, defaults[0]);
+  const filteredConfigs = (!Array.isArray(configs) && filterConfig(configs)) ? [configs] : filterConfigs(configs);
+  if (filteredConfigs.length === 1) {
+    const only = getWithDefault(filteredConfigs[0], configAll, defaults[0]);
     const { id } = only;
     return id !== undefined ? id : NONE;
   }
-  else if (Array.isArray(defaults) && defaults.length === 1) {
+  if (filteredConfigs.length === 0 && Array.isArray(defaults) && defaults.length === 1) {
     const only = defaults[0];
     const { id } = only;
     return id !== undefined ? id : NONE;

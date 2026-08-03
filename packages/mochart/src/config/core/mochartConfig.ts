@@ -160,10 +160,13 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
               filteredConfigSection[i] = deepMergeAll<ConfigRecord>(defaultsSection[i], allSection, aConfig);
             }
           }
-          config[sectionKey] = filteredConfigSection;
+          // every entry ignored/non-object means the section was effectively not specified
+          config[sectionKey] = listCount === 0 ? defaultsSection : filteredConfigSection;
         }
         else if (isObject(configSection)) {
-          config[sectionKey] = [deepMerge<ConfigRecord>(isObject(defaultsSection[0]) ? defaultsSection[0] : {}, configSection)];
+          config[sectionKey] = filterConfig(configSection)
+            ? [deepMerge<ConfigRecord>(isObject(defaultsSection[0]) ? defaultsSection[0] : {}, configSection)]
+            : defaultsSection;
         }
         else if (configSection === undefined) {
           config[sectionKey] = defaultsSection;
