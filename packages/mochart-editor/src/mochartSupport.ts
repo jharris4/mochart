@@ -232,17 +232,30 @@ function semanticDiagnostics(view: import('@codemirror/view').EditorView): Diagn
   catch {
     return [];
   }
-  const defaults = getDefaults(config);
-  return validateConfigDetailed(config, defaults).diagnostics.map(diagnostic => {
-    const range = rangeForPath(view.state, diagnostic.path);
-    return {
-      ...range,
-      severity: diagnostic.severity,
-      message: diagnostic.message,
+  try {
+    const defaults = getDefaults(config);
+    return validateConfigDetailed(config, defaults).diagnostics.map(diagnostic => {
+      const range = rangeForPath(view.state, diagnostic.path);
+      return {
+        ...range,
+        severity: diagnostic.severity,
+        message: diagnostic.message,
+        source: 'mochart',
+        path: diagnostic.path
+      } as Diagnostic;
+    });
+  }
+  catch {
+    // a throw would escape the linter and silently freeze diagnostics on the previous pass
+    return [{
+      from: 0,
+      to: view.state.doc.length,
+      severity: 'error',
+      message: 'config could not be validated',
       source: 'mochart',
-      path: diagnostic.path
-    } as Diagnostic;
-  });
+      path: []
+    } as Diagnostic];
+  }
 }
 
 /**

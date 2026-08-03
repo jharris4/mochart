@@ -114,10 +114,8 @@ function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDef
   const rawConfigs = config.seriesAxisConfigs;
   const configs = ((!Array.isArray(rawConfigs) && filterConfig(rawConfigs)) ? [rawConfigs] : filterConfigs(rawConfigs)) as DeepPartial<SeriesAxisConfig>[];
   const allConfig = config.seriesAxisAllConfig;
-  let stackConfigs = config.seriesStackConfigs || [];
-  if (!Array.isArray(stackConfigs) && isObject(stackConfigs)) {
-    stackConfigs = [stackConfigs];
-  }
+  const rawStackConfigs = config.seriesStackConfigs;
+  const stackConfigs = ((!Array.isArray(rawStackConfigs) && filterConfig(rawStackConfigs)) ? [rawStackConfigs] : filterConfigs(rawStackConfigs)) as DeepPartial<SeriesStackConfig>[];
   const stackMap: Record<string, boolean> = {};
   for (const stackConfig of stackConfigs) {
     const { axis } = stackConfig;

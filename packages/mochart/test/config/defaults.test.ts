@@ -210,3 +210,23 @@ describe('pie-mode conditional defaults', () => {
     expect(defaults.tooltipConfig.showGroup).toBe(true);
   });
 });
+
+// Regression: the seriesStackConfigs stack-axis map iterated the raw section
+// unfiltered, so junk that validation is supposed to report (a number, a null
+// entry) threw inside getDefaults before validation could run.
+describe('getDefaults with malformed seriesStackConfigs', () => {
+  it('does not throw on junk section shapes', () => {
+    expect(() => getDefaults({ seriesStackConfigs: 5 })).not.toThrow();
+    expect(() => getDefaults({ seriesStackConfigs: [null] })).not.toThrow();
+    expect(() => getDefaults({ seriesStackConfigs: 'junk' })).not.toThrow();
+    expect(() => getDefaults({ seriesStackConfigs: { ignore: true } })).not.toThrow();
+  });
+
+  it('still marks the stacked axis for a valid stack section', () => {
+    const defaults = getDefaults({
+      seriesStackConfigs: [{ id: 's' }],
+      seriesConfigs: [{ property: 'v', stack: 's' }]
+    }) as { seriesAxisConfigs: { base: unknown }[] };
+    expect(defaults.seriesAxisConfigs[0].base).toBe(0);
+  });
+});

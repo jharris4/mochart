@@ -110,4 +110,15 @@ describe('Mochart support diagnostics', () => {
     expect(diagnostic.severity).toBe('error');
     expect(diagnostic.source).toBe('mochart');
   });
+
+  // Regression: these mid-edit states threw inside getDefaults; the exception
+  // escaped the linter and silently froze diagnostics on the previous pass.
+  it('reports errors instead of throwing on junk section shapes', () => {
+    for (const source of ['{"seriesStackConfigs": 5}', '{"seriesStackConfigs": [null]}']) {
+      const view = viewFor(source);
+      let diagnostics: ReturnType<typeof mochartSupportTesting.semanticDiagnostics> = [];
+      expect(() => { diagnostics = mochartSupportTesting.semanticDiagnostics(view); }).not.toThrow();
+      expect(diagnostics.some(item => item.severity === 'error')).toBe(true);
+    }
+  });
 });
