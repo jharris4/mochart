@@ -348,8 +348,11 @@ const compoundValidatorDefinitions = {
   },
   objectWithSome: {
     validator: (properties: string[], propertyValidator: Validator) => v => {
+      if (!typeValidators.object(v)) {
+        return false;
+      }
       const valueKeys = Object.keys(v);
-      if (!typeValidators.object(v) || valueKeys.length === 0 || valueKeys.length > properties.length) {
+      if (valueKeys.length === 0 || valueKeys.length > properties.length) {
         return false;
       }
       const propertyMap: Record<string, string> = {};

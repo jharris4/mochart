@@ -1,7 +1,7 @@
 import validators from '@mochart/movalid';
 import { NONE, MARGIN_KEYS, PADDING_KEYS, COLOR_CURRENT } from '../core/constants';
 
-const dashArrayRegexp = /(\d+)(,\s*\d+)*/;
+const dashArrayRegexp = /^(\d+)(,\s*\d+)*$/;
 
 // specified by d3, https://github.com/d3/d3-format/blob/master/src/formatSpecifier.js
 // Transcribed verbatim from d3's formatSpecifier so the two stay diff-able; the

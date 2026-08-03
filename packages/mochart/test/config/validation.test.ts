@@ -356,3 +356,74 @@ describe('list-section validation with ignored entries', () => {
     expect(errors.some(error => error.includes('unique properties cannot be set on an all config'))).toBe(true);
   });
 });
+
+// Regression: uniqueness was checked on the raw config and the defaults
+// separately, so an explicit id colliding with another entry's defaulted id
+// passed and collapsed the id-lookup maps.
+describe('merged unique-key validation', () => {
+  it('flags an explicit id colliding with a defaulted id', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesConfigs: [{ property: 'a', id: 'S1' }, { property: 'b' }]
+    });
+    expect(errors).toEqual(expect.arrayContaining([
+      'seriesConfigs[0] - id - should be unique: "S1"',
+      'seriesConfigs[1] - id - should be unique: "S1"'
+    ]));
+  });
+
+  it('does not count ignored entries toward uniqueness', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesConfigs: [{ property: 'a', id: 'X', ignore: true }, { property: 'b', id: 'X' }]
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('reports raw indices when an ignored entry shifts the section', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p' },
+      seriesConfigs: [{ ignore: true, property: 'x' }, { property: 'a', id: 'X' }, { property: 'b', id: 'X' }]
+    });
+    expect(errors).toEqual(expect.arrayContaining([
+      'seriesConfigs[1] - id - should be unique: "X"',
+      'seriesConfigs[2] - id - should be unique: "X"'
+    ]));
+  });
+});
+
+// Regression: an array as the root config validated fully valid because the
+// error branch re-checked with movalid's object(), which accepts arrays.
+describe('non-object root configs', () => {
+  it('rejects an array root config with an error', () => {
+    const result = detailedFor([{ version: V }]);
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics.length).toBeGreaterThan(0);
+    expect(result.diagnostics[0].message).toContain('should be an object');
+  });
+});
+
+// Regression: the dash-array pattern was unanchored, so any string containing
+// a digit passed.
+describe('dash array validation', () => {
+  it('rejects non-dash-array strings containing digits', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p', gridLines: true, gridLineDashArray: 'abc5' },
+      seriesConfigs: [{ property: 'a' }]
+    });
+    expect(errors.some(error => error.includes('gridLineDashArray'))).toBe(true);
+  });
+
+  it('accepts comma-separated dash arrays', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'p', gridLines: true, gridLineDashArray: '5, 3' },
+      seriesConfigs: [{ property: 'a' }]
+    });
+    expect(errors).toEqual([]);
+  });
+});

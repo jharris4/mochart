@@ -2248,3 +2248,20 @@ describe("validators", () => {
     });
   });
 });
+
+// Regression: objectWithSome read Object.keys(v) before its object guard, so
+// undefined/null crashed instead of failing -- even composed with orEqual.
+describe('objectWithSome with non-object input', () => {
+  it('returns false instead of throwing', () => {
+    const validator = baseValidators.objectWithSome(['a', 'b'], baseValidators.number());
+    expect(validator(undefined)).toBe(false);
+    expect(validator(null)).toBe(false);
+    expect(validator({ a: 1 })).toBe(true);
+  });
+
+  it('composes with orEqual(undefined)', () => {
+    const validator = baseValidators.objectWithSome(['a'], baseValidators.number()).orEqual(undefined);
+    expect(validator(undefined)).toBe(true);
+    expect(validator(null)).toBe(false);
+  });
+});

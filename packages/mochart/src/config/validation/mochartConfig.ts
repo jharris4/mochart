@@ -1,5 +1,5 @@
 import validators from './validators';
-import { getMessage, getPropertyMessage, getMessages, addErrorMessage, addWarningMessages, DEFAULT } from './messages';
+import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { NONE, CONFIG_VERSION } from '../core/constants';
 import { applyDefaults, configWithAll, filterConfig, sectionKeyAllMap } from '../core/mochartConfig';
@@ -276,7 +276,10 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
     }
   }
   else {
-    addErrorMessage('config', configWithoutDefaults, objectValidator, errors, errorDetails);
+    // report unconditionally: arrays pass movalid's object() but are not a config
+    const message = objectValidator.getErrorMessage(configWithoutDefaults);
+    errors.push(getMessage('config', message));
+    errorDetails.push({ path: [], message });
   }
   const valid = errors.length === 0 && (strict === false || warnings.length === 0);
 
@@ -361,32 +364,37 @@ function validateSection(sectionKey: string, allKey: string | undefined, section
   warningDetails.push(...messages.warningDetails);
 }
 
-function validateUniqueInternal(config: ConfigRecord, sectionKey: string, property: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+function validateUnique(config: ConfigRecord, configWithoutDefaults: ConfigRecord, _configDefaults: ConfigRecord, sectionKey: string, _allKey: string | undefined, property: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+  // Uniqueness holds on the built entries (raw and defaulted values merged);
+  // checking raw and defaults separately misses cross collisions, e.g. an
+  // explicit id equal to another entry's defaulted id.
   const sections = config[sectionKey];
-  if (Array.isArray(sections)) {
-    const sources: Record<string, boolean> = {};
-    for (const section of sections) {
-      if (isConfigRecord(section) && section[property] !== undefined) {
-        const value = String(section[property]);
-        sources[value] = sources[value] !== undefined;
-      }
-    }
-    let section;
-    for (let i = 0; i < sections.length; i++) {
-      section = sections[i];
-      if (isConfigRecord(section) && section[property] !== undefined && sources[String(section[property])] === true) {
-        const message = getUniqueMessage() + ': ' + JSON.stringify(section[property]);
-        errors.push(getPropertyMessage(sectionKey, property, message, i));
-        const cleanSectionKey = sectionKey.startsWith(DEFAULT) ? sectionKey.slice(DEFAULT.length) : sectionKey;
-        errorDetails.push({ path: [cleanSectionKey, i, property], message });
-      }
+  if (!Array.isArray(sections)) {
+    return;
+  }
+  const rawSections = Array.isArray(configWithoutDefaults[sectionKey]) ? configWithoutDefaults[sectionKey] as unknown[] : [configWithoutDefaults[sectionKey]];
+  const rawIndices: number[] = [];
+  for (let i = 0; i < rawSections.length; i++) {
+    if (filterConfig(rawSections[i])) {
+      rawIndices.push(i);
     }
   }
-}
-
-function validateUnique(_config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, _allKey: string | undefined, property: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
-  validateUniqueInternal(configDefaults, DEFAULT + sectionKey, property, errors, errorDetails);
-  validateUniqueInternal(configWithoutDefaults, sectionKey, property, errors, errorDetails);
+  const seen: Record<string, boolean> = {};
+  for (const section of sections) {
+    if (isConfigRecord(section) && section[property] !== undefined) {
+      const value = String(section[property]);
+      seen[value] = seen[value] !== undefined;
+    }
+  }
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+    if (isConfigRecord(section) && section[property] !== undefined && seen[String(section[property])] === true) {
+      const message = getUniqueMessage() + ': ' + JSON.stringify(section[property]);
+      const reportIndex = rawIndices[i] ?? i;
+      errors.push(getPropertyMessage(sectionKey, property, message, reportIndex));
+      errorDetails.push({ path: [sectionKey, reportIndex, property], message });
+    }
+  }
 }
 
 function validateReferencesInternal(config: ConfigRecord, targetSections: unknown, targetSectionKey: string, targetProperty: string, sourceSectionKey: string | string[], sourceProperty: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
