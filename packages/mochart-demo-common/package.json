@@ -26,6 +26,6 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "generate-demos": "tsx scripts/generateChartTypeDemos.ts"
+    "generate-demos": "tsx --conditions=development scripts/generateChartTypeDemos.ts"
   }
 }

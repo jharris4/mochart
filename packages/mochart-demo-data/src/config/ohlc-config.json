@@ -24,6 +24,8 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "title": "Up",
+      "valueLabel": "Range",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#1baf7a",
@@ -31,8 +33,6 @@
           "fillOpacity": 1
         }
       },
-      "title": "Up",
-      "valueLabel": "Range",
       "valueFormat": ",.2f"
     },
     {
@@ -45,6 +45,8 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "title": "Down",
+      "valueLabel": "Range",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#e34948",
@@ -52,8 +54,6 @@
           "fillOpacity": 1
         }
       },
-      "title": "Down",
-      "valueLabel": "Range",
       "valueFormat": ",.2f"
     },
     {
@@ -68,6 +68,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "followSeries": "up",
+      "valueLabel": "Open",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#1baf7a",
@@ -75,9 +78,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "followSeries": "up",
-      "valueLabel": "Open",
       "valueFormat": ",.2f"
     },
     {
@@ -92,6 +92,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "followSeries": "down",
+      "valueLabel": "Open",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#e34948",
@@ -99,9 +102,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "followSeries": "down",
-      "valueLabel": "Open",
       "valueFormat": ",.2f"
     },
     {
@@ -116,6 +116,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "followSeries": "up",
+      "valueLabel": "Close",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#1baf7a",
@@ -123,9 +126,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "followSeries": "up",
-      "valueLabel": "Close",
       "valueFormat": ",.2f"
     },
     {
@@ -140,6 +140,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "followSeries": "down",
+      "valueLabel": "Close",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#e34948",
@@ -147,9 +150,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "followSeries": "down",
-      "valueLabel": "Close",
       "valueFormat": ",.2f"
     }
   ]

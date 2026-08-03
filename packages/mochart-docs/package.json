@@ -14,11 +14,11 @@
   },
   "type": "module",
   "scripts": {
-    "gen": "tsx ../mochart/scripts/generator.ts && tsx scripts/generateBindings.ts",
+    "gen": "tsx --conditions=development ../mochart/scripts/generator.ts && tsx --conditions=development scripts/generateBindings.ts",
     "dev": "npm run gen && vitepress dev --port 5181",
     "build": "npm run gen && vitepress build",
     "preview": "vitepress preview",
-    "test": "npm run gen && tsx scripts/checkExamples.ts && tsx scripts/checkApiCoverage.ts",
+    "test": "npm run gen && tsx --conditions=development scripts/checkExamples.ts && tsx --conditions=development scripts/checkApiCoverage.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p tsconfig.vue.json",
     "lint": "eslint ."
   },

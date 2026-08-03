@@ -24,6 +24,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "followSeries": "up",
+      "valueLabel": "Range",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#1baf7a",
@@ -31,9 +34,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "followSeries": "up",
-      "valueLabel": "Range",
       "markerShape": null,
       "labelTextStyle": {
         "normal": {
@@ -53,6 +53,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "followSeries": "down",
+      "valueLabel": "Range",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#e34948",
@@ -60,9 +63,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "followSeries": "down",
-      "valueLabel": "Range",
       "markerShape": null,
       "labelTextStyle": {
         "normal": {
@@ -82,6 +82,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "showInTooltip": false,
+      "followSeries": "up",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#1baf7a",
@@ -89,9 +92,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "showInTooltip": false,
-      "followSeries": "up",
       "valueFormat": ",.2f"
     },
     {
@@ -104,6 +104,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "showInTooltip": false,
+      "followSeries": "up",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#1baf7a",
@@ -111,9 +114,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "showInTooltip": false,
-      "followSeries": "up",
       "valueFormat": ",.2f"
     },
     {
@@ -126,6 +126,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "showInTooltip": false,
+      "followSeries": "down",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#e34948",
@@ -133,9 +136,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "showInTooltip": false,
-      "followSeries": "down",
       "valueFormat": ",.2f"
     },
     {
@@ -148,6 +148,9 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "showInLegend": false,
+      "showInTooltip": false,
+      "followSeries": "down",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#e34948",
@@ -155,9 +158,6 @@
           "fillOpacity": 1
         }
       },
-      "showInLegend": false,
-      "showInTooltip": false,
-      "followSeries": "down",
       "valueFormat": ",.2f"
     },
     {
@@ -170,6 +170,7 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "title": "Up",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#1baf7a",
@@ -187,7 +188,6 @@
           "fillOpacity": 0
         }
       },
-      "title": "Up",
       "valueFormat": ",.2f"
     },
     {
@@ -200,6 +200,7 @@
       "skipPartialRange": true,
       "group": null,
       "stack": null,
+      "title": "Down",
       "shapeStyle": {
         "normal": {
           "strokeColor": "#e34948",
@@ -207,7 +208,6 @@
           "fillOpacity": 1
         }
       },
-      "title": "Down",
       "valueFormat": ",.2f"
     }
   ]
