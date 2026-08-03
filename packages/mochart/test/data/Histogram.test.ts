@@ -137,3 +137,28 @@ describe('createHistogram', () => {
     expect(data).toEqual([]);
   });
 });
+
+// Regression: the bin index came from the raw float quotient while the bins
+// report rounded edges, so a value exactly on a non-representable edge
+// ((0.3-0)/0.1 = 2.999...) was counted one bin low, contradicting the
+// documented half-open [start, end) semantics.
+describe('bin membership on floating-point edges', () => {
+  it('counts an edge value into the bin whose reported edges contain it', () => {
+    const bins = binValues([0, 0.3, 1], { binWidth: 0.1 });
+    const binFor = (value: number) =>
+      bins.find(bin => bin.start <= value && (value < bin.end || bin === bins[bins.length - 1]))!;
+    expect(binFor(0.3).count).toBe(1);
+    expect(bins.find(bin => bin.start === 0.2)!.count).toBe(0);
+  });
+
+  it('respects the reported edges across non-representable widths', () => {
+    for (const binWidth of [0.1, 0.2, 0.3, 0.7]) {
+      for (let k = 1; k < 10; k++) {
+        const edge = k * binWidth;
+        const bins = binValues([0, edge, 10 * binWidth], { binWidth });
+        const target = bins.find(bin => bin.start <= edge && (edge < bin.end || bin === bins[bins.length - 1]))!;
+        expect(target.count).toBeGreaterThan(0);
+      }
+    }
+  });
+});

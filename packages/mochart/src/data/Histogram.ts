@@ -111,7 +111,15 @@ export function binValues(values: readonly number[], options: BinValuesOptions =
       continue;
     }
     // Half-open bins [start, end); the last bin also includes its upper edge.
-    const index = Math.min(Math.floor((value - start) / width), binCount - 1);
+    let index = Math.min(Math.floor((value - start) / width), binCount - 1);
+    // the raw quotient can disagree with the rounded edges by one ulp-sized
+    // step; membership follows the edges the bins report
+    if (index < binCount - 1 && value >= bins[index].end) {
+      index++;
+    }
+    else if (index > 0 && value < bins[index].start) {
+      index--;
+    }
     bins[index].count++;
   }
 
