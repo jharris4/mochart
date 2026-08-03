@@ -122,7 +122,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
         if (seriesPosition !== undefined) {
           groupDefinedPositions.push(groupPositions[i]!);
           seriesDefinedPositions.push(seriesPosition);
-          seriesPriorDefinedPositions.push(seriesPriorPositions[i] || seriesPosition); // rely on the fact that prior has been normalized
+          seriesPriorDefinedPositions.push(seriesPriorPositions[i] ?? seriesPosition); // pixel 0 is a valid prior; only undefined falls back
           skipGroupIndexMap[iSkip++] = i;
         }
       }
