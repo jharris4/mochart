@@ -95,12 +95,12 @@ describe('skipMissing group-index remapping', () => {
 
     // bars are keyed by compacted index: bar-1 is raw group 2 (Mar)
     click(container.querySelector('.mochart-series-bar-1')!);
-    expect(focuses.at(-1)!.focusedGroupIndex).toBe(2);
+    expect(focuses[focuses.length - 1]!.focusedGroupIndex).toBe(2);
 
     // same groups, but now Feb is defined and Mar is missing: bar-1 is raw group 1
     handle.update({ data: [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }, { month: 'Mar' }] } as Partial<DefaultChartProps>);
     click(container.querySelector('.mochart-series-bar-1')!);
-    expect(focuses.at(-1)!.focusedGroupIndex).toBe(1);
+    expect(focuses[focuses.length - 1]!.focusedGroupIndex).toBe(1);
   });
 
   it('keeps groupIndex palette colors raw-indexed across a gap', () => {
