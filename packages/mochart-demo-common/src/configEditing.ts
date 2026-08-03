@@ -56,6 +56,15 @@ export function toggleConfigProperty(currentDemoConfig: DemoConfigView, section:
   return { configWithDefaults, configWithoutDefaults };
 }
 
+/**
+ * Whether the section currently holds the given preset. Structural comparison:
+ * Apply round-trips configs through JSON, so object identity never survives.
+ */
+export function isConfigSectionActive(currentDemoConfig: DemoConfigView, section: string, defaultSection: unknown): boolean {
+  const sectionConfig = currentDemoConfig.configWithoutDefaults[section];
+  return sectionConfig === defaultSection || JSON.stringify(sectionConfig) === JSON.stringify(defaultSection);
+}
+
 export function toggleConfigSection(currentMochartDemoConfig: MochartDemoConfig, currentDemoConfig: DemoConfigView, section: string, defaultSection: unknown): DemoConfigView {
   let { configWithDefaults, configWithoutDefaults } = currentDemoConfig;
   configWithDefaults = { ...configWithDefaults };
@@ -66,8 +75,11 @@ export function toggleConfigSection(currentMochartDemoConfig: MochartDemoConfig,
     configWithDefaults[section] = defaultSection;
   }
   else {
-    configWithoutDefaults[section] = configWithoutDefaults[section] === defaultSection ? currentMochartDemoConfig.configWithoutDefaults[section] : defaultSection;
-    configWithDefaults[section] = configWithDefaults[section] === defaultSection ? currentMochartDemoConfig.configWithDefaults[section] : defaultSection;
+    // one decision applied to both views: the with-defaults view carries extra
+    // defaulted keys after Apply, so only the without-defaults view can tell
+    const active = isConfigSectionActive(currentDemoConfig, section, defaultSection);
+    configWithoutDefaults[section] = active ? currentMochartDemoConfig.configWithoutDefaults[section] : defaultSection;
+    configWithDefaults[section] = active ? currentMochartDemoConfig.configWithDefaults[section] : defaultSection;
   }
   return { configWithDefaults, configWithoutDefaults };
 }

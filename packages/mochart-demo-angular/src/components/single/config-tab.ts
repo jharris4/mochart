@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -211,7 +211,8 @@ export class ConfigTab implements OnInit, OnChanges {
   }
 
   get slow(): boolean {
-    return this.demoConfig()?.configWithDefaults['animationConfig'] === slowAnimationConfig;
+    const demoConfig = this.demoConfig();
+    return demoConfig !== null && isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig);
   }
 
   get slowIcon(): string {

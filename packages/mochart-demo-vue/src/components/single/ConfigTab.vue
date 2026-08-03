@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -95,7 +95,7 @@ function applyConfig() {
 
 const inverted = computed(() => demoConfig.value.configWithDefaults.plotConfig.inverted);
 const invertedIcon = computed(() => inverted.value ? 'chart-bar' : 'chart-column');
-const slow = computed(() => demoConfig.value.configWithDefaults.animationConfig === slowAnimationConfig);
+const slow = computed(() => isConfigSectionActive(demoConfig.value, 'animationConfig', slowAnimationConfig));
 const slowIcon = computed(() => slow.value ? 'hourglass' : 'hourglass-end');
 
 // Live JSON validity — disables Apply and shows an inline hint while the

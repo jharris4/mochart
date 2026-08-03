@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -112,7 +112,7 @@ export class ConfigTab extends LightElement {
   override render(): unknown {
     const inverted = this.demoConfig.configWithDefaults.plotConfig.inverted;
     const invertedIcon = inverted ? 'chart-bar' : 'chart-column';
-    const slow = this.demoConfig.configWithDefaults.animationConfig === slowAnimationConfig;
+    const slow = isConfigSectionActive(this.demoConfig, 'animationConfig', slowAnimationConfig);
     const slowIcon = slow ? 'hourglass' : 'hourglass-end';
     const jsonError = this.jsonError;
     const footerError = jsonError ?? this.errorMessage;

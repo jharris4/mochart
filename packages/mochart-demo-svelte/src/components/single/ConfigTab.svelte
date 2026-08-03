@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -121,7 +121,7 @@
 
   const inverted = $derived(demoConfig.configWithDefaults.plotConfig.inverted);
   const invertedIcon = $derived(inverted ? 'chart-bar' : 'chart-column');
-  const slow = $derived(demoConfig.configWithDefaults.animationConfig === slowAnimationConfig);
+  const slow = $derived(isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig));
   const slowIcon = $derived(slow ? 'hourglass' : 'hourglass-end');
 
   // The phone fold. Apply stays beside the editor it applies, and the

@@ -1,4 +1,4 @@
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer, textAreaContent } from '../misc/dom';
 import { menuDivider, overflowMenu } from '../misc/OverflowMenu';
@@ -255,7 +255,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     invertedButton.setPressed(inverted);
     invertedButton.setContent([icon(inverted ? 'chart-bar' : 'chart-column', { size: 'lg', fixedWidth: true })]);
 
-    const slow = demoConfig.configWithDefaults.animationConfig === slowAnimationConfig;
+    const slow = isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig);
     slowButton.setPressed(slow);
     slowButton.setContent([icon(slow ? 'hourglass' : 'hourglass-end', { size: 'lg', fixedWidth: true })]);
 

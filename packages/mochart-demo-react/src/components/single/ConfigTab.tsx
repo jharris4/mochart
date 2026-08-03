@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -101,7 +101,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   const { inverted } = configWithDefaults.plotConfig;
 
   const invertedIcon = inverted ? 'chart-bar' : 'chart-column';
-  const slow = configWithDefaults.animationConfig === slowAnimationConfig;
+  const slow = isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig);
   const slowIcon = slow ? 'hourglass' : 'hourglass-end';
 
   // Live JSON validity — disables Apply and shows an inline hint while the

@@ -4,6 +4,7 @@ import { ArrayOfObjectsDataProvider } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 
 import buildMochartDemoConfig from './mochartDemoConfig';
+import { stringifyWithSpacedCommas } from './dataEditing';
 
 import type { TransitionConfig, ChartDataProviderLike } from './types';
 
@@ -104,9 +105,9 @@ export function formatTransitionConfig(transitionConfig: TransitionConfig): stri
       let aDataText: string;
       for (const data of dataArray) {
         if (data && arrayValidator(data)) {
-          aDataText = JSON.stringify(data).replace(/},{/g, '},\n\t\t\t{').replace(/,/g, ', ');
-          aDataText = aDataText.replace(/\[{/, '[\n\t\t\t{');
-          aDataText = aDataText.replace(/}\]/, '}\n\t\t]');
+          // structural spacing keeps commas inside string values untouched
+          const rowTexts = (data as unknown[]).map(row => stringifyWithSpacedCommas(row));
+          aDataText = rowTexts.length === 0 ? '[]' : '[\n\t\t\t' + rowTexts.join(', \n\t\t\t') + '\n\t\t]';
           dataTexts.push(aDataText);
         }
       }

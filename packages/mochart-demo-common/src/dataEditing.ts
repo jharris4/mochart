@@ -6,8 +6,32 @@ import { filterDataProperties, restoreHiddenDataProperties } from './unusedDataP
 
 import type { DataRow, DemoConfig, MochartDemoConfig } from './types';
 
+/**
+ * Compact JSON with a space after each structural comma — built structurally
+ * so commas inside string values stay untouched.
+ */
+export function stringifyWithSpacedCommas(value: unknown): string {
+  if (Array.isArray(value)) {
+    return '[' + value.map(item => stringifyWithSpacedCommas(item)).join(', ') + ']';
+  }
+  if (value !== null && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    return '{' + Object.keys(record)
+      .filter(key => record[key] !== undefined)
+      .map(key => JSON.stringify(key) + ':' + stringifyWithSpacedCommas(record[key]))
+      .join(', ') + '}';
+  }
+  const json = JSON.stringify(value);
+  // JSON.stringify serializes undefined array items as null; match it
+  return json === undefined ? 'null' : json;
+}
+
 export function formatData(dataJSON: unknown): string {
-  return JSON.stringify(dataJSON).replace(/,/g, ', ').replace(/},/g, '},\n');
+  if (!Array.isArray(dataJSON)) {
+    return stringifyWithSpacedCommas(dataJSON);
+  }
+  // one row per line, matching the old regex-based layout
+  return '[' + dataJSON.map(row => stringifyWithSpacedCommas(row)).join(',\n ') + ']';
 }
 
 /**
