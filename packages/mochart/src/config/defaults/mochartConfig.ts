@@ -115,13 +115,15 @@ function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDef
     const { axis } = stackConfig;
     // Make sure the stackConfig.axis is never undefined. Use the first seriesConfig if necessary
     if (axis === undefined) {
-      stackMap[String(configs[0]?.id)] = true;
+      stackMap[String(configs[0]?.id ?? 'SA0')] = true;
     }
     else {
       stackMap[axis] = true;
     }
   }
-  const getDefaults = (aConfig: DeepPartial<SeriesAxisConfig>, index: number) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id!], pieMode);
+  // effective ids mirror the id default ('SA' + index), so a stack explicitly
+  // referencing a defaulted axis id still marks that axis as stacked
+  const getDefaults = (aConfig: DeepPartial<SeriesAxisConfig>, index: number) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id ?? 'SA' + index], pieMode);
   if (singleDefaultIfEmpty && configs.length === 0) {
     return [getDefaults(configWithAll({}, allConfig) as DeepPartial<SeriesAxisConfig>, 0) as SeriesAxisConfig];
   }

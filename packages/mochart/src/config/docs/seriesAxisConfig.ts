@@ -6,7 +6,7 @@ export default function getDescriptions() {
     id: 'the unique identifier for the series axis so it can be referenced by series that belong to it',
     type: 'the type of the series axis, must be number',
     scale: 'the scale of the series axis, must be linear',
-    order: 'the unique order number of the series axis controlling its order of appearance',
+    order: 'the unique integer order of the series axis controlling its order of appearance',
     base: 'the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)',
     baseLine: 'whether to show a line along the base of the axis',
     baseLineFront: 'whether the base line should be shown in front (true) or behind (false) the series shapes',

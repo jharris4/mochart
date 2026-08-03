@@ -322,3 +322,48 @@ describe('single-object sections with an all config', () => {
     expect(single.seriesConfigs[0].renderer).toBe('area');
   });
 });
+
+// Regression: the stack-axis map was keyed by raw axis ids, so a stack
+// explicitly referencing a defaulted axis id (SA0) missed the base: 0 stacked
+// default that the implicit reference received.
+describe('stack referencing a defaulted axis id', () => {
+  it('applies the stacked base default to the explicit SA0 reference', () => {
+    const base = { version: VERSION_STRING, groupAxisConfig: { property: 'g' } };
+    const explicit = enhance({ ...base,
+      seriesConfigs: [{ property: 'a', stack: 'st' }, { property: 'b', stack: 'st' }],
+      seriesStackConfigs: [{ id: 'st', axis: 'SA0' }]
+    });
+    const implicit = enhance({ ...base,
+      seriesConfigs: [{ property: 'a', stack: 'st' }, { property: 'b', stack: 'st' }],
+      seriesStackConfigs: [{ id: 'st' }]
+    });
+    expect(explicit.validation.valid).toBe(true);
+    expect(explicit.seriesAxisConfigs[0].base).toBe(0);
+    expect(explicit.seriesAxisConfigs[0].base).toBe(implicit.seriesAxisConfigs[0].base);
+  });
+});
+
+// Regression: order is meant to be an integer (the sorter coerces anything
+// else to 0), but validation accepted any number, silently ignoring the value.
+describe('non-integer order values', () => {
+  it('rejects fractional orders instead of silently sorting them as 0', () => {
+    const mochartConfig = enhance({
+      version: VERSION_STRING,
+      groupAxisConfig: { property: 'g' },
+      seriesConfigs: [{ property: 'a', order: 1.5 }, { property: 'b', order: 0.5 }]
+    });
+    expect(mochartConfig.validation.valid).toBe(false);
+    expect(mochartConfig.validation.errors.some(error =>
+      error.includes('order') && error.includes('should be an integer'))).toBe(true);
+  });
+
+  it('sorts integer orders', () => {
+    const mochartConfig = enhance({
+      version: VERSION_STRING,
+      groupAxisConfig: { property: 'g' },
+      seriesConfigs: [{ property: 'a', order: 2 }, { property: 'b', order: 1 }]
+    });
+    expect(mochartConfig.validation.valid).toBe(true);
+    expect(mochartConfig.seriesConfigs.map(seriesConfig => seriesConfig.id)).toEqual(['S1', 'S0']);
+  });
+});

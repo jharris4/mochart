@@ -1879,7 +1879,7 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    */
   id: string;
   /**
-   * The unique order number of the series axis controlling its order of
+   * The unique integer order of the series axis controlling its order of
    * appearance.
    *
    * Default:
@@ -2113,7 +2113,7 @@ export interface SeriesConfig {
    */
   id: string;
   /**
-   * The unique order number of the series controlling its order of appearance.
+   * The unique integer order of the series controlling its order of appearance.
    *
    * Default:
    * - `${index}` — series index

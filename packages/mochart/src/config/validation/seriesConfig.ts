@@ -72,7 +72,7 @@ const colorBaseNoneRule = { condition: ({ colorProperty, colorScale }: ColorCond
 export default function getValidators(config: DeepPartial<SeriesConfig>) {
   return {
     id: validators.string(),
-    order: validators.number(),
+    order: validators.integer(),
     axis: validators.string(),
     stack: validators.string().orEqual(NONE),
     group: validators.string().orEqual(NONE),

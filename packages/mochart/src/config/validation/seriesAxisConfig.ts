@@ -34,7 +34,7 @@ export default function getValidators() {
     minOffset: validators.number(),
     minMarginPercent: validators.numberMin(0),
 
-    order: validators.number(),
+    order: validators.integer(),
 
     scale: validators.equal(SCALE_LINEAR),
 

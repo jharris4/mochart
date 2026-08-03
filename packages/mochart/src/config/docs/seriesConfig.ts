@@ -33,7 +33,7 @@ function styleStates(description: string, memberKeys: string[], element: string,
 export default function getDescriptions() {
   return {
     id: 'the unique identifier for the series',
-    order: 'the unique order number of the series controlling its order of appearance',
+    order: 'the unique integer order of the series controlling its order of appearance',
     axis: 'the unique identifier of the axis that the series belongs to',
     stack: 'the unique identifier of the series stack that the series belongs to (use null for none)',
     group: 'the unique identifier of the series group that the series belongs to (use null for none)',
