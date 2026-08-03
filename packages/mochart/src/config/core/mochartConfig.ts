@@ -165,7 +165,7 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
         }
         else if (isObject(configSection)) {
           config[sectionKey] = filterConfig(configSection)
-            ? [deepMerge<ConfigRecord>(isObject(defaultsSection[0]) ? defaultsSection[0] : {}, configSection)]
+            ? [deepMergeAll<ConfigRecord>(isObject(defaultsSection[0]) ? defaultsSection[0] : {}, allSection, configSection)]
             : defaultsSection;
         }
         else if (configSection === undefined) {

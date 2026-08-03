@@ -291,3 +291,34 @@ describe('ignored entries and sole-id defaults', () => {
     expect(mochartConfig.validation.errors).toEqual(['seriesConfigs[0] - axis - should be a string: undefined']);
   });
 });
+
+// Regression: the single-object list-section shape merged only defaults +
+// entry, dropping the *AllConfig layer that the array shape applies.
+describe('single-object sections with an all config', () => {
+  const base = { version: VERSION_STRING, groupAxisConfig: { property: 'g' } };
+
+  it('applies the all config to a single-object section like an array of one', () => {
+    const single = enhance({ ...base, seriesConfigs: [{ property: 'v', axis: 'y' }],
+      seriesAxisConfigs: { id: 'y' }, seriesAxisAllConfig: { gridLines: true } });
+    expect(single.validation.valid).toBe(true);
+    expect(single.seriesAxisConfigs[0].gridLines).toBe(true);
+  });
+
+  it('keeps conditional defaults consistent with the all config values', () => {
+    const single = enhance({ ...base, seriesConfigs: { property: 'v' }, seriesAllConfig: { renderer: 'bar' } });
+    const array = enhance({ ...base, seriesConfigs: [{ property: 'v' }], seriesAllConfig: { renderer: 'bar' } });
+    expect(single.seriesConfigs[0].renderer).toBe('bar');
+    expect(single.seriesConfigs[0].markerShape).toBe(array.seriesConfigs[0].markerShape);
+  });
+
+  it('applies gradient all configs to a single-object gradient section', () => {
+    const single = enhance({ ...base, seriesConfigs: [{ property: 'v', gradient: 'lg' }],
+      linearGradientConfigs: { id: 'lg' }, linearGradientAllConfig: { x2: 0.25 } });
+    expect(single.linearGradientConfigs[0].x2).toBe(0.25);
+  });
+
+  it('keeps the entry winning over the all config', () => {
+    const single = enhance({ ...base, seriesConfigs: { property: 'v', renderer: 'area' }, seriesAllConfig: { renderer: 'bar' } });
+    expect(single.seriesConfigs[0].renderer).toBe('area');
+  });
+});
