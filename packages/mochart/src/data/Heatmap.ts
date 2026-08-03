@@ -66,7 +66,8 @@ export interface HeatmapData {
   /**
    * One entry per column: `column` (the group value) plus, for each heatmap
    * row `r` with a cell in the column, `row{r}` / `row{r}Start` (the cell's
-   * band on the series axis) and `row{r}Value` (the value driving the color).
+   * band on the series axis) and `row{r}Value` (the cell value). With an
+   * explicit domain a domain-clamped `row{r}Color` drives the color instead.
    */
   data: Record<string, number | string | undefined>[];
   /** Fragment to spread into the chart config's `groupAxisConfig`. */
@@ -122,7 +123,9 @@ export function createHeatmapColorScale(domain: [number, number], options: Creat
  * The core color scale spans each series' own color-value extent, so each
  * row's `colorScale.min`/`colorScale.max` is the global ramp sampled at that row's
  * min/max — linear interpolation restricted to a sub-interval reproduces the
- * global scale, keeping cell colors comparable across rows.
+ * global scale, keeping cell colors comparable across rows. With an explicit
+ * domain the per-cell color values are domain-clamped (`row{r}Color`) so that
+ * sub-interval stays inside the ramp.
  *
  * Each series sets `tooltipProperty` to the cell value, so the tooltip shows
  * the value driving the color rather than the cell's band coordinates.
@@ -132,7 +135,8 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
   const rowCount = rows.length;
   const columnCount = rows.reduce((count, row) => Math.max(count, row.values.length), 0);
 
-  const domain = options.domain ?? getExtent(rows.flatMap((row) => row.values));
+  const explicitDomain = options.domain ?? null;
+  const domain = explicitDomain ?? getExtent(rows.flatMap((row) => row.values));
   const colorScale = createHeatmapColorScale(domain ?? [0, 1], options);
 
   const data: Record<string, number | string | undefined>[] = [];
@@ -146,6 +150,11 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
         entry['row' + r] = rowCount - r - cellPadding;
         entry['row' + r + 'Start'] = rowCount - r - 1 + cellPadding;
         entry['row' + r + 'Value'] = value;
+        if (explicitDomain !== null) {
+          // The core spans colors over the row's own color-value extent, so an
+          // out-of-domain raw value would stretch the row off the global ramp.
+          entry['row' + r + 'Color'] = clampValue(value, explicitDomain);
+        }
       }
     }
     data.push(entry);
@@ -172,13 +181,15 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
   };
 
   const seriesConfigs = rows.map((row, r) => {
-    const rowDomain = getExtent(row.values) ?? domain ?? [0, 1];
+    const colorValues = explicitDomain === null ? row.values
+      : row.values.map((value) => value != null && Number.isFinite(value) ? clampValue(value, explicitDomain) : value);
+    const rowDomain = getExtent(colorValues) ?? domain ?? [0, 1];
     return {
       id: 'row' + r,
       property: 'row' + r,
       rangeProperty: 'row' + r + 'Start',
       tooltipProperty: 'row' + r + 'Value',
-      colorProperty: 'row' + r + 'Value',
+      colorProperty: 'row' + r + (explicitDomain === null ? 'Value' : 'Color'),
       colorScale: {
         interpolation: options.colorInterpolation ?? DEFAULT_COLOR_INTERPOLATION,
         min: colorScale(rowDomain[0]),
@@ -197,6 +208,10 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
   });
 
   return { domain, colorScale, data, groupAxisConfig, seriesAxisConfig, seriesConfigs };
+}
+
+function clampValue(value: number, [min, max]: [number, number]): number {
+  return Math.min(Math.max(value, min), max);
 }
 
 function getExtent(values: readonly (number | null | undefined)[]): [number, number] | null {

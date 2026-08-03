@@ -102,6 +102,33 @@ describe('createHeatmap', () => {
     }
   });
 
+  // Regression: an explicit domain narrower than the data sampled the row's
+  // endpoint colors from the clamped ramp while the core spanned the raw
+  // extent, so the same value colored differently in different rows.
+  it('reproduces the global scale under an explicit narrower domain', () => {
+    const heatmap = createHeatmap([
+      { label: 'A', values: [0, 5, 20] },
+      { label: 'B', values: [0, 5, 10] }
+    ], { domain: [0, 10] });
+
+    // color values are domain-clamped and separate from the tooltip values
+    expect(heatmap.seriesConfigs[0]!.colorProperty).toBe('row0Color');
+    expect(heatmap.seriesConfigs[0]!.tooltipProperty).toBe('row0Value');
+    expect(heatmap.data[2]!.row0Value).toBe(20);
+    expect(heatmap.data[2]!.row0Color).toBe(10);
+
+    for (const r of [0, 1]) {
+      const clampedValues = [0, 5, 10];
+      const coreScale = (scaleLinear() as unknown as TestColorScale)
+        .range([heatmap.seriesConfigs[r]!.colorScale!.min, heatmap.seriesConfigs[r]!.colorScale!.max])
+        .domain([Math.min(...clampedValues), Math.max(...clampedValues)])
+        .interpolate(interpolateLab);
+      for (const value of clampedValues) {
+        expect(toHex(coreScale(value))).toBe(heatmap.colorScale(value));
+      }
+    }
+  });
+
   it('colors every cell at the ramp midpoint when all values are equal', () => {
     const heatmap = createHeatmap([{ label: 'A', values: [7, 7] }, { label: 'B', values: [7] }]);
     expect(heatmap.domain).toEqual([7, 7]);
