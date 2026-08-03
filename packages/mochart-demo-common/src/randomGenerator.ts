@@ -267,10 +267,12 @@ function generateSeriesValues(
   }
 }
 
-const allPropertyKeys = ['property', 'rangeProperty', 'markerProperty', 'colorProperty', 'labelProperty'];
+const allPropertyKeys = ['property', 'rangeProperty', 'markerProperty', 'colorProperty', 'labelProperty', 'tooltipProperty', 'errorLowProperty', 'errorHighProperty'];
 const axisPropertyMap: Record<string, boolean> = {
   property: true,
-  rangeProperty: true
+  rangeProperty: true,
+  errorLowProperty: true,
+  errorHighProperty: true
 };
 
 function generateChartSeriesValues(

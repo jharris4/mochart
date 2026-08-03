@@ -20,6 +20,9 @@ export function collectUsedDataProperties(mochartConfig: MochartConfig): Set<str
     addProperty(used, seriesConfig.markerProperty);
     addProperty(used, seriesConfig.colorProperty);
     addProperty(used, seriesConfig.labelProperty);
+    addProperty(used, seriesConfig.tooltipProperty);
+    addProperty(used, seriesConfig.errorLowProperty);
+    addProperty(used, seriesConfig.errorHighProperty);
   }
   return used;
 }
