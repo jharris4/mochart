@@ -244,7 +244,7 @@ function getInitialFilteredSeriesValueObjects(seriesStackConfigs: SeriesStackCon
   const seriesIds = Object.keys(initialValueObjects);
   for (const seriesId of seriesIds) {
     if (seriesFilteredFlags[seriesId] === true) {
-      valueObjects[seriesId] = nullValueObject;
+      valueObjects[seriesId] = { ...nullValueObject };
     }
   }
   setInitialStackAndPriorSeriesValues(seriesStackConfigs, valueObjects);
