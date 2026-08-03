@@ -17,6 +17,7 @@ interface AxisThresholdProps {
   seriesLayoutInfo: LayoutInfo;
   axisDomain: [number | Date | null, number | Date | null];
   vertical: boolean;
+  ascending: boolean;
   axisFocusPercentage: number | null;
   seriesFocusPercentage: number | null;
   axisThresholdClass: string;
@@ -33,7 +34,7 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
   sync() {
     const { hidden } = this.props;
     if (!hidden) {
-      const { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisDomain, vertical, axisFocusPercentage, seriesFocusPercentage, axisThresholdClass, front } = this.props;
+      const { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisDomain, vertical, ascending, axisFocusPercentage, seriesFocusPercentage, axisThresholdClass, front } = this.props;
       const { threshold, thresholdFront, thresholdWidth, thresholdDashArray,
         thresholdTitle, thresholdTitleBefore, thresholdTitleSnapToValue, thresholdTitleMargin, thresholdTitlePadding,
         thresholdStyle, thresholdTitleTextStyle,
@@ -49,7 +50,7 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
       else {
         const line = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdStyle));
         const title = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, thresholdTitleTextStyle));
-        this.line.set(AxisThresholdLine, { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisThresholdLineClass: mochartCssClasses['axisThreshold'], vertical,
+        this.line.set(AxisThresholdLine, { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisThresholdLineClass: mochartCssClasses['axisThreshold'], vertical, ascending,
           threshold, axisDomain, thresholdTitle, thresholdTitleBefore, thresholdTitleSnapToValue,
           thresholdTitleMargin, thresholdTitlePadding,
           stroke: line.stroke ?? null, strokeOpacity: line.strokeOpacity ?? null,

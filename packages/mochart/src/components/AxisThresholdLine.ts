@@ -28,6 +28,8 @@ interface AxisThresholdLineProps {
   strokeWidth: number;
   strokeDashArray: string | null;
   vertical: boolean;
+  /** Whether the axis's pixel position grows with the value along its direction. */
+  ascending: boolean;
   thresholdTitle: string | null;
   thresholdTitleBefore: boolean;
   thresholdTitleSnapToValue: boolean;
@@ -60,16 +62,17 @@ export default class AxisThresholdLine extends Renderer<AxisThresholdLineProps> 
     const domainMax = axisDomain[1]?.valueOf();
     const numericThreshold = thresholdValue?.valueOf();
     if (scale === SCALE_LINEAR && threshold !== NONE && numericThreshold !== undefined && domainMin !== undefined && domainMax !== undefined && domainMin !== domainMax && numericThreshold >= domainMin && numericThreshold <= domainMax) {
-      const { seriesLayoutInfo, axisThresholdLineClass, stroke, strokeOpacity, strokeWidth, strokeDashArray, vertical } = this.props;
+      const { seriesLayoutInfo, axisThresholdLineClass, stroke, strokeOpacity, strokeWidth, strokeDashArray, vertical, ascending } = this.props;
       const thresholdPercentage = (numericThreshold - domainMin) / (domainMax - domainMin);
+      const positionPercentage = ascending ? thresholdPercentage : 1 - thresholdPercentage;
 
       let thresholdX = seriesLayoutInfo.x;
       let thresholdY = seriesLayoutInfo.y;
       if (vertical) {
-        thresholdY += (1 - thresholdPercentage) * seriesLayoutInfo.height;
+        thresholdY += positionPercentage * seriesLayoutInfo.height;
       }
       else {
-        thresholdX += thresholdPercentage * seriesLayoutInfo.width;
+        thresholdX += positionPercentage * seriesLayoutInfo.width;
       }
 
       const { thresholdTitle } = this.props;

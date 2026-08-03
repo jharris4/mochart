@@ -41,8 +41,10 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
 
     this.root.set({ className: mochartCssClasses['axisThresholdContainer'] });
 
+    // The group axis renders ascending in both orientations; a series axis
+    // ascends only when horizontal (inverted charts).
     this.groupThreshold.set(AxisThreshold, { front, plotConfig, axisConfig: groupAxisConfig, axisLayoutInfo: groupAxisLayoutInfo,
-      hidden: false, seriesLayoutInfo, axisDomain: groupAxisDomain, vertical: inverted,
+      hidden: false, seriesLayoutInfo, axisDomain: groupAxisDomain, vertical: inverted, ascending: true,
       axisFocusPercentage: null, seriesFocusPercentage: null, axisThresholdClass: mochartCssClasses['groupAxisThreshold'] });
 
     this.seriesThresholds.sync(seriesAxisConfigs.map((axisConfig: SeriesAxisConfig) => {
@@ -54,7 +56,7 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
         key: 'series-axis-' + id,
         ctor: AxisThreshold,
         props: { front, plotConfig, axisConfig, axisLayoutInfo: seriesAxisLayoutInfos[id],
-          hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: seriesAxisDomain, vertical: !inverted,
+          hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: seriesAxisDomain, vertical: !inverted, ascending: inverted,
           axisFocusPercentage, seriesFocusPercentage, axisThresholdClass: mochartCssClasses['seriesAxisThreshold'] + id }
       };
     }));

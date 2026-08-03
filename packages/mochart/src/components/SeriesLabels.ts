@@ -214,11 +214,14 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
 
         let focusPercentage, aboveBase, textAnchor, dy, seriesPosition, x, y;
-        const position = getLabelPosition(inverted, hasBase, seriesConfig);
-        const aboveBaseTextAnchor = getTextAnchor(inverted, true, position);
-        const belowBaseTextAnchor = getTextAnchor(inverted, false, position);
-        const aboveBaseDY = getDY(inverted, true, seriesConfig.labelPosition);
-        const belowBaseDY = getDY(inverted, false, seriesConfig.labelPosition);
+        // Each side resolves its own position (labelAboveBasePosition/
+        // labelBelowBasePosition fall back to labelPosition).
+        const aboveBasePosition = getLabelPosition(true, hasBase, seriesConfig);
+        const belowBasePosition = getLabelPosition(false, hasBase, seriesConfig);
+        const aboveBaseTextAnchor = getTextAnchor(inverted, true, aboveBasePosition);
+        const belowBaseTextAnchor = getTextAnchor(inverted, false, belowBasePosition);
+        const aboveBaseDY = getDY(inverted, true, aboveBasePosition);
+        const belowBaseDY = getDY(inverted, false, belowBasePosition);
 
         const { length, getDefined, getSeriesPosition, getGroupPosition, skipped, skipGroupIndexMap } = seriesPositionData;
 
