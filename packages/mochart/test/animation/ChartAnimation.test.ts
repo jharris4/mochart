@@ -6,6 +6,7 @@ import {
   getEndChartData
 } from '../../src/animation/ChartAnimationData';
 import { getChartDataForValueDelta, getChartDataForAxisDelta } from '../../src/animation/ChartAnimation';
+import { oldIndexForNewIndex, newIndexForOldIndex, newIndexForMergedIndex } from '../../src/animation/GroupAnimationData';
 import { makeConfig, ArrayOfObjectsDataProvider } from '../data/fixtures';
 import type { MochartConfig } from '../../src/types/config';
 import type { AnimationChartData } from '../../src/types/animation';
@@ -164,5 +165,29 @@ describe('getChartDataForValueDelta (a point entering from undefined)', () => {
     expect(at05[1]!).toBeGreaterThan(at0[1]!);
     expect(at05[1]!).toBeLessThan(20);
     expect(at1[1]).toBe(20);
+  });
+});
+
+// Regression: the group index maps used indexOf, which compares Date group
+// values by identity, so date charts lost their mid-animation focus remap.
+describe('group index maps with Date group values', () => {
+  const dateConfig = makeConfig({
+    groupAxisConfig: { property: 'g', type: 'date', scale: 'ordinal' },
+    seriesConfigs: [{ property: 'a', renderer: 'bar' }]
+  });
+  const dateRows = (offset: number) => [
+    { g: new Date(2026, 0, 1), a: 1 + offset },
+    { g: new Date(2026, 1, 1), a: 2 + offset }
+  ];
+
+  it('maps indices by value across fresh Date instances', () => {
+    const cad = getChartAnimationData(
+      dateConfig,
+      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(0), 'g'), {}),
+      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(5), 'g'), {})
+    );
+    expect(oldIndexForNewIndex(cad.groupDeltaData, 1)).toBe(1);
+    expect(newIndexForOldIndex(cad.groupDeltaData, 0)).toBe(0);
+    expect(newIndexForMergedIndex(cad.groupDeltaData, 1)).toBe(1);
   });
 });

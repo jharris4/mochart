@@ -18,7 +18,19 @@ type GroupMergedValuesWithoutDisplay = Omit<GroupMergedValuesData, 'displayMerge
 type ChartDataWithGroups = { groupData: GroupData };
 
 function groupMapKey(value: GroupValue): GroupMapKey {
-  return String(value);
+  // Dates key by time value: String(Date) is slow and only second-precise.
+  return value instanceof Date ? '' + value.getTime() : String(value);
+}
+
+/** indexOf by the merge keying: Date group values compare by value, not identity. */
+export function indexOfGroupValue(values: readonly GroupValue[], value: GroupValue): number {
+  const key = groupMapKey(value);
+  for (let i = 0; i < values.length; i++) {
+    if (groupMapKey(values[i]) === key) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 function groupValueIsLess(left: GroupValue, right: GroupValue): boolean {
@@ -86,15 +98,15 @@ export function mergedIndexForNewIndex(groupDeltaData: GroupDeltaData, newGroupI
 }
 
 export function oldIndexForNewIndex(groupDeltaData: GroupDeltaData, newGroupIndex: number): number {
-  return groupDeltaData.values.old.indexOf(groupDeltaData.values.new[newGroupIndex]);
+  return indexOfGroupValue(groupDeltaData.values.old, groupDeltaData.values.new[newGroupIndex]);
 }
 
 export function newIndexForMergedIndex(groupDeltaData: GroupDeltaData, mergedGroupIndex: number): number {
-  return groupDeltaData.values.new.indexOf(groupDeltaData.values.merged[mergedGroupIndex]);
+  return indexOfGroupValue(groupDeltaData.values.new, groupDeltaData.values.merged[mergedGroupIndex]);
 }
 
 export function newIndexForOldIndex(groupDeltaData: GroupDeltaData, oldGroupIndex: number): number {
-  return groupDeltaData.values.new.indexOf(groupDeltaData.values.old[oldGroupIndex]);
+  return indexOfGroupValue(groupDeltaData.values.new, groupDeltaData.values.old[oldGroupIndex]);
 }
 
 function getGroupMergedDisplayValues(

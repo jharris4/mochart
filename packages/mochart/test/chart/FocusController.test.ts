@@ -95,6 +95,28 @@ describe('FocusController focus handling', () => {
     expect(harness.focuses[harness.focuses.length - 1].focusedGroupIndex).toBe(2);
   });
 
+  // Regression: the remap compared Date group values by object identity, so a
+  // data update with fresh Date instances for the same dates dropped the focus.
+  it('remaps Date group values by value, not object identity', () => {
+    const harness = makeHarness();
+    const dateRows = (offset: number) => [
+      { month: new Date(2026, 0, 1), sales: 10 + offset },
+      { month: new Date(2026, 1, 1), sales: 20 + offset },
+      { month: new Date(2026, 2, 1), sales: 30 + offset }
+    ] as unknown as typeof rows;
+    harness.reconcileWith({ dataProvider: makeProvider(dateRows(0)) });
+    harness.controller.applyFocus({ groupIndex: 1 });
+
+    // same dates as fresh instances, February reordered to the front
+    const next = [
+      { month: new Date(2026, 1, 1), sales: 25 },
+      { month: new Date(2026, 0, 1), sales: 15 },
+      { month: new Date(2026, 2, 1), sales: 35 }
+    ] as unknown as typeof rows;
+    harness.reconcileWith({ dataProvider: makeProvider(next) });
+    expect(harness.focuses[harness.focuses.length - 1].focusedGroupIndex).toBe(0);
+  });
+
   it('drops group focus when the focused group disappears from the data', () => {
     const harness = makeHarness();
     harness.controller.applyFocus({ groupIndex: 1 }); // Feb

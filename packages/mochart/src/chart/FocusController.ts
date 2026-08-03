@@ -1,4 +1,5 @@
 import { hasConfigStructureChange } from '../config/core/mochartConfig';
+import { indexOfGroupValue } from '../animation/GroupAnimationData';
 import type { ChartFocus, ChartSeriesFilter } from '../types/chart';
 import type { MochartConfig } from '../types/config';
 import type { DataProvider } from '../types/data';
@@ -68,7 +69,7 @@ export class FocusController {
           const newGroupValues = dataProvider.getGroupValues();
           if (oldGroupValues && newGroupValues) {
             const groupValue = oldGroupValues[this.focusedGroupIndex];
-            this.focusedGroupIndex = newGroupValues.indexOf(groupValue);
+            this.focusedGroupIndex = indexOfGroupValue(newGroupValues, groupValue);
           }
           else {
             this.focusedGroupIndex = -1;
