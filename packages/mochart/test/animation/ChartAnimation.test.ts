@@ -191,3 +191,30 @@ describe('group index maps with Date group values', () => {
     expect(newIndexForMergedIndex(cad.groupDeltaData, 1)).toBe(1);
   });
 });
+
+// Regression: filteredSeriesDomainDeltas was omitted from the overall phase
+// delta max, so a suppressed-series transition paced its per-series domain
+// tween at a fraction of the phase and snapped on the final frame.
+describe('filtered series-domain deltas drive the phase pacing', () => {
+  it('includes the filtered map in the overall delta and keeps factors >= 1', () => {
+    const suppressedConfig = makeConfig({
+      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
+      seriesAxisConfigs: [{ adjustForSuppression: false }],
+      seriesConfigs: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
+    });
+    const dataFor = (rows: Record<string, number>[]) =>
+      getChartData(suppressedConfig, new ArrayOfObjectsDataProvider(rows, 'g'), { S0: true });
+    const cad = getChartAnimationData(
+      suppressedConfig,
+      dataFor([{ g: 0, a: 100, b: 5 }, { g: 1, a: 80, b: 10 }]),
+      dataFor([{ g: 0, a: 100, b: 25 }, { g: 1, a: 80, b: 50 }])
+    ) as any;
+
+    for (const phase of [cad.axisExpansionData, cad.axisCollapseData]) {
+      const filtered = phase.deltas.domain.series.filtered;
+      expect(phase.deltaPercentage).toBeGreaterThanOrEqual(filtered.deltaPercentage);
+      expect(filtered.deltas.S1.deltaPercentage).toBeGreaterThan(0);
+      expect(filtered.deltas.S1.deltaFactor).toBeGreaterThanOrEqual(1);
+    }
+  });
+});

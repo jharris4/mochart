@@ -425,7 +425,8 @@ function getSeriesDomainDelta(fromDomainObject: SeriesDomainObject, toDomainObje
 function createAxisDeltaData(startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, groupAxisDomainDelta: DomainDelta, rawSeriesAxisDomainDeltas: DomainDeltaMap,
                              filteredSeriesAxisDomainDeltas: DomainDeltaMap, rawSeriesDomainDeltas: SeriesDomainDeltaMap, filteredSeriesDomainDeltas: SeriesDomainDeltaMap, groupValueDeltaData: CompleteNumericArrayDelta | null): AxisDeltaData {
   const deltaPercentage = Math.max(groupAxisDomainDelta.deltaPercentage, rawSeriesAxisDomainDeltas.deltaPercentage,
-    filteredSeriesAxisDomainDeltas.deltaPercentage, rawSeriesDomainDeltas.deltaPercentage, groupValueDeltaData ? groupValueDeltaData.deltaPercentage : 0);
+    filteredSeriesAxisDomainDeltas.deltaPercentage, rawSeriesDomainDeltas.deltaPercentage, filteredSeriesDomainDeltas.deltaPercentage,
+    groupValueDeltaData ? groupValueDeltaData.deltaPercentage : 0);
   setDeltaFactor(groupAxisDomainDelta, deltaPercentage);
   setGroupValueDeltaFactor(groupValueDeltaData, deltaPercentage);
   setAxisDeltaFactors(rawSeriesAxisDomainDeltas, deltaPercentage);
