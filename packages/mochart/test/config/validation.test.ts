@@ -418,12 +418,14 @@ describe('dash array validation', () => {
     expect(errors.some(error => error.includes('gridLineDashArray'))).toBe(true);
   });
 
-  it('accepts comma-separated dash arrays', () => {
-    const errors = errorsFor({
-      version: V,
-      groupAxisConfig: { property: 'p', gridLines: true, gridLineDashArray: '5, 3' },
-      seriesConfigs: [{ property: 'a' }]
-    });
-    expect(errors).toEqual([]);
+  it('accepts comma- and space-separated dash arrays', () => {
+    for (const dashArray of ['5,3', '5, 3', '6 3']) {
+      const errors = errorsFor({
+        version: V,
+        groupAxisConfig: { property: 'p', gridLines: true, gridLineDashArray: dashArray },
+        seriesConfigs: [{ property: 'a' }]
+      });
+      expect(errors).toEqual([]);
+    }
   });
 });
