@@ -2,7 +2,7 @@ import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addErrorMessage, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { NONE, CONFIG_VERSION } from '../core/constants';
-import { applyDefaults, configWithAll, sectionKeyAllMap } from '../core/mochartConfig';
+import { applyDefaults, configWithAll, filterConfig, sectionKeyAllMap } from '../core/mochartConfig';
 
 import animationValidators from './animationConfig';
 import chartValidators from './chartConfig';
@@ -320,12 +320,21 @@ function safeIndex(array: unknown, i: number): unknown {
 
 function validateConfigSections(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, sectionKey: string, allKey: string | undefined, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[]): void {
   const sections = config[sectionKey] as unknown[];
-  const sectionsWithoutDefaults = Array.isArray(configWithoutDefaults[sectionKey]) ? configWithoutDefaults[sectionKey] : [configWithoutDefaults[sectionKey]];
+  const rawSections = Array.isArray(configWithoutDefaults[sectionKey]) ? configWithoutDefaults[sectionKey] : [configWithoutDefaults[sectionKey]];
   const sectionDefaults = configDefaults[sectionKey];
   const all = allKey ? config[allKey] : null;
+  // built sections drop ignored/non-object raw entries, so pair by filtered raw index
+  const rawIndices: number[] = [];
+  for (let i = 0; i < rawSections.length; i++) {
+    if (filterConfig(rawSections[i])) {
+      rawIndices.push(i);
+    }
+  }
+  let rawIndex: number | undefined;
   for (let i = 0; i < sections.length; i++) {
-    validateSection(sectionKey, allKey, safeIndex(sections, i), safeIndex(sectionsWithoutDefaults, i), safeIndex(sectionDefaults, i),
-      all, sectionValidators, uniqueKeys, errors, warnings, errorDetails, warningDetails, false, i);
+    rawIndex = rawIndices[i];
+    validateSection(sectionKey, allKey, safeIndex(sections, i), rawIndex === undefined ? undefined : rawSections[rawIndex], safeIndex(sectionDefaults, i),
+      all, sectionValidators, uniqueKeys, errors, warnings, errorDetails, warningDetails, false, rawIndex ?? i, i === 0);
   }
   if (sections.length === 0 && all) {
     validateSection(sectionKey, allKey, all, undefined, undefined, all, sectionValidators, uniqueKeys, errors, warnings,
@@ -341,10 +350,10 @@ function pushAll(target: string[], source: string[]): void {
   }
 }
 
-function validateSection(sectionKey: string, allKey: string | undefined, section: unknown, sectionWithoutDefaults: unknown, sectionDefaults: unknown, all: unknown, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[], onlyAll: boolean, i: number | undefined = undefined): void {
+function validateSection(sectionKey: string, allKey: string | undefined, section: unknown, sectionWithoutDefaults: unknown, sectionDefaults: unknown, all: unknown, sectionValidators: (section: ConfigRecord) => ValidatorMap, uniqueKeys: string[] | undefined, errors: string[], warnings: string[], errorDetails: LocatedValidationMessage[], warningDetails: LocatedValidationMessage[], onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0): void {
   const sectionAll = configWithAll(section, all);
   const messages = getMessages(sectionKey, allKey, uniqueKeys, sectionWithoutDefaults, sectionDefaults, all,
-    sectionValidators(isConfigRecord(sectionAll) ? sectionAll : {}), onlyAll, i);
+    sectionValidators(isConfigRecord(sectionAll) ? sectionAll : {}), onlyAll, i, first);
   const { errorMessages, warningMessages } = messages;
   pushAll(errors, errorMessages);
   pushAll(warnings, warningMessages);

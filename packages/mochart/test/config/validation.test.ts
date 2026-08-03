@@ -307,3 +307,52 @@ describe('pie chart config validation', () => {
     expect(errors.some(error => error.startsWith('pieConfig - labelType - '))).toBe(true);
   });
 });
+
+// Regression: list-section validation paired the built (filtered) entries with
+// the raw user array by position, so an ignore:true entry shifted every later
+// entry onto the wrong index — garbage passed unvalidated and ignored entries
+// produced false errors.
+describe('list-section validation with ignored entries', () => {
+  it('validates entries after an ignored entry at their raw index', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'g' },
+      seriesConfigs: [{ ignore: true, property: 'x' }, { renderer: 'bogus', property: 'v', markerSize: -5 }]
+    });
+    expect(errors.some(error => error.startsWith('seriesConfigs[1] - renderer - '))).toBe(true);
+    expect(errors.some(error => error.startsWith('seriesConfigs[1] - markerSize - '))).toBe(true);
+    expect(errors.some(error => error.startsWith('seriesConfigs[0]'))).toBe(false);
+  });
+
+  it('does not validate ignored entries', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'g' },
+      seriesConfigs: [{ ignore: true, property: null }, { property: 'v' }]
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('locates diagnostics after an ignored entry at the raw index', () => {
+    const config = {
+      version: V,
+      groupAxisConfig: { property: 'g' },
+      seriesConfigs: [{ ignore: true, property: 'x' }, { renderer: 'bogus', property: 'v' }]
+    };
+    expect(detailedFor(config).diagnostics).toContainEqual(expect.objectContaining({
+      path: ['seriesConfigs', 1, 'renderer'],
+      severity: 'error'
+    }));
+  });
+
+  it('still runs once-per-section all-config checks when the first entry is ignored', () => {
+    const errors = errorsFor({
+      version: V,
+      groupAxisConfig: { property: 'g' },
+      seriesAxisAllConfig: { id: 'shared' },
+      seriesAxisConfigs: [{ ignore: true, id: 'dead' }, { id: 'y' }],
+      seriesConfigs: [{ property: 'v', axis: 'y' }]
+    });
+    expect(errors.some(error => error.includes('unique properties cannot be set on an all config'))).toBe(true);
+  });
+});

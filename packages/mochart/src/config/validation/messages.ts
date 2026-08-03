@@ -167,7 +167,7 @@ function objectWithKeys<T>(object: Record<string, T>, keys: string[]): Record<st
 }
 
 
-export function getMessages(sectionKey: string, allKey: string | undefined, uniqueKeys: string[] | undefined, section: unknown, sectionDefaults: unknown, all: unknown, validatorMap: ValidatorMap, onlyAll: boolean, i: number | undefined = undefined) {
+export function getMessages(sectionKey: string, allKey: string | undefined, uniqueKeys: string[] | undefined, section: unknown, sectionDefaults: unknown, all: unknown, validatorMap: ValidatorMap, onlyAll: boolean, i: number | undefined = undefined, first: boolean = i === undefined || i === 0) {
   const errorMessages: string[] = [];
   const warningMessages: string[] = [];
   const errorDetails: LocatedValidationMessage[] = [];
@@ -178,7 +178,7 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
   if (!onlyAll && objectValidator(sectionDefaults) && isConfigObject(sectionDefaults)) {
     providedKeyMap = {...providedKeyMap, ...sectionDefaults};
 
-    if (i === undefined || i === 0) {
+    if (first) {
       const sectionDefaultKeys = Object.keys(sectionDefaults).filter(key => sectionDefaults[key] !== undefined);
       const defaultValidators = objectWithKeys(validatorMap, sectionDefaultKeys);
 
@@ -188,7 +188,7 @@ export function getMessages(sectionKey: string, allKey: string | undefined, uniq
   }
   if (objectValidator(all) && isConfigObject(all)) {
     providedKeyMap = { ...providedKeyMap, ...all };
-    if ((i === undefined || i === 0)) {
+    if (first) {
       const uniqueAllKeys = (Array.isArray(uniqueKeys) ? uniqueKeys : []).filter(uniqueKey => all[uniqueKey] !== undefined)
 
       for (const uniqueAllKey of uniqueAllKeys) {
