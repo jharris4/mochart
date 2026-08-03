@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { NONE, getDataErrors } from '@mochart/core';
 import type { MochartConfig, DataProvider } from '@mochart/core';
 
-import { buildMochartDemoConfig, consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import RandomMochartChartTab from './RandomChartTab';
@@ -183,7 +183,7 @@ function RandomMochartDemoContent(props: ContentProps) {
   const [state, setState] = useState<ContentState>(() => {
     // Reuse defaults on to match the generator's historical behavior.
     const applyReuse = initialShared ? initialShared.applyReuse : true;
-    const randomConfig: RandomConfigWithValid = initialShared ? { ...initialShared.randomConfig, valid: true } : initialRandomConfig;
+    const randomConfig: RandomConfigWithValid = initialShared ? restoreSharedRandomConfig(initialShared.randomConfig, generator) : initialRandomConfig;
     return { applyReuse, ...computeProviderState(mochartDemoConfig, randomId, randomConfig, applyReuse, generator) };
   });
 

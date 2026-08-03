@@ -9,7 +9,7 @@ import { RandomConfigTab } from './random-config-tab';
 import { RandomDataTab } from './random-data-tab';
 import { ErrorTab } from '../misc/error-tab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -69,7 +69,7 @@ export class RandomContent implements OnInit, OnChanges {
     if (initialShared) {
       this.applyReuse.set(initialShared.applyReuse);
       this.initialRate.set(initialShared.interval);
-      const restored: RandomConfigWithValid = { ...initialShared.randomConfig, valid: true };
+      const restored: RandomConfigWithValid = restoreSharedRandomConfig(initialShared.randomConfig, this.generator);
       this.randomConfig.set(restored);
       this.updateDataProvider(restored);
     }

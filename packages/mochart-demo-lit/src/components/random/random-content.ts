@@ -11,7 +11,7 @@ import './random-config-tab';
 import './random-data-tab';
 import '../misc/error-tab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -118,7 +118,7 @@ export class RandomContent extends LightElement {
       if (sharedRandom) {
         this.applyReuse = sharedRandom.applyReuse;
         this.initialRate = sharedRandom.interval;
-        const restored: RandomConfigWithValid = { ...sharedRandom.randomConfig, valid: true };
+        const restored: RandomConfigWithValid = restoreSharedRandomConfig(sharedRandom.randomConfig, this.generator);
         this.randomConfig = restored;
         this.updateDataProvider(restored);
       }

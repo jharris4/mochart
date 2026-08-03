@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { validateRandomConfig, neutralizeRandomReuse, formatRandomConfig } from '../src/randomConfig';
+import { validateRandomConfig, restoreSharedRandomConfig, neutralizeRandomReuse, formatRandomConfig } from '../src/randomConfig';
 
 import type { RandomConfigWithValid } from '../src/types';
 
@@ -86,6 +86,18 @@ describe('validateRandomConfig', () => {
       expect(validateRandomConfig(withGroup({ string: { minLength: 1, maxLength: 1 } }))).toBe(false);
     });
 
+    // Regression: these sections had validators defined but never invoked, so
+    // out-of-range values silently distorted or emptied the chart.
+    it('rejects out-of-range order/missing/reuse/round settings', () => {
+      expect(validateRandomConfig(withGroup({ order: { sort: 'yes' } }))).toBe(false);
+      expect(validateRandomConfig(withGroup({ missing: { probability: 5 } }))).toBe(false);
+      expect(validateRandomConfig(withGroup({ reuse: { globalPercentage: 2, stepPercentage: 0.5 } }))).toBe(false);
+      expect(validateRandomConfig({ ...genericConfig,
+        series: { ...genericConfig.series, number: { ...genericConfig.series.number, round: 1 } } })).toBe(false);
+      expect(validateRandomConfig({ ...genericConfig,
+        series: { ...genericConfig.series, reuse: { global: false, step: 'always' } } })).toBe(false);
+    });
+
     it('accounts for the step-reuse preview lineages', () => {
       // count 12, stepPercentage 1 -> preview lineages need 18 uniques; 15 lattice values is enough for count alone
       const number = { min: 0, max: 14, interval: 1 };
@@ -96,6 +108,28 @@ describe('validateRandomConfig', () => {
         count: 12, number, reuse: { globalPercentage: 0, stepPercentage: 0 }
       }))).toBe(true);
     });
+  });
+});
+
+// Regression: share payloads were stamped valid: true without validation, so a
+// config the sender's own UI refused (or a hand-edited payload) ran the
+// generator on the recipient's page.
+describe('restoreSharedRandomConfig', () => {
+  it('computes the valid flag instead of trusting the payload', () => {
+    expect(restoreSharedRandomConfig(genericConfig as never)).toEqual({ ...genericConfig, valid: true });
+    expect(restoreSharedRandomConfig(pieConfig as never, 'pie').valid).toBe(true);
+  });
+
+  it('marks invalid payloads invalid', () => {
+    expect(restoreSharedRandomConfig({} as never).valid).toBe(false);
+    expect(restoreSharedRandomConfig({} as never, 'pie').valid).toBe(false);
+    const insufficient = { ...genericConfig, group: { ...genericConfig.group, number: { min: 0, max: 5, interval: 1 } } };
+    expect(restoreSharedRandomConfig(insufficient as never).valid).toBe(false);
+  });
+
+  it('ignores a tampered valid flag on the payload', () => {
+    const tampered = { ...genericConfig, group: { ...genericConfig.group, number: { min: 0, max: 5, interval: 1 } }, valid: true };
+    expect(restoreSharedRandomConfig(tampered as never).valid).toBe(false);
   });
 });
 

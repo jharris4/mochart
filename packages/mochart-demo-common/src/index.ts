@@ -24,7 +24,7 @@ export type { DemoConfigView } from './configEditing';
 
 export { generateDemoDataProvider } from './chartTypeGenerators';
 
-export { validateRandomConfig, formatRandomConfig, neutralizeRandomReuse } from './randomConfig';
+export { validateRandomConfig, restoreSharedRandomConfig, formatRandomConfig, neutralizeRandomReuse } from './randomConfig';
 
 export {
   defaultTransitionConfig, getTransitionMochartConfig, getTransitionDataProviders,

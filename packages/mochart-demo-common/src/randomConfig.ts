@@ -1,7 +1,7 @@
 import validators from '@mochart/movalid';
 import type { Validator } from '@mochart/movalid';
 
-import type { RandomConfigWithValid } from './types';
+import type { DemoRandomConfig, RandomConfigWithValid } from './types';
 
 // Every chart-type generator validates against the schema its random JSON
 // uses (see demo-data types.ts); demos without a generator use the generic
@@ -34,6 +34,9 @@ const genericValidator = {
     order: {
       sort: booleanValidator
     },
+    missing: {
+      probability: probabilityValidator
+    },
     reuse: {
       globalPercentage: probabilityValidator,
       stepPercentage: probabilityValidator
@@ -62,6 +65,7 @@ const genericValidator = {
       rangeValidator: minMaxRange,
       min: validators.number(),
       max: validators.number(),
+      round: booleanValidator,
       limitToAxisConfig: booleanValidator
     },
     missing: {
@@ -144,6 +148,12 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
     const groupConfig = randomConfig.group;
     const countPrefix = groupPrefix + 'count - ';
     addErrorMessage(errorMessages, groupConfig.count, countPrefix, genericValidator.group.count);
+    const orderPrefix = groupPrefix + 'order - ';
+    addErrorMessages(errorMessages, groupConfig.order, orderPrefix, genericValidator.group.order);
+    const groupMissingPrefix = groupPrefix + 'missing - ';
+    addErrorMessages(errorMessages, groupConfig.missing, groupMissingPrefix, genericValidator.group.missing);
+    const groupReusePrefix = groupPrefix + 'reuse - ';
+    addErrorMessages(errorMessages, groupConfig.reuse, groupReusePrefix, genericValidator.group.reuse);
     const numberPrefix = groupPrefix + 'number - ';
     addErrorMessages(errorMessages, groupConfig.number, numberPrefix, genericValidator.group.number);
     const datePrefix = groupPrefix + 'date - ';
@@ -213,6 +223,8 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
     addErrorMessages(errorMessages, seriesConfig.number, numberPrefix, genericValidator.series.number);
     const missingPrefix = seriesPrefix + 'missing - ';
     addErrorMessages(errorMessages, seriesConfig.missing, missingPrefix, genericValidator.series.missing);
+    const seriesReusePrefix = seriesPrefix + 'reuse - ';
+    addErrorMessages(errorMessages, seriesConfig.reuse, seriesReusePrefix, genericValidator.series.reuse);
   }
   else {
     errorMessages.push(seriesPrefix + objectValidator.getErrorMessage(randomConfig.series));
@@ -246,6 +258,14 @@ export function validateRandomConfig(randomConfig: any, generator?: string): boo
     console.warn('random config had error messages: ', errorMessages.join('\n'));
   }
   return errorMessages.length === 0;
+}
+
+/**
+ * Validated restore for a shared random config: share payloads are untrusted,
+ * so the valid flag is computed here, never taken from the sender.
+ */
+export function restoreSharedRandomConfig(randomConfig: DemoRandomConfig, generator?: string): RandomConfigWithValid {
+  return { ...randomConfig, valid: validateRandomConfig(randomConfig, generator) };
 }
 
 function neutralizedReuseSection(reuse: Record<string, unknown>): Record<string, unknown> {

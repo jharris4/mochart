@@ -9,7 +9,7 @@ import RandomConfigTab from './RandomConfigTab.vue';
 import RandomDataTab from './RandomDataTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -42,7 +42,7 @@ const initialShared = sharedState && sharedState.mode === 'random' ? sharedState
 const initialRate = initialShared ? initialShared.interval : undefined;
 
 const randomConfig = shallowRef<RandomConfigWithValid>(
-  initialShared ? { ...initialShared.randomConfig, valid: true } : props.initialRandomConfig);
+  initialShared ? restoreSharedRandomConfig(initialShared.randomConfig, props.generator) : props.initialRandomConfig);
 const dataProvider = shallowRef<DemoDataProvider | null>(null);
 const data = shallowRef<unknown>(null);
 // Reuse defaults on to match the generator's historical behavior (the

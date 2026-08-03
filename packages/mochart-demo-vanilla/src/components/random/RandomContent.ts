@@ -10,7 +10,7 @@ import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
+import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -60,7 +60,7 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
   const sharedRandom = shared && shared.mode === 'random' ? shared : null;
 
   let randomConfig: RandomConfigWithValid = sharedRandom
-    ? { ...sharedRandom.randomConfig, valid: true }
+    ? restoreSharedRandomConfig(sharedRandom.randomConfig, generator)
     : initialRandomConfig;
   let dataProvider: DemoDataProvider | null = null;
   let data: unknown = null;

@@ -9,7 +9,7 @@
   import RandomDataTab from './RandomDataTab.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
 
-  import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse } from '@mochart/demo-common';
+  import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
   import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
 
@@ -52,7 +52,7 @@
   const sharedState = consumeShareState('random');
   const shared = sharedState && sharedState.mode === 'random' ? sharedState : null;
   // svelte-ignore state_referenced_locally
-  const initialResolvedRandomConfig: RandomConfigWithValid = shared ? { ...shared.randomConfig, valid: true } : initialRandomConfig;
+  const initialResolvedRandomConfig: RandomConfigWithValid = shared ? restoreSharedRandomConfig(shared.randomConfig, generator) : initialRandomConfig;
   const initialRate = shared ? shared.interval : undefined;
 
   // svelte-ignore state_referenced_locally
