@@ -218,3 +218,28 @@ describe('filtered series-domain deltas drive the phase pacing', () => {
     }
   });
 });
+
+// Regression: getMaxDeltaPercentage omitted the tooltip key, so tooltip-value
+// changes never counted toward the phase pacing -- a tooltip-only transition
+// degraded to a 0-duration jump and mixed transitions under-interpolated the
+// hovered values before snapping on the final frame.
+describe('tooltip value deltas drive the phase pacing', () => {
+  it('counts a tooltip-only change and keeps its factor >= 1', () => {
+    const tooltipConfig = makeConfig({
+      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
+      seriesConfigs: [{ property: 'a', tooltipProperty: 'info', renderer: 'bar' }]
+    });
+    const dataFor = (rows: Record<string, number>[]) =>
+      getChartData(tooltipConfig, new ArrayOfObjectsDataProvider(rows, 'g'), {});
+    const cad = getChartAnimationData(
+      tooltipConfig,
+      dataFor([{ g: 0, a: 10, info: 100 }, { g: 1, a: 20, info: 200 }]),
+      dataFor([{ g: 0, a: 10, info: 900 }, { g: 1, a: 20, info: 50 }])
+    ) as any;
+
+    const raw = cad.valueChangeData.deltas.raw;
+    expect(raw.deltas.S0.tooltip.deltaPercentage).toBeGreaterThan(0);
+    expect(raw.deltaPercentage).toBeGreaterThanOrEqual(raw.deltas.S0.tooltip.deltaPercentage);
+    expect(raw.deltas.S0.tooltip.deltaFactor).toBeGreaterThanOrEqual(1);
+  });
+});

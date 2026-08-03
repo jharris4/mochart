@@ -767,7 +767,8 @@ function getMaxDeltaPercentage(valueDeltaObject: ValueDeltaObject): number {
   return Math.max(valueDeltaObject.plain.deltaPercentage, valueDeltaObject.range.deltaPercentage,
     valueDeltaObject.errorLow.deltaPercentage, valueDeltaObject.errorHigh.deltaPercentage,
     valueDeltaObject.stack.deltaPercentage, valueDeltaObject.marker.deltaPercentage,
-    valueDeltaObject.color.deltaPercentage, valueDeltaObject.label.deltaPercentage);
+    valueDeltaObject.color.deltaPercentage, valueDeltaObject.label.deltaPercentage,
+    valueDeltaObject.tooltip.deltaPercentage);
 }
 
 function getAllDeltaCopied(valueDeltaObject: ValueDeltaObject): boolean {
