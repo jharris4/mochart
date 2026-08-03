@@ -89,12 +89,9 @@ export default class Legend extends Renderer<LegendProps> {
       onSeriesFilter(seriesId);
     }
     if (legendConfig.focusOnClick) {
-      if (focusedSeriesId !== undefined && focusedSeriesId !== null) {
-        onFocus({ seriesId: null });
-      }
-      else {
-        onFocus({ seriesId });
-      }
+      // toggle per series like the other click-to-focus sites: clicking the
+      // focused item clears, clicking any other item moves the focus
+      onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId });
     }
   }
 

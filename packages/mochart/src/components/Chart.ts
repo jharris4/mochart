@@ -4,6 +4,7 @@ import type { ElSlot, RendererItem, RendererList, Slot } from '../render';
 import { getVersionString } from '../version';
 import { hasConfigStructureChange } from '../config/core/mochartConfig';
 import { isDataProviderValid, getGroupSeriesValueObject, getChartDataGroupCount } from '../data/ChartData';
+import { indexOfGroupValue } from '../animation/GroupAnimationData';
 import type { GroupSeriesValueObject } from '../data/ChartData';
 import { getChartLayoutInfo, getChartLayoutInfoWithMutations } from '../layout/ChartLayout';
 import { getTooltipLayoutInfo, getTooltipLayoutInfoWithMutations } from '../layout/TooltipLayout';
@@ -612,9 +613,16 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
               const newGroupValues = chartData.groupData.values.raw;
               if (oldGroupValues && newGroupValues) {
                 const groupValue = oldGroupValues[tooltipGroupIndex];
-                tooltipGroupIndex = newGroupValues.indexOf(groupValue);
-                tooltipValueObject = getGroupSeriesValueObject(chartData, tooltipGroupIndex);
-                tooltipStateSource = { ...this.state, tooltipGroupIndex, tooltipValueObject };
+                tooltipGroupIndex = indexOfGroupValue(newGroupValues, groupValue);
+                if (tooltipGroupIndex >= 0) {
+                  tooltipValueObject = getGroupSeriesValueObject(chartData, tooltipGroupIndex);
+                  tooltipStateSource = { ...this.state, tooltipGroupIndex, tooltipValueObject };
+                }
+                else {
+                  // the tooltip's group disappeared: close fully so the next
+                  // click opens instead of toggling an invisible tooltip
+                  tooltipStateSource = getInitialTooltipState();
+                }
               }
               else {
                 tooltipStateSource = getInitialTooltipState();

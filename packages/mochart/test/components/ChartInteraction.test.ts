@@ -734,3 +734,78 @@ describe('followSeries follower focus', () => {
     expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
   });
 });
+
+// Regression: legend focus-on-click cleared the focus whenever anything was
+// focused instead of toggling per series like every other click-to-focus site.
+describe('legend focus on click', () => {
+  it('moves the focus to the clicked item and toggles the focused one', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      legendConfig: { focusOnClick: true },
+      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+    }), { onFocus: focus => { focuses.push(focus); } });
+
+    const itemFor = (id: string) => container.querySelector('.mochart-legend-item-' + id)!;
+    itemFor('S0').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S0');
+
+    itemFor('S1').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
+
+    itemFor('S1').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
+  });
+});
+
+// Regression: removing the tooltip's group left tooltipVisible true at index
+// -1, so the next plot click toggled an invisible tooltip and was swallowed.
+describe('tooltip on a removed group', () => {
+  it('closes fully so the next click opens a tooltip again', () => {
+    const container = mountChart(makeConfig());
+    const handle = handles[handles.length - 1];
+    const root = chartRoot(container);
+
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'click', 100, 100);
+    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+
+    handle.update({ data: [{ month: 'Feb', sales: 20, costs: 8 }, { month: 'Mar', sales: 30, costs: 13 }] } as Partial<DefaultChartProps>);
+    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+
+    mouse(root, 'click', 100, 100);
+    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+  });
+});
+
+// Regression: the tooltip's last-line style was keyed to the raw config index,
+// so a filtered tail left every rendered row with bottom padding.
+describe('tooltip last-line style', () => {
+  it('drops the bottom padding on the last rendered row', () => {
+    const container = mountChart(makeConfig({
+      seriesConfigs: [{ property: 'sales' }, { property: 'costs', showInTooltip: false }]
+    }));
+    const root = chartRoot(container);
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'click', 100, 100);
+
+    const rows = container.querySelectorAll('.mochart-tooltip .mochart-tooltip-series-line') as NodeListOf<HTMLElement>;
+    expect(rows.length).toBe(1);
+    // the last rendered row keeps only the uniform item padding (2px), not
+    // the 3px linePadding that separates non-final rows
+    expect(rows[0].style.paddingBottom).toBe('2px');
+  });
+
+  it('keeps the padding on non-final rows', () => {
+    const container = mountChart(makeConfig({
+      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+    }));
+    const root = chartRoot(container);
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'click', 100, 100);
+
+    const rows = container.querySelectorAll('.mochart-tooltip .mochart-tooltip-series-line') as NodeListOf<HTMLElement>;
+    expect(rows.length).toBe(2);
+    expect(rows[0].style.paddingBottom).toBe('3px');
+    expect(rows[1].style.paddingBottom).toBe('2px');
+  });
+});

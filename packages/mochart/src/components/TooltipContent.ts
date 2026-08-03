@@ -366,6 +366,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     }
 
     const valueFormats = getSeriesFormats(seriesConfigs, seriesAxisConfigs, axisDomains);
+    let lastSeriesLineIndex = -1;
     for (const seriesConfig of seriesConfigs) {
       if (!seriesConfig.showInTooltip) {
         continue;
@@ -388,18 +389,24 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         };
         const { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForSuppression, pieValues);
         if (valueText !== null) {
+          lastSeriesLineIndex = tooltipLines.length;
           tooltipLines.push({
             key: 'series-' + seriesId,
             ctor: TooltipSeriesLine,
             props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsSuppressed, seriesFocusPercentage,
               colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
-              style: seriesIndex === seriesConfigs.length - 1 ? lastLineStyle : lineStyle,
+              style: lineStyle,
               onMouseEnter: (event: Event) => this.onSeriesMouseEnter(event, focusSeriesId),
               onMouseLeave: (event: Event) => this.onSeriesMouseLeave(event),
               onClick: (event: Event) => this.onSeriesClick(event, focusSeriesId) }
           });
         }
       }
+    }
+
+    // the last rendered row drops the bottom padding, not the last config
+    if (lastSeriesLineIndex !== -1) {
+      (tooltipLines[lastSeriesLineIndex].props as { style: unknown }).style = lastLineStyle;
     }
 
     this.lines.sync(tooltipLines);
