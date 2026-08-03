@@ -151,7 +151,15 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
     const stringPrefix = groupPrefix + 'string - ';
     addErrorMessages(errorMessages, groupConfig.string, stringPrefix, genericValidator.group.string);
     if (errorMessages.length === 0) {
-      const { count, number, date } = groupConfig;
+      const { count, number, date, string, reuse } = groupConfig;
+
+      // mirrors generateChartGroupValues: the step-preview lineages draw up to global + 3*halfStep uniques
+      const globalPercentage = typeof reuse?.globalPercentage === 'number' ? reuse.globalPercentage : 0;
+      const stepPercentage = typeof reuse?.stepPercentage === 'number' ? reuse.stepPercentage : 0;
+      const globalCount = Math.floor(globalPercentage * count);
+      const stepCount = globalPercentage < 1 && stepPercentage > 0 ? 2 * Math.floor((count - globalCount) * stepPercentage / 2.0) : 0;
+      const halfStepCount = Math.floor(stepCount / 2);
+      const requiredDistinct = Math.max(count, globalCount + 3 * halfStepCount);
 
       const minDate = new Date(date.min).getTime();
       const maxDate = new Date(date.max).getTime();
@@ -173,7 +181,7 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
       dateInterval *= dateUnit;
       dateRange = Math.floor(dateRange / dateInterval);
 
-      if (dateRange < count.max) {
+      if (dateRange < requiredDistinct) {
         errorMessages.push(datePrefix + 'range insufficient to fulfill group count');
       }
 
@@ -183,8 +191,14 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
       const interval = number.interval;
       range = Math.floor(range / interval);
 
-      if (range < count.max) {
+      if (range < requiredDistinct) {
         errorMessages.push(numberPrefix + 'range insufficient to fulfill group count');
+      }
+
+      const stringRange = Math.pow(10, string.maxLength - 1) - Math.pow(10, string.minLength - 1);
+
+      if (stringRange < requiredDistinct) {
+        errorMessages.push(stringPrefix + 'range insufficient to fulfill group count');
       }
     }
   }

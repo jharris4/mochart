@@ -63,6 +63,40 @@ describe('validateRandomConfig', () => {
   it('falls back to the generic schema for unknown generator ids', () => {
     expect(validateRandomConfig(genericConfig, 'not-a-generator')).toBe(true);
   });
+
+  // Regression: these checks compared against count.max on a scalar count, so
+  // they never fired and an insufficient range froze the page in the
+  // generator's uniqueness retry loop.
+  describe('group range sufficiency', () => {
+    function withGroup(overrides: Record<string, unknown>) {
+      return { ...genericConfig, group: { ...genericConfig.group, ...overrides } };
+    }
+
+    it('rejects a number range too small for the group count', () => {
+      expect(validateRandomConfig(withGroup({ number: { min: 0, max: 5, interval: 1 } }))).toBe(false);
+    });
+
+    it('rejects a date range too small for the group count', () => {
+      expect(validateRandomConfig(withGroup({
+        date: { min: '2014-01-01', max: '2014-01-05', interval: 1, intervalUnit: 'day' }
+      }))).toBe(false);
+    });
+
+    it('rejects a string range too small for the group count', () => {
+      expect(validateRandomConfig(withGroup({ string: { minLength: 1, maxLength: 1 } }))).toBe(false);
+    });
+
+    it('accounts for the step-reuse preview lineages', () => {
+      // count 12, stepPercentage 1 -> preview lineages need 18 uniques; 15 lattice values is enough for count alone
+      const number = { min: 0, max: 14, interval: 1 };
+      expect(validateRandomConfig(withGroup({
+        count: 12, number, reuse: { globalPercentage: 0, stepPercentage: 1 }
+      }))).toBe(false);
+      expect(validateRandomConfig(withGroup({
+        count: 12, number, reuse: { globalPercentage: 0, stepPercentage: 0 }
+      }))).toBe(true);
+    });
+  });
 });
 
 describe('neutralizeRandomReuse', () => {
