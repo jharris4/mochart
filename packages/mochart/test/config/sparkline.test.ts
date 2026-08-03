@@ -28,6 +28,19 @@ describe('createSparklineConfig', () => {
     expect(mochartConfig.seriesConfigs[0].markerShape).toBeNull();
   });
 
+  // Regression: with no declared seriesAxisConfigs the all-config never
+  // reached the synthesized default axis, so the axis stayed visible.
+  it('hides the synthesized axis when the config declares none', () => {
+    const config = baseConfig();
+    delete config.seriesAxisConfigs;
+    config.seriesConfigs = [{ property: 'value', renderer: 'line' }];
+    const mochartConfig = enhanceConfig(createSparklineConfig(config));
+    expect(mochartConfig.validation.valid).toBe(true);
+    expect(mochartConfig.seriesAxisConfigs.length).toBe(1);
+    expect(mochartConfig.seriesAxisConfigs[0].visible).toBe(false);
+    expect(mochartConfig.seriesConfigs[0].axis).toBe(mochartConfig.seriesAxisConfigs[0].id);
+  });
+
   it('hides every series axis when there are several', () => {
     const config = baseConfig();
     config.seriesAxisConfigs = [{ id: 'sa' }, { id: 'sb' }];
