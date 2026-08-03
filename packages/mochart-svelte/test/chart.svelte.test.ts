@@ -223,3 +223,30 @@ describe('DefaultChart', () => {
     el.remove();
   });
 });
+
+// Regression: a prop deleted from the spread never reached the chart, so the
+// previous value survived every later update.
+describe('removed props', () => {
+  it('clears the loading state when the prop is deleted', () => {
+    const el = target();
+    const mochartConfig = enhanceConfig(rawConfig());
+    const props: { mochartConfig: any; dataProvider: any; loading?: boolean; width: number; height: number } = $state({
+      mochartConfig,
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      loading: true,
+      width: 400,
+      height: 300
+    });
+    const instance = mount(Chart, { target: el, props });
+    flushSync();
+    expect(el.querySelector('.mochart-loading')).not.toBeNull();
+
+    delete props.loading;
+    flushSync();
+    expect(el.querySelector('.mochart-loading')).toBeNull();
+    expect(el.querySelector('svg')).not.toBeNull();
+
+    unmount(instance);
+    el.remove();
+  });
+});

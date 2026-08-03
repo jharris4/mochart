@@ -49,7 +49,7 @@ export function mountChartHost(create: CreateChartFn, container: HTMLElement, pr
       }
       measured = next;
       if (lastProps.width === undefined || lastProps.height === undefined) {
-        chart.update(withSize(lastProps, measured));
+        chart.replace(withSize(lastProps, measured));
       }
     });
     observer.observe(container);
@@ -58,7 +58,7 @@ export function mountChartHost(create: CreateChartFn, container: HTMLElement, pr
   return {
     update(nextProps: Record<string, any>) {
       lastProps = placeholders.transform(nextProps);
-      chart.update(withSize(lastProps, measured));
+      chart.replace(withSize(lastProps, measured));
     },
     destroy() {
       if (observer) {

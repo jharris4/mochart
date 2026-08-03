@@ -219,3 +219,33 @@ describe('DefaultChart', () => {
     el.remove();
   });
 });
+
+// Regression: a cleared placeholder component left its stale factory in the
+// chart, so the custom component kept rendering forever.
+describe('removed placeholder components', () => {
+  it('falls back to the built-in placeholder when the component is cleared', async () => {
+    const Loading = markRaw(
+      defineComponent({
+        name: 'Loading',
+        setup: () => () => h('div', 'Custom loading')
+      })
+    );
+    const { el, app, state } = mountWith(Chart, {
+      mochartConfig: null,
+      dataProvider: null,
+      loading: true,
+      loadingComponent: Loading,
+      width: 400,
+      height: 300
+    });
+    expect(el.textContent).toContain('Custom loading');
+
+    state.loadingComponent = undefined;
+    await nextTick();
+    expect(el.textContent).not.toContain('Custom loading');
+    expect(el.querySelector('.mochart-loading')).not.toBeNull();
+
+    app.unmount();
+    el.remove();
+  });
+});

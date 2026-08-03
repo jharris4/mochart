@@ -1,4 +1,4 @@
-import { ApplicationRef, Directive, ElementRef, EnvironmentInjector, EventEmitter, Input, Output, inject } from '@angular/core';
+import { ApplicationRef, Directive, ElementRef, EnvironmentInjector, EventEmitter, Input, Output, PLATFORM_ID, inject } from '@angular/core';
 import type { AfterViewInit, OnChanges, OnDestroy } from '@angular/core';
 import { mountChartHost } from './host';
 import type { CreateChartFn, HostHandle } from './host';
@@ -59,6 +59,8 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   private readonly elementRef = inject(ElementRef) as ElementRef<HTMLElement>;
   private readonly environmentInjector = inject(EnvironmentInjector);
   private readonly applicationRef = inject(ApplicationRef);
+  // same comparison isPlatformBrowser makes, without a @angular/common peer
+  private readonly isBrowser = inject(PLATFORM_ID) === 'browser';
   private host: HostHandle | null = null;
 
   /** createChart or createDefaultChart from the mochart core. */
@@ -106,6 +108,10 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    // Under SSR this runs on the server too; the chart only mounts in a browser.
+    if (!this.isBrowser) {
+      return;
+    }
     const placeholders = createPlaceholderAdapter(this.environmentInjector, this.applicationRef);
     this.host = mountChartHost(this.create, this.elementRef.nativeElement, this.buildProps(), placeholders);
   }

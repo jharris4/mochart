@@ -3,7 +3,7 @@
 import '@angular/compiler';
 
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
-import { Component, Input, provideZonelessChangeDetection } from '@angular/core';
+import { Component, Input, PLATFORM_ID, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
@@ -228,5 +228,45 @@ describe('DefaultChart', () => {
     expect(el.textContent).not.toContain('Loading');
 
     fixture.destroy();
+  });
+});
+
+// Regression: ngAfterViewInit ran the full chart mount on the server too.
+describe('server-side rendering', () => {
+  it('does not mount the chart under a non-browser platform', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection(), { provide: PLATFORM_ID, useValue: 'server' }]
+    });
+    const mochartConfig = enhanceConfig(rawConfig());
+    const fixture = createWith(Chart, {
+      mochartConfig,
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      width: 400,
+      height: 300
+    });
+    expect(fixture.nativeElement.querySelector('svg')).toBeNull();
+  });
+});
+
+// Regression: a cleared placeholder component left its stale factory in the
+// chart, so the custom component kept rendering forever.
+describe('removed placeholder components', () => {
+  it('falls back to the built-in placeholder when the input is cleared', () => {
+    const fixture = createWith(Chart, {
+      mochartConfig: null,
+      dataProvider: null,
+      loading: true,
+      loadingComponent: Loading,
+      width: 400,
+      height: 300
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Loading 400x300');
+
+    fixture.componentRef.setInput('loadingComponent', undefined);
+    fixture.detectChanges();
+    expect(el.textContent).not.toContain('Loading 400x300');
+    expect(el.querySelector('.mochart-loading')).not.toBeNull();
   });
 });

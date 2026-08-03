@@ -223,3 +223,25 @@ describe('defaultChart', () => {
     el.remove();
   });
 });
+
+// Regression: a prop absent from the next render kept its previous value.
+describe('removed props', () => {
+  it('clears the loading state when the prop is removed', async () => {
+    const mochartConfig = enhanceConfig(rawConfig());
+    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const el = mountPoint();
+    const template = (extra: Record<string, unknown>) =>
+      html`${chart({ mochartConfig, dataProvider, width: 400, height: 300, ...extra })}`;
+
+    render(template({ loading: true }), el);
+    await flushMount();
+    expect(el.querySelector('.mochart-loading')).not.toBeNull();
+
+    render(template({}), el);
+    expect(el.querySelector('.mochart-loading')).toBeNull();
+    expect(el.querySelector('svg')).not.toBeNull();
+
+    render(nothing, el);
+    el.remove();
+  });
+});

@@ -252,3 +252,52 @@ describe('DefaultChart', () => {
     container.remove();
   });
 });
+
+// Regression: the core handle merged partial props, so a prop absent from the
+// next render kept its previous value instead of being unset.
+describe('removed props', () => {
+  it('clears the loading state when the prop is removed', () => {
+    const { container, root } = host();
+    const mochartConfig = enhanceConfig(rawConfig());
+    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+
+    act(() => {
+      root.render(<Chart mochartConfig={mochartConfig} dataProvider={dataProvider} loading width={400} height={300} />);
+    });
+    expect(container.querySelector('.mochart-loading')).not.toBeNull();
+
+    act(() => {
+      root.render(<Chart mochartConfig={mochartConfig} dataProvider={dataProvider} width={400} height={300} />);
+    });
+    expect(container.querySelector('.mochart-loading')).toBeNull();
+    expect(container.querySelector('svg')).not.toBeNull();
+
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  it('falls back to the built-in placeholder when the component prop is removed', () => {
+    const { container, root } = host();
+    function Loading() {
+      return <div>Custom loading</div>;
+    }
+
+    act(() => {
+      root.render(<Chart mochartConfig={null} dataProvider={null} loading loadingComponent={Loading} width={400} height={300} />);
+    });
+    expect(container.textContent).toContain('Custom loading');
+
+    act(() => {
+      root.render(<Chart mochartConfig={null} dataProvider={null} loading width={400} height={300} />);
+    });
+    expect(container.textContent).not.toContain('Custom loading');
+    expect(container.querySelector('.mochart-loading')).not.toBeNull();
+
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
+});

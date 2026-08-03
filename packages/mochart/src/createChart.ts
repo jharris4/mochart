@@ -9,6 +9,12 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
    * through the staged animation phases when animation is enabled.
    */
   update(nextProps: Partial<TProps>): void;
+  /**
+   * Replace the props wholesale: a key absent from `nextProps` is unset and
+   * returns to chart-managed behavior, where `update` would keep its previous
+   * value. For hosts that pass the complete prop set on every render.
+   */
+  replace(nextProps: TProps): void;
   /** Cancel running tweens and remove the chart's DOM from the container. */
   destroy(): void;
 }
@@ -25,6 +31,10 @@ export function createChart(container: Element, props: ManagedChartProps): Chart
   return {
     update(nextProps: Partial<ManagedChartProps>) {
       currentProps = { ...currentProps, ...nextProps };
+      controller.update(currentProps);
+    },
+    replace(nextProps: ManagedChartProps) {
+      currentProps = { ...nextProps };
       controller.update(currentProps);
     },
     destroy() {
@@ -46,6 +56,12 @@ export function createDefaultChart(container: Element, props: DefaultChartProps)
     update(nextProps: Partial<DefaultChartProps>) {
       const prevProps = currentProps;
       currentProps = { ...currentProps, ...nextProps };
+      input.update(prevProps, currentProps);
+      controller.update(toManagedProps(currentProps, input));
+    },
+    replace(nextProps: DefaultChartProps) {
+      const prevProps = currentProps;
+      currentProps = { ...nextProps };
       input.update(prevProps, currentProps);
       controller.update(toManagedProps(currentProps, input));
     },
