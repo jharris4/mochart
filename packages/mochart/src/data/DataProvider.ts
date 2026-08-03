@@ -20,7 +20,7 @@ export class ArrayOfObjectsDataProvider<
   }
 
   getSeriesValue(groupValue: TRow[TGroupProperty], _groupIndex: number, seriesProperty: string): unknown {
-    return this.rowsByGroupValue[String(groupValue)][seriesProperty];
+    return this.rowsByGroupValue[String(groupValue)]?.[seriesProperty];
   }
 }
 
@@ -41,6 +41,7 @@ export class ObjectOfArraysDataProvider<
   }
 
   getSeriesValue(_groupValue: TData[TGroupProperty][number], groupIndex: number, seriesProperty: string): unknown {
-    return this.data[seriesProperty][groupIndex];
+    // a property absent from the data reads as missing, like the row provider
+    return this.data[seriesProperty]?.[groupIndex];
   }
 }

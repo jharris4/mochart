@@ -62,3 +62,20 @@ describe('ObjectOfArraysDataProvider', () => {
     expect(provider.getSeriesValue('ignored', 2, 'costs')).toBe(12);
   });
 });
+
+// Regression: a configured property absent from the data threw a TypeError
+// (crashing getDataErrors, the API meant to report it) instead of reading as
+// missing like the row provider.
+describe('missing properties and groups', () => {
+  const data = { month: ['Jan', 'Feb'], sales: [10, 20] };
+  const rows = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
+
+  it('reads an unknown property as undefined in both providers', () => {
+    expect(new ObjectOfArraysDataProvider(data, 'month').getSeriesValue('Jan', 0, 'vlaue')).toBeUndefined();
+    expect(new ArrayOfObjectsDataProvider(rows, 'month').getSeriesValue('Jan', 0, 'vlaue')).toBeUndefined();
+  });
+
+  it('reads an unknown group value as undefined in the row provider', () => {
+    expect(new ArrayOfObjectsDataProvider(rows, 'month').getSeriesValue('Apr', 0, 'sales')).toBeUndefined();
+  });
+});

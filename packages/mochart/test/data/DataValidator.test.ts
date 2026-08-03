@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getDataErrors } from '../../src/data/DataValidator';
 import { makeConfig, ArrayOfObjectsDataProvider } from './fixtures';
+import { ObjectOfArraysDataProvider } from '../../src/data/DataProvider';
 import type { DataProvider } from '../../src/types/data';
 
 function stringConfig() {
@@ -192,5 +193,22 @@ describe('getDataErrors', () => {
       getError: () => 'broken'
     } as unknown as DataProvider;
     expect(getDataErrors(config, errored)).toEqual([]);
+  });
+});
+
+// Regression: getDataErrors crashed inside checkProperty for a mistyped
+// property on an ObjectOfArraysDataProvider instead of treating it as missing
+// data, diverging from the row provider.
+describe('getDataErrors with a mistyped property', () => {
+  it('reports identically for both providers instead of throwing', () => {
+    const config = makeConfig({
+      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
+      seriesConfigs: [{ property: 'vlaue' }]
+    });
+    const columns = new ObjectOfArraysDataProvider({ month: ['Jan', 'Feb'], value: [1, 2] }, 'month');
+    const rows = new ArrayOfObjectsDataProvider([{ month: 'Jan', value: 1 }, { month: 'Feb', value: 2 }], 'month');
+    let columnErrors: string[] = [];
+    expect(() => { columnErrors = getDataErrors(config, columns as never); }).not.toThrow();
+    expect(columnErrors).toEqual(getDataErrors(config, rows as never));
   });
 });
