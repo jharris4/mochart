@@ -76,9 +76,22 @@ export function isPropertyPosition(state: EditorState, position: number, object:
     }
     node = node.parent;
   }
+  // find the last comma/colon outside string literals: raw indexOf would be
+  // fooled by punctuation inside string values ("Sales, weekly")
   const prefix = state.sliceDoc(object.from + 1, position);
-  const comma = prefix.lastIndexOf(',');
-  const colon = prefix.lastIndexOf(':');
+  let comma = -1;
+  let colon = -1;
+  let inString = false;
+  for (let i = 0; i < prefix.length; i++) {
+    const char = prefix[i];
+    if (inString) {
+      if (char === '\\') i++;
+      else if (char === '"') inString = false;
+    }
+    else if (char === '"') inString = true;
+    else if (char === ',') comma = i;
+    else if (char === ':') colon = i;
+  }
   return colon < comma || colon === -1;
 }
 

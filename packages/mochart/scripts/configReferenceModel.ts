@@ -202,6 +202,8 @@ export interface SectionDoc {
   /** Companion `*AllConfig` key whose values apply to every entry, if any. */
   allKey?: string;
   allDescription?: string;
+  /** Per-entry unique properties (e.g. id/order) — not settable on the all config. */
+  uniqueKeys?: string[];
   /** 'object' for single sections, 'array' for config lists. */
   shape: 'object' | 'array';
   properties: PropertyDoc[];
@@ -700,6 +702,9 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
   if (allKey) {
     section.allKey = allKey;
     section.allDescription = sectionDescriptions[allKey];
+  }
+  if (sectionValidator.uniqueKeys) {
+    section.uniqueKeys = sectionValidator.uniqueKeys;
   }
   return section;
 }

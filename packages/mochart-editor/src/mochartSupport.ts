@@ -84,7 +84,13 @@ function propertiesForObject(path: JsonPath): EditorPropertyModel[] {
   const keys = path.filter((segment): segment is string => typeof segment === 'string');
   const section = sectionForPath(path);
   if (!section) return [];
-  if (keys.length === 1) return section.properties;
+  if (keys.length === 1) {
+    // unique properties cannot be set on an all config, so don't offer them
+    const { uniqueKeys } = section;
+    return path[0] === section.allKey && uniqueKeys
+      ? section.properties.filter(property => !uniqueKeys.includes(property.key))
+      : section.properties;
+  }
   let property = section.properties.find(candidate => candidate.key === keys[1]) ?? null;
   for (const key of keys.slice(2)) property = nestedPropertyFor(property, key);
   return nestedProperties(property);

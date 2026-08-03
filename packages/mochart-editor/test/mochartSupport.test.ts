@@ -122,3 +122,31 @@ describe('Mochart support diagnostics', () => {
     }
   });
 });
+
+// Regression: completions inside an all-config object offered id/order, which
+// validation immediately rejects as unique properties.
+describe('all-config completions', () => {
+  it('omits unique keys inside an all config but keeps them in entries', async () => {
+    const allOptions = await completionOptions('{"seriesAllConfig": {"|": null}}');
+    expect(labels(allOptions)).toContain('renderer');
+    expect(labels(allOptions)).not.toContain('id');
+    expect(labels(allOptions)).not.toContain('order');
+
+    const entryOptions = await completionOptions('{"seriesConfigs": [{"|": null}]}');
+    expect(labels(entryOptions)).toContain('id');
+    expect(labels(entryOptions)).toContain('order');
+  });
+});
+
+// Regression: the property-position fallback scanned raw text, so a comma
+// inside a string value made completions insert a property with no separating
+// comma, producing invalid JSON.
+describe('completions after a comma-containing string value', () => {
+  it('does not offer property-name completions right after the value', async () => {
+    const withComma = await completionOptions('{"titleConfig": {"title": "Sales, weekly" |}}');
+    expect(labels(withComma)).not.toContain('align');
+
+    const afterComma = await completionOptions('{"titleConfig": {"title": "Sales, weekly", |}}');
+    expect(labels(afterComma)).toContain('align');
+  });
+});
