@@ -196,6 +196,7 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
 
   return {
     length, // the generators expect an array, but we don't need one, so fake it...
+    skipped: skip,
     skipGroupIndexMap,
     getDefined,
     groupPositions,

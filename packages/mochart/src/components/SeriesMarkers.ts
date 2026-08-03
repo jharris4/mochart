@@ -55,7 +55,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
       const { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor, markerStrokeOpacity, markerFillOpacity, markerStrokeWidth;
-      const { skipMissing, markerShape, markerShowMissing, markerSize, minMarkerSize } = seriesConfig;
+      const { markerShape, markerShowMissing, markerSize, minMarkerSize } = seriesConfig;
       const { normal: markerNormal, focused: markerFocused, defocused: markerDefocused } = seriesConfig.markerStyle;
       const markers: MarkerItem[] = [];
       let markerSizes: Array<number | undefined> | null = null;
@@ -68,15 +68,14 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
         const markerMax = markerDomain[1]!;
         const markerExtent = Math.max(1, (markerMax - markerMin));
         const markerSizeExtent = markerSize - minMarkerSize;
+        // Raw-indexed: marker values can be missing in a different pattern than
+        // the main values, so this must not follow the position compaction.
         const count = markerValues.length;
         for (let m = 0; m < count; m++) {
           const markerValue = markerValues[m];
-          if (markerValue !== undefined) {
-            markerSizes.push(minMarkerSize + (markerValue - markerMin) / markerExtent * markerSizeExtent);
-          }
-          else if (!skipMissing) {
-            markerSizes.push(undefined);
-          }
+          markerSizes.push(markerValue !== undefined
+            ? minMarkerSize + (markerValue - markerMin) / markerExtent * markerSizeExtent
+            : undefined);
         }
       }
 
@@ -87,14 +86,14 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
 
       let focusPercentage;
 
-      const { length, getDefined, getSeriesPosition, getGroupPosition, skipGroupIndexMap } = seriesPositionData;
+      const { length, getDefined, getSeriesPosition, getGroupPosition, skipped, skipGroupIndexMap } = seriesPositionData;
 
       for (let i = 0; i < length; i++) {
-        const skipI = skipMissing ? skipGroupIndexMap[i] : i;
+        const skipI = skipped ? skipGroupIndexMap[i] : i;
         if (getDefined(null, i) && (markerShowMissing || max[skipI] !== undefined)) {
           focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
-          markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
-          markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
+          markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
+          markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeWidth = getFocusValue(focusPercentage, markerNormal.strokeWidth!, markerFocused.strokeWidth!, markerDefocused.strokeWidth!);
           markerStrokeOpacity = getFocusValue(focusPercentage, markerNormal.strokeOpacity!, markerFocused.strokeOpacity!, markerDefocused.strokeOpacity!);
           markerFillOpacity = getFocusValue(focusPercentage, markerNormal.fillOpacity!, markerFocused.fillOpacity!, markerDefocused.fillOpacity!);
@@ -110,7 +109,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
           let theSymbol = globalSymbol;
           let currentMarkerSize: number | undefined = markerSize;
           if (markerSizes !== null) {
-            currentMarkerSize = markerSizes[i];
+            currentMarkerSize = markerSizes[skipI];
             if (currentMarkerSize !== undefined) {
               theSymbol = symbolGenerator.size(currentMarkerSize * currentMarkerSize)();
             }

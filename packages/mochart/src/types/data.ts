@@ -103,6 +103,8 @@ export type SeriesPositionAccessor = (_datum: unknown, index: number) => SeriesP
 
 export interface SeriesPositionData extends ArrayLike<unknown> {
   readonly length: number;
+  /** True when positions were compacted (skipMissing without showMissingAtBase). */
+  skipped: boolean;
   skipGroupIndexMap: Record<number, number>;
   getDefined: (_datum: unknown, index: number) => boolean;
   groupPositions: number[];

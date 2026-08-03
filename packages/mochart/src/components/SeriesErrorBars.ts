@@ -50,12 +50,12 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
       hasErrorValues && seriesConfig.stack === NONE) {
       const { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
-      const { skipMissing, errorBarCapSize } = seriesConfig;
+      const { errorBarCapSize } = seriesConfig;
       const { normal: errorBarNormal, focused: errorBarFocused, defocused: errorBarDefocused } = seriesConfig.errorBarStyle;
       const errorLowValues = filteredValues.errorLow;
       const errorHighValues = filteredValues.errorHigh;
 
-      const { length, getDefined, getSeriesPosition, getGroupPosition, getOffsetGroupPosition, groupValueExtent, skipGroupIndexMap } = seriesPositionData;
+      const { length, getDefined, getSeriesPosition, getGroupPosition, getOffsetGroupPosition, groupValueExtent, skipped, skipGroupIndexMap } = seriesPositionData;
 
       // A bar whisker centers on the bar's layout slot (the grouped sub-slot,
       // narrowed by barWidthPercent); other renderers center on the point.
@@ -66,9 +66,9 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
       const errorBars: ErrorBarItem[] = [];
       for (let i = 0; i < length; i++) {
         if (getDefined(null, i)) {
-          // Positions are compacted when skipMissing is set, but values and
-          // focus percentages stay indexed by the raw group index.
-          const skipI = skipMissing ? skipGroupIndexMap[i] : i;
+          // Positions may be compacted, but values and focus percentages stay
+          // indexed by the raw group index.
+          const skipI = skipped ? skipGroupIndexMap[i] : i;
           const errorLow = errorLowValues !== null ? errorLowValues[skipI] : undefined;
           const errorHigh = errorHighValues !== null ? errorHighValues[skipI] : undefined;
           if (errorLow === undefined && errorHigh === undefined) {

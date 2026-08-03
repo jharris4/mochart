@@ -116,13 +116,16 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
 
     let delta: Partial<SeriesState> = {};
     let updateState = false;
+    let positionsChanged = false;
     if (groupAxisConfig !== prevProps.groupAxisConfig || seriesConfig !== prevProps.seriesConfig ||
       groupValueData !== prevProps.groupValueData || seriesAxisScaleChanged || filteredValues !== prevProps.filteredValues) {
       delta = this.computeSeriesPositionData(props);
       seriesPositionData = delta.seriesPositionData ?? null;
+      positionsChanged = true;
       updateState = true;
     }
-    if (seriesConfig !== prevProps.seriesConfig || groupFocusChanged || seriesFocusChanged || onFocus !== prevProps.onFocus) {
+    // positionsChanged: the group-index listeners close over skipGroupIndexMap
+    if (positionsChanged || groupFocusChanged || seriesFocusChanged || onFocus !== prevProps.onFocus) {
       delta = { ...delta, ...this.buildEventListeners(props, seriesPositionData) };
       updateState = true;
     }
@@ -137,7 +140,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
     const focusedGroupIndex = focusData ? focusData.focusedGroupIndex : -1;
     const focusedSeriesId = focusData ? focusData.focusedSeriesId : null;
     const skipGroupIndexMap = seriesPositionData ? seriesPositionData.skipGroupIndexMap : {};
-    const getGroupIndex = seriesConfig.skipMissing ? (groupIndex: number) => skipGroupIndexMap[groupIndex] : (groupIndex: number) => groupIndex;
+    const getGroupIndex = seriesPositionData?.skipped ? (groupIndex: number) => skipGroupIndexMap[groupIndex] : (groupIndex: number) => groupIndex;
 
     let onSeriesEnter = noOp;
     let onSeriesLeave = noOp;
@@ -244,14 +247,13 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         const hasDifferentFillColors = shapeNormal.fillColor === COLOR_GROUP_INDEX;
         const hasDifferentColors = hasDifferentStrokeColors || hasDifferentFillColors;
         let focusPercentage;
-        const { skipMissing } = seriesConfig;
-        const { skipGroupIndexMap } = seriesPositionData;
+        const { skipped, skipGroupIndexMap } = seriesPositionData;
 
         for (let i = 0; i < seriesPositionData.length; i++) {
           if (seriesPositionData.getDefined(null, i)) {
-            // Positions are compacted when skipMissing is set, but focus and
-            // color values stay indexed by the raw group index.
-            const skipI = skipMissing ? skipGroupIndexMap[i] : i;
+            // Positions may be compacted, but focus and color values stay
+            // indexed by the raw group index.
+            const skipI = skipped ? skipGroupIndexMap[i] : i;
             focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
             if (seriesColorGenerator !== null) {
               barStrokeColor = seriesColorGenerator(skipI);
@@ -259,10 +261,10 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
             }
             else if (hasDifferentColors) {
               if (hasDifferentStrokeColors) {
-                barStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
+                barStrokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
               }
               if (hasDifferentFillColors) {
-                barFillColor = getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
+                barFillColor = getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
               }
             }
             else if (focusPercentage !== seriesFocusPercentage) {

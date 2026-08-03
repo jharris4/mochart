@@ -81,7 +81,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
     const { colorPaletteConfig, seriesConfig, seriesIndex, rawSeriesAxisDomain, seriesAxisScale, seriesPositionData,
       filteredValues, inverted, focusData, onGroupEnter, onGroupLeave, onGroupClick } = this.props;
     if (seriesConfig.labelProperty !== NONE) {
-      const { seriesAxisConfig, skipMissing } = seriesConfig;
+      const { seriesAxisConfig } = seriesConfig;
       const hasBase = seriesAxisConfig.base !== NONE;
       const domainMin = rawSeriesAxisDomain[0];
       const domainMax = rawSeriesAxisDomain[1];
@@ -220,18 +220,18 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         const aboveBaseDY = getDY(inverted, true, seriesConfig.labelPosition);
         const belowBaseDY = getDY(inverted, false, seriesConfig.labelPosition);
 
-        const { length, getDefined, getSeriesPosition, getGroupPosition, skipGroupIndexMap } = seriesPositionData;
+        const { length, getDefined, getSeriesPosition, getGroupPosition, skipped, skipGroupIndexMap } = seriesPositionData;
 
         for (let i = 0; i < length; i++) {
-          const skipI = skipMissing ? skipGroupIndexMap[i] : i;
+          const skipI = skipped ? skipGroupIndexMap[i] : i;
           if (getDefined(null, i) && labelValues[skipI] !== undefined && withinPercentages(maxValues[skipI]!, minValues ? minValues[skipI] : null)) {
             aboveBase = !hasBase || maxValues[skipI]! >= base;
             textAnchor = aboveBase ? aboveBaseTextAnchor : belowBaseTextAnchor;
             dy = aboveBase ? aboveBaseDY : belowBaseDY;
 
             focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
-            labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
-            labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, i);
+            labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
+            labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
             labelStrokeWidth = getFocusValue(focusPercentage, labelNormal.strokeWidth!, labelFocused.strokeWidth!, labelDefocused.strokeWidth!);
             labelStrokeOpacity = getFocusValue(focusPercentage, labelNormal.strokeOpacity!, labelFocused.strokeOpacity!, labelDefocused.strokeOpacity!);
             labelFillOpacity = getFocusValue(focusPercentage, labelNormal.fillOpacity!, labelFocused.fillOpacity!, labelDefocused.fillOpacity!);
