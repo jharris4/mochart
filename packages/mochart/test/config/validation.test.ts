@@ -357,6 +357,59 @@ describe('list-section validation with ignored entries', () => {
   });
 });
 
+// Regression: movalid's object() accepts arrays, so a list-section array with
+// invalid entries slipped past both halves of the shape guard unreported.
+describe('list-section shape validation', () => {
+  it('flags a list-section array containing a non-object entry', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'g' },
+      series: [{ property: 'v' }, 'garbage']
+    });
+    expect(errors).toContainEqual(expect.stringContaining('series - should be an array with elements that should be an object'));
+  });
+
+  it('flags a non-empty list section given an array of non-objects', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'g' },
+      valueAxes: ['x'],
+      series: [{ property: 'v' }]
+    });
+    expect(errors).toContainEqual(expect.stringContaining('valueAxes - should be a non-empty array'));
+  });
+
+  it('still tolerates the single-object list-section shorthand', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'g' },
+      seriesGroups: {},
+      series: [{ property: 'v' }]
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('still tolerates an empty array as an unspecified section', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'g' },
+      valueAxes: [],
+      series: [{ property: 'v' }]
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('flags an array given as a *Defaults section', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'g' },
+      seriesDefaults: [],
+      series: [{ property: 'v' }]
+    });
+    expect(errors).toContainEqual(expect.stringContaining('seriesDefaults - should be an object'));
+  });
+});
+
 // Regression: uniqueness was checked on the raw config and the defaults
 // separately, so an explicit id colliding with another entry's defaulted id
 // passed and collapsed the id-lookup maps.

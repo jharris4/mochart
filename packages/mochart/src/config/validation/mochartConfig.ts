@@ -201,7 +201,7 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
     for (const sectionKey of sectionKeys) {
       const { validator, allKey } = configWithoutAllValidators[sectionKey]!;
       if (allKey && config[allKey] !== undefined) { // all is optional, only validate if set
-        if (!objectValidator(configWithoutDefaults[allKey])) {
+        if (!isConfigRecord(configWithoutDefaults[allKey])) { // isConfigRecord: arrays pass movalid's object()
           const message = objectValidator.getErrorMessage(config[allKey]);
           errors.push(getMessage(allKey, message));
           errorDetails.push({ path: [allKey], message });
@@ -210,9 +210,12 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
       const { list, validators, uniqueKeys, references, commonReferences } = configWithoutAllValidators[sectionKey]!;
       const priorErrorCount = errors.length;
       if (list === true) {
-        if (configWithoutDefaults[sectionKey] !== undefined) {
-          if (!validator(configWithoutDefaults[sectionKey]) && !objectValidator(configWithoutDefaults[sectionKey])) {
-            const message = validator.getErrorMessage(configWithoutDefaults[sectionKey]);
+        const sectionValue = configWithoutDefaults[sectionKey];
+        if (sectionValue !== undefined) {
+          // tolerated shapes: the single-object shorthand and the empty array (behaves like an unspecified
+          // section); an array with invalid entries must report the arrayOf message
+          if (!validator(sectionValue) && !isConfigRecord(sectionValue) && !(Array.isArray(sectionValue) && sectionValue.length === 0)) {
+            const message = validator.getErrorMessage(sectionValue);
             errors.push(getMessage(sectionKey, message));
             errorDetails.push({ path: [sectionKey], message });
           }
