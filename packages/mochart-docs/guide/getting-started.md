@@ -78,7 +78,7 @@ Three things to notice:
 - `version` pins the config format ([validation](/guide/config-model#validation)
   requires the current version, and `migrateConfig` upgrades configs written
   against older ones).
-- `categoryAxisConfig.property` and each series' `property` name the dataset
+- `categoryAxis.property` and each series' `property` name the dataset
   fields to read — the category (category) value and the series values.
 - Everything else is optional. Axes, legend, tooltip, crosshair, and
   animation all come with defaults; the

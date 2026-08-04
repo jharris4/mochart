@@ -43,7 +43,7 @@ from the stack. Try it in the [stacked bars recipe](/recipes/stacked-bars).
 
 ## Tuning
 
-All knobs live in [`animationConfig`](/reference/animation):
+All knobs live in [`animation`](/reference/animation):
 
 | Property | Controls |
 | --- | --- |

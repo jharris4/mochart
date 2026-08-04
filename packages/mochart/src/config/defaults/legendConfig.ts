@@ -47,8 +47,8 @@ export function getRegularDefaults() {
 export function getConditionalDefaults(configWithRegularDefaults: LegendConfig, seriesCount: number) {
   return {
     visible: conditionalDefault([
-      { condition: (_config, seriesCount) => seriesCount > 1, suffix: "when seriesConfigs.length is > 1", default: true },
-      { condition: (_config, seriesCount) => seriesCount <= 1, suffix: "when seriesConfigs.length is <= 1", default: false },
+      { condition: (_config, seriesCount) => seriesCount > 1, suffix: "when series.length is > 1", default: true },
+      { condition: (_config, seriesCount) => seriesCount <= 1, suffix: "when series.length is <= 1", default: false },
       { ...defaultRule, default: false }
     ], configWithRegularDefaults, seriesCount)
   };

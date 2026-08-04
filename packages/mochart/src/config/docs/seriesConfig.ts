@@ -6,14 +6,14 @@ const styleMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDash
 
 const seriesNote = ', or "series" to use the color of the series shape';
 const sameNote = ', or "same" to use the color of the normal state';
-const paletteNote = ', or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig color by series or category index';
+const paletteNote = ', or "seriesIndex" / "categoryIndex" to take the matching colorPalette color by series or category index';
 
 function members(memberKeys: string[], element: string, allowSeries: boolean, allowSame: boolean): DescriptionMap {
   const descriptions: DescriptionMap = {};
   for (const member of memberKeys) {
     const description = styleDescriptions[member] as string;
     descriptions[member] = member.endsWith('Color')
-      ? description + (allowSeries ? seriesNote : '') + (allowSame ? sameNote : '') + paletteNote.replace('colorPaletteConfig', 'colorPaletteConfig ' + element)
+      ? description + (allowSeries ? seriesNote : '') + (allowSame ? sameNote : '') + paletteNote.replace('colorPalette', 'colorPalette ' + element)
       : description;
   }
   return descriptions;

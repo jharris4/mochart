@@ -16,13 +16,13 @@ import * as sparkline from '../examples/sparkline'
 
 - The preset only fills in defaults — any value set on the passed config
   wins. To bring one piece back, set it explicitly: e.g.
-  `legendConfig: { visible: true }` survives the preset untouched.
+  `legend: { visible: true }` survives the preset untouched.
 - `interactive: true` keeps the tooltip and crosshairs enabled for
   sparklines large enough to host them; `padding` (default 2px) keeps
   strokes at the data extremes from clipping against the chart edges.
 - Point markers are hidden by nulling
   [`markerShape`](/reference/series#series.markerShape)
-  through `seriesAllConfig`, so line series render as a bare stroke.
+  through `seriesDefaults`, so line series render as a bare stroke.
 - The sparkline is still a regular chart — size it by mounting it small
   (this page uses a 56px-tall host; table cells around 150×32 work well)
   and it renders any series type. A win/loss strip is two `bar` series

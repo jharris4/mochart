@@ -47,8 +47,8 @@ export function getRegularDefaults() {
 export function getConditionalDefaults(configWithRegularDefaults: CategoryAxisConfig, inverted: boolean, pieMode = false) {
   return {
     visible: conditionalDefault([
-      { condition: () => pieMode, suffix: "when chartConfig.type is pie", default: false },
-      { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
+      { condition: () => pieMode, suffix: "when chart.type is pie", default: false },
+      { condition: () => !pieMode, suffix: "when chart.type is xy", default: true },
       { ...defaultRule, default: true }
     ], configWithRegularDefaults, inverted),
     side: conditionalDefault([

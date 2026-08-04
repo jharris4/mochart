@@ -44,7 +44,7 @@ table thead td { border-bottom-width: 2px; }
 <td>linearGradients<br/>linearGradientDefaults</td><td>Configure linear gradients to be applied to series<br/>undefined</td><td>should be an array with elements that should be an object<br/>should be an object</td><td>[]<br/>{}</td><td><a href="#linearGradients">Details</a></td>
 </tr>
 <tr>
-<td>pie</td><td>Configure the pie/donut slice geometry and slice labels (applies when chartConfig.type is pie)</td><td>should be an object</td><td>{}</td><td><a href="#pie">Details</a></td>
+<td>pie</td><td>Configure the pie/donut slice geometry and slice labels (applies when chart.type is pie)</td><td>should be an object</td><td>{}</td><td><a href="#pie">Details</a></td>
 </tr>
 <tr>
 <td>plot</td><td>Configure the chart plot content and styling</td><td>should be an object</td><td>{}</td><td><a href="#plot">Details</a></td>
@@ -1258,8 +1258,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.visible">
-<td><a href="#categoryAxis.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
-<div>true (when chartConfig.type is xy)</div>
+<td><a href="#categoryAxis.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>false (when chart.type is pie)</div>
+<div>true (when chart.type is xy)</div>
 </td>
 </tr>
 </table>
@@ -1513,8 +1513,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="legend.visible">
-<td><a href="#legend.visible">visible</a></td><td>whether the legend should be visible</td><td>should be a boolean</td><td><div>true (when seriesConfigs.length is > 1)</div>
-<div>false (when seriesConfigs.length is <= 1)</div>
+<td><a href="#legend.visible">visible</a></td><td>whether the legend should be visible</td><td>should be a boolean</td><td><div>true (when series.length is > 1)</div>
+<div>false (when series.length is <= 1)</div>
 </td>
 </tr>
 </table>
@@ -1708,7 +1708,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="pie.tooltipValues">
-<td><a href="#pie.tooltipValues">tooltipValues</a></td><td>the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unfiltered slices unless tooltipConfig.adjustForFiltering is false</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue" ]</td><td><div>"value"</div>
+<td><a href="#pie.tooltipValues">tooltipValues</a></td><td>the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unfiltered slices unless tooltip.adjustForFiltering is false</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue" ]</td><td><div>"value"</div>
 </td>
 </tr>
 </table>
@@ -1964,7 +1964,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.base">
-<td><a href="#valueAxes.base">base</a></td><td>the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)<br/><br/>The value that bars and areas grow from, and the resting position shapes animate from/to when series enter or leave. With mixed positive/negative data the base separates the two directions.</td><td>should be a number or be equal to null</td><td><div>0 (when chartConfig.type is pie)</div>
+<td><a href="#valueAxes.base">base</a></td><td>the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)<br/><br/>The value that bars and areas grow from, and the resting position shapes animate from/to when series enter or leave. With mixed positive/negative data the base separates the two directions.</td><td>should be a number or be equal to null</td><td><div>0 (when chart.type is pie)</div>
 <div>0 (series axis has stacks)</div>
 <div>null (series axis has no stacks)</div>
 </td>
@@ -2694,8 +2694,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.visible">
-<td><a href="#valueAxes.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
-<div>true (when chartConfig.type is xy)</div>
+<td><a href="#valueAxes.visible">visible</a></td><td>whether the axis should be visible</td><td>should be a boolean</td><td><div>false (when chart.type is pie)</div>
+<div>true (when chart.type is xy)</div>
 </td>
 </tr>
 <tr id="valueAxes.visibleWhenAllFiltered">
@@ -2855,7 +2855,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.errorBarStyle.defocused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.errorBarStyle.defocused.strokeColor">errorBarStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig errorBar color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.errorBarStyle.defocused.strokeColor">errorBarStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette errorBar color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.errorBarStyle.defocused.strokeDashArray">
@@ -2875,7 +2875,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.errorBarStyle.focused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.errorBarStyle.focused.strokeColor">errorBarStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig errorBar color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.errorBarStyle.focused.strokeColor">errorBarStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette errorBar color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.errorBarStyle.focused.strokeDashArray">
@@ -2895,7 +2895,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.errorBarStyle.normal.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.errorBarStyle.normal.strokeColor">errorBarStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig errorBar color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"series"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.errorBarStyle.normal.strokeColor">errorBarStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPalette errorBar color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"series"</div>
 </td>
 </tr>
 <tr id="series.errorBarStyle.normal.strokeDashArray">
@@ -3039,7 +3039,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelTextStyle.defocused.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.defocused.fillColor">labelTextStyle.defocused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.defocused.fillColor">labelTextStyle.defocused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.labelTextStyle.defocused.fillOpacity">
@@ -3047,7 +3047,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelTextStyle.defocused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.defocused.strokeColor">labelTextStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.defocused.strokeColor">labelTextStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.labelTextStyle.defocused.strokeDashArray">
@@ -3067,7 +3067,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelTextStyle.focused.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.focused.fillColor">labelTextStyle.focused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.focused.fillColor">labelTextStyle.focused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.labelTextStyle.focused.fillOpacity">
@@ -3075,7 +3075,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelTextStyle.focused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.focused.strokeColor">labelTextStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.focused.strokeColor">labelTextStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.labelTextStyle.focused.strokeDashArray">
@@ -3095,7 +3095,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelTextStyle.normal.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.normal.fillColor">labelTextStyle.normal.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"currentColor"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.normal.fillColor">labelTextStyle.normal.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPalette label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="series.labelTextStyle.normal.fillOpacity">
@@ -3103,7 +3103,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelTextStyle.normal.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.normal.strokeColor">labelTextStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"currentColor"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.normal.strokeColor">labelTextStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPalette label color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"currentColor"</div>
 </td>
 </tr>
 <tr id="series.labelTextStyle.normal.strokeDashArray">
@@ -3146,7 +3146,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.markerStyle.defocused.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.defocused.fillColor">markerStyle.defocused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.defocused.fillColor">markerStyle.defocused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.markerStyle.defocused.fillOpacity">
@@ -3154,7 +3154,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.markerStyle.defocused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.defocused.strokeColor">markerStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.defocused.strokeColor">markerStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.markerStyle.defocused.strokeDashArray">
@@ -3174,7 +3174,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.markerStyle.focused.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.focused.fillColor">markerStyle.focused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.focused.fillColor">markerStyle.focused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.markerStyle.focused.fillOpacity">
@@ -3182,7 +3182,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.markerStyle.focused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.focused.strokeColor">markerStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.focused.strokeColor">markerStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.markerStyle.focused.strokeDashArray">
@@ -3202,7 +3202,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.markerStyle.normal.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.normal.fillColor">markerStyle.normal.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"series"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.normal.fillColor">markerStyle.normal.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPalette marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"series"</div>
 </td>
 </tr>
 <tr id="series.markerStyle.normal.fillOpacity">
@@ -3210,7 +3210,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.markerStyle.normal.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.normal.strokeColor">markerStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"series"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.normal.strokeColor">markerStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "series" to use the color of the series shape, or "seriesIndex" / "categoryIndex" to take the matching colorPalette marker color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "series", "seriesIndex", "categoryIndex" ]</td><td><div>"series"</div>
 </td>
 </tr>
 <tr id="series.markerStyle.normal.strokeDashArray">
@@ -3256,7 +3256,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.defocused.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.defocused.fillColor">shapeStyle.defocused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.defocused.fillColor">shapeStyle.defocused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.defocused.fillOpacity">
@@ -3267,7 +3267,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.defocused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.defocused.strokeColor">shapeStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.defocused.strokeColor">shapeStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.defocused.strokeDashArray">
@@ -3293,7 +3293,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.focused.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.focused.fillColor">shapeStyle.focused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.focused.fillColor">shapeStyle.focused.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.focused.fillOpacity">
@@ -3304,7 +3304,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.focused.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.focused.strokeColor">shapeStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.focused.strokeColor">shapeStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "same", "seriesIndex", "categoryIndex" ]</td><td><div>"same"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.focused.strokeDashArray">
@@ -3330,7 +3330,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.normal.fillColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.normal.fillColor">shapeStyle.normal.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "categoryIndex" ]</td><td><div>"seriesIndex"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.normal.fillColor">shapeStyle.normal.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "categoryIndex" ]</td><td><div>"seriesIndex"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.normal.fillOpacity">
@@ -3341,7 +3341,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.shapeStyle.normal.strokeColor">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.normal.strokeColor">shapeStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "seriesIndex" / "categoryIndex" to take the matching colorPaletteConfig series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "categoryIndex" ]</td><td><div>"seriesIndex"</div>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.shapeStyle.normal.strokeColor">shapeStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "seriesIndex" / "categoryIndex" to take the matching colorPalette series color by series or category index</td><td>should be a valid svg color (or "none" / "currentColor") or be one of [ "seriesIndex", "categoryIndex" ]</td><td><div>"seriesIndex"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle.normal.strokeDashArray">
@@ -3464,7 +3464,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesStacks.id">
-<td><a href="#seriesStacks.id">id</a></td><td>the unique identifier for the series stack so it can be referenced by series that belong to it<br/><br/>Referenced by `seriesConfigs.stack` to place series in this stack. Stacked series draw on top of one another and animate as a single gapless unit — each segment’s baseline follows the tweened top of the segment below it throughout a transition.</td><td><p>should be a string</p>
+<td><a href="#seriesStacks.id">id</a></td><td>the unique identifier for the series stack so it can be referenced by series that belong to it<br/><br/>Referenced by `series[].stack` to place series in this stack. Stacked series draw on top of one another and animate as a single gapless unit — each segment’s baseline follows the tweened top of the segment below it throughout a transition.</td><td><p>should be a string</p>
 <p>should be unique</p>
 </td><td><div>SS${index} (series stack index)</div>
 </td>
@@ -3478,7 +3478,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="seriesStacks.outerCapType">
-<td><a href="#seriesStacks.outerCapType">outerCapType</a></td><td>the type (point, curve, round, use null for none) of cap for series that are an outer series of the stack<br/><br/>Caps only the outer end of the whole stack rather than every segment; pairs with `seriesConfigs.capOnlyStackOuter`.</td><td>should be one of [ "point", "curve", "round" ] or be equal to null</td><td><div>null</div>
+<td><a href="#seriesStacks.outerCapType">outerCapType</a></td><td>the type (point, curve, round, use null for none) of cap for series that are an outer series of the stack<br/><br/>Caps only the outer end of the whole stack rather than every segment; pairs with `series[].capOnlyStackOuter`.</td><td>should be one of [ "point", "curve", "round" ] or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 </table>
@@ -4058,8 +4058,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="tooltip.showCategory">
-<td><a href="#tooltip.showCategory">showCategory</a></td><td>whether the category value should be shown as the first line of the tooltip</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
-<div>true (when chartConfig.type is xy)</div>
+<td><a href="#tooltip.showCategory">showCategory</a></td><td>whether the category value should be shown as the first line of the tooltip</td><td>should be a boolean</td><td><div>false (when chart.type is pie)</div>
+<div>true (when chart.type is xy)</div>
 </td>
 </tr>
 <tr id="tooltip.showControls">
@@ -4087,8 +4087,8 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="tooltip.snapToCategory">
-<td><a href="#tooltip.snapToCategory">snapToCategory</a></td><td>whether the tooltip should be centered at the closest category value (true) or at the click/tap position (false)</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
-<div>true (when chartConfig.type is xy)</div>
+<td><a href="#tooltip.snapToCategory">snapToCategory</a></td><td>whether the tooltip should be centered at the closest category value (true) or at the click/tap position (false)</td><td>should be a boolean</td><td><div>false (when chart.type is pie)</div>
+<div>true (when chart.type is xy)</div>
 </td>
 </tr>
 <tr id="tooltip.visible">

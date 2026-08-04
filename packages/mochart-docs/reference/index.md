@@ -16,7 +16,7 @@ This reference is generated from the library source: the same descriptions,
 validators, and defaults that power [config validation](/guide/config-model#validation)
 produce these pages, so they cannot drift from the code.
 
-The list sections (`seriesConfigs`, `valueAxisConfigs`, gradients, groups,
+The list sections (`series`, `valueAxes`, gradients, groups,
 stacks) take an array of config objects and have a companion `*AllConfig`
 section for values shared by every entry — see
 [The config model](/guide/config-model) for how sharing and defaulting work.

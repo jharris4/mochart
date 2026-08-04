@@ -44,8 +44,8 @@ Configs and datasets are generated in [src/scenarios.ts](src/scenarios.ts)
 - **Dashboard** — a grid of many small charts (the "lots of charts on one
   page" case rather than "one big chart").
 
-The Animate and Legend checkboxes toggle `animationConfig.animate` and
-`legendConfig.visible` in the generated config.
+The Animate and Legend checkboxes toggle `animation.animate` and
+`legend.visible` in the generated config.
 
 ## Measurements
 

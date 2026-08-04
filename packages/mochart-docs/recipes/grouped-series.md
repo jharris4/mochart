@@ -1,7 +1,7 @@
 # Grouped series
 
 Series lay out side by side within each category slot when they share a category id
-from [`seriesGroupConfigs`](/reference/seriesGroups) — clustered bars.
+from [`seriesGroups`](/reference/seriesGroups) — clustered bars.
 As with [stacks](/recipes/stacked-bars), a sole configured category is joined
 automatically, so declaring it is the only wiring needed.
 

@@ -1,6 +1,6 @@
 # Pie and donut
 
-Setting [`chartConfig.type`](/reference/chart#chart.type) to
+Setting [`chart.type`](/reference/chart#chart.type) to
 `'pie'` renders the series as pie slices instead of an x/y plot. The
 `createPie` helper builds the pieces from labelled values: every slice is its
 own series, so the legend, focus and filtering behave exactly like the
@@ -19,25 +19,25 @@ import * as gauge from '../examples/gauge'
 ## How it works
 
 - `createPie` returns config *fragments* (like the other chart-type
-  helpers): a `chartConfig` fragment setting the type, a `categoryAxisConfig`
+  helpers): a `chart` fragment setting the type, a `categoryAxis`
   naming the single category column, and one series per slice. The data is a
   single row — `{ group: 'all', slice0: 420, slice1: 210, ... }`.
 - **Slices are series.** Hovering a slice or its legend entry focuses it,
   and clicking a legend entry filters it — the remaining slices grow to
   fill the circle, animated with the usual
-  [`animationConfig`](/reference/animation) timing. Slice colors come
-  from the [`colorPaletteConfig`](/reference/colorPalette) by series
+  [`animation`](/reference/animation) timing. Slice colors come
+  from the [`colorPalette`](/reference/colorPalette) by series
   index, or from an explicit per-item `color`.
 - On first load the pie sweeps in clockwise from the start angle over
-  [`animationConfig.initialDuration`](/reference/animation#animation.initialDuration)
+  [`animation.initialDuration`](/reference/animation#animation.initialDuration)
   (slice labels appear once the sweep settles). Setting
   [`focusOffsetFraction`](/reference/pie#pie.focusOffsetFraction)
   "explodes" the focused slice away from the center, animated by the focus
   tween — try hovering the legend on the donut below.
 - Clicking the chart opens the tooltip with one row per slice. In pie mode
-  [`tooltipConfig.snapToCategory`](/reference/tooltip#tooltip.snapToCategory)
+  [`tooltip.snapToCategory`](/reference/tooltip#tooltip.snapToCategory)
   defaults to `false`, so the tooltip anchors at the click point, and
-  [`tooltipConfig.showCategory`](/reference/tooltip#tooltip.showCategory)
+  [`tooltip.showCategory`](/reference/tooltip#tooltip.showCategory)
   defaults to `false` — a pie has a single category, so its value (`createPie`
   writes `'all'`) would head every tooltip. Set `showCategory: true` with a
   meaningful `categoryValue` if you want that line back.
@@ -52,9 +52,9 @@ import * as gauge from '../examples/gauge'
 ## Donut and slice labels
 
 An inner radius via
-[`pieConfig.innerRadiusFraction`](/reference/pie#pie.innerRadiusFraction)
+[`pie.innerRadiusFraction`](/reference/pie#pie.innerRadiusFraction)
 (or the helper's `donut` shorthand) turns the pie into a donut, and
-[`pieConfig.showLabels`](/reference/pie#pie.showLabels) puts
+[`pie.showLabels`](/reference/pie#pie.showLabels) puts
 value, percent or title labels at the slice centroids.
 
 <LiveChart :config="donut.config" :data="donut.data" demo="donut" />
@@ -89,7 +89,7 @@ value, percent or title labels at the slice centroids.
   The helper's `tooltipValues` option forwards straight to it.
 - Tooltip percentages are computed from the same slice shares as the labels,
   so they renormalize as slices are filtered — set
-  [`tooltipConfig.adjustForFiltering`](/reference/tooltip#tooltip.adjustForFiltering)
+  [`tooltip.adjustForFiltering`](/reference/tooltip#tooltip.adjustForFiltering)
   to `false` to keep every slice's share of the full total (the tooltip
   equivalent of `adjustLabelsForFiltering`). A filtered slice's own row
   shows the usual

@@ -37,7 +37,7 @@ import * as scatterBubble from '../examples/scatterBubble'
 - [`labelTextStyle`](/reference/series#series.labelTextStyle)
   paints the label text, again per focus state. Its colors accept the palette
   modes (`series`, `seriesIndex`, `categoryIndex`) as well as literal colors —
-  see [`colorPaletteConfig`](/reference/colorPalette). The example above
+  see [`colorPalette`](/reference/colorPalette). The example above
   sets only
   [`labelTextStyle.normal`](/reference/series#series.labelTextStyle.normal)`.strokeColor`
   and `.fillColor`; every other member, including both other states, keeps its

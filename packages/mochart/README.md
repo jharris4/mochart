@@ -43,7 +43,7 @@ scales with the size of its change, so small updates stay snappy while large
 ones use the full configured duration. The per-phase durations
 (`expansionDuration`, `valueChangeDuration`, `collapseDuration`, plus
 `initialDuration` for first load and `focusDuration` for hover/focus
-transitions) are set in `animationConfig`.
+transitions) are set in `animation`.
 
 ### Gapless stacked animation
 
@@ -126,18 +126,18 @@ property is optional and falls back to a sensible default:
 
 | Section | Configures |
 | --- | --- |
-| `titleConfig` | chart title text, alignment, style, click behavior |
-| `categoryAxisConfig` | the group (category) axis: data `property`, `type` (`string`/`number`/`date`), `scale` (`ordinal`/`linear`), ticks, thresholds |
-| `seriesConfigs` | one entry per series: data `property`, `title`, `renderer` (`bar`/`line`/`area`), colors, markers, labels, focus behavior |
-| `seriesDefaults` | shared defaults applied to every entry of `seriesConfigs` |
-| `valueAxisConfigs` | one or more value axes; series are assigned by `axis` id |
-| `seriesGroupConfigs` / `seriesStackConfigs` | grouping and stacking of series |
-| `legendConfig` | legend placement, item style, series filtering on click |
-| `tooltipConfig` | tooltip content, formatting, positioning |
-| `crosshairConfig` | crosshair line style and snapping |
-| `animationConfig` | `animate` on/off plus per-phase durations (initial, value change, expansion, collapse, focus) |
-| `plotConfig` | plot area (e.g. `inverted` for horizontal charts) |
-| `chartConfig` / `colorPaletteConfig` / `linearGradientConfigs` / `radialGradientConfigs` | chart-wide style, palette, and gradient definitions |
+| `title` | chart title text, alignment, style, click behavior |
+| `categoryAxis` | the category axis: data `property`, `type` (`string`/`number`/`date`), `scale` (`ordinal`/`linear`), ticks, thresholds |
+| `series` | one entry per series: data `property`, `title`, `renderer` (`bar`/`line`/`area`), colors, markers, labels, focus behavior |
+| `seriesDefaults` | shared defaults applied to every entry of `series` |
+| `valueAxes` | one or more value axes; series are assigned by `axis` id |
+| `seriesGroups` / `seriesStacks` | grouping and stacking of series |
+| `legend` | legend placement, item style, series filtering on click |
+| `tooltip` | tooltip content, formatting, positioning |
+| `crosshair` | crosshair line style and snapping |
+| `animation` | `animate` on/off plus per-phase durations (initial, value change, expansion, collapse, focus) |
+| `plot` | plot area (e.g. `inverted` for horizontal charts) |
+| `chart` / `colorPalette` / `linearGradients` / `radialGradients` | chart-wide style, palette, and gradient definitions |
 
 The full property-by-property reference is generated from the validation
 schema: `npm run generate-docs -w @mochart/core` writes

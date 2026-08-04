@@ -83,7 +83,7 @@ direction-colored volume bars along the bottom of the plot:
 <<< @/examples/candlestickVolume.ts{21}
 
 The pane is pure domain-margin geometry on a second value axis, so it adapts
-to every data update: the result gains a `valueAxisConfigs` fragment with a
+to every data update: the result gains a `valueAxes` fragment with a
 `price` axis whose enlarged
 [`minMarginFraction`](/reference/valueAxes#valueAxes.minMarginFraction)
 lifts the candles into the upper plot, and a hidden `volume` axis pinned at

@@ -1,7 +1,7 @@
 # Dual value axes
 
 Give each unit its own axis: declare two entries in
-[`valueAxisConfigs`](/reference/valueAxes) and point each series at
+[`valueAxes`](/reference/valueAxes) and point each series at
 one via [`axis`](/reference/series#series.axis). Here revenue
 bars scale against the left axis while conversion rate draws as a line
 against its own percent-formatted axis on the right.

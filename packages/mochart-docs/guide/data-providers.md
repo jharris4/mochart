@@ -22,7 +22,7 @@ new ObjectOfArraysDataProvider(
 
 `createDefaultChart` wraps its `data` array in an
 `ArrayOfObjectsDataProvider` automatically, using
-[`categoryAxisConfig.property`](/reference/categoryAxis#categoryAxis.property)
+[`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property)
 as the category property. The lower-level `createChart` accepts any object
 implementing the `DataProvider` interface, so a custom provider can read
 straight from an existing store without copying.
@@ -31,7 +31,7 @@ straight from an existing store without copying.
 
 The config decides which properties the chart pulls from the provider:
 
-- the category value from [`categoryAxisConfig.property`](/reference/categoryAxis#categoryAxis.property) (and optionally
+- the category value from [`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property) (and optionally
   [`displayProperty`](/reference/categoryAxis#categoryAxis.displayProperty)
   for friendlier labels)
 - each series' value from its

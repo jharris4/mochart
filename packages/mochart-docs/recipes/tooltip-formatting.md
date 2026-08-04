@@ -24,7 +24,7 @@ import * as tooltipFormat from '../examples/tooltipFormat'
   [`useTitleForValueLabel`](/reference/series#series.useTitleForValueLabel));
   set [`valueLabel`](/reference/series#series.valueLabel) to
   override it, or `null` for none.
-- Chart-wide behavior lives in [`tooltipConfig`](/reference/tooltip):
+- Chart-wide behavior lives in [`tooltip`](/reference/tooltip):
   [`alignValues`](/reference/tooltip#tooltip.alignValues) lines
   the values up in a column,
   [`showMissingValues`](/reference/tooltip#tooltip.showMissingValues)

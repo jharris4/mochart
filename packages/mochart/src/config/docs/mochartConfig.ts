@@ -10,7 +10,7 @@ export default function getDescriptions() {
     legend: 'Configure the chart legend which itemizes the series',
     linearGradients: 'Configure linear gradients to be applied to series',
     linearGradientAllConfig: 'Configure common properties for all linear gradients',
-    pie: 'Configure the pie/donut slice geometry and slice labels (applies when chartConfig.type is pie)',
+    pie: 'Configure the pie/donut slice geometry and slice labels (applies when chart.type is pie)',
     plot: 'Configure the chart plot content and styling',
     radialGradients: 'Configure radial gradients to be applied to series',
     radialGradientAllConfig: 'Configure common properties for all radial gradients',

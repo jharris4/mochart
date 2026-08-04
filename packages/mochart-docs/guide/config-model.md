@@ -29,19 +29,19 @@ from the code.
 
 Sections come in two shapes:
 
-- **Object sections** configure a single thing: `titleConfig`,
-  `categoryAxisConfig`, `legendConfig`, `tooltipConfig`, `crosshairConfig`,
-  `animationConfig`, `chartConfig`, `plotConfig`, `colorPaletteConfig`.
+- **Object sections** configure a single thing: `title`,
+  `categoryAxis`, `legend`, `tooltip`, `crosshair`,
+  `animation`, `chart`, `plot`, `colorPalette`.
 - **List sections** configure a collection and take an array of config
-  objects: `seriesConfigs`, `valueAxisConfigs`, `seriesGroupConfigs`,
-  `seriesStackConfigs`, `linearGradientConfigs`, `radialGradientConfigs`.
+  objects: `series`, `valueAxes`, `seriesGroups`,
+  `seriesStacks`, `linearGradients`, `radialGradients`.
   Passing a single object instead of an array is allowed and treated as a
   one-entry list.
 
 ## Shared `*All` sections
 
 Every list section has a companion `*AllConfig` section — `seriesDefaults`,
-`valueAxisAllConfig`, and so on — whose values apply to **every** entry of
+`valueAxisDefaults`, and so on — whose values apply to **every** entry of
 the list. A value set on an individual entry wins over the shared one:
 
 ```js
@@ -82,7 +82,7 @@ numbers.
 
 Series styles additionally accept the palette modes `'series'`,
 `'seriesIndex'` and `'categoryIndex'` in place of a color; see
-[`colorPaletteConfig`](/reference/colorPalette). Any style color also
+[`colorPalette`](/reference/colorPalette). Any style color also
 accepts `'currentColor'` to follow the host page's CSS `color`, and `'none'`
 to switch that half of the style off.
 
@@ -115,8 +115,8 @@ axis via [`axis`](/reference/series#series.axis), its stack via
 `id` in the corresponding section.
 
 When exactly one target exists, the reference defaults to it — with a single
-`valueAxisConfigs` entry (or none at all) you never need to mention axis
-ids, and with a single `seriesStackConfigs` entry every series joins that
+`valueAxes` entry (or none at all) you never need to mention axis
+ids, and with a single `seriesStacks` entry every series joins that
 stack automatically (see the [stacked bars recipe](/recipes/stacked-bars)).
 Validation reports references that don't resolve.
 
@@ -129,7 +129,7 @@ producing human-readable messages rather than schema jargon:
 import { validateConfig, getDefaults } from '@mochart/core';
 
 const { valid, errors, warnings } = validateConfig(config, getDefaults(config));
-// e.g. "seriesConfigs[1] - had 1 invalid properties: valueFormt"
+// e.g. "series[1] - had 1 invalid properties: valueFormt"
 ```
 
 Editor and tooling integrations can request structured locations while

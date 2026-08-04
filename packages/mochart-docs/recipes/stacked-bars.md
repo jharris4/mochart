@@ -1,7 +1,7 @@
 # Stacked bars
 
 Series stack when they share a stack id from
-[`seriesStackConfigs`](/reference/seriesStacks). With exactly one stack
+[`seriesStacks`](/reference/seriesStacks). With exactly one stack
 configured, every series joins it automatically — declaring the stack is the
 only wiring needed.
 
@@ -27,5 +27,5 @@ shows gaps mid-transition (see
   [`outerCapType`](/reference/seriesStacks#seriesStacks.outerCapType)
   plus [`capOnlyStackOuter`](/reference/series#series.capOnlyStackOuter).
 - Side-by-side (grouped) bars instead of stacked: declare a
-  [`seriesGroupConfigs`](/reference/seriesGroups) entry rather than a
+  [`seriesGroups`](/reference/seriesGroups) entry rather than a
   stack — series default into a sole category the same way.

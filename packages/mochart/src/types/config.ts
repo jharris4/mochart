@@ -321,7 +321,7 @@ export interface PieConfig {
    * (valuePercent for "value (percent)", percentValue for "percent (value)");
    * the value part is formatted by the series valueFormat, valuePrefix and
    * valueSuffix, and the percent part renormalizes against the unfiltered
-   * slices unless tooltipConfig.adjustForFiltering is false.
+   * slices unless tooltip.adjustForFiltering is false.
    *
    * @default "value"
    */
@@ -788,8 +788,8 @@ export interface LegendConfig extends SeriesIconConfig {
    * Whether the legend should be visible.
    *
    * Default:
-   * - `true` — when seriesConfigs.length is > 1
-   * - `false` — when seriesConfigs.length is <= 1
+   * - `true` — when series.length is > 1
+   * - `false` — when series.length is <= 1
    */
   visible: boolean;
   /**
@@ -938,8 +938,8 @@ export interface TooltipConfig extends SeriesIconConfig {
    * or at the click/tap position (false).
    *
    * Default:
-   * - `false` — when chartConfig.type is pie
-   * - `true` — when chartConfig.type is xy
+   * - `false` — when chart.type is pie
+   * - `true` — when chart.type is xy
    */
   snapToCategory: boolean;
   /**
@@ -995,8 +995,8 @@ export interface TooltipConfig extends SeriesIconConfig {
    * tooltip.
    *
    * Default:
-   * - `false` — when chartConfig.type is pie
-   * - `true` — when chartConfig.type is xy
+   * - `false` — when chart.type is pie
+   * - `true` — when chart.type is xy
    */
   showCategory: boolean;
   /**
@@ -1647,11 +1647,11 @@ export interface AxisConfigBase {
    * Whether the axis should be visible.
    *
    * Group axis defaults:
-   * - `false` — when chartConfig.type is pie
-   * - `true` — when chartConfig.type is xy
+   * - `false` — when chart.type is pie
+   * - `true` — when chart.type is xy
    * Series axis defaults:
-   * - `false` — when chartConfig.type is pie
-   * - `true` — when chartConfig.type is xy
+   * - `false` — when chart.type is pie
+   * - `true` — when chart.type is xy
    */
   visible: boolean;
 }
@@ -1842,7 +1842,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    * data the base separates the two directions.
    *
    * Default:
-   * - `0` — when chartConfig.type is pie
+   * - `0` — when chart.type is pie
    * - `0` — series axis has stacks
    * - `null` — series axis has no stacks
    */
@@ -2612,7 +2612,7 @@ export interface SeriesStackConfig {
    * The unique identifier for the series stack so it can be referenced by
    * series that belong to it.
    *
-   * Referenced by `seriesConfigs.stack` to place series in this stack. Stacked
+   * Referenced by `series[].stack` to place series in this stack. Stacked
    * series draw on top of one another and animate as a single gapless unit —
    * each segment’s baseline follows the tweened top of the segment below it
    * throughout a transition.
@@ -2641,7 +2641,7 @@ export interface SeriesStackConfig {
    * are an outer series of the stack.
    *
    * Caps only the outer end of the whole stack rather than every segment; pairs
-   * with `seriesConfigs.capOnlyStackOuter`.
+   * with `series[].capOnlyStackOuter`.
    *
    * @default null
    */

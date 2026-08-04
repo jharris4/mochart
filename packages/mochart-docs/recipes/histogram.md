@@ -19,7 +19,7 @@ import * as histogram from '../examples/histogram'
   Override with `binCount` (approximate), `binWidth` (exact, wins over
   `binCount`), or `domain` to bin over a fixed range; `nice: false` divides
   the domain exactly instead of rounding.
-- The returned `categoryAxisConfig` fragment uses an ordinal axis with
+- The returned `categoryAxis` fragment uses an ordinal axis with
   [`categoryPaddingFraction`](/reference/categoryAxis#categoryAxis.categoryPaddingFraction)
   zeroed so the bars touch, which is what visually separates a histogram
   from a bar chart. (Bins are contiguous and equal width, so an ordinal

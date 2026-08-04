@@ -48,14 +48,14 @@ export function getRegularDefaults() {
 export function getConditionalDefaults(configWithRegularDefaults: ValueAxisConfig, index: number, hasStack: boolean, pieMode = false) {
   return {
     visible: conditionalDefault([
-      { condition: () => pieMode, suffix: "when chartConfig.type is pie", default: false },
-      { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
+      { condition: () => pieMode, suffix: "when chart.type is pie", default: false },
+      { condition: () => !pieMode, suffix: "when chart.type is xy", default: true },
       { ...defaultRule, default: true }
     ], configWithRegularDefaults, index),
     base: conditionalDefault([
       // pie slices collapse to nothing when filtered, so their values must
       // animate to 0 — a domain-min base would strand the shrink partway
-      { condition: () => pieMode, suffix: 'when chartConfig.type is pie', default: 0, defaultText: '0' },
+      { condition: () => pieMode, suffix: 'when chart.type is pie', default: 0, defaultText: '0' },
       { condition: (_config, _index) => hasStack, suffix: 'series axis has stacks', default: 0, defaultText: '0' },
       { condition: (_config, _index) => !hasStack, suffix: 'series axis has no stacks', default: NONE, defaultText: NONE },
       { ...defaultRule, default: NONE }

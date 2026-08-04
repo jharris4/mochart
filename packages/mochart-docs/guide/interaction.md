@@ -23,24 +23,24 @@ series from their `defocused` state, animated over
 By default those states change only opacity and width — their colors are
 `'same'`, meaning "keep the normal state's color". The legend can drive the
 same focus via
-[`legendConfig.focusOnMouseOver`](/reference/legend#legend.focusOnMouseOver).
+[`legend.focusOnMouseOver`](/reference/legend#legend.focusOnMouseOver).
 
 ## Legend filtering
 
-With [`legendConfig.filterOnClick`](/reference/legend#legend.filterOnClick)
+With [`legend.filterOnClick`](/reference/legend#legend.filterOnClick)
 enabled, clicking a legend item toggles its series out of (and back into) the
 chart. The item stays in the legend so the series can be restored, and the
 removal/return animates as a series transition. Its color icon goes hollow to
 mark it filtered; set
-[`legendConfig.showFilteringOnLabels`](/reference/legend#legend.showFilteringOnLabels)
+[`legend.showFilteringOnLabels`](/reference/legend#legend.showFilteringOnLabels)
 to strike through the item text as well, and
-[`tooltipConfig.showFilteringOnLabels`](/reference/tooltip#tooltip.showFilteringOnLabels)
+[`tooltip.showFilteringOnLabels`](/reference/tooltip#tooltip.showFilteringOnLabels)
 to do the same to the series' tooltip label. Both default to `false`.
 
 ## Tooltip and crosshair
 
-[`tooltipConfig`](/reference/tooltip) and
-[`crosshairConfig`](/reference/crosshair) style the tooltip and
+[`tooltip`](/reference/tooltip) and
+[`crosshair`](/reference/crosshair) style the tooltip and
 crosshair shown for the focused category. Per-series formatting of tooltip
 values — label, prefix/suffix, d3-format string — lives on the series
 ([`valueLabel`](/reference/series#series.valueLabel),
@@ -72,7 +72,7 @@ createDefaultChart(container, {
 - `onSliceClick(payload)` — a slice of a [pie or donut](/recipes/pie) chart
   was clicked
 - `onTitleClick()` — the chart title was clicked (see
-  [`titleConfig.link`](/reference/title#title.link) and
+  [`title.link`](/reference/title#title.link) and
   `linkDisabled`)
 - `onSeriesLayoutBoundsChange(bounds)` — the plot area was re-laid-out
 

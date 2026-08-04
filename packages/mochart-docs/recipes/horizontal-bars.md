@@ -1,6 +1,6 @@
 # Horizontal charts
 
-Set [`plotConfig.inverted`](/reference/plot#plot.inverted) and
+Set [`plot.inverted`](/reference/plot#plot.inverted) and
 the chart swaps orientation: categories run down the side and values extend
 horizontally. Everything else — stacking, grouping, thresholds, animation —
 works unchanged.

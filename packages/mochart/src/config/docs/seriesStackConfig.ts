@@ -9,7 +9,7 @@ export default function getDescriptions() {
 }
 export function getDetails() {
   return {
-    id: 'Referenced by `seriesConfigs.stack` to place series in this stack. Stacked series draw on top of one another and animate as a single gapless unit — each segment’s baseline follows the tweened top of the segment below it throughout a transition.',
-    outerCapType: 'Caps only the outer end of the whole stack rather than every segment; pairs with `seriesConfigs.capOnlyStackOuter`.'
+    id: 'Referenced by `series[].stack` to place series in this stack. Stacked series draw on top of one another and animate as a single gapless unit — each segment’s baseline follows the tweened top of the segment below it throughout a transition.',
+    outerCapType: 'Caps only the outer end of the whole stack rather than every segment; pairs with `series[].capOnlyStackOuter`.'
   };
 }
