@@ -7,8 +7,8 @@ import { generateDemoDataProvider } from '../src/chartTypeGenerators';
 
 const config = enhanceConfig({
   version: '1.0.0',
-  groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-  seriesConfigs: [{
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+  series: [{
     property: 'a', tooltipProperty: 'aInfo', errorLowProperty: 'aLow', errorHighProperty: 'aHigh'
   }]
 } as unknown as MochartInputConfig);
@@ -36,7 +36,7 @@ describe('collectUsedDataProperties', () => {
 describe('generic random generation for tooltip and error-bar properties', () => {
   it('generates values for every configured property key', () => {
     const randomConfig = {
-      group: {
+      category: {
         count: 6,
         order: { sort: true },
         missing: { probability: 0 },

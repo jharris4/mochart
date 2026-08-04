@@ -30,10 +30,10 @@ import { DefaultChart } from '@mochart/angular';
 export class Revenue {
   config = {
     version: '1.0.0',
-    titleConfig: { title: 'Revenue' },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesAllConfig: { renderer: 'bar' },
-    seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+    title: { text: 'Revenue' },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    seriesDefaults: { renderer: 'bar' },
+    series: [{ property: 'revenue', title: 'Revenue' }]
   };
 
   data = [
@@ -78,7 +78,7 @@ container, so size it however you like and the chart follows it:
 
 Both components emit the chart callbacks as outputs (`chartClick`,
 `chartMouseEnter`, `chartMouseMove`, `chartMouseLeave`, `titleClick`, `focus`,
-`seriesFilter`, `seriesLayoutInfoChange` — usable as `(chartClick)="..."` etc.
+`seriesFilter`, `seriesLayoutBoundsChange` — usable as `(chartClick)="..."` etc.
 in templates; only subscribed outputs are wired into the chart) and accept the
 placeholder components (`loadingComponent`, `errorComponent`,
 `noDataComponent`, `noSizeComponent`, `noSeriesComponent`,

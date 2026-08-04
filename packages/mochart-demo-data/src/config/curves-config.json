@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Curved Lines"
+  "title": {
+    "text": "Curved Lines"
   },
-  "animationConfig": {
+  "animation": {
     "animate": true,
     "expansionDuration": 500,
     "initialDuration": 500,
@@ -11,7 +11,7 @@
     "collapseDuration": 500,
     "focusDuration": 700
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "before": false,
     "title": "Time (in Minutes)",
     "axisLine": true,
@@ -23,7 +23,7 @@
     "valueLabel": "Time",
     "property": "time"
   },
-  "seriesAxisConfigs": {
+  "valueAxes": {
     "before": true,
     "axisLineMargin": 0,
     "gridLines": true,
@@ -31,10 +31,10 @@
     "title": "Sales Value",
     "min": 0
   },
-  "seriesAllConfig": {
+  "seriesDefaults": {
     "markerShape": null
   },
-  "seriesConfigs": [
+  "series": [
     {
       "renderer": "area",
       "title": "Sales A Natural",

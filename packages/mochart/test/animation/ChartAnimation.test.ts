@@ -6,16 +6,17 @@ import {
   getEndChartData
 } from '../../src/animation/ChartAnimationData';
 import { getChartDataForValueDelta, getChartDataForAxisDelta } from '../../src/animation/ChartAnimation';
-import { oldIndexForNewIndex, newIndexForOldIndex, newIndexForMergedIndex } from '../../src/animation/GroupAnimationData';
+import { oldIndexForNewIndex, newIndexForOldIndex, newIndexForMergedIndex } from '../../src/animation/CategoryAnimationData';
 import { makeConfig, ArrayOfObjectsDataProvider } from '../data/fixtures';
-import type { MochartConfig } from '../../src/types/config';
-import type { AnimationChartData } from '../../src/types/animation';
 
-const config: MochartConfig = makeConfig({
-  groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-  seriesConfigs: [{ property: 'a', renderer: 'bar' }]
+import type { AnimationChartData } from '../../src/types/animation';
+import type { EnhancedMochartConfig } from '../../src/types/enhanced';
+
+const config: EnhancedMochartConfig = makeConfig({
+  categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+  series: [{ property: 'a', renderer: 'bar' }]
 });
-const seriesId = config.seriesConfigs[0].id;
+const seriesId = config.series[0].id;
 
 function chartDataFor(rows: Record<string, number>[]): AnimationChartData {
   return getChartData(config, new ArrayOfObjectsDataProvider(rows, 'g'), {});
@@ -90,8 +91,8 @@ describe('getChartDataForAxisDelta (group added)', () => {
   );
 
   it('expands the ordinal group domain from the start to the end span', () => {
-    expect(getChartDataForAxisDelta(config, cad, true, 0).groupData.axisDomain).toEqual([0, 1]);
-    expect(getChartDataForAxisDelta(config, cad, true, 1).groupData.axisDomain).toEqual([0, 2]);
+    expect(getChartDataForAxisDelta(config, cad, true, 0).categoryData.axisDomain).toEqual([0, 1]);
+    expect(getChartDataForAxisDelta(config, cad, true, 1).categoryData.axisDomain).toEqual([0, 2]);
   });
 });
 
@@ -108,11 +109,11 @@ describe('getStartChartData / getEndChartData', () => {
 });
 
 describe('getChartDataForValueDelta (range channel with an undefined hole)', () => {
-  const rangeConfig: MochartConfig = makeConfig({
-    groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'a', rangeProperty: 'hi', renderer: 'bar' }]
+  const rangeConfig: EnhancedMochartConfig = makeConfig({
+    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    series: [{ property: 'a', rangeProperty: 'hi', renderer: 'bar' }]
   });
-  const rangeSeriesId = rangeConfig.seriesConfigs[0].id;
+  const rangeSeriesId = rangeConfig.series[0].id;
 
   function rangeChartData(rows: Record<string, number>[]): AnimationChartData {
     return getChartData(rangeConfig, new ArrayOfObjectsDataProvider(rows, 'g'), {});
@@ -172,8 +173,8 @@ describe('getChartDataForValueDelta (a point entering from undefined)', () => {
 // values by identity, so date charts lost their mid-animation focus remap.
 describe('group index maps with Date group values', () => {
   const dateConfig = makeConfig({
-    groupAxisConfig: { property: 'g', type: 'date', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'a', renderer: 'bar' }]
+    categoryAxis: { property: 'g', type: 'date', scale: 'ordinal' },
+    series: [{ property: 'a', renderer: 'bar' }]
   });
   const dateRows = (offset: number) => [
     { g: new Date(2026, 0, 1), a: 1 + offset },
@@ -186,9 +187,9 @@ describe('group index maps with Date group values', () => {
       getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(0), 'g'), {}),
       getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(5), 'g'), {})
     );
-    expect(oldIndexForNewIndex(cad.groupDeltaData, 1)).toBe(1);
-    expect(newIndexForOldIndex(cad.groupDeltaData, 0)).toBe(0);
-    expect(newIndexForMergedIndex(cad.groupDeltaData, 1)).toBe(1);
+    expect(oldIndexForNewIndex(cad.categoryDeltaData, 1)).toBe(1);
+    expect(newIndexForOldIndex(cad.categoryDeltaData, 0)).toBe(0);
+    expect(newIndexForMergedIndex(cad.categoryDeltaData, 1)).toBe(1);
   });
 });
 
@@ -198,9 +199,9 @@ describe('group index maps with Date group values', () => {
 describe('filtered series-domain deltas drive the phase pacing', () => {
   it('includes the filtered map in the overall delta and keeps factors >= 1', () => {
     const filteredConfig = makeConfig({
-      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-      seriesAxisConfigs: [{ adjustForFiltering: false }],
-      seriesConfigs: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
+      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      valueAxes: [{ adjustForFiltering: false }],
+      series: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
     });
     const dataFor = (rows: Record<string, number>[]) =>
       getChartData(filteredConfig, new ArrayOfObjectsDataProvider(rows, 'g'), { S0: true });
@@ -226,8 +227,8 @@ describe('filtered series-domain deltas drive the phase pacing', () => {
 describe('tooltip value deltas drive the phase pacing', () => {
   it('counts a tooltip-only change and keeps its factor >= 1', () => {
     const tooltipConfig = makeConfig({
-      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'a', tooltipProperty: 'info', renderer: 'bar' }]
+      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      series: [{ property: 'a', tooltipProperty: 'info', renderer: 'bar' }]
     });
     const dataFor = (rows: Record<string, number>[]) =>
       getChartData(tooltipConfig, new ArrayOfObjectsDataProvider(rows, 'g'), {});

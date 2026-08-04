@@ -1,19 +1,19 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Daily Share Price (fictional, $)"
+  "title": {
+    "text": "Daily Share Price (fictional, $)"
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "property": "label",
     "type": "string",
     "scale": "ordinal"
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
       "title": "$ per share"
     }
   ],
-  "seriesConfigs": [
+  "series": [
     {
       "id": "up",
       "property": "upHigh",

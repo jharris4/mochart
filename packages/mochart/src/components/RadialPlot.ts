@@ -4,14 +4,14 @@ import { mochartCssClasses } from '../utils/ChartDom';
 
 import Background from './Background';
 import PieSeriesContainer from './PieSeriesContainer';
-import type { MochartConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartSliceClickPayload, InternalFocus } from '../types/chart';
 import type { ChartData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { LayoutInfo, SpacingLayoutInfo } from '../types/layout';
 
 interface RadialPlotProps {
-  mochartConfig: MochartConfig;
+  mochartConfig: EnhancedMochartConfig;
   seriesLayoutInfo: LayoutInfo;
   plotLayoutInfo: SpacingLayoutInfo;
   chartData: ChartData;
@@ -36,7 +36,7 @@ export default class RadialPlot extends Renderer<RadialPlotProps> {
 
   sync() {
     const { mochartConfig, seriesLayoutInfo, plotLayoutInfo, chartData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef } = this.props;
-    const { plotConfig } = mochartConfig;
+    const { plot: plotConfig } = mochartConfig;
 
     this.root.set({ className: mochartCssClasses['radialPlot'] });
 

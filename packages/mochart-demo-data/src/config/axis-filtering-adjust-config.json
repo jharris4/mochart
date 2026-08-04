@@ -1,64 +1,64 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Axis Adjusted for Filtering"
+  "title": {
+    "text": "Axis Adjusted for Filtering"
   },
-  "animationConfig": {
+  "animation": {
     "expansionDuration": 2000,
     "initialDuration": 2000,
     "valueChangeDuration": 2000,
     "collapseDuration": 2000
   },
-  "groupAxisConfig": {
-    "valueLabel": "Group",
-    "property": "groupNO",
+  "categoryAxis": {
+    "valueLabel": "Category",
+    "property": "categoryNO",
     "type": "number",
     "scale": "ordinal"
   },
-  "seriesAxisAllConfig": {
+  "valueAxisDefaults": {
     "adjustForFiltering": true
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
-      "id": "SA0",
+      "id": "VA0",
       "before": true
     },
     {
-      "id": "SA1",
+      "id": "VA1",
       "before": false
     }
   ],
-  "seriesStackConfigs": {
-    "axis": "SA0"
+  "seriesStacks": {
+    "axis": "VA0"
   },
-  "seriesConfigs": [
+  "series": [
     {
-      "axis": "SA0",
+      "axis": "VA0",
       "property": "value1",
       "title": "Stacked Bar 1",
       "renderer": "bar"
     },
     {
-      "axis": "SA0",
+      "axis": "VA0",
       "property": "value2",
       "title": "Stacked Bar 2",
       "renderer": "bar"
     },
     {
-      "axis": "SA0",
+      "axis": "VA0",
       "property": "value3",
       "title": "Stacked Bar 3",
       "renderer": "bar"
     },
     {
-      "axis": "SA1",
+      "axis": "VA1",
       "stack": null,
       "property": "value5",
       "title": "Line 1",
       "renderer": "line"
     },
     {
-      "axis": "SA1",
+      "axis": "VA1",
       "stack": null,
       "property": "value6",
       "title": "Line 2",

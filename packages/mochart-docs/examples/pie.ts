@@ -20,12 +20,12 @@ const pie = createPie(
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Revenue by Product (fictional, $k)' },
+  title: { text: 'Revenue by Product (fictional, $k)' },
   // chartConfig.type 'pie' swaps the axis plot for the radial plot.
-  chartConfig: pie.chartConfig,
-  pieConfig: pie.pieConfig,
-  groupAxisConfig: pie.groupAxisConfig,
-  seriesConfigs: pie.seriesConfigs
+  chart: pie.chart,
+  pie: pie.pie,
+  categoryAxis: pie.categoryAxis,
+  series: pie.series
 };
 
 export const data = pie.data;

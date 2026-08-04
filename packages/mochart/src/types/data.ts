@@ -1,8 +1,8 @@
 /** Values supported by a chart's group axis. */
-export type GroupValue = string | number | Date;
+export type CategoryValue = string | number | Date;
 export type DomainValue = number | Date;
 export type NullableDomain<T extends DomainValue = number> = [T | null, T | null];
-export type GroupAxisDomain = NullableDomain<number | Date>;
+export type CategoryAxisDomain = NullableDomain<number | Date>;
 export type NumericValue = number | undefined;
 export type NumericValues = NumericValue[];
 export type AxisDomains = Record<string, NullableDomain>;
@@ -50,7 +50,7 @@ export interface SeriesData {
 }
 
 export interface ChartData {
-  groupData: GroupData;
+  categoryData: CategoryData;
   seriesData: SeriesData;
 }
 
@@ -62,8 +62,8 @@ export interface StackData {
 }
 
 export type AxisValue = number | Date;
-export type TickLabel = GroupValue;
-export type TickLabelFormatter = (value: GroupValue) => TickLabel;
+export type TickLabel = CategoryValue;
+export type TickLabelFormatter = (value: CategoryValue) => TickLabel;
 
 export interface AxisScale {
   (value: AxisValue): number;
@@ -78,22 +78,22 @@ export interface AxisScale {
 export interface AxisTick {
   label: TickLabel;
   position: number;
-  value: GroupValue;
+  value: CategoryValue;
   hidden: boolean;
 }
 
-export interface GroupSpacingInfo {
-  groupRange: [number, number];
-  groupValueExtent: number;
-  groupValueOffset: number;
+export interface CategorySpacingInfo {
+  categoryRange: [number, number];
+  categoryValueExtent: number;
+  categoryValueOffset: number;
 }
 
-export interface GroupAxisData {
+export interface CategoryAxisData {
   axisScale: AxisScale;
   axisTickData: AxisTick[];
   maxTickLabelLength: number;
   valueData: {
-    spacingInfo: GroupSpacingInfo;
+    spacingInfo: CategorySpacingInfo;
     positions: number[];
   };
 }
@@ -105,14 +105,14 @@ export interface SeriesPositionData extends ArrayLike<unknown> {
   readonly length: number;
   /** True when positions were compacted (skipMissing without showMissingAtBase). */
   skipped: boolean;
-  skipGroupIndexMap: Record<number, number>;
+  skipCategoryIndexMap: Record<number, number>;
   getDefined: (_datum: unknown, index: number) => boolean;
-  groupPositions: number[];
-  groupDefinedPositions: number[] | null;
-  getGroupPosition: SeriesPositionAccessor;
-  getOffsetGroupPosition: SeriesPositionAccessor;
-  groupValueExtent: number;
-  groupValueOffset: number;
+  categoryPositions: number[];
+  categoryDefinedPositions: number[] | null;
+  getCategoryPosition: SeriesPositionAccessor;
+  getOffsetCategoryPosition: SeriesPositionAccessor;
+  categoryValueExtent: number;
+  categoryValueOffset: number;
   seriesPositions: SeriesPosition[];
   seriesDefinedPositions: number[] | null;
   seriesPriorPositions: SeriesPosition[] | null;
@@ -123,34 +123,34 @@ export interface SeriesPositionData extends ArrayLike<unknown> {
   getSeriesExtent: (_datum: unknown, index: number) => number;
 }
 
-export interface SeriesAxisData {
+export interface ValueAxisData {
   axisScales: Record<string, AxisScale>;
   axisTickData: Record<string, AxisTick[]>;
 }
 
 export interface AxisData {
-  group: GroupAxisData | null;
-  series: SeriesAxisData | null;
+  group: CategoryAxisData | null;
+  series: ValueAxisData | null;
 }
 
-export interface GroupValues {
-  raw: readonly GroupValue[];
-  display: readonly GroupValue[];
-  parsed: readonly GroupValue[];
+export interface CategoryValues {
+  raw: readonly CategoryValue[];
+  display: readonly CategoryValue[];
+  parsed: readonly CategoryValue[];
   numeric: number[];
 }
 
-export interface GroupData {
-  axisDomain: GroupAxisDomain;
-  values: GroupValues;
+export interface CategoryData {
+  axisDomain: CategoryAxisDomain;
+  values: CategoryValues;
 }
 
-export interface GroupValueObject {
-  axisDomain: GroupAxisDomain;
+export interface CategoryValueObject {
+  axisDomain: CategoryAxisDomain;
   values: {
-    raw: GroupValue | undefined;
-    display: GroupValue | undefined;
-    parsed: GroupValue | undefined;
+    raw: CategoryValue | undefined;
+    display: CategoryValue | undefined;
+    parsed: CategoryValue | undefined;
     numeric: number | undefined;
   };
 }
@@ -167,11 +167,11 @@ export interface GroupValueObject {
  * `ObjectOfArraysDataProvider` cover the common dataset shapes; implement
  * this to read straight from an existing store without copying.
  */
-export interface DataProvider<TGroupValue = GroupValue, TSeriesValue = unknown> {
+export interface DataProvider<TCategoryValue = CategoryValue, TSeriesValue = unknown> {
   /** The group (category) values, one per group, in display order. */
-  getGroupValues(): readonly TGroupValue[];
+  getCategoryValues(): readonly TCategoryValue[];
   /** The value of `seriesProperty` for the given group (numeric or undefined for series values). */
-  getSeriesValue(groupValue: TGroupValue, groupIndex: number, seriesProperty: string): TSeriesValue;
+  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, seriesProperty: string): TSeriesValue;
   /** When set and truthy, the chart shows its error state. */
   getError?(): unknown;
   /** When set and true, the chart shows its loading state. */

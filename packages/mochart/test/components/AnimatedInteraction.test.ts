@@ -24,9 +24,9 @@ const rows = [
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animationConfig: { animate: true },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'sales' }],
+    animation: { animate: true },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }],
     ...overrides
   } as unknown as MochartInputConfig;
 }
@@ -127,7 +127,7 @@ describe('animated chart interactions', () => {
   });
 
   it('interrupts a running focus animation with a new focus target', () => {
-    const { container } = mountChart(makeConfig({ tooltipConfig: { mouseOver: true } }));
+    const { container } = mountChart(makeConfig({ tooltip: { mouseOver: true } }));
     runFrames();
     const root = chartRoot(container);
 
@@ -160,8 +160,8 @@ describe('animated chart interactions', () => {
 
   it('animates series filtering from the legend', () => {
     const { container } = mountChart(makeConfig({
-      legendConfig: { visible: true },
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+      legend: { visible: true },
+      series: [{ property: 'sales' }, { property: 'costs' }]
     }), {}, rows.map(row => ({ ...row, costs: row.sales / 2 })));
     runFrames();
 

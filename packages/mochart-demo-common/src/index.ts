@@ -1,6 +1,6 @@
 export type {
   DataRow, Demo, DemoConfig, DemoData,
-  GroupValue, FilteredSeriesIds, FocusData, TransitionConfig,
+  CategoryValue, FilteredSeriesIds, FocusData, TransitionConfig,
   ChartDataProviderLike, DemoDataProvider,
   RandomConfigWithValid, MochartDemoConfig
 } from './types';
@@ -12,7 +12,7 @@ export { collectUsedDataProperties } from './unusedDataProperties';
 export {
   formatData, formatDataView,
   getJsonError, parseFullData, applyDataEdit,
-  getGroupIndexTitle, getSeriesIndexTitle
+  getCategoryIndexTitle, getSeriesIndexTitle
 } from './dataEditing';
 export type { ParsedFullData } from './dataEditing';
 

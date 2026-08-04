@@ -1,6 +1,7 @@
 import { COLOR_SAME } from '../config/core/constants';
 import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
-import type { Style, SeriesConfig } from '../types/config';
+import type { Style } from '../types/config';
+import type { EnhancedSeriesConfig } from '../types/enhanced';
 
 export function getFocusValue(focusPercentage: FocusPercentage, normalValue: number, focusedValue: number, defocusedValue: number): number {
   // TODO - this assumes that focusedValue >= normalValue >= defocusedValue. This should be validated or improved...
@@ -16,8 +17,8 @@ export function getFocusValue(focusPercentage: FocusPercentage, normalValue: num
   return normalValue;
 }
 
-export function getGroupFocusPercentage(groupFocusPercentage: FocusPercentage, seriesFocusPercentage: FocusPercentage): FocusPercentage {
-  return getCombinedFocusPercentage(groupFocusPercentage, seriesFocusPercentage);
+export function getCategoryFocusPercentage(categoryFocusPercentage: FocusPercentage, seriesFocusPercentage: FocusPercentage): FocusPercentage {
+  return getCombinedFocusPercentage(categoryFocusPercentage, seriesFocusPercentage);
 }
 
 function getCombinedFocusPercentage(percentageA: FocusPercentage, percentageB: FocusPercentage): FocusPercentage {
@@ -38,7 +39,7 @@ function getCombinedFocusPercentage(percentageA: FocusPercentage, percentageB: F
   }
 }
 
-export function getAggregateSeriesFocusPercentage(seriesConfigs: SeriesConfig[], seriesFocusPercentages: FocusPercentageMap): FocusPercentage {
+export function getAggregateSeriesFocusPercentage(seriesConfigs: EnhancedSeriesConfig[], seriesFocusPercentages: FocusPercentageMap): FocusPercentage {
   let maxPercentage: FocusPercentage = null;
   let seriesFocusPercentage: FocusPercentage;
   for (const seriesConfig of seriesConfigs) {

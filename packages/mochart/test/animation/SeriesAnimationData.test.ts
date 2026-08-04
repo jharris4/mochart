@@ -14,13 +14,13 @@ describe('getInitialValueChangeData with filtered series', () => {
 
   function stackedPlusUnstackedConfig() {
     return makeConfig({
-      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-      seriesConfigs: [
+      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      series: [
         { stack: 'SS0', property: 'a', renderer: 'bar' },
         { stack: 'SS0', property: 'b', renderer: 'bar' },
         { property: 'c', renderer: 'bar' }
       ],
-      seriesStackConfigs: [{ id: 'SS0' }]
+      seriesStacks: [{ id: 'SS0' }]
     });
   }
 
@@ -36,8 +36,8 @@ describe('getInitialValueChangeData with filtered series', () => {
     getChartAnimationData(stackedConfig, null, stackedData);
 
     const plainConfig = makeConfig({
-      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-      seriesConfigs: [
+      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      series: [
         { property: 'a', renderer: 'bar' },
         { property: 'b', renderer: 'bar' }
       ]

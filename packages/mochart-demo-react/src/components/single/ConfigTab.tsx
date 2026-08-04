@@ -98,7 +98,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
 
   const { demoConfig, configText, showDefaults } = state;
   const { configWithDefaults } = demoConfig;
-  const { inverted } = configWithDefaults.plotConfig;
+  const { inverted } = configWithDefaults.plot;
 
   const invertedIcon = inverted ? 'chart-bar' : 'chart-column';
   const slow = isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig);

@@ -4,16 +4,17 @@ import { enhanceConfig } from '../../src';
 import type { MochartInputConfig } from '../../src';
 import type { AxisScale, SeriesValueObject } from '../../src/types/data';
 import type { LayoutInfo } from '../../src/types/layout';
+import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 
 // Horizontal-waterfall shape: ranged bars with the skip flags createWaterfall
 // emits, series axis based at the domain minimum.
 const config = enhanceConfig({
   version: '1.0.0',
-  plotConfig: { inverted: true },
-  groupAxisConfig: { property: 'step', type: 'string', scale: 'ordinal' },
-  seriesAxisConfigs: [{ base: 0 }],
-  seriesConfigs: [{ property: 'end', rangeProperty: 'start', renderer: 'bar', skipMissing: true, skipPartialRange: true }]
-} as unknown as MochartInputConfig);
+  plot: { inverted: true },
+  categoryAxis: { property: 'step', type: 'string', scale: 'ordinal' },
+  valueAxes: [{ base: 0 }],
+  series: [{ property: 'end', rangeProperty: 'start', renderer: 'bar', skipMissing: true, skipPartialRange: true }]
+} as unknown as MochartInputConfig) as unknown as EnhancedMochartConfig;
 
 // An inverted series axis ranges [0, extent], so the domain minimum maps to
 // pixel 0 exactly - the value the old || fallback treated as missing.
@@ -22,8 +23,8 @@ const scale = Object.assign((value: unknown) => (value as number) * 10, {
   range: () => [0, 300]
 }) as unknown as AxisScale;
 
-const groupValueData = {
-  spacingInfo: { groupRange: [0, 300] as [number, number], groupValueExtent: 40, groupValueOffset: 0 },
+const categoryValueData = {
+  spacingInfo: { categoryRange: [0, 300] as [number, number], categoryValueExtent: 40, categoryValueOffset: 0 },
   positions: [0, 100, 200]
 };
 
@@ -31,8 +32,8 @@ const valueObject = { min: [0, 10, 20], max: [10, 20, 30] } as unknown as Series
 const layoutInfo = { inverted: true } as unknown as LayoutInfo;
 
 describe('getSeriesPositionData with a pixel-0 prior position', () => {
-  const positionData = getSeriesPositionData(config.groupAxisConfig, config.seriesConfigs[0],
-    groupValueData, scale, valueObject, layoutInfo);
+  const positionData = getSeriesPositionData(config.categoryAxis, config.series[0],
+    categoryValueData, scale, valueObject, layoutInfo);
 
   it('keeps the first bar spanning from pixel 0 instead of collapsing it', () => {
     expect(positionData.getPriorSeriesPosition(null, 0)).toBe(0);

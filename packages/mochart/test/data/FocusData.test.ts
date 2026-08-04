@@ -2,20 +2,20 @@ import { describe, it, expect } from 'vitest';
 import {
   getFocusData,
   getFocusDataWithDomainPercentages,
-  getFocusDataWithGroupChanges,
+  getFocusDataWithCategoryChanges,
   getFocusDataWithMutations,
   getSeriesConfigsOrderedByFocus
 } from '../../src/data/FocusData';
 import { getChartData } from '../../src/data/ChartData';
 import { makeConfig, ArrayOfObjectsDataProvider } from './fixtures';
-import type { GroupDeltaData } from '../../src/types/animation';
+import type { CategoryDeltaData } from '../../src/types/animation';
 
 // A 3-group / 2-series chart on a single series axis. Series values are chosen
 // so the focus-domain percentages are stable and easy to reason about.
 function makeChart() {
   const config = makeConfig({
-    groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'a' }, { property: 'b' }]
+    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    series: [{ property: 'a' }, { property: 'b' }]
   });
   const provider = new ArrayOfObjectsDataProvider(
     [{ g: 0, a: 10, b: 5 }, { g: 1, a: 20, b: 15 }, { g: 2, a: 30, b: 25 }],
@@ -25,9 +25,9 @@ function makeChart() {
   return {
     config,
     chartData,
-    s0: config.seriesConfigs[0].id, // 'S0'
-    s1: config.seriesConfigs[1].id, // 'S1'
-    axisId: config.seriesAxisConfigs[0].id // 'SA0'
+    s0: config.series[0].id, // 'S0'
+    s1: config.series[1].id, // 'S1'
+    axisId: config.valueAxes[0].id // 'VA0'
   };
 }
 
@@ -35,18 +35,18 @@ describe('getFocusData', () => {
   it('leaves everything unfocused when nothing is selected', () => {
     const { config, chartData } = makeChart();
     const fd = getFocusData(config, chartData, -1, null, null);
-    expect(fd.groupFocusPercentages).toEqual([null, null, null]);
+    expect(fd.categoryFocusPercentages).toEqual([null, null, null]);
     expect(Object.values(fd.seriesFocusPercentages)).toEqual([null, null]);
-    expect(Object.values(fd.seriesAxisFocusPercentages)).toEqual([null]);
-    expect(fd.groupFocusDomainPercentages).toEqual([]);
+    expect(Object.values(fd.valueAxisFocusPercentages)).toEqual([null]);
+    expect(fd.categoryFocusDomainPercentages).toEqual([]);
   });
 
   it('marks the focused group at +1 and the rest at -1', () => {
     const { config, chartData } = makeChart();
     const fd = getFocusData(config, chartData, 1, null, null);
-    expect(fd.groupFocusPercentages).toEqual([-1, 1, -1]);
+    expect(fd.categoryFocusPercentages).toEqual([-1, 1, -1]);
     // group 1 (numeric value 1) sits at the middle of the [0,2] domain
-    expect(fd.groupFocusDomainPercentages).toEqual([0.5]);
+    expect(fd.categoryFocusDomainPercentages).toEqual([0.5]);
   });
 
   it('marks the focused series at +1 and computes its domain percentages', () => {
@@ -54,14 +54,14 @@ describe('getFocusData', () => {
     const fd = getFocusData(config, chartData, -1, null, s0);
     expect(fd.seriesFocusPercentages).toEqual({ [s0]: 1, [s1]: -1 });
     expect(fd.seriesFocusDomainPercentages).toEqual([0.7727272727272727, 0.045454545454545456]);
-    expect(fd.seriesAxisComputedFocusDomainPercentages![axisId]).toEqual(fd.seriesFocusDomainPercentages);
+    expect(fd.valueAxisComputedFocusDomainPercentages![axisId]).toEqual(fd.seriesFocusDomainPercentages);
   });
 
   it('marks the focused series axis at +1 and spans the full axis domain', () => {
     const { config, chartData, axisId } = makeChart();
     const fd = getFocusData(config, chartData, -1, axisId, null);
-    expect(fd.seriesAxisFocusPercentages).toEqual({ [axisId]: 1 });
-    expect(fd.seriesAxisFocusDomainPercentages).toEqual([1, 0]);
+    expect(fd.valueAxisFocusPercentages).toEqual({ [axisId]: 1 });
+    expect(fd.valueAxisFocusDomainPercentages).toEqual([1, 0]);
   });
 
   it('reduces to a single value plus the axis base when a group and series are both focused', () => {
@@ -74,10 +74,10 @@ describe('getFocusData', () => {
   it('skips domain percentages when computeDomainPercentages is false', () => {
     const { config, chartData } = makeChart();
     const fd = getFocusData(config, chartData, 1, null, null, false);
-    expect(fd.groupFocusDomainPercentages).toBeUndefined();
+    expect(fd.categoryFocusDomainPercentages).toBeUndefined();
     expect(fd.seriesFocusDomainPercentages).toBeUndefined();
     // the discrete focus percentages are still computed
-    expect(fd.groupFocusPercentages).toEqual([-1, 1, -1]);
+    expect(fd.categoryFocusPercentages).toEqual([-1, 1, -1]);
   });
 });
 
@@ -86,8 +86,8 @@ describe('getFocusData', () => {
 // low→high beyond the body's open→close so the merged focus extent is visible.
 function makeFollowerChart() {
   const config = makeConfig({
-    groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-    seriesConfigs: [
+    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    series: [
       { id: 'wick', property: 'high', rangeProperty: 'low', showInLegend: false, followSeries: 'body' },
       { id: 'body', property: 'close', rangeProperty: 'open' },
       { id: 'other', property: 'x' }
@@ -101,7 +101,7 @@ function makeFollowerChart() {
     'g'
   );
   const chartData = getChartData(config, provider, {});
-  const axisId = config.seriesAxisConfigs[0].id;
+  const axisId = config.valueAxes[0].id;
   const domain = chartData.seriesData.raw.axisDomains[axisId] as [number, number];
   // the chart is not inverted, so a value's domain percentage measures down from the max
   const pct = (value: number) => (domain[1] - value) / (domain[1] - domain[0]);
@@ -149,52 +149,52 @@ describe('getFocusDataWithDomainPercentages', () => {
   it('adds domain percentages to a focus-data object that lacks them', () => {
     const { config, chartData } = makeChart();
     const bare = getFocusData(config, chartData, 1, null, null, false);
-    expect(bare.groupFocusDomainPercentages).toBeUndefined();
+    expect(bare.categoryFocusDomainPercentages).toBeUndefined();
     const filled = getFocusDataWithDomainPercentages(bare, config, chartData);
-    expect(filled.groupFocusDomainPercentages).toEqual([0.5]);
+    expect(filled.categoryFocusDomainPercentages).toEqual([0.5]);
     // discrete percentages are carried over unchanged
-    expect(filled.groupFocusPercentages).toEqual(bare.groupFocusPercentages);
+    expect(filled.categoryFocusPercentages).toEqual(bare.categoryFocusPercentages);
   });
 });
 
-describe('getFocusDataWithGroupChanges', () => {
-  const delta = (over: Record<string, unknown>, indices: Record<string, number[]>): GroupDeltaData =>
-    ({ values: { merged: ['x', 'y', 'z'], new: ['x', 'y', 'z'], ...over }, indices } as unknown as GroupDeltaData);
+describe('getFocusDataWithCategoryChanges', () => {
+  const delta = (over: Record<string, unknown>, indices: Record<string, number[]>): CategoryDeltaData =>
+    ({ values: { merged: ['x', 'y', 'z'], new: ['x', 'y', 'z'], ...over }, indices } as unknown as CategoryDeltaData);
 
   it('remaps the focused index into the merged array on addition', () => {
     const { config, chartData } = makeChart();
     const base = getFocusData(config, chartData, 1, null, null);
-    const result = getFocusDataWithGroupChanges(
+    const result = getFocusDataWithCategoryChanges(
       base, config, chartData,
       delta({}, { old: [1, 2], new: [0, 1, 2] }),
       true, true
     );
-    expect(result.focusedGroupIndex).toBe(2);
-    expect(result.groupFocusPercentages).toEqual([-1, -1, 1]);
+    expect(result.focusedCategoryIndex).toBe(2);
+    expect(result.categoryFocusPercentages).toEqual([-1, -1, 1]);
   });
 
   it('clears the focus when the focused group is removed', () => {
     const { config, chartData } = makeChart();
     const base = getFocusData(config, chartData, 1, null, null);
-    const result = getFocusDataWithGroupChanges(
+    const result = getFocusDataWithCategoryChanges(
       base, config, chartData,
       delta({ merged: ['g0', 'g1', 'g2'], new: ['g0', 'g2'] }, { old: [0, 1, 2], new: [0, 2] }),
       false, true
     );
-    expect(result.focusedGroupIndex).toBe(-1);
-    expect(result.groupFocusPercentages).toEqual([-1, -1]);
+    expect(result.focusedCategoryIndex).toBe(-1);
+    expect(result.categoryFocusPercentages).toEqual([-1, -1]);
   });
 
   it('initialises new percentages to null when nothing was focused', () => {
     const { config, chartData } = makeChart();
     const base = getFocusData(config, chartData, -1, null, null);
-    const result = getFocusDataWithGroupChanges(
+    const result = getFocusDataWithCategoryChanges(
       base, config, chartData,
       delta({}, { old: [1, 2], new: [0, 1, 2] }),
       true, true
     );
-    expect(result.focusedGroupIndex).toBe(-1);
-    expect(result.groupFocusPercentages).toEqual([null, null, null]);
+    expect(result.focusedCategoryIndex).toBe(-1);
+    expect(result.categoryFocusPercentages).toEqual([null, null, null]);
   });
 });
 
@@ -219,7 +219,7 @@ describe('getFocusDataWithMutations', () => {
     const { config, chartData } = makeChart();
     const fd = getFocusData(config, chartData, 1, null, null);
     const merged = getFocusDataWithMutations(fd, fd);
-    expect(merged.focusedGroupIndex).toBe(1);
-    expect(merged.groupFocusPercentages).toEqual([-1, 1, -1]);
+    expect(merged.focusedCategoryIndex).toBe(1);
+    expect(merged.categoryFocusPercentages).toEqual([-1, 1, -1]);
   });
 });

@@ -21,17 +21,17 @@ interface Props {
 }
 
 interface FocusState {
-  focusedSeriesAxisId: string | null;
+  focusedValueAxisId: string | null;
   focusedSeriesId: string | null;
-  focusedGroupIndex: number;
+  focusedCategoryIndex: number;
   filteredSeriesIds: FilteredSeriesIds;
 }
 
 interface ChartTabState {
   chartCount: number;
-  focusedSeriesAxisId: string | null;
+  focusedValueAxisId: string | null;
   focusedSeriesId: string | null;
-  focusedGroupIndex: number;
+  focusedCategoryIndex: number;
   filteredSeriesIds: FilteredSeriesIds;
   mochartDemoConfig: MochartDemoConfig | null;
 }
@@ -44,24 +44,24 @@ export default function MochartChartTab({ config = null, data = null, dataError 
   // Authoritative focus/filter values (the old instance fields), mirrored to
   // state for rendering.
   const focus = useRef<FocusState>({
-    focusedSeriesAxisId: null,
+    focusedValueAxisId: null,
     focusedSeriesId: null,
-    focusedGroupIndex: -1,
+    focusedCategoryIndex: -1,
     filteredSeriesIds: {}
   });
 
   const initFocusAndFiltered = () => {
-    focus.current.focusedSeriesAxisId = null;
+    focus.current.focusedValueAxisId = null;
     focus.current.focusedSeriesId = null;
-    focus.current.focusedGroupIndex = -1;
+    focus.current.focusedCategoryIndex = -1;
     focus.current.filteredSeriesIds = {};
   };
 
   const [state, setState] = useState<ChartTabState>(() => ({
     chartCount: defaultChartCount,
-    focusedSeriesAxisId: focus.current.focusedSeriesAxisId,
+    focusedValueAxisId: focus.current.focusedValueAxisId,
     focusedSeriesId: focus.current.focusedSeriesId,
-    focusedGroupIndex: focus.current.focusedGroupIndex,
+    focusedCategoryIndex: focus.current.focusedCategoryIndex,
     filteredSeriesIds: focus.current.filteredSeriesIds,
     mochartDemoConfig: config ? buildMochartDemoConfig(config) : null
   }));
@@ -95,17 +95,17 @@ export default function MochartChartTab({ config = null, data = null, dataError 
         const { configValidation, mochartConfig } = mdc;
         const { valid } = configValidation;
         if (!oldDataError && oldData && data && valid) {
-          if (focus.current.focusedGroupIndex >= 0) {
-            const property = mochartConfig.groupAxisConfig.property ?? '';
-            const groupValue = oldData[focus.current.focusedGroupIndex][property];
-            let newFocusedGroupIndex = -1;
+          if (focus.current.focusedCategoryIndex >= 0) {
+            const property = mochartConfig.categoryAxis.property ?? '';
+            const categoryValue = oldData[focus.current.focusedCategoryIndex][property];
+            let newFocusedCategoryIndex = -1;
             for (let i = 0; i < data.length; i++) {
-              if (data[i][property] === groupValue) {
-                newFocusedGroupIndex = i;
+              if (data[i][property] === categoryValue) {
+                newFocusedCategoryIndex = i;
                 break;
               }
             }
-            focus.current.focusedGroupIndex = newFocusedGroupIndex;
+            focus.current.focusedCategoryIndex = newFocusedCategoryIndex;
           }
         }
         else {
@@ -114,16 +114,16 @@ export default function MochartChartTab({ config = null, data = null, dataError 
       }
     }
 
-    if (focus.current.focusedSeriesAxisId !== before.focusedSeriesAxisId ||
+    if (focus.current.focusedValueAxisId !== before.focusedValueAxisId ||
         focus.current.focusedSeriesId !== before.focusedSeriesId ||
-        focus.current.focusedGroupIndex !== before.focusedGroupIndex ||
+        focus.current.focusedCategoryIndex !== before.focusedCategoryIndex ||
         focus.current.filteredSeriesIds !== before.filteredSeriesIds ||
         config !== oldConfig) {
       setState(prevState => ({
         ...prevState,
-        focusedSeriesAxisId: focus.current.focusedSeriesAxisId,
+        focusedValueAxisId: focus.current.focusedValueAxisId,
         focusedSeriesId: focus.current.focusedSeriesId,
-        focusedGroupIndex: focus.current.focusedGroupIndex,
+        focusedCategoryIndex: focus.current.focusedCategoryIndex,
         filteredSeriesIds: focus.current.filteredSeriesIds,
         mochartDemoConfig: nextMochartDemoConfig
       }));
@@ -131,21 +131,21 @@ export default function MochartChartTab({ config = null, data = null, dataError 
   }
 
   const onFocus = (focusData: FocusData = {}) => {
-    const { seriesAxisId, seriesId, groupIndex } = focusData;
-    if (seriesAxisId !== undefined) {
-      focus.current.focusedSeriesAxisId = seriesAxisId;
+    const { valueAxisId, seriesId, categoryIndex } = focusData;
+    if (valueAxisId !== undefined) {
+      focus.current.focusedValueAxisId = valueAxisId;
     }
     if (seriesId !== undefined) {
       focus.current.focusedSeriesId = seriesId;
     }
-    if (groupIndex !== undefined) {
-      focus.current.focusedGroupIndex = groupIndex;
+    if (categoryIndex !== undefined) {
+      focus.current.focusedCategoryIndex = categoryIndex;
     }
     setState(prevState => ({
       ...prevState,
-      focusedSeriesAxisId: focus.current.focusedSeriesAxisId,
+      focusedValueAxisId: focus.current.focusedValueAxisId,
       focusedSeriesId: focus.current.focusedSeriesId,
-      focusedGroupIndex: focus.current.focusedGroupIndex
+      focusedCategoryIndex: focus.current.focusedCategoryIndex
     }));
   };
 
@@ -157,7 +157,7 @@ export default function MochartChartTab({ config = null, data = null, dataError 
 
   const onChartCountToggle = () => setState(prevState => ({ ...prevState, chartCount: prevState.chartCount === 1 ? 2 : 1 }));
 
-  const { chartCount, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId, mochartDemoConfig } = state;
+  const { chartCount, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId, mochartDemoConfig } = state;
 
   const charts: React.ReactNode[] = [];
   if (mochartDemoConfig && width > 0) {
@@ -169,8 +169,8 @@ export default function MochartChartTab({ config = null, data = null, dataError 
       charts.push(
         <EditableChart key={'chart-' + i} chartCount={chartCount} showChartCountControls={allowedChartCount > 1 && i === 0} showShareButton={i === 0}
           width={chartWidth} mochartDemoConfig={mochartDemoConfig} data={data ?? []} dataError={dataError}
-          isActive={active} filteredSeriesIds={filteredSeriesIds} focusedGroupIndex={focusedGroupIndex}
-          focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId} onChartCountToggle={onChartCountToggle}
+          isActive={active} filteredSeriesIds={filteredSeriesIds} focusedCategoryIndex={focusedCategoryIndex}
+          focusedValueAxisId={focusedValueAxisId} focusedSeriesId={focusedSeriesId} onChartCountToggle={onChartCountToggle}
           onFocus={onFocus} onSeriesFilter={onSeriesFilter} />
       );
     }

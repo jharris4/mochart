@@ -23,7 +23,7 @@ export interface ChartCallbackProps {
   onTitleClick?: (eventPayload: any) => void;
   onFocus?: (focusData: any) => void;
   onSeriesFilter?: (filterData: any) => void;
-  onSeriesLayoutInfoChange?: (bounds: any) => void;
+  onSeriesLayoutBoundsChange?: (bounds: any) => void;
   loadingTemplate?: PlaceholderTemplate;
   errorTemplate?: PlaceholderTemplate;
   noDataTemplate?: PlaceholderTemplate;
@@ -52,10 +52,10 @@ export interface BaseChartProps extends ChartCallbackProps {
    * `onFocus` to keep several charts in sync. Omit to leave focus
    * chart-managed.
    */
-  focusedGroupIndex?: number;
-  /** Controlled focused series-axis id (null = none). See `focusedGroupIndex`. */
-  focusedSeriesAxisId?: string | null;
-  /** Controlled focused series id (null = none). See `focusedGroupIndex`. */
+  focusedCategoryIndex?: number;
+  /** Controlled focused series-axis id (null = none). See `focusedCategoryIndex`. */
+  focusedValueAxisId?: string | null;
+  /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
   focusedSeriesId?: string | null;
   /**
    * Controlled filter map (series id → true = filtered out); pass back the

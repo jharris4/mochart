@@ -11,7 +11,8 @@ import { getSymbolGenerator } from '../utils/shapeUtils';
 import { translate } from '../utils/utils';
 import { getGradientReference } from '../utils/svgUtils';
 import { getFocusValue } from '../utils/FocusValue';
-import type { ColorPaletteConfig, LegendConfig, SeriesConfig, TooltipConfig } from '../types/config';
+import type { ColorPaletteConfig, LegendConfig, TooltipConfig } from '../types/config';
+import type { EnhancedSeriesConfig } from '../types/enhanced';
 
 interface SeriesColorUniqueIds {
   seriesColorGradientUniqueIds: Record<string, string>;
@@ -24,7 +25,7 @@ interface SeriesColorIconProps {
   resolvedIconSize?: number;
   seriesContextConfig: LegendConfig | TooltipConfig;
   seriesShowColorProperty: 'showColorInLegend' | 'showColorInTooltip';
-  seriesConfig: SeriesConfig;
+  seriesConfig: EnhancedSeriesConfig;
   seriesIndex: number;
   colorPaletteConfig: ColorPaletteConfig;
   seriesIsFiltered: boolean;

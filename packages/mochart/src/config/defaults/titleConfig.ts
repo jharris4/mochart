@@ -2,10 +2,10 @@ import { NONE, POSITION_TOP, ALIGN_CENTER, VERTICAL_ALIGN_MIDDLE, ELLIPSIS, COLO
 
 export default function getDefaults() {
   return {
-    title: NONE,
+    text: NONE,
     position: POSITION_TOP,
-    titlePrefix: NONE,
-    titleSuffix: NONE,
+    prefix: NONE,
+    suffix: NONE,
     link: NONE,
     linkDisabled: false,
     truncationEnabled: true,
@@ -24,8 +24,8 @@ export default function getDefaults() {
     suffixPadding: { top: 0, right: 0, bottom: 0, left: 5 },
     // 'none' rather than null on the text styles: stroke="none" firewalls a host-css stroke inheriting onto the text.
     backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
-    titleBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
-    titleTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE },
+    textBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
+    textStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE },
     prefixBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
     prefixTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE },
     suffixBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },

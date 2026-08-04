@@ -19,22 +19,22 @@ import * as ohlc from '../examples/ohlc'
   [Candlestick](/recipes/candlestick), which shares its input shape.
 - The bars are six ordinary `bar` series — an up and a down low→high line
   narrowed to a sliver of the slot with
-  [`barWidthFraction`](/reference/seriesConfigs#seriesConfigs.barWidthFraction),
+  [`barWidthFraction`](/reference/series#series.barWidthFraction),
   plus per direction an open and a close tick. Every row carries values for
   exactly one direction, and
-  [`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing) with
-  [`skipPartialRange`](/reference/seriesConfigs#seriesConfigs.skipPartialRange)
+  [`skipMissing`](/reference/series#series.skipMissing) with
+  [`skipPartialRange`](/reference/series#series.skipPartialRange)
   keeps the other direction's series from rendering.
 - The ticks are ranged bars whose `property` and
-  [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty)
+  [`rangeProperty`](/reference/series#series.rangeProperty)
   read the same value, so they'd have zero extent —
-  [`barMinExtent`](/reference/seriesConfigs#seriesConfigs.barMinExtent)
+  [`barMinExtent`](/reference/series#series.barMinExtent)
   expands them into visible marks (`tickExtent`, default 2px). Each tick is a
   half-width bar pushed to one side of the slot with
-  [`barAlignFraction`](/reference/seriesConfigs#seriesConfigs.barAlignFraction):
+  [`barAlignFraction`](/reference/series#series.barAlignFraction):
   the open tick spans slot-start→center and the close tick center→slot-end,
   meeting at the line.
-- The group axis is ordinal, so non-trading days (weekends, holidays) simply
+- The category axis is ordinal, so non-trading days (weekends, holidays) simply
   don't exist on the axis instead of leaving gaps — note `Jun 05` sits next
   to `Jun 08` above.
 - The default direction colors are aqua/red rather than the conventional
@@ -47,7 +47,7 @@ import * as ohlc from '../examples/ohlc'
   `rangeTitle` (default "Range") and single-value rows for the ticks under
   `openTitle` / `closeTitle` (defaults "Open" / "Close"). The ticks stay out
   of the legend but follow their line's legend filtering and focus via
-  [`followSeries`](/reference/seriesConfigs#seriesConfigs.followSeries), so
+  [`followSeries`](/reference/series#series.followSeries), so
   toggling a direction removes whole bars and focusing a direction
   highlights whole bars.
 - Each row also carries the raw `open`/`high`/`low`/`close` plus `change`

@@ -1,14 +1,14 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Daily Share Price (fictional, $)"
+  "title": {
+    "text": "Daily Share Price (fictional, $)"
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "property": "label",
     "type": "string",
     "scale": "ordinal"
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
       "id": "price",
       "minMarginFraction": 0.3333333333333333,
@@ -21,7 +21,7 @@
       "visible": false
     }
   ],
-  "seriesConfigs": [
+  "series": [
     {
       "id": "upWick",
       "property": "upHigh",

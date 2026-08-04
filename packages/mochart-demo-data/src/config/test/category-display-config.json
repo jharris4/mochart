@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0",
+  "title": {
+    "text": "Group Display Property Example"
+  },
+  "animation": {
+    "expansionDuration": 1000,
+    "initialDuration": 1000,
+    "valueChangeDuration": 1000,
+    "collapseDuration": 1000
+  },
+  "categoryAxis": {
+    "valueLabel": "Category",
+    "property": "category",
+    "displayProperty": "categoryDisplay",
+    "type": "string",
+    "scale": "ordinal"
+  },
+  "valueAxes": [
+    {
+      "id": "VA0"
+    }
+  ],
+  "series": [
+    {
+      "axis": "VA0",
+      "property": "value1",
+      "title": "Series 1",
+      "renderer": "bar"
+    },
+    {
+      "axis": "VA0",
+      "property": "value2",
+      "title": "Series 2",
+      "renderer": "line"
+    }
+  ]
+}

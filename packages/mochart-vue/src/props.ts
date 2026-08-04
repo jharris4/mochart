@@ -23,7 +23,7 @@ export const baseChartProps = {
   onTitleClick: callbackProp,
   onFocus: callbackProp,
   onSeriesFilter: callbackProp,
-  onSeriesLayoutInfoChange: callbackProp,
+  onSeriesLayoutBoundsChange: callbackProp,
   loadingComponent: placeholderProp,
   errorComponent: placeholderProp,
   noDataComponent: placeholderProp,
@@ -38,10 +38,10 @@ export const baseChartProps = {
    * `onFocus` to keep several charts in sync. Omit to leave focus
    * chart-managed.
    */
-  focusedGroupIndex: { type: Number, default: undefined },
-  /** Controlled focused series-axis id (null = none). See `focusedGroupIndex`. */
-  focusedSeriesAxisId: { type: String as PropType<string | null>, default: undefined },
-  /** Controlled focused series id (null = none). See `focusedGroupIndex`. */
+  focusedCategoryIndex: { type: Number, default: undefined },
+  /** Controlled focused series-axis id (null = none). See `focusedCategoryIndex`. */
+  focusedValueAxisId: { type: String as PropType<string | null>, default: undefined },
+  /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
   focusedSeriesId: { type: String as PropType<string | null>, default: undefined },
   /**
    * Controlled filter map (series id → true = filtered out); pass back the

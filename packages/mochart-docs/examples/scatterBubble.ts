@@ -5,16 +5,16 @@ import type { MochartInputConfig } from '@mochart/core';
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Latency under Load' },
-  groupAxisConfig: {
+  title: { text: 'Latency under Load' },
+  categoryAxis: {
     title: 'Requests per second',
     property: 'load',
     type: 'number',
     scale: 'linear'
   },
-  seriesAxisConfigs: [{ id: 'SA0', title: 'Latency (ms)' }],
-  seriesAllConfig: { renderer: 'none' },
-  seriesConfigs: [
+  valueAxes: [{ id: 'SA0', title: 'Latency (ms)' }],
+  seriesDefaults: { renderer: 'none' },
+  series: [
     {
       property: 'v1',
       title: 'v1',

@@ -20,10 +20,10 @@ import * as waterfall from '../examples/waterfall'
   closing balance).
 - The floating bars are three ordinary `bar` series — increase, decrease,
   total — all spanning from the shared `start` property via
-  [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty).
+  [`rangeProperty`](/reference/series#series.rangeProperty).
   Every row carries a value for exactly one of them, and
-  [`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing) with
-  [`skipPartialRange`](/reference/seriesConfigs#seriesConfigs.skipPartialRange)
+  [`skipMissing`](/reference/series#series.skipMissing) with
+  [`skipPartialRange`](/reference/series#series.skipPartialRange)
   keeps the other two from rendering (`start` exists on every row, so without
   `skipPartialRange` they would collapse to zero-height bars instead of
   skipping), so each slot shows one full-width bar while the legend still
@@ -35,7 +35,7 @@ import * as waterfall from '../examples/waterfall'
   series with `seriesTitles`.
 - `base` sets the value the running total starts from and total bars span
   from (default 0). When it's not 0, also set the series axis
-  [`base`](/reference/seriesAxisConfigs#seriesAxisConfigs.base) so delta
+  [`base`](/reference/valueAxes#valueAxes.base) so delta
   bars near it read correctly.
 - Each row also carries `delta`, `cumulative` and `direction`, and the
   computed steps come back under `steps` — or call

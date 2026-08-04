@@ -9,32 +9,32 @@ export interface ChartEventPayload {
   /** Pointer y relative to the chart container, in pixels. */
   chartY: number;
   /** Pointer position along the group axis, in plot pixels. */
-  groupPosition: number;
-  /** Pointer position along the series axis, in plot pixels. */
-  seriesPosition: number;
+  categoryPosition: number;
+  /** Pointer position along the value axis, in plot pixels. */
+  valuePosition: number;
   /** Pointer position along the group axis as a 0–1 fraction of the plot. */
-  groupPercentage: number;
-  /** Pointer position along the series axis as a 0–1 fraction of the plot. */
-  seriesPercentage: number;
+  categoryPercentage: number;
+  /** Pointer position along the value axis as a 0–1 fraction of the plot. */
+  valuePercentage: number;
   /** Index of the group nearest the pointer, -1 when none. */
-  groupIndex: number;
+  categoryIndex: number;
 }
 
 /** The chart's current focus, reported by `onFocus`. */
 export interface ChartFocus {
   /** Id of the focused series axis, or null when no axis is focused. */
-  focusedSeriesAxisId: string | null;
+  focusedValueAxisId: string | null;
   /** Id of the focused series, or null when no series is focused. */
   focusedSeriesId: string | null;
   /** Index of the focused group, -1 when no group is focused. */
-  focusedGroupIndex: number;
+  focusedCategoryIndex: number;
 }
 
 /** Partial focus update raised from inside the chart (undefined = leave unchanged, null = clear). */
 export interface InternalFocus {
-  seriesAxisId?: string | null;
+  valueAxisId?: string | null;
   seriesId?: string | null;
-  groupIndex?: number | null;
+  categoryIndex?: number | null;
 }
 
 /** The legend filtering state, reported by `onSeriesFilter`. */
@@ -48,13 +48,13 @@ export interface ChartDomAccessors {
   getTitleTextRawDomElement(): SVGGraphicsElement | null;
   getTitlePrefixDomElement(): SVGGraphicsElement | null;
   getTitleSuffixDomElement(): SVGGraphicsElement | null;
-  getGroupAxisTicksDomElements(): NodeListOf<SVGGraphicsElement>;
-  getGroupAxisSizeTickDomElement(): SVGGraphicsElement | null;
-  getGroupAxisTitleDomElement(): SVGGraphicsElement | null;
-  getGroupAxisThresholdTitleDomElement(): SVGGraphicsElement | null;
-  getSeriesAxisTicksDomElementsForId(axisId: string): NodeListOf<SVGGraphicsElement>;
-  getSeriesAxisTitleDomElementForId(axisId: string): SVGGraphicsElement | null;
-  getSeriesAxisThresholdTitleDomElementForId(axisId: string): SVGGraphicsElement | null;
+  getCategoryAxisTicksDomElements(): NodeListOf<SVGGraphicsElement>;
+  getCategoryAxisSizeTickDomElement(): SVGGraphicsElement | null;
+  getCategoryAxisTitleDomElement(): SVGGraphicsElement | null;
+  getCategoryAxisThresholdTitleDomElement(): SVGGraphicsElement | null;
+  getValueAxisTicksDomElementsForId(axisId: string): NodeListOf<SVGGraphicsElement>;
+  getValueAxisTitleDomElementForId(axisId: string): SVGGraphicsElement | null;
+  getValueAxisThresholdTitleDomElementForId(axisId: string): SVGGraphicsElement | null;
   getLegendDomElement(): HTMLElement | null;
   getLegendItemTextDomElements(): NodeListOf<SVGGraphicsElement>;
   getLegendItemTextRawDomElements(): NodeListOf<SVGGraphicsElement>;
@@ -114,7 +114,7 @@ export interface ChartCallbacks {
    */
   onSeriesFilter?: (filter: ChartSeriesFilter) => void;
   /** The plot area was re-laid-out; reports its new bounds. */
-  onSeriesLayoutInfoChange?: (bounds: Bounds) => void;
+  onSeriesLayoutBoundsChange?: (bounds: Bounds) => void;
 }
 
 /**
@@ -154,10 +154,10 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
    * pass back the value reported by `onFocus` to keep several charts in sync.
    * Leave undefined to let the chart manage focus internally.
    */
-  focusedGroupIndex?: number;
-  /** Externally-controlled focused series-axis id (null = none). See `focusedGroupIndex`. */
-  focusedSeriesAxisId?: string | null;
-  /** Externally-controlled focused series id (null = none). See `focusedGroupIndex`. */
+  focusedCategoryIndex?: number;
+  /** Externally-controlled focused series-axis id (null = none). See `focusedCategoryIndex`. */
+  focusedValueAxisId?: string | null;
+  /** Externally-controlled focused series id (null = none). See `focusedCategoryIndex`. */
   focusedSeriesId?: string | null;
   /**
    * Externally-controlled filter map (series id → true = filtered out).
@@ -181,7 +181,7 @@ export interface DefaultChartProps extends BaseChartProps {
   config: MochartInputConfig;
   /**
    * The dataset as one object per group; wrapped in an
-   * `ArrayOfObjectsDataProvider` keyed by `groupAxisConfig.property`.
+   * `ArrayOfObjectsDataProvider` keyed by `categoryAxisConfig.property`.
    */
   data: readonly DataRow[];
 }

@@ -26,8 +26,8 @@ const defaultChartCount = 1;
             @for (i of chartIndexes; track i) {
               <app-editable-chart [chartCount]="chartCount()" [showChartCountControls]="allowedChartCount > 1 && i === 1" [showShareButton]="i === 1"
                                   [width]="chartWidth" [mochartDemoConfig]="mochartDemoConfig()!" [data]="data ?? []" [dataError]="dataError"
-                                  [isActive]="active" [filteredSeriesIds]="filteredSeriesIds()" [focusedGroupIndex]="focusedGroupIndex()"
-                                  [focusedSeriesAxisId]="focusedSeriesAxisId()" [focusedSeriesId]="focusedSeriesId()" [onChartCountToggle]="onChartCountToggle"
+                                  [isActive]="active" [filteredSeriesIds]="filteredSeriesIds()" [focusedCategoryIndex]="focusedCategoryIndex()"
+                                  [focusedValueAxisId]="focusedValueAxisId()" [focusedSeriesId]="focusedSeriesId()" [onChartCountToggle]="onChartCountToggle"
                                   [onFocus]="onFocus" [onSeriesFilter]="onSeriesFilter" />
             }
           }
@@ -49,9 +49,9 @@ export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   width = this.elementSize.width;
 
   chartCount = signal(defaultChartCount);
-  focusedSeriesAxisId = signal<string | null>(null);
+  focusedValueAxisId = signal<string | null>(null);
   focusedSeriesId = signal<string | null>(null);
-  focusedGroupIndex = signal(-1);
+  focusedCategoryIndex = signal(-1);
   filteredSeriesIds = signal<FilteredSeriesIds>({});
   mochartDemoConfig = signal<MochartDemoConfig | null>(null);
 
@@ -68,9 +68,9 @@ export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   }
 
   private resetFocusAndFiltered(): void {
-    this.focusedSeriesAxisId.set(null);
+    this.focusedValueAxisId.set(null);
     this.focusedSeriesId.set(null);
-    this.focusedGroupIndex.set(-1);
+    this.focusedCategoryIndex.set(-1);
     this.filteredSeriesIds.set({});
   }
 
@@ -107,18 +107,18 @@ export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       const { configValidation, mochartConfig } = this.mochartDemoConfig() ?? {};
       const valid = configValidation?.valid ?? false;
       if (!previousDataError && previousData && this.data && valid && mochartConfig) {
-        if (this.focusedGroupIndex() >= 0) {
-          const property = mochartConfig.groupAxisConfig.property ?? '';
-          const groupValue = previousData[this.focusedGroupIndex()][property];
-          let newFocusedGroupIndex = -1;
+        if (this.focusedCategoryIndex() >= 0) {
+          const property = mochartConfig.categoryAxis.property ?? '';
+          const categoryValue = previousData[this.focusedCategoryIndex()][property];
+          let newFocusedCategoryIndex = -1;
           const count = this.data.length;
           for (let i = 0; i < count; i++) {
-            if (this.data[i][property] === groupValue) {
-              newFocusedGroupIndex = i;
+            if (this.data[i][property] === categoryValue) {
+              newFocusedCategoryIndex = i;
               break;
             }
           }
-          this.focusedGroupIndex.set(newFocusedGroupIndex);
+          this.focusedCategoryIndex.set(newFocusedCategoryIndex);
         }
       }
       else {
@@ -128,15 +128,15 @@ export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   }
 
   onFocus = (focusData: FocusData = {}): void => {
-    const { seriesAxisId, seriesId, groupIndex } = focusData;
-    if (seriesAxisId !== undefined) {
-      this.focusedSeriesAxisId.set(seriesAxisId);
+    const { valueAxisId, seriesId, categoryIndex } = focusData;
+    if (valueAxisId !== undefined) {
+      this.focusedValueAxisId.set(valueAxisId);
     }
     if (seriesId !== undefined) {
       this.focusedSeriesId.set(seriesId);
     }
-    if (groupIndex !== undefined) {
-      this.focusedGroupIndex.set(groupIndex);
+    if (categoryIndex !== undefined) {
+      this.focusedCategoryIndex.set(categoryIndex);
     }
   };
 

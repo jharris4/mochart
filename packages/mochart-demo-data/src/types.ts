@@ -8,7 +8,7 @@ export type DemoConfig = MochartInputConfig & Record<string, unknown>;
 
 /** The generic per-property random-generation config (see random/*.json). */
 export interface RandomConfig {
-  group: {
+  category: {
     count: number;
     order: { sort: boolean };
     missing: { probability: number };

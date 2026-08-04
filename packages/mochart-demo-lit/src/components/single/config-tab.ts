@@ -110,7 +110,7 @@ export class ConfigTab extends LightElement {
   }
 
   override render(): unknown {
-    const inverted = this.demoConfig.configWithDefaults.plotConfig.inverted;
+    const inverted = this.demoConfig.configWithDefaults.plot.inverted;
     const invertedIcon = inverted ? 'chart-bar' : 'chart-column';
     const slow = isConfigSectionActive(this.demoConfig, 'animationConfig', slowAnimationConfig);
     const slowIcon = slow ? 'hourglass' : 'hourglass-end';

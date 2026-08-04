@@ -19,14 +19,14 @@ const donut = createPie(
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Browser Market Share (fictional)' },
-  chartConfig: donut.chartConfig,
+  title: { text: 'Browser Market Share (fictional)' },
+  chart: donut.chart,
   // showLabels puts percent labels at the slice centroids (slices thinner
   // than labelMinFraction hide theirs), and focusOffsetFraction explodes
   // the hovered slice away from the center.
-  pieConfig: { ...donut.pieConfig, showLabels: true, labelType: 'percent', focusOffsetFraction: 0.05 },
-  groupAxisConfig: donut.groupAxisConfig,
-  seriesConfigs: donut.seriesConfigs
+  pie: { ...donut.pie, showLabels: true, labelType: 'percent', focusOffsetFraction: 0.05 },
+  categoryAxis: donut.categoryAxis,
+  series: donut.series
 };
 
 export const data = donut.data;

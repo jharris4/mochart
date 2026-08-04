@@ -9,7 +9,7 @@ phases, so only one kind of change is in motion at a time.
 import * as animation from '../examples/animation'
 </script>
 
-Watch the phases — the alternate dataset adds groups *and* raises the
+Watch the phases — the alternate dataset adds categories *and* raises the
 maximum, so the axes expand first, then values change, and on the way back
 values change before the axes contract:
 
@@ -17,12 +17,12 @@ values change before the axes contract:
 
 ## The three phases
 
-1. **Axis expansion** — if the new data needs more room (new groups, larger
+1. **Axis expansion** — if the new data needs more room (new categories, larger
    values), the axis domains grow first and the existing shapes reflow into
    the wider domains, so incoming data has a place to land.
 2. **Value change** — values tween to their new positions. This phase also
-   plays **group transitions** (groups added, removed, or reordered are
-   merged into one display sequence so old and new groups animate coherently)
+   plays **category transitions** (categories added, removed, or reordered are
+   merged into one display sequence so old and new categories animate coherently)
    and **series transitions** (series added, removed, or filtered via the
    legend).
 3. **Axis contraction** — once the values settle, the axis domains collapse
@@ -43,16 +43,16 @@ from the stack. Try it in the [stacked bars recipe](/recipes/stacked-bars).
 
 ## Tuning
 
-All knobs live in [`animationConfig`](/reference/animationConfig):
+All knobs live in [`animationConfig`](/reference/animation):
 
 | Property | Controls |
 | --- | --- |
-| [`animate`](/reference/animationConfig#animationConfig.animate) | master switch — `false` applies every update instantly |
-| [`initialDuration`](/reference/animationConfig#animationConfig.initialDuration) | the first render when the chart mounts |
-| [`expansionDuration`](/reference/animationConfig#animationConfig.expansionDuration) | the axis expansion phase |
-| [`valueChangeDuration`](/reference/animationConfig#animationConfig.valueChangeDuration) | the value change phase (incl. group/series transitions) |
-| [`collapseDuration`](/reference/animationConfig#animationConfig.collapseDuration) | the axis contraction phase |
-| [`focusDuration`](/reference/animationConfig#animationConfig.focusDuration) | hover/click focus emphasis transitions |
+| [`animate`](/reference/animation#animation.animate) | master switch — `false` applies every update instantly |
+| [`initialDuration`](/reference/animation#animation.initialDuration) | the first render when the chart mounts |
+| [`expansionDuration`](/reference/animation#animation.expansionDuration) | the axis expansion phase |
+| [`valueChangeDuration`](/reference/animation#animation.valueChangeDuration) | the value change phase (incl. category/series transitions) |
+| [`collapseDuration`](/reference/animation#animation.collapseDuration) | the axis contraction phase |
+| [`focusDuration`](/reference/animation#animation.focusDuration) | hover/click focus emphasis transitions |
 
 Durations are in milliseconds and are the *maximum* for the phase — smaller
 changes complete proportionally faster. On an axis running `0` to `100` with

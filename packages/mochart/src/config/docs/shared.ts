@@ -40,8 +40,8 @@ export const spacingDescriptions: DescriptionMap = {
 
 /** The `ColorPalette` members, shared by every color palette entry. */
 export const colorPaletteDescriptions: DescriptionMap = {
-  strokeColors: 'the colors to use for strokes, taken by series or group index and wrapping around when there are more series than colors',
-  fillColors: 'the colors to use for fills, taken by series or group index and wrapping around when there are more series than colors'
+  strokeColors: 'the colors to use for strokes, taken by series or category index and wrapping around when there are more series than colors',
+  fillColors: 'the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors'
 };
 
 /** A property holding a `Style` (or the stroke-only `StrokeStyle`). */

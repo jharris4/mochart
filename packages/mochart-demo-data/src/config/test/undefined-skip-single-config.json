@@ -1,13 +1,13 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Skip Undefined Single Values"
+  "title": {
+    "text": "Skip Undefined Single Values"
   },
-  "tooltipConfig": {
+  "tooltip": {
     "showMissingValues": true,
     "missingValueText": "N/A"
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "before": false,
     "title": "Group Axis",
     "gridLines": true,
@@ -17,16 +17,16 @@
     "max": "auto",
     "type": "number",
     "scale": "ordinal",
-    "valueLabel": "Group",
-    "property": "group"
+    "valueLabel": "Category",
+    "property": "category"
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
       "before": true,
       "title": "Series Axis 1",
       "axisLine": true,
       "gridLines": false,
-      "id": "SA0",
+      "id": "VA0",
       "base": 0
     },
     {
@@ -34,31 +34,31 @@
       "title": "Series Axis 2",
       "axisLine": true,
       "gridLines": true,
-      "id": "SA1",
+      "id": "VA1",
       "base": 0
     }
   ],
-  "seriesGroupConfigs": [
+  "seriesGroups": [
     {
       "id": "SG0"
     }
   ],
-  "seriesStackConfigs": [
+  "seriesStacks": [
     {
-      "axis": "SA1",
+      "axis": "VA1",
       "id": "SS1"
     }
   ],
-  "seriesAllConfig": {
+  "seriesDefaults": {
     "markerSize": 6,
     "skipMissing": true
   },
-  "seriesConfigs": [
+  "series": [
     {
       "renderer": "line",
       "title": "Value 0",
       "markerShape": "circle",
-      "axis": "SA0",
+      "axis": "VA0",
       "group": null,
       "stack": null,
       "property": "value0"
@@ -67,7 +67,7 @@
       "renderer": "bar",
       "title": "Value 1",
       "markerShape": null,
-      "axis": "SA0",
+      "axis": "VA0",
       "group": null,
       "stack": null,
       "property": "value1"
@@ -76,7 +76,7 @@
       "renderer": "area",
       "title": "Value 2",
       "markerShape": "circle",
-      "axis": "SA0",
+      "axis": "VA0",
       "group": null,
       "stack": null,
       "property": "value2"
@@ -85,7 +85,7 @@
       "renderer": "line",
       "title": "Value 3",
       "markerShape": "circle",
-      "axis": "SA1",
+      "axis": "VA1",
       "group": null,
       "stack": null,
       "property": "value3"
@@ -94,7 +94,7 @@
       "renderer": "bar",
       "title": "Value 4",
       "markerShape": null,
-      "axis": "SA1",
+      "axis": "VA1",
       "group": "SG0",
       "stack": null,
       "property": "value4"
@@ -103,7 +103,7 @@
       "renderer": "bar",
       "title": "Value 5",
       "markerShape": null,
-      "axis": "SA1",
+      "axis": "VA1",
       "group": "SG0",
       "stack": null,
       "property": "value5"
@@ -112,7 +112,7 @@
       "renderer": "area",
       "title": "Value 6",
       "markerShape": "circle",
-      "axis": "SA1",
+      "axis": "VA1",
       "group": null,
       "stack": "SS1",
       "property": "value6"
@@ -121,7 +121,7 @@
       "renderer": "area",
       "title": "Value 7",
       "markerShape": "circle",
-      "axis": "SA1",
+      "axis": "VA1",
       "group": null,
       "stack": "SS1",
       "property": "value7"
@@ -130,7 +130,7 @@
       "renderer": "area",
       "title": "Value 8",
       "markerShape": "circle",
-      "axis": "SA1",
+      "axis": "VA1",
       "group": null,
       "stack": "SS1",
       "property": "value8"

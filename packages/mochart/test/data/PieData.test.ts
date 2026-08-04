@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { getPieSliceAngles, getPieSliceFractions, getPieSliceFractionMap, sweepPieSliceAngles, degreesToRadians } from '../../src/data/PieData';
 import { getRadialLayoutInfo } from '../../src/layout/RadialLayout';
-import type { PieConfig, SeriesConfig } from '../../src/types/config';
+import type { PieConfig } from '../../src/types/config';
 import type { SeriesValueObject } from '../../src/types/data';
 import type { LayoutInfo } from '../../src/types/layout';
+import type { EnhancedSeriesConfig } from '../../src/types/enhanced';
 
 const TWO_PI = Math.PI * 2;
 
-const seriesConfig = (id: string) => ({ id }) as SeriesConfig;
+const seriesConfig = (id: string) => ({ id }) as EnhancedSeriesConfig;
 // Mirrors the built defaults, including the conditional endAngle default of
 // startAngle + 360 (a full circle unless overridden).
 const pieConfig = (overrides: Partial<PieConfig> = {}) => ({

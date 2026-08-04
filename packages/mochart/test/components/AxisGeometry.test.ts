@@ -17,7 +17,7 @@ function mountChart(config: Record<string, unknown>, data: readonly unknown[]): 
   const container = document.createElement('div');
   document.body.appendChild(container);
   const handle = createDefaultChart(container, {
-    config: { version: VERSION, animationConfig: { animate: false }, ...config } as unknown as MochartInputConfig,
+    config: { version: VERSION, animation: { animate: false }, ...config } as unknown as MochartInputConfig,
     data, width: 800, height: 600
   } as DefaultChartProps);
   handles.push(handle);
@@ -37,7 +37,7 @@ afterEach(() => {
 });
 
 function thresholdTranslateY(container: Element): number {
-  const lineGroup = container.querySelector('.mochart-group-axis-threshold .mochart-axis-threshold > g');
+  const lineGroup = container.querySelector('.mochart-category-axis-threshold .mochart-axis-threshold > g');
   expect(lineGroup).not.toBeNull();
   const transform = lineGroup!.getAttribute('transform')!;
   return Number(transform.match(/translate\([^,]+,\s*([^)]+)\)/)![1]);
@@ -50,9 +50,9 @@ describe('group-axis threshold on an inverted chart', () => {
   it('places a low threshold nearer the top than a high one', () => {
     const rows = Array.from({ length: 11 }, (_, g) => ({ g, value: g * 2 }));
     const configFor = (threshold: number) => ({
-      plotConfig: { inverted: true },
-      groupAxisConfig: { property: 'g', type: 'number', scale: 'linear', threshold },
-      seriesConfigs: [{ property: 'value', renderer: 'bar' }]
+      plot: { inverted: true },
+      categoryAxis: { property: 'g', type: 'number', scale: 'linear', threshold },
+      series: [{ property: 'value', renderer: 'bar' }]
     });
     const lowY = thresholdTranslateY(mountChart(configFor(2), rows));
     const highY = thresholdTranslateY(mountChart(configFor(8), rows));
@@ -77,9 +77,9 @@ describe('per-side series label positions', () => {
 
   it('applies labelAboveBasePosition to the above-base dy', () => {
     const container = mountChart({
-      groupAxisConfig: { property: 'g', type: 'string', scale: 'ordinal' },
-      seriesAxisConfigs: [{ base: 0 }],
-      seriesConfigs: [{ property: 'value', renderer: 'bar', labelProperty: 'value', labelPosition: 'outside', labelAboveBasePosition: 'inside' }]
+      categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
+      valueAxes: [{ base: 0 }],
+      series: [{ property: 'value', renderer: 'bar', labelProperty: 'value', labelPosition: 'outside', labelAboveBasePosition: 'inside' }]
     }, rows);
     expect(labelAttrs(container, 0).dy).toBe('1.35em');   // above base, inside
     expect(labelAttrs(container, 1).dy).toBe('1.35em');   // below base, outside
@@ -87,10 +87,10 @@ describe('per-side series label positions', () => {
 
   it('applies labelBelowBasePosition to the below-base anchor on inverted charts', () => {
     const container = mountChart({
-      plotConfig: { inverted: true },
-      groupAxisConfig: { property: 'g', type: 'string', scale: 'ordinal' },
-      seriesAxisConfigs: [{ base: 0 }],
-      seriesConfigs: [{ property: 'value', renderer: 'bar', labelProperty: 'value', labelPosition: 'outside', labelBelowBasePosition: 'inside' }]
+      plot: { inverted: true },
+      categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
+      valueAxes: [{ base: 0 }],
+      series: [{ property: 'value', renderer: 'bar', labelProperty: 'value', labelPosition: 'outside', labelBelowBasePosition: 'inside' }]
     }, rows);
     expect(labelAttrs(container, 0).anchor).toBe('start'); // above base, outside
     expect(labelAttrs(container, 1).anchor).toBe('start'); // below base, inside

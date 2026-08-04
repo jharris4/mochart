@@ -37,31 +37,31 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
   let width = 0;
 
   let chartCount = defaultChartCount;
-  let focusedSeriesAxisId: string | null = null;
+  let focusedValueAxisId: string | null = null;
   let focusedSeriesId: string | null = null;
-  let focusedGroupIndex = -1;
+  let focusedCategoryIndex = -1;
   let filteredSeriesIds: FilteredSeriesIds = {};
   let mochartDemoConfig: MochartDemoConfig | null = config ? buildMochartDemoConfig(config) : null;
 
   let charts: EditableChartHandle[] = [];
 
   function resetFocusAndFiltered(): void {
-    focusedSeriesAxisId = null;
+    focusedValueAxisId = null;
     focusedSeriesId = null;
-    focusedGroupIndex = -1;
+    focusedCategoryIndex = -1;
     filteredSeriesIds = {};
   }
 
   function onFocus(focusData: FocusData = {}): void {
-    const { seriesAxisId, seriesId, groupIndex } = focusData;
-    if (seriesAxisId !== undefined) {
-      focusedSeriesAxisId = seriesAxisId;
+    const { valueAxisId, seriesId, categoryIndex } = focusData;
+    if (valueAxisId !== undefined) {
+      focusedValueAxisId = valueAxisId;
     }
     if (seriesId !== undefined) {
       focusedSeriesId = seriesId;
     }
-    if (groupIndex !== undefined) {
-      focusedGroupIndex = groupIndex;
+    if (categoryIndex !== undefined) {
+      focusedCategoryIndex = categoryIndex;
     }
     syncCharts();
   }
@@ -126,8 +126,8 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
         showChartCountControls,
         showShareButton: charts.length === 0,
         filteredSeriesIds,
-        focusedGroupIndex,
-        focusedSeriesAxisId,
+        focusedCategoryIndex,
+        focusedValueAxisId,
         focusedSeriesId,
         onFocus,
         onSeriesFilter,
@@ -145,8 +145,8 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
         isActive: active,
         chartCount,
         filteredSeriesIds,
-        focusedGroupIndex,
-        focusedSeriesAxisId,
+        focusedCategoryIndex,
+        focusedValueAxisId,
         focusedSeriesId
       });
     }
@@ -190,18 +190,18 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
         const { configValidation, mochartConfig } = mochartDemoConfig ?? {};
         const valid = configValidation?.valid ?? false;
         if (!dataError && data && nextData && valid && mochartConfig) {
-          if (focusedGroupIndex >= 0) {
-            const property = mochartConfig.groupAxisConfig.property ?? '';
-            const groupValue = data[focusedGroupIndex][property];
-            let newFocusedGroupIndex = -1;
+          if (focusedCategoryIndex >= 0) {
+            const property = mochartConfig.categoryAxis.property ?? '';
+            const categoryValue = data[focusedCategoryIndex][property];
+            let newFocusedCategoryIndex = -1;
             const count = nextData.length;
             for (let i = 0; i < count; i++) {
-              if (nextData[i][property] === groupValue) {
-                newFocusedGroupIndex = i;
+              if (nextData[i][property] === categoryValue) {
+                newFocusedCategoryIndex = i;
                 break;
               }
             }
-            focusedGroupIndex = newFocusedGroupIndex;
+            focusedCategoryIndex = newFocusedCategoryIndex;
           }
         }
         else {

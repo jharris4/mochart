@@ -30,16 +30,16 @@ const rows = [
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animationConfig: { animate: false },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal', title: 'Month', focusRange: true },
-    tooltipConfig: { focusOnSeriesMouseOver: true },
-    seriesAxisConfigs: [
-      { id: 'SA0', before: true, title: 'Left Titled' },
-      { id: 'SA1', before: false, title: 'Right Titled' }
+    animation: { animate: false },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Month', focusRange: true },
+    tooltip: { focusOnSeriesMouseOver: true },
+    valueAxes: [
+      { id: 'VA0', before: true, title: 'Left Titled' },
+      { id: 'VA1', before: false, title: 'Right Titled' }
     ],
-    seriesConfigs: [
-      { id: 'S0', property: 'sales', axis: 'SA0' },
-      { id: 'S1', property: 'sales', axis: 'SA1' }
+    series: [
+      { id: 'S0', property: 'sales', axis: 'VA0' },
+      { id: 'S1', property: 'sales', axis: 'VA1' }
     ],
     ...overrides
   } as unknown as MochartInputConfig;
@@ -118,8 +118,8 @@ afterEach(() => {
 describe('axis box placement along the axis', () => {
   it('starts the title and tick label boxes at the top of a vertical axis', () => {
     const container = mountChart(makeConfig());
-    for (const axisId of ['SA0', 'SA1']) {
-      const group = axisGroup(container, 'mochart-series-axis-' + axisId);
+    for (const axisId of ['VA0', 'VA1']) {
+      const group = axisGroup(container, 'mochart-value-axis-' + axisId);
       expect({ axisId, y: rect(group, '.mochart-axis-title rect').y }).toEqual({ axisId, y: 0 });
       expect({ axisId, y: rect(group, '.mochart-axis-tick-labels rect').y }).toEqual({ axisId, y: 0 });
     }
@@ -127,7 +127,7 @@ describe('axis box placement along the axis', () => {
 
   it('starts the title and tick label boxes at the left of the group axis', () => {
     const container = mountChart(makeConfig());
-    const group = axisGroup(container, 'mochart-group-axis');
+    const group = axisGroup(container, 'mochart-category-axis');
     expect(rect(group, '.mochart-axis-title rect').x).toBe(0);
     expect(rect(group, '.mochart-axis-tick-labels rect').x).toBe(0);
   });
@@ -137,11 +137,11 @@ describe('series axis focus range placement', () => {
   it('places the focus range identically on titled before and after axes', () => {
     const before = mountChart(makeConfig());
     focusSeries(before, 'S0');
-    const beforeRange = rect(axisGroup(before, 'mochart-series-axis-SA0'), '.mochart-axis-focus-range rect');
+    const beforeRange = rect(axisGroup(before, 'mochart-value-axis-VA0'), '.mochart-axis-focus-range rect');
 
     const after = mountChart(makeConfig());
     focusSeries(after, 'S1');
-    const afterRange = rect(axisGroup(after, 'mochart-series-axis-SA1'), '.mochart-axis-focus-range rect');
+    const afterRange = rect(axisGroup(after, 'mochart-value-axis-VA1'), '.mochart-axis-focus-range rect');
 
     expect(afterRange.y).toBe(beforeRange.y);
     expect(afterRange.height).toBe(beforeRange.height);
@@ -150,7 +150,7 @@ describe('series axis focus range placement', () => {
   it('keeps the focus range within the axis bounds', () => {
     const container = mountChart(makeConfig());
     focusSeries(container, 'S1');
-    const group = axisGroup(container, 'mochart-series-axis-SA1');
+    const group = axisGroup(container, 'mochart-value-axis-VA1');
     const range = rect(group, '.mochart-axis-focus-range rect');
     // the tick label box spans the axis' full length, so it gives the bounds
     const axisHeight = rect(group, '.mochart-axis-tick-labels rect').height;
@@ -165,7 +165,7 @@ describe('series axis focus range placement', () => {
   it('paints the focus range with the host page color', () => {
     const container = mountChart(makeConfig());
     focusSeries(container, 'S1');
-    const el = axisGroup(container, 'mochart-series-axis-SA1')
+    const el = axisGroup(container, 'mochart-value-axis-VA1')
       .querySelector('.mochart-axis-focus-range rect')!;
     expect(el.getAttribute('stroke')).toBe('currentColor');
     expect(el.getAttribute('fill')).toBe('currentColor');
@@ -176,10 +176,10 @@ describe('series axis focus range placement', () => {
 
   it('paints the focus tick marks with the host page color', () => {
     const container = mountChart(makeConfig({
-      seriesAxisAllConfig: { focusTickMarks: true }
+      valueAxisDefaults: { focusTickMarks: true }
     }));
     focusSeries(container, 'S1');
-    const el = axisGroup(container, 'mochart-series-axis-SA1')
+    const el = axisGroup(container, 'mochart-value-axis-VA1')
       .querySelector('.mochart-axis-focus-tick-marks line')!;
     expect(el.getAttribute('stroke')).toBe('currentColor');
     expect(el.getAttribute('stroke-opacity')).toBe('1');

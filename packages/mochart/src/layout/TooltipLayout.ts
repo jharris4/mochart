@@ -1,19 +1,19 @@
 import { getWithMutations } from '../utils/WithMutations';
 import type { Bounds, Size } from '../types/geometry';
-import type { MochartConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartLayoutInfo } from '../types/layout';
 
 const defaultLayout: Bounds = { x: 0, y: 0, width: 50, height: 50 };
 
-export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds: null): Bounds;
-export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds: Size, layoutInfo: ChartLayoutInfo, groupValueData: { positions: number[] }, focusedGroupIndex: number,
-                                     tooltipGroupPercentage: number, tooltipSeriesPercentage: number): Bounds;
-export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds: Size | null, layoutInfo?: ChartLayoutInfo, groupValueData?: { positions: number[] }, focusedGroupIndex = -1,
-                                     tooltipGroupPercentage = 0, tooltipSeriesPercentage = 0): Bounds {
+export function getTooltipLayoutInfo(mochartConfig: EnhancedMochartConfig, tooltipBounds: null): Bounds;
+export function getTooltipLayoutInfo(mochartConfig: EnhancedMochartConfig, tooltipBounds: Size, layoutInfo: ChartLayoutInfo, categoryValueData: { positions: number[] }, focusedCategoryIndex: number,
+                                     tooltipCategoryPercentage: number, tooltipSeriesPercentage: number): Bounds;
+export function getTooltipLayoutInfo(mochartConfig: EnhancedMochartConfig, tooltipBounds: Size | null, layoutInfo?: ChartLayoutInfo, categoryValueData?: { positions: number[] }, focusedCategoryIndex = -1,
+                                     tooltipCategoryPercentage = 0, tooltipSeriesPercentage = 0): Bounds {
   if (tooltipBounds === null) {
     return defaultLayout;
   }
-  const { tooltipConfig, plotConfig } = mochartConfig;
+  const { tooltip: tooltipConfig, plot: plotConfig } = mochartConfig;
   const { chartContentLayoutInfo, seriesLayoutInfo, containerLayoutInfo } = layoutInfo!;
   let { width, height } = tooltipBounds;
   // A null border width leaves the css unset, so the border occupies nothing.
@@ -21,12 +21,12 @@ export function getTooltipLayoutInfo(mochartConfig: MochartConfig, tooltipBounds
   const extraWidth = 2 * (borderWidth + tooltipConfig.padding);
   width+= extraWidth;
   height+= extraWidth;
-  const groupOffset = tooltipConfig.snapToGroup ? groupValueData!.positions[focusedGroupIndex] : tooltipGroupPercentage * seriesLayoutInfo.groupExtent;
-  const seriesOffset = tooltipSeriesPercentage * seriesLayoutInfo.seriesExtent;
+  const categoryOffset = tooltipConfig.snapToCategory ? categoryValueData!.positions[focusedCategoryIndex] : tooltipCategoryPercentage * seriesLayoutInfo.categoryExtent;
+  const seriesOffset = tooltipSeriesPercentage * seriesLayoutInfo.valueExtent;
 
   let tooltipLayoutInfo = {
-    x: chartContentLayoutInfo.x + seriesLayoutInfo.x + (plotConfig.inverted ? seriesOffset : groupOffset) - width / 2.0,
-    y: chartContentLayoutInfo.y + seriesLayoutInfo.y + (plotConfig.inverted ? groupOffset : seriesOffset) - height / 2.0,
+    x: chartContentLayoutInfo.x + seriesLayoutInfo.x + (plotConfig.inverted ? seriesOffset : categoryOffset) - width / 2.0,
+    y: chartContentLayoutInfo.y + seriesLayoutInfo.y + (plotConfig.inverted ? categoryOffset : seriesOffset) - height / 2.0,
     width,
     height
   };

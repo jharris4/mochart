@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest';
 import {
   isDataProviderValid,
   getChartData,
-  getChartDataWithGroupData,
+  getChartDataWithCategoryData,
   getChartDataWithSeriesData,
   getChartDataWithData,
-  getGroupSeriesValueObject,
-  getChartDataGroupCount
+  getCategorySeriesValueObject,
+  getChartDataCategoryCount
 } from '../../src/data/ChartData';
 import { makeConfig, ArrayOfObjectsDataProvider } from './fixtures';
 import type { DataProvider } from '../../src/types/data';
@@ -19,8 +19,8 @@ const rows = [
 
 function makeChartData() {
   const config = makeConfig({
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'sales' }]
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }]
   });
   const provider = new ArrayOfObjectsDataProvider(rows, 'month');
   return { config, chartData: getChartData(config, provider, {}) };
@@ -38,12 +38,12 @@ describe('isDataProviderValid', () => {
   });
 
   it('is true for a provider whose getError returns falsy', () => {
-    const provider = { getGroupValues: () => [], getSeriesValue: () => 0, getError: () => null } as unknown as DataProvider;
+    const provider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => null } as unknown as DataProvider;
     expect(isDataProviderValid(provider)).toBe(true);
   });
 
   it('is false for a provider whose getError returns a message', () => {
-    const provider = { getGroupValues: () => [], getSeriesValue: () => 0, getError: () => 'boom' } as unknown as DataProvider;
+    const provider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => 'boom' } as unknown as DataProvider;
     expect(isDataProviderValid(provider)).toBe(false);
   });
 });
@@ -51,18 +51,18 @@ describe('isDataProviderValid', () => {
 describe('getChartData', () => {
   it('builds group and series data from a provider', () => {
     const { chartData } = makeChartData();
-    expect(chartData.groupData.values.raw).toEqual(['Jan', 'Feb', 'Mar']);
+    expect(chartData.categoryData.values.raw).toEqual(['Jan', 'Feb', 'Mar']);
     expect(chartData).toHaveProperty('seriesData');
   });
 });
 
 describe('getChartDataWith* merge helpers', () => {
-  it('replaces only groupData and returns a new object', () => {
+  it('replaces only categoryData and returns a new object', () => {
     const { chartData } = makeChartData();
     const other = makeChartData().chartData;
-    const merged = getChartDataWithGroupData(chartData, other.groupData);
+    const merged = getChartDataWithCategoryData(chartData, other.categoryData);
     expect(merged).not.toBe(chartData);
-    expect(merged.groupData).toBe(other.groupData);
+    expect(merged.categoryData).toBe(other.categoryData);
     expect(merged.seriesData).toBe(chartData.seriesData);
   });
 
@@ -72,33 +72,33 @@ describe('getChartDataWith* merge helpers', () => {
     const merged = getChartDataWithSeriesData(chartData, other.seriesData);
     expect(merged).not.toBe(chartData);
     expect(merged.seriesData).toBe(other.seriesData);
-    expect(merged.groupData).toBe(chartData.groupData);
+    expect(merged.categoryData).toBe(chartData.categoryData);
   });
 
   it('replaces both group and series data', () => {
     const { chartData } = makeChartData();
     const other = makeChartData().chartData;
-    const merged = getChartDataWithData(chartData, other.groupData, other.seriesData);
-    expect(merged.groupData).toBe(other.groupData);
+    const merged = getChartDataWithData(chartData, other.categoryData, other.seriesData);
+    expect(merged.categoryData).toBe(other.categoryData);
     expect(merged.seriesData).toBe(other.seriesData);
   });
 });
 
-describe('getChartDataGroupCount', () => {
+describe('getChartDataCategoryCount', () => {
   it('returns 0 for null chart data', () => {
-    expect(getChartDataGroupCount(null)).toBe(0);
+    expect(getChartDataCategoryCount(null)).toBe(0);
   });
 
   it('returns the number of raw group values', () => {
     const { chartData } = makeChartData();
-    expect(getChartDataGroupCount(chartData)).toBe(3);
+    expect(getChartDataCategoryCount(chartData)).toBe(3);
   });
 });
 
-describe('getGroupSeriesValueObject', () => {
+describe('getCategorySeriesValueObject', () => {
   it('exposes the group and series values at an index', () => {
     const { chartData } = makeChartData();
-    const obj = getGroupSeriesValueObject(chartData, 1);
+    const obj = getCategorySeriesValueObject(chartData, 1);
     expect(obj.group.values.raw).toBe('Feb');
     expect(obj).toHaveProperty('series');
   });
@@ -107,12 +107,12 @@ describe('getGroupSeriesValueObject', () => {
 describe('undefined series values', () => {
   function makeHoledChartData() {
     const config = makeConfig({
-      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'a' }]
+      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      series: [{ property: 'a' }]
     });
     // group 1 has no value for property "a"
     const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10 }, { g: 1 }, { g: 2, a: 30 }], 'g');
-    const seriesId = config.seriesConfigs[0].id;
+    const seriesId = config.series[0].id;
     return { chartData: getChartData(config, provider, {}), seriesId };
   }
 
@@ -132,12 +132,12 @@ describe('undefined series values', () => {
 
   it('carries an undefined range value as a hole and excludes it from the range domain', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'a', rangeProperty: 'hi' }]
+      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      series: [{ property: 'a', rangeProperty: 'hi' }]
     });
     // group 1 has no "hi" (range) value, but keeps its "a" (plain) value
     const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10, hi: 15 }, { g: 1, a: 20 }, { g: 2, a: 30, hi: 35 }], 'g');
-    const seriesId = config.seriesConfigs[0].id;
+    const seriesId = config.series[0].id;
     const chartData = getChartData(config, provider, {});
     expect(chartData.seriesData.raw.values[seriesId].plain).toEqual([10, 20, 30]);
     expect(chartData.seriesData.raw.values[seriesId].range).toEqual([15, undefined, 35]);

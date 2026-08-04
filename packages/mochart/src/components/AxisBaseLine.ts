@@ -5,11 +5,12 @@ import { translate } from '../utils/utils';
 import { getAxisFocusStyle } from '../utils/FocusValue';
 import { styleToAttributes } from '../utils/style';
 import { NONE } from '../config/core/constants';
-import type { PlotConfig, SeriesAxisConfig } from '../types/config';
+import type { PlotConfig } from '../types/config';
+import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { LayoutInfo } from '../types/layout';
 
 interface AxisBaseLineProps {
-  seriesAxisConfig: SeriesAxisConfig;
+  valueAxisConfig: EnhancedValueAxisConfig;
   basePercentage: number;
   axisBaseLineClass: string;
   plotConfig: PlotConfig;
@@ -30,16 +31,16 @@ export default class AxisBaseLine extends Renderer<AxisBaseLineProps> {
   }
 
   sync() {
-    const { seriesAxisConfig, basePercentage, axisBaseLineClass } = this.props;
-    const { base, baseLine } = seriesAxisConfig;
+    const { valueAxisConfig, basePercentage, axisBaseLineClass } = this.props;
+    const { base, baseLine } = valueAxisConfig;
     if (base !== NONE && baseLine && basePercentage > 0 && basePercentage < 1) {
       const { plotConfig, seriesLayoutInfo, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { inverted } = plotConfig;
 
       const style = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
-        seriesAxisConfig.useSeriesFocus, seriesAxisConfig.baseLineStyle));
-      const strokeWidth = seriesAxisConfig.baseLineWidth;
-      const strokeDashArray = seriesAxisConfig.baseLineDashArray;
+        valueAxisConfig.useSeriesFocus, valueAxisConfig.baseLineStyle));
+      const strokeWidth = valueAxisConfig.baseLineWidth;
+      const strokeDashArray = valueAxisConfig.baseLineDashArray;
 
       const vertical = !inverted;
 

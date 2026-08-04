@@ -1,4 +1,4 @@
-import type { DeepPartial, GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } from '../types/config';
 
 export type CandlestickDirection = 'up' | 'down';
 
@@ -81,7 +81,7 @@ export interface CreateCandlestickOptions {
    * plot on their own hidden `volume` axis, with the price series moved to a
    * `price` axis whose enlarged minimum margin reserves the lower plot band.
    * Requires `volume` values on the items; pass `true` for the defaults or an
-   * options object to tune the pane. The result gains a `seriesAxisConfigs`
+   * options object to tune the pane. The result gains a `valueAxes`
    * fragment to spread into the chart config alongside the series.
    *
    * @default false
@@ -109,10 +109,10 @@ export interface CandlestickData {
    * the wicks split by direction too.
    */
   data: Record<string, number | string | undefined>[];
-  /** Fragment to spread into the chart config's `groupAxisConfig`. */
-  groupAxisConfig: Partial<GroupAxisConfig>;
+  /** Fragment to spread into the chart config's `categoryAxis`. */
+  categoryAxis: Partial<CategoryAxisConfig>;
   /**
-   * Fragments to spread into the chart config's `seriesConfigs`, wicks first
+   * Fragments to spread into the chart config's `series`, wicks first
    * so the bodies paint over them, in up/down order. Directions absent from
    * the data keep their series so the config stays stable across data updates.
    * With the `hollow` option the wick series turn shapeless (tooltip row
@@ -120,18 +120,18 @@ export interface CandlestickData {
    * them and the bodies. With the `volume` option per-direction volume bar
    * series are appended.
    */
-  seriesConfigs: DeepPartial<SeriesConfig>[];
+  series: DeepPartial<SeriesConfig>[];
   /**
-   * Fragments to spread into the chart config's `seriesAxisConfigs` — only
+   * Fragments to spread into the chart config's `valueAxes` — only
    * present with the `volume` option: the `price` axis the price series
    * reference and the hidden `volume` axis whose margins split the plot into
    * the two panes.
    */
-  seriesAxisConfigs?: Partial<SeriesAxisConfig>[];
+  valueAxes?: Partial<ValueAxisConfig>[];
 }
 
 // Shared with the OHLC helper (src/data/Ohlc.ts); not part of the public API.
-export const GROUP_PROPERTY = 'label';
+export const CATEGORY_PROPERTY = 'label';
 export const DIRECTIONS: CandlestickDirection[] = ['up', 'down'];
 
 export const DEFAULT_TITLES: Record<CandlestickDirection, string> = {
@@ -188,7 +188,7 @@ export function getVolumeOptions(volume: boolean | CandlestickVolumeOptions | un
 // minimum until the price data sits above the volume band and the gap.
 // Margins are relative to the pre-margin extent, so a band fraction `f`
 // needs a margin of (1 - f) / f.
-export function buildVolumeSeriesAxisConfigs(volumeOptions: Required<CandlestickVolumeOptions>): Partial<SeriesAxisConfig>[] {
+export function buildVolumeValueAxisConfigs(volumeOptions: Required<CandlestickVolumeOptions>): Partial<ValueAxisConfig>[] {
   const { heightFraction, gapFraction } = volumeOptions;
   const priceHeightFraction = 1 - heightFraction - gapFraction;
   return [
@@ -237,7 +237,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   const volumeOptions = getVolumeOptions(options.volume);
 
   const data = candles.map((candle) => ({
-    [GROUP_PROPERTY]: candle.label,
+    [CATEGORY_PROPERTY]: candle.label,
     open: candle.open,
     high: candle.high,
     low: candle.low,
@@ -261,8 +261,8 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
 
   // An ordinal scale so the candles keep even spacing when labels are dates
   // with gaps (weekends, holidays) — a linear/time scale would leave holes.
-  const groupAxisConfig: Partial<GroupAxisConfig> = {
-    property: GROUP_PROPERTY,
+  const categoryAxis: Partial<CategoryAxisConfig> = {
+    property: CATEGORY_PROPERTY,
     type: 'string',
     scale: 'ordinal'
   };
@@ -370,13 +370,13 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   return {
     candles,
     data,
-    groupAxisConfig,
-    seriesConfigs: [
+    categoryAxis,
+    series: [
       ...wickConfigs,
       ...wickSegmentConfigs,
       ...bodyConfigs,
       ...(volumeOptions !== null ? buildVolumeSeriesConfigs(volumeOptions, options.colors) : [])
     ],
-    ...(volumeOptions !== null ? { seriesAxisConfigs: buildVolumeSeriesAxisConfigs(volumeOptions) } : {})
+    ...(volumeOptions !== null ? { valueAxes: buildVolumeValueAxisConfigs(volumeOptions) } : {})
   };
 }

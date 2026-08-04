@@ -115,12 +115,12 @@ describe('createHistogram', () => {
   });
 
   it('emits config fragments for touching ordinal bars', () => {
-    const { groupAxisConfig, seriesConfig } = createHistogram([1, 2, 3]);
-    expect(groupAxisConfig).toEqual({
+    const { categoryAxis: categoryAxisConfig, seriesConfig } = createHistogram([1, 2, 3]);
+    expect(categoryAxisConfig).toEqual({
       property: 'binLabel',
       type: 'string',
       scale: 'ordinal',
-      groupPaddingFraction: { inner: 0, outer: 0 }
+      categoryPaddingFraction: { inner: 0, outer: 0 }
     });
     expect(seriesConfig.renderer).toBe('bar');
     expect(seriesConfig.title).toBe('Count');

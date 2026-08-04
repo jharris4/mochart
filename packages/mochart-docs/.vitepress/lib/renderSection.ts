@@ -105,7 +105,7 @@ export function renderSectionPage(section: SectionDoc, usage: UsageIndex): strin
   }
   lines.push(
     'Every property is optional' +
-    (section.id === 'seriesConfigs' || section.id === 'groupAxisConfig' ? ' except `property`' : '') +
+    (section.id === 'series' || section.id === 'categoryAxis' ? ' except `property`' : '') +
     ' and falls back to its default. Property anchors are stable: link to any entry as' +
     ' `#' + section.id + '.propertyName`, and to a member of a nested property as' +
     ' `#' + section.id + '.propertyName.memberName`.'

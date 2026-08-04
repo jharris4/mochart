@@ -19,12 +19,12 @@ import * as histogram from '../examples/histogram'
   Override with `binCount` (approximate), `binWidth` (exact, wins over
   `binCount`), or `domain` to bin over a fixed range; `nice: false` divides
   the domain exactly instead of rounding.
-- The returned `groupAxisConfig` fragment uses an ordinal axis with
-  [`groupPaddingFraction`](/reference/groupAxisConfig#groupAxisConfig.groupPaddingFraction)
+- The returned `categoryAxisConfig` fragment uses an ordinal axis with
+  [`categoryPaddingFraction`](/reference/categoryAxis#categoryAxis.categoryPaddingFraction)
   zeroed so the bars touch, which is what visually separates a histogram
   from a bar chart. (Bins are contiguous and equal width, so an ordinal
-  axis positions them identically to a linear one — and on a linear group
-  axis a bar always spans a single group *value*, which would leave
+  axis positions them identically to a linear one — and on a linear category
+  axis a bar always spans a single category *value*, which would leave
   multi-unit-wide bins as slivers.)
 - `normalize` switches each bin's value from the raw `'count'` to
   `'probability'` (sums to 1) or `'density'` (integrates to 1), and

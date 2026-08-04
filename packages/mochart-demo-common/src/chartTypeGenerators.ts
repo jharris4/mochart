@@ -27,7 +27,7 @@ import type { CandlestickItem, MochartConfig, PieItem } from '@mochart/core';
 import { generateChartDataProvider } from './randomGenerator';
 
 import type {
-  DataRow, DemoConfig, DemoDataProvider, DemoRandomConfig, GroupValue, RandomConfig,
+  DataRow, DemoConfig, DemoDataProvider, DemoRandomConfig, CategoryValue, RandomConfig,
   ErrorBarsRandomConfig, HeatmapRandomConfig, HistogramRandomConfig, PieRandomConfig,
   WalkRandomConfig, WaterfallRandomConfig
 } from './types';
@@ -89,21 +89,21 @@ export interface ChartTypeDemoSnapshot {
   data: DataRow[];
 }
 
-function toDemoDataProvider(rows: DataRow[], groupProperty: string): DemoDataProvider {
-  const groupValues = rows.map(row => row[groupProperty] as GroupValue);
+function toDemoDataProvider(rows: DataRow[], categoryProperty: string): DemoDataProvider {
+  const categoryValues = rows.map(row => row[categoryProperty] as CategoryValue);
   const seriesValues: Record<string, (number | undefined)[]> = {};
   rows.forEach((row, index) => {
     for (const key of Object.keys(row)) {
-      if (key !== groupProperty) {
+      if (key !== categoryProperty) {
         (seriesValues[key] ??= new Array(rows.length).fill(undefined))[index] = row[key] as number | undefined;
       }
     }
   });
   return {
-    groupValues,
+    categoryValues,
     seriesValues,
-    getGroupValues: () => groupValues,
-    getSeriesValue: (_groupValue, groupIndex, seriesProperty) => seriesValues[seriesProperty]?.[groupIndex]
+    getCategoryValues: () => categoryValues,
+    getSeriesValue: (_categoryValue, categoryIndex, seriesProperty) => seriesValues[seriesProperty]?.[categoryIndex]
   };
 }
 
@@ -141,7 +141,7 @@ function histogramRows({ samples, value, reuse }: HistogramRandomConfig, randomI
 
 function buildHistogramSnapshot(): ChartTypeDemoSnapshot {
   const samples = normalSamples(280, 160, 40, seedrandom('histogram:baseline'));
-  const { data, groupAxisConfig, seriesConfig } = createHistogram(samples, {
+  const { data, categoryAxis: categoryAxisConfig, seriesConfig } = createHistogram(samples, {
     binWidth: HISTOGRAM_BIN_WIDTH,
     seriesTitle: HISTOGRAM_SERIES_TITLE
   });
@@ -149,10 +149,10 @@ function buildHistogramSnapshot(): ChartTypeDemoSnapshot {
     id: 'histogram',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Response Time Distribution' },
-      groupAxisConfig: { ...groupAxisConfig, title: 'Response time (ms)' },
-      seriesAxisConfigs: [{ min: 0 }],
-      seriesConfigs: [seriesConfig]
+      title: { text: 'Response Time Distribution' },
+      categoryAxis: { ...categoryAxisConfig, title: 'Response time (ms)' },
+      valueAxes: [{ min: 0 }],
+      series: [seriesConfig]
     },
     data
   };
@@ -220,15 +220,15 @@ function buildWaterfallSnapshot(): ChartTypeDemoSnapshot {
   const items = WATERFALL_STEP_POOL
     .filter(step => (step.dropWeight ?? 0) <= 1)
     .map(step => (step.total === true ? { label: step.label, total: true } : { label: step.label, value: step.value! }));
-  const { data, groupAxisConfig, seriesConfigs } = createWaterfall(items);
+  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = createWaterfall(items);
   return {
     id: 'waterfall',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Income Statement (fictional, $k)' },
-      groupAxisConfig,
-      seriesAxisConfigs: [{ title: '$ thousands' }],
-      seriesConfigs
+      title: { text: 'Income Statement (fictional, $k)' },
+      categoryAxis: categoryAxisConfig,
+      valueAxes: [{ title: '$ thousands' }],
+      series: seriesConfigs
     },
     data
   };
@@ -322,15 +322,15 @@ function buildHeatmapSnapshot(): ChartTypeDemoSnapshot {
       return Math.round(profile.min + t * (profile.max - profile.min));
     })
   }));
-  const { data, groupAxisConfig, seriesAxisConfig, seriesConfigs } = createHeatmap(rows, { columnLabels: HEATMAP_COLUMNS });
+  const { data, categoryAxis: categoryAxisConfig, valueAxisConfig, series: seriesConfigs } = createHeatmap(rows, { columnLabels: HEATMAP_COLUMNS });
   return {
     id: 'heatmap',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Support Tickets by Weekday (fictional)' },
-      groupAxisConfig,
-      seriesAxisConfigs: [seriesAxisConfig],
-      seriesConfigs: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.0f' }))
+      title: { text: 'Support Tickets by Weekday (fictional)' },
+      categoryAxis: categoryAxisConfig,
+      valueAxes: [valueAxisConfig],
+      series: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.0f' }))
     },
     data
   };
@@ -431,18 +431,18 @@ function candlestickRows(random: WalkRandomConfig, randomId: number): DataRow[] 
 function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
   const baselineRng = seedrandom('candlestick:baseline');
   const items = withVolumes(candlestickItems(baselineRng, CANDLESTICK_DAYS.length), baselineRng);
-  const { data, groupAxisConfig, seriesConfigs, seriesAxisConfigs } = createCandlestick(items, { volume: true });
+  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(items, { volume: true });
   roundCandlestickChanges(data);
   return {
     id: 'candlestick',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Daily Share Price (fictional, $)' },
-      groupAxisConfig,
+      title: { text: 'Daily Share Price (fictional, $)' },
+      categoryAxis: categoryAxisConfig,
       // the helper's price/volume pane axes, with the demo's title on price
-      seriesAxisConfigs: seriesAxisConfigs!.map(axisConfig =>
+      valueAxes: valueAxisConfigs!.map(axisConfig =>
         axisConfig.id === 'price' ? { ...axisConfig, title: '$ per share' } : axisConfig),
-      seriesConfigs: seriesConfigs.map(seriesConfig =>
+      series: seriesConfigs.map(seriesConfig =>
         ({ ...seriesConfig, valueFormat: seriesConfig.id!.includes('Volume') ? ',.0f' : ',.2f' }))
     },
     data
@@ -461,16 +461,16 @@ function candlestickHollowRows(random: WalkRandomConfig, randomId: number): Data
 
 function buildCandlestickHollowSnapshot(): ChartTypeDemoSnapshot {
   const items = candlestickItems(seedrandom('candlestick-hollow:baseline'), CANDLESTICK_DAYS.length);
-  const { data, groupAxisConfig, seriesConfigs } = createCandlestick(items, { hollow: true });
+  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = createCandlestick(items, { hollow: true });
   roundCandlestickChanges(data);
   return {
     id: 'candlestick-hollow',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Daily Share Price (fictional, $)' },
-      groupAxisConfig,
-      seriesAxisConfigs: [{ title: '$ per share' }],
-      seriesConfigs: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
+      title: { text: 'Daily Share Price (fictional, $)' },
+      categoryAxis: categoryAxisConfig,
+      valueAxes: [{ title: '$ per share' }],
+      series: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
     },
     data
   };
@@ -488,16 +488,16 @@ function ohlcRows(random: WalkRandomConfig, randomId: number): DataRow[] {
 
 function buildOhlcSnapshot(): ChartTypeDemoSnapshot {
   const items = candlestickItems(seedrandom('ohlc:baseline'), CANDLESTICK_DAYS.length);
-  const { data, groupAxisConfig, seriesConfigs } = createOhlc(items);
+  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = createOhlc(items);
   roundCandlestickChanges(data);
   return {
     id: 'ohlc',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Daily Share Price (fictional, $)' },
-      groupAxisConfig,
-      seriesAxisConfigs: [{ title: '$ per share' }],
-      seriesConfigs: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
+      title: { text: 'Daily Share Price (fictional, $)' },
+      categoryAxis: categoryAxisConfig,
+      valueAxes: [{ title: '$ per share' }],
+      series: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
     },
     data
   };
@@ -579,11 +579,11 @@ function buildErrorBarsSnapshot(): ChartTypeDemoSnapshot {
     id: 'error-bars',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Monthly Output with 95% CI (fictional)' },
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-      seriesAxisConfigs: [{ title: 'units per day' }],
-      seriesGroupConfigs: [{ id: 'plants' }],
-      seriesConfigs: [
+      title: { text: 'Monthly Output with 95% CI (fictional)' },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      valueAxes: [{ title: 'units per day' }],
+      seriesGroups: [{ id: 'plants' }],
+      series: [
         { id: 'a', title: 'Plant A', property: 'a', renderer: 'bar', group: 'plants',
           errorLowProperty: 'aLow', errorHighProperty: 'aHigh', valueFormat: ',.1f' },
         { id: 'b', title: 'Plant B', property: 'b', renderer: 'bar', group: 'plants',
@@ -664,11 +664,11 @@ function buildPieSnapshot(): ChartTypeDemoSnapshot {
     id: 'pie',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Revenue by Product (fictional, $k)' },
-      chartConfig: pie.chartConfig,
-      pieConfig: pie.pieConfig,
-      groupAxisConfig: pie.groupAxisConfig,
-      seriesConfigs: pie.seriesConfigs
+      title: { text: 'Revenue by Product (fictional, $k)' },
+      chart: pie.chart,
+      pie: pie.pie,
+      categoryAxis: pie.categoryAxis,
+      series: pie.series
     },
     data: pie.data
   };
@@ -680,12 +680,12 @@ function buildDonutSnapshot(): ChartTypeDemoSnapshot {
     id: 'donut',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Browser Market Share (fictional)' },
-      chartConfig: pie.chartConfig,
+      title: { text: 'Browser Market Share (fictional)' },
+      chart: pie.chart,
       // focusOffsetFraction explodes the hovered slice away from the center
-      pieConfig: { ...pie.pieConfig, showLabels: true, labelType: 'percent', focusOffsetFraction: 0.05 },
-      groupAxisConfig: pie.groupAxisConfig,
-      seriesConfigs: pie.seriesConfigs
+      pie: { ...pie.pie, showLabels: true, labelType: 'percent', focusOffsetFraction: 0.05 },
+      categoryAxis: pie.categoryAxis,
+      series: pie.series
     },
     data: pie.data
   };
@@ -710,10 +710,10 @@ function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
     id: 'gauge',
     config: {
       version: '1.0.0',
-      titleConfig: { title: 'Customer Sentiment (fictional survey)' },
-      chartConfig: pie.chartConfig,
-      pieConfig: {
-        ...pie.pieConfig,
+      title: { text: 'Customer Sentiment (fictional survey)' },
+      chart: pie.chart,
+      pie: {
+        ...pie.pie,
         startAngle: -90,
         endAngle: 90,
         innerRadiusFraction: 0.55,
@@ -727,8 +727,8 @@ function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
         // lift the center content off the gauge pivot into the hole
         centerOffsetYFraction: -0.25
       },
-      groupAxisConfig: pie.groupAxisConfig,
-      seriesConfigs: pie.seriesConfigs
+      categoryAxis: pie.categoryAxis,
+      series: pie.series
     },
     data: pie.data
   };
@@ -787,7 +787,7 @@ export function generateChartTypeDataProvider(
   else {
     rows = heatmapRows(random as HeatmapRandomConfig, randomId);
   }
-  return toDemoDataProvider(rows, mochartConfig.groupAxisConfig.property ?? '');
+  return toDemoDataProvider(rows, mochartConfig.categoryAxis.property ?? '');
 }
 
 export function isChartTypeGenerator(generator: string | undefined): generator is ChartTypeGenerator {

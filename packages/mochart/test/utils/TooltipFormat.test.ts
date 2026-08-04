@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { getSeriesText, getFilteredValue } from '../../src/utils/TooltipFormat';
 import type { PieTooltipValues } from '../../src/utils/TooltipFormat';
-import type { TooltipConfig, SeriesConfig } from '../../src/types/config';
+import type { TooltipConfig } from '../../src/types/config';
 import type { ChartData, SeriesValueObject } from '../../src/types/data';
+import type { EnhancedSeriesConfig } from '../../src/types/enhanced';
 
 // getSeriesText walks a "group series slice" shaped like the runtime's data
 // layer. Build small typed-loose fixtures rather than a full ChartData.
@@ -25,7 +26,7 @@ function makeTooltipConfig(over: Partial<TooltipConfig> = {}): TooltipConfig {
   } as TooltipConfig;
 }
 
-function makeSeriesConfig(over: Partial<SeriesConfig> = {}): SeriesConfig {
+function makeSeriesConfig(over: Partial<EnhancedSeriesConfig> = {}): EnhancedSeriesConfig {
   return {
     id: 's1',
     rangeProperty: null,
@@ -37,9 +38,9 @@ function makeSeriesConfig(over: Partial<SeriesConfig> = {}): SeriesConfig {
     valueLabel: 'Val',
     useTitleForValueLabel: false,
     title: null,
-    seriesAxisConfig: { id: 'y' },
+    valueAxisConfig: { id: 'y' },
     ...over
-  } as SeriesConfig;
+  } as EnhancedSeriesConfig;
 }
 
 function makeSlice(raw: ValueObj, filtered: ValueObj = raw, axisBases: Record<string, number | null> = { y: 0 }): Slice {
@@ -376,7 +377,7 @@ describe('getSeriesText', () => {
 });
 
 describe('getFilteredValue', () => {
-  const seriesConfig = makeSeriesConfig({ seriesAxisConfig: { id: 'y' } as SeriesConfig['seriesAxisConfig'] });
+  const seriesConfig = makeSeriesConfig({ valueAxisConfig: { id: 'y' } as EnhancedSeriesConfig['valueAxisConfig'] });
 
   function makeChartData(over: Partial<{ base: number; groups: (unknown)[]; markerDomain: number[]; tooltipDomain: number[] }> = {}): ChartData {
     const base = over.base ?? 5;
@@ -386,7 +387,7 @@ describe('getFilteredValue', () => {
         axisBases: { y: base },
         raw: { domains: { s1: { marker: over.markerDomain ?? [3, 9], tooltip: over.tooltipDomain ?? [2, 8] } } }
       },
-      groupData: { values: { raw: groups } }
+      categoryData: { values: { raw: groups } }
     } as unknown as ChartData;
   }
 

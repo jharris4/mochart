@@ -11,9 +11,9 @@ export function collectUsedDataProperties(mochartConfig: MochartConfig): Set<str
     return null;
   }
   const used = new Set<string>();
-  const { groupAxisConfig, seriesConfigs } = mochartConfig;
-  addProperty(used, groupAxisConfig.property);
-  addProperty(used, groupAxisConfig.displayProperty);
+  const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochartConfig;
+  addProperty(used, categoryAxisConfig.property);
+  addProperty(used, categoryAxisConfig.displayProperty);
   for (const seriesConfig of seriesConfigs) {
     addProperty(used, seriesConfig.property);
     addProperty(used, seriesConfig.rangeProperty);

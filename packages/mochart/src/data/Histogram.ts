@@ -1,4 +1,4 @@
-import type { GroupAxisConfig, SeriesConfig } from '../types/config';
+import type { CategoryAxisConfig, SeriesConfig } from '../types/config';
 
 export interface HistogramBin {
   /** Inclusive lower edge of the bin. */
@@ -71,13 +71,13 @@ export interface HistogramData {
    * `binStart`, `binEnd`, `binCenter` and `count`.
    */
   data: Record<string, number | string>[];
-  /** Fragment to spread into the chart config's `groupAxisConfig`. */
-  groupAxisConfig: Partial<GroupAxisConfig>;
-  /** Fragment to spread into an entry of the chart config's `seriesConfigs`. */
+  /** Fragment to spread into the chart config's `categoryAxis`. */
+  categoryAxis: Partial<CategoryAxisConfig>;
+  /** Fragment to spread into an entry of the chart config's `series`. */
   seriesConfig: Partial<SeriesConfig>;
 }
 
-const GROUP_PROPERTY = 'binLabel';
+const CATEGORY_PROPERTY = 'binLabel';
 const DEFAULT_VALUE_PROPERTY = 'value';
 const NICE_STEPS = [1, 2, 5, 10];
 
@@ -145,7 +145,7 @@ export function createHistogram(values: readonly number[], options: CreateHistog
   const binLabel = options.binLabel ?? ((bin: HistogramBin) => `${bin.start}–${bin.end}`);
 
   const data = bins.map((bin) => ({
-    [GROUP_PROPERTY]: binLabel(bin),
+    [CATEGORY_PROPERTY]: binLabel(bin),
     [valueProperty]: bin.value,
     binStart: bin.start,
     binEnd: bin.end,
@@ -157,18 +157,18 @@ export function createHistogram(values: readonly number[], options: CreateHistog
   // identically to a linear one while letting the bars fill each bin (on a
   // linear group axis a bar always spans a single group *value*, which for a
   // multi-unit-wide bin leaves the bars as slivers).
-  const groupAxisConfig: Partial<GroupAxisConfig> = {
-    property: GROUP_PROPERTY,
+  const categoryAxis: Partial<CategoryAxisConfig> = {
+    property: CATEGORY_PROPERTY,
     type: 'string',
     scale: 'ordinal',
-    groupPaddingFraction: { inner: 0, outer: 0 }
+    categoryPaddingFraction: { inner: 0, outer: 0 }
   };
   const seriesConfig: Partial<SeriesConfig> = {
     property: valueProperty,
     renderer: 'bar',
     title: options.seriesTitle ?? getDefaultSeriesTitle(options)
   };
-  return { bins, data, groupAxisConfig, seriesConfig };
+  return { bins, data, categoryAxis, seriesConfig };
 }
 
 function getDefaultSeriesTitle(options: BinValuesOptions): string {

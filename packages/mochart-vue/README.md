@@ -24,10 +24,10 @@ import { DefaultChart } from '@mochart/vue';
 
 const config = {
   version: '1.0.0',
-  titleConfig: { title: 'Revenue' },
-  groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-  seriesAllConfig: { renderer: 'bar' },
-  seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+  title: { text: 'Revenue' },
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+  seriesDefaults: { renderer: 'bar' },
+  series: [{ property: 'revenue', title: 'Revenue' }]
 };
 
 const data = [
@@ -73,7 +73,7 @@ however you like and the chart follows it:
 
 Both components accept the chart callbacks (`onChartClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
-`onFocus`, `onSeriesFilter`, `onSeriesLayoutInfoChange` — usable as
+`onFocus`, `onSeriesFilter`, `onSeriesLayoutBoundsChange` — usable as
 `@chart-click` etc. in templates) and the placeholder components
 (`loadingComponent`, `errorComponent`, `noDataComponent`, `noSizeComponent`,
 `noSeriesComponent`, `configErrorComponent`). Each placeholder prop takes a

@@ -29,7 +29,7 @@ function minMaxRange(o: any): boolean {
 }
 
 const genericValidator = {
-  group: {
+  category: {
     count: validators.integerMin(0),
     order: {
       sort: booleanValidator
@@ -143,27 +143,27 @@ function addErrorMessages(errorMessages: string[], config: any, prefix: string, 
 function addGenericErrorMessages(errorMessages: string[], randomConfig: any): void {
   const objectValidator = validators.object();
 
-  const groupPrefix = 'group - ';
-  if (objectValidator(randomConfig.group)) {
-    const groupConfig = randomConfig.group;
-    const countPrefix = groupPrefix + 'count - ';
-    addErrorMessage(errorMessages, groupConfig.count, countPrefix, genericValidator.group.count);
-    const orderPrefix = groupPrefix + 'order - ';
-    addErrorMessages(errorMessages, groupConfig.order, orderPrefix, genericValidator.group.order);
-    const groupMissingPrefix = groupPrefix + 'missing - ';
-    addErrorMessages(errorMessages, groupConfig.missing, groupMissingPrefix, genericValidator.group.missing);
-    const groupReusePrefix = groupPrefix + 'reuse - ';
-    addErrorMessages(errorMessages, groupConfig.reuse, groupReusePrefix, genericValidator.group.reuse);
-    const numberPrefix = groupPrefix + 'number - ';
-    addErrorMessages(errorMessages, groupConfig.number, numberPrefix, genericValidator.group.number);
-    const datePrefix = groupPrefix + 'date - ';
-    addErrorMessages(errorMessages, groupConfig.date, datePrefix, genericValidator.group.date);
-    const stringPrefix = groupPrefix + 'string - ';
-    addErrorMessages(errorMessages, groupConfig.string, stringPrefix, genericValidator.group.string);
+  const categoryPrefix = 'category - ';
+  if (objectValidator(randomConfig.category)) {
+    const categoryConfig = randomConfig.category;
+    const countPrefix = categoryPrefix + 'count - ';
+    addErrorMessage(errorMessages, categoryConfig.count, countPrefix, genericValidator.category.count);
+    const orderPrefix = categoryPrefix + 'order - ';
+    addErrorMessages(errorMessages, categoryConfig.order, orderPrefix, genericValidator.category.order);
+    const categoryMissingPrefix = categoryPrefix + 'missing - ';
+    addErrorMessages(errorMessages, categoryConfig.missing, categoryMissingPrefix, genericValidator.category.missing);
+    const categoryReusePrefix = categoryPrefix + 'reuse - ';
+    addErrorMessages(errorMessages, categoryConfig.reuse, categoryReusePrefix, genericValidator.category.reuse);
+    const numberPrefix = categoryPrefix + 'number - ';
+    addErrorMessages(errorMessages, categoryConfig.number, numberPrefix, genericValidator.category.number);
+    const datePrefix = categoryPrefix + 'date - ';
+    addErrorMessages(errorMessages, categoryConfig.date, datePrefix, genericValidator.category.date);
+    const stringPrefix = categoryPrefix + 'string - ';
+    addErrorMessages(errorMessages, categoryConfig.string, stringPrefix, genericValidator.category.string);
     if (errorMessages.length === 0) {
-      const { count, number, date, string, reuse } = groupConfig;
+      const { count, number, date, string, reuse } = categoryConfig;
 
-      // mirrors generateChartGroupValues: the step-preview lineages draw up to global + 3*halfStep uniques
+      // mirrors generateChartCategoryValues: the step-preview lineages draw up to global + 3*halfStep uniques
       const globalPercentage = typeof reuse?.globalPercentage === 'number' ? reuse.globalPercentage : 0;
       const stepPercentage = typeof reuse?.stepPercentage === 'number' ? reuse.stepPercentage : 0;
       const globalCount = Math.floor(globalPercentage * count);
@@ -192,7 +192,7 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
       dateRange = Math.floor(dateRange / dateInterval);
 
       if (dateRange < requiredDistinct) {
-        errorMessages.push(datePrefix + 'range insufficient to fulfill group count');
+        errorMessages.push(datePrefix + 'range insufficient to fulfill category count');
       }
 
       const min = number.min;
@@ -202,18 +202,18 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
       range = Math.floor(range / interval);
 
       if (range < requiredDistinct) {
-        errorMessages.push(numberPrefix + 'range insufficient to fulfill group count');
+        errorMessages.push(numberPrefix + 'range insufficient to fulfill category count');
       }
 
       const stringRange = Math.pow(10, string.maxLength - 1) - Math.pow(10, string.minLength - 1);
 
       if (stringRange < requiredDistinct) {
-        errorMessages.push(stringPrefix + 'range insufficient to fulfill group count');
+        errorMessages.push(stringPrefix + 'range insufficient to fulfill category count');
       }
     }
   }
   else {
-    errorMessages.push(groupPrefix + objectValidator.getErrorMessage(randomConfig.group));
+    errorMessages.push(categoryPrefix + objectValidator.getErrorMessage(randomConfig.category));
   }
 
   const seriesPrefix = 'series - ';
@@ -284,12 +284,12 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 /**
  * A copy of any random config with its reuse settings neutralized (numbers to
  * 0, booleans to false), so every dataset generates independently. Works
- * structurally across the generic shape (group.reuse / series.reuse) and the
+ * structurally across the generic shape (category.reuse / series.reuse) and the
  * chart-type generator shapes (top-level reuse).
  */
 export function neutralizeRandomReuse<T>(config: T): T {
   const result = { ...(config as Record<string, unknown>) };
-  for (const parentKey of ['group', 'series']) {
+  for (const parentKey of ['category', 'series']) {
     const parent = result[parentKey];
     if (isPlainObject(parent) && isPlainObject(parent.reuse)) {
       result[parentKey] = { ...parent, reuse: neutralizedReuseSection(parent.reuse) };

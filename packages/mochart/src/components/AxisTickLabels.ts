@@ -10,7 +10,8 @@ import { getAxisFocusStyle } from '../utils/FocusValue';
 import { styleToAttributes } from '../utils/style';
 import Background from './Background';
 import type { El, TextEl } from '../render';
-import type { AxisConfigBase, GroupAxisConfig, SeriesAxisConfig } from '../types/config';
+import type { AxisConfigBase, CategoryAxisConfig } from '../types/config';
+import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisTick } from '../types/data';
 import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
 import type { FocusPercentage } from '../types/animation';
@@ -19,9 +20,9 @@ import type { TruncationDataValue } from '../utils/TextTruncation';
 const emptyArray: string[] = [];
 
 type AxisDisplayConfig = AxisConfigBase &
-  Pick<GroupAxisConfig, 'scale'> &
-  Partial<Pick<GroupAxisConfig, 'tickLabelTruncationEnabled' | 'tickLabelTruncationValue' | 'tickLabelTruncationMinLength' | 'tickLabelTruncationMaxFraction'>> &
-  Partial<Pick<SeriesAxisConfig, 'useSeriesFocus'>>;
+  Pick<CategoryAxisConfig, 'scale'> &
+  Partial<Pick<CategoryAxisConfig, 'tickLabelTruncationEnabled' | 'tickLabelTruncationValue' | 'tickLabelTruncationMinLength' | 'tickLabelTruncationMaxFraction'>> &
+  Partial<Pick<EnhancedValueAxisConfig, 'useSeriesFocus'>>;
 
 interface AxisTickLabelsProps {
   axisConfig: AxisDisplayConfig;

@@ -36,8 +36,8 @@ function fail(name: string, messages: string[]) {
   }
 }
 
-function groupProperty(config: MochartInputConfig): string | undefined {
-  return config.groupAxisConfig?.property;
+function categoryProperty(config: MochartInputConfig): string | undefined {
+  return config.categoryAxis?.property;
 }
 
 for (const file of exampleFiles) {
@@ -64,7 +64,7 @@ for (const file of exampleFiles) {
   }
   const dataMessages: string[] = [];
   for (const [label, dataset] of datasets) {
-    const provider = new ArrayOfObjectsDataProvider(dataset, groupProperty(module.config) ?? '') as unknown as DataErrorsProvider;
+    const provider = new ArrayOfObjectsDataProvider(dataset, categoryProperty(module.config) ?? '') as unknown as DataErrorsProvider;
     const dataErrors = getDataErrors(mochartConfig, provider);
     dataMessages.push(...dataErrors.map(error => `${label}: ${error}`));
   }

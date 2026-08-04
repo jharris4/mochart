@@ -8,13 +8,13 @@ import animationValidators from './animationConfig';
 import chartValidators from './chartConfig';
 import colorPaletteValidators from './colorPaletteConfig';
 import crosshairValidators from './crosshairConfig';
-import groupAxisValidators from './groupAxisConfig';
+import categoryAxisValidators from './categoryAxisConfig';
 import legendValidators from './legendConfig';
 import linearGradientValidators from './linearGradientConfig';
 import pieValidators from './pieConfig';
 import plotValidators from './plotConfig';
 import radialGradientValidators from './radialGradientConfig';
-import seriesAxisValidators from './seriesAxisConfig';
+import valueAxisValidators from './valueAxisConfig';
 import seriesValidators from './seriesConfig';
 import seriesGroupValidators from './seriesGroupConfig';
 import seriesStackValidators from './seriesStackConfig';
@@ -79,92 +79,92 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
   id: {
     validator: validators.any()
   },
-  animationConfig: {
+  animation: {
     validator: objectValidator,
     validators: () => animationValidators()
   },
-  chartConfig: {
+  chart: {
     validator: objectValidator,
     validators: () => chartValidators()
   },
-  colorPaletteConfig: {
+  colorPalette: {
     validator: objectValidator,
     validators: () => colorPaletteValidators()
   },
-  crosshairConfig: {
+  crosshair: {
     validator: objectValidator,
     validators: () => crosshairValidators()
   },
-  groupAxisConfig: {
+  categoryAxis: {
     validator: objectValidator,
-    validators: (configSection: ConfigRecord) => groupAxisValidators(configSection)
+    validators: (configSection: ConfigRecord) => categoryAxisValidators(configSection)
   },
-  legendConfig: {
+  legend: {
     validator: objectValidator,
     validators: () => legendValidators()
   },
-  linearGradientConfigs: {
+  linearGradients: {
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: () => linearGradientValidators(),
     uniqueKeys: ['id']
   },
-  pieConfig: {
+  pie: {
     validator: objectValidator,
     validators: () => pieValidators()
   },
-  plotConfig: {
+  plot: {
     validator: objectValidator,
     validators: () => plotValidators()
   },
-  radialGradientConfigs: {
+  radialGradients: {
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: () => radialGradientValidators(),
     uniqueKeys: ['id']
   },
-  seriesAxisConfigs: {
+  valueAxes: {
     list: true,
     validator: arrayOfObjectsNonEmpty,
-    validators: () => seriesAxisValidators(),
+    validators: () => valueAxisValidators(),
     uniqueKeys: ['id', 'order']
   },
-  seriesConfigs: {
+  series: {
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: (configSection: ConfigRecord) => seriesValidators(configSection),
     uniqueKeys: ['id', 'order'],
     references: {
-      axis: { section: 'seriesAxisConfigs', key: 'id' },
-      group: { section: 'seriesGroupConfigs', key: 'id' },
-      stack: { section: 'seriesStackConfigs', key: 'id' },
-      gradient: { section: ['linearGradientConfigs', 'radialGradientConfigs'], key: 'id' },
-      followSeries: { section: 'seriesConfigs', key: 'id' }
+      axis: { section: 'valueAxes', key: 'id' },
+      group: { section: 'seriesGroups', key: 'id' },
+      stack: { section: 'seriesStacks', key: 'id' },
+      gradient: { section: ['linearGradients', 'radialGradients'], key: 'id' },
+      followSeries: { section: 'series', key: 'id' }
     },
     commonReferences: {
-      stack: { section: 'seriesStackConfigs', key: 'id', commonKey: 'axis' }
+      stack: { section: 'seriesStacks', key: 'id', commonKey: 'axis' }
     }
   },
-  seriesGroupConfigs: {
+  seriesGroups: {
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: () => seriesGroupValidators(),
     uniqueKeys: ['id']
   },
-  seriesStackConfigs: {
+  seriesStacks: {
     list: true,
     validator: arrayOfObjectsOrEmpty,
     validators: () => seriesStackValidators(),
     uniqueKeys: ['id'],
     references: {
-      axis: { section: 'seriesAxisConfigs', key: 'id' }
+      axis: { section: 'valueAxes', key: 'id' }
     }
   },
-  titleConfig: {
+  title: {
     validator: objectValidator,
     validators: () => titleValidators()
   },
-  tooltipConfig: {
+  tooltip: {
     validator: objectValidator,
     validators: () => tooltipValidators()
   }

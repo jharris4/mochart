@@ -251,7 +251,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     defaultsButton.setPressed(showDefaults);
     defaultsButton.setContent([icon(showDefaults ? 'eye' : 'eye-slash', { size: 'lg', fixedWidth: true })]);
 
-    const inverted = !!demoConfig.configWithDefaults.plotConfig?.inverted;
+    const inverted = !!demoConfig.configWithDefaults.plot?.inverted;
     invertedButton.setPressed(inverted);
     invertedButton.setContent([icon(inverted ? 'chart-bar' : 'chart-column', { size: 'lg', fixedWidth: true })]);
 

@@ -1,12 +1,12 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Capped Inverted Bars"
+  "title": {
+    "text": "Capped Inverted Bars"
   },
-  "plotConfig": {
+  "plot": {
     "inverted": true
   },
-  "animationConfig": {
+  "animation": {
     "animate": true,
     "expansionDuration": 1500,
     "initialDuration": 8000,
@@ -14,7 +14,7 @@
     "collapseDuration": 1500,
     "focusDuration": 800
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "before": false,
     "title": "Month",
     "axisLine": true,
@@ -26,11 +26,11 @@
     "type": "date",
     "scale": "ordinal",
     "dateUTC": true,
-    "valueLabel": "Group",
+    "valueLabel": "Category",
     "valueFormat": "%B",
     "property": "date"
   },
-  "seriesAxisConfigs": {
+  "valueAxes": {
     "before": true,
     "visible": true,
     "axisLineMargin": 0,
@@ -40,12 +40,12 @@
     "min": -5000,
     "max": 5000
   },
-  "seriesStackConfigs": {},
-  "seriesAllConfig": {
+  "seriesStacks": {},
+  "seriesDefaults": {
     "renderer": "bar",
     "markerShape": null
   },
-  "seriesConfigs": [
+  "series": [
     {
       "title": "Round",
       "property": "value1",

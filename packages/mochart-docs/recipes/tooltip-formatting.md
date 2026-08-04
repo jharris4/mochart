@@ -14,22 +14,22 @@ import * as tooltipFormat from '../examples/tooltipFormat'
 
 ## How it works
 
-- [`valueFormat`](/reference/seriesConfigs#seriesConfigs.valueFormat) is a
+- [`valueFormat`](/reference/series#series.valueFormat) is a
   d3-format string (`,.1f`, `.1%`, …); `"auto"` derives one from the data,
   preferring the axis `tickLabelFormat`.
-  [`valuePrefix`](/reference/seriesConfigs#seriesConfigs.valuePrefix) and
-  [`valueSuffix`](/reference/seriesConfigs#seriesConfigs.valueSuffix) wrap
+  [`valuePrefix`](/reference/series#series.valuePrefix) and
+  [`valueSuffix`](/reference/series#series.valueSuffix) wrap
   the formatted value (`$41.2k` above).
 - The label before the value defaults to the series title (via
-  [`useTitleForValueLabel`](/reference/seriesConfigs#seriesConfigs.useTitleForValueLabel));
-  set [`valueLabel`](/reference/seriesConfigs#seriesConfigs.valueLabel) to
+  [`useTitleForValueLabel`](/reference/series#series.useTitleForValueLabel));
+  set [`valueLabel`](/reference/series#series.valueLabel) to
   override it, or `null` for none.
-- Chart-wide behavior lives in [`tooltipConfig`](/reference/tooltipConfig):
-  [`alignValues`](/reference/tooltipConfig#tooltipConfig.alignValues) lines
+- Chart-wide behavior lives in [`tooltipConfig`](/reference/tooltip):
+  [`alignValues`](/reference/tooltip#tooltip.alignValues) lines
   the values up in a column,
-  [`showMissingValues`](/reference/tooltipConfig#tooltipConfig.showMissingValues)
-  / [`missingValueText`](/reference/tooltipConfig#tooltipConfig.missingValueText)
+  [`showMissingValues`](/reference/tooltip#tooltip.showMissingValues)
+  / [`missingValueText`](/reference/tooltip#tooltip.missingValueText)
   control gaps, and `mouseOver` vs `closeOnClick` decide when the tooltip
   opens and closes.
 - Exclude a series from the tooltip entirely with
-  [`showInTooltip: false`](/reference/seriesConfigs#seriesConfigs.showInTooltip).
+  [`showInTooltip: false`](/reference/series#series.showInTooltip).

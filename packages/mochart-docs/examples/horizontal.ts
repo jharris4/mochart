@@ -4,11 +4,11 @@ import type { MochartInputConfig } from '@mochart/core';
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Support Tickets by Team' },
-  plotConfig: { inverted: true },
-  groupAxisConfig: { property: 'team', type: 'string', scale: 'ordinal' },
-  seriesAllConfig: { renderer: 'bar' },
-  seriesConfigs: [{ property: 'tickets', title: 'Open tickets' }]
+  title: { text: 'Support Tickets by Team' },
+  plot: { inverted: true },
+  categoryAxis: { property: 'team', type: 'string', scale: 'ordinal' },
+  seriesDefaults: { renderer: 'bar' },
+  series: [{ property: 'tickets', title: 'Open tickets' }]
 };
 
 export const data = [

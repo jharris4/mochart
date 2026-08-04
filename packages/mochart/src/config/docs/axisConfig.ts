@@ -46,13 +46,13 @@ export default function getDescriptions() {
 
     collapsed: 'whether the axis should consume space in the layout (false) or not (true)',
 
-    focusRange: 'whether to show the focus range on the axis when it has a focused series domain or group value',
+    focusRange: 'whether to show the focus range on the axis when it has a focused series domain or category value',
     focusRangeFront: 'whether the focus range should be shown in front (true) or behind (false) the series shapes',
     focusRangeApplyToTitle: 'whether to show the focus range only over tick labels (false) or over both tick labels and title (true)',
     focusRangeStyle: style('the style of the focus range'),
     focusRangeDashArray: 'the stroke dash array of the focus range',
 
-    focusTickMarks: 'whether to show lines perpendicular to the axis showing the focused series domain or group value',
+    focusTickMarks: 'whether to show lines perpendicular to the axis showing the focused series domain or category value',
     focusTickMarksFront: 'whether the focus tick marks should be shown in front (true) or behind (false) the series shapes',
     focusTickMarkSize: 'the length (in pixels) of the focus tick mark line(s)',
     focusTickMarkMargin: 'the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)',

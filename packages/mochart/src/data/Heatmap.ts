@@ -1,7 +1,7 @@
 import { interpolateRgb, interpolateHsl, interpolateLab, interpolateHcl } from 'd3-interpolate';
 
 import type { ColorInterpolation } from '../config/core/constants';
-import type { DeepPartial, GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } from '../types/config';
 
 export interface HeatmapRow {
   /** The row title, e.g. shown in the legend and tooltip. */
@@ -70,15 +70,15 @@ export interface HeatmapData {
    * explicit domain a domain-clamped `row{r}Color` drives the color instead.
    */
   data: Record<string, number | string | undefined>[];
-  /** Fragment to spread into the chart config's `groupAxisConfig`. */
-  groupAxisConfig: Partial<GroupAxisConfig>;
+  /** Fragment to spread into the chart config's `categoryAxis`. */
+  categoryAxis: Partial<CategoryAxisConfig>;
   /** Fragment to spread into the chart config's (sole) series axis config. */
-  seriesAxisConfig: Partial<SeriesAxisConfig>;
-  /** Fragments to spread into the chart config's `seriesConfigs`, one per row. */
-  seriesConfigs: DeepPartial<SeriesConfig>[];
+  valueAxisConfig: Partial<ValueAxisConfig>;
+  /** Fragments to spread into the chart config's `series`, one per row. */
+  series: DeepPartial<SeriesConfig>[];
 }
 
-const GROUP_PROPERTY = 'column';
+const CATEGORY_PROPERTY = 'column';
 const DEFAULT_COLOR_MIN = '#cde2fb';
 const DEFAULT_COLOR_MAX = '#0d366b';
 const DEFAULT_COLOR_INTERPOLATION: ColorInterpolation = 'lab';
@@ -142,7 +142,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
   const data: Record<string, number | string | undefined>[] = [];
   for (let c = 0; c < columnCount; c++) {
     const entry: Record<string, number | string | undefined> = {
-      [GROUP_PROPERTY]: options.columnLabels?.[c] ?? String(c + 1)
+      [CATEGORY_PROPERTY]: options.columnLabels?.[c] ?? String(c + 1)
     };
     for (let r = 0; r < rowCount; r++) {
       const value = rows[r].values[c];
@@ -160,19 +160,19 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
     data.push(entry);
   }
 
-  const groupAxisConfig: Partial<GroupAxisConfig> = {
-    property: GROUP_PROPERTY,
+  const categoryAxis: Partial<CategoryAxisConfig> = {
+    property: CATEGORY_PROPERTY,
     type: 'string',
     scale: 'ordinal',
     // The inner gap is shared between two neighbouring columns, matching the
     // one-sided vertical trim between two neighbouring rows.
-    groupPaddingFraction: { inner: cellPadding * 2, outer: cellPadding }
+    categoryPaddingFraction: { inner: cellPadding * 2, outer: cellPadding }
   };
 
   // Pinned to exactly the stacked row bands, with one explicit tick per row
   // labelling its band center (auto numeric ticks would land on band edges
   // and mislabel the rows).
-  const seriesAxisConfig: Partial<SeriesAxisConfig> = {
+  const valueAxisConfig: Partial<ValueAxisConfig> = {
     min: 0,
     max: Math.max(rowCount, 1),
     minMarginFraction: 0,
@@ -207,7 +207,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
     } as DeepPartial<SeriesConfig>;
   });
 
-  return { domain, colorScale, data, groupAxisConfig, seriesAxisConfig, seriesConfigs };
+  return { domain, colorScale, data, categoryAxis, valueAxisConfig, series: seriesConfigs };
 }
 
 function clampValue(value: number, [min, max]: [number, number]): number {

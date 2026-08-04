@@ -12,8 +12,8 @@ import type { MochartConfig } from '../../src/types/config';
 
 describe('sectionKeyAllMap', () => {
   it('maps list section keys to their "all" config key', () => {
-    expect(sectionKeyAllMap.seriesConfigs).toBe('seriesAllConfig');
-    expect(sectionKeyAllMap.seriesAxisConfigs).toBe('seriesAxisAllConfig');
+    expect(sectionKeyAllMap.series).toBe('seriesDefaults');
+    expect(sectionKeyAllMap.valueAxes).toBe('valueAxisDefaults');
   });
 });
 
@@ -37,27 +37,27 @@ describe('applyDefaults', () => {
   });
 
   it('fills in a missing object section from defaults', () => {
-    const result = applyDefaults({}, { titleConfig: { size: 10 } });
-    expect(result.titleConfig).toEqual({ size: 10 });
+    const result = applyDefaults({}, { title: { size: 10 } });
+    expect(result.title).toEqual({ size: 10 });
   });
 
   it('merges defaults under the provided object section', () => {
-    const result = applyDefaults({ titleConfig: { size: 20 } }, { titleConfig: { size: 10, color: 'red' } });
-    expect(result.titleConfig).toEqual({ size: 20, color: 'red' });
+    const result = applyDefaults({ title: { size: 20 } }, { title: { size: 10, color: 'red' } });
+    expect(result.title).toEqual({ size: 20, color: 'red' });
   });
 
   it('drops undefined values from the defaults before merging', () => {
-    const result = applyDefaults({}, { titleConfig: { size: 10, color: undefined } });
-    expect(result.titleConfig).toEqual({ size: 10 });
+    const result = applyDefaults({}, { title: { size: 10, color: undefined } });
+    expect(result.title).toEqual({ size: 10 });
   });
 
   it('applies list defaults element-wise and merges the all-config', () => {
     const result = applyDefaults(
-      { seriesConfigs: [{ property: 'a' }], seriesAllConfig: { renderer: 'bar' } },
-      { seriesConfigs: [{ order: 0 }] }
+      { series: [{ property: 'a' }], seriesDefaults: { renderer: 'bar' } },
+      { series: [{ order: 0 }] }
     );
     // per-element defaults, then allSection, then the element's own values
-    expect(result.seriesConfigs).toEqual([{ order: 0, renderer: 'bar', property: 'a' }]);
+    expect(result.series).toEqual([{ order: 0, renderer: 'bar', property: 'a' }]);
   });
 });
 
@@ -92,20 +92,20 @@ describe('buildMochartConfig', () => {
 
   it('orders series configs by their order property', () => {
     const built = buildMochartConfig(
-      { seriesConfigs: [{ id: 'a', order: 2 }, { id: 'b', order: 1 }] },
-      { seriesConfigs: [] }
+      { series: [{ id: 'a', order: 2 }, { id: 'b', order: 1 }] },
+      { series: [] }
     );
-    expect((built.seriesConfigs as { id: string }[]).map(s => s.id)).toEqual(['b', 'a']);
-    expect(built.seriesConfigsById).toHaveProperty('a');
-    expect(built.seriesConfigsById).toHaveProperty('b');
+    expect((built.series as { id: string }[]).map(s => s.id)).toEqual(['b', 'a']);
+    expect((built as unknown as { seriesById: Record<string, unknown> }).seriesById).toHaveProperty('a');
+    expect((built as unknown as { seriesById: Record<string, unknown> }).seriesById).toHaveProperty('b');
   });
 });
 
 describe('hasConfigStructureChange', () => {
   const base = () =>
     makeConfig({
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'sales' }]
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'sales' }]
     });
 
   it('reports no change for two identical configs', () => {
@@ -119,24 +119,24 @@ describe('hasConfigStructureChange', () => {
 
   it('reports a change when the group axis property differs', () => {
     const other = makeConfig({
-      groupAxisConfig: { property: 'week', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'sales' }]
+      categoryAxis: { property: 'week', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'sales' }]
     });
     expect(hasConfigStructureChange(base(), other)).toBe(true);
   });
 
   it('reports a change when the series count differs', () => {
     const other = makeConfig({
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'sales' }, { property: 'costs' }]
     });
     expect(hasConfigStructureChange(base(), other)).toBe(true);
   });
 
   it('reports a change when a series property differs', () => {
     const other = makeConfig({
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'costs' }]
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'costs' }]
     });
     expect(hasConfigStructureChange(base(), other)).toBe(true);
   });

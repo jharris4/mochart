@@ -27,7 +27,7 @@ const toHex = (rgb: string): string => {
 
 describe('createHeatmap', () => {
   it('lays each row out as a one-unit band, first row on top', () => {
-    const { data, seriesAxisConfig } = createHeatmap(rows(), { cellPadding: 0 });
+    const { data, valueAxisConfig } = createHeatmap(rows(), { cellPadding: 0 });
     expect(data).toHaveLength(3);
     expect(data[0].column).toBe('1');
     expect(data[0].row0Start).toBe(2);
@@ -35,12 +35,12 @@ describe('createHeatmap', () => {
     expect(data[0].row0Value).toBe(0);
     expect(data[0].row2Start).toBe(0);
     expect(data[0].row2).toBe(1);
-    expect(seriesAxisConfig).toMatchObject({ min: 0, max: 3 });
+    expect(valueAxisConfig).toMatchObject({ min: 0, max: 3 });
   });
 
   it('labels each row band center with an explicit axis tick', () => {
-    const { seriesAxisConfig } = createHeatmap(rows());
-    expect(seriesAxisConfig.ticks).toEqual([
+    const { valueAxisConfig } = createHeatmap(rows());
+    expect(valueAxisConfig.ticks).toEqual([
       { value: 2.5, label: 'North' },
       { value: 1.5, label: 'South' },
       { value: 0.5, label: 'West' }
@@ -48,14 +48,14 @@ describe('createHeatmap', () => {
   });
 
   it('trims cellPadding from each side of the bands and group slots', () => {
-    const { data, groupAxisConfig } = createHeatmap(rows(), { cellPadding: 0.1 });
+    const { data, categoryAxis: categoryAxisConfig } = createHeatmap(rows(), { cellPadding: 0.1 });
     expect(data[0].row0Start).toBeCloseTo(2.1);
     expect(data[0].row0).toBeCloseTo(2.9);
-    expect(groupAxisConfig.groupPaddingFraction).toEqual({ inner: 0.2, outer: 0.1 });
+    expect(categoryAxisConfig.categoryPaddingFraction).toEqual({ inner: 0.2, outer: 0.1 });
   });
 
   it('leaves missing cells out of the data', () => {
-    const { data, seriesConfigs } = createHeatmap(rows());
+    const { data, series: seriesConfigs } = createHeatmap(rows());
     expect(data[1].row1).toBeUndefined();
     expect(data[1].row1Start).toBeUndefined();
     expect(data[1].row1Value).toBeUndefined();
@@ -69,7 +69,7 @@ describe('createHeatmap', () => {
   });
 
   it('titles one bar series per row', () => {
-    const { seriesConfigs } = createHeatmap(rows());
+    const { series: seriesConfigs } = createHeatmap(rows());
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.title)).toEqual(['North', 'South', 'West']);
     expect(seriesConfigs[1]).toMatchObject({
       id: 'row1', property: 'row1', rangeProperty: 'row1Start', colorProperty: 'row1Value',
@@ -80,11 +80,11 @@ describe('createHeatmap', () => {
   it('computes the domain from all cells and samples each row color range from the global ramp', () => {
     const heatmap = createHeatmap(rows());
     expect(heatmap.domain).toEqual([0, 10]);
-    expect(heatmap.seriesConfigs[0]!.colorScale!.min).toBe(heatmap.colorScale(0));
-    expect(heatmap.seriesConfigs[0]!.colorScale!.max).toBe(heatmap.colorScale(10));
-    expect(heatmap.seriesConfigs[1]!.colorScale!.min).toBe(heatmap.colorScale(2));
-    expect(heatmap.seriesConfigs[1]!.colorScale!.max).toBe(heatmap.colorScale(8));
-    expect(heatmap.seriesConfigs.every((seriesConfig) => /^#[0-9a-f]{6}$/.test(seriesConfig.colorScale!.min as string))).toBe(true);
+    expect(heatmap.series[0]!.colorScale!.min).toBe(heatmap.colorScale(0));
+    expect(heatmap.series[0]!.colorScale!.max).toBe(heatmap.colorScale(10));
+    expect(heatmap.series[1]!.colorScale!.min).toBe(heatmap.colorScale(2));
+    expect(heatmap.series[1]!.colorScale!.max).toBe(heatmap.colorScale(8));
+    expect(heatmap.series.every((seriesConfig) => /^#[0-9a-f]{6}$/.test(seriesConfig.colorScale!.min as string))).toBe(true);
   });
 
   it('reproduces the global scale when the core interpolates each row over its own extent', () => {
@@ -93,7 +93,7 @@ describe('createHeatmap', () => {
       const values = row.values.filter((value): value is number => value != null);
       // What SeriesColors.getSeriesColorGenerator builds for the series.
       const coreScale = (scaleLinear() as unknown as TestColorScale)
-        .range([heatmap.seriesConfigs[r]!.colorScale!.min, heatmap.seriesConfigs[r]!.colorScale!.max])
+        .range([heatmap.series[r]!.colorScale!.min, heatmap.series[r]!.colorScale!.max])
         .domain([Math.min(...values), Math.max(...values)])
         .interpolate(interpolateLab);
       for (const value of values) {
@@ -112,15 +112,15 @@ describe('createHeatmap', () => {
     ], { domain: [0, 10] });
 
     // color values are domain-clamped and separate from the tooltip values
-    expect(heatmap.seriesConfigs[0]!.colorProperty).toBe('row0Color');
-    expect(heatmap.seriesConfigs[0]!.tooltipProperty).toBe('row0Value');
+    expect(heatmap.series[0]!.colorProperty).toBe('row0Color');
+    expect(heatmap.series[0]!.tooltipProperty).toBe('row0Value');
     expect(heatmap.data[2]!.row0Value).toBe(20);
     expect(heatmap.data[2]!.row0Color).toBe(10);
 
     for (const r of [0, 1]) {
       const clampedValues = [0, 5, 10];
       const coreScale = (scaleLinear() as unknown as TestColorScale)
-        .range([heatmap.seriesConfigs[r]!.colorScale!.min, heatmap.seriesConfigs[r]!.colorScale!.max])
+        .range([heatmap.series[r]!.colorScale!.min, heatmap.series[r]!.colorScale!.max])
         .domain([Math.min(...clampedValues), Math.max(...clampedValues)])
         .interpolate(interpolateLab);
       for (const value of clampedValues) {
@@ -134,17 +134,17 @@ describe('createHeatmap', () => {
     expect(heatmap.domain).toEqual([7, 7]);
     const midpoint = heatmap.colorScale(7);
     expect(heatmap.colorScale(0)).toBe(midpoint);
-    expect(heatmap.seriesConfigs[0]!.colorScale!.min).toBe(midpoint);
-    expect(heatmap.seriesConfigs[1]!.colorScale!.max).toBe(midpoint);
+    expect(heatmap.series[0]!.colorScale!.min).toBe(midpoint);
+    expect(heatmap.series[1]!.colorScale!.max).toBe(midpoint);
   });
 
   it('produces a valid chart config and data', () => {
     const heatmap = createHeatmap(rows());
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
-      groupAxisConfig: heatmap.groupAxisConfig,
-      seriesAxisConfigs: [{ ...heatmap.seriesAxisConfig, id: 'sa' }],
-      seriesConfigs: heatmap.seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
+      categoryAxis: heatmap.categoryAxis,
+      valueAxes: [{ ...heatmap.valueAxisConfig, id: 'sa' }],
+      series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
     });
     expect(mochartConfig.validation.valid).toBe(true);
     // The group property is always set; only cell properties can be undefined.
@@ -166,7 +166,7 @@ describe('createHeatmap', () => {
     const heatmap = createHeatmap([]);
     expect(heatmap.domain).toBeNull();
     expect(heatmap.data).toEqual([]);
-    expect(heatmap.seriesConfigs).toEqual([]);
+    expect(heatmap.series).toEqual([]);
   });
 });
 

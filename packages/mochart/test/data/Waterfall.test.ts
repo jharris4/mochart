@@ -78,8 +78,8 @@ describe('createWaterfall', () => {
   });
 
   it('emits config fragments for ordinal floating bars', () => {
-    const { groupAxisConfig, seriesConfigs } = createWaterfall([{ label: 'A', value: 1 }]);
-    expect(groupAxisConfig).toEqual({ property: 'label', type: 'string', scale: 'ordinal' });
+    const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = createWaterfall([{ label: 'A', value: 1 }]);
+    expect(categoryAxisConfig).toEqual({ property: 'label', type: 'string', scale: 'ordinal' });
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['increase', 'decrease', 'total']);
     for (const seriesConfig of seriesConfigs) {
       expect(seriesConfig.property).toBe(seriesConfig.id);
@@ -94,7 +94,7 @@ describe('createWaterfall', () => {
   });
 
   it('honours custom titles, colors and base', () => {
-    const { steps, seriesConfigs } = createWaterfall([{ label: 'A', value: 1 }], {
+    const { steps, series: seriesConfigs } = createWaterfall([{ label: 'A', value: 1 }], {
       base: 50,
       seriesTitles: { increase: 'Gains' },
       colors: { decrease: '#123456' }
@@ -106,7 +106,7 @@ describe('createWaterfall', () => {
   });
 
   it('returns empty data for empty input', () => {
-    const { steps, data, seriesConfigs } = createWaterfall([]);
+    const { steps, data, series: seriesConfigs } = createWaterfall([]);
     expect(steps).toEqual([]);
     expect(data).toEqual([]);
     expect(seriesConfigs).toHaveLength(3);

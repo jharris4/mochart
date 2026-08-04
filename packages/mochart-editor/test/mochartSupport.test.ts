@@ -49,29 +49,29 @@ function viewFor(source: string) {
 describe('Mochart support completions', () => {
   it('suggests missing top-level properties with strict-JSON insertions', async () => {
     const options = await completionOptions('{"|": null, "version": "1.0.0"}');
-    expect(labels(options)).toContain('chartConfig');
+    expect(labels(options)).toContain('chart');
     expect(labels(options)).not.toContain('version');
-    expect(options.find(option => option.label === 'chartConfig')?.apply).toBe('"chartConfig": {}');
+    expect(options.find(option => option.label === 'chart')?.apply).toBe('"chart": {}');
   });
 
   it('suggests nested properties instead of section properties', async () => {
-    const options = await completionOptions('{"chartConfig":{"margin":{"|": 0}}}');
+    const options = await completionOptions('{"chart":{"margin":{"|": 0}}}');
     expect(labels(options)).toEqual(expect.arrayContaining(['top', 'right', 'bottom', 'left']));
     expect(labels(options)).not.toContain('type');
   });
 
   it('suggests enum values', async () => {
-    const options = await completionOptions('{"chartConfig":{"type":"|"}}');
+    const options = await completionOptions('{"chart":{"type":"|"}}');
     expect(labels(options)).toEqual(expect.arrayContaining(['"xy"', '"pie"']));
   });
 
   it('suggests configured ids and filters common references', async () => {
     const options = await completionOptions(`{
       "version": "1.0.0",
-      "groupAxisConfig": { "property": "month" },
-      "seriesAxisConfigs": [{ "id": "A" }, { "id": "B" }],
-      "seriesStackConfigs": [{ "id": "stack-a", "axis": "A" }, { "id": "stack-b", "axis": "B" }],
-      "seriesConfigs": [{ "property": "revenue", "axis": "A", "stack": "|" }]
+      "categoryAxis": { "property": "month" },
+      "valueAxes": [{ "id": "A" }, { "id": "B" }],
+      "seriesStacks": [{ "id": "stack-a", "axis": "A" }, { "id": "stack-b", "axis": "B" }],
+      "series": [{ "property": "revenue", "axis": "A", "stack": "|" }]
     }`);
     expect(labels(options)).toContain('"stack-a"');
     expect(labels(options)).not.toContain('"stack-b"');
@@ -80,7 +80,7 @@ describe('Mochart support completions', () => {
 
 describe('Mochart support hover documentation', () => {
   it('shows property documentation, rules, and defaults', () => {
-    const source = '{"chartConfig":{"type":"xy"}}';
+    const source = '{"chart":{"type":"xy"}}';
     const view = viewFor(source);
     const tooltip = mochartSupportTesting.hoverSource(view, source.indexOf('"type"') + 2);
     expect(tooltip).not.toBeNull();
@@ -96,16 +96,16 @@ describe('Mochart support diagnostics', () => {
   it('maps semantic diagnostics to the relevant JSON value', () => {
     const source = `{
       "version": "1.0.0",
-      "groupAxisConfig": { "property": "month" },
-      "seriesConfigs": [{ "property": "revenue", "axis": "missing" }]
+      "categoryAxis": { "property": "month" },
+      "series": [{ "property": "revenue", "axis": "missing" }]
     }`;
     const view = viewFor(source);
     const diagnostics = mochartSupportTesting.semanticDiagnostics(view);
-    const diagnostic = diagnostics.find(item => item.message.includes('seriesAxisConfigs')) as
+    const diagnostic = diagnostics.find(item => item.message.includes('valueAxes')) as
       (typeof diagnostics)[number] & { path?: (string | number)[] };
 
     expect(diagnostic).toBeDefined();
-    expect(diagnostic.path).toEqual(['seriesConfigs', 0, 'axis']);
+    expect(diagnostic.path).toEqual(['series', 0, 'axis']);
     expect(source.slice(diagnostic.from, diagnostic.to)).toBe('"missing"');
     expect(diagnostic.severity).toBe('error');
     expect(diagnostic.source).toBe('mochart');
@@ -114,7 +114,7 @@ describe('Mochart support diagnostics', () => {
   // Regression: these mid-edit states threw inside getDefaults; the exception
   // escaped the linter and silently froze diagnostics on the previous pass.
   it('reports errors instead of throwing on junk section shapes', () => {
-    for (const source of ['{"seriesStackConfigs": 5}', '{"seriesStackConfigs": [null]}']) {
+    for (const source of ['{"seriesStacks": 5}', '{"seriesStacks": [null]}']) {
       const view = viewFor(source);
       let diagnostics: ReturnType<typeof mochartSupportTesting.semanticDiagnostics> = [];
       expect(() => { diagnostics = mochartSupportTesting.semanticDiagnostics(view); }).not.toThrow();
@@ -127,12 +127,12 @@ describe('Mochart support diagnostics', () => {
 // validation immediately rejects as unique properties.
 describe('all-config completions', () => {
   it('omits unique keys inside an all config but keeps them in entries', async () => {
-    const allOptions = await completionOptions('{"seriesAllConfig": {"|": null}}');
+    const allOptions = await completionOptions('{"seriesDefaults": {"|": null}}');
     expect(labels(allOptions)).toContain('renderer');
     expect(labels(allOptions)).not.toContain('id');
     expect(labels(allOptions)).not.toContain('order');
 
-    const entryOptions = await completionOptions('{"seriesConfigs": [{"|": null}]}');
+    const entryOptions = await completionOptions('{"series": [{"|": null}]}');
     expect(labels(entryOptions)).toContain('id');
     expect(labels(entryOptions)).toContain('order');
   });
@@ -143,10 +143,10 @@ describe('all-config completions', () => {
 // comma, producing invalid JSON.
 describe('completions after a comma-containing string value', () => {
   it('does not offer property-name completions right after the value', async () => {
-    const withComma = await completionOptions('{"titleConfig": {"title": "Sales, weekly" |}}');
+    const withComma = await completionOptions('{"title": {"text": "Sales, weekly" |}}');
     expect(labels(withComma)).not.toContain('align');
 
-    const afterComma = await completionOptions('{"titleConfig": {"title": "Sales, weekly", |}}');
+    const afterComma = await completionOptions('{"title": {"text": "Sales, weekly", |}}');
     expect(labels(afterComma)).toContain('align');
   });
 });

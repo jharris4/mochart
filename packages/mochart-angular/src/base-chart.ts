@@ -35,10 +35,10 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
    * chart's internal focus on every update; pass back the value reported by
    * `focus` to keep several charts in sync. Omit to leave focus chart-managed.
    */
-  @Input() focusedGroupIndex?: number;
-  /** Controlled focused series-axis id (null = none). See `focusedGroupIndex`. */
-  @Input() focusedSeriesAxisId?: string | null;
-  /** Controlled focused series id (null = none). See `focusedGroupIndex`. */
+  @Input() focusedCategoryIndex?: number;
+  /** Controlled focused series-axis id (null = none). See `focusedCategoryIndex`. */
+  @Input() focusedValueAxisId?: string | null;
+  /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
   @Input() focusedSeriesId?: string | null;
   /**
    * Controlled filter map (series id → true = filtered out); pass back the
@@ -54,7 +54,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   @Output() titleClick = new EventEmitter<any>();
   @Output() focus = new EventEmitter<any>();
   @Output() seriesFilter = new EventEmitter<any>();
-  @Output() seriesLayoutInfoChange = new EventEmitter<any>();
+  @Output() seriesLayoutBoundsChange = new EventEmitter<any>();
 
   private readonly elementRef = inject(ElementRef) as ElementRef<HTMLElement>;
   private readonly environmentInjector = inject(EnvironmentInjector);
@@ -81,8 +81,8 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
       noSizeComponent: this.noSizeComponent,
       noSeriesComponent: this.noSeriesComponent,
       configErrorComponent: this.configErrorComponent,
-      focusedGroupIndex: this.focusedGroupIndex,
-      focusedSeriesAxisId: this.focusedSeriesAxisId,
+      focusedCategoryIndex: this.focusedCategoryIndex,
+      focusedValueAxisId: this.focusedValueAxisId,
       focusedSeriesId: this.focusedSeriesId,
       filteredSeriesIds: this.filteredSeriesIds
     };
@@ -97,7 +97,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
       [this.titleClick, 'onTitleClick'],
       [this.focus, 'onFocus'],
       [this.seriesFilter, 'onSeriesFilter'],
-      [this.seriesLayoutInfoChange, 'onSeriesLayoutInfoChange']
+      [this.seriesLayoutBoundsChange, 'onSeriesLayoutBoundsChange']
     ];
     for (const [emitter, coreName] of callbacks) {
       if (emitter.observed) {

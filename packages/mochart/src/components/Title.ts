@@ -10,7 +10,8 @@ import { styleToAttributes } from '../utils/style';
 import { getSpacingWidth } from '../layout/SpacingLayoutInfo';
 import Background from './Background';
 import type { El, TextEl } from '../render';
-import type { MochartConfig, Style } from '../types/config';
+import type { Style } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { SpacingLayoutInfo } from '../types/layout';
 import type { TruncationDataValue } from '../utils/TextTruncation';
 
@@ -24,7 +25,7 @@ interface TitleSection {
   value: TextEl;
 }
 interface TitleProps {
-  mochartConfig: MochartConfig;
+  mochartConfig: EnhancedMochartConfig;
   titleLayoutInfo: SpacingLayoutInfo;
   titlePrefixLayoutInfo: SpacingLayoutInfo;
   titleTextLayoutInfo: SpacingLayoutInfo;
@@ -60,15 +61,15 @@ export default class Title extends Renderer<TitleProps, TitleState> {
 
   derive(props: TitleProps, _state: TitleState, prevProps: TitleProps | null): Partial<TitleState> | null {
     if (prevProps === null) {
-      this.checkTruncation = props.mochartConfig.titleConfig.truncationEnabled;
+      this.checkTruncation = props.mochartConfig.title.truncationEnabled;
       return null;
     }
     const { mochartConfig, titleLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo } = props;
-    const { titleConfig } = mochartConfig;
-    const truncationEnabled = titleConfig.title !== NONE && titleConfig.truncationEnabled;
+    const { title: titleConfig } = mochartConfig;
+    const truncationEnabled = titleConfig.text !== NONE && titleConfig.truncationEnabled;
     const truncationChanged = truncationEnabled &&
       (layoutInfoExtentChanged(prevProps.titleTextLayoutInfo, titleTextLayoutInfo) || layoutInfoExtentChanged(prevProps.titleTextRawLayoutInfo, titleTextRawLayoutInfo));
-    const titleChanged = prevProps.mochartConfig.titleConfig.title !== titleConfig.title;
+    const titleChanged = prevProps.mochartConfig.title.text !== titleConfig.text;
     const truncationFinished = titleTextLayoutInfo.width === titleTextRawLayoutInfo.width && titleLayoutInfo.default !== true;
     if (titleChanged || truncationFinished) {
       this.truncationData = null;
@@ -132,11 +133,11 @@ export default class Title extends Renderer<TitleProps, TitleState> {
 
   sync() {
     const { mochartConfig, titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo, titleClipPathUniqueId } = this.props;
-    const { titleConfig } = mochartConfig;
+    const { title: titleConfig } = mochartConfig;
 
-    if (titleConfig.title !== NONE) {
-      const { title, titlePrefix, titleSuffix, truncationEnabled, truncationValue, link, linkDisabled,
-        titleBackgroundStyle, titleTextStyle,
+    if (titleConfig.text !== NONE) {
+      const { text: title, prefix: titlePrefix, suffix: titleSuffix, truncationEnabled, truncationValue, link, linkDisabled,
+        textBackgroundStyle: titleBackgroundStyle, textStyle: titleTextStyle,
         prefixBackgroundStyle, prefixTextStyle,
         suffixBackgroundStyle, suffixTextStyle
       } = titleConfig;
@@ -188,9 +189,9 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     if (this.checkTruncation && this.present) {
       const domElement = this.root.node.querySelector<SVGTextContentElement>(getTitleTextCssSelector());
       const { mochartConfig, titleTextLayoutInfo } = this.props;
-      const { titleConfig } = mochartConfig;
+      const { title: titleConfig } = mochartConfig;
       const { width } = titleTextLayoutInfo;
-      const { title, truncationValue, textMargin, textPadding } = titleConfig;
+      const { text: title, truncationValue, textMargin, textPadding } = titleConfig;
       const maxLength = Math.max(width - getSpacingWidth(textMargin, textPadding), 0);
       const { checkTruncation, truncationData } = updateTruncation(truncationValue, this.state.truncationData, title!, maxLength, domElement);
       if (checkTruncation) {

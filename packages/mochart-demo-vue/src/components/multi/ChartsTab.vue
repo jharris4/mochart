@@ -63,15 +63,15 @@ const initialCurrentDataCount = shared && stepCycle() > 0
 const currentDataCount = ref(initialCurrentDataCount);
 const dataProviders = shallowRef(getDataProvidersForDataCount(
   mochartDemoConfig.value.mochartConfig, props.demoObject.data, initialRows * initialCols, initialCurrentDataCount));
-const focusedGroupIndices = shallowRef<number[]>(dataProviders.value.map(() => -1));
-const focusedGroupIndex = ref(-1);
-const focusedSeriesAxisId = shallowRef<string | null>(null);
+const focusedCategoryIndices = shallowRef<number[]>(dataProviders.value.map(() => -1));
+const focusedCategoryIndex = ref(-1);
+const focusedValueAxisId = shallowRef<string | null>(null);
 const focusedSeriesId = shallowRef<string | null>(null);
 const filteredSeriesIds = shallowRef<FilteredSeriesIds>({});
 
 function initFocusAndFiltered() {
-  focusedGroupIndex.value = -1;
-  focusedSeriesAxisId.value = null;
+  focusedCategoryIndex.value = -1;
+  focusedValueAxisId.value = null;
   focusedSeriesId.value = null;
   filteredSeriesIds.value = {};
 }
@@ -88,7 +88,7 @@ watch(
       sliceIds.value = mochartDemoConfig.value.pieMode ? getPieSlices(mochartDemoConfig.value.mochartConfig).map(slice => slice.id) : [];
       currentDataCount.value = resetStep();
       dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
-      focusedGroupIndices.value = dataProviders.value.map(() => -1);
+      focusedCategoryIndices.value = dataProviders.value.map(() => -1);
     }
     if (nextActive !== previousActive) {
       onStopClick();
@@ -108,14 +108,14 @@ function onRowsChange(nextChartRows: number) {
   chartRows.value = nextChartRows;
   currentDataCount.value = resetStep();
   dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
-  focusedGroupIndices.value = getFocusedGroupIndices(dataProviders.value);
+  focusedCategoryIndices.value = getFocusedCategoryIndices(dataProviders.value);
 }
 
 function onColsChange(nextChartCols: number) {
   chartCols.value = nextChartCols;
   currentDataCount.value = resetStep();
   dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
-  focusedGroupIndices.value = getFocusedGroupIndices(dataProviders.value);
+  focusedCategoryIndices.value = getFocusedCategoryIndices(dataProviders.value);
 }
 
 function onStepBackwardClick() {
@@ -124,39 +124,39 @@ function onStepBackwardClick() {
     ? (currentDataCount.value - 1 + cycle) % cycle
     : cycle + (currentDataCount.value - 1) % cycle;
   dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
-  focusedGroupIndices.value = getFocusedGroupIndices(dataProviders.value);
+  focusedCategoryIndices.value = getFocusedCategoryIndices(dataProviders.value);
 }
 
 function onStepForwardClick() {
   currentDataCount.value = (currentDataCount.value + 1) % stepCycle();
   dataProviders.value = getDataProvidersForDataCount(mochartDemoConfig.value.mochartConfig, data.value, chartRows.value * chartCols.value, currentDataCount.value);
-  focusedGroupIndices.value = getFocusedGroupIndices(dataProviders.value);
+  focusedCategoryIndices.value = getFocusedCategoryIndices(dataProviders.value);
 }
 
-function getFocusedGroupIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
+function getFocusedCategoryIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
   const { mochartConfig } = mochartDemoConfig.value;
-  if (focusedGroupIndex.value >= 0) {
-    const groupValue = data.value[focusedGroupIndex.value][mochartConfig.groupAxisConfig.property ?? ''];
-    return getFocusedGroupIndicesForValue(nextDataProviders, groupValue);
+  if (focusedCategoryIndex.value >= 0) {
+    const categoryValue = data.value[focusedCategoryIndex.value][mochartConfig.categoryAxis.property ?? ''];
+    return getFocusedCategoryIndicesForValue(nextDataProviders, categoryValue);
   }
   else {
     return nextDataProviders.map(() => -1);
   }
 }
 
-function getFocusedGroupIndicesForValue(nextDataProviders: ChartDataProviderLike[], groupValue: unknown): number[] {
+function getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] {
   let count, i;
   return nextDataProviders.map(dataProvider => {
-    let chartGroupIndex = -1;
-    const groupValues = dataProvider.getGroupValues();
-    count = groupValues.length;
+    let chartCategoryIndex = -1;
+    const categoryValues = dataProvider.getCategoryValues();
+    count = categoryValues.length;
     for (i = 0; i < count; i++) {
-      if (groupValues[i] === groupValue) {
-        chartGroupIndex = i;
+      if (categoryValues[i] === categoryValue) {
+        chartCategoryIndex = i;
         break;
       }
     }
-    return chartGroupIndex;
+    return chartCategoryIndex;
   });
 }
 
@@ -185,37 +185,37 @@ onBeforeUnmount(() => {
   }
 });
 
-function onChartFocus(chartIndex: number, focusData: { focusedSeriesAxisId?: string | null; focusedSeriesId?: string | null; focusedGroupIndex?: number }) {
-  const { focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId } = focusData;
-  let groupIndex = focusData.focusedGroupIndex;
+function onChartFocus(chartIndex: number, focusData: { focusedValueAxisId?: string | null; focusedSeriesId?: string | null; focusedCategoryIndex?: number }) {
+  const { focusedValueAxisId: valueAxisId, focusedSeriesId: seriesId } = focusData;
+  let categoryIndex = focusData.focusedCategoryIndex;
   const { mochartConfig } = mochartDemoConfig.value;
-  let nextFocusedGroupIndices = focusedGroupIndices.value;
-  if (groupIndex !== undefined && groupIndex >= 0) {
-    const groupValue = dataProviders.value[chartIndex].getGroupValues()[groupIndex];
+  let nextFocusedCategoryIndices = focusedCategoryIndices.value;
+  if (categoryIndex !== undefined && categoryIndex >= 0) {
+    const categoryValue = dataProviders.value[chartIndex].getCategoryValues()[categoryIndex];
     const count = data.value.length;
     for (let i = 0; i < count; i++) {
-      if (data.value[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
-        groupIndex = i;
+      if (data.value[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
+        categoryIndex = i;
         break;
       }
     }
-    if (groupIndex !== focusedGroupIndex.value) {
-      nextFocusedGroupIndices = getFocusedGroupIndicesForValue(dataProviders.value, groupValue);
+    if (categoryIndex !== focusedCategoryIndex.value) {
+      nextFocusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders.value, categoryValue);
     }
   }
-  else if (focusedGroupIndex.value >= 0) {
-    nextFocusedGroupIndices = dataProviders.value.map(() => -1);
+  else if (focusedCategoryIndex.value >= 0) {
+    nextFocusedCategoryIndices = dataProviders.value.map(() => -1);
   }
-  if (groupIndex !== undefined) {
-    focusedGroupIndex.value = groupIndex;
+  if (categoryIndex !== undefined) {
+    focusedCategoryIndex.value = categoryIndex;
   }
-  if (seriesAxisId !== undefined) {
-    focusedSeriesAxisId.value = seriesAxisId;
+  if (valueAxisId !== undefined) {
+    focusedValueAxisId.value = valueAxisId;
   }
   if (seriesId !== undefined) {
     focusedSeriesId.value = seriesId;
   }
-  focusedGroupIndices.value = nextFocusedGroupIndices;
+  focusedCategoryIndices.value = nextFocusedCategoryIndices;
 }
 
 // The chart owns filter toggling now and reports the whole map.
@@ -270,8 +270,8 @@ function getMultiShareState(): ShareState {
         <div v-for="(dataProvider, i) in dataProviders" :key="i" class="multi-mochart-chart">
           <Chart :mochart-config="mochartDemoConfig.mochartConfig" :data-provider="dataProvider"
                  :width="chartWidth" :height="chartHeight"
-                 :filtered-series-ids="chartFilteredSeriesIds(i)" :focused-group-index="focusedGroupIndices[i] ?? -1"
-                 :focused-series-axis-id="focusedSeriesAxisId ?? null" :focused-series-id="focusedSeriesId ?? null"
+                 :filtered-series-ids="chartFilteredSeriesIds(i)" :focused-category-index="focusedCategoryIndices[i] ?? -1"
+                 :focused-value-axis-id="focusedValueAxisId ?? null" :focused-series-id="focusedSeriesId ?? null"
                  :on-series-filter="onSeriesFilter" :on-focus="(focusData: any) => onChartFocus(i, focusData)" />
         </div>
       </div>

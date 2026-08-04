@@ -28,16 +28,16 @@ export class ChartTab extends LightElement {
   private size = new ElementSizeController(this);
 
   @state() private chartCount = defaultChartCount;
-  @state() private focusedSeriesAxisId: string | null = null;
+  @state() private focusedValueAxisId: string | null = null;
   @state() private focusedSeriesId: string | null = null;
-  @state() private focusedGroupIndex = -1;
+  @state() private focusedCategoryIndex = -1;
   @state() private filteredSeriesIds: FilteredSeriesIds = {};
   @state() private mochartDemoConfig: MochartDemoConfig | null = null;
 
   private resetFocusAndFiltered(): void {
-    this.focusedSeriesAxisId = null;
+    this.focusedValueAxisId = null;
     this.focusedSeriesId = null;
-    this.focusedGroupIndex = -1;
+    this.focusedCategoryIndex = -1;
     this.filteredSeriesIds = {};
   }
 
@@ -72,18 +72,18 @@ export class ChartTab extends LightElement {
       const { configValidation, mochartConfig } = this.mochartDemoConfig ?? {};
       const valid = configValidation?.valid ?? false;
       if (!previousDataError && previousData && this.data && valid && mochartConfig) {
-        if (this.focusedGroupIndex >= 0) {
-          const property = mochartConfig.groupAxisConfig.property ?? '';
-          const groupValue = previousData[this.focusedGroupIndex][property];
-          let newFocusedGroupIndex = -1;
+        if (this.focusedCategoryIndex >= 0) {
+          const property = mochartConfig.categoryAxis.property ?? '';
+          const categoryValue = previousData[this.focusedCategoryIndex][property];
+          let newFocusedCategoryIndex = -1;
           const count = this.data.length;
           for (let i = 0; i < count; i++) {
-            if (this.data[i][property] === groupValue) {
-              newFocusedGroupIndex = i;
+            if (this.data[i][property] === categoryValue) {
+              newFocusedCategoryIndex = i;
               break;
             }
           }
-          this.focusedGroupIndex = newFocusedGroupIndex;
+          this.focusedCategoryIndex = newFocusedCategoryIndex;
         }
       }
       else {
@@ -93,15 +93,15 @@ export class ChartTab extends LightElement {
   }
 
   private onFocus = (focusData: FocusData = {}): void => {
-    const { seriesAxisId, seriesId, groupIndex } = focusData;
-    if (seriesAxisId !== undefined) {
-      this.focusedSeriesAxisId = seriesAxisId;
+    const { valueAxisId, seriesId, categoryIndex } = focusData;
+    if (valueAxisId !== undefined) {
+      this.focusedValueAxisId = valueAxisId;
     }
     if (seriesId !== undefined) {
       this.focusedSeriesId = seriesId;
     }
-    if (groupIndex !== undefined) {
-      this.focusedGroupIndex = groupIndex;
+    if (categoryIndex !== undefined) {
+      this.focusedCategoryIndex = categoryIndex;
     }
   };
 
@@ -127,8 +127,8 @@ export class ChartTab extends LightElement {
             ? chartIndices.map(i => html`<editable-chart
                 .chartCount=${this.chartCount} .showChartCountControls=${allowedChartCount > 1 && i === 1} .showShareButton=${i === 1}
                 .width=${chartWidth} .mochartDemoConfig=${this.mochartDemoConfig!} .data=${this.data ?? []} .dataError=${this.dataError}
-                .isActive=${this.active} .filteredSeriesIds=${this.filteredSeriesIds} .focusedGroupIndex=${this.focusedGroupIndex}
-                .focusedSeriesAxisId=${this.focusedSeriesAxisId} .focusedSeriesId=${this.focusedSeriesId} .onChartCountToggle=${this.onChartCountToggle}
+                .isActive=${this.active} .filteredSeriesIds=${this.filteredSeriesIds} .focusedCategoryIndex=${this.focusedCategoryIndex}
+                .focusedValueAxisId=${this.focusedValueAxisId} .focusedSeriesId=${this.focusedSeriesId} .onChartCountToggle=${this.onChartCountToggle}
                 .onFocus=${this.onFocus} .onSeriesFilter=${this.onSeriesFilter}></editable-chart>`)
             : null}
         </div>

@@ -11,7 +11,7 @@ import ErrorTab from '../misc/ErrorTab.vue';
 
 import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
-import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, GroupValue } from '../../types';
+import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, CategoryValue } from '../../types';
 
 interface EventKeys {
   eventKeyChart: number;
@@ -54,21 +54,21 @@ function toggleApplyReuse() {
   updateDataProvider();
 }
 
-function getData(mochartConfig: MochartConfig, groupValues: GroupValue[], seriesValues: Record<string, (number | undefined)[]>) {
-  const { groupAxisConfig } = mochartConfig;
-  const groupProperty = groupAxisConfig.property ?? '';
-  const nextData: Record<string, any>[] = groupValues.map(g => ({ [groupProperty]: g }));
-  const groupCount = groupValues.length;
-  if (groupAxisConfig.displayProperty !== NONE) {
-    const displayProperty = groupAxisConfig.displayProperty;
-    for (let i = 0; i < groupCount; i++) {
-      nextData[i][displayProperty] = groupValues[i];
+function getData(mochartConfig: MochartConfig, categoryValues: CategoryValue[], seriesValues: Record<string, (number | undefined)[]>) {
+  const { categoryAxis: categoryAxisConfig } = mochartConfig;
+  const categoryProperty = categoryAxisConfig.property ?? '';
+  const nextData: Record<string, any>[] = categoryValues.map(g => ({ [categoryProperty]: g }));
+  const categoryCount = categoryValues.length;
+  if (categoryAxisConfig.displayProperty !== NONE) {
+    const displayProperty = categoryAxisConfig.displayProperty;
+    for (let i = 0; i < categoryCount; i++) {
+      nextData[i][displayProperty] = categoryValues[i];
     }
   }
   const seriesProperties = Object.keys(seriesValues);
   for (const seriesProperty of seriesProperties) {
     const seriesPropertyValues = seriesValues[seriesProperty];
-    for (let i = 0; i < groupCount; i++) {
+    for (let i = 0; i < categoryCount; i++) {
       nextData[i][seriesProperty] = seriesPropertyValues[i];
     }
   }
@@ -84,15 +84,15 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
     // neutralized, so every dataset is generated independently
     const generatorConfig = applyReuse.value ? nextRandomConfig : neutralizeRandomReuse(nextRandomConfig);
     const nextDataProvider = generateDemoDataProvider(props.generator, mochartConfig, generatorConfig, props.randomId);
-    const { groupValues = [], seriesValues = {} } = nextDataProvider;
-    const nextData = getData(mochartConfig, groupValues, seriesValues);
+    const { categoryValues = [], seriesValues = {} } = nextDataProvider;
+    const nextData = getData(mochartConfig, categoryValues, seriesValues);
     const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
     if (dataErrors.length > 0) {
       console.error('data errors: ', dataErrors);
-      console.warn('group values: ', groupValues);
+      console.warn('group values: ', categoryValues);
       console.warn('series values: ', seriesValues);
       dataProvider.value = {
-        getGroupValues: () => [],
+        getCategoryValues: () => [],
         getError: () => demoText.errors.creatingDataProvider
       };
       data.value = { error: demoText.errors.creatingDataProvider };
@@ -106,7 +106,7 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
   }
   else {
     dataProvider.value = {
-      getGroupValues: () => [],
+      getCategoryValues: () => [],
       getError: () => demoText.errors.invalidRandomConfig
     };
     data.value = {

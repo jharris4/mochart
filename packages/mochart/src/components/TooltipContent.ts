@@ -1,7 +1,7 @@
 import { Renderer, htmlEl, textEl } from '../render';
 import type { El, RendererItem, Slot, TextEl } from '../render';
 
-import { getGroupFormat, getSeriesFormats } from '../utils/ValueFormat';
+import { getCategoryFormat, getSeriesFormats } from '../utils/ValueFormat';
 import { getSeriesText } from '../utils/TooltipFormat';
 import type { PieTooltipValues } from '../utils/TooltipFormat';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
@@ -12,25 +12,26 @@ import { NONE, CHART_TYPE_PIE } from '../config/core/constants';
 
 import TooltipControls from './TooltipControls';
 import SeriesColorIcon from './SeriesColorIcon';
-import type { ColorPaletteConfig, MochartConfig, SeriesConfig } from '../types/config';
+import type { ColorPaletteConfig } from '../types/config';
+import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
 import type { InternalFocus } from '../types/chart';
 import type { FocusPercentage, FocusPercentageMap } from '../types/animation';
-import type { GroupSeriesValueObject } from '../data/ChartData';
+import type { CategorySeriesValueObject } from '../data/ChartData';
 
 type LineStyle = Record<string, string | number>;
 
-interface TooltipGroupLineProps {
+interface TooltipCategoryLineProps {
   lineStyle: LineStyle;
-  groupLabel: string;
-  groupText: string | number | Date;
+  categoryLabel: string;
+  categoryText: string | number | Date;
   onMouseEnter: (event: Event) => void;
   onMouseLeave: (event: Event) => void;
   onClick: (event: Event) => void;
 }
 
 interface TooltipSeriesLineProps {
-  mochartConfig: MochartConfig;
-  seriesConfig: SeriesConfig;
+  mochartConfig: EnhancedMochartConfig;
+  seriesConfig: EnhancedSeriesConfig;
   seriesIndex: number;
   seriesIsFocused: boolean;
   seriesIsDefocused: boolean;
@@ -48,21 +49,21 @@ interface TooltipSeriesLineProps {
 }
 
 interface TooltipContentProps {
-  mochartConfig: MochartConfig;
-  tooltipValueObject: GroupSeriesValueObject;
-  groupCount: number;
-  focusedGroupIndex: number;
+  mochartConfig: EnhancedMochartConfig;
+  tooltipValueObject: CategorySeriesValueObject;
+  categoryCount: number;
+  focusedCategoryIndex: number;
   focusedSeriesId: string | null;
   visible: boolean;
-  tooltipGroupIndex: number;
-  updateTooltipGroupIndex: (groupIndex: number) => void;
+  tooltipCategoryIndex: number;
+  updateTooltipCategoryIndex: (categoryIndex: number) => void;
   minWidth?: number | null;
   adjustForFiltering?: boolean;
   svgUniqueId: string;
   onFocus: (focus: InternalFocus) => void;
   onSeriesFilter: (seriesId: string) => void;
   onClose: () => void;
-  seriesAxisFocusPercentages: FocusPercentageMap;
+  valueAxisFocusPercentages: FocusPercentageMap;
   seriesFocusPercentages: FocusPercentageMap;
 }
 
@@ -89,7 +90,7 @@ const alignedLineStyle = {
   whiteSpace: 'nowrap'
 };
 
-class TooltipGroupLine extends Renderer<TooltipGroupLineProps> {
+class TooltipCategoryLine extends Renderer<TooltipCategoryLineProps> {
   root = htmlEl('div');
   text = textEl();
 
@@ -99,10 +100,10 @@ class TooltipGroupLine extends Renderer<TooltipGroupLineProps> {
   }
 
   sync() {
-    const { lineStyle, groupLabel, groupText, onMouseEnter, onMouseLeave, onClick } = this.props;
-    this.root.set({ className: mochartCssClasses['tooltipGroupLine'], style: lineStyle,
+    const { lineStyle, categoryLabel, categoryText, onMouseEnter, onMouseLeave, onClick } = this.props;
+    this.root.set({ className: mochartCssClasses['tooltipCategoryLine'], style: lineStyle,
       onMouseEnter, onMouseLeave, onClick });
-    this.text.set(groupLabel + String(groupText));
+    this.text.set(categoryLabel + String(categoryText));
   }
 }
 
@@ -151,7 +152,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   sync() {
     const { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
       colorPaletteConfig, svgUniqueId, visible, labelText, valueText, style, onMouseEnter, onMouseLeave, onClick } = this.props;
-    const { tooltipConfig } = mochartConfig;
+    const { tooltip: tooltipConfig } = mochartConfig;
 
     this.root.set({ className: mochartCssClasses['tooltipSeriesLine'] + seriesConfig.id, style,
       onMouseEnter, onMouseLeave, onClick });
@@ -212,44 +213,44 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     this.setState({ mode });
   }
 
-  onGroupMouseEnter = (_event: Event) => {
-    const { mochartConfig, tooltipGroupIndex, onFocus } = this.props;
+  onCategoryMouseEnter = (_event: Event) => {
+    const { mochartConfig, tooltipCategoryIndex, onFocus } = this.props;
     const { mode } = this.state;
-    const { tooltipConfig } = mochartConfig;
-    const { showControls, focusOnGroupMouseOver } = tooltipConfig;
-    const shouldFocus = focusOnGroupMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const { tooltip: tooltipConfig } = mochartConfig;
+    const { showControls, focusOnCategoryMouseOver } = tooltipConfig;
+    const shouldFocus = focusOnCategoryMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
-      onFocus({ groupIndex: tooltipGroupIndex });
+      onFocus({ categoryIndex: tooltipCategoryIndex });
     }
   }
 
-  onGroupMouseLeave = (_event: Event) => {
+  onCategoryMouseLeave = (_event: Event) => {
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
-    const { tooltipConfig } = mochartConfig;
-    const { showControls, focusOnGroupMouseOver } = tooltipConfig;
-    const shouldFocus = focusOnGroupMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const { tooltip: tooltipConfig } = mochartConfig;
+    const { showControls, focusOnCategoryMouseOver } = tooltipConfig;
+    const shouldFocus = focusOnCategoryMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
-      onFocus({ groupIndex: null });
+      onFocus({ categoryIndex: null });
     }
   }
 
-  onGroupClick = (event: Event) => {
-    const { mochartConfig, tooltipGroupIndex, focusedGroupIndex, onFocus } = this.props;
+  onCategoryClick = (event: Event) => {
+    const { mochartConfig, tooltipCategoryIndex, focusedCategoryIndex, onFocus } = this.props;
     const { mode } = this.state;
-    const { tooltipConfig } = mochartConfig;
-    const { showControls, focusOnGroupClick } = tooltipConfig;
-    const shouldFocus = showControls ? mode === MODE_FOCUS : focusOnGroupClick;
+    const { tooltip: tooltipConfig } = mochartConfig;
+    const { showControls, focusOnCategoryClick } = tooltipConfig;
+    const shouldFocus = showControls ? mode === MODE_FOCUS : focusOnCategoryClick;
     if (shouldFocus) {
       event.stopPropagation();
-      onFocus({ groupIndex: focusedGroupIndex === tooltipGroupIndex ? -1 : tooltipGroupIndex });
+      onFocus({ categoryIndex: focusedCategoryIndex === tooltipCategoryIndex ? -1 : tooltipCategoryIndex });
     }
   }
 
   onSeriesMouseEnter = (_event: Event, seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
-    const { tooltipConfig } = mochartConfig;
+    const { tooltip: tooltipConfig } = mochartConfig;
     const { showControls, focusOnSeriesMouseOver } = tooltipConfig;
     const shouldFocus = focusOnSeriesMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
@@ -260,7 +261,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   onSeriesMouseLeave = (_event: Event) => {
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
-    const { tooltipConfig } = mochartConfig;
+    const { tooltip: tooltipConfig } = mochartConfig;
     const { showControls, focusOnSeriesMouseOver } = tooltipConfig;
     const shouldFocus = focusOnSeriesMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
@@ -271,7 +272,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   onSeriesClick = (event: Event, seriesId: string) => {
     const { mode } = this.state;
     const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
-    const { tooltipConfig } = mochartConfig;
+    const { tooltip: tooltipConfig } = mochartConfig;
     const { showControls, focusOnSeriesClick, filterOnSeriesClick } = tooltipConfig;
     const shouldFocus = showControls ? mode === MODE_FOCUS : focusOnSeriesClick;
     const shouldFilter = showControls ? mode === MODE_FILTER : filterOnSeriesClick;
@@ -293,7 +294,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
   onClick = (event: Event) => {
     const { mochartConfig, onClose } = this.props;
-    const { tooltipConfig } = mochartConfig;
+    const { tooltip: tooltipConfig } = mochartConfig;
     if (tooltipConfig.closeOnClick) {
       event.preventDefault();
       onClose();
@@ -309,11 +310,11 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   }
 
   sync() {
-    const { mochartConfig, tooltipValueObject, groupCount, focusedGroupIndex, focusedSeriesId, visible, tooltipGroupIndex, updateTooltipGroupIndex,
-      minWidth = null, adjustForFiltering = true, svgUniqueId, onFocus, seriesAxisFocusPercentages, seriesFocusPercentages } = this.props;
+    const { mochartConfig, tooltipValueObject, categoryCount, focusedCategoryIndex, focusedSeriesId, visible, tooltipCategoryIndex, updateTooltipCategoryIndex,
+      minWidth = null, adjustForFiltering = true, svgUniqueId, onFocus, valueAxisFocusPercentages, seriesFocusPercentages } = this.props;
     const { mode } = this.state;
 
-    const { chartConfig, pieConfig, tooltipConfig, groupAxisConfig, seriesAxisConfigs, seriesConfigs, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
+    const { chart: chartConfig, pie: pieConfig, tooltip: tooltipConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, series: seriesConfigs, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
 
     const { group, series } = tooltipValueObject;
     const { raw, filtered, filteredFlags } = series;
@@ -338,8 +339,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     this.root.set({ className: mochartCssClasses['tooltipContent'], onClick: this.onClick });
     this.controlsContainer.set({ className: mochartCssClasses['tooltipControls'] });
-    this.controls.set(TooltipControls, { mochartConfig, groupCount, updateTooltipGroupIndex,
-      tooltipGroupIndex, focusedGroupIndex,
+    this.controls.set(TooltipControls, { mochartConfig, categoryCount, updateTooltipCategoryIndex,
+      tooltipCategoryIndex, focusedCategoryIndex,
       onFocus, mode, toggleMode: this.toggleMode, minWidth });
     this.linesContainer.set({ className: mochartCssClasses['tooltipLines'], style: { clear: 'both' } });
 
@@ -351,21 +352,21 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const tooltipLines: RendererItem[] = [];
 
     // pie charts render a single group, so its value is chart-level noise in the tooltip
-    if (tooltipConfig.showGroup) {
-      const groupText = group.values.parsed;
-      const groupFormat = getGroupFormat(groupAxisConfig);
-      const groupLabel = groupAxisConfig.valueLabel !== NONE ? groupAxisConfig.valueLabel + ": " : "";
+    if (tooltipConfig.showCategory) {
+      const categoryText = group.values.parsed;
+      const categoryFormat = getCategoryFormat(categoryAxisConfig);
+      const categoryLabel = categoryAxisConfig.valueLabel !== NONE ? categoryAxisConfig.valueLabel + ": " : "";
       tooltipLines.push({
         key: 'group',
-        ctor: TooltipGroupLine,
-        props: { lineStyle, groupLabel, groupText: groupFormat(groupText!),
-          onMouseEnter: (event: Event) => this.onGroupMouseEnter(event),
-          onMouseLeave: (event: Event) => this.onGroupMouseLeave(event),
-          onClick: (event: Event) => this.onGroupClick(event) }
+        ctor: TooltipCategoryLine,
+        props: { lineStyle, categoryLabel, categoryText: categoryFormat(categoryText!),
+          onMouseEnter: (event: Event) => this.onCategoryMouseEnter(event),
+          onMouseLeave: (event: Event) => this.onCategoryMouseLeave(event),
+          onClick: (event: Event) => this.onCategoryClick(event) }
       });
     }
 
-    const valueFormats = getSeriesFormats(seriesConfigs, seriesAxisConfigs, axisDomains);
+    const valueFormats = getSeriesFormats(seriesConfigs, valueAxisConfigs, axisDomains);
     let lastSeriesLineIndex = -1;
     for (const seriesConfig of seriesConfigs) {
       if (!seriesConfig.showInTooltip) {
@@ -379,7 +380,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       const seriesIsFiltered = filteredFlags[seriesId];
       const seriesIsFocused = focusSeriesId === focusedSeriesId;
       const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
-      const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
+      const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
       if (!adjustForFiltering || !(seriesIsFiltered && tooltipConfig.hideFiltered)) {
         const valueFormat = valueFormats[seriesId];
         const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {

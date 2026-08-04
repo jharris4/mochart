@@ -104,7 +104,7 @@ export function applyDataEdit(text: string, fullData: DataRow[], viewUsedPropert
   let error: string | null = null;
   const { mochartConfig } = buildMochartDemoConfig(config);
   if (mochartConfig.validation.valid) {
-    const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.groupAxisConfig.property ?? '') as unknown as DataProvider);
+    const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.categoryAxis.property ?? '') as unknown as DataProvider);
     if (dataErrors.length > 0) {
       console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
       error = 'Invalid Data Content';
@@ -125,19 +125,19 @@ export function applyDataEdit(text: string, fullData: DataRow[], viewUsedPropert
  * display value when the axis has a displayProperty (that is what the chart
  * shows), otherwise its raw group value. Empty when no group is selected.
  */
-export function getGroupIndexTitle({ mochartConfig }: MochartDemoConfig, rows: DataRow[], groupIndex: number): string {
-  const row = groupIndex >= 0 ? rows[groupIndex] : undefined;
+export function getCategoryIndexTitle({ mochartConfig }: MochartDemoConfig, rows: DataRow[], categoryIndex: number): string {
+  const row = categoryIndex >= 0 ? rows[categoryIndex] : undefined;
   if (row === undefined) {
     return '';
   }
-  const { groupAxisConfig } = mochartConfig;
-  const property = groupAxisConfig.displayProperty ?? groupAxisConfig.property;
+  const { categoryAxis: categoryAxisConfig } = mochartConfig;
+  const property = categoryAxisConfig.displayProperty ?? categoryAxisConfig.property;
   const value = property === null || property === undefined ? undefined : row[property];
   return value === undefined || value === null ? '' : String(value);
 }
 
 /** The native tooltip for the series index stepper label: the series title. */
 export function getSeriesIndexTitle({ mochartConfig }: MochartDemoConfig, seriesIndex: number): string {
-  const seriesConfig = mochartConfig.seriesConfigs[seriesIndex];
+  const seriesConfig = mochartConfig.series[seriesIndex];
   return seriesConfig === undefined ? '' : (seriesConfig.title ?? seriesConfig.id);
 }

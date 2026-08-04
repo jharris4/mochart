@@ -2,15 +2,15 @@ import validators from '@mochart/movalid';
 import { isDataProviderValid } from './ChartData';
 import { NONE, TYPE_DATE, TYPE_NUMBER } from '../config/core/constants';
 import type { MochartConfig } from '../types/config';
-import type { DataProvider, GroupValue } from '../types/data';
+import type { DataProvider, CategoryValue } from '../types/data';
 
-function getDuplicates(values: readonly GroupValue[]): GroupValue[] {
+function getDuplicates(values: readonly CategoryValue[]): CategoryValue[] {
   const valueMap: Record<string, number> = {};
   for (const value of values) {
     const key = String(value);
     valueMap[key] = (valueMap[key] ?? 0) + 1;
   }
-  const duplicates: GroupValue[] = [];
+  const duplicates: CategoryValue[] = [];
   for (const value of values) {
     const key = String(value);
     if (valueMap[key] > 1) {
@@ -21,9 +21,9 @@ function getDuplicates(values: readonly GroupValue[]): GroupValue[] {
   return duplicates;
 }
 
-function checkProperty(dataErrors: string[], dataProvider: DataProvider, groupValues: readonly GroupValue[], property: string): void {
+function checkProperty(dataErrors: string[], dataProvider: DataProvider, categoryValues: readonly CategoryValue[], property: string): void {
   const numberValidator = validators.number().orEqual(undefined);
-  if (groupValues.some((g, i) => !numberValidator(dataProvider.getSeriesValue(g, i, property)))) {
+  if (categoryValues.some((g, i) => !numberValidator(dataProvider.getSeriesValue(g, i, property)))) {
     dataErrors.push('series values must be numeric or undefined for property: ' + property);
   }
 }
@@ -31,63 +31,63 @@ function checkProperty(dataErrors: string[], dataProvider: DataProvider, groupVa
 export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataProvider | null | undefined): string[] {
   const dataErrors: string[] = [];
   if (mochartConfig.validation.valid && dataProvider != null && isDataProviderValid(dataProvider)) {
-    const { groupAxisConfig, seriesConfigs } = mochartConfig;
+    const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochartConfig;
 
-    const groupValues = dataProvider.getGroupValues();
+    const categoryValues = dataProvider.getCategoryValues();
     const numberValidator = validators.number();
     const stringValidator = validators.string();
-    let getGroupValue: (index: number) => unknown;
-    if (groupAxisConfig.displayProperty !== NONE) {
-      if (groupValues.some(g => !(stringValidator(g) || numberValidator(g)))) {
+    let getCategoryValue: (index: number) => unknown;
+    if (categoryAxisConfig.displayProperty !== NONE) {
+      if (categoryValues.some(g => !(stringValidator(g) || numberValidator(g)))) {
         dataErrors.push('raw group values must be number or string when display property is set');
       }
-      const displayProperty = groupAxisConfig.displayProperty;
-      getGroupValue = i => dataProvider.getSeriesValue(groupValues[i], i, displayProperty);
+      const displayProperty = categoryAxisConfig.displayProperty;
+      getCategoryValue = i => dataProvider.getSeriesValue(categoryValues[i], i, displayProperty);
     }
     else {
-      getGroupValue = i => groupValues[i];
+      getCategoryValue = i => categoryValues[i];
     }
     let validator;
-    if (groupAxisConfig.type === TYPE_DATE) {
+    if (categoryAxisConfig.type === TYPE_DATE) {
       validator = validators.dateAny();
     }
-    else if (groupAxisConfig.type === TYPE_NUMBER) {
+    else if (categoryAxisConfig.type === TYPE_NUMBER) {
       validator = validators.number();
     }
     else {
       validator = validators.string();
     }
-    if(groupValues.some((_g, i) => !validator(getGroupValue(i)))) {
-      dataErrors.push((groupAxisConfig.displayProperty !== NONE ? 'display ' : '') + 'group values must all match the specified type');
+    if(categoryValues.some((_g, i) => !validator(getCategoryValue(i)))) {
+      dataErrors.push((categoryAxisConfig.displayProperty !== NONE ? 'display ' : '') + 'group values must all match the specified type');
     }
     if (dataErrors.length === 0) { // duplicate matching needs all the values to be primitives...
-      const duplicates = getDuplicates(groupValues);
+      const duplicates = getDuplicates(categoryValues);
       if (duplicates.length > 0) {
         dataErrors.push('group values must be unique, duplicates: ' + duplicates.join(', '));
       }
     }
     for (const seriesConfig of seriesConfigs) {
-      checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.property!);
+      checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.property!);
       if (seriesConfig.rangeProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.rangeProperty);
+        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.rangeProperty);
       }
       if (seriesConfig.errorLowProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.errorLowProperty);
+        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.errorLowProperty);
       }
       if (seriesConfig.errorHighProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.errorHighProperty);
+        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.errorHighProperty);
       }
       if (seriesConfig.markerProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.markerProperty);
+        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.markerProperty);
       }
       if (seriesConfig.colorProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.colorProperty);
+        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.colorProperty);
       }
       if (seriesConfig.labelProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.labelProperty);
+        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.labelProperty);
       }
       if (seriesConfig.tooltipProperty !== NONE) {
-        checkProperty(dataErrors, dataProvider, groupValues, seriesConfig.tooltipProperty);
+        checkProperty(dataErrors, dataProvider, categoryValues, seriesConfig.tooltipProperty);
       }
     }
   }

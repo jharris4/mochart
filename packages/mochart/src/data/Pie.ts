@@ -1,5 +1,5 @@
 import type { PieTooltipLabelType } from '../config/core/constants';
-import type { ChartConfig, DeepPartial, GroupAxisConfig, PieConfig, SeriesConfig } from '../types/config';
+import type { ChartConfig, DeepPartial, CategoryAxisConfig, PieConfig, SeriesConfig } from '../types/config';
 
 export interface PieItem {
   /** The slice title, e.g. shown in the legend and tooltip. */
@@ -16,12 +16,12 @@ export interface CreatePieOptions {
    *
    * @default 'all'
    */
-  groupValue?: string;
+  categoryValue?: string;
   /**
    * What the tooltip shows for each slice: the slice value, its percentage of
    * the total, or both. Percentages are computed by the chart from the current
    * slice shares — like the slice labels, they renormalize as slices are
-   * filtered — so this is forwarded as `pieConfig.tooltipValues` rather than
+   * filtered — so this is forwarded as `pie.tooltipValues` rather than
    * baked into the data.
    *
    * @default 'value'
@@ -30,13 +30,13 @@ export interface CreatePieOptions {
   /** A d3 format specifier forwarded to each slice's series config. */
   valueFormat?: string;
   /**
-   * Shorthand for a donut chart: emits a `pieConfig` fragment with
+   * Shorthand for a donut chart: emits a `pie` fragment with
    * `innerRadiusFraction` 0.6 (override via `innerRadiusFraction`).
    *
    * @default false
    */
   donut?: boolean;
-  /** An explicit inner radius fraction (0 - 1) for the `pieConfig` fragment. */
+  /** An explicit inner radius fraction (0 - 1) for the `pie` fragment. */
   innerRadiusFraction?: number;
 }
 
@@ -47,18 +47,18 @@ export interface PieData {
   fractions: number[];
   /** A single row: the group value plus `slice{i}` per item. */
   data: Record<string, number | string>[];
-  /** Fragment to spread into the chart config's `chartConfig` (sets type: 'pie'). */
-  chartConfig: Partial<ChartConfig>;
-  /** Fragment to spread into the chart config's `pieConfig`. */
-  pieConfig: Partial<PieConfig>;
-  /** Fragment to spread into the chart config's `groupAxisConfig`. */
-  groupAxisConfig: Partial<GroupAxisConfig>;
-  /** Fragments to spread into the chart config's `seriesConfigs`, one per slice. */
-  seriesConfigs: DeepPartial<SeriesConfig>[];
+  /** Fragment to spread into the chart config's `chart` (sets type: 'pie'). */
+  chart: Partial<ChartConfig>;
+  /** Fragment to spread into the chart config's `pie`. */
+  pie: Partial<PieConfig>;
+  /** Fragment to spread into the chart config's `categoryAxis`. */
+  categoryAxis: Partial<CategoryAxisConfig>;
+  /** Fragments to spread into the chart config's `series`, one per slice. */
+  series: DeepPartial<SeriesConfig>[];
 }
 
-const GROUP_PROPERTY = 'group';
-const DEFAULT_GROUP_VALUE = 'all';
+const CATEGORY_PROPERTY = 'group';
+const DEFAULT_CATEGORY_VALUE = 'all';
 const DEFAULT_DONUT_INNER_RADIUS_FRACTION = 0.6;
 
 /**
@@ -84,25 +84,25 @@ export function createPie(items: readonly PieItem[], options: CreatePieOptions =
   const { total, fractions } = computePieFractions(items.map((item) => item.value));
 
   const row: Record<string, number | string> = {
-    [GROUP_PROPERTY]: options.groupValue ?? DEFAULT_GROUP_VALUE
+    [CATEGORY_PROPERTY]: options.categoryValue ?? DEFAULT_CATEGORY_VALUE
   };
   items.forEach((item, i) => {
     row['slice' + i] = Number.isFinite(item.value) && item.value > 0 ? item.value : 0;
   });
 
-  const chartConfig: Partial<ChartConfig> = { type: 'pie' };
+  const chart: Partial<ChartConfig> = { type: 'pie' };
 
-  const pieConfig: Partial<PieConfig> = {};
+  const pie: Partial<PieConfig> = {};
   if (options.tooltipValues !== undefined) {
-    pieConfig.tooltipValues = options.tooltipValues;
+    pie.tooltipValues = options.tooltipValues;
   }
   const innerRadiusFraction = options.innerRadiusFraction ?? (options.donut === true ? DEFAULT_DONUT_INNER_RADIUS_FRACTION : undefined);
   if (innerRadiusFraction !== undefined) {
-    pieConfig.innerRadiusFraction = innerRadiusFraction;
+    pie.innerRadiusFraction = innerRadiusFraction;
   }
 
-  const groupAxisConfig: Partial<GroupAxisConfig> = {
-    property: GROUP_PROPERTY,
+  const categoryAxis: Partial<CategoryAxisConfig> = {
+    property: CATEGORY_PROPERTY,
     type: 'string',
     scale: 'ordinal'
   };
@@ -122,5 +122,5 @@ export function createPie(items: readonly PieItem[], options: CreatePieOptions =
     return seriesConfig;
   });
 
-  return { total, fractions, data: [row], chartConfig, pieConfig, groupAxisConfig, seriesConfigs };
+  return { total, fractions, data: [row], chart, pie, categoryAxis, series: seriesConfigs };
 }

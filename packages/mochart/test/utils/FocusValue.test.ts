@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
+import type { EnhancedSeriesConfig } from '../../src/types/enhanced';
 import {
   getFocusValue,
-  getGroupFocusPercentage,
+  getCategoryFocusPercentage,
   getAggregateSeriesFocusPercentage,
   getFocusedDefocused,
   getFocusPercentageColor,
@@ -9,7 +10,7 @@ import {
   getAxisFocusOpacity,
   getAxisFocusStyle
 } from '../../src/utils/FocusValue';
-import type { SeriesConfig } from '../../src/types/config';
+
 
 const NORMAL = 10;
 const FOCUSED = 20;
@@ -34,30 +35,30 @@ describe('getFocusValue', () => {
   });
 });
 
-describe('getGroupFocusPercentage / combined focus', () => {
+describe('getCategoryFocusPercentage / combined focus', () => {
   it('returns null when both are null', () => {
-    expect(getGroupFocusPercentage(null, null)).toBe(null);
+    expect(getCategoryFocusPercentage(null, null)).toBe(null);
   });
 
   it('returns the other side when one is null or 0', () => {
-    expect(getGroupFocusPercentage(null, 0.5)).toBe(0.5);
-    expect(getGroupFocusPercentage(0, 0.5)).toBe(0.5);
-    expect(getGroupFocusPercentage(0.5, null)).toBe(0.5);
-    expect(getGroupFocusPercentage(0.5, 0)).toBe(0.5);
+    expect(getCategoryFocusPercentage(null, 0.5)).toBe(0.5);
+    expect(getCategoryFocusPercentage(0, 0.5)).toBe(0.5);
+    expect(getCategoryFocusPercentage(0.5, null)).toBe(0.5);
+    expect(getCategoryFocusPercentage(0.5, 0)).toBe(0.5);
   });
 
   it('takes the strongest defocus (min) when both are negative', () => {
-    expect(getGroupFocusPercentage(-0.2, -0.8)).toBe(-0.8);
+    expect(getCategoryFocusPercentage(-0.2, -0.8)).toBe(-0.8);
   });
 
   it('takes the strongest focus (max) otherwise', () => {
-    expect(getGroupFocusPercentage(0.2, 0.8)).toBe(0.8);
-    expect(getGroupFocusPercentage(-0.2, 0.8)).toBe(0.8);
+    expect(getCategoryFocusPercentage(0.2, 0.8)).toBe(0.8);
+    expect(getCategoryFocusPercentage(-0.2, 0.8)).toBe(0.8);
   });
 });
 
 describe('getAggregateSeriesFocusPercentage', () => {
-  const cfg = (id: string): SeriesConfig => ({ id } as SeriesConfig);
+  const cfg = (id: string): EnhancedSeriesConfig => ({ id } as EnhancedSeriesConfig);
 
   it('is null when no series has a focus percentage', () => {
     expect(getAggregateSeriesFocusPercentage([cfg('a'), cfg('b')], { a: null, b: null })).toBe(null);

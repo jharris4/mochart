@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Multiple Axes"
+  "title": {
+    "text": "Multiple Axes"
   },
-  "animationConfig": {
+  "animation": {
     "animate": true,
     "expansionDuration": 500,
     "initialDuration": 500,
@@ -11,7 +11,7 @@
     "collapseDuration": 500,
     "focusDuration": 700
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "before": false,
     "title": "Time (in Minutes)",
     "axisLine": true,
@@ -23,77 +23,77 @@
     "valueLabel": "Time",
     "property": "time"
   },
-  "seriesAxisAllConfig": {
+  "valueAxisDefaults": {
     "axisLineMargin": 0,
     "gridLines": false,
     "min": 0
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
       "before": true,
       "tickLabelFormat": "$s",
       "title": "Sales Value",
-      "id": "SA1"
+      "id": "VA1"
     },
     {
       "before": true,
       "tickLabelFormat": "$s",
-      "id": "SA0"
+      "id": "VA0"
     },
     {
       "before": false,
       "gridLines": true,
-      "id": "SA2"
+      "id": "VA2"
     },
     {
       "before": false,
       "title": "Sold Count",
-      "id": "SA3"
+      "id": "VA3"
     }
   ],
-  "seriesAllConfig": {
+  "seriesDefaults": {
     "renderer": "line",
     "markerShape": null
   },
-  "seriesConfigs": [
+  "series": [
     {
       "title": "Sales A",
-      "axis": "SA0",
+      "axis": "VA0",
       "property": "sales_a"
     },
     {
       "title": "Running Sales A",
-      "axis": "SA1",
+      "axis": "VA1",
       "property": "running_sales_a"
     },
     {
       "title": "Sales B",
-      "axis": "SA0",
+      "axis": "VA0",
       "property": "sales_b"
     },
     {
       "title": "Running Sales B",
-      "axis": "SA1",
+      "axis": "VA1",
       "property": "running_sales_b"
     },
     {
       "title": "Count A",
-      "axis": "SA2",
+      "axis": "VA2",
       "property": "count_a"
     },
     {
       "title": "Running Count A",
-      "axis": "SA3",
+      "axis": "VA3",
       "property": "running_count_a"
     },
     {
       "title": "Count B",
-      "axis": "SA2",
+      "axis": "VA2",
       "property": "count_b"
     },
     {
       "title": "Running Count B",
-      "axis": "SA3",
+      "axis": "VA3",
       "property": "running_count_b"
     }
   ]

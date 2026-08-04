@@ -1,4 +1,4 @@
-import type { MochartConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type {
   ArrayFocusDeltaData,
   FocusAnimationData,
@@ -8,17 +8,17 @@ import type {
   MapFocusDeltaData
 } from '../types/animation';
 
-export function getFocusAnimationData(_mochartConfig: MochartConfig, oldFocusData: FocusData, newFocusData: FocusData): FocusAnimationData {
+export function getFocusAnimationData(_mochartConfig: EnhancedMochartConfig, oldFocusData: FocusData, newFocusData: FocusData): FocusAnimationData {
   const startFocusData = oldFocusData;
   const endFocusData = newFocusData;
-  const groupFocusDeltaData = getGroupFocusDeltaData(startFocusData.groupFocusPercentages, endFocusData.groupFocusPercentages);
-  const seriesAxisFocusDeltaData = getSeriesAxisFocusDeltaData(oldFocusData.seriesAxisFocusPercentages, newFocusData.seriesAxisFocusPercentages);
+  const categoryFocusDeltaData = getCategoryFocusDeltaData(startFocusData.categoryFocusPercentages, endFocusData.categoryFocusPercentages);
+  const valueAxisFocusDeltaData = getValueAxisFocusDeltaData(oldFocusData.valueAxisFocusPercentages, newFocusData.valueAxisFocusPercentages);
   const seriesFocusDeltaData = getSeriesFocusDeltaData(oldFocusData.seriesFocusPercentages, newFocusData.seriesFocusPercentages);
   return {
     start: startFocusData,
-    deltaPercentage: Math.max(groupFocusDeltaData.deltaPercentage, seriesAxisFocusDeltaData.deltaPercentage, seriesFocusDeltaData.deltaPercentage),
-    group: groupFocusDeltaData,
-    seriesAxis: seriesAxisFocusDeltaData,
+    deltaPercentage: Math.max(categoryFocusDeltaData.deltaPercentage, valueAxisFocusDeltaData.deltaPercentage, seriesFocusDeltaData.deltaPercentage),
+    group: categoryFocusDeltaData,
+    valueAxis: valueAxisFocusDeltaData,
     series: seriesFocusDeltaData,
     end: endFocusData,
     final: newFocusData
@@ -31,7 +31,7 @@ function getFocusDelta(newFocusPercentage: FocusPercentage, oldFocusPercentage: 
   return newFocusPercentage - oldFocusPercentage;
 }
 
-function getGroupFocusDeltaData(oldFocusPercentages: FocusPercentage[], newFocusPercentages: FocusPercentage[]): ArrayFocusDeltaData {
+function getCategoryFocusDeltaData(oldFocusPercentages: FocusPercentage[], newFocusPercentages: FocusPercentage[]): ArrayFocusDeltaData {
   const focusDeltas: number[] = [];
   let focusDelta, maxDelta = 0;
   const count = oldFocusPercentages.length;
@@ -70,13 +70,13 @@ function getGroupFocusDeltaData(oldFocusPercentages: FocusPercentage[], newFocus
   };
 }
 
-function getSeriesAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFocusPercentages: FocusPercentageMap): MapFocusDeltaData {
+function getValueAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFocusPercentages: FocusPercentageMap): MapFocusDeltaData {
   const focusDeltas: Record<string, number> = {};
   let focusDelta, maxDelta = 0;
-  const seriesAxisIds = Object.keys(oldFocusPercentages);
-  for (const seriesAxisId of seriesAxisIds) {
-    focusDelta = getFocusDelta(newFocusPercentages[seriesAxisId], oldFocusPercentages[seriesAxisId]);
-    focusDeltas[seriesAxisId] = focusDelta;
+  const valueAxisIds = Object.keys(oldFocusPercentages);
+  for (const valueAxisId of valueAxisIds) {
+    focusDelta = getFocusDelta(newFocusPercentages[valueAxisId], oldFocusPercentages[valueAxisId]);
+    focusDeltas[valueAxisId] = focusDelta;
     if (Math.abs(focusDelta) > maxDelta) {
       maxDelta = Math.abs(focusDelta);
     }
@@ -87,15 +87,15 @@ function getSeriesAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, ne
     deltaPercentages = {};
     deltaFactors = {};
     let focusDelta;
-    for (const seriesAxisId of seriesAxisIds) {
-      focusDelta = Math.abs(focusDeltas[seriesAxisId]);
+    for (const valueAxisId of valueAxisIds) {
+      focusDelta = Math.abs(focusDeltas[valueAxisId]);
       if (focusDelta > 0) {
-        deltaPercentages[seriesAxisId] = focusDelta / maxDelta;
-        deltaFactors[seriesAxisId] = maxDelta / focusDelta;
+        deltaPercentages[valueAxisId] = focusDelta / maxDelta;
+        deltaFactors[valueAxisId] = maxDelta / focusDelta;
       }
       else {
-        deltaPercentages[seriesAxisId] = 0;
-        deltaFactors[seriesAxisId] = 0;
+        deltaPercentages[valueAxisId] = 0;
+        deltaFactors[valueAxisId] = 0;
       }
     }
   }

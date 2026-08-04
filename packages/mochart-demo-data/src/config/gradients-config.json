@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Gradients"
+  "title": {
+    "text": "Gradients"
   },
-  "animationConfig": {
+  "animation": {
     "animate": true,
     "expansionDuration": 500,
     "initialDuration": 500,
@@ -11,28 +11,28 @@
     "collapseDuration": 500,
     "focusDuration": 700
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "before": false,
     "axisLine": true,
     "axisLineMargin": 0,
     "type": "number",
     "scale": "ordinal",
-    "valueLabel": "Group",
-    "property": "groupNO"
+    "valueLabel": "Category",
+    "property": "categoryNO"
   },
-  "seriesAxisConfigs": {
+  "valueAxes": {
     "before": true,
     "axisLineMargin": 0,
     "gridLines": true,
     "min": 0
   },
-  "linearGradientAllConfig": {
+  "linearGradientDefaults": {
     "x1": 0,
     "y1": 0,
     "x2": 0,
     "y2": 1
   },
-  "linearGradientConfigs": [
+  "linearGradients": [
     {
       "id": "LG0",
       "stops": [
@@ -65,12 +65,12 @@
       ]
     }
   ],
-  "radialGradientAllConfig": {
+  "radialGradientDefaults": {
     "cx": 0.5,
     "cy": 0.5,
     "r": 0.5
   },
-  "radialGradientConfigs": [
+  "radialGradients": [
     {
       "id": "RG0",
       "fx": 0.5,
@@ -106,10 +106,10 @@
       ]
     }
   ],
-  "seriesAllConfig": {
+  "seriesDefaults": {
     "markerShape": null
   },
-  "seriesConfigs": [
+  "series": [
     {
       "renderer": "area",
       "title": "Linear Gradient",

@@ -65,22 +65,22 @@ const docsExamples: { config: object; page: UsageLink }[] = [
 ];
 
 const objectSectionIds = new Set([
-  'animationConfig', 'chartConfig', 'colorPaletteConfig', 'crosshairConfig',
-  'groupAxisConfig', 'legendConfig', 'pieConfig', 'plotConfig', 'titleConfig', 'tooltipConfig'
+  'animation', 'chart', 'colorPalette', 'crosshair',
+  'categoryAxis', 'legend', 'pie', 'plot', 'title', 'tooltip'
 ]);
 
 const listSectionIds = new Set([
-  'linearGradientConfigs', 'radialGradientConfigs', 'seriesAxisConfigs',
-  'seriesConfigs', 'seriesGroupConfigs', 'seriesStackConfigs'
+  'linearGradients', 'radialGradients', 'valueAxes',
+  'series', 'seriesGroups', 'seriesStacks'
 ]);
 
 const allKeySectionMap: Record<string, string> = {
-  linearGradientAllConfig: 'linearGradientConfigs',
-  radialGradientAllConfig: 'radialGradientConfigs',
-  seriesAxisAllConfig: 'seriesAxisConfigs',
-  seriesAllConfig: 'seriesConfigs',
-  seriesGroupAllConfig: 'seriesGroupConfigs',
-  seriesStackAllConfig: 'seriesStackConfigs'
+  linearGradientAllConfig: 'linearGradients',
+  radialGradientAllConfig: 'radialGradients',
+  valueAxisDefaults: 'valueAxes',
+  seriesDefaults: 'series',
+  seriesGroupAllConfig: 'seriesGroups',
+  seriesStackAllConfig: 'seriesStacks'
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {

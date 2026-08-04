@@ -54,7 +54,7 @@ export const demoText = {
     // Rendered via `.demo-menu-section-label`, which uppercases it.
     menuSectionLabel: 'Mode',
     modes: {
-      single: { label: 'Single', title: 'One chart with editable config, data, groups and series' },
+      single: { label: 'Single', title: 'One chart with editable config, data, categories and series' },
       multi: { label: 'Multi', title: 'A grid of charts stepping through datasets together' },
       random: { label: 'Random', title: 'A chart fed by a seeded random data generator' }
     }
@@ -129,16 +129,16 @@ export const demoText = {
     aria: 'Copy Share Link'
   },
   editableChart: {
-    emptyGroupText: 'Select Group(s)',
-    selectAGroupText: 'Select a Group',
-    groupIndexPrefix: 'Group: ',
+    emptyCategoryText: 'Select Category(s)',
+    selectACategoryText: 'Select a Category',
+    categoryIndexPrefix: 'Category: ',
     seriesIndexPrefix: 'Series: ',
     // Phone-tier stand-ins for the two prefixes above. The full prefixes are
     // sr-only clipped there (the strip cannot spare their width), but a bare
     // `-1` between two arrows names nothing visually either — so a one-letter,
     // aria-hidden prefix carries the meaning for sighted users while the
     // clipped full text keeps carrying the accessible name.
-    groupIndexPrefixCompact: 'G',
+    categoryIndexPrefixCompact: 'G',
     seriesIndexPrefixCompact: 'S',
     secondChart: {
       label: '2nd Chart',
@@ -148,21 +148,21 @@ export const demoText = {
     },
     editMode: {
       labelToSeries: 'Edit Series',
-      labelToGroups: 'Edit Groups',
-      tooltipToSeries: 'Switch to editing one group at a time (step groups/series, change values)',
-      tooltipToGroups: 'Switch to editing the set of groups (add, remove, reorder)',
+      labelToCategories: 'Edit Categories',
+      tooltipToSeries: 'Switch to editing one category at a time (step categories/series, change values)',
+      tooltipToCategories: 'Switch to editing the set of categories (add, remove, reorder)',
       aria: 'Toggle Mode'
     },
-    resetGroups: { label: 'Reset', tooltip: 'Restore the original group set and order', aria: 'Reset Groups' },
-    reverseGroups: { label: 'Reverse', tooltip: 'Reverse the order of the groups', aria: 'Reverse Groups' },
-    addGroups: { label: 'Add', tooltip: 'Add the groups selected in the input to the chart', aria: 'Add Selected Groups' },
-    removeGroups: { label: 'Remove', tooltip: 'Remove the groups selected in the input from the chart', aria: 'Remove Selected Groups' },
-    playAddGroups: { menuLabel: 'Play Add', tooltip: 'Animate adding the selected groups one at a time', aria: 'Play Add Selected Groups' },
-    playRemoveGroups: { menuLabel: 'Play Remove', tooltip: 'Animate removing the selected groups one at a time', aria: 'Play Remove Selected Groups' },
-    stopSequence: { menuLabel: 'Stop', tooltip: 'Stop the add/remove animation', aria: 'Stop Selected Group Sequence' },
-    selectAllGroups: { label: 'Select All', tooltip: 'Put every group into the selection input', aria: 'Select All Groups' },
-    decreaseGroupOrder: { tooltip: 'Move the focused group one position earlier', aria: 'Decrease Group Order' },
-    increaseGroupOrder: { tooltip: 'Move the focused group one position later', aria: 'Increase Group Order' },
+    resetCategories: { label: 'Reset', tooltip: 'Restore the original category set and order', aria: 'Reset Categories' },
+    reverseCategories: { label: 'Reverse', tooltip: 'Reverse the order of the categories', aria: 'Reverse Categories' },
+    addCategories: { label: 'Add', tooltip: 'Add the categories selected in the input to the chart', aria: 'Add Selected Categories' },
+    removeCategories: { label: 'Remove', tooltip: 'Remove the categories selected in the input from the chart', aria: 'Remove Selected Categories' },
+    playAddCategories: { menuLabel: 'Play Add', tooltip: 'Animate adding the selected categories one at a time', aria: 'Play Add Selected Categories' },
+    playRemoveCategories: { menuLabel: 'Play Remove', tooltip: 'Animate removing the selected categories one at a time', aria: 'Play Remove Selected Categories' },
+    stopSequence: { menuLabel: 'Stop', tooltip: 'Stop the add/remove animation', aria: 'Stop Selected Category Sequence' },
+    selectAllCategories: { label: 'Select All', tooltip: 'Put every category into the selection input', aria: 'Select All Categories' },
+    decreaseCategoryOrder: { tooltip: 'Move the focused category one position earlier', aria: 'Decrease Category Order' },
+    increaseCategoryOrder: { tooltip: 'Move the focused category one position later', aria: 'Increase Category Order' },
     previousSeries: { tooltip: 'Edit the previous series', aria: 'Previous Series' },
     nextSeries: { tooltip: 'Edit the next series', aria: 'Next Series' },
     resetSeries: { label: 'Reset', tooltip: "Discard the edits to this series' values", aria: 'Reset Series Changes' },

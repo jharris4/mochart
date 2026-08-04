@@ -54,9 +54,9 @@ describe('skipMissing bar series with a colorProperty', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
-      groupAxisConfig: { property: 'label', type: 'string', scale: 'ordinal' },
-      seriesAxisConfigs: [{ id: 'sa' }],
-      seriesConfigs: [{
+      categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
+      valueAxes: [{ id: 'sa' }],
+      series: [{
         axis: 'sa', property: 'value', renderer: 'bar', skipMissing: true,
         colorProperty: 'heat',
         colorScale: { interpolation: 'rgb', min: '#000000', max: '#ffffff' }

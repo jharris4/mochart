@@ -5,12 +5,12 @@ export type * from './chart';
 export type {
   FocusPercentage, FocusPercentageMap, FocusData, ArrayFocusDeltaData,
   MapFocusDeltaData, FocusAnimationData, NumericDomain, DateDomain, AxisDomain,
-  AnimationGroupData, AnimationSeriesDataSet, AnimationSeriesData,
+  AnimationCategoryData, AnimationSeriesDataSet, AnimationSeriesData,
   AnimationChartData, DomainDelta, DomainDeltaMap, SeriesDomainDelta,
   SeriesDomainDeltaMap, NumericValuesDelta, SeriesValueDelta,
   SeriesValueDeltaMap, NumericArrayDelta, CompleteNumericArrayDelta,
   AxisDeltaData, EmptyAxisDeltaData, AxisTransitionData, ValueChangeData,
-  ChartAnimationData, GroupMergedValuesData, GroupMergedIndicesData,
-  OuterChangeCounts, GroupDeltaData
+  ChartAnimationData, CategoryMergedValuesData, CategoryMergedIndicesData,
+  OuterChangeCounts, CategoryDeltaData
 } from './animation';
 export type * from './layout';

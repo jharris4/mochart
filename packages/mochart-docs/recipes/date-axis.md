@@ -1,8 +1,8 @@
 # Date axis
 
-Time-series data uses a group axis with
-[`type: 'date'`](/reference/groupAxisConfig#groupAxisConfig.type). Combined
-with [`scale: 'linear'`](/reference/groupAxisConfig#groupAxisConfig.scale),
+Time-series data uses a category axis with
+[`type: 'date'`](/reference/categoryAxis#categoryAxis.type). Combined
+with [`scale: 'linear'`](/reference/categoryAxis#categoryAxis.scale),
 each point is positioned by its actual date — note the uneven horizontal
 spacing below matching the gaps in the data.
 
@@ -17,12 +17,12 @@ import * as dateAxis from '../examples/dateAxis'
 ## How it works
 
 - Date values in the data can be ISO strings (as here) or `Date` objects;
-  [`dateUTC`](/reference/groupAxisConfig#groupAxisConfig.dateUTC) controls
+  [`dateUTC`](/reference/categoryAxis#categoryAxis.dateUTC) controls
   whether they're interpreted as UTC or local time.
-- [`tickLabelFormat`](/reference/groupAxisConfig#groupAxisConfig.tickLabelFormat)
+- [`tickLabelFormat`](/reference/categoryAxis#categoryAxis.tickLabelFormat)
   takes a d3 time-format string for date axes (`'%b %d'` → "Jun 01").
 - With `scale: 'ordinal'` instead, dates are spaced evenly in data order —
   useful when the gaps are noise (e.g. trading days).
 - The `area` renderer fills to the series axis base; swap in `line` or `bar`
   per series via
-  [`renderer`](/reference/seriesConfigs#seriesConfigs.renderer).
+  [`renderer`](/reference/series#series.renderer).

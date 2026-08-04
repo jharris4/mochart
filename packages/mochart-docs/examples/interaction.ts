@@ -2,15 +2,15 @@ import type { MochartInputConfig } from '@mochart/core';
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Store Traffic' },
-  groupAxisConfig: { property: 'day', type: 'string', scale: 'ordinal' },
-  seriesAllConfig: { renderer: 'bar' },
-  seriesConfigs: [
+  title: { text: 'Store Traffic' },
+  categoryAxis: { property: 'day', type: 'string', scale: 'ordinal' },
+  seriesDefaults: { renderer: 'bar' },
+  series: [
     { property: 'inStore', title: 'In store' },
     { property: 'online', title: 'Online' },
     { property: 'pickup', title: 'Pickup' }
   ],
-  legendConfig: {
+  legend: {
     filterOnClick: true,
     focusOnMouseOver: true
   }

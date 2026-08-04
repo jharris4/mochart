@@ -14,15 +14,15 @@ export const mochartCssClasses = {
       plotBackground: 'mochart-plot-background',
       plotBack: 'mochart-plot-back',
         axisGridContainer: 'mochart-axis-grid-container',
-          groupAxisGrid: 'mochart-group-axis-grid',
-          seriesAxisGrid: 'mochart-series-axis-grid mochart-series-axis-grid-',
+          categoryAxisGrid: 'mochart-category-axis-grid',
+          valueAxisGrid: 'mochart-value-axis-grid mochart-value-axis-grid-',
             axisGridLine: 'mochart-axis-grid-line mochart-axis-grid-line-',
         axisBaseContainer: 'mochart-axis-base-container',
-          seriesAxisBaseLine: 'mochart-series-axis-base-line mochart-series-axis-base-line-',
+          valueAxisBaseLine: 'mochart-value-axis-base-line mochart-value-axis-base-line-',
             axisBaseLine: 'mochart-axis-base-line',
         axisContainer: 'mochart-axis-container',
-          groupAxis: 'mochart-group-axis',
-          seriesAxis: 'mochart-series-axis mochart-series-axis-',
+          categoryAxis: 'mochart-category-axis',
+          valueAxis: 'mochart-value-axis mochart-value-axis-',
             axisBackground: 'mochart-axis-background',
             axisLine: 'mochart-axis-line',
             axisTitle: 'mochart-axis-title',
@@ -37,8 +37,8 @@ export const mochartCssClasses = {
             axisFocusTickMarks: 'mochart-axis-focus-tick-marks',
               axisFocusTickMark: 'mochart-axis-focus-tick-mark mochart-axis-focus-tick-mark-',
         axisThresholdContainer: 'mochart-axis-threshold-container',
-          groupAxisThreshold: 'mochart-group-axis-threshold',
-          seriesAxisThreshold: 'mochart-series-axis-threshold mochart-series-axis-threshold-',
+          categoryAxisThreshold: 'mochart-category-axis-threshold',
+          valueAxisThreshold: 'mochart-value-axis-threshold mochart-value-axis-threshold-',
             axisThreshold: 'mochart-axis-threshold',
             axisThresholdMin: 'mochart-axis-threshold-min',
             axisThresholdMax: 'mochart-axis-threshold-max',
@@ -63,7 +63,7 @@ export const mochartCssClasses = {
         pieCenterLabel: 'mochart-pie-center-label',
         pieCenterTotal: 'mochart-pie-center-total',
     crosshair: 'mochart-crosshair',
-      crosshairGroupLines: 'crosshair-group-lines',
+      crosshairCategoryLines: 'crosshair-category-lines',
       crosshairSeriesLines: 'crosshair-series-lines',
         crosshairLine: 'crosshair-line',
     legendContainer: 'mochart-legend-container',
@@ -79,7 +79,7 @@ export const mochartCssClasses = {
       tooltipContent: 'mochart-tooltip-content',
         tooltipControls: 'mochart-tooltip-controls',
         tooltipLines: 'mochart-tooltip-lines',
-          tooltipGroupLine: 'mochart-tooltip-group-line',
+          tooltipCategoryLine: 'mochart-tooltip-category-line',
           tooltipSeriesLine: 'mochart-tooltip-series-line mochart-tooltip-series-line-',
             tooltipLineIcon: 'mochart-tooltip-line-icon',
             tooltipLineText: 'mochart-tooltip-line-text',
@@ -108,32 +108,32 @@ function getTitleSuffixCssSelector() {
   return '.' + mochartCssClasses['titleSuffix'];
 }
 
-function getGroupAxisTickLabelsCssSelector() {
-  return '.' + [mochartCssClasses['groupAxis'], mochartCssClasses['axisTickLabels'], mochartCssClasses['axisTickLabel'].split(' ')[0]].join(' .') + ' text';
+function getCategoryAxisTickLabelsCssSelector() {
+  return '.' + [mochartCssClasses['categoryAxis'], mochartCssClasses['axisTickLabels'], mochartCssClasses['axisTickLabel'].split(' ')[0]].join(' .') + ' text';
 }
 
-function getGroupAxisSizeTickLabelCssSelector() {
-  return '.' + [mochartCssClasses['groupAxis'], mochartCssClasses['axisSizeTickLabel']].join(' .') + ' text';
+function getCategoryAxisSizeTickLabelCssSelector() {
+  return '.' + [mochartCssClasses['categoryAxis'], mochartCssClasses['axisSizeTickLabel']].join(' .') + ' text';
 }
 
-function getGroupAxisTitleCssSelector() {
-  return '.' + [mochartCssClasses['groupAxis'], mochartCssClasses['axisTitle']].join(' .') + ' text';
+function getCategoryAxisTitleCssSelector() {
+  return '.' + [mochartCssClasses['categoryAxis'], mochartCssClasses['axisTitle']].join(' .') + ' text';
 }
 
-function getGroupAxisThresholdTitleCssSelector() {
-  return '.' + [mochartCssClasses['groupAxisThreshold'], mochartCssClasses['axisThreshold']].join(' .') + ' text';
+function getCategoryAxisThresholdTitleCssSelector() {
+  return '.' + [mochartCssClasses['categoryAxisThreshold'], mochartCssClasses['axisThreshold']].join(' .') + ' text';
 }
 
-function getSeriesAxisTickLabelsCssSelectorForId(axisId: string) {
-  return '.' + [mochartCssClasses['seriesAxis'].split(' ')[1] + axisId, mochartCssClasses['axisTickLabels']].join(' .') + ' text';
+function getValueAxisTickLabelsCssSelectorForId(axisId: string) {
+  return '.' + [mochartCssClasses['valueAxis'].split(' ')[1] + axisId, mochartCssClasses['axisTickLabels']].join(' .') + ' text';
 }
 
-function getSeriesAxisTitleCssSelectorForId(axisId: string) {
-  return '.' + [mochartCssClasses['seriesAxis'].split(' ')[1] + axisId, mochartCssClasses['axisTitle']].join(' .') + ' text';
+function getValueAxisTitleCssSelectorForId(axisId: string) {
+  return '.' + [mochartCssClasses['valueAxis'].split(' ')[1] + axisId, mochartCssClasses['axisTitle']].join(' .') + ' text';
 }
 
-function getSeriesAxisThresholdTitleCssSelectorForId(axisId: string) {
-  return '.' + [mochartCssClasses['seriesAxisThreshold'].split(' ')[1] + axisId, mochartCssClasses['axisThreshold']].join(' .') + ' text';
+function getValueAxisThresholdTitleCssSelectorForId(axisId: string) {
+  return '.' + [mochartCssClasses['valueAxisThreshold'].split(' ')[1] + axisId, mochartCssClasses['axisThreshold']].join(' .') + ' text';
 }
 
 function getLegendCssSelector() {
@@ -158,13 +158,13 @@ export function getDomAccessors(chartElement: Element): ChartDomAccessors {
     getTitleTextRawDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitleTextRawCssSelector()),
     getTitlePrefixDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitlePrefixCssSelector()),
     getTitleSuffixDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getTitleSuffixCssSelector()),
-    getGroupAxisTicksDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getGroupAxisTickLabelsCssSelector()),
-    getGroupAxisSizeTickDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getGroupAxisSizeTickLabelCssSelector()),
-    getGroupAxisTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getGroupAxisTitleCssSelector()),
-    getGroupAxisThresholdTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getGroupAxisThresholdTitleCssSelector()),
-    getSeriesAxisTicksDomElementsForId: (axisId: string) => chartElement.querySelectorAll<SVGGraphicsElement>(getSeriesAxisTickLabelsCssSelectorForId(axisId)),
-    getSeriesAxisTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getSeriesAxisTitleCssSelectorForId(axisId)),
-    getSeriesAxisThresholdTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getSeriesAxisThresholdTitleCssSelectorForId(axisId)),
+    getCategoryAxisTicksDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getCategoryAxisTickLabelsCssSelector()),
+    getCategoryAxisSizeTickDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCategoryAxisSizeTickLabelCssSelector()),
+    getCategoryAxisTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCategoryAxisTitleCssSelector()),
+    getCategoryAxisThresholdTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCategoryAxisThresholdTitleCssSelector()),
+    getValueAxisTicksDomElementsForId: (axisId: string) => chartElement.querySelectorAll<SVGGraphicsElement>(getValueAxisTickLabelsCssSelectorForId(axisId)),
+    getValueAxisTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getValueAxisTitleCssSelectorForId(axisId)),
+    getValueAxisThresholdTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getValueAxisThresholdTitleCssSelectorForId(axisId)),
     getLegendDomElement: () => chartElement.querySelector<HTMLElement>(getLegendCssSelector()),
     getLegendItemTextDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getLegendItemTextsCssSelector()),
     getLegendItemTextRawDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getLegendItemTextRawsCssSelector()),

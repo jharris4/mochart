@@ -28,9 +28,9 @@ function mountChart(): { container: Element; handle: ChartHandle<DefaultChartPro
   const handle = createDefaultChart(container, {
     config: {
       version: '1.0.0',
-      animationConfig: { animate: false },
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'sales' }]
+      animation: { animate: false },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'sales' }]
     } as unknown as MochartInputConfig,
     data: rows(0), width: 500, height: 400
   } as DefaultChartProps);
@@ -66,12 +66,12 @@ afterEach(() => {
 describe('tick-label truncation state across updates', () => {
   it('keeps the measured truncation and stops measuring once settled', () => {
     const { container, handle } = mountChart();
-    const labelTexts = () => [...container.querySelectorAll('.mochart-group-axis .mochart-axis-tick-label text')]
+    const labelTexts = () => [...container.querySelectorAll('.mochart-category-axis .mochart-axis-tick-label text')]
       .map(label => label.textContent ?? '');
 
     // one update flushes any tail of the mount-time measurement passes
     // a real prop change flushes the tail of the mount-time measurement passes
-    handle.update({ focusedGroupIndex: 0 } as Partial<DefaultChartProps>);
+    handle.update({ focusedCategoryIndex: 0 } as Partial<DefaultChartProps>);
     const truncated = labelTexts();
     expect(truncated.length).toBeGreaterThan(0);
     expect(truncated.every(text => text.includes('…'))).toBe(true);
@@ -80,7 +80,7 @@ describe('tick-label truncation state across updates', () => {
     // hold steady with no re-measuring (pre-fix every update re-measured)
     measureCalls = 0;
     for (let i = 0; i < 5; i++) {
-      handle.update({ focusedGroupIndex: (i + 1) % 3 } as Partial<DefaultChartProps>);
+      handle.update({ focusedCategoryIndex: (i + 1) % 3 } as Partial<DefaultChartProps>);
       expect(labelTexts()).toEqual(truncated);
     }
     expect(measureCalls).toBe(0);

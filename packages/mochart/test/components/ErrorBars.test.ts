@@ -84,12 +84,12 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-function makeConfig(seriesConfigs: Record<string, unknown>[], overrides: Record<string, unknown> = {}): MochartInputConfig {
+function makeConfig(series: Record<string, unknown>[], overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animationConfig: { animate: false },
-    groupAxisConfig: { property: 'label', type: 'string', scale: 'ordinal' },
-    seriesConfigs,
+    animation: { animate: false },
+    categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
+    series,
     ...overrides
   } as unknown as MochartInputConfig;
 }
@@ -141,7 +141,7 @@ describe('error bars on bar series', () => {
     const container = mountChart(makeConfig([
       { id: 'V1', property: 'value', renderer: 'bar', group: 'G', errorLowProperty: 'low', errorHighProperty: 'high' },
       { id: 'V2', property: 'high', renderer: 'bar', group: 'G', errorLowProperty: 'low', errorHighProperty: 'high' }
-    ], { seriesGroupConfigs: [{ id: 'G' }] }));
+    ], { seriesGroups: [{ id: 'G' }] }));
     const firstBars = barRects(container, 'V1');
     const secondBars = barRects(container, 'V2');
     const firstWhiskers = whiskers(container, 'V1');
@@ -198,7 +198,7 @@ describe('error bars on inverted charts', () => {
   it('draws horizontal whiskers with vertical caps', () => {
     const container = mountChart(makeConfig([
       { id: 'V', property: 'value', renderer: 'bar', errorLowProperty: 'low', errorHighProperty: 'high' }
-    ], { plotConfig: { inverted: true } }));
+    ], { plot: { inverted: true } }));
     const paths = errorBarPaths(container, 'V');
     expect(paths).toHaveLength(rows.length);
     for (const d of paths) {
@@ -256,7 +256,7 @@ describe('validation', () => {
     const { getDefaults } = await import('../../src/config/defaults/mochartConfig');
     const bad = makeConfig([
       { id: 'V', property: 'value', renderer: 'bar', stack: 'S', errorLowProperty: 'low' }
-    ], { seriesStackConfigs: [{ id: 'S' }] });
+    ], { seriesStacks: [{ id: 'S' }] });
     const { errors } = validateConfig(bad, getDefaults(bad as never) as never);
     expect(errors.join('\n')).toContain('errorLowProperty');
   });

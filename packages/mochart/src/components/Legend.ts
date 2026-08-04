@@ -12,7 +12,8 @@ import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { styleToAttributes } from '../utils/style';
 import Background from './Background';
 import SeriesColorIcon from './SeriesColorIcon';
-import type { ColorPaletteConfig, LegendConfig, MochartConfig, SeriesConfig } from '../types/config';
+import type { ColorPaletteConfig, LegendConfig } from '../types/config';
+import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
 import type { SpacingLayoutInfo } from '../types/layout';
 import type { TruncationDataValue } from '../utils/TextTruncation';
 import type { FocusPercentageMap } from '../types/animation';
@@ -24,7 +25,7 @@ interface LegendItemUniqueIds {
 }
 
 interface LegendProps {
-  mochartConfig: MochartConfig;
+  mochartConfig: EnhancedMochartConfig;
   legendLayoutInfo: SpacingLayoutInfo;
   legendItemTextLayoutInfo: SpacingLayoutInfo;
   legendItemLayoutInfos: SpacingLayoutInfo[];
@@ -32,7 +33,7 @@ interface LegendProps {
   filteredFlags: Record<string, boolean>;
   uniqueIds: LegendItemUniqueIds;
   focusedSeriesId: string | null;
-  seriesAxisFocusPercentages: FocusPercentageMap;
+  valueAxisFocusPercentages: FocusPercentageMap;
   seriesFocusPercentages: FocusPercentageMap;
   onFocus: (focus: { seriesId: string | null }) => void;
   onSeriesFilter: (seriesId: string) => void;
@@ -40,7 +41,7 @@ interface LegendProps {
 
 interface LegendItemProps {
   legendConfig: LegendConfig;
-  seriesConfig: SeriesConfig;
+  seriesConfig: EnhancedSeriesConfig;
   legendLayoutInfo: SpacingLayoutInfo;
   legendItemLayoutInfo: SpacingLayoutInfo;
   legendItemRawLayoutInfo: SpacingLayoutInfo;
@@ -69,22 +70,22 @@ export default class Legend extends Renderer<LegendProps> {
 
   legendItemMouseEnter = (seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
-    if (mochartConfig.legendConfig.focusOnMouseOver) {
+    if (mochartConfig.legend.focusOnMouseOver) {
       onFocus({ seriesId });
     }
   }
 
   legendItemMouseLeave = (_seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
-    if (mochartConfig.legendConfig.focusOnMouseOver) {
+    if (mochartConfig.legend.focusOnMouseOver) {
       onFocus({ seriesId: null });
     }
   }
 
   legendItemClick = (seriesId: string) => {
     const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
-    const seriesConfig = mochartConfig.seriesConfigsById[seriesId];
-    const legendConfig = mochartConfig.legendConfig;
+    const seriesConfig = mochartConfig.seriesById[seriesId];
+    const legendConfig = mochartConfig.legend;
     if (legendConfig.filterOnClick && seriesConfig.filterable) {
       onSeriesFilter(seriesId);
     }
@@ -101,11 +102,11 @@ export default class Legend extends Renderer<LegendProps> {
 
   sync() {
     const { mochartConfig, legendLayoutInfo, legendItemTextLayoutInfo, legendItemLayoutInfos,
-      legendItemRawLayoutInfos, filteredFlags, uniqueIds, focusedSeriesId, seriesAxisFocusPercentages, seriesFocusPercentages } = this.props;
+      legendItemRawLayoutInfos, filteredFlags, uniqueIds, focusedSeriesId, valueAxisFocusPercentages, seriesFocusPercentages } = this.props;
     const { legendClipPathUniqueId } = uniqueIds;
-    const { legendConfig } = mochartConfig;
+    const { legend: legendConfig } = mochartConfig;
     if (legendConfig.visible) {
-      const { seriesConfigs, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
+      const { series: seriesConfigs, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
       const { truncationEnabled } = legendConfig;
       const transform = translateObject(legendLayoutInfo);
 
@@ -119,7 +120,7 @@ export default class Legend extends Renderer<LegendProps> {
       // The measured bounds and layout infos only cover showInLegend series,
       // so items index into them by legend position, not raw series index.
       let itemIndex = 0;
-      seriesConfigs.forEach((seriesConfig: SeriesConfig) => {
+      seriesConfigs.forEach((seriesConfig: EnhancedSeriesConfig) => {
         const { id, showInLegend } = seriesConfig;
         if (showInLegend) {
           const i = itemIndex++;
@@ -127,7 +128,7 @@ export default class Legend extends Renderer<LegendProps> {
           const seriesIsFiltered = filteredFlags[id] === true;
           const seriesIsFocused = focusedSeriesId === id;
           const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
-          const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
+          const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
 
           items.push({
             key: id,

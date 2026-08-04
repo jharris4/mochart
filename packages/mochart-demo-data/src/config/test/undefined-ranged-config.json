@@ -1,16 +1,16 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Undefined Ranged Shape Values"
+  "title": {
+    "text": "Undefined Ranged Shape Values"
   },
-  "tooltipConfig": {
+  "tooltip": {
     "showMissingValues": true,
     "missingValueText": "N/A"
   },
-  "legendConfig": {
+  "legend": {
     "visible": true
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "before": false,
     "title": "Group Axis",
     "gridLines": true,
@@ -20,26 +20,26 @@
     "max": "auto",
     "type": "number",
     "scale": "ordinal",
-    "valueLabel": "Group",
-    "property": "group"
+    "valueLabel": "Category",
+    "property": "category"
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
       "before": true,
       "title": "Series Axis 1",
       "axisLine": true,
       "gridLines": false,
-      "id": "SA0",
+      "id": "VA0",
       "base": 0
     }
   ],
-  "seriesConfigs": [
+  "series": [
     {
       "renderer": "area",
       "title": "Ranged Area",
       "markerSize": 6,
       "markerShape": "circle",
-      "axis": "SA0",
+      "axis": "VA0",
       "property": "value0",
       "rangeProperty": "value1"
     },
@@ -48,7 +48,7 @@
       "title": "Ranged Bar",
       "markerSize": 6,
       "markerShape": "circle",
-      "axis": "SA0",
+      "axis": "VA0",
       "property": "value2",
       "rangeProperty": "value3"
     }

@@ -1,25 +1,25 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Missing Values"
+  "title": {
+    "text": "Missing Values"
   },
-  "tooltipConfig": {
+  "tooltip": {
     "showMissingValues": true,
     "missingValueText": "N/A"
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "title": "Group Axis",
     "gridLines": true,
-    "valueLabel": "Group",
-    "property": "group"
+    "valueLabel": "Category",
+    "property": "category"
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
       "title": "Series Axis 1",
       "base": 0
     }
   ],
-  "seriesConfigs": [
+  "series": [
     {
       "title": "Missing",
       "markerShape": "circle",

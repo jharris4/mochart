@@ -1,6 +1,6 @@
 /**
  * Controlled focus/filter props on createChart: when the host passes
- * focusedGroupIndex / focusedSeriesAxisId / focusedSeriesId /
+ * focusedCategoryIndex / focusedValueAxisId / focusedSeriesId /
  * filteredSeriesIds, they override the chart's internal focus state on every
  * update (the controlled-chart contract, used by the demos to
  * sync focus across several charts). Undefined leaves the chart uncontrolled.
@@ -59,9 +59,9 @@ function mountChart() {
   const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
   const mochartConfig = enhanceConfig({
     version: '1.0.0',
-    animationConfig: { animate: false },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [
+    animation: { animate: false },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [
       { id: 'sales', property: 'sales', renderer: 'line' },
       { id: 'costs', property: 'costs', renderer: 'line' }
     ]
@@ -104,16 +104,16 @@ describe('controlled filteredSeriesIds', () => {
 });
 
 describe('controlled focus props', () => {
-  it('re-renders focus state from focusedSeriesId and focusedGroupIndex', () => {
+  it('re-renders focus state from focusedSeriesId and focusedCategoryIndex', () => {
     const { chart, container } = mountChart();
     const unfocusedHtml = container.innerHTML;
 
-    chart.update({ focusedSeriesId: 'sales', focusedGroupIndex: 1 });
+    chart.update({ focusedSeriesId: 'sales', focusedCategoryIndex: 1 });
     runFrames();
     const focusedHtml = container.innerHTML;
     expect(focusedHtml).not.toBe(unfocusedHtml);
 
-    chart.update({ focusedSeriesId: null, focusedGroupIndex: -1 });
+    chart.update({ focusedSeriesId: null, focusedCategoryIndex: -1 });
     runFrames();
     expect(container.innerHTML).toBe(unfocusedHtml);
   });

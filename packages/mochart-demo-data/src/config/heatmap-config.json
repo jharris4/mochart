@@ -1,18 +1,18 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Support Tickets by Weekday (fictional)"
+  "title": {
+    "text": "Support Tickets by Weekday (fictional)"
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "property": "column",
     "type": "string",
     "scale": "ordinal",
-    "groupPaddingFraction": {
+    "categoryPaddingFraction": {
       "inner": 0.06,
       "outer": 0.03
     }
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
       "min": 0,
       "max": 7,
@@ -50,7 +50,7 @@
       ]
     }
   ],
-  "seriesConfigs": [
+  "series": [
     {
       "id": "row0",
       "property": "row0",

@@ -5,9 +5,9 @@ import type { MochartInputConfig } from '@mochart/core';
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Release Velocity' },
-  groupAxisConfig: { property: 'sprint', type: 'string', scale: 'ordinal' },
-  seriesConfigs: [
+  title: { text: 'Release Velocity' },
+  categoryAxis: { property: 'sprint', type: 'string', scale: 'ordinal' },
+  series: [
     {
       property: 'planned',
       title: 'Planned',

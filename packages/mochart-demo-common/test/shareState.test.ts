@@ -7,9 +7,9 @@ const singleState: ShareState = {
   mode: 'single',
   config: {
     version: '1.0.0',
-    titleConfig: { title: 'Ünïcode — dashes & “quotes”' },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+    title: { text: 'Ünïcode — dashes & “quotes”' },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'revenue', title: 'Revenue' }]
   },
   data: [
     { month: 'Jan', revenue: 10 },

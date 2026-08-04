@@ -8,15 +8,15 @@ defaults.
 ```js
 const config = {
   version: '1.0.0',
-  titleConfig: { … },        // chart title
-  groupAxisConfig: { … },    // the category axis (requires `property`)
-  seriesConfigs: [ … ],      // one entry per series (each requires `property`)
-  seriesAllConfig: { … },    // values shared by every series
-  seriesAxisConfigs: [ … ],  // one or more value axes
-  legendConfig: { … },
-  tooltipConfig: { … },
-  crosshairConfig: { … },
-  animationConfig: { … },
+  title: { … },        // chart title
+  categoryAxis: { … },    // the category axis (requires `property`)
+  series: [ … ],      // one entry per series (each requires `property`)
+  seriesDefaults: { … },    // values shared by every series
+  valueAxes: [ … ],  // one or more value axes
+  legend: { … },
+  tooltip: { … },
+  crosshair: { … },
+  animation: { … },
   // …
 };
 ```
@@ -30,23 +30,23 @@ from the code.
 Sections come in two shapes:
 
 - **Object sections** configure a single thing: `titleConfig`,
-  `groupAxisConfig`, `legendConfig`, `tooltipConfig`, `crosshairConfig`,
+  `categoryAxisConfig`, `legendConfig`, `tooltipConfig`, `crosshairConfig`,
   `animationConfig`, `chartConfig`, `plotConfig`, `colorPaletteConfig`.
 - **List sections** configure a collection and take an array of config
-  objects: `seriesConfigs`, `seriesAxisConfigs`, `seriesGroupConfigs`,
+  objects: `seriesConfigs`, `valueAxisConfigs`, `seriesGroupConfigs`,
   `seriesStackConfigs`, `linearGradientConfigs`, `radialGradientConfigs`.
   Passing a single object instead of an array is allowed and treated as a
   one-entry list.
 
 ## Shared `*All` sections
 
-Every list section has a companion `*AllConfig` section — `seriesAllConfig`,
-`seriesAxisAllConfig`, and so on — whose values apply to **every** entry of
+Every list section has a companion `*AllConfig` section — `seriesDefaults`,
+`valueAxisAllConfig`, and so on — whose values apply to **every** entry of
 the list. A value set on an individual entry wins over the shared one:
 
 ```js
-seriesAllConfig: { renderer: 'bar', valueFormat: ',.0f' },
-seriesConfigs: [
+seriesDefaults: { renderer: 'bar', valueFormat: ',.0f' },
+series: [
   { property: 'revenue' },                      // bar, ',.0f'
   { property: 'target', renderer: 'line' }      // line, ',.0f'
 ]
@@ -64,7 +64,7 @@ Most elements are painted differently depending on what has focus, so their
 style is nested one level deeper, under `normal`, `focused` and `defocused`:
 
 ```js
-seriesConfigs: [{
+series: [{
   property: 'revenue',
   shapeStyle: {
     normal:    { fillColor: '#3366cc', fillOpacity: 0.8 },
@@ -81,13 +81,13 @@ everywhere: elements change opacity or width on focus but keep their color.
 numbers.
 
 Series styles additionally accept the palette modes `'series'`,
-`'seriesIndex'` and `'groupIndex'` in place of a color; see
-[`colorPaletteConfig`](/reference/colorPaletteConfig). Any style color also
+`'seriesIndex'` and `'categoryIndex'` in place of a color; see
+[`colorPaletteConfig`](/reference/colorPalette). Any style color also
 accepts `'currentColor'` to follow the host page's CSS `color`, and `'none'`
 to switch that half of the style off.
 
 Reference pages link to nested members with dotted anchors, so
-[`shapeStyle.normal.fillColor`](/reference/seriesConfigs#seriesConfigs.shapeStyle.normal.fillColor)
+[`shapeStyle.normal.fillColor`](/reference/series#series.shapeStyle.normal.fillColor)
 is addressable in its own right.
 
 ## Partial overrides
@@ -109,13 +109,13 @@ Two values do not merge:
 ## Cross-references and id defaulting
 
 Entries in list sections are wired together by id: a series names its value
-axis via [`axis`](/reference/seriesConfigs#seriesConfigs.axis), its stack via
-[`stack`](/reference/seriesConfigs#seriesConfigs.stack), and its group via
-[`group`](/reference/seriesConfigs#seriesConfigs.group), each matching an
+axis via [`axis`](/reference/series#series.axis), its stack via
+[`stack`](/reference/series#series.stack), and its category via
+[`category`](/reference/series#series.group), each matching an
 `id` in the corresponding section.
 
 When exactly one target exists, the reference defaults to it — with a single
-`seriesAxisConfigs` entry (or none at all) you never need to mention axis
+`valueAxisConfigs` entry (or none at all) you never need to mention axis
 ids, and with a single `seriesStackConfigs` entry every series joins that
 stack automatically (see the [stacked bars recipe](/recipes/stacked-bars)).
 Validation reports references that don't resolve.
@@ -140,9 +140,9 @@ import { validateConfigDetailed, getDefaults } from '@mochart/core';
 
 const { diagnostics } = validateConfigDetailed(config, getDefaults(config));
 // [{
-//   path: ['seriesConfigs', 1, 'axis'],
+//   path: ['series', 1, 'axis'],
 //   severity: 'error',
-//   message: 'should equal the id property of one of the seriesAxisConfigs: "missing"',
+//   message: 'should equal the id property of one of the valueAxes: "missing"',
 //   source: 'mochart'
 // }]
 ```

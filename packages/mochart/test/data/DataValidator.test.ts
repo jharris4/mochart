@@ -6,8 +6,8 @@ import type { DataProvider } from '../../src/types/data';
 
 function stringConfig() {
   return makeConfig({
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'sales' }]
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }]
   });
 }
 
@@ -75,8 +75,8 @@ describe('getDataErrors', () => {
 
   it('flags group values that do not match a numeric axis type', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'x', type: 'number', scale: 'linear' },
-      seriesConfigs: [{ property: 'y' }]
+      categoryAxis: { property: 'x', type: 'number', scale: 'linear' },
+      series: [{ property: 'y' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
       [
@@ -90,8 +90,8 @@ describe('getDataErrors', () => {
 
   it('validates extra series properties (range, marker, color, label)', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [
         { property: 'sales', rangeProperty: 'high', markerProperty: 'mk', colorProperty: 'c', labelProperty: 'lbl' }
       ]
     });
@@ -108,8 +108,8 @@ describe('getDataErrors', () => {
 
   it('validates error bound properties', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [
         { property: 'sales', errorLowProperty: 'lo', errorHighProperty: 'hi' }
       ]
     });
@@ -126,8 +126,8 @@ describe('getDataErrors', () => {
 
   it('accepts date group values on a date axis', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'd', type: 'date', scale: 'linear' },
-      seriesConfigs: [{ property: 'y' }]
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
       [
@@ -141,8 +141,8 @@ describe('getDataErrors', () => {
 
   it('flags non-date group values on a date axis', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'd', type: 'date', scale: 'linear' },
-      seriesConfigs: [{ property: 'y' }]
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
       [
@@ -156,8 +156,8 @@ describe('getDataErrors', () => {
 
   it('validates the display property values against the axis type', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'y' }]
+      categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'y' }]
     });
     // raw group ids are numbers (valid), but one display label is not a string
     const provider = new ArrayOfObjectsDataProvider(
@@ -172,8 +172,8 @@ describe('getDataErrors', () => {
 
   it('accepts valid display property values', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'y' }]
+      categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'y' }]
     });
     const provider = new ArrayOfObjectsDataProvider(
       [
@@ -188,7 +188,7 @@ describe('getDataErrors', () => {
   it('returns no errors for an invalid (errored) data provider', () => {
     const config = stringConfig();
     const errored = {
-      getGroupValues: () => ['Jan'],
+      getCategoryValues: () => ['Jan'],
       getSeriesValue: () => 'x',
       getError: () => 'broken'
     } as unknown as DataProvider;
@@ -202,8 +202,8 @@ describe('getDataErrors', () => {
 describe('getDataErrors with a mistyped property', () => {
   it('reports identically for both providers instead of throwing', () => {
     const config = makeConfig({
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-      seriesConfigs: [{ property: 'vlaue' }]
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'vlaue' }]
     });
     const columns = new ObjectOfArraysDataProvider({ month: ['Jan', 'Feb'], value: [1, 2] }, 'month');
     const rows = new ArrayOfObjectsDataProvider([{ month: 'Jan', value: 1 }, { month: 'Feb', value: 2 }], 'month');

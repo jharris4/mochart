@@ -55,10 +55,10 @@ describe('heatmap helper rendering', () => {
     ]);
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
-      tooltipConfig: { visible: false },
-      groupAxisConfig: heatmap.groupAxisConfig,
-      seriesAxisConfigs: [{ ...heatmap.seriesAxisConfig, id: 'sa' }],
-      seriesConfigs: heatmap.seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
+      tooltip: { visible: false },
+      categoryAxis: heatmap.categoryAxis,
+      valueAxes: [{ ...heatmap.valueAxisConfig, id: 'sa' }],
+      series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
     });
     expect(mochartConfig.validation.valid).toBe(true);
 

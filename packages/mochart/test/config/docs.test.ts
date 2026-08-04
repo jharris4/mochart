@@ -68,7 +68,7 @@ describe('config reference nested properties', () => {
   });
 
   it('documents every member of a nested property', () => {
-    const section = model.sections.find(candidate => candidate.id === 'chartConfig');
+    const section = model.sections.find(candidate => candidate.id === 'chart');
     const property = section?.properties.find(candidate => candidate.key === 'backgroundStyle');
     expect(property?.properties?.map(member => member.key))
       .toEqual(['fillColor', 'fillOpacity', 'strokeColor', 'strokeOpacity', 'strokeWidth']);
@@ -80,7 +80,7 @@ describe('config reference nested properties', () => {
   });
 
   it('gives each nested member the default it holds inside its parent', () => {
-    const section = model.sections.find(candidate => candidate.id === 'chartConfig');
+    const section = model.sections.find(candidate => candidate.id === 'chart');
     const property = section?.properties.find(candidate => candidate.key === 'margin');
     const top = property?.properties?.find(member => member.key === 'top');
     expect(top?.default).toEqual({ kind: 'literal', text: '2' });

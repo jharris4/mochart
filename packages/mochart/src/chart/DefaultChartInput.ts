@@ -2,20 +2,21 @@ import { enhanceConfig } from '../config/helper';
 import { ArrayOfObjectsDataProvider } from '../data/DataProvider';
 import { getDataErrors } from '../data/DataValidator';
 import type { DefaultChartProps } from '../types/chart';
-import type { MochartConfig, MochartInputConfig } from '../types/config';
+import type { MochartInputConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { DataProvider, DataRow } from '../types/data';
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return v !== null && v !== undefined && typeof v === "object";
 }
 
-function getGroupProperty(config: MochartInputConfig | MochartConfig): string | undefined {
-  let groupProperty: string | undefined = undefined;
-  if (isObject(config) && isObject(config.groupAxisConfig)) {
-    const property = config.groupAxisConfig.property;
-    groupProperty = typeof property === 'string' ? property : undefined;
+function getCategoryProperty(config: MochartInputConfig | EnhancedMochartConfig): string | undefined {
+  let categoryProperty: string | undefined = undefined;
+  if (isObject(config) && isObject(config.categoryAxis)) {
+    const property = config.categoryAxis.property;
+    categoryProperty = typeof property === 'string' ? property : undefined;
   }
-  return groupProperty;
+  return categoryProperty;
 }
 
 function isArrayOfObjects(data: readonly unknown[]): data is readonly DataRow[] {
@@ -25,15 +26,15 @@ function isArrayOfObjects(data: readonly unknown[]): data is readonly DataRow[] 
 function buildErrorDataProvider(error: unknown = 'Invalid Data'): DataProvider {
   return {
     getError: () => error,
-    getGroupValues: () => [],
+    getCategoryValues: () => [],
     getSeriesValue: () => undefined
   };
 }
 
-function createRawDataProvider(mochartConfig: MochartConfig, data: readonly unknown[]): DataProvider | null {
-  const groupProperty = getGroupProperty(mochartConfig);
-  if (groupProperty !== undefined && isArrayOfObjects(data)) {
-    return new ArrayOfObjectsDataProvider(data, groupProperty) as unknown as DataProvider;
+function createRawDataProvider(mochartConfig: EnhancedMochartConfig, data: readonly unknown[]): DataProvider | null {
+  const categoryProperty = getCategoryProperty(mochartConfig);
+  if (categoryProperty !== undefined && isArrayOfObjects(data)) {
+    return new ArrayOfObjectsDataProvider(data, categoryProperty) as unknown as DataProvider;
   }
   return null;
 }
@@ -45,7 +46,7 @@ function createRawDataProvider(mochartConfig: MochartConfig, data: readonly unkn
  * ChartController consumes.
  */
 export class DefaultChartInput {
-  mochartConfig: MochartConfig | null = null;
+  mochartConfig: EnhancedMochartConfig | null = null;
   dataProvider: DataProvider | null = null;
 
   /** provider over the raw data, before validation against the config */
@@ -53,7 +54,7 @@ export class DefaultChartInput {
   /** shared error provider so staying invalid keeps a stable identity */
   private errorDataProvider: DataProvider | null = null;
 
-  private validateDataProvider(mochartConfig: MochartConfig): DataProvider {
+  private validateDataProvider(mochartConfig: EnhancedMochartConfig): DataProvider {
     if (this.rawDataProvider !== null && getDataErrors(mochartConfig, this.rawDataProvider).length === 0) {
       return this.rawDataProvider;
     }
@@ -65,7 +66,7 @@ export class DefaultChartInput {
 
   start(props: DefaultChartProps): void {
     const { config, data } = props;
-    const mochartConfig = enhanceConfig(config);
+    const mochartConfig = enhanceConfig(config) as EnhancedMochartConfig;
     this.rawDataProvider = createRawDataProvider(mochartConfig, data);
     this.mochartConfig = mochartConfig;
     this.dataProvider = this.validateDataProvider(mochartConfig);
@@ -78,11 +79,11 @@ export class DefaultChartInput {
 
     if (configChanged || dataChanged) {
       let { mochartConfig } = this;
-      const groupPropertyChanged = getGroupProperty(config) !== getGroupProperty(prev.config);
+      const categoryPropertyChanged = getCategoryProperty(config) !== getCategoryProperty(prev.config);
       if (configChanged) {
-        mochartConfig = enhanceConfig(config);
+        mochartConfig = enhanceConfig(config) as EnhancedMochartConfig;
       }
-      if (dataChanged || groupPropertyChanged) {
+      if (dataChanged || categoryPropertyChanged) {
         this.rawDataProvider = createRawDataProvider(mochartConfig!, data);
       }
       // validity depends on the config too (series properties, group axis),

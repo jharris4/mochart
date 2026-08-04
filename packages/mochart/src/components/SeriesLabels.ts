@@ -6,14 +6,15 @@ import { NONE, AUTO, LABEL_POSITION_CENTER, LABEL_POSITION_INSIDE } from '../con
 import { translate } from '../utils/utils';
 import { getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
-import { getFocusValue, getGroupFocusPercentage } from '../utils/FocusValue';
+import { getFocusValue, getCategoryFocusPercentage } from '../utils/FocusValue';
 import type { El, ElListAdapter, TextEl } from '../render';
-import type { ColorPaletteConfig, SeriesConfig } from '../types/config';
+import type { ColorPaletteConfig } from '../types/config';
+import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { AxisScale, NullableDomain, SeriesPositionData, SeriesValueObject } from '../types/data';
 import type { LabelPosition } from '../config/core/constants';
 
-const getLabelPosition = (isAboveBase: boolean, hasBase: boolean, seriesConfig: SeriesConfig): LabelPosition => {
+const getLabelPosition = (isAboveBase: boolean, hasBase: boolean, seriesConfig: EnhancedSeriesConfig): LabelPosition => {
   let { labelPosition } = seriesConfig;
   if (hasBase) {
     const { labelAboveBasePosition, labelBelowBasePosition } = seriesConfig;
@@ -56,17 +57,17 @@ const labelAdapter: ElListAdapter<SeriesLabelData, SeriesLabelHandle> = {
 
 interface SeriesLabelsProps {
   colorPaletteConfig: ColorPaletteConfig;
-  seriesConfig: SeriesConfig;
+  seriesConfig: EnhancedSeriesConfig;
   seriesIndex: number;
-  rawSeriesAxisDomain: NullableDomain;
-  seriesAxisScale: AxisScale;
+  rawValueAxisDomain: NullableDomain;
+  valueAxisScale: AxisScale;
   seriesPositionData: SeriesPositionData;
   filteredValues: SeriesValueObject;
   inverted: boolean;
   focusData: FocusData;
-  onGroupEnter: (groupIndex: number) => void;
-  onGroupLeave: (groupIndex: number) => void;
-  onGroupClick: (groupIndex: number) => void;
+  onCategoryEnter: (categoryIndex: number) => void;
+  onCategoryLeave: (categoryIndex: number) => void;
+  onCategoryClick: (categoryIndex: number) => void;
 }
 
 export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
@@ -78,17 +79,17 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
   }
 
   sync() {
-    const { colorPaletteConfig, seriesConfig, seriesIndex, rawSeriesAxisDomain, seriesAxisScale, seriesPositionData,
-      filteredValues, inverted, focusData, onGroupEnter, onGroupLeave, onGroupClick } = this.props;
+    const { colorPaletteConfig, seriesConfig, seriesIndex, rawValueAxisDomain, valueAxisScale, seriesPositionData,
+      filteredValues, inverted, focusData, onCategoryEnter, onCategoryLeave, onCategoryClick } = this.props;
     if (seriesConfig.labelProperty !== NONE) {
-      const { seriesAxisConfig } = seriesConfig;
-      const hasBase = seriesAxisConfig.base !== NONE;
-      const domainMin = rawSeriesAxisDomain[0];
-      const domainMax = rawSeriesAxisDomain[1];
+      const { valueAxisConfig } = seriesConfig;
+      const hasBase = valueAxisConfig.base !== NONE;
+      const domainMin = rawValueAxisDomain[0];
+      const domainMax = rawValueAxisDomain[1];
 
       if (domainMin !== null && domainMax !== null) {
         const domainExtent = domainMax - domainMin;
-        const base = hasBase ? Math.min(Math.max(seriesAxisConfig.base!, domainMin), domainMax) : domainMin;
+        const base = hasBase ? Math.min(Math.max(valueAxisConfig.base!, domainMin), domainMax) : domainMin;
         const labels: SeriesLabelData[] = [];
         const { max: maxValuesNullable, min: minValues, label: labelValuesNullable } = filteredValues;
         const maxValues = maxValuesNullable!;
@@ -208,10 +209,10 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
           }
         }
 
-        const valueFormat = getSeriesLabelFormat(seriesConfig, seriesAxisConfig, seriesAxisScale);
+        const valueFormat = getSeriesLabelFormat(seriesConfig, valueAxisConfig, valueAxisScale);
 
-        const { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
-        const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
+        const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
+        const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
 
         let focusPercentage, aboveBase, textAnchor, dy, seriesPosition, x, y;
         // Each side resolves its own position (labelAboveBasePosition/
@@ -223,29 +224,29 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         const aboveBaseDY = getDY(inverted, true, aboveBasePosition);
         const belowBaseDY = getDY(inverted, false, belowBasePosition);
 
-        const { length, getDefined, getSeriesPosition, getGroupPosition, skipped, skipGroupIndexMap } = seriesPositionData;
+        const { length, getDefined, getSeriesPosition, getCategoryPosition, skipped, skipCategoryIndexMap } = seriesPositionData;
 
         for (let i = 0; i < length; i++) {
-          const skipI = skipped ? skipGroupIndexMap[i] : i;
+          const skipI = skipped ? skipCategoryIndexMap[i] : i;
           if (getDefined(null, i) && labelValues[skipI] !== undefined && withinPercentages(maxValues[skipI]!, minValues ? minValues[skipI] : null)) {
             aboveBase = !hasBase || maxValues[skipI]! >= base;
             textAnchor = aboveBase ? aboveBaseTextAnchor : belowBaseTextAnchor;
             dy = aboveBase ? aboveBaseDY : belowBaseDY;
 
-            focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
+            focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
             labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
             labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
             labelStrokeWidth = getFocusValue(focusPercentage, labelNormal.strokeWidth!, labelFocused.strokeWidth!, labelDefocused.strokeWidth!);
             labelStrokeOpacity = getFocusValue(focusPercentage, labelNormal.strokeOpacity!, labelFocused.strokeOpacity!, labelDefocused.strokeOpacity!);
             labelFillOpacity = getFocusValue(focusPercentage, labelNormal.fillOpacity!, labelFocused.fillOpacity!, labelDefocused.fillOpacity!);
             seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);
-            x = inverted ? seriesPosition : getGroupPosition(null, i)!;
-            y = inverted ? getGroupPosition(null, i)! : seriesPosition;
+            x = inverted ? seriesPosition : getCategoryPosition(null, i)!;
+            y = inverted ? getCategoryPosition(null, i)! : seriesPosition;
             labels.push({
               key: 'label-' + i,
               attrs: { className: mochartCssClasses['seriesLabel'] + i, transform: translate(x, y),
                 textAnchor, dy, stroke: labelStrokeColor, fill: labelFillColor, fillOpacity: labelFillOpacity, strokeOpacity: labelStrokeOpacity,
-                strokeWidth: labelStrokeWidth, onMouseEnter: () => onGroupEnter(i), onMouseLeave: () => onGroupLeave(i), onClick: () => onGroupClick(i) },
+                strokeWidth: labelStrokeWidth, onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: () => onCategoryClick(i) },
               text: String(valueFormat(labelValues[skipI]!))
             });
           }

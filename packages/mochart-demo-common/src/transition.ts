@@ -14,35 +14,35 @@ const arrayValidator = validators.array();
 export const defaultTransitionConfig: TransitionConfig = {
   "config": {
     "version": "1.0.0",
-    "animationConfig": {
+    "animation": {
       "initialDuration": 1000,
       "expansionDuration": 3000,
       "valueChangeDuration": 3000,
       "collapseDuration": 3000
     },
-    "groupAxisConfig": {
+    "categoryAxis": {
       "property": "timestamp",
       "type": "string",
       "scale": "ordinal",
       "valueLabel": "Date",
       "dateUTC": false
     },
-    "legendConfig": {
+    "legend": {
       "visible": true
     },
-    "seriesAxisConfigs": [
+    "valueAxes": [
       {
-        "id": "SA0",
+        "id": "VA0",
         "min": 0
       }
     ],
-    "seriesStackConfigs": [{
+    "seriesStacks": [{
       "id": "SS0",
-      "axis": "SA0"
+      "axis": "VA0"
     }],
-    "seriesConfigs": [
+    "series": [
       {
-        "axis": "SA0",
+        "axis": "VA0",
         "stack": "SS0",
         "property": "count",
         "title": "Count",
@@ -86,8 +86,8 @@ export function getTransitionMochartConfig(transitionConfig: TransitionConfig): 
 
 export function getTransitionDataProviders(transitionConfig: TransitionConfig): ChartDataProviderLike[] {
   // TODO - this doesn't handle group display property or extra series properties...
-  const groupProperty = transitionConfig.config.groupAxisConfig.property;
-  return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, groupProperty));
+  const categoryProperty = transitionConfig.config.categoryAxis.property;
+  return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, categoryProperty));
 }
 
 export function formatTransitionConfig(transitionConfig: TransitionConfig): string {

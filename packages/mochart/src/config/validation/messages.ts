@@ -61,16 +61,6 @@ export function getMessage(prefix: string, message: string): string {
   return prefixMessage(prefix) + message;
 }
 
-export function addErrorMessage(prefix: string, config: unknown, validator: Validator, errorMessages: string[], errorDetails: LocatedValidationMessage[] = []): void {
-  const isValid = validator(config);
-  if (!isValid) {
-    const message = validator.getErrorMessage(config);
-    errorMessages.push(
-      prefixErrorMessage(prefix, message));
-    errorDetails.push({ path: messagePath(prefix, undefined), message });
-  }
-}
-
 /**
  * Report the failure of one (possibly nested) config value, drilling into the members that actually
  * failed so a path reaches `['axisConfig', 'backgroundStyle', 'fillColor']` rather than stopping at the

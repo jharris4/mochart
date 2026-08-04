@@ -24,9 +24,9 @@ const rows = [
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animationConfig: { animate: false },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'sales' }],
+    animation: { animate: false },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }],
     ...overrides
   } as unknown as MochartInputConfig;
 }
@@ -103,10 +103,10 @@ describe('chart mouse events', () => {
 
     // payloads carry the nearest group: far left resolves to the first group,
     // far right to the last
-    expect(enters[0].groupIndex).toBe(0);
+    expect(enters[0].categoryIndex).toBe(0);
     const rightClicks: ChartEventPayload[] = [];
     mouse(root, 'mousemove', 790, 100);
-    expect(moves[moves.length - 1].groupIndex).toBe(rows.length - 1);
+    expect(moves[moves.length - 1].categoryIndex).toBe(rows.length - 1);
     expect(rightClicks.length).toBe(0);
   });
 });
@@ -114,7 +114,7 @@ describe('chart mouse events', () => {
 describe('title layout variants', () => {
   it('renders a centered title with prefix and suffix', () => {
     const container = mountChart(makeConfig({
-      titleConfig: { title: 'Sales Chart', titlePrefix: 'Q1', titleSuffix: '(units)', verticalExpand: true }
+      title: { text: 'Sales Chart', prefix: 'Q1', suffix: '(units)', verticalExpand: true }
     }));
     const title = container.querySelector('.mochart-title');
     expect(title).not.toBeNull();
@@ -125,8 +125,8 @@ describe('title layout variants', () => {
 
   it('renders a right-aligned bottom title not aligned to the axes', () => {
     const container = mountChart(makeConfig({
-      titleConfig: {
-        title: 'Bottom Title', position: 'bottom', align: 'right',
+      title: {
+        text: 'Bottom Title', position: 'bottom', align: 'right',
         alignedToAxes: false, verticalAlign: 'middle'
       }
     }));
@@ -137,7 +137,7 @@ describe('title layout variants', () => {
 
   it('renders a left-aligned title', () => {
     const container = mountChart(makeConfig({
-      titleConfig: { title: 'Left Title', align: 'left', alignedToAxes: false }
+      title: { text: 'Left Title', align: 'left', alignedToAxes: false }
     }));
     expect(container.querySelector('.mochart-title')!.textContent).toContain('Left Title');
   });
@@ -146,7 +146,7 @@ describe('title layout variants', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
     const handle = createDefaultChart(container, {
-      config: makeConfig({ titleConfig: { title: 'T', titlePrefix: 'P', titleSuffix: 'S' } }),
+      config: makeConfig({ title: { text: 'T', prefix: 'P', suffix: 'S' } }),
       data: rows, width: 4, height: 600
     } as DefaultChartProps);
     handles.push(handle);
@@ -173,11 +173,11 @@ describe('tooltip', () => {
     expect(tooltipText).toContain('10');
     // applyFocus (default true) focused the clicked group
     expect(focuses.length).toBeGreaterThan(0);
-    expect(focuses[focuses.length - 1].focusedGroupIndex).toBe(0);
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
 
     mouse(root, 'click', 100, 100);
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
-    expect(focuses[focuses.length - 1].focusedGroupIndex).toBe(-1);
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1);
   });
 
   it('shows crosshair lines while the tooltip is open', () => {
@@ -195,7 +195,7 @@ describe('tooltip', () => {
   });
 
   it('opens on hover and closes on leave when mouseOver is enabled', () => {
-    const container = mountChart(makeConfig({ tooltipConfig: { mouseOver: true } }));
+    const container = mountChart(makeConfig({ tooltip: { mouseOver: true } }));
     const root = chartRoot(container);
 
     mouse(root, 'mouseenter', 100, 100);
@@ -212,7 +212,7 @@ describe('tooltip', () => {
 
   it('steps between groups with the tooltip controls', () => {
     const focuses: ChartFocus[] = [];
-    const container = mountChart(makeConfig({ tooltipConfig: { showControls: true } }), {
+    const container = mountChart(makeConfig({ tooltip: { showControls: true } }), {
       onFocus: focus => { focuses.push(focus); }
     });
     const root = chartRoot(container);
@@ -232,11 +232,11 @@ describe('tooltip', () => {
 
     next.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(visibleText()).toContain('Feb');
-    expect(focuses[focuses.length - 1].focusedGroupIndex).toBe(1);
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(1);
 
     prev.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(visibleText()).toContain('Jan');
-    expect(focuses[focuses.length - 1].focusedGroupIndex).toBe(0);
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
 
     // prev at the first group is a no-op
     prev.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -245,7 +245,7 @@ describe('tooltip', () => {
 
   it('formats range series values with the range separator', () => {
     const container = mountChart(makeConfig({
-      seriesConfigs: [{ property: 'sales', rangeProperty: 'costs' }]
+      series: [{ property: 'sales', rangeProperty: 'costs' }]
     }));
     const root = chartRoot(container);
 
@@ -274,7 +274,7 @@ describe('tooltip', () => {
 
   it('leaves showInTooltip: false series out of the tooltip', () => {
     const container = mountChart(makeConfig({
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs', showInTooltip: false }]
+      series: [{ property: 'sales' }, { property: 'costs', showInTooltip: false }]
     }));
     const root = chartRoot(container);
 
@@ -286,8 +286,8 @@ describe('tooltip', () => {
 
   it('marks filtered series values and can hide the line entirely', () => {
     const twoSeries = {
-      legendConfig: { visible: true },
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+      legend: { visible: true },
+      series: [{ property: 'sales' }, { property: 'costs' }]
     };
     const container = mountChart(makeConfig(twoSeries));
     const root = chartRoot(container);
@@ -302,7 +302,7 @@ describe('tooltip', () => {
     expect(filteredLine!.textContent).not.toContain('5.00');
 
     // hideFiltered drops the line completely
-    const hiding = mountChart(makeConfig({ ...twoSeries, tooltipConfig: { hideFiltered: true } }));
+    const hiding = mountChart(makeConfig({ ...twoSeries, tooltip: { hideFiltered: true } }));
     const hidingRoot = chartRoot(hiding);
     hiding.querySelector('[class*="mochart-legend-item-S1"]')!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -314,8 +314,8 @@ describe('tooltip', () => {
 
   it('renders plain series lines when alignValues is off and prefixes the group label', () => {
     const container = mountChart(makeConfig({
-      tooltipConfig: { alignValues: false },
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal', valueLabel: 'Month' }
+      tooltip: { alignValues: false },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', valueLabel: 'Month' }
     }));
     const root = chartRoot(container);
 
@@ -323,7 +323,7 @@ describe('tooltip', () => {
     mouse(root, 'click', 100, 100);
     expect(container.querySelector('.mochart-tooltip .mochart-tooltip-line-text')).not.toBeNull();
     expect(container.querySelector('.mochart-tooltip .mochart-tooltip-line-value')).toBeNull();
-    expect(container.querySelector('.mochart-tooltip .mochart-tooltip-group-line')!.textContent)
+    expect(container.querySelector('.mochart-tooltip .mochart-tooltip-category-line')!.textContent)
       .toBe('Month: Jan');
   });
 
@@ -339,7 +339,7 @@ describe('tooltip', () => {
     expect(automaticIcon.getAttribute('viewBox')).toBe('0 0 16 16');
     expect(automaticIcon.parentElement!.style.width).toBe('calc(1em + 4px)');
 
-    const fixed = mountChart(makeConfig({ tooltipConfig: { iconSize: 20 } }));
+    const fixed = mountChart(makeConfig({ tooltip: { iconSize: 20 } }));
     const fixedRoot = chartRoot(fixed);
     mouse(fixedRoot, 'mouseenter', 100, 100);
     mouse(fixedRoot, 'click', 100, 100);
@@ -355,8 +355,8 @@ describe('tooltip', () => {
     const focuses: ChartFocus[] = [];
     const filters: Array<{ filteredSeriesIds: Record<string, boolean> }> = [];
     const container = mountChart(makeConfig({
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }],
-      tooltipConfig: { focusOnSeriesClick: true, filterOnSeriesClick: true }
+      series: [{ property: 'sales' }, { property: 'costs' }],
+      tooltip: { focusOnSeriesClick: true, filterOnSeriesClick: true }
     }), {
       onFocus: focus => { focuses.push(focus); },
       onSeriesFilter: filter => { filters.push(filter); }
@@ -382,8 +382,8 @@ describe('tooltip', () => {
   it('focuses series on tooltip line hover when configured', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }],
-      tooltipConfig: { focusOnSeriesMouseOver: true }
+      series: [{ property: 'sales' }, { property: 'costs' }],
+      tooltip: { focusOnSeriesMouseOver: true }
     }), {
       onFocus: focus => { focuses.push(focus); }
     });
@@ -408,7 +408,7 @@ describe('tooltip', () => {
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
 
-    const sticky = mountChart(makeConfig({ tooltipConfig: { closeOnClick: false } }));
+    const sticky = mountChart(makeConfig({ tooltip: { closeOnClick: false } }));
     const stickyRoot = chartRoot(sticky);
     mouse(stickyRoot, 'mouseenter', 100, 100);
     mouse(stickyRoot, 'click', 100, 100);
@@ -419,7 +419,7 @@ describe('tooltip', () => {
 
   it('switches between filter and focus modes with the controls mode button', () => {
     const focuses: ChartFocus[] = [];
-    const container = mountChart(makeConfig({ tooltipConfig: { showControls: true } }), {
+    const container = mountChart(makeConfig({ tooltip: { showControls: true } }), {
       onFocus: focus => { focuses.push(focus); }
     });
     const root = chartRoot(container);
@@ -435,18 +435,18 @@ describe('tooltip', () => {
     expect(modeButton().textContent).toBe('focus');
 
     // in focus mode a group line click toggles group focus
-    const groupLine = container.querySelector('.mochart-tooltip .mochart-tooltip-group-line')!;
-    groupLine.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(focuses[focuses.length - 1].focusedGroupIndex).toBe(-1); // toggled off (was focused group 0)
-    groupLine.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(focuses[focuses.length - 1].focusedGroupIndex).toBe(0);
+    const categoryLine = container.querySelector('.mochart-tooltip .mochart-tooltip-category-line')!;
+    categoryLine.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1); // toggled off (was focused group 0)
+    categoryLine.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
   });
 
   it('toggles series filtering from a legend item click', () => {
     const filters: Array<{ filteredSeriesIds: Record<string, boolean> }> = [];
     const container = mountChart(makeConfig({
-      legendConfig: { visible: true },
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+      legend: { visible: true },
+      series: [{ property: 'sales' }, { property: 'costs' }]
     }), {
       onSeriesFilter: filter => { filters.push(filter); }
     });
@@ -466,8 +466,8 @@ describe('tooltip', () => {
   it('sizes legend icons from measured text by default and preserves numeric sizes', () => {
     const seriesConfigs = [{ property: 'sales' }, { property: 'costs' }];
     const automatic = mountChart(makeConfig({
-      legendConfig: { visible: true },
-      seriesConfigs
+      legend: { visible: true },
+      series: seriesConfigs
     }));
     const automaticIcon = automatic.querySelector<SVGPathElement>('.mochart-legend-item-icon path')!;
     // Placeholder text bounds retain the previous 14px icon until a real
@@ -475,8 +475,8 @@ describe('tooltip', () => {
     expect(automaticIcon.getAttribute('transform')).toBe('translate(7,7)');
 
     const fixed = mountChart(makeConfig({
-      legendConfig: { visible: true, iconSize: 12 },
-      seriesConfigs
+      legend: { visible: true, iconSize: 12 },
+      series: seriesConfigs
     }));
     const fixedIcon = fixed.querySelector<SVGPathElement>('.mochart-legend-item-icon path')!;
     expect(fixedIcon.getAttribute('transform')).toBe('translate(6,6)');
@@ -484,7 +484,7 @@ describe('tooltip', () => {
 
   it('maps pointer position along the y axis and draws horizontal crosshair lines when inverted', () => {
     const moves: ChartEventPayload[] = [];
-    const container = mountChart(makeConfig({ plotConfig: { inverted: true } }), {
+    const container = mountChart(makeConfig({ plot: { inverted: true } }), {
       onChartMouseMove: payload => { moves.push(payload); }
     });
     const root = chartRoot(container);
@@ -492,7 +492,7 @@ describe('tooltip', () => {
     // in an inverted plot the group position follows chartY
     mouse(root, 'mouseenter', 400, 10);
     mouse(root, 'mousemove', 400, 590);
-    expect(moves[moves.length - 1].groupIndex).toBe(rows.length - 1);
+    expect(moves[moves.length - 1].categoryIndex).toBe(rows.length - 1);
 
     mouse(root, 'click', 400, 10);
     const line = container.querySelector('.crosshair-line');
@@ -504,9 +504,9 @@ describe('tooltip', () => {
 
   it('draws a series crosshair line when a series is focused', () => {
     const container = mountChart(makeConfig({
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }],
-      tooltipConfig: { focusOnSeriesMouseOver: true },
-      crosshairConfig: { showSeries: true }
+      series: [{ property: 'sales' }, { property: 'costs' }],
+      tooltip: { focusOnSeriesMouseOver: true },
+      crosshair: { showSeries: true }
     }));
     const root = chartRoot(container);
 
@@ -520,20 +520,20 @@ describe('tooltip', () => {
     expect(seriesLines().length).toBeGreaterThan(0);
   });
 
-  it('hides group crosshair lines when showGroup is off', () => {
+  it('hides group crosshair lines when showCategory is off', () => {
     const container = mountChart(makeConfig({
-      crosshairConfig: { showGroup: false }
+      crosshair: { showCategory: false }
     }));
     const root = chartRoot(container);
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
     expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
-    expect(container.querySelectorAll('.crosshair-group-lines .crosshair-line').length).toBe(0);
+    expect(container.querySelectorAll('.crosshair-category-lines .crosshair-line').length).toBe(0);
   });
 
   it('renders an axis focus range for the focused group', () => {
     const container = mountChart(makeConfig({
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal', focusRange: true }
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', focusRange: true }
     }));
     const root = chartRoot(container);
 
@@ -545,8 +545,8 @@ describe('tooltip', () => {
 
   it('renders a vertical axis focus range when the plot is inverted', () => {
     const container = mountChart(makeConfig({
-      plotConfig: { inverted: true },
-      groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal', focusRange: true }
+      plot: { inverted: true },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', focusRange: true }
     }));
     const root = chartRoot(container);
 
@@ -557,8 +557,8 @@ describe('tooltip', () => {
 
   it('does not open when tooltip and crosshair are both hidden', () => {
     const container = mountChart(makeConfig({
-      tooltipConfig: { visible: false },
-      crosshairConfig: { visible: false }
+      tooltip: { visible: false },
+      crosshair: { visible: false }
     }));
     const root = chartRoot(container);
 
@@ -571,8 +571,8 @@ describe('tooltip', () => {
 
 describe('showFilteringOnLabels', () => {
   const twoSeries = {
-    legendConfig: { visible: true },
-    seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+    legend: { visible: true },
+    series: [{ property: 'sales' }, { property: 'costs' }]
   };
 
   function filter(container: Element, seriesId: string): void {
@@ -595,7 +595,7 @@ describe('showFilteringOnLabels', () => {
   it('strikes through the legend text of a filtered series when enabled', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      legendConfig: { visible: true, showFilteringOnLabels: true }
+      legend: { visible: true, showFilteringOnLabels: true }
     }));
     expect(legendTextDecorations(container, 'S1')).toEqual([null, null]);
 
@@ -613,7 +613,7 @@ describe('showFilteringOnLabels', () => {
   it('strikes through the tooltip label of a filtered series when enabled', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltipConfig: { showFilteringOnLabels: true }
+      tooltip: { showFilteringOnLabels: true }
     }));
     filter(container, 'S1');
     openTooltip(container);
@@ -642,7 +642,7 @@ describe('showFilteringOnLabels', () => {
   it('strikes the whole line when alignValues puts the label and value together', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltipConfig: { alignValues: false, showFilteringOnLabels: true }
+      tooltip: { alignValues: false, showFilteringOnLabels: true }
     }));
     filter(container, 'S1');
     openTooltip(container);
@@ -653,8 +653,8 @@ describe('showFilteringOnLabels', () => {
   });
 
   it('paints a filtered legend icon with iconFilteredColor', () => {
-    function filteredIconFill(legendConfig: Record<string, unknown>): string | null {
-      const container = mountChart(makeConfig({ ...twoSeries, legendConfig: { visible: true, ...legendConfig } }));
+    function filteredIconFill(legend: Record<string, unknown>): string | null {
+      const container = mountChart(makeConfig({ ...twoSeries, legend: { visible: true, ...legend } }));
       filter(container, 'S1');
       const iconGroup = container.querySelector(
         '[class*="mochart-legend-item-S1"] .mochart-legend-item-icon')!;
@@ -669,7 +669,7 @@ describe('showFilteringOnLabels', () => {
   it('decorates the hidden sizer copy of the tooltip the same way', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltipConfig: { showFilteringOnLabels: true }
+      tooltip: { showFilteringOnLabels: true }
     }));
     filter(container, 'S1');
     openTooltip(container);
@@ -694,7 +694,7 @@ describe('followSeries follower focus', () => {
 
   function candleConfig(): MochartInputConfig {
     return makeConfig({
-      seriesConfigs: [
+      series: [
         { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthFraction: 0.2,
           showInLegend: false, followSeries: 'body', focusOnClick: true },
         { id: 'body', property: 'close', rangeProperty: 'open', renderer: 'bar', focusOnClick: true },
@@ -741,8 +741,8 @@ describe('legend focus on click', () => {
   it('moves the focus to the clicked item and toggles the focused one', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
-      legendConfig: { focusOnClick: true },
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+      legend: { focusOnClick: true },
+      series: [{ property: 'sales' }, { property: 'costs' }]
     }), { onFocus: focus => { focuses.push(focus); } });
 
     const itemFor = (id: string) => container.querySelector('.mochart-legend-item-' + id)!;
@@ -782,7 +782,7 @@ describe('tooltip on a removed group', () => {
 describe('tooltip last-line style', () => {
   it('drops the bottom padding on the last rendered row', () => {
     const container = mountChart(makeConfig({
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs', showInTooltip: false }]
+      series: [{ property: 'sales' }, { property: 'costs', showInTooltip: false }]
     }));
     const root = chartRoot(container);
     mouse(root, 'mouseenter', 100, 100);
@@ -797,7 +797,7 @@ describe('tooltip last-line style', () => {
 
   it('keeps the padding on non-final rows', () => {
     const container = mountChart(makeConfig({
-      seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
+      series: [{ property: 'sales' }, { property: 'costs' }]
     }));
     const root = chartRoot(container);
     mouse(root, 'mouseenter', 100, 100);

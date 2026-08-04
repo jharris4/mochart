@@ -1,25 +1,25 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Stacked Label Example"
+  "title": {
+    "text": "Stacked Label Example"
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "valueLabel": "Number",
-    "property": "groupNL",
+    "property": "categoryNL",
     "type": "number",
     "scale": "linear"
   },
-  "seriesAxisConfigs": {
+  "valueAxes": {
     "before": true,
     "min": 0
   },
-  "seriesStackConfigs": {},
-  "seriesAllConfig": {
+  "seriesStacks": {},
+  "seriesDefaults": {
     "labelPosition": "outside",
     "labelMinRangeFraction": 0.05,
     "renderer": "area"
   },
-  "seriesConfigs": [
+  "series": [
     {
       "property": "value1",
       "labelProperty": "value1",

@@ -3,19 +3,19 @@ import { mochartConfigEditorModel } from '../src';
 
 describe('Mochart config editor model', () => {
   it('contains top-level and section property metadata', () => {
-    const series = mochartConfigEditorModel.sections.find(section => section.id === 'seriesConfigs');
+    const series = mochartConfigEditorModel.sections.find(section => section.id === 'series');
     const axis = series?.properties.find(property => property.key === 'axis');
 
-    expect(mochartConfigEditorModel.topLevel.some(property => property.key === 'seriesConfigs')).toBe(true);
+    expect(mochartConfigEditorModel.topLevel.some(property => property.key === 'series')).toBe(true);
     expect(series?.shape).toBe('array');
     expect(axis?.editor.types).toContain('string');
-    expect(axis?.reference?.sections).toContain('seriesAxisConfigs');
+    expect(axis?.reference?.sections).toContain('valueAxes');
   });
 
   it('includes enum and range information derived from validators', () => {
-    const chart = mochartConfigEditorModel.sections.find(section => section.id === 'chartConfig');
+    const chart = mochartConfigEditorModel.sections.find(section => section.id === 'chart');
     const type = chart?.properties.find(property => property.key === 'type');
-    const pie = mochartConfigEditorModel.sections.find(section => section.id === 'pieConfig');
+    const pie = mochartConfigEditorModel.sections.find(section => section.id === 'pie');
     const radius = pie?.properties.find(property => property.key === 'innerRadiusFraction');
 
     expect(type?.editor.enum).toContain('pie');
@@ -24,7 +24,7 @@ describe('Mochart config editor model', () => {
   });
 
   it('describes automatic tooltip and legend icon sizing', () => {
-    for (const sectionId of ['tooltipConfig', 'legendConfig']) {
+    for (const sectionId of ['tooltip', 'legend']) {
       const section = mochartConfigEditorModel.sections.find(candidate => candidate.id === sectionId);
       const iconSize = section?.properties.find(property => property.key === 'iconSize');
 

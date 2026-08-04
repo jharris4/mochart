@@ -19,17 +19,17 @@ describe('getReferenceSectionIds', () => {
   it('returns the sections a config uses, in reference order', () => {
     expect(getReferenceSectionIds({
       version: '1.0.0',
-      seriesConfigs: [],
-      titleConfig: {},
-      animationConfig: {}
-    })).toEqual(['animationConfig', 'seriesConfigs', 'titleConfig']);
+      series: [],
+      title: {},
+      animation: {}
+    })).toEqual(['animation', 'series', 'title']);
   });
 
   it('maps *AllConfig keys onto their list section', () => {
     expect(getReferenceSectionIds({
-      seriesAllConfig: {},
-      seriesStackAllConfig: {}
-    })).toEqual(['seriesConfigs', 'seriesStackConfigs']);
+      seriesDefaults: {},
+      seriesStackDefaults: {}
+    })).toEqual(['series', 'seriesStacks']);
   });
 
   it('ignores unknown keys and empty configs', () => {
@@ -40,6 +40,6 @@ describe('getReferenceSectionIds', () => {
 
 describe('getReferenceSectionUrl', () => {
   it('builds the section page url from the base', () => {
-    expect(getReferenceSectionUrl('seriesConfigs', '/mochart/vanilla/')).toBe('/mochart/reference/seriesConfigs');
+    expect(getReferenceSectionUrl('series', '/mochart/vanilla/')).toBe('/mochart/reference/series');
   });
 });

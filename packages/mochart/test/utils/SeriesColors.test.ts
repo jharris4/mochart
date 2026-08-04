@@ -11,18 +11,19 @@ import {
 } from '../../src/utils/SeriesColors';
 import { makeConfig } from '../data/fixtures';
 import { deepMerge } from '../../src/config/core/deepMerge';
-import type { ColorPaletteConfig, DeepPartial, SeriesConfig } from '../../src/types/config';
+import type { ColorPaletteConfig, DeepPartial } from '../../src/types/config';
+import type { EnhancedSeriesConfig } from '../../src/types/enhanced';
 
 // Build a fully-defaulted series + palette, then deep-merge overrides onto the
 // series so colour fields under test are realistic rather than hand-rolled.
 function setup() {
   const config = makeConfig({
-    groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'a' }]
+    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    series: [{ property: 'a' }]
   });
-  const base = config.seriesConfigs[0];
-  const colorPaletteConfig = (config as unknown as { colorPaletteConfig: ColorPaletteConfig }).colorPaletteConfig;
-  const series = (over: DeepPartial<SeriesConfig>): SeriesConfig => deepMerge(base, over) as SeriesConfig;
+  const base = config.series[0];
+  const colorPaletteConfig = (config as unknown as { colorPalette: ColorPaletteConfig }).colorPalette;
+  const series = (over: DeepPartial<EnhancedSeriesConfig>): EnhancedSeriesConfig => deepMerge(base, over) as EnhancedSeriesConfig;
   return { colorPaletteConfig, series };
 }
 
@@ -84,13 +85,13 @@ describe('getColor palette + keyword resolution', () => {
     expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'seriesIndex' } } }), palette.length + 2)).toBe(palette[2]);
   });
 
-  it('resolves "groupIndex" to the palette color for the group index', () => {
+  it('resolves "categoryIndex" to the palette color for the group index', () => {
     const palette = colorPaletteConfig.series.normal.fillColors;
-    expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'groupIndex' } } }), 0, null, '#fallback', 3)).toBe(palette[3]);
+    expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'categoryIndex' } } }), 0, null, '#fallback', 3)).toBe(palette[3]);
   });
 
-  it('returns the default color for "groupIndex" when no group index is supplied', () => {
-    expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'groupIndex' } } }), 0, null, '#fallback')).toBe('#fallback');
+  it('returns the default color for "categoryIndex" when no group index is supplied', () => {
+    expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'categoryIndex' } } }), 0, null, '#fallback')).toBe('#fallback');
   });
 
   it('resolves "same" on a focused color back to the normal color', () => {

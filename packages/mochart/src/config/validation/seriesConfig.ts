@@ -2,7 +2,7 @@ import validators from './validators';
 
 import {
   AUTO, NONE, RENDERERS, CURVE_TYPES, CAP_TYPES, LABEL_POSITIONS, COLOR_INTERPOLATIONS, MARKER_SHAPES,
-  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX
+  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX
 } from '../core/constants';
 import type { DeepPartial, SeriesConfig } from '../../types/config';
 import type { Validator } from '@mochart/movalid';
@@ -19,7 +19,7 @@ function seriesColor(allowSeries: boolean, allowSame: boolean): Validator {
   const keywords: string[] = [];
   if (allowSeries) keywords.push(COLOR_SERIES);
   if (allowSame) keywords.push(COLOR_SAME);
-  keywords.push(COLOR_SERIES_INDEX, COLOR_GROUP_INDEX);
+  keywords.push(COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX);
   return validators.svgColor().orOneOf(keywords);
 }
 
@@ -183,8 +183,8 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     followSeries: validators.string().orEqual(NONE),
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),
-    focusGroupOnMouseOver: validators.boolean(),
-    focusGroupOnClick: validators.boolean(),
+    focusCategoryOnMouseOver: validators.boolean(),
+    focusCategoryOnClick: validators.boolean(),
     useAxisFocus: validators.boolean(),
     animateBaseFromAdjacent: validators.boolean()
   };

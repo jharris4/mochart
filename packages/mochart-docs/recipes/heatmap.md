@@ -16,34 +16,34 @@ import * as heatmap from '../examples/heatmap'
 
 - Each row is a `bar` series floating on a fixed one-unit band of the
   series axis via
-  [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty)
-  (`rows[0]` on top). The returned `seriesAxisConfig` pins the axis to
+  [`rangeProperty`](/reference/series#series.rangeProperty)
+  (`rows[0]` on top). The returned `valueAxisConfig` pins the axis to
   exactly the stacked bands and labels each band's center with the row name
   through explicit
-  [`ticks`](/reference/seriesAxisConfigs#seriesAxisConfigs.ticks) (auto
+  [`ticks`](/reference/valueAxes#valueAxes.ticks) (auto
   numeric ticks would land on the band edges and mislabel the rows). The
   row series stay out of the legend
-  ([`showInLegend: false`](/reference/seriesConfigs#seriesConfigs.showInLegend))
+  ([`showInLegend: false`](/reference/series#series.showInLegend))
   — hiding a row from a legend would read as missing data, and a color-ramp
   strip built from `colorScale` makes the better legend.
 - Cell colors come from
-  [`colorProperty`](/reference/seriesConfigs#seriesConfigs.colorProperty):
+  [`colorProperty`](/reference/series#series.colorProperty):
   each cell's value drives its fill. The core color scale spans each
   series' *own* extent, so the helper sets every row's
-  [`colorScale.min`](/reference/seriesConfigs#seriesConfigs.colorScale.min)/[`colorScale.max`](/reference/seriesConfigs#seriesConfigs.colorScale.max)
+  [`colorScale.min`](/reference/series#series.colorScale.min)/[`colorScale.max`](/reference/series#series.colorScale.max)
   to the global ramp sampled at that row's min/max — keeping cell colors
   comparable across rows. The default ramp is a light-to-dark sequential
   blue; override it with the helper's `colorMin`, `colorMax` and
   `colorInterpolation` options (which land in each row's `colorScale`), or
   fix the scale across datasets with `domain`.
 - Each series sets
-  [`tooltipProperty`](/reference/seriesConfigs#seriesConfigs.tooltipProperty)
+  [`tooltipProperty`](/reference/series#series.tooltipProperty)
   to the cell value, so the tooltip shows the value driving the color
   rather than the cell's band coordinates —
-  [`valueFormat`](/reference/seriesConfigs#seriesConfigs.valueFormat)
+  [`valueFormat`](/reference/series#series.valueFormat)
   formats it as usual.
 - `null`/`undefined` cells leave a gap in the grid:
-  [`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing) skips
+  [`skipMissing`](/reference/series#series.skipMissing) skips
   them without disturbing their neighbours. `cellPadding` sets the gap
   between cells (0 for a contiguous grid), and `columnLabels` names the
   columns (defaults to 1-based numbers).

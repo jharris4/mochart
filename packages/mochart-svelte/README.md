@@ -24,10 +24,10 @@ array-of-objects dataset:
 
   const config = {
     version: '1.0.0',
-    titleConfig: { title: 'Revenue' },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesAllConfig: { renderer: 'bar' },
-    seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+    title: { text: 'Revenue' },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    seriesDefaults: { renderer: 'bar' },
+    series: [{ property: 'revenue', title: 'Revenue' }]
   };
 
   const data = [
@@ -69,7 +69,7 @@ follows it:
 
 Both components accept the chart callbacks (`onChartClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
-`onFocus`, `onSeriesFilter`, `onSeriesLayoutInfoChange`) and the placeholder
+`onFocus`, `onSeriesFilter`, `onSeriesLayoutBoundsChange`) and the placeholder
 components (`loadingComponent`, `errorComponent`, `noDataComponent`,
 `noSizeComponent`, `noSeriesComponent`, `configErrorComponent`). Each
 placeholder prop takes a **Svelte component** that receives the chart context

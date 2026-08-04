@@ -4,15 +4,15 @@ import type { MochartInputConfig } from '@mochart/core';
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Active Users' },
-  groupAxisConfig: {
+  title: { text: 'Active Users' },
+  categoryAxis: {
     property: 'date',
     type: 'date',
     scale: 'linear',
     tickLabelFormat: '%b %d'
   },
-  seriesAllConfig: { renderer: 'area' },
-  seriesConfigs: [{ property: 'users', title: 'Active users' }]
+  seriesDefaults: { renderer: 'area' },
+  series: [{ property: 'users', title: 'Active users' }]
 };
 
 export const data = [

@@ -16,9 +16,9 @@ const VERSION = '1.0.0';
 function makeConfig(overrides: Record<string, unknown> = {}) {
   return enhanceConfig({
     version: VERSION,
-    animationConfig: { animate: false },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'sales' }],
+    animation: { animate: false },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }],
     ...overrides
   } as unknown as MochartInputConfig);
 }
@@ -67,23 +67,23 @@ describe('FocusController focus handling', () => {
   it('tracks group, series and series axis focus independently', () => {
     const { controller } = makeHarness();
 
-    expect(controller.applyFocus({ groupIndex: 1 }))
-      .toEqual({ focusedGroupIndex: 1, focusedSeriesAxisId: null, focusedSeriesId: null });
+    expect(controller.applyFocus({ categoryIndex: 1 }))
+      .toEqual({ focusedCategoryIndex: 1, focusedValueAxisId: null, focusedSeriesId: null });
 
     expect(controller.applyFocus({ seriesId: 'S0' }))
-      .toEqual({ focusedGroupIndex: 1, focusedSeriesAxisId: null, focusedSeriesId: 'S0' });
+      .toEqual({ focusedCategoryIndex: 1, focusedValueAxisId: null, focusedSeriesId: 'S0' });
 
-    expect(controller.applyFocus({ seriesAxisId: 'SA0' }))
-      .toEqual({ focusedGroupIndex: 1, focusedSeriesAxisId: 'SA0', focusedSeriesId: 'S0' });
+    expect(controller.applyFocus({ valueAxisId: 'VA0' }))
+      .toEqual({ focusedCategoryIndex: 1, focusedValueAxisId: 'VA0', focusedSeriesId: 'S0' });
 
     // null group index clears back to -1; null ids clear the id focus
-    expect(controller.applyFocus({ groupIndex: null, seriesId: null, seriesAxisId: null }))
-      .toEqual({ focusedGroupIndex: -1, focusedSeriesAxisId: null, focusedSeriesId: null });
+    expect(controller.applyFocus({ categoryIndex: null, seriesId: null, valueAxisId: null }))
+      .toEqual({ focusedCategoryIndex: -1, focusedValueAxisId: null, focusedSeriesId: null });
   });
 
   it('remaps the focused group index when the data provider changes', () => {
     const harness = makeHarness();
-    harness.controller.applyFocus({ groupIndex: 1 }); // Feb
+    harness.controller.applyFocus({ categoryIndex: 1 }); // Feb
 
     // Feb moves to index 2 in the new data
     const nextRows = [
@@ -92,7 +92,7 @@ describe('FocusController focus handling', () => {
       { month: 'Feb', sales: 20 }
     ];
     harness.reconcileWith({ dataProvider: makeProvider(nextRows) });
-    expect(harness.focuses[harness.focuses.length - 1].focusedGroupIndex).toBe(2);
+    expect(harness.focuses[harness.focuses.length - 1].focusedCategoryIndex).toBe(2);
   });
 
   // Regression: the remap compared Date group values by object identity, so a
@@ -105,7 +105,7 @@ describe('FocusController focus handling', () => {
       { month: new Date(2026, 2, 1), sales: 30 + offset }
     ] as unknown as typeof rows;
     harness.reconcileWith({ dataProvider: makeProvider(dateRows(0)) });
-    harness.controller.applyFocus({ groupIndex: 1 });
+    harness.controller.applyFocus({ categoryIndex: 1 });
 
     // same dates as fresh instances, February reordered to the front
     const next = [
@@ -114,19 +114,19 @@ describe('FocusController focus handling', () => {
       { month: new Date(2026, 2, 1), sales: 35 }
     ] as unknown as typeof rows;
     harness.reconcileWith({ dataProvider: makeProvider(next) });
-    expect(harness.focuses[harness.focuses.length - 1].focusedGroupIndex).toBe(0);
+    expect(harness.focuses[harness.focuses.length - 1].focusedCategoryIndex).toBe(0);
   });
 
   it('drops group focus when the focused group disappears from the data', () => {
     const harness = makeHarness();
-    harness.controller.applyFocus({ groupIndex: 1 }); // Feb
+    harness.controller.applyFocus({ categoryIndex: 1 }); // Feb
 
     const nextRows = [
       { month: 'Jan', sales: 10 },
       { month: 'Mar', sales: 30 }
     ];
     harness.reconcileWith({ dataProvider: makeProvider(nextRows) });
-    expect(harness.focuses[harness.focuses.length - 1].focusedGroupIndex).toBe(-1);
+    expect(harness.focuses[harness.focuses.length - 1].focusedCategoryIndex).toBe(-1);
   });
 
   it('keeps focus and filters when the data changes without a focused group', () => {
@@ -141,22 +141,22 @@ describe('FocusController focus handling', () => {
 
   it('resets focus and filters when the config structure changes', () => {
     const harness = makeHarness();
-    harness.controller.applyFocus({ groupIndex: 1, seriesId: 'S0' });
+    harness.controller.applyFocus({ categoryIndex: 1, seriesId: 'S0' });
     expect(harness.controller.toggleSeriesFilter('S0').filteredSeriesIds).toEqual({ S0: true });
 
-    const structurallyDifferent = makeConfig({ seriesConfigs: [{ property: 'sales' }, { property: 'other' }] });
+    const structurallyDifferent = makeConfig({ series: [{ property: 'sales' }, { property: 'other' }] });
     harness.reconcileWith({ mochartConfig: structurallyDifferent });
 
-    expect(harness.focuses[harness.focuses.length - 1]).toEqual({ focusedGroupIndex: -1, focusedSeriesAxisId: null, focusedSeriesId: null });
+    expect(harness.focuses[harness.focuses.length - 1]).toEqual({ focusedCategoryIndex: -1, focusedValueAxisId: null, focusedSeriesId: null });
     expect(harness.filters[harness.filters.length - 1].filteredSeriesIds).toEqual({});
   });
 
   it('resets focus when the data provider becomes unavailable', () => {
     const harness = makeHarness();
-    harness.controller.applyFocus({ groupIndex: 2 });
+    harness.controller.applyFocus({ categoryIndex: 2 });
 
     harness.reconcileWith({ dataProvider: null as unknown as DataProvider });
-    expect(harness.focuses[harness.focuses.length - 1].focusedGroupIndex).toBe(-1);
+    expect(harness.focuses[harness.focuses.length - 1].focusedCategoryIndex).toBe(-1);
   });
 
   it('toggles series filters on and off', () => {
@@ -187,17 +187,17 @@ describe('FocusController focus handling', () => {
 
   it('applies external controlled values, leaving undefined fields untouched', () => {
     const { controller } = makeHarness();
-    controller.applyFocus({ groupIndex: 2, seriesId: 'S0' });
+    controller.applyFocus({ categoryIndex: 2, seriesId: 'S0' });
 
-    controller.applyExternal({ focusedGroupIndex: 0, filteredSeriesIds: { S1: true } });
-    expect(controller.focusedGroupIndex).toBe(0);
+    controller.applyExternal({ focusedCategoryIndex: 0, filteredSeriesIds: { S1: true } });
+    expect(controller.focusedCategoryIndex).toBe(0);
     expect(controller.focusedSeriesId).toBe('S0'); // undefined = uncontrolled, kept
     expect(controller.filteredSeriesIds).toEqual({ S1: true });
 
-    controller.applyExternal({ focusedSeriesId: null, focusedSeriesAxisId: 'SA0' });
+    controller.applyExternal({ focusedSeriesId: null, focusedValueAxisId: 'VA0' });
     expect(controller.focusedSeriesId).toBe(null);
-    expect(controller.focusedSeriesAxisId).toBe('SA0');
-    expect(controller.focusedGroupIndex).toBe(0);
+    expect(controller.focusedValueAxisId).toBe('VA0');
+    expect(controller.focusedCategoryIndex).toBe(0);
   });
 
   it('never mutates a previously returned filter snapshot', () => {

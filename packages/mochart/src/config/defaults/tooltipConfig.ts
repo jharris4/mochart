@@ -18,9 +18,9 @@ export function getRegularDefaults() {
     mouseOver: false,
     closeOnClick: true,
     filterOnSeriesClick: false,
-    focusOnGroupClick: false,
+    focusOnCategoryClick: false,
     focusOnSeriesClick: false,
-    focusOnGroupMouseOver: false,
+    focusOnCategoryMouseOver: false,
     focusOnSeriesMouseOver: false,
     showControls: false,
     keepInside: false,
@@ -60,12 +60,12 @@ export function getRegularDefaults() {
 
 export function getConditionalDefaults(configWithRegularDefaults: TooltipConfig, pieMode = false) {
   return {
-    snapToGroup: conditionalDefault([
+    snapToCategory: conditionalDefault([
       { condition: () => pieMode, suffix: "when chartConfig.type is pie", default: false },
       { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
       { ...defaultRule, default: true }
     ], configWithRegularDefaults, pieMode),
-    showGroup: conditionalDefault([
+    showCategory: conditionalDefault([
       { condition: () => pieMode, suffix: "when chartConfig.type is pie", default: false },
       { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
       { ...defaultRule, default: true }

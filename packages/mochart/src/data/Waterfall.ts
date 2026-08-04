@@ -1,4 +1,4 @@
-import type { DeepPartial, GroupAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, CategoryAxisConfig, SeriesConfig } from '../types/config';
 
 export type WaterfallDirection = 'increase' | 'decrease' | 'total';
 
@@ -58,17 +58,17 @@ export interface WaterfallData {
    * `delta`, `cumulative` and `direction`.
    */
   data: Record<string, number | string | undefined>[];
-  /** Fragment to spread into the chart config's `groupAxisConfig`. */
-  groupAxisConfig: Partial<GroupAxisConfig>;
+  /** Fragment to spread into the chart config's `categoryAxis`. */
+  categoryAxis: Partial<CategoryAxisConfig>;
   /**
-   * Fragments to spread into the chart config's `seriesConfigs`, one per
+   * Fragments to spread into the chart config's `series`, one per
    * direction in increase/decrease/total order. Directions absent from the
    * data keep their series so the config stays stable across data updates.
    */
-  seriesConfigs: DeepPartial<SeriesConfig>[];
+  series: DeepPartial<SeriesConfig>[];
 }
 
-const GROUP_PROPERTY = 'label';
+const CATEGORY_PROPERTY = 'label';
 const RANGE_PROPERTY = 'start';
 const DIRECTIONS: WaterfallDirection[] = ['increase', 'decrease', 'total'];
 
@@ -109,7 +109,7 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
   const steps = computeWaterfallSteps(items, base);
 
   const data = steps.map((step) => ({
-    [GROUP_PROPERTY]: step.label,
+    [CATEGORY_PROPERTY]: step.label,
     [RANGE_PROPERTY]: step.start,
     increase: step.direction === 'increase' ? step.end : undefined,
     decrease: step.direction === 'decrease' ? step.end : undefined,
@@ -119,8 +119,8 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
     direction: step.direction
   }));
 
-  const groupAxisConfig: Partial<GroupAxisConfig> = {
-    property: GROUP_PROPERTY,
+  const categoryAxis: Partial<CategoryAxisConfig> = {
+    property: CATEGORY_PROPERTY,
     type: 'string',
     scale: 'ordinal'
   };
@@ -151,5 +151,5 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
     } as DeepPartial<SeriesConfig>;
   });
 
-  return { steps, data, groupAxisConfig, seriesConfigs };
+  return { steps, data, categoryAxis, series: seriesConfigs };
 }

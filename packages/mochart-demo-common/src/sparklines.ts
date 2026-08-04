@@ -48,11 +48,11 @@ function walk(random: Rng, start: number, stepSize: number, drift: number): numb
 function lineConfig(renderer: 'line' | 'area', color: string): DemoConfig {
   return createSparklineConfig({
     version: '1.0.0',
-    groupAxisConfig: { property: 'i', type: 'number', scale: 'linear' },
-    // The preset hides series axes through seriesAxisAllConfig, which only
+    categoryAxis: { property: 'i', type: 'number', scale: 'linear' },
+    // The preset hides series axes through valueAxisAllConfig, which only
     // merges into *declared* axes — so declare the (otherwise defaulted) one.
-    seriesAxisConfigs: [{}],
-    seriesConfigs: [
+    valueAxes: [{}],
+    series: [
       { property: 'value', renderer, shapeStyle: { normal: { strokeColor: color, fillColor: color } } }
     ]
   }) as DemoConfig;
@@ -90,9 +90,9 @@ const winLossMetric: SparklineMetric = {
   ...TABLE_SIZE,
   config: createSparklineConfig({
     version: '1.0.0',
-    groupAxisConfig: { property: 'i', type: 'string', scale: 'ordinal' },
-    seriesAxisConfigs: [{ base: 0, min: -1, max: 1 }],
-    seriesConfigs: [
+    categoryAxis: { property: 'i', type: 'string', scale: 'ordinal' },
+    valueAxes: [{ base: 0, min: -1, max: 1 }],
+    series: [
       { property: 'up', renderer: 'bar', skipMissing: true, shapeStyle: { normal: { fillColor: AQUA } } },
       { property: 'down', renderer: 'bar', skipMissing: true, shapeStyle: { normal: { fillColor: RED } } }
     ]

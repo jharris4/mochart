@@ -6,31 +6,31 @@
 // links back to the demos.
 
 const referenceSectionIds = [
-  'animationConfig',
-  'chartConfig',
-  'colorPaletteConfig',
-  'crosshairConfig',
-  'groupAxisConfig',
-  'legendConfig',
-  'linearGradientConfigs',
-  'pieConfig',
-  'plotConfig',
-  'radialGradientConfigs',
-  'seriesAxisConfigs',
-  'seriesConfigs',
-  'seriesGroupConfigs',
-  'seriesStackConfigs',
-  'titleConfig',
-  'tooltipConfig'
+  'animation',
+  'chart',
+  'colorPalette',
+  'crosshair',
+  'categoryAxis',
+  'legend',
+  'linearGradients',
+  'pie',
+  'plot',
+  'radialGradients',
+  'valueAxes',
+  'series',
+  'seriesGroups',
+  'seriesStacks',
+  'title',
+  'tooltip'
 ];
 
 const allKeySectionMap: Record<string, string> = {
-  linearGradientAllConfig: 'linearGradientConfigs',
-  radialGradientAllConfig: 'radialGradientConfigs',
-  seriesAxisAllConfig: 'seriesAxisConfigs',
-  seriesAllConfig: 'seriesConfigs',
-  seriesGroupAllConfig: 'seriesGroupConfigs',
-  seriesStackAllConfig: 'seriesStackConfigs'
+  linearGradientDefaults: 'linearGradients',
+  radialGradientDefaults: 'radialGradients',
+  valueAxisDefaults: 'valueAxes',
+  seriesDefaults: 'series',
+  seriesGroupDefaults: 'seriesGroups',
+  seriesStackDefaults: 'seriesStacks'
 };
 
 interface DemoWindowConfig {

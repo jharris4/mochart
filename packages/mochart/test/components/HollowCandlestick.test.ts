@@ -27,12 +27,12 @@ const ITEMS = [
 let handles: ChartHandle<DefaultChartProps>[] = [];
 
 function mountHollowCandlestick(): Element {
-  const { data, groupAxisConfig, seriesConfigs } = createCandlestick(ITEMS, { hollow: true });
+  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = createCandlestick(ITEMS, { hollow: true });
   const config = {
     version: VERSION,
-    animationConfig: { animate: false },
-    groupAxisConfig,
-    seriesConfigs
+    animation: { animate: false },
+    categoryAxis: categoryAxisConfig,
+    series: seriesConfigs
   } as unknown as MochartInputConfig;
   const container = document.createElement('div');
   document.body.appendChild(container);

@@ -125,7 +125,7 @@ export const LABEL_POSITIONS = [
 export const COLOR_SERIES = 'series'
 export const COLOR_SAME = 'same';
 export const COLOR_SERIES_INDEX = 'seriesIndex';
-export const COLOR_GROUP_INDEX ='groupIndex';
+export const COLOR_CATEGORY_INDEX ='categoryIndex';
 
 // Not a palette resolution mode like the ones above: the others are resolved to
 // a concrete color by utils/SeriesColors, this one is the svg/css keyword and is
@@ -177,7 +177,7 @@ export type CurveType =
   typeof CURVE_TYPE_STEP_BEFORE | typeof CURVE_TYPE_STEP_AFTER;
 export type CapType = typeof CAP_TYPE_POINT | typeof CAP_TYPE_CURVE | typeof CAP_TYPE_ROUND;
 export type LabelPosition = typeof LABEL_POSITION_INSIDE | typeof LABEL_POSITION_CENTER | typeof LABEL_POSITION_OUTSIDE;
-export type ColorMode = typeof COLOR_SERIES | typeof COLOR_SAME | typeof COLOR_SERIES_INDEX | typeof COLOR_GROUP_INDEX;
+export type ColorMode = typeof COLOR_SERIES | typeof COLOR_SAME | typeof COLOR_SERIES_INDEX | typeof COLOR_CATEGORY_INDEX;
 export type ColorInterpolation =
   typeof COLOR_INTERPOLATION_RGB | typeof COLOR_INTERPOLATION_HSL | typeof COLOR_INTERPOLATION_LAB | typeof COLOR_INTERPOLATION_HCL;
 export type MarkerShape =

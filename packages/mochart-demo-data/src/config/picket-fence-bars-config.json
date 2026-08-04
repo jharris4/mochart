@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Picket Fence Bars"
+  "title": {
+    "text": "Picket Fence Bars"
   },
-  "animationConfig": {
+  "animation": {
     "animate": true,
     "expansionDuration": 1500,
     "initialDuration": 3000,
@@ -11,7 +11,7 @@
     "collapseDuration": 1500,
     "focusDuration": 800
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "before": false,
     "title": "Month",
     "axisLine": true,
@@ -23,11 +23,11 @@
     "type": "date",
     "scale": "ordinal",
     "dateUTC": true,
-    "valueLabel": "Group",
+    "valueLabel": "Category",
     "valueFormat": "%B",
     "property": "date"
   },
-  "seriesAxisConfigs": {
+  "valueAxes": {
     "before": true,
     "visible": true,
     "axisLineMargin": 0,
@@ -36,12 +36,12 @@
     "title": "Monthly Amount",
     "min": 0
   },
-  "seriesStackConfigs": {},
-  "seriesAllConfig": {
+  "seriesStacks": {},
+  "seriesDefaults": {
     "renderer": "bar",
     "markerShape": null
   },
-  "seriesConfigs": [
+  "series": [
     {
       "title": "Round",
       "property": "value1",

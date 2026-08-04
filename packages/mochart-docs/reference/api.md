@@ -32,7 +32,7 @@ Mounts a chart into `container` from a raw
 [config](/guide/config-model) and a plain array-of-objects dataset; the
 config is validated and enhanced internally on every change, and `data` is
 wrapped in an `ArrayOfObjectsDataProvider` keyed by
-[`groupAxisConfig.property`](/reference/groupAxisConfig#groupAxisConfig.property).
+[`categoryAxisConfig.property`](/reference/categoryAxis#categoryAxis.property).
 
 Props: `config` and `data`, plus everything in
 [Chart props](/reference/props) — sizing, `loading`/`error`, the controlled
@@ -73,17 +73,17 @@ interface ChartHandle<TProps> {
 ## Data providers
 
 ```ts
-new ArrayOfObjectsDataProvider(data, groupProperty)  // [{ month: 'Jan', revenue: 10 }, …]
-new ObjectOfArraysDataProvider(data, groupProperty)  // { month: ['Jan', …], revenue: [10, …] }
+new ArrayOfObjectsDataProvider(data, categoryProperty)  // [{ month: 'Jan', revenue: 10 }, …]
+new ObjectOfArraysDataProvider(data, categoryProperty)  // { month: ['Jan', …], revenue: [10, …] }
 ```
 
 Both implement the `DataProvider` interface, which custom providers can
 implement to read straight from an existing store:
 
 ```ts
-interface DataProvider<TGroupValue, TSeriesValue> {
-  getGroupValues(): readonly TGroupValue[];
-  getSeriesValue(groupValue: TGroupValue, groupIndex: number, seriesProperty: string): TSeriesValue;
+interface DataProvider<TCategoryValue, TSeriesValue> {
+  getCategoryValues(): readonly TCategoryValue[];
+  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, seriesProperty: string): TSeriesValue;
   getError?(): unknown;    // truthy → the chart shows its error state
   getLoading?(): boolean;  // true → the chart shows its loading state
 }
@@ -123,17 +123,17 @@ getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data pr
 
 Factories for chart shapes that are really data transforms plus config
 conventions. Each returns chart-ready `data` rows alongside config
-*fragments* (`groupAxisConfig`, `seriesConfigs`, …) to spread into your own
+*fragments* (`categoryAxisConfig`, `seriesConfigs`, …) to spread into your own
 config — they never touch the chart, so titles, axes, and styling stay
 yours. Each links to a recipe with a live example.
 
 ```ts
-createHistogram(values, options?)   // → { bins, data, groupAxisConfig, seriesConfig }
-createWaterfall(items, options?)    // → { steps, data, groupAxisConfig, seriesConfigs }
-createHeatmap(rows, options?)       // → { domain, colorScale, data, groupAxisConfig, seriesAxisConfig, seriesConfigs }
-createCandlestick(items, options?)  // → { candles, data, groupAxisConfig, seriesConfigs }
-createOhlc(items, options?)         // → { candles, data, groupAxisConfig, seriesConfigs }
-createPie(items, options?)          // → { total, fractions, data, chartConfig, pieConfig, groupAxisConfig, seriesConfigs }
+createHistogram(values, options?)   // → { bins, data, categoryAxisConfig, seriesConfig }
+createWaterfall(items, options?)    // → { steps, data, categoryAxisConfig, seriesConfigs }
+createHeatmap(rows, options?)       // → { domain, colorScale, data, categoryAxisConfig, valueAxisConfig, seriesConfigs }
+createCandlestick(items, options?)  // → { candles, data, categoryAxisConfig, seriesConfigs }
+createOhlc(items, options?)         // → { candles, data, categoryAxisConfig, seriesConfigs }
+createPie(items, options?)          // → { total, fractions, data, chartConfig, pieConfig, categoryAxisConfig, seriesConfigs }
 createSparklineConfig(config, options?)  // → config with the sparkline preset applied
 ```
 
@@ -151,7 +151,7 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
 - `createCandlestick` turns OHLC items into candles: direction-colored
   open/close bodies over thin low/high wicks, or outlined up bodies with
   the `hollow` option. The `volume` option adds a volume pane on a second
-  axis (the result gains a `seriesAxisConfigs` fragment).
+  axis (the result gains a `valueAxisConfigs` fragment).
   `computeCandlesticks` is the math alone. See
   [Candlestick](/recipes/candlestick).
 - `createOhlc` turns the same OHLC items into tick bars: thin low/high
@@ -171,7 +171,7 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
 
 `AUTO` (`'auto'`), `NONE` (`null`), the group axis types `TYPE_STRING` /
 `TYPE_NUMBER` / `TYPE_DATE`, the scales `SCALE_ORDINAL` / `SCALE_LINEAR`,
-and the [`chartConfig.type`](/reference/chartConfig#chartConfig.type) values
+and the [`chartConfig.type`](/reference/chart#chart.type) values
 `CHART_TYPE_XY` (`'xy'`) / `CHART_TYPE_PIE` (`'pie'`) — exported so configs
 built in code can avoid string literals.
 

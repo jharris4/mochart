@@ -9,13 +9,14 @@ import { describe, it, expect } from 'vitest';
 import { getLegendItemTextRawBounds } from '../../src/utils/TextMeasurement';
 import { enhanceConfig } from '../../src';
 import type { ChartDomAccessors } from '../../src/types/chart';
+import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 
-function makeConfig(showInLegendFlags: boolean[]) {
+function makeConfig(showInLegendFlags: boolean[]): EnhancedMochartConfig {
   return enhanceConfig({
     version: '1.0.0',
-    groupAxisConfig: { property: 'label' },
-    seriesConfigs: showInLegendFlags.map((showInLegend, i) => ({ property: 'p' + i, showInLegend }))
-  } as never);
+    categoryAxis: { property: 'label' },
+    series: showInLegendFlags.map((showInLegend, i) => ({ property: 'p' + i, showInLegend }))
+  } as never) as EnhancedMochartConfig;
 }
 
 function fakeTextElement(width: number): SVGGraphicsElement {

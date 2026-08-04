@@ -175,7 +175,7 @@ const bindingSources: BindingSource[] = [
   }
 ];
 
-const groupTitles: Record<BindingPropKind, { title: string; description: string }> = {
+const categoryTitles: Record<BindingPropKind, { title: string; description: string }> = {
   entry: {
     title: 'Entry-point props',
     description:
@@ -406,8 +406,8 @@ export function buildBindingReference(coreModel: CoreApiModel): BindingReference
     const groups: BindingGroupDoc[] = (['entry', 'prop', 'callback', 'placeholder'] as BindingPropKind[])
       .map(kind => ({
         id: source.id + '.' + kind,
-        title: groupTitles[kind].title,
-        description: groupTitles[kind].description,
+        title: categoryTitles[kind].title,
+        description: categoryTitles[kind].description,
         properties: properties.filter(property => property.kind === kind)
       }))
       .filter(group => group.properties.length > 0);

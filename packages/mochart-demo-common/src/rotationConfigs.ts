@@ -17,22 +17,22 @@ export const rotationData = [
 
 const baseConfig = {
   "version": "1.0.0",
-  "chartConfig": {
+  "chart": {
     "margin": { "top": 10, "right": 10, "bottom": 10, "left": 10 }
   },
-  "plotConfig": {
+  "plot": {
     "inverted": false
   },
-  "titleConfig": {
-    "title": "The Title"
+  "title": {
+    "text": "The Title"
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "valueLabel": "Group",
     "property": "g",
     "displayProperty": "gd",
     "type": "string",
     "scale": "ordinal",
-    "title": "Group Axis Title",
+    "title": "Category Axis Title",
     "tickLabelTruncationEnabled": true,
     "tickLabelTruncationValue": "...",
     "tickLabelTruncationMaxFraction": 0.20,
@@ -43,16 +43,16 @@ const baseConfig = {
     "before": true,
     "collapsed": false
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
-      "id": "SA1",
+      "id": "VA1",
       "base": 0,
       "min": 0
     }
   ],
-  "seriesConfigs": [
+  "series": [
     {
-      "axis": "SA1",
+      "axis": "VA1",
       "property": "v",
       "title": "Series 1"
     }
@@ -63,13 +63,13 @@ export const rotationConfigs: Record<string, any>[] = [];
 
 function addConfig(title: string, inverted: boolean, before: boolean, collapsed: boolean, rotation: number, anchor = "auto"): void {
   const configOverride = {
-    "titleConfig": {
-      "title": title
+    "title": {
+      "text": title
     },
-    "plotConfig": {
+    "plot": {
       "inverted": inverted
     },
-    "groupAxisConfig": {
+    "categoryAxis": {
       "before": before,
       "collapsed": collapsed,
       "tickLabelRotation": rotation,

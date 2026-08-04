@@ -30,12 +30,12 @@ const numberRows = [
   { level: 10, sales: 25 }
 ];
 
-function makeConfig(groupAxisConfig: Record<string, unknown>, overrides: Record<string, unknown> = {}): MochartInputConfig {
+function makeConfig(categoryAxis: Record<string, unknown>, overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animationConfig: { animate: false },
-    groupAxisConfig,
-    seriesConfigs: [{ property: 'sales' }],
+    animation: { animate: false },
+    categoryAxis,
+    series: [{ property: 'sales' }],
     ...overrides
   } as unknown as MochartInputConfig;
 }
@@ -53,7 +53,7 @@ function mountChart(config: MochartInputConfig, data: readonly unknown[]): Eleme
 }
 
 function tickLabels(container: Element): string[] {
-  const labels = container.querySelectorAll('.mochart-group-axis .mochart-axis-tick-labels text');
+  const labels = container.querySelectorAll('.mochart-category-axis .mochart-axis-tick-labels text');
   return Array.from(labels).map(label => label.textContent ?? '');
 }
 

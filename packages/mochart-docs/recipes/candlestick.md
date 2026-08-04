@@ -20,17 +20,17 @@ import * as candlestickVolume from '../examples/candlestickVolume'
   the close is at or above the open, **down** otherwise.
 - The candles are four ordinary `bar` series — an up and a down body
   spanning from `open` via
-  [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty),
+  [`rangeProperty`](/reference/series#series.rangeProperty),
   and an up and a down wick spanning `low`→`high`, narrowed to a sliver of
   the slot with
-  [`barWidthFraction`](/reference/seriesConfigs#seriesConfigs.barWidthFraction)
+  [`barWidthFraction`](/reference/series#series.barWidthFraction)
   and listed first so the bodies paint over them. Every row carries values
   for exactly one direction, and
-  [`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing) with
-  [`skipPartialRange`](/reference/seriesConfigs#seriesConfigs.skipPartialRange)
+  [`skipMissing`](/reference/series#series.skipMissing) with
+  [`skipPartialRange`](/reference/series#series.skipPartialRange)
   keeps the other direction's series from rendering — the same trick as the
   [Waterfall](/recipes/waterfall).
-- The group axis is ordinal, so non-trading days (weekends, holidays)
+- The category axis is ordinal, so non-trading days (weekends, holidays)
   simply don't exist on the axis instead of leaving gaps — note `Jun 05`
   sits next to `Jun 08` above.
 - The default direction colors are aqua/red rather than the conventional
@@ -42,7 +42,7 @@ import * as candlestickVolume from '../examples/candlestickVolume'
   under its direction title, and the wick's `low – high` span under
   `rangeTitle` (default "Range"). The wicks stay out of the legend but
   follow their body's legend filtering and focus via
-  [`followSeries`](/reference/seriesConfigs#seriesConfigs.followSeries),
+  [`followSeries`](/reference/series#series.followSeries),
   so toggling a direction removes whole candles and focusing a direction
   highlights whole candles.
 - Each row also carries the raw `open`/`high`/`low`/`close` plus `change`
@@ -66,7 +66,7 @@ show through the hollow interior), so the helper splits it into segments
 that stop at the body edges, and the original wick series turns shapeless —
 it keeps the tooltip's single `low – high` range row and its focus/filter
 wiring, but draws nothing. The up body outlines itself through
-[`shapeStyle`](/reference/seriesConfigs#seriesConfigs.shapeStyle) — a stroke
+[`shapeStyle`](/reference/series#series.shapeStyle) — a stroke
 color and width against `fillOpacity: 0`, pinned to 0 in the focused and
 defocused states too so hovering thickens the outline rather than filling it
 — and its legend and tooltip icons pick up the stroke color automatically.
@@ -83,12 +83,12 @@ direction-colored volume bars along the bottom of the plot:
 <<< @/examples/candlestickVolume.ts{21}
 
 The pane is pure domain-margin geometry on a second value axis, so it adapts
-to every data update: the result gains a `seriesAxisConfigs` fragment with a
+to every data update: the result gains a `valueAxisConfigs` fragment with a
 `price` axis whose enlarged
-[`minMarginFraction`](/reference/seriesAxisConfigs#seriesAxisConfigs.minMarginFraction)
+[`minMarginFraction`](/reference/valueAxes#valueAxes.minMarginFraction)
 lifts the candles into the upper plot, and a hidden `volume` axis pinned at
 0 whose
-[`maxMarginFraction`](/reference/seriesAxisConfigs#seriesAxisConfigs.maxMarginFraction)
+[`maxMarginFraction`](/reference/valueAxes#valueAxes.maxMarginFraction)
 confines the bars to the bottom band (margins above 1 are allowed for
 exactly this banding). Tune the split with `volume: { heightFraction,
 gapFraction }` (defaults 0.2 and 0.05), relabel the tooltip rows with

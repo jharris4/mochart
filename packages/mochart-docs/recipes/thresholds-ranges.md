@@ -14,27 +14,27 @@ import * as thresholdRange from '../examples/thresholdRange'
 
 ## How it works
 
-- [`threshold`](/reference/seriesAxisConfigs#seriesAxisConfigs.threshold) on
+- [`threshold`](/reference/valueAxes#valueAxes.threshold) on
   a value axis draws a line at that value;
-  [`thresholdTitle`](/reference/seriesAxisConfigs#seriesAxisConfigs.thresholdTitle)
+  [`thresholdTitle`](/reference/valueAxes#valueAxes.thresholdTitle)
   labels it.
-  [`thresholdStyle`](/reference/seriesAxisConfigs#seriesAxisConfigs.thresholdStyle)
+  [`thresholdStyle`](/reference/valueAxes#valueAxes.thresholdStyle)
   paints the line and
-  [`thresholdTitleTextStyle`](/reference/seriesAxisConfigs#seriesAxisConfigs.thresholdTitleTextStyle)
+  [`thresholdTitleTextStyle`](/reference/valueAxes#valueAxes.thresholdTitleTextStyle)
   the title, each in its `normal`, `focused` and `defocused` states, while
-  [`thresholdDashArray`](/reference/seriesAxisConfigs#seriesAxisConfigs.thresholdDashArray)
+  [`thresholdDashArray`](/reference/valueAxes#valueAxes.thresholdDashArray)
   and the other `threshold*` properties cover the non-color settings. The
-  group axis supports the same threshold properties for a vertical reference
+  category axis supports the same threshold properties for a vertical reference
   line.
 - The band is an ordinary `area` series with
-  [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty):
+  [`rangeProperty`](/reference/series#series.rangeProperty):
   the shape spans from the `rangeProperty` value (here `p5`) to the
   `property` value (`p95`) instead of starting at the axis base. Dropping
-  [`shapeStyle.normal.strokeOpacity`](/reference/seriesConfigs#seriesConfigs.shapeStyle.normal.strokeOpacity)
+  [`shapeStyle.normal.strokeOpacity`](/reference/series#series.shapeStyle.normal.strokeOpacity)
   to 0 and
-  [`fillOpacity`](/reference/seriesConfigs#seriesConfigs.shapeStyle.normal.fillOpacity)
+  [`fillOpacity`](/reference/series#series.shapeStyle.normal.fillOpacity)
   low keeps it as background context — the shape's colors and its focused and
   defocused states are left at their defaults.
 - The axis grows to fit the threshold if the data alone wouldn't reach it —
-  use [`softMax`](/reference/seriesAxisConfigs#seriesAxisConfigs.softMax) to
+  use [`softMax`](/reference/valueAxes#valueAxes.softMax) to
   guarantee headroom above it.

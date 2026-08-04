@@ -8,16 +8,16 @@ export type {
 } from '@mochart/demo-data';
 
 /** A value on the group axis of a generated data set. */
-export type GroupValue = number | string;
+export type CategoryValue = number | string;
 
 /** Map of series id -> whether that series is currently filtered out. */
 export type FilteredSeriesIds = Record<string, boolean>;
 
 /** Focus event payload emitted by the chart interactions. */
 export interface FocusData {
-  seriesAxisId?: string | null;
+  valueAxisId?: string | null;
   seriesId?: string | null;
-  groupIndex?: number;
+  categoryIndex?: number;
 }
 
 /** The transition demo's config bundle: one config plus a sequence of datasets. */
@@ -28,7 +28,7 @@ export interface TransitionConfig {
 
 /** Loose structural view of a data provider as consumed by the demo charts. */
 export interface ChartDataProviderLike {
-  getGroupValues: () => readonly any[];
+  getCategoryValues: () => readonly any[];
   getSeriesValue?: (...args: any[]) => any;
   getError?: (...args: any[]) => any;
 }
@@ -38,10 +38,10 @@ export interface ChartDataProviderLike {
  * by the chart / getDataErrors. `getError` marks the error/invalid variants.
  */
 export interface DemoDataProvider {
-  getGroupValues: () => GroupValue[];
-  getSeriesValue?: (groupValue: GroupValue, groupIndex: number, seriesProperty: string) => unknown;
+  getCategoryValues: () => CategoryValue[];
+  getSeriesValue?: (categoryValue: CategoryValue, categoryIndex: number, seriesProperty: string) => unknown;
   getError?: () => string;
-  groupValues?: GroupValue[];
+  categoryValues?: CategoryValue[];
   seriesValues?: Record<string, (number | undefined)[]>;
 }
 
@@ -65,7 +65,7 @@ export interface MochartDemoConfig {
   configValidation: ConfigValidation;
   mochartConfig: MochartConfig;
   valid: boolean;
-  groupProperty: string | undefined;
+  categoryProperty: string | undefined;
   seriesCount: number;
   /** True for pie-type charts (pie/donut/gauge): slices are series, one data row. */
   pieMode: boolean;

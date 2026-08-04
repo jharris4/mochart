@@ -5,12 +5,12 @@ import type { ConfigValidation, MochartConfig } from '../../types/config';
 type ConfigRecord = Record<string, unknown>;
 
 export const sectionKeyAllMap: Record<string, string> = {
-  linearGradientConfigs: 'linearGradientAllConfig',
-  radialGradientConfigs: 'radialGradientAllConfig',
-  seriesAxisConfigs: 'seriesAxisAllConfig',
-  seriesConfigs: 'seriesAllConfig',
-  seriesGroupConfigs: 'seriesGroupAllConfig',
-  seriesStackConfigs: 'seriesStackAllConfig'
+  linearGradients: 'linearGradientDefaults',
+  radialGradients: 'radialGradientDefaults',
+  valueAxes: 'valueAxisDefaults',
+  series: 'seriesDefaults',
+  seriesGroups: 'seriesGroupDefaults',
+  seriesStacks: 'seriesStackDefaults'
 };
 
 function isObject(v: unknown): v is ConfigRecord {
@@ -213,24 +213,24 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
   }
 
   const config = applyDefaults(configWithoutDefaults, configDefaults);
-  let seriesAxisConfigs = config.seriesAxisConfigs as ConfigRecord[];
-  let seriesStackConfigs = config.seriesStackConfigs as ConfigRecord[];
-  let seriesGroupConfigs = config.seriesGroupConfigs as ConfigRecord[];
-  let seriesConfigs = config.seriesConfigs as ConfigRecord[];
-  let linearGradientConfigs = config.linearGradientConfigs as ConfigRecord[];
-  let radialGradientConfigs = config.radialGradientConfigs as ConfigRecord[];
-  const { seriesAxisAllConfig, seriesStackAllConfig, seriesGroupAllConfig, seriesAllConfig, linearGradientAllConfig, radialGradientAllConfig } = configWithoutDefaults;
+  let valueAxisConfigs = config.valueAxes as ConfigRecord[];
+  let seriesStackConfigs = config.seriesStacks as ConfigRecord[];
+  let seriesGroupConfigs = config.seriesGroups as ConfigRecord[];
+  let seriesConfigs = config.series as ConfigRecord[];
+  let linearGradientConfigs = config.linearGradients as ConfigRecord[];
+  let radialGradientConfigs = config.radialGradients as ConfigRecord[];
+  const { valueAxisDefaults, seriesStackDefaults, seriesGroupDefaults, seriesDefaults, linearGradientDefaults, radialGradientDefaults } = configWithoutDefaults;
 
-  seriesAxisConfigs = applyAllConfig(seriesAxisConfigs, seriesAxisAllConfig);
-  seriesStackConfigs = applyAllConfig(seriesStackConfigs, seriesStackAllConfig);
-  seriesGroupConfigs = applyAllConfig(seriesGroupConfigs, seriesGroupAllConfig);
-  seriesConfigs = applyAllConfig(seriesConfigs, seriesAllConfig);
-  linearGradientConfigs = applyAllConfig(linearGradientConfigs, linearGradientAllConfig);
-  radialGradientConfigs = applyAllConfig(radialGradientConfigs, radialGradientAllConfig);
+  valueAxisConfigs = applyAllConfig(valueAxisConfigs, valueAxisDefaults);
+  seriesStackConfigs = applyAllConfig(seriesStackConfigs, seriesStackDefaults);
+  seriesGroupConfigs = applyAllConfig(seriesGroupConfigs, seriesGroupDefaults);
+  seriesConfigs = applyAllConfig(seriesConfigs, seriesDefaults);
+  linearGradientConfigs = applyAllConfig(linearGradientConfigs, linearGradientDefaults);
+  radialGradientConfigs = applyAllConfig(radialGradientConfigs, radialGradientDefaults);
 
-  const seriesAxisConfigsById = configsToIdMap(seriesAxisConfigs, value => value);
-  const seriesAxisConfigsOrdered = configsToOrderedList(seriesAxisConfigs);
-  const seriesAxisSeriesConfigsById = configsToIdMap(seriesAxisConfigs, () => []);
+  const valueAxisConfigsById = configsToIdMap(valueAxisConfigs, value => value);
+  const valueAxisConfigsOrdered = configsToOrderedList(valueAxisConfigs);
+  const valueAxisSeriesConfigsById = configsToIdMap(valueAxisConfigs, () => []);
 
   const seriesStackConfigsById = configsToIdMap(seriesStackConfigs, value => value);
   const seriesStackSeriesConfigsById = configsToIdMap(seriesStackConfigs, () => []);
@@ -244,40 +244,40 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
   const seriesConfigsById = configsToIdMap(seriesConfigs, value => value);
   const seriesConfigsOrdered = configsToOrderedList(seriesConfigs);
 
-  addToIdMap(seriesAxisSeriesConfigsById, seriesConfigsOrdered, 'axis');
+  addToIdMap(valueAxisSeriesConfigsById, seriesConfigsOrdered, 'axis');
   addToIdMap(seriesStackSeriesConfigsById, seriesConfigsOrdered, 'stack');
   addToIdMap(seriesGroupSeriesConfigsById, seriesConfigsOrdered, 'group');
 
-  assignConfigReferences(seriesStackConfigs, 'axis', 'seriesAxisConfig', seriesAxisConfigsById, 'seriesStackConfigs');
-  assignConfigReferences(seriesConfigs, 'axis', 'seriesAxisConfig', seriesAxisConfigsById, 'seriesConfigs');
-  assignConfigReferences(seriesConfigs, 'stack', 'seriesStackConfig', seriesStackConfigsById, 'seriesConfigs');
-  assignConfigReferences(seriesConfigs, 'group', 'seriesGroupConfig', seriesGroupConfigsById, 'seriesConfigs');
-  assignConfigReferences(seriesConfigs, 'gradient', 'linearGradientConfig', linearGradientConfigsById, 'seriesConfigs');
-  assignConfigReferences(seriesConfigs, 'gradient', 'radialGradientConfig', radialGradientConfigsById, 'seriesConfigs');
+  assignConfigReferences(seriesStackConfigs, 'axis', 'valueAxisConfig', valueAxisConfigsById, 'seriesStacks');
+  assignConfigReferences(seriesConfigs, 'axis', 'valueAxisConfig', valueAxisConfigsById, 'series');
+  assignConfigReferences(seriesConfigs, 'stack', 'seriesStackConfig', seriesStackConfigsById, 'series');
+  assignConfigReferences(seriesConfigs, 'group', 'seriesGroupConfig', seriesGroupConfigsById, 'series');
+  assignConfigReferences(seriesConfigs, 'gradient', 'linearGradientConfig', linearGradientConfigsById, 'series');
+  assignConfigReferences(seriesConfigs, 'gradient', 'radialGradientConfig', radialGradientConfigsById, 'series');
 
-  assignConfigListReferences(seriesAxisConfigs, 'seriesConfigs', seriesAxisSeriesConfigsById, 'seriesAxisConfigs');
-  assignConfigListReferences(seriesStackConfigs, 'seriesConfigs', seriesStackSeriesConfigsById, 'seriesStackConfigs');
-  assignConfigListReferences(seriesGroupConfigs, 'seriesConfigs', seriesGroupSeriesConfigsById, 'seriesGroupConfigs');
+  assignConfigListReferences(valueAxisConfigs, 'seriesConfigs', valueAxisSeriesConfigsById, 'valueAxisConfigs');
+  assignConfigListReferences(seriesStackConfigs, 'seriesConfigs', seriesStackSeriesConfigsById, 'seriesStacks');
+  assignConfigListReferences(seriesGroupConfigs, 'seriesConfigs', seriesGroupSeriesConfigsById, 'seriesGroups');
 
-  const seriesAxisConfigIndicesById = arrayToIdIndexMap(seriesAxisConfigsOrdered);
+  const valueAxisConfigIndicesById = arrayToIdIndexMap(valueAxisConfigsOrdered);
   const seriesConfigIndicesById = arrayToIdIndexMap(seriesConfigsOrdered);
 
-  assignConfigListIndexReferences(seriesAxisConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'seriesAxisConfigs');
-  assignConfigListIndexReferences(seriesStackConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'seriesStackConfigs');
-  assignConfigListIndexReferences(seriesGroupConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'seriesGroupConfigs');
+  assignConfigListIndexReferences(valueAxisConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'valueAxisConfigs');
+  assignConfigListIndexReferences(seriesStackConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'seriesStacks');
+  assignConfigListIndexReferences(seriesGroupConfigs, 'seriesConfigIndicesById', 'seriesConfigs', 'seriesGroups');
 
   return {
     ...config,
-    seriesAxisConfigs: seriesAxisConfigsOrdered,
-    seriesAxisConfigsById,
-    seriesAxisConfigIndicesById,
-    seriesGroupConfigs,
-    seriesGroupConfigsById,
-    seriesStackConfigs,
-    seriesStackConfigsById,
-    seriesConfigs: seriesConfigsOrdered,
-    seriesConfigsById,
-    seriesConfigIndicesById,
+    valueAxes: valueAxisConfigsOrdered,
+    valueAxesById: valueAxisConfigsById,
+    valueAxisIndicesById: valueAxisConfigIndicesById,
+    seriesGroups: seriesGroupConfigs,
+    seriesGroupsById: seriesGroupConfigsById,
+    seriesStacks: seriesStackConfigs,
+    seriesStacksById: seriesStackConfigsById,
+    series: seriesConfigsOrdered,
+    seriesById: seriesConfigsById,
+    seriesIndicesById: seriesConfigIndicesById,
     validation,
   } as unknown as MochartConfig;
 }
@@ -289,33 +289,33 @@ export function hasConfigStructureChange(configOld: MochartConfig, configNew: Mo
   if (configOld.id !== configNew.id) {
     return true;
   }
-  if (configOld.chartConfig.type !== configNew.chartConfig.type) {
+  if (configOld.chart.type !== configNew.chart.type) {
     return true;
   }
-  const { groupAxisConfig } = configOld;
-  const { groupAxisConfig: newGroupAxisConfig } = configNew;
-  if (groupAxisConfig.property !== newGroupAxisConfig.property ||
-      groupAxisConfig.type !== newGroupAxisConfig.type ||
-      groupAxisConfig.scale !== newGroupAxisConfig.scale ||
-      groupAxisConfig.dateUTC !== newGroupAxisConfig.dateUTC) {
+  const { categoryAxis: categoryAxisConfig } = configOld;
+  const { categoryAxis: newCategoryAxisConfig } = configNew;
+  if (categoryAxisConfig.property !== newCategoryAxisConfig.property ||
+      categoryAxisConfig.type !== newCategoryAxisConfig.type ||
+      categoryAxisConfig.scale !== newCategoryAxisConfig.scale ||
+      categoryAxisConfig.dateUTC !== newCategoryAxisConfig.dateUTC) {
     return true;
   }
 
-  const { seriesAxisConfigs } = configOld;
-  const { seriesAxisConfigs: newSeriesAxisConfigs } = configNew;
-  if (seriesAxisConfigs.length !== newSeriesAxisConfigs.length) {
+  const { valueAxes: valueAxisConfigs } = configOld;
+  const { valueAxes: newValueAxisConfigs } = configNew;
+  if (valueAxisConfigs.length !== newValueAxisConfigs.length) {
     return true;
   }
-  for (let seriesAxisIndex = 0; seriesAxisIndex < seriesAxisConfigs.length; seriesAxisIndex++) {
-    const seriesAxisConfig = seriesAxisConfigs[seriesAxisIndex];
-    const newSeriesAxisConfig = newSeriesAxisConfigs[seriesAxisIndex];
-    if (seriesAxisConfig.id !== newSeriesAxisConfig.id) {
+  for (let valueAxisIndex = 0; valueAxisIndex < valueAxisConfigs.length; valueAxisIndex++) {
+    const valueAxisConfig = valueAxisConfigs[valueAxisIndex];
+    const newValueAxisConfig = newValueAxisConfigs[valueAxisIndex];
+    if (valueAxisConfig.id !== newValueAxisConfig.id) {
       return true;
     }
   }
 
-  const { seriesStackConfigs } = configOld;
-  const { seriesStackConfigs: newSeriesStackConfigs } = configNew;
+  const { seriesStacks: seriesStackConfigs } = configOld;
+  const { seriesStacks: newSeriesStackConfigs } = configNew;
   if (seriesStackConfigs.length !== newSeriesStackConfigs.length) {
     return true;
   }
@@ -328,8 +328,8 @@ export function hasConfigStructureChange(configOld: MochartConfig, configNew: Mo
     }
   }
 
-  const { seriesConfigs } = configOld;
-  const { seriesConfigs: newSeriesConfigs } = configNew;
+  const { series: seriesConfigs } = configOld;
+  const { series: newSeriesConfigs } = configNew;
   if (seriesConfigs.length !== newSeriesConfigs.length) {
     return true;
   }

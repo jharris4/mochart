@@ -25,11 +25,11 @@ beforeAll(() => {
 function rawConfig(): any {
   return {
     version: '1.0.0',
-    titleConfig: { title: 'Test Chart' },
-    groupAxisConfig: { property: 'name', type: 'string', scale: 'ordinal' },
-    seriesAllConfig: { renderer: 'bar' },
-    seriesConfigs: [{ property: 'value', title: 'Value' }],
-    animationConfig: { animate: false }
+    title: { text: 'Test Chart' },
+    categoryAxis: { property: 'name', type: 'string', scale: 'ordinal' },
+    seriesDefaults: { renderer: 'bar' },
+    series: [{ property: 'value', title: 'Value' }],
+    animation: { animate: false }
   };
 }
 
@@ -246,7 +246,7 @@ describe('removed props', () => {
     expect(el.querySelector('.mochart-loading')).toBeNull();
     expect(el.querySelector('svg')).not.toBeNull();
 
-    unmount(instance);
+    void unmount(instance);
     el.remove();
   });
 });

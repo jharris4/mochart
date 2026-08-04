@@ -1,7 +1,8 @@
 import { ALIGN_LEFT, ALIGN_CENTER, AUTO } from '../config/core/constants';
 import { createSpacingLayoutInfo, getSpacingLeft, getSpacingWidth, getSpacingTop, getSpacingHeight } from './SpacingLayoutInfo';
 import type { Bounds, TextBounds } from '../types/geometry';
-import type { LegendConfig, MochartConfig } from '../types/config';
+import type { LegendConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartTextBoundsData, LayoutInfo, LegendLayoutResult, SpacingLayoutInfo } from '../types/layout';
 
 const fallbackLegendIconSize = 14;
@@ -14,8 +15,8 @@ export function resolveLegendIconSize(legendConfig: LegendConfig, legendTextBoun
   return fontSize !== undefined && fontSize > 0 ? Math.round(fontSize) : legendTextBounds.height;
 }
 
-export function getLegendHeight(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, plotWidthAndX: { x: number; width: number }): number {
-  const { legendConfig, seriesConfigs } = mochartConfig;
+export function getLegendHeight(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, plotWidthAndX: { x: number; width: number }): number {
+  const { legend: legendConfig, series: seriesConfigs } = mochartConfig;
   if (legendConfig.visible === true && seriesConfigs.length > 0) {
     const { margin, padding, itemMargin, itemPadding, alignedToAxes, iconSpacerSize } = legendConfig;
     const { legendItemTextRawBounds, legendItemMaxTextBounds } = chartTextBoundsData;
@@ -66,8 +67,8 @@ export function getLegendHeight(mochartConfig: MochartConfig, chartTextBoundsDat
   return 0;
 }
 
-export function getLegendLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, legendHeight: number, legendY: number): Partial<LegendLayoutResult> {
-  const { legendConfig, seriesConfigs } = mochartConfig;
+export function getLegendLayoutInfo(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, legendHeight: number, legendY: number): Partial<LegendLayoutResult> {
+  const { legend: legendConfig, series: seriesConfigs } = mochartConfig;
   if (legendConfig.visible === true && seriesConfigs.length > 0) {
     const { margin, padding, itemMargin, itemPadding, alignedToAxes, align, iconSpacerSize } = legendConfig;
     const { legendItemTextRawBounds, legendItemMaxTextBounds } = chartTextBoundsData;

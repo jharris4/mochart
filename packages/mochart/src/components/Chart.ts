@@ -3,12 +3,12 @@ import type { ElSlot, RendererItem, RendererList, Slot } from '../render';
 
 import { getVersionString } from '../version';
 import { hasConfigStructureChange } from '../config/core/mochartConfig';
-import { isDataProviderValid, getGroupSeriesValueObject, getChartDataGroupCount } from '../data/ChartData';
-import { indexOfGroupValue } from '../animation/GroupAnimationData';
-import type { GroupSeriesValueObject } from '../data/ChartData';
+import { isDataProviderValid, getCategorySeriesValueObject, getChartDataCategoryCount } from '../data/ChartData';
+import { indexOfCategoryValue } from '../animation/CategoryAnimationData';
+import type { CategorySeriesValueObject } from '../data/ChartData';
 import { getChartLayoutInfo, getChartLayoutInfoWithMutations } from '../layout/ChartLayout';
 import { getTooltipLayoutInfo, getTooltipLayoutInfoWithMutations } from '../layout/TooltipLayout';
-import { getAxisData, getAxisDataWithMutations, getAxisDataForGroupChange, getAxisDataForSeriesChange } from '../data/AxisData';
+import { getAxisData, getAxisDataWithMutations, getAxisDataForCategoryChange, getAxisDataForSeriesChange } from '../data/AxisData';
 import { getStackData, getStackDataWithMutations } from '../data/StackData';
 import { getChartTextBoundsData, getChartTextBoundsDataWithMutations, getTooltipBounds, getBoundsWithMutations } from '../utils/TextMeasurement';
 import { mochartCssClasses, getDomAccessors } from '../utils/ChartDom';
@@ -25,21 +25,22 @@ import Tooltip from './Tooltip';
 import TooltipClip from './TooltipClip';
 import TitleClip from './TitleClip';
 import AxisTitleClip from './AxisTitleClip';
-import GroupAxisTickLabelClip from './GroupAxisTickLabelClip';
+import CategoryAxisTickLabelClip from './CategoryAxisTickLabelClip';
 import SeriesColorGradient from './SeriesColorGradient';
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
 import { translateObject } from '../utils/utils';
 import { getSeriesGradientColors } from '../utils/SeriesColors';
 import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
-import type { LinearGradientConfig, MochartConfig, RadialGradientConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type { LinearGradientConfig, RadialGradientConfig } from '../types/config';
+import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisData, ChartData, DataProvider, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { ChartLayoutInfo, ChartTextBoundsData, LayoutInfo } from '../types/layout';
 import type { Bounds, Size } from '../types/geometry';
 
 export interface ChartProps {
-  mochartConfig: MochartConfig;
+  mochartConfig: EnhancedMochartConfig;
   dataProvider: DataProvider;
   chartData: ChartData | null;
   focusData: FocusData | null;
@@ -51,7 +52,7 @@ export interface ChartProps {
   style?: string | Record<string, string | number | null | undefined>;
   loading?: boolean;
   error?: unknown;
-  onSeriesLayoutInfoChange?: (bounds: Bounds) => void;
+  onSeriesLayoutBoundsChange?: (bounds: Bounds) => void;
   onFocus?: (focus: InternalFocus) => void;
   onSeriesFilter?: (seriesId: string) => void;
   onChartClick?: (payload: ChartEventPayload) => void;
@@ -73,9 +74,9 @@ interface ChartUniqueIds {
   tooltipClipPathUniqueId: string;
   titleClipPathUniqueId: string;
   legendClipPathUniqueId: string;
-  groupAxisTitleClipPathUniqueId: string;
-  groupAxisTickLabelClipPathUniqueId: string;
-  seriesAxisTitleClipPathUniqueIds: Record<string, string>;
+  categoryAxisTitleClipPathUniqueId: string;
+  categoryAxisTickLabelClipPathUniqueId: string;
+  valueAxisTitleClipPathUniqueIds: Record<string, string>;
   seriesColorGradientUniqueIds: Record<string, string>;
   gradientIdMap: Record<string, string>;
   linearGradientIdMap: Record<string, string>;
@@ -91,10 +92,10 @@ interface ChartState {
   axisData: AxisData | null;
   stackData: StackData | null;
   tooltipVisible: boolean;
-  tooltipGroupIndex: number;
-  tooltipGroupPercentage: number | null;
+  tooltipCategoryIndex: number;
+  tooltipCategoryPercentage: number | null;
   tooltipSeriesPercentage: number | null;
-  tooltipValueObject: GroupSeriesValueObject | null;
+  tooltipValueObject: CategorySeriesValueObject | null;
 }
 
 type ChartStateUpdate = Partial<ChartState>;
@@ -109,9 +110,9 @@ const mochartChartIdPrefix = '__mochart__chart__';
 const tooltipClipPathIdPrefix = 'tooltip__clippath__';
 const titleClipPathIdPrefix = 'title__clippath__';
 const legendClipPathIdPrefix = 'legend__clippath__';
-const groupAxisTitleClipPathIdPrefix = 'groupaxistitle__clippath__';
-const gridAxisTickLabelClipPathIdPrefix = 'groupaxisticklabel__clippath__';
-const seriesAxisTitleClipPathIdPrefix = 'seriesaxistitle__clippath__';
+const categoryAxisTitleClipPathIdPrefix = 'categoryaxistitle__clippath__';
+const gridAxisTickLabelClipPathIdPrefix = 'categoryaxisticklabel__clippath__';
+const valueAxisTitleClipPathIdPrefix = 'valueaxistitle__clippath__';
 const linearGradientIdPrefix = 'linear__gradient__';
 const radialGradientIdPrefix = 'radial__gradient__';
 const seriesColorGradientIdPrefix = 'seriescolor__gradient__';
@@ -210,10 +211,10 @@ const getInitialState = (): ChartState => ({
   ...getInitialTooltipState()
 });
 
-const getInitialTooltipState = (): Pick<ChartState, 'tooltipVisible' | 'tooltipGroupIndex' | 'tooltipGroupPercentage' | 'tooltipSeriesPercentage' | 'tooltipValueObject'> => ({
+const getInitialTooltipState = (): Pick<ChartState, 'tooltipVisible' | 'tooltipCategoryIndex' | 'tooltipCategoryPercentage' | 'tooltipSeriesPercentage' | 'tooltipValueObject'> => ({
   tooltipVisible: false,
-  tooltipGroupIndex: -1,
-  tooltipGroupPercentage: null,
+  tooltipCategoryIndex: -1,
+  tooltipCategoryPercentage: null,
   tooltipSeriesPercentage: null,
   tooltipValueObject: null
 });
@@ -362,7 +363,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   /**
    * Finalize a state delta that carries a new layoutInfo: reuse unchanged
-   * layout identities, notify onSeriesLayoutInfoChange when the series area
+   * layout identities, notify onSeriesLayoutBoundsChange when the series area
    * moved, and refresh the tooltip layout. Returns the delta for the caller
    * to merge (derive) or setState (post-commit).
    */
@@ -372,12 +373,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (this.state.layoutInfo !== state.layoutInfo) {
         const newBounds = getBoundsForSeriesLayoutInfo(state.layoutInfo.seriesLayoutInfo);
         if (this.state.layoutInfo === null) {
-          this.onSeriesLayoutInfoChange(newBounds);
+          this.onSeriesLayoutBoundsChange(newBounds);
         }
         else if (state.layoutInfo.seriesLayoutInfo !== this.state.layoutInfo.seriesLayoutInfo) {
           const oldBounds = getBoundsForSeriesLayoutInfo(this.state.layoutInfo.seriesLayoutInfo);
           if (getBoundsAreDifferent(oldBounds, newBounds)) {
-            this.onSeriesLayoutInfoChange(newBounds);
+            this.onSeriesLayoutBoundsChange(newBounds);
           }
         }
       }
@@ -389,31 +390,31 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   getTooltipLayoutInfo(props: ChartProps, state: ChartStateUpdate): Bounds {
     const { mochartConfig } = props;
-    const { layoutInfo, axisData, tooltipGroupIndex, tooltipSeriesPercentage, tooltipGroupPercentage, tooltipBounds } =
+    const { layoutInfo, axisData, tooltipCategoryIndex, tooltipSeriesPercentage, tooltipCategoryPercentage, tooltipBounds } =
       { ...this.state, ...state };
 
-    const groupValueData = axisData?.group?.valueData;
+    const categoryValueData = axisData?.group?.valueData;
     if (tooltipBounds === null) {
       return getTooltipLayoutInfo(mochartConfig, null);
     }
-    return getTooltipLayoutInfo(mochartConfig, tooltipBounds, layoutInfo!, groupValueData!, tooltipGroupIndex,
-      tooltipGroupPercentage!, tooltipSeriesPercentage!);
+    return getTooltipLayoutInfo(mochartConfig, tooltipBounds, layoutInfo!, categoryValueData!, tooltipCategoryIndex,
+      tooltipCategoryPercentage!, tooltipSeriesPercentage!);
   }
 
   constructUniqueIds(props: ChartProps): Pick<ChartState, 'uniqueIds'> {
     const uniqueId = this.uniqueId;
     const { mochartConfig } = props;
-    const { seriesAxisConfigs, seriesConfigs, linearGradientConfigs, radialGradientConfigs } = mochartConfig;
+    const { valueAxes: valueAxisConfigs, series: seriesConfigs, linearGradients: linearGradientConfigs, radialGradients: radialGradientConfigs } = mochartConfig;
 
     const svgUniqueId = mochartChartIdPrefix + uniqueId;
     const tooltipClipPathUniqueId = tooltipClipPathIdPrefix + uniqueId;
     const titleClipPathUniqueId = titleClipPathIdPrefix + uniqueId;
     const legendClipPathUniqueId = legendClipPathIdPrefix + uniqueId;
-    const groupAxisTitleClipPathUniqueId = groupAxisTitleClipPathIdPrefix + uniqueId;
-    const groupAxisTickLabelClipPathUniqueId = gridAxisTickLabelClipPathIdPrefix + uniqueId;
-    const seriesAxisTitleClipPathUniqueIds: Record<string, string> = {};
-    for (const { id } of seriesAxisConfigs) {
-      seriesAxisTitleClipPathUniqueIds[id] = seriesAxisTitleClipPathIdPrefix + uniqueId + '__' + id;
+    const categoryAxisTitleClipPathUniqueId = categoryAxisTitleClipPathIdPrefix + uniqueId;
+    const categoryAxisTickLabelClipPathUniqueId = gridAxisTickLabelClipPathIdPrefix + uniqueId;
+    const valueAxisTitleClipPathUniqueIds: Record<string, string> = {};
+    for (const { id } of valueAxisConfigs) {
+      valueAxisTitleClipPathUniqueIds[id] = valueAxisTitleClipPathIdPrefix + uniqueId + '__' + id;
     }
     const linearGradientIdMap: Record<string, string> = {};
     for (const { id } of linearGradientConfigs) {
@@ -430,7 +431,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const gradientIdMap = { ...linearGradientIdMap, ...radialGradientIdMap };
     const uniqueIds = {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId,
-      groupAxisTitleClipPathUniqueId, groupAxisTickLabelClipPathUniqueId, seriesAxisTitleClipPathUniqueIds,
+      categoryAxisTitleClipPathUniqueId, categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds,
       seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
     };
     return { uniqueIds };
@@ -451,7 +452,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         const layoutInfo = getChartLayoutInfo(mochartConfig, chartData, chartTextBoundsData, width, height);
         let axisData = null;
         let stackData = null;
-        if (chartData !== null && getChartDataGroupCount(chartData) > 0) {
+        if (chartData !== null && getChartDataCategoryCount(chartData) > 0) {
           axisData = getAxisData(mochartConfig, layoutInfo, chartData);
           stackData = getStackData(mochartConfig, chartData);
         }
@@ -520,16 +521,16 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
       if (setState === true && (newState.layoutInfo !== undefined || newState.tooltipBounds !== undefined)) {
         const { layoutInfo: oldLayoutInfo, axisData: oldAxisData } = this.state;
-        const groupExtentChanged = oldLayoutInfo === null || oldLayoutInfo.seriesLayoutInfo.groupExtent !== layoutInfo.seriesLayoutInfo.groupExtent;
-        const seriesExtentChanged = oldLayoutInfo === null || oldLayoutInfo.seriesLayoutInfo.seriesExtent !== layoutInfo.seriesLayoutInfo.seriesExtent;
+        const categoryExtentChanged = oldLayoutInfo === null || oldLayoutInfo.seriesLayoutInfo.categoryExtent !== layoutInfo.seriesLayoutInfo.categoryExtent;
+        const seriesExtentChanged = oldLayoutInfo === null || oldLayoutInfo.seriesLayoutInfo.valueExtent !== layoutInfo.seriesLayoutInfo.valueExtent;
         if (chartData) {
-          if (oldAxisData === null || groupExtentChanged && seriesExtentChanged) {
+          if (oldAxisData === null || categoryExtentChanged && seriesExtentChanged) {
             newState.axisData = getAxisDataWithMutations(this.state.axisData, mochartConfig, layoutInfo, chartData);
           }
-          else if (groupExtentChanged || seriesExtentChanged) {
+          else if (categoryExtentChanged || seriesExtentChanged) {
             const { axisData } = this.state;
-            if (groupExtentChanged) {
-              newState.axisData = getAxisDataForGroupChange(axisData!, mochartConfig, layoutInfo, chartData);
+            if (categoryExtentChanged) {
+              newState.axisData = getAxisDataForCategoryChange(axisData!, mochartConfig, layoutInfo, chartData);
             }
             else {
               newState.axisData = getAxisDataForSeriesChange(axisData!, mochartConfig, layoutInfo, chartData);
@@ -575,8 +576,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         const { chartTextBoundsData, axisData: oldAxisData, stackData: oldStackData } = this.state;
         let { uniqueIds, layoutInfo, axisData, stackData } = this.state;
 
-        const groupAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.groupData !== chartData.groupData;
-        const seriesAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
+        const categoryAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.categoryData !== chartData.categoryData;
+        const valueAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
           prevProps.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains;
         // TODO - what about if seriesData.axisSeriesCounts changes? how should that be handled?
         // layout reads chartData only through seriesData.axisSeriesCounts (ChartDataForLayout),
@@ -591,14 +592,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
         let tooltipStateSource: ChartState | ReturnType<typeof getInitialTooltipState> = this.state;
         if (chartData !== null) {
-          if (oldAxisData === null || mochartConfigChanged || sizeChanged || (groupAxisChanged && seriesAxisChanged)) {
+          if (oldAxisData === null || mochartConfigChanged || sizeChanged || (categoryAxisChanged && valueAxisChanged)) {
             axisData = getAxisDataWithMutations(oldAxisData, mochartConfig, layoutInfo!, chartData);
           }
           else {
-            if (groupAxisChanged) {
-              axisData = getAxisDataForGroupChange(axisData!, mochartConfig, layoutInfo!, chartData);
+            if (categoryAxisChanged) {
+              axisData = getAxisDataForCategoryChange(axisData!, mochartConfig, layoutInfo!, chartData);
             }
-            else if (seriesAxisChanged) {
+            else if (valueAxisChanged) {
               axisData = getAxisDataForSeriesChange(axisData!, mochartConfig, layoutInfo!, chartData);
             }
           }
@@ -607,16 +608,16 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           }
 
           if (dataChanged && prevProps.chartData !== null) {
-            let { tooltipGroupIndex, tooltipValueObject } = this.state;
-            if (tooltipGroupIndex >= 0) {
-              const oldGroupValues = prevProps.chartData.groupData.values.raw;
-              const newGroupValues = chartData.groupData.values.raw;
-              if (oldGroupValues && newGroupValues) {
-                const groupValue = oldGroupValues[tooltipGroupIndex];
-                tooltipGroupIndex = indexOfGroupValue(newGroupValues, groupValue);
-                if (tooltipGroupIndex >= 0) {
-                  tooltipValueObject = getGroupSeriesValueObject(chartData, tooltipGroupIndex);
-                  tooltipStateSource = { ...this.state, tooltipGroupIndex, tooltipValueObject };
+            let { tooltipCategoryIndex, tooltipValueObject } = this.state;
+            if (tooltipCategoryIndex >= 0) {
+              const oldCategoryValues = prevProps.chartData.categoryData.values.raw;
+              const newCategoryValues = chartData.categoryData.values.raw;
+              if (oldCategoryValues && newCategoryValues) {
+                const categoryValue = oldCategoryValues[tooltipCategoryIndex];
+                tooltipCategoryIndex = indexOfCategoryValue(newCategoryValues, categoryValue);
+                if (tooltipCategoryIndex >= 0) {
+                  tooltipValueObject = getCategorySeriesValueObject(chartData, tooltipCategoryIndex);
+                  tooltipStateSource = { ...this.state, tooltipCategoryIndex, tooltipValueObject };
                 }
                 else {
                   // the tooltip's group disappeared: close fully so the next
@@ -634,8 +635,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         if (mochartConfigChanged) {
           ({ uniqueIds } = this.constructUniqueIds(nextProps));
         }
-        const { tooltipVisible, tooltipGroupIndex, tooltipGroupPercentage, tooltipSeriesPercentage, tooltipValueObject } = tooltipStateSource;
-        const newState = { uniqueIds, layoutInfo, axisData, stackData, tooltipVisible, tooltipGroupIndex, tooltipGroupPercentage, tooltipSeriesPercentage, tooltipValueObject };
+        const { tooltipVisible, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipValueObject } = tooltipStateSource;
+        const newState = { uniqueIds, layoutInfo, axisData, stackData, tooltipVisible, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipValueObject };
         return this.applyLayoutInfo(nextProps, newState);
       }
       else {
@@ -670,8 +671,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         }
         else {
           const { width, height } = prevProps;
-          const { axisData: oldAxisData, tooltipGroupIndex: oldTooltipGroupIndex, tooltipVisible: oldTooltipVisible } = prevState;
-          const { axisData, tooltipGroupIndex, tooltipVisible } = this.state;
+          const { axisData: oldAxisData, tooltipCategoryIndex: oldTooltipCategoryIndex, tooltipVisible: oldTooltipVisible } = prevState;
+          const { axisData, tooltipCategoryIndex, tooltipVisible } = this.state;
 
           const dataChanged = chartData !== this.props.chartData;
 
@@ -691,7 +692,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           if (tooltipVisible) {
             // dataChanged: an open tooltip renders the new values, so its bounds
             // need remeasuring even when the chart text is untouched
-            if (dataChanged || !oldTooltipVisible || oldTooltipGroupIndex !== tooltipGroupIndex) {
+            if (dataChanged || !oldTooltipVisible || oldTooltipCategoryIndex !== tooltipCategoryIndex) {
               this.calculateTooltipTextSize();
             }
           }
@@ -700,66 +701,66 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
-  onSeriesLayoutInfoChange(layoutBounds: Bounds): void {
-    this.props.onSeriesLayoutInfoChange?.(layoutBounds);
+  onSeriesLayoutBoundsChange(layoutBounds: Bounds): void {
+    this.props.onSeriesLayoutBoundsChange?.(layoutBounds);
   }
 
   closeTooltip = () => {
     this.setState({ ...getInitialTooltipState(), tooltipBounds: null });
   }
 
-  updateTooltipGroupIndex = (tooltipGroupIndex: number): void => {
+  updateTooltipCategoryIndex = (tooltipCategoryIndex: number): void => {
     const { chartData } = this.props;
-    const tooltipValueObject = getGroupSeriesValueObject(chartData!, tooltipGroupIndex);
-    const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.props, { ...this.state, tooltipGroupIndex });
-    this.setState({ tooltipGroupIndex, tooltipValueObject, tooltipLayoutInfo });
+    const tooltipValueObject = getCategorySeriesValueObject(chartData!, tooltipCategoryIndex);
+    const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.props, { ...this.state, tooltipCategoryIndex });
+    this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipLayoutInfo });
   }
 
-  toggleTooltip({ groupIndex, groupPercentage, seriesPercentage }: ChartEventPayload): void {
+  toggleTooltip({ categoryIndex, categoryPercentage, valuePercentage: seriesPercentage }: ChartEventPayload): void {
     const { mochartConfig, onFocus, chartData } = this.props;
-    const { tooltipConfig, crosshairConfig } = mochartConfig;
+    const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
     if (tooltipConfig.visible || crosshairConfig.visible) {
-      let { tooltipVisible, tooltipGroupIndex, tooltipSeriesPercentage, tooltipGroupPercentage, tooltipLayoutInfo, tooltipBounds, tooltipValueObject } = this.state;
+      let { tooltipVisible, tooltipCategoryIndex, tooltipSeriesPercentage, tooltipCategoryPercentage, tooltipLayoutInfo, tooltipBounds, tooltipValueObject } = this.state;
       tooltipSeriesPercentage = tooltipVisible ? null : seriesPercentage;
-      tooltipGroupPercentage = tooltipVisible ? null : groupPercentage;
+      tooltipCategoryPercentage = tooltipVisible ? null : categoryPercentage;
       tooltipLayoutInfo = getTooltipLayoutInfo(mochartConfig, null);
       tooltipBounds = null;
       tooltipVisible = !tooltipVisible;
-      tooltipGroupIndex = tooltipVisible ? groupIndex : -1;
-      tooltipValueObject = tooltipVisible ? getGroupSeriesValueObject(chartData!, tooltipGroupIndex) : null;
+      tooltipCategoryIndex = tooltipVisible ? categoryIndex : -1;
+      tooltipValueObject = tooltipVisible ? getCategorySeriesValueObject(chartData!, tooltipCategoryIndex) : null;
       if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
-        onFocus?.({ groupIndex: tooltipGroupIndex });
+        onFocus?.({ categoryIndex: tooltipCategoryIndex });
       }
-      this.setState({ tooltipVisible, tooltipGroupIndex, tooltipSeriesPercentage, tooltipGroupPercentage, tooltipLayoutInfo, tooltipBounds, tooltipValueObject });
+      this.setState({ tooltipVisible, tooltipCategoryIndex, tooltipSeriesPercentage, tooltipCategoryPercentage, tooltipLayoutInfo, tooltipBounds, tooltipValueObject });
     }
   }
 
   getChartEventPayload = (chartX: number, chartY: number): ChartEventPayload => {
     const { mochartConfig } = this.props;
     const { axisData, layoutInfo } = this.state;
-    const dataGroupPositions = axisData!.group!.valueData.positions;
+    const dataCategoryPositions = axisData!.group!.valueData.positions;
     const { seriesLayoutInfo } = layoutInfo!;
-    const { plotConfig } = mochartConfig;
+    const { plot: plotConfig } = mochartConfig;
 
-    const groupPosition = plotConfig.inverted ? chartY : chartX;
-    const groupPercentage = groupPosition / seriesLayoutInfo.groupExtent;
-    let groupIndex = -1;
-    let groupDifference = Number.MAX_VALUE;
-    const groupCount = dataGroupPositions.length;
-    let dataGroupPosition;
-    for (let dataGroupIndex = 0; dataGroupIndex < groupCount; dataGroupIndex++) {
-      dataGroupPosition = dataGroupPositions[dataGroupIndex];
-      const currentDifference = Math.abs(dataGroupPosition - groupPosition);
-      if (currentDifference <= groupDifference) { // <= means we'll pick the greater group value on a tie
-        groupDifference = currentDifference;
-        groupIndex = dataGroupIndex;
+    const categoryPosition = plotConfig.inverted ? chartY : chartX;
+    const categoryPercentage = categoryPosition / seriesLayoutInfo.categoryExtent;
+    let categoryIndex = -1;
+    let categoryDifference = Number.MAX_VALUE;
+    const categoryCount = dataCategoryPositions.length;
+    let dataCategoryPosition;
+    for (let dataCategoryIndex = 0; dataCategoryIndex < categoryCount; dataCategoryIndex++) {
+      dataCategoryPosition = dataCategoryPositions[dataCategoryIndex];
+      const currentDifference = Math.abs(dataCategoryPosition - categoryPosition);
+      if (currentDifference <= categoryDifference) { // <= means we'll pick the greater group value on a tie
+        categoryDifference = currentDifference;
+        categoryIndex = dataCategoryIndex;
       }
     }
     const seriesPosition = plotConfig.inverted ? chartX : chartY;
-    const seriesPercentage = seriesPosition / seriesLayoutInfo.seriesExtent;
+    const seriesPercentage = seriesPosition / seriesLayoutInfo.valueExtent;
 
     return {
-      chartX, chartY, groupPosition, seriesPosition, groupPercentage, seriesPercentage, groupIndex
+      chartX, chartY, categoryPosition, valuePosition: seriesPosition, categoryPercentage, valuePercentage: seriesPercentage, categoryIndex
     };
   }
 
@@ -767,7 +768,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onChartMouseEnter } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseEnter?.(eventPayload);
-    if (mochartConfig.tooltipConfig.mouseOver) {
+    if (mochartConfig.tooltip.mouseOver) {
       this.toggleTooltip(eventPayload);
     }
   }
@@ -776,10 +777,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onFocus, onChartMouseMove } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseMove?.(eventPayload);
-    if (mochartConfig.tooltipConfig.mouseOver) {
-      const { seriesPercentage, groupIndex } = eventPayload;
-      if (mochartConfig.tooltipConfig.visible) {
-        onFocus?.({ groupIndex });
+    if (mochartConfig.tooltip.mouseOver) {
+      const { valuePercentage: seriesPercentage, categoryIndex } = eventPayload;
+      if (mochartConfig.tooltip.visible) {
+        onFocus?.({ categoryIndex });
         this.setState({ tooltipSeriesPercentage: seriesPercentage });
       }
       else {
@@ -792,7 +793,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onChartMouseLeave } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseLeave?.(eventPayload);
-    if (mochartConfig.tooltipConfig.mouseOver) {
+    if (mochartConfig.tooltip.mouseOver) {
       this.toggleTooltip(eventPayload);
     }
   }
@@ -801,7 +802,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onChartClick } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartClick?.(eventPayload);
-    if (!mochartConfig.tooltipConfig.mouseOver) {
+    if (!mochartConfig.tooltip.mouseOver) {
       this.toggleTooltip(eventPayload);
     }
   }
@@ -904,8 +905,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   hasChartDataContent(error: unknown): boolean {
     const { chartData } = this.props;
     const hasChartData = chartData !== null;
-    const groupCount = hasChartData ? getChartDataGroupCount(chartData) : 0;
-    return !error && hasChartData && groupCount > 0;
+    const categoryCount = hasChartData ? getChartDataCategoryCount(chartData) : 0;
+    return !error && hasChartData && categoryCount > 0;
   }
 
   /** Fill in the ChartBody's slots — called from ChartBody.sync with the body renderer. */
@@ -917,36 +918,36 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       getNoDataComponent: noDataFactory = getNoDataComponent,
       getNoSeriesComponent: noSeriesFactory = getNoSeriesComponent
     } = this.props;
-    const { layoutInfo, tooltipLayoutInfo, axisData, stackData, tooltipVisible, tooltipGroupIndex, tooltipBounds, uniqueIds, tooltipValueObject } = this.state;
+    const { layoutInfo, tooltipLayoutInfo, axisData, stackData, tooltipVisible, tooltipCategoryIndex, tooltipBounds, uniqueIds, tooltipValueObject } = this.state;
     const { error, loading } = body.props;
 
     const {
-      svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId, groupAxisTitleClipPathUniqueId,
-      groupAxisTickLabelClipPathUniqueId, seriesAxisTitleClipPathUniqueIds, seriesColorGradientUniqueIds, gradientIdMap,
+      svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId, categoryAxisTitleClipPathUniqueId,
+      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, seriesColorGradientUniqueIds, gradientIdMap,
       linearGradientIdMap, radialGradientIdMap
     } = uniqueIds!;
     const {
       chartContentLayoutInfo, titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
       legendLayoutInfo, legendItemTextLayoutInfo, legendItemLayoutInfos, legendItemRawLayoutInfos, plotLayoutInfo,
-      seriesLayoutInfo, groupAxisLayoutInfo, seriesAxisLayoutInfos
+      seriesLayoutInfo, categoryAxisLayoutInfo, valueAxisLayoutInfos
     } = layoutInfo!;
     const chartTransform = translateObject(chartContentLayoutInfo);
 
-    const focusedGroupIndex = focusData ? focusData.focusedGroupIndex : -1;
+    const focusedCategoryIndex = focusData ? focusData.focusedCategoryIndex : -1;
     const focusedSeriesId = focusData ? focusData.focusedSeriesId : null;
-    const seriesAxisFocusPercentages = focusData ? focusData.seriesAxisFocusPercentages : {};
+    const valueAxisFocusPercentages = focusData ? focusData.valueAxisFocusPercentages : {};
     const seriesFocusPercentages = focusData ? focusData.seriesFocusPercentages : {};
     const hasChartData = chartData !== null;
-    const groupCount = hasChartData ? getChartDataGroupCount(chartData) : 0;
-    const hasChartDataContent = !error && hasChartData && groupCount > 0;
-    const tooltipShown = hasChartData && tooltipBounds !== null && tooltipGroupIndex >= 0;
+    const categoryCount = hasChartData ? getChartDataCategoryCount(chartData) : 0;
+    const hasChartDataContent = !error && hasChartData && categoryCount > 0;
+    const tooltipShown = hasChartData && tooltipBounds !== null && tooltipCategoryIndex >= 0;
     const filteredFlags = hasChartData ? chartData.seriesData.filteredFlags : emptyFilteredFlags;
     let maxTickLabelLength = seriesLayoutInfo.width;
 
     let clips: RendererItem[] = [
-      { key: 'title-clip', ctor: TitleClip, props: { titleConfig: mochartConfig.titleConfig, chartContentLayoutInfo,
+      { key: 'title-clip', ctor: TitleClip, props: { titleConfig: mochartConfig.title, chartContentLayoutInfo,
         titleTextLayoutInfo, titleClipPathUniqueId } },
-      { key: 'legend-clip', ctor: LegendClip, props: { legendConfig: mochartConfig.legendConfig, chartContentLayoutInfo,
+      { key: 'legend-clip', ctor: LegendClip, props: { legendConfig: mochartConfig.legend, chartContentLayoutInfo,
         legendItemTextLayoutInfo, legendClipPathUniqueId } }
     ];
 
@@ -959,24 +960,24 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
 
     clips.push(
-      { key: 'group-axis-title-clip', ctor: AxisTitleClip, props: { axisConfig: mochartConfig.groupAxisConfig, chartContentLayoutInfo,
-        axisLayoutInfo: groupAxisLayoutInfo, axisTitleClipPathUniqueId: groupAxisTitleClipPathUniqueId } },
-      { key: 'group-axis-tick-label-clip', ctor: GroupAxisTickLabelClip, props: { mochartConfig, maxTickLabelLength,
-        chartContentLayoutInfo, groupAxisLayoutInfo,
-        groupAxisTickLabelClipPathUniqueId } }
+      { key: 'group-axis-title-clip', ctor: AxisTitleClip, props: { axisConfig: mochartConfig.categoryAxis, chartContentLayoutInfo,
+        axisLayoutInfo: categoryAxisLayoutInfo, axisTitleClipPathUniqueId: categoryAxisTitleClipPathUniqueId } },
+      { key: 'group-axis-tick-label-clip', ctor: CategoryAxisTickLabelClip, props: { mochartConfig, maxTickLabelLength,
+        chartContentLayoutInfo, categoryAxisLayoutInfo,
+        categoryAxisTickLabelClipPathUniqueId } }
     );
 
-    clips = clips.concat(mochartConfig.seriesAxisConfigs.map((seriesAxisConfig: SeriesAxisConfig) => ({
-      key: 'series-axis-clip-' + seriesAxisConfig.id,
+    clips = clips.concat(mochartConfig.valueAxes.map((valueAxisConfig: EnhancedValueAxisConfig) => ({
+      key: 'series-axis-clip-' + valueAxisConfig.id,
       ctor: AxisTitleClip,
-      props: { axisConfig: seriesAxisConfig,
-        chartContentLayoutInfo, axisLayoutInfo: seriesAxisLayoutInfos[seriesAxisConfig.id],
-        axisTitleClipPathUniqueId: seriesAxisTitleClipPathUniqueIds[seriesAxisConfig.id] }
+      props: { axisConfig: valueAxisConfig,
+        chartContentLayoutInfo, axisLayoutInfo: valueAxisLayoutInfos[valueAxisConfig.id],
+        axisTitleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[valueAxisConfig.id] }
     })));
 
-    const seriesGradientColors = mochartConfig.seriesConfigs.map((seriesConfig: SeriesConfig) => getSeriesGradientColors(seriesConfig));
+    const seriesGradientColors = mochartConfig.series.map((seriesConfig: EnhancedSeriesConfig) => getSeriesGradientColors(seriesConfig));
     const seriesColorGradients: RendererItem[] = [];
-    mochartConfig.seriesConfigs.forEach((seriesConfig: SeriesConfig, i: number) => {
+    mochartConfig.series.forEach((seriesConfig: EnhancedSeriesConfig, i: number) => {
       if (seriesGradientColors[i]) {
         seriesColorGradients.push({
           key: seriesConfig.id, ctor: SeriesColorGradient,
@@ -985,12 +986,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
     });
 
-    const linearGradients: RendererItem[] = mochartConfig.linearGradientConfigs.map((linearGradientConfig: LinearGradientConfig) => ({
+    const linearGradients: RendererItem[] = mochartConfig.linearGradients.map((linearGradientConfig: LinearGradientConfig) => ({
       key: linearGradientConfig.id, ctor: LinearGradient,
       props: { uniqueId: linearGradientIdMap[linearGradientConfig.id], linearGradientConfig }
     }));
 
-    const radialGradients: RendererItem[] = mochartConfig.radialGradientConfigs.map((radialGradientConfig: RadialGradientConfig) => ({
+    const radialGradients: RendererItem[] = mochartConfig.radialGradients.map((radialGradientConfig: RadialGradientConfig) => ({
       key: radialGradientConfig.id, ctor: RadialGradient,
       props: { uniqueId: radialGradientIdMap[radialGradientConfig.id], radialGradientConfig }
     }));
@@ -1001,17 +1002,17 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     body.seriesColorGradients.sync(seriesColorGradients);
     body.linearGradients.sync(linearGradients);
     body.radialGradients.sync(radialGradients);
-    body.background.set(Background, { config: mochartConfig.chartConfig, classKey: 'background', spacingRelative: false, spacingLayoutInfo: chartContentLayoutInfo });
+    body.background.set(Background, { config: mochartConfig.chart, classKey: 'background', spacingRelative: false, spacingLayoutInfo: chartContentLayoutInfo });
     body.title.set(Title, { mochartConfig, titleLayoutInfo, titlePrefixLayoutInfo,
       titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
       titleClipPathUniqueId, onClick: this.onTitleClick });
     body.contentGroup.set({ transform: chartTransform });
 
     if (hasChartDataContent) {
-      const { group: groupAxisData } = axisData!;
-      const { valueData: groupValueData } = groupAxisData!;
+      const { group: categoryAxisData } = axisData!;
+      const { valueData: categoryValueData } = categoryAxisData!;
 
-      if (mochartConfig.chartConfig.type === CHART_TYPE_PIE) {
+      if (mochartConfig.chart.type === CHART_TYPE_PIE) {
         body.plot.set(RadialPlot, { mochartConfig, gradientIdMap, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData: focusData!,
           initialAnimationPercentage: this.props.initialAnimationPercentage ?? null,
@@ -1019,25 +1020,25 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           shapeRef: this.setChartRectRef });
       }
       else {
-        body.plot.set(Plot, { mochartConfig, gradientIdMap, groupAxisLayoutInfo,
-          seriesAxisLayoutInfos, seriesLayoutInfo,
+        body.plot.set(Plot, { mochartConfig, gradientIdMap, categoryAxisLayoutInfo,
+          valueAxisLayoutInfos, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData, axisData: axisData!,
-          stackData: stackData!, groupValueData, onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef,
-          groupAxisTitleClipPathUniqueId,
-          groupAxisTickLabelClipPathUniqueId,
-          seriesAxisTitleClipPathUniqueIds,
+          stackData: stackData!, categoryValueData, onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef,
+          categoryAxisTitleClipPathUniqueId,
+          categoryAxisTickLabelClipPathUniqueId,
+          valueAxisTitleClipPathUniqueIds,
           tooltipClipPathUniqueId });
       }
       body.plotEmpty.set(null);
 
-      body.tooltip.set(Tooltip, { mochartConfig, tooltipValueObject: tooltipValueObject!, tooltipGroupIndex, focusedGroupIndex,
-        focusedSeriesId, seriesAxisFocusPercentages, seriesFocusPercentages,
-        tooltipVisible, groupCount: chartData.groupData.values.raw.length,
+      body.tooltip.set(Tooltip, { mochartConfig, tooltipValueObject: tooltipValueObject!, tooltipCategoryIndex, focusedCategoryIndex,
+        focusedSeriesId, valueAxisFocusPercentages, seriesFocusPercentages,
+        tooltipVisible, categoryCount: chartData.categoryData.values.raw.length,
         tooltipLayoutInfo: tooltipLayoutInfo!, tooltipBounds, svgUniqueId,
-        onClose: this.closeTooltip, updateTooltipGroupIndex: this.updateTooltipGroupIndex,
+        onClose: this.closeTooltip, updateTooltipCategoryIndex: this.updateTooltipCategoryIndex,
         onFocus: onFocus ?? (() => {}), onSeriesFilter: onSeriesFilter ?? (() => {}) });
 
-      if (mochartConfig.seriesConfigs.length === 0) {
+      if (mochartConfig.series.length === 0) {
         const { x, y, width, height } = seriesLayoutInfo;
 
         const noSeriesStyle = {
@@ -1063,11 +1064,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       body.tooltip.set(null);
       body.noSeriesSlot.set(null);
 
-      body.plotEmpty.set(PlotEmpty, { mochartConfig, groupAxisLayoutInfo,
-        seriesAxisLayoutInfos, plotLayoutInfo,
-        groupAxisTitleClipPathUniqueId,
-        groupAxisTickLabelClipPathUniqueId,
-        seriesAxisTitleClipPathUniqueIds });
+      body.plotEmpty.set(PlotEmpty, { mochartConfig, categoryAxisLayoutInfo,
+        valueAxisLayoutInfos, plotLayoutInfo,
+        categoryAxisTitleClipPathUniqueId,
+        categoryAxisTickLabelClipPathUniqueId,
+        valueAxisTitleClipPathUniqueIds });
 
       const { x, y, width, height } = seriesLayoutInfo;
 
@@ -1083,7 +1084,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (error) {
         noDataContent = errorFactory({ mochartConfig, dataProvider, width, height, error });
       }
-      else if (!loading && hasChartData && groupCount === 0) {
+      else if (!loading && hasChartData && categoryCount === 0) {
         noDataContent = noDataFactory({ mochartConfig, dataProvider, width, height });
       }
       else {
@@ -1096,7 +1097,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
 
     body.legend.set(Legend, { mochartConfig, filteredFlags, focusedSeriesId,
-      seriesAxisFocusPercentages, seriesFocusPercentages, onFocus: onFocus ?? (() => {}),
+      valueAxisFocusPercentages, seriesFocusPercentages, onFocus: onFocus ?? (() => {}),
       uniqueIds: uniqueIds!, onSeriesFilter: onSeriesFilter ?? (() => {}), legendLayoutInfo: legendLayoutInfo!, legendItemTextLayoutInfo: legendItemTextLayoutInfo!,
       legendItemLayoutInfos: legendItemLayoutInfos!, legendItemRawLayoutInfos: legendItemRawLayoutInfos! });
 

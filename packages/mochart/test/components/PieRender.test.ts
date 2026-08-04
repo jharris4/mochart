@@ -53,11 +53,11 @@ function pieChartProps(items: PieItem[], options: CreatePieOptions = {}, configO
   const pie = mochart.createPie(items, options);
   const config = {
     version: VERSION,
-    animationConfig: { animate: false },
-    chartConfig: pie.chartConfig,
-    pieConfig: pie.pieConfig,
-    groupAxisConfig: pie.groupAxisConfig,
-    seriesConfigs: pie.seriesConfigs,
+    animation: { animate: false },
+    chart: pie.chart,
+    pie: pie.pie,
+    categoryAxis: pie.categoryAxis,
+    series: pie.series,
     ...configOverrides
   } as unknown as MochartInputConfig;
   return { config, data: pie.data };
@@ -129,7 +129,7 @@ describe('pie chart rendering', () => {
       { label: 'Tiny', value: 2 }
     ];
     const { config, data } = pieChartProps(items, {}, {
-      pieConfig: { showLabels: true, labelType: 'percent', labelMinFraction: 0.05 } as Partial<PieConfig>
+      pie: { showLabels: true, labelType: 'percent', labelMinFraction: 0.05 } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
     const labels = Array.from(container.querySelectorAll('.mochart-series-slice-label'));
@@ -214,7 +214,7 @@ describe('pie chart rendering', () => {
 
     it('freezes the percentages at the full-total shares when adjustForFiltering is off', () => {
       const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
-        { tooltipConfig: { adjustForFiltering: false } });
+        { tooltip: { adjustForFiltering: false } });
       const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
       const root = container.querySelector('[data-mochart-version]')!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
@@ -226,7 +226,7 @@ describe('pie chart rendering', () => {
 
     it('masks a filtered slice\'s own row with the filtered placeholder', () => {
       const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
-        { tooltipConfig: { filteredValueText: '--' } });
+        { tooltip: { filteredValueText: '--' } });
       const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
       const root = container.querySelector('[data-mochart-version]')!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
@@ -239,7 +239,7 @@ describe('pie chart rendering', () => {
     it('formats the percent part with tooltipPercentFormat and the value part per series', () => {
       const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percentValue', valueFormat: ',.1f' });
       // merged, not replaced: the helper's fragment carries tooltipValues
-      (config as { pieConfig: DeepPartial<PieConfig> }).pieConfig = { ...config.pieConfig, tooltipPercentFormat: '.0%' };
+      (config as { pie: DeepPartial<PieConfig> }).pie = { ...config.pie, tooltipPercentFormat: '.0%' };
       const { container } = mountChart(config, data);
       const root = container.querySelector('[data-mochart-version]')!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
@@ -251,7 +251,7 @@ describe('pie chart rendering', () => {
 
     it('renders label combinations from the same shares', () => {
       const { config, data } = pieChartProps(ITEMS, {}, {
-        pieConfig: { showLabels: true, labelType: 'titlePercent' } as Partial<PieConfig>
+        pie: { showLabels: true, labelType: 'titlePercent' } as Partial<PieConfig>
       });
       const { container } = mountChart(config, data);
       const labels = Array.from(container.querySelectorAll('.mochart-series-slice-label')).map(label => label.textContent);
@@ -259,29 +259,29 @@ describe('pie chart rendering', () => {
     });
   });
 
-  it('leaves the single group value out of the tooltip unless showGroup is set', () => {
-    const hidden = pieChartProps(ITEMS, { groupValue: 'all' });
+  it('leaves the single group value out of the tooltip unless showCategory is set', () => {
+    const hidden = pieChartProps(ITEMS, { categoryValue: 'all' });
     const hiddenChart = mountChart(hidden.config, hidden.data);
     const hiddenRoot = hiddenChart.container.querySelector('[data-mochart-version]')!;
     mouse(hiddenRoot, 'mousemove', WIDTH / 2, HEIGHT / 2);
     mouse(hiddenRoot, 'click', WIDTH / 2, HEIGHT / 2);
     const hiddenTooltip = hiddenChart.container.querySelector('.mochart-tooltip')!;
-    expect(hiddenTooltip.querySelector('.mochart-tooltip-group-line')).toBeNull();
+    expect(hiddenTooltip.querySelector('.mochart-tooltip-category-line')).toBeNull();
     expect(hiddenTooltip.textContent).not.toContain('all');
 
-    const shown = pieChartProps(ITEMS, { groupValue: 'all' }, { tooltipConfig: { showGroup: true } });
+    const shown = pieChartProps(ITEMS, { categoryValue: 'all' }, { tooltip: { showCategory: true } });
     const shownChart = mountChart(shown.config, shown.data);
     const shownRoot = shownChart.container.querySelector('[data-mochart-version]')!;
     mouse(shownRoot, 'mousemove', WIDTH / 2, HEIGHT / 2);
     mouse(shownRoot, 'click', WIDTH / 2, HEIGHT / 2);
     const shownTooltip = shownChart.container.querySelector('.mochart-tooltip')!;
-    expect(shownTooltip.querySelector('.mochart-tooltip-group-line')!.textContent).toBe('all');
+    expect(shownTooltip.querySelector('.mochart-tooltip-category-line')!.textContent).toBe('all');
   });
 
   it('renders a partial span for gauge configs', () => {
     const full = mountChart(...Object.values(pieChartProps(ITEMS)) as [MochartInputConfig, readonly unknown[]]);
     const { config, data } = pieChartProps(ITEMS, {}, {
-      pieConfig: { startAngle: -90, endAngle: 90 } as Partial<PieConfig>
+      pie: { startAngle: -90, endAngle: 90 } as Partial<PieConfig>
     });
     const gauge = mountChart(config, data);
     const fullD = slicePaths(full.container)[0]!.getAttribute('d');
@@ -292,7 +292,7 @@ describe('pie chart rendering', () => {
 
   it('explodes the focused slice by focusOffsetFraction', () => {
     const { config, data } = pieChartProps(ITEMS, {}, {
-      pieConfig: { focusOffsetFraction: 0.1 } as Partial<PieConfig>
+      pie: { focusOffsetFraction: 0.1 } as Partial<PieConfig>
     });
     const plain = mountChart(config, data);
     const focused = mountChart(config, data, { focusedSeriesId: 'slice0' });
@@ -307,7 +307,7 @@ describe('pie chart rendering', () => {
 
   it('renders the center label and a filtering-aware total', () => {
     const { config, data } = pieChartProps(ITEMS, { donut: true }, {
-      pieConfig: { innerRadiusFraction: 0.6, centerLabel: 'Total', showCenterTotal: true, centerTotalFormat: ',.0f' } as Partial<PieConfig>
+      pie: { innerRadiusFraction: 0.6, centerLabel: 'Total', showCenterTotal: true, centerTotalFormat: ',.0f' } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
     expect(container.querySelector('.mochart-pie-center-label')!.textContent).toBe('Total');
@@ -319,7 +319,7 @@ describe('pie chart rendering', () => {
 
   it('keeps percent labels on the full total when adjustLabelsForFiltering is off', () => {
     const labelConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
-      pieConfig: { showLabels: true, labelType: 'percent', labelMinFraction: 0, adjustLabelsForFiltering: adjust } as Partial<PieConfig>
+      pie: { showLabels: true, labelType: 'percent', labelMinFraction: 0, adjustLabelsForFiltering: adjust } as Partial<PieConfig>
     });
     const filtered = { filteredSeriesIds: { slice2: true } };
 
@@ -334,7 +334,7 @@ describe('pie chart rendering', () => {
 
   it('keeps the center total on the full total when adjustCenterTotalForFiltering is off', () => {
     const totalConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
-      pieConfig: { showCenterTotal: true, centerTotalFormat: ',.0f', adjustCenterTotalForFiltering: adjust } as Partial<PieConfig>
+      pie: { showCenterTotal: true, centerTotalFormat: ',.0f', adjustCenterTotalForFiltering: adjust } as Partial<PieConfig>
     });
     const filtered = { filteredSeriesIds: { slice0: true } };
 
@@ -349,11 +349,11 @@ describe('pie chart rendering', () => {
     const pie = mochart.createPie(ITEMS);
     const config = {
       version: VERSION,
-      animationConfig: { animate: true },
-      chartConfig: pie.chartConfig,
-      pieConfig: { showLabels: true, labelMinFraction: 0 },
-      groupAxisConfig: pie.groupAxisConfig,
-      seriesConfigs: pie.seriesConfigs
+      animation: { animate: true },
+      chart: pie.chart,
+      pie: { showLabels: true, labelMinFraction: 0 },
+      categoryAxis: pie.categoryAxis,
+      series: pie.series
     } as unknown as MochartInputConfig;
     const { container } = mountChart(config, pie.data);
     // a few frames into the initial sweep: slices exist, labels stay hidden
@@ -374,11 +374,11 @@ describe('pie chart rendering', () => {
     const pie = mochart.createPie(ITEMS);
     const config = {
       version: VERSION,
-      animationConfig: { animate: true },
-      chartConfig: pie.chartConfig,
-      pieConfig: pie.pieConfig,
-      groupAxisConfig: pie.groupAxisConfig,
-      seriesConfigs: pie.seriesConfigs
+      animation: { animate: true },
+      chart: pie.chart,
+      pie: pie.pie,
+      categoryAxis: pie.categoryAxis,
+      series: pie.series
     } as unknown as MochartInputConfig;
     const { container, handle } = mountChart(config, pie.data);
     runFrames();

@@ -35,8 +35,8 @@ describe('createCandlestick', () => {
   });
 
   it('emits config fragments for ordinal wick and body bars', () => {
-    const { groupAxisConfig, seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
-    expect(groupAxisConfig).toEqual({ property: 'label', type: 'string', scale: 'ordinal' });
+    const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    expect(categoryAxisConfig).toEqual({ property: 'label', type: 'string', scale: 'ordinal' });
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['upWick', 'downWick', 'up', 'down']);
     for (const seriesConfig of seriesConfigs) {
       expect(seriesConfig.renderer).toBe('bar');
@@ -50,7 +50,7 @@ describe('createCandlestick', () => {
   });
 
   it('spans wicks from low to high and bodies from open to close, split by direction', () => {
-    const { seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    const { series: seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [upWick, downWick, up, down] = seriesConfigs;
     expect(upWick).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthFraction: 0.15, showInLegend: false, followSeries: 'up', valueLabel: 'Range' });
     expect(downWick).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthFraction: 0.15, showInLegend: false, followSeries: 'down', valueLabel: 'Range' });
@@ -59,7 +59,7 @@ describe('createCandlestick', () => {
   });
 
   it('colors each wick to match its body, with strokes matching the fills', () => {
-    const { seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    const { series: seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [upWick, downWick, up, down] = seriesConfigs;
     expect(upWick.shapeStyle!.normal!.fillColor).toBe(up.shapeStyle!.normal!.fillColor);
     expect(downWick.shapeStyle!.normal!.fillColor).toBe(down.shapeStyle!.normal!.fillColor);
@@ -71,7 +71,7 @@ describe('createCandlestick', () => {
   });
 
   it('honours custom titles, colors, widths and range title', () => {
-    const { seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }], {
+    const { series: seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }], {
       seriesTitles: { up: 'Gain' },
       colors: { down: '#123456' },
       wickWidthFraction: 0.1,
@@ -90,7 +90,7 @@ describe('createCandlestick', () => {
   });
 
   it('returns empty data for empty input', () => {
-    const { candles, data, seriesConfigs } = createCandlestick([]);
+    const { candles, data, series: seriesConfigs } = createCandlestick([]);
     expect(candles).toEqual([]);
     expect(data).toEqual([]);
     expect(seriesConfigs).toHaveLength(4);
@@ -103,14 +103,14 @@ describe('createCandlestick', () => {
     ];
 
     it('emits no volume columns, series or axes by default', () => {
-      const { data, seriesConfigs, seriesAxisConfigs } = createCandlestick(items);
-      expect(seriesAxisConfigs).toBeUndefined();
+      const { data, series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(items);
+      expect(valueAxisConfigs).toBeUndefined();
       expect('upVolume' in data[0]).toBe(false);
       expect(seriesConfigs.every((seriesConfig) => seriesConfig.axis === undefined)).toBe(true);
     });
 
     it('splits the volume by direction and appends follower volume series', () => {
-      const { data, seriesConfigs } = createCandlestick(items, { volume: true });
+      const { data, series: seriesConfigs } = createCandlestick(items, { volume: true });
       expect(data[0]).toMatchObject({ volume: 1200, upVolume: 1200, downVolume: undefined });
       expect(data[1]).toMatchObject({ volume: 800, upVolume: undefined, downVolume: 800 });
       expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['upWick', 'downWick', 'up', 'down', 'upVolume', 'downVolume']);
@@ -123,11 +123,11 @@ describe('createCandlestick', () => {
     });
 
     it('moves the price series onto the price axis and splits the panes with margins', () => {
-      const { seriesConfigs, seriesAxisConfigs } = createCandlestick(items, { volume: true });
+      const { series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(items, { volume: true });
       for (const seriesConfig of seriesConfigs) {
         expect(seriesConfig.axis, seriesConfig.id).toBe(seriesConfig.id!.includes('Volume') ? 'volume' : 'price');
       }
-      const [priceAxis, volumeAxis] = seriesAxisConfigs!;
+      const [priceAxis, volumeAxis] = valueAxisConfigs!;
       // defaults: volume pane 20%, gap 5% — price margin (0.25 / 0.75), volume margin (0.8 / 0.2)
       expect(priceAxis).toMatchObject({ id: 'price' });
       expect(priceAxis.minMarginFraction).toBeCloseTo(1 / 3, 6);
@@ -136,10 +136,10 @@ describe('createCandlestick', () => {
     });
 
     it('honours pane sizing and label options', () => {
-      const { seriesConfigs, seriesAxisConfigs } = createCandlestick(items, {
+      const { series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(items, {
         volume: { heightFraction: 0.25, gapFraction: 0.05, valueLabel: 'Shares' }
       });
-      const [priceAxis, volumeAxis] = seriesAxisConfigs!;
+      const [priceAxis, volumeAxis] = valueAxisConfigs!;
       expect(priceAxis.minMarginFraction).toBeCloseTo(0.3 / 0.7, 6);
       expect(volumeAxis.maxMarginFraction).toBeCloseTo(3, 6);
       expect(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'upVolume')!.valueLabel).toBe('Shares');
@@ -153,7 +153,7 @@ describe('createCandlestick', () => {
     ];
 
     it('splits each wick into upper and lower segments around the body', () => {
-      const { seriesConfigs } = createCandlestick(items, { hollow: true });
+      const { series: seriesConfigs } = createCandlestick(items, { hollow: true });
       expect(seriesConfigs.map((seriesConfig) => seriesConfig.id))
         .toEqual(['upWick', 'downWick', 'upWickUpper', 'upWickLower', 'downWickUpper', 'downWickLower', 'up', 'down']);
       const byId = Object.fromEntries(seriesConfigs.map((seriesConfig) => [seriesConfig.id, seriesConfig]));
@@ -164,7 +164,7 @@ describe('createCandlestick', () => {
     });
 
     it('keeps the range tooltip row on a shapeless wick series with a matching icon color', () => {
-      const { seriesConfigs } = createCandlestick(items, { hollow: true });
+      const { series: seriesConfigs } = createCandlestick(items, { hollow: true });
       const [upWick, downWick] = seriesConfigs;
       expect(upWick).toMatchObject({ renderer: 'none', markerShape: null, valueLabel: 'Range', followSeries: 'up' });
       expect(downWick).toMatchObject({ renderer: 'none', markerShape: null, valueLabel: 'Range', followSeries: 'down' });
@@ -173,7 +173,7 @@ describe('createCandlestick', () => {
     });
 
     it('outlines the up body and keeps the down body filled', () => {
-      const { seriesConfigs } = createCandlestick(items, { hollow: true });
+      const { series: seriesConfigs } = createCandlestick(items, { hollow: true });
       const byId = Object.fromEntries(seriesConfigs.map((seriesConfig) => [seriesConfig.id, seriesConfig]));
       expect(byId.up!.shapeStyle).toMatchObject({
         normal: { strokeOpacity: 1, strokeWidth: 2, fillOpacity: 0 },
@@ -188,11 +188,11 @@ describe('createCandlestick', () => {
     });
 
     it('supports the volume pane in hollow mode too', () => {
-      const { seriesConfigs, seriesAxisConfigs } = createCandlestick(
+      const { series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(
         [{ label: 'Mon', open: 1, high: 3, low: 0, close: 2, volume: 100 }],
         { hollow: true, volume: true }
       );
-      expect(seriesAxisConfigs).toHaveLength(2);
+      expect(valueAxisConfigs).toHaveLength(2);
       expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toContain('upVolume');
       // every price series references the price axis, volume series the volume axis
       for (const seriesConfig of seriesConfigs) {

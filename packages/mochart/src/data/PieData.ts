@@ -59,11 +59,11 @@ export function getPieSliceFractionMap(seriesConfigs: SeriesConfig[], valueOf: (
  * animates the angles: adjacent slice edges share a normalized total, so they
  * can never separate mid-tween.
  */
-export function getPieSliceAngles(seriesConfigs: SeriesConfig[], filteredValues: Record<string, SeriesValueObject>, pieConfig: PieConfig, groupIndex = 0): Record<string, PieSliceAngles> {
+export function getPieSliceAngles(seriesConfigs: SeriesConfig[], filteredValues: Record<string, SeriesValueObject>, pieConfig: PieConfig, categoryIndex = 0): Record<string, PieSliceAngles> {
   const { total, values, fractions } = getPieSliceFractions(seriesConfigs, seriesId => {
     const valueObject = filteredValues[seriesId];
     const plain = valueObject !== undefined ? valueObject.plain : null;
-    return plain !== null ? plain[groupIndex] : undefined;
+    return plain !== null ? plain[categoryIndex] : undefined;
   });
 
   const angles: Record<string, PieSliceAngles> = {};

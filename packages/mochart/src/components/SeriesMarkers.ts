@@ -6,9 +6,10 @@ import { translate } from '../utils/utils';
 import { getSymbolGenerator } from '../utils/shapeUtils';
 import { getSeriesMarkerFillColor, getSeriesMarkerStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
-import { getFocusValue, getGroupFocusPercentage } from '../utils/FocusValue';
+import { getFocusValue, getCategoryFocusPercentage } from '../utils/FocusValue';
 import type { ElListAdapter, ElProps } from '../render';
-import type { ColorPaletteConfig, SeriesConfig } from '../types/config';
+import type { ColorPaletteConfig } from '../types/config';
+import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { SeriesDomainObject, SeriesPositionData, SeriesValueObject } from '../types/data';
 
@@ -27,16 +28,16 @@ const markerAdapter: ElListAdapter<MarkerItem, { root: ReturnType<typeof svgEl> 
 
 interface SeriesMarkersProps {
   colorPaletteConfig: ColorPaletteConfig;
-  seriesConfig: SeriesConfig;
+  seriesConfig: EnhancedSeriesConfig;
   seriesIndex: number;
   seriesPositionData: SeriesPositionData;
   filteredValues: SeriesValueObject;
   rawDomains: SeriesDomainObject;
   inverted: boolean;
   focusData: FocusData;
-  onGroupEnter: (groupIndex: number) => void;
-  onGroupLeave: (groupIndex: number) => void;
-  onGroupClick: (groupIndex: number) => void;
+  onCategoryEnter: (categoryIndex: number) => void;
+  onCategoryLeave: (categoryIndex: number) => void;
+  onCategoryClick: (categoryIndex: number) => void;
 }
 
 export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
@@ -49,11 +50,11 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
 
   sync() {
     const { colorPaletteConfig, seriesConfig, seriesIndex, seriesPositionData, filteredValues, rawDomains, inverted, focusData,
-      onGroupEnter, onGroupLeave, onGroupClick } = this.props;
+      onCategoryEnter, onCategoryLeave, onCategoryClick } = this.props;
 
     if (seriesConfig.markerShape !== NONE) {
-      const { groupFocusPercentages, seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
-      const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
+      const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
+      const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor, markerStrokeOpacity, markerFillOpacity, markerStrokeWidth;
       const { markerShape, markerShowMissing, markerSize, minMarkerSize } = seriesConfig;
       const { normal: markerNormal, focused: markerFocused, defocused: markerDefocused } = seriesConfig.markerStyle;
@@ -86,12 +87,12 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
 
       let focusPercentage;
 
-      const { length, getDefined, getSeriesPosition, getGroupPosition, skipped, skipGroupIndexMap } = seriesPositionData;
+      const { length, getDefined, getSeriesPosition, getCategoryPosition, skipped, skipCategoryIndexMap } = seriesPositionData;
 
       for (let i = 0; i < length; i++) {
-        const skipI = skipped ? skipGroupIndexMap[i] : i;
+        const skipI = skipped ? skipCategoryIndexMap[i] : i;
         if (getDefined(null, i) && (markerShowMissing || max[skipI] !== undefined)) {
-          focusPercentage = getGroupFocusPercentage(groupFocusPercentages[skipI], seriesFocusPercentage);
+          focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeWidth = getFocusValue(focusPercentage, markerNormal.strokeWidth!, markerFocused.strokeWidth!, markerDefocused.strokeWidth!);
@@ -100,10 +101,10 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
           let cx, cy;
           if (inverted) {
             cx = getSeriesPosition(null, i)!;
-            cy = getGroupPosition(null, i)!;
+            cy = getCategoryPosition(null, i)!;
           }
           else {
-            cx = getGroupPosition(null, i)!;
+            cx = getCategoryPosition(null, i)!;
             cy = getSeriesPosition(null, i)!;
           }
           let theSymbol = globalSymbol;
@@ -119,7 +120,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
               key: 'marker-' + i,
               attrs: { className: mochartCssClasses['seriesMarker'] + i, d: theSymbol, transform: translate(cx, cy),
                 stroke: markerStrokeColor, fill: markerFillColor, strokeWidth: markerStrokeWidth, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity,
-                onMouseEnter: () => onGroupEnter(i), onMouseLeave: () => onGroupLeave(i), onClick: () => onGroupClick(i) }
+                onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: () => onCategoryClick(i) }
             });
           }
         }

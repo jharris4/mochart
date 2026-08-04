@@ -1,9 +1,9 @@
 import {
-  computeCandlesticks, DIRECTIONS, DEFAULT_TITLES, DEFAULT_COLORS, GROUP_PROPERTY, DEFAULT_RANGE_TITLE,
-  PRICE_AXIS_ID, getVolumeOptions, buildVolumeSeriesAxisConfigs, buildVolumeSeriesConfigs
+  computeCandlesticks, DIRECTIONS, DEFAULT_TITLES, DEFAULT_COLORS, CATEGORY_PROPERTY, DEFAULT_RANGE_TITLE,
+  PRICE_AXIS_ID, getVolumeOptions, buildVolumeValueAxisConfigs, buildVolumeSeriesConfigs
 } from './Candlestick';
 import type { Candlestick, CandlestickDirection, CandlestickItem, CandlestickVolumeOptions } from './Candlestick';
-import type { DeepPartial, GroupAxisConfig, SeriesAxisConfig, SeriesConfig } from '../types/config';
+import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } from '../types/config';
 
 export interface CreateOhlcOptions {
   /** The per-direction series titles, e.g. shown in the legend. */
@@ -57,7 +57,7 @@ export interface CreateOhlcOptions {
    * plot on their own hidden `volume` axis, with the price series moved to a
    * `price` axis whose enlarged minimum margin reserves the lower plot band.
    * Requires `volume` values on the items; pass `true` for the defaults or an
-   * options object to tune the pane. The result gains a `seriesAxisConfigs`
+   * options object to tune the pane. The result gains a `valueAxes`
    * fragment to spread into the chart config alongside the series.
    *
    * @default false
@@ -75,23 +75,23 @@ export interface OhlcData {
    * `downOpen`.
    */
   data: Record<string, number | string | undefined>[];
-  /** Fragment to spread into the chart config's `groupAxisConfig`. */
-  groupAxisConfig: Partial<GroupAxisConfig>;
+  /** Fragment to spread into the chart config's `categoryAxis`. */
+  categoryAxis: Partial<CategoryAxisConfig>;
   /**
-   * Fragments to spread into the chart config's `seriesConfigs`: the low/high
+   * Fragments to spread into the chart config's `series`: the low/high
    * lines first (the legend entries), then the open and close ticks that
    * follow them, in up/down order. Directions absent from the data keep their
    * series so the config stays stable across data updates. With the `volume`
    * option per-direction volume bar series are appended.
    */
-  seriesConfigs: DeepPartial<SeriesConfig>[];
+  series: DeepPartial<SeriesConfig>[];
   /**
-   * Fragments to spread into the chart config's `seriesAxisConfigs` — only
+   * Fragments to spread into the chart config's `valueAxes` — only
    * present with the `volume` option: the `price` axis the price series
    * reference and the hidden `volume` axis whose margins split the plot into
    * the two panes.
    */
-  seriesAxisConfigs?: Partial<SeriesAxisConfig>[];
+  valueAxes?: Partial<ValueAxisConfig>[];
 }
 
 const DEFAULT_LINE_WIDTH_FRACTION = 0.15;
@@ -111,7 +111,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   const volumeOptions = getVolumeOptions(options.volume);
 
   const data = candles.map((candle) => ({
-    [GROUP_PROPERTY]: candle.label,
+    [CATEGORY_PROPERTY]: candle.label,
     open: candle.open,
     high: candle.high,
     low: candle.low,
@@ -133,8 +133,8 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
 
   // An ordinal scale so the bars keep even spacing when labels are dates with
   // gaps (weekends, holidays) — a linear/time scale would leave holes.
-  const groupAxisConfig: Partial<GroupAxisConfig> = {
-    property: GROUP_PROPERTY,
+  const categoryAxis: Partial<CategoryAxisConfig> = {
+    property: CATEGORY_PROPERTY,
     type: 'string',
     scale: 'ordinal'
   };
@@ -203,12 +203,12 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   return {
     candles,
     data,
-    groupAxisConfig,
-    seriesConfigs: [
+    categoryAxis,
+    series: [
       ...lineConfigs,
       ...tickConfigs,
       ...(volumeOptions !== null ? buildVolumeSeriesConfigs(volumeOptions, options.colors) : [])
     ],
-    ...(volumeOptions !== null ? { seriesAxisConfigs: buildVolumeSeriesAxisConfigs(volumeOptions) } : {})
+    ...(volumeOptions !== null ? { valueAxes: buildVolumeValueAxisConfigs(volumeOptions) } : {})
   };
 }

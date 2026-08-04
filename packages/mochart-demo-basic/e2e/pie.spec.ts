@@ -33,7 +33,7 @@ test.describe('pie demo', () => {
     await expect(page.locator('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
       .toHaveCount(seriesCount);
 
-    // the pie tooltip anchors at the click point (snapToGroup is off), so
+    // the pie tooltip anchors at the click point (snapToCategory is off), so
     // close it with a click away from the tooltip box
     await page.mouse.click(box.x + box.width * 0.1, box.y + box.height * 0.1);
     await expect(tooltip).toHaveCount(0);

@@ -6,7 +6,8 @@ import { NONE, CAP_TYPE_POINT, CAP_TYPE_CURVE, CAP_TYPE_ROUND } from '../config/
 import type { CurveFactory, ShapeGenerator } from 'd3-shape';
 import type { Path } from 'd3-path';
 import type { CapType, CurveType } from '../config/core/constants';
-import type { SeriesConfig, SeriesCurve } from '../types/config';
+import type { SeriesCurve } from '../types/config';
+import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { SeriesPositionData, StackData } from '../types/data';
 
 type Connector = (pathGenerator: Path, first: number, second: number, third: number, extent: number, offsetSign: number, offset: number, expand: boolean, size: number) => void;
@@ -52,24 +53,24 @@ function applyCurve(generator: ShapeGenerator, curveOption: SeriesCurve): ShapeG
   return generator;
 }
 
-export function getLineGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
+export function getLineGenerator(seriesConfig: EnhancedSeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
   const lineGenerator = applyCurve(line().defined(seriesPositionData.getDefined), seriesConfig.curve);
   if (inverted) {
-    lineGenerator.x(seriesPositionData.getSeriesPosition).y(seriesPositionData.getGroupPosition);
+    lineGenerator.x(seriesPositionData.getSeriesPosition).y(seriesPositionData.getCategoryPosition);
   }
   else {
-    lineGenerator.x(seriesPositionData.getGroupPosition).y(seriesPositionData.getSeriesPosition);
+    lineGenerator.x(seriesPositionData.getCategoryPosition).y(seriesPositionData.getSeriesPosition);
   }
   return () => lineGenerator(seriesPositionData);
 }
 
-export function getAreaGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
+export function getAreaGenerator(seriesConfig: EnhancedSeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
   const areaGenerator = applyCurve(area().defined(seriesPositionData.getDefined), seriesConfig.curve);
   if (inverted) {
-    areaGenerator.y(seriesPositionData.getGroupPosition).x1(seriesPositionData.getCurrentSeriesPosition).x0(seriesPositionData.getPriorSeriesPosition);
+    areaGenerator.y(seriesPositionData.getCategoryPosition).x1(seriesPositionData.getCurrentSeriesPosition).x0(seriesPositionData.getPriorSeriesPosition);
   }
   else {
-    areaGenerator.x(seriesPositionData.getGroupPosition).y1(seriesPositionData.getCurrentSeriesPosition).y0(seriesPositionData.getPriorSeriesPosition);
+    areaGenerator.x(seriesPositionData.getCategoryPosition).y1(seriesPositionData.getCurrentSeriesPosition).y0(seriesPositionData.getPriorSeriesPosition);
   }
   return () => areaGenerator(seriesPositionData);
 }
@@ -256,9 +257,9 @@ function getConnector(capType: CapType | null | undefined, inverted: boolean): C
   }
 }
 
-export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean, stackData: StackData): (index: number) => string {
+export function getColumnGenerator(seriesConfig: EnhancedSeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean, stackData: StackData): (index: number) => string {
   let pathGenerator: Path;
-  const groupValueExtent = Math.max(minColumnSize, seriesPositionData.groupValueExtent);
+  const categoryValueExtent = Math.max(minColumnSize, seriesPositionData.categoryValueExtent);
 
   const { id, stack, capType, capSize, capExpand, capOnlyStackOuter, seriesStackConfig, barMinExtent } = seriesConfig;
   const { outerCapType, outerCapSize, outerCapExpand } = seriesStackConfig ? seriesStackConfig : {};
@@ -272,7 +273,7 @@ export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionDat
 
   const connector = getConnector(columnCapType, inverted);
 
-  let groupPosition;
+  let categoryPosition;
   let seriesValueExtent;
   let seriesPosition;
   let seriesPriorPosition;
@@ -280,7 +281,7 @@ export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionDat
   let tempPosition, barCapSizeSign, barCapConnector;
   const columnGenerator: (index: number) => string = (i: number) => {
     pathGenerator = path();
-    groupPosition = seriesPositionData.getOffsetGroupPosition(null, i)!;
+    categoryPosition = seriesPositionData.getOffsetCategoryPosition(null, i)!;
     seriesValueExtent = Math.max(minColumnSize, seriesPositionData.getSeriesExtent(null, i));
     seriesPosition = seriesPositionData.getSeriesPosition(null, i)!;
     seriesPriorPosition = seriesPositionData.getPriorSeriesPosition(null, i)!;
@@ -313,7 +314,7 @@ export function getColumnGenerator(seriesConfig: SeriesConfig, seriesPositionDat
       seriesPriorPosition = tempPosition - halfExtentSign * barMinExtent / 2;
       seriesValueExtent = Math.max(seriesValueExtent, barMinExtent);
     }
-    barCapConnector(pathGenerator, groupPosition, seriesCurrentPosition, seriesPriorPosition, groupValueExtent, barCapSizeSign, columnCapSize, columnCapExpand, seriesValueExtent);
+    barCapConnector(pathGenerator, categoryPosition, seriesCurrentPosition, seriesPriorPosition, categoryValueExtent, barCapSizeSign, columnCapSize, columnCapExpand, seriesValueExtent);
     return "" + pathGenerator;
   }
   return columnGenerator;

@@ -64,9 +64,9 @@ function renderWaterfall(skipPartialRange: boolean | undefined) {
   ]);
   const mochartConfig = enhanceConfig({
     version: '1.0.0',
-    groupAxisConfig: waterfall.groupAxisConfig,
-    seriesAxisConfigs: [{ id: 'sa' }],
-    seriesConfigs: waterfall.seriesConfigs.map((seriesConfig) => ({
+    categoryAxis: waterfall.categoryAxis,
+    valueAxes: [{ id: 'sa' }],
+    series: waterfall.series.map((seriesConfig) => ({
       ...seriesConfig,
       axis: 'sa',
       ...(skipPartialRange === undefined ? {} : { skipPartialRange })

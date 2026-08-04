@@ -7,7 +7,7 @@ function numericValue(value: DomainValue): number {
   return value instanceof Date ? value.getTime() : value;
 }
 
-export function getGroupDomainForValues<T extends DomainValue>(values: readonly T[]): NullableDomain<T> { // since group values are never undefined, we don't need to check for that...
+export function getCategoryDomainForValues<T extends DomainValue>(values: readonly T[]): NullableDomain<T> { // since group values are never undefined, we don't need to check for that...
   let min: T | null = null;
   let max: T | null = null;
   let value: T;

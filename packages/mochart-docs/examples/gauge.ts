@@ -17,10 +17,10 @@ const gauge = createPie(
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Customer Sentiment (fictional survey)' },
-  chartConfig: gauge.chartConfig,
-  pieConfig: {
-    ...gauge.pieConfig,
+  title: { text: 'Customer Sentiment (fictional survey)' },
+  chart: gauge.chart,
+  pie: {
+    ...gauge.pie,
     startAngle: -90,
     endAngle: 90,
     innerRadiusFraction: 0.55,
@@ -37,8 +37,8 @@ export const config: MochartInputConfig = {
     centerTotalFormat: ',.0f',
     centerOffsetYFraction: -0.25
   },
-  groupAxisConfig: gauge.groupAxisConfig,
-  seriesConfigs: gauge.seriesConfigs
+  categoryAxis: gauge.categoryAxis,
+  series: gauge.series
 };
 
 export const data = gauge.data;

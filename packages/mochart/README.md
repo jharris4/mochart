@@ -79,10 +79,10 @@ import { createDefaultChart } from '@mochart/core';
 
 const config = {
   version: '1.0.0',
-  titleConfig: { title: 'Revenue' },
-  groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-  seriesAllConfig: { renderer: 'bar' },
-  seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+  title: { text: 'Revenue' },
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+  seriesDefaults: { renderer: 'bar' },
+  series: [{ property: 'revenue', title: 'Revenue' }]
 };
 
 const data = [
@@ -127,10 +127,10 @@ property is optional and falls back to a sensible default:
 | Section | Configures |
 | --- | --- |
 | `titleConfig` | chart title text, alignment, style, click behavior |
-| `groupAxisConfig` | the group (category) axis: data `property`, `type` (`string`/`number`/`date`), `scale` (`ordinal`/`linear`), ticks, thresholds |
+| `categoryAxisConfig` | the group (category) axis: data `property`, `type` (`string`/`number`/`date`), `scale` (`ordinal`/`linear`), ticks, thresholds |
 | `seriesConfigs` | one entry per series: data `property`, `title`, `renderer` (`bar`/`line`/`area`), colors, markers, labels, focus behavior |
-| `seriesAllConfig` | shared defaults applied to every entry of `seriesConfigs` |
-| `seriesAxisConfigs` | one or more value axes; series are assigned by `axis` id |
+| `seriesDefaults` | shared defaults applied to every entry of `seriesConfigs` |
+| `valueAxisConfigs` | one or more value axes; series are assigned by `axis` id |
 | `seriesGroupConfigs` / `seriesStackConfigs` | grouping and stacking of series |
 | `legendConfig` | legend placement, item style, series filtering on click |
 | `tooltipConfig` | tooltip content, formatting, positioning |
@@ -172,9 +172,9 @@ All callbacks are optional props on either entry point:
 ```js
 createDefaultChart(container, {
   config, data, width, height,
-  onFocus: ({ focusedSeriesId, focusedGroupIndex }) => { /* hover/click focus changed */ },
+  onFocus: ({ focusedSeriesId, focusedCategoryIndex }) => { /* hover/click focus changed */ },
   onSeriesFilter: ({ filteredSeriesIds }) => { /* legend filtering changed */ },
-  onChartClick: ({ groupIndex, chartX, chartY }) => { /* plot area clicked */ },
+  onChartClick: ({ categoryIndex, chartX, chartY }) => { /* plot area clicked */ },
   onTitleClick: () => {}
 });
 ```
@@ -186,7 +186,7 @@ createDefaultChart(container, {
 - `onChartClick` / `onChartMouseEnter` / `onChartMouseMove` /
   `onChartMouseLeave` — plot-area pointer events with chart coordinates and
   the nearest group index
-- `onSeriesLayoutInfoChange(bounds)` — the plot area was re-laid-out
+- `onSeriesLayoutBoundsChange(bounds)` — the plot area was re-laid-out
 
 ## Loading, error, and empty states
 

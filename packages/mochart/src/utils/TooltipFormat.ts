@@ -2,16 +2,17 @@ import { NONE, PIE_LABEL_TYPE_PERCENT } from '../config/core/constants';
 import { getSeriesLabel } from './SeriesTitle';
 import { formatPieLabelType, pieLabelTypeUsesPercent } from '../data/PieLabel';
 import type { PieTooltipLabelType } from '../config/core/constants';
-import type { TooltipConfig, SeriesConfig } from '../types/config';
+import type { TooltipConfig } from '../types/config';
+import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { ChartData, SeriesDomainObjects, SeriesValueObject } from '../types/data';
 import type { ValueKey } from '../data/constants';
 import type { ValueFormatter } from './ValueFormat';
 
-type GroupSeriesValueObject = Partial<Record<ValueKey, number | null | undefined>>;
-interface GroupSeriesSlice {
+type CategorySeriesValueObject = Partial<Record<ValueKey, number | null | undefined>>;
+interface CategorySeriesSlice {
   axisBases: Record<string, number | null>;
-  raw: { values: Record<string, GroupSeriesValueObject>; domains: SeriesDomainObjects };
-  filtered: { values: Record<string, GroupSeriesValueObject>; domains: SeriesDomainObjects };
+  raw: { values: Record<string, CategorySeriesValueObject>; domains: SeriesDomainObjects };
+  filtered: { values: Record<string, CategorySeriesValueObject>; domains: SeriesDomainObjects };
 }
 
 function getFilteredValueText(tooltipConfig: TooltipConfig, defaultValueText: string): string {
@@ -33,7 +34,7 @@ function getFilteredValueText(tooltipConfig: TooltipConfig, defaultValueText: st
   return seriesValueText;
 }
 
-function getValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, adjustForFiltering: boolean, valueFormat: ValueFormatter, series: GroupSeriesSlice, key: ValueKey): string | null {
+function getValueText(tooltipConfig: TooltipConfig, seriesConfig: EnhancedSeriesConfig, adjustForFiltering: boolean, valueFormat: ValueFormatter, series: CategorySeriesSlice, key: ValueKey): string | null {
   const { raw, filtered, axisBases } = series;
   const seriesId = seriesConfig.id;
   const seriesValueObject = raw.values[seriesId];
@@ -47,7 +48,7 @@ function getValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, 
         seriesValueText = String(valueFormat(filterValueObject[key]!));
       }
       else {
-        seriesValueText = getFilteredValueText(tooltipConfig, String(valueFormat(axisBases[seriesConfig.seriesAxisConfig.id]!)));
+        seriesValueText = getFilteredValueText(tooltipConfig, String(valueFormat(axisBases[seriesConfig.valueAxisConfig.id]!)));
       }
     }
     else {
@@ -86,8 +87,8 @@ export interface PieTooltipValues {
   filtered: boolean;
 }
 
-function getPieValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, adjustForFiltering: boolean,
-  valueFormat: ValueFormatter, series: GroupSeriesSlice, pieValues: PieTooltipValues): string | null {
+function getPieValueText(tooltipConfig: TooltipConfig, seriesConfig: EnhancedSeriesConfig, adjustForFiltering: boolean,
+  valueFormat: ValueFormatter, series: CategorySeriesSlice, pieValues: PieTooltipValues): string | null {
   const { tooltipValues, percentFormat, fraction, rawFraction, filtered } = pieValues;
 
   // No value means no row, whichever parts the type asks for — a bare "0.0%"
@@ -108,7 +109,7 @@ function getPieValueText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfi
   return formatPieLabelType(tooltipValues, { title: getSeriesLabel(seriesConfig), value: valueText, percent: percentText });
 }
 
-export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: SeriesConfig, valueFormat: ValueFormatter, series: GroupSeriesSlice,
+export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: EnhancedSeriesConfig, valueFormat: ValueFormatter, series: CategorySeriesSlice,
   adjustForFiltering: boolean, pieValues?: PieTooltipValues) {
   const labelText = getSeriesLabel(seriesConfig);
 
@@ -186,7 +187,7 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Series
   };
 }
 
-export function getFilteredValue(chartData: ChartData, seriesConfig: SeriesConfig, valueObject: SeriesValueObject): SeriesValueObject {
+export function getFilteredValue(chartData: ChartData, seriesConfig: EnhancedSeriesConfig, valueObject: SeriesValueObject): SeriesValueObject {
   let newValueObject = valueObject;
   if (newValueObject.plain === null) {
     newValueObject = {
@@ -207,8 +208,8 @@ export function getFilteredValue(chartData: ChartData, seriesConfig: SeriesConfi
       min: null,
       max: null
     };
-    let base = chartData.seriesData.axisBases[seriesConfig.seriesAxisConfig.id];
-    newValueObject.plain = chartData.groupData.values.raw.map(groupValue => groupValue !== undefined ? (base ?? undefined) : undefined);
+    let base = chartData.seriesData.axisBases[seriesConfig.valueAxisConfig.id];
+    newValueObject.plain = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? undefined) : undefined);
     if (seriesConfig.rangeProperty !== NONE && newValueObject.range === null) {
       newValueObject.range = newValueObject.plain;
     }
@@ -220,11 +221,11 @@ export function getFilteredValue(chartData: ChartData, seriesConfig: SeriesConfi
     }
     if (seriesConfig.markerProperty !== NONE&& newValueObject.marker === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['marker'][0];
-      newValueObject.marker = chartData.groupData.values.raw.map(groupValue => groupValue !== undefined ? (base ?? undefined) : undefined);
+      newValueObject.marker = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? undefined) : undefined);
     }
     if (seriesConfig.tooltipProperty !== NONE && newValueObject.tooltip === null) {
       base = chartData.seriesData.raw.domains[seriesConfig.id]['tooltip'][0];
-      newValueObject.tooltip = chartData.groupData.values.raw.map(groupValue => groupValue !== undefined ? (base ?? undefined) : undefined);
+      newValueObject.tooltip = chartData.categoryData.values.raw.map(categoryValue => categoryValue !== undefined ? (base ?? undefined) : undefined);
     }
   }
   return newValueObject

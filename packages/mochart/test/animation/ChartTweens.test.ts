@@ -1,3 +1,4 @@
+import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 /**
  * Unit tests for the tween engine and ChartTweenManager: phase sequencing,
  * event identity, duration scaling, delays and cancellation. The data/focus
@@ -15,10 +16,8 @@ import {
 import { getChartDataForAxisDelta, getChartDataForValueDelta } from '../../src/animation/ChartAnimation';
 import { getFocusDataForPercent } from '../../src/animation/FocusAnimation';
 import type { ChartTweenManager, DataTweenEvent } from '../../src/animation/ChartTweens';
-import type { MochartConfig } from '../../src/types/config';
-import type {
-  AnimationChartData, ChartAnimationData, FocusAnimationData, FocusData
-} from '../../src/types/animation';
+
+import type { AnimationChartData, ChartAnimationData, FocusAnimationData, FocusData } from '../../src/types/animation';
 
 vi.mock('../../src/animation/ChartAnimation', () => ({
   getChartDataForAxisDelta: vi.fn((_config: unknown, _data: unknown, expand: boolean, percentage: number) =>
@@ -54,9 +53,9 @@ function makeAnimationData(overrides: Partial<Record<'axisExpansionData' | 'valu
   } as unknown as ChartAnimationData;
 }
 
-function makeConfig(overrides: Record<string, number> = {}): MochartConfig {
+function makeConfig(overrides: Record<string, number> = {}): EnhancedMochartConfig {
   return {
-    animationConfig: {
+    animation: {
       expansionDuration: 100,
       valueChangeDuration: 100,
       initialDuration: 300,
@@ -64,7 +63,7 @@ function makeConfig(overrides: Record<string, number> = {}): MochartConfig {
       focusDuration: 100,
       ...overrides
     }
-  } as unknown as MochartConfig;
+  } as unknown as EnhancedMochartConfig;
 }
 
 interface RecordedEvent { event: DataTweenEvent; data: unknown; }

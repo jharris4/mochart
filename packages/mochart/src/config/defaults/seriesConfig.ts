@@ -1,6 +1,6 @@
 import {
   AUTO, NONE, RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE, MARKER_SHAPE_CIRCLE, CURVE_TYPE_LINEAR,
-  COLOR_SAME, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_GROUP_INDEX, COLOR_CURRENT, LABEL_POSITION_CENTER,
+  COLOR_SAME, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, COLOR_CURRENT, LABEL_POSITION_CENTER,
   COLOR_INTERPOLATION_HCL
 } from '../core/constants';
 
@@ -14,10 +14,10 @@ const colorPropertyNoneSuffix = 'when colorProperty is ' + NONE;
 const colorBaseSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.base.value is not ' + NONE;
 const colorBaseNoneSuffix = 'when colorProperty is not ' + NONE + ' and colorScale.base.value is ' + NONE;
 
-export default function getDefaults(config: DeepPartial<SeriesConfig> = {}, index: number, soleSeriesAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null): Partial<SeriesConfig> {
+export default function getDefaults(config: DeepPartial<SeriesConfig> = {}, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null): Partial<SeriesConfig> {
   const regularDefaults = getRegularDefaults();
   const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId));
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as SeriesConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId));
 
   return deepMerge(regularDefaults, conditionalDefaults) as Partial<SeriesConfig>;
 }
@@ -110,23 +110,23 @@ export function getRegularDefaults() {
     followSeries: NONE,
     focusOnMouseOver: false,
     focusOnClick: false,
-    focusGroupOnMouseOver: false,
-    focusGroupOnClick: false,
+    focusCategoryOnMouseOver: false,
+    focusCategoryOnClick: false,
     useAxisFocus: true
   };
 }
 
 // A group-index colored shape has no one color to put in a legend or tooltip swatch, so such a series
 // defaults to no color icon. Only the normal state counts; the other two resolve back to it via 'same'.
-function isGroupIndexColored({ shapeStyle }: SeriesConfig): boolean {
+function isCategoryIndexColored({ shapeStyle }: SeriesConfig): boolean {
   const { strokeColor, fillColor } = shapeStyle.normal;
-  return strokeColor === COLOR_GROUP_INDEX || fillColor === COLOR_GROUP_INDEX;
+  return strokeColor === COLOR_CATEGORY_INDEX || fillColor === COLOR_CATEGORY_INDEX;
 }
 
-const groupIndexColorSuffix = 'when shapeStyle.normal.strokeColor or shapeStyle.normal.fillColor is ' + COLOR_GROUP_INDEX;
-const notGroupIndexColorSuffix = 'when neither shapeStyle.normal.strokeColor nor shapeStyle.normal.fillColor is ' + COLOR_GROUP_INDEX;
+const categoryIndexColorSuffix = 'when shapeStyle.normal.strokeColor or shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
+const notCategoryIndexColorSuffix = 'when neither shapeStyle.normal.strokeColor nor shapeStyle.normal.fillColor is ' + COLOR_CATEGORY_INDEX;
 
-export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, index: number, soleSeriesAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null) {
+export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, index: number, soleValueAxisId: string | null, soleSeriesStackId: string | null, soleSeriesGroupId: string | null, soleGradientConfigId: string | null) {
   return {
     id: conditionalDefault([
       { condition: (_config, _index) => true, suffix: 'series index', default: 'S' + index, defaultText: 'S${index}' },
@@ -137,8 +137,8 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
       { ...defaultRule, default: index }
     ], configWithRegularDefaults, index),
     axis: conditionalDefault([
-      { condition: (_config, _index) => true, suffix: 'series axis', default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId, defaultText: 'sole axis id' },
-      { ...defaultRule, default: soleSeriesAxisId === null ? undefined : soleSeriesAxisId }
+      { condition: (_config, _index) => true, suffix: 'series axis', default: soleValueAxisId === null ? undefined : soleValueAxisId, defaultText: 'sole axis id' },
+      { ...defaultRule, default: soleValueAxisId === null ? undefined : soleValueAxisId }
     ], configWithRegularDefaults, index),
     stack: conditionalDefault([
       { condition: (_config, _index) => true, suffix: 'series stack', default: soleSeriesStackId, defaultText: 'sole stack id' },
@@ -283,13 +283,13 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
       }
     },
     showColorInLegend: conditionalDefault([
-      { condition: (config) => isGroupIndexColored(config), suffix: groupIndexColorSuffix, default: false },
-      { condition: (config) => !isGroupIndexColored(config), suffix: notGroupIndexColorSuffix, default: true },
+      { condition: (config) => isCategoryIndexColored(config), suffix: categoryIndexColorSuffix, default: false },
+      { condition: (config) => !isCategoryIndexColored(config), suffix: notCategoryIndexColorSuffix, default: true },
       { ...defaultRule, default: true }
     ], configWithRegularDefaults, index),
     showColorInTooltip: conditionalDefault([
-      { condition: (config) => isGroupIndexColored(config), suffix: groupIndexColorSuffix, default: false },
-      { condition: (config) => !isGroupIndexColored(config), suffix: notGroupIndexColorSuffix, default: true },
+      { condition: (config) => isCategoryIndexColored(config), suffix: categoryIndexColorSuffix, default: false },
+      { condition: (config) => !isCategoryIndexColored(config), suffix: notCategoryIndexColorSuffix, default: true },
       { ...defaultRule, default: true }
     ], configWithRegularDefaults, index)
   };

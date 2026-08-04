@@ -29,10 +29,10 @@ import { DefaultChart } from '@mochart/angular';
 export class Revenue {
   config = {
     version: '1.0.0',
-    titleConfig: { title: 'Revenue' },
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesAllConfig: { renderer: 'bar' },
-    seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+    title: { text: 'Revenue' },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    seriesDefaults: { renderer: 'bar' },
+    series: [{ property: 'revenue', title: 'Revenue' }]
   };
 
   data = [

@@ -32,14 +32,14 @@ export function createSparklineConfig(config: MochartInputConfig, options: Creat
   const padding = options.padding ?? 2;
   return {
     ...config,
-    chartConfig: { margin: uniform(0), padding: uniform(padding), ...config.chartConfig },
-    legendConfig: { visible: false, ...config.legendConfig },
-    tooltipConfig: { visible: interactive, ...config.tooltipConfig },
-    crosshairConfig: { visible: interactive, ...config.crosshairConfig },
-    groupAxisConfig: { visible: false, ...config.groupAxisConfig },
+    chart: { margin: uniform(0), padding: uniform(padding), ...config.chart },
+    legend: { visible: false, ...config.legend },
+    tooltip: { visible: interactive, ...config.tooltip },
+    crosshair: { visible: interactive, ...config.crosshair },
+    categoryAxis: { visible: false, ...config.categoryAxis },
     // *All sections only reach declared entries, so declare the default axis
-    seriesAxisConfigs: config.seriesAxisConfigs ?? [{}],
-    seriesAxisAllConfig: { visible: false, ...config.seriesAxisAllConfig },
-    seriesAllConfig: { markerShape: null, ...config.seriesAllConfig }
+    valueAxes: config.valueAxes ?? [{}],
+    valueAxisDefaults: { visible: false, ...config.valueAxisDefaults },
+    seriesDefaults: { markerShape: null, ...config.seriesDefaults }
   };
 }

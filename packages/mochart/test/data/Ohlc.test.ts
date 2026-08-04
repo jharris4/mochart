@@ -14,8 +14,8 @@ describe('createOhlc', () => {
   });
 
   it('emits config fragments for ordinal line and tick bars', () => {
-    const { groupAxisConfig, seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
-    expect(groupAxisConfig).toEqual({ property: 'label', type: 'string', scale: 'ordinal' });
+    const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    expect(categoryAxisConfig).toEqual({ property: 'label', type: 'string', scale: 'ordinal' });
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['up', 'down', 'upOpen', 'downOpen', 'upClose', 'downClose']);
     for (const seriesConfig of seriesConfigs) {
       expect(seriesConfig.renderer).toBe('bar');
@@ -29,7 +29,7 @@ describe('createOhlc', () => {
   });
 
   it('spans lines from low to high and ticks across zero-extent open/close ranges, split by direction', () => {
-    const { seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    const { series: seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [up, down, upOpen, downOpen, upClose, downClose] = seriesConfigs;
     expect(up).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthFraction: 0.15, title: 'Up', valueLabel: 'Range' });
     expect(down).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthFraction: 0.15, title: 'Down', valueLabel: 'Range' });
@@ -40,7 +40,7 @@ describe('createOhlc', () => {
   });
 
   it('colors each tick to match its line, with strokes matching the fills', () => {
-    const { seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    const { series: seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [up, down, upOpen, downOpen, upClose, downClose] = seriesConfigs;
     expect(upOpen.shapeStyle!.normal!.fillColor).toBe(up.shapeStyle!.normal!.fillColor);
     expect(upClose.shapeStyle!.normal!.fillColor).toBe(up.shapeStyle!.normal!.fillColor);
@@ -54,7 +54,7 @@ describe('createOhlc', () => {
   });
 
   it('honours custom titles, colors, widths and tooltip labels', () => {
-    const { seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }], {
+    const { series: seriesConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }], {
       seriesTitles: { up: 'Gain' },
       colors: { down: '#123456' },
       lineWidthFraction: 0.1,
@@ -77,14 +77,14 @@ describe('createOhlc', () => {
   });
 
   it('returns empty data for empty input', () => {
-    const { candles, data, seriesConfigs } = createOhlc([]);
+    const { candles, data, series: seriesConfigs } = createOhlc([]);
     expect(candles).toEqual([]);
     expect(data).toEqual([]);
     expect(seriesConfigs).toHaveLength(6);
   });
 
   it('supports the volume pane like the candlestick helper', () => {
-    const { data, seriesConfigs, seriesAxisConfigs } = createOhlc([
+    const { data, series: seriesConfigs, valueAxes: valueAxisConfigs } = createOhlc([
       { label: 'Mon', open: 1, high: 3, low: 0, close: 2, volume: 500 }
     ], { volume: true });
     expect(data[0]).toMatchObject({ volume: 500, upVolume: 500, downVolume: undefined });
@@ -93,14 +93,14 @@ describe('createOhlc', () => {
     for (const seriesConfig of seriesConfigs) {
       expect(seriesConfig.axis, seriesConfig.id).toBe(seriesConfig.id!.includes('Volume') ? 'volume' : 'price');
     }
-    const [priceAxis, volumeAxis] = seriesAxisConfigs!;
+    const [priceAxis, volumeAxis] = valueAxisConfigs!;
     expect(priceAxis).toMatchObject({ id: 'price' });
     expect(volumeAxis).toMatchObject({ id: 'volume', min: 0, visible: false });
   });
 
   it('emits no volume fragments by default', () => {
-    const { data, seriesConfigs, seriesAxisConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
-    expect(seriesAxisConfigs).toBeUndefined();
+    const { data, series: seriesConfigs, valueAxes: valueAxisConfigs } = createOhlc([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
+    expect(valueAxisConfigs).toBeUndefined();
     expect('upVolume' in data[0]).toBe(false);
     expect(seriesConfigs).toHaveLength(6);
   });

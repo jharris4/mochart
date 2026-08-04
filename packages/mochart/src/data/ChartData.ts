@@ -1,38 +1,38 @@
-import { getGroupData, getGroupDataWithAxisDomain, getGroupValueObject } from './GroupData';
+import { getCategoryData, getCategoryDataWithAxisDomain, getCategoryValueObject } from './CategoryData';
 import { getSeriesData, getSeriesDataWithAxisDomains, getSeriesDataWithDomains, getSeriesDataWithSeriesValues, getSeriesValueObjects } from './SeriesData';
-import type { MochartConfig } from '../types/config';
-import type { AxisDomains, ChartData, DataProvider, GroupAxisDomain, GroupData, SeriesData, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
+import type { EnhancedMochartConfig } from '../types/enhanced';
+import type { AxisDomains, ChartData, DataProvider, CategoryAxisDomain, CategoryData, SeriesData, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
 
 export function isDataProviderValid(dataProvider: DataProvider | null | undefined): boolean {
   const dataProviderError = dataProvider && dataProvider.getError && dataProvider.getError instanceof Function && dataProvider.getError();
   return !!dataProvider && !dataProviderError;
 }
 
-export function getChartData(mochartConfig: MochartConfig, dataProvider: DataProvider, filteredSeriesMap: Record<string, unknown>): ChartData {
-  const groupData = getGroupData(mochartConfig.groupAxisConfig, dataProvider);
-  const seriesData = getSeriesData(mochartConfig, dataProvider, filteredSeriesMap, groupData);
+export function getChartData(mochartConfig: EnhancedMochartConfig, dataProvider: DataProvider, filteredSeriesMap: Record<string, unknown>): ChartData {
+  const categoryData = getCategoryData(mochartConfig.categoryAxis, dataProvider);
+  const seriesData = getSeriesData(mochartConfig, dataProvider, filteredSeriesMap, categoryData);
 
   return {
-    groupData,
+    categoryData,
     seriesData
   };
 }
 
-export function getChartDataWithGroupData(chartData: ChartData, groupData: GroupData): ChartData {
-  return Object.assign({}, chartData, { groupData });
+export function getChartDataWithCategoryData(chartData: ChartData, categoryData: CategoryData): ChartData {
+  return Object.assign({}, chartData, { categoryData });
 }
 
 export function getChartDataWithSeriesData(chartData: ChartData, seriesData: SeriesData): ChartData {
   return Object.assign({}, chartData, { seriesData });
 }
 
-export function getChartDataWithData(chartData: ChartData, groupData: GroupData, seriesData: SeriesData): ChartData {
-  return Object.assign({}, chartData, { groupData, seriesData });
+export function getChartDataWithData(chartData: ChartData, categoryData: CategoryData, seriesData: SeriesData): ChartData {
+  return Object.assign({}, chartData, { categoryData, seriesData });
 }
 
-export function getChartDataWithAxisDomains(chartData: ChartData, groupAxisDomain: GroupAxisDomain, rawSeriesAxisDomains: AxisDomains, filteredSeriesAxisDomains: AxisDomains): ChartData {
-  return getChartDataWithData(chartData, getGroupDataWithAxisDomain(chartData.groupData, groupAxisDomain),
-    getSeriesDataWithAxisDomains(chartData.seriesData, rawSeriesAxisDomains, filteredSeriesAxisDomains));
+export function getChartDataWithAxisDomains(chartData: ChartData, categoryAxisDomain: CategoryAxisDomain, rawValueAxisDomains: AxisDomains, filteredValueAxisDomains: AxisDomains): ChartData {
+  return getChartDataWithData(chartData, getCategoryDataWithAxisDomain(chartData.categoryData, categoryAxisDomain),
+    getSeriesDataWithAxisDomains(chartData.seriesData, rawValueAxisDomains, filteredValueAxisDomains));
 }
 
 export function getChartDataWithSeriesDomains(chartData: ChartData, rawSeriesDomains: SeriesDomainObjects, filteredSeriesDomains: SeriesDomainObjects): ChartData {
@@ -43,17 +43,17 @@ export function getChartDataWithValues(chartData: ChartData, values: SeriesValue
   return getChartDataWithSeriesData(chartData, getSeriesDataWithSeriesValues(chartData.seriesData, values, filteredValues));
 }
 
-export function getGroupSeriesValueObject(chartData: ChartData, groupIndex: number) {
-  const { groupData, seriesData } = chartData;
+export function getCategorySeriesValueObject(chartData: ChartData, categoryIndex: number) {
+  const { categoryData, seriesData } = chartData;
 
   return {
-    group: getGroupValueObject(groupData, groupIndex),
-    series: getSeriesValueObjects(seriesData, groupIndex),
+    group: getCategoryValueObject(categoryData, categoryIndex),
+    series: getSeriesValueObjects(seriesData, categoryIndex),
   }
 }
 
-export type GroupSeriesValueObject = ReturnType<typeof getGroupSeriesValueObject>;
+export type CategorySeriesValueObject = ReturnType<typeof getCategorySeriesValueObject>;
 
-export function getChartDataGroupCount(chartData: ChartData | null): number {
-  return chartData ? chartData.groupData.values.raw.length : 0;
+export function getChartDataCategoryCount(chartData: ChartData | null): number {
+  return chartData ? chartData.categoryData.values.raw.length : 0;
 }

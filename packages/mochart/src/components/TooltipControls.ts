@@ -1,16 +1,16 @@
 import { Renderer, htmlEl, textEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import type { MochartConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { InternalFocus } from '../types/chart';
 
 interface TooltipControlsProps {
-  mochartConfig: MochartConfig;
-  groupCount: number;
-  focusedGroupIndex: number;
-  tooltipGroupIndex: number;
+  mochartConfig: EnhancedMochartConfig;
+  categoryCount: number;
+  focusedCategoryIndex: number;
+  tooltipCategoryIndex: number;
   onFocus: (focus: InternalFocus) => void;
-  updateTooltipGroupIndex: (groupIndex: number) => void;
+  updateTooltipCategoryIndex: (categoryIndex: number) => void;
   toggleMode: () => void;
   mode: string;
   minWidth?: number | null;
@@ -28,27 +28,27 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
   nextContainer = htmlEl('div');
   nextButton = htmlEl('button');
 
-  onGroupPrevClick = (event: Event) => {
-    const { mochartConfig, tooltipGroupIndex, onFocus, updateTooltipGroupIndex } = this.props;
+  onCategoryPrevClick = (event: Event) => {
+    const { mochartConfig, tooltipCategoryIndex, onFocus, updateTooltipCategoryIndex } = this.props;
     event.stopPropagation();
-    if (tooltipGroupIndex > 0) {
-      const groupIndex = tooltipGroupIndex - 1;
-      if (mochartConfig.tooltipConfig.applyFocus) {
-        onFocus({ groupIndex });
+    if (tooltipCategoryIndex > 0) {
+      const categoryIndex = tooltipCategoryIndex - 1;
+      if (mochartConfig.tooltip.applyFocus) {
+        onFocus({ categoryIndex });
       }
-      updateTooltipGroupIndex(groupIndex);
+      updateTooltipCategoryIndex(categoryIndex);
     }
   }
 
-  onGroupNextClick = (event: Event) => {
-    const { mochartConfig, groupCount, tooltipGroupIndex, onFocus, updateTooltipGroupIndex } = this.props;
+  onCategoryNextClick = (event: Event) => {
+    const { mochartConfig, categoryCount, tooltipCategoryIndex, onFocus, updateTooltipCategoryIndex } = this.props;
     event.stopPropagation();
-    if (tooltipGroupIndex >= 0 && tooltipGroupIndex < groupCount - 1) {
-      const groupIndex = tooltipGroupIndex + 1;
-      if (mochartConfig.tooltipConfig.applyFocus) {
-        onFocus({ groupIndex });
+    if (tooltipCategoryIndex >= 0 && tooltipCategoryIndex < categoryCount - 1) {
+      const categoryIndex = tooltipCategoryIndex + 1;
+      if (mochartConfig.tooltip.applyFocus) {
+        onFocus({ categoryIndex });
       }
-      updateTooltipGroupIndex(groupIndex);
+      updateTooltipCategoryIndex(categoryIndex);
     }
   }
 
@@ -71,7 +71,7 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
 
   sync() {
     const { mochartConfig, minWidth, mode } = this.props;
-    if (mochartConfig.tooltipConfig.showControls) {
+    if (mochartConfig.tooltip.showControls) {
       const modeWidth = 'calc(100% - ' + (buttonWidth * 2) + 'px)';
       const controlsStyle: Record<string, string | number> = {
         float: 'left',
@@ -85,12 +85,12 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['tooltipControls'], style: controlsStyle });
-      this.prevContainer.set({ style: { float: 'left', minWidth: buttonWidth, width: buttonWidth }, onClick: this.onGroupPrevClick });
+      this.prevContainer.set({ style: { float: 'left', minWidth: buttonWidth, width: buttonWidth }, onClick: this.onCategoryPrevClick });
       this.prevButton.set({ style: { width: '100%' } });
       this.modeContainer.set({ style: { float: 'left', minWidth: modeWidth, width: modeWidth }, onClick: this.onTooltipModeClick });
       this.modeButton.set({ style: { width: '100%' } });
       this.modeText.set(mode);
-      this.nextContainer.set({ style: { float: 'right', minWidth: buttonWidth, width: buttonWidth }, onClick: this.onGroupNextClick });
+      this.nextContainer.set({ style: { float: 'right', minWidth: buttonWidth, width: buttonWidth }, onClick: this.onCategoryNextClick });
       this.nextButton.set({ style: { width: '100%' } });
     }
     else {

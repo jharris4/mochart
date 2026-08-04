@@ -1,11 +1,11 @@
 import { Renderer, svgEl } from '../render';
 
 import { getSeriesGradientColors } from '../utils/SeriesColors';
-import type { SeriesConfig } from '../types/config';
+import type { EnhancedSeriesConfig } from '../types/enhanced';
 
 interface SeriesColorGradientProps {
   uniqueId: string;
-  seriesConfig: SeriesConfig;
+  seriesConfig: EnhancedSeriesConfig;
 }
 
 function toPercent(i: number, count: number): string {

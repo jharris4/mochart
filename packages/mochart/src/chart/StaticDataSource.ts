@@ -12,23 +12,23 @@ export class StaticDataSource implements ChartDataSource {
   readonly initialAnimationPercentage = null;
 
   start(input: ChartDataSourceInput): void {
-    const { mochartConfig, dataProvider, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = input;
+    const { mochartConfig, dataProvider, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = input;
     const error = (mochartConfig && !mochartConfig.validation.valid) || !isDataProviderValid(dataProvider);
     const chartData = (!mochartConfig || error) ? null : getChartData(mochartConfig, dataProvider, filteredSeriesIds);
     this.chartData = chartData;
-    this.focusData = chartData ? getFocusData(mochartConfig, chartData, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId) : null;
+    this.focusData = chartData ? getFocusData(mochartConfig, chartData, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId) : null;
   }
 
   update(prevInput: ChartDataSourceInput, input: ChartDataSourceInput): void {
-    const { mochartConfig, dataProvider, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = input;
+    const { mochartConfig, dataProvider, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = input;
     const configChanged = mochartConfig !== prevInput.mochartConfig;
     const dataChanged = dataProvider !== prevInput.dataProvider || filteredSeriesIds !== prevInput.filteredSeriesIds;
-    const focusChanged = focusedGroupIndex !== prevInput.focusedGroupIndex || focusedSeriesAxisId !== prevInput.focusedSeriesAxisId
+    const focusChanged = focusedCategoryIndex !== prevInput.focusedCategoryIndex || focusedValueAxisId !== prevInput.focusedValueAxisId
       || focusedSeriesId !== prevInput.focusedSeriesId;
     if (configChanged || dataChanged || focusChanged) {
       const error = (mochartConfig && !mochartConfig.validation.valid) || !isDataProviderValid(dataProvider);
       const chartData = (!mochartConfig || error) ? null : (configChanged || dataChanged) ? getChartData(mochartConfig, dataProvider, filteredSeriesIds) : this.chartData;
-      this.focusData = chartData ? getFocusDataWithMutations(this.focusData!, getFocusData(mochartConfig, chartData, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId)) : null;
+      this.focusData = chartData ? getFocusDataWithMutations(this.focusData!, getFocusData(mochartConfig, chartData, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId)) : null;
       this.chartData = chartData;
     }
   }

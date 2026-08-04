@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Ordinal Dates"
+  "title": {
+    "text": "Ordinal Dates"
   },
-  "animationConfig": {
+  "animation": {
     "animate": true,
     "expansionDuration": 300,
     "initialDuration": 300,
@@ -11,7 +11,7 @@
     "collapseDuration": 300,
     "focusDuration": 500
   },
-  "groupAxisConfig": {
+  "categoryAxis": {
     "property": "month_bought",
     "type": "date",
     "before": false,
@@ -22,11 +22,11 @@
     "tickLabelFormat": "%B %Y",
     "tickLabelTruncationEnabled": false,
     "valueFormat": "%B %Y",
-    "valueLabel": "Group"
+    "valueLabel": "Category"
   },
-  "seriesAxisConfigs": [
+  "valueAxes": [
     {
-      "id": "SA0",
+      "id": "VA0",
       "before": true,
       "visible": true,
       "axisLineMargin": 0,
@@ -35,15 +35,15 @@
       "min": 0
     }
   ],
-  "seriesStackConfigs": [
+  "seriesStacks": [
     {
-      "axis": "SA0",
+      "axis": "VA0",
       "id": "SS0"
     }
   ],
-  "seriesConfigs": [
+  "series": [
     {
-      "axis": "SA0",
+      "axis": "VA0",
       "stack": "SS0",
       "property": "total",
       "renderer": "bar",

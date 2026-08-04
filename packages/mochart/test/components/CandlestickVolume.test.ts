@@ -26,13 +26,13 @@ const ITEMS = [
 let handles: ChartHandle<DefaultChartProps>[] = [];
 
 function mountVolumeCandlestick(): Element {
-  const { data, groupAxisConfig, seriesConfigs, seriesAxisConfigs } = createCandlestick(ITEMS, { volume: true });
+  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(ITEMS, { volume: true });
   const config = {
     version: VERSION,
-    animationConfig: { animate: false },
-    groupAxisConfig,
-    seriesAxisConfigs,
-    seriesConfigs
+    animation: { animate: false },
+    categoryAxis: categoryAxisConfig,
+    valueAxes: valueAxisConfigs,
+    series: seriesConfigs
   } as unknown as MochartInputConfig;
   const container = document.createElement('div');
   document.body.appendChild(container);

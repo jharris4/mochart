@@ -36,16 +36,16 @@ function attachSizer(el: unknown): void {
 }
 
 const chartCount = ref(defaultChartCount);
-const focusedSeriesAxisId = shallowRef<string | null>(null);
+const focusedValueAxisId = shallowRef<string | null>(null);
 const focusedSeriesId = shallowRef<string | null>(null);
-const focusedGroupIndex = ref(-1);
+const focusedCategoryIndex = ref(-1);
 const filteredSeriesIds = shallowRef<FilteredSeriesIds>({});
 const mochartDemoConfig = shallowRef<MochartDemoConfig | null>(props.config ? buildMochartDemoConfig(props.config) : null);
 
 function resetFocusAndFiltered() {
-  focusedSeriesAxisId.value = null;
+  focusedValueAxisId.value = null;
   focusedSeriesId.value = null;
-  focusedGroupIndex.value = -1;
+  focusedCategoryIndex.value = -1;
   filteredSeriesIds.value = {};
 }
 
@@ -72,18 +72,18 @@ watch(
       const { configValidation, mochartConfig } = mochartDemoConfig.value ?? {};
       const valid = configValidation?.valid ?? false;
       if (!previousDataError && previousData && nextData && valid && mochartConfig) {
-        if (focusedGroupIndex.value >= 0) {
-          const property = mochartConfig.groupAxisConfig.property ?? '';
-          const groupValue = previousData[focusedGroupIndex.value][property];
-          let newFocusedGroupIndex = -1;
+        if (focusedCategoryIndex.value >= 0) {
+          const property = mochartConfig.categoryAxis.property ?? '';
+          const categoryValue = previousData[focusedCategoryIndex.value][property];
+          let newFocusedCategoryIndex = -1;
           const count = nextData.length;
           for (let i = 0; i < count; i++) {
-            if (nextData[i][property] === groupValue) {
-              newFocusedGroupIndex = i;
+            if (nextData[i][property] === categoryValue) {
+              newFocusedCategoryIndex = i;
               break;
             }
           }
-          focusedGroupIndex.value = newFocusedGroupIndex;
+          focusedCategoryIndex.value = newFocusedCategoryIndex;
         }
       }
       else {
@@ -94,15 +94,15 @@ watch(
 );
 
 function onFocus(focusData: FocusData = {}) {
-  const { seriesAxisId, seriesId, groupIndex } = focusData;
-  if (seriesAxisId !== undefined) {
-    focusedSeriesAxisId.value = seriesAxisId;
+  const { valueAxisId, seriesId, categoryIndex } = focusData;
+  if (valueAxisId !== undefined) {
+    focusedValueAxisId.value = valueAxisId;
   }
   if (seriesId !== undefined) {
     focusedSeriesId.value = seriesId;
   }
-  if (groupIndex !== undefined) {
-    focusedGroupIndex.value = groupIndex;
+  if (categoryIndex !== undefined) {
+    focusedCategoryIndex.value = categoryIndex;
   }
 }
 
@@ -128,8 +128,8 @@ const chartWidth = computed(() => Math.floor((width.value - scrollWidthOffset) /
           <EditableChart v-for="i in adjustedChartCount" :key="i"
                          :chart-count="chartCount" :show-chart-count-controls="allowedChartCount > 1 && i === 1" :show-share-button="i === 1"
                          :width="chartWidth" :mochart-demo-config="mochartDemoConfig" :data="props.data ?? []" :data-error="props.dataError"
-                         :is-active="props.active" :filtered-series-ids="filteredSeriesIds" :focused-group-index="focusedGroupIndex"
-                         :focused-series-axis-id="focusedSeriesAxisId" :focused-series-id="focusedSeriesId" :on-chart-count-toggle="onChartCountToggle"
+                         :is-active="props.active" :filtered-series-ids="filteredSeriesIds" :focused-category-index="focusedCategoryIndex"
+                         :focused-value-axis-id="focusedValueAxisId" :focused-series-id="focusedSeriesId" :on-chart-count-toggle="onChartCountToggle"
                          :on-focus="onFocus" :on-series-filter="onSeriesFilter" />
         </template>
       </div>

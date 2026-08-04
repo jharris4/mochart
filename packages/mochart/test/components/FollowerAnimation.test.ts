@@ -68,13 +68,13 @@ function advanceFrames(count: number) {
 }
 
 function mountHollowCandlestick(items: typeof ITEMS) {
-  const { data, groupAxisConfig, seriesConfigs } = mochart.createCandlestick(items, { hollow: true });
+  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochart.createCandlestick(items, { hollow: true });
   const mochartConfig = mochart.enhanceConfig({
     version: '1.0.0',
-    animationConfig: { animate: true },
-    legendConfig: { visible: true },
-    groupAxisConfig,
-    seriesConfigs
+    animation: { animate: true },
+    legend: { visible: true },
+    categoryAxis: categoryAxisConfig,
+    series: seriesConfigs
   } as never);
   const container = document.createElement('div');
   document.body.appendChild(container);

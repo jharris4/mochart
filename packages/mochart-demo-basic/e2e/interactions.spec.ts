@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import { test, expect, openDemo } from './helpers';
 
-const groupTickLabels = '.mochart-group-axis .mochart-axis-tick-label';
+const categoryTickLabels = '.mochart-category-axis .mochart-axis-tick-label';
 
 function barGeometry(page: Page): Promise<string> {
   return page.evaluate(() => Array.from(document.querySelectorAll('.mochart-series-bar'))
@@ -53,7 +53,7 @@ test('clicking a legend item filters the series out and back in', async ({ page 
 });
 
 test('toolbar add/remove group updates the group axis', async ({ page }) => {
-  const ticks = page.locator(groupTickLabels);
+  const ticks = page.locator(categoryTickLabels);
   const initialCount = await ticks.count();
 
   await page.click('#add-group');
@@ -102,7 +102,7 @@ test('randomized values stay within a fixed series axis range', async ({ page })
 });
 
 test('randomize changes bar geometry and reset restores group count', async ({ page }) => {
-  const ticks = page.locator(groupTickLabels);
+  const ticks = page.locator(categoryTickLabels);
   const initialTicks = await ticks.count();
   const initialGeometry = await barGeometry(page);
 

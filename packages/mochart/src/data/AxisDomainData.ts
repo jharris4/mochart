@@ -2,7 +2,7 @@ import { getDomainExtent } from './DomainData';
 import { AUTO, NONE, TYPE_DATE } from '../config/core/constants';
 import type { AxisConfigBase } from '../types/config';
 import type { DataType } from '../config/core/constants';
-import type { DomainValue, GroupAxisDomain } from '../types/data';
+import type { DomainValue, CategoryAxisDomain } from '../types/data';
 
 type AxisDomainConfig = AxisConfigBase & {
   type: DataType;
@@ -10,17 +10,17 @@ type AxisDomainConfig = AxisConfigBase & {
   minMarginFraction?: number;
   maxMarginFraction?: number;
 };
-type AxisDomainCalculator = () => GroupAxisDomain;
+type AxisDomainCalculator = () => CategoryAxisDomain;
 
-export function getAxisDomain(axisConfig: AxisDomainConfig, axisDomainCalculator: AxisDomainCalculator): GroupAxisDomain {
+export function getAxisDomain(axisConfig: AxisDomainConfig, axisDomainCalculator: AxisDomainCalculator): CategoryAxisDomain {
   const axisDomain = getAxisDomainWithMinAndMax(axisConfig, axisDomainCalculator);
   adjustAxisDomainForOffsets(axisConfig, axisDomain);
   return axisDomain;
 }
 
-function getAxisDomainWithMinAndMax(axisConfig: AxisDomainConfig, axisDomainCalculator: AxisDomainCalculator): GroupAxisDomain {
+function getAxisDomainWithMinAndMax(axisConfig: AxisDomainConfig, axisDomainCalculator: AxisDomainCalculator): CategoryAxisDomain {
   const { min, max, base = null } = axisConfig;
-  let axisDomain: GroupAxisDomain = [null, null];
+  let axisDomain: CategoryAxisDomain = [null, null];
   const valueCreator = getAxisValueCreator(axisConfig);
   if (min !== AUTO && max !== AUTO) {
     axisDomain[0] = valueCreator(min);
@@ -60,7 +60,7 @@ function getAxisDomainWithMinAndMax(axisConfig: AxisDomainConfig, axisDomainCalc
   return axisDomain;
 }
 
-function adjustAxisDomainForOffsets(axisConfig: AxisDomainConfig, axisDomain: GroupAxisDomain): void {
+function adjustAxisDomainForOffsets(axisConfig: AxisDomainConfig, axisDomain: CategoryAxisDomain): void {
   const { min, minOffset, max, maxOffset } = axisConfig;
   if (min === AUTO && minOffset !== 0 && axisDomain[0] !== null) {
     axisDomain[0] = adjustAxisValue(axisConfig, axisDomain[0], minOffset);

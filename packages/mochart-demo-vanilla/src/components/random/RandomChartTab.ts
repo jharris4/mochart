@@ -151,7 +151,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   const transportToolbarItems = [transportGroup, rateField];
   const transportToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, transportToolbarItems);
 
-  const reuseGroup = el('div', { className: 'demo-btn-group' }, [reuseButton.el]);
+  const reuseCategory = el('div', { className: 'demo-btn-group' }, [reuseButton.el]);
   // Menu-side home for Play and Stop — a cached `.demo-btn-group`;
   // OverflowMenu.ts's header says why that shape.
   const menuTransportGroup = el('div', { className: 'demo-btn-group' });
@@ -176,7 +176,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     getAnchor: () => controls
   });
   const menuGroup = el('div', { className: 'demo-btn-group' }, [overflowMenuHandle.el, menu.el]);
-  const trailingToolbarItems = [reuseGroup, menuGroup];
+  const trailingToolbarItems = [reuseCategory, menuGroup];
   const trailingToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, trailingToolbarItems);
 
   const controls = el('div', { className: 'random-controls' }, [
@@ -196,7 +196,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     // restores below see honest child lists rather than believing the controls
     // are already placed.
     overflowMenuHandle.setItems(isPhone
-      ? [menuTransportGroup, menuDivider, reuseGroup, menuDivider, rateField]
+      ? [menuTransportGroup, menuDivider, reuseCategory, menuDivider, rateField]
       : []);
     setChildren(transportGroup, isPhone ? foldedTransportButtons : transportButtons);
     if (isPhone) {

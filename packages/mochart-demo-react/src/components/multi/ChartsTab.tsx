@@ -27,8 +27,8 @@ interface Props {
 }
 
 interface ChartsTabState {
-  focusedGroupIndex: number;
-  focusedSeriesAxisId: string | null;
+  focusedCategoryIndex: number;
+  focusedValueAxisId: string | null;
   focusedSeriesId: string | null;
   filteredSeriesIds: FilteredSeriesIds;
   playing: boolean;
@@ -40,7 +40,7 @@ interface ChartsTabState {
   chartRows: number;
   chartCols: number;
   rate: number;
-  focusedGroupIndices: number[];
+  focusedCategoryIndices: number[];
   sliceIds: string[];
 }
 
@@ -72,10 +72,10 @@ function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, ra
     ? ((Math.round(step) % stepCycle) + stepCycle) % stepCycle
     : (mochartDemoConfig.pieMode ? 0 : dataCount);
   const dataProviders = getDataProvidersForDataCount(mochartConfig, data, chartRows * chartCols, currentDataCount);
-  const focusedGroupIndices = dataProviders.map(() => -1);
+  const focusedCategoryIndices = dataProviders.map(() => -1);
   return {
-    focusedGroupIndex: -1,
-    focusedSeriesAxisId: null,
+    focusedCategoryIndex: -1,
+    focusedValueAxisId: null,
     focusedSeriesId: null,
     filteredSeriesIds: {},
     playing: false,
@@ -87,7 +87,7 @@ function buildInitial(demoObject: Demo, chartRows: number, chartCols: number, ra
     chartRows,
     chartCols,
     rate,
-    focusedGroupIndices,
+    focusedCategoryIndices,
     sliceIds
   };
 }
@@ -115,27 +115,27 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     setState(prev => buildInitial(demoObject, prev.chartRows, prev.chartCols, prev.rate));
   }
 
-  const getFocusedGroupIndicesForValue = (dataProviders: ChartDataProviderLike[], groupValue: unknown): number[] => {
+  const getFocusedCategoryIndicesForValue = (dataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] => {
     return dataProviders.map(dataProvider => {
-      let chartGroupIndex = -1;
-      const groupValues = dataProvider.getGroupValues();
-      const count = groupValues.length;
+      let chartCategoryIndex = -1;
+      const categoryValues = dataProvider.getCategoryValues();
+      const count = categoryValues.length;
       for (let i = 0; i < count; i++) {
-        if (groupValues[i] === groupValue) {
-          chartGroupIndex = i;
+        if (categoryValues[i] === categoryValue) {
+          chartCategoryIndex = i;
           break;
         }
       }
-      return chartGroupIndex;
+      return chartCategoryIndex;
     });
   };
 
-  const getFocusedGroupIndices = (s: ChartsTabState, dataProviders: ChartDataProviderLike[]): number[] => {
-    const { mochartDemoConfig, data, focusedGroupIndex } = s;
+  const getFocusedCategoryIndices = (s: ChartsTabState, dataProviders: ChartDataProviderLike[]): number[] => {
+    const { mochartDemoConfig, data, focusedCategoryIndex } = s;
     const { mochartConfig } = mochartDemoConfig;
-    if (focusedGroupIndex >= 0) {
-      const groupValue = data[focusedGroupIndex][mochartConfig.groupAxisConfig.property ?? ''];
-      return getFocusedGroupIndicesForValue(dataProviders, groupValue);
+    if (focusedCategoryIndex >= 0) {
+      const categoryValue = data[focusedCategoryIndex][mochartConfig.categoryAxis.property ?? ''];
+      return getFocusedCategoryIndicesForValue(dataProviders, categoryValue);
     }
     else {
       return dataProviders.map(() => -1);
@@ -149,8 +149,8 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
       const { mochartConfig } = prev.mochartDemoConfig;
       const currentDataCount = resetStepOf(prev);
       const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, chartRows * prev.chartCols, currentDataCount);
-      const focusedGroupIndices = getFocusedGroupIndices(prev, dataProviders);
-      return { ...prev, chartRows, currentDataCount, dataProviders, focusedGroupIndices };
+      const focusedCategoryIndices = getFocusedCategoryIndices(prev, dataProviders);
+      return { ...prev, chartRows, currentDataCount, dataProviders, focusedCategoryIndices };
     });
   };
 
@@ -159,8 +159,8 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
       const { mochartConfig } = prev.mochartDemoConfig;
       const currentDataCount = resetStepOf(prev);
       const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * chartCols, currentDataCount);
-      const focusedGroupIndices = getFocusedGroupIndices(prev, dataProviders);
-      return { ...prev, chartCols, currentDataCount, dataProviders, focusedGroupIndices };
+      const focusedCategoryIndices = getFocusedCategoryIndices(prev, dataProviders);
+      return { ...prev, chartCols, currentDataCount, dataProviders, focusedCategoryIndices };
     });
   };
 
@@ -172,8 +172,8 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
         ? (prev.currentDataCount - 1 + cycle) % cycle
         : cycle + (prev.currentDataCount - 1) % cycle;
       const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * prev.chartCols, currentDataCount);
-      const focusedGroupIndices = getFocusedGroupIndices(prev, dataProviders);
-      return { ...prev, currentDataCount, dataProviders, focusedGroupIndices };
+      const focusedCategoryIndices = getFocusedCategoryIndices(prev, dataProviders);
+      return { ...prev, currentDataCount, dataProviders, focusedCategoryIndices };
     });
   };
 
@@ -182,8 +182,8 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
       const { mochartConfig } = prev.mochartDemoConfig;
       const currentDataCount = (prev.currentDataCount + 1) % stepCycleOf(prev);
       const dataProviders = getDataProvidersForDataCount(mochartConfig, prev.data, prev.chartRows * prev.chartCols, currentDataCount);
-      const focusedGroupIndices = getFocusedGroupIndices(prev, dataProviders);
-      return { ...prev, currentDataCount, dataProviders, focusedGroupIndices };
+      const focusedCategoryIndices = getFocusedCategoryIndices(prev, dataProviders);
+      return { ...prev, currentDataCount, dataProviders, focusedCategoryIndices };
     });
   };
 
@@ -219,36 +219,36 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     }
   }, []);
 
-  const onChartFocus = (chartIndex: number, focusData: { focusedSeriesAxisId?: string | null; focusedSeriesId?: string | null; focusedGroupIndex?: number }) => {
-    const { focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId } = focusData;
-    let groupIndex = focusData.focusedGroupIndex;
-    const { mochartDemoConfig, data, dataProviders, focusedGroupIndex: currentFocusedGroupIndex } = state;
+  const onChartFocus = (chartIndex: number, focusData: { focusedValueAxisId?: string | null; focusedSeriesId?: string | null; focusedCategoryIndex?: number }) => {
+    const { focusedValueAxisId: valueAxisId, focusedSeriesId: seriesId } = focusData;
+    let categoryIndex = focusData.focusedCategoryIndex;
+    const { mochartDemoConfig, data, dataProviders, focusedCategoryIndex: currentFocusedCategoryIndex } = state;
     const { mochartConfig } = mochartDemoConfig;
-    let focusedGroupIndices = state.focusedGroupIndices;
-    if (groupIndex !== undefined && groupIndex >= 0) {
-      const groupValue = dataProviders[chartIndex].getGroupValues()[groupIndex];
+    let focusedCategoryIndices = state.focusedCategoryIndices;
+    if (categoryIndex !== undefined && categoryIndex >= 0) {
+      const categoryValue = dataProviders[chartIndex].getCategoryValues()[categoryIndex];
       const count = data.length;
       for (let i = 0; i < count; i++) {
-        if (data[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
-          groupIndex = i;
+        if (data[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
+          categoryIndex = i;
           break;
         }
       }
-      if (groupIndex !== currentFocusedGroupIndex) {
-        focusedGroupIndices = getFocusedGroupIndicesForValue(dataProviders, groupValue);
+      if (categoryIndex !== currentFocusedCategoryIndex) {
+        focusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders, categoryValue);
       }
     }
-    else if (currentFocusedGroupIndex >= 0) {
-      focusedGroupIndices = dataProviders.map(() => -1);
+    else if (currentFocusedCategoryIndex >= 0) {
+      focusedCategoryIndices = dataProviders.map(() => -1);
     }
-    const nextFocusedGroupIndex = groupIndex !== undefined ? groupIndex : currentFocusedGroupIndex;
-    const nextFocusedSeriesAxisId = seriesAxisId !== undefined ? seriesAxisId : state.focusedSeriesAxisId;
+    const nextFocusedCategoryIndex = categoryIndex !== undefined ? categoryIndex : currentFocusedCategoryIndex;
+    const nextFocusedValueAxisId = valueAxisId !== undefined ? valueAxisId : state.focusedValueAxisId;
     const nextFocusedSeriesId = seriesId !== undefined ? seriesId : state.focusedSeriesId;
     setState(prev => ({
       ...prev,
-      focusedGroupIndices,
-      focusedGroupIndex: nextFocusedGroupIndex,
-      focusedSeriesAxisId: nextFocusedSeriesAxisId,
+      focusedCategoryIndices,
+      focusedCategoryIndex: nextFocusedCategoryIndex,
+      focusedValueAxisId: nextFocusedValueAxisId,
       focusedSeriesId: nextFocusedSeriesId
     }));
   };
@@ -258,7 +258,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     setState(prev => ({ ...prev, filteredSeriesIds: { ...filteredSeriesIds } }));
   };
 
-  const { filteredSeriesIds, focusedGroupIndices, focusedSeriesAxisId, focusedSeriesId, playing, mochartDemoConfig, dataProviders, chartRows, chartCols } = state;
+  const { filteredSeriesIds, focusedCategoryIndices, focusedValueAxisId, focusedSeriesId, playing, mochartDemoConfig, dataProviders, chartRows, chartCols } = state;
   const { mochartConfig } = mochartDemoConfig;
 
   // Measured size of the charts grid (the old code wrapped it in a sizer HOC).
@@ -301,7 +301,7 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
         {gridWidth > 0 ?
           <MultiMochartCharts width={gridWidth} height={gridHeight} mochartConfig={mochartConfig} dataProviders={dataProviders}
             chartRows={chartRows} chartCols={chartCols} chartFilteredSeriesIds={chartFilteredSeriesIds}
-            focusedGroupIndices={focusedGroupIndices} focusedSeriesAxisId={focusedSeriesAxisId} focusedSeriesId={focusedSeriesId}
+            focusedCategoryIndices={focusedCategoryIndices} focusedValueAxisId={focusedValueAxisId} focusedSeriesId={focusedSeriesId}
             onSeriesFilter={onSeriesFilter} onChartFocus={onChartFocus} />
           : null}
       </div>
@@ -323,15 +323,15 @@ interface ChartsProps {
   chartRows: number;
   chartCols: number;
   chartFilteredSeriesIds: (chartIndex: number) => FilteredSeriesIds;
-  focusedGroupIndices: number[];
-  focusedSeriesAxisId?: string | null;
+  focusedCategoryIndices: number[];
+  focusedValueAxisId?: string | null;
   focusedSeriesId?: string | null;
   onSeriesFilter: (filterData: { filteredSeriesIds: FilteredSeriesIds }) => void;
   onChartFocus: (chartIndex: number, focusData: any) => void;
 }
 
 function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chartRows, chartCols,
-  chartFilteredSeriesIds, focusedGroupIndices, focusedSeriesAxisId, focusedSeriesId, onSeriesFilter, onChartFocus }: ChartsProps) {
+  chartFilteredSeriesIds, focusedCategoryIndices, focusedValueAxisId, focusedSeriesId, onSeriesFilter, onChartFocus }: ChartsProps) {
   const chartWidth = Math.floor((width - scrollWidthOffset) / chartCols);
   const chartHeight = Math.floor(height / chartRows);
 
@@ -342,8 +342,8 @@ function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chart
     charts.push(
       <div key={'chart-' + i} className="multi-mochart-chart">
         <Chart mochartConfig={mochartConfig} dataProvider={dataProviders[i]} width={chartWidth} height={chartHeight}
-          filteredSeriesIds={chartFilteredSeriesIds(i)} focusedGroupIndex={focusedGroupIndices[i] ?? -1}
-          focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
+          filteredSeriesIds={chartFilteredSeriesIds(i)} focusedCategoryIndex={focusedCategoryIndices[i] ?? -1}
+          focusedValueAxisId={focusedValueAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
           onSeriesFilter={onSeriesFilter} onFocus={(fd) => onChartFocus(chartIndex, fd)} />
       </div>
     );

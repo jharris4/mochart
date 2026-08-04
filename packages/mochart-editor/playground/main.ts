@@ -27,10 +27,10 @@ applyDocumentTheme(initialTheme);
 
 const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Monthly Revenue' },
-  groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-  seriesAllConfig: { renderer: 'bar' },
-  seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+  title: { text: 'Monthly Revenue' },
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+  seriesDefaults: { renderer: 'bar' },
+  series: [{ property: 'revenue', title: 'Revenue' }]
 };
 
 const data = [

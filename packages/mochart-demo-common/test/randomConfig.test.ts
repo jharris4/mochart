@@ -5,7 +5,7 @@ import { validateRandomConfig, restoreSharedRandomConfig, neutralizeRandomReuse,
 import type { RandomConfigWithValid } from '../src/types';
 
 const genericConfig = {
-  group: {
+  category: {
     count: 15,
     order: { sort: true },
     missing: { probability: 0 },
@@ -67,31 +67,31 @@ describe('validateRandomConfig', () => {
   // Regression: these checks compared against count.max on a scalar count, so
   // they never fired and an insufficient range froze the page in the
   // generator's uniqueness retry loop.
-  describe('group range sufficiency', () => {
-    function withGroup(overrides: Record<string, unknown>) {
-      return { ...genericConfig, group: { ...genericConfig.group, ...overrides } };
+  describe('category range sufficiency', () => {
+    function withCategory(overrides: Record<string, unknown>) {
+      return { ...genericConfig, category: { ...genericConfig.category, ...overrides } };
     }
 
-    it('rejects a number range too small for the group count', () => {
-      expect(validateRandomConfig(withGroup({ number: { min: 0, max: 5, interval: 1 } }))).toBe(false);
+    it('rejects a number range too small for the category count', () => {
+      expect(validateRandomConfig(withCategory({ number: { min: 0, max: 5, interval: 1 } }))).toBe(false);
     });
 
-    it('rejects a date range too small for the group count', () => {
-      expect(validateRandomConfig(withGroup({
+    it('rejects a date range too small for the category count', () => {
+      expect(validateRandomConfig(withCategory({
         date: { min: '2014-01-01', max: '2014-01-05', interval: 1, intervalUnit: 'day' }
       }))).toBe(false);
     });
 
-    it('rejects a string range too small for the group count', () => {
-      expect(validateRandomConfig(withGroup({ string: { minLength: 1, maxLength: 1 } }))).toBe(false);
+    it('rejects a string range too small for the category count', () => {
+      expect(validateRandomConfig(withCategory({ string: { minLength: 1, maxLength: 1 } }))).toBe(false);
     });
 
     // Regression: these sections had validators defined but never invoked, so
     // out-of-range values silently distorted or emptied the chart.
     it('rejects out-of-range order/missing/reuse/round settings', () => {
-      expect(validateRandomConfig(withGroup({ order: { sort: 'yes' } }))).toBe(false);
-      expect(validateRandomConfig(withGroup({ missing: { probability: 5 } }))).toBe(false);
-      expect(validateRandomConfig(withGroup({ reuse: { globalPercentage: 2, stepPercentage: 0.5 } }))).toBe(false);
+      expect(validateRandomConfig(withCategory({ order: { sort: 'yes' } }))).toBe(false);
+      expect(validateRandomConfig(withCategory({ missing: { probability: 5 } }))).toBe(false);
+      expect(validateRandomConfig(withCategory({ reuse: { globalPercentage: 2, stepPercentage: 0.5 } }))).toBe(false);
       expect(validateRandomConfig({ ...genericConfig,
         series: { ...genericConfig.series, number: { ...genericConfig.series.number, round: 1 } } })).toBe(false);
       expect(validateRandomConfig({ ...genericConfig,
@@ -101,10 +101,10 @@ describe('validateRandomConfig', () => {
     it('accounts for the step-reuse preview lineages', () => {
       // count 12, stepPercentage 1 -> preview lineages need 18 uniques; 15 lattice values is enough for count alone
       const number = { min: 0, max: 14, interval: 1 };
-      expect(validateRandomConfig(withGroup({
+      expect(validateRandomConfig(withCategory({
         count: 12, number, reuse: { globalPercentage: 0, stepPercentage: 1 }
       }))).toBe(false);
-      expect(validateRandomConfig(withGroup({
+      expect(validateRandomConfig(withCategory({
         count: 12, number, reuse: { globalPercentage: 0, stepPercentage: 0 }
       }))).toBe(true);
     });
@@ -123,22 +123,22 @@ describe('restoreSharedRandomConfig', () => {
   it('marks invalid payloads invalid', () => {
     expect(restoreSharedRandomConfig({} as never).valid).toBe(false);
     expect(restoreSharedRandomConfig({} as never, 'pie').valid).toBe(false);
-    const insufficient = { ...genericConfig, group: { ...genericConfig.group, number: { min: 0, max: 5, interval: 1 } } };
+    const insufficient = { ...genericConfig, category: { ...genericConfig.category, number: { min: 0, max: 5, interval: 1 } } };
     expect(restoreSharedRandomConfig(insufficient as never).valid).toBe(false);
   });
 
   it('ignores a tampered valid flag on the payload', () => {
-    const tampered = { ...genericConfig, group: { ...genericConfig.group, number: { min: 0, max: 5, interval: 1 } }, valid: true };
+    const tampered = { ...genericConfig, category: { ...genericConfig.category, number: { min: 0, max: 5, interval: 1 } }, valid: true };
     expect(restoreSharedRandomConfig(tampered as never).valid).toBe(false);
   });
 });
 
 describe('neutralizeRandomReuse', () => {
-  it('zeroes the generic group/series reuse settings', () => {
+  it('zeroes the generic category/series reuse settings', () => {
     const neutralized = neutralizeRandomReuse(genericConfig);
-    expect(neutralized.group.reuse).toEqual({ globalPercentage: 0, stepPercentage: 0 });
+    expect(neutralized.category.reuse).toEqual({ globalPercentage: 0, stepPercentage: 0 });
     expect(neutralized.series.reuse).toEqual({ global: false, step: false });
-    expect(neutralized.group.count).toBe(15);
+    expect(neutralized.category.count).toBe(15);
     expect(genericConfig.series.reuse.step).toBe(true);
   });
 

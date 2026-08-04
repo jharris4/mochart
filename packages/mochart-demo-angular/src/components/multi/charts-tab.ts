@@ -36,8 +36,8 @@ function clampGrid(value: number): number {
               <div class="multi-mochart-chart">
                 <mochart-chart [mochartConfig]="mochartDemoConfig()!.mochartConfig" [dataProvider]="dataProvider"
                                [width]="chartWidth" [height]="chartHeight"
-                               [filteredSeriesIds]="chartFilteredSeriesIds(i)" [focusedGroupIndex]="focusedGroupIndexAt(i)"
-                               [focusedSeriesAxisId]="focusedSeriesAxisId()" [focusedSeriesId]="focusedSeriesId()"
+                               [filteredSeriesIds]="chartFilteredSeriesIds(i)" [focusedCategoryIndex]="focusedCategoryIndexAt(i)"
+                               [focusedValueAxisId]="focusedValueAxisId()" [focusedSeriesId]="focusedSeriesId()"
                                (seriesFilter)="onSeriesFilter($event)" (focus)="onChartFocus(i, $event)" />
               </div>
             }
@@ -74,9 +74,9 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   sliceIds = signal<string[]>([]);
   currentDataCount = signal(0);
   dataProviders = signal<ChartDataProviderLike[]>([]);
-  focusedGroupIndices = signal<number[]>([]);
-  focusedGroupIndex = signal(-1);
-  focusedSeriesAxisId = signal<string | null>(null);
+  focusedCategoryIndices = signal<number[]>([]);
+  focusedCategoryIndex = signal(-1);
+  focusedValueAxisId = signal<string | null>(null);
   focusedSeriesId = signal<string | null>(null);
   filteredSeriesIds = signal<FilteredSeriesIds>({});
 
@@ -109,7 +109,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       : this.resetStep();
     this.currentDataCount.set(currentDataCount);
     this.dataProviders.set(getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, rows * cols, currentDataCount));
-    this.focusedGroupIndices.set(this.dataProviders().map(() => -1));
+    this.focusedCategoryIndices.set(this.dataProviders().map(() => -1));
   }
 
   private consumeMultiShareState(): MultiShareState | null {
@@ -157,8 +157,8 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   }
 
   private initFocusAndFiltered(): void {
-    this.focusedGroupIndex.set(-1);
-    this.focusedSeriesAxisId.set(null);
+    this.focusedCategoryIndex.set(-1);
+    this.focusedValueAxisId.set(null);
     this.focusedSeriesId.set(null);
     this.filteredSeriesIds.set({});
   }
@@ -176,7 +176,7 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       this.sliceIds.set(this.computeSliceIds(this.mochartDemoConfig()!));
       this.currentDataCount.set(this.resetStep());
       this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
-      this.focusedGroupIndices.set(this.dataProviders().map(() => -1));
+      this.focusedCategoryIndices.set(this.dataProviders().map(() => -1));
     }
     if (changes['active']) {
       this.onStopClick();
@@ -191,14 +191,14 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     this.chartRows.set(nextChartRows);
     this.currentDataCount.set(this.resetStep());
     this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
-    this.focusedGroupIndices.set(this.getFocusedGroupIndices(this.dataProviders()));
+    this.focusedCategoryIndices.set(this.getFocusedCategoryIndices(this.dataProviders()));
   };
 
   onColsChange = (nextChartCols: number): void => {
     this.chartCols.set(nextChartCols);
     this.currentDataCount.set(this.resetStep());
     this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
-    this.focusedGroupIndices.set(this.getFocusedGroupIndices(this.dataProviders()));
+    this.focusedCategoryIndices.set(this.getFocusedCategoryIndices(this.dataProviders()));
   };
 
   onStepBackwardClick = (): void => {
@@ -207,39 +207,39 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
       ? (this.currentDataCount() - 1 + cycle) % cycle
       : cycle + (this.currentDataCount() - 1) % cycle);
     this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
-    this.focusedGroupIndices.set(this.getFocusedGroupIndices(this.dataProviders()));
+    this.focusedCategoryIndices.set(this.getFocusedCategoryIndices(this.dataProviders()));
   };
 
   onStepForwardClick = (): void => {
     this.currentDataCount.set((this.currentDataCount() + 1) % this.stepCycle());
     this.dataProviders.set(getDataProvidersForDataCount(this.mochartDemoConfig()!.mochartConfig, this.data(), this.chartRows() * this.chartCols(), this.currentDataCount()));
-    this.focusedGroupIndices.set(this.getFocusedGroupIndices(this.dataProviders()));
+    this.focusedCategoryIndices.set(this.getFocusedCategoryIndices(this.dataProviders()));
   };
 
-  private getFocusedGroupIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
+  private getFocusedCategoryIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
     const { mochartConfig } = this.mochartDemoConfig()!;
-    if (this.focusedGroupIndex() >= 0) {
-      const groupValue = this.data()[this.focusedGroupIndex()][mochartConfig.groupAxisConfig.property ?? ''];
-      return this.getFocusedGroupIndicesForValue(nextDataProviders, groupValue);
+    if (this.focusedCategoryIndex() >= 0) {
+      const categoryValue = this.data()[this.focusedCategoryIndex()][mochartConfig.categoryAxis.property ?? ''];
+      return this.getFocusedCategoryIndicesForValue(nextDataProviders, categoryValue);
     }
     else {
       return nextDataProviders.map(() => -1);
     }
   }
 
-  private getFocusedGroupIndicesForValue(nextDataProviders: ChartDataProviderLike[], groupValue: unknown): number[] {
+  private getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] {
     let count, i;
     return nextDataProviders.map(dataProvider => {
-      let chartGroupIndex = -1;
-      const groupValues = dataProvider.getGroupValues();
-      count = groupValues.length;
+      let chartCategoryIndex = -1;
+      const categoryValues = dataProvider.getCategoryValues();
+      count = categoryValues.length;
       for (i = 0; i < count; i++) {
-        if (groupValues[i] === groupValue) {
-          chartGroupIndex = i;
+        if (categoryValues[i] === categoryValue) {
+          chartCategoryIndex = i;
           break;
         }
       }
-      return chartGroupIndex;
+      return chartCategoryIndex;
     });
   }
 
@@ -269,43 +269,43 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     this.elementSize.disconnect();
   }
 
-  onChartFocus(chartIndex: number, focusData: { focusedSeriesAxisId?: string | null; focusedSeriesId?: string | null; focusedGroupIndex?: number }): void {
-    const { focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId } = focusData;
-    let groupIndex = focusData.focusedGroupIndex;
+  onChartFocus(chartIndex: number, focusData: { focusedValueAxisId?: string | null; focusedSeriesId?: string | null; focusedCategoryIndex?: number }): void {
+    const { focusedValueAxisId: valueAxisId, focusedSeriesId: seriesId } = focusData;
+    let categoryIndex = focusData.focusedCategoryIndex;
     const { mochartConfig } = this.mochartDemoConfig()!;
-    let nextFocusedGroupIndices = this.focusedGroupIndices();
-    if (groupIndex !== undefined && groupIndex >= 0) {
-      const groupValue = this.dataProviders()[chartIndex].getGroupValues()[groupIndex];
+    let nextFocusedCategoryIndices = this.focusedCategoryIndices();
+    if (categoryIndex !== undefined && categoryIndex >= 0) {
+      const categoryValue = this.dataProviders()[chartIndex].getCategoryValues()[categoryIndex];
       const count = this.data().length;
       for (let i = 0; i < count; i++) {
-        if (this.data()[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
-          groupIndex = i;
+        if (this.data()[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
+          categoryIndex = i;
           break;
         }
       }
-      if (groupIndex !== this.focusedGroupIndex()) {
-        nextFocusedGroupIndices = this.getFocusedGroupIndicesForValue(this.dataProviders(), groupValue);
+      if (categoryIndex !== this.focusedCategoryIndex()) {
+        nextFocusedCategoryIndices = this.getFocusedCategoryIndicesForValue(this.dataProviders(), categoryValue);
       }
     }
-    else if (this.focusedGroupIndex() >= 0) {
-      nextFocusedGroupIndices = this.dataProviders().map(() => -1);
+    else if (this.focusedCategoryIndex() >= 0) {
+      nextFocusedCategoryIndices = this.dataProviders().map(() => -1);
     }
-    if (groupIndex !== undefined) {
-      this.focusedGroupIndex.set(groupIndex);
+    if (categoryIndex !== undefined) {
+      this.focusedCategoryIndex.set(categoryIndex);
     }
-    if (seriesAxisId !== undefined) {
-      this.focusedSeriesAxisId.set(seriesAxisId);
+    if (valueAxisId !== undefined) {
+      this.focusedValueAxisId.set(valueAxisId);
     }
     if (seriesId !== undefined) {
       this.focusedSeriesId.set(seriesId);
     }
-    this.focusedGroupIndices.set(nextFocusedGroupIndices);
+    this.focusedCategoryIndices.set(nextFocusedCategoryIndices);
   }
 
   // Controlled focus for the chart at `chartIndex`; -1 (none) when the grid
   // has more charts than remapped indices so the input stays controlled.
-  focusedGroupIndexAt(chartIndex: number): number {
-    return this.focusedGroupIndices()[chartIndex] ?? -1;
+  focusedCategoryIndexAt(chartIndex: number): number {
+    return this.focusedCategoryIndices()[chartIndex] ?? -1;
   }
 
   // The chart owns filter toggling now and reports the whole map.

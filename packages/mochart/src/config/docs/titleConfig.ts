@@ -2,10 +2,10 @@ import { style, spacing } from './shared';
 
 export default function getDescriptions() {
   return {
-    title: 'the text to display in the title at the top of the chart (use null for none)',
+    text: 'the text to display in the title at the top of the chart (use null for none)',
     position: 'the position of the title relative to the chart (top or bottom)',
-    titlePrefix: 'the text to display at the start of the title at the top of the chart (use null for none)',
-    titleSuffix: 'the text to display at the end of the title at the top of the chart (use null for none)',
+    prefix: 'the text to display at the start of the title at the top of the chart (use null for none)',
+    suffix: 'the text to display at the end of the title at the top of the chart (use null for none)',
     link: 'the link to create for the title (use null for none)',
     linkDisabled: 'whether to prevent default navigation behaviour when the link is clicked',
     truncationEnabled: 'whether to use text truncation when the title width exceeds the width of the chart',
@@ -23,8 +23,8 @@ export default function getDescriptions() {
     suffixMargin: spacing('the margin (in pixels) for the top, right, bottom and left sides of the title suffix'),
     suffixPadding: spacing('the padding (in pixels) for the top, right, bottom and left sides of the title suffix'),
     backgroundStyle: style('the styles to apply to the title background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
-    titleBackgroundStyle: style('the styles to apply to the title text background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
-    titleTextStyle: style('the styles to apply to the title text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
+    textBackgroundStyle: style('the styles to apply to the title text background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
+    textStyle: style('the styles to apply to the title text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
     prefixBackgroundStyle: style('the styles to apply to the title prefix background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     prefixTextStyle: style('the styles to apply to the title prefix text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
     suffixBackgroundStyle: style('the styles to apply to the title suffix background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),

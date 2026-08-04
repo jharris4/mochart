@@ -25,8 +25,8 @@ const demoTitle = document.getElementById('demo-title') as HTMLSpanElement;
 const chartHost = document.getElementById('chart-host') as HTMLDivElement;
 const errorsPane = document.getElementById('errors') as HTMLPreElement;
 const randomizeButton = document.getElementById('randomize') as HTMLButtonElement;
-const addGroupButton = document.getElementById('add-group') as HTMLButtonElement;
-const removeGroupButton = document.getElementById('remove-group') as HTMLButtonElement;
+const addCategoryButton = document.getElementById('add-group') as HTMLButtonElement;
+const removeCategoryButton = document.getElementById('remove-group') as HTMLButtonElement;
 const autoplayButton = document.getElementById('autoplay') as HTMLButtonElement;
 const resetButton = document.getElementById('reset') as HTMLButtonElement;
 const exportPngButton = document.getElementById('export-png') as HTMLButtonElement;
@@ -34,13 +34,13 @@ const exportSvgButton = document.getElementById('export-svg') as HTMLButtonEleme
 
 let chart: ChartHandle | null = null;
 let mochartConfig: any = null;
-let groupProperty: string | undefined;
+let categoryProperty: string | undefined;
 let seriesProperties: string[] = [];
 let seriesBounds: Record<string, SeriesBounds> = {};
 let originalData: any[] = [];
 let currentData: any[] = [];
 let autoplayTimer: number | null = null;
-let groupCounter = 0;
+let categoryCounter = 0;
 
 function showErrors(messages: string[]): void {
   errorsPane.hidden = messages.length === 0;
@@ -54,8 +54,8 @@ function computeSeriesBounds(config: any, randomSpec: any): Record<string, Serie
   const numberSpec = randomSpec?.series?.number ?? {};
   const { min = -500, max = 500, round = true, limitToAxisConfig = true } = numberSpec;
   const bounds: Record<string, SeriesBounds> = {};
-  for (const seriesConfig of config.seriesConfigs || []) {
-    const axisConfig = seriesConfig.seriesAxisConfig || {};
+  for (const seriesConfig of config.series || []) {
+    const axisConfig = seriesConfig.valueAxisConfig || {};
     for (const key of ['property', 'rangeProperty']) {
       const property = seriesConfig[key];
       if (!property) {
@@ -77,10 +77,10 @@ function randomValue({ min, max, round }: SeriesBounds): number {
 }
 
 function makeDataProvider(): any {
-  if (groupProperty === undefined) {
+  if (categoryProperty === undefined) {
     throw new Error('Cannot create a data provider without a group property');
   }
-  return new ArrayOfObjectsDataProvider(currentData, groupProperty);
+  return new ArrayOfObjectsDataProvider(currentData, categoryProperty);
 }
 
 function mountDemo(demo: Demo): void {
@@ -92,12 +92,12 @@ function mountDemo(demo: Demo): void {
   const { valid, errors, warnings } = mochartConfig.validation;
   showErrors(valid ? [] : [...errors, ...warnings]);
 
-  groupProperty = mochartConfig.groupAxisConfig ? mochartConfig.groupAxisConfig.property : undefined;
+  categoryProperty = mochartConfig.categoryAxis ? mochartConfig.categoryAxis.property : undefined;
   seriesBounds = computeSeriesBounds(mochartConfig, demo.random);
   seriesProperties = Object.keys(seriesBounds);
   originalData = demo.data as any[];
   currentData = originalData.map((row) => ({ ...row }));
-  groupCounter = 0;
+  categoryCounter = 0;
 
   if (chart) {
     chart.destroy();
@@ -132,10 +132,10 @@ function randomizeValues(): void {
   chart?.update({ dataProvider: makeDataProvider() });
 }
 
-function nextGroupValue(): any {
-  const values = currentData.map((row) => row[groupProperty as string]);
+function nextCategoryValue(): any {
+  const values = currentData.map((row) => row[categoryProperty as string]);
   const last = values[values.length - 1];
-  groupCounter++;
+  categoryCounter++;
   if (typeof last === 'number') {
     return Math.max(...values.filter((v) => typeof v === 'number')) + 1;
   }
@@ -143,15 +143,15 @@ function nextGroupValue(): any {
     const maxTime = Math.max(...values.map((v) => Date.parse(v)));
     return new Date(maxTime + 24 * 3600 * 1000).toISOString();
   }
-  return 'NEW' + groupCounter;
+  return 'NEW' + categoryCounter;
 }
 
-function addGroup(): void {
-  if (!groupProperty || currentData.length === 0) {
+function addCategory(): void {
+  if (!categoryProperty || currentData.length === 0) {
     return;
   }
   const template = currentData[currentData.length - 1];
-  const row: any = { ...template, [groupProperty]: nextGroupValue() };
+  const row: any = { ...template, [categoryProperty]: nextCategoryValue() };
   for (const property of seriesProperties) {
     if (typeof row[property] === 'number') {
       row[property] = randomValue(seriesBounds[property]);
@@ -161,7 +161,7 @@ function addGroup(): void {
   chart?.update({ dataProvider: makeDataProvider() });
 }
 
-function removeGroup(): void {
+function removeCategory(): void {
   if (currentData.length <= 2) {
     return;
   }
@@ -195,10 +195,10 @@ function toggleAutoplay(): void {
   autoplayTimer = window.setInterval(() => {
     const roll = Math.random();
     if (roll < 0.15) {
-      addGroup();
+      addCategory();
     }
     else if (roll < 0.3) {
-      removeGroup();
+      removeCategory();
     }
     else {
       randomizeValues();
@@ -209,8 +209,8 @@ function toggleAutoplay(): void {
 randomizeButton.addEventListener('click', randomizeValues);
 exportPngButton.addEventListener('click', () => { void exportPNG(chartHost); });
 exportSvgButton.addEventListener('click', () => { exportSVG(chartHost); });
-addGroupButton.addEventListener('click', addGroup);
-removeGroupButton.addEventListener('click', removeGroup);
+addCategoryButton.addEventListener('click', addCategory);
+removeCategoryButton.addEventListener('click', removeCategory);
 autoplayButton.addEventListener('click', toggleAutoplay);
 resetButton.addEventListener('click', resetData);
 

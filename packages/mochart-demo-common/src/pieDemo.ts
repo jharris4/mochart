@@ -19,7 +19,7 @@ export interface PieSliceInfo {
 
 /** The editable slices of a pie-mode config: one per series, in config order. */
 export function getPieSlices(mochartConfig: MochartConfig): PieSliceInfo[] {
-  return mochartConfig.seriesConfigs.map(seriesConfig => ({
+  return mochartConfig.series.map(seriesConfig => ({
     id: seriesConfig.id,
     title: seriesConfig.title ?? seriesConfig.id,
     property: seriesConfig.property as string

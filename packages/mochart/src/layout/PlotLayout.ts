@@ -3,11 +3,12 @@ import type { Anchor } from '../config/core/constants';
 import { arrayToMap, idAccessor } from '../utils/utils';
 import { createLayoutInfo } from './LayoutInfo';
 import { getRotatedBounds, getRotatedZeroBounds } from './RotatedLayoutInfo';
-import { createGroupAxisLayoutInfo, getGroupAxisRotatedTickBounds, getGroupAxisBeforeAfter, getGroupAxisSize } from './GroupAxisLayout';
-import { createSeriesAxisLayoutInfos, getSeriesAxisRotatedTickBounds, getSeriesAxisBeforeAfter, getSeriesAxisSizes, emptyLayoutInfo } from './SeriesAxisLayoutInfo';
+import { createCategoryAxisLayoutInfo, getCategoryAxisRotatedTickBounds, getCategoryAxisBeforeAfter, getCategoryAxisSize } from './CategoryAxisLayout';
+import { createValueAxisLayoutInfos, getValueAxisRotatedTickBounds, getValueAxisBeforeAfter, getValueAxisSizes, emptyLayoutInfo } from './ValueAxisLayoutInfo';
 import { createInvertedSpacingLayoutInfo, getSpacingWidth, getSpacingHeight, getSpacingLeft, getSpacingTop, createInnerOuterSpacingLayoutInfo, createSpacingLayoutInfo } from './SpacingLayoutInfo';
 import type { Bounds, Size, TextBounds } from '../types/geometry';
-import type { AxisConfigBase, GroupAxisConfig, MochartConfig, PlotConfig, SeriesAxisConfig } from '../types/config';
+import type { AxisConfigBase, CategoryAxisConfig, PlotConfig } from '../types/config';
+import type { EnhancedMochartConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisLayoutInfo, AxisTickInfo, AxisTickInfos, ChartDataForLayout, ChartTextBoundsData, PlotLayoutResult } from '../types/layout';
 
 export function getRotatedTickBounds(axisConfig: AxisConfigBase, tickBounds: TextBounds, axisTickInfo: AxisTickInfo): Bounds {
@@ -21,7 +22,7 @@ export function getRotatedTickBounds(axisConfig: AxisConfigBase, tickBounds: Tex
   return rotatedTickBounds;
 }
 
-function getCollapsedAfterSizeConsumption(axisConfigs: SeriesAxisConfig[], axisSizeArray: Record<string, number>): number {
+function getCollapsedAfterSizeConsumption(axisConfigs: EnhancedValueAxisConfig[], axisSizeArray: Record<string, number>): number {
   let totalSize = 0;
   for (const axisConfig of axisConfigs) {
     if (axisConfig.collapsed === true && axisConfig.before === false) {
@@ -31,15 +32,15 @@ function getCollapsedAfterSizeConsumption(axisConfigs: SeriesAxisConfig[], axisS
   return Math.ceil(totalSize);
 }
 
-function getAxisTickInfos(plotConfig: PlotConfig, groupAxisConfig: GroupAxisConfig, seriesAxisConfigs: SeriesAxisConfig[]): AxisTickInfos {
+function getAxisTickInfos(plotConfig: PlotConfig, categoryAxisConfig: CategoryAxisConfig, valueAxisConfigs: EnhancedValueAxisConfig[]): AxisTickInfos {
   const { inverted } = plotConfig;
-  const groupAxisTickInfo = getAxisTickInfo(groupAxisConfig, inverted);
-  const seriesAxisTickInfos = arrayToMap(seriesAxisConfigs, idAccessor, seriesAxisConfig =>
-    getAxisTickInfo(seriesAxisConfig, !inverted)
+  const categoryAxisTickInfo = getAxisTickInfo(categoryAxisConfig, inverted);
+  const valueAxisTickInfos = arrayToMap(valueAxisConfigs, idAccessor, valueAxisConfig =>
+    getAxisTickInfo(valueAxisConfig, !inverted)
   );
   return {
-    groupAxisTickInfo,
-    seriesAxisTickInfos
+    categoryAxisTickInfo,
+    valueAxisTickInfos
   };
 }
 
@@ -283,36 +284,36 @@ function getTickLabelAnchor(axisConfig: AxisConfigBase, vertical: boolean, tickL
   }
 }
 
-export function getPlotWidthAndX(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds): { x: number; width: number } {
-  const { plotConfig, groupAxisConfig, seriesAxisConfigs } = mochartConfig;
-  const { groupAxisTitleBounds, seriesAxisTitleBounds } = chartTextBoundsData;
-  const seriesAxisFilteredSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : {};
+export function getPlotWidthAndX(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds): { x: number; width: number } {
+  const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
+  const { categoryAxisTitleBounds, valueAxisTitleBounds } = chartTextBoundsData;
+  const valueAxisFilteredSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : {};
   const { x: contentX, width: contentWidth } = contentBounds;
   const { inverted, margin, padding } = plotConfig;
   const spacingLeft = getSpacingLeft(margin, padding);
   const plotSpacingWidth = contentWidth - getSpacingWidth(margin, padding);
   const plotSpacingX = contentX + spacingLeft;
-  const groupExtent = inverted ? 0 : plotSpacingWidth;
+  const categoryExtent = inverted ? 0 : plotSpacingWidth;
   const seriesExtent = inverted ? plotSpacingWidth : 0;
-  const groupY = inverted ? 0 : plotSpacingX;
-  const seriesY = inverted ? plotSpacingX : 0;
+  const categoryY = inverted ? 0 : plotSpacingX;
+  const valueY = inverted ? plotSpacingX : 0;
 
-  const axisTickInfos = getAxisTickInfos(plotConfig, groupAxisConfig, seriesAxisConfigs);
+  const axisTickInfos = getAxisTickInfos(plotConfig, categoryAxisConfig, valueAxisConfigs);
 
-  const groupAxisRotatedTickBounds = getGroupAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos);
-  const seriesAxisRotatedTickBounds = getSeriesAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos)
+  const categoryAxisRotatedTickBounds = getCategoryAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos);
+  const valueAxisRotatedTickBounds = getValueAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos)
 
-  const groupAxisSize = getGroupAxisSize(groupAxisConfig, groupAxisRotatedTickBounds, groupAxisTitleBounds, inverted);
-  const seriesAxisSizes = getSeriesAxisSizes(seriesAxisConfigs, seriesAxisFilteredSeriesCounts, seriesAxisRotatedTickBounds, seriesAxisTitleBounds, !inverted);
+  const categoryAxisSize = getCategoryAxisSize(categoryAxisConfig, categoryAxisRotatedTickBounds, categoryAxisTitleBounds, inverted);
+  const valueAxisSizes = getValueAxisSizes(valueAxisConfigs, valueAxisFilteredSeriesCounts, valueAxisRotatedTickBounds, valueAxisTitleBounds, !inverted);
 
-  const seriesAxesOffset = getGroupAxisBeforeAfter(groupAxisConfig, groupAxisSize);
-  const groupAxesOffset = getSeriesAxisBeforeAfter(seriesAxisConfigs, seriesAxisSizes);
+  const valueAxesOffset = getCategoryAxisBeforeAfter(categoryAxisConfig, categoryAxisSize);
+  const categoryAxesOffset = getValueAxisBeforeAfter(valueAxisConfigs, valueAxisSizes);
 
-  const groupInnerExtent = Math.max(groupExtent - groupAxesOffset.before - groupAxesOffset.after, 1);
-  const seriesInnerExtent = Math.max(seriesExtent - seriesAxesOffset.before - seriesAxesOffset.after, 1);
+  const categoryInnerExtent = Math.max(categoryExtent - categoryAxesOffset.before - categoryAxesOffset.after, 1);
+  const valueInnerExtent = Math.max(seriesExtent - valueAxesOffset.before - valueAxesOffset.after, 1);
 
-  const x = inverted ? seriesY + seriesAxesOffset.before : groupY + groupAxesOffset.before;
-  const width = inverted ? seriesInnerExtent : groupInnerExtent;
+  const x = inverted ? valueY + valueAxesOffset.before : categoryY + categoryAxesOffset.before;
+  const width = inverted ? valueInnerExtent : categoryInnerExtent;
 
   return {
     x,
@@ -320,10 +321,10 @@ export function getPlotWidthAndX(mochartConfig: MochartConfig, chartTextBoundsDa
   };
 }
 
-export function getPlotLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds, plotHeight: number, plotY: number): PlotLayoutResult {
-  const { plotConfig, groupAxisConfig, seriesAxisConfigs } = mochartConfig;
-  const { groupAxisTitleBounds, seriesAxisTitleBounds } = chartTextBoundsData;
-  const seriesAxisFilteredSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : {};
+export function getPlotLayoutInfo(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, chartData: ChartDataForLayout | null, contentBounds: Bounds, plotHeight: number, plotY: number): PlotLayoutResult {
+  const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
+  const { categoryAxisTitleBounds, valueAxisTitleBounds } = chartTextBoundsData;
+  const valueAxisFilteredSeriesCounts = chartData ? chartData.seriesData.axisSeriesCounts : {};
   const { x, width } = contentBounds;
   const { inverted, margin, padding } = plotConfig;
   const spacingTop = getSpacingTop(margin, padding);
@@ -332,39 +333,39 @@ export function getPlotLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsD
   const plotSpacingWidth = width - getSpacingWidth(margin, padding);
   const plotSpacingX = x + spacingLeft;
   const plotSpacingY = plotY + spacingTop;
-  const groupExtent = inverted ? plotSpacingHeight : plotSpacingWidth;
+  const categoryExtent = inverted ? plotSpacingHeight : plotSpacingWidth;
   const seriesExtent = inverted ? plotSpacingWidth : plotSpacingHeight;
-  const groupY = inverted ? plotSpacingY : plotSpacingX;
-  const seriesY = inverted ? plotSpacingX : plotSpacingY;
+  const categoryY = inverted ? plotSpacingY : plotSpacingX;
+  const valueY = inverted ? plotSpacingX : plotSpacingY;
 
-  const axisTickInfos = getAxisTickInfos(plotConfig, groupAxisConfig, seriesAxisConfigs);
+  const axisTickInfos = getAxisTickInfos(plotConfig, categoryAxisConfig, valueAxisConfigs);
 
-  const groupAxisRotatedTickBounds = getGroupAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos);
-  const seriesAxisRotatedTickBounds = getSeriesAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos)
+  const categoryAxisRotatedTickBounds = getCategoryAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos);
+  const valueAxisRotatedTickBounds = getValueAxisRotatedTickBounds(mochartConfig, chartTextBoundsData, axisTickInfos)
 
-  const groupAxisSize = getGroupAxisSize(groupAxisConfig, groupAxisRotatedTickBounds, groupAxisTitleBounds, inverted);
-  const seriesAxisSizes = getSeriesAxisSizes(seriesAxisConfigs, seriesAxisFilteredSeriesCounts, seriesAxisRotatedTickBounds, seriesAxisTitleBounds, !inverted);
+  const categoryAxisSize = getCategoryAxisSize(categoryAxisConfig, categoryAxisRotatedTickBounds, categoryAxisTitleBounds, inverted);
+  const valueAxisSizes = getValueAxisSizes(valueAxisConfigs, valueAxisFilteredSeriesCounts, valueAxisRotatedTickBounds, valueAxisTitleBounds, !inverted);
 
-  const seriesAxesOffset = getGroupAxisBeforeAfter(groupAxisConfig, groupAxisSize);
-  const groupAxesOffset = getSeriesAxisBeforeAfter(seriesAxisConfigs, seriesAxisSizes);
+  const valueAxesOffset = getCategoryAxisBeforeAfter(categoryAxisConfig, categoryAxisSize);
+  const categoryAxesOffset = getValueAxisBeforeAfter(valueAxisConfigs, valueAxisSizes);
 
-  const seriesAxesCollapsedAfter = getCollapsedAfterSizeConsumption(seriesAxisConfigs, seriesAxisSizes);
-  const groupInnerExtent = Math.max(groupExtent - groupAxesOffset.before - groupAxesOffset.after, 1);
-  const seriesInnerExtent = Math.max(seriesExtent - seriesAxesOffset.before - seriesAxesOffset.after , 1);
+  const valueAxesCollapsedAfter = getCollapsedAfterSizeConsumption(valueAxisConfigs, valueAxisSizes);
+  const categoryInnerExtent = Math.max(categoryExtent - categoryAxesOffset.before - categoryAxesOffset.after, 1);
+  const valueInnerExtent = Math.max(seriesExtent - valueAxesOffset.before - valueAxesOffset.after , 1);
 
-  const seriesLayoutInfo = createLayoutInfo(groupY + groupAxesOffset.before,
-    seriesY + seriesAxesOffset.before, groupInnerExtent, seriesInnerExtent, inverted);
+  const seriesLayoutInfo = createLayoutInfo(categoryY + categoryAxesOffset.before,
+    valueY + valueAxesOffset.before, categoryInnerExtent, valueInnerExtent, inverted);
 
-  const groupAxisLayoutInfo = createGroupAxisLayoutInfo(mochartConfig, chartTextBoundsData, groupAxisRotatedTickBounds, axisTickInfos, groupY, seriesY, groupInnerExtent, seriesInnerExtent, groupAxesOffset, groupAxisSize);
-  const seriesAxisLayoutInfos = createSeriesAxisLayoutInfos(mochartConfig, chartTextBoundsData, chartData, seriesAxisRotatedTickBounds, axisTickInfos, groupY, seriesY, groupInnerExtent, seriesInnerExtent, groupAxesOffset, seriesAxesOffset, seriesAxisSizes, seriesAxisFilteredSeriesCounts, seriesAxesCollapsedAfter);
+  const categoryAxisLayoutInfo = createCategoryAxisLayoutInfo(mochartConfig, chartTextBoundsData, categoryAxisRotatedTickBounds, axisTickInfos, categoryY, valueY, categoryInnerExtent, valueInnerExtent, categoryAxesOffset, categoryAxisSize);
+  const valueAxisLayoutInfos = createValueAxisLayoutInfos(mochartConfig, chartTextBoundsData, chartData, valueAxisRotatedTickBounds, axisTickInfos, categoryY, valueY, categoryInnerExtent, valueInnerExtent, categoryAxesOffset, valueAxesOffset, valueAxisSizes, valueAxisFilteredSeriesCounts, valueAxesCollapsedAfter);
 
   const plotLayoutInfo = createInvertedSpacingLayoutInfo({ x, y: plotY, width, height: plotHeight }, inverted, margin, padding);
 
   return {
     plotLayoutInfo,
-    groupAxisLayoutInfo,
+    categoryAxisLayoutInfo,
     seriesLayoutInfo,
-    seriesAxisLayoutInfos
+    valueAxisLayoutInfos
   };
 }
 

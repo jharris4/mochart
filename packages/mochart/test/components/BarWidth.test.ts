@@ -66,12 +66,12 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-function makeConfig(seriesConfigs: Record<string, unknown>[], overrides: Record<string, unknown> = {}): MochartInputConfig {
+function makeConfig(series: Record<string, unknown>[], overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
     version: VERSION,
-    animationConfig: { animate: false },
-    groupAxisConfig: { property: 'label', type: 'string', scale: 'ordinal' },
-    seriesConfigs,
+    animation: { animate: false },
+    categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
+    series,
     ...overrides
   } as unknown as MochartInputConfig;
 }
@@ -97,7 +97,7 @@ describe('barWidthFraction', () => {
     const container = mountChart(makeConfig([
       { id: 'F', property: 'full', renderer: 'bar', group: 'G' },
       { id: 'N', property: 'narrow', renderer: 'bar', group: 'G', barWidthFraction: 0.5 }
-    ], { seriesGroupConfigs: [{ id: 'G' }] }));
+    ], { seriesGroups: [{ id: 'G' }] }));
     const fullBars = barRects(container, 'F');
     const narrowBars = barRects(container, 'N');
     for (let i = 0; i < rows.length; i++) {

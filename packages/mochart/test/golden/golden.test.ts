@@ -1,3 +1,4 @@
+import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 /**
  * Golden DOM snapshot tests for the full chart rendering pipeline.
  *
@@ -13,7 +14,7 @@ import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { MochartConfig, MochartInputConfig, DataProvider } from '../../src';
+import type { MochartInputConfig, DataProvider } from '../../src';
 
 interface Demo { id: string; config: string; data: string }
 /** Rows are decoded from arbitrary demo JSON, so values are intentionally loose. */
@@ -116,7 +117,7 @@ function advanceFrames(count: number) {
 
 const UNIQUE_ID_PREFIXES = [
   '__mochart__chart__', 'tooltip__clippath__', 'title__clippath__', 'legend__clippath__',
-  'groupaxistitle__clippath__', 'groupaxisticklabel__clippath__', 'seriesaxistitle__clippath__',
+  'categoryaxistitle__clippath__', 'categoryaxisticklabel__clippath__', 'seriesaxistitle__clippath__',
   'linear__gradient__', 'radial__gradient__', 'seriescolor__gradient__'
 ];
 const uniqueIdPattern = new RegExp('(' + UNIQUE_ID_PREFIXES.join('|') + ')(\\d+)', 'g');
@@ -146,31 +147,31 @@ async function expectSnapshot(container: HTMLElement, demoId: string, stage: str
 function buildMochartConfig(
   configBasename: string,
   { animate = true, mutate }: { animate?: boolean; mutate?: (raw: Record<string, any>) => void } = {}
-): MochartConfig {
+): EnhancedMochartConfig {
   const raw = loadJson(configPaths[configBasename]);
   const migrated = mochart.migrateConfig(raw) as Record<string, any>;
-  migrated.animationConfig = { ...(migrated.animationConfig || {}), animate };
+  migrated.animation = { ...(migrated.animation || {}), animate };
   mutate?.(migrated);
-  return mochart.enhanceConfig(migrated as MochartInputConfig);
+  return mochart.enhanceConfig(migrated as MochartInputConfig) as EnhancedMochartConfig;
 }
 
-function getGroupProperty(mochartConfig: MochartConfig): string | undefined {
-  return mochartConfig.groupAxisConfig ? mochartConfig.groupAxisConfig.property : undefined;
+function getCategoryProperty(mochartConfig: EnhancedMochartConfig): string | undefined {
+  return mochartConfig.categoryAxis ? mochartConfig.categoryAxis.property : undefined;
 }
 
-function getSeriesProperties(mochartConfig: MochartConfig): string[] {
-  return (mochartConfig.seriesConfigs || [])
+function getSeriesProperties(mochartConfig: EnhancedMochartConfig): string[] {
+  return (mochartConfig.series || [])
     .map((seriesConfig) => seriesConfig.property)
     .filter((property): property is string => Boolean(property));
 }
 
-function makeProvider(mochartConfig: MochartConfig, rows: Row[]): DataProvider {
+function makeProvider(mochartConfig: EnhancedMochartConfig, rows: Row[]): DataProvider {
   // every demo config defines a group property; the optionality is only for malformed input
-  return new mochart.ArrayOfObjectsDataProvider(rows, getGroupProperty(mochartConfig)!) as unknown as DataProvider;
+  return new mochart.ArrayOfObjectsDataProvider(rows, getCategoryProperty(mochartConfig)!) as unknown as DataProvider;
 }
 
 /** Deterministic stand-in for the demo app's "randomize values" button. */
-function transformValues(mochartConfig: MochartConfig, rows: Row[]): Row[] {
+function transformValues(mochartConfig: EnhancedMochartConfig, rows: Row[]): Row[] {
   const seriesProperties = getSeriesProperties(mochartConfig);
   return rows.map((row, rowIndex) => {
     const next = { ...row };
@@ -184,25 +185,25 @@ function transformValues(mochartConfig: MochartConfig, rows: Row[]): Row[] {
 }
 
 /** Deterministic version of the demo app's "add group" button. */
-function addGroupRow(mochartConfig: MochartConfig, rows: Row[]): Row[] {
-  const groupProperty = getGroupProperty(mochartConfig);
-  if (!groupProperty || rows.length === 0) {
+function addCategoryRow(mochartConfig: EnhancedMochartConfig, rows: Row[]): Row[] {
+  const categoryProperty = getCategoryProperty(mochartConfig);
+  if (!categoryProperty || rows.length === 0) {
     return rows;
   }
-  const values = rows.map((row) => row[groupProperty]);
+  const values = rows.map((row) => row[categoryProperty]);
   const last = values[values.length - 1];
-  let nextGroupValue;
+  let nextCategoryValue;
   if (typeof last === 'number') {
-    nextGroupValue = Math.max(...values.filter((v) => typeof v === 'number')) + 1;
+    nextCategoryValue = Math.max(...values.filter((v) => typeof v === 'number')) + 1;
   }
   else if (typeof last === 'string' && !Number.isNaN(Date.parse(last)) && last.includes('-')) {
     const maxTime = Math.max(...values.map((v) => Date.parse(v)));
-    nextGroupValue = new Date(maxTime + 24 * 3600 * 1000).toISOString();
+    nextCategoryValue = new Date(maxTime + 24 * 3600 * 1000).toISOString();
   }
   else {
-    nextGroupValue = 'NEW1';
+    nextCategoryValue = 'NEW1';
   }
-  const row = { ...rows[rows.length - 1], [groupProperty]: nextGroupValue };
+  const row = { ...rows[rows.length - 1], [categoryProperty]: nextCategoryValue };
   const seriesProperties = getSeriesProperties(mochartConfig);
   seriesProperties.forEach((property, i) => {
     if (typeof row[property] === 'number') {
@@ -212,7 +213,7 @@ function addGroupRow(mochartConfig: MochartConfig, rows: Row[]): Row[] {
   return [...rows, row];
 }
 
-function removeGroupRow(rows: Row[]): Row[] {
+function removeCategoryRow(rows: Row[]): Row[] {
   if (rows.length <= 2) {
     return rows;
   }
@@ -255,13 +256,13 @@ describe.each(allDemos)('demo: $id', (demo) => {
     await expectSnapshot(container, demo.id, 'values-settled');
 
     // group addition, run to completion
-    const addedRows = addGroupRow(mochartConfig, changedRows);
+    const addedRows = addCategoryRow(mochartConfig, changedRows);
     chart.update({ dataProvider: makeProvider(mochartConfig, addedRows) });
     runFrames();
     await expectSnapshot(container, demo.id, 'group-added');
 
     // group removal, run to completion
-    const removedRows = removeGroupRow(addedRows);
+    const removedRows = removeCategoryRow(addedRows);
     chart.update({ dataProvider: makeProvider(mochartConfig, removedRows) });
     runFrames();
     await expectSnapshot(container, demo.id, 'group-removed');
@@ -335,7 +336,7 @@ describe.each(filteringDemos)('filtering: $id', (demo) => {
 
     // step to the removal of the filtered series' element, keeping the DOM
     // of the last frame it was still present
-    const seriesSelector = '.' + 'mochart-series-' + mochartConfig.seriesConfigs[0].id;
+    const seriesSelector = '.' + 'mochart-series-' + mochartConfig.series[0].id;
     expect(container.querySelector(seriesSelector)).not.toBeNull();
     let lastPresentHtml = container.innerHTML;
     for (let frame = 0; frame < MAX_FRAMES && vi.getTimerCount() > 0; frame++) {
@@ -369,7 +370,7 @@ describe.each(filteringDemos)('filtering: $id', (demo) => {
 describe('config updates on a mounted chart', () => {
   const demo = allDemos.find((aDemo) => aDemo.id === 'grouped')!;
 
-  function mountGrouped(mochartConfig: MochartConfig, rows: Row[]) {
+  function mountGrouped(mochartConfig: EnhancedMochartConfig, rows: Row[]) {
     const container = createContainer();
     const chart = mochart.createChart(container, {
       mochartConfig,
@@ -388,9 +389,9 @@ describe('config updates on a mounted chart', () => {
 
     const changedConfig = buildMochartConfig(demo.config, {
       mutate: (raw) => {
-        raw.titleConfig.title = 'Updated Title';
-        raw.seriesConfigs[1].title = 'Renamed Series';
-        raw.seriesAllConfig.renderer = 'line';
+        raw.title.text = 'Updated Title';
+        raw.series[1].title = 'Renamed Series';
+        raw.seriesDefaults.renderer = 'line';
       }
     });
     // renderer/title changes must take the incremental derive path, not a rebuild
@@ -414,7 +415,7 @@ describe('config updates on a mounted chart', () => {
 
     const removedConfig = buildMochartConfig(demo.config, {
       mutate: (raw) => {
-        raw.seriesConfigs.pop();
+        raw.series.pop();
       }
     });
     expect(mochart.hasConfigStructureChange(mochartConfig, removedConfig)).toBe(true);

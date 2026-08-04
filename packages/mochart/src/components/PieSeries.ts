@@ -12,7 +12,8 @@ import { translate, textDY } from '../utils/utils';
 import { NONE } from '../config/core/constants';
 import { formatPieLabelType, getPieLabelFormats } from '../data/PieLabel';
 
-import type { ColorPaletteConfig, PieConfig, SeriesConfig } from '../types/config';
+import type { ColorPaletteConfig, PieConfig } from '../types/config';
+import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { FocusData } from '../types/animation';
 import type { LayoutInfo } from '../types/layout';
 import type { PieSliceAngles } from '../data/PieData';
@@ -27,7 +28,7 @@ interface PieSeriesFocusUpdate {
 interface PieSeriesProps {
   colorPaletteConfig: ColorPaletteConfig;
   pieConfig: PieConfig;
-  seriesConfig: SeriesConfig;
+  seriesConfig: EnhancedSeriesConfig;
   seriesIndex: number;
   seriesLayoutInfo: LayoutInfo;
   radialLayoutInfo: RadialLayoutInfo;
@@ -53,7 +54,7 @@ interface PieSeriesState {
   onSeriesClick: () => void;
 }
 
-function getPieLabelText(pieConfig: PieConfig, seriesConfig: SeriesConfig, sliceAngles: PieSliceAngles, labelFraction: number): string {
+function getPieLabelText(pieConfig: PieConfig, seriesConfig: EnhancedSeriesConfig, sliceAngles: PieSliceAngles, labelFraction: number): string {
   const { valueFormat, percentFormat } = getPieLabelFormats(pieConfig);
   return formatPieLabelType(pieConfig.labelType, {
     title: seriesConfig.title ?? seriesConfig.id,
@@ -121,8 +122,8 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       return;
     }
 
-    const { seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
-    const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
+    const { valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
+    const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
 
     const strokeColor = getSeriesStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
     let fillColor = getSeriesFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);

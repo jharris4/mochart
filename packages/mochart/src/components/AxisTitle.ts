@@ -8,12 +8,13 @@ import { getAxisFocusStyle } from '../utils/FocusValue';
 import { styleToAttributes } from '../utils/style';
 import { NONE } from '../config/core/constants';
 import Background from './Background';
-import type { AxisConfigBase, SeriesAxisConfig } from '../types/config';
+import type { AxisConfigBase } from '../types/config';
+import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisLayoutInfo } from '../types/layout';
 import type { FocusPercentage } from '../types/animation';
 import type { TruncationDataValue } from '../utils/TextTruncation';
 
-type AxisTitleConfig = AxisConfigBase & Partial<Pick<SeriesAxisConfig, 'useSeriesFocus'>>;
+type AxisTitleConfig = AxisConfigBase & Partial<Pick<EnhancedValueAxisConfig, 'useSeriesFocus'>>;
 
 interface AxisTitleProps {
   axisConfig: AxisTitleConfig;

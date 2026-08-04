@@ -21,12 +21,12 @@ import * as sparkline from '../examples/sparkline'
   sparklines large enough to host them; `padding` (default 2px) keeps
   strokes at the data extremes from clipping against the chart edges.
 - Point markers are hidden by nulling
-  [`markerShape`](/reference/seriesConfigs#seriesConfigs.markerShape)
+  [`markerShape`](/reference/series#series.markerShape)
   through `seriesAllConfig`, so line series render as a bare stroke.
 - The sparkline is still a regular chart — size it by mounting it small
   (this page uses a 56px-tall host; table cells around 150×32 work well)
   and it renders any series type. A win/loss strip is two `bar` series
-  with [`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing),
+  with [`skipMissing`](/reference/series#series.skipMissing),
   one property per direction, on an axis fixed to `min: -1, max: 1` — the
   same one-property-per-direction trick the
   [waterfall](/recipes/waterfall) uses.

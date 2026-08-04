@@ -119,7 +119,7 @@
   });
   const footerError = $derived(jsonError ?? errorMessage);
 
-  const inverted = $derived(demoConfig.configWithDefaults.plotConfig.inverted);
+  const inverted = $derived(demoConfig.configWithDefaults.plot.inverted);
   const invertedIcon = $derived(inverted ? 'chart-bar' : 'chart-column');
   const slow = $derived(isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig));
   const slowIcon = $derived(slow ? 'hourglass' : 'hourglass-end');

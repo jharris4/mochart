@@ -3,7 +3,7 @@ import { getFocusDataForPercent } from './FocusAnimation';
 
 import { getChartDataForAxisDelta, getChartDataForValueDelta } from './ChartAnimation';
 
-import type { MochartConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { AnimationChartData, ChartAnimationData, FocusAnimationData, FocusData } from '../types/animation';
 
 export const dataTweenExpandStart = 'dataTweenExpandStart' as const;
@@ -57,9 +57,9 @@ interface DataTweenOptions extends FocusTweenOptions {
 }
 
 export interface ChartTweenManager {
-  tweenFocus(mochartConfig: MochartConfig, focusAnimationData: FocusAnimationData, updateCallback: FocusUpdateCallback, options?: FocusTweenOptions): void;
+  tweenFocus(mochartConfig: EnhancedMochartConfig, focusAnimationData: FocusAnimationData, updateCallback: FocusUpdateCallback, options?: FocusTweenOptions): void;
   cancelFocusTween(): void;
-  tweenData(mochartConfig: MochartConfig, chartAnimationData: ChartAnimationData, updateCallback: DataUpdateCallback, options?: DataTweenOptions): void;
+  tweenData(mochartConfig: EnhancedMochartConfig, chartAnimationData: ChartAnimationData, updateCallback: DataUpdateCallback, options?: DataTweenOptions): void;
   cancelDataTween(): void;
   cancelTweens(): void;
 }
@@ -332,13 +332,13 @@ export function getChartTweenManager(): ChartTweenManager {
 }
 
 function buildFocusTween(
-  mochartConfig: MochartConfig, focusAnimationData: FocusAnimationData,
+  mochartConfig: EnhancedMochartConfig, focusAnimationData: FocusAnimationData,
   {
     updateCallback,
     completeCallback = () => {},
     startCallback = () => {}
   }: FocusTweenOptions & { updateCallback: FocusUpdateCallback }): Tween {
-  const focusDuration = mochartConfig.animationConfig.focusDuration;
+  const focusDuration = mochartConfig.animation.focusDuration;
   const duration = focusAnimationData.deltaPercentage * focusDuration;
   // delay the start of the focus tween by a few milliseconds to allow it to be canceled if another tween is built
   // immediately after, like when we mouseover the series, and then mouseout but immediately mouseover a series marker
@@ -359,7 +359,7 @@ function buildFocusTween(
 }
 
 function buildDataTween(
-  mochartConfig: MochartConfig, chartAnimationData: ChartAnimationData, {
+  mochartConfig: EnhancedMochartConfig, chartAnimationData: ChartAnimationData, {
     updateCallback,
     completeCallback = () => {},
     startCallback = () => {},
@@ -376,7 +376,7 @@ function buildDataTween(
       onStart: () => { updateCallback(axisExpansionData.start, dataTweenExpandStart); },
       onUpdate: (percentage) => { updateCallback(getChartDataForAxisDelta(mochartConfig, chartAnimationData, true, percentage), dataTweenExpandUpdate); },
       onComplete: () => { updateCallback(axisExpansionData.final, dataTweenExpandComplete); },
-      duration: mochartConfig.animationConfig.expansionDuration * axisExpansionData.deltaPercentage
+      duration: mochartConfig.animation.expansionDuration * axisExpansionData.deltaPercentage
     });
   }
   else {
@@ -395,7 +395,7 @@ function buildDataTween(
       onStart: () => { updateCallback(valueChangeData.start, dataTweenValueStart); startValueChangeCallback(valueChangeData.start); },
       onUpdate: (percentage) => { updateCallback(getChartDataForValueDelta(mochartConfig, chartAnimationData, percentage), dataTweenValueUpdate, percentage); },
       onComplete: () => { updateCallback(valueChangeData.final, dataTweenValueComplete); completeValueChangeCallback(valueChangeData.final); },
-      duration: (chartAnimationData.initialAnimation ? mochartConfig.animationConfig.initialDuration : mochartConfig.animationConfig.valueChangeDuration) * valueChangeData.deltaPercentage
+      duration: (chartAnimationData.initialAnimation ? mochartConfig.animation.initialDuration : mochartConfig.animation.valueChangeDuration) * valueChangeData.deltaPercentage
     });
   }
   else {
@@ -417,7 +417,7 @@ function buildDataTween(
       onStart: () => { updateCallback(axisCollapseData.start, dataTweenCollapseStart); },
       onUpdate: (percentage) => { updateCallback(getChartDataForAxisDelta(mochartConfig, chartAnimationData, false, percentage), dataTweenCollapseUpdate); },
       onComplete: () => { updateCallback(axisCollapseData.final, dataTweenCollapseComplete); },
-      duration: mochartConfig.animationConfig.collapseDuration * axisCollapseData.deltaPercentage
+      duration: mochartConfig.animation.collapseDuration * axisCollapseData.deltaPercentage
     });
   }
   else {

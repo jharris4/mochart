@@ -141,7 +141,7 @@ generated artifact instead of each re-walking the config modules.
       a Share button (next to the export buttons) and consumes the payload
       on mount. Building this surfaced and fixed a latent circular-reference
       bug in buildMochartDemoConfig for configs without explicit
-      seriesAxisConfigs.
+      valueAxisConfigs.
 - [x] Cross-linking, both directions:
       - Reference pages: a build-time usage index scans the docs example
         configs and the demo-data configs and renders capped "Used in" links

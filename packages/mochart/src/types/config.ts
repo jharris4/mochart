@@ -7,7 +7,7 @@ import type { MarginPadding, InnerOuter } from './geometry';
 
 /**
  * A CSS color string, or one of the palette color modes
- * ('series' | 'same' | 'seriesIndex' | 'groupIndex').
+ * ('series' | 'same' | 'seriesIndex' | 'categoryIndex').
  * The `string & {}` keeps ColorMode literals in autocomplete while still
  * accepting arbitrary color strings.
  */
@@ -102,8 +102,8 @@ export interface AnimationConfig {
    * is added to the chart.
    *
    * Duration (in milliseconds) of the axis expansion phase, which plays first
-   * when an update needs larger axis domains (new groups or larger values) so
-   * incoming data has room to land.
+   * when an update needs larger axis domains (new categories or larger values)
+   * so incoming data has room to land.
    *
    * @default 1000
    */
@@ -113,7 +113,7 @@ export interface AnimationConfig {
    * chart changes.
    *
    * Duration (in milliseconds) of the value change phase, which tweens values
-   * to their new positions and also plays group transitions (groups
+   * to their new positions and also plays category transitions (categories
    * added/removed/reordered) and series transitions (series added, removed, or
    * filtered via the legend).
    *
@@ -132,10 +132,10 @@ export interface AnimationConfig {
   collapseDuration: number;
   /**
    * The duration of animation showing the transition between focus on a
-   * specific series or group value.
+   * specific series or category value.
    *
    * Duration (in milliseconds) of focus transitions — the emphasis change
-   * between focused/defocused styling when a series or group gains or loses
+   * between focused/defocused styling when a series or category gains or loses
    * focus via hover, click, or the legend.
    *
    * @default 1000
@@ -176,7 +176,7 @@ export interface ChartConfig {
 
 export interface PlotConfig {
   /**
-   * Whether the group axis should be left to right (false) or top to bottom
+   * Whether the category axis should be left to right (false) or top to bottom
    * (true).
    *
    * @default false
@@ -387,12 +387,12 @@ export interface PieConfig {
 
 export interface ColorPalette {
   /**
-   * The colors to use for strokes, taken by series or group index and wrapping
-   * around when there are more series than colors.
+   * The colors to use for strokes, taken by series or category index and
+   * wrapping around when there are more series than colors.
    */
   strokeColors: string[];
   /**
-   * The colors to use for fills, taken by series or group index and wrapping
+   * The colors to use for fills, taken by series or category index and wrapping
    * around when there are more series than colors.
    */
   fillColors: string[];
@@ -415,11 +415,11 @@ export interface ColorPaletteStates {
 export interface ColorPaletteConfig {
   /**
    * The color palettes to use for series shapes that are colored by series or
-   * group index.
+   * category index.
    *
    * The fallback coloring for series that do not set explicit colors: each
-   * series takes the palette entry for its series index (or its group index,
-   * for series configured to color by group index). The focused/defocused
+   * series takes the palette entry for its series index (or its category index,
+   * for series configured to color by category index). The focused/defocused
    * variants apply while another element has focus.
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }
@@ -427,21 +427,21 @@ export interface ColorPaletteConfig {
   series: ColorPaletteStates;
   /**
    * The color palettes to use for series markers that are colored by series or
-   * group index.
+   * category index.
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
   marker: ColorPaletteStates;
   /**
    * The color palettes to use for series labels that are colored by series or
-   * group index.
+   * category index.
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
   label: ColorPaletteStates;
   /**
    * The color palettes to use for series error bars that are colored by series
-   * or group index.
+   * or category index.
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }
    */
@@ -450,24 +450,25 @@ export interface ColorPaletteConfig {
 
 export interface CrosshairConfig {
   /**
-   * Whether or not crosshairs should be shown when a group or series is
+   * Whether or not crosshairs should be shown when a category or series is
    * focused.
    *
    * @default true
    */
   visible: boolean;
   /**
-   * Whether to change the focused group as the crosshairs are shown or hidden.
+   * Whether to change the focused category as the crosshairs are shown or
+   * hidden.
    *
    * @default true
    */
   applyFocus: boolean;
   /**
-   * Whether or not crosshair lines for focused groups should be shown.
+   * Whether or not crosshair lines for focused categories should be shown.
    *
    * @default true
    */
-  showGroup: boolean;
+  showCategory: boolean;
   /**
    * Whether or not crosshair lines for focused series should be shown.
    *
@@ -475,11 +476,11 @@ export interface CrosshairConfig {
    */
   showSeries: boolean;
   /**
-   * The style of the crosshair lines shown for the focused group.
+   * The style of the crosshair lines shown for the focused category.
    *
    * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3 }
    */
-  groupLineStyle: StrokeStyle;
+  categoryLineStyle: StrokeStyle;
   /**
    * The style of the crosshair lines shown for the focused series.
    *
@@ -509,7 +510,7 @@ export interface TitleConfig {
    *
    * @default null
    */
-  title: string | null;
+  text: string | null;
   /**
    * The position of the title relative to the chart (top or bottom).
    *
@@ -522,14 +523,14 @@ export interface TitleConfig {
    *
    * @default null
    */
-  titlePrefix: string | null;
+  prefix: string | null;
   /**
    * The text to display at the end of the title at the top of the chart (use
    * null for none).
    *
    * @default null
    */
-  titleSuffix: string | null;
+  suffix: string | null;
   /**
    * The link to create for the title (use null for none).
    *
@@ -651,7 +652,7 @@ export interface TitleConfig {
    *
    * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
    */
-  titleBackgroundStyle: Style;
+  textBackgroundStyle: Style;
   /**
    * The styles to apply to the title text (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
@@ -659,7 +660,7 @@ export interface TitleConfig {
    *
    * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
    */
-  titleTextStyle: Style;
+  textStyle: Style;
   /**
    * The styles to apply to the title prefix background (strokeColor,
    * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
@@ -706,8 +707,8 @@ export interface SeriesIconConfig {
   /**
    * Whether to show series colors next to series titles in the legend.
    *
-   * In tooltipConfig: whether to show series colors next to series titles in
-   * the tooltip.
+   * In tooltip: whether to show series colors next to series titles in the
+   * tooltip.
    *
    * @default true
    */
@@ -715,8 +716,8 @@ export interface SeriesIconConfig {
   /**
    * Whether to show series marker shape next to series titles in the legend.
    *
-   * In tooltipConfig: whether to show series marker shape next to series titles
-   * in the tooltip.
+   * In tooltip: whether to show series marker shape next to series titles in
+   * the tooltip.
    *
    * @default true
    */
@@ -724,8 +725,8 @@ export interface SeriesIconConfig {
   /**
    * Whether to show placeholder icons next to the series titles in the legend.
    *
-   * In tooltipConfig: whether to show placeholder icons next to the series
-   * titles in the tooltip.
+   * In tooltip: whether to show placeholder icons next to the series titles in
+   * the tooltip.
    *
    * @default true
    */
@@ -734,8 +735,8 @@ export interface SeriesIconConfig {
    * The width and height (in pixels) of the series icons, or "auto" to match
    * the legend text font size.
    *
-   * In tooltipConfig: the width and height (in pixels) of the series icons, or
-   * "auto" to match the inherited font size.
+   * In tooltip: the width and height (in pixels) of the series icons, or "auto"
+   * to match the inherited font size.
    *
    * @default "auto"
    */
@@ -925,20 +926,20 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   visible: boolean;
   /**
-   * Whether to change the focused group as the tooltip is shown or hidden.
+   * Whether to change the focused category as the tooltip is shown or hidden.
    *
    * @default true
    */
   applyFocus: boolean;
   /**
-   * Whether the tooltip should be centered at the closest group value (true) or
-   * at the click/tap position (false).
+   * Whether the tooltip should be centered at the closest category value (true)
+   * or at the click/tap position (false).
    *
    * Default:
    * - `false` — when chartConfig.type is pie
    * - `true` — when chartConfig.type is xy
    */
-  snapToGroup: boolean;
+  snapToCategory: boolean;
   /**
    * Whether the tooltip should track the mouse position in the chart drawing
    * area.
@@ -960,12 +961,12 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   filterOnSeriesClick: boolean;
   /**
-   * Whether group values should be focused when the user clicks/taps on them in
-   * the tooltip.
+   * Whether category values should be focused when the user clicks/taps on them
+   * in the tooltip.
    *
    * @default false
    */
-  focusOnGroupClick: boolean;
+  focusOnCategoryClick: boolean;
   /**
    * Whether series should be focused when the user clicks/taps on them in the
    * tooltip.
@@ -974,12 +975,12 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   focusOnSeriesClick: boolean;
   /**
-   * Whether group values should be focused when the user mouses over them in
+   * Whether category values should be focused when the user mouses over them in
    * the tooltip.
    *
    * @default false
    */
-  focusOnGroupMouseOver: boolean;
+  focusOnCategoryMouseOver: boolean;
   /**
    * Whether series should be focused when the user mouses over them in the
    * tooltip.
@@ -988,13 +989,14 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   focusOnSeriesMouseOver: boolean;
   /**
-   * Whether the group value should be shown as the first line of the tooltip.
+   * Whether the category value should be shown as the first line of the
+   * tooltip.
    *
    * Default:
    * - `false` — when chartConfig.type is pie
    * - `true` — when chartConfig.type is xy
    */
-  showGroup: boolean;
+  showCategory: boolean;
   /**
    * Whether the focus/filter controls should be shown at the top of the
    * tooltip.
@@ -1212,7 +1214,7 @@ export interface AxisConfigBase {
 
   /**
    * Whether to show the focus range on the axis when it has a focused series
-   * domain or group value.
+   * domain or category value.
    *
    * Group axis default: `false`.
    * Series axis default: `true`.
@@ -1247,7 +1249,7 @@ export interface AxisConfigBase {
 
   /**
    * Whether to show lines perpendicular to the axis showing the focused series
-   * domain or group value.
+   * domain or category value.
    *
    * Group axis default: `true`.
    * Series axis default: `false`.
@@ -1570,7 +1572,7 @@ export interface AxisConfigBase {
    */
   tickLabelPaddingOuter: number;
   /**
-   * The d3 format string to be applied to the group values when displayed in
+   * The d3 format string to be applied to the category values when displayed in
    * axis tick labels (use null for none, use "auto" to derive from data).
    *
    * @default "auto"
@@ -1730,13 +1732,13 @@ export interface AxisConfigBase {
   visible: boolean;
 }
 
-export interface GroupAxisConfig extends AxisConfigBase {
+export interface CategoryAxisConfig extends AxisConfigBase {
   /**
-   * The property to retrieve from the data provider for the group values.
+   * The property to retrieve from the data provider for the category values.
    *
    * The chart reads this property from each entry of the data provider to get
-   * the group (category) value. It is required — the only group axis property
-   * without a default.
+   * the category (category) value. It is required — the only category axis
+   * property without a default.
    */
   property?: string;
   /**
@@ -1746,10 +1748,10 @@ export interface GroupAxisConfig extends AxisConfigBase {
    */
   dateUTC: boolean;
   /**
-   * The property to retrieve from the data provider for the group display
+   * The property to retrieve from the data provider for the category display
    * values (use null for none).
    *
-   * When set, this property’s value is used wherever the group value is
+   * When set, this property’s value is used wherever the category value is
    * displayed (tick labels, tooltip), while `property` still drives positioning
    * — useful for pre-formatted or friendly labels.
    *
@@ -1757,33 +1759,33 @@ export interface GroupAxisConfig extends AxisConfigBase {
    */
   displayProperty: string | null;
   /**
-   * The padding fractions (0 - 1) of the group extent for all group values
-   * (outer) and grouped series (inner).
+   * The padding fractions (0 - 1) of the category extent for all category
+   * values (outer) and grouped series (inner).
    *
    * @default { inner: 0.1, outer: 0.1 }
    */
-  groupPaddingFraction: InnerOuter;
+  categoryPaddingFraction: InnerOuter;
   /**
-   * The extra count to be added to the group value count when dividing the
-   * group extent for displaying group values.
+   * The extra count to be added to the category value count when dividing the
+   * category extent for displaying category values.
    *
    * @default 1
    */
-  groupCountPadding: number;
+  categoryCountPadding: number;
   /**
-   * The minimum group extent (in pixels) for a non-inverted bar this is the
+   * The minimum category extent (in pixels) for a non-inverted bar this is the
    * minimum width.
    *
    * @default 1
    */
-  minGroupValueExtent: number;
+  minCategoryValueExtent: number;
   /**
-   * The scale to use for the displayed group values (ordinal, linear).
+   * The scale to use for the displayed category values (ordinal, linear).
    *
-   * `ordinal` places the groups at evenly spaced positions in data order
-   * regardless of their values; `linear` positions `number`/`date` group values
-   * proportionally along the axis, so uneven spacing in the data shows as
-   * uneven spacing in the chart.
+   * `ordinal` places the categories at evenly spaced positions in data order
+   * regardless of their values; `linear` positions `number`/`date` category
+   * values proportionally along the axis, so uneven spacing in the data shows
+   * as uneven spacing in the chart.
    *
    * @default "ordinal"
    */
@@ -1819,63 +1821,63 @@ export interface GroupAxisConfig extends AxisConfigBase {
    */
   tickLabelTruncationMaxFraction: number;
   /**
-   * The type of the displayed group values (number, date, string).
+   * The type of the displayed category values (number, date, string).
    *
-   * How group values are interpreted: `string` for labels, `number` for numeric
-   * values, and `date` for date values (`dateUTC` controls their timezone
-   * handling). The type drives parsing, tick label formatting, and which
-   * `scale` options make sense.
+   * How category values are interpreted: `string` for labels, `number` for
+   * numeric values, and `date` for date values (`dateUTC` controls their
+   * timezone handling). The type drives parsing, tick label formatting, and
+   * which `scale` options make sense.
    *
    * @default "string"
    */
   type: DataType;
   /**
-   * The d3 format string to be applied to the group value when displayed in the
-   * tooltip (use null for none, use "auto" to derive from data).
+   * The d3 format string to be applied to the category value when displayed in
+   * the tooltip (use null for none, use "auto" to derive from data).
    *
    * @default "auto"
    */
   valueFormat: string | Auto;
   /**
-   * The label to show before a group value in the tooltip (use null for none).
+   * The label to show before a category value in the tooltip (use null for
+   * none).
    *
    * @default null
    */
   valueLabel: string | null;
   /**
-   * The text to prefix group values with when showing them in the tooltip (use
-   * null for none).
+   * The text to prefix category values with when showing them in the tooltip
+   * (use null for none).
    *
    * @default null
    */
   valuePrefix: string | null;
   /**
-   * The text to append group values with when showing them in the tooltip (use
-   * null for none).
+   * The text to append category values with when showing them in the tooltip
+   * (use null for none).
    *
    * @default null
    */
   valueSuffix: string | null;
 }
 
-export interface SeriesAxisTick {
+export interface ValueAxisTick {
   /** The axis value to place the tick at. */
   value: number;
   /** The tick label text; when omitted the value is formatted with `tickLabelFormat`. */
   label?: string;
 }
 
-export interface SeriesAxisConfig extends AxisConfigBase {
+export interface ValueAxisConfig extends AxisConfigBase {
   /**
    * The unique identifier for the series axis so it can be referenced by series
    * that belong to it.
    *
-   * Referenced by `seriesConfigs.axis` (and `seriesStackConfigs.axis`) to
-   * assign series to this axis. With a single axis the ids can be omitted
-   * everywhere.
+   * Referenced by `series[].axis` (and `seriesStacks[].axis`) to assign series
+   * to this axis. With a single axis the ids can be omitted everywhere.
    *
    * Default:
-   * - `SA${index}` — series axis index
+   * - `VA${index}` — value axis index
    */
   id: string;
   /**
@@ -2011,7 +2013,7 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    *
    * @default null
    */
-  ticks: SeriesAxisTick[] | null;
+  ticks: ValueAxisTick[] | null;
   /**
    * The type of the series axis, must be number.
    *
@@ -2025,9 +2027,6 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    * @default true
    */
   useSeriesFocus: boolean;
-  /** Back-references assigned by buildMochartConfig. */
-  seriesConfigs?: SeriesConfig[];
-  seriesConfigIndicesById?: Record<string, number>;
 }
 
 export interface SeriesCurve {
@@ -2122,8 +2121,8 @@ export interface SeriesConfig {
   /**
    * The property to retrieve from the data provider for the series values.
    *
-   * The chart reads this property from each group of the data provider to get
-   * the series value — it is the only series property without a default, so
+   * The chart reads this property from each category of the data provider to
+   * get the series value — it is the only series property without a default, so
    * every series must set it. Use `getDataErrors` to check a dataset against
    * the configured properties.
    */
@@ -2145,7 +2144,7 @@ export interface SeriesConfig {
    *
    * The bounds are absolute values in series axis units, not deltas from the
    * series value, and they join the series axis domain so the whiskers never
-   * clip. Either bound can be used alone for a one-sided error bar; a group
+   * clip. Either bound can be used alone for a one-sided error bar; a category
    * whose bound is undefined just omits that side of the whisker. Error bars
    * draw on `bar`, `line`, `area` and `none` renderer series (centered on each
    * bar — including grouped sub-slot bars — or on each point), but not on
@@ -2202,9 +2201,9 @@ export interface SeriesConfig {
   /**
    * The unique identifier of the axis that the series belongs to.
    *
-   * Assigns the series to the value axis in `seriesAxisConfigs` whose `id`
-   * matches. With a single configured axis this can be omitted — it defaults to
-   * that axis id.
+   * Assigns the series to the value axis in `valueAxes` whose `id` matches.
+   * With a single configured axis this can be omitted — it defaults to that
+   * axis id.
    *
    * Default:
    * - `sole axis id` — series axis
@@ -2214,10 +2213,10 @@ export interface SeriesConfig {
    * The unique identifier of the series stack that the series belongs to (use
    * null for none).
    *
-   * Series sharing the same stack id (an `id` from `seriesStackConfigs`) are
-   * drawn stacked on one another and animate as a single unit, so the stack
-   * stays gapless mid-transition. Defaults to the sole stack id when exactly
-   * one stack is configured; use `null` to opt a series out.
+   * Series sharing the same stack id (an `id` from `seriesStacks`) are drawn
+   * stacked on one another and animate as a single unit, so the stack stays
+   * gapless mid-transition. Defaults to the sole stack id when exactly one
+   * stack is configured; use `null` to opt a series out.
    *
    * Default:
    * - `sole stack id` — series stack
@@ -2227,9 +2226,9 @@ export interface SeriesConfig {
    * The unique identifier of the series group that the series belongs to (use
    * null for none).
    *
-   * Series sharing the same group id (an `id` from `seriesGroupConfigs`) are
-   * laid out side by side within each group slot — grouped/clustered bars.
-   * Defaults to the sole group id when exactly one group is configured; use
+   * Series sharing the same group id (an `id` from `seriesGroups`) are laid out
+   * side by side within each category slot — grouped/clustered bars. Defaults
+   * to the sole group id when exactly one series group is configured; use
    * `null` to opt a series out.
    *
    * Default:
@@ -2254,8 +2253,8 @@ export interface SeriesConfig {
    * The shape renderer to use when drawing the series shape (line, area, bar,
    * none).
    *
-   * `bar` draws a rectangle per group value, `line` connects the values with a
-   * path, `area` fills between the value line and the series axis base, and
+   * `bar` draws a rectangle per category value, `line` connects the values with
+   * a path, `area` fills between the value line and the series axis base, and
    * `none` draws no shape. Different series in the same chart can use different
    * renderers, e.g. bars with a line overlay.
    *
@@ -2265,11 +2264,11 @@ export interface SeriesConfig {
   /**
    * Whether to skip undefined values when drawing the shape for this series.
    *
-   * When `true`, groups whose value is missing (`undefined`) are left out of
-   * the shape, so lines and areas connect directly between the neighbouring
+   * When `true`, categories whose value is missing (`undefined`) are left out
+   * of the shape, so lines and areas connect directly between the neighbouring
    * defined values; when `false` the shape breaks at the gap. For a series with
-   * a `rangeProperty`, a group counts as missing only when both properties are
-   * undefined — see `skipPartialRange`.
+   * a `rangeProperty`, a category counts as missing only when both properties
+   * are undefined — see `skipPartialRange`.
    *
    * @default false
    */
@@ -2279,9 +2278,9 @@ export interface SeriesConfig {
    * rangeProperty is undefined, instead of collapsing to the defined one.
    *
    * Only affects series with a `rangeProperty` (stacked series are unaffected).
-   * By default a group with just one of `property`/`rangeProperty` undefined
+   * By default a category with just one of `property`/`rangeProperty` undefined
    * keeps a zero-extent span collapsed at the defined value, so ranged areas
-   * stay connected through it. When `true` such groups count as missing
+   * stay connected through it. When `true` such categories count as missing
    * instead, following the configured missing-value treatment: a break in the
    * shape, or skipped over when `skipMissing` is set, or drawn at the base when
    * `showMissingAtBase` is set.
@@ -2326,7 +2325,7 @@ export interface SeriesConfig {
    * in the series.
    *
    * Only affects the `bar` renderer. Narrows each bar within its layout slot
-   * (the full group slot, or the series’ sub-slot when grouped), so a narrow
+   * (the full category slot, or the series’ sub-slot when grouped), so a narrow
    * bar can overlay a full-width one from another series — e.g. a candlestick
    * wick behind its body, or a bullet-chart measure over its backing range. The
    * narrowed bar is centered by default; `barAlignFraction` moves it within the
@@ -2622,9 +2621,9 @@ export interface SeriesConfig {
    *
    * Default:
    * - `false` — when shapeStyle.normal.strokeColor or
-   *   shapeStyle.normal.fillColor is groupIndex
+   *   shapeStyle.normal.fillColor is categoryIndex
    * - `true` — when neither shapeStyle.normal.strokeColor nor
-   *   shapeStyle.normal.fillColor is groupIndex
+   *   shapeStyle.normal.fillColor is categoryIndex
    */
   showColorInLegend: boolean;
   /**
@@ -2633,9 +2632,9 @@ export interface SeriesConfig {
    *
    * Default:
    * - `false` — when shapeStyle.normal.strokeColor or
-   *   shapeStyle.normal.fillColor is groupIndex
+   *   shapeStyle.normal.fillColor is categoryIndex
    * - `true` — when neither shapeStyle.normal.strokeColor nor
-   *   shapeStyle.normal.fillColor is groupIndex
+   *   shapeStyle.normal.fillColor is categoryIndex
    */
   showColorInTooltip: boolean;
   /**
@@ -2675,19 +2674,19 @@ export interface SeriesConfig {
    */
   focusOnClick: boolean;
   /**
-   * Whether the group should be focused whenever the user mouses over a group
-   * of the series in the chart.
+   * Whether the category should be focused whenever the user mouses over a
+   * category of the series in the chart.
    *
    * @default false
    */
-  focusGroupOnMouseOver: boolean;
+  focusCategoryOnMouseOver: boolean;
   /**
-   * Whether the group should be focused whenever the user clicks/taps a group
-   * of the series in the chart.
+   * Whether the category should be focused whenever the user clicks/taps a
+   * category of the series in the chart.
    *
    * @default false
    */
-  focusGroupOnClick: boolean;
+  focusCategoryOnClick: boolean;
   /**
    * Whether to show the series as focused when the series axis it belongs to is
    * focused.
@@ -2695,12 +2694,6 @@ export interface SeriesConfig {
    * @default true
    */
   useAxisFocus: boolean;
-  /** Back-references assigned by buildMochartConfig. */
-  seriesAxisConfig: SeriesAxisConfig;
-  seriesStackConfig?: SeriesStackConfig;
-  seriesGroupConfig?: SeriesGroupConfig;
-  linearGradientConfig?: LinearGradientConfig;
-  radialGradientConfig?: RadialGradientConfig;
 }
 
 export interface SeriesStackConfig {
@@ -2749,10 +2742,6 @@ export interface SeriesStackConfig {
    * @default true
    */
   outerCapExpand: boolean;
-  /** Back-references assigned by buildMochartConfig. */
-  seriesAxisConfig?: SeriesAxisConfig;
-  seriesConfigs?: SeriesConfig[];
-  seriesConfigIndicesById?: Record<string, number>;
 }
 
 export interface SeriesGroupConfig {
@@ -2765,9 +2754,6 @@ export interface SeriesGroupConfig {
    */
   id: string;
   order?: number;
-  /** Back-references assigned by buildMochartConfig. */
-  seriesConfigs?: SeriesConfig[];
-  seriesConfigIndicesById?: Record<string, number>;
 }
 
 export interface GradientStop {
@@ -2890,28 +2876,22 @@ export interface DetailedConfigValidation extends ConfigValidation {
 /** The fully built config returned by buildMochartConfig (all defaults applied). */
 export interface MochartConfig {
   id?: string;
-  animationConfig: AnimationConfig;
-  chartConfig: ChartConfig;
-  colorPaletteConfig: ColorPaletteConfig;
-  crosshairConfig: CrosshairConfig;
-  groupAxisConfig: GroupAxisConfig;
-  legendConfig: LegendConfig;
-  linearGradientConfigs: LinearGradientConfig[];
-  pieConfig: PieConfig;
-  plotConfig: PlotConfig;
-  radialGradientConfigs: RadialGradientConfig[];
-  seriesAxisConfigs: SeriesAxisConfig[];
-  seriesAxisConfigsById: Record<string, SeriesAxisConfig>;
-  seriesAxisConfigIndicesById: Record<string, number>;
-  seriesConfigs: SeriesConfig[];
-  seriesConfigsById: Record<string, SeriesConfig>;
-  seriesConfigIndicesById: Record<string, number>;
-  seriesGroupConfigs: SeriesGroupConfig[];
-  seriesGroupConfigsById: Record<string, SeriesGroupConfig>;
-  seriesStackConfigs: SeriesStackConfig[];
-  seriesStackConfigsById: Record<string, SeriesStackConfig>;
-  titleConfig: TitleConfig;
-  tooltipConfig: TooltipConfig;
+  animation: AnimationConfig;
+  chart: ChartConfig;
+  colorPalette: ColorPaletteConfig;
+  crosshair: CrosshairConfig;
+  categoryAxis: CategoryAxisConfig;
+  legend: LegendConfig;
+  linearGradients: LinearGradientConfig[];
+  pie: PieConfig;
+  plot: PlotConfig;
+  radialGradients: RadialGradientConfig[];
+  valueAxes: ValueAxisConfig[];
+  series: SeriesConfig[];
+  seriesGroups: SeriesGroupConfig[];
+  seriesStacks: SeriesStackConfig[];
+  title: TitleConfig;
+  tooltip: TooltipConfig;
   validation: ConfigValidation;
 }
 
@@ -2941,26 +2921,26 @@ export type DeepPartial<T> =
 export interface MochartInputConfig {
   id?: string;
   version?: string;
-  animationConfig?: DeepPartial<AnimationConfig>;
-  chartConfig?: DeepPartial<ChartConfig>;
-  colorPaletteConfig?: DeepPartial<ColorPaletteConfig>;
-  crosshairConfig?: DeepPartial<CrosshairConfig>;
-  groupAxisConfig?: DeepPartial<GroupAxisConfig>;
-  legendConfig?: DeepPartial<LegendConfig>;
-  pieConfig?: DeepPartial<PieConfig>;
-  plotConfig?: DeepPartial<PlotConfig>;
-  titleConfig?: DeepPartial<TitleConfig>;
-  tooltipConfig?: DeepPartial<TooltipConfig>;
-  linearGradientConfigs?: OneOrMany<DeepPartial<LinearGradientConfig>>;
-  linearGradientAllConfig?: DeepPartial<LinearGradientConfig>;
-  radialGradientConfigs?: OneOrMany<DeepPartial<RadialGradientConfig>>;
-  radialGradientAllConfig?: DeepPartial<RadialGradientConfig>;
-  seriesAxisConfigs?: OneOrMany<DeepPartial<SeriesAxisConfig>>;
-  seriesAxisAllConfig?: DeepPartial<SeriesAxisConfig>;
-  seriesConfigs?: OneOrMany<DeepPartial<SeriesConfig>>;
-  seriesAllConfig?: DeepPartial<SeriesConfig>;
-  seriesGroupConfigs?: OneOrMany<DeepPartial<SeriesGroupConfig>>;
-  seriesGroupAllConfig?: DeepPartial<SeriesGroupConfig>;
-  seriesStackConfigs?: OneOrMany<DeepPartial<SeriesStackConfig>>;
-  seriesStackAllConfig?: DeepPartial<SeriesStackConfig>;
+  animation?: DeepPartial<AnimationConfig>;
+  chart?: DeepPartial<ChartConfig>;
+  colorPalette?: DeepPartial<ColorPaletteConfig>;
+  crosshair?: DeepPartial<CrosshairConfig>;
+  categoryAxis?: DeepPartial<CategoryAxisConfig>;
+  legend?: DeepPartial<LegendConfig>;
+  pie?: DeepPartial<PieConfig>;
+  plot?: DeepPartial<PlotConfig>;
+  title?: DeepPartial<TitleConfig>;
+  tooltip?: DeepPartial<TooltipConfig>;
+  linearGradients?: OneOrMany<DeepPartial<LinearGradientConfig>>;
+  linearGradientDefaults?: DeepPartial<LinearGradientConfig>;
+  radialGradients?: OneOrMany<DeepPartial<RadialGradientConfig>>;
+  radialGradientDefaults?: DeepPartial<RadialGradientConfig>;
+  valueAxes?: OneOrMany<DeepPartial<ValueAxisConfig>>;
+  valueAxisDefaults?: DeepPartial<ValueAxisConfig>;
+  series?: OneOrMany<DeepPartial<SeriesConfig>>;
+  seriesDefaults?: DeepPartial<SeriesConfig>;
+  seriesGroups?: OneOrMany<DeepPartial<SeriesGroupConfig>>;
+  seriesGroupDefaults?: DeepPartial<SeriesGroupConfig>;
+  seriesStacks?: OneOrMany<DeepPartial<SeriesStackConfig>>;
+  seriesStackDefaults?: DeepPartial<SeriesStackConfig>;
 }

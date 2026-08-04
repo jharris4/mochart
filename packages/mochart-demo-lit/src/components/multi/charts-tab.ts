@@ -44,9 +44,9 @@ export class ChartsTab extends LightElement {
   // different-sized views of the same pie and stepping animates all charts.
   private sliceIds: string[] = [];
   @state() private dataProviders: ChartDataProviderLike[] = [];
-  @state() private focusedGroupIndices: number[] = [];
-  private focusedGroupIndex = -1;
-  @state() private focusedSeriesAxisId: string | null = null;
+  @state() private focusedCategoryIndices: number[] = [];
+  private focusedCategoryIndex = -1;
+  @state() private focusedValueAxisId: string | null = null;
   @state() private focusedSeriesId: string | null = null;
   @state() private filteredSeriesIds: FilteredSeriesIds = {};
 
@@ -54,8 +54,8 @@ export class ChartsTab extends LightElement {
   private size = new ElementSizeController(this);
 
   private initFocusAndFiltered(): void {
-    this.focusedGroupIndex = -1;
-    this.focusedSeriesAxisId = null;
+    this.focusedCategoryIndex = -1;
+    this.focusedValueAxisId = null;
     this.focusedSeriesId = null;
     this.filteredSeriesIds = {};
   }
@@ -82,7 +82,7 @@ export class ChartsTab extends LightElement {
       ? ((Math.round(step) % cycle) + cycle) % cycle
       : this.resetStep();
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
-    this.focusedGroupIndices = this.dataProviders.map(() => -1);
+    this.focusedCategoryIndices = this.dataProviders.map(() => -1);
   }
 
   override willUpdate(changed: PropertyValues<this>): void {
@@ -148,14 +148,14 @@ export class ChartsTab extends LightElement {
     this.chartRows = nextChartRows;
     this.currentDataCount = this.resetStep();
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
-    this.focusedGroupIndices = this.getFocusedGroupIndices(this.dataProviders);
+    this.focusedCategoryIndices = this.getFocusedCategoryIndices(this.dataProviders);
   };
 
   private onColsChange = (nextChartCols: number): void => {
     this.chartCols = nextChartCols;
     this.currentDataCount = this.resetStep();
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
-    this.focusedGroupIndices = this.getFocusedGroupIndices(this.dataProviders);
+    this.focusedCategoryIndices = this.getFocusedCategoryIndices(this.dataProviders);
   };
 
   private onStepBackwardClick = (): void => {
@@ -164,39 +164,39 @@ export class ChartsTab extends LightElement {
       ? (this.currentDataCount - 1 + cycle) % cycle
       : cycle + (this.currentDataCount - 1) % cycle;
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
-    this.focusedGroupIndices = this.getFocusedGroupIndices(this.dataProviders);
+    this.focusedCategoryIndices = this.getFocusedCategoryIndices(this.dataProviders);
   };
 
   private onStepForwardClick = (): void => {
     this.currentDataCount = (this.currentDataCount + 1) % this.stepCycle();
     this.dataProviders = getDataProvidersForDataCount(this.mochartDemoConfig.mochartConfig, this.data, this.chartRows * this.chartCols, this.currentDataCount);
-    this.focusedGroupIndices = this.getFocusedGroupIndices(this.dataProviders);
+    this.focusedCategoryIndices = this.getFocusedCategoryIndices(this.dataProviders);
   };
 
-  private getFocusedGroupIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
+  private getFocusedCategoryIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
     const { mochartConfig } = this.mochartDemoConfig;
-    if (this.focusedGroupIndex >= 0) {
-      const groupValue = this.data[this.focusedGroupIndex][mochartConfig.groupAxisConfig.property ?? ''];
-      return this.getFocusedGroupIndicesForValue(nextDataProviders, groupValue);
+    if (this.focusedCategoryIndex >= 0) {
+      const categoryValue = this.data[this.focusedCategoryIndex][mochartConfig.categoryAxis.property ?? ''];
+      return this.getFocusedCategoryIndicesForValue(nextDataProviders, categoryValue);
     }
     else {
       return nextDataProviders.map(() => -1);
     }
   }
 
-  private getFocusedGroupIndicesForValue(nextDataProviders: ChartDataProviderLike[], groupValue: unknown): number[] {
+  private getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] {
     let count: number, i: number;
     return nextDataProviders.map(dataProvider => {
-      let chartGroupIndex = -1;
-      const groupValues = dataProvider.getGroupValues();
-      count = groupValues.length;
+      let chartCategoryIndex = -1;
+      const categoryValues = dataProvider.getCategoryValues();
+      count = categoryValues.length;
       for (i = 0; i < count; i++) {
-        if (groupValues[i] === groupValue) {
-          chartGroupIndex = i;
+        if (categoryValues[i] === categoryValue) {
+          chartCategoryIndex = i;
           break;
         }
       }
-      return chartGroupIndex;
+      return chartCategoryIndex;
     });
   }
 
@@ -218,37 +218,37 @@ export class ChartsTab extends LightElement {
     this.playing = false;
   };
 
-  private onChartFocus(chartIndex: number, focusData: { focusedSeriesAxisId?: string | null; focusedSeriesId?: string | null; focusedGroupIndex?: number }): void {
-    const { focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId } = focusData;
-    let groupIndex = focusData.focusedGroupIndex;
+  private onChartFocus(chartIndex: number, focusData: { focusedValueAxisId?: string | null; focusedSeriesId?: string | null; focusedCategoryIndex?: number }): void {
+    const { focusedValueAxisId: valueAxisId, focusedSeriesId: seriesId } = focusData;
+    let categoryIndex = focusData.focusedCategoryIndex;
     const { mochartConfig } = this.mochartDemoConfig;
-    let nextFocusedGroupIndices = this.focusedGroupIndices;
-    if (groupIndex !== undefined && groupIndex >= 0) {
-      const groupValue = this.dataProviders[chartIndex].getGroupValues()[groupIndex];
+    let nextFocusedCategoryIndices = this.focusedCategoryIndices;
+    if (categoryIndex !== undefined && categoryIndex >= 0) {
+      const categoryValue = this.dataProviders[chartIndex].getCategoryValues()[categoryIndex];
       const count = this.data.length;
       for (let i = 0; i < count; i++) {
-        if (this.data[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
-          groupIndex = i;
+        if (this.data[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
+          categoryIndex = i;
           break;
         }
       }
-      if (groupIndex !== this.focusedGroupIndex) {
-        nextFocusedGroupIndices = this.getFocusedGroupIndicesForValue(this.dataProviders, groupValue);
+      if (categoryIndex !== this.focusedCategoryIndex) {
+        nextFocusedCategoryIndices = this.getFocusedCategoryIndicesForValue(this.dataProviders, categoryValue);
       }
     }
-    else if (this.focusedGroupIndex >= 0) {
-      nextFocusedGroupIndices = this.dataProviders.map(() => -1);
+    else if (this.focusedCategoryIndex >= 0) {
+      nextFocusedCategoryIndices = this.dataProviders.map(() => -1);
     }
-    if (groupIndex !== undefined) {
-      this.focusedGroupIndex = groupIndex;
+    if (categoryIndex !== undefined) {
+      this.focusedCategoryIndex = categoryIndex;
     }
-    if (seriesAxisId !== undefined) {
-      this.focusedSeriesAxisId = seriesAxisId;
+    if (valueAxisId !== undefined) {
+      this.focusedValueAxisId = valueAxisId;
     }
     if (seriesId !== undefined) {
       this.focusedSeriesId = seriesId;
     }
-    this.focusedGroupIndices = nextFocusedGroupIndices;
+    this.focusedCategoryIndices = nextFocusedCategoryIndices;
   }
 
   // The chart owns filter toggling now and reports the whole map.
@@ -275,8 +275,8 @@ export class ChartsTab extends LightElement {
                   width: chartWidth,
                   height: chartHeight,
                   filteredSeriesIds: chartFilteredSeriesIds(i),
-                  focusedGroupIndex: this.focusedGroupIndices[i] ?? -1,
-                  focusedSeriesAxisId: this.focusedSeriesAxisId ?? null,
+                  focusedCategoryIndex: this.focusedCategoryIndices[i] ?? -1,
+                  focusedValueAxisId: this.focusedValueAxisId ?? null,
                   focusedSeriesId: this.focusedSeriesId ?? null,
                   onSeriesFilter: this.onSeriesFilter,
                   onFocus: (focusData: any) => this.onChartFocus(i, focusData)

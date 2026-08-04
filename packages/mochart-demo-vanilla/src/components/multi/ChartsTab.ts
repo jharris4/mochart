@@ -59,9 +59,9 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     : (mochartDemoConfig.pieMode ? 0 : dataCount);
   let dataProviders = getDataProvidersForDataCount(
     mochartDemoConfig.mochartConfig, demoObject.data, chartRows * chartCols, currentDataCount);
-  let focusedGroupIndices: number[] = dataProviders.map(() => -1);
-  let focusedGroupIndex = -1;
-  let focusedSeriesAxisId: string | null = null;
+  let focusedCategoryIndices: number[] = dataProviders.map(() => -1);
+  let focusedCategoryIndex = -1;
+  let focusedValueAxisId: string | null = null;
   let focusedSeriesId: string | null = null;
   let filteredSeriesIds: FilteredSeriesIds = {};
 
@@ -72,42 +72,42 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   let chartHosts: ChartHostHandle[] = [];
 
   function initFocusAndFiltered(): void {
-    focusedGroupIndex = -1;
-    focusedSeriesAxisId = null;
+    focusedCategoryIndex = -1;
+    focusedValueAxisId = null;
     focusedSeriesId = null;
     filteredSeriesIds = {};
   }
 
-  function getFocusedGroupIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
+  function getFocusedCategoryIndices(nextDataProviders: ChartDataProviderLike[]): number[] {
     const { mochartConfig } = mochartDemoConfig;
-    if (focusedGroupIndex >= 0) {
-      const groupValue = data[focusedGroupIndex][mochartConfig.groupAxisConfig.property ?? ''];
-      return getFocusedGroupIndicesForValue(nextDataProviders, groupValue);
+    if (focusedCategoryIndex >= 0) {
+      const categoryValue = data[focusedCategoryIndex][mochartConfig.categoryAxis.property ?? ''];
+      return getFocusedCategoryIndicesForValue(nextDataProviders, categoryValue);
     }
     else {
       return nextDataProviders.map(() => -1);
     }
   }
 
-  function getFocusedGroupIndicesForValue(nextDataProviders: ChartDataProviderLike[], groupValue: unknown): number[] {
+  function getFocusedCategoryIndicesForValue(nextDataProviders: ChartDataProviderLike[], categoryValue: unknown): number[] {
     let count, i;
     return nextDataProviders.map(dataProvider => {
-      let chartGroupIndex = -1;
-      const groupValues = dataProvider.getGroupValues();
-      count = groupValues.length;
+      let chartCategoryIndex = -1;
+      const categoryValues = dataProvider.getCategoryValues();
+      count = categoryValues.length;
       for (i = 0; i < count; i++) {
-        if (groupValues[i] === groupValue) {
-          chartGroupIndex = i;
+        if (categoryValues[i] === categoryValue) {
+          chartCategoryIndex = i;
           break;
         }
       }
-      return chartGroupIndex;
+      return chartCategoryIndex;
     });
   }
 
   function refreshDataProviders(): void {
     dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
-    focusedGroupIndices = getFocusedGroupIndices(dataProviders);
+    focusedCategoryIndices = getFocusedCategoryIndices(dataProviders);
     syncCharts();
   }
 
@@ -162,37 +162,37 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     controls.setPlaying(false);
   }
 
-  function onChartFocus(chartIndex: number, focusData: { focusedSeriesAxisId?: string | null; focusedSeriesId?: string | null; focusedGroupIndex?: number }): void {
-    const { focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId } = focusData;
-    let groupIndex = focusData.focusedGroupIndex;
+  function onChartFocus(chartIndex: number, focusData: { focusedValueAxisId?: string | null; focusedSeriesId?: string | null; focusedCategoryIndex?: number }): void {
+    const { focusedValueAxisId: valueAxisId, focusedSeriesId: seriesId } = focusData;
+    let categoryIndex = focusData.focusedCategoryIndex;
     const { mochartConfig } = mochartDemoConfig;
-    let nextFocusedGroupIndices = focusedGroupIndices;
-    if (groupIndex !== undefined && groupIndex >= 0) {
-      const groupValue = dataProviders[chartIndex].getGroupValues()[groupIndex];
+    let nextFocusedCategoryIndices = focusedCategoryIndices;
+    if (categoryIndex !== undefined && categoryIndex >= 0) {
+      const categoryValue = dataProviders[chartIndex].getCategoryValues()[categoryIndex];
       const count = data.length;
       for (let i = 0; i < count; i++) {
-        if (data[i][mochartConfig.groupAxisConfig.property ?? ''] === groupValue) {
-          groupIndex = i;
+        if (data[i][mochartConfig.categoryAxis.property ?? ''] === categoryValue) {
+          categoryIndex = i;
           break;
         }
       }
-      if (groupIndex !== focusedGroupIndex) {
-        nextFocusedGroupIndices = getFocusedGroupIndicesForValue(dataProviders, groupValue);
+      if (categoryIndex !== focusedCategoryIndex) {
+        nextFocusedCategoryIndices = getFocusedCategoryIndicesForValue(dataProviders, categoryValue);
       }
     }
-    else if (focusedGroupIndex >= 0) {
-      nextFocusedGroupIndices = dataProviders.map(() => -1);
+    else if (focusedCategoryIndex >= 0) {
+      nextFocusedCategoryIndices = dataProviders.map(() => -1);
     }
-    if (groupIndex !== undefined) {
-      focusedGroupIndex = groupIndex;
+    if (categoryIndex !== undefined) {
+      focusedCategoryIndex = categoryIndex;
     }
-    if (seriesAxisId !== undefined) {
-      focusedSeriesAxisId = seriesAxisId;
+    if (valueAxisId !== undefined) {
+      focusedValueAxisId = valueAxisId;
     }
     if (seriesId !== undefined) {
       focusedSeriesId = seriesId;
     }
-    focusedGroupIndices = nextFocusedGroupIndices;
+    focusedCategoryIndices = nextFocusedCategoryIndices;
     syncCharts();
   }
 
@@ -285,8 +285,8 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         width: chartWidth,
         height: chartHeight,
         filteredSeriesIds: chartFilteredSeriesIds(i),
-        focusedGroupIndex: focusedGroupIndices[i] ?? -1,
-        focusedSeriesAxisId: focusedSeriesAxisId ?? null,
+        focusedCategoryIndex: focusedCategoryIndices[i] ?? -1,
+        focusedValueAxisId: focusedValueAxisId ?? null,
         focusedSeriesId: focusedSeriesId ?? null,
         onSeriesFilter,
         onFocus: (focusData: any) => onChartFocus(i, focusData)
@@ -301,8 +301,8 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         width: chartWidth,
         height: chartHeight,
         filteredSeriesIds: chartFilteredSeriesIds(i),
-        focusedGroupIndex: focusedGroupIndices[i] ?? -1,
-        focusedSeriesAxisId: focusedSeriesAxisId ?? null,
+        focusedCategoryIndex: focusedCategoryIndices[i] ?? -1,
+        focusedValueAxisId: focusedValueAxisId ?? null,
         focusedSeriesId: focusedSeriesId ?? null,
         onSeriesFilter,
         onFocus: (focusData: any) => onChartFocus(i, focusData)
@@ -330,7 +330,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
         currentDataCount = resetStep();
         dataProviders = getDataProvidersForDataCount(mochartDemoConfig.mochartConfig, data, chartRows * chartCols, currentDataCount);
-        focusedGroupIndices = dataProviders.map(() => -1);
+        focusedCategoryIndices = dataProviders.map(() => -1);
         syncCharts();
       }
     },

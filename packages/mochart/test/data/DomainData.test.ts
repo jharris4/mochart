@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   nullDomain,
-  getGroupDomainForValues,
+  getCategoryDomainForValues,
   getDomainForValues,
   mergeDomain,
   getDomainExtent,
@@ -11,24 +11,24 @@ import {
   copyDomain
 } from '../../src/data/DomainData';
 
-describe('getGroupDomainForValues', () => {
+describe('getCategoryDomainForValues', () => {
   it('finds the min and max of numeric values', () => {
-    expect(getGroupDomainForValues([3, 1, 4, 1, 5, 9, 2])).toEqual([1, 9]);
+    expect(getCategoryDomainForValues([3, 1, 4, 1, 5, 9, 2])).toEqual([1, 9]);
   });
 
   it('returns the null domain for an empty array', () => {
-    expect(getGroupDomainForValues([])).toEqual([null, null]);
+    expect(getCategoryDomainForValues([])).toEqual([null, null]);
   });
 
   it('compares dates by timestamp and returns the extreme date instances', () => {
     const a = new Date('2020-01-01');
     const b = new Date('2020-06-01');
     const c = new Date('2020-03-01');
-    expect(getGroupDomainForValues([c, a, b])).toEqual([a, b]);
+    expect(getCategoryDomainForValues([c, a, b])).toEqual([a, b]);
   });
 
   it('handles a single value as both min and max', () => {
-    expect(getGroupDomainForValues([7])).toEqual([7, 7]);
+    expect(getCategoryDomainForValues([7])).toEqual([7, 7]);
   });
 });
 

@@ -2,25 +2,25 @@ import type { DataProvider, DataRow } from '../types/data';
 
 export class ArrayOfObjectsDataProvider<
   TRow extends DataRow = DataRow,
-  TGroupProperty extends keyof TRow & string = keyof TRow & string
-> implements DataProvider<TRow[TGroupProperty]> {
-  private readonly groupValues: TRow[TGroupProperty][];
-  private readonly rowsByGroupValue: Record<string, TRow>;
+  TCategoryProperty extends keyof TRow & string = keyof TRow & string
+> implements DataProvider<TRow[TCategoryProperty]> {
+  private readonly categoryValues: TRow[TCategoryProperty][];
+  private readonly rowsByCategoryValue: Record<string, TRow>;
 
-  constructor(data: readonly TRow[], groupProperty: TGroupProperty) {
-    this.groupValues = data.map(row => row[groupProperty]);
-    this.rowsByGroupValue = {};
+  constructor(data: readonly TRow[], categoryProperty: TCategoryProperty) {
+    this.categoryValues = data.map(row => row[categoryProperty]);
+    this.rowsByCategoryValue = {};
     for (const row of data) {
-      this.rowsByGroupValue[String(row[groupProperty])] = row;
+      this.rowsByCategoryValue[String(row[categoryProperty])] = row;
     }
   }
 
-  getGroupValues(): readonly TRow[TGroupProperty][] {
-    return this.groupValues;
+  getCategoryValues(): readonly TRow[TCategoryProperty][] {
+    return this.categoryValues;
   }
 
-  getSeriesValue(groupValue: TRow[TGroupProperty], _groupIndex: number, seriesProperty: string): unknown {
-    return this.rowsByGroupValue[String(groupValue)]?.[seriesProperty];
+  getSeriesValue(categoryValue: TRow[TCategoryProperty], _categoryIndex: number, seriesProperty: string): unknown {
+    return this.rowsByCategoryValue[String(categoryValue)]?.[seriesProperty];
   }
 }
 
@@ -28,20 +28,20 @@ type ColumnData = Record<string, readonly unknown[]>;
 
 export class ObjectOfArraysDataProvider<
   TData extends ColumnData = ColumnData,
-  TGroupProperty extends keyof TData & string = keyof TData & string
-> implements DataProvider<TData[TGroupProperty][number]> {
-  private readonly groupValues: TData[TGroupProperty];
+  TCategoryProperty extends keyof TData & string = keyof TData & string
+> implements DataProvider<TData[TCategoryProperty][number]> {
+  private readonly categoryValues: TData[TCategoryProperty];
 
-  constructor(private readonly data: TData, groupProperty: TGroupProperty) {
-    this.groupValues = data[groupProperty];
+  constructor(private readonly data: TData, categoryProperty: TCategoryProperty) {
+    this.categoryValues = data[categoryProperty];
   }
 
-  getGroupValues(): TData[TGroupProperty] {
-    return this.groupValues;
+  getCategoryValues(): TData[TCategoryProperty] {
+    return this.categoryValues;
   }
 
-  getSeriesValue(_groupValue: TData[TGroupProperty][number], groupIndex: number, seriesProperty: string): unknown {
+  getSeriesValue(_categoryValue: TData[TCategoryProperty][number], categoryIndex: number, seriesProperty: string): unknown {
     // a property absent from the data reads as missing, like the row provider
-    return this.data[seriesProperty]?.[groupIndex];
+    return this.data[seriesProperty]?.[categoryIndex];
   }
 }

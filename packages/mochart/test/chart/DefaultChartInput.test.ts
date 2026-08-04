@@ -14,8 +14,8 @@ const VERSION = '1.0.0';
 function salesConfig(): MochartInputConfig {
   return {
     version: VERSION,
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'sales' }]
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }]
   } as unknown as MochartInputConfig;
 }
 
@@ -23,8 +23,8 @@ function salesConfig(): MochartInputConfig {
 function labelConfig(): MochartInputConfig {
   return {
     version: VERSION,
-    groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-    seriesConfigs: [{ property: 'label' }]
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'label' }]
   } as unknown as MochartInputConfig;
 }
 
@@ -49,7 +49,7 @@ describe('DefaultChartInput data validation', () => {
   it('exposes a valid provider for matching config and data', () => {
     const { input } = startInput(salesConfig(), rows);
     expect(isDataProviderValid(input.dataProvider)).toBe(true);
-    expect(input.dataProvider!.getGroupValues()).toEqual(['Jan', 'Feb', 'Mar']);
+    expect(input.dataProvider!.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
   it('exposes an error provider when the data does not satisfy the config', () => {
@@ -92,7 +92,7 @@ describe('DefaultChartInput data validation', () => {
     const nextRows = [...rows, { month: 'Apr', sales: 40, label: 'forty' }];
     input.update(prev, props(salesConfig(), nextRows));
     expect(input.dataProvider).not.toBe(firstProvider);
-    expect(input.dataProvider!.getGroupValues()).toEqual(['Jan', 'Feb', 'Mar', 'Apr']);
+    expect(input.dataProvider!.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar', 'Apr']);
   });
 
   it('exposes an error provider for data that is not an array of objects', () => {

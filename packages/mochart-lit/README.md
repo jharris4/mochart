@@ -26,10 +26,10 @@ import { defaultChart } from '@mochart/lit';
 
 const config = {
   version: '1.0.0',
-  titleConfig: { title: 'Revenue' },
-  groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-  seriesAllConfig: { renderer: 'bar' },
-  seriesConfigs: [{ property: 'revenue', title: 'Revenue' }]
+  title: { text: 'Revenue' },
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+  seriesDefaults: { renderer: 'bar' },
+  series: [{ property: 'revenue', title: 'Revenue' }]
 };
 
 const data = [
@@ -76,7 +76,7 @@ html`${chart({ mochartConfig, dataProvider, style: 'flex: 1 1 auto; min-width: 0
 
 Both directives accept the chart callbacks (`onChartClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
-`onFocus`, `onSeriesFilter`, `onSeriesLayoutInfoChange`) and the placeholder
+`onFocus`, `onSeriesFilter`, `onSeriesLayoutBoundsChange`) and the placeholder
 templates (`loadingTemplate`, `errorTemplate`, `noDataTemplate`,
 `noSizeTemplate`, `noSeriesTemplate`, `configErrorTemplate`). Each placeholder
 prop takes a **lit-html template function** that receives the chart context

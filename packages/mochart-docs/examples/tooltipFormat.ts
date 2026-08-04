@@ -4,13 +4,13 @@ import type { MochartInputConfig } from '@mochart/core';
 
 export const config: MochartInputConfig = {
   version: '1.0.0',
-  titleConfig: { title: 'Store Performance' },
-  groupAxisConfig: { property: 'month', type: 'string', scale: 'ordinal' },
-  seriesAxisConfigs: [
+  title: { text: 'Store Performance' },
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+  valueAxes: [
     { id: 'money', title: 'Revenue' },
     { id: 'rate', title: 'Refund rate', before: false, tickLabelFormat: '.1%' }
   ],
-  seriesConfigs: [
+  series: [
     {
       property: 'revenue',
       title: 'Revenue',
@@ -28,7 +28,7 @@ export const config: MochartInputConfig = {
       valueFormat: '.1%'
     }
   ],
-  tooltipConfig: {
+  tooltip: {
     alignValues: true
   }
 };

@@ -1,4 +1,4 @@
-import type { MochartConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartData, DataProvider } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { InternalFocus } from '../types/chart';
@@ -7,11 +7,11 @@ export type { InternalFocus };
 
 /** Everything a data source needs to compute chartData/focusData for one chart state. */
 export interface ChartDataSourceInput {
-  mochartConfig: MochartConfig;
+  mochartConfig: EnhancedMochartConfig;
   dataProvider: DataProvider;
   filteredSeriesIds: Record<string, boolean>;
-  focusedGroupIndex: number;
-  focusedSeriesAxisId: string | null;
+  focusedCategoryIndex: number;
+  focusedValueAxisId: string | null;
   focusedSeriesId: string | null;
 }
 

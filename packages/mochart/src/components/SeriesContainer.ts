@@ -5,21 +5,21 @@ import { mochartCssClasses } from '../utils/ChartDom';
 
 import SeriesBackground from './SeriesBackground';
 import Series from './Series';
-import type { MochartConfig } from '../types/config';
-import type { GroupAxisData, SeriesAxisData, SeriesData, StackData } from '../types/data';
+import type { EnhancedMochartConfig } from '../types/enhanced';
+import type { CategoryAxisData, ValueAxisData, SeriesData, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { LayoutInfo } from '../types/layout';
 
 interface SeriesContainerProps {
-  mochartConfig: MochartConfig;
+  mochartConfig: EnhancedMochartConfig;
   seriesLayoutInfo: LayoutInfo;
   seriesData: SeriesData;
-  seriesAxisData: SeriesAxisData;
+  valueAxisData: ValueAxisData;
   stackData: StackData;
   focusData: FocusData;
-  groupValueData: GroupAxisData['valueData'];
+  categoryValueData: CategoryAxisData['valueData'];
   gradientIdMap: Record<string, string>;
-  onFocus: (focus: { seriesId?: string | null; groupIndex?: number | null }) => void;
+  onFocus: (focus: { seriesId?: string | null; categoryIndex?: number | null }) => void;
   shapeRef: (element: Element | null) => void;
 }
 
@@ -33,12 +33,12 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, seriesData, seriesAxisData, stackData, focusData, groupValueData, gradientIdMap, onFocus, shapeRef } = this.props;
+    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, onFocus, shapeRef } = this.props;
 
-    const { groupAxisConfig, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
+    const { categoryAxis: categoryAxisConfig, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
 
     const { raw, filtered } = seriesData;
-    const { domains: rawDomains, axisDomains: rawSeriesAxisDomains } = raw;
+    const { domains: rawDomains, axisDomains: rawValueAxisDomains } = raw;
     const { values: filteredValues } = filtered;
 
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
@@ -53,11 +53,11 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
       return {
         key: 'series-' + id,
         ctor: Series,
-        props: { groupAxisConfig, colorPaletteConfig,
+        props: { categoryAxisConfig, colorPaletteConfig,
           seriesConfig, seriesIndex: index, stackData,
-          seriesLayoutInfo, focusData, groupValueData,
-          seriesAxisScale: seriesAxisData.axisScales[axis!],
-          rawSeriesAxisDomain: rawSeriesAxisDomains[axis!], rawDomains: rawDomains[id],
+          seriesLayoutInfo, focusData, categoryValueData,
+          valueAxisScale: valueAxisData.axisScales[axis!],
+          rawValueAxisDomain: rawValueAxisDomains[axis!], rawDomains: rawDomains[id],
           filteredValues: filteredValues[id],
           gradientIdMap, onFocus }
       };

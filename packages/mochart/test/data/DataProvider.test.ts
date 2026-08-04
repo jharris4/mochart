@@ -10,7 +10,7 @@ describe('ArrayOfObjectsDataProvider', () => {
 
   it('returns group values in row order', () => {
     const provider = new ArrayOfObjectsDataProvider(rows, 'month');
-    expect(provider.getGroupValues()).toEqual(['Jan', 'Feb', 'Mar']);
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
   it('looks up a series value by group value regardless of index', () => {
@@ -26,7 +26,7 @@ describe('ArrayOfObjectsDataProvider', () => {
       { year: 2021, value: 2 }
     ];
     const provider = new ArrayOfObjectsDataProvider(numericRows, 'year');
-    expect(provider.getGroupValues()).toEqual([2020, 2021]);
+    expect(provider.getCategoryValues()).toEqual([2020, 2021]);
     expect(provider.getSeriesValue(2021, 1, 'value')).toBe(2);
   });
 
@@ -36,8 +36,8 @@ describe('ArrayOfObjectsDataProvider', () => {
       { month: 'Jan', sales: 99 }
     ];
     const provider = new ArrayOfObjectsDataProvider(dupes, 'month');
-    // getGroupValues preserves every raw value...
-    expect(provider.getGroupValues()).toEqual(['Jan', 'Jan']);
+    // getCategoryValues preserves every raw value...
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Jan']);
     // ...but the row map is keyed by group value, so the later row wins
     expect(provider.getSeriesValue('Jan', 0, 'sales')).toBe(99);
   });
@@ -52,7 +52,7 @@ describe('ObjectOfArraysDataProvider', () => {
 
   it('returns the group column as group values', () => {
     const provider = new ObjectOfArraysDataProvider(data, 'month');
-    expect(provider.getGroupValues()).toEqual(['Jan', 'Feb', 'Mar']);
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
   it('looks up a series value by group index', () => {

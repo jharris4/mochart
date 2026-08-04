@@ -4,28 +4,28 @@ import TooltipContent from './TooltipContent';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { cssStyleColor } from '../utils/style';
-import type { MochartConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { FocusPercentageMap } from '../types/animation';
 import type { SpacingLayoutInfo } from '../types/layout';
 import type { Bounds } from '../types/geometry';
-import type { GroupSeriesValueObject } from '../data/ChartData';
+import type { CategorySeriesValueObject } from '../data/ChartData';
 
 interface TooltipProps {
-  mochartConfig: MochartConfig;
+  mochartConfig: EnhancedMochartConfig;
   tooltipVisible: boolean;
-  tooltipGroupIndex: number;
+  tooltipCategoryIndex: number;
   svgUniqueId: string;
-  groupCount: number;
-  focusedGroupIndex: number;
+  categoryCount: number;
+  focusedCategoryIndex: number;
   tooltipBounds: Bounds | null;
-  tooltipValueObject: GroupSeriesValueObject;
+  tooltipValueObject: CategorySeriesValueObject;
   focusedSeriesId: string | null;
-  seriesAxisFocusPercentages: FocusPercentageMap;
+  valueAxisFocusPercentages: FocusPercentageMap;
   seriesFocusPercentages: FocusPercentageMap;
   tooltipLayoutInfo: SpacingLayoutInfo;
   onClose: () => void;
-  updateTooltipGroupIndex: (groupIndex: number) => void;
-  onFocus: (focus: { groupIndex?: number | null; seriesId?: string | null }) => void;
+  updateTooltipCategoryIndex: (categoryIndex: number) => void;
+  onFocus: (focus: { categoryIndex?: number | null; seriesId?: string | null }) => void;
   onSeriesFilter: (seriesId: string) => void;
 }
 
@@ -42,12 +42,12 @@ export default class Tooltip extends Renderer<TooltipProps> {
   }
 
   sync() {
-    const { mochartConfig, tooltipVisible, tooltipGroupIndex } = this.props;
-    if (mochartConfig.tooltipConfig.visible && tooltipVisible && tooltipGroupIndex >= 0) {
-      const { svgUniqueId, groupCount, focusedGroupIndex, tooltipBounds, tooltipValueObject, focusedSeriesId,
-        seriesAxisFocusPercentages, seriesFocusPercentages, tooltipLayoutInfo, onClose, updateTooltipGroupIndex, onFocus, onSeriesFilter } = this.props;
+    const { mochartConfig, tooltipVisible, tooltipCategoryIndex } = this.props;
+    if (mochartConfig.tooltip.visible && tooltipVisible && tooltipCategoryIndex >= 0) {
+      const { svgUniqueId, categoryCount, focusedCategoryIndex, tooltipBounds, tooltipValueObject, focusedSeriesId,
+        valueAxisFocusPercentages, seriesFocusPercentages, tooltipLayoutInfo, onClose, updateTooltipCategoryIndex, onFocus, onSeriesFilter } = this.props;
 
-      const { tooltipConfig } = mochartConfig;
+      const { tooltip: tooltipConfig } = mochartConfig;
 
       const { x, y } = tooltipLayoutInfo;
 
@@ -82,10 +82,10 @@ export default class Tooltip extends Renderer<TooltipProps> {
       const sizeForFiltering = tooltipConfig.adjustSizeForFiltering;
 
       const commonProps = {
-        mochartConfig, tooltipValueObject, tooltipGroupIndex, focusedGroupIndex,
-        focusedSeriesId, seriesAxisFocusPercentages, seriesFocusPercentages,
-        svgUniqueId, updateTooltipGroupIndex,
-        onClose, onFocus, onSeriesFilter, groupCount
+        mochartConfig, tooltipValueObject, tooltipCategoryIndex, focusedCategoryIndex,
+        focusedSeriesId, valueAxisFocusPercentages, seriesFocusPercentages,
+        svgUniqueId, updateTooltipCategoryIndex,
+        onClose, onFocus, onSeriesFilter, categoryCount
       };
 
       this.setPresent(true);

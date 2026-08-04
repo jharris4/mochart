@@ -9,13 +9,14 @@ import AxisFocusTickMarks from './AxisFocusTickMarks';
 import AxisFocusRange from './AxisFocusRange';
 
 import { translateObject } from '../utils/utils';
-import type { GroupAxisConfig, SeriesAxisConfig } from '../types/config';
+import type { CategoryAxisConfig } from '../types/config';
+import type { EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisTick } from '../types/data';
 import type { AxisLayoutInfo, SpacingLayoutInfo } from '../types/layout';
 
 interface AxisProps {
   front: boolean;
-  axisConfig: GroupAxisConfig | SeriesAxisConfig;
+  axisConfig: CategoryAxisConfig | EnhancedValueAxisConfig;
   axisLayoutInfo: AxisLayoutInfo;
   plotLayoutInfo: SpacingLayoutInfo;
   axisClass: string;

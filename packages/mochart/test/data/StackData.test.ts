@@ -5,12 +5,12 @@ import { makeConfig, ArrayOfObjectsDataProvider } from './fixtures';
 
 function stackedSetup(rows: Record<string, number>[]) {
   const config = makeConfig({
-    groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-    seriesConfigs: [
+    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    series: [
       { stack: 'SS0', property: 'a', renderer: 'bar' },
       { stack: 'SS0', property: 'b', renderer: 'bar' }
     ],
-    seriesStackConfigs: [{ id: 'SS0' }]
+    seriesStacks: [{ id: 'SS0' }]
   });
   const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows, 'g'), {});
   return { config, chartData };

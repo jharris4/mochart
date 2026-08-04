@@ -5,7 +5,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import { Chart } from '@mochart/vue';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, getChartExportOptions, getGroupIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -31,8 +31,8 @@ interface Props {
   /** Set on the chart instance that should render the share button. */
   showShareButton?: boolean;
   filteredSeriesIds: FilteredSeriesIds;
-  focusedGroupIndex: number;
-  focusedSeriesAxisId?: string | null;
+  focusedCategoryIndex: number;
+  focusedValueAxisId?: string | null;
   focusedSeriesId?: string | null;
   onFocus: (focusData: FocusData) => void;
   onSeriesFilter: (filterData: { filteredSeriesIds: FilteredSeriesIds }) => void;
@@ -40,22 +40,22 @@ interface Props {
 }
 
 interface EditableDataProvider {
-  getGroupValues?: (...args: any[]) => any;
+  getCategoryValues?: (...args: any[]) => any;
   getSeriesValue?: (...args: any[]) => any;
   getError?: (...args: any[]) => any;
 }
 
 interface FocusPayload {
-  seriesAxisId?: string | null;
+  valueAxisId?: string | null;
   seriesId?: string | null;
-  groupIndex?: number;
+  categoryIndex?: number;
 }
 
-const emptyGroupText = demoText.editableChart.emptyGroupText;
+const emptyCategoryText = demoText.editableChart.emptyCategoryText;
 
 const props = withDefaults(defineProps<Props>(), {
   dataError: false,
-  focusedSeriesAxisId: null,
+  focusedValueAxisId: null,
   focusedSeriesId: null
 });
 
@@ -67,8 +67,8 @@ let sequenceId: ReturnType<typeof setInterval> | null = null;
 
 const dataProvider = shallowRef<EditableDataProvider | null>(null);
 const chartContentElement = ref<HTMLDivElement | null>(null);
-const groupIndex = ref(-1);
-const groupValuesText = ref("");
+const categoryIndex = ref(-1);
+const categoryValuesText = ref("");
 const seriesIndex = ref(0);
 const seriesValuesText = ref("");
 const selectionMode = ref('group');
@@ -78,40 +78,40 @@ const sequencePlaying = ref(false);
 const slices = shallowRef<PieSliceInfo[]>([]);
 const sliceIndex = ref(0);
 const sliceValueText = ref("");
-const filteredFocusedGroupIndex = ref(-1);
+const filteredFocusedCategoryIndex = ref(-1);
 const orderChanged = ref(false);
 
-function getFilteredFocusedGroupIndex(nextFilteredData: Row[]): number {
-  let nextFilteredFocusedGroupIndex = -1;
-  if (props.focusedGroupIndex >= 0) {
-    const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-    const groupValue = props.data[props.focusedGroupIndex][groupProperty];
+function getFilteredFocusedCategoryIndex(nextFilteredData: Row[]): number {
+  let nextFilteredFocusedCategoryIndex = -1;
+  if (props.focusedCategoryIndex >= 0) {
+    const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+    const categoryValue = props.data[props.focusedCategoryIndex][categoryProperty];
     const count = nextFilteredData.length;
     for (let i = 0; i < count; i++) {
-      if (nextFilteredData[i][groupProperty] === groupValue) {
-        nextFilteredFocusedGroupIndex = i;
+      if (nextFilteredData[i][categoryProperty] === categoryValue) {
+        nextFilteredFocusedCategoryIndex = i;
         break;
       }
     }
   }
-  return nextFilteredFocusedGroupIndex;
+  return nextFilteredFocusedCategoryIndex;
 }
 
 function updateFilteredDataState(
-  nextState: { orderChanged?: boolean; groupIndex?: number; seriesIndex?: number; groupValuesText?: string; seriesValuesText?: string },
+  nextState: { orderChanged?: boolean; categoryIndex?: number; seriesIndex?: number; categoryValuesText?: string; seriesValuesText?: string },
   nextFilteredData: Row[],
   nextRemovedData: Row[],
-  resetGroupIndex = true
+  resetCategoryIndex = true
 ) {
   filteredData = nextFilteredData;
   removedData = nextRemovedData;
-  if (resetGroupIndex === true) {
-    groupIndex.value = -1;
-    seriesValuesText.value = demoText.editableChart.selectAGroupText;
+  if (resetCategoryIndex === true) {
+    categoryIndex.value = -1;
+    seriesValuesText.value = demoText.editableChart.selectACategoryText;
   }
-  filteredFocusedGroupIndex.value = props.dataError ? -1 : getFilteredFocusedGroupIndex(nextFilteredData);
+  filteredFocusedCategoryIndex.value = props.dataError ? -1 : getFilteredFocusedCategoryIndex(nextFilteredData);
   if (!props.dataError && props.mochartDemoConfig.mochartConfig.validation.valid) {
-    dataProvider.value = new ArrayOfObjectsDataProvider(nextFilteredData, props.mochartDemoConfig.mochartConfig.groupAxisConfig.property ?? '');
+    dataProvider.value = new ArrayOfObjectsDataProvider(nextFilteredData, props.mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
   }
   else if (props.dataError) {
     dataProvider.value = { getError: () => props.dataError };
@@ -122,14 +122,14 @@ function updateFilteredDataState(
   if (nextState.orderChanged !== undefined) {
     orderChanged.value = nextState.orderChanged;
   }
-  if (nextState.groupIndex !== undefined) {
-    groupIndex.value = nextState.groupIndex;
+  if (nextState.categoryIndex !== undefined) {
+    categoryIndex.value = nextState.categoryIndex;
   }
   if (nextState.seriesIndex !== undefined) {
     seriesIndex.value = nextState.seriesIndex;
   }
-  if (nextState.groupValuesText !== undefined) {
-    groupValuesText.value = nextState.groupValuesText;
+  if (nextState.categoryValuesText !== undefined) {
+    categoryValuesText.value = nextState.categoryValuesText;
   }
   if (nextState.seriesValuesText !== undefined) {
     seriesValuesText.value = nextState.seriesValuesText;
@@ -149,7 +149,7 @@ function initData() {
     sliceIndex.value = 0;
   }
   sliceValueText.value = getSliceValueText(nextFilteredData);
-  updateFilteredDataState({ orderChanged: false, seriesIndex: 0, groupValuesText: emptyGroupText }, nextFilteredData, []);
+  updateFilteredDataState({ orderChanged: false, seriesIndex: 0, categoryValuesText: emptyCategoryText }, nextFilteredData, []);
 }
 
 function getSliceValueText(rows: Row[]): string {
@@ -211,16 +211,16 @@ function startSliceSequence() {
 initData();
 
 watch(
-  () => [props.data, props.dataError, props.mochartDemoConfig, props.focusedGroupIndex, props.isActive] as const,
-  ([nextData, nextDataError, nextMochartDemoConfig, nextFocusedGroupIndex, nextIsActive],
-   [previousData, previousDataError, previousMochartDemoConfig, previousFocusedGroupIndex]) => {
+  () => [props.data, props.dataError, props.mochartDemoConfig, props.focusedCategoryIndex, props.isActive] as const,
+  ([nextData, nextDataError, nextMochartDemoConfig, nextFocusedCategoryIndex, nextIsActive],
+   [previousData, previousDataError, previousMochartDemoConfig, previousFocusedCategoryIndex]) => {
     if (nextData !== previousData || nextDataError !== previousDataError ||
         (nextMochartDemoConfig !== previousMochartDemoConfig &&
          hasConfigStructureChange(previousMochartDemoConfig.mochartConfig, nextMochartDemoConfig.mochartConfig))) {
       initData();
     }
-    else if (nextFocusedGroupIndex !== previousFocusedGroupIndex) {
-      filteredFocusedGroupIndex.value = getFilteredFocusedGroupIndex(filteredData);
+    else if (nextFocusedCategoryIndex !== previousFocusedCategoryIndex) {
+      filteredFocusedCategoryIndex.value = getFilteredFocusedCategoryIndex(filteredData);
     }
     if (nextIsActive === false) {
       stopSequence();
@@ -229,57 +229,57 @@ watch(
 );
 
 // mochart's ManagedChart reports focus with the new payload shape; adapt it
-// to the { seriesAxisId, seriesId, groupIndex } shape this demo tracks.
-function onChartFocus({ focusedSeriesAxisId: seriesAxisId, focusedSeriesId: seriesId, focusedGroupIndex: chartGroupIndex }: { focusedSeriesAxisId?: string | null; focusedSeriesId?: string | null; focusedGroupIndex?: number }) {
-  onLocalFocus({ seriesAxisId, seriesId, groupIndex: chartGroupIndex });
+// to the { valueAxisId, seriesId, categoryIndex } shape this demo tracks.
+function onChartFocus({ focusedValueAxisId: valueAxisId, focusedSeriesId: seriesId, focusedCategoryIndex: chartCategoryIndex }: { focusedValueAxisId?: string | null; focusedSeriesId?: string | null; focusedCategoryIndex?: number }) {
+  onLocalFocus({ valueAxisId, seriesId, categoryIndex: chartCategoryIndex });
 }
 
-function onLocalFocus({ seriesAxisId, seriesId, groupIndex: nextGroupIndex }: FocusPayload) {
-  if (nextGroupIndex !== undefined) {
-    const nextFilteredFocusedGroupIndex = nextGroupIndex;
-    let newFocusedGroupIndex = -1;
-    if (nextFilteredFocusedGroupIndex >= 0) {
-      const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-      const groupValue = filteredData[nextFilteredFocusedGroupIndex][groupProperty];
+function onLocalFocus({ valueAxisId, seriesId, categoryIndex: nextCategoryIndex }: FocusPayload) {
+  if (nextCategoryIndex !== undefined) {
+    const nextFilteredFocusedCategoryIndex = nextCategoryIndex;
+    let newFocusedCategoryIndex = -1;
+    if (nextFilteredFocusedCategoryIndex >= 0) {
+      const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+      const categoryValue = filteredData[nextFilteredFocusedCategoryIndex][categoryProperty];
       const count = props.data.length;
       for (let i = 0; i < count; i++) {
-        if (props.data[i][groupProperty] === groupValue) {
-          newFocusedGroupIndex = i;
+        if (props.data[i][categoryProperty] === categoryValue) {
+          newFocusedCategoryIndex = i;
           break;
         }
       }
     }
-    filteredFocusedGroupIndex.value = nextFilteredFocusedGroupIndex;
-    props.onFocus({ seriesAxisId, seriesId, groupIndex: newFocusedGroupIndex });
+    filteredFocusedCategoryIndex.value = nextFilteredFocusedCategoryIndex;
+    props.onFocus({ valueAxisId, seriesId, categoryIndex: newFocusedCategoryIndex });
   }
   else {
-    props.onFocus({ seriesAxisId, seriesId, groupIndex: nextGroupIndex });
+    props.onFocus({ valueAxisId, seriesId, categoryIndex: nextCategoryIndex });
   }
 }
 
-function onChartClick({ groupIndex: clickedGroupIndex }: { groupIndex: number }) {
-  const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-  const clickedGroupValue = "" + filteredData[clickedGroupIndex][groupProperty];
+function onChartClick({ categoryIndex: clickedCategoryIndex }: { categoryIndex: number }) {
+  const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+  const clickedCategoryValue = "" + filteredData[clickedCategoryIndex][categoryProperty];
   if (selectionMode.value === 'series') {
-    groupIndex.value = clickedGroupIndex;
-    seriesValuesText.value = getSeriesValuesText(props.mochartDemoConfig, filteredData, clickedGroupIndex, seriesIndex.value);
+    categoryIndex.value = clickedCategoryIndex;
+    seriesValuesText.value = getSeriesValuesText(props.mochartDemoConfig, filteredData, clickedCategoryIndex, seriesIndex.value);
   }
   else if (selectionMode.value === 'group') {
-    const dataGroupValues: any[] = [];
+    const dataCategoryValues: any[] = [];
     const count = filteredData.length;
     for (let i = 0; i < count; i++) {
-      dataGroupValues.push(filteredData[i][groupProperty]);
+      dataCategoryValues.push(filteredData[i][categoryProperty]);
     }
-    let parsedGroupValues = groupValuesText.value === emptyGroupText ? [] : groupValuesText.value.split(',');
-    parsedGroupValues = parsedGroupValues.filter((parsedGroupValue) => dataGroupValues.indexOf(parsedGroupValue) !== -1 || dataGroupValues.indexOf(+parsedGroupValue) !== -1);
-    const clickedIndex = parsedGroupValues.indexOf(clickedGroupValue);
+    let parsedCategoryValues = categoryValuesText.value === emptyCategoryText ? [] : categoryValuesText.value.split(',');
+    parsedCategoryValues = parsedCategoryValues.filter((parsedCategoryValue) => dataCategoryValues.indexOf(parsedCategoryValue) !== -1 || dataCategoryValues.indexOf(+parsedCategoryValue) !== -1);
+    const clickedIndex = parsedCategoryValues.indexOf(clickedCategoryValue);
     if (clickedIndex === -1) {
-      parsedGroupValues = parsedGroupValues.concat(clickedGroupValue);
+      parsedCategoryValues = parsedCategoryValues.concat(clickedCategoryValue);
     }
     else {
-      parsedGroupValues.splice(clickedIndex, 1);
+      parsedCategoryValues.splice(clickedIndex, 1);
     }
-    groupValuesText.value = parsedGroupValues.length === 0 ? emptyGroupText : parsedGroupValues.join(',');
+    categoryValuesText.value = parsedCategoryValues.length === 0 ? emptyCategoryText : parsedCategoryValues.join(',');
   }
 }
 
@@ -287,82 +287,82 @@ function onModeToggle() {
   selectionMode.value = selectionMode.value === 'group' ? 'series' : 'group';
 }
 
-function selectAllGroups() {
-  const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-  const allGroupValues: any[] = [];
+function selectAllCategories() {
+  const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+  const allCategoryValues: any[] = [];
   const count = props.data.length;
   for (let i = 0; i < count; i++) {
-    allGroupValues.push(props.data[i][groupProperty]);
+    allCategoryValues.push(props.data[i][categoryProperty]);
   }
-  groupValuesText.value = allGroupValues.join(',');
+  categoryValuesText.value = allCategoryValues.join(',');
 }
 
-function resetGroups() {
-  const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-  const groupToObjectMap: Record<string, Row> = {};
+function resetCategories() {
+  const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+  const categoryToObjectMap: Record<string, Row> = {};
   removedData.forEach(removedObject => {
-    groupToObjectMap[removedObject[groupProperty]] = removedObject;
+    categoryToObjectMap[removedObject[categoryProperty]] = removedObject;
   });
   filteredData.forEach(oldObject => {
-    groupToObjectMap[oldObject[groupProperty]] = oldObject;
+    categoryToObjectMap[oldObject[categoryProperty]] = oldObject;
   });
-  const nextFilteredData = props.data.map(o => groupToObjectMap[o[groupProperty]]);
+  const nextFilteredData = props.data.map(o => categoryToObjectMap[o[categoryProperty]]);
   updateFilteredDataState({ orderChanged: false }, nextFilteredData, []);
 }
 
-function reverseGroups() {
+function reverseCategories() {
   if (filteredData && filteredData.length > 1) {
     const nextFilteredData = filteredData.slice().reverse();
     updateFilteredDataState({ orderChanged: true }, nextFilteredData, removedData);
   }
 }
 
-function decreaseGroupOrder() {
+function decreaseCategoryOrder() {
   if (filteredData && filteredData.length > 1) {
-    if (groupIndex.value > 0) {
+    if (categoryIndex.value > 0) {
       const nextFilteredData = filteredData.slice();
-      const temp = nextFilteredData[groupIndex.value - 1];
-      nextFilteredData[groupIndex.value - 1] = nextFilteredData[groupIndex.value];
-      nextFilteredData[groupIndex.value] = temp;
-      updateFilteredDataState({ orderChanged: true, groupIndex: groupIndex.value - 1 }, nextFilteredData, removedData, false);
+      const temp = nextFilteredData[categoryIndex.value - 1];
+      nextFilteredData[categoryIndex.value - 1] = nextFilteredData[categoryIndex.value];
+      nextFilteredData[categoryIndex.value] = temp;
+      updateFilteredDataState({ orderChanged: true, categoryIndex: categoryIndex.value - 1 }, nextFilteredData, removedData, false);
     }
   }
 }
 
-function increaseGroupOrder() {
+function increaseCategoryOrder() {
   if (filteredData && filteredData.length > 1) {
-    if (groupIndex.value < filteredData.length - 1) {
+    if (categoryIndex.value < filteredData.length - 1) {
       const nextFilteredData = filteredData.slice();
-      const temp = nextFilteredData[groupIndex.value + 1];
-      nextFilteredData[groupIndex.value + 1] = nextFilteredData[groupIndex.value];
-      nextFilteredData[groupIndex.value] = temp;
-      updateFilteredDataState({ orderChanged: true, groupIndex: groupIndex.value + 1 }, nextFilteredData, removedData, false);
+      const temp = nextFilteredData[categoryIndex.value + 1];
+      nextFilteredData[categoryIndex.value + 1] = nextFilteredData[categoryIndex.value];
+      nextFilteredData[categoryIndex.value] = temp;
+      updateFilteredDataState({ orderChanged: true, categoryIndex: categoryIndex.value + 1 }, nextFilteredData, removedData, false);
     }
   }
 }
 
-function addGroups() {
+function addCategories() {
   const oldFilteredData = filteredData;
   const oldRemovedData = removedData;
-  const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-  const groupValuesToAdd = groupValuesText.value === emptyGroupText ? [] : groupValuesText.value.split(",");
-  const groupValueToAddMap: Record<string, boolean> = {};
-  groupValuesToAdd.forEach(groupValueToAdd => {
-    groupValueToAddMap[groupValueToAdd] = true;
+  const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+  const categoryValuesToAdd = categoryValuesText.value === emptyCategoryText ? [] : categoryValuesText.value.split(",");
+  const categoryValueToAddMap: Record<string, boolean> = {};
+  categoryValuesToAdd.forEach(categoryValueToAdd => {
+    categoryValueToAddMap[categoryValueToAdd] = true;
   });
   const removedMap: Record<string, Row> = {};
   oldRemovedData.forEach(removedObject => {
-    removedMap[removedObject[groupProperty]] = removedObject;
+    removedMap[removedObject[categoryProperty]] = removedObject;
   });
   const count = props.data.length;
   const filteredCount = oldFilteredData.length;
   const nextFilteredData: Row[] = [];
   for (let i = 0, fi = 0; i < count; i++) {
     if (fi < filteredCount) {
-      if (props.data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
-        if (groupValueToAddMap[props.data[i][groupProperty]] === true) {
-          nextFilteredData.push(removedMap[props.data[i][groupProperty]]);
-          delete removedMap[props.data[i][groupProperty]];
+      if (props.data[i][categoryProperty] !== oldFilteredData[fi][categoryProperty]) {
+        if (categoryValueToAddMap[props.data[i][categoryProperty]] === true) {
+          nextFilteredData.push(removedMap[props.data[i][categoryProperty]]);
+          delete removedMap[props.data[i][categoryProperty]];
         }
       }
       else {
@@ -370,33 +370,33 @@ function addGroups() {
         fi++;
       }
     }
-    else if (groupValueToAddMap[props.data[i][groupProperty]] === true) {
-      nextFilteredData.push(removedMap[props.data[i][groupProperty]]);
-      delete removedMap[props.data[i][groupProperty]];
+    else if (categoryValueToAddMap[props.data[i][categoryProperty]] === true) {
+      nextFilteredData.push(removedMap[props.data[i][categoryProperty]]);
+      delete removedMap[props.data[i][categoryProperty]];
     }
   }
   const nextRemovedData: Row[] = [];
   oldRemovedData.forEach(removedObject => {
-    if (removedMap[removedObject[groupProperty]] !== undefined) {
-      nextRemovedData.push(removedMap[removedObject[groupProperty]]);
+    if (removedMap[removedObject[categoryProperty]] !== undefined) {
+      nextRemovedData.push(removedMap[removedObject[categoryProperty]]);
     }
   });
   updateFilteredDataState({}, nextFilteredData, nextRemovedData);
 }
 
-function removeGroups() {
+function removeCategories() {
   const oldFilteredData = filteredData;
   const nextRemovedData = removedData;
-  const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-  const groupValuesToRemove = groupValuesText.value === emptyGroupText ? [] : groupValuesText.value.split(",");
-  const groupValueToRemoveMap: Record<string, boolean> = {};
-  groupValuesToRemove.forEach(groupValueToRemove => {
-    groupValueToRemoveMap[groupValueToRemove] = true;
+  const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+  const categoryValuesToRemove = categoryValuesText.value === emptyCategoryText ? [] : categoryValuesText.value.split(",");
+  const categoryValueToRemoveMap: Record<string, boolean> = {};
+  categoryValuesToRemove.forEach(categoryValueToRemove => {
+    categoryValueToRemoveMap[categoryValueToRemove] = true;
   });
   const count = oldFilteredData.length;
   const nextFilteredData: Row[] = [];
   for (let i = 0; i < count; i++) {
-    if (groupValueToRemoveMap[oldFilteredData[i][groupProperty]] !== true) {
+    if (categoryValueToRemoveMap[oldFilteredData[i][categoryProperty]] !== true) {
       nextFilteredData.push(oldFilteredData[i]);
     }
     else {
@@ -409,26 +409,26 @@ function removeGroups() {
 function startAddSequence() {
   const oldFilteredData = filteredData;
   const oldRemovedData = removedData;
-  const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-  const groupValuesToAdd = groupValuesText.value === emptyGroupText ? [] : groupValuesText.value.split(",");
-  const groupValueToAddMap: Record<string, boolean> = {};
-  groupValuesToAdd.forEach(groupValueToAdd => {
-    groupValueToAddMap[groupValueToAdd] = true;
+  const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+  const categoryValuesToAdd = categoryValuesText.value === emptyCategoryText ? [] : categoryValuesText.value.split(",");
+  const categoryValueToAddMap: Record<string, boolean> = {};
+  categoryValuesToAdd.forEach(categoryValueToAdd => {
+    categoryValueToAddMap[categoryValueToAdd] = true;
   });
   const removedIndexMap: Record<string, number> = {};
   oldRemovedData.forEach((removedObject, removedIndex) => {
-    removedIndexMap[removedObject[groupProperty]] = removedIndex;
+    removedIndexMap[removedObject[categoryProperty]] = removedIndex;
   });
-  const groupObjectsToAdd: { removedIndex: number; dataIndex: number }[] = [];
+  const categoryObjectsToAdd: { removedIndex: number; dataIndex: number }[] = [];
   const count = props.data.length;
   const filteredCount = oldFilteredData.length;
   for (let i = 0, fi = 0; i < count; i++) {
     if (fi < filteredCount) {
-      if (props.data[i][groupProperty] !== oldFilteredData[fi][groupProperty]) {
-        if (groupValueToAddMap[props.data[i][groupProperty]] === true) {
-          groupObjectsToAdd.push({
-            removedIndex: removedIndexMap[props.data[i][groupProperty]] - groupObjectsToAdd.length,
-            dataIndex: fi + groupObjectsToAdd.length
+      if (props.data[i][categoryProperty] !== oldFilteredData[fi][categoryProperty]) {
+        if (categoryValueToAddMap[props.data[i][categoryProperty]] === true) {
+          categoryObjectsToAdd.push({
+            removedIndex: removedIndexMap[props.data[i][categoryProperty]] - categoryObjectsToAdd.length,
+            dataIndex: fi + categoryObjectsToAdd.length
           });
         }
       }
@@ -436,20 +436,20 @@ function startAddSequence() {
         fi++;
       }
     }
-    else if (groupValueToAddMap[props.data[i][groupProperty]] === true) {
-      groupObjectsToAdd.push({
-        removedIndex: removedIndexMap[props.data[i][groupProperty]] - groupObjectsToAdd.length,
-        dataIndex: fi + groupObjectsToAdd.length
+    else if (categoryValueToAddMap[props.data[i][categoryProperty]] === true) {
+      categoryObjectsToAdd.push({
+        removedIndex: removedIndexMap[props.data[i][categoryProperty]] - categoryObjectsToAdd.length,
+        dataIndex: fi + categoryObjectsToAdd.length
       });
     }
   }
-  if (groupObjectsToAdd.length > 0) {
+  if (categoryObjectsToAdd.length > 0) {
     sequencePlaying.value = true;
     let addCount = 0;
     sequenceId = setInterval(() => {
-      oldFilteredData.splice(groupObjectsToAdd[addCount].dataIndex, 0, oldRemovedData.splice(groupObjectsToAdd[addCount].removedIndex, 1)[0]);
+      oldFilteredData.splice(categoryObjectsToAdd[addCount].dataIndex, 0, oldRemovedData.splice(categoryObjectsToAdd[addCount].removedIndex, 1)[0]);
       updateFilteredDataState({}, oldFilteredData, oldRemovedData);
-      if (addCount < groupObjectsToAdd.length - 1) {
+      if (addCount < categoryObjectsToAdd.length - 1) {
         addCount++;
       }
       else {
@@ -462,25 +462,25 @@ function startAddSequence() {
 function startRemoveSequence() {
   const oldFilteredData = filteredData;
   const oldRemovedData = removedData;
-  const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-  const groupValuesToRemove = groupValuesText.value === emptyGroupText ? [] : groupValuesText.value.split(",");
-  const groupValueToRemoveMap: Record<string, boolean> = {};
-  groupValuesToRemove.forEach(groupValueToRemove => {
-    groupValueToRemoveMap[groupValueToRemove] = true;
+  const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+  const categoryValuesToRemove = categoryValuesText.value === emptyCategoryText ? [] : categoryValuesText.value.split(",");
+  const categoryValueToRemoveMap: Record<string, boolean> = {};
+  categoryValuesToRemove.forEach(categoryValueToRemove => {
+    categoryValueToRemoveMap[categoryValueToRemove] = true;
   });
   const removedIndexMap: Record<string, number> = {};
   oldRemovedData.forEach((removedObject, removedIndex) => {
-    removedIndexMap[removedObject[groupProperty]] = removedIndex;
+    removedIndexMap[removedObject[categoryProperty]] = removedIndex;
   });
-  const groupObjectsToRemove: { removedIndex: number; dataIndex: number }[] = [];
+  const categoryObjectsToRemove: { removedIndex: number; dataIndex: number }[] = [];
   const count = props.data.length;
   const filteredCount = oldFilteredData.length;
   for (let i = 0, fi = 0, ri = 0; i < count && fi < filteredCount; i++) {
-    if (props.data[i][groupProperty] === oldFilteredData[fi][groupProperty]) {
-      if (groupValueToRemoveMap[props.data[i][groupProperty]] === true) {
-        groupObjectsToRemove.push({
+    if (props.data[i][categoryProperty] === oldFilteredData[fi][categoryProperty]) {
+      if (categoryValueToRemoveMap[props.data[i][categoryProperty]] === true) {
+        categoryObjectsToRemove.push({
           removedIndex: ri,
-          dataIndex: fi - groupObjectsToRemove.length
+          dataIndex: fi - categoryObjectsToRemove.length
         });
         ri++;
       }
@@ -490,13 +490,13 @@ function startRemoveSequence() {
       ri++;
     }
   }
-  if (groupObjectsToRemove.length > 0) {
+  if (categoryObjectsToRemove.length > 0) {
     sequencePlaying.value = true;
     let removeCount = 0;
     sequenceId = setInterval(() => {
-      oldRemovedData.splice(groupObjectsToRemove[removeCount].removedIndex, 0, oldFilteredData.splice(groupObjectsToRemove[removeCount].dataIndex, 1)[0]);
+      oldRemovedData.splice(categoryObjectsToRemove[removeCount].removedIndex, 0, oldFilteredData.splice(categoryObjectsToRemove[removeCount].dataIndex, 1)[0]);
       updateFilteredDataState({}, oldFilteredData, oldRemovedData);
-      if (removeCount < groupObjectsToRemove.length - 1) {
+      if (removeCount < categoryObjectsToRemove.length - 1) {
         removeCount++;
       }
       else {
@@ -519,23 +519,23 @@ function stopSequenceInternal() {
 }
 
 function prevSeries() {
-  if (groupIndex.value !== -1 && seriesIndex.value > 0) {
+  if (categoryIndex.value !== -1 && seriesIndex.value > 0) {
     seriesIndex.value--;
-    seriesValuesText.value = getSeriesValuesText(props.mochartDemoConfig, filteredData, groupIndex.value, seriesIndex.value);
+    seriesValuesText.value = getSeriesValuesText(props.mochartDemoConfig, filteredData, categoryIndex.value, seriesIndex.value);
   }
 }
 
 function nextSeries() {
   const { seriesCount } = props.mochartDemoConfig;
-  if (groupIndex.value !== -1 && seriesIndex.value < seriesCount - 1) {
+  if (categoryIndex.value !== -1 && seriesIndex.value < seriesCount - 1) {
     seriesIndex.value++;
-    seriesValuesText.value = getSeriesValuesText(props.mochartDemoConfig, filteredData, groupIndex.value, seriesIndex.value);
+    seriesValuesText.value = getSeriesValuesText(props.mochartDemoConfig, filteredData, categoryIndex.value, seriesIndex.value);
   }
 }
 
-function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentGroupIndex: number, currentSeriesIndex: number): string {
-  const dataObject = currentFilteredData[currentGroupIndex];
-  const { seriesConfigs } = mochartConfig;
+function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentCategoryIndex: number, currentSeriesIndex: number): string {
+  const dataObject = currentFilteredData[currentCategoryIndex];
+  const { series: seriesConfigs } = mochartConfig;
   if (seriesConfigs.length > 0) {
     const seriesConfig = seriesConfigs[currentSeriesIndex];
     const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
@@ -561,9 +561,9 @@ function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilter
 }
 
 function applySeriesChanges() {
-  const filteredDataObject = filteredData[groupIndex.value];
+  const filteredDataObject = filteredData[categoryIndex.value];
   const { mochartConfig } = props.mochartDemoConfig;
-  const { seriesConfigs } = mochartConfig;
+  const { series: seriesConfigs } = mochartConfig;
   if (seriesConfigs.length > 0) {
     try {
       const dataObject = JSON.parse(seriesValuesText.value);
@@ -592,15 +592,15 @@ function applySeriesChanges() {
 
 function resetSeriesChanges() {
   const { mochartConfig } = props.mochartDemoConfig;
-  const groupProperty = props.mochartDemoConfig.groupProperty ?? '';
-  const { seriesConfigs } = mochartConfig;
+  const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
+  const { series: seriesConfigs } = mochartConfig;
   if (seriesConfigs.length > 0) {
-    const filteredDataObject = filteredData[groupIndex.value];
-    const filteredGroupValue = filteredDataObject[groupProperty];
+    const filteredDataObject = filteredData[categoryIndex.value];
+    const filteredCategoryValue = filteredDataObject[categoryProperty];
     const count = props.data.length;
     let dataObject: Row | null = null;
     for (let i = 0; i < count; i++) {
-      if (props.data[i][groupProperty] === filteredGroupValue) {
+      if (props.data[i][categoryProperty] === filteredCategoryValue) {
         dataObject = props.data[i];
       }
     }
@@ -619,7 +619,7 @@ function resetSeriesChanges() {
     if (colorProperty !== NONE) {
       filteredDataObject[colorProperty] = dataObject![colorProperty];
     }
-    updateFilteredDataState({ seriesValuesText: getSeriesValuesText(props.mochartDemoConfig, filteredData, groupIndex.value, seriesIndex.value) }, filteredData, removedData, false);
+    updateFilteredDataState({ seriesValuesText: getSeriesValuesText(props.mochartDemoConfig, filteredData, categoryIndex.value, seriesIndex.value) }, filteredData, removedData, false);
   }
 }
 
@@ -630,16 +630,16 @@ onBeforeUnmount(() => {
 const chartDataError = computed(() => !!(dataProvider.value && dataProvider.value.getError && dataProvider.value.getError()));
 const configError = computed(() => !props.mochartDemoConfig.valid);
 const error = computed(() => chartDataError.value || configError.value);
-const filteredGroupValues = computed<any[]>(() => error.value || !dataProvider.value?.getGroupValues ? [] : dataProvider.value.getGroupValues());
-const selectedGroupValues = computed(() => (error.value || groupValuesText.value === emptyGroupText) ? [] : groupValuesText.value.split(','));
-const filteredGroupMap = computed(() => filteredGroupValues.value.reduce<Record<string, boolean>>((map, group) => { map[group] = true; return map; }, {}));
-const disableRemove = computed(() => orderChanged.value || !selectedGroupValues.value.some(group => filteredGroupMap.value[group]));
-const disableAdd = computed(() => orderChanged.value || !selectedGroupValues.value.some(group => !filteredGroupMap.value[group]));
+const filteredCategoryValues = computed<any[]>(() => error.value || !dataProvider.value?.getCategoryValues ? [] : dataProvider.value.getCategoryValues());
+const selectedCategoryValues = computed(() => (error.value || categoryValuesText.value === emptyCategoryText) ? [] : categoryValuesText.value.split(','));
+const filteredCategoryMap = computed(() => filteredCategoryValues.value.reduce<Record<string, boolean>>((map, group) => { map[group] = true; return map; }, {}));
+const disableRemove = computed(() => orderChanged.value || !selectedCategoryValues.value.some(group => filteredCategoryMap.value[group]));
+const disableAdd = computed(() => orderChanged.value || !selectedCategoryValues.value.some(group => !filteredCategoryMap.value[group]));
 
-const seriesControlsDisabled = computed(() => sequencePlaying.value || groupIndex.value === -1);
-const groupOrderControlsDisabled = computed(() => sequencePlaying.value || groupIndex.value === -1);
-const isFirstGroup = computed(() => groupIndex.value === 0);
-const isLastGroup = computed(() => groupIndex.value === filteredGroupValues.value.length - 1);
+const seriesControlsDisabled = computed(() => sequencePlaying.value || categoryIndex.value === -1);
+const categoryOrderControlsDisabled = computed(() => sequencePlaying.value || categoryIndex.value === -1);
+const isFirstCategory = computed(() => categoryIndex.value === 0);
+const isLastCategory = computed(() => categoryIndex.value === filteredCategoryValues.value.length - 1);
 const hasPrevSeries = computed(() => seriesIndex.value > 0);
 const hasNextSeries = computed(() => seriesIndex.value < props.mochartDemoConfig.seriesCount - 1);
 
@@ -681,7 +681,7 @@ function getSingleShareState(): ShareState {
 // ---------------------------------------------------------------------------
 const isPhone = usePhoneViewport();
 const foldSlice = computed(() => isPhone.value && pieMode.value);
-const foldGroup = computed(() => isPhone.value && !pieMode.value && selectionMode.value === 'group');
+const foldCategory = computed(() => isPhone.value && !pieMode.value && selectionMode.value === 'group');
 const foldSeries = computed(() => isPhone.value && !pieMode.value && selectionMode.value !== 'group');
 // The series readouts drop their 5px side margins while folded: the phone
 // tier's 6px field gap is separation enough, and the margins' 20px would wrap
@@ -708,8 +708,8 @@ const ChartCountControl = () => (props.showChartCountControls
 const ModeControl = () => h('div', { class: 'demo-btn-group' }, [
   h(ButtonWithTooltip, {
     id: 'edit-mode',
-    label: selectionMode.value === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToGroups,
-    tooltipText: selectionMode.value === 'group' ? demoText.editableChart.editMode.tooltipToSeries : demoText.editableChart.editMode.tooltipToGroups,
+    label: selectionMode.value === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories,
+    tooltipText: selectionMode.value === 'group' ? demoText.editableChart.editMode.tooltipToSeries : demoText.editableChart.editMode.tooltipToCategories,
     tooltipPlacement: 'right', onClick: onModeToggle, 'aria-label': demoText.editableChart.editMode.aria
   }, iconChild(selectionMode.value === 'group' ? 'bullseye' : 'sliders'))
 ]);
@@ -735,28 +735,28 @@ const SliceSequenceGroup = () => h('div', { class: 'demo-btn-group' }, [
   }, iconChild('stop'))
 ]);
 
-const ResetGroupsButton = () => h(ButtonWithTooltip, {
-  id: 'edit-reset-groups', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.resetGroups.label,
-  tooltipText: demoText.editableChart.resetGroups.tooltip, tooltipPlacement: 'right',
-  onClick: resetGroups, 'aria-label': demoText.editableChart.resetGroups.aria
+const ResetCategoriesButton = () => h(ButtonWithTooltip, {
+  id: 'edit-reset-groups', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.resetCategories.label,
+  tooltipText: demoText.editableChart.resetCategories.tooltip, tooltipPlacement: 'right',
+  onClick: resetCategories, 'aria-label': demoText.editableChart.resetCategories.aria
 }, iconChild('arrow-rotate-left'));
 
-const ReverseGroupsButton = () => h(ButtonWithTooltip, {
-  id: 'edit-reverse-groups', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.reverseGroups.label,
-  tooltipText: demoText.editableChart.reverseGroups.tooltip, tooltipPlacement: 'right',
-  onClick: reverseGroups, 'aria-label': demoText.editableChart.reverseGroups.aria
+const ReverseCategoriesButton = () => h(ButtonWithTooltip, {
+  id: 'edit-reverse-groups', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.reverseCategories.label,
+  tooltipText: demoText.editableChart.reverseCategories.tooltip, tooltipPlacement: 'right',
+  onClick: reverseCategories, 'aria-label': demoText.editableChart.reverseCategories.aria
 }, iconChild('right-left'));
 
-const AddGroupsButton = () => h(ButtonWithTooltip, {
-  id: 'edit-add-groups', disabled: error.value || sequencePlaying.value || disableAdd.value, label: demoText.editableChart.addGroups.label,
-  tooltipText: demoText.editableChart.addGroups.tooltip, tooltipPlacement: 'right',
-  onClick: addGroups, 'aria-label': demoText.editableChart.addGroups.aria
+const AddCategoriesButton = () => h(ButtonWithTooltip, {
+  id: 'edit-add-groups', disabled: error.value || sequencePlaying.value || disableAdd.value, label: demoText.editableChart.addCategories.label,
+  tooltipText: demoText.editableChart.addCategories.tooltip, tooltipPlacement: 'right',
+  onClick: addCategories, 'aria-label': demoText.editableChart.addCategories.aria
 }, iconChild('plus'));
 
-const RemoveGroupsButton = () => h(ButtonWithTooltip, {
-  id: 'edit-remove-groups', disabled: error.value || sequencePlaying.value || disableRemove.value, label: demoText.editableChart.removeGroups.label,
-  tooltipText: demoText.editableChart.removeGroups.tooltip, tooltipPlacement: 'right',
-  onClick: removeGroups, 'aria-label': demoText.editableChart.removeGroups.aria
+const RemoveCategoriesButton = () => h(ButtonWithTooltip, {
+  id: 'edit-remove-groups', disabled: error.value || sequencePlaying.value || disableRemove.value, label: demoText.editableChart.removeCategories.label,
+  tooltipText: demoText.editableChart.removeCategories.tooltip, tooltipPlacement: 'right',
+  onClick: removeCategories, 'aria-label': demoText.editableChart.removeCategories.aria
 }, iconChild('minus'));
 
 const playIconPair = (second: string) => () => [
@@ -767,19 +767,19 @@ const playIconPair = (second: string) => () => [
 
 const PlayAddButton = () => h(ButtonWithTooltip, {
   id: 'edit-play-add', disabled: error.value || sequencePlaying.value || disableAdd.value,
-  menuLabel: demoText.editableChart.playAddGroups.menuLabel,
-  tooltipText: demoText.editableChart.playAddGroups.tooltip, tooltipPlacement: 'right',
-  onClick: startAddSequence, 'aria-label': demoText.editableChart.playAddGroups.aria
+  menuLabel: demoText.editableChart.playAddCategories.menuLabel,
+  tooltipText: demoText.editableChart.playAddCategories.tooltip, tooltipPlacement: 'right',
+  onClick: startAddSequence, 'aria-label': demoText.editableChart.playAddCategories.aria
 }, playIconPair('plus'));
 
 const PlayRemoveButton = () => h(ButtonWithTooltip, {
   id: 'edit-play-remove', disabled: error.value || sequencePlaying.value || disableRemove.value,
-  menuLabel: demoText.editableChart.playRemoveGroups.menuLabel,
-  tooltipText: demoText.editableChart.playRemoveGroups.tooltip, tooltipPlacement: 'right',
-  onClick: startRemoveSequence, 'aria-label': demoText.editableChart.playRemoveGroups.aria
+  menuLabel: demoText.editableChart.playRemoveCategories.menuLabel,
+  tooltipText: demoText.editableChart.playRemoveCategories.tooltip, tooltipPlacement: 'right',
+  onClick: startRemoveSequence, 'aria-label': demoText.editableChart.playRemoveCategories.aria
 }, playIconPair('minus'));
 
-const StopGroupsButton = () => h(ButtonWithTooltip, {
+const StopCategoriesButton = () => h(ButtonWithTooltip, {
   id: 'edit-stop', disabled: error.value || !sequencePlaying.value,
   menuLabel: demoText.editableChart.stopSequence.menuLabel,
   tooltipText: demoText.editableChart.stopSequence.tooltip, tooltipPlacement: 'right',
@@ -787,9 +787,9 @@ const StopGroupsButton = () => h(ButtonWithTooltip, {
 }, iconChild('stop'));
 
 const SelectAllButton = () => h(ButtonWithTooltip, {
-  id: 'edit-select-all', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.selectAllGroups.label,
-  tooltipText: demoText.editableChart.selectAllGroups.tooltip, tooltipPlacement: 'right',
-  onClick: selectAllGroups, 'aria-label': demoText.editableChart.selectAllGroups.aria
+  id: 'edit-select-all', disabled: error.value || sequencePlaying.value, label: demoText.editableChart.selectAllCategories.label,
+  tooltipText: demoText.editableChart.selectAllCategories.tooltip, tooltipPlacement: 'right',
+  onClick: selectAllCategories, 'aria-label': demoText.editableChart.selectAllCategories.aria
 }, iconChild('check-double'));
 
 const ResetSeriesButton = () => h(ButtonWithTooltip, {
@@ -812,12 +812,12 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
         <!-- ManagedChart (behind mochart-vue's Chart) picks animated vs static
              from the config. Focus/filter is controlled by the parent ChartTab
              so the 1–2 charts stay in sync; the group index is translated into
-             this chart's filtered-data coordinates (filteredFocusedGroupIndex).
+             this chart's filtered-data coordinates (filteredFocusedCategoryIndex).
              Width is explicit; height tracks the container. -->
         <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                :width="props.width" :mochart-config="props.mochartDemoConfig.mochartConfig" :data-provider="dataProvider"
-               :filtered-series-ids="props.filteredSeriesIds" :focused-group-index="filteredFocusedGroupIndex"
-               :focused-series-axis-id="props.focusedSeriesAxisId ?? null" :focused-series-id="props.focusedSeriesId ?? null"
+               :filtered-series-ids="props.filteredSeriesIds" :focused-category-index="filteredFocusedCategoryIndex"
+               :focused-value-axis-id="props.focusedValueAxisId ?? null" :focused-series-id="props.focusedSeriesId ?? null"
                :on-focus="onChartFocus" :on-series-filter="props.onSeriesFilter" :on-chart-click="onChartClick" :on-slice-click="onChartSliceClick" />
       </div>
       <div class="editable-chart-controls">
@@ -902,23 +902,23 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
             <form class="demo-form-row">
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <template v-if="!foldGroup">
+                  <template v-if="!foldCategory">
                     <ChartCountControl />
                     <ModeControl />
                   </template>
                   <div class="demo-btn-group">
-                    <template v-if="foldGroup">
-                      <AddGroupsButton />
-                      <RemoveGroupsButton />
+                    <template v-if="foldCategory">
+                      <AddCategoriesButton />
+                      <RemoveCategoriesButton />
                     </template>
                     <template v-else>
-                      <ResetGroupsButton />
-                      <ReverseGroupsButton />
-                      <AddGroupsButton />
-                      <RemoveGroupsButton />
+                      <ResetCategoriesButton />
+                      <ReverseCategoriesButton />
+                      <AddCategoriesButton />
+                      <RemoveCategoriesButton />
                       <PlayAddButton />
                       <PlayRemoveButton />
-                      <StopGroupsButton />
+                      <StopCategoriesButton />
                       <SelectAllButton />
                     </template>
                   </div>
@@ -928,17 +928,17 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
           </div>
           <span class="chart-controls-input">
             <form class="demo-form-row">
-              <input type="text" class="demo-input" :disabled="error || sequencePlaying" v-model="groupValuesText" />
+              <input type="text" class="demo-input" :disabled="error || sequencePlaying" v-model="categoryValuesText" />
             </form>
           </span>
           <span class="chart-controls-menu" ref="menuSpanElement">
-            <OverflowMenu v-if="foldGroup" :text="demoText.overflowMenu.chart"
+            <OverflowMenu v-if="foldCategory" :text="demoText.overflowMenu.chart"
                           :placement="{ side: 'top', align: 'end', gap: 4 }"
                           :get-anchor="getMenuAnchor"
                           :disabled="error" :active="props.isActive">
-              <div class="demo-btn-group"><ResetGroupsButton /><ReverseGroupsButton /><SelectAllButton /></div>
+              <div class="demo-btn-group"><ResetCategoriesButton /><ReverseCategoriesButton /><SelectAllButton /></div>
               <div class="demo-menu-divider"></div>
-              <div class="demo-btn-group"><PlayAddButton /><PlayRemoveButton /><StopGroupsButton /></div>
+              <div class="demo-btn-group"><PlayAddButton /><PlayRemoveButton /><StopCategoriesButton /></div>
               <div class="demo-menu-divider"></div>
               <ChartCountControl />
               <ModeControl />
@@ -968,21 +968,21 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
                   <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-group-decrease" :disabled="error || groupOrderControlsDisabled || isFirstGroup" :tooltip-text="demoText.editableChart.decreaseGroupOrder.tooltip" tooltip-placement="right"
-                                       :on-click="decreaseGroupOrder" :aria-label="demoText.editableChart.decreaseGroupOrder.aria">
+                    <ButtonWithTooltip id="edit-group-decrease" :disabled="error || categoryOrderControlsDisabled || isFirstCategory" :tooltip-text="demoText.editableChart.decreaseCategoryOrder.tooltip" tooltip-placement="right"
+                                       :on-click="decreaseCategoryOrder" :aria-label="demoText.editableChart.decreaseCategoryOrder.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-left" />
                     </ButtonWithTooltip>
                   </div>
                 </div>
               </div>
               <div class="demo-field">
-                <span class="demo-label" :style="{ marginLeft: indexLabelMargin, marginRight: indexLabelMargin }" :title="getGroupIndexTitle(mochartDemoConfig, filteredData, groupIndex)"><span class="demo-label-prefix">{{ demoText.editableChart.groupIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ demoText.editableChart.groupIndexPrefixCompact }}</span><span class="demo-index-value">{{ groupIndex }}</span></span>
+                <span class="demo-label" :style="{ marginLeft: indexLabelMargin, marginRight: indexLabelMargin }" :title="getCategoryIndexTitle(mochartDemoConfig, filteredData, categoryIndex)"><span class="demo-label-prefix">{{ demoText.editableChart.categoryIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ demoText.editableChart.categoryIndexPrefixCompact }}</span><span class="demo-index-value">{{ categoryIndex }}</span></span>
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
                   <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-group-increase" :disabled="error || groupOrderControlsDisabled || isLastGroup" :tooltip-text="demoText.editableChart.increaseGroupOrder.tooltip" tooltip-placement="right"
-                                       :on-click="increaseGroupOrder" :aria-label="demoText.editableChart.increaseGroupOrder.aria">
+                    <ButtonWithTooltip id="edit-group-increase" :disabled="error || categoryOrderControlsDisabled || isLastCategory" :tooltip-text="demoText.editableChart.increaseCategoryOrder.tooltip" tooltip-placement="right"
+                                       :on-click="increaseCategoryOrder" :aria-label="demoText.editableChart.increaseCategoryOrder.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-right" />
                     </ButtonWithTooltip>
                   </div>

@@ -3,7 +3,8 @@ import type { VerticalAlign } from '../config/core/constants';
 import { getSpacingWidth, getSpacingOuterWidth, getSpacingOuterHeight, getSpacingHeight, getMaxSpacingHeight } from './SpacingLayoutInfo';
 import { createSpacingLayoutInfo, getSpacingLeft } from './SpacingLayoutInfo';
 import type { MarginPadding, Bounds } from '../types/geometry';
-import type { MochartConfig, TitleConfig } from '../types/config';
+import type { TitleConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartTextBoundsData, LayoutInfo, SpacingLayoutInfo, TitleLayoutResult } from '../types/layout';
 
 function createTitleLayoutInfo(x: number, y: number, width: number, height: number, margin: MarginPadding, padding: MarginPadding, titleHeight: number, titleMargin: MarginPadding, titlePadding: MarginPadding, verticalAlign: VerticalAlign, expand: number): SpacingLayoutInfo {
@@ -32,11 +33,11 @@ function createTitleLayoutInfo(x: number, y: number, width: number, height: numb
   return createSpacingLayoutInfo({ x, y: y + textY, width, height}, margin, padding);
 }
 
-export function getTitleHeight(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData): number {
-  const { titleConfig } = mochartConfig;
+export function getTitleHeight(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData): number {
+  const { title: titleConfig } = mochartConfig;
   const { titleTextRawBounds, titlePrefixBounds, titleSuffixBounds } = chartTextBoundsData;
   let titleHeight = 0;
-  if (titleConfig.title !== NONE) {
+  if (titleConfig.text !== NONE) {
     // `prefix`/`suffix` are not TitleConfig properties (the config keys are `titlePrefix`/
     // `titleSuffix`), so both are always undefined and both branches below always run;
     // preserved as-is while adding types.
@@ -55,9 +56,9 @@ export function getTitleHeight(mochartConfig: MochartConfig, chartTextBoundsData
   return titleHeight;
 }
 
-export function getTitleLayoutInfo(mochartConfig: MochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, titleHeight: number, titleY: number): TitleLayoutResult {
-  const { titleConfig } = mochartConfig;
-  const { title, titlePrefix, titleSuffix, alignedToAxes, align, verticalAlign, verticalExpand,
+export function getTitleLayoutInfo(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, contentBounds: Bounds, seriesLayoutInfo: LayoutInfo, titleHeight: number, titleY: number): TitleLayoutResult {
+  const { title: titleConfig } = mochartConfig;
+  const { text: title, prefix: titlePrefix, suffix: titleSuffix, alignedToAxes, align, verticalAlign, verticalExpand,
           margin, padding, textMargin, textPadding, prefixMargin, prefixPadding, suffixMargin, suffixPadding } = titleConfig;
   const spacingLeft = getSpacingLeft(margin, padding);
   const { titlePrefixBounds, titleTextBounds, titleTextRawBounds, titleSuffixBounds } = chartTextBoundsData;

@@ -7,10 +7,10 @@ supported out of the box:
 ```js
 import { ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider } from '@mochart/core';
 
-// one object per group
+// one object per category
 new ArrayOfObjectsDataProvider(
   [{ month: 'Jan', revenue: 10 }, { month: 'Feb', revenue: 20 }],
-  'month' // the group property
+  'month' // the category property
 );
 
 // one array per property
@@ -22,8 +22,8 @@ new ObjectOfArraysDataProvider(
 
 `createDefaultChart` wraps its `data` array in an
 `ArrayOfObjectsDataProvider` automatically, using
-[`groupAxisConfig.property`](/reference/groupAxisConfig#groupAxisConfig.property)
-as the group property. The lower-level `createChart` accepts any object
+[`categoryAxisConfig.property`](/reference/categoryAxis#categoryAxis.property)
+as the category property. The lower-level `createChart` accepts any object
 implementing the `DataProvider` interface, so a custom provider can read
 straight from an existing store without copying.
 
@@ -31,26 +31,26 @@ straight from an existing store without copying.
 
 The config decides which properties the chart pulls from the provider:
 
-- the group value from [`groupAxisConfig.property`](/reference/groupAxisConfig#groupAxisConfig.property) (and optionally
-  [`displayProperty`](/reference/groupAxisConfig#groupAxisConfig.displayProperty)
+- the category value from [`categoryAxisConfig.property`](/reference/categoryAxis#categoryAxis.property) (and optionally
+  [`displayProperty`](/reference/categoryAxis#categoryAxis.displayProperty)
   for friendlier labels)
 - each series' value from its
-  [`property`](/reference/seriesConfigs#seriesConfigs.property), plus the
-  optional [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty),
-  [`markerProperty`](/reference/seriesConfigs#seriesConfigs.markerProperty), [`colorProperty`](/reference/seriesConfigs#seriesConfigs.colorProperty), [`labelProperty`](/reference/seriesConfigs#seriesConfigs.labelProperty),
-  [`tooltipProperty`](/reference/seriesConfigs#seriesConfigs.tooltipProperty),
-  [`errorLowProperty`](/reference/seriesConfigs#seriesConfigs.errorLowProperty), and
-  [`errorHighProperty`](/reference/seriesConfigs#seriesConfigs.errorHighProperty).
+  [`property`](/reference/series#series.property), plus the
+  optional [`rangeProperty`](/reference/series#series.rangeProperty),
+  [`markerProperty`](/reference/series#series.markerProperty), [`colorProperty`](/reference/series#series.colorProperty), [`labelProperty`](/reference/series#series.labelProperty),
+  [`tooltipProperty`](/reference/series#series.tooltipProperty),
+  [`errorLowProperty`](/reference/series#series.errorLowProperty), and
+  [`errorHighProperty`](/reference/series#series.errorHighProperty).
 
 Series values must be numeric or `undefined` — how missing values render is
 controlled per series with
-[`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing) and
-[`showMissingAtBase`](/reference/seriesConfigs#seriesConfigs.showMissingAtBase).
+[`skipMissing`](/reference/series#series.skipMissing) and
+[`showMissingAtBase`](/reference/series#series.showMissingAtBase).
 
 ## Validating data against a config
 
 `getDataErrors` checks a dataset against an enhanced config — missing
-properties, non-numeric series values, duplicate group values — and returns
+properties, non-numeric series values, duplicate category values — and returns
 readable messages:
 
 ```js

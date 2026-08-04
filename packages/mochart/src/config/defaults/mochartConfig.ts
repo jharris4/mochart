@@ -7,13 +7,13 @@ import getAnimationDefaults from './animationConfig';
 import getChartDefaults from './chartConfig';
 import getColorPaletteDefaults from './colorPaletteConfig';
 import getCrosshairDefaults from './crosshairConfig';
-import getGroupAxisDefaults from './groupAxisConfig';
+import getCategoryAxisDefaults from './categoryAxisConfig';
 import getLegendDefaults from './legendConfig';
 import getLinearGradientDefaults from './linearGradientConfig';
 import getPieDefaults from './pieConfig';
 import getPlotDefaults from './plotConfig';
 import getRadialGradientDefaults from './radialGradientConfig';
-import getSeriesAxisDefaults from './seriesAxisConfig';
+import getValueAxisDefaults from './valueAxisConfig';
 import getSeriesDefaults from './seriesConfig';
 import getSeriesGroupDefaults from './seriesGroupConfig';
 import getSeriesStackDefaults from './seriesStackConfig';
@@ -21,7 +21,7 @@ import getTitleDefaults from './titleConfig';
 import getTooltipDefaults from './tooltipConfig';
 import type {
   DeepPartial, LinearGradientConfig, MochartInputConfig, RadialGradientConfig,
-  SeriesAxisConfig, SeriesConfig, SeriesGroupConfig, SeriesStackConfig
+  ValueAxisConfig, SeriesConfig, SeriesGroupConfig, SeriesStackConfig
 } from '../../types/config';
 
 function getWithDefault<T extends object>(config: unknown, configAll: unknown, defaults: T): T {
@@ -51,52 +51,52 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
   if (isObject(config)) {
     const inputConfig = config as MochartInputConfig;
     const chartConfig = getChartDefaults();
-    const chartConfigDefault = getWithDefault(inputConfig.chartConfig, null, chartConfig);
+    const chartConfigDefault = getWithDefault(inputConfig.chart, null, chartConfig);
     const pieMode = chartConfigDefault.type === CHART_TYPE_PIE;
 
-    const seriesAxisConfigs = getSeriesAxisListOrSingleDefaults(inputConfig, true, pieMode);
-    const soleSeriesAxisId = getOnlyIdWithDefaults(inputConfig.seriesAxisConfigs, inputConfig.seriesAxisAllConfig, seriesAxisConfigs);
+    const valueAxisConfigs = getValueAxisListOrSingleDefaults(inputConfig, true, pieMode);
+    const soleValueAxisId = getOnlyIdWithDefaults(inputConfig.valueAxes, inputConfig.valueAxisDefaults, valueAxisConfigs);
 
-    const seriesStackConfigs = getListOrSingleDefaults<SeriesStackConfig>(inputConfig.seriesStackConfigs, inputConfig.seriesStackAllConfig, (aConfig, index) => getSeriesStackDefaults(aConfig, index, soleSeriesAxisId));
-    const soleSeriesStackId = getOnlyIdWithDefaults(inputConfig.seriesStackConfigs, inputConfig.seriesStackAllConfig, seriesStackConfigs);
+    const seriesStackConfigs = getListOrSingleDefaults<SeriesStackConfig>(inputConfig.seriesStacks, inputConfig.seriesStackDefaults, (aConfig, index) => getSeriesStackDefaults(aConfig, index, soleValueAxisId));
+    const soleSeriesStackId = getOnlyIdWithDefaults(inputConfig.seriesStacks, inputConfig.seriesStackDefaults, seriesStackConfigs);
 
-    const seriesGroupConfigs = getListOrSingleDefaults<SeriesGroupConfig>(inputConfig.seriesGroupConfigs, inputConfig.seriesGroupAllConfig, (aConfig, index) => getSeriesGroupDefaults(aConfig, index));
-    const soleSeriesGroupId = getOnlyIdWithDefaults(inputConfig.seriesGroupConfigs, inputConfig.seriesGroupAllConfig, seriesGroupConfigs);
+    const seriesGroupConfigs = getListOrSingleDefaults<SeriesGroupConfig>(inputConfig.seriesGroups, inputConfig.seriesGroupDefaults, (aConfig, index) => getSeriesGroupDefaults(aConfig, index));
+    const soleSeriesGroupId = getOnlyIdWithDefaults(inputConfig.seriesGroups, inputConfig.seriesGroupDefaults, seriesGroupConfigs);
 
-    const linearGradientConfigs = getListOrSingleDefaults<LinearGradientConfig>(inputConfig.linearGradientConfigs, inputConfig.linearGradientAllConfig, (aConfig, index) => getLinearGradientDefaults(aConfig, index));
-    const soleLinearGradientConfigId = getOnlyIdWithDefaults(inputConfig.linearGradientConfigs, inputConfig.linearGradientAllConfig, linearGradientConfigs);
+    const linearGradientConfigs = getListOrSingleDefaults<LinearGradientConfig>(inputConfig.linearGradients, inputConfig.linearGradientDefaults, (aConfig, index) => getLinearGradientDefaults(aConfig, index));
+    const soleLinearGradientConfigId = getOnlyIdWithDefaults(inputConfig.linearGradients, inputConfig.linearGradientDefaults, linearGradientConfigs);
 
-    const radialGradientConfigs = getListOrSingleDefaults<RadialGradientConfig>(inputConfig.radialGradientConfigs, inputConfig.radialGradientAllConfig, (aConfig, index) => getRadialGradientDefaults(aConfig, index));
-    const soleRadialGradientConfigId = getOnlyIdWithDefaults(inputConfig.radialGradientConfigs, inputConfig.radialGradientAllConfig, radialGradientConfigs);
+    const radialGradientConfigs = getListOrSingleDefaults<RadialGradientConfig>(inputConfig.radialGradients, inputConfig.radialGradientDefaults, (aConfig, index) => getRadialGradientDefaults(aConfig, index));
+    const soleRadialGradientConfigId = getOnlyIdWithDefaults(inputConfig.radialGradients, inputConfig.radialGradientDefaults, radialGradientConfigs);
 
     const soleGradientConfigId = soleLinearGradientConfigId ? soleLinearGradientConfigId : soleRadialGradientConfigId;
 
-    const seriesCount = getConfigCount(inputConfig.seriesConfigs);
+    const seriesCount = getConfigCount(inputConfig.series);
 
     const plotConfig = getPlotDefaults();
-    const plotConfigDefault = getWithDefault(inputConfig.plotConfig, null, plotConfig);
+    const plotConfigDefault = getWithDefault(inputConfig.plot, null, plotConfig);
     const { inverted } = plotConfigDefault;
 
     const seriesDefaults = (aConfig: DeepPartial<SeriesConfig>, index: number) =>
-      getSeriesDefaults(aConfig, index, soleSeriesAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId);
+      getSeriesDefaults(aConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId);
 
     return {
-      animationConfig: getAnimationDefaults(),
-      chartConfig,
-      colorPaletteConfig: getColorPaletteDefaults(),
-      crosshairConfig: getCrosshairDefaults(),
-      groupAxisConfig: getGroupAxisDefaults(inputConfig.groupAxisConfig, inverted, pieMode),
-      legendConfig: getLegendDefaults(inputConfig.legendConfig, seriesCount),
-      linearGradientConfigs,
-      pieConfig: getPieDefaults(inputConfig.pieConfig),
-      plotConfig,
-      radialGradientConfigs,
-      seriesAxisConfigs,
-      seriesConfigs: getListOrSingleDefaults<SeriesConfig>(inputConfig.seriesConfigs, inputConfig.seriesAllConfig, seriesDefaults),
-      seriesGroupConfigs,
-      seriesStackConfigs,
-      titleConfig: getTitleDefaults(),
-      tooltipConfig: getTooltipDefaults(inputConfig.tooltipConfig, pieMode)
+      animation: getAnimationDefaults(),
+      chart: chartConfig,
+      colorPalette: getColorPaletteDefaults(),
+      crosshair: getCrosshairDefaults(),
+      categoryAxis: getCategoryAxisDefaults(inputConfig.categoryAxis, inverted, pieMode),
+      legend: getLegendDefaults(inputConfig.legend, seriesCount),
+      linearGradients: linearGradientConfigs,
+      pie: getPieDefaults(inputConfig.pie),
+      plot: plotConfig,
+      radialGradients: radialGradientConfigs,
+      valueAxes: valueAxisConfigs,
+      series: getListOrSingleDefaults<SeriesConfig>(inputConfig.series, inputConfig.seriesDefaults, seriesDefaults),
+      seriesGroups: seriesGroupConfigs,
+      seriesStacks: seriesStackConfigs,
+      title: getTitleDefaults(),
+      tooltip: getTooltipDefaults(inputConfig.tooltip, pieMode)
     };
   }
   else {
@@ -104,30 +104,30 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
   }
 }
 
-function getSeriesAxisListOrSingleDefaults(config: MochartInputConfig, singleDefaultIfEmpty = false, pieMode = false): SeriesAxisConfig[] {
-  const rawConfigs = config.seriesAxisConfigs;
-  const configs = ((!Array.isArray(rawConfigs) && filterConfig(rawConfigs)) ? [rawConfigs] : filterConfigs(rawConfigs)) as DeepPartial<SeriesAxisConfig>[];
-  const allConfig = config.seriesAxisAllConfig;
-  const rawStackConfigs = config.seriesStackConfigs;
+function getValueAxisListOrSingleDefaults(config: MochartInputConfig, singleDefaultIfEmpty = false, pieMode = false): ValueAxisConfig[] {
+  const rawConfigs = config.valueAxes;
+  const configs = ((!Array.isArray(rawConfigs) && filterConfig(rawConfigs)) ? [rawConfigs] : filterConfigs(rawConfigs)) as DeepPartial<ValueAxisConfig>[];
+  const allConfig = config.valueAxisDefaults;
+  const rawStackConfigs = config.seriesStacks;
   const stackConfigs = ((!Array.isArray(rawStackConfigs) && filterConfig(rawStackConfigs)) ? [rawStackConfigs] : filterConfigs(rawStackConfigs)) as DeepPartial<SeriesStackConfig>[];
   const stackMap: Record<string, boolean> = {};
   for (const stackConfig of stackConfigs) {
     const { axis } = stackConfig;
     // Make sure the stackConfig.axis is never undefined. Use the first seriesConfig if necessary
     if (axis === undefined) {
-      stackMap[String(configs[0]?.id ?? 'SA0')] = true;
+      stackMap[String(configs[0]?.id ?? 'VA0')] = true;
     }
     else {
       stackMap[axis] = true;
     }
   }
-  // effective ids mirror the id default ('SA' + index), so a stack explicitly
+  // effective ids mirror the id default ('VA' + index), so a stack explicitly
   // referencing a defaulted axis id still marks that axis as stacked
-  const getDefaults = (aConfig: DeepPartial<SeriesAxisConfig>, index: number) => getSeriesAxisDefaults(aConfig, index, stackMap[aConfig.id ?? 'SA' + index], pieMode);
+  const getDefaults = (aConfig: DeepPartial<ValueAxisConfig>, index: number) => getValueAxisDefaults(aConfig, index, stackMap[aConfig.id ?? 'VA' + index], pieMode);
   if (singleDefaultIfEmpty && configs.length === 0) {
-    return [getDefaults(configWithAll({}, allConfig) as DeepPartial<SeriesAxisConfig>, 0) as SeriesAxisConfig];
+    return [getDefaults(configWithAll({}, allConfig) as DeepPartial<ValueAxisConfig>, 0) as ValueAxisConfig];
   }
-  return (configWithAll(configs, allConfig) as DeepPartial<SeriesAxisConfig>[]).map((config, i) => getDefaults(config, i) as SeriesAxisConfig);
+  return (configWithAll(configs, allConfig) as DeepPartial<ValueAxisConfig>[]).map((config, i) => getDefaults(config, i) as ValueAxisConfig);
 }
 
 function getListOrSingleDefaults<T extends object>(configs: unknown, allConfig: unknown, getDefaults: (config: DeepPartial<T>, index: number) => Partial<T>, singleDefaultIfEmpty = false): T[] {

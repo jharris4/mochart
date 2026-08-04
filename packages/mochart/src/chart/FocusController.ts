@@ -1,5 +1,5 @@
 import { hasConfigStructureChange } from '../config/core/mochartConfig';
-import { indexOfGroupValue } from '../animation/GroupAnimationData';
+import { indexOfCategoryValue } from '../animation/CategoryAnimationData';
 import type { ChartFocus, ChartSeriesFilter } from '../types/chart';
 import type { MochartConfig } from '../types/config';
 import type { DataProvider } from '../types/data';
@@ -17,8 +17,8 @@ export interface FocusChangeCallbacks {
 
 /** Externally-controlled focus/filter values (undefined = uncontrolled). */
 export interface ExternalFocusInput {
-  focusedGroupIndex?: number;
-  focusedSeriesAxisId?: string | null;
+  focusedCategoryIndex?: number;
+  focusedValueAxisId?: string | null;
   focusedSeriesId?: string | null;
   filteredSeriesIds?: Record<string, boolean>;
 }
@@ -30,21 +30,21 @@ export interface ExternalFocusInput {
  * changes, and reports changes through the host callbacks.
  */
 export class FocusController {
-  focusedGroupIndex = -1;
-  focusedSeriesAxisId: string | null = null;
+  focusedCategoryIndex = -1;
+  focusedValueAxisId: string | null = null;
   focusedSeriesId: string | null = null;
   filteredSeriesIds: Record<string, boolean> = {};
 
   private reset(): void {
-    this.focusedGroupIndex = -1;
-    this.focusedSeriesAxisId = null;
+    this.focusedCategoryIndex = -1;
+    this.focusedValueAxisId = null;
     this.focusedSeriesId = null;
     this.filteredSeriesIds = {};
   }
 
   focus(): ChartFocus {
-    const { focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex } = this;
-    return { focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex };
+    const { focusedValueAxisId, focusedSeriesId, focusedCategoryIndex } = this;
+    return { focusedValueAxisId, focusedSeriesId, focusedCategoryIndex };
   }
 
   /**
@@ -56,23 +56,23 @@ export class FocusController {
   reconcile(prev: FocusControllerInput, next: FocusControllerInput, callbacks: FocusChangeCallbacks): void {
     const { mochartConfig, dataProvider } = next;
     const { mochartConfig: oldMochartConfig, dataProvider: oldDataProvider } = prev;
-    const { focusedSeriesAxisId: oldFocusedSeriesAxisId, focusedSeriesId: oldFocusedSeriesId,
-      focusedGroupIndex: oldFocusedGroupIndex, filteredSeriesIds: oldFilteredSeriesIds } = this;
+    const { focusedValueAxisId: oldFocusedValueAxisId, focusedSeriesId: oldFocusedSeriesId,
+      focusedCategoryIndex: oldFocusedCategoryIndex, filteredSeriesIds: oldFilteredSeriesIds } = this;
 
     if (mochartConfig !== oldMochartConfig && hasConfigStructureChange(oldMochartConfig, mochartConfig)) {
       this.reset();
     }
     else if (dataProvider !== oldDataProvider) {
       if (oldDataProvider && dataProvider) {
-        if (this.focusedGroupIndex >= 0) {
-          const oldGroupValues = oldDataProvider.getGroupValues();
-          const newGroupValues = dataProvider.getGroupValues();
-          if (oldGroupValues && newGroupValues) {
-            const groupValue = oldGroupValues[this.focusedGroupIndex];
-            this.focusedGroupIndex = indexOfGroupValue(newGroupValues, groupValue);
+        if (this.focusedCategoryIndex >= 0) {
+          const oldCategoryValues = oldDataProvider.getCategoryValues();
+          const newCategoryValues = dataProvider.getCategoryValues();
+          if (oldCategoryValues && newCategoryValues) {
+            const categoryValue = oldCategoryValues[this.focusedCategoryIndex];
+            this.focusedCategoryIndex = indexOfCategoryValue(newCategoryValues, categoryValue);
           }
           else {
-            this.focusedGroupIndex = -1;
+            this.focusedCategoryIndex = -1;
           }
         }
       }
@@ -80,8 +80,8 @@ export class FocusController {
         this.reset();
       }
     }
-    const { focusedSeriesAxisId, focusedSeriesId, focusedGroupIndex, filteredSeriesIds } = this;
-    const focusChanged = focusedSeriesAxisId !== oldFocusedSeriesAxisId || focusedSeriesId !== oldFocusedSeriesId || focusedGroupIndex !== oldFocusedGroupIndex;
+    const { focusedValueAxisId, focusedSeriesId, focusedCategoryIndex, filteredSeriesIds } = this;
+    const focusChanged = focusedValueAxisId !== oldFocusedValueAxisId || focusedSeriesId !== oldFocusedSeriesId || focusedCategoryIndex !== oldFocusedCategoryIndex;
     const seriesFilterChanged = filteredSeriesIds !== oldFilteredSeriesIds;
     if (focusChanged) {
       callbacks.onFocus?.(this.focus());
@@ -97,12 +97,12 @@ export class FocusController {
    * chart-managed. No callbacks fire — the values came from the host.
    */
   applyExternal(input: ExternalFocusInput): void {
-    const { focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId, filteredSeriesIds } = input;
-    if (focusedGroupIndex !== undefined) {
-      this.focusedGroupIndex = focusedGroupIndex;
+    const { focusedCategoryIndex, focusedValueAxisId, focusedSeriesId, filteredSeriesIds } = input;
+    if (focusedCategoryIndex !== undefined) {
+      this.focusedCategoryIndex = focusedCategoryIndex;
     }
-    if (focusedSeriesAxisId !== undefined) {
-      this.focusedSeriesAxisId = focusedSeriesAxisId;
+    if (focusedValueAxisId !== undefined) {
+      this.focusedValueAxisId = focusedValueAxisId;
     }
     if (focusedSeriesId !== undefined) {
       this.focusedSeriesId = focusedSeriesId;
@@ -114,15 +114,15 @@ export class FocusController {
 
   /** Apply a partial focus update raised from inside the chart. */
   applyFocus(focus: InternalFocus): ChartFocus {
-    const { seriesAxisId, seriesId, groupIndex } = focus;
-    if (seriesAxisId !== undefined) {
-      this.focusedSeriesAxisId = seriesAxisId;
+    const { valueAxisId, seriesId, categoryIndex } = focus;
+    if (valueAxisId !== undefined) {
+      this.focusedValueAxisId = valueAxisId;
     }
     if (seriesId !== undefined) {
       this.focusedSeriesId = seriesId;
     }
-    if (groupIndex !== undefined) {
-      this.focusedGroupIndex = groupIndex ?? -1;
+    if (categoryIndex !== undefined) {
+      this.focusedCategoryIndex = categoryIndex ?? -1;
     }
     return this.focus();
   }

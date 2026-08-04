@@ -10,7 +10,7 @@ export default function buildMochartDemoConfig(config: ConfigRecord): MochartDem
   // buildMochartConfig wires back-references into the section objects it is
   // given, and applyDefaults reuses default section objects when the config
   // has none of its own — so the editor views get their own defaults graph,
-  // or a config without e.g. seriesAxisConfigs would produce a circular
+  // or a config without e.g. valueAxisConfigs would produce a circular
   // (non-serializable) configWithDefaults.
   const viewDefaults = getDefaults(config);
   const configWithDefaults = applyDefaults(config, viewDefaults);
@@ -20,10 +20,10 @@ export default function buildMochartDemoConfig(config: ConfigRecord): MochartDem
 
   // helper shortcuts
   const { valid } = configValidation;
-  const { groupAxisConfig, seriesConfigs } = mochartConfig;
-  const groupProperty = groupAxisConfig ? groupAxisConfig.property : undefined;
+  const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochartConfig;
+  const categoryProperty = categoryAxisConfig ? categoryAxisConfig.property : undefined;
   const seriesCount = Array.isArray(seriesConfigs) ? seriesConfigs.length : 0;
-  const pieMode = mochartConfig.chartConfig?.type === CHART_TYPE_PIE;
+  const pieMode = mochartConfig.chart?.type === CHART_TYPE_PIE;
 
   return {
     config,
@@ -33,7 +33,7 @@ export default function buildMochartDemoConfig(config: ConfigRecord): MochartDem
     configValidation,
     mochartConfig,
     valid,
-    groupProperty,
+    categoryProperty,
     seriesCount,
     pieMode
   };

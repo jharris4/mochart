@@ -10,8 +10,8 @@ import type { MochartDemoConfig } from '../src/types';
 describe('toggleConfigSection across the clone boundary', () => {
   const original = { animate: true, initialDuration: 700 };
   const baseDemoConfig = () => ({
-    configWithDefaults: { animationConfig: { ...original } },
-    configWithoutDefaults: { animationConfig: { ...original } }
+    configWithDefaults: { animation: { ...original } },
+    configWithoutDefaults: { animation: { ...original } }
   }) as unknown as MochartDemoConfig;
 
   it('stays active and toggles back off after a clone', () => {
@@ -25,7 +25,7 @@ describe('toggleConfigSection across the clone boundary', () => {
 
     const off = toggleConfigSection(mochartDemoConfig, applied, 'animationConfig', slowAnimationConfig);
     expect(isConfigSectionActive(off, 'animationConfig', slowAnimationConfig)).toBe(false);
-    expect(off.configWithoutDefaults.animationConfig).toEqual(original);
+    expect(off.configWithoutDefaults.animation).toEqual(original);
   });
 });
 

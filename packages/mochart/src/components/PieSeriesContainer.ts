@@ -9,20 +9,20 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import SeriesBackground from './SeriesBackground';
 import PieSeries from './PieSeries';
 import PieCenter from './PieCenter';
-import type { MochartConfig } from '../types/config';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { SeriesData } from '../types/data';
 import type { FocusData } from '../types/animation';
 import type { LayoutInfo } from '../types/layout';
 
 interface PieSeriesContainerProps {
-  mochartConfig: MochartConfig;
+  mochartConfig: EnhancedMochartConfig;
   seriesLayoutInfo: LayoutInfo;
   seriesData: SeriesData;
   focusData: FocusData;
   gradientIdMap: Record<string, string>;
   /** 0..1 while the initial value tween runs (drives the sweep-in), else null. */
   initialAnimationPercentage: number | null;
-  onFocus: (focus: { seriesId?: string | null; groupIndex?: number | null }) => void;
+  onFocus: (focus: { seriesId?: string | null; categoryIndex?: number | null }) => void;
   onSliceClick?: (payload: { seriesId: string }) => void;
   shapeRef: (element: Element | null) => void;
 }
@@ -39,20 +39,20 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
 
   sync() {
     const { mochartConfig, seriesLayoutInfo, seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef } = this.props;
-    const { pieConfig, colorPaletteConfig, seriesConfigIndicesById } = mochartConfig;
+    const { pie: pieConfig, colorPalette: colorPaletteConfig, seriesIndicesById: seriesConfigIndicesById } = mochartConfig;
     const { values: filteredValues } = seriesData.filtered;
 
     // Angles come from the config-order slice map (focus reordering must not
     // move geometry); recomputing every sync is what animates them, since the
     // filtered values are the tweened values mid-animation.
-    let sliceAngles = getPieSliceAngles(mochartConfig.seriesConfigs, filteredValues, pieConfig);
+    let sliceAngles = getPieSliceAngles(mochartConfig.series, filteredValues, pieConfig);
     const radialLayoutInfo = getRadialLayoutInfo(seriesLayoutInfo, pieConfig);
 
     // When labels or the center total should ignore filtering, their
     // fractions/total come from the raw values (which keep filtered series).
     let rawSliceAngles: Record<string, PieSliceAngles> | null = null;
     if (!pieConfig.adjustLabelsForFiltering || !pieConfig.adjustCenterTotalForFiltering) {
-      rawSliceAngles = getPieSliceAngles(mochartConfig.seriesConfigs, seriesData.raw.values, pieConfig);
+      rawSliceAngles = getPieSliceAngles(mochartConfig.series, seriesData.raw.values, pieConfig);
     }
 
     // On the initial animation the whole pie sweeps in from the start angle;

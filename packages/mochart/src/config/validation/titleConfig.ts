@@ -4,10 +4,10 @@ import { NONE, POSITIONS, ALIGNS, VERTICAL_ALIGNS } from '../core/constants';
 
 export default function getValidators() {
   return {
-    title: validators.string().orEqual(NONE),
+    text: validators.string().orEqual(NONE),
     position: validators.oneOf(POSITIONS),
-    titlePrefix: validators.string().orEqual(NONE),
-    titleSuffix: validators.string().orEqual(NONE),
+    prefix: validators.string().orEqual(NONE),
+    suffix: validators.string().orEqual(NONE),
     link: validators.string().orEqual(NONE),
     linkDisabled: validators.boolean(),
     truncationEnabled: validators.boolean(),
@@ -25,8 +25,8 @@ export default function getValidators() {
     suffixMargin: validators.margin(),
     suffixPadding: validators.padding(),
     backgroundStyle: validators.style(),
-    titleBackgroundStyle: validators.style(),
-    titleTextStyle: validators.style(),
+    textBackgroundStyle: validators.style(),
+    textStyle: validators.style(),
     prefixBackgroundStyle: validators.style(),
     prefixTextStyle: validators.style(),
     suffixBackgroundStyle: validators.style(),

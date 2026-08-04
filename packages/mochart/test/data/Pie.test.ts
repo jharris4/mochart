@@ -34,11 +34,11 @@ describe('computePieFractions', () => {
 
 describe('createPie', () => {
   it('builds a single data row with one property per slice', () => {
-    const { data, groupAxisConfig, seriesConfigs, chartConfig } = createPie(items());
+    const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs, chart: chartConfig } = createPie(items());
     expect(chartConfig).toEqual({ type: 'pie' });
     expect(data).toHaveLength(1);
     expect(data[0]).toEqual({ group: 'all', slice0: 62, slice1: 20, slice2: 18 });
-    expect(groupAxisConfig).toEqual({ property: 'group', type: 'string', scale: 'ordinal' });
+    expect(categoryAxisConfig).toEqual({ property: 'group', type: 'string', scale: 'ordinal' });
     expect(seriesConfigs).toEqual([
       { id: 'slice0', property: 'slice0', title: 'Chrome' },
       { id: 'slice1', property: 'slice1', title: 'Safari' },
@@ -46,14 +46,14 @@ describe('createPie', () => {
     ]);
   });
 
-  it('honors groupValue, explicit colors and valueFormat', () => {
-    const { data, seriesConfigs } = createPie([{ label: 'A', value: 1, color: '#ff0000' }], { groupValue: 'total', valueFormat: '.1f' });
+  it('honors categoryValue, explicit colors and valueFormat', () => {
+    const { data, series: seriesConfigs } = createPie([{ label: 'A', value: 1, color: '#ff0000' }], { categoryValue: 'total', valueFormat: '.1f' });
     expect(data[0].group).toBe('total');
     expect(seriesConfigs[0]).toMatchObject({ shapeStyle: { normal: { strokeColor: '#ff0000', fillColor: '#ff0000' } }, valueFormat: '.1f' });
   });
 
   it('forwards tooltipValues to the pieConfig fragment, leaving the data alone', () => {
-    const { data, pieConfig, seriesConfigs } = createPie(items(), { tooltipValues: 'percentValue' });
+    const { data, pie: pieConfig, series: seriesConfigs } = createPie(items(), { tooltipValues: 'percentValue' });
     // percentages are computed by the chart from the live slice shares, so
     // nothing is baked into the row and no tooltipProperty is wired up
     expect(pieConfig).toEqual({ tooltipValues: 'percentValue' });
@@ -62,11 +62,11 @@ describe('createPie', () => {
   });
 
   it('emits a donut pieConfig fragment via the donut and innerRadiusFraction options', () => {
-    expect(createPie(items()).pieConfig).toEqual({});
-    expect(createPie(items(), { donut: true, tooltipValues: 'percent' }).pieConfig)
+    expect(createPie(items()).pie).toEqual({});
+    expect(createPie(items(), { donut: true, tooltipValues: 'percent' }).pie)
       .toEqual({ tooltipValues: 'percent', innerRadiusFraction: 0.6 });
-    expect(createPie(items(), { donut: true }).pieConfig).toEqual({ innerRadiusFraction: 0.6 });
-    expect(createPie(items(), { donut: true, innerRadiusFraction: 0.4 }).pieConfig).toEqual({ innerRadiusFraction: 0.4 });
+    expect(createPie(items(), { donut: true }).pie).toEqual({ innerRadiusFraction: 0.6 });
+    expect(createPie(items(), { donut: true, innerRadiusFraction: 0.4 }).pie).toEqual({ innerRadiusFraction: 0.4 });
   });
 
   it('clamps negative slice values to 0 in the data row', () => {
@@ -80,10 +80,10 @@ describe('createPie', () => {
     const pie = createPie(items(), { donut: true, tooltipValues: 'percent' });
     const config: MochartInputConfig = {
       version: '1.0.0',
-      chartConfig: pie.chartConfig,
-      pieConfig: pie.pieConfig,
-      groupAxisConfig: pie.groupAxisConfig,
-      seriesConfigs: pie.seriesConfigs
+      chart: pie.chart,
+      pie: pie.pie,
+      categoryAxis: pie.categoryAxis,
+      series: pie.series
     };
     const mochartConfig = enhanceConfig(config);
     expect(mochartConfig.validation.errors).toEqual([]);

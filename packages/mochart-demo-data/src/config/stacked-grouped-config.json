@@ -1,19 +1,19 @@
 {
   "version": "1.0.0",
-  "titleConfig": {
-    "title": "Stacked Grouped Bar"
+  "title": {
+    "text": "Stacked Grouped Bar"
   },
-  "groupAxisConfig": {
-    "valueLabel": "Group",
-    "property": "groupNO",
+  "categoryAxis": {
+    "valueLabel": "Category",
+    "property": "categoryNO",
     "type": "number",
     "scale": "ordinal"
   },
-  "seriesAxisConfigs": {
+  "valueAxes": {
     "before": true,
     "min": 0
   },
-  "seriesStackConfigs": [
+  "seriesStacks": [
     {
       "id": "SS0"
     },
@@ -21,7 +21,7 @@
       "id": "SS1"
     }
   ],
-  "seriesGroupConfigs": [
+  "seriesGroups": [
     {
       "id": "SG0"
     },
@@ -29,10 +29,10 @@
       "id": "SG1"
     }
   ],
-  "seriesAllConfig": {
+  "seriesDefaults": {
     "renderer": "bar"
   },
-  "seriesConfigs": [
+  "series": [
     {
       "stack": "SS0",
       "group": "SG0",

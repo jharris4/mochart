@@ -4,16 +4,16 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import { getAggregateSeriesFocusPercentage } from '../utils/FocusValue';
 
 import AxisThreshold from './AxisThreshold';
-import type { MochartConfig, SeriesAxisConfig } from '../types/config';
+import type { EnhancedMochartConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type { ChartData } from '../types/data';
 import type { FocusData } from '../types/animation';
-import type { AxisLayoutInfo, GroupAxisLayoutInfo, LayoutInfo } from '../types/layout';
+import type { AxisLayoutInfo, CategoryAxisLayoutInfo, LayoutInfo } from '../types/layout';
 
 interface AxisThresholdContainerProps {
   front: boolean;
-  mochartConfig: MochartConfig;
-  groupAxisLayoutInfo: GroupAxisLayoutInfo;
-  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo>;
+  mochartConfig: EnhancedMochartConfig;
+  categoryAxisLayoutInfo: CategoryAxisLayoutInfo;
+  valueAxisLayoutInfos: Record<string, AxisLayoutInfo>;
   seriesLayoutInfo: LayoutInfo;
   chartData: ChartData;
   focusData: FocusData;
@@ -21,7 +21,7 @@ interface AxisThresholdContainerProps {
 
 export default class AxisThresholdContainer extends Renderer<AxisThresholdContainerProps> {
   root = svgEl('g');
-  groupThreshold = this.slot(this.root);
+  categoryThreshold = this.slot(this.root);
   seriesThresholds = this.rendererList(this.root);
 
   create() {
@@ -29,35 +29,35 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
   }
 
   sync() {
-    const { front, mochartConfig, groupAxisLayoutInfo, seriesAxisLayoutInfos, seriesLayoutInfo, chartData, focusData } = this.props;
-    const { seriesAxisFocusPercentages, seriesFocusPercentages } = focusData;
-    const { plotConfig, groupAxisConfig, seriesAxisConfigs } = mochartConfig;
+    const { front, mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, seriesLayoutInfo, chartData, focusData } = this.props;
+    const { valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
+    const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
     const { inverted } = plotConfig;
-    const { groupData, seriesData } = chartData;
-    const groupAxisDomain = groupData.axisDomain;
+    const { categoryData, seriesData } = chartData;
+    const categoryAxisDomain = categoryData.axisDomain;
     const { axisSeriesCounts } = seriesData;
-    const seriesAxisRawDomains = seriesData.raw.axisDomains;
-    const seriesAxisFilteredDomains = seriesData.filtered.axisDomains;
+    const valueAxisRawDomains = seriesData.raw.axisDomains;
+    const valueAxisFilteredDomains = seriesData.filtered.axisDomains;
 
     this.root.set({ className: mochartCssClasses['axisThresholdContainer'] });
 
     // The group axis renders ascending in both orientations; a series axis
     // ascends only when horizontal (inverted charts).
-    this.groupThreshold.set(AxisThreshold, { front, plotConfig, axisConfig: groupAxisConfig, axisLayoutInfo: groupAxisLayoutInfo,
-      hidden: false, seriesLayoutInfo, axisDomain: groupAxisDomain, vertical: inverted, ascending: true,
-      axisFocusPercentage: null, seriesFocusPercentage: null, axisThresholdClass: mochartCssClasses['groupAxisThreshold'] });
+    this.categoryThreshold.set(AxisThreshold, { front, plotConfig, axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
+      hidden: false, seriesLayoutInfo, axisDomain: categoryAxisDomain, vertical: inverted, ascending: true,
+      axisFocusPercentage: null, seriesFocusPercentage: null, axisThresholdClass: mochartCssClasses['categoryAxisThreshold'] });
 
-    this.seriesThresholds.sync(seriesAxisConfigs.map((axisConfig: SeriesAxisConfig) => {
+    this.seriesThresholds.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
       const { id, seriesConfigs, useSeriesFocus, adjustForFiltering } = axisConfig;
-      const axisFocusPercentage = seriesAxisFocusPercentages[id];
+      const axisFocusPercentage = valueAxisFocusPercentages[id];
       const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
-      const seriesAxisDomain = adjustForFiltering ? seriesAxisFilteredDomains[id] : seriesAxisRawDomains[id];
+      const valueAxisDomain = adjustForFiltering ? valueAxisFilteredDomains[id] : valueAxisRawDomains[id];
       return {
         key: 'series-axis-' + id,
         ctor: AxisThreshold,
-        props: { front, plotConfig, axisConfig, axisLayoutInfo: seriesAxisLayoutInfos[id],
-          hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: seriesAxisDomain, vertical: !inverted, ascending: inverted,
-          axisFocusPercentage, seriesFocusPercentage, axisThresholdClass: mochartCssClasses['seriesAxisThreshold'] + id }
+        props: { front, plotConfig, axisConfig, axisLayoutInfo: valueAxisLayoutInfos[id],
+          hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: valueAxisDomain, vertical: !inverted, ascending: inverted,
+          axisFocusPercentage, seriesFocusPercentage, axisThresholdClass: mochartCssClasses['valueAxisThreshold'] + id }
       };
     }));
   }

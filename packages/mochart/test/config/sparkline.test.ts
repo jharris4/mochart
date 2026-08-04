@@ -5,76 +5,76 @@ import type { MochartInputConfig } from '../../src/types/config';
 
 const baseConfig = (): MochartInputConfig => ({
   version: '1.0.0',
-  groupAxisConfig: { property: 'i', type: 'number', scale: 'linear' },
-  seriesAxisConfigs: [{ id: 'sa' }],
-  seriesConfigs: [{ axis: 'sa', property: 'value', renderer: 'line' }]
+  categoryAxis: { property: 'i', type: 'number', scale: 'linear' },
+  valueAxes: [{ id: 'sa' }],
+  series: [{ axis: 'sa', property: 'value', renderer: 'line' }]
 });
 
 describe('createSparklineConfig', () => {
   it('hides the chart chrome and collapses the margins', () => {
     const mochartConfig = enhanceConfig(createSparklineConfig(baseConfig()));
     expect(mochartConfig.validation.valid).toBe(true);
-    expect(mochartConfig.groupAxisConfig.visible).toBe(false);
-    expect(mochartConfig.seriesAxisConfigsById.sa.visible).toBe(false);
-    expect(mochartConfig.legendConfig.visible).toBe(false);
-    expect(mochartConfig.tooltipConfig.visible).toBe(false);
-    expect(mochartConfig.crosshairConfig.visible).toBe(false);
-    expect(mochartConfig.chartConfig.margin).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
-    expect(mochartConfig.chartConfig.padding).toEqual({ top: 2, right: 2, bottom: 2, left: 2 });
+    expect(mochartConfig.categoryAxis.visible).toBe(false);
+    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.sa.visible).toBe(false);
+    expect(mochartConfig.legend.visible).toBe(false);
+    expect(mochartConfig.tooltip.visible).toBe(false);
+    expect(mochartConfig.crosshair.visible).toBe(false);
+    expect(mochartConfig.chart.margin).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
+    expect(mochartConfig.chart.padding).toEqual({ top: 2, right: 2, bottom: 2, left: 2 });
   });
 
   it('hides the per-point markers line series default to', () => {
     const mochartConfig = enhanceConfig(createSparklineConfig(baseConfig()));
-    expect(mochartConfig.seriesConfigs[0].markerShape).toBeNull();
+    expect(mochartConfig.series[0].markerShape).toBeNull();
   });
 
-  // Regression: with no declared seriesAxisConfigs the all-config never
+  // Regression: with no declared valueAxisConfigs the all-config never
   // reached the synthesized default axis, so the axis stayed visible.
   it('hides the synthesized axis when the config declares none', () => {
     const config = baseConfig();
-    delete config.seriesAxisConfigs;
-    config.seriesConfigs = [{ property: 'value', renderer: 'line' }];
+    delete config.valueAxes;
+    config.series = [{ property: 'value', renderer: 'line' }];
     const mochartConfig = enhanceConfig(createSparklineConfig(config));
     expect(mochartConfig.validation.valid).toBe(true);
-    expect(mochartConfig.seriesAxisConfigs.length).toBe(1);
-    expect(mochartConfig.seriesAxisConfigs[0].visible).toBe(false);
-    expect(mochartConfig.seriesConfigs[0].axis).toBe(mochartConfig.seriesAxisConfigs[0].id);
+    expect(mochartConfig.valueAxes.length).toBe(1);
+    expect(mochartConfig.valueAxes[0].visible).toBe(false);
+    expect(mochartConfig.series[0].axis).toBe(mochartConfig.valueAxes[0].id);
   });
 
   it('hides every series axis when there are several', () => {
     const config = baseConfig();
-    config.seriesAxisConfigs = [{ id: 'sa' }, { id: 'sb' }];
-    config.seriesConfigs = [
+    config.valueAxes = [{ id: 'sa' }, { id: 'sb' }];
+    config.series = [
       { axis: 'sa', property: 'value', renderer: 'line' },
       { axis: 'sb', property: 'other', renderer: 'line' }
     ];
     const mochartConfig = enhanceConfig(createSparklineConfig(config));
-    expect(mochartConfig.seriesAxisConfigsById.sa.visible).toBe(false);
-    expect(mochartConfig.seriesAxisConfigsById.sb.visible).toBe(false);
+    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.sa.visible).toBe(false);
+    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.sb.visible).toBe(false);
   });
 
   it('keeps the tooltip and crosshairs when interactive', () => {
     const mochartConfig = enhanceConfig(createSparklineConfig(baseConfig(), { interactive: true }));
-    expect(mochartConfig.tooltipConfig.visible).toBe(true);
-    expect(mochartConfig.crosshairConfig.visible).toBe(true);
-    expect(mochartConfig.groupAxisConfig.visible).toBe(false);
+    expect(mochartConfig.tooltip.visible).toBe(true);
+    expect(mochartConfig.crosshair.visible).toBe(true);
+    expect(mochartConfig.categoryAxis.visible).toBe(false);
   });
 
   it('applies a custom padding', () => {
     const mochartConfig = enhanceConfig(createSparklineConfig(baseConfig(), { padding: 0 }));
-    expect(mochartConfig.chartConfig.padding).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
+    expect(mochartConfig.chart.padding).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
   });
 
   it('lets explicit config values win over the preset', () => {
     const config = baseConfig();
-    config.groupAxisConfig = { ...config.groupAxisConfig, visible: true };
-    config.legendConfig = { visible: true };
-    config.chartConfig = { padding: { top: 8, right: 8, bottom: 8, left: 8 } };
+    config.categoryAxis = { ...config.categoryAxis, visible: true };
+    config.legend = { visible: true };
+    config.chart = { padding: { top: 8, right: 8, bottom: 8, left: 8 } };
     const mochartConfig = enhanceConfig(createSparklineConfig(config));
-    expect(mochartConfig.groupAxisConfig.visible).toBe(true);
-    expect(mochartConfig.legendConfig.visible).toBe(true);
-    expect(mochartConfig.chartConfig.padding).toEqual({ top: 8, right: 8, bottom: 8, left: 8 });
-    expect(mochartConfig.chartConfig.margin).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
+    expect(mochartConfig.categoryAxis.visible).toBe(true);
+    expect(mochartConfig.legend.visible).toBe(true);
+    expect(mochartConfig.chart.padding).toEqual({ top: 8, right: 8, bottom: 8, left: 8 });
+    expect(mochartConfig.chart.margin).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
   });
 
   it('does not mutate the passed config', () => {

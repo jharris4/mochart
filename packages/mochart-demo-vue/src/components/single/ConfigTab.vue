@@ -93,7 +93,7 @@ function applyConfig() {
   }
 }
 
-const inverted = computed(() => demoConfig.value.configWithDefaults.plotConfig.inverted);
+const inverted = computed(() => demoConfig.value.configWithDefaults.plot.inverted);
 const invertedIcon = computed(() => inverted.value ? 'chart-bar' : 'chart-column');
 const slow = computed(() => isConfigSectionActive(demoConfig.value, 'animationConfig', slowAnimationConfig));
 const slowIcon = computed(() => slow.value ? 'hourglass' : 'hourglass-end');

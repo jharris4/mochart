@@ -5,6 +5,7 @@ import { AnimatedDataSource } from './AnimatedDataSource';
 import type { ChartDataSource, ChartDataSourceInput, InternalFocus } from './ChartDataSource';
 import type { ChartProps } from '../components/Chart';
 import type { ManagedChartProps } from '../types/chart';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 
 /**
  * Composes the pieces of a managed chart around the Chart renderer: the
@@ -55,7 +56,7 @@ export class ChartController {
 
   private isAnimated(): boolean {
     const { mochartConfig } = this.props;
-    return Boolean(mochartConfig && mochartConfig.animationConfig.animate);
+    return Boolean(mochartConfig && mochartConfig.animation.animate);
   }
 
   private createSource(): ChartDataSource {
@@ -63,9 +64,10 @@ export class ChartController {
   }
 
   private buildInput(): ChartDataSourceInput {
-    const { mochartConfig, dataProvider } = this.props;
-    const { filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId } = this.focus;
-    return { mochartConfig, dataProvider, filteredSeriesIds, focusedGroupIndex, focusedSeriesAxisId, focusedSeriesId };
+    const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig;
+    const { dataProvider } = this.props;
+    const { filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = this.focus;
+    return { mochartConfig, dataProvider, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId };
   }
 
   /** Recompute the source output for the current props + focus state and push it into the Chart. */
@@ -95,14 +97,14 @@ export class ChartController {
   private chartProps(): ChartProps {
     const {
       mochartConfig, dataProvider, loading, error, style, width, height,
-      onChartClick, onSliceClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutInfoChange,
+      onChartClick, onSliceClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent
     } = this.props;
-    return { mochartConfig, dataProvider, loading, error, style, width, height, standalone: true,
+    return { mochartConfig: mochartConfig as EnhancedMochartConfig, dataProvider, loading, error, style, width, height, standalone: true,
       chartData: this.source.chartData, focusData: this.source.focusData,
       initialAnimationPercentage: this.source.initialAnimationPercentage,
       onFocus: this.handleFocus, onSeriesFilter: this.handleSeriesFilter,
-      onChartClick, onSliceClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutInfoChange,
+      onChartClick, onSliceClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent };
   }
 
@@ -113,7 +115,7 @@ export class ChartController {
   }
 
   private handleSeriesFilter = (seriesId: string): void => {
-    const followerSeriesIds = (this.props.mochartConfig?.seriesConfigs ?? [])
+    const followerSeriesIds = (this.props.mochartConfig?.series ?? [])
       .filter(seriesConfig => seriesConfig.followSeries === seriesId)
       .map(seriesConfig => seriesConfig.id);
     const snapshot = this.focus.toggleSeriesFilter(seriesId, followerSeriesIds);

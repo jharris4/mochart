@@ -17,10 +17,10 @@ export interface SpacingLayoutInfo extends Bounds {
 
 /** Orientation-aware bounds produced by createLayoutInfo. */
 export interface LayoutInfo extends Bounds {
-  groupPosition: number;
-  seriesPosition: number;
-  groupExtent: number;
-  seriesExtent: number;
+  categoryPosition: number;
+  valuePosition: number;
+  categoryExtent: number;
+  valueExtent: number;
   inverted: boolean;
 }
 
@@ -35,8 +35,8 @@ export interface AxisTickInfo {
 }
 
 export interface AxisTickInfos {
-  groupAxisTickInfo: AxisTickInfo;
-  seriesAxisTickInfos: Record<string, AxisTickInfo>;
+  categoryAxisTickInfo: AxisTickInfo;
+  valueAxisTickInfos: Record<string, AxisTickInfo>;
 }
 
 /** SpacingLayoutInfo extended in place by setExtraAxisInfo (PlotLayout.ts). */
@@ -78,7 +78,7 @@ export interface AxisLayoutInfo extends SpacingLayoutInfo, LayoutInfo {
   titleBoundsHeight: number;
 }
 
-export interface GroupAxisLayoutInfo extends AxisLayoutInfo {
+export interface CategoryAxisLayoutInfo extends AxisLayoutInfo {
   position: number;
   before: number;
   after: number;
@@ -103,10 +103,10 @@ export interface LegendLayoutResult {
 
 export interface PlotLayoutResult {
   plotLayoutInfo: SpacingLayoutInfo;
-  groupAxisLayoutInfo: GroupAxisLayoutInfo;
+  categoryAxisLayoutInfo: CategoryAxisLayoutInfo;
   seriesLayoutInfo: LayoutInfo;
   /** Hidden axes get zero-size layout infos so their series scales stay usable. */
-  seriesAxisLayoutInfos: Record<string, AxisLayoutInfo>;
+  valueAxisLayoutInfos: Record<string, AxisLayoutInfo>;
 }
 
 /** The full layout produced by getChartLayoutInfo. Legend fields are absent when the legend is hidden. */
@@ -121,13 +121,13 @@ export interface ChartTextBoundsData {
   titleTextRawBounds: TextBounds;
   titlePrefixBounds: TextBounds;
   titleSuffixBounds: TextBounds;
-  groupAxisTickBounds: TextBounds;
-  groupAxisSizeTickBounds: TextBounds;
-  groupAxisTitleBounds: TextBounds;
-  groupAxisThresholdTitleBounds: TextBounds;
-  seriesAxisTickBounds: Record<string, TextBounds>;
-  seriesAxisTitleBounds: Record<string, TextBounds>;
-  seriesAxisThresholdTitleBounds: Record<string, TextBounds>;
+  categoryAxisTickBounds: TextBounds;
+  categoryAxisSizeTickBounds: TextBounds;
+  categoryAxisTitleBounds: TextBounds;
+  categoryAxisThresholdTitleBounds: TextBounds;
+  valueAxisTickBounds: Record<string, TextBounds>;
+  valueAxisTitleBounds: Record<string, TextBounds>;
+  valueAxisThresholdTitleBounds: Record<string, TextBounds>;
   legendBounds: TextBounds;
   /**
    * Arrays when the legend is visible; TextMeasurement returns a single empty
