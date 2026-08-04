@@ -139,6 +139,10 @@ export function filterConfig(config: unknown): config is ConfigRecord {
   return isObject(config) && config.ignore !== true
 }
 
+// never install the defaults' own entry objects: the build step wires list references onto entries in place
+const copyDefaultsList = (defaultsSection: unknown[]): unknown[] =>
+  defaultsSection.map(entry => isObject(entry) ? { ...entry } : entry);
+
 export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRecord): ConfigRecord {
   if (isObject(configWithoutDefaults)) {
     const config = { ...configWithoutDefaults };
@@ -161,15 +165,15 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
             }
           }
           // every entry ignored/non-object means the section was effectively not specified
-          config[sectionKey] = listCount === 0 ? defaultsSection : filteredConfigSection;
+          config[sectionKey] = listCount === 0 ? copyDefaultsList(defaultsSection) : filteredConfigSection;
         }
         else if (isObject(configSection)) {
           config[sectionKey] = filterConfig(configSection)
             ? [deepMergeAll<ConfigRecord>(isObject(defaultsSection[0]) ? defaultsSection[0] : {}, allSection, configSection)]
-            : defaultsSection;
+            : copyDefaultsList(defaultsSection);
         }
         else if (configSection === undefined) {
-          config[sectionKey] = defaultsSection;
+          config[sectionKey] = copyDefaultsList(defaultsSection);
         }
       }
       else if (isObject(defaultsSection)) {

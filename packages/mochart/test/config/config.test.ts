@@ -1,4 +1,4 @@
-import { enhanceConfig } from '../../src';
+import { enhanceConfig, buildMochartConfig, getDefaults, validateConfig } from '../../src';
 import type { MochartInputConfig } from '../../src';
 
 const VERSION_STRING = "1.0.0";
@@ -382,5 +382,22 @@ describe('non-integer order values', () => {
     });
     expect(mochartConfig.validation.valid).toBe(true);
     expect(mochartConfig.series.map(seriesConfig => seriesConfig.id)).toEqual(['S1', 'S0']);
+  });
+});
+
+// Regression: sections absent from the user config installed the defaults' own
+// entry objects into the built config, so the reference wiring mutated the
+// caller-supplied defaults and re-validating with them flipped valid to false.
+describe('caller-supplied defaults immutability', () => {
+  it('buildMochartConfig leaves the defaults untouched', () => {
+    // no valueAxes/seriesStacks/seriesGroups sections — all come from the defaults
+    const config = { version: VERSION_STRING, categoryAxis: { property: 'g' }, series: [{ property: 'v' }] };
+    const defaults = getDefaults(config);
+    const snapshot = JSON.parse(JSON.stringify(defaults));
+    const validation = validateConfig(config, defaults as never);
+    expect(validation.valid).toBe(true);
+    buildMochartConfig(config, defaults as never, validation);
+    expect(defaults).toEqual(snapshot);
+    expect(validateConfig(config, defaults as never).valid).toBe(true);
   });
 });
