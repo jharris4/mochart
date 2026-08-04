@@ -15,10 +15,11 @@ import * as horizontal from '../examples/horizontal'
 
 ## How it works
 
-- Axis positions follow the inversion:
-  [`before`](/reference/valueAxes#valueAxes.before) means
-  top/left, so the category axis lands on the left and the value axis on the
-  bottom by default.
+- Axis positions follow the inversion: each axis's
+  [`side`](/reference/valueAxes#valueAxes.side) picks the start (top/left) or
+  end (bottom/right) edge, so the category axis lands on the left and the
+  value axis on top by default; set `side: 'end'` on the value axis to move
+  it below the plot.
 - Long category labels usually fit better on a horizontal chart — combine with
   the category axis
   [`tickLabelTruncationEnabled`](/reference/categoryAxis#categoryAxis.tickLabelTruncationEnabled)
