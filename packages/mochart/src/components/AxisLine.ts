@@ -24,7 +24,7 @@ export default class AxisLine extends Renderer<AxisLineProps> {
 
   sync() {
     const { axisConfig } = this.props;
-    if (axisConfig.axisLine === true) {
+    if (axisConfig.showAxisLine === true) {
       const { axisLayoutInfo, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { axisLineX1, axisLineY1, axisLineX2, axisLineY2 } = axisLayoutInfo;
 

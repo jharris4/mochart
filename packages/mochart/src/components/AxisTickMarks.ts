@@ -35,7 +35,7 @@ export default class AxisTickMarks extends Renderer<AxisTickMarksProps> {
 
   sync() {
     const { axisConfig } = this.props;
-    if (axisConfig.tickMarks) {
+    if (axisConfig.showTickMarks) {
       const { axisLayoutInfo, axisTicks, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { vertical, tickMarkX1, tickMarkY1, tickMarkX2, tickMarkY2 } = axisLayoutInfo;
 

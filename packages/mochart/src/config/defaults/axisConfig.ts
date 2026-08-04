@@ -6,7 +6,7 @@ import type { ThresholdTitleSide } from '../core/constants';
 
 export default function getDefaults() {
   return {
-    axisLine: true,
+    showAxisLine: true,
     axisLineFront: false,
     axisLineMargin: 0,
     axisLineStyle: {
@@ -22,20 +22,20 @@ export default function getDefaults() {
 
     collapsed: false,
 
-    focusRange: true,
+    showFocusRange: true,
     focusRangeFront: false,
     focusRangeApplyToTitle: false,
     // 0.2 / 0.12 matches the old '#000033' / '#aaccff' wash on a light page and stays legible on a dark one.
     focusRangeStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.2, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 0.12 },
 
-    focusTickMarks: false,
-    focusTickMarksFront: false,
+    showFocusTickMarks: false,
+    focusTickMarkFront: false,
     focusTickMarkSize: 9,
     focusTickMarkMargin: 3,
     focusTickMarkStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 1, strokeWidth: 3, strokeDashArray: NONE },
 
-    gridLines: false,
-    gridLinesFront: false,
+    showGridLines: false,
+    gridLineFront: false,
     // The old '#e5e5e5' at 0.75 over white is about '#ececec'; currentColor at
     // 0.13 sits between matching that on a light page and matching a dark
     // page's grid, so one value reads as a grid line in either theme.
@@ -87,7 +87,7 @@ export default function getDefaults() {
       defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 0, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.5 }
     },
 
-    tickMarks: true,
+    showTickMarks: true,
     tickMarkFront: false,
     tickMarkSize: 3,
     tickMarkMargin: 0,

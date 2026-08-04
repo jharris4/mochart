@@ -87,8 +87,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#animation.animate">animate</a></td><td>whether all animation should be enabled or disabled<br/><br/>The master switch for staged animation. When `false`, config, data, and size changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum).</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="animation.collapseDuration">
-<td><a href="#animation.collapseDuration">collapseDuration</a></td><td>the maximum duration for the axis collapse animation phase when new data is removed from the chart<br/><br/>Duration (in milliseconds) of the axis contraction phase, which plays last when the settled data needs smaller axis domains.</td><td>should be a number >= to 0</td><td><div>1000</div>
+<tr id="animation.contractionDuration">
+<td><a href="#animation.contractionDuration">contractionDuration</a></td><td>the maximum duration for the axis contraction animation phase when new data is removed from the chart<br/><br/>Duration (in milliseconds) of the axis contraction phase, which plays last when the settled data needs smaller axis domains.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
 <tr id="animation.expansionDuration">
@@ -439,10 +439,6 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
-<tr id="categoryAxis.axisLine">
-<td><a href="#categoryAxis.axisLine">axisLine</a></td><td>whether to show a line along the length of the axis</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
 <tr id="categoryAxis.axisLineFront">
 <td><a href="#categoryAxis.axisLineFront">axisLineFront</a></td><td>whether the axis line should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
@@ -575,10 +571,6 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#categoryAxis.displayProperty">displayProperty</a></td><td>the property to retrieve from the data provider for the category display values (use null for none)<br/><br/>When set, this property’s value is used wherever the category value is displayed (tick labels, tooltip), while `property` still drives positioning — useful for pre-formatted or friendly labels.</td><td>should be a defined value or equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="categoryAxis.focusRange">
-<td><a href="#categoryAxis.focusRange">focusRange</a></td><td>whether to show the focus range on the axis when it has a focused series domain or category value</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
 <tr id="categoryAxis.focusRangeApplyToTitle">
 <td><a href="#categoryAxis.focusRangeApplyToTitle">focusRangeApplyToTitle</a></td><td>whether to show the focus range only over tick labels (false) or over both tick labels and title (true)</td><td>should be a boolean</td><td><div>false</div>
 </td>
@@ -615,6 +607,10 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.focusRangeStyle.strokeWidth">focusRangeStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>1</div>
 </td>
 </tr>
+<tr id="categoryAxis.focusTickMarkFront">
+<td><a href="#categoryAxis.focusTickMarkFront">focusTickMarkFront</a></td><td>whether the focus tick marks should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
 <tr id="categoryAxis.focusTickMarkMargin">
 <td><a href="#categoryAxis.focusTickMarkMargin">focusTickMarkMargin</a></td><td>the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)</td><td>should be a number >= to 0</td><td><div>3</div>
 </td>
@@ -643,12 +639,8 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.focusTickMarkStyle.strokeWidth">focusTickMarkStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>3</div>
 </td>
 </tr>
-<tr id="categoryAxis.focusTickMarks">
-<td><a href="#categoryAxis.focusTickMarks">focusTickMarks</a></td><td>whether to show lines perpendicular to the axis showing the focused series domain or category value</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
-<tr id="categoryAxis.focusTickMarksFront">
-<td><a href="#categoryAxis.focusTickMarksFront">focusTickMarksFront</a></td><td>whether the focus tick marks should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
+<tr id="categoryAxis.gridLineFront">
+<td><a href="#categoryAxis.gridLineFront">gridLineFront</a></td><td>whether the axis grid lines should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="categoryAxis.gridLineStyle">
@@ -713,14 +705,6 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="categoryAxis.gridLineStyle.normal.strokeWidth">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.gridLineStyle.normal.strokeWidth">gridLineStyle.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>1</div>
-</td>
-</tr>
-<tr id="categoryAxis.gridLines">
-<td><a href="#categoryAxis.gridLines">gridLines</a></td><td>whether to show grid lines perpendicular to each tick on the axis</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
-<tr id="categoryAxis.gridLinesFront">
-<td><a href="#categoryAxis.gridLinesFront">gridLinesFront</a></td><td>whether the axis grid lines should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="categoryAxis.marginInner">
@@ -791,6 +775,26 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#categoryAxis.scale">scale</a></td><td>the scale to use for the displayed category values (ordinal, linear)<br/><br/>`ordinal` places the categories at evenly spaced positions in data order regardless of their values; `linear` positions `number`/`date` category values proportionally along the axis, so uneven spacing in the data shows as uneven spacing in the chart.</td><td><p>should be equal to "ordinal" when type is string</p>
 <p>should be one of [ "linear", "ordinal" ]</p>
 </td><td><div>"ordinal"</div>
+</td>
+</tr>
+<tr id="categoryAxis.showAxisLine">
+<td><a href="#categoryAxis.showAxisLine">showAxisLine</a></td><td>whether to show a line along the length of the axis</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="categoryAxis.showFocusRange">
+<td><a href="#categoryAxis.showFocusRange">showFocusRange</a></td><td>whether to show the focus range on the axis when it has a focused series domain or category value</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="categoryAxis.showFocusTickMarks">
+<td><a href="#categoryAxis.showFocusTickMarks">showFocusTickMarks</a></td><td>whether to show lines perpendicular to the axis showing the focused series domain or category value</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="categoryAxis.showGridLines">
+<td><a href="#categoryAxis.showGridLines">showGridLines</a></td><td>whether to show grid lines perpendicular to each tick on the axis</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="categoryAxis.showTickMarks">
+<td><a href="#categoryAxis.showTickMarks">showTickMarks</a></td><td>whether to show lines perpendicular to each tick value along the axis</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="categoryAxis.side">
@@ -1076,10 +1080,6 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="categoryAxis.tickMarkStyle.normal.strokeWidth">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.tickMarkStyle.normal.strokeWidth">tickMarkStyle.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>1</div>
-</td>
-</tr>
-<tr id="categoryAxis.tickMarks">
-<td><a href="#categoryAxis.tickMarks">tickMarks</a></td><td>whether to show lines perpendicular to each tick value along the axis</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="categoryAxis.title">
@@ -1855,10 +1855,6 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#valueAxes.adjustTickLabelSizeForFiltering">adjustTickLabelSizeForFiltering</a></td><td>whether to adjust the size of the axis tick label bounds as series belonging to it are filtered</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="valueAxes.axisLine">
-<td><a href="#valueAxes.axisLine">axisLine</a></td><td>whether to show a line along the length of the axis</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
 <tr id="valueAxes.axisLineFront">
 <td><a href="#valueAxes.axisLineFront">axisLineFront</a></td><td>whether the axis line should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
@@ -1969,10 +1965,6 @@ table thead td { border-bottom-width: 2px; }
 <div>null (series axis has no stacks)</div>
 </td>
 </tr>
-<tr id="valueAxes.baseLine">
-<td><a href="#valueAxes.baseLine">baseLine</a></td><td>whether to show a line along the base of the axis</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
 <tr id="valueAxes.baseLineFront">
 <td><a href="#valueAxes.baseLineFront">baseLineFront</a></td><td>whether the base line should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
@@ -2053,10 +2045,6 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#valueAxes.focusOnMouseOver">focusOnMouseOver</a></td><td>whether the series axis should be focused whenever the user mouses over a part of it in the chart</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="valueAxes.focusRange">
-<td><a href="#valueAxes.focusRange">focusRange</a></td><td>whether to show the focus range on the axis when it has a focused series domain or category value</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
 <tr id="valueAxes.focusRangeApplyToTitle">
 <td><a href="#valueAxes.focusRangeApplyToTitle">focusRangeApplyToTitle</a></td><td>whether to show the focus range only over tick labels (false) or over both tick labels and title (true)</td><td>should be a boolean</td><td><div>false</div>
 </td>
@@ -2093,6 +2081,10 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.focusRangeStyle.strokeWidth">focusRangeStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>1</div>
 </td>
 </tr>
+<tr id="valueAxes.focusTickMarkFront">
+<td><a href="#valueAxes.focusTickMarkFront">focusTickMarkFront</a></td><td>whether the focus tick marks should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
 <tr id="valueAxes.focusTickMarkMargin">
 <td><a href="#valueAxes.focusTickMarkMargin">focusTickMarkMargin</a></td><td>the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)</td><td>should be a number >= to 0</td><td><div>3</div>
 </td>
@@ -2121,12 +2113,8 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.focusTickMarkStyle.strokeWidth">focusTickMarkStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>3</div>
 </td>
 </tr>
-<tr id="valueAxes.focusTickMarks">
-<td><a href="#valueAxes.focusTickMarks">focusTickMarks</a></td><td>whether to show lines perpendicular to the axis showing the focused series domain or category value</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
-<tr id="valueAxes.focusTickMarksFront">
-<td><a href="#valueAxes.focusTickMarksFront">focusTickMarksFront</a></td><td>whether the focus tick marks should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
+<tr id="valueAxes.gridLineFront">
+<td><a href="#valueAxes.gridLineFront">gridLineFront</a></td><td>whether the axis grid lines should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="valueAxes.gridLineStyle">
@@ -2191,14 +2179,6 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="valueAxes.gridLineStyle.normal.strokeWidth">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.gridLineStyle.normal.strokeWidth">gridLineStyle.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>1</div>
-</td>
-</tr>
-<tr id="valueAxes.gridLines">
-<td><a href="#valueAxes.gridLines">gridLines</a></td><td>whether to show grid lines perpendicular to each tick on the axis</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
-<tr id="valueAxes.gridLinesFront">
-<td><a href="#valueAxes.gridLinesFront">gridLinesFront</a></td><td>whether the axis grid lines should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="valueAxes.id">
@@ -2267,6 +2247,30 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="valueAxes.scale">
 <td><a href="#valueAxes.scale">scale</a></td><td>the scale of the series axis, must be linear</td><td>should be equal to "linear"</td><td><div>"linear"</div>
+</td>
+</tr>
+<tr id="valueAxes.showAxisLine">
+<td><a href="#valueAxes.showAxisLine">showAxisLine</a></td><td>whether to show a line along the length of the axis</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="valueAxes.showBaseLine">
+<td><a href="#valueAxes.showBaseLine">showBaseLine</a></td><td>whether to show a line along the base of the axis</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="valueAxes.showFocusRange">
+<td><a href="#valueAxes.showFocusRange">showFocusRange</a></td><td>whether to show the focus range on the axis when it has a focused series domain or category value</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="valueAxes.showFocusTickMarks">
+<td><a href="#valueAxes.showFocusTickMarks">showFocusTickMarks</a></td><td>whether to show lines perpendicular to the axis showing the focused series domain or category value</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="valueAxes.showGridLines">
+<td><a href="#valueAxes.showGridLines">showGridLines</a></td><td>whether to show grid lines perpendicular to each tick on the axis</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="valueAxes.showTickMarks">
+<td><a href="#valueAxes.showTickMarks">showTickMarks</a></td><td>whether to show lines perpendicular to each tick value along the axis</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="valueAxes.side">
@@ -2523,10 +2527,6 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="valueAxes.tickMarkStyle.normal.strokeWidth">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.tickMarkStyle.normal.strokeWidth">tickMarkStyle.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>1</div>
-</td>
-</tr>
-<tr id="valueAxes.tickMarks">
-<td><a href="#valueAxes.tickMarks">tickMarks</a></td><td>whether to show lines perpendicular to each tick value along the axis</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="valueAxes.ticks">
@@ -3118,6 +3118,10 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.labelTextStyle.normal.strokeWidth">labelTextStyle.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
+<tr id="series.markerMinSize">
+<td><a href="#series.markerMinSize">markerMinSize</a></td><td>the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value</td><td>should be a number >= to 0</td><td><div>1</div>
+</td>
+</tr>
 <tr id="series.markerProperty">
 <td><a href="#series.markerProperty">markerProperty</a></td><td>the property to retrieve from the data provider for the marker size values (use null for none)</td><td>should be a defined value or equal to null</td><td><div>null</div>
 </td>
@@ -3219,10 +3223,6 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="series.markerStyle.normal.strokeWidth">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.markerStyle.normal.strokeWidth">markerStyle.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0</td><td><div>1</div>
-</td>
-</tr>
-<tr id="series.minMarkerSize">
-<td><a href="#series.minMarkerSize">minMarkerSize</a></td><td>the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
 <tr id="series.missingValueMarkers">
@@ -3909,10 +3909,6 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.adjustSizeForFiltering">adjustSizeForFiltering</a></td><td>whether to adjust the width of the tooltip when the series values change due to filtering changes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.alignValues">
-<td><a href="#tooltip.alignValues">alignValues</a></td><td>whether to right-align the values shown in the tooltip</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
 <tr id="tooltip.applyFocus">
 <td><a href="#tooltip.applyFocus">applyFocus</a></td><td>whether to change the focused category as the tooltip is shown or hidden</td><td>should be a boolean</td><td><div>true</div>
 </td>
@@ -3965,8 +3961,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.dropShadowOffsetY">dropShadowOffsetY</a></td><td>the y offset (in pixels) of the drop shadow effect used for the tooltip</td><td>should be a number >= to 0</td><td><div>5</div>
 </td>
 </tr>
-<tr id="tooltip.filterOnSeriesClick">
-<td><a href="#tooltip.filterOnSeriesClick">filterOnSeriesClick</a></td><td>whether series should be filtered when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltip.filterSeriesOnClick">
+<td><a href="#tooltip.filterSeriesOnClick">filterSeriesOnClick</a></td><td>whether series should be filtered when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltip.filteredValueCharacter">
@@ -3977,20 +3973,24 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.filteredValueText">filteredValueText</a></td><td>the text to show for series that have been filtered (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="tooltip.focusOnCategoryClick">
-<td><a href="#tooltip.focusOnCategoryClick">focusOnCategoryClick</a></td><td>whether category values should be focused when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltip.focusCategoryOnClick">
+<td><a href="#tooltip.focusCategoryOnClick">focusCategoryOnClick</a></td><td>whether category values should be focused when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.focusOnCategoryMouseOver">
-<td><a href="#tooltip.focusOnCategoryMouseOver">focusOnCategoryMouseOver</a></td><td>whether category values should be focused when the user mouses over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltip.focusCategoryOnMouseOver">
+<td><a href="#tooltip.focusCategoryOnMouseOver">focusCategoryOnMouseOver</a></td><td>whether category values should be focused when the user mouses over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.focusOnSeriesClick">
-<td><a href="#tooltip.focusOnSeriesClick">focusOnSeriesClick</a></td><td>whether series should be focused when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltip.focusSeriesOnClick">
+<td><a href="#tooltip.focusSeriesOnClick">focusSeriesOnClick</a></td><td>whether series should be focused when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltip.focusOnSeriesMouseOver">
-<td><a href="#tooltip.focusOnSeriesMouseOver">focusOnSeriesMouseOver</a></td><td>whether series should be focused when the user mouses over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltip.focusSeriesOnMouseOver">
+<td><a href="#tooltip.focusSeriesOnMouseOver">focusSeriesOnMouseOver</a></td><td>whether series should be focused when the user mouses over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="tooltip.followPointer">
+<td><a href="#tooltip.followPointer">followPointer</a></td><td>whether the tooltip should track the mouse position in the chart drawing area</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltip.hideFiltered">
@@ -4041,16 +4041,32 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.missingValueText">missingValueText</a></td><td>the text to show for series that do not have defined values</td><td>should be a string</td><td><div>"N/A"</div>
 </td>
 </tr>
-<tr id="tooltip.mouseOver">
-<td><a href="#tooltip.mouseOver">mouseOver</a></td><td>whether the tooltip should track the mouse position in the chart drawing area</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
 <tr id="tooltip.padding">
-<td><a href="#tooltip.padding">padding</a></td><td>the padding (in pixels) to show on each side of the tooltip</td><td>should be a number >= to 0</td><td><div>2</div>
+<td><a href="#tooltip.padding">padding</a></td><td>the padding (in pixels) for the top, right, bottom and left sides of the tooltip</td><td>should be an object with properties [ "top", "right", "bottom", "left" ] all of which should be a number >= to 0</td><td><div>{ top: 2, right: 2, bottom: 2, left: 2 }</div>
 </td>
 </tr>
-<tr id="tooltip.rangeValueText">
-<td><a href="#tooltip.rangeValueText">rangeValueText</a></td><td>the text to use when joining the values for a series that has more than one value</td><td>should be a string</td><td><div>" - "</div>
+<tr id="tooltip.padding.bottom">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.padding.bottom">padding.bottom</a></td><td>the space (in pixels) along the bottom edge</td><td>should be a number >= to 0</td><td><div>2</div>
+</td>
+</tr>
+<tr id="tooltip.padding.left">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.padding.left">padding.left</a></td><td>the space (in pixels) along the left edge</td><td>should be a number >= to 0</td><td><div>2</div>
+</td>
+</tr>
+<tr id="tooltip.padding.right">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.padding.right">padding.right</a></td><td>the space (in pixels) along the right edge</td><td>should be a number >= to 0</td><td><div>2</div>
+</td>
+</tr>
+<tr id="tooltip.padding.top">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tooltip.padding.top">padding.top</a></td><td>the space (in pixels) along the top edge</td><td>should be a number >= to 0</td><td><div>2</div>
+</td>
+</tr>
+<tr id="tooltip.rangeValueSeparator">
+<td><a href="#tooltip.rangeValueSeparator">rangeValueSeparator</a></td><td>the text to use when joining the values for a series that has more than one value</td><td>should be a string</td><td><div>" - "</div>
+</td>
+</tr>
+<tr id="tooltip.rightAlignValues">
+<td><a href="#tooltip.rightAlignValues">rightAlignValues</a></td><td>whether to right-align the values shown in the tooltip</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="tooltip.showCategory">
@@ -4063,7 +4079,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="tooltip.showFilteringOnLabels">
-<td><a href="#tooltip.showFilteringOnLabels">showFilteringOnLabels</a></td><td>whether to strike through the label text of filtered series<br/><br/>When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `alignValues` is `false`, where the label and the value are one piece of text and both are struck.</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#tooltip.showFilteringOnLabels">showFilteringOnLabels</a></td><td>whether to strike through the label text of filtered series<br/><br/>When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `rightAlignValues` is `false`, where the label and the value are one piece of text and both are struck.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltip.showIconColors">

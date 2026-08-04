@@ -8,7 +8,7 @@ import { getSeriesDataWithAxisDomains, getSeriesDataWithAxisBases, getSeriesData
 
 import { domainKeys } from '../data/constants';
 
-import { hasCategoryAdditions, getExpansionCategoryValueDeltaData, getCollapseCategoryValueDeltaData } from './CategoryAnimationData';
+import { hasCategoryAdditions, getExpansionCategoryValueDeltaData, getContractionCategoryValueDeltaData } from './CategoryAnimationData';
 
 import { mapMap } from '../utils/utils';
 
@@ -263,7 +263,7 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
     filteredValueAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData);
 }
 
-export function getTransitionAxisCollapseData(mochartConfig: EnhancedMochartConfig, prevChartData: ChartData, newChartData: ChartData, categoryDeltaData: CategoryDeltaData): AxisDeltaData {
+export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartConfig, prevChartData: ChartData, newChartData: ChartData, categoryDeltaData: CategoryDeltaData): AxisDeltaData {
   let startCategoryData = newChartData.categoryData;
   let endCategoryData = newChartData.categoryData;
 
@@ -277,7 +277,7 @@ export function getTransitionAxisCollapseData(mochartConfig: EnhancedMochartConf
 
   const categoryAxisDomainDelta = getCategoryAxisDomainDelta(endCategoryAxisDomain, startCategoryAxisDomain);
   if (categoryAxisDomainDelta.deltaPercentage !== 0) {
-    categoryValueDeltaData = getCollapseCategoryValueDeltaData(categoryAxisConfig, categoryDeltaData, prevChartData, newChartData, startCategoryAxisDomain);
+    categoryValueDeltaData = getContractionCategoryValueDeltaData(categoryAxisConfig, categoryDeltaData, prevChartData, newChartData, startCategoryAxisDomain);
 
     startCategoryData = getCategoryDataWithAxisDomain(startCategoryData, startCategoryAxisDomain);
     endCategoryData = getCategoryDataWithAxisDomain(endCategoryData, endCategoryAxisDomain);
@@ -321,7 +321,7 @@ export function getTransitionAxisCollapseData(mochartConfig: EnhancedMochartConf
 
   adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas);
 
-  // series hidden at the end of the collapse render nothing during it, so they must not stretch its duration
+  // series hidden at the end of the contraction render nothing during it, so they must not stretch its duration
   const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSeriesDomainDeltas, newChartData.seriesData.filtered.values);
 
   return invertAxisDeltas(createAxisDeltaData(startChartData, endChartData, newChartData, categoryAxisDomainDelta,

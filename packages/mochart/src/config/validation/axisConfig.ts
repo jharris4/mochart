@@ -46,7 +46,7 @@ export const axisStyleValidators = { styleShape, styleStates, lineMembers, style
 
 export default function getValidators() {
   return {
-    axisLine: validators.boolean(),
+    showAxisLine: validators.boolean(),
     axisLineFront: validators.boolean(),
     axisLineMargin: validators.numberMin(0),
     axisLineStyle: styleStates(lineMembers),
@@ -58,19 +58,19 @@ export default function getValidators() {
 
     collapsed: validators.boolean(),
 
-    focusRange: validators.boolean(),
+    showFocusRange: validators.boolean(),
     focusRangeFront: validators.boolean(),
     focusRangeApplyToTitle: validators.boolean(),
     focusRangeStyle: styleShape(styleMembers, false),
 
-    focusTickMarks: validators.boolean(),
-    focusTickMarksFront: validators.boolean(),
+    showFocusTickMarks: validators.boolean(),
+    focusTickMarkFront: validators.boolean(),
     focusTickMarkSize: validators.numberMin(0),
     focusTickMarkMargin: validators.numberMin(0),
     focusTickMarkStyle: styleShape(['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'], false),
 
-    gridLines: validators.boolean(),
-    gridLinesFront: validators.boolean(),
+    showGridLines: validators.boolean(),
+    gridLineFront: validators.boolean(),
     gridLineStyle: styleStates(lineMembers),
 
     marginInner: validators.numberMin(0),
@@ -112,7 +112,7 @@ export default function getValidators() {
     tickLabelAnchor: validators.oneOf(ANCHORS.concat([AUTO])),
     tickLabelTextStyle: styleStates(styleMembers),
 
-    tickMarks: validators.boolean(),
+    showTickMarks: validators.boolean(),
     tickMarkFront: validators.boolean(),
     tickMarkSize: validators.numberMin(0),
     tickMarkMargin: validators.numberMin(0),

@@ -12,7 +12,7 @@ export const config: MochartInputConfig = {
   animation: {
     expansionDuration: 900,
     valueChangeDuration: 900,
-    collapseDuration: 900
+    contractionDuration: 900
   }
 };
 

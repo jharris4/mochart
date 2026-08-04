@@ -14,14 +14,14 @@ export const dataTweenValueStart = 'dataTweenValueStart' as const;
 export const dataTweenValueUpdate = 'dataTweenValueUpdate' as const;
 export const dataTweenValueComplete = 'dataTweenValueComplete' as const;
 
-export const dataTweenCollapseStart = 'dataTweenCollapseStart' as const;
-export const dataTweenCollapseUpdate = 'dataTweenCollapseUpdate' as const;
-export const dataTweenCollapseComplete = 'dataTweenCollapseComplete' as const;
+export const dataTweenContractStart = 'dataTweenContractStart' as const;
+export const dataTweenContractUpdate = 'dataTweenContractUpdate' as const;
+export const dataTweenContractComplete = 'dataTweenContractComplete' as const;
 
 export type DataTweenEvent =
   | typeof dataTweenExpandStart | typeof dataTweenExpandUpdate | typeof dataTweenExpandComplete
   | typeof dataTweenValueStart | typeof dataTweenValueUpdate | typeof dataTweenValueComplete
-  | typeof dataTweenCollapseStart | typeof dataTweenCollapseUpdate | typeof dataTweenCollapseComplete;
+  | typeof dataTweenContractStart | typeof dataTweenContractUpdate | typeof dataTweenContractComplete;
 
 type VoidCallback = () => void;
 type FocusUpdateCallback = (focusData: FocusData) => void;
@@ -65,7 +65,7 @@ export interface ChartTweenManager {
 }
 
 // Upper bound on same-frame chain cascades in the engine update loop; real
-// chains are at most a few steps deep (expand -> value -> collapse).
+// chains are at most a few steps deep (expand -> value -> contract).
 const MAX_UPDATE_PASSES = 100;
 
 interface DataTweenStep {
@@ -366,7 +366,7 @@ function buildDataTween(
     completeValueChangeCallback = () => {},
     startValueChangeCallback = () => {}
   }: DataTweenOptions & { updateCallback: DataUpdateCallback }): Tween | null {
-  const { axisExpansionData, valueChangeData, axisCollapseData } = chartAnimationData;
+  const { axisExpansionData, valueChangeData, axisContractionData } = chartAnimationData;
   const tweenData: DataTweenStep[] = [];
   if (axisExpansionData.deltaPercentage !== 0) {
     if (axisExpansionData.start === null || axisExpansionData.final === null || axisExpansionData.final === undefined) {
@@ -409,24 +409,24 @@ function buildDataTween(
       });
     }
   }
-  if (axisCollapseData.deltaPercentage !== 0) {
-    if (axisCollapseData.start === null || axisCollapseData.final === null || axisCollapseData.final === undefined) {
-      throw new Error('Axis collapse tween requires chart data');
+  if (axisContractionData.deltaPercentage !== 0) {
+    if (axisContractionData.start === null || axisContractionData.final === null || axisContractionData.final === undefined) {
+      throw new Error('Axis contraction tween requires chart data');
     }
     tweenData.push({
-      onStart: () => { updateCallback(axisCollapseData.start, dataTweenCollapseStart); },
-      onUpdate: (percentage) => { updateCallback(getChartDataForAxisDelta(mochartConfig, chartAnimationData, false, percentage), dataTweenCollapseUpdate); },
-      onComplete: () => { updateCallback(axisCollapseData.final, dataTweenCollapseComplete); },
-      duration: mochartConfig.animation.collapseDuration * axisCollapseData.deltaPercentage
+      onStart: () => { updateCallback(axisContractionData.start, dataTweenContractStart); },
+      onUpdate: (percentage) => { updateCallback(getChartDataForAxisDelta(mochartConfig, chartAnimationData, false, percentage), dataTweenContractUpdate); },
+      onComplete: () => { updateCallback(axisContractionData.final, dataTweenContractComplete); },
+      duration: mochartConfig.animation.contractionDuration * axisContractionData.deltaPercentage
     });
   }
   else {
-    const { start, final } = axisCollapseData;
+    const { start, final } = axisContractionData;
     if (start !== null && final !== null && start !== final) {
       tweenData.push({
-        onStart: () => { updateCallback(start, dataTweenCollapseStart); },
-        onUpdate: () => { updateCallback(final, dataTweenCollapseUpdate); },
-        onComplete: () => { updateCallback(final, dataTweenCollapseComplete); },
+        onStart: () => { updateCallback(start, dataTweenContractStart); },
+        onUpdate: () => { updateCallback(final, dataTweenContractUpdate); },
+        onComplete: () => { updateCallback(final, dataTweenContractComplete); },
         duration: 0
       });
     }

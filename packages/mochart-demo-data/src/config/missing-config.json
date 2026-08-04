@@ -9,7 +9,7 @@
   },
   "categoryAxis": {
     "title": "Group Axis",
-    "gridLines": true,
+    "showGridLines": true,
     "valueLabel": "Category",
     "property": "category"
   },

@@ -33,11 +33,11 @@ export default class AxisGridContainer extends Renderer<AxisGridContainerProps> 
     const { valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
     const { group: categoryAxisData, series: valueAxisData } = axisData;
     const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
-    const { gridLinesFront } = categoryAxisConfig;
+    const { gridLineFront } = categoryAxisConfig;
 
     this.root.set({ className: mochartCssClasses['axisGridContainer'] });
 
-    if (gridLinesFront !== front) {
+    if (gridLineFront !== front) {
       this.categoryGrid.set(null);
     }
     else {
@@ -46,8 +46,8 @@ export default class AxisGridContainer extends Renderer<AxisGridContainerProps> 
 
     const items = [];
     for (const axisConfig of valueAxisConfigs) {
-      const { id, seriesConfigs, useSeriesFocus, gridLinesFront } = axisConfig;
-      if (gridLinesFront !== front) {
+      const { id, seriesConfigs, useSeriesFocus, gridLineFront } = axisConfig;
+      if (gridLineFront !== front) {
         continue;
       }
       const axisFocusPercentage = valueAxisFocusPercentages[id];

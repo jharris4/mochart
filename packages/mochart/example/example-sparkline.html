@@ -60,8 +60,8 @@
             categoryAxis: { property: 'i', type: 'string', scale: 'ordinal' },
             valueAxes: [{ id: 'sa', base: 0, min: -1, max: 1 }],
             series: [
-                { axis: 'sa', property: 'up', renderer: 'bar', skipMissing: true, fillColor: '#1baf7a' },
-                { axis: 'sa', property: 'down', renderer: 'bar', skipMissing: true, fillColor: '#e34948' }
+                { axis: 'sa', property: 'up', renderer: 'bar', missingValues: 'connect', fillColor: '#1baf7a' },
+                { axis: 'sa', property: 'down', renderer: 'bar', missingValues: 'connect', fillColor: '#e34948' }
             ]
         };
 
@@ -95,7 +95,7 @@
             for (const metric of metrics) {
                 const data = metric.generate();
                 const mochartConfig = enhanceConfig(createSparklineConfig(metric.config));
-                const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.categoryAxisConfig.property);
+                const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.categoryAxis.property);
                 metric.valueEl.textContent = latestText(metric, data);
                 if (metric.chart === null) {
                     metric.chart = createChart(metric.chartEl, { mochartConfig, dataProvider, width: 150, height: 32 });

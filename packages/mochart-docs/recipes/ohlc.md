@@ -22,8 +22,8 @@ import * as ohlc from '../examples/ohlc'
   [`barWidthFraction`](/reference/series#series.barWidthFraction),
   plus per direction an open and a close tick. Every row carries values for
   exactly one direction, and
-  [`skipMissing`](/reference/series#series.skipMissing) with
-  [`skipPartialRange`](/reference/series#series.skipPartialRange)
+  [`missingValues: 'connect'`](/reference/series#series.missingValues) with
+  [`partialRangeIsMissing`](/reference/series#series.partialRangeIsMissing)
   keeps the other direction's series from rendering.
 - The ticks are ranged bars whose `property` and
   [`rangeProperty`](/reference/series#series.rangeProperty)

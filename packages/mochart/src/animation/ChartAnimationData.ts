@@ -4,7 +4,7 @@ import { getSeriesDataWithSeriesCounts, getSeriesDataWithFilteredFlags } from '.
 
 import { getInitialCategoryDeltaData, getCategoryDeltaData } from './CategoryAnimationData';
 
-import { emptyAxisDeltaData, getTransitionAxisExpansionData, getTransitionAxisCollapseData } from './DomainAnimationData';
+import { emptyAxisDeltaData, getTransitionAxisExpansionData, getTransitionAxisContractionData } from './DomainAnimationData';
 
 import { getInitialValueChangeData, getFilterDeltaData, getTransitionValueChangeData } from './SeriesAnimationData';
 
@@ -32,7 +32,7 @@ export function getChartAnimationData(
   let categoryDeltaData: CategoryDeltaData;
   let axisExpansionData: AxisTransitionData;
   let valueChangeData: ValueChangeData;
-  let axisCollapseData: AxisTransitionData;
+  let axisContractionData: AxisTransitionData;
 
   const initialAnimation = getChartDataCategoryCount(oldChartData) === 0;
 
@@ -40,7 +40,7 @@ export function getChartAnimationData(
     categoryDeltaData = getInitialCategoryDeltaData(mochartConfig.categoryAxis, newChartData.categoryData);
     axisExpansionData = emptyAxisDeltaData as EmptyAxisDeltaData;
     valueChangeData = getInitialValueChangeData(mochartConfig, newChartData) as ValueChangeData;
-    axisCollapseData = emptyAxisDeltaData as EmptyAxisDeltaData;
+    axisContractionData = emptyAxisDeltaData as EmptyAxisDeltaData;
   }
   else {
     if (oldChartData === null) {
@@ -56,7 +56,7 @@ export function getChartAnimationData(
       throw new Error('Axis expansion did not produce final chart data');
     }
     valueChangeData = getTransitionValueChangeData(mochartConfig, axisExpansionData.final, newChartData, categoryDeltaData) as ValueChangeData;
-    axisCollapseData = getTransitionAxisCollapseData(mochartConfig, valueChangeData.final, newChartData, categoryDeltaData) as AxisTransitionData;
+    axisContractionData = getTransitionAxisContractionData(mochartConfig, valueChangeData.final, newChartData, categoryDeltaData) as AxisTransitionData;
   }
 
   return {
@@ -64,7 +64,7 @@ export function getChartAnimationData(
     categoryDeltaData,
     axisExpansionData,
     valueChangeData,
-    axisCollapseData
+    axisContractionData
   }
 }
 

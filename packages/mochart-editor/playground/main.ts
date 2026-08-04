@@ -78,7 +78,7 @@ function showDiagnostics(nextDiagnostics: readonly JsonEditorDiagnostic[]) {
     button.type = 'button';
     button.className = `problem ${diagnostic.severity}`;
     button.setAttribute('aria-label', `${diagnostic.severity} at ${location}: ${diagnostic.message}`);
-    button.addEventListener('click', () => editor.focusRange(diagnostic.from, diagnostic.to));
+    button.addEventListener('click', () => editor.showFocusRange(diagnostic.from, diagnostic.to));
     severity.className = 'problem-severity';
     severity.textContent = diagnostic.severity;
     message.className = 'problem-message';
@@ -149,7 +149,7 @@ document.querySelector<HTMLButtonElement>('#apply')!.addEventListener('click', (
       status.textContent = 'Fix the highlighted problems first';
       status.dataset.state = 'invalid';
       const firstError = diagnostics.find(diagnostic => diagnostic.severity === 'error');
-      if (firstError) editor.focusRange(firstError.from, firstError.to);
+      if (firstError) editor.showFocusRange(firstError.from, firstError.to);
       return;
     }
     chart.update({ config: nextConfig as MochartInputConfig });

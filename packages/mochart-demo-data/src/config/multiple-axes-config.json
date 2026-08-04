@@ -8,12 +8,12 @@
     "expansionDuration": 500,
     "initialDuration": 500,
     "valueChangeDuration": 500,
-    "collapseDuration": 500,
+    "contractionDuration": 500,
     "focusDuration": 700
   },
   "categoryAxis": {
     "title": "Time (in Minutes)",
-    "axisLine": true,
+    "showAxisLine": true,
     "axisLineMargin": 0,
     "tickLabelFormat": "%_H:%M",
     "type": "date",
@@ -25,7 +25,7 @@
   },
   "valueAxisDefaults": {
     "axisLineMargin": 0,
-    "gridLines": false,
+    "showGridLines": false,
     "min": 0
   },
   "valueAxes": [
@@ -41,7 +41,7 @@
       "side": "start"
     },
     {
-      "gridLines": true,
+      "showGridLines": true,
       "id": "VA2",
       "side": "end"
     },

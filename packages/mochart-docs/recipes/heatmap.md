@@ -43,7 +43,7 @@ import * as heatmap from '../examples/heatmap'
   [`valueFormat`](/reference/series#series.valueFormat)
   formats it as usual.
 - `null`/`undefined` cells leave a gap in the grid:
-  [`skipMissing`](/reference/series#series.skipMissing) skips
+  [`missingValues: 'connect'`](/reference/series#series.missingValues) skips
   them without disturbing their neighbours. `cellPadding` sets the gap
   between cells (0 for a contiguous grid), and `columnLabels` names the
   columns (defaults to 1-based numbers).

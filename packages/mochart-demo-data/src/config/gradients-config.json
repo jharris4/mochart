@@ -8,11 +8,11 @@
     "expansionDuration": 500,
     "initialDuration": 500,
     "valueChangeDuration": 500,
-    "collapseDuration": 500,
+    "contractionDuration": 500,
     "focusDuration": 700
   },
   "categoryAxis": {
-    "axisLine": true,
+    "showAxisLine": true,
     "axisLineMargin": 0,
     "type": "number",
     "scale": "ordinal",
@@ -22,7 +22,7 @@
   },
   "valueAxes": {
     "axisLineMargin": 0,
-    "gridLines": true,
+    "showGridLines": true,
     "min": 0,
     "side": "start"
   },

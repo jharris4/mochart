@@ -54,7 +54,7 @@ export function getChartDataForAxisDelta(
   expand: boolean,
   percentage: number
 ): AnimationChartData {
-  const axisDeltaData = requireAxisDeltaData(expand ? chartAnimationData.axisExpansionData : chartAnimationData.axisCollapseData);
+  const axisDeltaData = requireAxisDeltaData(expand ? chartAnimationData.axisExpansionData : chartAnimationData.axisContractionData);
   if (percentage === 0) {
     return axisDeltaData.start;
   }

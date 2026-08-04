@@ -61,7 +61,7 @@ series draws no shape, and only its markers remain.
 - For bubbles, point
   [`markerProperty`](/reference/series#series.markerProperty)
   at a data property; marker sizes scale between
-  [`minMarkerSize`](/reference/series#series.minMarkerSize) and
+  [`markerMinSize`](/reference/series#series.markerMinSize) and
   [`markerSize`](/reference/series#series.markerSize) with the
   property's value.
 - Every series reads its x from the row's category value, so series share x

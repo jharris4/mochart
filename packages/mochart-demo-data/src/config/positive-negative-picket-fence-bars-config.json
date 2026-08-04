@@ -11,7 +11,7 @@
     "expansionDuration": 300,
     "initialDuration": 3000,
     "valueChangeDuration": 3000,
-    "collapseDuration": 300,
+    "contractionDuration": 300,
     "focusDuration": 500
   },
   "categoryAxis": {

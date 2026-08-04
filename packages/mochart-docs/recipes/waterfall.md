@@ -22,10 +22,10 @@ import * as waterfall from '../examples/waterfall'
   total — all spanning from the shared `start` property via
   [`rangeProperty`](/reference/series#series.rangeProperty).
   Every row carries a value for exactly one of them, and
-  [`skipMissing`](/reference/series#series.skipMissing) with
-  [`skipPartialRange`](/reference/series#series.skipPartialRange)
+  [`missingValues: 'connect'`](/reference/series#series.missingValues) with
+  [`partialRangeIsMissing`](/reference/series#series.partialRangeIsMissing)
   keeps the other two from rendering (`start` exists on every row, so without
-  `skipPartialRange` they would collapse to zero-height bars instead of
+  `partialRangeIsMissing` they would collapse to zero-height bars instead of
   skipping), so each slot shows one full-width bar while the legend still
   names the three directions.
 - The default direction colors are aqua/red/blue rather than the

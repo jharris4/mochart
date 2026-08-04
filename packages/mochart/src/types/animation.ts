@@ -159,7 +159,7 @@ export interface ChartAnimationData {
   categoryDeltaData: CategoryDeltaData;
   axisExpansionData: AxisTransitionData;
   valueChangeData: ValueChangeData;
-  axisCollapseData: AxisTransitionData;
+  axisContractionData: AxisTransitionData;
 }
 
 export interface CategoryMergedValuesData {

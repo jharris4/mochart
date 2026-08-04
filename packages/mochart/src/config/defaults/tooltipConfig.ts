@@ -15,19 +15,19 @@ export function getRegularDefaults() {
   return {
     visible: true,
     applyFocus: true,
-    mouseOver: false,
+    followPointer: false,
     closeOnClick: true,
-    filterOnSeriesClick: false,
-    focusOnCategoryClick: false,
-    focusOnSeriesClick: false,
-    focusOnCategoryMouseOver: false,
-    focusOnSeriesMouseOver: false,
+    filterSeriesOnClick: false,
+    focusCategoryOnClick: false,
+    focusSeriesOnClick: false,
+    focusCategoryOnMouseOver: false,
+    focusSeriesOnMouseOver: false,
     showControls: false,
     keepInside: false,
     minWidth: 120,
-    padding: 2,
+    padding: { top: 2, right: 2, bottom: 2, left: 2 },
     linePadding: 3,
-    alignValues: true,
+    rightAlignValues: true,
     // Html, not svg: a null opacity leaves the color's own alpha alone, a named one is composited into it (utils/style cssStyleColor).
     backgroundStyle: { strokeColor: 'rgba(0,0,0,0.3)', strokeOpacity: NONE, strokeWidth: 2, fillColor: 'rgba(255,255,255,0.9)', fillOpacity: NONE },
     borderRadius: 4,
@@ -54,7 +54,7 @@ export function getRegularDefaults() {
     filteredValueText: NONE,
     filteredValueCharacter: '-',
     missingValueText: 'N/A',
-    rangeValueText: ' - '
+    rangeValueSeparator: ' - '
   };
 }
 

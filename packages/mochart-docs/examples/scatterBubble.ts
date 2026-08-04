@@ -26,7 +26,7 @@ export const config: MochartInputConfig = {
       title: 'v2',
       markerShape: 'diamond',
       markerProperty: 'v2Errors',
-      minMarkerSize: 4,
+      markerMinSize: 4,
       markerSize: 16
     }
   ]

@@ -130,15 +130,15 @@ export interface AnimationConfig {
    */
   valueChangeDuration: number;
   /**
-   * The maximum duration for the axis collapse animation phase when new data is
-   * removed from the chart.
+   * The maximum duration for the axis contraction animation phase when new data
+   * is removed from the chart.
    *
    * Duration (in milliseconds) of the axis contraction phase, which plays last
    * when the settled data needs smaller axis domains.
    *
    * @default 1000
    */
-  collapseDuration: number;
+  contractionDuration: number;
   /**
    * The duration of animation showing the transition between focus on a
    * specific series or category value.
@@ -948,7 +948,7 @@ export interface TooltipConfig extends SeriesIconConfig {
    *
    * @default false
    */
-  mouseOver: boolean;
+  followPointer: boolean;
   /**
    * Whether to hide the tooltip when the user clicks/taps within it.
    *
@@ -961,35 +961,35 @@ export interface TooltipConfig extends SeriesIconConfig {
    *
    * @default false
    */
-  filterOnSeriesClick: boolean;
+  filterSeriesOnClick: boolean;
   /**
    * Whether category values should be focused when the user clicks/taps on them
    * in the tooltip.
    *
    * @default false
    */
-  focusOnCategoryClick: boolean;
+  focusCategoryOnClick: boolean;
   /**
    * Whether series should be focused when the user clicks/taps on them in the
    * tooltip.
    *
    * @default false
    */
-  focusOnSeriesClick: boolean;
+  focusSeriesOnClick: boolean;
   /**
    * Whether category values should be focused when the user mouses over them in
    * the tooltip.
    *
    * @default false
    */
-  focusOnCategoryMouseOver: boolean;
+  focusCategoryOnMouseOver: boolean;
   /**
    * Whether series should be focused when the user mouses over them in the
    * tooltip.
    *
    * @default false
    */
-  focusOnSeriesMouseOver: boolean;
+  focusSeriesOnMouseOver: boolean;
   /**
    * Whether the category value should be shown as the first line of the
    * tooltip.
@@ -1020,11 +1020,12 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   minWidth: number;
   /**
-   * The padding (in pixels) to show on each side of the tooltip.
+   * The padding (in pixels) for the top, right, bottom and left sides of the
+   * tooltip.
    *
-   * @default 2
+   * @default { top: 2, right: 2, bottom: 2, left: 2 }
    */
-  padding: number;
+  padding: MarginPadding;
   /**
    * The padding (in pixels) between each line of the tooltip.
    *
@@ -1036,7 +1037,7 @@ export interface TooltipConfig extends SeriesIconConfig {
    *
    * @default true
    */
-  alignValues: boolean;
+  rightAlignValues: boolean;
   /**
    * The styles to apply to the tooltip box (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
@@ -1079,7 +1080,7 @@ export interface TooltipConfig extends SeriesIconConfig {
    *
    * When `true`, the label of a series that has been filtered out of the chart
    * is drawn with a line through it. The strike-through covers the label only,
-   * so the value beside it stays legible — except when `alignValues` is
+   * so the value beside it stays legible — except when `rightAlignValues` is
    * `false`, where the label and the value are one piece of text and both are
    * struck.
    *
@@ -1136,7 +1137,7 @@ export interface TooltipConfig extends SeriesIconConfig {
    *
    * @default " - "
    */
-  rangeValueText: string;
+  rangeValueSeparator: string;
 }
 
 /**
@@ -1175,7 +1176,7 @@ export interface AxisConfigBase {
    *
    * @default true
    */
-  axisLine: boolean;
+  showAxisLine: boolean;
   /**
    * Whether the axis line should be shown in front (true) or behind (false) the
    * series shapes.
@@ -1237,7 +1238,7 @@ export interface AxisConfigBase {
    * Group axis default: `false`.
    * Series axis default: `true`.
    */
-  focusRange: boolean;
+  showFocusRange: boolean;
   /**
    * Whether the focus range should be shown in front (true) or behind (false)
    * the series shapes.
@@ -1266,14 +1267,14 @@ export interface AxisConfigBase {
    * Group axis default: `true`.
    * Series axis default: `false`.
    */
-  focusTickMarks: boolean;
+  showFocusTickMarks: boolean;
   /**
    * Whether the focus tick marks should be shown in front (true) or behind
    * (false) the series shapes.
    *
    * @default false
    */
-  focusTickMarksFront: boolean;
+  focusTickMarkFront: boolean;
   /**
    * The length (in pixels) of the focus tick mark line(s).
    *
@@ -1299,14 +1300,14 @@ export interface AxisConfigBase {
    *
    * @default false
    */
-  gridLines: boolean;
+  showGridLines: boolean;
   /**
    * Whether the axis grid lines should be shown in front (true) or behind
    * (false) the series shapes.
    *
    * @default false
    */
-  gridLinesFront: boolean;
+  gridLineFront: boolean;
   /**
    * The style of the axis grid lines.
    *
@@ -1540,7 +1541,7 @@ export interface AxisConfigBase {
    *
    * @default true
    */
-  tickMarks: boolean;
+  showTickMarks: boolean;
   /**
    * Whether the axis tick marks should be shown in front (true) or behind
    * (false) the series shapes.
@@ -1852,7 +1853,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    *
    * @default true
    */
-  baseLine: boolean;
+  showBaseLine: boolean;
   /**
    * Whether the base line should be shown in front (true) or behind (false) the
    * series shapes.
@@ -2479,7 +2480,7 @@ export interface SeriesConfig {
    *
    * @default 1
    */
-  minMarkerSize: number;
+  markerMinSize: number;
   /**
    * The maximum marker size (in pixels) to use when interpolating the marker
    * size based on a marker property value, or the marker size when no marker
@@ -2612,7 +2613,6 @@ export interface SeriesStackConfig {
    * - `SS${index}` — series stack index
    */
   id: string;
-  order?: number;
   /**
    * The unique identifier of the series axis that the series stack belongs to.
    *
@@ -2655,7 +2655,6 @@ export interface SeriesGroupConfig {
    * - `SG${index}` — series group index
    */
   id: string;
-  order?: number;
 }
 
 export interface GradientStop {

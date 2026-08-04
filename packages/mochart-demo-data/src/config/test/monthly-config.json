@@ -8,14 +8,14 @@
     "expansionDuration": 300,
     "initialDuration": 300,
     "valueChangeDuration": 300,
-    "collapseDuration": 300,
+    "contractionDuration": 300,
     "focusDuration": 500
   },
   "categoryAxis": {
     "title": "Month",
-    "axisLine": true,
+    "showAxisLine": true,
     "axisLineMargin": 0,
-    "gridLines": true,
+    "showGridLines": true,
     "tickLabelFormat": "%b",
     "tickLabelRotation": 45,
     "tickCount": 12,
@@ -31,7 +31,7 @@
     {
       "visible": true,
       "axisLineMargin": 0,
-      "gridLines": true,
+      "showGridLines": true,
       "tickLabelFormat": "$s",
       "title": "Monthly Amount",
       "min": 0,

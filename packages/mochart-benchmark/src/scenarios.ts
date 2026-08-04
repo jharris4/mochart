@@ -56,7 +56,7 @@ export function makeConfig(type: ScenarioType, seriesCount: number, options: Sce
       animate: options.animate,
       expansionDuration: 300,
       valueChangeDuration: 300,
-      collapseDuration: 300,
+      contractionDuration: 300,
       focusDuration: 300
     },
     legend: { visible: options.legend },

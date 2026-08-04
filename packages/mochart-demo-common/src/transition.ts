@@ -18,7 +18,7 @@ export const defaultTransitionConfig: TransitionConfig = {
       "initialDuration": 1000,
       "expansionDuration": 3000,
       "valueChangeDuration": 3000,
-      "collapseDuration": 3000
+      "contractionDuration": 3000
     },
     "categoryAxis": {
       "property": "timestamp",

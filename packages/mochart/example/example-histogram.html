@@ -57,7 +57,7 @@
         let chart = null;
 
         function render() {
-            const { data, categoryAxisConfig, seriesConfig } = createHistogram(samples, {
+            const { data, categoryAxis: categoryAxisConfig, seriesConfig } = createHistogram(samples, {
                 binCount: useAutoBins ? undefined : Number(document.getElementById('binCount').value),
                 normalize: document.getElementById('normalize').value,
                 cumulative: document.getElementById('cumulative').checked
@@ -70,7 +70,7 @@
                 valueAxes: [{ id: 'sa', min: 0 }],
                 series: [{ ...seriesConfig, axis: 'sa' }]
             });
-            const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.categoryAxisConfig.property);
+            const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.categoryAxis.property);
 
             if (chart === null) {
                 chart = createChart(chartEl, { mochartConfig, dataProvider, width: 720, height: 400 });

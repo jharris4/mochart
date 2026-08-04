@@ -23,7 +23,7 @@ const editor = createJsonEditor(document.querySelector('#editor')!, {
 editor.format();
 editor.setValue(nextValue);
 editor.setTheme('dark');
-editor.focusRange(diagnostic.from, diagnostic.to);
+editor.showFocusRange(diagnostic.from, diagnostic.to);
 editor.destroy();
 ```
 

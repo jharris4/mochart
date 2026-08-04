@@ -161,7 +161,7 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Enhanc
   if (seriesValueText !== null && rangeSeriesValueText !== null) {
     // A range whose two ends format identically collapses to the single value,
     // e.g. an OHLC open/close tick whose property and rangeProperty match.
-    valueText = rangeSeriesValueText === seriesValueText ? seriesValueText : rangeSeriesValueText + tooltipConfig.rangeValueText + seriesValueText;
+    valueText = rangeSeriesValueText === seriesValueText ? seriesValueText : rangeSeriesValueText + tooltipConfig.rangeValueSeparator + seriesValueText;
   }
   else if (seriesValueText !== null) {
     valueText = seriesValueText;
@@ -170,7 +170,7 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Enhanc
     valueText = rangeSeriesValueText;
   }
   const errorValueText = errorLowValueText !== null && errorHighValueText !== null ?
-    errorLowValueText + tooltipConfig.rangeValueText + errorHighValueText :
+    errorLowValueText + tooltipConfig.rangeValueSeparator + errorHighValueText :
     (errorLowValueText ?? errorHighValueText);
   if (errorValueText !== null) {
     valueText = valueText === null ? '(' + errorValueText + ')' : valueText + ' (' + errorValueText + ')';

@@ -768,7 +768,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onChartMouseEnter } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseEnter?.(eventPayload);
-    if (mochartConfig.tooltip.mouseOver) {
+    if (mochartConfig.tooltip.followPointer) {
       this.toggleTooltip(eventPayload);
     }
   }
@@ -777,7 +777,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onFocus, onChartMouseMove } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseMove?.(eventPayload);
-    if (mochartConfig.tooltip.mouseOver) {
+    if (mochartConfig.tooltip.followPointer) {
       const { valuePercentage: seriesPercentage, categoryIndex } = eventPayload;
       if (mochartConfig.tooltip.visible) {
         onFocus?.({ categoryIndex });
@@ -793,7 +793,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onChartMouseLeave } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseLeave?.(eventPayload);
-    if (mochartConfig.tooltip.mouseOver) {
+    if (mochartConfig.tooltip.followPointer) {
       this.toggleTooltip(eventPayload);
     }
   }
@@ -802,7 +802,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onChartClick } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartClick?.(eventPayload);
-    if (!mochartConfig.tooltip.mouseOver) {
+    if (!mochartConfig.tooltip.followPointer) {
       this.toggleTooltip(eventPayload);
     }
   }

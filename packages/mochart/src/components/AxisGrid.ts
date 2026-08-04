@@ -37,7 +37,7 @@ export default class AxisGrid extends Renderer<AxisGridProps> {
 
   sync() {
     const { vertical, axisConfig, seriesLayoutInfo, axisFocusPercentage, seriesFocusPercentage, axisGridClass, axisTicks } = this.props;
-    if (axisConfig.visible && axisConfig.gridLines) {
+    if (axisConfig.visible && axisConfig.showGridLines) {
       let tickX = 0;
       let tickY = 0;
 

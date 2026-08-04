@@ -171,7 +171,7 @@
     "expansionDuration": 1000,
     "initialDuration": 1000,
     "valueChangeDuration": 1000,
-    "collapseDuration": 1000
+    "contractionDuration": 1000
   },
   "categoryAxis": {
     "valueLabel": "Category",

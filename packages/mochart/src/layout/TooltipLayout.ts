@@ -18,9 +18,9 @@ export function getTooltipLayoutInfo(mochartConfig: EnhancedMochartConfig, toolt
   let { width, height } = tooltipBounds;
   // A null border width leaves the css unset, so the border occupies nothing.
   const borderWidth = tooltipConfig.backgroundStyle.strokeWidth ?? 0;
-  const extraWidth = 2 * (borderWidth + tooltipConfig.padding);
-  width+= extraWidth;
-  height+= extraWidth;
+  const { padding } = tooltipConfig;
+  width += 2 * borderWidth + padding.left + padding.right;
+  height += 2 * borderWidth + padding.top + padding.bottom;
   const categoryOffset = tooltipConfig.snapToCategory ? categoryValueData!.positions[focusedCategoryIndex] : tooltipCategoryPercentage * seriesLayoutInfo.categoryExtent;
   const seriesOffset = tooltipSeriesPercentage * seriesLayoutInfo.valueExtent;
 

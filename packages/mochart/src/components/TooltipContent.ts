@@ -168,7 +168,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       visible, renderHTML: true
     };
 
-    if (tooltipConfig.alignValues) {
+    if (tooltipConfig.rightAlignValues) {
       const container = this.line.set('aligned', () => this.buildAlignedLine()) as AlignedLineEl;
       container.set({ style: alignedLineStyle });
       container.leftHandle.set({ style: { float: 'left' } });
@@ -217,8 +217,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mochartConfig, tooltipCategoryIndex, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusOnCategoryMouseOver } = tooltipConfig;
-    const shouldFocus = focusOnCategoryMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const { showControls, focusCategoryOnMouseOver } = tooltipConfig;
+    const shouldFocus = focusCategoryOnMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
       onFocus({ categoryIndex: tooltipCategoryIndex });
     }
@@ -228,8 +228,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusOnCategoryMouseOver } = tooltipConfig;
-    const shouldFocus = focusOnCategoryMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const { showControls, focusCategoryOnMouseOver } = tooltipConfig;
+    const shouldFocus = focusCategoryOnMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
       onFocus({ categoryIndex: null });
     }
@@ -239,8 +239,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mochartConfig, tooltipCategoryIndex, focusedCategoryIndex, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusOnCategoryClick } = tooltipConfig;
-    const shouldFocus = showControls ? mode === MODE_FOCUS : focusOnCategoryClick;
+    const { showControls, focusCategoryOnClick } = tooltipConfig;
+    const shouldFocus = showControls ? mode === MODE_FOCUS : focusCategoryOnClick;
     if (shouldFocus) {
       event.stopPropagation();
       onFocus({ categoryIndex: focusedCategoryIndex === tooltipCategoryIndex ? -1 : tooltipCategoryIndex });
@@ -251,8 +251,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusOnSeriesMouseOver } = tooltipConfig;
-    const shouldFocus = focusOnSeriesMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const { showControls, focusSeriesOnMouseOver } = tooltipConfig;
+    const shouldFocus = focusSeriesOnMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
       onFocus({ seriesId });
     }
@@ -262,8 +262,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mochartConfig, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusOnSeriesMouseOver } = tooltipConfig;
-    const shouldFocus = focusOnSeriesMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const { showControls, focusSeriesOnMouseOver } = tooltipConfig;
+    const shouldFocus = focusSeriesOnMouseOver && (showControls ? mode === MODE_FILTER : true);
     if (shouldFocus) {
       onFocus({ seriesId: null });
     }
@@ -273,9 +273,9 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mode } = this.state;
     const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
     const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusOnSeriesClick, filterOnSeriesClick } = tooltipConfig;
-    const shouldFocus = showControls ? mode === MODE_FOCUS : focusOnSeriesClick;
-    const shouldFilter = showControls ? mode === MODE_FILTER : filterOnSeriesClick;
+    const { showControls, focusSeriesOnClick, filterSeriesOnClick } = tooltipConfig;
+    const shouldFocus = showControls ? mode === MODE_FOCUS : focusSeriesOnClick;
+    const shouldFilter = showControls ? mode === MODE_FILTER : filterSeriesOnClick;
     if (shouldFocus || shouldFilter) {
       event.stopPropagation();
       if (shouldFocus) {

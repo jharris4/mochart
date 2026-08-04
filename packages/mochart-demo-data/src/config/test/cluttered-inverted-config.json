@@ -11,11 +11,16 @@
     "expansionDuration": 1000,
     "initialDuration": 1000,
     "valueChangeDuration": 1000,
-    "collapseDuration": 1000,
+    "contractionDuration": 1000,
     "focusDuration": 1000
   },
   "tooltip": {
-    "padding": 1,
+    "padding": {
+      "top": 1,
+      "right": 1,
+      "bottom": 1,
+      "left": 1
+    },
     "backgroundStyle": {
       "strokeColor": "rgba(0,0,0,0.8)",
       "strokeWidth": 3,
@@ -25,7 +30,7 @@
   "categoryAxis": {
     "title": "Group Axis",
     "axisLineMargin": 3,
-    "gridLines": true,
+    "showGridLines": true,
     "type": "number",
     "scale": "ordinal",
     "valueLabel": "Category",

@@ -12,7 +12,7 @@
   },
   "categoryAxis": {
     "title": "Group Axis",
-    "gridLines": true,
+    "showGridLines": true,
     "min": "auto",
     "max": "auto",
     "type": "number",
@@ -30,8 +30,8 @@
   "valueAxes": [
     {
       "title": "Series Axis 1",
-      "axisLine": true,
-      "gridLines": false,
+      "showAxisLine": true,
+      "showGridLines": false,
       "id": "VA0",
       "base": 0,
       "side": "start"

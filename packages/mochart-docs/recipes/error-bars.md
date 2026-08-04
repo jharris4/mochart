@@ -34,7 +34,7 @@ import * as errorBars from '../examples/errorBars'
   meaning against a cumulative stack position — and config validation
   rejects the combination.
 - The tooltip appends the bounds after the value, joined by the tooltip's
-  `rangeValueText`: `56.5 (53.9 - 58.6)`.
+  `rangeValueSeparator`: `56.5 (53.9 - 58.6)`.
 - Styling: [`errorBarCapSize`](/reference/series#series.errorBarCapSize)
   sets the cap width in pixels (`0` hides the caps; on bars the caps clamp to
   the bar slot), and

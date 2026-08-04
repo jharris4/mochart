@@ -21,8 +21,8 @@ export function getRegularDefaults() {
 
     displayProperty: NONE,
 
-    focusRange: false,
-    focusTickMarks: true,
+    showFocusRange: false,
+    showFocusTickMarks: true,
 
     categoryPaddingFraction: { inner: 0.1, outer: 0.1 },
     categoryCountPadding: 1,

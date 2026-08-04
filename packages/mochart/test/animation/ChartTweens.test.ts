@@ -11,7 +11,7 @@ import {
   getChartTweenManager,
   dataTweenExpandStart, dataTweenExpandUpdate, dataTweenExpandComplete,
   dataTweenValueStart, dataTweenValueUpdate, dataTweenValueComplete,
-  dataTweenCollapseStart, dataTweenCollapseUpdate, dataTweenCollapseComplete
+  dataTweenContractStart, dataTweenContractUpdate, dataTweenContractComplete
 } from '../../src/animation/ChartTweens';
 import { getChartDataForAxisDelta, getChartDataForValueDelta } from '../../src/animation/ChartAnimation';
 import { getFocusDataForPercent } from '../../src/animation/FocusAnimation';
@@ -21,7 +21,7 @@ import type { AnimationChartData, ChartAnimationData, FocusAnimationData, FocusD
 
 vi.mock('../../src/animation/ChartAnimation', () => ({
   getChartDataForAxisDelta: vi.fn((_config: unknown, _data: unknown, expand: boolean, percentage: number) =>
-    ({ interpolated: expand ? 'expand' : 'collapse', percentage })),
+    ({ interpolated: expand ? 'expand' : 'contraction', percentage })),
   getChartDataForValueDelta: vi.fn((_config: unknown, _data: unknown, percentage: number) =>
     ({ interpolated: 'value', percentage }))
 }));
@@ -43,12 +43,12 @@ function phaseData(deltaPercentage: number, start: unknown, final: unknown) {
 
 const settled = sentinel('none', 'settled');
 
-function makeAnimationData(overrides: Partial<Record<'axisExpansionData' | 'valueChangeData' | 'axisCollapseData', unknown>> & { initialAnimation?: boolean } = {}): ChartAnimationData {
+function makeAnimationData(overrides: Partial<Record<'axisExpansionData' | 'valueChangeData' | 'axisContractionData', unknown>> & { initialAnimation?: boolean } = {}): ChartAnimationData {
   return {
     initialAnimation: false,
     axisExpansionData: phaseData(0, settled, settled),
     valueChangeData: phaseData(0, settled, settled),
-    axisCollapseData: phaseData(0, settled, settled),
+    axisContractionData: phaseData(0, settled, settled),
     ...overrides
   } as unknown as ChartAnimationData;
 }
@@ -59,7 +59,7 @@ function makeConfig(overrides: Record<string, number> = {}): EnhancedMochartConf
       expansionDuration: 100,
       valueChangeDuration: 100,
       initialDuration: 300,
-      collapseDuration: 100,
+      contractionDuration: 100,
       focusDuration: 100,
       ...overrides
     }
@@ -124,15 +124,15 @@ afterEach(() => {
 });
 
 describe('tweenData', () => {
-  it('runs expand, value and collapse phases in order with phase-correct events', () => {
+  it('runs expand, value and contraction phases in order with phase-correct events', () => {
     const manager = makeManager();
     const { events, record } = makeRecorder();
     const expandStart = sentinel('expand', 'start');
     const expandFinal = sentinel('expand', 'final');
     const valueStart = sentinel('value', 'start');
     const valueFinal = sentinel('value', 'final');
-    const collapseStart = sentinel('collapse', 'start');
-    const collapseFinal = sentinel('collapse', 'final');
+    const contractionStart = sentinel('contraction', 'start');
+    const contractionFinal = sentinel('contraction', 'final');
     const startCallback = vi.fn();
     const completeCallback = vi.fn();
     const startValueChangeCallback = vi.fn();
@@ -141,21 +141,21 @@ describe('tweenData', () => {
     manager.tweenData(makeConfig(), makeAnimationData({
       axisExpansionData: phaseData(1, expandStart, expandFinal),
       valueChangeData: phaseData(1, valueStart, valueFinal),
-      axisCollapseData: phaseData(1, collapseStart, collapseFinal)
+      axisContractionData: phaseData(1, contractionStart, contractionFinal)
     }), record, { startCallback, completeCallback, startValueChangeCallback, completeValueChangeCallback });
     runFrames();
 
     expect(eventSequence(events)).toEqual([
       dataTweenExpandStart, dataTweenExpandUpdate, dataTweenExpandComplete,
       dataTweenValueStart, dataTweenValueUpdate, dataTweenValueComplete,
-      dataTweenCollapseStart, dataTweenCollapseUpdate, dataTweenCollapseComplete
+      dataTweenContractStart, dataTweenContractUpdate, dataTweenContractComplete
     ]);
     expect(events[0]!.data).toBe(expandStart);
     expect(events.find(({ event }) => event === dataTweenExpandComplete)!.data).toBe(expandFinal);
     expect(events.find(({ event }) => event === dataTweenValueStart)!.data).toBe(valueStart);
     expect(events.find(({ event }) => event === dataTweenValueComplete)!.data).toBe(valueFinal);
-    expect(events.find(({ event }) => event === dataTweenCollapseStart)!.data).toBe(collapseStart);
-    expect(events[events.length - 1]!.data).toBe(collapseFinal);
+    expect(events.find(({ event }) => event === dataTweenContractStart)!.data).toBe(contractionStart);
+    expect(events[events.length - 1]!.data).toBe(contractionFinal);
     // intermediate frames come from the interpolators, not DOM-facing state
     expect(vi.mocked(getChartDataForAxisDelta)).toHaveBeenCalledWith(expect.anything(), expect.anything(), true, expect.any(Number));
     expect(vi.mocked(getChartDataForAxisDelta)).toHaveBeenCalledWith(expect.anything(), expect.anything(), false, expect.any(Number));
@@ -176,26 +176,26 @@ describe('tweenData', () => {
     const expandFinal = sentinel('expand', 'final');
     const valueStart = sentinel('value', 'start');
     const valueFinal = sentinel('value', 'final');
-    const collapseStart = sentinel('collapse', 'start');
-    const collapseFinal = sentinel('collapse', 'final');
+    const contractionStart = sentinel('contraction', 'start');
+    const contractionFinal = sentinel('contraction', 'final');
     const completeCallback = vi.fn();
 
     manager.tweenData(makeConfig(), makeAnimationData({
       axisExpansionData: phaseData(0, expandStart, expandFinal),
       valueChangeData: phaseData(0, valueStart, valueFinal),
-      axisCollapseData: phaseData(0, collapseStart, collapseFinal)
+      axisContractionData: phaseData(0, contractionStart, contractionFinal)
     }), record, { completeCallback });
     runFrames();
 
     expect(events.map(({ event }) => event)).toEqual([
       dataTweenExpandStart, dataTweenExpandUpdate, dataTweenExpandComplete,
       dataTweenValueStart, dataTweenValueUpdate, dataTweenValueComplete,
-      dataTweenCollapseStart, dataTweenCollapseUpdate, dataTweenCollapseComplete
+      dataTweenContractStart, dataTweenContractUpdate, dataTweenContractComplete
     ]);
     expect(events.map(({ data }) => data)).toEqual([
       expandStart, expandFinal, expandFinal,
       valueStart, valueFinal, valueFinal,
-      collapseStart, collapseFinal, collapseFinal
+      contractionStart, contractionFinal, contractionFinal
     ]);
     expect(completeCallback).toHaveBeenCalledTimes(1);
     // zero-delta steps jump straight to final; nothing to interpolate

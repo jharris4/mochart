@@ -8,15 +8,15 @@
     "expansionDuration": 300,
     "initialDuration": 300,
     "valueChangeDuration": 300,
-    "collapseDuration": 300,
+    "contractionDuration": 300,
     "focusDuration": 500
   },
   "categoryAxis": {
     "property": "month_bought",
     "type": "date",
-    "axisLine": true,
+    "showAxisLine": true,
     "axisLineMargin": 0,
-    "gridLines": true,
+    "showGridLines": true,
     "scale": "ordinal",
     "tickLabelFormat": "%B %Y",
     "tickLabelTruncationEnabled": false,
@@ -29,7 +29,7 @@
       "id": "VA0",
       "visible": true,
       "axisLineMargin": 0,
-      "gridLines": true,
+      "showGridLines": true,
       "tickLabelFormat": "$.0f",
       "min": 0,
       "side": "start"

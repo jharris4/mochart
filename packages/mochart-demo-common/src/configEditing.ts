@@ -12,7 +12,7 @@ export const slowAnimationConfig = {
   "initialDuration": 5000,
   "expansionDuration": 3000,
   "valueChangeDuration": 5000,
-  "collapseDuration": 3000,
+  "contractionDuration": 3000,
   "focusDuration": 2500
 };
 

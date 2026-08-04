@@ -194,8 +194,8 @@ describe('tooltip', () => {
     expect(container.querySelectorAll('.crosshair-line').length).toBe(0);
   });
 
-  it('opens on hover and closes on leave when mouseOver is enabled', () => {
-    const container = mountChart(makeConfig({ tooltip: { mouseOver: true } }));
+  it('opens on hover and closes on leave when followPointer is enabled', () => {
+    const container = mountChart(makeConfig({ tooltip: { followPointer: true } }));
     const root = chartRoot(container);
 
     mouse(root, 'mouseenter', 100, 100);
@@ -312,9 +312,9 @@ describe('tooltip', () => {
     expect(hiding.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S0"]')).not.toBeNull();
   });
 
-  it('renders plain series lines when alignValues is off and prefixes the group label', () => {
+  it('renders plain series lines when rightAlignValues is off and prefixes the group label', () => {
     const container = mountChart(makeConfig({
-      tooltip: { alignValues: false },
+      tooltip: { rightAlignValues: false },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', valueLabel: 'Month' }
     }));
     const root = chartRoot(container);
@@ -356,7 +356,7 @@ describe('tooltip', () => {
     const filters: Array<{ filteredSeriesIds: Record<string, boolean> }> = [];
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs' }],
-      tooltip: { focusOnSeriesClick: true, filterOnSeriesClick: true }
+      tooltip: { focusSeriesOnClick: true, filterSeriesOnClick: true }
     }), {
       onFocus: focus => { focuses.push(focus); },
       onSeriesFilter: filter => { filters.push(filter); }
@@ -383,7 +383,7 @@ describe('tooltip', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs' }],
-      tooltip: { focusOnSeriesMouseOver: true }
+      tooltip: { focusSeriesOnMouseOver: true }
     }), {
       onFocus: focus => { focuses.push(focus); }
     });
@@ -505,7 +505,7 @@ describe('tooltip', () => {
   it('draws a series crosshair line when a series is focused', () => {
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs' }],
-      tooltip: { focusOnSeriesMouseOver: true },
+      tooltip: { focusSeriesOnMouseOver: true },
       crosshair: { showSeries: true }
     }));
     const root = chartRoot(container);
@@ -533,7 +533,7 @@ describe('tooltip', () => {
 
   it('renders an axis focus range for the focused group', () => {
     const container = mountChart(makeConfig({
-      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', focusRange: true }
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', showFocusRange: true }
     }));
     const root = chartRoot(container);
 
@@ -546,7 +546,7 @@ describe('tooltip', () => {
   it('renders a vertical axis focus range when the plot is inverted', () => {
     const container = mountChart(makeConfig({
       plot: { inverted: true },
-      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', focusRange: true }
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', showFocusRange: true }
     }));
     const root = chartRoot(container);
 
@@ -639,10 +639,10 @@ describe('showFilteringOnLabels', () => {
     expect(filteredLabel.style.textDecoration).toBe('');
   });
 
-  it('strikes the whole line when alignValues puts the label and value together', () => {
+  it('strikes the whole line when rightAlignValues puts the label and value together', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltip: { alignValues: false, showFilteringOnLabels: true }
+      tooltip: { rightAlignValues: false, showFilteringOnLabels: true }
     }));
     filter(container, 'S1');
     openTooltip(container);

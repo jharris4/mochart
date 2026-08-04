@@ -7,7 +7,7 @@
     "expansionDuration": 1000,
     "initialDuration": 1000,
     "valueChangeDuration": 1000,
-    "collapseDuration": 1000
+    "contractionDuration": 1000
   },
   "categoryAxis": {
     "valueLabel": "Category",
@@ -19,7 +19,7 @@
   "valueAxes": {},
   "seriesDefaults": {
     "renderer": "none",
-    "minMarkerSize": 3,
+    "markerMinSize": 3,
     "markerSize": 24
   },
   "series": [

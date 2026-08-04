@@ -26,8 +26,8 @@ import * as candlestickVolume from '../examples/candlestickVolume'
   [`barWidthFraction`](/reference/series#series.barWidthFraction)
   and listed first so the bodies paint over them. Every row carries values
   for exactly one direction, and
-  [`skipMissing`](/reference/series#series.skipMissing) with
-  [`skipPartialRange`](/reference/series#series.skipPartialRange)
+  [`missingValues: 'connect'`](/reference/series#series.missingValues) with
+  [`partialRangeIsMissing`](/reference/series#series.partialRangeIsMissing)
   keeps the other direction's series from rendering — the same trick as the
   [Waterfall](/recipes/waterfall).
 - The category axis is ordinal, so non-trading days (weekends, holidays)

@@ -41,7 +41,7 @@ phases, so only one kind of change is in motion at a time:
 Phases that a given update doesn't need are skipped, and each phase's duration
 scales with the size of its change, so small updates stay snappy while large
 ones use the full configured duration. The per-phase durations
-(`expansionDuration`, `valueChangeDuration`, `collapseDuration`, plus
+(`expansionDuration`, `valueChangeDuration`, `contractionDuration`, plus
 `initialDuration` for first load and `focusDuration` for hover/focus
 transitions) are set in `animation`.
 

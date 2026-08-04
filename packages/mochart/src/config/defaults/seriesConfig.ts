@@ -95,7 +95,7 @@ export function getRegularDefaults() {
         belowMax: NONE
       }
     },
-    minMarkerSize: 1,
+    markerMinSize: 1,
     missingValueMarkers: false,
     markerSize: 6,
     markerStyle: {

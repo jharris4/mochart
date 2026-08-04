@@ -21,7 +21,7 @@ export function getRegularDefaults() {
 
     visibleWhenAllFiltered: true,
 
-    baseLine: true,
+    showBaseLine: true,
     baseLineFront: false,
     baseLineStyle: {
       normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },

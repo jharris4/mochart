@@ -21,7 +21,7 @@ export default class AxisFocusRange extends Renderer<AxisFocusRangeProps> {
 
   sync() {
     const { axisConfig } = this.props;
-    if (axisConfig.focusRange) {
+    if (axisConfig.showFocusRange) {
       const { axisLayoutInfo, focusPercentages } = this.props;
       const { length } = focusPercentages;
 

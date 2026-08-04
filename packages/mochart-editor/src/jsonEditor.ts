@@ -139,7 +139,7 @@ export function createJsonEditor(host: HTMLElement, options: JsonEditorOptions):
       view.dispatch({ effects: theme.reconfigure(value === 'dark' ? darkTheme : []) });
     },
     focus: () => view.focus(),
-    focusRange(from: number, to = from) {
+    showFocusRange(from: number, to = from) {
       const documentLength = view.state.doc.length;
       const anchor = Math.max(0, Math.min(from, documentLength));
       const head = Math.max(anchor, Math.min(to, documentLength));

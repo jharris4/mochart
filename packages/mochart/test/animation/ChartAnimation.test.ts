@@ -211,7 +211,7 @@ describe('filtered series-domain deltas drive the phase pacing', () => {
       dataFor([{ g: 0, a: 100, b: 25 }, { g: 1, a: 80, b: 50 }])
     ) as any;
 
-    for (const phase of [cad.axisExpansionData, cad.axisCollapseData]) {
+    for (const phase of [cad.axisExpansionData, cad.axisContractionData]) {
       const filtered = phase.deltas.domain.series.filtered;
       expect(phase.deltaPercentage).toBeGreaterThanOrEqual(filtered.deltaPercentage);
       expect(filtered.deltas.S1.deltaPercentage).toBeGreaterThan(0);
@@ -270,9 +270,9 @@ describe('hidden series are excluded from axis phase pacing', () => {
     expect(cad.axisExpansionData.final.seriesData.filtered.domains[bId].domain).toEqual([10, 90]);
   });
 
-  it('filtering has no dead collapse tail', () => {
+  it('filtering has no dead contraction tail', () => {
     const cad = getChartAnimationData(pacingConfig, dataFor({}), dataFor({ [bId]: true })) as any;
-    expect(cad.axisCollapseData.deltaPercentage).toBe(0);
+    expect(cad.axisContractionData.deltaPercentage).toBe(0);
     expect(cad.valueChangeData.deltaPercentage).toBeGreaterThan(0);
   });
 });

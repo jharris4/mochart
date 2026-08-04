@@ -21,7 +21,7 @@ function makeTooltipConfig(over: Partial<TooltipConfig> = {}): TooltipConfig {
     adjustForFiltering: false,
     showMissingValues: false,
     missingValueText: 'N/A',
-    rangeValueText: ' - ',
+    rangeValueSeparator: ' - ',
     ...over
   } as TooltipConfig;
 }

@@ -127,7 +127,7 @@ describe('animated chart interactions', () => {
   });
 
   it('interrupts a running focus animation with a new focus target', () => {
-    const { container } = mountChart(makeConfig({ tooltip: { mouseOver: true } }));
+    const { container } = mountChart(makeConfig({ tooltip: { followPointer: true } }));
     runFrames();
     const root = chartRoot(container);
 

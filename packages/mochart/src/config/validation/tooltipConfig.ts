@@ -7,20 +7,20 @@ export default function getValidators() {
     visible: validators.boolean(),
     applyFocus: validators.boolean(),
     snapToCategory: validators.boolean(),
-    mouseOver: validators.boolean(),
+    followPointer: validators.boolean(),
     closeOnClick: validators.boolean(),
-    filterOnSeriesClick: validators.boolean(),
-    focusOnCategoryClick: validators.boolean(),
-    focusOnSeriesClick: validators.boolean(),
-    focusOnCategoryMouseOver: validators.boolean(),
-    focusOnSeriesMouseOver: validators.boolean(),
+    filterSeriesOnClick: validators.boolean(),
+    focusCategoryOnClick: validators.boolean(),
+    focusSeriesOnClick: validators.boolean(),
+    focusCategoryOnMouseOver: validators.boolean(),
+    focusSeriesOnMouseOver: validators.boolean(),
     showCategory: validators.boolean(),
     showControls: validators.boolean(),
     keepInside: validators.boolean(),
     minWidth: validators.numberMin(0),
-    padding: validators.numberMin(0),
+    padding: validators.padding(),
     linePadding: validators.numberMin(0),
-    alignValues: validators.boolean(),
+    rightAlignValues: validators.boolean(),
     // cssStyle / cssColor, not style / color: the tooltip is html, so 'none' is not a valid color here.
     backgroundStyle: validators.cssStyle(),
     borderRadius: validators.numberMin(0),
@@ -47,6 +47,6 @@ export default function getValidators() {
     missingValueText: validators.string(),
     filteredValueText: validators.string().orEqual(NONE),
     filteredValueCharacter: validators.stringWithLength(1).orEqual(NONE),
-    rangeValueText: validators.string()
+    rangeValueSeparator: validators.string()
   };
 }

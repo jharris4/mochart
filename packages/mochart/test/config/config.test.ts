@@ -299,9 +299,9 @@ describe('single-object sections with an all config', () => {
 
   it('applies the all config to a single-object section like an array of one', () => {
     const single = enhance({ ...base, series: [{ property: 'v', axis: 'y' }],
-      valueAxes: { id: 'y' }, valueAxisDefaults: { gridLines: true } });
+      valueAxes: { id: 'y' }, valueAxisDefaults: { showGridLines: true } });
     expect(single.validation.valid).toBe(true);
-    expect(single.valueAxes[0].gridLines).toBe(true);
+    expect(single.valueAxes[0].showGridLines).toBe(true);
   });
 
   it('keeps conditional defaults consistent with the all config values', () => {

@@ -172,7 +172,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
       }, true)
     }, true),
     markerShape: validators.oneOf([NONE, ...MARKER_SHAPES]),
-    minMarkerSize: validators.numberMin(0),
+    markerMinSize: validators.numberMin(0),
     missingValueMarkers: validators.boolean(),
     markerSize: validators.numberMin(0),
     markerStyle: styleStates(styleMembers, true),

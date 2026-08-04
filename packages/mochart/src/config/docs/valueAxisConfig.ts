@@ -8,7 +8,7 @@ export default function getDescriptions() {
     scale: 'the scale of the series axis, must be linear',
     order: 'the unique integer order of the series axis controlling its order of appearance',
     base: 'the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)',
-    baseLine: 'whether to show a line along the base of the axis',
+    showBaseLine: 'whether to show a line along the base of the axis',
     baseLineFront: 'whether the base line should be shown in front (true) or behind (false) the series shapes',
     baseLineStyle: axisStyleStatesDescription('the style of the line shown along the base of the axis', axisStrokeMembers),
     adjustForFiltering: 'whether to adjust the domain of the axis as series belonging to it are filtered',

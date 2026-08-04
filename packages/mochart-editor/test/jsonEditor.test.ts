@@ -34,7 +34,7 @@ describe('JSON editor', () => {
     const editor = createJsonEditor(host, { value: '{}', ariaLabel: 'Configuration' });
     const content = editor.element.querySelector<HTMLElement>('.cm-content')!;
 
-    expect(() => editor.focusRange(-20, 200)).not.toThrow();
+    expect(() => editor.showFocusRange(-20, 200)).not.toThrow();
     expect(document.activeElement).toBe(content);
 
     editor.destroy();

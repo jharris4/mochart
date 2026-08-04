@@ -26,7 +26,7 @@ import * as sparkline from '../examples/sparkline'
 - The sparkline is still a regular chart — size it by mounting it small
   (this page uses a 56px-tall host; table cells around 150×32 work well)
   and it renders any series type. A win/loss strip is two `bar` series
-  with [`skipMissing`](/reference/series#series.skipMissing),
+  with [`missingValues: 'connect'`](/reference/series#series.missingValues),
   one property per direction, on an axis fixed to `min: -1, max: 1` — the
   same one-property-per-direction trick the
   [waterfall](/recipes/waterfall) uses.

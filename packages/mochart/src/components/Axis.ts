@@ -53,7 +53,7 @@ export default class Axis extends Renderer<AxisProps> {
       focusPercentages, tickSpacing, titleClipPathUniqueId, tickLabelClipPathUniqueId,
       onMouseEnter, onMouseLeave, onClick } = this.props;
     if (axisConfig.visible) {
-      const { backgroundFront, axisLineFront, focusRangeFront, focusTickMarksFront, tickLabelFront, tickMarkFront, titleFront } = axisConfig;
+      const { backgroundFront, axisLineFront, focusRangeFront, focusTickMarkFront, tickLabelFront, tickMarkFront, titleFront } = axisConfig;
 
       this.setPresent(true);
       this.root.set({ className: axisClass });
@@ -104,7 +104,7 @@ export default class Axis extends Renderer<AxisProps> {
         this.titleSlot.set(AxisTitle, { axisConfig, axisLayoutInfo, titleClipPathUniqueId, axisFocusPercentage: axisFocusPercentage ?? null, seriesFocusPercentage: seriesFocusPercentage ?? null });
       }
 
-      if (front !== focusTickMarksFront) {
+      if (front !== focusTickMarkFront) {
         this.focusTickMarksSlot.set(null);
       }
       else {

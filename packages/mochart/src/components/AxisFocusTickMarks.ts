@@ -27,7 +27,7 @@ export default class AxisFocusTickMarks extends Renderer<AxisFocusTickMarksProps
 
   sync() {
     const { axisConfig } = this.props;
-    if (axisConfig.focusTickMarks) {
+    if (axisConfig.showFocusTickMarks) {
       const { axisLayoutInfo, focusPercentages } = this.props;
       const { vertical, focusTickMarkX1, focusTickMarkY1, focusTickMarkX2, focusTickMarkY2 } = axisLayoutInfo;
 

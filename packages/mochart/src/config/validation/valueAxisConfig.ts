@@ -15,7 +15,7 @@ export default function getValidators() {
     visibleWhenAllFiltered: validators.boolean(),
 
     base: validators.number().orEqual(NONE),
-    baseLine: validators.boolean(),
+    showBaseLine: validators.boolean(),
     baseLineFront: validators.boolean(),
     baseLineStyle: axisStyleValidators.styleStates(axisStyleValidators.lineMembers),
 

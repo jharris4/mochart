@@ -58,7 +58,7 @@
       "id": "capped",
       "title": "Capped",
       "description": "Bar series comparing round, curve and point caps, with and without cap expansion.",
-      "notes": "Seven bar series draw four value columns with capType 'round', 'curve', 'point' and null at capSize 15, each shape appearing twice — once with capExpand false and once true — so you can see what happens when a cap is larger than the bar it sits on. The series axis is pinned to min -5000 and max 5000 while the bundled data is only plus or minus 100 and plus or minus 1000 across ten weekly dates, with several columns omitted per row, which keeps most bars shorter than their caps and leaves visible gaps. Category ticks are rotated 45 degrees with tickCount 12 on an ordinal UTC date axis, and the animation durations are deliberately slow — 8s initial and value-change, 1.5s expansion and collapse, 800ms focus — so the caps can be watched stretching and shrinking.",
+      "notes": "Seven bar series draw four value columns with capType 'round', 'curve', 'point' and null at capSize 15, each shape appearing twice — once with capExpand false and once true — so you can see what happens when a cap is larger than the bar it sits on. The series axis is pinned to min -5000 and max 5000 while the bundled data is only plus or minus 100 and plus or minus 1000 across ten weekly dates, with several columns omitted per row, which keeps most bars shorter than their caps and leaves visible gaps. Category ticks are rotated 45 degrees with tickCount 12 on an ordinal UTC date axis, and the animation durations are deliberately slow — 8s initial and value-change, 1.5s expansion and contraction, 800ms focus — so the caps can be watched stretching and shrinking.",
       "config": "cap-bars-config.json",
       "data": "cap-data.json",
       "random": "positive-random.json"
@@ -76,7 +76,7 @@
       "id": "dst",
       "title": "Daylight Savings",
       "description": "Quarter-hourly categories spanning a daylight-savings transition, labeled through a display property.",
-      "notes": "The data is sixteen quarter-hour samples around a clock change: eight at UTC-04:00 running 01:00 to 02:45, then eight at UTC-03:00 starting again at 02:00, so the 02:00-02:45 wall-clock block appears twice and the second block actually resolves to earlier UTC instants. The ordinal category axis keeps the rows in file order rather than sorting by instant, and its displayProperty points at a separate 'display' column carrying the same wall-clock times, so ticks and tooltips read as local time instead of the raw offset dates. A single line series with 1s initial, expansion, value-change and collapse durations keeps the transition easy to follow.",
+      "notes": "The data is sixteen quarter-hour samples around a clock change: eight at UTC-04:00 running 01:00 to 02:45, then eight at UTC-03:00 starting again at 02:00, so the 02:00-02:45 wall-clock block appears twice and the second block actually resolves to earlier UTC instants. The ordinal category axis keeps the rows in file order rather than sorting by instant, and its displayProperty points at a separate 'display' column carrying the same wall-clock times, so ticks and tooltips read as local time instead of the raw offset dates. A single line series with 1s initial, expansion, value-change and contraction durations keeps the transition easy to follow.",
       "config": "dst-config.json",
       "data": "dst-data.json",
       "random": "default-random.json"
@@ -121,7 +121,7 @@
       "id": "undefined-ranged",
       "title": "Missing Ranged Values",
       "description": "Two ranged series where one end of a span, or both, can be missing.",
-      "notes": "The ranged area spans value1 to value0 and the ranged bar value3 to value2 (property plus rangeProperty), and partialRangeIsMissing is left at false, so a category with only one of the two ends defined does not count as missing — it collapses to a zero-extent span at the value that is there, and the area stays connected through it as a flat pinch. Only where both ends are absent does the default break apply, which here means the three rows that carry no values at all (categories 1, 31 and 38). The tooltip prints both ends joined by rangeValueText, so a half-missing category reads as a value next to \"N/A\" (showMissingValues, missingValueText).",
+      "notes": "The ranged area spans value1 to value0 and the ranged bar value3 to value2 (property plus rangeProperty), and partialRangeIsMissing is left at false, so a category with only one of the two ends defined does not count as missing — it collapses to a zero-extent span at the value that is there, and the area stays connected through it as a flat pinch. Only where both ends are absent does the default break apply, which here means the three rows that carry no values at all (categories 1, 31 and 38). The tooltip prints both ends joined by rangeValueSeparator, so a half-missing category reads as a value next to \"N/A\" (showMissingValues, missingValueText).",
       "config": "undefined-ranged-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -339,7 +339,7 @@
       "id": "bubble",
       "title": "Bubble Chart",
       "description": "A bubble chart: renderer 'none' with markers sized per value through markerProperty.",
-      "notes": "Both series set renderer 'none' in seriesDefaults, so only the markers are drawn, and each takes its radius from a separate data column (markerProperty marker1 and marker2) interpolated between minMarkerSize 3 and markerSize 24 — the second series uses cross markers to show that the scaling is not circle-only. Every animation duration is raised to 1000ms so growth and shrink are easy to follow.",
+      "notes": "Both series set renderer 'none' in seriesDefaults, so only the markers are drawn, and each takes its radius from a separate data column (markerProperty marker1 and marker2) interpolated between markerMinSize 3 and markerSize 24 — the second series uses cross markers to show that the scaling is not circle-only. Every animation duration is raised to 1000ms so growth and shrink are easy to follow.",
       "config": "bubble-config.json",
       "data": "bubble-data.json",
       "random": "default-random.json"
@@ -357,7 +357,7 @@
       "id": "picket",
       "title": "Picket Fence Bars",
       "description": "Stacked bars whose segments carry round, curve and point caps, over rotated month tick labels.",
-      "notes": "An empty seriesStacks entry puts all three bar series in one stack, and each sets its own capType — 'round', 'curve' and 'point' — at capSize 15, so every segment ends in a different shape (markerShape null keeps the bars otherwise plain). The month axis formats ticks as '%b' rotated 45 degrees with tickCount 12 and shows full month names in the tooltip (valueFormat '%B'), while the value axis pins min to 0 and uses an SI currency tick format ('$s'). The bundled data is the twelve months of 2015 with amounts in the tens to hundreds of thousands. Animation is deliberately slow — 3s initial and value-change against 1.5s expansion and collapse — so the caps can be watched stretching and sliding as the values change.",
+      "notes": "An empty seriesStacks entry puts all three bar series in one stack, and each sets its own capType — 'round', 'curve' and 'point' — at capSize 15, so every segment ends in a different shape (markerShape null keeps the bars otherwise plain). The month axis formats ticks as '%b' rotated 45 degrees with tickCount 12 and shows full month names in the tooltip (valueFormat '%B'), while the value axis pins min to 0 and uses an SI currency tick format ('$s'). The bundled data is the twelve months of 2015 with amounts in the tens to hundreds of thousands. Animation is deliberately slow — 3s initial and value-change against 1.5s expansion and contraction — so the caps can be watched stretching and sliding as the values change.",
       "config": "picket-fence-bars-config.json",
       "data": "monthly-data.json",
       "random": "positive-random.json"

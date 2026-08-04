@@ -36,7 +36,7 @@ function styleStates(description: string, members: string[]): NestedDescription 
 
 export default function getDescriptions() {
   return {
-    axisLine: 'whether to show a line along the length of the axis',
+    showAxisLine: 'whether to show a line along the length of the axis',
     axisLineFront: 'whether the axis line should be shown in front (true) or behind (false) the series shapes',
     axisLineMargin: 'the margin (in pixels) between the line shown along the axis and the inner boundary of the axis',
     axisLineStyle: styleStates('the style of the line shown along the axis', strokeMembers),
@@ -48,19 +48,19 @@ export default function getDescriptions() {
 
     collapsed: 'whether the axis should consume space in the layout (false) or not (true)',
 
-    focusRange: 'whether to show the focus range on the axis when it has a focused series domain or category value',
+    showFocusRange: 'whether to show the focus range on the axis when it has a focused series domain or category value',
     focusRangeFront: 'whether the focus range should be shown in front (true) or behind (false) the series shapes',
     focusRangeApplyToTitle: 'whether to show the focus range only over tick labels (false) or over both tick labels and title (true)',
     focusRangeStyle: style('the style of the focus range'),
 
-    focusTickMarks: 'whether to show lines perpendicular to the axis showing the focused series domain or category value',
-    focusTickMarksFront: 'whether the focus tick marks should be shown in front (true) or behind (false) the series shapes',
+    showFocusTickMarks: 'whether to show lines perpendicular to the axis showing the focused series domain or category value',
+    focusTickMarkFront: 'whether the focus tick marks should be shown in front (true) or behind (false) the series shapes',
     focusTickMarkSize: 'the length (in pixels) of the focus tick mark line(s)',
     focusTickMarkMargin: 'the margin (in pixels) to show between the inside of the axis and the focus tick mark line(s)',
     focusTickMarkStyle: partialStyle('the style of the focus tick mark line(s)', lineMembers),
 
-    gridLines: 'whether to show grid lines perpendicular to each tick on the axis',
-    gridLinesFront: 'whether the axis grid lines should be shown in front (true) or behind (false) the series shapes',
+    showGridLines: 'whether to show grid lines perpendicular to each tick on the axis',
+    gridLineFront: 'whether the axis grid lines should be shown in front (true) or behind (false) the series shapes',
     gridLineStyle: styleStates('the style of the axis grid lines', strokeMembers),
 
     marginInner: 'the inner (closest to chart) margin (in pixels) of the axis',
@@ -105,7 +105,7 @@ export default function getDescriptions() {
     tickLabelAnchor: 'the anchor to use for all axis tick labels (start, end, middle) (use "auto" to determine automatically)',
     tickLabelTextStyle: styleStates('the style of the axis tick label text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
 
-    tickMarks: 'whether to show lines perpendicular to each tick value along the axis',
+    showTickMarks: 'whether to show lines perpendicular to each tick value along the axis',
     tickMarkFront: 'whether the axis tick marks should be shown in front (true) or behind (false) the series shapes',
     tickMarkSize: 'the length (in pixels) of the axis tick mark lines',
     tickMarkMargin: 'the margin (in pixels) to show between the inside of the axis and the axis tick mark lines',

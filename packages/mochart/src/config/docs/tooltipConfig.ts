@@ -1,3 +1,4 @@
+import { spacing } from './shared';
 import type { NestedDescription } from './shared';
 
 // Not the shared style prose: the tooltip is html, so an opacity is composited into its color rather
@@ -18,20 +19,20 @@ export default function getDescriptions() {
     visible: 'whether or not to show the tooltip',
     applyFocus: 'whether to change the focused category as the tooltip is shown or hidden',
     snapToCategory: 'whether the tooltip should be centered at the closest category value (true) or at the click/tap position (false)',
-    mouseOver: 'whether the tooltip should track the mouse position in the chart drawing area',
+    followPointer: 'whether the tooltip should track the mouse position in the chart drawing area',
     closeOnClick: 'whether to hide the tooltip when the user clicks/taps within it',
-    filterOnSeriesClick: 'whether series should be filtered when the user clicks/taps on them in the tooltip',
-    focusOnCategoryClick: 'whether category values should be focused when the user clicks/taps on them in the tooltip',
-    focusOnSeriesClick: 'whether series should be focused when the user clicks/taps on them in the tooltip',
-    focusOnCategoryMouseOver: 'whether category values should be focused when the user mouses over them in the tooltip',
-    focusOnSeriesMouseOver: 'whether series should be focused when the user mouses over them in the tooltip',
+    filterSeriesOnClick: 'whether series should be filtered when the user clicks/taps on them in the tooltip',
+    focusCategoryOnClick: 'whether category values should be focused when the user clicks/taps on them in the tooltip',
+    focusSeriesOnClick: 'whether series should be focused when the user clicks/taps on them in the tooltip',
+    focusCategoryOnMouseOver: 'whether category values should be focused when the user mouses over them in the tooltip',
+    focusSeriesOnMouseOver: 'whether series should be focused when the user mouses over them in the tooltip',
     showCategory: 'whether the category value should be shown as the first line of the tooltip',
     showControls: 'whether the focus/filter controls should be shown at the top of the tooltip',
     keepInside: 'whether to keep the tooltip within the series drawing area (true) or allow it to overlap the axes (false)',
     minWidth: 'the minimum width (in pixels) for the tooltip',
-    padding: 'the padding (in pixels) to show on each side of the tooltip',
+    padding: spacing('the padding (in pixels) for the top, right, bottom and left sides of the tooltip'),
     linePadding: 'the padding (in pixels) between each line of the tooltip',
-    alignValues: 'whether to right-align the values shown in the tooltip',
+    rightAlignValues: 'whether to right-align the values shown in the tooltip',
     backgroundStyle,
     borderRadius: 'the radius (in pixels) of the corners of the tooltip',
     dropShadowColor: 'the color of the drop shadow effect used for the tooltip',
@@ -56,12 +57,12 @@ export default function getDescriptions() {
     missingValueText: 'the text to show for series that do not have defined values',
     filteredValueText: 'the text to show for series that have been filtered (use null for none)',
     filteredValueCharacter: 'the character to show in place of each digit of a series value that has been filtered (use null for none)',
-    rangeValueText: 'the text to use when joining the values for a series that has more than one value'
+    rangeValueSeparator: 'the text to use when joining the values for a series that has more than one value'
   };
 }
 
 export function getDetails() {
   return {
-    showFilteringOnLabels: 'When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `alignValues` is `false`, where the label and the value are one piece of text and both are struck.'
+    showFilteringOnLabels: 'When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `rightAlignValues` is `false`, where the label and the value are one piece of text and both are struck.'
   };
 }

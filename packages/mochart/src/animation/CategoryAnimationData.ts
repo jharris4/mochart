@@ -489,7 +489,7 @@ export function getExpansionCategoryValueDeltaData(
   return categoryValueDeltaData;
 }
 
-export function getCollapseCategoryValueDeltaData(
+export function getContractionCategoryValueDeltaData(
   categoryAxisConfig: CategoryAxisConfig,
   categoryDeltaData: CategoryDeltaData,
   prevChartData: ChartDataWithCategories,

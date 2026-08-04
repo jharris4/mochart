@@ -108,7 +108,7 @@ export default function getDescriptions() {
     gradient: 'the unique id of the gradient config to be used when coloring the series shape (use null for none)',
     markerStyle: styleStates('the style of the series marker', styleMembers, 'marker', true),
     markerShape: 'the shape to use when drawing the series marker (circle, cross, diamond, square, star, triangle, wye) (use null for none)',
-    minMarkerSize: 'the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value',
+    markerMinSize: 'the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value',
     missingValueMarkers: 'whether to still show a marker at missing values (most useful with missingValues "base", which gives the marker a position)',
     markerSize: 'the maximum marker size (in pixels) to use when interpolating the marker size based on a marker property value, or the marker size when no marker property is used',
     showInLegend: 'whether to show the series in the legend',

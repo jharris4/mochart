@@ -31,8 +31,8 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
   return {
     version: VERSION,
     animation: { animate: false },
-    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Month', focusRange: true },
-    tooltip: { focusOnSeriesMouseOver: true },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Month', showFocusRange: true },
+    tooltip: { focusSeriesOnMouseOver: true },
     valueAxes: [
       { id: 'VA0', side: 'start', title: 'Left Titled' },
       { id: 'VA1', side: 'end', title: 'Right Titled' }
@@ -176,7 +176,7 @@ describe('series axis focus range placement', () => {
 
   it('paints the focus tick marks with the host page color', () => {
     const container = mountChart(makeConfig({
-      valueAxisDefaults: { focusTickMarks: true }
+      valueAxisDefaults: { showFocusTickMarks: true }
     }));
     focusSeries(container, 'S1');
     const el = axisGroup(container, 'mochart-value-axis-VA1')

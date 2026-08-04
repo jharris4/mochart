@@ -25,11 +25,11 @@ import * as tooltipFormat from '../examples/tooltipFormat'
   set [`valueLabel`](/reference/series#series.valueLabel) to
   override it, or `null` for none.
 - Chart-wide behavior lives in [`tooltip`](/reference/tooltip):
-  [`alignValues`](/reference/tooltip#tooltip.alignValues) lines
+  [`rightAlignValues`](/reference/tooltip#tooltip.rightAlignValues) lines
   the values up in a column,
   [`showMissingValues`](/reference/tooltip#tooltip.showMissingValues)
   / [`missingValueText`](/reference/tooltip#tooltip.missingValueText)
-  control gaps, and `mouseOver` vs `closeOnClick` decide when the tooltip
+  control gaps, and `followPointer` vs `closeOnClick` decide when the tooltip
   opens and closes.
 - Exclude a series from the tooltip entirely with
   [`showInTooltip: false`](/reference/series#series.showInTooltip).

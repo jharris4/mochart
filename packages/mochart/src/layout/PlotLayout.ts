@@ -169,7 +169,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   const focusMarginOuter = focusRangeApplyToTitle ? titleMarginOuter : tickLabelMarginOuter;
   const focusPaddingInner = tickLabelPaddingInner;
   const focusPaddingOuter = focusRangeApplyToTitle ? titlePaddingOuter : tickLabelPaddingOuter;
-  axisLayoutInfo.focusRangeLayoutInfo = axisConfig.focusRange === false ? emptyLayoutInfo : createInnerOuterSpacingLayoutInfo({
+  axisLayoutInfo.focusRangeLayoutInfo = axisConfig.showFocusRange === false ? emptyLayoutInfo : createInnerOuterSpacingLayoutInfo({
     x: focusRangeTitle ? Math.min(titleLayoutInfo.x, tickLabelLayoutInfo.x) : tickLabelLayoutInfo.x,
     y: focusRangeTitle ? Math.min(titleLayoutInfo.y, tickLabelLayoutInfo.y) : tickLabelLayoutInfo.y,
     width: vertical ? (focusRangeApplyToTitle ? titleLayoutInfo.width + tickLabelLayoutInfo.width : tickLabelLayoutInfo.width) : width,
@@ -197,7 +197,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let tickMarkY1 = 0;
   let tickMarkX2 = 0;
   let tickMarkY2 = 0;
-  if (axisConfig.tickMarks) {
+  if (axisConfig.showTickMarks) {
     const { tickMarkMargin, tickMarkSize } = axisConfig;
     const tickMarkOffset = notAfter ? (vertical ? width : height) - tickMarkMargin : tickMarkMargin;
     tickMarkX1 = vertical ? tickMarkOffset : 0;
@@ -214,7 +214,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let focusTickMarkY1 = 0;
   let focusTickMarkX2 = 0;
   let focusTickMarkY2 = 0;
-  if (axisConfig.focusTickMarks) {
+  if (axisConfig.showFocusTickMarks) {
     const { focusTickMarkMargin, focusTickMarkSize } = axisConfig;
     const focusTickMarkOffset = notAfter ? (vertical ? width : height) - focusTickMarkMargin : focusTickMarkMargin;
     focusTickMarkX1 = vertical ? focusTickMarkOffset : 0;
@@ -231,7 +231,7 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
   let axisLineY1 = 0;
   let axisLineX2 = 0;
   let axisLineY2 = 0;
-  if (axisConfig.axisLine === true) {
+  if (axisConfig.showAxisLine === true) {
     const { axisLineMargin } = axisConfig;
     const axisLineOffset = notAfter ? (vertical ? width : height) - axisLineMargin : axisLineMargin;
     axisLineX1 = vertical ? axisLineOffset : 0;

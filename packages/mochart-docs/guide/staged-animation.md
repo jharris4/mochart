@@ -51,7 +51,7 @@ All knobs live in [`animation`](/reference/animation):
 | [`initialDuration`](/reference/animation#animation.initialDuration) | the first render when the chart mounts |
 | [`expansionDuration`](/reference/animation#animation.expansionDuration) | the axis expansion phase |
 | [`valueChangeDuration`](/reference/animation#animation.valueChangeDuration) | the value change phase (incl. category/series transitions) |
-| [`collapseDuration`](/reference/animation#animation.collapseDuration) | the axis contraction phase |
+| [`contractionDuration`](/reference/animation#animation.contractionDuration) | the axis contraction phase |
 | [`focusDuration`](/reference/animation#animation.focusDuration) | hover/click focus emphasis transitions |
 
 Durations are in milliseconds and are the *maximum* for the phase — smaller

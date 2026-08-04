@@ -32,8 +32,8 @@ export default class AxisBaseLine extends Renderer<AxisBaseLineProps> {
 
   sync() {
     const { valueAxisConfig, basePercentage, axisBaseLineClass } = this.props;
-    const { base, baseLine } = valueAxisConfig;
-    if (base !== NONE && baseLine && basePercentage > 0 && basePercentage < 1) {
+    const { base, showBaseLine } = valueAxisConfig;
+    if (base !== NONE && showBaseLine && basePercentage > 0 && basePercentage < 1) {
       const { plotConfig, seriesLayoutInfo, axisFocusPercentage, seriesFocusPercentage } = this.props;
       const { inverted } = plotConfig;
 

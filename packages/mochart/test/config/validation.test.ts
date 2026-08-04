@@ -412,7 +412,7 @@ describe('dash array validation', () => {
   it('rejects non-dash-array strings containing digits', () => {
     const errors = errorsFor({
       version: V,
-      categoryAxis: { property: 'p', gridLines: true, gridLineStyle: { normal: { strokeDashArray: 'abc5' } } },
+      categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { normal: { strokeDashArray: 'abc5' } } },
       series: [{ property: 'a' }]
     });
     expect(errors.some(error => error.includes('strokeDashArray'))).toBe(true);
@@ -422,7 +422,7 @@ describe('dash array validation', () => {
     for (const dashArray of ['5,3', '5, 3', '6 3']) {
       const errors = errorsFor({
         version: V,
-        categoryAxis: { property: 'p', gridLines: true, gridLineStyle: { normal: { strokeDashArray: dashArray } } },
+        categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { normal: { strokeDashArray: dashArray } } },
         series: [{ property: 'a' }]
       });
       expect(errors).toEqual([]);
@@ -432,13 +432,13 @@ describe('dash array validation', () => {
   it("accepts 'same' for focus-state width and dash but not on the normal state", () => {
     const valid = errorsFor({
       version: V,
-      categoryAxis: { property: 'p', gridLines: true, gridLineStyle: { focused: { strokeWidth: 'same', strokeDashArray: 'same' } } },
+      categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { focused: { strokeWidth: 'same', strokeDashArray: 'same' } } },
       series: [{ property: 'a' }]
     });
     expect(valid).toEqual([]);
     const invalid = errorsFor({
       version: V,
-      categoryAxis: { property: 'p', gridLines: true, gridLineStyle: { normal: { strokeWidth: 'same' } } },
+      categoryAxis: { property: 'p', showGridLines: true, gridLineStyle: { normal: { strokeWidth: 'same' } } },
       series: [{ property: 'a' }]
     });
     expect(invalid.some(error => error.includes('strokeWidth'))).toBe(true);

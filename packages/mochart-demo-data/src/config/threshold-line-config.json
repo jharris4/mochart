@@ -7,7 +7,7 @@
     "expansionDuration": 2000,
     "initialDuration": 2000,
     "valueChangeDuration": 2000,
-    "collapseDuration": 2000
+    "contractionDuration": 2000
   },
   "plot": {
     "inverted": false
