@@ -2797,13 +2797,13 @@ export interface LinearGradientConfig {
    */
   x2: number;
   /**
-   * The x3 property of the svg linear gradient.
+   * The y1 property of the svg linear gradient.
    *
    * @default 0
    */
   y1: number;
   /**
-   * The x4 property of the svg linear gradient.
+   * The y2 property of the svg linear gradient.
    *
    * @default 1
    */
