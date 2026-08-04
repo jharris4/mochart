@@ -201,7 +201,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
       stack: null,
       shapeStyle: { normal: { fillOpacity: 1 } },
       // Rows are named by the axis ticks; a legend entry per row would only
-      // invite suppressing rows, which reads as data rather than a hidden series.
+      // invite filtering rows, which reads as data rather than a hidden series.
       showInLegend: false,
       title: row.label
     } as DeepPartial<SeriesConfig>;

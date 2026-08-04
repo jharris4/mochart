@@ -284,7 +284,7 @@ describe('tooltip', () => {
     expect(container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S1"]')).toBeNull();
   });
 
-  it('marks suppressed series values and can hide the line entirely', () => {
+  it('marks filtered series values and can hide the line entirely', () => {
     const twoSeries = {
       legendConfig: { visible: true },
       seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
@@ -292,17 +292,17 @@ describe('tooltip', () => {
     const container = mountChart(makeConfig(twoSeries));
     const root = chartRoot(container);
 
-    // suppress the costs series, then open the tooltip
+    // filter the costs series, then open the tooltip
     container.querySelector('[class*="mochart-legend-item-S1"]')!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
-    const suppressedLine = container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S1"]');
-    expect(suppressedLine).not.toBeNull();
-    expect(suppressedLine!.textContent).not.toContain('5.00');
+    const filteredLine = container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S1"]');
+    expect(filteredLine).not.toBeNull();
+    expect(filteredLine!.textContent).not.toContain('5.00');
 
-    // hideSuppressed drops the line completely
-    const hiding = mountChart(makeConfig({ ...twoSeries, tooltipConfig: { hideSuppressed: true } }));
+    // hideFiltered drops the line completely
+    const hiding = mountChart(makeConfig({ ...twoSeries, tooltipConfig: { hideFiltered: true } }));
     const hidingRoot = chartRoot(hiding);
     hiding.querySelector('[class*="mochart-legend-item-S1"]')!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -569,13 +569,13 @@ describe('tooltip', () => {
   });
 });
 
-describe('showSuppressionOnLabels', () => {
+describe('showFilteringOnLabels', () => {
   const twoSeries = {
     legendConfig: { visible: true },
     seriesConfigs: [{ property: 'sales' }, { property: 'costs' }]
   };
 
-  function suppress(container: Element, seriesId: string): void {
+  function filter(container: Element, seriesId: string): void {
     container.querySelector(`[class*="mochart-legend-item-${seriesId}"]`)!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
   }
@@ -592,86 +592,86 @@ describe('showSuppressionOnLabels', () => {
     return Array.from(item.querySelectorAll('text')).map(text => text.getAttribute('text-decoration'));
   }
 
-  it('strikes through the legend text of a suppressed series when enabled', () => {
+  it('strikes through the legend text of a filtered series when enabled', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      legendConfig: { visible: true, showSuppressionOnLabels: true }
+      legendConfig: { visible: true, showFilteringOnLabels: true }
     }));
     expect(legendTextDecorations(container, 'S1')).toEqual([null, null]);
 
-    suppress(container, 'S1');
+    filter(container, 'S1');
     expect(legendTextDecorations(container, 'S1')).toEqual(['line-through', 'line-through']);
     expect(legendTextDecorations(container, 'S0')).toEqual([null, null]);
   });
 
   it('leaves the legend text undecorated when disabled (the default)', () => {
     const container = mountChart(makeConfig(twoSeries));
-    suppress(container, 'S1');
+    filter(container, 'S1');
     expect(legendTextDecorations(container, 'S1')).toEqual([null, null]);
   });
 
-  it('strikes through the tooltip label of a suppressed series when enabled', () => {
+  it('strikes through the tooltip label of a filtered series when enabled', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltipConfig: { showSuppressionOnLabels: true }
+      tooltipConfig: { showFilteringOnLabels: true }
     }));
-    suppress(container, 'S1');
+    filter(container, 'S1');
     openTooltip(container);
 
-    const suppressedLabel = container.querySelector<HTMLElement>(
+    const filteredLabel = container.querySelector<HTMLElement>(
       '.mochart-tooltip [class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-label')!;
     const shownLabel = container.querySelector<HTMLElement>(
       '.mochart-tooltip [class*="mochart-tooltip-series-line-S0"] .mochart-tooltip-line-label')!;
-    expect(suppressedLabel.style.textDecoration).toBe('line-through');
+    expect(filteredLabel.style.textDecoration).toBe('line-through');
     expect(shownLabel.style.textDecoration).toBe('');
-    const suppressedValue = container.querySelector<HTMLElement>(
+    const filteredValue = container.querySelector<HTMLElement>(
       '.mochart-tooltip [class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-value')!;
-    expect(suppressedValue.style.textDecoration).toBe('');
+    expect(filteredValue.style.textDecoration).toBe('');
   });
 
   it('leaves the tooltip label undecorated when disabled (the default)', () => {
     const container = mountChart(makeConfig(twoSeries));
-    suppress(container, 'S1');
+    filter(container, 'S1');
     openTooltip(container);
 
-    const suppressedLabel = container.querySelector<HTMLElement>(
+    const filteredLabel = container.querySelector<HTMLElement>(
       '.mochart-tooltip [class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-label')!;
-    expect(suppressedLabel.style.textDecoration).toBe('');
+    expect(filteredLabel.style.textDecoration).toBe('');
   });
 
   it('strikes the whole line when alignValues puts the label and value together', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltipConfig: { alignValues: false, showSuppressionOnLabels: true }
+      tooltipConfig: { alignValues: false, showFilteringOnLabels: true }
     }));
-    suppress(container, 'S1');
+    filter(container, 'S1');
     openTooltip(container);
 
-    const suppressedText = container.querySelector<HTMLElement>(
+    const filteredText = container.querySelector<HTMLElement>(
       '.mochart-tooltip [class*="mochart-tooltip-series-line-S1"] .mochart-tooltip-line-text')!;
-    expect(suppressedText.style.textDecoration).toBe('line-through');
+    expect(filteredText.style.textDecoration).toBe('line-through');
   });
 
-  it('paints a suppressed legend icon with iconSuppressedColor', () => {
-    function suppressedIconFill(legendConfig: Record<string, unknown>): string | null {
+  it('paints a filtered legend icon with iconFilteredColor', () => {
+    function filteredIconFill(legendConfig: Record<string, unknown>): string | null {
       const container = mountChart(makeConfig({ ...twoSeries, legendConfig: { visible: true, ...legendConfig } }));
-      suppress(container, 'S1');
+      filter(container, 'S1');
       const iconGroup = container.querySelector(
         '[class*="mochart-legend-item-S1"] .mochart-legend-item-icon')!;
       return iconGroup.firstElementChild!.getAttribute('fill');
     }
 
-    // the default is fully transparent, so a suppressed icon reads as its border alone
-    expect(suppressedIconFill({})).toBe('rgba(255,255,255,0)');
-    expect(suppressedIconFill({ iconSuppressedColor: '#cccccc' })).toBe('#cccccc');
+    // the default is fully transparent, so a filtered icon reads as its border alone
+    expect(filteredIconFill({})).toBe('rgba(255,255,255,0)');
+    expect(filteredIconFill({ iconFilteredColor: '#cccccc' })).toBe('#cccccc');
   });
 
   it('decorates the hidden sizer copy of the tooltip the same way', () => {
     const container = mountChart(makeConfig({
       ...twoSeries,
-      tooltipConfig: { showSuppressionOnLabels: true }
+      tooltipConfig: { showFilteringOnLabels: true }
     }));
-    suppress(container, 'S1');
+    filter(container, 'S1');
     openTooltip(container);
 
     const labels = container.querySelectorAll<HTMLElement>(

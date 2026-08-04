@@ -1,5 +1,5 @@
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
@@ -47,8 +47,8 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   let mochartDemoConfig = buildMochartDemoConfig(demoObject.config);
   let data = demoObject.data;
   let dataCount = demoObject.data.length;
-  // Pie mode steps a suppression pattern instead of data prefixes: chart i at
-  // step s suppresses the last (s + i) mod cycle slices, so the grid shows
+  // Pie mode steps a filtering pattern instead of data prefixes: chart i at
+  // step s filters the last (s + i) mod cycle slices, so the grid shows
   // different-sized views of the same pie and stepping animates all charts.
   let sliceIds = mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : [];
   const stepCycle = () => mochartDemoConfig.pieMode ? getPieStepCycle(sliceIds) : dataCount;
@@ -271,10 +271,10 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
       host.destroy();
       host.el.parentElement?.remove();
     }
-    // Pie mode unions the stepper's per-chart suppression with the user's
+    // Pie mode unions the stepper's per-chart filtering with the user's
     // legend filtering, so the legend stays interactive while stepping.
     const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => mochartDemoConfig.pieMode
-      ? { ...filteredSeriesIds, ...getPieStepSuppressedIds(sliceIds, i, currentDataCount) }
+      ? { ...filteredSeriesIds, ...getPieStepFilteredIds(sliceIds, i, currentDataCount) }
       : filteredSeriesIds;
 
     while (chartHosts.length < dataProviders.length) {

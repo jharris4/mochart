@@ -5,7 +5,7 @@
  * helper relies on this — every row carries the shared `start` range
  * property but a value for only one direction series, and without the
  * option the two off-direction series kept invisible zero-extent bars at
- * `start` (visible as stray bar lines during suppression animations).
+ * `start` (visible as stray bar lines during filtering animations).
  *
  * The default (false) intentionally keeps the collapse behavior, so ranged
  * shapes stay connected through half-defined groups.

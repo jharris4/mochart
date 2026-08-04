@@ -48,10 +48,10 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
       axisFocusPercentage: null, seriesFocusPercentage: null, axisThresholdClass: mochartCssClasses['groupAxisThreshold'] });
 
     this.seriesThresholds.sync(seriesAxisConfigs.map((axisConfig: SeriesAxisConfig) => {
-      const { id, seriesConfigs, useSeriesFocus, adjustForSuppression } = axisConfig;
+      const { id, seriesConfigs, useSeriesFocus, adjustForFiltering } = axisConfig;
       const axisFocusPercentage = seriesAxisFocusPercentages[id];
       const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
-      const seriesAxisDomain = adjustForSuppression ? seriesAxisFilteredDomains[id] : seriesAxisRawDomains[id];
+      const seriesAxisDomain = adjustForFiltering ? seriesAxisFilteredDomains[id] : seriesAxisRawDomains[id];
       return {
         key: 'series-axis-' + id,
         ctor: AxisThreshold,

@@ -77,7 +77,7 @@ describe('getPieSliceAngles', () => {
     expect(angles.a.endAngle).toBeCloseTo(degreesToRadians(90) + TWO_PI, 10);
   });
 
-  it('skips suppressed (null) series and renormalizes the remainder', () => {
+  it('skips filtered (null) series and renormalizes the remainder', () => {
     const angles = getPieSliceAngles(
       [seriesConfig('a'), seriesConfig('b'), seriesConfig('c')],
       { a: values([1]), b: values(null), c: values([1]) },

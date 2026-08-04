@@ -44,15 +44,15 @@ export function getRegularDefaults() {
     // The series icons are svg even inside the html tooltip, so they take the legend icon colors.
     iconBorderColor: COLOR_CURRENT,
     iconBorderOpacity: 0.65,
-    iconSuppressedColor: 'rgba(255,255,255,0)',
-    iconUnsuppressedColor: 'rgba(0,0,0,0.5)',
-    showSuppressionOnLabels: false,
-    adjustForSuppression: true,
-    adjustSizeForSuppression: false,
-    hideSuppressed: false,
+    iconFilteredColor: 'rgba(255,255,255,0)',
+    iconUnfilteredColor: 'rgba(0,0,0,0.5)',
+    showFilteringOnLabels: false,
+    adjustForFiltering: true,
+    adjustSizeForFiltering: false,
+    hideFiltered: false,
     showMissingValues: true,
-    suppressedValueText: NONE,
-    suppressedValueCharacter: '-',
+    filteredValueText: NONE,
+    filteredValueCharacter: '-',
     missingValueText: 'N/A',
     rangeValueText: ' - '
   };

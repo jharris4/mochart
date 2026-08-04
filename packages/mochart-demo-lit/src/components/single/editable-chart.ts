@@ -214,7 +214,7 @@ export class EditableChart extends LightElement {
     }
   };
 
-  // The pie analog of the group add/remove sequences: suppress the slices one
+  // The pie analog of the group add/remove sequences: filter the slices one
   // at a time (via the shared legend filter, so the remaining slices re-sweep
   // and center totals count along), then restore them.
   private startSliceSequence = (): void => {
@@ -914,7 +914,7 @@ export class EditableChart extends LightElement {
 
   // Pie-mode slice panel — replaces both panels when slices are the series:
   // click a slice (or step prev/next) to select it, edit its value, or play
-  // the suppress/restore sequence.
+  // the filter/restore sequence.
   private renderSliceControls(error: boolean): unknown {
     const sliceControlsDisabled = error || this.sequencePlaying || this.slices.length === 0;
     // The fold keeps the steppers, the readout, Apply and the input; Reset and

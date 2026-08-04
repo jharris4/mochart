@@ -3,7 +3,7 @@
  * candlestick body and its wick segments — render one visual mark, so their
  * value animations share a duration and the segments stay glued to the body
  * edges through every frame, the same way stacked series stay gapless. Both
- * delta paths are covered: a legend suppression (filtered) and a data update
+ * delta paths are covered: a legend filtering (filtered) and a data update
  * (raw). Uses the golden suite's fake-clock harness: timers are faked before
  * the library import and frames are driven manually.
  */
@@ -109,7 +109,7 @@ function expectSegmentsGluedToBody(container: Element, frameLabel: string) {
 }
 
 describe('followSeries animation sync (hollow candlestick)', () => {
-  it('keeps the wick segments glued to the body through a suppression animation', () => {
+  it('keeps the wick segments glued to the body through a filtering animation', () => {
     const { container, chart } = mountHollowCandlestick(ITEMS);
     runFrames();
     expectSegmentsGluedToBody(container, 'settled');
@@ -122,9 +122,9 @@ describe('followSeries animation sync (hollow candlestick)', () => {
     for (const step of [2, 3, 3, 3]) {
       advanceFrames(step);
       if (barRects(container, 'up').length === 0) {
-        break; // the suppressed candle has finished animating out
+        break; // the filtered candle has finished animating out
       }
-      expectSegmentsGluedToBody(container, 'mid-suppression');
+      expectSegmentsGluedToBody(container, 'mid-filtering');
     }
     runFrames();
 

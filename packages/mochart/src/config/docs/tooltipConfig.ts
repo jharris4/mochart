@@ -46,22 +46,22 @@ export default function getDescriptions() {
     iconBorderSize: 'the width (in pixels) of the border drawn around series icons',
     iconBorderColor: 'the color of the border drawn around series icons',
     iconBorderOpacity: 'the opacity (0 - 1) of the border drawn around series icons',
-    iconSuppressedColor: 'the color to use for the series icon when the corresponding series is suppressed',
-    iconUnsuppressedColor: 'the color to use for the placeholder series icons when the corresponding series is not suppressed',
-    showSuppressionOnLabels: 'whether to strike through the label text of suppressed series',
-    adjustForSuppression: 'whether to adjust the series values when series suppression changes',
-    adjustSizeForSuppression: 'whether to adjust the width of the tooltip when the series values change due to suppression changes',
-    hideSuppressed: 'whether to hide series that have been suppressed from the tooltip',
+    iconFilteredColor: 'the color to use for the series icon when the corresponding series is filtered',
+    iconUnfilteredColor: 'the color to use for the placeholder series icons when the corresponding series is not filtered',
+    showFilteringOnLabels: 'whether to strike through the label text of filtered series',
+    adjustForFiltering: 'whether to adjust the series values when series filtering changes',
+    adjustSizeForFiltering: 'whether to adjust the width of the tooltip when the series values change due to filtering changes',
+    hideFiltered: 'whether to hide series that have been filtered from the tooltip',
     showMissingValues: 'whether to show series that do not have defined values in the tooltip',
     missingValueText: 'the text to show for series that do not have defined values',
-    suppressedValueText: 'the text to show for series that have been suppressed (use null for none)',
-    suppressedValueCharacter: 'the character to show in place of each digit of a series value that has been suppressed (use null for none)',
+    filteredValueText: 'the text to show for series that have been filtered (use null for none)',
+    filteredValueCharacter: 'the character to show in place of each digit of a series value that has been filtered (use null for none)',
     rangeValueText: 'the text to use when joining the values for a series that has more than one value'
   };
 }
 
 export function getDetails() {
   return {
-    showSuppressionOnLabels: 'When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `alignValues` is `false`, where the label and the value are one piece of text and both are struck.'
+    showFilteringOnLabels: 'When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `alignValues` is `false`, where the label and the value are one piece of text and both are struck.'
   };
 }

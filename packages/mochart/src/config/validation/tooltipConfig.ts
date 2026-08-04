@@ -37,16 +37,16 @@ export default function getValidators() {
     // svgColor, not the cssColor above: the series icons are svg even inside the html tooltip.
     iconBorderColor: validators.svgColor(),
     iconBorderOpacity: validators.opacity(),
-    iconSuppressedColor: validators.svgColor(),
-    iconUnsuppressedColor: validators.svgColor(),
-    showSuppressionOnLabels: validators.boolean(),
-    adjustForSuppression: validators.boolean(),
-    adjustSizeForSuppression: validators.boolean(),
-    hideSuppressed: validators.boolean(),
+    iconFilteredColor: validators.svgColor(),
+    iconUnfilteredColor: validators.svgColor(),
+    showFilteringOnLabels: validators.boolean(),
+    adjustForFiltering: validators.boolean(),
+    adjustSizeForFiltering: validators.boolean(),
+    hideFiltered: validators.boolean(),
     showMissingValues: validators.boolean(),
     missingValueText: validators.string(),
-    suppressedValueText: validators.string().orEqual(NONE),
-    suppressedValueCharacter: validators.stringWithLength(1).orEqual(NONE),
+    filteredValueText: validators.string().orEqual(NONE),
+    filteredValueCharacter: validators.stringWithLength(1).orEqual(NONE),
     rangeValueText: validators.string()
   };
 }

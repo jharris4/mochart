@@ -294,20 +294,20 @@ describe.each(allDemos)('demo: $id', (demo) => {
 });
 
 // ---------------------------------------------------------------------------
-// series suppression via legend click — the per-demo suites never filter a
+// series filtering via legend click — the per-demo suites never filter a
 // series, and the tween's resting value (the axis base) only shows up
-// mid-suppression: a wrong base strands the shrink partway so the shape pops
+// mid-filtering: a wrong base strands the shrink partway so the shape pops
 // out at animation end while still visibly large. The tween moves at constant
 // axis-relative speed, so a wrong resting value doesn't change the trajectory,
 // only where it stops — a fixed-frame snapshot can miss it. The oracle is the
-// LAST frame the suppressed series is still in the DOM: correct code shows a
+// LAST frame the filtered series is still in the DOM: correct code shows a
 // vanishing sliver there, a wrong base shows the stranded shape. The radial
 // demos cover the pie-mode base-0 default; grouped is the xy control (bars
 // correctly collapse onto the axis base line).
 // ---------------------------------------------------------------------------
 
-const SUPPRESSION_DEMO_IDS = ['pie', 'donut', 'gauge', 'grouped'];
-const suppressionDemos = allDemos.filter((demo) => SUPPRESSION_DEMO_IDS.includes(demo.id));
+const FILTERING_DEMO_IDS = ['pie', 'donut', 'gauge', 'grouped'];
+const filteringDemos = allDemos.filter((demo) => FILTERING_DEMO_IDS.includes(demo.id));
 
 function clickFirstLegendItem(container: HTMLElement) {
   const legendItem = container.querySelector('.mochart-legend-item');
@@ -315,8 +315,8 @@ function clickFirstLegendItem(container: HTMLElement) {
   legendItem!.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 }
 
-describe.each(suppressionDemos)('suppression: $id', (demo) => {
-  it('animates a legend-click suppression out and back in', async () => {
+describe.each(filteringDemos)('filtering: $id', (demo) => {
+  it('animates a legend-click filtering out and back in', async () => {
     const mochartConfig = buildMochartConfig(demo.config);
     const rows = loadJson(dataPaths[demo.data]);
     const container = createContainer();
@@ -331,9 +331,9 @@ describe.each(suppressionDemos)('suppression: $id', (demo) => {
 
     clickFirstLegendItem(container);
     advanceFrames(3);
-    await expectSnapshot(container, demo.id, 'suppress-early-tween');
+    await expectSnapshot(container, demo.id, 'filter-early-tween');
 
-    // step to the removal of the suppressed series' element, keeping the DOM
+    // step to the removal of the filtered series' element, keeping the DOM
     // of the last frame it was still present
     const seriesSelector = '.' + 'mochart-series-' + mochartConfig.seriesConfigs[0].id;
     expect(container.querySelector(seriesSelector)).not.toBeNull();
@@ -346,14 +346,14 @@ describe.each(suppressionDemos)('suppression: $id', (demo) => {
       lastPresentHtml = container.innerHTML;
     }
     expect(container.querySelector(seriesSelector)).toBeNull();
-    await expect(normalizeHtml(lastPresentHtml)).toMatchFileSnapshot(snapshotFile(demo.id, 'suppress-last-frame'));
+    await expect(normalizeHtml(lastPresentHtml)).toMatchFileSnapshot(snapshotFile(demo.id, 'filter-last-frame'));
     runFrames();
-    await expectSnapshot(container, demo.id, 'suppress-settled');
+    await expectSnapshot(container, demo.id, 'filter-settled');
 
-    // unsuppress: the series animates back in from the same resting value
+    // unfilter: the series animates back in from the same resting value
     clickFirstLegendItem(container);
     runFrames();
-    await expectSnapshot(container, demo.id, 'suppress-restored');
+    await expectSnapshot(container, demo.id, 'filter-restored');
 
     chart.destroy();
     expect(container.innerHTML).toBe('');

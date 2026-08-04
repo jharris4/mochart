@@ -174,7 +174,7 @@ export const demoText = {
     nextSlice: { tooltip: 'Select the next slice', aria: 'Next Slice' },
     resetSlice: { label: 'Reset', tooltip: "Restore the selected slice's original value", aria: 'Reset Slice Value' },
     applySlice: { label: 'Apply', tooltip: 'Apply the entered value to the selected slice', aria: 'Apply Slice Value' },
-    playSliceSequence: { menuLabel: 'Play Slices', tooltip: 'Animate suppressing the slices one at a time, then restoring them', aria: 'Play Slice Sequence' },
+    playSliceSequence: { menuLabel: 'Play Slices', tooltip: 'Animate filtering the slices one at a time, then restoring them', aria: 'Play Slice Sequence' },
     stopSliceSequence: { menuLabel: 'Stop', tooltip: 'Stop the slice sequence', aria: 'Stop Slice Sequence' }
   },
   multiChartsTab: {

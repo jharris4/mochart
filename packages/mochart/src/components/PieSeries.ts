@@ -34,13 +34,13 @@ interface PieSeriesProps {
   sliceAngles: PieSliceAngles | undefined;
   /**
    * The fraction driving the label content and min-angle threshold: the
-   * slice's share of the unsuppressed total, or of the full raw total when
-   * adjustLabelsForSuppression is off.
+   * slice's share of the unfiltered total, or of the full raw total when
+   * adjustLabelsForFiltering is off.
    */
   labelFraction: number;
   focusData: FocusData | null;
   gradientIdMap: Record<string, string>;
-  /** Suppress labels while the initial sweep-in is running. */
+  /** Filter labels while the initial sweep-in is running. */
   hideLabels: boolean;
   onFocus: (focus: PieSeriesFocusUpdate) => void;
   /** Click-only slice event for selection; independent of the focus flags. */

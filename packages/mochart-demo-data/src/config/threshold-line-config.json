@@ -22,7 +22,7 @@
     {
       "id": "SA0",
       "before": true,
-      "adjustForSuppression": true,
+      "adjustForFiltering": true,
       "threshold": 20,
       "thresholdTitle": "Title For Threshold 20",
       "thresholdTitlePadding": { "top": 5, "right": 5, "bottom": 5, "left": 5 },
@@ -32,7 +32,7 @@
     {
       "id": "SA1",
       "before": false,
-      "adjustForSuppression": false,
+      "adjustForFiltering": false,
       "threshold": -5,
       "thresholdTitle": "Title For Threshold -5",
       "thresholdTitlePadding": { "top": 5, "right": 5, "bottom": 5, "left": 5 },

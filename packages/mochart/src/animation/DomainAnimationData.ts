@@ -332,7 +332,7 @@ function adjustFilteredAxisDomainDeltas(seriesAxisConfigs: SeriesAxisConfig[], r
 
     for (const axisConfig of seriesAxisConfigs) {
       filteredDeltaPercentage = filteredDeltas![axisConfig.id]!.deltaPercentage;
-      if (filteredDeltaPercentage !== 0 && !axisConfig.adjustForSuppression) {
+      if (filteredDeltaPercentage !== 0 && !axisConfig.adjustForFiltering) {
         filteredDeltaPercentage = filteredDeltas![axisConfig.id]!.deltaPercentage = rawDeltas !== null ? rawDeltas[axisConfig.id]!.deltaPercentage : 0;
       }
       newDeltaPercentage = Math.max(newDeltaPercentage, filteredDeltaPercentage);

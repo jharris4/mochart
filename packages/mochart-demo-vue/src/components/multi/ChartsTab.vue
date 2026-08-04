@@ -4,7 +4,7 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { Chart } from '@mochart/vue';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ChartsControls from './ChartsControls.vue';
@@ -50,8 +50,8 @@ const rate = ref(initialRate);
 const mochartDemoConfig = shallowRef(buildMochartDemoConfig(props.demoObject.config));
 const data = shallowRef(props.demoObject.data);
 const dataCount = ref(initialDataCount);
-// Pie mode steps a suppression pattern instead of data prefixes: chart i at
-// step s suppresses the last (s + i) mod cycle slices, so the grid shows
+// Pie mode steps a filtering pattern instead of data prefixes: chart i at
+// step s filters the last (s + i) mod cycle slices, so the grid shows
 // different-sized views of the same pie and stepping animates all charts.
 const sliceIds = shallowRef(mochartDemoConfig.value.pieMode ? getPieSlices(mochartDemoConfig.value.mochartConfig).map(slice => slice.id) : []);
 const stepCycle = () => mochartDemoConfig.value.pieMode ? getPieStepCycle(sliceIds.value) : dataCount.value;
@@ -223,11 +223,11 @@ function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filtered
   filteredSeriesIds.value = { ...nextFilteredSeriesIds };
 }
 
-// Pie mode unions the stepper's per-chart suppression with the user's
+// Pie mode unions the stepper's per-chart filtering with the user's
 // legend filtering, so the legend stays interactive while stepping.
 function chartFilteredSeriesIds(i: number): FilteredSeriesIds {
   return mochartDemoConfig.value.pieMode
-    ? { ...filteredSeriesIds.value, ...getPieStepSuppressedIds(sliceIds.value, i, currentDataCount.value) }
+    ? { ...filteredSeriesIds.value, ...getPieStepFilteredIds(sliceIds.value, i, currentDataCount.value) }
     : filteredSeriesIds.value;
 }
 

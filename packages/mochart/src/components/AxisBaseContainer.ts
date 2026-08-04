@@ -38,11 +38,11 @@ export default class AxisBaseContainer extends Renderer<AxisBaseContainerProps> 
 
     const items = [];
     for (const axisConfig of seriesAxisConfigs) {
-      const { id, base, seriesConfigs, useSeriesFocus, adjustForSuppression, baseLineFront } = axisConfig;
+      const { id, base, seriesConfigs, useSeriesFocus, adjustForFiltering, baseLineFront } = axisConfig;
       if (baseLineFront !== front) {
         continue;
       }
-      const axisDomain = adjustForSuppression ? filteredDomains[id] : rawDomains[id];
+      const axisDomain = adjustForFiltering ? filteredDomains[id] : rawDomains[id];
       const axisFocusPercentage = seriesAxisFocusPercentages[id];
       const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
       const domainMin = axisDomain[0];

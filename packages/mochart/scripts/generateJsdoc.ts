@@ -97,7 +97,7 @@ const sharedSectionInterfaces: SharedSectionInterface[] = [
     interfaceName: 'SeriesIconConfig',
     sections: [{ id: 'legendConfig', name: 'legendConfig' }, { id: 'tooltipConfig', name: 'tooltipConfig' }],
     members: ['showIconColors', 'showIconShapes', 'showIconPlaceholders', 'iconSize', 'iconSpacerSize',
-      'iconBorderSize', 'iconBorderColor', 'iconBorderOpacity', 'iconSuppressedColor', 'iconUnsuppressedColor']
+      'iconBorderSize', 'iconBorderColor', 'iconBorderOpacity', 'iconFilteredColor', 'iconUnfilteredColor']
   }
 ];
 

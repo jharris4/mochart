@@ -76,7 +76,7 @@ export default class SeriesAxis extends Renderer<SeriesAxisProps, SeriesAxisStat
     const { front, seriesAxisConfig, seriesAxisLayoutInfo, plotLayoutInfo, focusPercentages, axisFocusPercentage, seriesFocusPercentage,
       seriesCount, seriesAxisData, titleClipPathUniqueId } = this.props;
     const { onSeriesAxisEnter, onSeriesAxisLeave, onSeriesAxisClick } = this.state;
-    if (seriesAxisConfig.alwaysVisible || seriesCount > 0) {
+    if (seriesAxisConfig.visibleWhenAllFiltered || seriesCount > 0) {
       const axisId = seriesAxisConfig.id;
       this.axis!.set(Axis, { front, axisClass: mochartCssClasses['seriesAxis'] + axisId, axisConfig: seriesAxisConfig,
         axisLayoutInfo: seriesAxisLayoutInfo, plotLayoutInfo,

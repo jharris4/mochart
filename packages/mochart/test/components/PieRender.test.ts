@@ -1,6 +1,6 @@
 /**
  * Pie/donut rendering tests: chartConfig.type 'pie' mounts RadialPlot (slices,
- * no axes/crosshair), slices renormalize when a series is suppressed, labels
+ * no axes/crosshair), slices renormalize when a series is filtered, labels
  * respect labelMinFraction, and animated value updates settle on a fake
  * clock (same technique as the golden suite).
  */
@@ -137,21 +137,21 @@ describe('pie chart rendering', () => {
     expect(labels[0]!.textContent).toBe('98%');
   });
 
-  it('removes a suppressed slice and renormalizes the remaining slices', () => {
+  it('removes a filtered slice and renormalizes the remaining slices', () => {
     const { config, data } = pieChartProps(ITEMS);
-    const unsuppressed = mountChart(config, data);
-    const suppressed = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
-    expect(slicePaths(unsuppressed.container)).toHaveLength(3);
-    const remaining = slicePaths(suppressed.container);
+    const unfiltered = mountChart(config, data);
+    const filtered = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
+    expect(slicePaths(unfiltered.container)).toHaveLength(3);
+    const remaining = slicePaths(filtered.container);
     expect(remaining).toHaveLength(2);
     // with slice0 (62) gone, safari (20) + firefox (18) split the full circle,
-    // so their paths must differ from the unsuppressed render
-    const before = slicePaths(unsuppressed.container).map((path) => path.getAttribute('d'));
+    // so their paths must differ from the unfiltered render
+    const before = slicePaths(unfiltered.container).map((path) => path.getAttribute('d'));
     const after = remaining.map((path) => path.getAttribute('d'));
     expect(after[0]).not.toBe(before[1]);
   });
 
-  it('suppresses a slice via a legend item click', () => {
+  it('filters a slice via a legend item click', () => {
     const { config, data } = pieChartProps(ITEMS);
     const { container } = mountChart(config, data);
     expect(slicePaths(container)).toHaveLength(3);
@@ -204,17 +204,17 @@ describe('pie chart rendering', () => {
     });
 
     // The inconsistency this option exists to remove: percent slice labels
-    // renormalize when a slice is suppressed, so the tooltip must too.
-    it('renormalizes the percentages against the unsuppressed slices, like the labels', () => {
+    // renormalize when a slice is filtered, so the tooltip must too.
+    it('renormalizes the percentages against the unfiltered slices, like the labels', () => {
       const rows = tooltipRows(ITEMS, { tooltipValues: 'percent' }, { filteredSeriesIds: { slice0: true } });
       // Safari 20 and Firefox 18 now split the whole circle
       expect(rows[1]).toBe('Safari: 52.6%');
       expect(rows[2]).toBe('Firefox: 47.4%');
     });
 
-    it('freezes the percentages at the full-total shares when adjustForSuppression is off', () => {
+    it('freezes the percentages at the full-total shares when adjustForFiltering is off', () => {
       const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
-        { tooltipConfig: { adjustForSuppression: false } });
+        { tooltipConfig: { adjustForFiltering: false } });
       const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
       const root = container.querySelector('[data-mochart-version]')!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
@@ -224,9 +224,9 @@ describe('pie chart rendering', () => {
       expect(rows).toEqual(['Chrome: 62.0%', 'Safari: 20.0%', 'Firefox: 18.0%']);
     });
 
-    it('masks a suppressed slice\'s own row with the suppressed placeholder', () => {
+    it('masks a filtered slice\'s own row with the filtered placeholder', () => {
       const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
-        { tooltipConfig: { suppressedValueText: '--' } });
+        { tooltipConfig: { filteredValueText: '--' } });
       const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
       const root = container.querySelector('[data-mochart-version]')!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
@@ -305,7 +305,7 @@ describe('pie chart rendering', () => {
     expect(otherTransform(focused.container)).toBe(otherTransform(plain.container));
   });
 
-  it('renders the center label and a suppression-aware total', () => {
+  it('renders the center label and a filtering-aware total', () => {
     const { config, data } = pieChartProps(ITEMS, { donut: true }, {
       pieConfig: { innerRadiusFraction: 0.6, centerLabel: 'Total', showCenterTotal: true, centerTotalFormat: ',.0f' } as Partial<PieConfig>
     });
@@ -313,35 +313,35 @@ describe('pie chart rendering', () => {
     expect(container.querySelector('.mochart-pie-center-label')!.textContent).toBe('Total');
     expect(container.querySelector('.mochart-pie-center-total')!.textContent).toBe('100');
 
-    const suppressed = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
-    expect(suppressed.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('38');
+    const filtered = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
+    expect(filtered.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('38');
   });
 
-  it('keeps percent labels on the full total when adjustLabelsForSuppression is off', () => {
+  it('keeps percent labels on the full total when adjustLabelsForFiltering is off', () => {
     const labelConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
-      pieConfig: { showLabels: true, labelType: 'percent', labelMinFraction: 0, adjustLabelsForSuppression: adjust } as Partial<PieConfig>
+      pieConfig: { showLabels: true, labelType: 'percent', labelMinFraction: 0, adjustLabelsForFiltering: adjust } as Partial<PieConfig>
     });
-    const suppressed = { filteredSeriesIds: { slice2: true } };
+    const filtered = { filteredSeriesIds: { slice2: true } };
 
-    const adjusted = mountChart(labelConfig(true).config, labelConfig(true).data, suppressed);
+    const adjusted = mountChart(labelConfig(true).config, labelConfig(true).data, filtered);
     const adjustedLabels = Array.from(adjusted.container.querySelectorAll('.mochart-series-slice-label')).map((label) => label.textContent);
     expect(adjustedLabels).toEqual(['76%', '24%']); // renormalized against 62 + 20
 
-    const unadjusted = mountChart(labelConfig(false).config, labelConfig(false).data, suppressed);
+    const unadjusted = mountChart(labelConfig(false).config, labelConfig(false).data, filtered);
     const unadjustedLabels = Array.from(unadjusted.container.querySelectorAll('.mochart-series-slice-label')).map((label) => label.textContent);
     expect(unadjustedLabels).toEqual(['62%', '20%']); // shares of the full total
   });
 
-  it('keeps the center total on the full total when adjustCenterTotalForSuppression is off', () => {
+  it('keeps the center total on the full total when adjustCenterTotalForFiltering is off', () => {
     const totalConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
-      pieConfig: { showCenterTotal: true, centerTotalFormat: ',.0f', adjustCenterTotalForSuppression: adjust } as Partial<PieConfig>
+      pieConfig: { showCenterTotal: true, centerTotalFormat: ',.0f', adjustCenterTotalForFiltering: adjust } as Partial<PieConfig>
     });
-    const suppressed = { filteredSeriesIds: { slice0: true } };
+    const filtered = { filteredSeriesIds: { slice0: true } };
 
-    const adjusted = mountChart(totalConfig(true).config, totalConfig(true).data, suppressed);
+    const adjusted = mountChart(totalConfig(true).config, totalConfig(true).data, filtered);
     expect(adjusted.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('38');
 
-    const unadjusted = mountChart(totalConfig(false).config, totalConfig(false).data, suppressed);
+    const unadjusted = mountChart(totalConfig(false).config, totalConfig(false).data, filtered);
     expect(unadjusted.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('100');
   });
 

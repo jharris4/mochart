@@ -145,7 +145,7 @@ describe('watchMenuDismiss', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it('does not rely on mousedown, which touch handlers can suppress', () => {
+  it('does not rely on mousedown, which touch handlers can filter', () => {
     outside.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     expect(onDismiss).not.toHaveBeenCalled();
   });

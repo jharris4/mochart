@@ -28,7 +28,7 @@ export function getSeriesAxisBeforeAfter(axisConfigs: SeriesAxisConfig[], axisSi
 
 export function getSeriesAxisSizes(axisConfigs: SeriesAxisConfig[], axisDataCounts: Record<string, number>, rotatedTickBoundsMap: Record<string, Bounds>, titleBoundsMap: Record<string, TextBounds>, vertical: boolean): Record<string, number> {
   return arrayToMap(axisConfigs, idAccessor, axisConfig => {
-    if (axisConfig.visible && (axisConfig.alwaysVisible || axisDataCounts[axisConfig.id] > 0)) {
+    if (axisConfig.visible && (axisConfig.visibleWhenAllFiltered || axisDataCounts[axisConfig.id] > 0)) {
       return getAxisSize(axisConfig, rotatedTickBoundsMap[axisConfig.id], titleBoundsMap[axisConfig.id], vertical);
     }
     else {
@@ -49,7 +49,7 @@ export function createSeriesAxisLayoutInfos(mochartConfig: MochartConfig, chartT
   let currentSeriesCollapsedOffsetAfter = 0;
   return arrayToMap<SeriesAxisConfig, AxisLayoutInfo>(seriesAxisConfigs, idAccessor, seriesAxisConfig => {
     const { id, before, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = seriesAxisConfig;
-    // Hidden/suppressed axes still get a full layout info — their size is
+    // Hidden/filtered axes still get a full layout info — their size is
     // already 0 (getSeriesAxisSizes) so they consume no space, but the scales
     // for their series need the seriesExtent set by setExtraAxisInfo.
     let seriesAxisOffset = groupY;

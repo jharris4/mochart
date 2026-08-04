@@ -34,7 +34,7 @@ interface TooltipSeriesLineProps {
   seriesIndex: number;
   seriesIsFocused: boolean;
   seriesIsDefocused: boolean;
-  seriesIsSuppressed: boolean;
+  seriesIsFiltered: boolean;
   seriesFocusPercentage: FocusPercentage;
   colorPaletteConfig: ColorPaletteConfig;
   svgUniqueId: string;
@@ -57,7 +57,7 @@ interface TooltipContentProps {
   tooltipGroupIndex: number;
   updateTooltipGroupIndex: (groupIndex: number) => void;
   minWidth?: number | null;
-  adjustForSuppression?: boolean;
+  adjustForFiltering?: boolean;
   svgUniqueId: string;
   onFocus: (focus: InternalFocus) => void;
   onSeriesFilter: (seriesId: string) => void;
@@ -149,7 +149,7 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   }
 
   sync() {
-    const { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsSuppressed, seriesFocusPercentage,
+    const { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
       colorPaletteConfig, svgUniqueId, visible, labelText, valueText, style, onMouseEnter, onMouseLeave, onClick } = this.props;
     const { tooltipConfig } = mochartConfig;
 
@@ -157,13 +157,13 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
       onMouseEnter, onMouseLeave, onClick });
 
     // html, so this has to be a style: a top-level prop would be written as an attribute, which means nothing here
-    const labelStyle = { textDecoration: tooltipConfig.showSuppressionOnLabels && seriesIsSuppressed ? 'line-through' : null };
+    const labelStyle = { textDecoration: tooltipConfig.showFilteringOnLabels && seriesIsFiltered ? 'line-through' : null };
 
     const iconProps = {
       seriesContextConfig: tooltipConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
       focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,
       svgUniqueId: svgUniqueId + '-tooltip', seriesShowColorProperty: 'showColorInTooltip' as const,
-      seriesIsSuppressed, iconClassName: mochartCssClasses['tooltipLineIcon'],
+      seriesIsFiltered, iconClassName: mochartCssClasses['tooltipLineIcon'],
       visible, renderHTML: true
     };
 
@@ -310,7 +310,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
   sync() {
     const { mochartConfig, tooltipValueObject, groupCount, focusedGroupIndex, focusedSeriesId, visible, tooltipGroupIndex, updateTooltipGroupIndex,
-      minWidth = null, adjustForSuppression = true, svgUniqueId, onFocus, seriesAxisFocusPercentages, seriesFocusPercentages } = this.props;
+      minWidth = null, adjustForFiltering = true, svgUniqueId, onFocus, seriesAxisFocusPercentages, seriesFocusPercentages } = this.props;
     const { mode } = this.state;
 
     const { chartConfig, pieConfig, tooltipConfig, groupAxisConfig, seriesAxisConfigs, seriesConfigs, seriesConfigIndicesById, colorPaletteConfig } = mochartConfig;
@@ -322,8 +322,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     // Percent tooltip values are derived from the slice shares, normalized the
     // same way the slices and their labels are (see getPieSliceFractions), so
     // the numbers cannot drift apart. The maps are built once per tooltip, not
-    // once per row. Suppression follows tooltipConfig.adjustForSuppression: on
-    // (the default) the percentages renormalize against the unsuppressed slices
+    // once per row. Filtering follows tooltipConfig.adjustForFiltering: on
+    // (the default) the percentages renormalize against the unfiltered slices
     // like the slice labels do, off freezes them at the full-total shares.
     const pieTooltipValues = pieConfig.tooltipValues;
     let piePercentFormat: ((fraction: number) => string) | null = null;
@@ -332,7 +332,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     if (chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(pieTooltipValues)) {
       piePercentFormat = getPieTooltipPercentFormat(pieConfig);
       rawFractions = getPieSliceFractionMap(seriesConfigs, seriesId => raw.values[seriesId]?.plain);
-      adjustedFractions = adjustForSuppression && tooltipConfig.adjustForSuppression ?
+      adjustedFractions = adjustForFiltering && tooltipConfig.adjustForFiltering ?
         getPieSliceFractionMap(seriesConfigs, seriesId => filtered.values[seriesId]?.plain) : rawFractions;
     }
 
@@ -376,24 +376,24 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       // a follower series (followSeries) focuses and filters as its leader,
       // so a candlestick range row acts on the whole candle
       const focusSeriesId = seriesConfig.followSeries ?? seriesId;
-      const seriesIsSuppressed = filteredFlags[seriesId];
+      const seriesIsFiltered = filteredFlags[seriesId];
       const seriesIsFocused = focusSeriesId === focusedSeriesId;
       const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
-      if (!adjustForSuppression || !(seriesIsSuppressed && tooltipConfig.hideSuppressed)) {
+      if (!adjustForFiltering || !(seriesIsFiltered && tooltipConfig.hideFiltered)) {
         const valueFormat = valueFormats[seriesId];
         const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {
           tooltipValues: pieTooltipValues, percentFormat: piePercentFormat,
           fraction: adjustedFractions[seriesId] ?? 0, rawFraction: rawFractions[seriesId] ?? 0,
-          suppressed: seriesIsSuppressed
+          filtered: seriesIsFiltered
         };
-        const { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForSuppression, pieValues);
+        const { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForFiltering, pieValues);
         if (valueText !== null) {
           lastSeriesLineIndex = tooltipLines.length;
           tooltipLines.push({
             key: 'series-' + seriesId,
             ctor: TooltipSeriesLine,
-            props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsSuppressed, seriesFocusPercentage,
+            props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
               colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
               style: lineStyle,
               onMouseEnter: (event: Event) => this.onSeriesMouseEnter(event, focusSeriesId),

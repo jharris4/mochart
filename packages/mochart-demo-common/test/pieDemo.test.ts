@@ -4,7 +4,7 @@ import { enhanceConfig } from '@mochart/core';
 
 import demoData from '@mochart/demo-data';
 
-import { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepSuppressedIds, getPieSequenceSteps } from '../src/pieDemo';
+import { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepFilteredIds, getPieSequenceSteps } from '../src/pieDemo';
 
 const pieDemo = demoData.demoObjectMap['pie'];
 const donutDemo = demoData.demoObjectMap['donut'];
@@ -37,30 +37,30 @@ describe('applyPieSliceValue', () => {
   });
 });
 
-describe('getPieStepSuppressedIds', () => {
+describe('getPieStepFilteredIds', () => {
   const ids = ['s0', 's1', 's2', 's3', 's4', 's5'];
 
-  it('suppresses the last (step + chartIndex) mod cycle slices', () => {
-    expect(getPieStepSuppressedIds(ids, 0, 0)).toEqual({});
-    expect(getPieStepSuppressedIds(ids, 1, 0)).toEqual({ s5: true });
-    expect(getPieStepSuppressedIds(ids, 2, 1)).toEqual({ s3: true, s4: true, s5: true });
+  it('filters the last (step + chartIndex) mod cycle slices', () => {
+    expect(getPieStepFilteredIds(ids, 0, 0)).toEqual({});
+    expect(getPieStepFilteredIds(ids, 1, 0)).toEqual({ s5: true });
+    expect(getPieStepFilteredIds(ids, 2, 1)).toEqual({ s3: true, s4: true, s5: true });
   });
 
   it('always keeps at least one slice', () => {
     for (let chartIndex = 0; chartIndex < 4; chartIndex++) {
       for (let step = -3; step < 12; step++) {
-        const suppressed = Object.keys(getPieStepSuppressedIds(ids, chartIndex, step)).length;
-        expect(ids.length - suppressed).toBeGreaterThanOrEqual(1);
+        const filtered = Object.keys(getPieStepFilteredIds(ids, chartIndex, step)).length;
+        expect(ids.length - filtered).toBeGreaterThanOrEqual(1);
       }
     }
     const gaugeIds = ['a', 'b', 'c'];
     for (let step = 0; step < 5; step++) {
-      expect(gaugeIds.length - Object.keys(getPieStepSuppressedIds(gaugeIds, 0, step)).length).toBeGreaterThanOrEqual(1);
+      expect(gaugeIds.length - Object.keys(getPieStepFilteredIds(gaugeIds, 0, step)).length).toBeGreaterThanOrEqual(1);
     }
   });
 
   it('reaches a single remaining slice within the cycle', () => {
-    expect(getPieStepSuppressedIds(ids, 0, ids.length - 1)).toEqual({ s1: true, s2: true, s3: true, s4: true, s5: true });
+    expect(getPieStepFilteredIds(ids, 0, ids.length - 1)).toEqual({ s1: true, s2: true, s3: true, s4: true, s5: true });
   });
 
   it('matches getPieStepCycle', () => {
@@ -70,7 +70,7 @@ describe('getPieStepSuppressedIds', () => {
 });
 
 describe('getPieSequenceSteps', () => {
-  it('suppresses down to one remaining, then restores to empty', () => {
+  it('filters down to one remaining, then restores to empty', () => {
     const steps = getPieSequenceSteps(['a', 'b', 'c', 'd']);
     expect(steps.map(step => Object.keys(step).sort().join(','))).toEqual([
       'd', 'c,d', 'b,c,d', 'c,d', 'd', ''

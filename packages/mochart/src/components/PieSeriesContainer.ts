@@ -48,10 +48,10 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     let sliceAngles = getPieSliceAngles(mochartConfig.seriesConfigs, filteredValues, pieConfig);
     const radialLayoutInfo = getRadialLayoutInfo(seriesLayoutInfo, pieConfig);
 
-    // When labels or the center total should ignore suppression, their
-    // fractions/total come from the raw values (which keep suppressed series).
+    // When labels or the center total should ignore filtering, their
+    // fractions/total come from the raw values (which keep filtered series).
     let rawSliceAngles: Record<string, PieSliceAngles> | null = null;
-    if (!pieConfig.adjustLabelsForSuppression || !pieConfig.adjustCenterTotalForSuppression) {
+    if (!pieConfig.adjustLabelsForFiltering || !pieConfig.adjustCenterTotalForFiltering) {
       rawSliceAngles = getPieSliceAngles(mochartConfig.seriesConfigs, seriesData.raw.values, pieConfig);
     }
 
@@ -75,16 +75,16 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
         seriesIndex: seriesConfigIndicesById[seriesConfig.id],
         seriesLayoutInfo, radialLayoutInfo,
         sliceAngles: sliceAngles[seriesConfig.id],
-        labelFraction: pieConfig.adjustLabelsForSuppression
+        labelFraction: pieConfig.adjustLabelsForFiltering
           ? sliceAngles[seriesConfig.id]?.fraction ?? 0
           : rawSliceAngles![seriesConfig.id]?.fraction ?? 0,
         focusData, gradientIdMap, hideLabels: sweeping, onFocus, onSliceClick }
     })));
 
     // The center total sums the current (possibly mid-tween) values, so it
-    // counts along with value changes — and with suppression, unless
-    // adjustCenterTotalForSuppression turns that off.
-    const totalAngles = pieConfig.adjustCenterTotalForSuppression ? sliceAngles : rawSliceAngles!;
+    // counts along with value changes — and with filtering, unless
+    // adjustCenterTotalForFiltering turns that off.
+    const totalAngles = pieConfig.adjustCenterTotalForFiltering ? sliceAngles : rawSliceAngles!;
     let total = 0;
     for (const id of Object.keys(totalAngles)) {
       total += totalAngles[id].value;

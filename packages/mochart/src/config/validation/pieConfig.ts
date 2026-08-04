@@ -16,7 +16,7 @@ export default function getValidators() {
     labelPercentFormat: validators.numberFormat().orEqual(AUTO),
     labelRadiusFraction: validators.numberMinMax(0, 1),
     labelMinFraction: validators.numberMinMax(0, 1),
-    adjustLabelsForSuppression: validators.boolean(),
+    adjustLabelsForFiltering: validators.boolean(),
     tooltipValues: validators.oneOf(PIE_TOOLTIP_LABEL_TYPES),
     tooltipPercentFormat: validators.numberFormat().orEqual(AUTO),
     centerLabel: validators.string().orEqual(NONE),
@@ -24,7 +24,7 @@ export default function getValidators() {
     showCenterTotal: validators.boolean(),
     centerTotalTextStyle: validators.style(),
     centerTotalFormat: validators.numberFormat().orEqual(AUTO),
-    adjustCenterTotalForSuppression: validators.boolean(),
+    adjustCenterTotalForFiltering: validators.boolean(),
     centerOffsetXFraction: validators.numberMinMax(-1, 1),
     centerOffsetYFraction: validators.numberMinMax(-1, 1)
   };

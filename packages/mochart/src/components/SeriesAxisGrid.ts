@@ -27,7 +27,7 @@ export default class SeriesAxisGrid extends Renderer<SeriesAxisGridProps> {
 
   sync() {
     const { plotConfig, seriesAxisConfig, seriesLayoutInfo, axisFocusPercentage, seriesFocusPercentage, seriesCount, seriesAxisData } = this.props;
-    if (seriesAxisConfig.alwaysVisible || seriesCount > 0) {
+    if (seriesAxisConfig.visibleWhenAllFiltered || seriesCount > 0) {
       const axisId = seriesAxisConfig.id;
       this.grid!.set(AxisGrid, { vertical: !plotConfig.inverted, axisConfig: seriesAxisConfig, seriesLayoutInfo,
         axisGridClass: mochartCssClasses['seriesAxisGrid'] + axisId,

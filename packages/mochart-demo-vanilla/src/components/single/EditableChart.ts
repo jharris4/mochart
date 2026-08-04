@@ -229,7 +229,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     }
   }
 
-  // The pie analog of the group add/remove sequences: suppress the slices one
+  // The pie analog of the group add/remove sequences: filter the slices one
   // at a time (via the shared legend filter, so the remaining slices re-sweep
   // and center totals count along), then restore them.
   function startSliceSequence(): void {
@@ -928,7 +928,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Pie-mode slice panel — replaces both panels when slices are the series:
   // click a slice (or step prev/next) to select it, edit its value, or play
-  // the suppress/restore sequence.
+  // the filter/restore sequence.
   const previousSliceButton = buttonWithTooltip({
     id: 'edit-previous-slice', ariaLabel: demoText.editableChart.previousSlice.aria,
     tooltipText: demoText.editableChart.previousSlice.tooltip,

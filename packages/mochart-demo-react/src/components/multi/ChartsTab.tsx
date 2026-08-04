@@ -5,7 +5,7 @@ import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -48,8 +48,8 @@ function clampGrid(value: number): number {
   return Math.min(4, Math.max(1, Math.round(value)));
 }
 
-// Pie mode steps a suppression pattern instead of data prefixes: chart i at
-// step s suppresses the last (s + i) mod cycle slices, so the grid shows
+// Pie mode steps a filtering pattern instead of data prefixes: chart i at
+// step s filters the last (s + i) mod cycle slices, so the grid shows
 // different-sized views of the same pie and stepping animates all charts.
 function stepCycleOf(state: ChartsTabState): number {
   return state.mochartDemoConfig.pieMode ? getPieStepCycle(state.sliceIds) : state.dataCount;
@@ -289,10 +289,10 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     mode: 'multi', rows: state.chartRows, cols: state.chartCols, step: state.currentDataCount, interval: state.rate
   });
 
-  // Pie mode unions the stepper's per-chart suppression with the user's
+  // Pie mode unions the stepper's per-chart filtering with the user's
   // legend filtering, so the legend stays interactive while stepping.
   const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => mochartDemoConfig.pieMode
-    ? { ...filteredSeriesIds, ...getPieStepSuppressedIds(state.sliceIds, i, state.currentDataCount) }
+    ? { ...filteredSeriesIds, ...getPieStepFilteredIds(state.sliceIds, i, state.currentDataCount) }
     : filteredSeriesIds;
 
   return (

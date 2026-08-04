@@ -4,7 +4,7 @@
   import { Chart } from '@mochart/svelte';
   import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
+  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
   import type { ShareState } from '@mochart/demo-common';
 
   import ChartsControls from './ChartsControls.svelte';
@@ -53,8 +53,8 @@
   let data = $state.raw(demoObject.data);
   // svelte-ignore state_referenced_locally
   let dataCount = $state(demoObject.data.length);
-  // Pie mode steps a suppression pattern instead of data prefixes: chart i at
-  // step s suppresses the last (s + i) mod cycle slices, so the grid shows
+  // Pie mode steps a filtering pattern instead of data prefixes: chart i at
+  // step s filters the last (s + i) mod cycle slices, so the grid shows
   // different-sized views of the same pie and stepping animates all charts.
   // svelte-ignore state_referenced_locally
   let sliceIds = $state.raw(mochartDemoConfig.pieMode ? getPieSlices(mochartDemoConfig.mochartConfig).map(slice => slice.id) : []);
@@ -274,13 +274,13 @@
       <div class="multi-charts">
         {#each dataProviders as dataProvider, i (i)}
           <div class="multi-mochart-chart">
-            <!-- Pie mode unions the stepper's per-chart suppression with the
+            <!-- Pie mode unions the stepper's per-chart filtering with the
                  user's legend filtering, so the legend stays interactive while
                  stepping. -->
             <Chart mochartConfig={mochartDemoConfig.mochartConfig} {dataProvider}
                    width={chartWidth} height={chartHeight}
                    filteredSeriesIds={mochartDemoConfig.pieMode
-                     ? { ...filteredSeriesIds, ...getPieStepSuppressedIds(sliceIds, i, currentDataCount) }
+                     ? { ...filteredSeriesIds, ...getPieStepFilteredIds(sliceIds, i, currentDataCount) }
                      : filteredSeriesIds}
                    focusedGroupIndex={focusedGroupIndices[i] ?? -1}
                    focusedSeriesAxisId={focusedSeriesAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}

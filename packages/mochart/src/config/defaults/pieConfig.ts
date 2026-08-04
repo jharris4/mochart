@@ -25,7 +25,7 @@ export function getRegularDefaults() {
     labelPercentFormat: AUTO,
     labelRadiusFraction: 0.5,
     labelMinFraction: 0.05,
-    adjustLabelsForSuppression: true,
+    adjustLabelsForFiltering: true,
     tooltipValues: PIE_LABEL_TYPE_VALUE,
     tooltipPercentFormat: AUTO,
     centerLabel: NONE,
@@ -33,7 +33,7 @@ export function getRegularDefaults() {
     showCenterTotal: false,
     centerTotalTextStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
     centerTotalFormat: AUTO,
-    adjustCenterTotalForSuppression: true,
+    adjustCenterTotalForFiltering: true,
     centerOffsetXFraction: 0,
     centerOffsetYFraction: 0
   };

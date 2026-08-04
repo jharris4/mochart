@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getSeriesText, getSuppressedValue } from '../../src/utils/TooltipFormat';
+import { getSeriesText, getFilteredValue } from '../../src/utils/TooltipFormat';
 import type { PieTooltipValues } from '../../src/utils/TooltipFormat';
 import type { TooltipConfig, SeriesConfig } from '../../src/types/config';
 import type { ChartData, SeriesValueObject } from '../../src/types/data';
@@ -15,9 +15,9 @@ interface Slice {
 
 function makeTooltipConfig(over: Partial<TooltipConfig> = {}): TooltipConfig {
   return {
-    suppressedValueText: null,
-    suppressedValueCharacter: null,
-    adjustForSuppression: false,
+    filteredValueText: null,
+    filteredValueCharacter: null,
+    adjustForFiltering: false,
     showMissingValues: false,
     missingValueText: 'N/A',
     rangeValueText: ' - ',
@@ -268,14 +268,14 @@ describe('getSeriesText', () => {
 
   describe('pie tooltip values', () => {
     // TooltipContent picks the fraction from the filtered or raw slice shares
-    // (see getPieSliceFractionMap) and passes it in with the row's suppression
+    // (see getPieSliceFractionMap) and passes it in with the row's filtering
     // flag, since a percentage is derived rather than stored per value key.
     const pieValues = (over: Partial<PieTooltipValues> = {}): PieTooltipValues => ({
       tooltipValues: 'percent',
       percentFormat: (fraction: number) => (fraction * 100).toFixed(1) + '%',
       fraction: 0.25,
       rawFraction: 0.2,
-      suppressed: false,
+      filtered: false,
       ...over
     });
 
@@ -318,31 +318,31 @@ describe('getSeriesText', () => {
       expect(valueText).toBe(null);
     });
 
-    it('masks a suppressed slice\'s percentage, sized from its share of the full total', () => {
+    it('masks a filtered slice\'s percentage, sized from its share of the full total', () => {
       const { valueText } = getSeriesText(
-        makeTooltipConfig({ adjustForSuppression: true, suppressedValueCharacter: '#' }),
+        makeTooltipConfig({ adjustForFiltering: true, filteredValueCharacter: '#' }),
         makeSeriesConfig(), identity,
         makeSlice({ plain: 42 }, { plain: null }, { y: 100 }) as never, // base "100" => 3 chars
         true,
-        pieValues({ tooltipValues: 'percentValue', fraction: 0, rawFraction: 0.2, suppressed: true })
+        pieValues({ tooltipValues: 'percentValue', fraction: 0, rawFraction: 0.2, filtered: true })
       );
       expect(valueText).toBe('##### (###)'); // raw "20.0%" => 5 chars
     });
 
-    it('shows the percentage untouched when suppression adjustment is off', () => {
+    it('shows the percentage untouched when filtering adjustment is off', () => {
       const { valueText } = getSeriesText(
-        makeTooltipConfig({ adjustForSuppression: false }), makeSeriesConfig(), identity,
+        makeTooltipConfig({ adjustForFiltering: false }), makeSeriesConfig(), identity,
         makeSlice({ plain: 42 }) as never, false,
-        pieValues({ fraction: 0.2, suppressed: true })
+        pieValues({ fraction: 0.2, filtered: true })
       );
       expect(valueText).toBe('20.0%');
     });
   });
 
-  describe('suppression', () => {
-    it('uses the filtered value when the series is not suppressed', () => {
+  describe('filtering', () => {
+    it('uses the filtered value when the series is not filtered', () => {
       const { valueText } = getSeriesText(
-        makeTooltipConfig({ adjustForSuppression: true }),
+        makeTooltipConfig({ adjustForFiltering: true }),
         makeSeriesConfig(),
         identity,
         makeSlice({ plain: 42 }, { plain: 30 }, { y: 0 }) as never,
@@ -351,20 +351,20 @@ describe('getSeriesText', () => {
       expect(valueText).toBe('30');
     });
 
-    it('substitutes suppressedValueText for a suppressed value', () => {
+    it('substitutes filteredValueText for a filtered value', () => {
       const { valueText } = getSeriesText(
-        makeTooltipConfig({ adjustForSuppression: true, suppressedValueText: '***' }),
+        makeTooltipConfig({ adjustForFiltering: true, filteredValueText: '***' }),
         makeSeriesConfig(),
         identity,
-        makeSlice({ plain: 42 }, { plain: null }, { y: 99 }) as never, // filtered null => suppressed
+        makeSlice({ plain: 42 }, { plain: null }, { y: 99 }) as never, // filtered null => filtered
         true
       );
       expect(valueText).toBe('***');
     });
 
-    it('repeats suppressedValueCharacter to mask the base value length', () => {
+    it('repeats filteredValueCharacter to mask the base value length', () => {
       const { valueText } = getSeriesText(
-        makeTooltipConfig({ adjustForSuppression: true, suppressedValueCharacter: '#' }),
+        makeTooltipConfig({ adjustForFiltering: true, filteredValueCharacter: '#' }),
         makeSeriesConfig(),
         identity,
         makeSlice({ plain: 42 }, { plain: null }, { y: 100 }) as never, // base "100" => 3 chars
@@ -375,7 +375,7 @@ describe('getSeriesText', () => {
   });
 });
 
-describe('getSuppressedValue', () => {
+describe('getFilteredValue', () => {
   const seriesConfig = makeSeriesConfig({ seriesAxisConfig: { id: 'y' } as SeriesConfig['seriesAxisConfig'] });
 
   function makeChartData(over: Partial<{ base: number; groups: (unknown)[]; markerDomain: number[]; tooltipDomain: number[] }> = {}): ChartData {
@@ -392,24 +392,24 @@ describe('getSuppressedValue', () => {
 
   it('returns the original object unchanged when the plain value is not null', () => {
     const valueObject = { plain: [1, 2, 3] } as unknown as SeriesValueObject;
-    expect(getSuppressedValue(makeChartData(), seriesConfig, valueObject)).toBe(valueObject);
+    expect(getFilteredValue(makeChartData(), seriesConfig, valueObject)).toBe(valueObject);
   });
 
   it('fills plain values from the axis base, keeping group holes', () => {
     const valueObject = { plain: null } as unknown as SeriesValueObject;
-    const out = getSuppressedValue(makeChartData({ base: 5 }), seriesConfig, valueObject);
+    const out = getFilteredValue(makeChartData({ base: 5 }), seriesConfig, valueObject);
     expect(out.plain).toEqual([5, 5, undefined]);
   });
 
   it('mirrors plain into range when a range property is configured', () => {
     const valueObject = { plain: null, range: null } as unknown as SeriesValueObject;
-    const out = getSuppressedValue(makeChartData({ base: 5 }), makeSeriesConfig({ rangeProperty: 'hi' }), valueObject);
+    const out = getFilteredValue(makeChartData({ base: 5 }), makeSeriesConfig({ rangeProperty: 'hi' }), valueObject);
     expect(out.range).toEqual(out.plain);
   });
 
   it('fills marker values from the marker domain minimum', () => {
     const valueObject = { plain: null, marker: null } as unknown as SeriesValueObject;
-    const out = getSuppressedValue(
+    const out = getFilteredValue(
       makeChartData({ base: 5, markerDomain: [3, 9] }),
       makeSeriesConfig({ markerProperty: 'm' }),
       valueObject
@@ -419,7 +419,7 @@ describe('getSuppressedValue', () => {
 
   it('fills tooltip values from the tooltip domain minimum', () => {
     const valueObject = { plain: null, tooltip: null } as unknown as SeriesValueObject;
-    const out = getSuppressedValue(
+    const out = getFilteredValue(
       makeChartData({ base: 5, tooltipDomain: [2, 8] }),
       makeSeriesConfig({ tooltipProperty: 't' }),
       valueObject

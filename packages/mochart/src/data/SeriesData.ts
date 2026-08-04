@@ -451,7 +451,7 @@ export function getSeriesAxisBases(seriesAxisConfigs: SeriesAxisConfig[], rawSer
   return arrayToMap(seriesAxisConfigs, idAccessor,
     seriesAxisConfig =>
       seriesAxisConfig.base !== NONE ? seriesAxisConfig.base :
-        seriesAxisConfig.adjustForSuppression ? filteredSeriesAxisDomains[seriesAxisConfig.id][0] : rawSeriesAxisDomains[seriesAxisConfig.id][0])
+        seriesAxisConfig.adjustForFiltering ? filteredSeriesAxisDomains[seriesAxisConfig.id][0] : rawSeriesAxisDomains[seriesAxisConfig.id][0])
 }
 
 export function getSeriesContainerFilteredSeriesCounts(seriesContainerConfigs: SeriesContainerConfig[], filteredSeriesFlags: Record<string, boolean>): Record<string, number> {

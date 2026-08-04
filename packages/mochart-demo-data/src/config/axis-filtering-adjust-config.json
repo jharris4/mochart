@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "titleConfig": {
-    "title": "Axis Adjusted for Suppression"
+    "title": "Axis Adjusted for Filtering"
   },
   "animationConfig": {
     "expansionDuration": 2000,
@@ -16,7 +16,7 @@
     "scale": "ordinal"
   },
   "seriesAxisAllConfig": {
-    "adjustForSuppression": true
+    "adjustForFiltering": true
   },
   "seriesAxisConfigs": [
     {

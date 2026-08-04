@@ -6,7 +6,7 @@ import type { PropertyValues } from 'lit';
 import { chart } from '@mochart/lit';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -39,8 +39,8 @@ export class ChartsTab extends LightElement {
   @state() private data: DataRow[] = [];
   private dataCount = 0;
   private currentDataCount = 0;
-  // Pie mode steps a suppression pattern instead of data prefixes: chart i at
-  // step s suppresses the last (s + i) mod cycle slices, so the grid shows
+  // Pie mode steps a filtering pattern instead of data prefixes: chart i at
+  // step s filters the last (s + i) mod cycle slices, so the grid shows
   // different-sized views of the same pie and stepping animates all charts.
   private sliceIds: string[] = [];
   @state() private dataProviders: ChartDataProviderLike[] = [];
@@ -259,10 +259,10 @@ export class ChartsTab extends LightElement {
   override render(): unknown {
     const chartWidth = Math.floor((this.size.width - scrollWidthOffset) / this.chartCols);
     const chartHeight = Math.floor(this.size.height / this.chartRows);
-    // Pie mode unions the stepper's per-chart suppression with the user's
+    // Pie mode unions the stepper's per-chart filtering with the user's
     // legend filtering, so the legend stays interactive while stepping.
     const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => this.mochartDemoConfig.pieMode
-      ? { ...this.filteredSeriesIds, ...getPieStepSuppressedIds(this.sliceIds, i, this.currentDataCount) }
+      ? { ...this.filteredSeriesIds, ...getPieStepFilteredIds(this.sliceIds, i, this.currentDataCount) }
       : this.filteredSeriesIds;
     return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div ${ref(this.size.attach)} class="multi-charts-sizer">

@@ -58,13 +58,13 @@ test.describe('pie demo', () => {
 });
 
 test.describe('gauge demo', () => {
-  test('renders a half-donut with title labels and a suppression-aware center total', async ({ page }) => {
+  test('renders a half-donut with title labels and a filtering-aware center total', async ({ page }) => {
     await openDemo(page, 'gauge');
     await expect(page.locator('.mochart-series-slice')).toHaveCount(3);
     await expect(page.locator('.mochart-pie-center-label')).toHaveText('responses');
     await expect(page.locator('.mochart-pie-center-total')).toHaveText('1,000');
 
-    // suppressing the first segment (Promoters, 540) counts the total down
+    // filtering the first segment (Promoters, 540) counts the total down
     await page.locator('.mochart-legend-item').first().click();
     await expect(page.locator('.mochart-pie-center-total')).toHaveText('460');
     await page.locator('.mochart-legend-item').first().click();
@@ -87,8 +87,8 @@ test.describe('donut demo', () => {
   });
 
   // The donut's labels and tooltip both show shares (labelType 'percent',
-  // tooltipValues 'percent'), so suppressing a slice has to move both.
-  test('renormalizes the tooltip shares with the labels when a slice is suppressed', async ({ page }) => {
+  // tooltipValues 'percent'), so filtering a slice has to move both.
+  test('renormalizes the tooltip shares with the labels when a slice is filtered', async ({ page }) => {
     await openDemo(page, 'donut');
     await expect(page.locator('.mochart-series-slice').first()).toBeAttached();
 
@@ -108,7 +108,7 @@ test.describe('donut demo', () => {
     await expect(safariRow).toContainText('20.0%'); // Safari's share of all six slices
     await page.keyboard.press('Escape');
 
-    // suppress Chrome (62), the largest slice — Safari's share must grow
+    // filter Chrome (62), the largest slice — Safari's share must grow
     await page.locator('.mochart-legend-item').first().click();
     await openTooltip();
     await expect(safariRow).toContainText('52.6%');

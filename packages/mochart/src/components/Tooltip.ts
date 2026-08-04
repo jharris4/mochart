@@ -79,7 +79,7 @@ export default class Tooltip extends Renderer<TooltipProps> {
         visibility: tooltipBounds !== null ? 'visible' : 'hidden'
       };
 
-      const sizeForSuppression = tooltipConfig.adjustSizeForSuppression;
+      const sizeForFiltering = tooltipConfig.adjustSizeForFiltering;
 
       const commonProps = {
         mochartConfig, tooltipValueObject, tooltipGroupIndex, focusedGroupIndex,
@@ -91,7 +91,7 @@ export default class Tooltip extends Renderer<TooltipProps> {
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['tooltipContainer'] });
       this.sizer.set({ className: mochartCssClasses['tooltipSizer'], style: tooltipSizerStyle });
-      this.sizerContent.set(TooltipContent, { ...commonProps, adjustForSuppression: sizeForSuppression, visible: false });
+      this.sizerContent.set(TooltipContent, { ...commonProps, adjustForFiltering: sizeForFiltering, visible: false });
       this.tooltip.set({ className: mochartCssClasses['tooltip'], style: tooltipStyle });
       this.tooltipContent.set(TooltipContent, { ...commonProps, minWidth: tooltipBounds ? tooltipBounds.width : null, visible: true });
     }

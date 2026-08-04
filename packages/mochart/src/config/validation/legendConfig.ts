@@ -25,9 +25,9 @@ export default function getValidators() {
     // svgColor, not color: the icons are svg, so 'currentColor' and 'none' are valid here.
     iconBorderColor: validators.svgColor(),
     iconBorderOpacity: validators.opacity(),
-    iconSuppressedColor: validators.svgColor(),
-    iconUnsuppressedColor: validators.svgColor(),
-    showSuppressionOnLabels: validators.boolean(),
+    iconFilteredColor: validators.svgColor(),
+    iconUnfilteredColor: validators.svgColor(),
+    showFilteringOnLabels: validators.boolean(),
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),
     filterOnClick: validators.boolean()

@@ -49,7 +49,7 @@ interface LegendItemProps {
   clipPath: string | null;
   colorPaletteConfig: ColorPaletteConfig;
   seriesIndex: number;
-  seriesIsSuppressed: boolean;
+  seriesIsFiltered: boolean;
   seriesIsFocused: boolean;
   seriesIsDefocused: boolean;
   seriesFocusPercentage: number | null;
@@ -85,7 +85,7 @@ export default class Legend extends Renderer<LegendProps> {
     const { mochartConfig, focusedSeriesId, onFocus, onSeriesFilter } = this.props;
     const seriesConfig = mochartConfig.seriesConfigsById[seriesId];
     const legendConfig = mochartConfig.legendConfig;
-    if (legendConfig.filterOnClick && seriesConfig.suppressible) {
+    if (legendConfig.filterOnClick && seriesConfig.filterable) {
       onSeriesFilter(seriesId);
     }
     if (legendConfig.focusOnClick) {
@@ -124,7 +124,7 @@ export default class Legend extends Renderer<LegendProps> {
         if (showInLegend) {
           const i = itemIndex++;
           const seriesIndex = seriesConfigIndicesById[id];
-          const seriesIsSuppressed = filteredFlags[id] === true;
+          const seriesIsFiltered = filteredFlags[id] === true;
           const seriesIsFocused = focusedSeriesId === id;
           const seriesIsDefocused = !seriesIsFocused && focusedSeriesId !== null;
           const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, seriesAxisFocusPercentages, seriesFocusPercentages);
@@ -136,7 +136,7 @@ export default class Legend extends Renderer<LegendProps> {
               legendItemLayoutInfo: legendItemLayoutInfos[i],
               legendItemRawLayoutInfo: legendItemRawLayoutInfos[i], legendItemTextLayoutInfo,
               uniqueIds, colorPaletteConfig, seriesIndex,
-              seriesIsSuppressed, seriesIsFocused, seriesIsDefocused,
+              seriesIsFiltered, seriesIsFocused, seriesIsDefocused,
               seriesFocusPercentage, clipPath, onClick: this.legendItemClick,
               onMouseEnter: this.legendItemMouseEnter, onMouseLeave: this.legendItemMouseLeave }
           });
@@ -177,15 +177,15 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   }
 
   onMouseEnter = () => {
-    const { onMouseEnter, seriesConfig, seriesIsSuppressed } = this.props;
-    if (!seriesIsSuppressed) {
+    const { onMouseEnter, seriesConfig, seriesIsFiltered } = this.props;
+    if (!seriesIsFiltered) {
       onMouseEnter(seriesConfig.id);
     }
   }
 
   onMouseLeave = () => {
-    const { onMouseLeave, seriesConfig, seriesIsSuppressed } = this.props;
-    if (!seriesIsSuppressed) {
+    const { onMouseLeave, seriesConfig, seriesIsFiltered } = this.props;
+    if (!seriesIsFiltered) {
       onMouseLeave(seriesConfig.id);
     }
   }
@@ -223,11 +223,11 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
 
   sync() {
     const { legendConfig, seriesConfig, legendItemLayoutInfo, legendItemTextLayoutInfo, uniqueIds, clipPath, colorPaletteConfig,
-      seriesIndex, seriesIsSuppressed, seriesIsFocused, seriesIsDefocused, seriesFocusPercentage } = this.props;
-    const { iconSpacerSize, truncationEnabled, truncationValue, itemTextStyle, showSuppressionOnLabels } = legendConfig;
+      seriesIndex, seriesIsFiltered, seriesIsFocused, seriesIsDefocused, seriesFocusPercentage } = this.props;
+    const { iconSpacerSize, truncationEnabled, truncationValue, itemTextStyle, showFilteringOnLabels } = legendConfig;
     const itemTextAttributes = styleToAttributes(itemTextStyle);
     // a camelCase prop, not a style: the dom layer kebab-cases it into the svg attribute, and null leaves it off
-    const textDecoration = showSuppressionOnLabels && seriesIsSuppressed ? 'line-through' : null;
+    const textDecoration = showFilteringOnLabels && seriesIsFiltered ? 'line-through' : null;
     const iconSize = resolveLegendIconSize(legendConfig, legendItemTextLayoutInfo);
     const { truncationData } = this.state;
     const seriesLabel = getSeriesTitle(seriesConfig);
@@ -251,7 +251,7 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
     this.icon.set(SeriesColorIcon, { seriesContextConfig: legendConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,
       focusPercentage: seriesFocusPercentage, colorPaletteConfig, seriesIndex,
       seriesShowColorProperty: 'showColorInLegend', uniqueIds,
-      seriesIsSuppressed, renderHTML: false, resolvedIconSize: iconSize });
+      seriesIsFiltered, renderHTML: false, resolvedIconSize: iconSize });
     this.textGroup.set({ className: mochartCssClasses['legendItemText'], clipPath });
     this.text.set({ ...itemTextAttributes, textDecoration, transform: textTransform, dy });
     this.textValue.set(seriesLabelText);

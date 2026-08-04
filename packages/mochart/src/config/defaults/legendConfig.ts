@@ -35,9 +35,9 @@ export function getRegularDefaults() {
     // The other two stay literal: they carry their own alpha, which 'currentColor' cannot.
     iconBorderColor: COLOR_CURRENT,
     iconBorderOpacity: 0.65,
-    iconSuppressedColor: 'rgba(255,255,255,0)',
-    iconUnsuppressedColor: 'rgba(0,0,0,0.5)',
-    showSuppressionOnLabels: false,
+    iconFilteredColor: 'rgba(255,255,255,0)',
+    iconUnfilteredColor: 'rgba(0,0,0,0.5)',
+    showFilteringOnLabels: false,
     focusOnMouseOver: true,
     focusOnClick: false,
     filterOnClick: true

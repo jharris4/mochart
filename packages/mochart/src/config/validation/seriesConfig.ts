@@ -179,7 +179,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     showInTooltip: validators.boolean(),
     showColorInLegend: validators.boolean(),
     showColorInTooltip: validators.boolean(),
-    suppressible: validators.boolean(),
+    filterable: validators.boolean(),
     followSeries: validators.string().orEqual(NONE),
     focusOnMouseOver: validators.boolean(),
     focusOnClick: validators.boolean(),

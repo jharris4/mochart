@@ -1412,7 +1412,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="legendConfig.filterOnClick">
-<td><a href="#legendConfig.filterOnClick">filterOnClick</a></td><td>whether to suppress a series when the series icon or title is clicked<br/><br/>When `true`, clicking a legend item toggles its series out of (and back into) the chart, playing the staged series transition; the item stays in the legend so it can be restored. `onSeriesFilter` reports every change.</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#legendConfig.filterOnClick">filterOnClick</a></td><td>whether to filter a series when the series icon or title is clicked<br/><br/>When `true`, clicking a legend item toggles its series out of (and back into) the chart, playing the staged series transition; the item stays in the legend so it can be restored. `onSeriesFilter` reports every change.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="legendConfig.focusOnClick">
@@ -1435,6 +1435,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#legendConfig.iconBorderSize">iconBorderSize</a></td><td>the width (in pixels) of the border drawn around series icons</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
+<tr id="legendConfig.iconFilteredColor">
+<td><a href="#legendConfig.iconFilteredColor">iconFilteredColor</a></td><td>the color to use for the series icon when the corresponding series is filtered</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: rgba(255,255,255,0)"></span></div>
+</td>
+</tr>
 <tr id="legendConfig.iconSize">
 <td><a href="#legendConfig.iconSize">iconSize</a></td><td>the width and height (in pixels) of the series icons, or "auto" to match the legend text font size</td><td>should be a number >= to 0 or be equal to "auto"</td><td><div>"auto"</div>
 </td>
@@ -1443,12 +1447,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#legendConfig.iconSpacerSize">iconSpacerSize</a></td><td>the horizontal space (in pixels) to show between series icons and titles</td><td>should be a number >= to 0</td><td><div>4</div>
 </td>
 </tr>
-<tr id="legendConfig.iconSuppressedColor">
-<td><a href="#legendConfig.iconSuppressedColor">iconSuppressedColor</a></td><td>the color to use for the series icon when the corresponding series is suppressed</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: rgba(255,255,255,0)"></span></div>
-</td>
-</tr>
-<tr id="legendConfig.iconUnsuppressedColor">
-<td><a href="#legendConfig.iconUnsuppressedColor">iconUnsuppressedColor</a></td><td>the color to use for the placeholder series icons when the corresponding series is not suppressed</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: rgba(0,0,0,0.5)"></span></div>
+<tr id="legendConfig.iconUnfilteredColor">
+<td><a href="#legendConfig.iconUnfilteredColor">iconUnfilteredColor</a></td><td>the color to use for the placeholder series icons when the corresponding series is not filtered</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: rgba(0,0,0,0.5)"></span></div>
 </td>
 </tr>
 <tr id="legendConfig.itemBackgroundStyle">
@@ -1583,6 +1583,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#legendConfig.position">position</a></td><td>the position of the legend relative to the chart (top or bottom)</td><td>should be one of [ "top", "bottom" ]</td><td><div>"bottom"</div>
 </td>
 </tr>
+<tr id="legendConfig.showFilteringOnLabels">
+<td><a href="#legendConfig.showFilteringOnLabels">showFilteringOnLabels</a></td><td>whether to strike through the item text of filtered series<br/><br/>When `true`, the item text of a series that has been filtered out of the chart is drawn with a line through it, so the legend shows at a glance which series are filtered. The strike-through covers the item text only, never its color icon — the icon already says the same thing by going hollow.</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
 <tr id="legendConfig.showIconColors">
 <td><a href="#legendConfig.showIconColors">showIconColors</a></td><td>whether to show series colors next to series titles in the legend</td><td>should be a boolean</td><td><div>true</div>
 </td>
@@ -1593,10 +1597,6 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="legendConfig.showIconShapes">
 <td><a href="#legendConfig.showIconShapes">showIconShapes</a></td><td>whether to show series marker shape next to series titles in the legend</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
-<tr id="legendConfig.showSuppressionOnLabels">
-<td><a href="#legendConfig.showSuppressionOnLabels">showSuppressionOnLabels</a></td><td>whether to strike through the item text of suppressed series<br/><br/>When `true`, the item text of a series that has been filtered out of the chart is drawn with a line through it, so the legend shows at a glance which series are suppressed. The strike-through covers the item text only, never its color icon — the icon already says the same thing by going hollow.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="legendConfig.truncationEnabled">
@@ -1662,12 +1662,12 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
-<tr id="pieConfig.adjustCenterTotalForSuppression">
-<td><a href="#pieConfig.adjustCenterTotalForSuppression">adjustCenterTotalForSuppression</a></td><td>whether the center total counts only the unsuppressed slices (true) or always shows the full total (false)</td><td>should be a boolean</td><td><div>true</div>
+<tr id="pieConfig.adjustCenterTotalForFiltering">
+<td><a href="#pieConfig.adjustCenterTotalForFiltering">adjustCenterTotalForFiltering</a></td><td>whether the center total counts only the unfiltered slices (true) or always shows the full total (false)</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="pieConfig.adjustLabelsForSuppression">
-<td><a href="#pieConfig.adjustLabelsForSuppression">adjustLabelsForSuppression</a></td><td>whether percent slice labels (and the labelMinFraction threshold) renormalize against the unsuppressed slices (true) or always use every slice's share of the full total (false)</td><td>should be a boolean</td><td><div>true</div>
+<tr id="pieConfig.adjustLabelsForFiltering">
+<td><a href="#pieConfig.adjustLabelsForFiltering">adjustLabelsForFiltering</a></td><td>whether percent slice labels (and the labelMinFraction threshold) renormalize against the unfiltered slices (true) or always use every slice's share of the full total (false)</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="pieConfig.centerLabel">
@@ -1795,7 +1795,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="pieConfig.tooltipValues">
-<td><a href="#pieConfig.tooltipValues">tooltipValues</a></td><td>the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unsuppressed slices unless tooltipConfig.adjustForSuppression is false</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue" ]</td><td><div>"value"</div>
+<td><a href="#pieConfig.tooltipValues">tooltipValues</a></td><td>the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unfiltered slices unless tooltipConfig.adjustForFiltering is false</td><td>should be one of [ "value", "percent", "valuePercent", "percentValue" ]</td><td><div>"value"</div>
 </td>
 </tr>
 </table>
@@ -1930,16 +1930,12 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
-<tr id="seriesAxisConfigs.adjustForSuppression">
-<td><a href="#seriesAxisConfigs.adjustForSuppression">adjustForSuppression</a></td><td>whether to adjust the domain of the axis as series belonging to it are suppressed</td><td>should be a boolean</td><td><div>false</div>
+<tr id="seriesAxisConfigs.adjustForFiltering">
+<td><a href="#seriesAxisConfigs.adjustForFiltering">adjustForFiltering</a></td><td>whether to adjust the domain of the axis as series belonging to it are filtered</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="seriesAxisConfigs.adjustTickLabelSizeForSuppression">
-<td><a href="#seriesAxisConfigs.adjustTickLabelSizeForSuppression">adjustTickLabelSizeForSuppression</a></td><td>whether to adjust the size of the axis tick label bounds as series belonging to it are suppressed</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
-<tr id="seriesAxisConfigs.alwaysVisible">
-<td><a href="#seriesAxisConfigs.alwaysVisible">alwaysVisible</a></td><td>whether the axis should be visible when all series belonging to it are suppressed</td><td>should be a boolean</td><td><div>true</div>
+<tr id="seriesAxisConfigs.adjustTickLabelSizeForFiltering">
+<td><a href="#seriesAxisConfigs.adjustTickLabelSizeForFiltering">adjustTickLabelSizeForFiltering</a></td><td>whether to adjust the size of the axis tick label bounds as series belonging to it are filtered</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.axisLine">
@@ -2881,6 +2877,10 @@ table thead td { border-bottom-width: 2px; }
 <div>true (when chartConfig.type is xy)</div>
 </td>
 </tr>
+<tr id="seriesAxisConfigs.visibleWhenAllFiltered">
+<td><a href="#seriesAxisConfigs.visibleWhenAllFiltered">visibleWhenAllFiltered</a></td><td>whether the axis should be visible when all series belonging to it are filtered</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
 </table>
 </div>
 <div id="seriesConfigs">
@@ -3087,6 +3087,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#seriesConfigs.errorLowProperty">errorLowProperty</a></td><td>the property to retrieve from the data provider for the absolute lower error bound values used to draw error bars (use null for none)<br/><br/>The bounds are absolute values in series axis units, not deltas from the series value, and they join the series axis domain so the whiskers never clip. Either bound can be used alone for a one-sided error bar; a group whose bound is undefined just omits that side of the whisker. Error bars draw on `bar`, `line`, `area` and `none` renderer series (centered on each bar — including grouped sub-slot bars — or on each point), but not on stacked series, where absolute bounds have no meaning against the cumulative stack position.</td><td><p>should be equal to null when stack is not null</p>
 <p>should be a defined value or equal to null when stack is null</p>
 </td><td><div>null</div>
+</td>
+</tr>
+<tr id="seriesConfigs.filterable">
+<td><a href="#seriesConfigs.filterable">filterable</a></td><td>whether or not the series can be filtered out of the chart via the legend or tooltip</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="seriesConfigs.focusGroupOnClick">
@@ -3524,10 +3528,6 @@ table thead td { border-bottom-width: 2px; }
 <p>should equal the id property of one of the seriesStackConfigs</p>
 <p>should equal the id property of one of the seriesStackConfigs that has the same axis property</p>
 </td><td><div>sole stack id (series stack)</div>
-</td>
-</tr>
-<tr id="seriesConfigs.suppressible">
-<td><a href="#seriesConfigs.suppressible">suppressible</a></td><td>whether or not the series can be suppressed from being shown in the chart</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="seriesConfigs.title">
@@ -4008,12 +4008,12 @@ table thead td { border-bottom-width: 2px; }
 <th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
 </tr>
 </thead>
-<tr id="tooltipConfig.adjustForSuppression">
-<td><a href="#tooltipConfig.adjustForSuppression">adjustForSuppression</a></td><td>whether to adjust the series values when series suppression changes</td><td>should be a boolean</td><td><div>true</div>
+<tr id="tooltipConfig.adjustForFiltering">
+<td><a href="#tooltipConfig.adjustForFiltering">adjustForFiltering</a></td><td>whether to adjust the series values when series filtering changes</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="tooltipConfig.adjustSizeForSuppression">
-<td><a href="#tooltipConfig.adjustSizeForSuppression">adjustSizeForSuppression</a></td><td>whether to adjust the width of the tooltip when the series values change due to suppression changes</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltipConfig.adjustSizeForFiltering">
+<td><a href="#tooltipConfig.adjustSizeForFiltering">adjustSizeForFiltering</a></td><td>whether to adjust the width of the tooltip when the series values change due to filtering changes</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltipConfig.alignValues">
@@ -4076,6 +4076,14 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltipConfig.filterOnSeriesClick">filterOnSeriesClick</a></td><td>whether series should be filtered when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
+<tr id="tooltipConfig.filteredValueCharacter">
+<td><a href="#tooltipConfig.filteredValueCharacter">filteredValueCharacter</a></td><td>the character to show in place of each digit of a series value that has been filtered (use null for none)</td><td>should be a string with length 1 or be equal to null</td><td><div>"-"</div>
+</td>
+</tr>
+<tr id="tooltipConfig.filteredValueText">
+<td><a href="#tooltipConfig.filteredValueText">filteredValueText</a></td><td>the text to show for series that have been filtered (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
+</td>
+</tr>
 <tr id="tooltipConfig.focusOnGroupClick">
 <td><a href="#tooltipConfig.focusOnGroupClick">focusOnGroupClick</a></td><td>whether group values should be focused when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
@@ -4092,8 +4100,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltipConfig.focusOnSeriesMouseOver">focusOnSeriesMouseOver</a></td><td>whether series should be focused when the user mouses over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="tooltipConfig.hideSuppressed">
-<td><a href="#tooltipConfig.hideSuppressed">hideSuppressed</a></td><td>whether to hide series that have been suppressed from the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<tr id="tooltipConfig.hideFiltered">
+<td><a href="#tooltipConfig.hideFiltered">hideFiltered</a></td><td>whether to hide series that have been filtered from the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltipConfig.iconBorderColor">
@@ -4108,6 +4116,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltipConfig.iconBorderSize">iconBorderSize</a></td><td>the width (in pixels) of the border drawn around series icons</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
+<tr id="tooltipConfig.iconFilteredColor">
+<td><a href="#tooltipConfig.iconFilteredColor">iconFilteredColor</a></td><td>the color to use for the series icon when the corresponding series is filtered</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: rgba(255,255,255,0)"></span></div>
+</td>
+</tr>
 <tr id="tooltipConfig.iconSize">
 <td><a href="#tooltipConfig.iconSize">iconSize</a></td><td>the width and height (in pixels) of the series icons, or "auto" to match the inherited font size</td><td>should be a number >= to 0 or be equal to "auto"</td><td><div>"auto"</div>
 </td>
@@ -4116,12 +4128,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltipConfig.iconSpacerSize">iconSpacerSize</a></td><td>the horizontal space (in pixels) to show between series icons and titles</td><td>should be a number >= to 0</td><td><div>4</div>
 </td>
 </tr>
-<tr id="tooltipConfig.iconSuppressedColor">
-<td><a href="#tooltipConfig.iconSuppressedColor">iconSuppressedColor</a></td><td>the color to use for the series icon when the corresponding series is suppressed</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: rgba(255,255,255,0)"></span></div>
-</td>
-</tr>
-<tr id="tooltipConfig.iconUnsuppressedColor">
-<td><a href="#tooltipConfig.iconUnsuppressedColor">iconUnsuppressedColor</a></td><td>the color to use for the placeholder series icons when the corresponding series is not suppressed</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: rgba(0,0,0,0.5)"></span></div>
+<tr id="tooltipConfig.iconUnfilteredColor">
+<td><a href="#tooltipConfig.iconUnfilteredColor">iconUnfilteredColor</a></td><td>the color to use for the placeholder series icons when the corresponding series is not filtered</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div><span class="colorIcon" style="background-color: rgba(0,0,0,0.5)"></span></div>
 </td>
 </tr>
 <tr id="tooltipConfig.keepInside">
@@ -4156,6 +4164,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltipConfig.showControls">showControls</a></td><td>whether the focus/filter controls should be shown at the top of the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
+<tr id="tooltipConfig.showFilteringOnLabels">
+<td><a href="#tooltipConfig.showFilteringOnLabels">showFilteringOnLabels</a></td><td>whether to strike through the label text of filtered series<br/><br/>When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `alignValues` is `false`, where the label and the value are one piece of text and both are struck.</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
 <tr id="tooltipConfig.showGroup">
 <td><a href="#tooltipConfig.showGroup">showGroup</a></td><td>whether the group value should be shown as the first line of the tooltip</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
 <div>true (when chartConfig.type is xy)</div>
@@ -4177,21 +4189,9 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltipConfig.showMissingValues">showMissingValues</a></td><td>whether to show series that do not have defined values in the tooltip</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
-<tr id="tooltipConfig.showSuppressionOnLabels">
-<td><a href="#tooltipConfig.showSuppressionOnLabels">showSuppressionOnLabels</a></td><td>whether to strike through the label text of suppressed series<br/><br/>When `true`, the label of a series that has been filtered out of the chart is drawn with a line through it. The strike-through covers the label only, so the value beside it stays legible — except when `alignValues` is `false`, where the label and the value are one piece of text and both are struck.</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
 <tr id="tooltipConfig.snapToGroup">
 <td><a href="#tooltipConfig.snapToGroup">snapToGroup</a></td><td>whether the tooltip should be centered at the closest group value (true) or at the click/tap position (false)</td><td>should be a boolean</td><td><div>false (when chartConfig.type is pie)</div>
 <div>true (when chartConfig.type is xy)</div>
-</td>
-</tr>
-<tr id="tooltipConfig.suppressedValueCharacter">
-<td><a href="#tooltipConfig.suppressedValueCharacter">suppressedValueCharacter</a></td><td>the character to show in place of each digit of a series value that has been suppressed (use null for none)</td><td>should be a string with length 1 or be equal to null</td><td><div>"-"</div>
-</td>
-</tr>
-<tr id="tooltipConfig.suppressedValueText">
-<td><a href="#tooltipConfig.suppressedValueText">suppressedValueText</a></td><td>the text to show for series that have been suppressed (use null for none)</td><td>should be a string or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="tooltipConfig.visible">

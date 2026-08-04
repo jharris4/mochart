@@ -8,11 +8,11 @@ export default function getValidators() {
   return {
     ...getAxisValidators(),
 
-    adjustForSuppression: validators.boolean(),
+    adjustForFiltering: validators.boolean(),
 
-    adjustTickLabelSizeForSuppression: validators.boolean(),
+    adjustTickLabelSizeForFiltering: validators.boolean(),
 
-    alwaysVisible: validators.boolean(),
+    visibleWhenAllFiltered: validators.boolean(),
 
     base: validators.number().orEqual(NONE),
     baseLine: validators.boolean(),

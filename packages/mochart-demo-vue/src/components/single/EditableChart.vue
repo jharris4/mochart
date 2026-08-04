@@ -188,7 +188,7 @@ function resetSliceChanges() {
   }
 }
 
-// The pie analog of the group add/remove sequences: suppress the slices one
+// The pie analog of the group add/remove sequences: filter the slices one
 // at a time (via the shared legend filter, so the remaining slices re-sweep
 // and center totals count along), then restore them.
 function startSliceSequence() {
@@ -823,7 +823,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
       <div class="editable-chart-controls">
         <!-- Pie-mode slice panel — replaces both panels when slices are the
              series: click a slice (or step prev/next) to select it, edit its
-             value, or play the suppress/restore sequence. -->
+             value, or play the filter/restore sequence. -->
         <!-- The fold keeps the steppers, the readout, Apply and the input;
              Reset and the play/stop pair go to the menu, with the 2nd-chart
              toggle as the tail. -->

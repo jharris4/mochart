@@ -16,10 +16,10 @@ export function getRegularDefaults() {
   return {
     ...getAxisDefaults(),
 
-    adjustForSuppression: false,
-    adjustTickLabelSizeForSuppression: false,
+    adjustForFiltering: false,
+    adjustTickLabelSizeForFiltering: false,
 
-    alwaysVisible: true,
+    visibleWhenAllFiltered: true,
 
     baseLine: true,
     baseLineFront: false,
@@ -55,7 +55,7 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesAxisConf
       { ...defaultRule, default: true }
     ], configWithRegularDefaults, index),
     base: conditionalDefault([
-      // pie slices collapse to nothing when suppressed, so their values must
+      // pie slices collapse to nothing when filtered, so their values must
       // animate to 0 — a domain-min base would strand the shrink partway
       { condition: () => pieMode, suffix: 'when chartConfig.type is pie', default: 0, defaultText: '0' },
       { condition: (_config, _index) => hasStack, suffix: 'series axis has stacks', default: 0, defaultText: '0' },

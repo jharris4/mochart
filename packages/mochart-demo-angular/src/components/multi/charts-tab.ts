@@ -4,7 +4,7 @@ import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from 
 import { Chart } from '@mochart/angular';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepSuppressedIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
 import type { MultiShareState, ShareState } from '@mochart/demo-common';
 
 import { ChartsControls } from './charts-controls';
@@ -68,8 +68,8 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   mochartDemoConfig = signal<MochartDemoConfig | null>(null);
   data = signal<DataRow[]>([]);
   dataCount = signal(0);
-  // Pie mode steps a suppression pattern instead of data prefixes: chart i at
-  // step s suppresses the last (s + i) mod cycle slices, so the grid shows
+  // Pie mode steps a filtering pattern instead of data prefixes: chart i at
+  // step s filters the last (s + i) mod cycle slices, so the grid shows
   // different-sized views of the same pie and stepping animates all charts.
   sliceIds = signal<string[]>([]);
   currentDataCount = signal(0);
@@ -313,11 +313,11 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     this.filteredSeriesIds.set({ ...nextFilteredSeriesIds });
   };
 
-  // Pie mode unions the stepper's per-chart suppression with the user's
+  // Pie mode unions the stepper's per-chart filtering with the user's
   // legend filtering, so the legend stays interactive while stepping.
   chartFilteredSeriesIds(chartIndex: number): FilteredSeriesIds {
     return this.mochartDemoConfig()!.pieMode
-      ? { ...this.filteredSeriesIds(), ...getPieStepSuppressedIds(this.sliceIds(), chartIndex, this.currentDataCount()) }
+      ? { ...this.filteredSeriesIds(), ...getPieStepFilteredIds(this.sliceIds(), chartIndex, this.currentDataCount()) }
       : this.filteredSeriesIds();
   }
 

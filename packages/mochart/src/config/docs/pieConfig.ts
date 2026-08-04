@@ -15,15 +15,15 @@ export default function getDescriptions() {
     labelPercentFormat: 'the d3 format specifier used to format the percent part of the slice labels (use auto to derive a format)',
     labelRadiusFraction: 'the radial position of the slice labels as a fraction (0 to 1) between the inner radius and the outer radius',
     labelMinFraction: 'hide the label of any slice whose value is smaller than this fraction (0 to 1) of the slice total',
-    adjustLabelsForSuppression: 'whether percent slice labels (and the labelMinFraction threshold) renormalize against the unsuppressed slices (true) or always use every slice\'s share of the full total (false)',
-    tooltipValues: 'the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unsuppressed slices unless tooltipConfig.adjustForSuppression is false',
+    adjustLabelsForFiltering: 'whether percent slice labels (and the labelMinFraction threshold) renormalize against the unfiltered slices (true) or always use every slice\'s share of the full total (false)',
+    tooltipValues: 'the content of the tooltip value for each slice: the slice value (value), the slice percentage of the total (percent) or a combination of both (valuePercent for "value (percent)", percentValue for "percent (value)"); the value part is formatted by the series valueFormat, valuePrefix and valueSuffix, and the percent part renormalizes against the unfiltered slices unless tooltipConfig.adjustForFiltering is false',
     tooltipPercentFormat: 'the d3 format specifier used to format the percent part of the tooltip values (use auto to derive a format)',
     centerLabel: 'a text label shown at the center of the pie (use null for none; most useful for donut and gauge charts)',
     centerLabelTextStyle: style('the styles to apply to the center label text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
     showCenterTotal: 'whether the total of the slice values should be shown at the center of the pie',
     centerTotalTextStyle: style('the styles to apply to the center total text (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor" to follow the host page\'s css color and theme)'),
     centerTotalFormat: 'the d3 format specifier used to format the center total (use auto to derive a format)',
-    adjustCenterTotalForSuppression: 'whether the center total counts only the unsuppressed slices (true) or always shows the full total (false)',
+    adjustCenterTotalForFiltering: 'whether the center total counts only the unfiltered slices (true) or always shows the full total (false)',
     centerOffsetXFraction: 'offset the center label and total horizontally by this fraction (-1 to 1) of the outer radius (positive moves right)',
     centerOffsetYFraction: 'offset the center label and total vertically by this fraction (-1 to 1) of the outer radius (positive moves down; e.g. use a negative value to lift them into a gauge\'s hole)'
   };

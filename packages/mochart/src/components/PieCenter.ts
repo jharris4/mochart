@@ -18,13 +18,13 @@ interface PieCenterProps {
   pieConfig: PieConfig;
   seriesLayoutInfo: LayoutInfo;
   radialLayoutInfo: RadialLayoutInfo;
-  /** The current (possibly mid-tween) total of the unsuppressed slice values. */
+  /** The current (possibly mid-tween) total of the unfiltered slice values. */
   total: number;
 }
 
 /**
  * The pie center content: an optional text label and/or the live total of the
- * unsuppressed slice values (which counts along with the value tweens). The
+ * unfiltered slice values (which counts along with the value tweens). The
  * label and total text are styled by `centerLabelTextStyle` and
  * `centerTotalTextStyle` (and can be further restyled via the
  * mochart-pie-center classes).

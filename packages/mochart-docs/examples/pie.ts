@@ -1,5 +1,5 @@
 // createPie turns labelled values into pie pieces: every slice is its own
-// series (so the legend lists the slices and clicking one suppresses it),
+// series (so the legend lists the slices and clicking one filters it),
 // and the data is a single row holding every slice value.
 import { createPie } from '@mochart/core';
 import type { MochartInputConfig } from '@mochart/core';

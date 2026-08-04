@@ -253,7 +253,7 @@ function getSeriesAxisFocusDomainPercentages(mochartConfig: MochartConfig, serie
     const seriesAxisConfig = mochartConfig.seriesAxisConfigsById[focusedSeriesAxisId];
     const { raw, filtered } = seriesData;
     const { id } = seriesAxisConfig;
-    const axisDomains = seriesAxisConfig.adjustForSuppression ? filtered.axisDomains : raw.axisDomains;
+    const axisDomains = seriesAxisConfig.adjustForFiltering ? filtered.axisDomains : raw.axisDomains;
     const axisDomain = axisDomains[id];
     if (axisDomain[0] !== null && axisDomain[1] !== null) {
       const completeDomain: [number, number] = [axisDomain[0], axisDomain[1]];
@@ -281,7 +281,7 @@ function getSeriesFocusDomainPercentages(mochartConfig: MochartConfig, seriesDat
       const { id } = seriesConfig;
       const axis = seriesConfig.axis!;
       const seriesAxisConfig = seriesConfig.seriesAxisConfig!;
-      const axisDomains = seriesAxisConfig.adjustForSuppression ? filtered.axisDomains : raw.axisDomains;
+      const axisDomains = seriesAxisConfig.adjustForFiltering ? filtered.axisDomains : raw.axisDomains;
       const axisDomain = axisDomains[axis] as [number, number];
       const axisBase = axisBases[axis];
 

@@ -1,6 +1,6 @@
 // startAngle/endAngle confine the slices to a partial span — here a half
 // donut — and the pie center can carry a label plus a live total that counts
-// along with value changes and suppression.
+// along with value changes and filtering.
 import { createPie } from '@mochart/core';
 import type { MochartInputConfig } from '@mochart/core';
 
@@ -29,7 +29,7 @@ export const config: MochartInputConfig = {
     cornerRadius: 3,
     showLabels: true,
     labelType: 'title',
-    // the center total tracks the unsuppressed slices, so clicking a legend
+    // the center total tracks the unfiltered slices, so clicking a legend
     // entry counts it down; the negative Y offset lifts it off the gauge
     // pivot into the hole
     centerLabel: 'responses',

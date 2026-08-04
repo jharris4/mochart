@@ -1,15 +1,15 @@
 // Pie-mode (pie/donut/gauge) demo helpers. Slices are series and the data is
 // a single row, so the group-editing machinery of the xy demos has nothing to
 // operate on; these helpers back the pie-specific UI instead: the single-mode
-// slice panel (select a slice, edit its value, play a suppress/restore
-// sequence) and the multi-mode suppression stepper.
+// slice panel (select a slice, edit its value, play a filter/restore
+// sequence) and the multi-mode filtering stepper.
 
 import type { MochartConfig } from '@mochart/core';
 
 import type { DataRow, FilteredSeriesIds } from './types';
 
 export interface PieSliceInfo {
-  /** The series id — what focus, legend filtering and suppression key on. */
+  /** The series id — what focus, legend filtering and filtering key on. */
   id: string;
   /** The display title (legend text). */
   title: string;
@@ -38,7 +38,7 @@ export function applyPieSliceValue(row: DataRow, property: string, value: number
 
 /**
  * The step cycle of the multi-mode pie stepper: one step per slice, so
- * suppression runs from none up to all but one — at least one slice always
+ * filtering runs from none up to all but one — at least one slice always
  * remains.
  */
 export function getPieStepCycle(sliceIds: string[]): number {
@@ -46,41 +46,41 @@ export function getPieStepCycle(sliceIds: string[]): number {
 }
 
 /**
- * The multi-mode pie stepper: chart `chartIndex` at step `step` suppresses the
+ * The multi-mode pie stepper: chart `chartIndex` at step `step` filters the
  * last `(step + chartIndex) mod cycle` slices, so every chart in the grid
  * shows a different-sized view of the same pie and stepping/playing animates
- * them all concurrently. The cycle caps suppression so at least one slice
+ * them all concurrently. The cycle caps filtering so at least one slice
  * always remains.
  */
-export function getPieStepSuppressedIds(sliceIds: string[], chartIndex: number, step: number): FilteredSeriesIds {
+export function getPieStepFilteredIds(sliceIds: string[], chartIndex: number, step: number): FilteredSeriesIds {
   const cycle = getPieStepCycle(sliceIds);
   const count = (((step + chartIndex) % cycle) + cycle) % cycle;
-  const suppressed: FilteredSeriesIds = {};
+  const filtered: FilteredSeriesIds = {};
   for (let i = sliceIds.length - count; i < sliceIds.length; i++) {
-    suppressed[sliceIds[i]] = true;
+    filtered[sliceIds[i]] = true;
   }
-  return suppressed;
+  return filtered;
 }
 
 /**
- * The single-mode slice sequence: suppress the slices one at a time from the
+ * The single-mode slice sequence: filter the slices one at a time from the
  * last down to one remaining, then restore them in reverse, ending fully
  * restored. Returned as the filter map to show at each 2s tick.
  */
 export function getPieSequenceSteps(sliceIds: string[]): FilteredSeriesIds[] {
-  const maxSuppressed = Math.max(0, sliceIds.length - 1);
+  const maxFiltered = Math.max(0, sliceIds.length - 1);
   const steps: FilteredSeriesIds[] = [];
   const cumulative = (count: number): FilteredSeriesIds => {
-    const suppressed: FilteredSeriesIds = {};
+    const filtered: FilteredSeriesIds = {};
     for (let i = sliceIds.length - count; i < sliceIds.length; i++) {
-      suppressed[sliceIds[i]] = true;
+      filtered[sliceIds[i]] = true;
     }
-    return suppressed;
+    return filtered;
   };
-  for (let count = 1; count <= maxSuppressed; count++) {
+  for (let count = 1; count <= maxFiltered; count++) {
     steps.push(cumulative(count));
   }
-  for (let count = maxSuppressed - 1; count >= 0; count--) {
+  for (let count = maxFiltered - 1; count >= 0; count--) {
     steps.push(cumulative(count));
   }
   return steps;

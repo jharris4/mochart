@@ -300,19 +300,19 @@ export interface PieConfig {
   labelMinFraction: number;
   /**
    * Whether percent slice labels (and the labelMinFraction threshold)
-   * renormalize against the unsuppressed slices (true) or always use every
+   * renormalize against the unfiltered slices (true) or always use every
    * slice's share of the full total (false).
    *
    * @default true
    */
-  adjustLabelsForSuppression: boolean;
+  adjustLabelsForFiltering: boolean;
   /**
    * The content of the tooltip value for each slice: the slice value (value),
    * the slice percentage of the total (percent) or a combination of both
    * (valuePercent for "value (percent)", percentValue for "percent (value)");
    * the value part is formatted by the series valueFormat, valuePrefix and
-   * valueSuffix, and the percent part renormalizes against the unsuppressed
-   * slices unless tooltipConfig.adjustForSuppression is false.
+   * valueSuffix, and the percent part renormalizes against the unfiltered
+   * slices unless tooltipConfig.adjustForFiltering is false.
    *
    * @default "value"
    */
@@ -362,12 +362,12 @@ export interface PieConfig {
    */
   centerTotalFormat: string | Auto;
   /**
-   * Whether the center total counts only the unsuppressed slices (true) or
-   * always shows the full total (false).
+   * Whether the center total counts only the unfiltered slices (true) or always
+   * shows the full total (false).
    *
    * @default true
    */
-  adjustCenterTotalForSuppression: boolean;
+  adjustCenterTotalForFiltering: boolean;
   /**
    * Offset the center label and total horizontally by this fraction (-1 to 1)
    * of the outer radius (positive moves right).
@@ -766,18 +766,18 @@ export interface SeriesIconConfig {
   iconBorderOpacity: number;
   /**
    * The color to use for the series icon when the corresponding series is
-   * suppressed.
+   * filtered.
    *
    * @default 'rgba(255,255,255,0)'
    */
-  iconSuppressedColor: string;
+  iconFilteredColor: string;
   /**
    * The color to use for the placeholder series icons when the corresponding
-   * series is not suppressed.
+   * series is not filtered.
    *
    * @default 'rgba(0,0,0,0.5)'
    */
-  iconUnsuppressedColor: string;
+  iconUnfilteredColor: string;
 }
 
 export interface LegendConfig extends SeriesIconConfig {
@@ -873,17 +873,17 @@ export interface LegendConfig extends SeriesIconConfig {
    */
   itemTextStyle: Style;
   /**
-   * Whether to strike through the item text of suppressed series.
+   * Whether to strike through the item text of filtered series.
    *
    * When `true`, the item text of a series that has been filtered out of the
    * chart is drawn with a line through it, so the legend shows at a glance
-   * which series are suppressed. The strike-through covers the item text only,
+   * which series are filtered. The strike-through covers the item text only,
    * never its color icon — the icon already says the same thing by going
    * hollow.
    *
    * @default false
    */
-  showSuppressionOnLabels: boolean;
+  showFilteringOnLabels: boolean;
   /**
    * Whether to focus a series when the mouse is moved over the series icon or
    * title.
@@ -906,7 +906,7 @@ export interface LegendConfig extends SeriesIconConfig {
    */
   focusOnClick: boolean;
   /**
-   * Whether to suppress a series when the series icon or title is clicked.
+   * Whether to filter a series when the series icon or title is clicked.
    *
    * When `true`, clicking a legend item toggles its series out of (and back
    * into) the chart, playing the staged series transition; the item stays in
@@ -1071,7 +1071,7 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   dropShadowBlurRadius: number;
   /**
-   * Whether to strike through the label text of suppressed series.
+   * Whether to strike through the label text of filtered series.
    *
    * When `true`, the label of a series that has been filtered out of the chart
    * is drawn with a line through it. The strike-through covers the label only,
@@ -1081,26 +1081,26 @@ export interface TooltipConfig extends SeriesIconConfig {
    *
    * @default false
    */
-  showSuppressionOnLabels: boolean;
+  showFilteringOnLabels: boolean;
   /**
-   * Whether to adjust the series values when series suppression changes.
+   * Whether to adjust the series values when series filtering changes.
    *
    * @default true
    */
-  adjustForSuppression: boolean;
+  adjustForFiltering: boolean;
   /**
    * Whether to adjust the width of the tooltip when the series values change
-   * due to suppression changes.
+   * due to filtering changes.
    *
    * @default false
    */
-  adjustSizeForSuppression: boolean;
+  adjustSizeForFiltering: boolean;
   /**
-   * Whether to hide series that have been suppressed from the tooltip.
+   * Whether to hide series that have been filtered from the tooltip.
    *
    * @default false
    */
-  hideSuppressed: boolean;
+  hideFiltered: boolean;
   /**
    * Whether to show series that do not have defined values in the tooltip.
    *
@@ -1108,18 +1108,18 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   showMissingValues: boolean;
   /**
-   * The text to show for series that have been suppressed (use null for none).
+   * The text to show for series that have been filtered (use null for none).
    *
    * @default null
    */
-  suppressedValueText: string | null;
+  filteredValueText: string | null;
   /**
    * The character to show in place of each digit of a series value that has
-   * been suppressed (use null for none).
+   * been filtered (use null for none).
    *
    * @default "-"
    */
-  suppressedValueCharacter: string;
+  filteredValueCharacter: string;
   /**
    * The text to show for series that do not have defined values.
    *
@@ -1888,25 +1888,25 @@ export interface SeriesAxisConfig extends AxisConfigBase {
   order: number;
   /**
    * Whether to adjust the domain of the axis as series belonging to it are
-   * suppressed.
+   * filtered.
    *
    * @default false
    */
-  adjustForSuppression: boolean;
+  adjustForFiltering: boolean;
   /**
    * Whether to adjust the size of the axis tick label bounds as series
-   * belonging to it are suppressed.
+   * belonging to it are filtered.
    *
    * @default false
    */
-  adjustTickLabelSizeForSuppression: boolean;
+  adjustTickLabelSizeForFiltering: boolean;
   /**
    * Whether the axis should be visible when all series belonging to it are
-   * suppressed.
+   * filtered.
    *
    * @default true
    */
-  alwaysVisible: boolean;
+  visibleWhenAllFiltered: boolean;
   /**
    * The numeric base value of the axis, used for animation and relative
    * positioning for shapes (use null for none).
@@ -2639,11 +2639,12 @@ export interface SeriesConfig {
    */
   showColorInTooltip: boolean;
   /**
-   * Whether or not the series can be suppressed from being shown in the chart.
+   * Whether or not the series can be filtered out of the chart via the legend
+   * or tooltip.
    *
    * @default true
    */
-  suppressible: boolean;
+  filterable: boolean;
   /**
    * The unique identifier of another series whose legend filtering and focus
    * this series follows (use null for none).

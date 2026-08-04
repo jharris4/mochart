@@ -116,7 +116,7 @@ export default function getDescriptions() {
     showInTooltip: 'whether to show the series in the tooltip',
     showColorInLegend: 'whether to show the series color as an icon next to the series title in the legend',
     showColorInTooltip: 'whether to show the series color as an icon next to the series title in the tooltip',
-    suppressible: 'whether or not the series can be suppressed from being shown in the chart',
+    filterable: 'whether or not the series can be filtered out of the chart via the legend or tooltip',
     followSeries: 'the unique identifier of another series whose legend filtering and focus this series follows (use null for none)',
     focusOnMouseOver: 'whether the series should be focused whenever the user mouses over a part of it in the chart',
     focusOnClick: 'whether the series should be focused whenever the user clicks/taps a part of it in the chart',

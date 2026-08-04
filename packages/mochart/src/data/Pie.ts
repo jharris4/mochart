@@ -21,7 +21,7 @@ export interface CreatePieOptions {
    * What the tooltip shows for each slice: the slice value, its percentage of
    * the total, or both. Percentages are computed by the chart from the current
    * slice shares — like the slice labels, they renormalize as slices are
-   * suppressed — so this is forwarded as `pieConfig.tooltipValues` rather than
+   * filtered — so this is forwarded as `pieConfig.tooltipValues` rather than
    * baked into the data.
    *
    * @default 'value'
@@ -76,7 +76,7 @@ export function computePieFractions(values: readonly number[]): { total: number;
 /**
  * Turns labelled values into the pieces of a pie/donut chart: each item
  * becomes one series (so the legend lists the slices and clicking one
- * suppresses it), and the data is a single row holding every slice value.
+ * filters it), and the data is a single row holding every slice value.
  * Spread the fragments into a chart config and chart the `data`. Slices
  * without an explicit color take the palette color for their series index.
  */

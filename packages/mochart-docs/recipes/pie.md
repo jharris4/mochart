@@ -3,7 +3,7 @@
 Setting [`chartConfig.type`](/reference/chartConfig#chartConfig.type) to
 `'pie'` renders the series as pie slices instead of an x/y plot. The
 `createPie` helper builds the pieces from labelled values: every slice is its
-own series, so the legend, focus and suppression behave exactly like the
+own series, so the legend, focus and filtering behave exactly like the
 other chart types.
 
 <script setup>
@@ -23,7 +23,7 @@ import * as gauge from '../examples/gauge'
   naming the single group column, and one series per slice. The data is a
   single row — `{ group: 'all', slice0: 420, slice1: 210, ... }`.
 - **Slices are series.** Hovering a slice or its legend entry focuses it,
-  and clicking a legend entry suppresses it — the remaining slices grow to
+  and clicking a legend entry filters it — the remaining slices grow to
   fill the circle, animated with the usual
   [`animationConfig`](/reference/animationConfig) timing. Slice colors come
   from the [`colorPaletteConfig`](/reference/colorPaletteConfig) by series
@@ -75,9 +75,9 @@ value, percent or title labels at the slice centroids.
   [`labelTextStyle`](/reference/seriesConfigs#seriesConfigs.labelTextStyle)
   style — each slice is a series, so a slice's label is painted by its own
   series entry.
-  When slices are suppressed via the legend, percent labels renormalize
+  When slices are filtered via the legend, percent labels renormalize
   against the remaining slices — set
-  [`adjustLabelsForSuppression`](/reference/pieConfig#pieConfig.adjustLabelsForSuppression)
+  [`adjustLabelsForFiltering`](/reference/pieConfig#pieConfig.adjustLabelsForFiltering)
   to `false` to keep every slice's share of the full total instead.
 - [`tooltipValues`](/reference/pieConfig#pieConfig.tooltipValues) does the
   same for the tooltip rows: `'value'` (the default), `'percent'`, or the
@@ -88,12 +88,12 @@ value, percent or title labels at the slice centroids.
   [`tooltipPercentFormat`](/reference/pieConfig#pieConfig.tooltipPercentFormat).
   The helper's `tooltipValues` option forwards straight to it.
 - Tooltip percentages are computed from the same slice shares as the labels,
-  so they renormalize as slices are suppressed — set
-  [`tooltipConfig.adjustForSuppression`](/reference/tooltipConfig#tooltipConfig.adjustForSuppression)
+  so they renormalize as slices are filtered — set
+  [`tooltipConfig.adjustForFiltering`](/reference/tooltipConfig#tooltipConfig.adjustForFiltering)
   to `false` to keep every slice's share of the full total (the tooltip
-  equivalent of `adjustLabelsForSuppression`). A suppressed slice's own row
+  equivalent of `adjustLabelsForFiltering`). A filtered slice's own row
   shows the usual
-  [`suppressedValueCharacter`](/reference/tooltipConfig#tooltipConfig.suppressedValueCharacter)
+  [`filteredValueCharacter`](/reference/tooltipConfig#tooltipConfig.filteredValueCharacter)
   placeholder in place of both parts.
 - Geometry knobs: [`startAngle`](/reference/pieConfig#pieConfig.startAngle)
   rotates the first slice's starting edge,
@@ -116,12 +116,12 @@ gauge — an `endAngle` *smaller* than `startAngle` runs counterclockwise.
 - [`centerLabel`](/reference/pieConfig#pieConfig.centerLabel) puts a text
   line at the circle center, and
   [`showCenterTotal`](/reference/pieConfig#pieConfig.showCenterTotal) adds
-  the live total of the unsuppressed slice values, formatted by
+  the live total of the unfiltered slice values, formatted by
   [`centerTotalFormat`](/reference/pieConfig#pieConfig.centerTotalFormat) —
-  it counts along with value tweens and suppression (click a legend entry).
+  it counts along with value tweens and filtering (click a legend entry).
   Set
-  [`adjustCenterTotalForSuppression`](/reference/pieConfig#pieConfig.adjustCenterTotalForSuppression)
-  to `false` to keep the full total while slices are suppressed.
+  [`adjustCenterTotalForFiltering`](/reference/pieConfig#pieConfig.adjustCenterTotalForFiltering)
+  to `false` to keep the full total while slices are filtered.
 - The center content sits at the circle center (the gauge pivot);
   [`centerOffsetXFraction`](/reference/pieConfig#pieConfig.centerOffsetXFraction)
   and

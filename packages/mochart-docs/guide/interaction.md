@@ -31,10 +31,10 @@ With [`legendConfig.filterOnClick`](/reference/legendConfig#legendConfig.filterO
 enabled, clicking a legend item toggles its series out of (and back into) the
 chart. The item stays in the legend so the series can be restored, and the
 removal/return animates as a series transition. Its color icon goes hollow to
-mark it suppressed; set
-[`legendConfig.showSuppressionOnLabels`](/reference/legendConfig#legendConfig.showSuppressionOnLabels)
+mark it filtered; set
+[`legendConfig.showFilteringOnLabels`](/reference/legendConfig#legendConfig.showFilteringOnLabels)
 to strike through the item text as well, and
-[`tooltipConfig.showSuppressionOnLabels`](/reference/tooltipConfig#tooltipConfig.showSuppressionOnLabels)
+[`tooltipConfig.showFilteringOnLabels`](/reference/tooltipConfig#tooltipConfig.showFilteringOnLabels)
 to do the same to the series' tooltip label. Both default to `false`.
 
 ## Tooltip and crosshair

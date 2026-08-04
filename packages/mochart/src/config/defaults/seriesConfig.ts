@@ -106,7 +106,7 @@ export function getRegularDefaults() {
     },
     showInLegend: true,
     showInTooltip: true,
-    suppressible: true,
+    filterable: true,
     followSeries: NONE,
     focusOnMouseOver: false,
     focusOnClick: false,

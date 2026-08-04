@@ -53,7 +53,7 @@ export function getPieSliceFractionMap(seriesConfigs: SeriesConfig[], valueOf: (
 /**
  * Computes each slice's angles from the current (possibly mid-tween) filtered
  * values. Slices follow the series config order — never the focus draw order —
- * so focusing a slice cannot move it. Suppressed series (null plain values)
+ * so focusing a slice cannot move it. Filtered series (null plain values)
  * and non-positive values contribute nothing; a non-positive total yields an
  * empty map (no slices). Recomputing per sync from tweened values is what
  * animates the angles: adjacent slice edges share a normalized total, so they

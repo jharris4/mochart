@@ -140,7 +140,7 @@ function getSeriesAxisScales(seriesAxisConfigs: SeriesAxisConfig[], rawAxisDomai
 }
 
 function getSeriesAxisScale(axisConfig: SeriesAxisConfig, rawAxisDomain: NullableDomain, filteredAxisDomain: NullableDomain, axisLayoutInfo: AxisLayoutInfo, vertical: boolean): AxisScale {
-  return getSeriesAxisScaleForDomain(axisConfig, axisLayoutInfo, axisConfig.adjustForSuppression ? filteredAxisDomain : rawAxisDomain, vertical);
+  return getSeriesAxisScaleForDomain(axisConfig, axisLayoutInfo, axisConfig.adjustForFiltering ? filteredAxisDomain : rawAxisDomain, vertical);
 }
 
 function getSeriesAxisScaleForDomain(_axisConfig: SeriesAxisConfig, axisLayoutInfo: AxisLayoutInfo, axisDomain: NullableDomain, vertical: boolean): AxisScale {
@@ -309,7 +309,7 @@ function getSeriesAxisTickData(axisConfigArray: SeriesAxisConfig[], axisLayoutIn
 function getSeriesAxisTickDataObject(axisConfig: SeriesAxisConfig, axisLayoutInfo: AxisLayoutInfo, rawSeriesAxisDomain: NullableDomain, filteredSeriesAxisDomain: NullableDomain, filteredSeriesCount: number, axisScale: AxisScale, vertical: boolean): AxisTick[] {
   let ticks: AxisTick[] = [];
   if (axisConfig.ticks !== NONE) {
-    if (axisConfig.alwaysVisible || filteredSeriesCount > 0) {
+    if (axisConfig.visibleWhenAllFiltered || filteredSeriesCount > 0) {
       const tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, axisScale, axisConfig.ticks.length);
       const [rangeStart, rangeEnd] = axisScale.range();
       const rangeMin = Math.min(rangeStart, rangeEnd);
@@ -326,13 +326,13 @@ function getSeriesAxisTickDataObject(axisConfig: SeriesAxisConfig, axisLayoutInf
     }
     return ticks;
   }
-  if (axisConfig.alwaysVisible || filteredSeriesCount > 0) {
+  if (axisConfig.visibleWhenAllFiltered || filteredSeriesCount > 0) {
     let tickCount = axisConfig.tickCount;
     let scaleTicks: AxisValue[];
-    const adjustForSuppression = axisConfig.adjustForSuppression;
-    const adjustTickLabelsForSuppression = adjustForSuppression && axisConfig.adjustTickLabelSizeForSuppression;
-    const seriesAxisDomain = adjustForSuppression ? filteredSeriesAxisDomain : rawSeriesAxisDomain;
-    const tickBoundsSeriesAxisDomain = adjustTickLabelsForSuppression ? filteredSeriesAxisDomain : rawSeriesAxisDomain;
+    const adjustForFiltering = axisConfig.adjustForFiltering;
+    const adjustTickLabelsForFiltering = adjustForFiltering && axisConfig.adjustTickLabelSizeForFiltering;
+    const seriesAxisDomain = adjustForFiltering ? filteredSeriesAxisDomain : rawSeriesAxisDomain;
+    const tickBoundsSeriesAxisDomain = adjustTickLabelsForFiltering ? filteredSeriesAxisDomain : rawSeriesAxisDomain;
     if (seriesAxisDomain[0] === seriesAxisDomain[1]) {
       if (seriesAxisDomain[0] === null) {
         tickCount = 0;
@@ -353,7 +353,7 @@ function getSeriesAxisTickDataObject(axisConfig: SeriesAxisConfig, axisLayoutInf
         scaleTicks = axisScale.ticks(tickCount);
       }
     }
-    const formatAxisScale = adjustTickLabelsForSuppression ? axisScale : getSeriesAxisScaleForDomain(axisConfig, axisLayoutInfo, rawSeriesAxisDomain, vertical);
+    const formatAxisScale = adjustTickLabelsForFiltering ? axisScale : getSeriesAxisScaleForDomain(axisConfig, axisLayoutInfo, rawSeriesAxisDomain, vertical);
     const tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, formatAxisScale, scaleTicks.length);
     const { preTicks, postTicks } = getLinearAxisExtraTicks(tickBoundsSeriesAxisDomain, axisScale, scaleTicks);
     const tickInterval = scaleTicks.length > tickCount ? 2 : 1

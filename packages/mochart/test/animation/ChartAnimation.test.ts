@@ -193,19 +193,19 @@ describe('group index maps with Date group values', () => {
 });
 
 // Regression: filteredSeriesDomainDeltas was omitted from the overall phase
-// delta max, so a suppressed-series transition paced its per-series domain
+// delta max, so a filtered-series transition paced its per-series domain
 // tween at a fraction of the phase and snapped on the final frame.
 describe('filtered series-domain deltas drive the phase pacing', () => {
   it('includes the filtered map in the overall delta and keeps factors >= 1', () => {
-    const suppressedConfig = makeConfig({
+    const filteredConfig = makeConfig({
       groupAxisConfig: { property: 'g', type: 'number', scale: 'ordinal' },
-      seriesAxisConfigs: [{ adjustForSuppression: false }],
+      seriesAxisConfigs: [{ adjustForFiltering: false }],
       seriesConfigs: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
     });
     const dataFor = (rows: Record<string, number>[]) =>
-      getChartData(suppressedConfig, new ArrayOfObjectsDataProvider(rows, 'g'), { S0: true });
+      getChartData(filteredConfig, new ArrayOfObjectsDataProvider(rows, 'g'), { S0: true });
     const cad = getChartAnimationData(
-      suppressedConfig,
+      filteredConfig,
       dataFor([{ g: 0, a: 100, b: 5 }, { g: 1, a: 80, b: 10 }]),
       dataFor([{ g: 0, a: 100, b: 25 }, { g: 1, a: 80, b: 50 }])
     ) as any;
