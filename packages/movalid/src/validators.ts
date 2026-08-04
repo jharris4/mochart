@@ -389,7 +389,8 @@ const compoundValidatorDefinitions = {
       if (!someInvalid && !allowExtraProperties) {
         const valueKeys = Object.keys(v);
         someInvalid = valueKeys.some(valueKey => {
-          if (propertyToValidatorMap[valueKey] === undefined) {
+          // own-key check: prototype member names (constructor, ...) are not part of the shape
+          if (!Object.prototype.hasOwnProperty.call(propertyToValidatorMap, valueKey)) {
             return true;
           }
           return false;
@@ -418,7 +419,8 @@ const compoundValidatorDefinitions = {
       }
       const valueKeys = Object.keys(v);
       const someInvalid = valueKeys.some(valueKey => {
-        const propertyValidator = propertyToValidatorMap[valueKey];
+        // own-key check: prototype member names (constructor, ...) must count as unknown, not resolve to functions
+        const propertyValidator = Object.prototype.hasOwnProperty.call(propertyToValidatorMap, valueKey) ? propertyToValidatorMap[valueKey] : undefined;
         if (propertyValidator === undefined) {
           // an unknown property is invalid unless extras were opted into
           return !allowExtraProperties;

@@ -96,10 +96,11 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     renderer: validators.oneOf(RENDERERS),
     missingValues: validators.oneOf(MISSING_VALUES),
     partialRangeIsMissing: validators.boolean(),
-    curve: validators.objectWithShape({
+    // partial: curve deep-merges over its default, so { param } alone is valid; extras warn via the unknown-key walk
+    curve: validators.partialObjectWithShape({
       type: validators.oneOf(CURVE_TYPES),
-      param: validators.numberMinMax(0, 1).orEqual(undefined)
-    }),
+      param: validators.numberMinMax(0, 1)
+    }, true),
     barWidthFraction: validators.numberMinMax(0, 1),
     barAlignFraction: validators.numberMinMax(0, 1),
     barMinExtent: validators.numberMin(0),

@@ -1400,6 +1400,12 @@ describe("validators", () => {
         expect(baseValidators.partialObjectWithShape(shape())(null)).toBe(false);
         expect(baseValidators.partialObjectWithShape(shape())("a")).toBe(false);
       });
+
+      it("should treat Object.prototype member names as unknown properties", () => {
+        expect(baseValidators.partialObjectWithShape(shape())({ constructor: 1 })).toBe(false);
+        expect(baseValidators.partialObjectWithShape(shape(), true)({ constructor: 1 })).toBe(true);
+        expect(baseValidators.objectWithShape({}, false)({ constructor: 1 })).toBe(false);
+      });
     });
 
     describe("or", () => {

@@ -441,6 +441,37 @@ describe('list-section shape validation', () => {
   });
 });
 
+// Regression: curve was the only nested config validated with the exact-shape
+// validator, so { param } alone (type comes from the default) was rejected and
+// unknown members were hard errors instead of the single unknown-key warning.
+describe('series curve validation', () => {
+  it('accepts a curve with only param, relying on the type default', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'p' },
+      series: [{ property: 'a', curve: { param: 0.5 } }]
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('still rejects invalid curve member values', () => {
+    expect(errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', curve: { type: 'bogus' } }] }))
+      .toContainEqual(expect.stringContaining('curve'));
+    expect(errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', curve: { param: 2 } }] }))
+      .toContainEqual(expect.stringContaining('curve'));
+  });
+
+  it('reports an unknown curve member as a warning only, not an error', () => {
+    const detailed = detailedFor({
+      version: V,
+      categoryAxis: { property: 'p' },
+      series: [{ property: 'a', curve: { typo: 1 } }]
+    });
+    expect(detailed.errors.filter(error => error.includes('curve'))).toEqual([]);
+    expect(detailed.warnings.some(warning => warning.includes('curve'))).toBe(true);
+  });
+});
+
 // Regression: uniqueness was checked on the raw config and the defaults
 // separately, so an explicit id colliding with another entry's defaulted id
 // passed and collapsed the id-lookup maps.
