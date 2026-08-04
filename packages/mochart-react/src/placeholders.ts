@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
-import type { PlaceholderComponent, PlaceholderProps } from './types';
+import type { PlaceholderComponent, PlaceholderProps } from './types.js';
 
 // Maps the wrapper's component props to the core's DOM-factory prop names.
 const FACTORY_PROP_NAMES: Record<string, string> = {

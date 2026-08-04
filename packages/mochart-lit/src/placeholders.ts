@@ -1,5 +1,5 @@
 import { nothing, render } from 'lit-html';
-import type { PlaceholderProps, PlaceholderTemplate } from './types';
+import type { PlaceholderProps, PlaceholderTemplate } from './types.js';
 
 // Maps the wrapper's template props to the core's DOM-factory prop names.
 const FACTORY_PROP_NAMES: Record<string, string> = {

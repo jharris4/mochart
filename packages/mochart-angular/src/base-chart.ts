@@ -1,9 +1,9 @@
 import { ApplicationRef, Directive, ElementRef, EnvironmentInjector, EventEmitter, Input, Output, PLATFORM_ID, inject } from '@angular/core';
 import type { AfterViewInit, OnChanges, OnDestroy } from '@angular/core';
-import { mountChartHost } from './host';
-import type { CreateChartFn, HostHandle } from './host';
-import { createPlaceholderAdapter } from './placeholders';
-import type { PlaceholderComponent } from './types';
+import { mountChartHost } from './host.js';
+import type { CreateChartFn, HostHandle } from './host.js';
+import { createPlaceholderAdapter } from './placeholders.js';
+import type { PlaceholderComponent } from './types.js';
 
 /**
  * Shared input/output surface and chart lifecycle for `Chart` and

@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import type { PlaceholderComponent } from './types';
+import type { PlaceholderComponent } from './types.js';
 
 // Runtime prop declarations shared by Chart and DefaultChart. Declaring the
 // `on*` callbacks as props keeps them out of fallthrough attrs (they go to the

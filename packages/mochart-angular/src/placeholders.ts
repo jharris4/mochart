@@ -1,6 +1,6 @@
 import { createComponent, reflectComponentType } from '@angular/core';
 import type { ApplicationRef, ComponentRef, EnvironmentInjector } from '@angular/core';
-import type { PlaceholderComponent, PlaceholderProps } from './types';
+import type { PlaceholderComponent, PlaceholderProps } from './types.js';
 
 // Maps the wrapper's component inputs to the core's DOM-factory prop names.
 const FACTORY_PROP_NAMES: Record<string, string> = {

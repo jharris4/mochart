@@ -1,7 +1,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { Ref } from 'vue';
-import { mountChartHost } from './host';
-import type { CreateChartFn, HostHandle } from './host';
+import { mountChartHost } from './host.js';
+import type { CreateChartFn, HostHandle } from './host.js';
 
 /**
  * Mounts a chart with `create` into the returned ref's element, pushes prop

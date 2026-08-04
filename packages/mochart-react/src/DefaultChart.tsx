@@ -1,7 +1,7 @@
 import { createDefaultChart } from '@mochart/core';
 import type { ReactElement } from 'react';
-import { useChartHost } from './useChartHost';
-import type { DefaultChartProps } from './types';
+import { useChartHost } from './useChartHost.js';
+import type { DefaultChartProps } from './types.js';
 
 /**
  * React wrapper around mochart's `createDefaultChart`: takes a raw `config`

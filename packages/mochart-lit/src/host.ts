@@ -1,5 +1,5 @@
 import type { ChartHandle } from '@mochart/core';
-import { createPlaceholderAdapter } from './placeholders';
+import { createPlaceholderAdapter } from './placeholders.js';
 
 // `create` is used for both createChart (chart) and createDefaultChart
 // (defaultChart); the host passes props through opaquely, so it is

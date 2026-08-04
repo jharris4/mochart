@@ -1,5 +1,5 @@
 import { h, render } from 'vue';
-import type { PlaceholderComponent, PlaceholderProps } from './types';
+import type { PlaceholderComponent, PlaceholderProps } from './types.js';
 
 // Maps the wrapper's component props to the core's DOM-factory prop names.
 const FACTORY_PROP_NAMES: Record<string, string> = {

@@ -1,7 +1,7 @@
 import { defineComponent, h } from 'vue';
 import { createDefaultChart } from '@mochart/core';
-import { useChartHost } from './useChartHost';
-import { defaultChartProps } from './props';
+import { useChartHost } from './useChartHost.js';
+import { defaultChartProps } from './props.js';
 
 /**
  * Vue wrapper around mochart's `createDefaultChart`: takes a raw `config`

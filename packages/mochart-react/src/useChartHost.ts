@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { RefObject } from 'react';
-import { mountChartHost } from './host';
-import type { CreateChartFn, HostHandle } from './host';
+import { mountChartHost } from './host.js';
+import type { CreateChartFn, HostHandle } from './host.js';
 
 // useLayoutEffect warns when rendered on the server; charts only mount in the DOM.
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
