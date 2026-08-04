@@ -10,13 +10,23 @@ function resetTruncationData(truncationData: TruncationData): TruncationData {
   return { ...truncationData, lastText: undefined };
 }
 
-export function prepareTruncation(truncationEnabled: boolean, truncationChanged: boolean, oldTruncationData: TruncationDataValue, integrityChanged = true) {
+// Fresh untruncated entry when the text itself changed, plain reset otherwise.
+function refreshTruncationData(truncationData: TruncationData, newText: string | undefined): TruncationData {
+  if (newText !== undefined && newText !== truncationData.text) {
+    return { text: newText, truncatedText: newText };
+  }
+  return resetTruncationData(truncationData);
+}
+
+export function prepareTruncation(truncationEnabled: boolean, truncationChanged: boolean, oldTruncationData: TruncationDataValue, integrityChanged = true, newText?: string | string[]) {
   let truncationData: TruncationDataValue = null;
   const checkTruncation = truncationEnabled && (truncationChanged || oldTruncationData === null);
   if (truncationEnabled) {
     if (truncationChanged) {
       if (oldTruncationData !== null && integrityChanged) {
-        truncationData = Array.isArray(oldTruncationData) ? oldTruncationData.map(td => resetTruncationData(td)) : resetTruncationData(oldTruncationData);
+        truncationData = Array.isArray(oldTruncationData)
+          ? oldTruncationData.map((td, i) => refreshTruncationData(td, (newText as string[] | undefined)?.[i]))
+          : refreshTruncationData(oldTruncationData, newText as string | undefined);
       }
     }
     else {

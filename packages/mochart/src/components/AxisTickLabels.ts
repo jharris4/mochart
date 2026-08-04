@@ -99,7 +99,8 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       const axisTickCount = axisTicks !== null ? axisTicks.length : 0;
       integrityChanged = Array.isArray(this.truncationData) && axisTickCount === this.truncationData.length;
     }
-    const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData, integrityChanged);
+    const { checkTruncation, truncationData } = prepareTruncation(truncationEnabled, truncationChanged, this.truncationData, integrityChanged,
+      truncationChanged ? axisTicks.map(tick => String(tick.label)) : undefined);
 
     this.truncationData = truncationData;
     this.checkTruncation = checkTruncation;

@@ -41,6 +41,24 @@ describe('prepareTruncation', () => {
     ]);
   });
 
+  it('adopts new text for entries whose label changed, resets the rest', () => {
+    const old: TruncationData[] = [
+      { text: 'aaaa', truncatedText: 'aa', lastText: 'aa' },
+      { text: 'bbbb', truncatedText: 'bb', lastText: 'bb' }
+    ];
+    const { truncationData } = prepareTruncation(true, true, old, true, ['aaaa', 'cccc']);
+    expect(truncationData).toEqual([
+      { text: 'aaaa', truncatedText: 'aa', lastText: undefined },
+      { text: 'cccc', truncatedText: 'cccc' }
+    ]);
+  });
+
+  it('adopts new single text when it changed', () => {
+    const old: TruncationData = { text: 'Hello', truncatedText: 'Hel', lastText: 'Hel' };
+    const { truncationData } = prepareTruncation(true, true, old, true, 'World!');
+    expect(truncationData).toEqual({ text: 'World!', truncatedText: 'World!' });
+  });
+
   it('drops prior data when integrity did not change', () => {
     const old: TruncationData = { text: 'Hello', truncatedText: 'Hel' };
     const { truncationData } = prepareTruncation(true, true, old, false);

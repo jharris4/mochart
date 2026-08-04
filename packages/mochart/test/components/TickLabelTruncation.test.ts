@@ -85,4 +85,36 @@ describe('tick-label truncation state across updates', () => {
     }
     expect(measureCalls).toBe(0);
   });
+
+  it('re-truncates from the new labels when a data update replaces them', () => {
+    const { container, handle } = mountChart();
+    const labelTexts = () => [...container.querySelectorAll('.mochart-category-axis .mochart-axis-tick-label text')]
+      .map(label => label.textContent ?? '');
+    const isTruncationOf = (rendered: string, full: string) =>
+      rendered.endsWith('…') && rendered.length > 1 && full.startsWith(rendered.slice(0, -1));
+
+    const originals = rows(0).map(row => String(row.month));
+    handle.update({ focusedCategoryIndex: 0 } as Partial<DefaultChartProps>);
+    expect(labelTexts().map((text, i) => isTruncationOf(text, originals[i]))).toEqual([true, true, true]);
+
+    // same tick count, entirely new labels — the truncation cache must adopt
+    // them instead of converging on truncations of the previous labels
+    const replacements = [
+      'replacement-lengthy-monday-label-that-cannot-possibly-fit',
+      'replacement-lengthy-tuesday-label-that-cannot-possibly-fit',
+      'replacement-lengthy-wednesday-label-that-cannot-possibly-fit'
+    ];
+    handle.update({ data: replacements.map((month, i) => ({ month, sales: 11 + 10 * i })) } as Partial<DefaultChartProps>);
+    handle.update({ focusedCategoryIndex: 1 } as Partial<DefaultChartProps>);
+    expect(labelTexts().map((text, i) => isTruncationOf(text, replacements[i]))).toEqual([true, true, true]);
+
+    // labels that now fit must render whole, not as stale truncations
+    handle.update({ data: [
+      { month: 'Jan', sales: 12 },
+      { month: 'Feb', sales: 22 },
+      { month: 'Mar', sales: 32 }
+    ] } as Partial<DefaultChartProps>);
+    handle.update({ focusedCategoryIndex: 2 } as Partial<DefaultChartProps>);
+    expect(labelTexts()).toEqual(['Jan', 'Feb', 'Mar']);
+  });
 });
