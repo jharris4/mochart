@@ -79,6 +79,6 @@ Every prop, with its type and its core counterpart, is listed in
 
 ## See it in action
 
-The [Svelte demo gallery](/svelte/) is a full application built on
+The [Svelte demo gallery](/svelte/demos) is a full application built on
 `@mochart/svelte` (Svelte 5 runes router); its source lives in
 [packages/mochart-demo-svelte](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-svelte).

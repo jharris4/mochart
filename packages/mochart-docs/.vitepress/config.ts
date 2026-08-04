@@ -17,6 +17,28 @@ const demoLinks = [
   { text: 'Vue', link: '/vue/', target: '_self' }
 ];
 
+// Markdown links into the demo galleries leave the VitePress site, so they
+// need the same treatment as the demoLinks nav entries: target="_self" keeps
+// the SPA router from intercepting the click (and 404ing), and because a
+// target attribute makes VitePress skip its own href rewriting (.html suffix,
+// base prefix), the base is prepended here instead.
+const demoLinkPattern = /^\/(angular|lit|react|svelte|vanilla|vue)\//;
+
+function demoLinkTargets(md: import('vitepress').MarkdownRenderer): void {
+  const fallback = md.renderer.rules.link_open
+    ?? ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options));
+  md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+    const token = tokens[idx];
+    const href = token?.attrGet('href');
+    if (token !== undefined && typeof href === 'string' && demoLinkPattern.test(href)) {
+      token.attrSet('href', (base + href).replace(/\/{2,}/g, '/'));
+      token.attrSet('target', '_self');
+      return self.renderToken(tokens, idx, options);
+    }
+    return fallback(tokens, idx, options, env, self);
+  };
+}
+
 const referenceItems = loadConfigReference().sections.map(section => ({
   text: section.title,
   link: '/reference/' + section.id
@@ -35,8 +57,7 @@ export default defineConfig({
   title: 'mochart',
   description: 'Animated interactive SVG charting library with zero framework dependencies',
   srcExclude: ['README.md'],
-  // Demo gallery links resolve on the assembled site only.
-  ignoreDeadLinks: [/^\/(angular|lit|react|svelte|vanilla|vue)\//],
+  markdown: { config: demoLinkTargets },
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/getting-started', activeMatch: '^/(guide|recipes)/' },

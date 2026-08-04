@@ -91,6 +91,6 @@ Every input and output, with its type and its core counterpart, is listed in
 
 ## See it in action
 
-The [Angular demo gallery](/angular/) is a full application built on
+The [Angular demo gallery](/angular/demos) is a full application built on
 `@mochart/angular` (Angular router, zoneless); its source lives in
 [packages/mochart-demo-angular](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-angular).

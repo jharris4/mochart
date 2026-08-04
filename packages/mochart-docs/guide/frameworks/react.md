@@ -77,6 +77,6 @@ Every prop, with its type and its core counterpart, is listed in
 
 ## See it in action
 
-The [React demo gallery](/react/) is a full application built on
+The [React demo gallery](/react/demos) is a full application built on
 `@mochart/react` (react-router 7); its source lives in
 [packages/mochart-demo-react](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-react).

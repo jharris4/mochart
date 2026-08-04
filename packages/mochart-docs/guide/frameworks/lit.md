@@ -96,6 +96,6 @@ Every prop, with its type and its core counterpart, is listed in
 
 ## See it in action
 
-The [Lit demo gallery](/lit/) is a full `LitElement` application built on
+The [Lit demo gallery](/lit/demos) is a full `LitElement` application built on
 `@mochart/lit`; its source lives in
 [packages/mochart-demo-lit](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-lit).

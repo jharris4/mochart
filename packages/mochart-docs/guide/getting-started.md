@@ -125,6 +125,6 @@ See [The config model](/guide/config-model) for what "enhanced" means and
 - [Interaction](/guide/interaction) — focus, legend filtering, tooltip,
   crosshair, and the callback props
 - [Recipes](/recipes/stacked-bars) — working configs for common chart shapes
-- The demo galleries ([Vanilla](/vanilla/), [Angular](/angular/),
-  [Lit](/lit/), [React](/react/), [Svelte](/svelte/), [Vue](/vue/)) — browse
+- The demo galleries ([Vanilla](/vanilla/demos), [Angular](/angular/demos),
+  [Lit](/lit/demos), [React](/react/demos), [Svelte](/svelte/demos), [Vue](/vue/demos)) — browse
   dozens of demo charts and edit their configs and data live

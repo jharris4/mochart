@@ -83,6 +83,6 @@ Every prop, with its type and its core counterpart, is listed in
 
 ## See it in action
 
-The [Vue demo gallery](/vue/) is a full application built on `@mochart/vue`
+The [Vue demo gallery](/vue/demos) is a full application built on `@mochart/vue`
 (vue reactivity router); its source lives in
 [packages/mochart-demo-vue](https://github.com/jharris4/mochart/tree/main/packages/mochart-demo-vue).
