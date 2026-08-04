@@ -88,6 +88,14 @@ describe('getCategoryFormat', () => {
     expect(fmt(1234.9)).toBe('1235');
   });
 
+  it('is an identity when valueFormat is auto and tickLabelFormat is none', () => {
+    const fmt = getCategoryFormat(categoryAxis({
+      type: 'number', dateUTC: false, valueFormat: 'auto', tickLabelFormat: null,
+      valuePrefix: null, valueSuffix: null
+    }));
+    expect(fmt(1500)).toBe(1500);
+  });
+
   it('applies prefix and suffix around the formatted value', () => {
     const fmt = getCategoryFormat(categoryAxis({
       type: 'number', dateUTC: false, valueFormat: '.0f', valuePrefix: '$', valueSuffix: ' USD'
@@ -139,6 +147,24 @@ describe('getSeriesFormat', () => {
     );
     // auto uses the scale's tickFormat; just assert it produces a string
     expect(typeof fmt(50)).toBe('string');
+  });
+
+  it('uses an explicit axis tickLabelFormat when valueFormat is auto', () => {
+    const fmt = getSeriesFormat(
+      series({ valueFormat: 'auto', valuePrefix: null, valueSuffix: null }),
+      valueAxis({ tickLabelFormat: '.0f' }),
+      scale
+    );
+    expect(fmt(12.7)).toBe('13');
+  });
+
+  it('is an identity when valueFormat is auto and the axis tickLabelFormat is none', () => {
+    const fmt = getSeriesFormat(
+      series({ valueFormat: 'auto', valuePrefix: null, valueSuffix: null }),
+      valueAxis({ tickLabelFormat: null }),
+      scale
+    );
+    expect(fmt(42)).toBe(42);
   });
 
   it('applies prefix and suffix', () => {

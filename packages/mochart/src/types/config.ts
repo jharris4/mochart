@@ -1508,7 +1508,7 @@ export interface AxisConfigBase {
    *
    * @default "auto"
    */
-  tickLabelFormat: string | Auto;
+  tickLabelFormat: string | Auto | null;
   /**
    * The string to prefix to the text of each axis tick label (use null for
    * none).
@@ -1762,7 +1762,7 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    *
    * @default "auto"
    */
-  valueFormat: string | Auto;
+  valueFormat: string | Auto | null;
   /**
    * The label to show before a category value in the tooltip (use null for
    * none).
@@ -2334,7 +2334,7 @@ export interface SeriesConfig {
    *
    * @default "auto"
    */
-  valueFormat: string | Auto;
+  valueFormat: string | Auto | null;
   /**
    * The text to prefix series values with when showing them in the tooltip (use
    * null for none).
@@ -2368,7 +2368,7 @@ export interface SeriesConfig {
    *
    * @default "auto"
    */
-  labelFormat: string | Auto;
+  labelFormat: string | Auto | null;
   /**
    * The style of the series label values.
    *

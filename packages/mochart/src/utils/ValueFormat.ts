@@ -75,8 +75,10 @@ export function getSeriesFormat(seriesConfig: EnhancedSeriesConfig, valueAxisCon
   let valueFormat: ValueFormatter = value => value;
   if (seriesConfig.valueFormat !== NONE) {
     if (seriesConfig.valueFormat === AUTO) {
-      const formatSpecifier = valueAxisConfig.tickLabelFormat === AUTO ? autoValueFormatNumber : valueAxisConfig.tickLabelFormat;
-      valueFormat = valueAxisScale.tickFormat(10, formatSpecifier);
+      if (valueAxisConfig.tickLabelFormat !== NONE) {
+        const formatSpecifier = valueAxisConfig.tickLabelFormat === AUTO ? autoValueFormatNumber : valueAxisConfig.tickLabelFormat;
+        valueFormat = valueAxisScale.tickFormat(10, formatSpecifier);
+      }
     }
     else {
       const formatter = format(seriesConfig.valueFormat);
