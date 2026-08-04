@@ -90,12 +90,12 @@
   }
 
   function toggleConfigInverted() {
-    demoConfig = toggleConfigProperty(demoConfig, 'plotConfig', 'inverted', true) ?? demoConfig;
+    demoConfig = toggleConfigProperty(demoConfig, 'plot', 'inverted', true) ?? demoConfig;
     configText = formatMochartDemoConfig(demoConfig, showDefaults);
   }
 
   function toggleConfigAnimationSlow() {
-    demoConfig = toggleConfigSection(mochartDemoConfig, demoConfig, 'animationConfig', slowAnimationConfig) ?? demoConfig;
+    demoConfig = toggleConfigSection(mochartDemoConfig, demoConfig, 'animation', slowAnimationConfig) ?? demoConfig;
     configText = formatMochartDemoConfig(demoConfig, showDefaults);
   }
 
@@ -121,7 +121,7 @@
 
   const inverted = $derived(demoConfig.configWithDefaults.plot.inverted);
   const invertedIcon = $derived(inverted ? 'chart-bar' : 'chart-column');
-  const slow = $derived(isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig));
+  const slow = $derived(isConfigSectionActive(demoConfig, 'animation', slowAnimationConfig));
   const slowIcon = $derived(slow ? 'hourglass' : 'hourglass-end');
 
   // The phone fold. Apply stays beside the editor it applies, and the

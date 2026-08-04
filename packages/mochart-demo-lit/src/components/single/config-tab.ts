@@ -81,12 +81,12 @@ export class ConfigTab extends LightElement {
   };
 
   private toggleConfigInverted = (): void => {
-    this.demoConfig = toggleConfigProperty(this.demoConfig, 'plotConfig', 'inverted', true) ?? this.demoConfig;
+    this.demoConfig = toggleConfigProperty(this.demoConfig, 'plot', 'inverted', true) ?? this.demoConfig;
     this.configText = formatMochartDemoConfig(this.demoConfig, this.showDefaults);
   };
 
   private toggleConfigAnimationSlow = (): void => {
-    this.demoConfig = toggleConfigSection(this.mochartDemoConfig, this.demoConfig, 'animationConfig', slowAnimationConfig) ?? this.demoConfig;
+    this.demoConfig = toggleConfigSection(this.mochartDemoConfig, this.demoConfig, 'animation', slowAnimationConfig) ?? this.demoConfig;
     this.configText = formatMochartDemoConfig(this.demoConfig, this.showDefaults);
   };
 
@@ -112,7 +112,7 @@ export class ConfigTab extends LightElement {
   override render(): unknown {
     const inverted = this.demoConfig.configWithDefaults.plot.inverted;
     const invertedIcon = inverted ? 'chart-bar' : 'chart-column';
-    const slow = isConfigSectionActive(this.demoConfig, 'animationConfig', slowAnimationConfig);
+    const slow = isConfigSectionActive(this.demoConfig, 'animation', slowAnimationConfig);
     const slowIcon = slow ? 'hourglass' : 'hourglass-end';
     const jsonError = this.jsonError;
     const footerError = jsonError ?? this.errorMessage;

@@ -186,12 +186,12 @@ export class ConfigTab implements OnInit, OnChanges {
   };
 
   toggleConfigInverted = (): void => {
-    this.demoConfig.set(toggleConfigProperty(this.demoConfig()!, 'plotConfig', 'inverted', true));
+    this.demoConfig.set(toggleConfigProperty(this.demoConfig()!, 'plot', 'inverted', true));
     this.configText.set(formatMochartDemoConfig(this.demoConfig()!, this.showDefaults()));
   };
 
   toggleConfigAnimationSlow = (): void => {
-    this.demoConfig.set(toggleConfigSection(this.mochartDemoConfig()!, this.demoConfig()!, 'animationConfig', slowAnimationConfig));
+    this.demoConfig.set(toggleConfigSection(this.mochartDemoConfig()!, this.demoConfig()!, 'animation', slowAnimationConfig));
     this.configText.set(formatMochartDemoConfig(this.demoConfig()!, this.showDefaults()));
   };
 
@@ -203,7 +203,7 @@ export class ConfigTab implements OnInit, OnChanges {
   };
 
   get inverted(): boolean {
-    return !!this.demoConfig()?.configWithDefaults['plotConfig']?.inverted;
+    return !!this.demoConfig()?.configWithDefaults['plot']?.inverted;
   }
 
   get invertedIcon(): string {
@@ -212,7 +212,7 @@ export class ConfigTab implements OnInit, OnChanges {
 
   get slow(): boolean {
     const demoConfig = this.demoConfig();
-    return demoConfig !== null && isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig);
+    return demoConfig !== null && isConfigSectionActive(demoConfig, 'animation', slowAnimationConfig);
   }
 
   get slowIcon(): string {

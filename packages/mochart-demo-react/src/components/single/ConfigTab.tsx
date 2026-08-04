@@ -80,12 +80,12 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   const toggleConfigDefaults = () => updateShowDefaults(!state.showDefaults);
 
   const toggleConfigInverted = () => {
-    const demoConfig = toggleConfigProperty(state.demoConfig, 'plotConfig', 'inverted', true);
+    const demoConfig = toggleConfigProperty(state.demoConfig, 'plot', 'inverted', true);
     setState(prev => ({ ...prev, demoConfig, configText: formatMochartDemoConfig(demoConfig, prev.showDefaults) }));
   };
 
   const toggleConfigAnimationSlow = () => {
-    const demoConfig = toggleConfigSection(state.mochartDemoConfig, state.demoConfig, 'animationConfig', slowAnimationConfig);
+    const demoConfig = toggleConfigSection(state.mochartDemoConfig, state.demoConfig, 'animation', slowAnimationConfig);
     setState(prev => ({ ...prev, demoConfig, configText: formatMochartDemoConfig(demoConfig, prev.showDefaults) }));
   };
 
@@ -101,7 +101,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   const { inverted } = configWithDefaults.plot;
 
   const invertedIcon = inverted ? 'chart-bar' : 'chart-column';
-  const slow = isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig);
+  const slow = isConfigSectionActive(demoConfig, 'animation', slowAnimationConfig);
   const slowIcon = slow ? 'hourglass' : 'hourglass-end';
 
   // Live JSON validity — disables Apply and shows an inline hint while the

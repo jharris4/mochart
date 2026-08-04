@@ -7,8 +7,8 @@ export interface DemoConfigView {
   configWithoutDefaults: Record<string, any>;
 }
 
+// No default-equal values (animate: true) — Apply strips them, breaking isConfigSectionActive.
 export const slowAnimationConfig = {
-  "animate": true,
   "initialDuration": 5000,
   "expansionDuration": 3000,
   "valueChangeDuration": 5000,

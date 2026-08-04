@@ -77,12 +77,12 @@ function toggleConfigDefaults() {
 }
 
 function toggleConfigInverted() {
-  demoConfig.value = toggleConfigProperty(demoConfig.value, 'plotConfig', 'inverted', true) ?? demoConfig.value;
+  demoConfig.value = toggleConfigProperty(demoConfig.value, 'plot', 'inverted', true) ?? demoConfig.value;
   configText.value = formatMochartDemoConfig(demoConfig.value, showDefaults.value);
 }
 
 function toggleConfigAnimationSlow() {
-  demoConfig.value = toggleConfigSection(mochartDemoConfig.value, demoConfig.value, 'animationConfig', slowAnimationConfig) ?? demoConfig.value;
+  demoConfig.value = toggleConfigSection(mochartDemoConfig.value, demoConfig.value, 'animation', slowAnimationConfig) ?? demoConfig.value;
   configText.value = formatMochartDemoConfig(demoConfig.value, showDefaults.value);
 }
 
@@ -95,7 +95,7 @@ function applyConfig() {
 
 const inverted = computed(() => demoConfig.value.configWithDefaults.plot.inverted);
 const invertedIcon = computed(() => inverted.value ? 'chart-bar' : 'chart-column');
-const slow = computed(() => isConfigSectionActive(demoConfig.value, 'animationConfig', slowAnimationConfig));
+const slow = computed(() => isConfigSectionActive(demoConfig.value, 'animation', slowAnimationConfig));
 const slowIcon = computed(() => slow.value ? 'hourglass' : 'hourglass-end');
 
 // Live JSON validity — disables Apply and shows an inline hint while the

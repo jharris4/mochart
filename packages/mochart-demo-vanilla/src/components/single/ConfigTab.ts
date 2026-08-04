@@ -89,13 +89,13 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   }
 
   function toggleConfigInverted(): void {
-    demoConfig = toggleConfigProperty(demoConfig, 'plotConfig', 'inverted', true);
+    demoConfig = toggleConfigProperty(demoConfig, 'plot', 'inverted', true);
     textArea.setValue(formatMochartDemoConfig(demoConfig, showDefaults));
     sync();
   }
 
   function toggleConfigAnimationSlow(): void {
-    demoConfig = toggleConfigSection(mochartDemoConfig, demoConfig, 'animationConfig', slowAnimationConfig);
+    demoConfig = toggleConfigSection(mochartDemoConfig, demoConfig, 'animation', slowAnimationConfig);
     textArea.setValue(formatMochartDemoConfig(demoConfig, showDefaults));
     sync();
   }
@@ -255,7 +255,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     invertedButton.setPressed(inverted);
     invertedButton.setContent([icon(inverted ? 'chart-bar' : 'chart-column', { size: 'lg', fixedWidth: true })]);
 
-    const slow = isConfigSectionActive(demoConfig, 'animationConfig', slowAnimationConfig);
+    const slow = isConfigSectionActive(demoConfig, 'animation', slowAnimationConfig);
     slowButton.setPressed(slow);
     slowButton.setContent([icon(slow ? 'hourglass' : 'hourglass-end', { size: 'lg', fixedWidth: true })]);
 
