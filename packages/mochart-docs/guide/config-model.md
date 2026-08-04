@@ -109,8 +109,8 @@ Two values do not merge:
 
 Entries in list sections are wired together by id: a series names its value
 axis via [`axis`](/reference/series#series.axis), its stack via
-[`stack`](/reference/series#series.stack), and its category via
-[`category`](/reference/series#series.group), each matching an
+[`stack`](/reference/series#series.stack), and its series group via
+[`group`](/reference/series#series.group), each matching an
 `id` in the corresponding section.
 
 When exactly one target exists, the reference defaults to it — with a single
