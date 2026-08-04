@@ -148,7 +148,8 @@ defaults ever disagree on a section's keys.
 
 ### Config helpers
 
-- `validateConfig(config)` — validate a raw config, returns readable errors
+- `validateConfig(config, getDefaults(config))` — validate a raw config, returns readable errors
+- `getDefaults(config)` — the per-section defaults `validateConfig` needs as its second argument
 - `migrateConfig(config)` — migrate configs from older versions
 - `enhanceConfig(config)` — validate/default/normalize into a `mochartConfig`
 - `getDataErrors(mochartConfig, dataProvider)` — validate data against a config
