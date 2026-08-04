@@ -8,10 +8,10 @@
   },
   "pieConfig": {
     "tooltipValues": "percent",
-    "innerRadiusPercent": 0.6,
+    "innerRadiusFraction": 0.6,
     "showLabels": true,
     "labelType": "percent",
-    "focusOffsetPercent": 0.05
+    "focusOffsetFraction": 0.05
   },
   "groupAxisConfig": {
     "property": "group",

@@ -18,7 +18,7 @@ export const config: MochartInputConfig = {
       // Only the colors of the normal state are overridden — the opacities,
       // the stroke width, and the focused/defocused states keep their defaults.
       labelTextStyle: { normal: { strokeColor: '#ffffff', fillColor: '#ffffff' } },
-      labelMinRangePercent: 0.05
+      labelMinRangeFraction: 0.05
     },
     {
       property: 'shipped',

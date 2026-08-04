@@ -18,8 +18,8 @@ export default function getDescriptions() {
     alwaysVisible: 'whether the axis should be visible when all series belonging to it are suppressed',
     tickLabelFormat: 'the d3 format string to be applied to the series values when displayed in axis tick labels (use null for none, use "auto" to derive from data)',
     ticks: 'the explicit ticks to show on the axis in place of the generated ones, each { value, label } placing label text at an axis value (label falls back to the formatted value, use null for none)',
-    maxMarginPercent: 'the percentage margin (0 or greater) relative to the domain of the axis to use at the maximum extent of the axis (only applied if max is "auto" and max value is not equal base)',
-    minMarginPercent: 'the percentage margin (0 or greater) relative to the domain of the axis to use at the minimum extent of the axis (only applied if min is "auto" and min value is not equal base)',
+    maxMarginFraction: 'the margin, as a fraction (0 or greater) of the domain of the axis, to use at the maximum extent of the axis (only applied if max is "auto" and max value is not equal base)',
+    minMarginFraction: 'the margin, as a fraction (0 or greater) of the domain of the axis, to use at the minimum extent of the axis (only applied if min is "auto" and min value is not equal base)',
     focusOnMouseOver: 'whether the series axis should be focused whenever the user mouses over a part of it in the chart',
     focusOnClick: 'whether the series axis should be focused whenever the user clicks/taps a part of it in the chart',
     useSeriesFocus: 'whether to show the axis as focused when any series belonging to is focused',
@@ -34,7 +34,7 @@ export function getDetails() {
     softMax: 'An upper bound that only applies while no data value is above it — the axis covers at least this value, but real data larger than it still expands the domain. Unlike `max`, it never clips data.',
     base: 'The value that bars and areas grow from, and the resting position shapes animate from/to when series enter or leave. With mixed positive/negative data the base separates the two directions.',
     ticks: 'Replaces the automatic tick generation entirely: tick counts, intervals and domain-edge ticks are ignored. Useful for naming fixed positions, e.g. heatmap row bands or threshold levels. Ticks outside the current axis domain are hidden.',
-    maxMarginPercent: 'The margin is relative to the pre-margin domain, so values above 1 are allowed and confine the data to a band of the plot: a margin of 4 leaves the data in the bottom fifth — how the candlestick/OHLC volume pane reserves the upper plot for the price axis.',
-    minMarginPercent: 'The margin is relative to the pre-margin domain, so values above 1 are allowed and confine the data to a band of the plot: a price axis with margin 1/3 keeps its data in the top three quarters, leaving the bottom for a volume pane.'
+    maxMarginFraction: 'The margin is relative to the pre-margin domain, so values above 1 are allowed and confine the data to a band of the plot: a margin of 4 leaves the data in the bottom fifth — how the candlestick/OHLC volume pane reserves the upper plot for the price axis.',
+    minMarginFraction: 'The margin is relative to the pre-margin domain, so values above 1 are allowed and confine the data to a band of the plot: a price axis with margin 1/3 keeps its data in the top three quarters, leaving the bottom for a volume pane.'
   };
 }

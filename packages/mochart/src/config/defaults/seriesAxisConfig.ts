@@ -34,8 +34,8 @@ export function getRegularDefaults() {
     focusOnMouseOver: true,
     focusOnClick: false,
 
-    maxMarginPercent: 0.05,
-    minMarginPercent: 0.05,
+    maxMarginFraction: 0.05,
+    minMarginFraction: 0.05,
 
     scale: SCALE_LINEAR,
 

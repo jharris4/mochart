@@ -11,10 +11,10 @@ const seriesConfig = (id: string) => ({ id }) as SeriesConfig;
 // Mirrors the built defaults, including the conditional endAngle default of
 // startAngle + 360 (a full circle unless overridden).
 const pieConfig = (overrides: Partial<PieConfig> = {}) => ({
-  innerRadiusPercent: 0, outerRadiusPercent: 1, startAngle: 0,
+  innerRadiusFraction: 0, outerRadiusFraction: 1, startAngle: 0,
   endAngle: (overrides.startAngle ?? 0) + 360, padAngle: 0, cornerRadius: 0,
-  focusOffsetPercent: 0, showLabels: false, labelType: 'percent', labelFormat: 'auto',
-  labelRadiusPercent: 0.5, labelMinAnglePercent: 0.05,
+  focusOffsetFraction: 0, showLabels: false, labelType: 'percent', labelFormat: 'auto',
+  labelRadiusFraction: 0.5, labelMinFraction: 0.05,
   centerLabel: null, showCenterTotal: false, centerTotalFormat: 'auto',
   ...overrides
 }) as PieConfig;
@@ -161,8 +161,8 @@ describe('getRadialLayoutInfo', () => {
     expect(info).toEqual({ cx: 200, cy: 150, innerRadius: 0, outerRadius: 150 });
   });
 
-  it('applies outerRadiusPercent and innerRadiusPercent', () => {
-    const info = getRadialLayoutInfo(layout(400, 300), pieConfig({ outerRadiusPercent: 0.8, innerRadiusPercent: 0.5 }));
+  it('applies outerRadiusFraction and innerRadiusFraction', () => {
+    const info = getRadialLayoutInfo(layout(400, 300), pieConfig({ outerRadiusFraction: 0.8, innerRadiusFraction: 0.5 }));
     expect(info.outerRadius).toBeCloseTo(120, 10);
     expect(info.innerRadius).toBeCloseTo(60, 10);
   });

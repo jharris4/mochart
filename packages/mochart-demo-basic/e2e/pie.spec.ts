@@ -73,7 +73,7 @@ test.describe('gauge demo', () => {
 });
 
 test.describe('donut demo', () => {
-  test('hovering a legend entry explodes the slice (focusOffsetPercent)', async ({ page }) => {
+  test('hovering a legend entry explodes the slice (focusOffsetFraction)', async ({ page }) => {
     await openDemo(page, 'donut');
     const slice = page.locator('[class*="mochart-series-slice0"]');
     await expect(slice).toBeAttached();
@@ -123,7 +123,7 @@ test.describe('donut demo', () => {
     const labels = page.locator('.mochart-series-slice-label');
     const sliceCount = await page.locator('.mochart-series-slice').count();
     // labels stay hidden during the initial sweep-in; once settled they show
-    // on every slice except those under labelMinAnglePercent
+    // on every slice except those under labelMinFraction
     await expect.poll(async () => {
       const count = await labels.count();
       return count > 0 && count < sliceCount;

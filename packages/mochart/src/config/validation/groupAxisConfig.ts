@@ -32,7 +32,7 @@ export default function getValidators(config: Partial<GroupAxisConfig>) {
 
     displayProperty: validators.propertyOptional(),
 
-    groupPadding: validators.objectWith(['inner', 'outer'], validators.numberMinMax(0, 1)),
+    groupPaddingFraction: validators.objectWith(['inner', 'outer'], validators.numberMinMax(0, 1)),
     groupCountPadding: validators.numberMin(0),
 
     max: validators.conditional([
@@ -95,7 +95,7 @@ export default function getValidators(config: Partial<GroupAxisConfig>) {
       { ...scaleLinearRule, validator: validators.equal(false) },
       { ...defaultRule, validator: validators.boolean() }
     ], config),
-    tickLabelTruncationMaxPercent: validators.numberMinMax(0, 1),
+    tickLabelTruncationMaxFraction: validators.numberMinMax(0, 1),
     tickLabelTruncationMinLength: validators.numberMin(0),
     tickLabelTruncationValue: validators.string(),
 

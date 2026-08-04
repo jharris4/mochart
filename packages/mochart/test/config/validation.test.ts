@@ -274,7 +274,7 @@ describe('pie chart config validation', () => {
     const errors = errorsFor({
       version: V,
       chartConfig: { type: 'pie' },
-      pieConfig: { innerRadiusPercent: 0.6, startAngle: 45, showLabels: true, labelType: 'percent' },
+      pieConfig: { innerRadiusFraction: 0.6, startAngle: 45, showLabels: true, labelType: 'percent' },
       groupAxisConfig: { property: 'p' },
       seriesConfigs: [{ property: 'a' }, { property: 'b' }]
     });
@@ -290,11 +290,11 @@ describe('pie chart config validation', () => {
     const errors = errorsFor({
       version: V,
       chartConfig: { type: 'pie' },
-      pieConfig: { innerRadiusPercent: 1.5, labelMinAnglePercent: -1 },
+      pieConfig: { innerRadiusFraction: 1.5, labelMinFraction: -1 },
       groupAxisConfig: { property: 'p' }
     });
-    expect(errors.some(error => error.startsWith('pieConfig - innerRadiusPercent - '))).toBe(true);
-    expect(errors.some(error => error.startsWith('pieConfig - labelMinAnglePercent - '))).toBe(true);
+    expect(errors.some(error => error.startsWith('pieConfig - innerRadiusFraction - '))).toBe(true);
+    expect(errors.some(error => error.startsWith('pieConfig - labelMinFraction - '))).toBe(true);
   });
 
   it('flags an unknown pieConfig.labelType', () => {

@@ -87,7 +87,7 @@ describe('candlestick volume pane', () => {
     expect(Math.max(...priceBottoms)).toBeLessThan(Math.min(...volumeTops));
   });
 
-  it('confines the tallest volume bar to the bottom heightPercent of the plot', () => {
+  it('confines the tallest volume bar to the bottom heightFraction of the plot', () => {
     const container = mountVolumeCandlestick();
     const volumeBars = ['upVolume', 'downVolume'].flatMap((seriesId) => barRects(container, seriesId));
     // the volume axis min is pinned at 0, so every bar grows from the bottom
@@ -97,7 +97,7 @@ describe('candlestick volume pane', () => {
     for (const bottom of bottoms) {
       expect(bottom).toBeCloseTo(seriesExtent, 6);
     }
-    // default heightPercent 0.2: the largest volume reaches 20% up the plot
+    // default heightFraction 0.2: the largest volume reaches 20% up the plot
     const tallest = Math.max(...volumeBars.map((bar) => bar.height));
     expect(tallest / seriesExtent).toBeCloseTo(0.2, 2);
     // and the price marks keep a visible gap above the volume band

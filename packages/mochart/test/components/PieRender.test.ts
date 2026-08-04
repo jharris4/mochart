@@ -1,7 +1,7 @@
 /**
  * Pie/donut rendering tests: chartConfig.type 'pie' mounts RadialPlot (slices,
  * no axes/crosshair), slices renormalize when a series is suppressed, labels
- * respect labelMinAnglePercent, and animated value updates settle on a fake
+ * respect labelMinFraction, and animated value updates settle on a fake
  * clock (same technique as the golden suite).
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
@@ -123,13 +123,13 @@ describe('pie chart rendering', () => {
     expect(donutD).not.toBe(pieD);
   });
 
-  it('shows labels when enabled and hides those under labelMinAnglePercent', () => {
+  it('shows labels when enabled and hides those under labelMinFraction', () => {
     const items: PieItem[] = [
       { label: 'Big', value: 98 },
       { label: 'Tiny', value: 2 }
     ];
     const { config, data } = pieChartProps(items, {}, {
-      pieConfig: { showLabels: true, labelType: 'percent', labelMinAnglePercent: 0.05 } as Partial<PieConfig>
+      pieConfig: { showLabels: true, labelType: 'percent', labelMinFraction: 0.05 } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
     const labels = Array.from(container.querySelectorAll('.mochart-series-slice-label'));
@@ -290,9 +290,9 @@ describe('pie chart rendering', () => {
     expect(gaugeD).not.toBe(fullD);
   });
 
-  it('explodes the focused slice by focusOffsetPercent', () => {
+  it('explodes the focused slice by focusOffsetFraction', () => {
     const { config, data } = pieChartProps(ITEMS, {}, {
-      pieConfig: { focusOffsetPercent: 0.1 } as Partial<PieConfig>
+      pieConfig: { focusOffsetFraction: 0.1 } as Partial<PieConfig>
     });
     const plain = mountChart(config, data);
     const focused = mountChart(config, data, { focusedSeriesId: 'slice0' });
@@ -307,7 +307,7 @@ describe('pie chart rendering', () => {
 
   it('renders the center label and a suppression-aware total', () => {
     const { config, data } = pieChartProps(ITEMS, { donut: true }, {
-      pieConfig: { innerRadiusPercent: 0.6, centerLabel: 'Total', showCenterTotal: true, centerTotalFormat: ',.0f' } as Partial<PieConfig>
+      pieConfig: { innerRadiusFraction: 0.6, centerLabel: 'Total', showCenterTotal: true, centerTotalFormat: ',.0f' } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
     expect(container.querySelector('.mochart-pie-center-label')!.textContent).toBe('Total');
@@ -319,7 +319,7 @@ describe('pie chart rendering', () => {
 
   it('keeps percent labels on the full total when adjustLabelsForSuppression is off', () => {
     const labelConfig = (adjust: boolean) => pieChartProps(ITEMS, {}, {
-      pieConfig: { showLabels: true, labelType: 'percent', labelMinAnglePercent: 0, adjustLabelsForSuppression: adjust } as Partial<PieConfig>
+      pieConfig: { showLabels: true, labelType: 'percent', labelMinFraction: 0, adjustLabelsForSuppression: adjust } as Partial<PieConfig>
     });
     const suppressed = { filteredSeriesIds: { slice2: true } };
 
@@ -351,7 +351,7 @@ describe('pie chart rendering', () => {
       version: VERSION,
       animationConfig: { animate: true },
       chartConfig: pie.chartConfig,
-      pieConfig: { showLabels: true, labelMinAnglePercent: 0 },
+      pieConfig: { showLabels: true, labelMinFraction: 0 },
       groupAxisConfig: pie.groupAxisConfig,
       seriesConfigs: pie.seriesConfigs
     } as unknown as MochartInputConfig;

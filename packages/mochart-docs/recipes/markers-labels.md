@@ -31,8 +31,8 @@ import * as scatterBubble from '../examples/scatterBubble'
   formats the value (`"auto"` derives from the data).
 - [`labelPosition`](/reference/seriesConfigs#seriesConfigs.labelPosition)
   places labels `inside`, `center`, or `outside` the shape, and the
-  `labelMin*Percent` guards hide labels that wouldn't fit (the
-  `labelMinRangePercent` above hides labels on bars shorter than 5% of the
+  `labelMin*Fraction` guards hide labels that wouldn't fit (the
+  `labelMinRangeFraction` above hides labels on bars shorter than 5% of the
   axis).
 - [`labelTextStyle`](/reference/seriesConfigs#seriesConfigs.labelTextStyle)
   paints the label text, again per focus state. Its colors accept the palette

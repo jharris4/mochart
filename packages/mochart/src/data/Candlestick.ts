@@ -33,14 +33,14 @@ export interface CandlestickVolumeOptions {
    *
    * @default 0.2
    */
-  heightPercent?: number;
+  heightFraction?: number;
   /**
    * The fraction (0 - 1) of the plot height left empty between the price and
    * volume panes.
    *
    * @default 0.05
    */
-  gapPercent?: number;
+  gapFraction?: number;
   /**
    * The tooltip label shown for the volume rows.
    *
@@ -63,13 +63,13 @@ export interface CreateCandlestickOptions {
    *
    * @default 0.15
    */
-  wickWidthPercent?: number;
+  wickWidthFraction?: number;
   /**
    * The fraction (0 - 1) of the group slot used by the open/close body bars.
    *
    * @default 1
    */
-  bodyWidthPercent?: number;
+  bodyWidthFraction?: number;
   /**
    * The tooltip label shown for the low/high wick rows.
    *
@@ -148,13 +148,13 @@ export const DEFAULT_COLORS: Record<CandlestickDirection, string> = {
   down: '#e34948'
 };
 
-const DEFAULT_WICK_WIDTH_PERCENT = 0.15;
+const DEFAULT_WICK_WIDTH_FRACTION = 0.15;
 export const DEFAULT_RANGE_TITLE = 'Range';
 
 export const PRICE_AXIS_ID = 'price';
 export const VOLUME_AXIS_ID = 'volume';
-const DEFAULT_VOLUME_HEIGHT_PERCENT = 0.2;
-const DEFAULT_VOLUME_GAP_PERCENT = 0.05;
+const DEFAULT_VOLUME_HEIGHT_FRACTION = 0.2;
+const DEFAULT_VOLUME_GAP_FRACTION = 0.05;
 const DEFAULT_VOLUME_LABEL = 'Volume';
 
 export function computeCandlesticks(items: readonly CandlestickItem[]): Candlestick[] {
@@ -176,30 +176,30 @@ export function getVolumeOptions(volume: boolean | CandlestickVolumeOptions | un
   }
   const options = volume === true ? {} : volume;
   return {
-    heightPercent: options.heightPercent ?? DEFAULT_VOLUME_HEIGHT_PERCENT,
-    gapPercent: options.gapPercent ?? DEFAULT_VOLUME_GAP_PERCENT,
+    heightFraction: options.heightFraction ?? DEFAULT_VOLUME_HEIGHT_FRACTION,
+    gapFraction: options.gapFraction ?? DEFAULT_VOLUME_GAP_FRACTION,
     valueLabel: options.valueLabel ?? DEFAULT_VOLUME_LABEL
   };
 }
 
 // The pane split is pure domain margins, so it adapts to every data update:
 // the volume axis pins its minimum at 0 and inflates its maximum until the
-// bars only reach `heightPercent` of the plot, while the price axis pads its
+// bars only reach `heightFraction` of the plot, while the price axis pads its
 // minimum until the price data sits above the volume band and the gap.
 // Margins are relative to the pre-margin extent, so a band fraction `f`
 // needs a margin of (1 - f) / f.
 export function buildVolumeSeriesAxisConfigs(volumeOptions: Required<CandlestickVolumeOptions>): Partial<SeriesAxisConfig>[] {
-  const { heightPercent, gapPercent } = volumeOptions;
-  const priceHeightPercent = 1 - heightPercent - gapPercent;
+  const { heightFraction, gapFraction } = volumeOptions;
+  const priceHeightFraction = 1 - heightFraction - gapFraction;
   return [
     {
       id: PRICE_AXIS_ID,
-      minMarginPercent: (heightPercent + gapPercent) / priceHeightPercent
+      minMarginFraction: (heightFraction + gapFraction) / priceHeightFraction
     },
     {
       id: VOLUME_AXIS_ID,
       min: 0,
-      maxMarginPercent: (1 - heightPercent) / heightPercent,
+      maxMarginFraction: (1 - heightFraction) / heightFraction,
       visible: false
     }
   ];
@@ -230,8 +230,8 @@ export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolu
 
 export function createCandlestick(items: readonly CandlestickItem[], options: CreateCandlestickOptions = {}): CandlestickData {
   const candles = computeCandlesticks(items);
-  const wickWidthPercent = options.wickWidthPercent ?? DEFAULT_WICK_WIDTH_PERCENT;
-  const bodyWidthPercent = options.bodyWidthPercent ?? 1;
+  const wickWidthFraction = options.wickWidthFraction ?? DEFAULT_WICK_WIDTH_FRACTION;
+  const bodyWidthFraction = options.bodyWidthFraction ?? 1;
   const rangeTitle = options.rangeTitle ?? DEFAULT_RANGE_TITLE;
   const hollow = options.hollow ?? false;
   const volumeOptions = getVolumeOptions(options.volume);
@@ -288,7 +288,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       rangeProperty: 'low',
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: hollow ? 'none' : 'bar',
-      barWidthPercent: wickWidthPercent,
+      barWidthFraction: wickWidthFraction,
       skipMissing: true,
       skipPartialRange: true,
       group: null,
@@ -317,7 +317,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
     const shared = {
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
-      barWidthPercent: wickWidthPercent,
+      barWidthFraction: wickWidthFraction,
       skipMissing: true,
       skipPartialRange: true,
       group: null,
@@ -348,7 +348,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       rangeProperty: 'open',
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
-      barWidthPercent: bodyWidthPercent,
+      barWidthFraction: bodyWidthFraction,
       skipMissing: true,
       skipPartialRange: true,
       group: null,

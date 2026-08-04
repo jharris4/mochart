@@ -120,7 +120,7 @@ describe('createHistogram', () => {
       property: 'binLabel',
       type: 'string',
       scale: 'ordinal',
-      groupPadding: { inner: 0, outer: 0 }
+      groupPaddingFraction: { inner: 0, outer: 0 }
     });
     expect(seriesConfig.renderer).toBe('bar');
     expect(seriesConfig.title).toBe('Count');

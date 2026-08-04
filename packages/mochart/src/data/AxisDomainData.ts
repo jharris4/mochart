@@ -7,8 +7,8 @@ import type { DomainValue, GroupAxisDomain } from '../types/data';
 type AxisDomainConfig = AxisConfigBase & {
   type: DataType;
   base?: number | null;
-  minMarginPercent?: number;
-  maxMarginPercent?: number;
+  minMarginFraction?: number;
+  maxMarginFraction?: number;
 };
 type AxisDomainCalculator = () => GroupAxisDomain;
 
@@ -48,12 +48,12 @@ function getAxisDomainWithMinAndMax(axisConfig: AxisDomainConfig, axisDomainCalc
     }
     const axisExtent = getDomainExtent(axisDomain);
     if (axisExtent > 0) {
-      const { minMarginPercent = 0, maxMarginPercent = 0 } = axisConfig;
-      if (min === AUTO && axisDomain[0] !== null && (base === NONE || axisDomain[0] !== base) && minMarginPercent > 0) {
-        axisDomain[0] = adjustAxisValue(axisConfig, axisDomain[0], -minMarginPercent * axisExtent);
+      const { minMarginFraction = 0, maxMarginFraction = 0 } = axisConfig;
+      if (min === AUTO && axisDomain[0] !== null && (base === NONE || axisDomain[0] !== base) && minMarginFraction > 0) {
+        axisDomain[0] = adjustAxisValue(axisConfig, axisDomain[0], -minMarginFraction * axisExtent);
       }
-      if (max === AUTO && axisDomain[1] !== null && (base === NONE || axisDomain[1] !== base) && maxMarginPercent > 0) {
-        axisDomain[1] = adjustAxisValue(axisConfig, axisDomain[1], maxMarginPercent * axisExtent);
+      if (max === AUTO && axisDomain[1] !== null && (base === NONE || axisDomain[1] !== base) && maxMarginFraction > 0) {
+        axisDomain[1] = adjustAxisValue(axisConfig, axisDomain[1], maxMarginFraction * axisExtent);
       }
     }
   }

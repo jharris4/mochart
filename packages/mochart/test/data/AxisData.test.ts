@@ -9,7 +9,7 @@ import type { GroupAxisDomain } from '../../src/types/data';
 const axis = (over: Partial<GroupAxisConfig>): GroupAxisConfig => ({
   groupCountPadding: 0,
   minGroupValueExtent: 0,
-  groupPadding: { outer: 0 },
+  groupPaddingFraction: { outer: 0 },
   ...over
 }) as GroupAxisConfig;
 
@@ -37,7 +37,7 @@ describe('getGroupSpacingInfo', () => {
 
   it('shrinks the group value extent by the outer padding fraction', () => {
     // 50px per unit, 20% outer padding => floor(50 * 0.8) = 40
-    const info = getGroupSpacingInfo(axis({ groupPadding: { outer: 0.2 } as GroupAxisConfig['groupPadding'] }), [0, 4] as GroupAxisDomain, 200);
+    const info = getGroupSpacingInfo(axis({ groupPaddingFraction: { outer: 0.2 } as GroupAxisConfig['groupPaddingFraction'] }), [0, 4] as GroupAxisDomain, 200);
     expect(info.groupValueExtent).toBe(40);
   });
 

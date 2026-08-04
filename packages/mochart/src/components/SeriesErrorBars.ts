@@ -58,7 +58,7 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
       const { length, getDefined, getSeriesPosition, getGroupPosition, getOffsetGroupPosition, groupValueExtent, skipped, skipGroupIndexMap } = seriesPositionData;
 
       // A bar whisker centers on the bar's layout slot (the grouped sub-slot,
-      // narrowed by barWidthPercent); other renderers center on the point.
+      // narrowed by barWidthFraction); other renderers center on the point.
       const isBar = seriesConfig.renderer === RENDERER_BAR;
       // Caps on bars are clamped to the slot so they never overlap a neighbour.
       const capHalfSize = (isBar ? Math.min(errorBarCapSize, groupValueExtent) : errorBarCapSize) / 2;

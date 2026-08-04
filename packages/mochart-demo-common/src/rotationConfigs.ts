@@ -35,7 +35,7 @@ const baseConfig = {
     "title": "Group Axis Title",
     "tickLabelTruncationEnabled": true,
     "tickLabelTruncationValue": "...",
-    "tickLabelTruncationMaxPercent": 0.20,
+    "tickLabelTruncationMaxFraction": 0.20,
     "titleTruncationEnabled": true,
     "titleTruncationValue": "...",
     "tickLabelAnchor": "auto",

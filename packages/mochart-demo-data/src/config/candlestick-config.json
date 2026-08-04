@@ -11,13 +11,13 @@
   "seriesAxisConfigs": [
     {
       "id": "price",
-      "minMarginPercent": 0.3333333333333333,
+      "minMarginFraction": 0.3333333333333333,
       "title": "$ per share"
     },
     {
       "id": "volume",
       "min": 0,
-      "maxMarginPercent": 4,
+      "maxMarginFraction": 4,
       "visible": false
     }
   ],
@@ -28,7 +28,7 @@
       "rangeProperty": "low",
       "axis": "price",
       "renderer": "bar",
-      "barWidthPercent": 0.15,
+      "barWidthFraction": 0.15,
       "skipMissing": true,
       "skipPartialRange": true,
       "group": null,
@@ -51,7 +51,7 @@
       "rangeProperty": "low",
       "axis": "price",
       "renderer": "bar",
-      "barWidthPercent": 0.15,
+      "barWidthFraction": 0.15,
       "skipMissing": true,
       "skipPartialRange": true,
       "group": null,
@@ -74,7 +74,7 @@
       "rangeProperty": "open",
       "axis": "price",
       "renderer": "bar",
-      "barWidthPercent": 1,
+      "barWidthFraction": 1,
       "skipMissing": true,
       "skipPartialRange": true,
       "group": null,
@@ -95,7 +95,7 @@
       "rangeProperty": "open",
       "axis": "price",
       "renderer": "bar",
-      "barWidthPercent": 1,
+      "barWidthFraction": 1,
       "skipMissing": true,
       "skipPartialRange": true,
       "group": null,

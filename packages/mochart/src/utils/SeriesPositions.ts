@@ -31,7 +31,7 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
 }
 
 export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesConfig: SeriesConfig, groupValueData: GroupAxisData['valueData'], seriesAxisScale: AxisScale, valueObject: SeriesValueObject, seriesLayoutInfo: LayoutInfo): SeriesPositionData {
-  const { seriesAxisConfig, seriesGroupConfig, showMissingAtBase, skipMissing, skipPartialRange, group, stack, rangeProperty, barWidthPercent, barAlignPercent } = seriesConfig;
+  const { seriesAxisConfig, seriesGroupConfig, showMissingAtBase, skipMissing, skipPartialRange, group, stack, rangeProperty, barWidthFraction, barAlignFraction } = seriesConfig;
   const { spacingInfo, positions: groupPositions } = groupValueData;
   const { base } = seriesAxisConfig;
   const { min } = valueObject;
@@ -66,13 +66,13 @@ export function getSeriesPositionData(groupAxisConfig: GroupAxisConfig, seriesCo
   groupValueOffset*= -1;
   if (group !== NONE) {
     const groupExtentAndMargins = groupValueExtent / seriesGroupConfig!.seriesConfigs!.length;
-    groupValueExtent = groupExtentAndMargins * (1.0 - groupAxisConfig.groupPadding.inner);
+    groupValueExtent = groupExtentAndMargins * (1.0 - groupAxisConfig.groupPaddingFraction.inner);
     groupValueOffset = groupValueOffset + (seriesGroupConfig!.seriesConfigIndicesById![seriesConfig.id]! * groupExtentAndMargins) + ((groupExtentAndMargins - groupValueExtent) / 2.0);
   }
-  if (barWidthPercent !== 1) {
+  if (barWidthFraction !== 1) {
     const fullValueExtent = groupValueExtent;
-    groupValueExtent = fullValueExtent * barWidthPercent;
-    groupValueOffset += (fullValueExtent - groupValueExtent) * barAlignPercent;
+    groupValueExtent = fullValueExtent * barWidthFraction;
+    groupValueOffset += (fullValueExtent - groupValueExtent) * barAlignFraction;
   }
 
   // With skipPartialRange, a ranged group missing either of its two values is

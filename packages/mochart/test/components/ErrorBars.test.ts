@@ -155,7 +155,7 @@ describe('error bars on bar series', () => {
 
   it('clamps the cap width to the bar layout slot', () => {
     const container = mountChart(makeConfig([
-      { id: 'V', property: 'value', renderer: 'bar', barWidthPercent: 0.02,
+      { id: 'V', property: 'value', renderer: 'bar', barWidthFraction: 0.02,
         errorLowProperty: 'low', errorHighProperty: 'high', errorBarCapSize: 500 }
     ]));
     const valueBars = barRects(container, 'V');

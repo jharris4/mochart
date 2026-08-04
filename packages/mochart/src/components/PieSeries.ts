@@ -145,9 +145,9 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     // percentage animates the offset in and out.
     let offsetX = 0;
     let offsetY = 0;
-    if (pieConfig.focusOffsetPercent > 0 && seriesFocusPercentage !== null && seriesFocusPercentage > 0) {
+    if (pieConfig.focusOffsetFraction > 0 && seriesFocusPercentage !== null && seriesFocusPercentage > 0) {
       const offsetMidAngle = (startAngle + endAngle) / 2;
-      const offset = seriesFocusPercentage * pieConfig.focusOffsetPercent * radialLayoutInfo.outerRadius;
+      const offset = seriesFocusPercentage * pieConfig.focusOffsetFraction * radialLayoutInfo.outerRadius;
       offsetX = offset * Math.sin(offsetMidAngle);
       offsetY = -offset * Math.cos(offsetMidAngle);
     }
@@ -162,9 +162,9 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       stroke: strokeColor, strokeWidth, strokeOpacity,
       fill: fillColor, fillOpacity });
 
-    if (pieConfig.showLabels && !hideLabels && labelFraction >= pieConfig.labelMinAnglePercent) {
+    if (pieConfig.showLabels && !hideLabels && labelFraction >= pieConfig.labelMinFraction) {
       const midAngle = (startAngle + endAngle) / 2;
-      const labelRadius = radialLayoutInfo.innerRadius + (radialLayoutInfo.outerRadius - radialLayoutInfo.innerRadius) * pieConfig.labelRadiusPercent;
+      const labelRadius = radialLayoutInfo.innerRadius + (radialLayoutInfo.outerRadius - radialLayoutInfo.innerRadius) * pieConfig.labelRadiusFraction;
       const labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       const labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       const { normal: labelNormal, focused: labelFocused, defocused: labelDefocused } = seriesConfig.labelTextStyle;

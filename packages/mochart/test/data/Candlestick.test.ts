@@ -52,10 +52,10 @@ describe('createCandlestick', () => {
   it('spans wicks from low to high and bodies from open to close, split by direction', () => {
     const { seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }]);
     const [upWick, downWick, up, down] = seriesConfigs;
-    expect(upWick).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthPercent: 0.15, showInLegend: false, followSeries: 'up', valueLabel: 'Range' });
-    expect(downWick).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthPercent: 0.15, showInLegend: false, followSeries: 'down', valueLabel: 'Range' });
-    expect(up).toMatchObject({ property: 'up', rangeProperty: 'open', barWidthPercent: 1, title: 'Up' });
-    expect(down).toMatchObject({ property: 'down', rangeProperty: 'open', barWidthPercent: 1, title: 'Down' });
+    expect(upWick).toMatchObject({ property: 'upHigh', rangeProperty: 'low', barWidthFraction: 0.15, showInLegend: false, followSeries: 'up', valueLabel: 'Range' });
+    expect(downWick).toMatchObject({ property: 'downHigh', rangeProperty: 'low', barWidthFraction: 0.15, showInLegend: false, followSeries: 'down', valueLabel: 'Range' });
+    expect(up).toMatchObject({ property: 'up', rangeProperty: 'open', barWidthFraction: 1, title: 'Up' });
+    expect(down).toMatchObject({ property: 'down', rangeProperty: 'open', barWidthFraction: 1, title: 'Down' });
   });
 
   it('colors each wick to match its body, with strokes matching the fills', () => {
@@ -74,8 +74,8 @@ describe('createCandlestick', () => {
     const { seriesConfigs } = createCandlestick([{ label: 'Mon', open: 1, high: 3, low: 0, close: 2 }], {
       seriesTitles: { up: 'Gain' },
       colors: { down: '#123456' },
-      wickWidthPercent: 0.1,
-      bodyWidthPercent: 0.7,
+      wickWidthFraction: 0.1,
+      bodyWidthFraction: 0.7,
       rangeTitle: 'Low – High'
     });
     const [upWick, downWick, up, down] = seriesConfigs;
@@ -83,8 +83,8 @@ describe('createCandlestick', () => {
     expect(down.title).toBe('Down');
     expect(downWick.shapeStyle!.normal!.fillColor).toBe('#123456');
     expect(down.shapeStyle!.normal!.fillColor).toBe('#123456');
-    expect(upWick.barWidthPercent).toBe(0.1);
-    expect(up.barWidthPercent).toBe(0.7);
+    expect(upWick.barWidthFraction).toBe(0.1);
+    expect(up.barWidthFraction).toBe(0.7);
     expect(upWick.valueLabel).toBe('Low – High');
     expect(downWick.valueLabel).toBe('Low – High');
   });
@@ -130,18 +130,18 @@ describe('createCandlestick', () => {
       const [priceAxis, volumeAxis] = seriesAxisConfigs!;
       // defaults: volume pane 20%, gap 5% — price margin (0.25 / 0.75), volume margin (0.8 / 0.2)
       expect(priceAxis).toMatchObject({ id: 'price' });
-      expect(priceAxis.minMarginPercent).toBeCloseTo(1 / 3, 6);
+      expect(priceAxis.minMarginFraction).toBeCloseTo(1 / 3, 6);
       expect(volumeAxis).toMatchObject({ id: 'volume', min: 0, visible: false });
-      expect(volumeAxis.maxMarginPercent).toBeCloseTo(4, 6);
+      expect(volumeAxis.maxMarginFraction).toBeCloseTo(4, 6);
     });
 
     it('honours pane sizing and label options', () => {
       const { seriesConfigs, seriesAxisConfigs } = createCandlestick(items, {
-        volume: { heightPercent: 0.25, gapPercent: 0.05, valueLabel: 'Shares' }
+        volume: { heightFraction: 0.25, gapFraction: 0.05, valueLabel: 'Shares' }
       });
       const [priceAxis, volumeAxis] = seriesAxisConfigs!;
-      expect(priceAxis.minMarginPercent).toBeCloseTo(0.3 / 0.7, 6);
-      expect(volumeAxis.maxMarginPercent).toBeCloseTo(3, 6);
+      expect(priceAxis.minMarginFraction).toBeCloseTo(0.3 / 0.7, 6);
+      expect(volumeAxis.maxMarginFraction).toBeCloseTo(3, 6);
       expect(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'upVolume')!.valueLabel).toBe('Shares');
     });
   });

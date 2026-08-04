@@ -28,10 +28,10 @@ export default class GroupAxisTickLabelClip extends Renderer<GroupAxisTickLabelC
     if (groupAxisConfig.visible && groupAxisConfig.tickLabelTruncationEnabled) {
       const { tickLabelParallel, tickHeight, tickLabelAnchor } = groupAxisLayoutInfo;
       const { inverted } = plotConfig;
-      const { tickLabelTruncationMaxPercent, tickLabelRotation } = groupAxisConfig;
+      const { tickLabelTruncationMaxFraction, tickLabelRotation } = groupAxisConfig;
       if (!tickLabelParallel) {
         maxTickLabelLength = Math.max(groupAxisConfig.tickLabelTruncationMinLength,
-          tickLabelTruncationMaxPercent * (inverted ? chartContentLayoutInfo.width : chartContentLayoutInfo.height));
+          tickLabelTruncationMaxFraction * (inverted ? chartContentLayoutInfo.width : chartContentLayoutInfo.height));
       }
       const tickRotationTransform = tickLabelRotation === 0 ? null : 'rotate(' + tickLabelRotation + ')';
       const x = tickLabelAnchor !== ANCHOR_MIDDLE ? (tickLabelAnchor === ANCHOR_END ? -1 * maxTickLabelLength : 0) : -1 * maxTickLabelLength / 2;

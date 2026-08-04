@@ -20,7 +20,7 @@ import * as histogram from '../examples/histogram'
   `binCount`), or `domain` to bin over a fixed range; `nice: false` divides
   the domain exactly instead of rounding.
 - The returned `groupAxisConfig` fragment uses an ordinal axis with
-  [`groupPadding`](/reference/groupAxisConfig#groupAxisConfig.groupPadding)
+  [`groupPaddingFraction`](/reference/groupAxisConfig#groupAxisConfig.groupPaddingFraction)
   zeroed so the bars touch, which is what visually separates a histogram
   from a bar chart. (Bins are contiguous and equal width, so an ordinal
   axis positions them identically to a linear one — and on a linear group

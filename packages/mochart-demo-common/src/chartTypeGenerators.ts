@@ -682,8 +682,8 @@ function buildDonutSnapshot(): ChartTypeDemoSnapshot {
       version: '1.0.0',
       titleConfig: { title: 'Browser Market Share (fictional)' },
       chartConfig: pie.chartConfig,
-      // focusOffsetPercent explodes the hovered slice away from the center
-      pieConfig: { ...pie.pieConfig, showLabels: true, labelType: 'percent', focusOffsetPercent: 0.05 },
+      // focusOffsetFraction explodes the hovered slice away from the center
+      pieConfig: { ...pie.pieConfig, showLabels: true, labelType: 'percent', focusOffsetFraction: 0.05 },
       groupAxisConfig: pie.groupAxisConfig,
       seriesConfigs: pie.seriesConfigs
     },
@@ -716,7 +716,7 @@ function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
         ...pie.pieConfig,
         startAngle: -90,
         endAngle: 90,
-        innerRadiusPercent: 0.55,
+        innerRadiusFraction: 0.55,
         padAngle: 1,
         cornerRadius: 3,
         showLabels: true,
@@ -725,7 +725,7 @@ function buildGaugeSnapshot(): ChartTypeDemoSnapshot {
         showCenterTotal: true,
         centerTotalFormat: ',.0f',
         // lift the center content off the gauge pivot into the hole
-        centerOffsetYPercent: -0.25
+        centerOffsetYFraction: -0.25
       },
       groupAxisConfig: pie.groupAxisConfig,
       seriesConfigs: pie.seriesConfigs

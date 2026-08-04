@@ -668,16 +668,16 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#groupAxisConfig.groupCountPadding">groupCountPadding</a></td><td>the extra count to be added to the group value count when dividing the group extent for displaying group values</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
-<tr id="groupAxisConfig.groupPadding">
-<td><a href="#groupAxisConfig.groupPadding">groupPadding</a></td><td>the padding percentages (0 - 1) of the group extent for all group values (outer) and grouped series (inner)</td><td>should be an object with properties [ "inner", "outer" ] all of which should be a number >= to 0 and <= 1</td><td><div>{ inner: 0.1, outer: 0.1 }</div>
+<tr id="groupAxisConfig.groupPaddingFraction">
+<td><a href="#groupAxisConfig.groupPaddingFraction">groupPaddingFraction</a></td><td>the padding fractions (0 - 1) of the group extent for all group values (outer) and grouped series (inner)</td><td>should be an object with properties [ "inner", "outer" ] all of which should be a number >= to 0 and <= 1</td><td><div>{ inner: 0.1, outer: 0.1 }</div>
 </td>
 </tr>
-<tr id="groupAxisConfig.groupPadding.inner">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#groupAxisConfig.groupPadding.inner">groupPadding.inner</a></td><td>the fraction (0 - 1) of a group value's extent to leave as space between the series drawn inside it</td><td>should be a number >= to 0 and <= 1</td><td><div>0.1</div>
+<tr id="groupAxisConfig.groupPaddingFraction.inner">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#groupAxisConfig.groupPaddingFraction.inner">groupPaddingFraction.inner</a></td><td>the fraction (0 - 1) of a group value's extent to leave as space between the series drawn inside it</td><td>should be a number >= to 0 and <= 1</td><td><div>0.1</div>
 </td>
 </tr>
-<tr id="groupAxisConfig.groupPadding.outer">
-<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#groupAxisConfig.groupPadding.outer">groupPadding.outer</a></td><td>the fraction (0 - 1) to trim from each group value's extent, leaving space between neighbouring group values</td><td>should be a number >= to 0 and <= 1</td><td><div>0.1</div>
+<tr id="groupAxisConfig.groupPaddingFraction.outer">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#groupAxisConfig.groupPaddingFraction.outer">groupPaddingFraction.outer</a></td><td>the fraction (0 - 1) to trim from each group value's extent, leaving space between neighbouring group values</td><td>should be a number >= to 0 and <= 1</td><td><div>0.1</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.marginInner">
@@ -1133,12 +1133,12 @@ table thead td { border-bottom-width: 2px; }
 <div>false (when type is not string)</div>
 </td>
 </tr>
-<tr id="groupAxisConfig.tickLabelTruncationMaxPercent">
-<td><a href="#groupAxisConfig.tickLabelTruncationMaxPercent">tickLabelTruncationMaxPercent</a></td><td>the maximum percentage (0 - 1) of the chart bounds to allow any tick label text to occupy when they are perpendicular to the axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.2</div>
+<tr id="groupAxisConfig.tickLabelTruncationMaxFraction">
+<td><a href="#groupAxisConfig.tickLabelTruncationMaxFraction">tickLabelTruncationMaxFraction</a></td><td>the maximum fraction (0 - 1) of the chart bounds to allow any tick label text to occupy when they are perpendicular to the axis</td><td>should be a number >= to 0 and <= 1</td><td><div>0.2</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelTruncationMinLength">
-<td><a href="#groupAxisConfig.tickLabelTruncationMinLength">tickLabelTruncationMinLength</a></td><td>the minimum length at which to apply tick label truncation if the maximum percentage settings is used</td><td>should be a number >= to 0</td><td><div>0</div>
+<td><a href="#groupAxisConfig.tickLabelTruncationMinLength">tickLabelTruncationMinLength</a></td><td>the minimum length at which to apply tick label truncation if the maximum fraction setting is used</td><td>should be a number >= to 0</td><td><div>0</div>
 </td>
 </tr>
 <tr id="groupAxisConfig.tickLabelTruncationValue">
@@ -1667,7 +1667,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="pieConfig.adjustLabelsForSuppression">
-<td><a href="#pieConfig.adjustLabelsForSuppression">adjustLabelsForSuppression</a></td><td>whether percent slice labels (and the labelMinAnglePercent threshold) renormalize against the unsuppressed slices (true) or always use every slice's share of the full total (false)</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#pieConfig.adjustLabelsForSuppression">adjustLabelsForSuppression</a></td><td>whether percent slice labels (and the labelMinFraction threshold) renormalize against the unsuppressed slices (true) or always use every slice's share of the full total (false)</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="pieConfig.centerLabel">
@@ -1698,12 +1698,12 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#pieConfig.centerLabelTextStyle.strokeWidth">centerLabelTextStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="pieConfig.centerOffsetXPercent">
-<td><a href="#pieConfig.centerOffsetXPercent">centerOffsetXPercent</a></td><td>offset the center label and total horizontally by this fraction (-1 to 1) of the outer radius (positive moves right)</td><td>should be a number >= to -1 and <= 1</td><td><div>0</div>
+<tr id="pieConfig.centerOffsetXFraction">
+<td><a href="#pieConfig.centerOffsetXFraction">centerOffsetXFraction</a></td><td>offset the center label and total horizontally by this fraction (-1 to 1) of the outer radius (positive moves right)</td><td>should be a number >= to -1 and <= 1</td><td><div>0</div>
 </td>
 </tr>
-<tr id="pieConfig.centerOffsetYPercent">
-<td><a href="#pieConfig.centerOffsetYPercent">centerOffsetYPercent</a></td><td>offset the center label and total vertically by this fraction (-1 to 1) of the outer radius (positive moves down; e.g. use a negative value to lift them into a gauge's hole)</td><td>should be a number >= to -1 and <= 1</td><td><div>0</div>
+<tr id="pieConfig.centerOffsetYFraction">
+<td><a href="#pieConfig.centerOffsetYFraction">centerOffsetYFraction</a></td><td>offset the center label and total vertically by this fraction (-1 to 1) of the outer radius (positive moves down; e.g. use a negative value to lift them into a gauge's hole)</td><td>should be a number >= to -1 and <= 1</td><td><div>0</div>
 </td>
 </tr>
 <tr id="pieConfig.centerTotalFormat">
@@ -1742,24 +1742,24 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#pieConfig.endAngle">endAngle</a></td><td>the angle (in degrees, clockwise from the top) at which the last slice ends (use startAngle -90 and endAngle 90 for a half/gauge pie)</td><td>should be a number</td><td><div>startAngle + 360 (a full circle from startAngle)</div>
 </td>
 </tr>
-<tr id="pieConfig.focusOffsetPercent">
-<td><a href="#pieConfig.focusOffsetPercent">focusOffsetPercent</a></td><td>offset the focused slice away from the center by this fraction (0 to 1) of the outer radius (an exploded slice)</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
+<tr id="pieConfig.focusOffsetFraction">
+<td><a href="#pieConfig.focusOffsetFraction">focusOffsetFraction</a></td><td>offset the focused slice away from the center by this fraction (0 to 1) of the outer radius (an exploded slice)</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
 </td>
 </tr>
-<tr id="pieConfig.innerRadiusPercent">
-<td><a href="#pieConfig.innerRadiusPercent">innerRadiusPercent</a></td><td>the inner radius of the slices as a fraction (0 to 1) of the outer radius (use a value greater than 0 for a donut chart)</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
+<tr id="pieConfig.innerRadiusFraction">
+<td><a href="#pieConfig.innerRadiusFraction">innerRadiusFraction</a></td><td>the inner radius of the slices as a fraction (0 to 1) of the outer radius (use a value greater than 0 for a donut chart)</td><td>should be a number >= to 0 and <= 1</td><td><div>0</div>
 </td>
 </tr>
-<tr id="pieConfig.labelMinAnglePercent">
-<td><a href="#pieConfig.labelMinAnglePercent">labelMinAnglePercent</a></td><td>hide the label of any slice whose value is smaller than this fraction (0 to 1) of the slice total</td><td>should be a number >= to 0 and <= 1</td><td><div>0.05</div>
+<tr id="pieConfig.labelMinFraction">
+<td><a href="#pieConfig.labelMinFraction">labelMinFraction</a></td><td>hide the label of any slice whose value is smaller than this fraction (0 to 1) of the slice total</td><td>should be a number >= to 0 and <= 1</td><td><div>0.05</div>
 </td>
 </tr>
 <tr id="pieConfig.labelPercentFormat">
 <td><a href="#pieConfig.labelPercentFormat">labelPercentFormat</a></td><td>the d3 format specifier used to format the percent part of the slice labels (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="pieConfig.labelRadiusPercent">
-<td><a href="#pieConfig.labelRadiusPercent">labelRadiusPercent</a></td><td>the radial position of the slice labels as a fraction (0 to 1) between the inner radius and the outer radius</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<tr id="pieConfig.labelRadiusFraction">
+<td><a href="#pieConfig.labelRadiusFraction">labelRadiusFraction</a></td><td>the radial position of the slice labels as a fraction (0 to 1) between the inner radius and the outer radius</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
 </td>
 </tr>
 <tr id="pieConfig.labelType">
@@ -1770,8 +1770,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#pieConfig.labelValueFormat">labelValueFormat</a></td><td>the d3 format specifier used to format the value part of the slice labels (use auto to derive a format)</td><td>should be a valid number format or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="pieConfig.outerRadiusPercent">
-<td><a href="#pieConfig.outerRadiusPercent">outerRadiusPercent</a></td><td>the outer radius of the slices as a fraction (0 to 1) of the largest radius that fits within the plot</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<tr id="pieConfig.outerRadiusFraction">
+<td><a href="#pieConfig.outerRadiusFraction">outerRadiusFraction</a></td><td>the outer radius of the slices as a fraction (0 to 1) of the largest radius that fits within the plot</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="pieConfig.padAngle">
@@ -2254,8 +2254,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#seriesAxisConfigs.max">max</a></td><td>the forced maximum numeric value for the axis (use "auto" to compute from the values)<br/><br/>With `"auto"` the maximum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead.</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="seriesAxisConfigs.maxMarginPercent">
-<td><a href="#seriesAxisConfigs.maxMarginPercent">maxMarginPercent</a></td><td>the percentage margin (0 or greater) relative to the domain of the axis to use at the maximum extent of the axis (only applied if max is "auto" and max value is not equal base)<br/><br/>The margin is relative to the pre-margin domain, so values above 1 are allowed and confine the data to a band of the plot: a margin of 4 leaves the data in the bottom fifth — how the candlestick/OHLC volume pane reserves the upper plot for the price axis.</td><td>should be a number >= to 0</td><td><div>0.05</div>
+<tr id="seriesAxisConfigs.maxMarginFraction">
+<td><a href="#seriesAxisConfigs.maxMarginFraction">maxMarginFraction</a></td><td>the margin, as a fraction (0 or greater) of the domain of the axis, to use at the maximum extent of the axis (only applied if max is "auto" and max value is not equal base)<br/><br/>The margin is relative to the pre-margin domain, so values above 1 are allowed and confine the data to a band of the plot: a margin of 4 leaves the data in the bottom fifth — how the candlestick/OHLC volume pane reserves the upper plot for the price axis.</td><td>should be a number >= to 0</td><td><div>0.05</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.maxOffset">
@@ -2270,8 +2270,8 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#seriesAxisConfigs.min">min</a></td><td>the forced minimum numeric value for the axis (use "auto" to compute from the values)<br/><br/>With `"auto"` the minimum is computed from the data (including stacking) on every update, and changes animate through the staged axis expansion/contraction phases. Set a number to pin the bound instead.</td><td>should be a number or be equal to "auto"</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="seriesAxisConfigs.minMarginPercent">
-<td><a href="#seriesAxisConfigs.minMarginPercent">minMarginPercent</a></td><td>the percentage margin (0 or greater) relative to the domain of the axis to use at the minimum extent of the axis (only applied if min is "auto" and min value is not equal base)<br/><br/>The margin is relative to the pre-margin domain, so values above 1 are allowed and confine the data to a band of the plot: a price axis with margin 1/3 keeps its data in the top three quarters, leaving the bottom for a volume pane.</td><td>should be a number >= to 0</td><td><div>0.05</div>
+<tr id="seriesAxisConfigs.minMarginFraction">
+<td><a href="#seriesAxisConfigs.minMarginFraction">minMarginFraction</a></td><td>the margin, as a fraction (0 or greater) of the domain of the axis, to use at the minimum extent of the axis (only applied if min is "auto" and min value is not equal base)<br/><br/>The margin is relative to the pre-margin domain, so values above 1 are allowed and confine the data to a band of the plot: a price axis with margin 1/3 keeps its data in the top three quarters, leaving the bottom for a volume pane.</td><td>should be a number >= to 0</td><td><div>0.05</div>
 </td>
 </tr>
 <tr id="seriesAxisConfigs.minOffset">
@@ -2904,16 +2904,16 @@ table thead td { border-bottom-width: 2px; }
 </td><td><div>sole axis id (series axis)</div>
 </td>
 </tr>
-<tr id="seriesConfigs.barAlignPercent">
-<td><a href="#seriesConfigs.barAlignPercent">barAlignPercent</a></td><td>the fraction (0 - 1) of the slot width freed by barWidthPercent placed before each bar in the series (0 aligns with the slot start, 0.5 centers, 1 aligns with the slot end)<br/><br/>Only affects the `bar` renderer, and only when `barWidthPercent` is less than 1. Lets narrowed bars from different series share one slot side by side — e.g. the left open tick and right close tick of an OHLC bar.</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
+<tr id="seriesConfigs.barAlignFraction">
+<td><a href="#seriesConfigs.barAlignFraction">barAlignFraction</a></td><td>the fraction (0 - 1) of the slot width freed by barWidthFraction placed before each bar in the series (0 aligns with the slot start, 0.5 centers, 1 aligns with the slot end)<br/><br/>Only affects the `bar` renderer, and only when `barWidthFraction` is less than 1. Lets narrowed bars from different series share one slot side by side — e.g. the left open tick and right close tick of an OHLC bar.</td><td>should be a number >= to 0 and <= 1</td><td><div>0.5</div>
 </td>
 </tr>
 <tr id="seriesConfigs.barMinExtent">
 <td><a href="#seriesConfigs.barMinExtent">barMinExtent</a></td><td>the minimum extent (in pixels) of each bar in the series along the value direction<br/><br/>Only affects the `bar` renderer. A bar whose two ends resolve to (nearly) the same position — e.g. a ranged bar whose `property` and `rangeProperty` values are equal — is expanded to this extent, centered on its position, so it stays visible as a tick mark: e.g. the open/close ticks of an OHLC bar, or a candlestick doji body.</td><td>should be a number >= to 0</td><td><div>0</div>
 </td>
 </tr>
-<tr id="seriesConfigs.barWidthPercent">
-<td><a href="#seriesConfigs.barWidthPercent">barWidthPercent</a></td><td>the fraction (0 - 1) of the bar layout slot width to use when drawing bars in the series<br/><br/>Only affects the `bar` renderer. Narrows each bar within its layout slot (the full group slot, or the series’ sub-slot when grouped), so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range. The narrowed bar is centered by default; `barAlignPercent` moves it within the slot.</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+<tr id="seriesConfigs.barWidthFraction">
+<td><a href="#seriesConfigs.barWidthFraction">barWidthFraction</a></td><td>the fraction (0 - 1) of the bar layout slot width to use when drawing bars in the series<br/><br/>Only affects the `bar` renderer. Narrows each bar within its layout slot (the full group slot, or the series’ sub-slot when grouped), so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range. The narrowed bar is centered by default; `barAlignFraction` moves it within the slot.</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="seriesConfigs.capExpand">
@@ -3133,12 +3133,12 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#seriesConfigs.ignore">ignore</a></td><td>whether to ignore this series and treat it as though it were not specified</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
-<tr id="seriesConfigs.labelAboveBaseMaxPositionPercent">
-<td><a href="#seriesConfigs.labelAboveBaseMaxPositionPercent">labelAboveBaseMaxPositionPercent</a></td><td>the maximum position percentage (0 - 1) from the domain maximum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<tr id="seriesConfigs.labelAboveBaseMaxPositionFraction">
+<td><a href="#seriesConfigs.labelAboveBaseMaxPositionFraction">labelAboveBaseMaxPositionFraction</a></td><td>the maximum position fraction (0 - 1) from the domain maximum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="seriesConfigs.labelAboveBaseMinPositionPercent">
-<td><a href="#seriesConfigs.labelAboveBaseMinPositionPercent">labelAboveBaseMinPositionPercent</a></td><td>the minimum position percentage (0 - 1) above the base value for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<tr id="seriesConfigs.labelAboveBaseMinPositionFraction">
+<td><a href="#seriesConfigs.labelAboveBaseMinPositionFraction">labelAboveBaseMinPositionFraction</a></td><td>the minimum position fraction (0 - 1) above the base value for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelAboveBaseOffset">
@@ -3149,12 +3149,12 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#seriesConfigs.labelAboveBasePosition">labelAboveBasePosition</a></td><td>whether to position the series labels inside or outside of the series shape for series shapes that are above the base value</td><td>should be one of [ "auto", "inside", "center", "outside" ]</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="seriesConfigs.labelBelowBaseMaxPositionPercent">
-<td><a href="#seriesConfigs.labelBelowBaseMaxPositionPercent">labelBelowBaseMaxPositionPercent</a></td><td>the maximum position percentage (0 - 1) below the base value for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<tr id="seriesConfigs.labelBelowBaseMaxPositionFraction">
+<td><a href="#seriesConfigs.labelBelowBaseMaxPositionFraction">labelBelowBaseMaxPositionFraction</a></td><td>the maximum position fraction (0 - 1) below the base value for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="seriesConfigs.labelBelowBaseMinPositionPercent">
-<td><a href="#seriesConfigs.labelBelowBaseMinPositionPercent">labelBelowBaseMinPositionPercent</a></td><td>the minimum position percentage (0 - 1) from the domain minimum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<tr id="seriesConfigs.labelBelowBaseMinPositionFraction">
+<td><a href="#seriesConfigs.labelBelowBaseMinPositionFraction">labelBelowBaseMinPositionFraction</a></td><td>the minimum position fraction (0 - 1) from the domain minimum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelBelowBaseOffset">
@@ -3169,16 +3169,16 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#seriesConfigs.labelFormat">labelFormat</a></td><td>the d3 format string to be applied to the series label values (use null for none, use "auto" to derive from data)</td><td>should be a valid number format or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
-<tr id="seriesConfigs.labelMaxPositionPercent">
-<td><a href="#seriesConfigs.labelMaxPositionPercent">labelMaxPositionPercent</a></td><td>the maximum position percentage (0 - 1) from the domain maximum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
+<tr id="seriesConfigs.labelMaxPositionFraction">
+<td><a href="#seriesConfigs.labelMaxPositionFraction">labelMaxPositionFraction</a></td><td>the maximum position fraction (0 - 1) from the domain maximum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="seriesConfigs.labelMinPositionPercent">
-<td><a href="#seriesConfigs.labelMinPositionPercent">labelMinPositionPercent</a></td><td>the minimum position percentage (0 - 1) from the domain minimum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
+<tr id="seriesConfigs.labelMinPositionFraction">
+<td><a href="#seriesConfigs.labelMinPositionFraction">labelMinPositionFraction</a></td><td>the minimum position fraction (0 - 1) from the domain minimum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
-<tr id="seriesConfigs.labelMinRangePercent">
-<td><a href="#seriesConfigs.labelMinRangePercent">labelMinRangePercent</a></td><td>the minimum position percentage (0 - 1) between two series values for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
+<tr id="seriesConfigs.labelMinRangeFraction">
+<td><a href="#seriesConfigs.labelMinRangeFraction">labelMinRangeFraction</a></td><td>the minimum position fraction (0 - 1) between two series values for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="seriesConfigs.labelOffset">

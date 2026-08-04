@@ -178,13 +178,13 @@ describe('pie-mode conditional defaults', () => {
       groupAxisConfig: { visible: boolean };
       seriesAxisConfigs: { visible: boolean }[];
       tooltipConfig: { snapToGroup: boolean; showGroup: boolean };
-      pieConfig: { innerRadiusPercent: number; labelType: string };
+      pieConfig: { innerRadiusFraction: number; labelType: string };
     };
     expect(defaults.groupAxisConfig.visible).toBe(false);
     expect(defaults.seriesAxisConfigs[0]!.visible).toBe(false);
     expect(defaults.tooltipConfig.snapToGroup).toBe(false);
     expect(defaults.tooltipConfig.showGroup).toBe(false);
-    expect(defaults.pieConfig).toEqual(expect.objectContaining({ innerRadiusPercent: 0, labelType: 'percent' }));
+    expect(defaults.pieConfig).toEqual(expect.objectContaining({ innerRadiusFraction: 0, labelType: 'percent' }));
   });
 
   it('derives pieConfig.endAngle from startAngle so rotation never truncates the pie', () => {

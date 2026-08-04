@@ -10,7 +10,7 @@
     "tooltipValues": "percentValue",
     "startAngle": -90,
     "endAngle": 90,
-    "innerRadiusPercent": 0.55,
+    "innerRadiusFraction": 0.55,
     "padAngle": 1,
     "cornerRadius": 3,
     "showLabels": true,
@@ -18,7 +18,7 @@
     "centerLabel": "responses",
     "showCenterTotal": true,
     "centerTotalFormat": ",.0f",
-    "centerOffsetYPercent": -0.25
+    "centerOffsetYFraction": -0.25
   },
   "groupAxisConfig": {
     "property": "group",

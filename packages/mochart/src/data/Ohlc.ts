@@ -19,7 +19,7 @@ export interface CreateOhlcOptions {
    *
    * @default 0.15
    */
-  lineWidthPercent?: number;
+  lineWidthFraction?: number;
   /**
    * The fraction (0 - 1) of the group slot used by each open/close tick. Ticks
    * extend from the slot edge to its center, so at the default each tick spans
@@ -27,7 +27,7 @@ export interface CreateOhlcOptions {
    *
    * @default 0.5
    */
-  tickWidthPercent?: number;
+  tickWidthFraction?: number;
   /**
    * The thickness (in pixels) of the open/close tick marks.
    *
@@ -94,16 +94,16 @@ export interface OhlcData {
   seriesAxisConfigs?: Partial<SeriesAxisConfig>[];
 }
 
-const DEFAULT_LINE_WIDTH_PERCENT = 0.15;
-const DEFAULT_TICK_WIDTH_PERCENT = 0.5;
+const DEFAULT_LINE_WIDTH_FRACTION = 0.15;
+const DEFAULT_TICK_WIDTH_FRACTION = 0.5;
 const DEFAULT_TICK_EXTENT = 2;
 const DEFAULT_OPEN_TITLE = 'Open';
 const DEFAULT_CLOSE_TITLE = 'Close';
 
 export function createOhlc(items: readonly CandlestickItem[], options: CreateOhlcOptions = {}): OhlcData {
   const candles = computeCandlesticks(items);
-  const lineWidthPercent = options.lineWidthPercent ?? DEFAULT_LINE_WIDTH_PERCENT;
-  const tickWidthPercent = options.tickWidthPercent ?? DEFAULT_TICK_WIDTH_PERCENT;
+  const lineWidthFraction = options.lineWidthFraction ?? DEFAULT_LINE_WIDTH_FRACTION;
+  const tickWidthFraction = options.tickWidthFraction ?? DEFAULT_TICK_WIDTH_FRACTION;
   const tickExtent = options.tickExtent ?? DEFAULT_TICK_EXTENT;
   const rangeTitle = options.rangeTitle ?? DEFAULT_RANGE_TITLE;
   const openTitle = options.openTitle ?? DEFAULT_OPEN_TITLE;
@@ -144,7 +144,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   // candlestick helper): a thin centered low→high line, plus zero-extent range
   // bars (property and rangeProperty read the same value) that barMinExtent
   // expands into tick marks — the open tick in the left half of the slot
-  // (barAlignPercent 0) and the close tick in the right half (barAlignPercent
+  // (barAlignFraction 0) and the close tick in the right half (barAlignFraction
   // 1), each reaching the center line. The lines carry the legend entries;
   // the ticks stay out of the legend but follow their line's filtering and
   // focus via followSeries, so the whole bar acts as one mark. Tooltip rows
@@ -156,7 +156,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     rangeProperty: 'low',
     ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
     renderer: 'bar',
-    barWidthPercent: lineWidthPercent,
+    barWidthFraction: lineWidthFraction,
     skipMissing: true,
     skipPartialRange: true,
     group: null,
@@ -181,8 +181,8 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     rangeProperty: side,
     ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
     renderer: 'bar',
-    barWidthPercent: tickWidthPercent,
-    barAlignPercent: side === 'open' ? 0 : 1,
+    barWidthFraction: tickWidthFraction,
+    barAlignFraction: side === 'open' ? 0 : 1,
     barMinExtent: tickExtent,
     skipMissing: true,
     skipPartialRange: true,

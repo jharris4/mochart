@@ -31,13 +31,13 @@ export interface CreatePieOptions {
   valueFormat?: string;
   /**
    * Shorthand for a donut chart: emits a `pieConfig` fragment with
-   * `innerRadiusPercent` 0.6 (override via `innerRadiusPercent`).
+   * `innerRadiusFraction` 0.6 (override via `innerRadiusFraction`).
    *
    * @default false
    */
   donut?: boolean;
   /** An explicit inner radius fraction (0 - 1) for the `pieConfig` fragment. */
-  innerRadiusPercent?: number;
+  innerRadiusFraction?: number;
 }
 
 export interface PieData {
@@ -59,7 +59,7 @@ export interface PieData {
 
 const GROUP_PROPERTY = 'group';
 const DEFAULT_GROUP_VALUE = 'all';
-const DEFAULT_DONUT_INNER_RADIUS_PERCENT = 0.6;
+const DEFAULT_DONUT_INNER_RADIUS_FRACTION = 0.6;
 
 /**
  * Sums the slice values (clamping negative and non-finite values to 0) and
@@ -96,9 +96,9 @@ export function createPie(items: readonly PieItem[], options: CreatePieOptions =
   if (options.tooltipValues !== undefined) {
     pieConfig.tooltipValues = options.tooltipValues;
   }
-  const innerRadiusPercent = options.innerRadiusPercent ?? (options.donut === true ? DEFAULT_DONUT_INNER_RADIUS_PERCENT : undefined);
-  if (innerRadiusPercent !== undefined) {
-    pieConfig.innerRadiusPercent = innerRadiusPercent;
+  const innerRadiusFraction = options.innerRadiusFraction ?? (options.donut === true ? DEFAULT_DONUT_INNER_RADIUS_FRACTION : undefined);
+  if (innerRadiusFraction !== undefined) {
+    pieConfig.innerRadiusFraction = innerRadiusFraction;
   }
 
   const groupAxisConfig: Partial<GroupAxisConfig> = {

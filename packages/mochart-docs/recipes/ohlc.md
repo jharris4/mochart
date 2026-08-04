@@ -19,7 +19,7 @@ import * as ohlc from '../examples/ohlc'
   [Candlestick](/recipes/candlestick), which shares its input shape.
 - The bars are six ordinary `bar` series — an up and a down low→high line
   narrowed to a sliver of the slot with
-  [`barWidthPercent`](/reference/seriesConfigs#seriesConfigs.barWidthPercent),
+  [`barWidthFraction`](/reference/seriesConfigs#seriesConfigs.barWidthFraction),
   plus per direction an open and a close tick. Every row carries values for
   exactly one direction, and
   [`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing) with
@@ -31,7 +31,7 @@ import * as ohlc from '../examples/ohlc'
   [`barMinExtent`](/reference/seriesConfigs#seriesConfigs.barMinExtent)
   expands them into visible marks (`tickExtent`, default 2px). Each tick is a
   half-width bar pushed to one side of the slot with
-  [`barAlignPercent`](/reference/seriesConfigs#seriesConfigs.barAlignPercent):
+  [`barAlignFraction`](/reference/seriesConfigs#seriesConfigs.barAlignFraction):
   the open tick spans slot-start→center and the close tick center→slot-end,
   meeting at the line.
 - The group axis is ordinal, so non-trading days (weekends, holidays) simply
@@ -41,7 +41,7 @@ import * as ohlc from '../examples/ohlc'
   green/red: green↔red is the classic red-green-blindness collision, while
   this pair stays distinguishable on light and dark surfaces. Override per
   direction with `colors`, rename the legend entries with `seriesTitles`,
-  and tune the geometry with `lineWidthPercent` / `tickWidthPercent` /
+  and tune the geometry with `lineWidthFraction` / `tickWidthFraction` /
   `tickExtent`.
 - The tooltip shows three rows per bar: the line's `low – high` span under
   `rangeTitle` (default "Range") and single-value rows for the ticks under

@@ -166,7 +166,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
     scale: 'ordinal',
     // The inner gap is shared between two neighbouring columns, matching the
     // one-sided vertical trim between two neighbouring rows.
-    groupPadding: { inner: cellPadding * 2, outer: cellPadding }
+    groupPaddingFraction: { inner: cellPadding * 2, outer: cellPadding }
   };
 
   // Pinned to exactly the stacked row bands, with one explicit tick per row
@@ -175,8 +175,8 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
   const seriesAxisConfig: Partial<SeriesAxisConfig> = {
     min: 0,
     max: Math.max(rowCount, 1),
-    minMarginPercent: 0,
-    maxMarginPercent: 0,
+    minMarginFraction: 0,
+    maxMarginFraction: 0,
     ticks: rows.map((row, r) => ({ value: rowCount - r - 0.5, label: row.label }))
   };
 

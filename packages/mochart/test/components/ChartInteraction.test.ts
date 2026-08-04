@@ -695,7 +695,7 @@ describe('followSeries follower focus', () => {
   function candleConfig(): MochartInputConfig {
     return makeConfig({
       seriesConfigs: [
-        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthPercent: 0.2,
+        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthFraction: 0.2,
           showInLegend: false, followSeries: 'body', focusOnClick: true },
         { id: 'body', property: 'close', rangeProperty: 'open', renderer: 'bar', focusOnClick: true },
         { id: 'other', property: 'x', renderer: 'bar' }

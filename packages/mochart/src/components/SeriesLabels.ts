@@ -116,12 +116,12 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
         }
 
         const {
-          labelMinPositionPercent, labelMaxPositionPercent, labelAboveBaseMinPositionPercent,
-          labelAboveBaseMaxPositionPercent, labelBelowBaseMinPositionPercent, labelBelowBaseMaxPositionPercent } = seriesConfig;
+          labelMinPositionFraction, labelMaxPositionFraction, labelAboveBaseMinPositionFraction,
+          labelAboveBaseMaxPositionFraction, labelBelowBaseMinPositionFraction, labelBelowBaseMaxPositionFraction } = seriesConfig;
 
-        if ((labelMinPositionPercent !== NONE || labelMaxPositionPercent !== NONE) || (hasBase &&
-            (labelAboveBaseMinPositionPercent !== NONE || labelAboveBaseMaxPositionPercent !== NONE ||
-             labelBelowBaseMinPositionPercent !== NONE || labelBelowBaseMaxPositionPercent !== NONE)
+        if ((labelMinPositionFraction !== NONE || labelMaxPositionFraction !== NONE) || (hasBase &&
+            (labelAboveBaseMinPositionFraction !== NONE || labelAboveBaseMaxPositionFraction !== NONE ||
+             labelBelowBaseMinPositionFraction !== NONE || labelBelowBaseMaxPositionFraction !== NONE)
           )) {
 
           let minValue: number | null = null;
@@ -132,20 +132,20 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
           let belowBaseMaxValue: number | null = null;
 
           if (hasBase) {
-            if (labelAboveBaseMinPositionPercent !== NONE && !(labelAboveBaseMinPositionPercent === AUTO && labelMinPositionPercent === NONE)) {
-              const percent = (labelAboveBaseMinPositionPercent === AUTO ? labelMinPositionPercent : labelAboveBaseMinPositionPercent)!;
+            if (labelAboveBaseMinPositionFraction !== NONE && !(labelAboveBaseMinPositionFraction === AUTO && labelMinPositionFraction === NONE)) {
+              const percent = (labelAboveBaseMinPositionFraction === AUTO ? labelMinPositionFraction : labelAboveBaseMinPositionFraction)!;
               aboveBaseMinValue = domainExtent === 0 ? (domainMin + 1) : (base + percent * domainExtent);
             }
-            if (labelAboveBaseMaxPositionPercent !== NONE && !(labelAboveBaseMaxPositionPercent === AUTO && labelMaxPositionPercent === NONE)) {
-              const percent = (labelAboveBaseMaxPositionPercent === AUTO ? labelMaxPositionPercent : labelAboveBaseMaxPositionPercent)!;
+            if (labelAboveBaseMaxPositionFraction !== NONE && !(labelAboveBaseMaxPositionFraction === AUTO && labelMaxPositionFraction === NONE)) {
+              const percent = (labelAboveBaseMaxPositionFraction === AUTO ? labelMaxPositionFraction : labelAboveBaseMaxPositionFraction)!;
               aboveBaseMaxValue = domainExtent === 0 ? (domainMax - 1) : (domainMax - percent * domainExtent);
             }
-            if (labelBelowBaseMinPositionPercent !== NONE && !(labelBelowBaseMinPositionPercent === AUTO && labelMinPositionPercent === NONE)) {
-              const percent = (labelBelowBaseMinPositionPercent === AUTO ? labelMinPositionPercent : labelBelowBaseMinPositionPercent)!;
+            if (labelBelowBaseMinPositionFraction !== NONE && !(labelBelowBaseMinPositionFraction === AUTO && labelMinPositionFraction === NONE)) {
+              const percent = (labelBelowBaseMinPositionFraction === AUTO ? labelMinPositionFraction : labelBelowBaseMinPositionFraction)!;
               belowBaseMinValue = domainExtent === 0 ? (domainMin + 1) : (base - percent * domainExtent);
             }
-            if (labelBelowBaseMaxPositionPercent !== NONE && !(labelBelowBaseMaxPositionPercent === AUTO && labelMaxPositionPercent === NONE)) {
-              const percent = (labelBelowBaseMaxPositionPercent === AUTO ? labelMaxPositionPercent : labelBelowBaseMaxPositionPercent)!;
+            if (labelBelowBaseMaxPositionFraction !== NONE && !(labelBelowBaseMaxPositionFraction === AUTO && labelMaxPositionFraction === NONE)) {
+              const percent = (labelBelowBaseMaxPositionFraction === AUTO ? labelMaxPositionFraction : labelBelowBaseMaxPositionFraction)!;
               belowBaseMaxValue = domainExtent === 0 ? (domainMax - 1) : (domainMin + percent * domainExtent);
             }
             withinPercentages = (seriesValue: number) => {
@@ -158,11 +158,11 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             };
           }
           else {
-            if (labelMinPositionPercent !== NONE) {
-              minValue = domainExtent === 0 ? domainMin + 1 : domainMin + labelMinPositionPercent * domainExtent;
+            if (labelMinPositionFraction !== NONE) {
+              minValue = domainExtent === 0 ? domainMin + 1 : domainMin + labelMinPositionFraction * domainExtent;
             }
-            if (labelMaxPositionPercent !== NONE) {
-              maxValue = domainExtent === 0 ? domainMax - 1 : domainMax - labelMaxPositionPercent * domainExtent;
+            if (labelMaxPositionFraction !== NONE) {
+              maxValue = domainExtent === 0 ? domainMax - 1 : domainMax - labelMaxPositionFraction * domainExtent;
             }
 
             withinPercentages = (seriesValue: number) => {
@@ -170,10 +170,10 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             };
           }
         }
-        if (seriesConfig.labelMinRangePercent !== NONE) {
+        if (seriesConfig.labelMinRangeFraction !== NONE) {
           const oldWithinPercentages = withinPercentages;
           const hasStack = seriesConfig.stack !== NONE;
-          const minAbsoluteValue = domainExtent === 0 ? domainMin + 1 : seriesConfig.labelMinRangePercent * domainExtent;
+          const minAbsoluteValue = domainExtent === 0 ? domainMin + 1 : seriesConfig.labelMinRangeFraction * domainExtent;
 
           if (hasStack) {
             if (hasBase) {

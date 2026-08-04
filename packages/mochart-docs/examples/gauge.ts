@@ -23,7 +23,7 @@ export const config: MochartInputConfig = {
     ...gauge.pieConfig,
     startAngle: -90,
     endAngle: 90,
-    innerRadiusPercent: 0.55,
+    innerRadiusFraction: 0.55,
     // a small gap and rounded corners separate the segments
     padAngle: 1,
     cornerRadius: 3,
@@ -35,7 +35,7 @@ export const config: MochartInputConfig = {
     centerLabel: 'responses',
     showCenterTotal: true,
     centerTotalFormat: ',.0f',
-    centerOffsetYPercent: -0.25
+    centerOffsetYFraction: -0.25
   },
   groupAxisConfig: gauge.groupAxisConfig,
   seriesConfigs: gauge.seriesConfigs

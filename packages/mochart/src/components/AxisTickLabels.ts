@@ -20,7 +20,7 @@ const emptyArray: string[] = [];
 
 type AxisDisplayConfig = AxisConfigBase &
   Pick<GroupAxisConfig, 'scale'> &
-  Partial<Pick<GroupAxisConfig, 'tickLabelTruncationEnabled' | 'tickLabelTruncationValue' | 'tickLabelTruncationMinLength' | 'tickLabelTruncationMaxPercent'>> &
+  Partial<Pick<GroupAxisConfig, 'tickLabelTruncationEnabled' | 'tickLabelTruncationValue' | 'tickLabelTruncationMinLength' | 'tickLabelTruncationMaxFraction'>> &
   Partial<Pick<SeriesAxisConfig, 'useSeriesFocus'>>;
 
 interface AxisTickLabelsProps {
@@ -209,7 +209,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       let maxLength = tickSpacing ?? 0;
       if (!axisLayoutInfo.tickLabelParallel) {
         maxLength = Math.max(axisConfig.tickLabelTruncationMinLength ?? 0,
-          (axisConfig.tickLabelTruncationMaxPercent ?? 0) * (vertical ? plotLayoutInfo.width : plotLayoutInfo.height));
+          (axisConfig.tickLabelTruncationMaxFraction ?? 0) * (vertical ? plotLayoutInfo.width : plotLayoutInfo.height));
       }
 
       const { checkTruncation, truncationData } = updateTruncation(tickLabelTruncationValue, this.state.truncationData, axisTickLabels, maxLength, domElements);

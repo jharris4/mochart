@@ -151,7 +151,7 @@
     "scale": "ordinal",
     "tickLabelTruncationEnabled": true,
     "tickLabelTruncationValue": "...",
-    "tickLabelTruncationMaxPercent": 0.20,
+    "tickLabelTruncationMaxFraction": 0.20,
     "title": "A Group Axis Title That Has Really Long Text That Should Not Overflow The Boundaries",
     "titleTruncationEnabled": true,
     "titleTruncationValue": "..."

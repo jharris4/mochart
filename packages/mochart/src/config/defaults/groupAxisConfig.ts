@@ -24,7 +24,7 @@ export function getRegularDefaults() {
     focusRange: false,
     focusTickMarks: true,
 
-    groupPadding: { inner: 0.1, outer: 0.1 },
+    groupPaddingFraction: { inner: 0.1, outer: 0.1 },
     groupCountPadding: 1,
 
     minGroupValueExtent: 1,
@@ -33,7 +33,7 @@ export function getRegularDefaults() {
 
     tickLabelTruncationValue: ELLIPSIS,
     tickLabelTruncationMinLength: 0,
-    tickLabelTruncationMaxPercent: 0.2,
+    tickLabelTruncationMaxFraction: 0.2,
 
     type: TYPE_STRING,
 

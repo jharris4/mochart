@@ -31,7 +31,7 @@ import * as gauge from '../examples/gauge'
 - On first load the pie sweeps in clockwise from the start angle over
   [`animationConfig.initialDuration`](/reference/animationConfig#animationConfig.initialDuration)
   (slice labels appear once the sweep settles). Setting
-  [`focusOffsetPercent`](/reference/pieConfig#pieConfig.focusOffsetPercent)
+  [`focusOffsetFraction`](/reference/pieConfig#pieConfig.focusOffsetFraction)
   "explodes" the focused slice away from the center, animated by the focus
   tween — try hovering the legend on the donut below.
 - Clicking the chart opens the tooltip with one row per slice. In pie mode
@@ -52,7 +52,7 @@ import * as gauge from '../examples/gauge'
 ## Donut and slice labels
 
 An inner radius via
-[`pieConfig.innerRadiusPercent`](/reference/pieConfig#pieConfig.innerRadiusPercent)
+[`pieConfig.innerRadiusFraction`](/reference/pieConfig#pieConfig.innerRadiusFraction)
 (or the helper's `donut` shorthand) turns the pie into a donut, and
 [`pieConfig.showLabels`](/reference/pieConfig#pieConfig.showLabels) puts
 value, percent or title labels at the slice centroids.
@@ -70,7 +70,7 @@ value, percent or title labels at the slice centroids.
   [`labelPercentFormat`](/reference/pieConfig#pieConfig.labelPercentFormat)
   format the two numeric parts independently (percent parts format the
   fraction, so specifiers like `'.1%'` apply). Slices thinner than
-  [`labelMinAnglePercent`](/reference/pieConfig#pieConfig.labelMinAnglePercent)
+  [`labelMinFraction`](/reference/pieConfig#pieConfig.labelMinFraction)
   hide their labels. Label colors reuse the per-series
   [`labelTextStyle`](/reference/seriesConfigs#seriesConfigs.labelTextStyle)
   style — each slice is a series, so a slice's label is painted by its own
@@ -123,9 +123,9 @@ gauge — an `endAngle` *smaller* than `startAngle` runs counterclockwise.
   [`adjustCenterTotalForSuppression`](/reference/pieConfig#pieConfig.adjustCenterTotalForSuppression)
   to `false` to keep the full total while slices are suppressed.
 - The center content sits at the circle center (the gauge pivot);
-  [`centerOffsetXPercent`](/reference/pieConfig#pieConfig.centerOffsetXPercent)
+  [`centerOffsetXFraction`](/reference/pieConfig#pieConfig.centerOffsetXFraction)
   and
-  [`centerOffsetYPercent`](/reference/pieConfig#pieConfig.centerOffsetYPercent)
+  [`centerOffsetYFraction`](/reference/pieConfig#pieConfig.centerOffsetYFraction)
   nudge it by fractions of the outer radius — the example's `-0.25` lifts it
   into the hole.
 - The center text is painted by

@@ -16,7 +16,7 @@ describe('Mochart config editor model', () => {
     const chart = mochartConfigEditorModel.sections.find(section => section.id === 'chartConfig');
     const type = chart?.properties.find(property => property.key === 'type');
     const pie = mochartConfigEditorModel.sections.find(section => section.id === 'pieConfig');
-    const radius = pie?.properties.find(property => property.key === 'innerRadiusPercent');
+    const radius = pie?.properties.find(property => property.key === 'innerRadiusFraction');
 
     expect(type?.editor.enum).toContain('pie');
     expect(radius?.editor.minimum).toBe(0);

@@ -13,8 +13,8 @@ const cfg = (over: Record<string, unknown>) => ({
   softMin: null,
   softMax: null,
   base: null,
-  minMarginPercent: 0,
-  maxMarginPercent: 0,
+  minMarginFraction: 0,
+  maxMarginFraction: 0,
   ...over
 }) as never;
 
@@ -53,13 +53,13 @@ describe('getAxisDomain', () => {
 
   it('adds margin percentages to an auto domain', () => {
     // extent 80, 10% each side => [10-8, 90+8]
-    expect(getAxisDomain(cfg({ minMarginPercent: 0.1, maxMarginPercent: 0.1 }), () => [10, 90]))
+    expect(getAxisDomain(cfg({ minMarginFraction: 0.1, maxMarginFraction: 0.1 }), () => [10, 90]))
       .toEqual([2, 98]);
   });
 
   it('does not add the min margin when the min equals the base', () => {
     // min (10) === base (10) => no bottom margin, top still grows
-    expect(getAxisDomain(cfg({ base: 10, minMarginPercent: 0.1, maxMarginPercent: 0.1 }), () => [10, 90]))
+    expect(getAxisDomain(cfg({ base: 10, minMarginFraction: 0.1, maxMarginFraction: 0.1 }), () => [10, 90]))
       .toEqual([10, 98]);
   });
 

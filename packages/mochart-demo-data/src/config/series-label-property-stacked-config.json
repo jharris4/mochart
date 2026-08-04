@@ -16,7 +16,7 @@
   "seriesStackConfigs": {},
   "seriesAllConfig": {
     "labelPosition": "outside",
-    "labelMinRangePercent": 0.05,
+    "labelMinRangeFraction": 0.05,
     "renderer": "area"
   },
   "seriesConfigs": [

@@ -67,8 +67,8 @@ export function getRadialLayoutInfo(seriesLayoutInfo: LayoutInfo, pieConfig: Pie
   const unitWidth = Math.max(bounds.maxX - bounds.minX, 1e-6);
   const unitHeight = Math.max(bounds.maxY - bounds.minY, 1e-6);
   const maxRadius = Math.max(Math.min(width / unitWidth, height / unitHeight), 0);
-  const outerRadius = maxRadius * pieConfig.outerRadiusPercent;
-  const innerRadius = outerRadius * pieConfig.innerRadiusPercent;
+  const outerRadius = maxRadius * pieConfig.outerRadiusFraction;
+  const innerRadius = outerRadius * pieConfig.innerRadiusFraction;
   return {
     cx: width / 2 - outerRadius * (bounds.minX + bounds.maxX) / 2,
     cy: height / 2 - outerRadius * (bounds.minY + bounds.maxY) / 2,

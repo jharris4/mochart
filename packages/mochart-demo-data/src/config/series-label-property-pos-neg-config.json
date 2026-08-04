@@ -32,8 +32,8 @@
         "fillColor": "#ffffff"
       }
     },
-    "labelMinPositionPercent": 0.05,
-    "labelMinRangePercent": 0.05,
+    "labelMinPositionFraction": 0.05,
+    "labelMinRangeFraction": 0.05,
     "labelOffset": -2
   }
 }

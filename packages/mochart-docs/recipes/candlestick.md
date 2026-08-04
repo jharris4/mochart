@@ -23,7 +23,7 @@ import * as candlestickVolume from '../examples/candlestickVolume'
   [`rangeProperty`](/reference/seriesConfigs#seriesConfigs.rangeProperty),
   and an up and a down wick spanning `low`→`high`, narrowed to a sliver of
   the slot with
-  [`barWidthPercent`](/reference/seriesConfigs#seriesConfigs.barWidthPercent)
+  [`barWidthFraction`](/reference/seriesConfigs#seriesConfigs.barWidthFraction)
   and listed first so the bodies paint over them. Every row carries values
   for exactly one direction, and
   [`skipMissing`](/reference/seriesConfigs#seriesConfigs.skipMissing) with
@@ -37,7 +37,7 @@ import * as candlestickVolume from '../examples/candlestickVolume'
   green/red: green↔red is the classic red-green-blindness collision, while
   this pair stays distinguishable on light and dark surfaces. Override per
   direction with `colors`, rename the legend entries with `seriesTitles`,
-  and tune the widths with `wickWidthPercent` / `bodyWidthPercent`.
+  and tune the widths with `wickWidthFraction` / `bodyWidthFraction`.
 - The tooltip shows two rows per candle: the body's `open – close` span
   under its direction title, and the wick's `low – high` span under
   `rangeTitle` (default "Range"). The wicks stay out of the legend but
@@ -85,13 +85,13 @@ direction-colored volume bars along the bottom of the plot:
 The pane is pure domain-margin geometry on a second value axis, so it adapts
 to every data update: the result gains a `seriesAxisConfigs` fragment with a
 `price` axis whose enlarged
-[`minMarginPercent`](/reference/seriesAxisConfigs#seriesAxisConfigs.minMarginPercent)
+[`minMarginFraction`](/reference/seriesAxisConfigs#seriesAxisConfigs.minMarginFraction)
 lifts the candles into the upper plot, and a hidden `volume` axis pinned at
 0 whose
-[`maxMarginPercent`](/reference/seriesAxisConfigs#seriesAxisConfigs.maxMarginPercent)
+[`maxMarginFraction`](/reference/seriesAxisConfigs#seriesAxisConfigs.maxMarginFraction)
 confines the bars to the bottom band (margins above 1 are allowed for
-exactly this banding). Tune the split with `volume: { heightPercent,
-gapPercent }` (defaults 0.2 and 0.05), relabel the tooltip rows with
+exactly this banding). Tune the split with `volume: { heightFraction,
+gapFraction }` (defaults 0.2 and 0.05), relabel the tooltip rows with
 `valueLabel` (default "Volume"), or set `visible: true` on the volume axis
 fragment to show its scale. The volume bars follow their direction series —
 toggling or focusing Up takes its volume bars along — and stay out of the

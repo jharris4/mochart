@@ -161,7 +161,7 @@ export function createHistogram(values: readonly number[], options: CreateHistog
     property: GROUP_PROPERTY,
     type: 'string',
     scale: 'ordinal',
-    groupPadding: { inner: 0, outer: 0 }
+    groupPaddingFraction: { inner: 0, outer: 0 }
   };
   const seriesConfig: Partial<SeriesConfig> = {
     property: valueProperty,

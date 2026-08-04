@@ -61,12 +61,12 @@ describe('createPie', () => {
     expect(seriesConfigs[0].tooltipProperty).toBeUndefined();
   });
 
-  it('emits a donut pieConfig fragment via the donut and innerRadiusPercent options', () => {
+  it('emits a donut pieConfig fragment via the donut and innerRadiusFraction options', () => {
     expect(createPie(items()).pieConfig).toEqual({});
     expect(createPie(items(), { donut: true, tooltipValues: 'percent' }).pieConfig)
-      .toEqual({ tooltipValues: 'percent', innerRadiusPercent: 0.6 });
-    expect(createPie(items(), { donut: true }).pieConfig).toEqual({ innerRadiusPercent: 0.6 });
-    expect(createPie(items(), { donut: true, innerRadiusPercent: 0.4 }).pieConfig).toEqual({ innerRadiusPercent: 0.4 });
+      .toEqual({ tooltipValues: 'percent', innerRadiusFraction: 0.6 });
+    expect(createPie(items(), { donut: true }).pieConfig).toEqual({ innerRadiusFraction: 0.6 });
+    expect(createPie(items(), { donut: true, innerRadiusFraction: 0.4 }).pieConfig).toEqual({ innerRadiusFraction: 0.4 });
   });
 
   it('clamps negative slice values to 0 in the data row', () => {

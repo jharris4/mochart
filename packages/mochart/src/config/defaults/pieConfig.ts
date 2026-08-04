@@ -13,18 +13,18 @@ export default function getDefaults(config: DeepPartial<PieConfig> = {}): Partia
 
 export function getRegularDefaults() {
   return {
-    innerRadiusPercent: 0,
-    outerRadiusPercent: 1,
+    innerRadiusFraction: 0,
+    outerRadiusFraction: 1,
     startAngle: 0,
     padAngle: 0,
     cornerRadius: 0,
-    focusOffsetPercent: 0,
+    focusOffsetFraction: 0,
     showLabels: false,
     labelType: PIE_LABEL_TYPE_PERCENT,
     labelValueFormat: AUTO,
     labelPercentFormat: AUTO,
-    labelRadiusPercent: 0.5,
-    labelMinAnglePercent: 0.05,
+    labelRadiusFraction: 0.5,
+    labelMinFraction: 0.05,
     adjustLabelsForSuppression: true,
     tooltipValues: PIE_LABEL_TYPE_VALUE,
     tooltipPercentFormat: AUTO,
@@ -34,8 +34,8 @@ export function getRegularDefaults() {
     centerTotalTextStyle: { strokeColor: NONE, strokeOpacity: NONE, strokeWidth: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
     centerTotalFormat: AUTO,
     adjustCenterTotalForSuppression: true,
-    centerOffsetXPercent: 0,
-    centerOffsetYPercent: 0
+    centerOffsetXFraction: 0,
+    centerOffsetYFraction: 0
   };
 }
 

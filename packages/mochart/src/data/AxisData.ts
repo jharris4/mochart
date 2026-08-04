@@ -106,7 +106,7 @@ export function getGroupSpacingInfo(groupAxisConfig: GroupAxisConfig, groupAxisD
   else {
     groupValueExtent = maxPosition / groupAxisDomainExtent;
   }
-  groupValueExtent =  Math.max(groupAxisConfig.minGroupValueExtent, Math.floor(groupValueExtent * (1.0 - groupAxisConfig.groupPadding.outer)));
+  groupValueExtent =  Math.max(groupAxisConfig.minGroupValueExtent, Math.floor(groupValueExtent * (1.0 - groupAxisConfig.groupPaddingFraction.outer)));
   const groupValueOffset = Math.floor(groupValueExtent / 2.0);
   return {
     groupRange: [minPosition, maxPosition] as [number, number],

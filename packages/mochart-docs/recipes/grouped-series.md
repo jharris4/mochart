@@ -19,7 +19,7 @@ import * as groupedSeries from '../examples/groupedSeries'
   [`group: null`](/reference/seriesConfigs#seriesConfigs.group) — e.g. to
   overlay a line across the grouped bars.
 - Tune the spacing between and around clusters with
-  [`groupPadding`](/reference/groupAxisConfig#groupAxisConfig.groupPadding)
+  [`groupPaddingFraction`](/reference/groupAxisConfig#groupAxisConfig.groupPaddingFraction)
   on the group axis.
 - Grouping and [stacking](/recipes/stacked-bars) can coexist: series in the
   same stack occupy one slot of the cluster, so two stacks side by side make

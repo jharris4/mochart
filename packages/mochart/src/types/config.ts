@@ -212,14 +212,14 @@ export interface PieConfig {
    *
    * @default 0
    */
-  innerRadiusPercent: number;
+  innerRadiusFraction: number;
   /**
    * The outer radius of the slices as a fraction (0 to 1) of the largest radius
    * that fits within the plot.
    *
    * @default 1
    */
-  outerRadiusPercent: number;
+  outerRadiusFraction: number;
   /**
    * The angle (in degrees, clockwise from the top) at which the first slice
    * starts.
@@ -253,7 +253,7 @@ export interface PieConfig {
    *
    * @default 0
    */
-  focusOffsetPercent: number;
+  focusOffsetFraction: number;
   /**
    * Whether labels should be shown on the slices.
    *
@@ -290,16 +290,16 @@ export interface PieConfig {
    *
    * @default 0.5
    */
-  labelRadiusPercent: number;
+  labelRadiusFraction: number;
   /**
    * Hide the label of any slice whose value is smaller than this fraction (0 to
    * 1) of the slice total.
    *
    * @default 0.05
    */
-  labelMinAnglePercent: number;
+  labelMinFraction: number;
   /**
-   * Whether percent slice labels (and the labelMinAnglePercent threshold)
+   * Whether percent slice labels (and the labelMinFraction threshold)
    * renormalize against the unsuppressed slices (true) or always use every
    * slice's share of the full total (false).
    *
@@ -374,7 +374,7 @@ export interface PieConfig {
    *
    * @default 0
    */
-  centerOffsetXPercent: number;
+  centerOffsetXFraction: number;
   /**
    * Offset the center label and total vertically by this fraction (-1 to 1) of
    * the outer radius (positive moves down; e.g. use a negative value to lift
@@ -382,7 +382,7 @@ export interface PieConfig {
    *
    * @default 0
    */
-  centerOffsetYPercent: number;
+  centerOffsetYFraction: number;
 }
 
 export interface ColorPalette {
@@ -1757,12 +1757,12 @@ export interface GroupAxisConfig extends AxisConfigBase {
    */
   displayProperty: string | null;
   /**
-   * The padding percentages (0 - 1) of the group extent for all group values
+   * The padding fractions (0 - 1) of the group extent for all group values
    * (outer) and grouped series (inner).
    *
    * @default { inner: 0.1, outer: 0.1 }
    */
-  groupPadding: InnerOuter;
+  groupPaddingFraction: InnerOuter;
   /**
    * The extra count to be added to the group value count when dividing the
    * group extent for displaying group values.
@@ -1806,18 +1806,18 @@ export interface GroupAxisConfig extends AxisConfigBase {
   tickLabelTruncationValue: string;
   /**
    * The minimum length at which to apply tick label truncation if the maximum
-   * percentage settings is used.
+   * fraction setting is used.
    *
    * @default 0
    */
   tickLabelTruncationMinLength: number;
   /**
-   * The maximum percentage (0 - 1) of the chart bounds to allow any tick label
+   * The maximum fraction (0 - 1) of the chart bounds to allow any tick label
    * text to occupy when they are perpendicular to the axis.
    *
    * @default 0.2
    */
-  tickLabelTruncationMaxPercent: number;
+  tickLabelTruncationMaxFraction: number;
   /**
    * The type of the displayed group values (number, date, string).
    *
@@ -1968,9 +1968,9 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    */
   focusOnClick: boolean;
   /**
-   * The percentage margin (0 or greater) relative to the domain of the axis to
-   * use at the maximum extent of the axis (only applied if max is "auto" and
-   * max value is not equal base).
+   * The margin, as a fraction (0 or greater) of the domain of the axis, to use
+   * at the maximum extent of the axis (only applied if max is "auto" and max
+   * value is not equal base).
    *
    * The margin is relative to the pre-margin domain, so values above 1 are
    * allowed and confine the data to a band of the plot: a margin of 4 leaves
@@ -1979,11 +1979,11 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    *
    * @default 0.05
    */
-  maxMarginPercent: number;
+  maxMarginFraction: number;
   /**
-   * The percentage margin (0 or greater) relative to the domain of the axis to
-   * use at the minimum extent of the axis (only applied if min is "auto" and
-   * min value is not equal base).
+   * The margin, as a fraction (0 or greater) of the domain of the axis, to use
+   * at the minimum extent of the axis (only applied if min is "auto" and min
+   * value is not equal base).
    *
    * The margin is relative to the pre-margin domain, so values above 1 are
    * allowed and confine the data to a band of the plot: a price axis with
@@ -1992,7 +1992,7 @@ export interface SeriesAxisConfig extends AxisConfigBase {
    *
    * @default 0.05
    */
-  minMarginPercent: number;
+  minMarginFraction: number;
   /**
    * The scale of the series axis, must be linear.
    *
@@ -2329,24 +2329,24 @@ export interface SeriesConfig {
    * (the full group slot, or the series’ sub-slot when grouped), so a narrow
    * bar can overlay a full-width one from another series — e.g. a candlestick
    * wick behind its body, or a bullet-chart measure over its backing range. The
-   * narrowed bar is centered by default; `barAlignPercent` moves it within the
+   * narrowed bar is centered by default; `barAlignFraction` moves it within the
    * slot.
    *
    * @default 1
    */
-  barWidthPercent: number;
+  barWidthFraction: number;
   /**
-   * The fraction (0 - 1) of the slot width freed by barWidthPercent placed
+   * The fraction (0 - 1) of the slot width freed by barWidthFraction placed
    * before each bar in the series (0 aligns with the slot start, 0.5 centers, 1
    * aligns with the slot end).
    *
-   * Only affects the `bar` renderer, and only when `barWidthPercent` is less
+   * Only affects the `bar` renderer, and only when `barWidthFraction` is less
    * than 1. Lets narrowed bars from different series share one slot side by
    * side — e.g. the left open tick and right close tick of an OHLC bar.
    *
    * @default 0.5
    */
-  barAlignPercent: number;
+  barAlignFraction: number;
   /**
    * The minimum extent (in pixels) of each bar in the series along the value
    * direction.
@@ -2467,26 +2467,26 @@ export interface SeriesConfig {
    */
   labelTextStyle: StyleStates<SeriesColor>;
   /**
-   * The minimum position percentage (0 - 1) from the domain minimum for which
+   * The minimum position fraction (0 - 1) from the domain minimum for which
    * series labels should be shown (use null for none).
    *
    * @default null
    */
-  labelMinPositionPercent: number | null;
+  labelMinPositionFraction: number | null;
   /**
-   * The maximum position percentage (0 - 1) from the domain maximum for which
+   * The maximum position fraction (0 - 1) from the domain maximum for which
    * series labels should be shown (use null for none).
    *
    * @default null
    */
-  labelMaxPositionPercent: number | null;
+  labelMaxPositionFraction: number | null;
   /**
-   * The minimum position percentage (0 - 1) between two series values for which
+   * The minimum position fraction (0 - 1) between two series values for which
    * series labels should be shown (use null for none).
    *
    * @default null
    */
-  labelMinRangePercent: number | null;
+  labelMinRangeFraction: number | null;
   /**
    * The series position offset (in pixels) to apply to all series label
    * positions.
@@ -2502,33 +2502,33 @@ export interface SeriesConfig {
    */
   labelPosition: LabelPosition;
   /**
-   * The minimum position percentage (0 - 1) above the base value for which
-   * series labels should be shown (use null for none).
+   * The minimum position fraction (0 - 1) above the base value for which series
+   * labels should be shown (use null for none).
    *
    * @default "auto"
    */
-  labelAboveBaseMinPositionPercent: number | Auto;
+  labelAboveBaseMinPositionFraction: number | Auto;
   /**
-   * The maximum position percentage (0 - 1) from the domain maximum for which
+   * The maximum position fraction (0 - 1) from the domain maximum for which
    * series labels should be shown (use null for none).
    *
    * @default "auto"
    */
-  labelAboveBaseMaxPositionPercent: number | Auto;
+  labelAboveBaseMaxPositionFraction: number | Auto;
   /**
-   * The minimum position percentage (0 - 1) from the domain minimum for which
+   * The minimum position fraction (0 - 1) from the domain minimum for which
    * series labels should be shown (use null for none).
    *
    * @default "auto"
    */
-  labelBelowBaseMinPositionPercent: number | Auto;
+  labelBelowBaseMinPositionFraction: number | Auto;
   /**
-   * The maximum position percentage (0 - 1) below the base value for which
-   * series labels should be shown (use null for none).
+   * The maximum position fraction (0 - 1) below the base value for which series
+   * labels should be shown (use null for none).
    *
    * @default "auto"
    */
-  labelBelowBaseMaxPositionPercent: number | Auto;
+  labelBelowBaseMaxPositionFraction: number | Auto;
   /**
    * The series position offset (in pixels) to apply to all series label
    * positions that are above the base value (use "auto" to derive from the
