@@ -6,7 +6,7 @@ import { translate } from '../utils/utils';
 import { getSymbolGenerator } from '../utils/shapeUtils';
 import { getSeriesMarkerFillColor, getSeriesMarkerStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
-import { getFocusValue, getCategoryFocusPercentage } from '../utils/FocusValue';
+import { getFocusValue, getFocusStrokeWidth, getFocusStrokeDashArray, getCategoryFocusPercentage } from '../utils/FocusValue';
 import type { ElListAdapter, ElProps } from '../render';
 import type { ColorPaletteConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -95,7 +95,8 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
           focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
-          markerStrokeWidth = getFocusValue(focusPercentage, markerNormal.strokeWidth!, markerFocused.strokeWidth!, markerDefocused.strokeWidth!);
+          markerStrokeWidth = getFocusStrokeWidth(focusPercentage, markerNormal.strokeWidth, markerFocused.strokeWidth, markerDefocused.strokeWidth);
+          const markerStrokeDashArray = getFocusStrokeDashArray(focusPercentage, markerNormal.strokeDashArray, markerFocused.strokeDashArray, markerDefocused.strokeDashArray);
           markerStrokeOpacity = getFocusValue(focusPercentage, markerNormal.strokeOpacity!, markerFocused.strokeOpacity!, markerDefocused.strokeOpacity!);
           markerFillOpacity = getFocusValue(focusPercentage, markerNormal.fillOpacity!, markerFocused.fillOpacity!, markerDefocused.fillOpacity!);
           let cx, cy;
@@ -119,7 +120,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
             markers.push({
               key: 'marker-' + i,
               attrs: { className: mochartCssClasses['seriesMarker'] + i, d: theSymbol, transform: translate(cx, cy),
-                stroke: markerStrokeColor, fill: markerFillColor, strokeWidth: markerStrokeWidth, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity,
+                stroke: markerStrokeColor, fill: markerFillColor, strokeWidth: markerStrokeWidth, strokeDasharray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity,
                 onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: () => onCategoryClick(i) }
             });
           }

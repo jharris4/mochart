@@ -10,8 +10,6 @@ export default function getDescriptions() {
     base: 'the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)',
     baseLine: 'whether to show a line along the base of the axis',
     baseLineFront: 'whether the base line should be shown in front (true) or behind (false) the series shapes',
-    baseLineWidth: 'the stroke width (in pixels) of the line shown along the base of the axis',
-    baseLineDashArray: 'the dash array pattern to use when drawing the line shown along the base of the axis',
     baseLineStyle: axisStyleStatesDescription('the style of the line shown along the base of the axis', axisStrokeMembers),
     adjustForFiltering: 'whether to adjust the domain of the axis as series belonging to it are filtered',
     adjustTickLabelSizeForFiltering: 'whether to adjust the size of the axis tick label bounds as series belonging to it are filtered',

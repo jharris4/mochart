@@ -1,6 +1,5 @@
 import validators from './validators';
 
-import { NONE } from '../core/constants';
 
 export default function getValidators() {
   return {
@@ -10,7 +9,6 @@ export default function getValidators() {
     showSeries: validators.boolean(),
     categoryLineStyle: validators.strokeStyle(),
     seriesLineStyle: validators.strokeStyle(),
-    lineDashArray: validators.dashArray().orEqual(NONE),
     showBehindTooltip: validators.boolean()
   };
 }

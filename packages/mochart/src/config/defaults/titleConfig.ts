@@ -23,12 +23,12 @@ export default function getDefaults() {
     suffixMargin: { top: 0, right: 0, bottom: 0, left: 5 },
     suffixPadding: { top: 0, right: 0, bottom: 0, left: 5 },
     // 'none' rather than null on the text styles: stroke="none" firewalls a host-css stroke inheriting onto the text.
-    backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
-    textBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
-    textStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE },
-    prefixBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
-    prefixTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE },
-    suffixBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, fillColor: NONE, fillOpacity: 0 },
-    suffixTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, fillColor: COLOR_CURRENT, fillOpacity: NONE }
+    backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
+    textBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
+    textStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
+    prefixBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
+    prefixTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE },
+    suffixBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
+    suffixTextStyle: { strokeColor: 'none', strokeOpacity: NONE, strokeWidth: 0, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: NONE }
   };
 }

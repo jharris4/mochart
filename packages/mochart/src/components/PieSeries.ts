@@ -5,7 +5,7 @@ import { Renderer, svgEl, textEl } from '../render';
 import { degreesToRadians } from '../data/PieData';
 import { getSeriesFillColor, getSeriesStrokeColor, getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
-import { getFocusValue } from '../utils/FocusValue';
+import { getFocusValue, getFocusStrokeWidth } from '../utils/FocusValue';
 import { getGradientReference } from '../utils/svgUtils';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { translate, textDY } from '../utils/utils';
@@ -131,7 +131,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       fillColor = getGradientReference(gradientIdMap[seriesConfig.gradient]);
     }
     const { normal: shapeNormal, focused: shapeFocused, defocused: shapeDefocused } = seriesConfig.shapeStyle;
-    const strokeWidth = getFocusValue(seriesFocusPercentage, shapeNormal.strokeWidth!, shapeFocused.strokeWidth!, shapeDefocused.strokeWidth!);
+    const strokeWidth = getFocusStrokeWidth(seriesFocusPercentage, shapeNormal.strokeWidth, shapeFocused.strokeWidth, shapeDefocused.strokeWidth);
     const strokeOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
     const fillOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
 
@@ -169,7 +169,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       const labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       const labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, seriesFocusPercentage);
       const { normal: labelNormal, focused: labelFocused, defocused: labelDefocused } = seriesConfig.labelTextStyle;
-      const labelStrokeWidth = getFocusValue(seriesFocusPercentage, labelNormal.strokeWidth!, labelFocused.strokeWidth!, labelDefocused.strokeWidth!);
+      const labelStrokeWidth = getFocusStrokeWidth(seriesFocusPercentage, labelNormal.strokeWidth, labelFocused.strokeWidth, labelDefocused.strokeWidth);
       const labelStrokeOpacity = getFocusValue(seriesFocusPercentage, labelNormal.strokeOpacity!, labelFocused.strokeOpacity!, labelDefocused.strokeOpacity!);
       const labelFillOpacity = getFocusValue(seriesFocusPercentage, labelNormal.fillOpacity!, labelFocused.fillOpacity!, labelDefocused.fillOpacity!);
 

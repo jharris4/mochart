@@ -19,11 +19,11 @@ import * as thresholdRange from '../examples/thresholdRange'
   [`thresholdTitle`](/reference/valueAxes#valueAxes.thresholdTitle)
   labels it.
   [`thresholdStyle`](/reference/valueAxes#valueAxes.thresholdStyle)
-  paints the line and
+  paints the line — colors, width and dash array, each in its `normal`,
+  `focused` and `defocused` states —
   [`thresholdTitleTextStyle`](/reference/valueAxes#valueAxes.thresholdTitleTextStyle)
-  the title, each in its `normal`, `focused` and `defocused` states, while
-  [`thresholdDashArray`](/reference/valueAxes#valueAxes.thresholdDashArray)
-  and the other `threshold*` properties cover the non-color settings. The
+  paints the title, and the other `threshold*` properties cover the
+  layout settings. The
   category axis supports the same threshold properties for a vertical reference
   line.
 - The band is an ordinary `area` series with

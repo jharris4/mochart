@@ -129,7 +129,7 @@ describe('partial nested config sections', () => {
     });
     expect(config.validation.valid).toBe(true);
     expect(config.chart.backgroundStyle)
-      .toEqual({ strokeColor: 'currentColor', strokeOpacity: 0, strokeWidth: null, fillColor: '#ff0000', fillOpacity: 0 });
+      .toEqual({ strokeColor: 'currentColor', strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: '#ff0000', fillOpacity: 0 });
   });
 
   it('validates a partial style rather than demanding every member', () => {
@@ -325,7 +325,7 @@ describe('axis focus-state styles', () => {
     });
     expect(config.validation.valid).toBe(true);
     expect(config.categoryAxis.tickLabelTextStyle.focused)
-      .toEqual({ strokeColor: 'same', strokeOpacity: 1, strokeWidth: 0, fillColor: '#ff0000', fillOpacity: 1 });
+      .toEqual({ strokeColor: 'same', strokeOpacity: 1, strokeWidth: 0, strokeDashArray: 'same', fillColor: '#ff0000', fillOpacity: 1 });
     expect(config.categoryAxis.tickLabelTextStyle.normal.fillColor).toBe('currentColor');
   });
 

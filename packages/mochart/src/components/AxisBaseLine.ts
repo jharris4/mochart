@@ -39,8 +39,6 @@ export default class AxisBaseLine extends Renderer<AxisBaseLineProps> {
 
       const style = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
         valueAxisConfig.useSeriesFocus, valueAxisConfig.baseLineStyle));
-      const strokeWidth = valueAxisConfig.baseLineWidth;
-      const strokeDashArray = valueAxisConfig.baseLineDashArray;
 
       const vertical = !inverted;
 
@@ -59,8 +57,7 @@ export default class AxisBaseLine extends Renderer<AxisBaseLineProps> {
       this.line.set({ x1: seriesLayoutInfo.x, y1: seriesLayoutInfo.y,
         x2: vertical ? seriesLayoutInfo.x + seriesLayoutInfo.width : seriesLayoutInfo.x,
         y2: vertical ? seriesLayoutInfo.y : seriesLayoutInfo.y + seriesLayoutInfo.height,
-        ...style, strokeWidth,
-        strokeDasharray: strokeDashArray });
+        ...style });
     }
     else {
       this.setPresent(false);

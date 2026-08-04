@@ -7,6 +7,7 @@ export interface StyleAttributes {
   stroke?: string | null;
   strokeOpacity?: number | null;
   strokeWidth?: number | null;
+  strokeDasharray?: string | null;
   fill?: string | null;
   fillOpacity?: number | null;
 }
@@ -17,6 +18,7 @@ const styleAttributeOrder: [keyof Style, keyof StyleAttributes][] = [
   ['strokeColor', 'stroke'],
   ['strokeOpacity', 'strokeOpacity'],
   ['strokeWidth', 'strokeWidth'],
+  ['strokeDashArray', 'strokeDasharray'],
   ['fillColor', 'fill'],
   ['fillOpacity', 'fillOpacity']
 ];

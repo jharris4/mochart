@@ -28,7 +28,8 @@ const styleKeyMap = {
   strokeOpacity: opacityValidator,
   fillColor: svgColorValidator.orEqual(NONE),
   fillOpacity: opacityValidator,
-  strokeWidth: strokeWidthValidator
+  strokeWidth: strokeWidthValidator,
+  strokeDashArray: validators.regexp(dashArrayRegexp).withCustomName('dashArray').withMessage('should be a valid dash array').orEqual(NONE)
 };
 
 const cssStyleKeyMap = {
@@ -53,7 +54,8 @@ const cssStyle = () => validators.partialObjectWithShape(cssStyleKeyMap, true);
 const strokeStyle = () => validators.partialObjectWithShape({
   strokeColor: styleKeyMap.strokeColor,
   strokeOpacity: styleKeyMap.strokeOpacity,
-  strokeWidth: styleKeyMap.strokeWidth
+  strokeWidth: styleKeyMap.strokeWidth,
+  strokeDashArray: styleKeyMap.strokeDashArray
 }, true);
 const opacity = () => validators.numberMinMax(0, 1);
 const svgColor = () => svgColorValidator;

@@ -102,13 +102,36 @@ export function getAxisFocusOpacity(axisFocusPercentage: FocusPercentage | undef
 
 export interface AxisStyleStates {
   normal: Partial<Style>;
-  focused: Partial<Style>;
-  defocused: Partial<Style>;
+  focused: Partial<Style<string | 'same', 'same'>>;
+  defocused: Partial<Style<string | 'same', 'same'>>;
 }
 
 const emptyStyle: Partial<Style> = {};
 
 const styleColorMembers = new Set<string>(['strokeColor', 'fillColor']);
+
+/** The state a focus percentage lands in when a member cannot interpolate (dash arrays, null widths). */
+export function getFocusDiscreteValue<T>(focusPercentage: FocusPercentage, normalValue: T, focusedValue: T, defocusedValue: T): T {
+  const { focused, defocused } = getFocusedDefocused(focusPercentage);
+  return focused ? focusedValue : defocused ? defocusedValue : normalValue;
+}
+
+/** Resolve a per-state stroke width: 'same' or an absent member defers to normal; numbers interpolate, null stays unset. */
+export function getFocusStrokeWidth(focusPercentage: FocusPercentage, normalValue: number | null | undefined, focusedValue: number | null | 'same' | undefined, defocusedValue: number | null | 'same' | undefined): number | null {
+  const focused = focusedValue === undefined || focusedValue === COLOR_SAME ? normalValue : focusedValue;
+  const defocused = defocusedValue === undefined || defocusedValue === COLOR_SAME ? normalValue : defocusedValue;
+  if (typeof normalValue === 'number' && typeof focused === 'number' && typeof defocused === 'number') {
+    return getFocusValue(focusPercentage, normalValue, focused, defocused);
+  }
+  return getFocusDiscreteValue(focusPercentage, normalValue, focused, defocused) ?? null;
+}
+
+/** Resolve a per-state dash array: 'same' or an absent member defers to normal, and states switch discretely. */
+export function getFocusStrokeDashArray(focusPercentage: FocusPercentage, normalValue: string | null | undefined, focusedValue: string | null | 'same' | undefined, defocusedValue: string | null | 'same' | undefined): string | null {
+  const focused = focusedValue === undefined || focusedValue === COLOR_SAME ? normalValue : focusedValue;
+  const defocused = defocusedValue === undefined || defocusedValue === COLOR_SAME ? normalValue : defocusedValue;
+  return getFocusDiscreteValue(focusPercentage, normalValue, focused, defocused) ?? null;
+}
 
 /** Only members the normal state has are resolved, so anything it leaves out produces no attribute. */
 export function getAxisFocusStyle(axisFocusPercentage: FocusPercentage | undefined, seriesFocusPercentage: FocusPercentage | undefined, useSeriesFocus: boolean, styleStates: AxisStyleStates): Partial<Style> {
@@ -118,8 +141,9 @@ export function getAxisFocusStyle(axisFocusPercentage: FocusPercentage | undefin
   const style: Record<string, unknown> = {};
   for (const member of Object.keys(normal)) {
     const normalValue = normal[member];
-    const focusedValue = focused[member] === undefined ? normalValue : focused[member];
-    const defocusedValue = defocused[member] === undefined ? normalValue : defocused[member];
+    // 'same' (like an absent member) defers to the normal state, for geometry members as well as colors
+    const focusedValue = focused[member] === undefined || focused[member] === COLOR_SAME ? normalValue : focused[member];
+    const defocusedValue = defocused[member] === undefined || defocused[member] === COLOR_SAME ? normalValue : defocused[member];
     if (styleColorMembers.has(member)) {
       style[member] = getAxisFocusColor(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
         normalValue as string, focusedValue as string, defocusedValue as string);
@@ -128,8 +152,12 @@ export function getAxisFocusStyle(axisFocusPercentage: FocusPercentage | undefin
       style[member] = getAxisFocusOpacity(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus,
         normalValue, focusedValue, defocusedValue);
     }
+    else if (axisFocusPercentage !== undefined && seriesFocusPercentage !== undefined) {
+      // no interpolation possible (dash arrays, null widths): switch at the state boundary
+      const percentage = useSeriesFocus ? getCombinedFocusPercentage(axisFocusPercentage, seriesFocusPercentage) : (axisFocusPercentage ?? null);
+      style[member] = getFocusDiscreteValue(percentage, normalValue, focusedValue, defocusedValue);
+    }
     else {
-      // nothing to move between: an unset (null) width stays unset in every state
       style[member] = normalValue;
     }
   }

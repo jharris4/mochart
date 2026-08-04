@@ -11,7 +11,7 @@ export const config: MochartInputConfig = {
     {
       threshold: 200,
       thresholdTitle: 'SLA limit',
-      thresholdDashArray: '6 3'
+      thresholdStyle: { normal: { strokeDashArray: '6 3' } }
     }
   ],
   series: [

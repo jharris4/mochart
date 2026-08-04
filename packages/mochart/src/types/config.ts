@@ -15,9 +15,11 @@ export type SeriesColor = ColorMode | (string & {});
 
 /**
  * The stroke half of a style: everything needed to draw an outline (or a bare
- * line, which has no fill).
+ * line, which has no fill). `S` widens the geometry members (width, dash) in
+ * the focused/defocused states, where `'same'` means "inherit the normal
+ * state's value"; it is `never` for a plain single-state style.
  */
-export interface StrokeStyle<C = string> {
+export interface StrokeStyle<C = string, S = never> {
   /**
    * The color of the stroke (outline): use null to leave the svg stroke
    * attribute unset so that css can supply it, "none" to switch the stroke off,
@@ -33,14 +35,19 @@ export interface StrokeStyle<C = string> {
    * The width (in pixels) of the stroke, or null to leave the svg stroke-width
    * attribute unset.
    */
-  strokeWidth?: number | null;
+  strokeWidth: number | null | S;
+  /**
+   * The dash array pattern of the stroke (e.g. "5, 5"), or null for a solid
+   * stroke.
+   */
+  strokeDashArray?: string | null | S;
 }
 
 /**
  * A full style: a stroke plus a fill, for shapes that have an interior
  * (backgrounds, bars, markers, text).
  */
-export interface Style<C = string> extends StrokeStyle<C> {
+export interface Style<C = string, S = never> extends StrokeStyle<C, S> {
   /**
    * The color of the fill: use null to leave the svg fill attribute unset so
    * that css can supply it, "none" to switch the fill off, or "currentColor" to
@@ -56,22 +63,24 @@ export interface Style<C = string> extends StrokeStyle<C> {
 
 /**
  * A line style in each of its three focus states. `'same'` in the focused /
- * defocused states means "inherit the normal state's value".
+ * defocused states means "inherit the normal state's value" — for the colors
+ * and also for the stroke width and dash array.
  */
 export interface StrokeStyleStates<C = string> {
   normal: StrokeStyle<C>;
-  focused: StrokeStyle<C | 'same'>;
-  defocused: StrokeStyle<C | 'same'>;
+  focused: StrokeStyle<C | 'same', 'same'>;
+  defocused: StrokeStyle<C | 'same', 'same'>;
 }
 
 /**
  * A full style in each of its three focus states. `'same'` in the focused /
- * defocused states means "inherit the normal state's value".
+ * defocused states means "inherit the normal state's value" — for the colors
+ * and also for the stroke width and dash array.
  */
 export interface StyleStates<C = string> {
   normal: Style<C>;
-  focused: Style<C | 'same'>;
-  defocused: Style<C | 'same'>;
+  focused: Style<C | 'same', 'same'>;
+  defocused: Style<C | 'same', 'same'>;
 }
 
 export interface AnimationConfig {
@@ -169,7 +178,7 @@ export interface ChartConfig {
    * The styles to apply to the chart background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   backgroundStyle: Style;
 }
@@ -200,7 +209,7 @@ export interface PlotConfig {
    * The styles to apply to the plot background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   backgroundStyle: Style;
 }
@@ -336,7 +345,7 @@ export interface PieConfig {
    * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
    * to follow the host page's css color and theme).
    *
-   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, fillColor: "currentColor", fillOpacity: null }
+   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
    */
   centerLabelTextStyle: Style;
   /**
@@ -351,7 +360,7 @@ export interface PieConfig {
    * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
    * to follow the host page's css color and theme).
    *
-   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, fillColor: "currentColor", fillOpacity: null }
+   * @default { strokeColor: null, strokeOpacity: null, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
    */
   centerTotalTextStyle: Style;
   /**
@@ -478,22 +487,15 @@ export interface CrosshairConfig {
   /**
    * The style of the crosshair lines shown for the focused category.
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3, strokeDashArray: "10, 5" }
    */
   categoryLineStyle: StrokeStyle;
   /**
    * The style of the crosshair lines shown for the focused series.
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.3, strokeWidth: 3, strokeDashArray: "10, 5" }
    */
   seriesLineStyle: StrokeStyle;
-  /**
-   * The dash array pattern to use when drawing the crosshair lines (use null
-   * for none).
-   *
-   * @default "10, 5"
-   */
-  lineDashArray: string | null;
   /**
    * Whether to show the crosshair lines for sections where they are overlapped
    * by the tooltip.
@@ -643,14 +645,14 @@ export interface TitleConfig {
    * The styles to apply to the title background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   backgroundStyle: Style;
   /**
    * The styles to apply to the title text background (strokeColor,
    * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   textBackgroundStyle: Style;
   /**
@@ -658,14 +660,14 @@ export interface TitleConfig {
    * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
    * to follow the host page's css color and theme).
    *
-   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
    */
   textStyle: Style;
   /**
    * The styles to apply to the title prefix background (strokeColor,
    * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   prefixBackgroundStyle: Style;
   /**
@@ -673,14 +675,14 @@ export interface TitleConfig {
    * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
    * to follow the host page's css color and theme).
    *
-   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
    */
   prefixTextStyle: Style;
   /**
    * The styles to apply to the title suffix background (strokeColor,
    * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   suffixBackgroundStyle: Style;
   /**
@@ -688,7 +690,7 @@ export interface TitleConfig {
    * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
    * to follow the host page's css color and theme).
    *
-   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
    */
   suffixTextStyle: Style;
 }
@@ -841,7 +843,7 @@ export interface LegendConfig extends SeriesIconConfig {
    * The styles to apply to the legend background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   backgroundStyle: Style;
   /**
@@ -862,7 +864,7 @@ export interface LegendConfig extends SeriesIconConfig {
    * The styles to apply to the legend item backgrounds (strokeColor,
    * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   itemBackgroundStyle: Style;
   /**
@@ -870,7 +872,7 @@ export interface LegendConfig extends SeriesIconConfig {
    * strokeWidth, fillColor, fillOpacity (use null for none), use "currentColor"
    * to follow the host page's css color and theme).
    *
-   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, fillColor: "currentColor", fillOpacity: null }
+   * @default { strokeColor: "none", strokeOpacity: null, strokeWidth: 0, strokeDashArray: null, fillColor: "currentColor", fillOpacity: null }
    */
   itemTextStyle: Style;
   /**
@@ -1153,19 +1155,6 @@ export interface AxisConfigBase {
    */
   axisLineFront: boolean;
   /**
-   * The stroke width (in pixels) of the line shown along the axis.
-   *
-   * @default 1
-   */
-  axisLineWidth: number;
-  /**
-   * The dash array pattern to use when drawing the line shown along the axis
-   * (use null for none).
-   *
-   * @default null
-   */
-  axisLineDashArray: string | null;
-  /**
    * The margin (in pixels) between the line shown along the axis and the inner
    * boundary of the axis.
    *
@@ -1183,7 +1172,7 @@ export interface AxisConfigBase {
    * The styles to apply to the axis background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   backgroundStyle: Style;
   /**
@@ -1237,15 +1226,9 @@ export interface AxisConfigBase {
   /**
    * The style of the focus range.
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0.2, strokeWidth: 1, fillColor: "currentColor", fillOpacity: 0.12 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0.2, strokeWidth: 1, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.12 }
    */
   focusRangeStyle: Style;
-  /**
-   * The stroke dash array of the focus range.
-   *
-   * @default null
-   */
-  focusRangeDashArray: string | null;
 
   /**
    * Whether to show lines perpendicular to the axis showing the focused series
@@ -1278,7 +1261,7 @@ export interface AxisConfigBase {
   /**
    * The style of the focus tick mark line(s).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 1, strokeWidth: 3 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 1, strokeWidth: 3, strokeDashArray: null }
    */
   focusTickMarkStyle: StrokeStyle;
 
@@ -1295,19 +1278,6 @@ export interface AxisConfigBase {
    * @default false
    */
   gridLinesFront: boolean;
-  /**
-   * The stroke width (in pixels) of the axis grid lines.
-   *
-   * @default 1
-   */
-  gridLineWidth: number;
-  /**
-   * The dash array pattern to use when drawing the axis grid lines (use null
-   * for none).
-   *
-   * @default "5, 5"
-   */
-  gridLineDashArray: string | null;
   /**
    * The style of the axis grid lines.
    *
@@ -1486,21 +1456,9 @@ export interface AxisConfigBase {
    * The styles to apply to the threshold title background (strokeColor,
    * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   thresholdTitleBackgroundStyle: Style;
-  /**
-   * The width (in pixels) of the threshold line.
-   *
-   * @default 1
-   */
-  thresholdWidth: number;
-  /**
-   * The dash array pattern to use when drawing the threshold line.
-   *
-   * @default null
-   */
-  thresholdDashArray: string | null;
   /**
    * The style of the threshold line.
    *
@@ -1534,7 +1492,7 @@ export interface AxisConfigBase {
    * The styles to apply to the axis tick label background (strokeColor,
    * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   tickLabelBackgroundStyle: Style;
   /**
@@ -1633,12 +1591,6 @@ export interface AxisConfigBase {
    */
   tickMarkMargin: number;
   /**
-   * The stroke width (in pixels) of axis the tick mark lines.
-   *
-   * @default 1
-   */
-  tickMarkWidth: number;
-  /**
    * The style of the axis tick mark lines.
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }
@@ -1662,7 +1614,7 @@ export interface AxisConfigBase {
    * The styles to apply to the axis title background (strokeColor,
    * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
    *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, fillColor: null, fillOpacity: 0 }
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   titleBackgroundStyle: Style;
   /**
@@ -1937,19 +1889,6 @@ export interface ValueAxisConfig extends AxisConfigBase {
    * @default false
    */
   baseLineFront: boolean;
-  /**
-   * The stroke width (in pixels) of the line shown along the base of the axis.
-   *
-   * @default 1
-   */
-  baseLineWidth: number;
-  /**
-   * The dash array pattern to use when drawing the line shown along the base of
-   * the axis.
-   *
-   * @default null
-   */
-  baseLineDashArray: string | null;
   /**
    * The style of the line shown along the base of the axis.
    *

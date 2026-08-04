@@ -23,12 +23,10 @@ export function getRegularDefaults() {
 
     baseLine: true,
     baseLineFront: false,
-    baseLineWidth: 1,
-    baseLineDashArray: NONE,
     baseLineStyle: {
-      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325 }
+      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
     },
 
     focusOnMouseOver: true,

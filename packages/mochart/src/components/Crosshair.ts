@@ -68,8 +68,7 @@ class Crosshair extends Renderer<CrosshairProps> {
           const categoryY2 = inverted ? categoryPosition : maxY;
 
           handle.root.set({ className: mochartCssClasses['crosshairLine'],
-            x1: categoryX1, y1: categoryY1, x2: categoryX2, y2: categoryY2, ...categoryLineAttributes,
-            strokeDasharray: crosshairConfig.lineDashArray });
+            x1: categoryX1, y1: categoryY1, x2: categoryX2, y2: categoryY2, ...categoryLineAttributes });
         }
       });
 
@@ -84,8 +83,7 @@ class Crosshair extends Renderer<CrosshairProps> {
           const valueY2 = inverted ? maxY : seriesPosition;
 
           handle.root.set({ className: mochartCssClasses['crosshairLine'],
-            x1: valueX1, y1: valueY1, x2: valueX2, y2: valueY2, ...seriesLineAttributes,
-            strokeDasharray: crosshairConfig.lineDashArray });
+            x1: valueX1, y1: valueY1, x2: valueX2, y2: valueY2, ...seriesLineAttributes });
         }
       });
     }

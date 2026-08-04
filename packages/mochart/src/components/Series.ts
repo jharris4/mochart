@@ -10,7 +10,7 @@ import { NONE, RENDERER_AREA, RENDERER_LINE, RENDERER_BAR } from '../config/core
 import { COLOR_CATEGORY_INDEX } from '../config/core/constants';
 import { getSeriesFillColor, getSeriesStrokeColor } from '../utils/SeriesColors';
 import { getGradientReference } from '../utils/svgUtils';
-import { getFocusValue, getCategoryFocusPercentage } from '../utils/FocusValue';
+import { getFocusValue, getFocusStrokeWidth, getFocusStrokeDashArray, getCategoryFocusPercentage } from '../utils/FocusValue';
 
 import SeriesErrorBars from './SeriesErrorBars';
 import SeriesMarkers from './SeriesMarkers';
@@ -212,7 +212,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       if (seriesConfig.colorProperty !== NONE) {
         seriesColorGenerator = getSeriesColorGenerator(seriesConfig, seriesFocusPercentage, rawDomains, filteredValues);
       }
-      const seriesStrokeWidth = getFocusValue(seriesFocusPercentage, shapeNormal.strokeWidth!, shapeFocused.strokeWidth!, shapeDefocused.strokeWidth!);
+      const seriesStrokeWidth = getFocusStrokeWidth(seriesFocusPercentage, shapeNormal.strokeWidth, shapeFocused.strokeWidth, shapeDefocused.strokeWidth);
+      const seriesStrokeDashArray = getFocusStrokeDashArray(seriesFocusPercentage, shapeNormal.strokeDashArray, shapeFocused.strokeDashArray, shapeDefocused.strokeDashArray);
       const seriesStrokeOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
       const seriesFillOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
 
@@ -220,7 +221,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         const lineGenerator = getLineGenerator(seriesConfig, seriesPositionData, inverted);
         this.shape.set('line', () => svgEl('path'))!.set({
           d: lineGenerator(), className: mochartCssClasses['seriesLine'], strokeWidth: seriesStrokeWidth,
-          stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor,
+          strokeDasharray: seriesStrokeDashArray, stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor,
           onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
       }
       else if (seriesConfig.renderer === RENDERER_AREA) {
@@ -230,6 +231,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         const areaGenerator = getAreaGenerator(seriesConfig, seriesPositionData, inverted);
         this.shape.set('area', () => svgEl('path'))!.set({
           d: areaGenerator(), className: mochartCssClasses['seriesArea'], strokeWidth: seriesStrokeWidth,
+          strokeDasharray: seriesStrokeDashArray,
           stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor, fillOpacity: seriesFillOpacity,
           onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
       }
@@ -280,9 +282,10 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
                 barFillColor = seriesFillColor;
               }
             }
-            barStrokeWidth = getFocusValue(focusPercentage, shapeNormal.strokeWidth!, shapeFocused.strokeWidth!, shapeDefocused.strokeWidth!);
+            barStrokeWidth = getFocusStrokeWidth(focusPercentage, shapeNormal.strokeWidth, shapeFocused.strokeWidth, shapeDefocused.strokeWidth);
             barStrokeOpacity = getFocusValue(focusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
             barFillOpacity = getFocusValue(focusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
+            const barStrokeDashArray = getFocusStrokeDashArray(focusPercentage, shapeNormal.strokeDashArray, shapeFocused.strokeDashArray, shapeDefocused.strokeDashArray);
             bars.push({
               key: 'bar-' + i,
               attrs: { d: columnGenerator(i), className: mochartCssClasses['seriesBar'] + i,
@@ -290,7 +293,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
                 onMouseLeave: () => onCategoryLeave(i),
                 onClick: () => onCategoryClick(i),
                 stroke: barStrokeColor, strokeWidth: barStrokeWidth, strokeOpacity: barStrokeOpacity,
-                fill: barFillColor, fillOpacity: barFillOpacity }
+                strokeDasharray: barStrokeDashArray, fill: barFillColor, fillOpacity: barFillOpacity }
             });
           }
         }

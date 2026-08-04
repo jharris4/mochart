@@ -132,7 +132,7 @@ describe('series style overrides', () => {
   it('keeps the sibling members and states of a partially overridden style', () => {
     const seriesConfig = series({ markerStyle: { focused: { strokeWidth: 6 } } });
     expect(seriesConfig.markerStyle.focused).toEqual({
-      strokeColor: 'same', strokeOpacity: 1, strokeWidth: 6, fillColor: 'same', fillOpacity: 1
+      strokeColor: 'same', strokeOpacity: 1, strokeWidth: 6, strokeDashArray: 'same', fillColor: 'same', fillOpacity: 1
     });
     expect(seriesConfig.markerStyle.normal.strokeWidth).toBe(1);
     expect(seriesConfig.markerStyle.defocused.strokeWidth).toBe(1);

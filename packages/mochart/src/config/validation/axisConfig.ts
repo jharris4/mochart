@@ -4,11 +4,10 @@ import { AUTO, NONE, ANCHORS, COLOR_SAME } from '../core/constants';
 
 import type { Validator } from '@mochart/movalid';
 
-export type StyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'fillColor' | 'fillOpacity';
+export type StyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'strokeDashArray' | 'fillColor' | 'fillOpacity';
 
-/** A line's stroke width is a flat property, so its style carries color and opacity only. */
-const lineMembers: StyleMember[] = ['strokeColor', 'strokeOpacity'];
-const styleMembers: StyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity'];
+const lineMembers: StyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
+const styleMembers: StyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity'];
 
 function memberValidator(member: StyleMember, allowSame: boolean): Validator {
   switch (member) {
@@ -20,7 +19,9 @@ function memberValidator(member: StyleMember, allowSame: boolean): Validator {
     case 'fillOpacity':
       return validators.opacity();
     case 'strokeWidth':
-      return validators.numberMin(0).orEqual(NONE);
+      return allowSame ? validators.numberMin(0).orOneOf([NONE, COLOR_SAME]) : validators.numberMin(0).orEqual(NONE);
+    case 'strokeDashArray':
+      return allowSame ? validators.dashArray().orOneOf([NONE, COLOR_SAME]) : validators.dashArray().orEqual(NONE);
   }
 }
 
@@ -47,9 +48,7 @@ export default function getValidators() {
   return {
     axisLine: validators.boolean(),
     axisLineFront: validators.boolean(),
-    axisLineDashArray: validators.dashArray().orEqual(NONE),
     axisLineMargin: validators.numberMin(0),
-    axisLineWidth: validators.numberMin(0),
     axisLineStyle: styleStates(lineMembers),
 
     backgroundStyle: validators.style(),
@@ -63,19 +62,16 @@ export default function getValidators() {
     focusRangeFront: validators.boolean(),
     focusRangeApplyToTitle: validators.boolean(),
     focusRangeStyle: styleShape(styleMembers, false),
-    focusRangeDashArray: validators.dashArray().orEqual(NONE),
 
     focusTickMarks: validators.boolean(),
     focusTickMarksFront: validators.boolean(),
     focusTickMarkSize: validators.numberMin(0),
     focusTickMarkMargin: validators.numberMin(0),
-    focusTickMarkStyle: styleShape(['strokeColor', 'strokeOpacity', 'strokeWidth'], false),
+    focusTickMarkStyle: styleShape(['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'], false),
 
     gridLines: validators.boolean(),
     gridLinesFront: validators.boolean(),
     gridLineStyle: styleStates(lineMembers),
-    gridLineDashArray: validators.dashArray().orEqual(NONE),
-    gridLineWidth: validators.numberMin(0),
 
     marginInner: validators.numberMin(0),
     marginOuter: validators.numberMin(0),
@@ -96,8 +92,6 @@ export default function getValidators() {
     thresholdTitlePadding: validators.padding(),
     thresholdTitleTextStyle: styleStates(styleMembers),
     thresholdTitleBackgroundStyle: validators.style(),
-    thresholdWidth: validators.numberMin(0),
-    thresholdDashArray: validators.dashArray().orEqual(NONE),
     thresholdStyle: styleStates(lineMembers),
 
     tickCount: validators.integerMin(0).orEqual(AUTO),
@@ -119,7 +113,6 @@ export default function getValidators() {
     tickMarkFront: validators.boolean(),
     tickMarkSize: validators.numberMin(0),
     tickMarkMargin: validators.numberMin(0),
-    tickMarkWidth: validators.numberMin(0),
     tickMarkStyle: styleStates(lineMembers),
 
     title: validators.string().orEqual(NONE),

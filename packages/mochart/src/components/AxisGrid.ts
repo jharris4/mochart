@@ -43,8 +43,6 @@ export default class AxisGrid extends Renderer<AxisGridProps> {
 
       const styleAttributes = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
         axisConfig.useSeriesFocus ?? false, axisConfig.gridLineStyle));
-      const strokeWidth = axisConfig.gridLineWidth;
-      const strokeDashArray = axisConfig.gridLineDashArray;
 
       this.setPresent(true);
       this.root.set({ className: axisGridClass });
@@ -67,8 +65,7 @@ export default class AxisGrid extends Renderer<AxisGridProps> {
           handle.line.set({ x1: seriesLayoutInfo.x, y1: seriesLayoutInfo.y, style: tick.hidden ? hiddenStyle : null,
             x2: vertical ? seriesLayoutInfo.x + seriesLayoutInfo.width : seriesLayoutInfo.x,
             y2: vertical ? seriesLayoutInfo.y : seriesLayoutInfo.y + seriesLayoutInfo.height,
-            ...styleAttributes, strokeWidth,
-            strokeDasharray: strokeDashArray });
+            ...styleAttributes });
         }
       });
     }

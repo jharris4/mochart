@@ -6,7 +6,7 @@ import { NONE, AUTO, LABEL_POSITION_CENTER, LABEL_POSITION_INSIDE } from '../con
 import { translate } from '../utils/utils';
 import { getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
-import { getFocusValue, getCategoryFocusPercentage } from '../utils/FocusValue';
+import { getFocusValue, getFocusStrokeWidth, getCategoryFocusPercentage } from '../utils/FocusValue';
 import type { El, ElListAdapter, TextEl } from '../render';
 import type { ColorPaletteConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
@@ -236,7 +236,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
             focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
             labelFillColor = getSeriesLabelFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
             labelStrokeColor = getSeriesLabelStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
-            labelStrokeWidth = getFocusValue(focusPercentage, labelNormal.strokeWidth!, labelFocused.strokeWidth!, labelDefocused.strokeWidth!);
+            labelStrokeWidth = getFocusStrokeWidth(focusPercentage, labelNormal.strokeWidth, labelFocused.strokeWidth, labelDefocused.strokeWidth);
             labelStrokeOpacity = getFocusValue(focusPercentage, labelNormal.strokeOpacity!, labelFocused.strokeOpacity!, labelDefocused.strokeOpacity!);
             labelFillOpacity = getFocusValue(focusPercentage, labelNormal.fillOpacity!, labelFocused.fillOpacity!, labelDefocused.fillOpacity!);
             seriesPosition = getSeriesPosition(null, i)! + getOffset(aboveBase);

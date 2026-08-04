@@ -34,8 +34,7 @@ export default class AxisLine extends Renderer<AxisLineProps> {
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['axisLine'] });
       this.line.set({ x1: axisLineX1, y1: axisLineY1, x2: axisLineX2, y2: axisLineY2,
-        ...style, strokeWidth: axisConfig.axisLineWidth,
-        strokeDasharray: axisConfig.axisLineDashArray });
+        ...style });
     }
     else {
       this.setPresent(false);

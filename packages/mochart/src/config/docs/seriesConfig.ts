@@ -1,8 +1,8 @@
 import { styleDescriptions } from './shared';
 import type { DescriptionMap, NestedDescription } from './shared';
 
-const lineMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth'];
-const styleMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity'];
+const lineMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
+const styleMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity'];
 
 const seriesNote = ', or "series" to use the color of the series shape';
 const sameNote = ', or "same" to use the color of the normal state';

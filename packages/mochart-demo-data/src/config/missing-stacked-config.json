@@ -12,14 +12,18 @@
     "before": false,
     "title": "Group Axis",
     "gridLines": true,
-    "gridLineWidth": 1,
-    "gridLineDashArray": "5, 5",
     "min": "auto",
     "max": "auto",
     "type": "number",
     "scale": "ordinal",
     "valueLabel": "Category",
-    "property": "category"
+    "property": "category",
+    "gridLineStyle": {
+      "normal": {
+        "strokeWidth": 1,
+        "strokeDashArray": "5, 5"
+      }
+    }
   },
   "valueAxes": [
     {

@@ -35,7 +35,7 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
     const { hidden } = this.props;
     if (!hidden) {
       const { axisConfig, axisLayoutInfo, seriesLayoutInfo, axisDomain, vertical, ascending, axisFocusPercentage, seriesFocusPercentage, axisThresholdClass, front } = this.props;
-      const { threshold, thresholdFront, thresholdWidth, thresholdDashArray,
+      const { threshold, thresholdFront,
         thresholdTitle, thresholdTitleBefore, thresholdTitleSnapToValue, thresholdTitleMargin, thresholdTitlePadding,
         thresholdStyle, thresholdTitleTextStyle,
         useSeriesFocus = false
@@ -54,7 +54,7 @@ export default class AxisThreshold extends Renderer<AxisThresholdProps> {
           threshold, axisDomain, thresholdTitle, thresholdTitleBefore, thresholdTitleSnapToValue,
           thresholdTitleMargin, thresholdTitlePadding,
           stroke: line.stroke ?? null, strokeOpacity: line.strokeOpacity ?? null,
-          strokeWidth: thresholdWidth, strokeDashArray: thresholdDashArray,
+          strokeWidth: line.strokeWidth ?? null, strokeDashArray: line.strokeDasharray ?? null,
           titleStroke: title.stroke ?? null, titleStrokeOpacity: title.strokeOpacity ?? null, titleStrokeWidth: title.strokeWidth ?? null,
           titleFill: title.fill ?? null, titleFillOpacity: title.fillOpacity ?? null });
       }

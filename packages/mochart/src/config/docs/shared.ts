@@ -26,6 +26,7 @@ export const styleDescriptions: DescriptionMap = {
   strokeColor: 'the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page\'s css color',
   strokeOpacity: 'the opacity (0 - 1) of the stroke, or null to leave the svg stroke-opacity attribute unset',
   strokeWidth: 'the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset',
+  strokeDashArray: 'the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke',
   fillColor: 'the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page\'s css color',
   fillOpacity: 'the opacity (0 - 1) of the fill, or null to leave the svg fill-opacity attribute unset'
 };

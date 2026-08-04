@@ -44,7 +44,6 @@ export default class AxisTickMarks extends Renderer<AxisTickMarksProps> {
 
       const styleAttributes = styleToAttributes(getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage,
         axisConfig.useSeriesFocus ?? false, axisConfig.tickMarkStyle));
-      const strokeWidth = axisConfig.tickMarkWidth;
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['axisTickMarks'] });
@@ -65,7 +64,7 @@ export default class AxisTickMarks extends Renderer<AxisTickMarksProps> {
           }
           handle.root.set({ className: mochartCssClasses['axisTickMark'] + i, transform: translate(tickX, tickY) });
           handle.line.set({ x1: tickMarkX1, y1: tickMarkY1, x2: tickMarkX2, y2: tickMarkY2, style: tick.hidden ? hiddenStyle : null,
-            ...styleAttributes, strokeWidth });
+            ...styleAttributes });
         }
       });
     }

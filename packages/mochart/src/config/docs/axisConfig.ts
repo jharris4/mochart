@@ -1,16 +1,20 @@
 import { style, spacing, styleDescriptions } from './shared';
 import type { DescriptionMap, NestedDescription } from './shared';
 
-const strokeMembers = ['strokeColor', 'strokeOpacity'];
-const lineMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth'];
+const strokeMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
+const lineMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
 
 const sameNote = ', or "same" to use the color of the normal state';
+const sameValueNote = ', or "same" to use the value of the normal state';
+const sameMembers = new Set(['strokeColor', 'fillColor', 'strokeWidth', 'strokeDashArray']);
 
 function styleMembers(members: string[], allowSame: boolean): DescriptionMap {
   const descriptions: DescriptionMap = {};
   for (const member of members) {
     const description = styleDescriptions[member] as string;
-    descriptions[member] = allowSame && member.endsWith('Color') ? description + sameNote : description;
+    descriptions[member] = allowSame && sameMembers.has(member)
+      ? description + (member.endsWith('Color') ? sameNote : sameValueNote)
+      : description;
   }
   return descriptions;
 }
@@ -34,9 +38,7 @@ export default function getDescriptions() {
   return {
     axisLine: 'whether to show a line along the length of the axis',
     axisLineFront: 'whether the axis line should be shown in front (true) or behind (false) the series shapes',
-    axisLineDashArray: 'the dash array pattern to use when drawing the line shown along the axis (use null for none)',
     axisLineMargin: 'the margin (in pixels) between the line shown along the axis and the inner boundary of the axis',
-    axisLineWidth: 'the stroke width (in pixels) of the line shown along the axis',
     axisLineStyle: styleStates('the style of the line shown along the axis', strokeMembers),
 
     backgroundStyle: style('the styles to apply to the axis background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
@@ -50,7 +52,6 @@ export default function getDescriptions() {
     focusRangeFront: 'whether the focus range should be shown in front (true) or behind (false) the series shapes',
     focusRangeApplyToTitle: 'whether to show the focus range only over tick labels (false) or over both tick labels and title (true)',
     focusRangeStyle: style('the style of the focus range'),
-    focusRangeDashArray: 'the stroke dash array of the focus range',
 
     focusTickMarks: 'whether to show lines perpendicular to the axis showing the focused series domain or category value',
     focusTickMarksFront: 'whether the focus tick marks should be shown in front (true) or behind (false) the series shapes',
@@ -61,8 +62,6 @@ export default function getDescriptions() {
     gridLines: 'whether to show grid lines perpendicular to each tick on the axis',
     gridLinesFront: 'whether the axis grid lines should be shown in front (true) or behind (false) the series shapes',
     gridLineStyle: styleStates('the style of the axis grid lines', strokeMembers),
-    gridLineDashArray: 'the dash array pattern to use when drawing the axis grid lines (use null for none)',
-    gridLineWidth: 'the stroke width (in pixels) of the axis grid lines',
 
     marginInner: 'the inner (closest to chart) margin (in pixels) of the axis',
     marginOuter: 'the outer (furthest from chart) margin (in pixels) of the axis',
@@ -82,10 +81,8 @@ export default function getDescriptions() {
     thresholdTitleSnapToValue: 'whether to ignore titleBefore if the label has no room on that side of the threshold line',
     thresholdTitleMargin: spacing('The margin (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation'),
     thresholdTitlePadding: spacing('The padding (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation'),
-    thresholdTitleTextStyle: styleStates('the style of the threshold title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity']),
+    thresholdTitleTextStyle: styleStates('the style of the threshold title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
     thresholdTitleBackgroundStyle: style('the styles to apply to the threshold title background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
-    thresholdWidth: 'the width (in pixels) of the threshold line',
-    thresholdDashArray: 'the dash array pattern to use when drawing the threshold line',
     thresholdStyle: styleStates('the style of the threshold line', strokeMembers),
 
     tickCount: 'the number of ticks to show along the length of the axis (use "auto" to derive the tick count from the data)',
@@ -101,13 +98,12 @@ export default function getDescriptions() {
     tickLabelSuffix: 'the string to append to the text of each axis tick label (use null for none)',
     tickLabelRotation: 'the rotation (in degrees) to apply to each axis tick label',
     tickLabelAnchor: 'the anchor to use for all axis tick labels (start, end, middle) (use "auto" to determine automatically)',
-    tickLabelTextStyle: styleStates('the style of the axis tick label text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity']),
+    tickLabelTextStyle: styleStates('the style of the axis tick label text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
 
     tickMarks: 'whether to show lines perpendicular to each tick value along the axis',
     tickMarkFront: 'whether the axis tick marks should be shown in front (true) or behind (false) the series shapes',
     tickMarkSize: 'the length (in pixels) of the axis tick mark lines',
     tickMarkMargin: 'the margin (in pixels) to show between the inside of the axis and the axis tick mark lines',
-    tickMarkWidth: 'the stroke width (in pixels) of axis the tick mark lines',
     tickMarkStyle: styleStates('the style of the axis tick mark lines', strokeMembers),
 
     title: 'the title text to be shown along side to the axis (use null for no title)',
@@ -120,7 +116,7 @@ export default function getDescriptions() {
     titleMarginOuter: 'the margin (in pixels) to show between the axis title and the outside of the axis',
     titlePaddingInner: 'the padding (in pixels) to show between the axis title and the inside of the axis',
     titlePaddingOuter: 'the padding (in pixels) to show between the axis title and the outside of the axis',
-    titleTextStyle: styleStates('the style of the axis title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity']),
+    titleTextStyle: styleStates('the style of the axis title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
 
     min: 'the forced minimum numeric value for the axis (use "auto" to compute from the values)',
     max: 'the forced maximum numeric value for the axis (use "auto" to compute from the values)',

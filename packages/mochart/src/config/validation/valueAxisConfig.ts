@@ -17,8 +17,6 @@ export default function getValidators() {
     base: validators.number().orEqual(NONE),
     baseLine: validators.boolean(),
     baseLineFront: validators.boolean(),
-    baseLineWidth: validators.numberMin(0),
-    baseLineDashArray: validators.dashArray().orEqual(NONE),
     baseLineStyle: axisStyleValidators.styleStates(axisStyleValidators.lineMembers),
 
     focusOnMouseOver: validators.boolean(),

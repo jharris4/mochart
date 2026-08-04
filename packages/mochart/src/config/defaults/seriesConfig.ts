@@ -49,9 +49,9 @@ export function getRegularDefaults() {
     capOnlyStackOuter: false,
     errorBarCapSize: 6,
     errorBarStyle: {
-      normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1.5 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1.5 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 1.5 }
+      normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1.5, strokeDashArray: NONE },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1.5, strokeDashArray: COLOR_SAME },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.5, strokeWidth: 1.5, strokeDashArray: COLOR_SAME }
     },
     valueLabel: NONE,
     valueFormat: AUTO,
@@ -61,9 +61,9 @@ export function getRegularDefaults() {
     title: NONE,
     labelFormat: AUTO,
     labelTextStyle: {
-      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.8, strokeWidth: 1, fillColor: COLOR_CURRENT, fillOpacity: 0.8 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, fillColor: COLOR_SAME, fillOpacity: 1 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, fillColor: COLOR_SAME, fillOpacity: 1 }
+      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.8, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 0.8 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 }
     },
     labelMinPositionFraction: NONE,
     labelMaxPositionFraction: NONE,
@@ -80,9 +80,9 @@ export function getRegularDefaults() {
     labelBelowBasePosition: AUTO,
     // Only the shape's colors are regular defaults; its opacities and widths are renderer-conditional.
     shapeStyle: {
-      normal: { strokeColor: COLOR_SERIES_INDEX, fillColor: COLOR_SERIES_INDEX },
-      focused: { strokeColor: COLOR_SAME, fillColor: COLOR_SAME },
-      defocused: { strokeColor: COLOR_SAME, fillColor: COLOR_SAME }
+      normal: { strokeColor: COLOR_SERIES_INDEX, strokeDashArray: NONE, fillColor: COLOR_SERIES_INDEX },
+      focused: { strokeColor: COLOR_SAME, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME },
+      defocused: { strokeColor: COLOR_SAME, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME }
     },
     colorScale: {
       interpolation: NONE,
@@ -100,9 +100,9 @@ export function getRegularDefaults() {
     markerShowMissing: false,
     markerSize: 6,
     markerStyle: {
-      normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1, fillColor: COLOR_SERIES, fillOpacity: 0.9 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 3, fillColor: COLOR_SAME, fillOpacity: 1 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.8, strokeWidth: 1, fillColor: COLOR_SAME, fillOpacity: 0.8 }
+      normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_SERIES, fillOpacity: 0.9 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 3, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.8, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 0.8 }
     },
     showInLegend: true,
     showInTooltip: true,

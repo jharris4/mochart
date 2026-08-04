@@ -10,10 +10,10 @@ import type { Validator } from '@mochart/movalid';
 type ColorCondition = { colorProperty?: SeriesConfig['colorProperty'], colorScale?: DeepPartial<SeriesConfig['colorScale']> };
 type StackCondition = Pick<SeriesConfig, 'stack'>;
 
-type SeriesStyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'fillColor' | 'fillOpacity';
+type SeriesStyleMember = 'strokeColor' | 'strokeOpacity' | 'strokeWidth' | 'strokeDashArray' | 'fillColor' | 'fillOpacity';
 
-const lineMembers: SeriesStyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth'];
-const styleMembers: SeriesStyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'fillColor', 'fillOpacity'];
+const lineMembers: SeriesStyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
+const styleMembers: SeriesStyleMember[] = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity'];
 
 function seriesColor(allowSeries: boolean, allowSame: boolean): Validator {
   const keywords: string[] = [];
@@ -32,7 +32,9 @@ function memberValidator(member: SeriesStyleMember, allowSeries: boolean, allowS
     case 'fillOpacity':
       return validators.opacity();
     case 'strokeWidth':
-      return validators.numberMin(0);
+      return allowSame ? validators.numberMin(0).orEqual(COLOR_SAME) : validators.numberMin(0);
+    case 'strokeDashArray':
+      return allowSame ? validators.dashArray().orOneOf([NONE, COLOR_SAME]) : validators.dashArray().orEqual(NONE);
   }
 }
 
