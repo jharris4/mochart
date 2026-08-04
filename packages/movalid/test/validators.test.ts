@@ -343,8 +343,8 @@ describe("validators", () => {
         expect(baseValidators.object()(1)).toBe(false);
       });
 
-      it("should allow arrays", () => {
-        expect(baseValidators.object()([])).toBe(true);
+      it("should not allow arrays", () => {
+        expect(baseValidators.object()([])).toBe(false);
       });
     });
 
@@ -1051,6 +1051,11 @@ describe("validators", () => {
       it("should not allow values that are not equal to one of the map of arguments", () => {
         expect(baseValidators.oneIn({ a: true, b: 2 })(4)).toBe(false);
       });
+
+      it("should not allow Object.prototype member names absent from the map", () => {
+        expect(baseValidators.oneIn({ a: true, b: 2 })("constructor")).toBe(false);
+        expect(baseValidators.oneIn({ a: true, b: 2 })("toString")).toBe(false);
+      });
     });
 
     describe("not equal", () => {
@@ -1100,6 +1105,10 @@ describe("validators", () => {
 
       it("should allow values that are not equal to one of the map of arguments", () => {
         expect(baseValidators.notOneIn({ a: true, b: 2 })(4)).toBe(true);
+      });
+
+      it("should allow Object.prototype member names absent from the map", () => {
+        expect(baseValidators.notOneIn({ a: true, b: 2 })("constructor")).toBe(true);
       });
     });
 

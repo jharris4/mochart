@@ -18,7 +18,7 @@ function isObject(v: unknown): v is ConfigRecord {
 }
 
 const configsToIdMap = <T>(configs: ConfigRecord[], value: (config: ConfigRecord) => T): Record<string, T> => {
-  const map: Record<string, T> = {};
+  const map: Record<string, T> = Object.create(null); // null proto: ids like "constructor" must not hit Object.prototype
   if (Array.isArray(configs)) {
     for (const config of configs) {
       map[String(config.id)] = value(config);
@@ -101,7 +101,7 @@ const assignConfigListIndexReferences = (configs: ConfigRecord[], referenceName:
 }
 
 const arrayToIdIndexMap = (configs: unknown): Record<string, number> => {
-  const map: Record<string, number> = {};
+  const map: Record<string, number> = Object.create(null);
   if (Array.isArray(configs)) {
     const count = configs.length;
     let i, config;

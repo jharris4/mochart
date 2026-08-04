@@ -385,6 +385,33 @@ describe('non-integer order values', () => {
   });
 });
 
+// Regression: the id maps were plain {} objects, so ids and references named
+// after Object.prototype members hit inherited values — a sole axis id of
+// "constructor" crashed the build, and lookups returned functions.
+describe('prototype-member-named ids', () => {
+  it('accepts a prototype member name as an id end to end', () => {
+    const mochartConfig = enhance({
+      version: VERSION_STRING,
+      categoryAxis: { property: 'g' },
+      valueAxes: [{ id: 'constructor' }],
+      series: [{ property: 'v' }]
+    });
+    expect(mochartConfig.validation.valid).toBe(true);
+    expect(mochartConfig.series[0].axis).toBe('constructor');
+  });
+
+  it('reports (instead of crashing on) a reference naming a prototype member', () => {
+    const mochartConfig = enhance({
+      version: VERSION_STRING,
+      categoryAxis: { property: 'g' },
+      series: [{ property: 'v', axis: 'constructor' }]
+    });
+    expect(mochartConfig.validation.valid).toBe(false);
+    expect(mochartConfig.validation.errors).toContainEqual(
+      expect.stringContaining('axis - should equal the id property of one of the valueAxes'));
+  });
+});
+
 // Regression: sections absent from the user config installed the defaults' own
 // entry objects into the built config, so the reference wiring mutated the
 // caller-supplied defaults and re-validating with them flipped valid to false.

@@ -115,6 +115,28 @@ describe('unique-key validation', () => {
       'valueAxes[1] - id - should be unique: "A"'
     ]));
   });
+
+  // Regression: the seen map was a plain {}, so a single entry with an
+  // Object.prototype member name as its id was reported as a duplicate.
+  it('does not flag a sole prototype-member-named id as a duplicate', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'p' },
+      valueAxes: [{ id: 'constructor' }],
+      seriesStacks: [{ id: 'toString' }],
+      series: [{ property: 'a', id: 'valueOf' }]
+    });
+    expect(errors.filter(error => error.includes('should be unique'))).toEqual([]);
+  });
+
+  it('still flags real duplicates of prototype-member-named ids', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'p' },
+      series: [{ property: 'a', id: 'constructor' }, { property: 'b', id: 'constructor' }]
+    });
+    expect(errors).toContainEqual(expect.stringContaining('should be unique: "constructor"'));
+  });
 });
 
 describe('non-strict validation', () => {
@@ -387,6 +409,15 @@ describe('list-section shape validation', () => {
       series: [{ property: 'v' }]
     });
     expect(errors).toEqual([]);
+  });
+
+  it('flags an array given as a list-section entry', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'g' },
+      series: [{ property: 'v' }, []]
+    });
+    expect(errors).toContainEqual(expect.stringContaining('series - should be an array with elements that should be an object'));
   });
 
   it('still tolerates an empty array as an unspecified section', () => {

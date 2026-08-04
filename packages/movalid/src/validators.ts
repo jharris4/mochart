@@ -62,7 +62,7 @@ const typeValidatorDefinitions = {
     message: () => "should be an array"
   },
   object: {
-    validator: () => v => v !== null && v !== undefined && typeof v === "object",
+    validator: () => v => v !== null && v !== undefined && typeof v === "object" && !Array.isArray(v),
     message: () => "should be an object"
   },
   any: {
@@ -275,7 +275,8 @@ const argumentTypeValidatorDefinitions = {
     message: (valueArray: any[]) => "should be one of " + printArray(valueArray)
   },
   oneIn: {
-    validator: (valueMap: Record<string, any>) => v => valueMap[v] !== undefined,
+    // own-key check: prototype members (constructor, toString, ...) must not count as map entries
+    validator: (valueMap: Record<string, any>) => v => Object.prototype.hasOwnProperty.call(valueMap, v) && valueMap[v] !== undefined,
     message: (valueMap: Record<string, any>) => "should be in " + printObject(valueMap)
   },
   notEqual: {
@@ -287,7 +288,7 @@ const argumentTypeValidatorDefinitions = {
     message: (valueArray: any[]) => "should not be one of " + printArray(valueArray)
   },
   notOneIn: {
-    validator: (valueMap: Record<string, any>) => v => valueMap[v] === undefined,
+    validator: (valueMap: Record<string, any>) => v => !Object.prototype.hasOwnProperty.call(valueMap, v) || valueMap[v] === undefined,
     message: (valueMap: Record<string, any>) => "should not be in " + printObject(valueMap)
   },
   arrayWithLength: {

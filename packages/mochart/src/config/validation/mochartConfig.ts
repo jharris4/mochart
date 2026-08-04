@@ -201,7 +201,7 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
     for (const sectionKey of sectionKeys) {
       const { validator, allKey } = configWithoutAllValidators[sectionKey]!;
       if (allKey && config[allKey] !== undefined) { // all is optional, only validate if set
-        if (!isConfigRecord(configWithoutDefaults[allKey])) { // isConfigRecord: arrays pass movalid's object()
+        if (!isConfigRecord(configWithoutDefaults[allKey])) {
           const message = objectValidator.getErrorMessage(config[allKey]);
           errors.push(getMessage(allKey, message));
           errorDetails.push({ path: [allKey], message });
@@ -281,7 +281,6 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
     }
   }
   else {
-    // report unconditionally: arrays pass movalid's object() but are not a config
     const message = objectValidator.getErrorMessage(configWithoutDefaults);
     errors.push(getMessage('config', message));
     errorDetails.push({ path: [], message });
@@ -384,7 +383,7 @@ function validateUnique(config: ConfigRecord, configWithoutDefaults: ConfigRecor
       rawIndices.push(i);
     }
   }
-  const seen: Record<string, boolean> = {};
+  const seen: Record<string, boolean> = Object.create(null); // null proto: ids like "constructor" must not hit Object.prototype
   for (const section of sections) {
     if (isConfigRecord(section) && section[property] !== undefined) {
       const value = String(section[property]);
