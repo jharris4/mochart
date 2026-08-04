@@ -1,5 +1,5 @@
 import type {
-  Auto, Align, AxisSide, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
+  Auto, Align, AxisSide, MissingValues, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
   CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape,
   ChartType, PieLabelType, PieTooltipLabelType
 } from '../config/core/constants';
@@ -2173,18 +2173,6 @@ export interface SeriesConfig {
    */
   renderer: RendererType;
   /**
-   * Whether to skip undefined values when drawing the shape for this series.
-   *
-   * When `true`, categories whose value is missing (`undefined`) are left out
-   * of the shape, so lines and areas connect directly between the neighbouring
-   * defined values; when `false` the shape breaks at the gap. For a series with
-   * a `rangeProperty`, a category counts as missing only when both properties
-   * are undefined — see `skipPartialRange`.
-   *
-   * @default false
-   */
-  skipMissing: boolean;
-  /**
    * Whether to treat a value as missing when either of property or
    * rangeProperty is undefined, instead of collapsing to the defined one.
    *
@@ -2192,23 +2180,33 @@ export interface SeriesConfig {
    * By default a category with just one of `property`/`rangeProperty` undefined
    * keeps a zero-extent span collapsed at the defined value, so ranged areas
    * stay connected through it. When `true` such categories count as missing
-   * instead, following the configured missing-value treatment: a break in the
-   * shape, or skipped over when `skipMissing` is set, or drawn at the base when
-   * `showMissingAtBase` is set.
+   * instead, following the configured `missingValues` treatment.
    *
    * @default false
    */
-  skipPartialRange: boolean;
+  partialRangeIsMissing: boolean;
   /**
-   * Whether to use the series axis base value for missing values when drawing
-   * the shape for this series.
+   * What to draw at a category whose value is missing: break the shape at the
+   * gap (break), connect the neighbouring defined values (connect), or draw the
+   * point at the series axis base value (base).
    *
-   * An alternative missing-value treatment: instead of leaving a gap, missing
-   * values are drawn at the series axis base value.
+   * With `"connect"`, lines and areas bridge missing categories directly
+   * between the neighbouring defined values; with `"base"` the point is drawn
+   * at the series axis base value; the default `"break"` leaves a gap in the
+   * shape. For a series with a `rangeProperty`, a category counts as missing
+   * only when both properties are undefined — see `partialRangeIsMissing`.
+   *
+   * @default "break"
+   */
+  missingValues: MissingValues;
+  /**
+   * Whether to still show a marker at missing values (most useful with
+   * missingValues "base", which gives the marker a position).
    *
    * @default false
    */
-  showMissingAtBase: boolean;
+  missingValueMarkers: boolean;
+
   /**
    * Whether to animate leading/trailing series position values from their
    * adjacent values (true) or from the base value (false).
@@ -2282,7 +2280,7 @@ export interface SeriesConfig {
    *
    * Draws a decorative cap on the value end of each bar in the series;
    * `capSize` controls its extent. To cap only the outside of a stacked bar,
-   * see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.
+   * see `capOnlyStackOuter` and `seriesStacks[].outerCapType`.
    *
    * @default null
    */
@@ -2482,13 +2480,6 @@ export interface SeriesConfig {
    * @default 1
    */
   minMarkerSize: number;
-  /**
-   * Whether to show the marker when the value is missing (can be used in
-   * conjunction with showMissingAtBase).
-   *
-   * @default false
-   */
-  markerShowMissing: boolean;
   /**
    * The maximum marker size (in pixels) to use when interpolating the marker
    * size based on a marker property value, or the marker size when no marker

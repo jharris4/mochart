@@ -44,8 +44,7 @@ The config decides which properties the chart pulls from the provider:
 
 Series values must be numeric or `undefined` — how missing values render is
 controlled per series with
-[`skipMissing`](/reference/series#series.skipMissing) and
-[`showMissingAtBase`](/reference/series#series.showMissingAtBase).
+[`missingValues`](/reference/series#series.missingValues).
 
 ## Validating data against a config
 

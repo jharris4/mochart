@@ -46,7 +46,7 @@
       "axis": "VA0",
       "property": "value0",
       "rangeProperty": "value1",
-      "skipMissing": true
+      "missingValues": "connect"
     },
     {
       "renderer": "bar",
@@ -56,7 +56,7 @@
       "axis": "VA0",
       "property": "value2",
       "rangeProperty": "value3",
-      "skipMissing": true
+      "missingValues": "connect"
     }
   ]
 }

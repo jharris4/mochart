@@ -13,7 +13,7 @@ const config = enhanceConfig({
   plot: { inverted: true },
   categoryAxis: { property: 'step', type: 'string', scale: 'ordinal' },
   valueAxes: [{ base: 0 }],
-  series: [{ property: 'end', rangeProperty: 'start', renderer: 'bar', skipMissing: true, skipPartialRange: true }]
+  series: [{ property: 'end', rangeProperty: 'start', renderer: 'bar', missingValues: 'connect', partialRangeIsMissing: true }]
 } as unknown as MochartInputConfig) as unknown as EnhancedMochartConfig;
 
 // An inverted series axis ranges [0, extent], so the domain minimum maps to

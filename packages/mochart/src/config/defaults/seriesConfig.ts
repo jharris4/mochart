@@ -1,7 +1,7 @@
 import {
   AUTO, NONE, RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE, MARKER_SHAPE_CIRCLE, CURVE_TYPE_LINEAR,
   COLOR_SAME, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, COLOR_CURRENT, LABEL_POSITION_CENTER,
-  COLOR_INTERPOLATION_HCL
+  COLOR_INTERPOLATION_HCL, MISSING_VALUES_BREAK
 } from '../core/constants';
 
 import { deepMerge } from '../core/deepMerge';
@@ -36,9 +36,8 @@ export function getRegularDefaults() {
     gradient: NONE,
     ignore: false,
     renderer: RENDERER_LINE,
-    skipMissing: false,
-    skipPartialRange: false,
-    showMissingAtBase: false,
+    missingValues: MISSING_VALUES_BREAK,
+    partialRangeIsMissing: false,
     curve: { type: CURVE_TYPE_LINEAR },
     barWidthFraction: 1,
     barAlignFraction: 0.5,
@@ -97,7 +96,7 @@ export function getRegularDefaults() {
       }
     },
     minMarkerSize: 1,
-    markerShowMissing: false,
+    missingValueMarkers: false,
     markerSize: 6,
     markerStyle: {
       normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_SERIES, fillOpacity: 0.9 },

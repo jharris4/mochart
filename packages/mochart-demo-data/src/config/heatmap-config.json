@@ -63,7 +63,7 @@
         "max": "#1b3d72"
       },
       "renderer": "bar",
-      "skipMissing": true,
+      "missingValues": "connect",
       "group": null,
       "stack": null,
       "shapeStyle": {
@@ -87,7 +87,7 @@
         "max": "#1b3d72"
       },
       "renderer": "bar",
-      "skipMissing": true,
+      "missingValues": "connect",
       "group": null,
       "stack": null,
       "shapeStyle": {
@@ -111,7 +111,7 @@
         "max": "#0d366b"
       },
       "renderer": "bar",
-      "skipMissing": true,
+      "missingValues": "connect",
       "group": null,
       "stack": null,
       "shapeStyle": {
@@ -135,7 +135,7 @@
         "max": "#1f4074"
       },
       "renderer": "bar",
-      "skipMissing": true,
+      "missingValues": "connect",
       "group": null,
       "stack": null,
       "shapeStyle": {
@@ -159,7 +159,7 @@
         "max": "#3d5789"
       },
       "renderer": "bar",
-      "skipMissing": true,
+      "missingValues": "connect",
       "group": null,
       "stack": null,
       "shapeStyle": {
@@ -183,7 +183,7 @@
         "max": "#95aace"
       },
       "renderer": "bar",
-      "skipMissing": true,
+      "missingValues": "connect",
       "group": null,
       "stack": null,
       "shapeStyle": {
@@ -207,7 +207,7 @@
         "max": "#a1b6d8"
       },
       "renderer": "bar",
-      "skipMissing": true,
+      "missingValues": "connect",
       "group": null,
       "stack": null,
       "shapeStyle": {

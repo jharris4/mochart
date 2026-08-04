@@ -1,4 +1,4 @@
-import { NONE } from '../config/core/constants';
+import { NONE, MISSING_VALUES_BASE, MISSING_VALUES_CONNECT } from '../config/core/constants';
 import type { CategoryAxisConfig } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
 import type { AxisScale, CategoryAxisData, SeriesPosition, SeriesPositionAccessor, SeriesPositionData, SeriesValueObject } from '../types/data';
@@ -32,7 +32,7 @@ function normalizePriorPositions(seriesPositions: SeriesPosition[], seriesPriorP
 }
 
 export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, seriesConfig: EnhancedSeriesConfig, categoryValueData: CategoryAxisData['valueData'], valueAxisScale: AxisScale, valueObject: SeriesValueObject, seriesLayoutInfo: LayoutInfo): SeriesPositionData {
-  const { valueAxisConfig, seriesGroupConfig, showMissingAtBase, skipMissing, skipPartialRange, group, stack, rangeProperty, barWidthFraction, barAlignFraction } = seriesConfig;
+  const { valueAxisConfig, seriesGroupConfig, missingValues, partialRangeIsMissing, group, stack, rangeProperty, barWidthFraction, barAlignFraction } = seriesConfig;
   const { spacingInfo, positions: categoryPositions } = categoryValueData;
   const { base } = valueAxisConfig;
   const { min } = valueObject;
@@ -53,8 +53,8 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
     }
   }
 
-  const missingPosition = showMissingAtBase ? seriesBasePosition : undefined;
-  const skip = !showMissingAtBase && skipMissing; // skipMissing has no effect when showMissingAtBase is true
+  const missingPosition = missingValues === MISSING_VALUES_BASE ? seriesBasePosition : undefined;
+  const skip = missingValues === MISSING_VALUES_CONNECT;
 
   const seriesPositions: SeriesPosition[] = [];
   let seriesPriorPositions: SeriesPosition[] | null = null;
@@ -76,11 +76,11 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
     categoryValueOffset += (fullValueExtent - categoryValueExtent) * barAlignFraction;
   }
 
-  // With skipPartialRange, a ranged group missing either of its two values is
+  // With partialRangeIsMissing, a ranged group missing either of its two values is
   // treated as wholly missing here, before normalizePriorPositions can back-fill
   // the absent side and collapse the group to a zero-extent span. Stacked series
   // are exempt: their min holds stack priors, not range values.
-  const requireBothValues = skipPartialRange && rangeProperty !== NONE && stack === NONE && min !== null;
+  const requireBothValues = partialRangeIsMissing && rangeProperty !== NONE && stack === NONE && min !== null;
 
   let i, length = categoryPositions.length;
   let position;

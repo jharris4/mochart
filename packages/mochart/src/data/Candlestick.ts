@@ -217,7 +217,7 @@ export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolu
       property: direction + 'Volume',
       axis: VOLUME_AXIS_ID,
       renderer: 'bar',
-      skipMissing: true,
+      missingValues: 'connect',
       group: null,
       stack: null,
       showInLegend: false,
@@ -268,7 +268,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   };
 
   // Two bar series per direction, each defined for exactly one direction per
-  // group (skipMissing + skipPartialRange skip the other, as in the waterfall
+  // group (missingValues 'connect' + partialRangeIsMissing skip the other, as in the waterfall
   // helper): a thin low→high wick and a full-width open→close body painted
   // over it. Fills are opaque so the body fully covers the wick where they
   // overlap. Wicks stay out of the legend (they'd duplicate the body entries)
@@ -289,8 +289,8 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: hollow ? 'none' : 'bar',
       barWidthFraction: wickWidthFraction,
-      skipMissing: true,
-      skipPartialRange: true,
+      missingValues: 'connect',
+      partialRangeIsMissing: true,
       group: null,
       stack: null,
       showInLegend: false,
@@ -309,7 +309,7 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
 
   // The visible wick in hollow mode: a segment above the body (body top →
   // high) and one below (low → body bottom), gated to one direction per row
-  // by skipPartialRange — an up body's top/bottom are the close (`up`) and
+  // by partialRangeIsMissing — an up body's top/bottom are the close (`up`) and
   // the open (`upOpen`), a down body's the open and the close (`down`).
   // Segments stay out of the tooltip; the shapeless wick series above carries
   // the single low – high range row.
@@ -318,8 +318,8 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
       barWidthFraction: wickWidthFraction,
-      skipMissing: true,
-      skipPartialRange: true,
+      missingValues: 'connect',
+      partialRangeIsMissing: true,
       group: null,
       stack: null,
       showInLegend: false,
@@ -349,8 +349,8 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
       ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
       renderer: 'bar',
       barWidthFraction: bodyWidthFraction,
-      skipMissing: true,
-      skipPartialRange: true,
+      missingValues: 'connect',
+      partialRangeIsMissing: true,
       group: null,
       stack: null,
       title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],

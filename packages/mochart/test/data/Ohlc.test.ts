@@ -19,8 +19,8 @@ describe('createOhlc', () => {
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.id)).toEqual(['up', 'down', 'upOpen', 'downOpen', 'upClose', 'downClose']);
     for (const seriesConfig of seriesConfigs) {
       expect(seriesConfig.renderer).toBe('bar');
-      expect(seriesConfig.skipMissing).toBe(true);
-      expect(seriesConfig.skipPartialRange).toBe(true);
+      expect(seriesConfig.missingValues).toBe('connect');
+      expect(seriesConfig.partialRangeIsMissing).toBe(true);
       expect(seriesConfig.group).toBeNull();
       expect(seriesConfig.stack).toBeNull();
       expect(seriesConfig.shapeStyle!.normal!.fillOpacity).toBe(1);

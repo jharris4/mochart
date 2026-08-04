@@ -140,7 +140,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   };
 
   // Three bar series per direction, each defined for exactly one direction per
-  // group (skipMissing + skipPartialRange skip the other, as in the
+  // group (missingValues 'connect' + partialRangeIsMissing skip the other, as in the
   // candlestick helper): a thin centered low→high line, plus zero-extent range
   // bars (property and rangeProperty read the same value) that barMinExtent
   // expands into tick marks — the open tick in the left half of the slot
@@ -157,8 +157,8 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     ...(volumeOptions !== null ? { axis: PRICE_AXIS_ID } : {}),
     renderer: 'bar',
     barWidthFraction: lineWidthFraction,
-    skipMissing: true,
-    skipPartialRange: true,
+    missingValues: 'connect',
+    partialRangeIsMissing: true,
     group: null,
     stack: null,
     title: options.seriesTitles?.[direction] ?? DEFAULT_TITLES[direction],
@@ -184,8 +184,8 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
     barWidthFraction: tickWidthFraction,
     barAlignFraction: side === 'open' ? 0 : 1,
     barMinExtent: tickExtent,
-    skipMissing: true,
-    skipPartialRange: true,
+    missingValues: 'connect',
+    partialRangeIsMissing: true,
     group: null,
     stack: null,
     showInLegend: false,

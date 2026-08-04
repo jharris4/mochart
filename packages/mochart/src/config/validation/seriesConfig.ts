@@ -2,7 +2,7 @@ import validators from './validators';
 
 import {
   AUTO, NONE, RENDERERS, CURVE_TYPES, CAP_TYPES, LABEL_POSITIONS, COLOR_INTERPOLATIONS, MARKER_SHAPES,
-  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX
+  COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, MISSING_VALUES
 } from '../core/constants';
 import type { DeepPartial, SeriesConfig } from '../../types/config';
 import type { Validator } from '@mochart/movalid';
@@ -94,9 +94,8 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     colorProperty: validators.propertyOptional(),
     ignore: validators.boolean(),
     renderer: validators.oneOf(RENDERERS),
-    skipMissing: validators.boolean(),
-    skipPartialRange: validators.boolean(),
-    showMissingAtBase: validators.boolean(),
+    missingValues: validators.oneOf(MISSING_VALUES),
+    partialRangeIsMissing: validators.boolean(),
     curve: validators.objectWithShape({
       type: validators.oneOf(CURVE_TYPES),
       param: validators.numberMinMax(0, 1).orEqual(undefined)
@@ -174,7 +173,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     }, true),
     markerShape: validators.oneOf([NONE, ...MARKER_SHAPES]),
     minMarkerSize: validators.numberMin(0),
-    markerShowMissing: validators.boolean(),
+    missingValueMarkers: validators.boolean(),
     markerSize: validators.numberMin(0),
     markerStyle: styleStates(styleMembers, true),
     showInLegend: validators.boolean(),

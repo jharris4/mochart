@@ -49,7 +49,7 @@
   ],
   "seriesDefaults": {
     "markerSize": 6,
-    "skipMissing": true
+    "missingValues": "connect"
   },
   "series": [
     {

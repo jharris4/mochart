@@ -196,7 +196,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
         max: colorScale(rowDomain[1])
       },
       renderer: 'bar',
-      skipMissing: true,
+      missingValues: 'connect',
       group: null,
       stack: null,
       shapeStyle: { normal: { fillOpacity: 1 } },

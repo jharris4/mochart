@@ -1,6 +1,6 @@
 /**
- * skipPartialRange: a ranged bar series treats a group missing either of
- * property/rangeProperty as missing, so skipMissing drops it instead of
+ * partialRangeIsMissing: a ranged bar series treats a group missing either of
+ * property/rangeProperty as missing, so missingValues 'connect' drops it instead of
  * collapsing it to a zero-extent bar at the defined value. The waterfall
  * helper relies on this — every row carries the shared `start` range
  * property but a value for only one direction series, and without the
@@ -54,7 +54,7 @@ function runFrames(maxFrames = 500) {
   }
 }
 
-function renderWaterfall(skipPartialRange: boolean | undefined) {
+function renderWaterfall(partialRangeIsMissing: boolean | undefined) {
   const { createChart, enhanceConfig, ArrayOfObjectsDataProvider, createWaterfall } = mochart;
   const waterfall = createWaterfall([
     { label: 'Opening', value: 100, total: true },
@@ -69,7 +69,7 @@ function renderWaterfall(skipPartialRange: boolean | undefined) {
     series: waterfall.series.map((seriesConfig) => ({
       ...seriesConfig,
       axis: 'sa',
-      ...(skipPartialRange === undefined ? {} : { skipPartialRange })
+      ...(partialRangeIsMissing === undefined ? {} : { partialRangeIsMissing })
     }))
   });
   const container = document.createElement('div');
@@ -86,7 +86,7 @@ function renderWaterfall(skipPartialRange: boolean | undefined) {
   return { chart, container };
 }
 
-describe('skipPartialRange on a skipMissing bar series with a rangeProperty', () => {
+describe('partialRangeIsMissing on a connect bar series with a rangeProperty', () => {
   it('renders one bar per step across the waterfall direction series (helper default)', () => {
     const { chart, container } = renderWaterfall(undefined);
 

@@ -60,7 +60,7 @@ describe('createHeatmap', () => {
     expect(data[1].row1Start).toBeUndefined();
     expect(data[1].row1Value).toBeUndefined();
     expect(data[2].row2Value).toBeUndefined();
-    expect(seriesConfigs.every((seriesConfig) => seriesConfig.skipMissing === true)).toBe(true);
+    expect(seriesConfigs.every((seriesConfig) => seriesConfig.missingValues === 'connect')).toBe(true);
   });
 
   it('uses custom column labels', () => {

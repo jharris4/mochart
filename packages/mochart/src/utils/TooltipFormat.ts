@@ -1,4 +1,4 @@
-import { NONE, PIE_LABEL_TYPE_PERCENT } from '../config/core/constants';
+import { NONE, PIE_LABEL_TYPE_PERCENT, MISSING_VALUES_CONNECT } from '../config/core/constants';
 import { getSeriesLabel } from './SeriesTitle';
 import { formatPieLabelType, pieLabelTypeUsesPercent } from '../data/PieLabel';
 import type { PieTooltipLabelType } from '../config/core/constants';
@@ -128,16 +128,16 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Enhanc
   }
 
   // Mirror the shape's skip semantics (see getSeriesPositionData): with
-  // skipPartialRange a ranged group missing either value is wholly missing,
-  // and skipMissing omits missing groups from the shape — and from the
+  // partialRangeIsMissing a ranged group missing either value is wholly missing,
+  // and missingValues "connect" omits missing groups from the shape — and from the
   // tooltip, instead of a dangling "value – N/A" row. This is the
   // direction-split idiom (waterfall, candlestick, OHLC), where the missing
   // side means "not this series' direction", not "no data". A plain follower
   // series (followSeries — e.g. a direction-split volume bar) is part of the
   // same idiom, so its missing groups hide the same way.
-  if (seriesConfig.skipMissing && seriesConfig.stack === NONE) {
+  if (seriesConfig.missingValues === MISSING_VALUES_CONNECT && seriesConfig.stack === NONE) {
     const rawValueObject = series.raw.values[seriesConfig.id];
-    if (seriesConfig.rangeProperty !== NONE && seriesConfig.skipPartialRange &&
+    if (seriesConfig.rangeProperty !== NONE && seriesConfig.partialRangeIsMissing &&
       (rawValueObject.plain === undefined || rawValueObject.range === undefined)) {
       return { labelText, valueText: null };
     }

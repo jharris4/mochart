@@ -1,6 +1,6 @@
 /**
- * Regression tests for the skipMissing index-mapping cluster: position
- * compaction only happens for skipMissing without showMissingAtBase, and the
+ * Regression tests for the missingValues 'connect' index-mapping cluster: position
+ * compaction only happens for missingValues 'connect' without missingValues 'base', and the
  * compacted->raw remap (skipCategoryIndexMap) must stay in sync with the data and
  * feed every raw-indexed lookup (focus, colors, labels, marker sizes).
  */
@@ -57,7 +57,7 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('skipMissing with showMissingAtBase', () => {
+describe('missingValues base', () => {
   // Positions are not compacted in this combination, so the raw-index remap
   // must be the identity, not an empty-map lookup.
   it('still renders labels, markers, error bars and value colors', () => {
@@ -67,7 +67,7 @@ describe('skipMissing with showMissingAtBase', () => {
       { month: 'Mar', sales: 30, low: 27, high: 33 }
     ];
     const { container } = mountChart(makeConfig({
-      renderer: 'bar', skipMissing: true, showMissingAtBase: true,
+      renderer: 'bar', missingValues: 'base',
       labelProperty: 'sales', markerShape: 'circle', colorProperty: 'sales',
       errorLowProperty: 'low', errorHighProperty: 'high'
     }), rows);
@@ -84,11 +84,11 @@ describe('skipMissing with showMissingAtBase', () => {
   });
 });
 
-describe('skipMissing group-index remapping', () => {
+describe('missingValues connect group-index remapping', () => {
   it('remaps click focus through the current data, not a stale map', () => {
     const focuses: ChartFocus[] = [];
     const { container, handle } = mountChart(
-      makeConfig({ renderer: 'bar', skipMissing: true, focusCategoryOnClick: true }),
+      makeConfig({ renderer: 'bar', missingValues: 'connect', focusCategoryOnClick: true }),
       [{ month: 'Jan', sales: 10 }, { month: 'Feb' }, { month: 'Mar', sales: 30 }],
       { onFocus: focus => { focuses.push(focus); } }
     );
@@ -105,7 +105,7 @@ describe('skipMissing group-index remapping', () => {
 
   it('keeps categoryIndex palette colors raw-indexed across a gap', () => {
     const { container } = mountChart(makeConfig({
-      renderer: 'bar', skipMissing: true,
+      renderer: 'bar', missingValues: 'connect',
       shapeStyle: { normal: { fillColor: 'categoryIndex' } }
     }), [{ month: 'Jan', sales: 10 }, { month: 'Feb' }, { month: 'Mar', sales: 30 }]);
 
@@ -117,7 +117,7 @@ describe('skipMissing group-index remapping', () => {
 
   it('keeps markerProperty sizes raw-indexed when marker values have their own gaps', () => {
     const { container } = mountChart(makeConfig({
-      renderer: 'line', skipMissing: true, markerShape: 'circle', markerProperty: 'size'
+      renderer: 'line', missingValues: 'connect', markerShape: 'circle', markerProperty: 'size'
     }), [
       { month: 'Jan', sales: 10, size: 4 },
       { month: 'Feb', sales: 20 },

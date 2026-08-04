@@ -85,7 +85,7 @@ describe('getSeriesText', () => {
   });
 
   describe('skip semantics for ranged series (direction-split idiom)', () => {
-    const skipConfig = { rangeProperty: 'hi', skipMissing: true, skipPartialRange: true, stack: null };
+    const skipConfig = { rangeProperty: 'hi', missingValues: 'connect', partialRangeIsMissing: true, stack: null } as const;
 
     it('hides the row when the plain value is missing, even when missing values are shown', () => {
       const { valueText } = getSeriesText(
@@ -123,7 +123,7 @@ describe('getSeriesText', () => {
     it('hides a plain follower row when its value is missing (direction-split volume)', () => {
       const { valueText } = getSeriesText(
         makeTooltipConfig({ showMissingValues: true }),
-        makeSeriesConfig({ skipMissing: true, stack: null, followSeries: 'up' }),
+        makeSeriesConfig({ missingValues: 'connect', stack: null, followSeries: 'up' }),
         identity,
         makeSlice({}) as never, // plain undefined — the other direction's volume row
         false
@@ -131,10 +131,10 @@ describe('getSeriesText', () => {
       expect(valueText).toBe(null);
     });
 
-    it('keeps the missing-value text for a plain skipMissing series that follows nothing', () => {
+    it('keeps the missing-value text for a plain connect series that follows nothing', () => {
       const { valueText } = getSeriesText(
         makeTooltipConfig({ showMissingValues: true, missingValueText: 'N/A' }),
-        makeSeriesConfig({ skipMissing: true, stack: null }),
+        makeSeriesConfig({ missingValues: 'connect', stack: null }),
         identity,
         makeSlice({}) as never,
         false

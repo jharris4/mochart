@@ -46,6 +46,14 @@ export const POSITIONS = [
   POSITION_TOP, POSITION_BOTTOM
 ];
 
+export const MISSING_VALUES_BREAK = 'break';
+export const MISSING_VALUES_CONNECT = 'connect';
+export const MISSING_VALUES_BASE = 'base';
+
+export const MISSING_VALUES = [
+  MISSING_VALUES_BREAK, MISSING_VALUES_CONNECT, MISSING_VALUES_BASE
+];
+
 export const SIDE_START = 'start';
 export const SIDE_END = 'end';
 
@@ -176,6 +184,7 @@ export type Align = typeof ALIGN_LEFT | typeof ALIGN_CENTER | typeof ALIGN_RIGHT
 export type VerticalAlign = typeof VERTICAL_ALIGN_TOP | typeof VERTICAL_ALIGN_MIDDLE | typeof VERTICAL_ALIGN_BOTTOM;
 export type Anchor = typeof ANCHOR_START | typeof ANCHOR_END | typeof ANCHOR_MIDDLE;
 export type Position = typeof POSITION_TOP | typeof POSITION_BOTTOM;
+export type MissingValues = typeof MISSING_VALUES_BREAK | typeof MISSING_VALUES_CONNECT | typeof MISSING_VALUES_BASE;
 export type AxisSide = typeof SIDE_START | typeof SIDE_END;
 export type ThresholdTitleSide = typeof TITLE_SIDE_LOW | typeof TITLE_SIDE_HIGH;
 export type ChartType = typeof CHART_TYPE_XY | typeof CHART_TYPE_PIE;

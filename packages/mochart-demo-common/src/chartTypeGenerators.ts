@@ -316,7 +316,7 @@ function buildHeatmapSnapshot(): ChartTypeDemoSnapshot {
     label: profile.label,
     values: HEATMAP_COLUMNS.map((column, c) => {
       if (profile.label === 'Sat' && column === 'Apr') {
-        return null; // no data collected — demos the skipMissing gap
+        return null; // no data collected — demos the missingValues 'connect' gap
       }
       const t = (1 + Math.cos((c / HEATMAP_COLUMNS.length) * 2 * Math.PI)) / 2;
       return Math.round(profile.min + t * (profile.max - profile.min));

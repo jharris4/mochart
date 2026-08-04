@@ -2750,7 +2750,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.capType">
-<td><a href="#series.capType">capType</a></td><td>the type (point, curve, round, use null for none) of cap to use when drawing caps on a bar series<br/><br/>Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStackConfigs.outerCapType`.</td><td>should be one of [ "point", "curve", "round" ] or be equal to null</td><td><div>null</div>
+<td><a href="#series.capType">capType</a></td><td>the type (point, curve, round, use null for none) of cap to use when drawing caps on a bar series<br/><br/>Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStacks[].outerCapType`.</td><td>should be one of [ "point", "curve", "round" ] or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="series.colorProperty">
@@ -3129,10 +3129,6 @@ table thead td { border-bottom-width: 2px; }
 <div>"circle" (when renderer is none)</div>
 </td>
 </tr>
-<tr id="series.markerShowMissing">
-<td><a href="#series.markerShowMissing">markerShowMissing</a></td><td>whether to show the marker when the value is missing (can be used in conjunction with showMissingAtBase)</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
 <tr id="series.markerSize">
 <td><a href="#series.markerSize">markerSize</a></td><td>the maximum marker size (in pixels) to use when interpolating the marker size based on a marker property value, or the marker size when no marker property is used</td><td>should be a number >= to 0</td><td><div>6</div>
 </td>
@@ -3229,10 +3225,22 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#series.minMarkerSize">minMarkerSize</a></td><td>the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value</td><td>should be a number >= to 0</td><td><div>1</div>
 </td>
 </tr>
+<tr id="series.missingValueMarkers">
+<td><a href="#series.missingValueMarkers">missingValueMarkers</a></td><td>whether to still show a marker at missing values (most useful with missingValues "base", which gives the marker a position)</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
+<tr id="series.missingValues">
+<td><a href="#series.missingValues">missingValues</a></td><td>what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the series axis base value (base)<br/><br/>With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the series axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.</td><td>should be one of [ "break", "connect", "base" ]</td><td><div>"break"</div>
+</td>
+</tr>
 <tr id="series.order">
 <td><a href="#series.order">order</a></td><td>the unique integer order of the series controlling its order of appearance</td><td><p>should be an integer</p>
 <p>should be unique</p>
 </td><td><div>${index} (series index)</div>
+</td>
+</tr>
+<tr id="series.partialRangeIsMissing">
+<td><a href="#series.partialRangeIsMissing">partialRangeIsMissing</a></td><td>whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one<br/><br/>Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValues` treatment.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="series.property">
@@ -3378,18 +3386,6 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="series.showInTooltip">
 <td><a href="#series.showInTooltip">showInTooltip</a></td><td>whether to show the series in the tooltip</td><td>should be a boolean</td><td><div>true</div>
-</td>
-</tr>
-<tr id="series.showMissingAtBase">
-<td><a href="#series.showMissingAtBase">showMissingAtBase</a></td><td>whether to use the series axis base value for missing values when drawing the shape for this series<br/><br/>An alternative missing-value treatment: instead of leaving a gap, missing values are drawn at the series axis base value.</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
-<tr id="series.skipMissing">
-<td><a href="#series.skipMissing">skipMissing</a></td><td>whether to skip undefined values when drawing the shape for this series<br/><br/>When `true`, categories whose value is missing (`undefined`) are left out of the shape, so lines and areas connect directly between the neighbouring defined values; when `false` the shape breaks at the gap. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `skipPartialRange`.</td><td>should be a boolean</td><td><div>false</div>
-</td>
-</tr>
-<tr id="series.skipPartialRange">
-<td><a href="#series.skipPartialRange">skipPartialRange</a></td><td>whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one<br/><br/>Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured missing-value treatment: a break in the shape, or skipped over when `skipMissing` is set, or drawn at the base when `showMissingAtBase` is set.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="series.stack">

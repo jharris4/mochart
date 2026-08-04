@@ -56,7 +56,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor, markerStrokeOpacity, markerFillOpacity, markerStrokeWidth;
-      const { markerShape, markerShowMissing, markerSize, minMarkerSize } = seriesConfig;
+      const { markerShape, missingValueMarkers, markerSize, minMarkerSize } = seriesConfig;
       const { normal: markerNormal, focused: markerFocused, defocused: markerDefocused } = seriesConfig.markerStyle;
       const markers: MarkerItem[] = [];
       let markerSizes: Array<number | undefined> | null = null;
@@ -91,7 +91,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
 
       for (let i = 0; i < length; i++) {
         const skipI = skipped ? skipCategoryIndexMap[i] : i;
-        if (getDefined(null, i) && (markerShowMissing || max[skipI] !== undefined)) {
+        if (getDefined(null, i) && (missingValueMarkers || max[skipI] !== undefined)) {
           focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
           markerFillColor = getSeriesMarkerFillColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);
           markerStrokeColor = getSeriesMarkerStrokeColor(colorPaletteConfig, seriesConfig, seriesIndex, focusPercentage, null, skipI);

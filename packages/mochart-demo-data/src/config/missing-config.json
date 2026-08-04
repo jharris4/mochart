@@ -27,15 +27,15 @@
     },
     {
       "title": "Base Missing",
-      "showMissingAtBase": true,
       "markerShape": "square",
-      "property": "value2"
+      "property": "value2",
+      "missingValues": "base"
     },
     {
       "title": "Skip Missing",
-      "skipMissing": true,
       "markerShape": "triangle",
-      "property": "value3"
+      "property": "value3",
+      "missingValues": "connect"
     }
   ]
 }

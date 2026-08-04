@@ -1,5 +1,5 @@
 /**
- * Regression test: a skipMissing bar series with a colorProperty must color
+ * Regression test: a missingValues 'connect' bar series with a colorProperty must color
  * each bar from its raw group index. The bar renderer used the compacted
  * position index to look up color (and focus) values, so once a gap was
  * skipped every later bar read the wrong group's color value — the heatmap
@@ -49,7 +49,7 @@ function runFrames(maxFrames = 500) {
   }
 }
 
-describe('skipMissing bar series with a colorProperty', () => {
+describe('missingValues connect bar series with a colorProperty', () => {
   it('colors bars after a skipped group from their own color values', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({
@@ -57,7 +57,7 @@ describe('skipMissing bar series with a colorProperty', () => {
       categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
       valueAxes: [{ id: 'sa' }],
       series: [{
-        axis: 'sa', property: 'value', renderer: 'bar', skipMissing: true,
+        axis: 'sa', property: 'value', renderer: 'bar', missingValues: 'connect',
         colorProperty: 'heat',
         colorScale: { interpolation: 'rgb', min: '#000000', max: '#ffffff' }
       }]
