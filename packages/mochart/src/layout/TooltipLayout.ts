@@ -36,7 +36,7 @@ export function getTooltipLayoutInfo(mochartConfig: EnhancedMochartConfig, toolt
       {
         ...seriesLayoutInfo,
         x: chartContentLayoutInfo.x + seriesLayoutInfo.x,
-        y: chartContentLayoutInfo.x + seriesLayoutInfo.y
+        y: chartContentLayoutInfo.y + seriesLayoutInfo.y
       },
       tooltipLayoutInfo);
   }
