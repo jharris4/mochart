@@ -22,7 +22,6 @@ array-of-objects dataset:
   import { DefaultChart } from '@mochart/svelte';
 
   const config = {
-    version: '1.0.0',
     title: { text: 'Revenue' },
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     seriesDefaults: { renderer: 'bar' },

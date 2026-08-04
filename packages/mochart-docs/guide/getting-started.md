@@ -49,7 +49,6 @@ import * as basic from '../examples/basic'
 import { createDefaultChart } from '@mochart/core';
 
 const config = {
-  version: '1.0.0',
   title: { text: 'Monthly Revenue' },
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
   seriesDefaults: { renderer: 'bar' },
@@ -75,11 +74,11 @@ const chart = createDefaultChart(document.getElementById('chart'), {
 
 Three things to notice:
 
-- `version` pins the config format ([validation](/guide/config-model#validation)
-  requires the current version, and `migrateConfig` upgrades configs written
-  against older ones).
 - `categoryAxis.property` and each series' `property` name the dataset
-  fields to read — the category (category) value and the series values.
+  fields to read — the category value and the series values.
+- An optional `version` pins the config format — worth including in configs
+  you store or share, so `migrateConfig` can upgrade them if the format
+  changes ([validation](/guide/config-model#validation)).
 - Everything else is optional. Axes, legend, tooltip, crosshair, and
   animation all come with defaults; the
   [config reference](/reference/) documents every property.

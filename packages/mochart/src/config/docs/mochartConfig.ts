@@ -1,6 +1,6 @@
 export default function getDescriptions() {
   return {
-    version: 'The version of the configuration format',
+    version: 'The version of the configuration format (optional: omitted means the current format; include it in stored or shared configs so future releases can migrate them)',
     id: 'An optional identifier for the config (any value, not interpreted by the chart)',
     animation: 'Configure the chart animation settings',
     chart: 'Configure general settings of the chart',

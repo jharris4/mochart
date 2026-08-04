@@ -7,7 +7,6 @@ defaults.
 
 ```js
 const config = {
-  version: '1.0.0',
   title: { … },        // chart title
   categoryAxis: { … },    // the category axis (requires `property`)
   series: [ … ],      // one entry per series (each requires `property`)
@@ -153,9 +152,10 @@ empty path.
 
 Two things validation insists on:
 
-- **`version`** must equal the current config format version (`'1.0.0'`).
-  Configs written against an older format can be upgraded with
-  `migrateConfig(config)`.
+- **`version`**, when present, must equal the current config format version
+  (`'1.0.0'`). Omitting it means "the current format". Include it in configs
+  you store or share — configs written against an older format can then be
+  upgraded with `migrateConfig(config)`.
 - **Unknown properties** produce warnings, and a config with warnings is
   rejected in strict mode — typos surface immediately instead of being
   silently ignored.

@@ -74,7 +74,9 @@ export function getCommonReferenceMessage(sourceSectionKey: string | string[], s
 
 export const configWithoutAllValidators: Record<string, ConfigSectionValidator> = {
   version: {
-    validator: validators.equal(CONFIG_VERSION)
+    // optional: an omitted version means the current config format; a present
+    // version must be one the migration machinery knows
+    validator: validators.equal(CONFIG_VERSION).orEqual(undefined)
   },
   id: {
     validator: validators.any()

@@ -35,11 +35,28 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({
       valid: false,
       errors: [
-        'version - should be equal to "' + VERSION_STRING + '": undefined',
         'categoryAxis - property - should be a defined value: undefined'
       ],
       warnings: []
     });
+  });
+
+  it('accepts a config with no version, reading it as the current format', () => {
+    const mochartConfig = enhance({
+      categoryAxis: { property: 'month' },
+      series: [{ property: 'sales' }]
+    });
+    expect(mochartConfig.validation).toEqual({ valid: true, errors: [], warnings: [] });
+  });
+
+  it('rejects an unknown version', () => {
+    const mochartConfig = enhance({
+      version: '0.9.0',
+      categoryAxis: { property: 'month' },
+      series: [{ property: 'sales' }]
+    });
+    expect(mochartConfig.validation.valid).toBe(false);
+    expect(mochartConfig.validation.errors.some(error => error.includes('version'))).toBe(true);
   });
 
   it('should validate a minimal valid config object', () => {
