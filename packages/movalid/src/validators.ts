@@ -264,7 +264,7 @@ const argumentTypeValidatorDefinitions = {
     validator: (minLength: number, maxLength: number) => v =>
       typeValidators.string(v) && v.length >= minLength && v.length <= maxLength,
     message: (minLength: number, maxLength: number) =>
-      "should be a stringy with length >= to " + minLength + " and <= to " + maxLength
+      "should be a string with length >= to " + minLength + " and <= to " + maxLength
   },
   equal: {
     validator: (value: any) => v => v === value,
