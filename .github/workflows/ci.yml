@@ -24,6 +24,8 @@ jobs:
       # npm ci runs the root prepare script, which builds all the library
       # packages (movalid, mochart, and the framework bindings).
       - run: npm ci
+      - run: npm run lint
+      - run: npm run deadcode
       - run: npm run typecheck
       - run: npm test
       - run: npx playwright install --with-deps chromium
