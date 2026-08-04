@@ -32,7 +32,7 @@ test('clicking the plot opens a tooltip and crosshair with one line per series',
 
   const tooltip = page.locator('.mochart-tooltip');
   await expect(tooltip).toBeVisible();
-  await expect(tooltip).toContainText('Group');
+  await expect(tooltip).toContainText('Category');
   const seriesCount = await page.locator('.mochart-series').count();
   await expect(page.locator('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
     .toHaveCount(seriesCount);
