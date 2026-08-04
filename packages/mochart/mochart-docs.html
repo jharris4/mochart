@@ -520,7 +520,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.before">
-<td><a href="#categoryAxis.before">before</a></td><td>whether the axis should be position before (top/left) or after (bottom/right) the chart</td><td>should be a boolean</td><td><div>true (when plotConfig.inverted is true)</div>
+<td><a href="#categoryAxis.before">before</a></td><td>whether the axis should be positioned before (top/left) or after (bottom/right) the chart</td><td>should be a boolean</td><td><div>true (when plotConfig.inverted is true)</div>
 <div>false (when plotConfig.inverted is false)</div>
 </td>
 </tr>
@@ -714,7 +714,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.minCategoryValueExtent">
-<td><a href="#categoryAxis.minCategoryValueExtent">minCategoryValueExtent</a></td><td>the minimum category extent (in pixels) for a non-inverted bar this is the minimum width</td><td>should be a number >= to 1</td><td><div>1</div>
+<td><a href="#categoryAxis.minCategoryValueExtent">minCategoryValueExtent</a></td><td>the minimum extent (in pixels) of each category slot; for a non-inverted bar chart this is a minimum bar width</td><td>should be a number >= to 1</td><td><div>1</div>
 </td>
 </tr>
 <tr id="categoryAxis.minOffset">
@@ -728,7 +728,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.minTickSpacing">
-<td><a href="#categoryAxis.minTickSpacing">minTickSpacing</a></td><td>the minimum space (in pixels) to allow between the the bounds of any tick label text</td><td>should be a number >= to 0</td><td><div>12 (when scale is linear)</div>
+<td><a href="#categoryAxis.minTickSpacing">minTickSpacing</a></td><td>the minimum space (in pixels) to allow between the bounds of any tick label text</td><td>should be a number >= to 0</td><td><div>12 (when scale is linear)</div>
 <div>4 (when scale is ordinal)</div>
 </td>
 </tr>
@@ -765,7 +765,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.threshold">
-<td><a href="#categoryAxis.threshold">threshold</a></td><td>the number (or date) value to show a threshold line at</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
+<td><a href="#categoryAxis.threshold">threshold</a></td><td>the numeric value to show a threshold line at (use null for none; on a date category axis, give a millisecond timestamp)</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
 <p>should be a number or be equal to null when scale is linear and type is number</p>
 <p>should be equal to null when scale is ordinal</p>
 </td><td><div>null</div>
@@ -1633,7 +1633,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="linearGradients.stops">
-<td><a href="#linearGradients.stops">stops</a></td><td>the list of svg gradient stops, with offet, color and opacity properties</td><td>should be a non-empty array with elements that should be an object with exact properties { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }</td><td><div></div>
+<td><a href="#linearGradients.stops">stops</a></td><td>the list of svg gradient stops, with offset, color and opacity properties</td><td>should be a non-empty array with elements that should be an object with exact properties { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }</td><td><div></div>
 </td>
 </tr>
 <tr id="linearGradients.x1">
@@ -1917,7 +1917,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="radialGradients.stops">
-<td><a href="#radialGradients.stops">stops</a></td><td>the list of svg gradient stops, with offet, color and opacity properties</td><td>should be a non-empty array with elements that should be an object with exact properties { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }</td><td><div></div>
+<td><a href="#radialGradients.stops">stops</a></td><td>the list of svg gradient stops, with offset, color and opacity properties</td><td>should be a non-empty array with elements that should be an object with exact properties { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }</td><td><div></div>
 </td>
 </tr>
 </table>
@@ -2089,7 +2089,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.before">
-<td><a href="#valueAxes.before">before</a></td><td>whether the axis should be position before (top/left) or after (bottom/right) the chart</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#valueAxes.before">before</a></td><td>whether the axis should be positioned before (top/left) or after (bottom/right) the chart</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="valueAxes.collapsed">
@@ -2279,7 +2279,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.minTickSpacing">
-<td><a href="#valueAxes.minTickSpacing">minTickSpacing</a></td><td>the minimum space (in pixels) to allow between the the bounds of any tick label text</td><td>should be a number >= to 0</td><td><div>12</div>
+<td><a href="#valueAxes.minTickSpacing">minTickSpacing</a></td><td>the minimum space (in pixels) to allow between the bounds of any tick label text</td><td>should be a number >= to 0</td><td><div>12</div>
 </td>
 </tr>
 <tr id="valueAxes.order">
@@ -2309,7 +2309,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.threshold">
-<td><a href="#valueAxes.threshold">threshold</a></td><td>the number (or date) value to show a threshold line at</td><td>should be a number or be equal to null</td><td><div>null</div>
+<td><a href="#valueAxes.threshold">threshold</a></td><td>the numeric value to show a threshold line at (use null for none; on a date category axis, give a millisecond timestamp)</td><td>should be a number or be equal to null</td><td><div>null</div>
 </td>
 </tr>
 <tr id="valueAxes.thresholdDashArray">
@@ -2869,7 +2869,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.useSeriesFocus">
-<td><a href="#valueAxes.useSeriesFocus">useSeriesFocus</a></td><td>whether to show the axis as focused when any series belonging to is focused</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#valueAxes.useSeriesFocus">useSeriesFocus</a></td><td>whether to show the axis as focused when any series belonging to it is focused</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="valueAxes.visible">
@@ -3138,11 +3138,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelAboveBaseMaxPositionFraction">
-<td><a href="#series.labelAboveBaseMaxPositionFraction">labelAboveBaseMaxPositionFraction</a></td><td>the maximum position fraction (0 - 1) from the domain maximum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<td><a href="#series.labelAboveBaseMaxPositionFraction">labelAboveBaseMaxPositionFraction</a></td><td>the labelMaxPositionFraction bound applied only to series values above the base value (use "auto" to inherit labelMaxPositionFraction, null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="series.labelAboveBaseMinPositionFraction">
-<td><a href="#series.labelAboveBaseMinPositionFraction">labelAboveBaseMinPositionFraction</a></td><td>the minimum position fraction (0 - 1) above the base value for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<td><a href="#series.labelAboveBaseMinPositionFraction">labelAboveBaseMinPositionFraction</a></td><td>the labelMinPositionFraction bound applied only to series values above the base value (use "auto" to inherit labelMinPositionFraction, null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="series.labelAboveBaseOffset">
@@ -3154,11 +3154,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.labelBelowBaseMaxPositionFraction">
-<td><a href="#series.labelBelowBaseMaxPositionFraction">labelBelowBaseMaxPositionFraction</a></td><td>the maximum position fraction (0 - 1) below the base value for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<td><a href="#series.labelBelowBaseMaxPositionFraction">labelBelowBaseMaxPositionFraction</a></td><td>the labelMaxPositionFraction bound applied only to series values below the base value (use "auto" to inherit labelMaxPositionFraction, null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="series.labelBelowBaseMinPositionFraction">
-<td><a href="#series.labelBelowBaseMinPositionFraction">labelBelowBaseMinPositionFraction</a></td><td>the minimum position fraction (0 - 1) from the domain minimum for which series labels should be shown (use null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<td><a href="#series.labelBelowBaseMinPositionFraction">labelBelowBaseMinPositionFraction</a></td><td>the labelMinPositionFraction bound applied only to series values below the base value (use "auto" to inherit labelMinPositionFraction, null for none)</td><td>should be a number >= to 0 and <= 1 or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="series.labelBelowBaseOffset">
@@ -4137,7 +4137,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="tooltip.linePadding">
-<td><a href="#tooltip.linePadding">linePadding</a></td><td>the padding (in pixels) betwen each line of the tooltip</td><td>should be a number >= to 0</td><td><div>3</div>
+<td><a href="#tooltip.linePadding">linePadding</a></td><td>the padding (in pixels) between each line of the tooltip</td><td>should be a number >= to 0</td><td><div>3</div>
 </td>
 </tr>
 <tr id="tooltip.minWidth">

@@ -6,6 +6,6 @@ export default function getDescriptions() {
     y1: 'the y1 property of the svg linear gradient',
     y2: 'the y2 property of the svg linear gradient',
     rotation: 'the rotation property (in degrees) of the svg linear gradient',
-    stops: 'the list of svg gradient stops, with offet, color and opacity properties'
+    stops: 'the list of svg gradient stops, with offset, color and opacity properties'
   };
 }

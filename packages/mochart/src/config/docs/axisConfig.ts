@@ -42,7 +42,7 @@ export default function getDescriptions() {
     backgroundStyle: style('the styles to apply to the axis background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     backgroundFront: 'whether the axis background should be shown in front (true) or behind (false) the series shapes',
 
-    before: 'whether the axis should be position before (top/left) or after (bottom/right) the chart',
+    before: 'whether the axis should be positioned before (top/left) or after (bottom/right) the chart',
 
     collapsed: 'whether the axis should consume space in the layout (false) or not (true)',
 
@@ -69,13 +69,13 @@ export default function getDescriptions() {
 
     maxTickCount: 'the maximum number of ticks to show along the length of the axis (use 0 to disable the maximum)',
 
-    minTickSpacing: 'the minimum space (in pixels) to allow between the the bounds of any tick label text',
+    minTickSpacing: 'the minimum space (in pixels) to allow between the bounds of any tick label text',
     minTickInterval: 'the minimum value interval to use between any two consecutive tick label values',
 
     paddingInner: 'the inner (closest to chart) padding (in pixels) of the axis',
     paddingOuter: 'the outer (furthest from chart) padding (in pixels) of the axis',
 
-    threshold: 'the number (or date) value to show a threshold line at',
+    threshold: 'the numeric value to show a threshold line at (use null for none; on a date category axis, give a millisecond timestamp)',
     thresholdFront: 'whether the threshold line should be shown in front (true) or behind (false) the series shapes',
     thresholdTitle: 'The title to show next to the threshold line (use null for none)',
     thresholdTitleBefore: 'whether the threshold title should be positioned on the smaller (true) or larger (false) value side of the threshold line',

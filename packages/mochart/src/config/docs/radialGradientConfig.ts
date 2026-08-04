@@ -7,6 +7,6 @@ export default function getDescriptions() {
     fy: 'the fy property of the svg radial gradient',
     r: 'the r property of the svg radial gradient',
     rotation: 'the rotation property (in degrees) of the svg radial gradient',
-    stops: 'the list of svg gradient stops, with offet, color and opacity properties'
+    stops: 'the list of svg gradient stops, with offset, color and opacity properties'
   };
 }

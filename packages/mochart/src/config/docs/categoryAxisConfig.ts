@@ -12,7 +12,7 @@ export default function getDescriptions() {
     valueFormat: 'the d3 format string to be applied to the category value when displayed in the tooltip (use null for none, use "auto" to derive from data)',
     valuePrefix: 'the text to prefix category values with when showing them in the tooltip (use null for none)',
     valueSuffix: 'the text to append category values with when showing them in the tooltip (use null for none)',
-    minCategoryValueExtent: 'the minimum category extent (in pixels) for a non-inverted bar this is the minimum width',
+    minCategoryValueExtent: 'the minimum extent (in pixels) of each category slot; for a non-inverted bar chart this is a minimum bar width',
     categoryPaddingFraction: {
       description: 'the padding fractions (0 - 1) of the category extent for all category values (outer) and grouped series (inner)',
       properties: {

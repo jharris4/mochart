@@ -493,7 +493,7 @@ export interface CrosshairConfig {
    *
    * @default "10, 5"
    */
-  lineDashArray: string;
+  lineDashArray: string | null;
   /**
    * Whether to show the crosshair lines for sections where they are overlapped
    * by the tooltip.
@@ -1024,7 +1024,7 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   padding: number;
   /**
-   * The padding (in pixels) betwen each line of the tooltip.
+   * The padding (in pixels) between each line of the tooltip.
    *
    * @default 3
    */
@@ -1195,7 +1195,7 @@ export interface AxisConfigBase {
   backgroundFront: boolean;
 
   /**
-   * Whether the axis should be position before (top/left) or after
+   * Whether the axis should be positioned before (top/left) or after
    * (bottom/right) the chart.
    *
    * Group axis defaults:
@@ -1375,8 +1375,8 @@ export interface AxisConfigBase {
   minOffset: number;
 
   /**
-   * The minimum space (in pixels) to allow between the the bounds of any tick
-   * label text.
+   * The minimum space (in pixels) to allow between the bounds of any tick label
+   * text.
    *
    * Group axis defaults:
    * - `12` — when scale is linear
@@ -1429,7 +1429,8 @@ export interface AxisConfigBase {
   softMax: number | null;
 
   /**
-   * The number (or date) value to show a threshold line at.
+   * The numeric value to show a threshold line at (use null for none; on a date
+   * category axis, give a millisecond timestamp).
    *
    * @default null
    */
@@ -1773,8 +1774,8 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    */
   categoryCountPadding: number;
   /**
-   * The minimum category extent (in pixels) for a non-inverted bar this is the
-   * minimum width.
+   * The minimum extent (in pixels) of each category slot; for a non-inverted
+   * bar chart this is a minimum bar width.
    *
    * @default 1
    */
@@ -2021,7 +2022,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   type: DataType;
   /**
-   * Whether to show the axis as focused when any series belonging to is
+   * Whether to show the axis as focused when any series belonging to it is
    * focused.
    *
    * @default true
@@ -2501,33 +2502,33 @@ export interface SeriesConfig {
    */
   labelPosition: LabelPosition;
   /**
-   * The minimum position fraction (0 - 1) above the base value for which series
-   * labels should be shown (use null for none).
+   * The labelMinPositionFraction bound applied only to series values above the
+   * base value (use "auto" to inherit labelMinPositionFraction, null for none).
    *
    * @default "auto"
    */
-  labelAboveBaseMinPositionFraction: number | Auto;
+  labelAboveBaseMinPositionFraction: number | Auto | null;
   /**
-   * The maximum position fraction (0 - 1) from the domain maximum for which
-   * series labels should be shown (use null for none).
+   * The labelMaxPositionFraction bound applied only to series values above the
+   * base value (use "auto" to inherit labelMaxPositionFraction, null for none).
    *
    * @default "auto"
    */
-  labelAboveBaseMaxPositionFraction: number | Auto;
+  labelAboveBaseMaxPositionFraction: number | Auto | null;
   /**
-   * The minimum position fraction (0 - 1) from the domain minimum for which
-   * series labels should be shown (use null for none).
+   * The labelMinPositionFraction bound applied only to series values below the
+   * base value (use "auto" to inherit labelMinPositionFraction, null for none).
    *
    * @default "auto"
    */
-  labelBelowBaseMinPositionFraction: number | Auto;
+  labelBelowBaseMinPositionFraction: number | Auto | null;
   /**
-   * The maximum position fraction (0 - 1) below the base value for which series
-   * labels should be shown (use null for none).
+   * The labelMaxPositionFraction bound applied only to series values below the
+   * base value (use "auto" to inherit labelMaxPositionFraction, null for none).
    *
    * @default "auto"
    */
-  labelBelowBaseMaxPositionFraction: number | Auto;
+  labelBelowBaseMaxPositionFraction: number | Auto | null;
   /**
    * The series position offset (in pixels) to apply to all series label
    * positions that are above the base value (use "auto" to derive from the
@@ -2801,7 +2802,7 @@ export interface LinearGradientConfig {
    * @default 0
    */
   rotation: number;
-  /** The list of svg gradient stops, with offet, color and opacity properties. */
+  /** The list of svg gradient stops, with offset, color and opacity properties. */
   stops?: GradientStop[];
 }
 
@@ -2850,7 +2851,7 @@ export interface RadialGradientConfig {
    * @default 0
    */
   rotation: number;
-  /** The list of svg gradient stops, with offet, color and opacity properties. */
+  /** The list of svg gradient stops, with offset, color and opacity properties. */
   stops?: GradientStop[];
 }
 

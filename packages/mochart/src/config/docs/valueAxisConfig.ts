@@ -22,7 +22,7 @@ export default function getDescriptions() {
     minMarginFraction: 'the margin, as a fraction (0 or greater) of the domain of the axis, to use at the minimum extent of the axis (only applied if min is "auto" and min value is not equal base)',
     focusOnMouseOver: 'whether the series axis should be focused whenever the user mouses over a part of it in the chart',
     focusOnClick: 'whether the series axis should be focused whenever the user clicks/taps a part of it in the chart',
-    useSeriesFocus: 'whether to show the axis as focused when any series belonging to is focused',
+    useSeriesFocus: 'whether to show the axis as focused when any series belonging to it is focused',
   };
 }
 export function getDetails() {

@@ -30,7 +30,7 @@ export default function getDescriptions() {
     keepInside: 'whether to keep the tooltip within the series drawing area (true) or allow it to overlap the axes (false)',
     minWidth: 'the minimum width (in pixels) for the tooltip',
     padding: 'the padding (in pixels) to show on each side of the tooltip',
-    linePadding: 'the padding (in pixels) betwen each line of the tooltip',
+    linePadding: 'the padding (in pixels) between each line of the tooltip',
     alignValues: 'whether to right-align the values shown in the tooltip',
     backgroundStyle,
     borderRadius: 'the radius (in pixels) of the corners of the tooltip',
