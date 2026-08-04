@@ -13,7 +13,7 @@ import { hasCategoryAdditions, getExpansionCategoryValueDeltaData, getCollapseCa
 import { mapMap } from '../utils/utils';
 
 import { SCALE_ORDINAL } from '../config/core/constants';
-import type { AxisDomains, ChartData, CategoryAxisDomain, NullableDomain, SeriesDomainObject, SeriesDomainObjects } from '../types/data';
+import type { AxisDomains, ChartData, CategoryAxisDomain, NullableDomain, SeriesDomainObject, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type {
   AxisDeltaData, CompleteNumericArrayDelta, DomainDelta, DomainDeltaMap, CategoryDeltaData,
@@ -256,8 +256,11 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
 
   adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas);
 
+  // series hidden at the start of the expansion render nothing during it, so they must not stretch its duration
+  const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSeriesDomainDeltas, prevChartData.seriesData.filtered.values);
+
   return createAxisDeltaData(startChartData, endChartData, finalChartData, categoryAxisDomainDelta, rawValueAxisDomainDeltas,
-    filteredValueAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, categoryValueDeltaData);
+    filteredValueAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData);
 }
 
 export function getTransitionAxisCollapseData(mochartConfig: EnhancedMochartConfig, prevChartData: ChartData, newChartData: ChartData, categoryDeltaData: CategoryDeltaData): AxisDeltaData {
@@ -318,8 +321,26 @@ export function getTransitionAxisCollapseData(mochartConfig: EnhancedMochartConf
 
   adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas);
 
+  // series hidden at the end of the collapse render nothing during it, so they must not stretch its duration
+  const filteredSeriesPacingDeltaPercentage = getVisibleSeriesPacingDeltaPercentage(filteredSeriesDomainDeltas, newChartData.seriesData.filtered.values);
+
   return invertAxisDeltas(createAxisDeltaData(startChartData, endChartData, newChartData, categoryAxisDomainDelta,
-    rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, categoryValueDeltaData));
+    rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas, rawSeriesDomainDeltas, filteredSeriesDomainDeltas, filteredSeriesPacingDeltaPercentage, categoryValueDeltaData));
+}
+
+// pacing max over visible series only; the map keeps every entry so end/final domain bookkeeping still covers hidden series
+function getVisibleSeriesPacingDeltaPercentage(seriesDomainDeltas: SeriesDomainDeltaMap, filteredSeriesValues: SeriesValueObjects): number {
+  if (seriesDomainDeltas.deltas === null) {
+    return 0;
+  }
+  let pacingDeltaPercentage = 0;
+  const seriesIds = Object.keys(seriesDomainDeltas.deltas);
+  for (const seriesId of seriesIds) {
+    if (filteredSeriesValues[seriesId].plain !== null) {
+      pacingDeltaPercentage = Math.max(pacingDeltaPercentage, seriesDomainDeltas.deltas[seriesId].deltaPercentage);
+    }
+  }
+  return pacingDeltaPercentage;
 }
 
 function adjustFilteredAxisDomainDeltas(valueAxisConfigs: EnhancedValueAxisConfig[], rawValueAxisDomainDeltas: DomainDeltaMap, filteredValueAxisDomainDeltas: DomainDeltaMap): void {
@@ -423,9 +444,10 @@ function getSeriesDomainDelta(fromDomainObject: SeriesDomainObject, toDomainObje
 }
 
 function createAxisDeltaData(startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, categoryAxisDomainDelta: DomainDelta, rawValueAxisDomainDeltas: DomainDeltaMap,
-                             filteredValueAxisDomainDeltas: DomainDeltaMap, rawSeriesDomainDeltas: SeriesDomainDeltaMap, filteredSeriesDomainDeltas: SeriesDomainDeltaMap, categoryValueDeltaData: CompleteNumericArrayDelta | null): AxisDeltaData {
+                             filteredValueAxisDomainDeltas: DomainDeltaMap, rawSeriesDomainDeltas: SeriesDomainDeltaMap, filteredSeriesDomainDeltas: SeriesDomainDeltaMap,
+                             filteredSeriesPacingDeltaPercentage: number, categoryValueDeltaData: CompleteNumericArrayDelta | null): AxisDeltaData {
   const deltaPercentage = Math.max(categoryAxisDomainDelta.deltaPercentage, rawValueAxisDomainDeltas.deltaPercentage,
-    filteredValueAxisDomainDeltas.deltaPercentage, rawSeriesDomainDeltas.deltaPercentage, filteredSeriesDomainDeltas.deltaPercentage,
+    filteredValueAxisDomainDeltas.deltaPercentage, rawSeriesDomainDeltas.deltaPercentage, filteredSeriesPacingDeltaPercentage,
     categoryValueDeltaData ? categoryValueDeltaData.deltaPercentage : 0);
   setDeltaFactor(categoryAxisDomainDelta, deltaPercentage);
   setCategoryValueDeltaFactor(categoryValueDeltaData, deltaPercentage);

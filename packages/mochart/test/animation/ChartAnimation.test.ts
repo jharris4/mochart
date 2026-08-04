@@ -244,3 +244,35 @@ describe('tooltip value deltas drive the phase pacing', () => {
     expect(raw.deltas.S0.tooltip.deltaFactor).toBeGreaterThanOrEqual(1);
   });
 });
+
+// Regression: a series being unfiltered carries a filtered-domain delta (null
+// -> full extent) that paced a dead axis-expansion phase ahead of the value
+// phase, so restoring a series via the legend lagged while filtering it was
+// instant. Hidden series render nothing, so they must not stretch phase
+// durations -- but their deltas stay in the map so end/final domains still
+// cover them (the value phase renders the returning series against them).
+describe('hidden series are excluded from axis phase pacing', () => {
+  const pacingConfig = makeConfig({
+    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    series: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
+  });
+  const bId = pacingConfig.series[1].id;
+  // b stays inside a's extent so toggling it never changes any axis domain
+  const rows = [{ g: 0, a: 0, b: 10 }, { g: 1, a: 100, b: 90 }];
+  const dataFor = (filtered: Record<string, boolean>) =>
+    getChartData(pacingConfig, new ArrayOfObjectsDataProvider(rows, 'g'), filtered);
+
+  it('unfiltering starts the value phase immediately (no dead expansion phase)', () => {
+    const cad = getChartAnimationData(pacingConfig, dataFor({ [bId]: true }), dataFor({})) as any;
+    expect(cad.axisExpansionData.deltaPercentage).toBe(0);
+    expect(cad.valueChangeData.deltaPercentage).toBeGreaterThan(0);
+    // domain bookkeeping still lands the returning series' scale for the value phase
+    expect(cad.axisExpansionData.final.seriesData.filtered.domains[bId].domain).toEqual([10, 90]);
+  });
+
+  it('filtering has no dead collapse tail', () => {
+    const cad = getChartAnimationData(pacingConfig, dataFor({}), dataFor({ [bId]: true })) as any;
+    expect(cad.axisCollapseData.deltaPercentage).toBe(0);
+    expect(cad.valueChangeData.deltaPercentage).toBeGreaterThan(0);
+  });
+});
