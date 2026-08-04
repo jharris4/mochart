@@ -1,4 +1,8 @@
-import { AUTO, NONE, ELLIPSIS, COLOR_CURRENT, COLOR_SAME } from '../core/constants';
+import { AUTO, NONE, ELLIPSIS, COLOR_CURRENT, COLOR_SAME, SIDE_START, TITLE_SIDE_HIGH } from '../core/constants';
+import { deepMerge } from '../core/deepMerge';
+import type { StrokeStyleStates, Style, StyleStates, ThresholdConfig } from '../../types/config';
+import type { MarginPadding } from '../../types/geometry';
+import type { ThresholdTitleSide } from '../core/constants';
 
 export default function getDefaults() {
   return {
@@ -14,7 +18,7 @@ export default function getDefaults() {
     backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
     backgroundFront: false,
 
-    before: true,
+    side: SIDE_START,
 
     collapsed: false,
 
@@ -61,25 +65,7 @@ export default function getDefaults() {
     softMin: NONE,
     softMax: NONE,
 
-    threshold: NONE,
-    thresholdFront: true,
-    thresholdTitle: NONE,
-    thresholdTitleBefore: false,
-    thresholdTitleSnapToValue: true,
-    thresholdTitleMargin: { top: 0, right: 0, bottom: 0, left: 0 },
-    thresholdTitlePadding: { top: 0, right: 0, bottom: 0, left: 0 },
-    // 'none' rather than null: stroke="none" firewalls a host-css stroke inheriting onto the text.
-    thresholdTitleTextStyle: {
-      normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 }
-    },
-    thresholdTitleBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 },
-    thresholdStyle: {
-      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
-      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
-      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
-    },
+    thresholds: [],
 
     tickCount: AUTO,
 
@@ -128,4 +114,51 @@ export default function getDefaults() {
     },
     visible: true
   };
+}
+
+/** The defaults merged under each `thresholds` entry (the array itself replaces wholesale). */
+export function getThresholdEntryDefaults() {
+  return {
+    front: true,
+    style: {
+      normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: NONE },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 0.65, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 0.325, strokeWidth: COLOR_SAME, strokeDashArray: COLOR_SAME }
+    },
+    title: NONE,
+    titleSide: TITLE_SIDE_HIGH,
+    titleSnapToValue: true,
+    titleMargin: { top: 0, right: 0, bottom: 0, left: 0 },
+    titlePadding: { top: 0, right: 0, bottom: 0, left: 0 },
+    // 'none' rather than null: stroke="none" firewalls a host-css stroke inheriting onto the text.
+    titleTextStyle: {
+      normal: { strokeColor: 'none', strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 1 },
+      focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },
+      defocused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: NONE, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 }
+    },
+    titleBackgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 }
+  };
+}
+
+/** A `thresholds` entry with every member filled from the entry defaults. */
+export interface ResolvedThreshold {
+  value: number | string;
+  front: boolean;
+  style: StrokeStyleStates;
+  title: string | null;
+  titleSide: ThresholdTitleSide;
+  titleSnapToValue: boolean;
+  titleMargin: MarginPadding;
+  titlePadding: MarginPadding;
+  titleTextStyle: StyleStates;
+  titleBackgroundStyle: Style;
+}
+
+export function resolveThresholds(thresholds: readonly ThresholdConfig[] | undefined): ResolvedThreshold[] {
+  if (!Array.isArray(thresholds)) {
+    return [];
+  }
+  return thresholds
+    .filter(entry => entry !== null && typeof entry === 'object' && (typeof entry.value === 'number' || typeof entry.value === 'string'))
+    .map(entry => deepMerge(getThresholdEntryDefaults(), entry as Record<string, unknown>) as unknown as ResolvedThreshold);
 }

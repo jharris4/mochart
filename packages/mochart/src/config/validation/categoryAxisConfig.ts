@@ -79,12 +79,6 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
       { ...scaleOrdinalRule, validator: validators.equal(NONE) },
       { ...defaultRule, validator: validators.any() }
     ], config),
-    threshold: validators.conditional([
-      { ...linearDateRule, validator: validators.dateAny().orEqual(NONE) },
-      { ...linearNumberRule, validator: validators.number().orEqual(NONE) },
-      { ...scaleOrdinalRule, validator: validators.equal(NONE) },
-      { ...defaultRule, validator: validators.any() }
-    ], config),
     tickLabelFormat: validators.conditional([
       { ...typeStringRule, validator: validators.oneOf([NONE, AUTO]) },
       { ...typeDateRule, validator: validators.dateFormat().orOneOf([NONE, AUTO]) },

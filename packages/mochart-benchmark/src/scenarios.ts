@@ -66,7 +66,7 @@ export function makeConfig(type: ScenarioType, seriesCount: number, options: Sce
       type: 'number',
       scale: 'ordinal'
     },
-    valueAxes: [{ id: 'VA0', before: true, min: 0, max: 500 }],
+    valueAxes: [{ id: 'VA0', side: 'start', min: 0, max: 500 }],
     seriesGroups: {},
     seriesDefaults,
     series

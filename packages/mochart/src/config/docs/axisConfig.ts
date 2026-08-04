@@ -44,7 +44,7 @@ export default function getDescriptions() {
     backgroundStyle: style('the styles to apply to the axis background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
     backgroundFront: 'whether the axis background should be shown in front (true) or behind (false) the series shapes',
 
-    before: 'whether the axis should be positioned before (top/left) or after (bottom/right) the chart',
+    side: 'whether the axis is placed at the start (top/left) or end (bottom/right) of the chart',
 
     collapsed: 'whether the axis should consume space in the layout (false) or not (true)',
 
@@ -74,17 +74,22 @@ export default function getDescriptions() {
     paddingInner: 'the inner (closest to chart) padding (in pixels) of the axis',
     paddingOuter: 'the outer (furthest from chart) padding (in pixels) of the axis',
 
-    threshold: 'the numeric value to show a threshold line at (use null for none; on a date category axis, give a millisecond timestamp)',
-    thresholdFront: 'whether the threshold line should be shown in front (true) or behind (false) the series shapes',
-    thresholdTitle: 'The title to show next to the threshold line (use null for none)',
-    thresholdTitleBefore: 'whether the threshold title should be positioned on the smaller (true) or larger (false) value side of the threshold line',
-    thresholdTitleSnapToValue: 'whether to ignore titleBefore if the label has no room on that side of the threshold line',
-    thresholdTitleMargin: spacing('The margin (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation'),
-    thresholdTitlePadding: spacing('The padding (top,right,bottom,left) (in pixels) of the threshold title - relative to its orientation'),
-    thresholdTitleTextStyle: styleStates('the style of the threshold title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
-    thresholdTitleBackgroundStyle: style('the styles to apply to the threshold title background (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))'),
-    thresholdStyle: styleStates('the style of the threshold line', strokeMembers),
 
+    thresholds: {
+      description: 'the threshold lines to draw on the axis, each an object drawing a reference line across the plot at an axis value (the array replaces the default wholesale)',
+      properties: {
+        value: 'the axis value to draw the threshold line at (on a date category axis, a millisecond timestamp)',
+        front: 'whether the line is drawn in front of (true) or behind (false) the series shapes',
+        style: styleStates('the style of the threshold line', lineMembers),
+        title: 'the title text shown beside the line (use null for none)',
+        titleSide: 'which value side of the line the title sits on ("low" for smaller values, "high" for larger)',
+        titleSnapToValue: 'whether the title flips to the other side when it has no room',
+        titleMargin: spacing('the margin (in pixels) of the threshold title, relative to its orientation'),
+        titlePadding: spacing('the padding (in pixels) of the threshold title, relative to its orientation'),
+        titleTextStyle: styleStates('the style of the threshold title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
+        titleBackgroundStyle: partialStyle('the styles to apply to the threshold title background', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity'])
+      }
+    },
     tickCount: 'the number of ticks to show along the length of the axis (use "auto" to derive the tick count from the data)',
 
     tickLabelFront: 'whether the axis tick labels should be shown in front (true) or behind (false) the series shapes',

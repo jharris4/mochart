@@ -46,6 +46,20 @@ export const POSITIONS = [
   POSITION_TOP, POSITION_BOTTOM
 ];
 
+export const SIDE_START = 'start';
+export const SIDE_END = 'end';
+
+export const SIDES = [
+  SIDE_START, SIDE_END
+];
+
+export const TITLE_SIDE_LOW = 'low';
+export const TITLE_SIDE_HIGH = 'high';
+
+export const THRESHOLD_TITLE_SIDES = [
+  TITLE_SIDE_LOW, TITLE_SIDE_HIGH
+];
+
 export const CHART_TYPE_XY = 'xy';
 export const CHART_TYPE_PIE = 'pie';
 
@@ -162,6 +176,8 @@ export type Align = typeof ALIGN_LEFT | typeof ALIGN_CENTER | typeof ALIGN_RIGHT
 export type VerticalAlign = typeof VERTICAL_ALIGN_TOP | typeof VERTICAL_ALIGN_MIDDLE | typeof VERTICAL_ALIGN_BOTTOM;
 export type Anchor = typeof ANCHOR_START | typeof ANCHOR_END | typeof ANCHOR_MIDDLE;
 export type Position = typeof POSITION_TOP | typeof POSITION_BOTTOM;
+export type AxisSide = typeof SIDE_START | typeof SIDE_END;
+export type ThresholdTitleSide = typeof TITLE_SIDE_LOW | typeof TITLE_SIDE_HIGH;
 export type ChartType = typeof CHART_TYPE_XY | typeof CHART_TYPE_PIE;
 export type PieTooltipLabelType =
   typeof PIE_LABEL_TYPE_VALUE | typeof PIE_LABEL_TYPE_PERCENT |

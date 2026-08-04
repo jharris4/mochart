@@ -10,8 +10,8 @@
     "scale": "ordinal"
   },
   "valueAxes": {
-    "before": true,
-    "min": 0
+    "min": 0,
+    "side": "start"
   },
   "seriesStacks": [
     {

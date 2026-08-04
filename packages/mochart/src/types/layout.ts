@@ -56,7 +56,7 @@ export interface AxisLayoutInfo extends SpacingLayoutInfo, LayoutInfo {
   titleLayoutInfo: SpacingLayoutInfo | Bounds;
   tickLabelLayoutInfo: SpacingLayoutInfo;
   focusRangeLayoutInfo: SpacingLayoutInfo | Bounds;
-  thresholdTitleLayoutInfo: SpacingLayoutInfo | Bounds;
+  thresholdTitleLayoutInfos: (SpacingLayoutInfo | Bounds)[];
   titleTextX: number;
   titleTextY: number;
   titleTextAngle: number;
@@ -124,10 +124,10 @@ export interface ChartTextBoundsData {
   categoryAxisTickBounds: TextBounds;
   categoryAxisSizeTickBounds: TextBounds;
   categoryAxisTitleBounds: TextBounds;
-  categoryAxisThresholdTitleBounds: TextBounds;
+  categoryAxisThresholdTitleBounds: Record<number, TextBounds>;
   valueAxisTickBounds: Record<string, TextBounds>;
   valueAxisTitleBounds: Record<string, TextBounds>;
-  valueAxisThresholdTitleBounds: Record<string, TextBounds>;
+  valueAxisThresholdTitleBounds: Record<string, Record<number, TextBounds>>;
   legendBounds: TextBounds;
   /**
    * Arrays when the legend is visible; TextMeasurement returns a single empty

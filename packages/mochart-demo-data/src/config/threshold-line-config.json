@@ -21,33 +21,41 @@
   "valueAxes": [
     {
       "id": "VA0",
-      "before": true,
       "adjustForFiltering": true,
-      "threshold": 20,
-      "thresholdTitle": "Title For Threshold 20",
-      "thresholdTitlePadding": {
-        "top": 5,
-        "right": 5,
-        "bottom": 5,
-        "left": 5
-      },
-      "thresholdTitleBefore": true,
-      "thresholdTitleSnapToValue": true
+      "side": "start",
+      "thresholds": [
+        {
+          "value": 20,
+          "title": "Title For Threshold 20",
+          "titleSide": "low",
+          "titleSnapToValue": true,
+          "titlePadding": {
+            "top": 5,
+            "right": 5,
+            "bottom": 5,
+            "left": 5
+          }
+        }
+      ]
     },
     {
       "id": "VA1",
-      "before": false,
       "adjustForFiltering": false,
-      "threshold": -5,
-      "thresholdTitle": "Title For Threshold -5",
-      "thresholdTitlePadding": {
-        "top": 5,
-        "right": 5,
-        "bottom": 5,
-        "left": 5
-      },
-      "thresholdTitleBefore": false,
-      "thresholdTitleSnapToValue": true
+      "side": "end",
+      "thresholds": [
+        {
+          "value": -5,
+          "title": "Title For Threshold -5",
+          "titleSide": "high",
+          "titleSnapToValue": true,
+          "titlePadding": {
+            "top": 5,
+            "right": 5,
+            "bottom": 5,
+            "left": 5
+          }
+        }
+      ]
     }
   ],
   "seriesStacks": {

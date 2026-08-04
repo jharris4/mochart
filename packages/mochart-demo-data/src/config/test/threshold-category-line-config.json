@@ -15,15 +15,19 @@
     "displayProperty": "display",
     "type": "date",
     "scale": "linear",
-    "threshold": "2017-03-12T00:00:00.000000-03:00",
-    "thresholdTitle": "Test Title For Threshold March 12 3AM",
-    "thresholdTitlePadding": {
-      "top": 5,
-      "right": 5,
-      "bottom": 5,
-      "left": 5
-    },
-    "thresholdTitleBefore": false
+    "thresholds": [
+      {
+        "value": "2017-03-12T00:00:00.000000-03:00",
+        "title": "Test Title For Threshold March 12 3AM",
+        "titleSide": "high",
+        "titlePadding": {
+          "top": 5,
+          "right": 5,
+          "bottom": 5,
+          "left": 5
+        }
+      }
+    ]
   },
   "valueAxes": [
     {

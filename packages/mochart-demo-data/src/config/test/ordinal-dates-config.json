@@ -14,7 +14,6 @@
   "categoryAxis": {
     "property": "month_bought",
     "type": "date",
-    "before": false,
     "axisLine": true,
     "axisLineMargin": 0,
     "gridLines": true,
@@ -22,17 +21,18 @@
     "tickLabelFormat": "%B %Y",
     "tickLabelTruncationEnabled": false,
     "valueFormat": "%B %Y",
-    "valueLabel": "Category"
+    "valueLabel": "Category",
+    "side": "end"
   },
   "valueAxes": [
     {
       "id": "VA0",
-      "before": true,
       "visible": true,
       "axisLineMargin": 0,
       "gridLines": true,
       "tickLabelFormat": "$.0f",
-      "min": 0
+      "min": 0,
+      "side": "start"
     }
   ],
   "seriesStacks": [

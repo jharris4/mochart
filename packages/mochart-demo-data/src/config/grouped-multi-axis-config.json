@@ -12,13 +12,13 @@
   "valueAxes": [
     {
       "id": "VA0",
-      "before": true,
-      "min": 0
+      "min": 0,
+      "side": "start"
     },
     {
       "id": "VA1",
-      "before": false,
-      "min": 0
+      "min": 0,
+      "side": "end"
     }
   ],
   "seriesGroups": {},

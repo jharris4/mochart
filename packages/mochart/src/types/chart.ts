@@ -51,10 +51,10 @@ export interface ChartDomAccessors {
   getCategoryAxisTicksDomElements(): NodeListOf<SVGGraphicsElement>;
   getCategoryAxisSizeTickDomElement(): SVGGraphicsElement | null;
   getCategoryAxisTitleDomElement(): SVGGraphicsElement | null;
-  getCategoryAxisThresholdTitleDomElement(): SVGGraphicsElement | null;
+  getCategoryAxisThresholdTitleDomElements(): NodeListOf<SVGGraphicsElement>;
   getValueAxisTicksDomElementsForId(axisId: string): NodeListOf<SVGGraphicsElement>;
   getValueAxisTitleDomElementForId(axisId: string): SVGGraphicsElement | null;
-  getValueAxisThresholdTitleDomElementForId(axisId: string): SVGGraphicsElement | null;
+  getValueAxisThresholdTitleDomElementsForId(axisId: string): NodeListOf<SVGGraphicsElement>;
   getLegendDomElement(): HTMLElement | null;
   getLegendItemTextDomElements(): NodeListOf<SVGGraphicsElement>;
   getLegendItemTextRawDomElements(): NodeListOf<SVGGraphicsElement>;

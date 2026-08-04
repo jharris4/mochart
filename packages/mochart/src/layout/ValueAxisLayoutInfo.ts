@@ -1,4 +1,5 @@
 import { arrayToMap, idAccessor } from '../utils/utils';
+import { SIDE_START } from '../config/core/constants';
 import { getAxisSize, setExtraAxisInfo, getRotatedTickBounds } from './PlotLayout';
 import { createInnerOuterSpacingLayoutInfo } from './SpacingLayoutInfo';
 import type { Bounds, TextBounds } from '../types/geometry';
@@ -12,7 +13,7 @@ export const emptyLayoutInfo: Bounds = {
 function getValueAxisSizeConsumption(axisConfigs: EnhancedValueAxisConfig[], axisSizes: Record<string, number>, isBefore: boolean): number {
   let totalSize = 0;
   for (const axisConfig of axisConfigs) {
-    if (axisConfig.collapsed === false && axisConfig.before === isBefore) {
+    if (axisConfig.collapsed === false && (axisConfig.side === SIDE_START) === isBefore) {
       totalSize+= axisSizes[axisConfig.id];
     }
   }
@@ -48,7 +49,8 @@ export function createValueAxisLayoutInfos(mochartConfig: EnhancedMochartConfig,
   let currentSeriesCollapsedOffsetBefore = 0;
   let currentSeriesCollapsedOffsetAfter = 0;
   return arrayToMap<EnhancedValueAxisConfig, AxisLayoutInfo>(valueAxisConfigs, idAccessor, valueAxisConfig => {
-    const { id, before, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = valueAxisConfig;
+    const { id, side, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = valueAxisConfig;
+    const before = side === SIDE_START;
     // Hidden/filtered axes still get a full layout info — their size is
     // already 0 (getValueAxisSizes) so they consume no space, but the scales
     // for their series need the seriesExtent set by setExtraAxisInfo.

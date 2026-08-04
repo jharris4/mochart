@@ -12,7 +12,6 @@
     "focusDuration": 700
   },
   "categoryAxis": {
-    "before": false,
     "title": "Time (in Minutes)",
     "axisLine": true,
     "axisLineMargin": 0,
@@ -21,15 +20,16 @@
     "scale": "linear",
     "dateUTC": true,
     "valueLabel": "Time",
-    "property": "time"
+    "property": "time",
+    "side": "end"
   },
   "valueAxes": {
-    "before": true,
     "axisLineMargin": 0,
     "gridLines": true,
     "tickLabelFormat": "$s",
     "title": "Sales Value",
-    "min": 0
+    "min": 0,
+    "side": "start"
   },
   "seriesDefaults": {
     "markerShape": null

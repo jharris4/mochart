@@ -12,7 +12,6 @@
     "focusDuration": 700
   },
   "categoryAxis": {
-    "before": false,
     "title": "Time (in Minutes)",
     "axisLine": true,
     "axisLineMargin": 0,
@@ -21,7 +20,8 @@
     "scale": "linear",
     "dateUTC": true,
     "valueLabel": "Time",
-    "property": "time"
+    "property": "time",
+    "side": "end"
   },
   "valueAxisDefaults": {
     "axisLineMargin": 0,
@@ -30,25 +30,25 @@
   },
   "valueAxes": [
     {
-      "before": true,
       "tickLabelFormat": "$s",
       "title": "Sales Value",
-      "id": "VA1"
+      "id": "VA1",
+      "side": "start"
     },
     {
-      "before": true,
       "tickLabelFormat": "$s",
-      "id": "VA0"
+      "id": "VA0",
+      "side": "start"
     },
     {
-      "before": false,
       "gridLines": true,
-      "id": "VA2"
+      "id": "VA2",
+      "side": "end"
     },
     {
-      "before": false,
       "title": "Sold Count",
-      "id": "VA3"
+      "id": "VA3",
+      "side": "end"
     }
   ],
   "seriesDefaults": {

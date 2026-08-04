@@ -5,6 +5,7 @@ import { isObject } from '../config/defaults/utils';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartDomAccessors } from '../types/chart';
 import type { ChartTextBoundsData } from '../types/layout';
+import { resolveThresholds } from '../config/defaults/axisConfig';
 import type { Size, TextBounds } from '../types/geometry';
 
 type AccessorSpec = keyof ChartDomAccessors | [keyof ChartDomAccessors, string];
@@ -274,13 +275,42 @@ export function getCategoryAxisTitleBounds(mochartConfig: EnhancedMochartConfig,
   return categoryAxisTitleBounds;
 }
 
-export function getCategoryAxisThresholdTitleBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds {
-  const { categoryAxis: categoryAxisConfig } = mochartConfig;
-  let categoryAxisThresholdTitleBounds: TextBounds = emptyBounds;
-  if (categoryAxisConfig.visible && categoryAxisConfig.threshold !== NONE&& categoryAxisConfig.thresholdTitle !== NONE) {
-    categoryAxisThresholdTitleBounds = getSvgBounds(domAccessors, 'getCategoryAxisThresholdTitleDomElement', defaultBounds);
+
+const thresholdTitleIndexPattern = /mochart-axis-threshold-title-(\d+)/;
+
+/** Measured bounds for each rendered threshold title, keyed by threshold index (read from the title group's index class). */
+function getThresholdTitleBoundsByIndex(domAccessors: ChartDomAccessors | null | undefined, thresholds: readonly { title: string | null }[], accessor: () => NodeListOf<SVGGraphicsElement>): Record<number, TextBounds> {
+  const boundsByIndex: Record<number, TextBounds> = {};
+  const measured: Record<number, TextBounds> = {};
+  if (domAccessors) {
+    const elements = accessor();
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i]!;
+      const match = thresholdTitleIndexPattern.exec(element.getAttribute('class') ?? '');
+      const text = element.querySelector<SVGGraphicsElement>('text');
+      if (match !== null && text !== null) {
+        const bounds = getSvgWidthAndHeight(text);
+        if (bounds && bounds.width !== 0 && bounds.height !== 0) {
+          measured[Number(match[1])] = bounds;
+        }
+      }
+    }
   }
-  return categoryAxisThresholdTitleBounds;
+  thresholds.forEach((threshold, index) => {
+    if (threshold.title !== NONE) {
+      boundsByIndex[index] = measured[index] ?? defaultBounds;
+    }
+  });
+  return boundsByIndex;
+}
+
+export function getCategoryAxisThresholdTitleBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): Record<number, TextBounds> {
+  const { categoryAxis: categoryAxisConfig } = mochartConfig;
+  if (!categoryAxisConfig.visible) {
+    return {};
+  }
+  return getThresholdTitleBoundsByIndex(domAccessors, resolveThresholds(categoryAxisConfig.thresholds),
+    () => domAccessors!.getCategoryAxisThresholdTitleDomElements());
 }
 
 
@@ -310,14 +340,14 @@ export function getValueAxisTitleBounds(mochartConfig: EnhancedMochartConfig, do
   return valueAxisTitleBounds;
 }
 
-export function getValueAxisThresholdTitleBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): Record<string, TextBounds> {
+export function getValueAxisThresholdTitleBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): Record<string, Record<number, TextBounds>> {
   const { valueAxes: valueAxisConfigs } = mochartConfig;
   const valueAxisThresholdTitleBounds = arrayToMap(valueAxisConfigs, idAccessor, valueAxisConfig => {
-    let aValueAxisThresholdTitleBounds: TextBounds = emptyBounds;
-    if (valueAxisConfig.visible && valueAxisConfig.threshold !== NONE && valueAxisConfig.thresholdTitle !== NONE) {
-      aValueAxisThresholdTitleBounds = getSvgBounds(domAccessors, ['getValueAxisThresholdTitleDomElementForId', valueAxisConfig.id], defaultBounds);
+    if (!valueAxisConfig.visible) {
+      return {};
     }
-    return aValueAxisThresholdTitleBounds;
+    return getThresholdTitleBoundsByIndex(domAccessors, resolveThresholds(valueAxisConfig.thresholds),
+      () => domAccessors!.getValueAxisThresholdTitleDomElementsForId(valueAxisConfig.id));
   });
   return valueAxisThresholdTitleBounds;
 }

@@ -40,6 +40,7 @@ export const mochartCssClasses = {
           categoryAxisThreshold: 'mochart-category-axis-threshold',
           valueAxisThreshold: 'mochart-value-axis-threshold mochart-value-axis-threshold-',
             axisThreshold: 'mochart-axis-threshold',
+            axisThresholdTitle: 'mochart-axis-threshold-title mochart-axis-threshold-title-',
             axisThresholdMin: 'mochart-axis-threshold-min',
             axisThresholdMax: 'mochart-axis-threshold-max',
             axisThresholdRange: 'mochart-axis-threshold-range',
@@ -121,7 +122,7 @@ function getCategoryAxisTitleCssSelector() {
 }
 
 function getCategoryAxisThresholdTitleCssSelector() {
-  return '.' + [mochartCssClasses['categoryAxisThreshold'], mochartCssClasses['axisThreshold']].join(' .') + ' text';
+  return '.' + [mochartCssClasses['categoryAxisThreshold'], mochartCssClasses['axisThresholdTitle'].split(' ')[0]].join(' .');
 }
 
 function getValueAxisTickLabelsCssSelectorForId(axisId: string) {
@@ -133,7 +134,7 @@ function getValueAxisTitleCssSelectorForId(axisId: string) {
 }
 
 function getValueAxisThresholdTitleCssSelectorForId(axisId: string) {
-  return '.' + [mochartCssClasses['valueAxisThreshold'].split(' ')[1] + axisId, mochartCssClasses['axisThreshold']].join(' .') + ' text';
+  return '.' + [mochartCssClasses['valueAxisThreshold'].split(' ')[1] + axisId, mochartCssClasses['axisThresholdTitle'].split(' ')[0]].join(' .');
 }
 
 function getLegendCssSelector() {
@@ -161,10 +162,10 @@ export function getDomAccessors(chartElement: Element): ChartDomAccessors {
     getCategoryAxisTicksDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getCategoryAxisTickLabelsCssSelector()),
     getCategoryAxisSizeTickDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCategoryAxisSizeTickLabelCssSelector()),
     getCategoryAxisTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCategoryAxisTitleCssSelector()),
-    getCategoryAxisThresholdTitleDomElement: () => chartElement.querySelector<SVGGraphicsElement>(getCategoryAxisThresholdTitleCssSelector()),
+    getCategoryAxisThresholdTitleDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getCategoryAxisThresholdTitleCssSelector()),
     getValueAxisTicksDomElementsForId: (axisId: string) => chartElement.querySelectorAll<SVGGraphicsElement>(getValueAxisTickLabelsCssSelectorForId(axisId)),
     getValueAxisTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getValueAxisTitleCssSelectorForId(axisId)),
-    getValueAxisThresholdTitleDomElementForId: (axisId: string) => chartElement.querySelector<SVGGraphicsElement>(getValueAxisThresholdTitleCssSelectorForId(axisId)),
+    getValueAxisThresholdTitleDomElementsForId: (axisId: string) => chartElement.querySelectorAll<SVGGraphicsElement>(getValueAxisThresholdTitleCssSelectorForId(axisId)),
     getLegendDomElement: () => chartElement.querySelector<HTMLElement>(getLegendCssSelector()),
     getLegendItemTextDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getLegendItemTextsCssSelector()),
     getLegendItemTextRawDomElements: () => chartElement.querySelectorAll<SVGGraphicsElement>(getLegendItemTextRawsCssSelector()),

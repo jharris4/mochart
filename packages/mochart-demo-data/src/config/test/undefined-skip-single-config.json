@@ -8,7 +8,6 @@
     "missingValueText": "N/A"
   },
   "categoryAxis": {
-    "before": false,
     "title": "Group Axis",
     "gridLines": true,
     "min": "auto",
@@ -22,24 +21,25 @@
         "strokeWidth": 1,
         "strokeDashArray": "5, 5"
       }
-    }
+    },
+    "side": "end"
   },
   "valueAxes": [
     {
-      "before": true,
       "title": "Series Axis 1",
       "axisLine": true,
       "gridLines": false,
       "id": "VA0",
-      "base": 0
+      "base": 0,
+      "side": "start"
     },
     {
-      "before": false,
       "title": "Series Axis 2",
       "axisLine": true,
       "gridLines": true,
       "id": "VA1",
-      "base": 0
+      "base": 0,
+      "side": "end"
     }
   ],
   "seriesGroups": [

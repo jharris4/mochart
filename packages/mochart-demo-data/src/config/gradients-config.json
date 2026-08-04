@@ -12,19 +12,19 @@
     "focusDuration": 700
   },
   "categoryAxis": {
-    "before": false,
     "axisLine": true,
     "axisLineMargin": 0,
     "type": "number",
     "scale": "ordinal",
     "valueLabel": "Category",
-    "property": "categoryNO"
+    "property": "categoryNO",
+    "side": "end"
   },
   "valueAxes": {
-    "before": true,
     "axisLineMargin": 0,
     "gridLines": true,
-    "min": 0
+    "min": 0,
+    "side": "start"
   },
   "linearGradientDefaults": {
     "x1": 0,

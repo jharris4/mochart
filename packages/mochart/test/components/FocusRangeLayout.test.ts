@@ -1,5 +1,5 @@
 /**
- * Axis title / tick label / focus range box placement for before ("outer left")
+ * Axis title / tick label / focus range box placement for start ("outer left")
  * and after ("outer right") series axes, and for the group axis.
  *
  * These boxes are drawn inside the axis group (translated by the axis bounds)
@@ -25,7 +25,7 @@ const rows = [
   { month: 'Mar', sales: 30 }
 ];
 
-// two mirrored axes carrying the same series values: a titled "before" axis and
+// two mirrored axes carrying the same series values: a titled "start" axis and
 // a titled "after" axis. Their focus ranges must land at the same y.
 function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig {
   return {
@@ -34,8 +34,8 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Month', focusRange: true },
     tooltip: { focusOnSeriesMouseOver: true },
     valueAxes: [
-      { id: 'VA0', before: true, title: 'Left Titled' },
-      { id: 'VA1', before: false, title: 'Right Titled' }
+      { id: 'VA0', side: 'start', title: 'Left Titled' },
+      { id: 'VA1', side: 'end', title: 'Right Titled' }
     ],
     series: [
       { id: 'S0', property: 'sales', axis: 'VA0' },

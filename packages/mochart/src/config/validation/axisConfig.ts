@@ -1,6 +1,6 @@
 import validators from './validators';
 
-import { AUTO, NONE, ANCHORS, COLOR_SAME } from '../core/constants';
+import { AUTO, NONE, ANCHORS, COLOR_SAME, SIDES, THRESHOLD_TITLE_SIDES } from '../core/constants';
 
 import type { Validator } from '@mochart/movalid';
 
@@ -54,7 +54,7 @@ export default function getValidators() {
     backgroundStyle: validators.style(),
     backgroundFront: validators.boolean(),
 
-    before: validators.boolean(),
+    side: validators.oneOf(SIDES),
 
     collapsed: validators.boolean(),
 
@@ -84,15 +84,18 @@ export default function getValidators() {
     paddingInner: validators.numberMin(0),
     paddingOuter: validators.numberMin(0),
 
-    thresholdFront: validators.boolean(),
-    thresholdTitle: validators.string().orEqual(NONE),
-    thresholdTitleBefore: validators.boolean(),
-    thresholdTitleSnapToValue: validators.boolean(),
-    thresholdTitleMargin: validators.margin(),
-    thresholdTitlePadding: validators.padding(),
-    thresholdTitleTextStyle: styleStates(styleMembers),
-    thresholdTitleBackgroundStyle: validators.style(),
-    thresholdStyle: styleStates(lineMembers),
+    thresholds: validators.arrayOf(validators.objectWithShape({
+      value: validators.dateAny(),
+      front: validators.boolean().orEqual(undefined),
+      style: styleStates(lineMembers).orEqual(undefined),
+      title: validators.string().orOneOf([NONE, undefined]),
+      titleSide: validators.oneOf(THRESHOLD_TITLE_SIDES).orEqual(undefined),
+      titleSnapToValue: validators.boolean().orEqual(undefined),
+      titleMargin: validators.margin().orEqual(undefined),
+      titlePadding: validators.padding().orEqual(undefined),
+      titleTextStyle: styleStates(styleMembers).orEqual(undefined),
+      titleBackgroundStyle: validators.style().orEqual(undefined)
+    }), true),
 
     tickCount: validators.integerMin(0).orEqual(AUTO),
 

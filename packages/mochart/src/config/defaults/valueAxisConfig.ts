@@ -8,7 +8,7 @@ import type { DeepPartial, ValueAxisConfig } from '../../types/config';
 export default function getDefaults(config: DeepPartial<ValueAxisConfig> = {}, index: number, hasStack: boolean, pieMode = false): Partial<ValueAxisConfig> {
   const regularDefaults = getRegularDefaults();
   const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as ValueAxisConfig, index, hasStack, pieMode));
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as unknown as ValueAxisConfig, index, hasStack, pieMode));
   return deepMerge(regularDefaults, conditionalDefaults) as Partial<ValueAxisConfig>;
 }
 

@@ -1,5 +1,5 @@
 import type {
-  Auto, Align, VerticalAlign, Anchor, Position, Scale, DataType, RendererType,
+  Auto, Align, AxisSide, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
   CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape,
   ChartType, PieLabelType, PieTooltipLabelType
 } from '../config/core/constants';
@@ -1139,6 +1139,35 @@ export interface TooltipConfig extends SeriesIconConfig {
   rangeValueText: string;
 }
 
+/**
+ * One threshold line on an axis: a reference value drawn as a line across the
+ * plot, with an optional title label beside it. Entries are whole objects (the
+ * `thresholds` array replaces its default wholesale); members left out fall
+ * back to the documented defaults.
+ */
+export interface ThresholdConfig {
+  /** The axis value to draw the threshold line at; on a date category axis, an iso date string or millisecond timestamp. */
+  value: number | string;
+  /** Whether the line is drawn in front of (true) or behind (false) the series shapes. Defaults to true. */
+  front?: boolean;
+  /** The style of the threshold line per focus state ('same' inherits the normal state). */
+  style?: DeepPartial<StrokeStyleStates>;
+  /** The title text shown beside the line (null for none). Defaults to null. */
+  title?: string | null;
+  /** Which value side of the line the title sits on: 'low' (smaller values) or 'high'. Defaults to 'high'. */
+  titleSide?: ThresholdTitleSide;
+  /** Whether the title flips to the other side when it has no room. Defaults to true. */
+  titleSnapToValue?: boolean;
+  /** The margin (in pixels) around the title, relative to its orientation. */
+  titleMargin?: MarginPadding;
+  /** The padding (in pixels) around the title, relative to its orientation. */
+  titlePadding?: MarginPadding;
+  /** The style of the title text per focus state. */
+  titleTextStyle?: DeepPartial<StyleStates>;
+  /** The style of the title background. */
+  titleBackgroundStyle?: Partial<Style>;
+}
+
 /** Shared properties of the group axis and series axes (config/defaults/axisConfig.ts). */
 export interface AxisConfigBase {
   /**
@@ -1184,15 +1213,15 @@ export interface AxisConfigBase {
   backgroundFront: boolean;
 
   /**
-   * Whether the axis should be positioned before (top/left) or after
-   * (bottom/right) the chart.
+   * Whether the axis is placed at the start (top/left) or end (bottom/right) of
+   * the chart.
    *
    * Group axis defaults:
-   * - `true` — when plotConfig.inverted is true
-   * - `false` — when plotConfig.inverted is false
-   * Series axis default: `true`.
+   * - `"start"` — when plot.inverted is true
+   * - `"end"` — when plot.inverted is false
+   * Series axis default: `"start"`.
    */
-  before: boolean;
+  side: AxisSide;
 
   /**
    * Whether the axis should consume space in the layout (false) or not (true).
@@ -1398,73 +1427,15 @@ export interface AxisConfigBase {
    */
   softMax: number | null;
 
+
   /**
-   * The numeric value to show a threshold line at (use null for none; on a date
-   * category axis, give a millisecond timestamp).
+   * The threshold lines to draw on the axis, each an object drawing a reference
+   * line across the plot at an axis value (the array replaces the default
+   * wholesale).
    *
-   * @default null
+   * @default []
    */
-  threshold: number | null;
-  /**
-   * Whether the threshold line should be shown in front (true) or behind
-   * (false) the series shapes.
-   *
-   * @default true
-   */
-  thresholdFront: boolean;
-  /**
-   * The title to show next to the threshold line (use null for none).
-   *
-   * @default null
-   */
-  thresholdTitle: string | null;
-  /**
-   * Whether the threshold title should be positioned on the smaller (true) or
-   * larger (false) value side of the threshold line.
-   *
-   * @default false
-   */
-  thresholdTitleBefore: boolean;
-  /**
-   * Whether to ignore titleBefore if the label has no room on that side of the
-   * threshold line.
-   *
-   * @default true
-   */
-  thresholdTitleSnapToValue: boolean;
-  /**
-   * The margin (top,right,bottom,left) (in pixels) of the threshold title -
-   * relative to its orientation.
-   *
-   * @default { top: 0, right: 0, bottom: 0, left: 0 }
-   */
-  thresholdTitleMargin: MarginPadding;
-  /**
-   * The padding (top,right,bottom,left) (in pixels) of the threshold title -
-   * relative to its orientation.
-   *
-   * @default { top: 0, right: 0, bottom: 0, left: 0 }
-   */
-  thresholdTitlePadding: MarginPadding;
-  /**
-   * The style of the threshold title text.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  thresholdTitleTextStyle: StyleStates;
-  /**
-   * The styles to apply to the threshold title background (strokeColor,
-   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
-   *
-   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
-   */
-  thresholdTitleBackgroundStyle: Style;
-  /**
-   * The style of the threshold line.
-   *
-   * @default { normal: { … }, focused: { … }, defocused: { … } }
-   */
-  thresholdStyle: StrokeStyleStates;
+  thresholds: ThresholdConfig[];
 
   /**
    * The number of ticks to show along the length of the axis (use "auto" to

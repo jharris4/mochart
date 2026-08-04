@@ -40,7 +40,7 @@ const baseConfig = {
     "titleTruncationValue": "...",
     "tickLabelAnchor": "auto",
     "tickLabelRotation": 0,
-    "before": true,
+    "side": "start",
     "collapsed": false
   },
   "valueAxes": [
@@ -61,7 +61,7 @@ const baseConfig = {
 
 export const rotationConfigs: Record<string, any>[] = [];
 
-function addConfig(title: string, inverted: boolean, before: boolean, collapsed: boolean, rotation: number, anchor = "auto"): void {
+function addConfig(title: string, inverted: boolean, start: boolean, collapsed: boolean, rotation: number, anchor = "auto"): void {
   const configOverride = {
     "title": {
       "text": title
@@ -70,7 +70,7 @@ function addConfig(title: string, inverted: boolean, before: boolean, collapsed:
       "inverted": inverted
     },
     "categoryAxis": {
-      "before": before,
+      "side": start ? "start" : "end",
       "collapsed": collapsed,
       "tickLabelRotation": rotation,
       "tickLabelAnchor": anchor

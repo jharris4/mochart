@@ -51,7 +51,7 @@ describe('group-axis threshold on an inverted chart', () => {
     const rows = Array.from({ length: 11 }, (_, g) => ({ g, value: g * 2 }));
     const configFor = (threshold: number) => ({
       plot: { inverted: true },
-      categoryAxis: { property: 'g', type: 'number', scale: 'linear', threshold },
+      categoryAxis: { property: 'g', type: 'number', scale: 'linear', thresholds: [{ value: threshold }] },
       series: [{ property: 'value', renderer: 'bar' }]
     });
     const lowY = thresholdTranslateY(mountChart(configFor(2), rows));
@@ -94,5 +94,28 @@ describe('per-side series label positions', () => {
     }, rows);
     expect(labelAttrs(container, 0).anchor).toBe('start'); // above base, outside
     expect(labelAttrs(container, 1).anchor).toBe('start'); // below base, inside
+  });
+});
+
+describe('multiple thresholds on one axis', () => {
+  it('renders one line per entry, layered by front', () => {
+    const rows = Array.from({ length: 5 }, (_, g) => ({ g: String(g), value: g * 10 }));
+    const container = mountChart({
+      categoryAxis: { property: 'g', type: 'string', scale: 'ordinal' },
+      valueAxes: [{
+        thresholds: [
+          { value: 10, title: 'Warning' },
+          { value: 30, title: 'Critical', front: false },
+          { value: 35 }
+        ]
+      }],
+      series: [{ property: 'value', renderer: 'bar' }]
+    }, rows);
+    const lines = container.querySelectorAll('.mochart-axis-threshold-container .mochart-axis-threshold line');
+    expect(lines.length).toBe(3);
+    const titles = container.querySelectorAll('[class*="mochart-axis-threshold-title-"]');
+    expect(titles.length).toBe(2);
+    expect(container.textContent).toContain('Warning');
+    expect(container.textContent).toContain('Critical');
   });
 });

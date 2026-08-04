@@ -12,7 +12,6 @@
     "focusDuration": 800
   },
   "categoryAxis": {
-    "before": false,
     "title": "Month",
     "axisLine": true,
     "axisLineMargin": 0,
@@ -25,16 +24,17 @@
     "dateUTC": true,
     "valueLabel": "Category",
     "valueFormat": "%B",
-    "property": "date"
+    "property": "date",
+    "side": "end"
   },
   "valueAxes": {
-    "before": true,
     "visible": true,
     "axisLineMargin": 0,
     "gridLines": true,
     "tickLabelFormat": "$s",
     "title": "Monthly Amount",
-    "min": 0
+    "min": 0,
+    "side": "start"
   },
   "seriesStacks": {},
   "seriesDefaults": {

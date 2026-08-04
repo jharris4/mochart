@@ -33,14 +33,14 @@
   },
   "valueAxes": [
     {
-      "before": true,
       "title": "Series Axis 1",
-      "id": "VA0"
+      "id": "VA0",
+      "side": "start"
     },
     {
-      "before": false,
       "title": "Series Axis 2",
-      "id": "VA1"
+      "id": "VA1",
+      "side": "end"
     }
   ],
   "seriesStacks": [

@@ -1,4 +1,4 @@
-import { AUTO, NONE, TYPE_STRING, SCALE_LINEAR, SCALE_ORDINAL, ELLIPSIS } from '../core/constants';
+import { AUTO, NONE, TYPE_STRING, SCALE_LINEAR, SCALE_ORDINAL, ELLIPSIS, SIDE_START, SIDE_END } from '../core/constants';
 import { deepMerge } from '../core/deepMerge';
 import { getActualDefaults, conditionalDefault, defaultRule } from './conditionalDefault';
 
@@ -8,7 +8,7 @@ import type { DeepPartial, CategoryAxisConfig } from '../../types/config';
 export default function getDefaults(config: DeepPartial<CategoryAxisConfig> = {}, inverted: boolean, pieMode = false): Partial<CategoryAxisConfig> {
   const regularDefaults = getRegularDefaults();
   const configWithRegularDefaults = deepMerge(regularDefaults, config);
-  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as CategoryAxisConfig, inverted, pieMode));
+  const conditionalDefaults = getActualDefaults(getConditionalDefaults(configWithRegularDefaults as unknown as CategoryAxisConfig, inverted, pieMode));
 
   return deepMerge(regularDefaults, conditionalDefaults) as Partial<CategoryAxisConfig>;
 }
@@ -51,10 +51,10 @@ export function getConditionalDefaults(configWithRegularDefaults: CategoryAxisCo
       { condition: () => !pieMode, suffix: "when chartConfig.type is xy", default: true },
       { ...defaultRule, default: true }
     ], configWithRegularDefaults, inverted),
-    before: conditionalDefault([
-      { condition: (_config, inverted) => inverted === true, suffix: "when plotConfig.inverted is true", default: true },
-      { condition: (_config, inverted) => inverted === false, suffix: "when plotConfig.inverted is false", default: false },
-      { ...defaultRule, default: false }
+    side: conditionalDefault([
+      { condition: (_config, inverted) => inverted === true, suffix: "when plot.inverted is true", default: SIDE_START },
+      { condition: (_config, inverted) => inverted === false, suffix: "when plot.inverted is false", default: SIDE_END },
+      { ...defaultRule, default: SIDE_END }
     ], configWithRegularDefaults, inverted),
     maxTickCount: conditionalDefault([
       { condition: ({ scale }, _inverted) => scale === SCALE_LINEAR, suffix: "when scale is linear", default: 10 },

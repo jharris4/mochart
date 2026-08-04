@@ -1,3 +1,4 @@
+import { SIDE_START } from '../config/core/constants';
 import { setExtraAxisInfo, getAxisSize, getRotatedTickBounds } from './PlotLayout';
 import { createInnerOuterSpacingLayoutInfo } from './SpacingLayoutInfo';
 import type { Bounds, TextBounds } from '../types/geometry';
@@ -6,7 +7,7 @@ import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { AxisTickInfos, BeforeAfter, ChartTextBoundsData, CategoryAxisLayoutInfo } from '../types/layout';
 
 function getCategoryAxisSizeConsumption(axisConfig: CategoryAxisConfig, axisSize: number, isBefore: boolean): number {
-  if (axisConfig.collapsed === false && axisConfig.before === isBefore) {
+  if (axisConfig.collapsed === false && (axisConfig.side === SIDE_START) === isBefore) {
     return axisSize;
   }
   else {
@@ -43,7 +44,8 @@ export function createCategoryAxisLayoutInfo(mochartConfig: EnhancedMochartConfi
   const { categoryAxisTickInfo } = axisTickInfos;
   const { inverted } = plotConfig;
   const vertical = inverted;
-  const { before, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = categoryAxisConfig;
+  const { side, collapsed, marginInner, marginOuter, paddingInner, paddingOuter } = categoryAxisConfig;
+  const before = side === SIDE_START;
   const categoryAxisOffset = before ? 0 : (collapsed ? valueInnerExtent - categoryAxisSize : valueInnerExtent);
 
   const categoryAxisLayoutInfo = createInnerOuterSpacingLayoutInfo({

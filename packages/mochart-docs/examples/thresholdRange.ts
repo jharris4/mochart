@@ -9,9 +9,11 @@ export const config: MochartInputConfig = {
   categoryAxis: { property: 'day', type: 'string', scale: 'ordinal' },
   valueAxes: [
     {
-      threshold: 200,
-      thresholdTitle: 'SLA limit',
-      thresholdStyle: { normal: { strokeDashArray: '6 3' } }
+      thresholds: [{
+        value: 200,
+        title: 'SLA limit',
+        style: { normal: { strokeDashArray: '6 3' } }
+      }]
     }
   ],
   series: [

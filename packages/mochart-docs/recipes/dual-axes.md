@@ -19,8 +19,8 @@ import * as dualAxes from '../examples/dualAxes'
 - Each axis gets an [`id`](/reference/valueAxes#valueAxes.id);
   series reference it with `axis`. With a single axis none of this is needed —
   ids matter only when there are several.
-- [`before: false`](/reference/valueAxes#valueAxes.before)
-  moves the second axis to the after side (right, for vertical charts).
+- [`side: 'end'`](/reference/valueAxes#valueAxes.side)
+  moves the second axis to the end side (right, for vertical charts).
 - [`tickLabelFormat: '.0%'`](/reference/valueAxes#valueAxes.tickLabelFormat)
   is a d3-format string; the series' own
   [`valueFormat`](/reference/series#series.valueFormat) formats

@@ -44,7 +44,6 @@ export default function getValidators() {
     softMax: validators.number().orEqual(NONE),
     softMin: validators.number().orEqual(NONE),
 
-    threshold: validators.number().orEqual(NONE),
 
     tickLabelFormat: validators.numberFormat().orOneOf([NONE, AUTO]),
 

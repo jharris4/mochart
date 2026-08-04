@@ -1,4 +1,5 @@
-import { NONE, AUTO, ANCHOR_START, ANCHOR_END, ANCHOR_MIDDLE } from '../config/core/constants';
+import { NONE, AUTO, ANCHOR_START, ANCHOR_END, ANCHOR_MIDDLE, SIDE_START } from '../config/core/constants';
+import { resolveThresholds } from '../config/defaults/axisConfig';
 import type { Anchor } from '../config/core/constants';
 import { arrayToMap, idAccessor } from '../utils/utils';
 import { createLayoutInfo } from './LayoutInfo';
@@ -25,7 +26,7 @@ export function getRotatedTickBounds(axisConfig: AxisConfigBase, tickBounds: Tex
 function getCollapsedAfterSizeConsumption(axisConfigs: EnhancedValueAxisConfig[], axisSizeArray: Record<string, number>): number {
   let totalSize = 0;
   for (const axisConfig of axisConfigs) {
-    if (axisConfig.collapsed === true && axisConfig.before === false) {
+    if (axisConfig.collapsed === true && axisConfig.side !== SIDE_START) {
       totalSize += axisSizeArray[axisConfig.id];
     }
   }
@@ -91,9 +92,10 @@ export function getPlotHeight(innerHeight: number, titleHeight: number, legendHe
   return innerHeight - titleHeight - legendHeight;
 }
 
-export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: AxisConfigBase, axisTickInfo: AxisTickInfo, tickBounds: TextBounds, rotatedTickBounds: Bounds, titleBounds: TextBounds, thresholdTitleBounds: TextBounds, vertical: boolean, inverted: boolean): void {
-  const { before, collapsed, titleMarginInner, titleMarginOuter, titlePaddingInner, titlePaddingOuter, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter,
-    thresholdTitleMargin, thresholdTitlePadding, title, threshold, thresholdTitle } = axisConfig;
+export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: AxisConfigBase, axisTickInfo: AxisTickInfo, tickBounds: TextBounds, rotatedTickBounds: Bounds, titleBounds: TextBounds, thresholdTitleBounds: Record<number, TextBounds>, vertical: boolean, inverted: boolean): void {
+  const { side, collapsed, titleMarginInner, titleMarginOuter, titlePaddingInner, titlePaddingOuter, tickLabelMarginInner, tickLabelMarginOuter, tickLabelPaddingInner, tickLabelPaddingOuter,
+    title } = axisConfig;
+  const before = side === SIDE_START;
   const notAfter = (before && !collapsed) || (!before && collapsed);
 
   axisLayoutInfo.tickLabelParallel = axisTickInfo.tickLabelParallel;
@@ -180,7 +182,12 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
     titleTextY = vertical ? height / 2.0 : titleOffset;
     titleTextAngle = vertical ? (notAfter ? 90 : 270) : 0;
   }
-  axisLayoutInfo.thresholdTitleLayoutInfo = !(threshold !== NONE && thresholdTitle !== NONE) ? emptyLayoutInfo : createSpacingLayoutInfo({x: 0, y: 0, ...thresholdTitleBounds}, thresholdTitleMargin, thresholdTitlePadding, false);
+  axisLayoutInfo.thresholdTitleLayoutInfos = resolveThresholds(axisConfig.thresholds).map((threshold, thresholdIndex) => {
+    const bounds = thresholdTitleBounds[thresholdIndex];
+    return !(threshold.title !== NONE && bounds !== undefined)
+      ? emptyLayoutInfo
+      : createSpacingLayoutInfo({ x: 0, y: 0, ...bounds }, threshold.titleMargin, threshold.titlePadding, false);
+  });
 
   axisLayoutInfo.titleTextX = titleTextX;
   axisLayoutInfo.titleTextY = titleTextY;
@@ -266,7 +273,8 @@ export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: Axi
 function getTickLabelAnchor(axisConfig: AxisConfigBase, vertical: boolean, tickLabelParallel: boolean): Anchor {
   if (axisConfig.tickLabelAnchor === AUTO) {
     if (!tickLabelParallel) {
-      const { before, collapsed, tickLabelRotation } = axisConfig;
+      const { side, collapsed, tickLabelRotation } = axisConfig;
+      const before = side === SIDE_START;
       const notAfter = (before && !collapsed) || (!before && collapsed);
       if (vertical) {
         return notAfter ? ANCHOR_END : ANCHOR_START;
