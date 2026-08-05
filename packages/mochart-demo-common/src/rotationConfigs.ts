@@ -1,18 +1,18 @@
 import merge from 'lodash.merge';
 
 export const rotationData = [
-  { "g": 1, "gd": "A text Label", "v": 123 },
-  { "g": 2, "gd": "Some Long Text", "v": 24 },
-  { "g": 3, "gd": "Cool", "v": 823 },
-  { "g": 4, "gd": "Some Long Text", "v": 894 },
-  { "g": 5, "gd": "Word", "v": 731 },
-  { "g": 6, "gd": "Some Long Text", "v": 178 },
-  { "g": 7, "gd": "Cool", "v": 420 },
-  { "g": 8, "gd": "Some Long Text", "v": 295 },
-  { "g": 9, "gd": "Oh", "v": 736 },
-  { "g": 10, "gd": "Some Long Text", "v": 638 },
-  { "g": 11, "gd": "Some Long Text", "v": 204 },
-  { "g": 12, "gd": "Some Long Text", "v": 375 }
+  { "c": 1, "cd": "A text Label", "v": 123 },
+  { "c": 2, "cd": "Some Long Text", "v": 24 },
+  { "c": 3, "cd": "Cool", "v": 823 },
+  { "c": 4, "cd": "Some Long Text", "v": 894 },
+  { "c": 5, "cd": "Word", "v": 731 },
+  { "c": 6, "cd": "Some Long Text", "v": 178 },
+  { "c": 7, "cd": "Cool", "v": 420 },
+  { "c": 8, "cd": "Some Long Text", "v": 295 },
+  { "c": 9, "cd": "Oh", "v": 736 },
+  { "c": 10, "cd": "Some Long Text", "v": 638 },
+  { "c": 11, "cd": "Some Long Text", "v": 204 },
+  { "c": 12, "cd": "Some Long Text", "v": 375 }
 ];
 
 const baseConfig = {
@@ -28,8 +28,8 @@ const baseConfig = {
   },
   "categoryAxis": {
     "valueLabel": "Group",
-    "property": "g",
-    "displayProperty": "gd",
+    "property": "c",
+    "displayProperty": "cd",
     "type": "string",
     "scale": "ordinal",
     "title": "Category Axis Title",
