@@ -94,3 +94,6 @@ const gridMarkup = getStitchedChartsSvgText([elementA, elementB], { cols: 2 }); 
 `getChartSvgText` and `getStitchedChartsSvgText` return the standalone svg
 markup without triggering a download — useful for tests or for piping the
 markup elsewhere.
+
+For TypeScript hosts, the option shapes are exported as `ExportSvgOptions`,
+`ExportPngOptions`, `StitchOptions`, and `StitchPngOptions`.

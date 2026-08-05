@@ -100,6 +100,9 @@ const gridMarkup = getStitchedChartsSvgText([elementA, elementB], { cols: 2 }); 
 svg markup the download functions produce — useful for tests, server-side
 storage, or piping the markup into another tool.
 
+For TypeScript hosts, the option shapes are exported as `ExportSvgOptions`,
+`ExportPngOptions`, `StitchOptions`, and `StitchPngOptions`.
+
 ## Try it in the demos
 
 Every [demo gallery](/vanilla/demos) has a share menu with these exports
