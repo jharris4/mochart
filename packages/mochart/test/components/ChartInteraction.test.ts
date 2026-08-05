@@ -204,6 +204,7 @@ describe('tooltip', () => {
     // moving within the chart keeps it open and tracks the category
     mouse(root, 'mousemove', 790, 100);
     expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+    expect(container.querySelector('.mochart-tooltip')!.textContent).toContain('Mar');
 
     // leaving the chart closes it
     mouse(root, 'mousemove', -10, 100);
