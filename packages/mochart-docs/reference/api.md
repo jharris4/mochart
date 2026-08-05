@@ -204,7 +204,11 @@ applications never need these:
 - `Chart`, `Legend`, `Crosshair`, `Tooltip` — the retained-mode components
   the entry points assemble.
 - `StaticDataSource`, `AnimatedDataSource`, `FocusController` — the chart
-  controllers driving data flow, staged transitions, and focus state.
+  controllers driving data flow, staged transitions, and focus state. Their
+  contracts are the types `ChartDataSource` (the interface both data
+  sources implement), `ChartDataSourceInput` (the config + data provider +
+  focus/filter snapshot a source consumes), and `InternalFocus` (a partial
+  focus update raised from inside the chart).
 - `Renderer`, `El`, `TextEl`, `svgEl`, `htmlEl`, `textEl`, `shallowEqual` —
   the retained-mode rendering primitives.
 - `buildMochartConfig`, `applyDefaults`, `hasConfigStructureChange`,
