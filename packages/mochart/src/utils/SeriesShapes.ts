@@ -272,13 +272,14 @@ export function getColumnGenerator(seriesConfig: EnhancedSeriesConfig, seriesPos
   const applyStackOuter = stack && (capType !== NONE && capOnlyStackOuter) || (capType === NONE && outerCapType && outerCapType !== NONE);
 
   const connector = getConnector(columnCapType, inverted);
+  const { skipped, skipCategoryIndexMap } = seriesPositionData;
 
   let categoryPosition;
   let seriesValueExtent;
   let seriesPosition;
   let seriesPriorPosition;
   let seriesCurrentPosition;
-  let tempPosition, barCapSizeSign, barCapConnector;
+  let tempPosition, barCapSizeSign, barCapConnector, skipI;
   const columnGenerator: (index: number) => string = (i: number) => {
     pathGenerator = path();
     categoryPosition = seriesPositionData.getOffsetCategoryPosition(null, i)!;
@@ -290,7 +291,9 @@ export function getColumnGenerator(seriesConfig: EnhancedSeriesConfig, seriesPos
     barCapSizeSign = 1;
     barCapConnector = connector;
     if (applyStackOuter) {
-      barCapConnector = (stackPositiveIds![i] === id || stackNegativeIds![i] === id) ? connector : inverted ? connectNoneInverted : connectNone;
+      // positions may be compacted, but the stack outer ids stay indexed by the raw category index
+      skipI = skipped ? skipCategoryIndexMap[i] : i;
+      barCapConnector = (stackPositiveIds![skipI] === id || stackNegativeIds![skipI] === id) ? connector : inverted ? connectNoneInverted : connectNone;
     }
     if (seriesPriorPosition === seriesPosition) {
       tempPosition = seriesPriorPosition;
