@@ -110,7 +110,7 @@ describe('undefined series values', () => {
       categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
       series: [{ property: 'a' }]
     });
-    // caetgory 1 has no value for property "a"
+    // category 1 has no value for property "a"
     const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10 }, { g: 1 }, { g: 2, a: 30 }], 'g');
     const seriesId = config.series[0].id;
     return { chartData: getChartData(config, provider, {}), seriesId };

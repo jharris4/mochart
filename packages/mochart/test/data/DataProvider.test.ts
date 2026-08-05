@@ -13,9 +13,9 @@ describe('ArrayOfObjectsDataProvider', () => {
     expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
-  it('looks up a series value by caetgory value regardless of index', () => {
+  it('looks up a series value by category value regardless of index', () => {
     const provider = new ArrayOfObjectsDataProvider(rows, 'month');
-    // the index argument is ignored: lookup is keyed on the caetgory value
+    // the index argument is ignored: lookup is keyed on the category value
     expect(provider.getSeriesValue('Feb', 0, 'sales')).toBe(20);
     expect(provider.getSeriesValue('Feb', 99, 'costs')).toBe(8);
   });

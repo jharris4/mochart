@@ -104,7 +104,7 @@ export interface ChartCallbacks {
   /** The chart title was clicked (see `titleConfig.link`/`linkDisabled`). */
   onTitleClick?: () => void;
   /**
-   * The focused value/category/axis changed — via pointer over/click on the
+   * The focused series/category/value axis — via pointer over/click on the
    * plot or the legend, per the `focusOnMouseOver`/`focusOnClick` config.
    */
   onFocus?: (focus: ChartFocus) => void;

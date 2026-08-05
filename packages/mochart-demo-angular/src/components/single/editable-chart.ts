@@ -61,12 +61,12 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
     </ng-template>
     <ng-template #modeControl>
       <div class="demo-btn-group">
-        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToCategories"
-                                 [tooltipText]="selectionMode() === 'group'
+        <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'category' ? text.editMode.labelToSeries : text.editMode.labelToCategories"
+                                 [tooltipText]="selectionMode() === 'category'
                                    ? text.editMode.tooltipToSeries
                                    : text.editMode.tooltipToCategories" tooltipPlacement="right"
                                  [onClick]="onModeToggle" [aria-label]="text.editMode.aria">
-          <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'group' ? 'bullseye' : 'sliders'" />
+          <app-icon size="lg" [fixedWidth]="true" [name]="selectionMode() === 'category' ? 'bullseye' : 'sliders'" />
         </app-button-with-tooltip>
       </div>
     </ng-template>
@@ -248,7 +248,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                                        [getShareState]="showShareButton ? getShareState : undefined" />
               </span>
             </div>
-          } @else if (selectionMode() === 'group') {
+          } @else if (selectionMode() === 'category') {
             <!-- The fold keeps Add and Remove — they act on what is typed in
                  the input beside them — plus the input; everything else goes
                  to the menu, split into the same sections the vanilla port
@@ -315,7 +315,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
             </div>
           } @else {
             <!-- The fold keeps the steppers and their readouts — they are how
-                 a group and a series get picked at all. Apply stays visible
+                 a category and a series get picked at all. Apply stays visible
                  too, but moves DOWN, onto the input row beside the JSON it
                  applies: with it out of the stepper row the panel holds two
                  rows even at 320x568. Reset is the one button with no partner
@@ -340,7 +340,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
                       <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-group-decrease" [disabled]="error || categoryOrderControlsDisabled || isFirstCategory" [tooltipText]="text.decreaseCategoryOrder.tooltip" tooltipPlacement="right"
+                        <app-button-with-tooltip id="edit-category-decrease" [disabled]="error || categoryOrderControlsDisabled || isFirstCategory" [tooltipText]="text.decreaseCategoryOrder.tooltip" tooltipPlacement="right"
                                                  [onClick]="decreaseCategoryOrder" [aria-label]="text.decreaseCategoryOrder.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-left" />
                         </app-button-with-tooltip>
@@ -353,7 +353,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
                       <div class="demo-btn-group">
-                        <app-button-with-tooltip id="edit-group-increase" [disabled]="error || categoryOrderControlsDisabled || isLastCategory" [tooltipText]="text.increaseCategoryOrder.tooltip" tooltipPlacement="right"
+                        <app-button-with-tooltip id="edit-category-increase" [disabled]="error || categoryOrderControlsDisabled || isLastCategory" [tooltipText]="text.increaseCategoryOrder.tooltip" tooltipPlacement="right"
                                                  [onClick]="increaseCategoryOrder" [aria-label]="text.increaseCategoryOrder.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-right" />
                         </app-button-with-tooltip>
@@ -469,11 +469,11 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   }
 
   foldCategory(): boolean {
-    return this.phone() && !this.mochartDemoConfig.pieMode && this.selectionMode() === 'group';
+    return this.phone() && !this.mochartDemoConfig.pieMode && this.selectionMode() === 'category';
   }
 
   foldSeries(): boolean {
-    return this.phone() && !this.mochartDemoConfig.pieMode && this.selectionMode() !== 'group';
+    return this.phone() && !this.mochartDemoConfig.pieMode && this.selectionMode() !== 'category';
   }
 
   /**
@@ -485,7 +485,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     return this.foldSeries() ? '0px' : '5px';
   }
 
-  // Working copies of the demo data; mutated in place by the group/series
+  // Working copies of the demo data; mutated in place by the category/series
   // editing controls (same pattern as the react demo's instance fields).
   private filteredData: Row[] = [];
   private removedData: Row[] = [];
@@ -496,9 +496,9 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   categoryValuesText = signal('');
   seriesIndex = signal(0);
   seriesValuesText = signal('');
-  selectionMode = signal('group');
+  selectionMode = signal('category');
   sequencePlaying = signal(false);
-  // pie-mode slice editing: slices are the series, so the group machinery has
+  // pie-mode slice editing: slices are the series, so the category machinery has
   // nothing to operate on and a single slice panel replaces both panels
   slices = signal<PieSliceInfo[]>([]);
   sliceIndex = signal(0);
@@ -653,7 +653,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
       this.categoryIndex.set(clickedCategoryIndex);
       this.seriesValuesText.set(this.getSeriesValuesText(this.mochartDemoConfig, this.filteredData, clickedCategoryIndex, this.seriesIndex()));
     }
-    else if (this.selectionMode() === 'group') {
+    else if (this.selectionMode() === 'category') {
       const dataCategoryValues: any[] = [];
       const count = this.filteredData.length;
       for (let i = 0; i < count; i++) {
@@ -685,7 +685,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   }
 
   onModeToggle = (): void => {
-    this.selectionMode.set(this.selectionMode() === 'group' ? 'series' : 'group');
+    this.selectionMode.set(this.selectionMode() === 'category' ? 'series' : 'category');
   };
 
   selectAllCategories = (): void => {
@@ -964,7 +964,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     }
   };
 
-  // The pie analog of the group add/remove sequences: filter the slices one
+  // The pie analog of the category add/remove sequences: filter the slices one
   // at a time (via the shared legend filter, so the remaining slices re-sweep
   // and center totals count along), then restore them.
   startSliceSequence = (): void => {
@@ -1116,15 +1116,15 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
   }
 
   get filteredCategoryMap(): Record<string, boolean> {
-    return this.filteredCategoryValues.reduce<Record<string, boolean>>((map, group) => { map[group] = true; return map; }, {});
+    return this.filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
   }
 
   get disableRemove(): boolean {
-    return this.orderChanged() || !this.selectedCategoryValues.some(group => this.filteredCategoryMap[group]);
+    return this.orderChanged() || !this.selectedCategoryValues.some(category => this.filteredCategoryMap[category]);
   }
 
   get disableAdd(): boolean {
-    return this.orderChanged() || !this.selectedCategoryValues.some(group => !this.filteredCategoryMap[group]);
+    return this.orderChanged() || !this.selectedCategoryValues.some(category => !this.filteredCategoryMap[category]);
   }
 
   get seriesControlsDisabled(): boolean {
@@ -1167,7 +1167,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     return slices.length > 0 ? slices[this.sliceIndex()].title : '';
   }
 
-  // Same idea for the group/series index labels: the fixed-width index reads as
+  // Same idea for the category/series index labels: the fixed-width index reads as
   // the position, the native tooltip names what is selected.
   get categoryIndexTitle(): string {
     return getCategoryIndexTitle(this.mochartDemoConfig, this.filteredData, this.categoryIndex());
