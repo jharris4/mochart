@@ -27,6 +27,8 @@ export class AnimatedDataSource implements ChartDataSource {
   initialAnimationPercentage: number | null = null;
 
   private input!: ChartDataSourceInput;
+  /** The running data tween's destination data (chartData lags it by a frame). */
+  private targetChartData: ChartData | null = null;
   private chartAnimationData: ChartAnimationData | null = null;
   private hasCategoryAdditions = false;
   private hasCategoryRemovals = false;
@@ -58,6 +60,7 @@ export class AnimatedDataSource implements ChartDataSource {
     this.tweenManager.cancelTweens();
     if (mochartConfig && mochartConfig.validation.valid && isDataProviderValid(dataProvider)) {
       const newChartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
+      this.targetChartData = newChartData;
       this.chartAnimationData = getChartAnimationData(mochartConfig, null, newChartData);
 
       this.startDataTween(input, this.chartAnimationData);
@@ -70,6 +73,7 @@ export class AnimatedDataSource implements ChartDataSource {
     else {
       this.chartData = null;
       this.focusData = null;
+      this.targetChartData = null;
     }
   }
 
@@ -100,13 +104,21 @@ export class AnimatedDataSource implements ChartDataSource {
       let categoriesChanged = false;
       if (configChanged || dataChanged) {
         const chartData = getChartData(mochartConfig, dataProvider, filteredSeriesIds);
+        this.targetChartData = chartData;
         const chartAnimationData = this.chartAnimationData = getChartAnimationData(mochartConfig, this.chartData, chartData);
 
         this.startDataTween(input, chartAnimationData);
         categoriesChanged = this.hasCategoryAdditions || this.hasCategoryRemovals || this.hasCategoryReorder;
       }
 
-      if (this.chartData !== null && (focusChanged || categoriesChanged)) {
+      if (this.chartData === null) {
+        if (focusChanged) {
+          // no frame has landed yet, so there is nothing to animate from: snap
+          // focus against the tween's target data, exactly like start() does
+          this.focusData = getFocusData(mochartConfig, this.targetChartData!, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId);
+        }
+      }
+      else if (focusChanged || categoriesChanged) {
         if (focusCategoryChanged || categoriesChanged) {
           if (focusedCategoryIndex >= 0 && this.dataTweening && !this.valuesTweened) {
             if (this.valuesTweening) {

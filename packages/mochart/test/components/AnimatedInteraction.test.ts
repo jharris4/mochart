@@ -177,6 +177,30 @@ describe('animated chart interactions', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it('applies a controlled series focus set before the first animated frame', () => {
+    const config = () => makeConfig({ series: [{ property: 'sales' }, { property: 'costs' }] });
+    const data = rows.map(row => ({ ...row, costs: row.sales / 2 }));
+    const lineOpacity = (container: Element, seriesId: string) =>
+      container.querySelector(`[class*="mochart-series-${seriesId}"] .mochart-series-line`)!.getAttribute('stroke-opacity');
+
+    // reference: the same controlled focus applied after the chart settled
+    const reference = mountChart(config(), {}, data);
+    runFrames();
+    reference.handle.update({ focusedSeriesId: 'S1' } as Partial<DefaultChartProps>);
+    runFrames();
+
+    // regression: the update lands before any frame, while chartData is null
+    const early = mountChart(config(), {}, data);
+    early.handle.update({ focusedSeriesId: 'S1' } as Partial<DefaultChartProps>);
+    const frames = runFrames();
+    expect(frames).toBeGreaterThan(0);
+    expect(vi.getTimerCount()).toBe(0);
+
+    expect(lineOpacity(early.container, 'S1')).toBe('1');
+    expect(lineOpacity(early.container, 'S1')).toBe(lineOpacity(reference.container, 'S1'));
+    expect(lineOpacity(early.container, 'S0')).toBe(lineOpacity(reference.container, 'S0'));
+  });
+
   it('interrupts a running data animation with another data update', () => {
     const { handle } = mountChart(makeConfig());
     runFrames();
