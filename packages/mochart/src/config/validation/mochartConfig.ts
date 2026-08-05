@@ -465,61 +465,38 @@ function validateReferences(config: ConfigRecord, configWithoutDefaults: ConfigR
     sourceSectionKey, sourceProperty, errors, errorDetails);
 }
 
-function validateCommonReferencesInternal(config: ConfigRecord, targetSections: unknown, targetSectionKey: string, targetProperty: string, sourceSectionKey: string, sourceProperty: string, errors: string[], errorDetails: LocatedValidationMessage[], commonProperty: string): void {
+function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: ConfigRecord, _configDefaults: ConfigRecord, targetSectionKey: string, _targetAllKey: string | undefined, targetProperty: string, sourceSectionKey: string, sourceProperty: string, commonProperty: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+  // The common invariant holds on the built entries (raw, defaulted and
+  // all-section values merged); checking raw and defaults separately misses
+  // cross pairings, e.g. an explicit axis combined with a defaulted stack.
   const sourceSections = config[sourceSectionKey];
-  if (Array.isArray(sourceSections)) {
-    const sourceProperties: Record<string, unknown> = {};
-    const sourceSectionRecords = sourceSections.filter(isConfigRecord);
-    for (const sourceSection of sourceSectionRecords) {
-      if (sourceSection[sourceProperty] !== undefined && sourceSection[commonProperty] !== undefined) {
-        sourceProperties[String(sourceSection[sourceProperty])] = sourceSection[commonProperty];
-      }
-    }
-    let target: unknown;
-    let i: number | undefined;
-    if (Array.isArray(targetSections)) {
-      for (i = 0; i < targetSections.length; i++) {
-        target = targetSections[i];
-        if (isConfigRecord(target) && target[targetProperty] !== undefined && target[commonProperty] !== undefined &&
-          sourceProperties[String(target[targetProperty])] !== undefined && sourceProperties[String(target[targetProperty])] !== target[commonProperty]) {
-          const message = getCommonReferenceMessage(sourceSectionKey, sourceProperty, commonProperty) + ': ' +
-            JSON.stringify(sourceProperties[String(target[targetProperty])]) + ' vs  ' + JSON.stringify(target[commonProperty]);
-          errors.push(getPropertyMessage(targetSectionKey, targetProperty, message, i));
-          const cleanSectionKey = targetSectionKey.startsWith(DEFAULT)
-            ? targetSectionKey.slice(DEFAULT.length) : targetSectionKey;
-          errorDetails.push({ path: [cleanSectionKey, i, targetProperty], message });
-        }
-      }
-    }
-    else if (isConfigRecord(targetSections)) {
-      const targetRecord = targetSections;
-      if (targetRecord[targetProperty] !== undefined && targetRecord[commonProperty] !== undefined &&
-        sourceProperties[String(targetRecord[targetProperty])] !== undefined && sourceProperties[String(targetRecord[targetProperty])] !== targetRecord[commonProperty]) {
-        const message = getCommonReferenceMessage(sourceSectionKey, sourceProperty, commonProperty) + ': ' +
-          JSON.stringify(sourceProperties[String(targetRecord[targetProperty])]) + ' vs  ' +
-          JSON.stringify(targetRecord[commonProperty]);
-        errors.push(getPropertyMessage(targetSectionKey, targetProperty, message, i));
-        const cleanSectionKey = targetSectionKey.startsWith(DEFAULT)
-          ? targetSectionKey.slice(DEFAULT.length) : targetSectionKey;
-        errorDetails.push({ path: [cleanSectionKey, targetProperty], message });
-      }
+  const targetSections = config[targetSectionKey];
+  if (!Array.isArray(sourceSections) || !Array.isArray(targetSections)) {
+    return;
+  }
+  const sourceProperties: Record<string, unknown> = Object.create(null); // null proto: ids like "constructor" must not hit Object.prototype
+  for (const sourceSection of sourceSections.filter(isConfigRecord)) {
+    if (sourceSection[sourceProperty] !== undefined && sourceSection[commonProperty] !== undefined) {
+      sourceProperties[String(sourceSection[sourceProperty])] = sourceSection[commonProperty];
     }
   }
-}
-
-function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: ConfigRecord, configDefaults: ConfigRecord, targetSectionKey: string, targetAllKey: string | undefined, targetProperty: string, sourceSectionKey: string, sourceProperty: string, commonProperty: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
-  if (targetAllKey) {
-    validateCommonReferencesInternal(config, configDefaults[targetAllKey], DEFAULT + targetAllKey, targetProperty,
-      sourceSectionKey, sourceProperty, errors, errorDetails, commonProperty);
+  // built sections drop ignored/non-object raw entries, so pair by filtered raw index
+  const rawSections = Array.isArray(configWithoutDefaults[targetSectionKey]) ? configWithoutDefaults[targetSectionKey] as unknown[] : [configWithoutDefaults[targetSectionKey]];
+  const rawIndices: number[] = [];
+  for (let i = 0; i < rawSections.length; i++) {
+    if (filterConfig(rawSections[i])) {
+      rawIndices.push(i);
+    }
   }
-  validateCommonReferencesInternal(config, configDefaults[targetSectionKey], DEFAULT + targetSectionKey, targetProperty,
-    sourceSectionKey, sourceProperty, errors, errorDetails, commonProperty);
-
-  if (targetAllKey) {
-    validateCommonReferencesInternal(config, configWithoutDefaults[targetAllKey], targetAllKey, targetProperty,
-      sourceSectionKey, sourceProperty, errors, errorDetails, commonProperty);
+  for (let i = 0; i < targetSections.length; i++) {
+    const target = targetSections[i];
+    if (isConfigRecord(target) && target[targetProperty] !== undefined && target[commonProperty] !== undefined &&
+      sourceProperties[String(target[targetProperty])] !== undefined && sourceProperties[String(target[targetProperty])] !== target[commonProperty]) {
+      const message = getCommonReferenceMessage(sourceSectionKey, sourceProperty, commonProperty) + ': ' +
+        JSON.stringify(sourceProperties[String(target[targetProperty])]) + ' vs  ' + JSON.stringify(target[commonProperty]);
+      const reportIndex = rawIndices[i] ?? i;
+      errors.push(getPropertyMessage(targetSectionKey, targetProperty, message, reportIndex));
+      errorDetails.push({ path: [targetSectionKey, reportIndex, targetProperty], message });
+    }
   }
-  validateCommonReferencesInternal(config, configWithoutDefaults[targetSectionKey], targetSectionKey, targetProperty,
-    sourceSectionKey, sourceProperty, errors, errorDetails, commonProperty);
-
 }

@@ -88,6 +88,35 @@ describe('common-reference validation', () => {
     });
     expect(errors).toEqual([]);
   });
+
+  it('flags a defaulted stack whose axis conflicts with an explicit series axis', () => {
+    // stack is omitted, so the sole-stack default assigns 'S'; the conflict
+    // only exists on the built entry (defaulted stack + explicit axis)
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'p' },
+      valueAxes: [{ id: 'A' }, { id: 'B' }],
+      seriesStacks: [{ id: 'S', axis: 'A' }],
+      series: [{ property: 'a', axis: 'B' }]
+    });
+    expect(errors).toContain(
+      'series[0] - stack - should equal the id property of one of the seriesStacks that has the same axis property: "A" vs  "B"'
+    );
+  });
+
+  it('flags a stack/axis conflict inherited from seriesDefaults', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'p' },
+      valueAxes: [{ id: 'A' }, { id: 'B' }],
+      seriesStacks: [{ id: 'S', axis: 'A' }],
+      seriesDefaults: { axis: 'B' },
+      series: [{ property: 'a', stack: 'S' }]
+    });
+    expect(errors).toContain(
+      'series[0] - stack - should equal the id property of one of the seriesStacks that has the same axis property: "A" vs  "B"'
+    );
+  });
 });
 
 describe('unique-key validation', () => {
