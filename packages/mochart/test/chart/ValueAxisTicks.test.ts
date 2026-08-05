@@ -1,5 +1,5 @@
 /**
- * Series axis explicit `ticks`: replaces the generated ticks with configured
+ * Value axis explicit `ticks`: replaces the generated ticks with configured
  * { value, label } entries — labels fall back to the formatted value, and
  * ticks outside the current axis domain are hidden.
  */

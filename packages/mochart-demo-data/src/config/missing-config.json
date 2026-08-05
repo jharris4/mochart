@@ -8,14 +8,14 @@
     "missingValueText": "N/A"
   },
   "categoryAxis": {
-    "title": "Group Axis",
+    "title": "Category Axis",
     "showGridLines": true,
     "valueLabel": "Category",
     "property": "category"
   },
   "valueAxes": [
     {
-      "title": "Series Axis 1",
+      "title": "Value Axis 1",
       "base": 0
     }
   ],

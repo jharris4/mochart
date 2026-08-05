@@ -103,7 +103,7 @@
       "id": "undefined-values",
       "title": "Missing Values",
       "description": "Six line, area and bar series over a holey dataset, all taking the default break at the gap.",
-      "notes": "No series sets missingValues \"connect\" or missingValues \"base\", so every hole gets the default treatment: lines and areas break at the missing category while bars just leave their slot empty. The six properties go missing in different categories, so the treatments rarely line up — value0 to value2 (line, bar, area) sit on Series Axis 1, value3 on Series Axis 2, and value4/value5 share seriesGroups slot SG0 as side-by-side bars — and three rows (categories 1, 31 and 38) carry no values at all, leaving empty slots on the ordinal category axis. The tooltip still lists the absent series rather than hiding them, via tooltip.showMissingValues with missingValueText \"N/A\".",
+      "notes": "No series sets missingValues \"connect\" or missingValues \"base\", so every hole gets the default treatment: lines and areas break at the missing category while bars just leave their slot empty. The six properties go missing in different categories, so the treatments rarely line up — value0 to value2 (line, bar, area) sit on Value Axis 1, value3 on Value Axis 2, and value4/value5 share seriesGroups slot SG0 as side-by-side bars — and three rows (categories 1, 31 and 38) carry no values at all, leaving empty slots on the ordinal category axis. The tooltip still lists the absent series rather than hiding them, via tooltip.showMissingValues with missingValueText \"N/A\".",
       "config": "undefined-values-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -130,7 +130,7 @@
       "id": "undefined-single",
       "title": "Missing Single Values",
       "description": "One category with one defined value, and eight other series with nothing to draw.",
-      "notes": "The data is a single row (category 1, value0 = 3) against nine configured series, so one line on Series Axis 1 draws a lone marker while everything else — the bar and area on the same axis, the line on Series Axis 2, the two bars sharing seriesGroups slot SG0, and the three-area stack SS1 — is entirely missing. With the default treatment (no missingValues \"connect\", no missingValues \"base\") there is nothing to break or bridge; what the demo exercises is the degenerate case, where the axes, the single ordinal category slot and the legend all have to lay out from the config rather than from the data. Every empty series still gets a tooltip row of \"N/A\" (showMissingValues, missingValueText) beside the one real value.",
+      "notes": "The data is a single row (category 1, value0 = 3) against nine configured series, so one line on Value Axis 1 draws a lone marker while everything else — the bar and area on the same axis, the line on Value Axis 2, the two bars sharing seriesGroups slot SG0, and the three-area stack SS1 — is entirely missing. With the default treatment (no missingValues \"connect\", no missingValues \"base\") there is nothing to break or bridge; what the demo exercises is the degenerate case, where the axes, the single ordinal category slot and the legend all have to lay out from the config rather than from the data. Every empty series still gets a tooltip row of \"N/A\" (showMissingValues, missingValueText) beside the one real value.",
       "config": "undefined-single-config.json",
       "data": "undefined-single-values-data.json",
       "random": "undefined-random.json"
@@ -139,7 +139,7 @@
       "id": "undefined-skipped",
       "title": "Skip Missing Values",
       "description": "Missing values skipped: shapes connect across the gaps instead of breaking.",
-      "notes": "The same six series as the Missing Values demo — line, bar and area on Series Axis 1, a line plus a grouped bar pair on Series Axis 2 — with missingValues \"connect\" turned on for all of them through seriesDefaults. Each property drops out at a different category (Value 0 at category 3, Value 1 at 4, Value 2 at 5 and so on, with longer runs further along), and categories 1, 31 and 38 carry no values at all, so the lines and areas now run straight from the last defined category to the next and draw no marker at the categories they jump. The bars have nothing to join across, so they look exactly as they do without skipping, and the tooltip still lists every absent series as N/A (tooltip.showMissingValues with missingValueText).",
+      "notes": "The same six series as the Missing Values demo — line, bar and area on Value Axis 1, a line plus a grouped bar pair on Value Axis 2 — with missingValues \"connect\" turned on for all of them through seriesDefaults. Each property drops out at a different category (Value 0 at category 3, Value 1 at 4, Value 2 at 5 and so on, with longer runs further along), and categories 1, 31 and 38 carry no values at all, so the lines and areas now run straight from the last defined category to the next and draw no marker at the categories they jump. The bars have nothing to join across, so they look exactly as they do without skipping, and the tooltip still lists every absent series as N/A (tooltip.showMissingValues with missingValueText).",
       "config": "undefined-skip-values-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -175,7 +175,7 @@
       "id": "undefined-all",
       "title": "Missing All Values",
       "description": "Every category empty — a stack and a bar category configured over data with no values at all.",
-      "notes": "The dataset is seven rows carrying nothing but their category value, so none of the six series has a value to draw: value0 to value2 are stacked on SS0 against Series Axis 1, and value3 plus the SG0 bar pair sit on Series Axis 2. Nothing sets missingValues \"connect\" or missingValues \"base\", so this is the default missing treatment taken to its limit — an all-gap chart that has to lay out seven ordinal category slots, empty value axes, an empty stack and empty grouped-bar slots, with every tooltip row reading \"N/A\" (showMissingValues, missingValueText).",
+      "notes": "The dataset is seven rows carrying nothing but their category value, so none of the six series has a value to draw: value0 to value2 are stacked on SS0 against Value Axis 1, and value3 plus the SG0 bar pair sit on Value Axis 2. Nothing sets missingValues \"connect\" or missingValues \"base\", so this is the default missing treatment taken to its limit — an all-gap chart that has to lay out seven ordinal category slots, empty value axes, an empty stack and empty grouped-bar slots, with every tooltip row reading \"N/A\" (showMissingValues, missingValueText).",
       "config": "undefined-all-config.json",
       "data": "undefined-all-values-data.json",
       "random": "undefined-positive-random.json"

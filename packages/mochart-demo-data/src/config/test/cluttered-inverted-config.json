@@ -28,7 +28,7 @@
     }
   },
   "categoryAxis": {
-    "title": "Group Axis",
+    "title": "Category Axis",
     "axisLineMargin": 3,
     "showGridLines": true,
     "type": "number",
@@ -41,12 +41,12 @@
   },
   "valueAxes": [
     {
-      "title": "Series Axis 1",
+      "title": "Value Axis 1",
       "id": "VA0",
       "side": "start"
     },
     {
-      "title": "Series Axis 2",
+      "title": "Value Axis 2",
       "id": "VA1",
       "side": "end"
     }

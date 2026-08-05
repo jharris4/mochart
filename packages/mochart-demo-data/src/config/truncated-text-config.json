@@ -182,12 +182,12 @@
     "tickLabelTruncationEnabled": true,
     "tickLabelTruncationValue": "...",
     "tickLabelTruncationMaxFraction": 0.2,
-    "title": "A Group Axis Title That Has Really Long Text That Should Not Overflow The Boundaries",
+    "title": "A Category Axis Title That Has Really Long Text That Should Not Overflow The Boundaries",
     "titleTruncationEnabled": true,
     "titleTruncationValue": "..."
   },
   "valueAxes": {
-    "title": "A Series Axis Title That Has Really Long Text That Should Not Overflow The Boundaries",
+    "title": "A Value Axis Title That Has Really Long Text That Should Not Overflow The Boundaries",
     "titleTruncationEnabled": true,
     "titleTruncationValue": "..."
   },
