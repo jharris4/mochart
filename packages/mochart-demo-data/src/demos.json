@@ -249,7 +249,7 @@
       "id": "axis-multiple",
       "title": "Multiple Axes",
       "description": "Eight line series over a linear date axis, spread across four separate value axes.",
-      "notes": "Four valueAxes entries sit two before the plot and two after (before), pairing each raw series with its running total on its own scale — the two currency axes format ticks as $s, and the count pair sits on the right. Grid lines are off in valueAxisDefaults and re-enabled on SA2 only, so four axes' worth of lines do not pile up, and seriesDefaults.markerShape null leaves bare lines. The data is one UTC day of sales sampled every few minutes (182 rows) on a linear date category axis labelled %_H:%M, where per-sample sales peak near 8k against a running total near 78k — hence the split axes.",
+      "notes": "Four valueAxes entries sit two before the plot and two after (before), pairing each raw series with its running total on its own scale — the two currency axes format ticks as $s, and the count pair sits on the right. Grid lines are off in valueAxisDefaults and re-enabled on VA2 only, so four axes' worth of lines do not pile up, and seriesDefaults.markerShape null leaves bare lines. The data is one UTC day of sales sampled every few minutes (182 rows) on a linear date category axis labelled %_H:%M, where per-sample sales peak near 8k against a running total near 78k — hence the split axes.",
       "config": "multiple-axes-config.json",
       "data": "sales-data.json",
       "random": "default-random.json"
