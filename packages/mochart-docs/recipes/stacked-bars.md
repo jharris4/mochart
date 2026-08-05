@@ -28,4 +28,4 @@ shows gaps mid-transition (see
   plus [`capOnlyStackOuter`](/reference/series#series.capOnlyStackOuter).
 - Side-by-side (grouped) bars instead of stacked: declare a
   [`seriesGroups`](/reference/seriesGroups) entry rather than a
-  stack — series default into a sole category the same way.
+  stack — series default into a sole group the same way.
