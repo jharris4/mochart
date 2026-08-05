@@ -774,14 +774,29 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   onChartMouseMove = (chartX: number, chartY: number): void => {
-    const { mochartConfig, onFocus, onChartMouseMove } = this.props;
+    const { mochartConfig, onFocus, onChartMouseMove, chartData } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseMove?.(eventPayload);
     if (mochartConfig.tooltip.followPointer) {
-      const { valuePercentage: seriesPercentage, categoryIndex } = eventPayload;
+      const { valuePercentage: seriesPercentage, categoryPercentage, categoryIndex } = eventPayload;
       if (mochartConfig.tooltip.visible) {
         onFocus?.({ categoryIndex });
-        this.setState({ tooltipSeriesPercentage: seriesPercentage });
+        if (this.state.tooltipVisible) {
+          // track the pointer: content follows the nearest category, position
+          // follows the pointer percentages (measure() remeasures on index change)
+          const tooltipCategoryIndex = categoryIndex;
+          const tooltipValueObject = tooltipCategoryIndex !== this.state.tooltipCategoryIndex
+            ? getCategorySeriesValueObject(chartData!, tooltipCategoryIndex)
+            : this.state.tooltipValueObject;
+          const tooltipCategoryPercentage = categoryPercentage;
+          const tooltipSeriesPercentage = seriesPercentage;
+          const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.props,
+            { ...this.state, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage });
+          this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipCategoryPercentage, tooltipSeriesPercentage, tooltipLayoutInfo });
+        }
+        else {
+          this.setState({ tooltipSeriesPercentage: seriesPercentage });
+        }
       }
       else {
         this.setState({ tooltipBounds: null });

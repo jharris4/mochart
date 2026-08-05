@@ -272,6 +272,32 @@ describe('tooltip', () => {
     expect(text).toContain('N/A');
   });
 
+  it('moves the tooltip content with the pointer when followPointer is on', () => {
+    const container = mountChart(makeConfig({
+      tooltip: { followPointer: true },
+      series: [{ property: 'sales' }]
+    }));
+    const root = chartRoot(container);
+
+    // followPointer opens the tooltip on enter, no click needed
+    mouse(root, 'mouseenter', 100, 100);
+    const tooltip = container.querySelector('.mochart-tooltip')!;
+    expect(tooltip).not.toBeNull();
+    expect(tooltip.textContent).toContain('Jan');
+    expect(tooltip.textContent).toContain('10.00');
+
+    // crossing to the last category must update the tooltip content
+    mouse(root, 'mousemove', 790, 100);
+    const moved = container.querySelector('.mochart-tooltip')!;
+    expect(moved.textContent).toContain('Mar');
+    expect(moved.textContent).toContain('30.00');
+    expect(moved.textContent).not.toContain('Jan');
+
+    // leaving the plot closes a followPointer tooltip
+    mouse(root, 'mousemove', -10, 100);
+    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+  });
+
   it('leaves showInTooltip: false series out of the tooltip', () => {
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs', showInTooltip: false }]
