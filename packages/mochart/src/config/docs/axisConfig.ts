@@ -78,7 +78,7 @@ export default function getDescriptions() {
     thresholds: {
       description: 'the threshold lines to draw on the axis, each an object drawing a reference line across the plot at an axis value (the array replaces the default wholesale)',
       properties: {
-        value: 'the axis value to draw the threshold line at (on a date category axis, a millisecond timestamp or ISO date string)',
+        value: 'the axis value to draw the threshold line at (on a date category axis, a millisecond timestamp or ISO date string); thresholds never extend the axis domain, and a value outside it is not drawn',
         front: 'whether the line is drawn in front of (true) or behind (false) the series shapes',
         style: styleStates('the style of the threshold line', lineMembers),
         title: 'the title text shown beside the line (use null for none)',

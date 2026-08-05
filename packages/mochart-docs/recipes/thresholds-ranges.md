@@ -31,6 +31,7 @@ import * as thresholdRange from '../examples/thresholdRange'
   [`fillOpacity`](/reference/series#series.shapeStyle.normal.fillOpacity)
   low keeps it as background context — the shape's colors and its focused and
   defocused states are left at their defaults.
-- The axis grows to fit the threshold if the data alone wouldn't reach it —
-  use [`softMax`](/reference/valueAxes#valueAxes.softMax) to
-  guarantee headroom above it.
+- Thresholds never extend the axis: a line whose value falls outside the
+  current domain is simply not drawn. If the data alone wouldn't reach the
+  threshold, set [`softMax`](/reference/valueAxes#valueAxes.softMax) at or
+  above it so the axis covers it.

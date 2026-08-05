@@ -1189,7 +1189,7 @@ export interface TooltipConfig extends SeriesIconConfig {
  * back to the documented defaults.
  */
 export interface ThresholdConfig {
-  /** The axis value to draw the threshold line at; on a date category axis, an iso date string or millisecond timestamp. */
+  /** The axis value to draw the threshold line at; on a date category axis, an iso date string or millisecond timestamp. Thresholds never extend the axis domain, and a value outside it is not drawn. */
   value: number | string;
   /** Whether the line is drawn in front of (true) or behind (false) the series shapes. Defaults to true. */
   front?: boolean;
