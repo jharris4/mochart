@@ -2,7 +2,7 @@
  * Optional structural stylesheet for @mochart/core.
  *
  * Charts set all intentional layout as inline styles, but the HTML overlays
- * (tooltip, no-data / loading / error messages) also rely on browser default
+ * (tooltip, message states) also rely on browser default
  * styles for everything they don't set. Host-page CSS resets (Tailwind
  * preflight, VitePress base styles, normalize.css) override those defaults
  * and can break overlay layout — e.g. `svg { display: block }` pushes the

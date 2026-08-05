@@ -1704,8 +1704,8 @@ export interface CategoryAxisConfig extends AxisConfigBase {
    * The property to retrieve from the data provider for the category values.
    *
    * The chart reads this property from each entry of the data provider to get
-   * the category (category) value. It is required — the only category axis
-   * property without a default.
+   * the category value. It is required — the only category axis property
+   * without a default.
    */
   property?: string;
   /**

@@ -63,9 +63,9 @@ value, percent or title labels at the slice centroids.
 
 - [`labelType`](/reference/pie#pie.labelType) picks the label
   content: a single part (`'value'`, `'percent'` or `'title'`) or a
-  combination — `'valuePercent'` for `420 (49%)`, `'percentValue'` for
-  `49% (420)`, `'titleValue'` for `Subscriptions: 420` and `'titlePercent'`
-  for `Subscriptions: 49%`.
+  combination — `'valuePercent'` for `420 (45%)`, `'percentValue'` for
+  `45% (420)`, `'titleValue'` for `Subscriptions: 420` and `'titlePercent'`
+  for `Subscriptions: 45%`.
   [`labelValueFormat`](/reference/pie#pie.labelValueFormat) and
   [`labelPercentFormat`](/reference/pie#pie.labelPercentFormat)
   format the two numeric parts independently (percent parts format the

@@ -1,6 +1,7 @@
 // createHeatmap turns a grid of values into heatmap pieces: each row becomes
-// a full-width bar series floating on a one-unit band of a hidden series
-// axis, and each cell's value colors it from a shared sequential ramp.
+// a full-width bar series floating on a one-unit band of the value axis
+// (labelled with the row names via explicit ticks), and each cell's value
+// colors it from a shared sequential ramp.
 import { createHeatmap } from '@mochart/core';
 import type { MochartInputConfig } from '@mochart/core';
 

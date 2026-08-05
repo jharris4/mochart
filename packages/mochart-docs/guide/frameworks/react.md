@@ -9,7 +9,7 @@ needed.
 ## Install
 
 ```sh
-npm install @mochart/react react
+npm install @mochart/react react react-dom
 ```
 
 ## Quick start

@@ -10,7 +10,7 @@ axis contraction, and gapless stacked transitions — no extra wiring needed.
 ## Install
 
 ```sh
-npm install @mochart/react react
+npm install @mochart/react react react-dom
 ```
 
 ## Usage

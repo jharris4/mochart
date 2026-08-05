@@ -1,4 +1,4 @@
-// With exactly one entry in seriesGroupConfigs, every series defaults its
+// With exactly one entry in seriesGroups, every series defaults its
 // `group` to that group's id and the bars lay out side by side.
 import type { MochartInputConfig } from '@mochart/core';
 

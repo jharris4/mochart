@@ -30,7 +30,7 @@ export default function getDescriptions() {
 }
 export function getDetails() {
   return {
-    property: 'The chart reads this property from each entry of the data provider to get the category (category) value. It is required — the only category axis property without a default.',
+    property: 'The chart reads this property from each entry of the data provider to get the category value. It is required — the only category axis property without a default.',
     type: 'How category values are interpreted: `string` for labels, `number` for numeric values, and `date` for date values (`dateUTC` controls their timezone handling). The type drives parsing, tick label formatting, and which `scale` options make sense.',
     scale: '`ordinal` places the categories at evenly spaced positions in data order regardless of their values; `linear` positions `number`/`date` category values proportionally along the axis, so uneven spacing in the data shows as uneven spacing in the chart.',
     displayProperty: 'When set, this property’s value is used wherever the category value is displayed (tick labels, tooltip), while `property` still drives positioning — useful for pre-formatted or friendly labels.'

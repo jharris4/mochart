@@ -27,11 +27,11 @@ import '@mochart/core/mochart.css';
 ```
 
 It re-asserts the browser default styles that the chart's HTML overlays (the
-tooltip and the no-data/loading/error messages) rely on. Import it when your
+tooltip and the message overlays) rely on. Import it when your
 page uses a global CSS reset — Tailwind's preflight, VitePress's base styles,
 or a `normalize.css`-style reset — which can otherwise disturb overlay layout
-(for example, `svg { display: block }` breaks the vertical alignment of
-tooltip rows). It never overrides the chart's own styling, and overlays still
+(for example, `svg { display: block }` wraps the tooltip's color icon onto
+its own line). It never overrides the chart's own styling, and overlays still
 inherit your page's font and text color.
 
 ## Your first chart
