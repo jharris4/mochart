@@ -127,7 +127,7 @@ export class DataTab extends LightElement {
             ? html`${applyButton}
               <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${editorPlacement}
                 .getAnchor=${this.getFooterAnchor} .active=${this.active}
-                .items=${() => html`<div class="demo-btn-group">${resetButton}${unusedButton}</div>`}></overflow-menu>`
+                .items=${() => html`<div class="demo-btn-category">${resetButton}${unusedButton}</div>`}></overflow-menu>`
             : html`${resetButton}${unusedButton}${applyButton}`}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}
         </div>

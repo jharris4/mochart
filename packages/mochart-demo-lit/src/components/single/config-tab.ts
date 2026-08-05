@@ -157,7 +157,7 @@ export class ConfigTab extends LightElement {
                    goes. -->
               <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${editorPlacement}
                 .getAnchor=${this.getFooterAnchor} .active=${this.active}
-                .items=${() => html`<div class="demo-btn-group">${resetButton}${defaultsButton}${invertedButton}${slowButton}</div>
+                .items=${() => html`<div class="demo-btn-category">${resetButton}${defaultsButton}${invertedButton}${slowButton}</div>
                   ${links === nothing ? nothing : html`<div class="demo-menu-divider"></div>${links}`}`}></overflow-menu>`
             : html`${resetButton}${defaultsButton}${invertedButton}${slowButton}${applyButton}`}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}

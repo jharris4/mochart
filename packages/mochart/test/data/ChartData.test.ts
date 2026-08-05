@@ -49,7 +49,7 @@ describe('isDataProviderValid', () => {
 });
 
 describe('getChartData', () => {
-  it('builds group and series data from a provider', () => {
+  it('builds category and series data from a provider', () => {
     const { chartData } = makeChartData();
     expect(chartData.categoryData.values.raw).toEqual(['Jan', 'Feb', 'Mar']);
     expect(chartData).toHaveProperty('seriesData');
@@ -75,7 +75,7 @@ describe('getChartDataWith* merge helpers', () => {
     expect(merged.categoryData).toBe(chartData.categoryData);
   });
 
-  it('replaces both group and series data', () => {
+  it('replaces both category and series data', () => {
     const { chartData } = makeChartData();
     const other = makeChartData().chartData;
     const merged = getChartDataWithData(chartData, other.categoryData, other.seriesData);
@@ -89,17 +89,17 @@ describe('getChartDataCategoryCount', () => {
     expect(getChartDataCategoryCount(null)).toBe(0);
   });
 
-  it('returns the number of raw group values', () => {
+  it('returns the number of raw category values', () => {
     const { chartData } = makeChartData();
     expect(getChartDataCategoryCount(chartData)).toBe(3);
   });
 });
 
 describe('getCategorySeriesValueObject', () => {
-  it('exposes the group and series values at an index', () => {
+  it('exposes the category and series values at an index', () => {
     const { chartData } = makeChartData();
     const obj = getCategorySeriesValueObject(chartData, 1);
-    expect(obj.group.values.raw).toBe('Feb');
+    expect(obj.category.values.raw).toBe('Feb');
     expect(obj).toHaveProperty('series');
   });
 });
@@ -110,7 +110,7 @@ describe('undefined series values', () => {
       categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
       series: [{ property: 'a' }]
     });
-    // group 1 has no value for property "a"
+    // caetgory 1 has no value for property "a"
     const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10 }, { g: 1 }, { g: 2, a: 30 }], 'g');
     const seriesId = config.series[0].id;
     return { chartData: getChartData(config, provider, {}), seriesId };
@@ -135,7 +135,7 @@ describe('undefined series values', () => {
       categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
       series: [{ property: 'a', rangeProperty: 'hi' }]
     });
-    // group 1 has no "hi" (range) value, but keeps its "a" (plain) value
+    // category 1 has no "hi" (range) value, but keeps its "a" (plain) value
     const provider = new ArrayOfObjectsDataProvider([{ g: 0, a: 10, hi: 15 }, { g: 1, a: 20 }, { g: 2, a: 30, hi: 35 }], 'g');
     const seriesId = config.series[0].id;
     const chartData = getChartData(config, provider, {});

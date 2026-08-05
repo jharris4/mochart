@@ -12,7 +12,7 @@ and series filtering out of the box.
 - **Renderers**: `bar`, `line`, and `area` series, mixable in one chart
 - **Scales**: ordinal and linear category axes over string, number, and date values (via d3-scale)
 - **Animation**: [staged transitions](#staged-animation) — axis expansion,
-  value change (with group and series transitions), axis contraction — and
+  value change (with category and series transitions), axis contraction — and
   gapless stacked animation
 - **Interaction**: crosshair, tooltip, legend with series filtering, click and
   hover callbacks
@@ -28,12 +28,12 @@ a single step, which makes updates that change both the data and the axis
 domains hard to follow. mochart instead splits each update into sequential
 phases, so only one kind of change is in motion at a time:
 
-1. **Axis expansion** — if the new data needs more room (new groups, larger
+1. **Axis expansion** — if the new data needs more room (new categories, larger
    values), the axis domains grow first and the existing shapes reflow into
    the wider domains, so incoming data has a place to land.
 2. **Value change** — values tween to their new positions. This phase also
-   plays **group transitions** (groups added, removed, or reordered are merged
-   into one display sequence so old and new groups animate coherently) and
+   plays **category transitions** (categories added, removed, or reordered are merged
+   into one display sequence so old and new categories animate coherently) and
    **series transitions** (series added, removed, or filtered via the legend).
 3. **Axis contraction** — once the values settle, the axis domains collapse to
    fit the remaining data.
@@ -180,13 +180,13 @@ createDefaultChart(container, {
 });
 ```
 
-- `onFocus(focus)` — the focused series/group/axis changed (mouse over/out or
+- `onFocus(focus)` — the focused series/category/axis changed (mouse over/out or
   click, per the series' `focusOnMouseOver`/`focusOnClick` config)
 - `onSeriesFilter(filter)` — a legend click toggled a series in/out of the
   filtered set
 - `onChartClick` / `onChartMouseEnter` / `onChartMouseMove` /
   `onChartMouseLeave` — plot-area pointer events with chart coordinates and
-  the nearest group index
+  the nearest category index
 - `onSeriesLayoutBoundsChange(bounds)` — the plot area was re-laid-out
 
 ## Loading, error, and empty states

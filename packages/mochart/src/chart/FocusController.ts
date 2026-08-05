@@ -25,7 +25,7 @@ export interface ExternalFocusInput {
 
 /**
  * Focus and series-filter state machine for a managed chart (was
- * ManagedChart): tracks the focused group/series/axis and the filtered
+ * ManagedChart): tracks the focused category/series/axis and the filtered
  * series, remaps or resets them when the config structure or data provider
  * changes, and reports changes through the host callbacks.
  */
@@ -50,7 +50,7 @@ export class FocusController {
   /**
    * Reconcile focus/filter state with a config or data-provider change:
    * a structural config change resets everything, a data change remaps the
-   * focused group by value (dropping it when the group disappeared).
+   * focused category by value (dropping it when the category disappeared).
    * Fires the callbacks when anything changed.
    */
   reconcile(prev: FocusControllerInput, next: FocusControllerInput, callbacks: FocusChangeCallbacks): void {

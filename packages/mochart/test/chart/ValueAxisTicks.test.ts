@@ -79,7 +79,7 @@ function getAxisLabels(container: HTMLElement): string[] {
     .filter((label) => label !== '');
 }
 
-describe('series axis explicit ticks', () => {
+describe('value axis explicit ticks', () => {
   it('renders exactly the configured ticks with their labels', () => {
     const { container, chart } = renderChart({
       ticks: [

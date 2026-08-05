@@ -90,7 +90,7 @@ export class ChartsControls extends LightElement {
         </div>
         <div class="demo-field">
           <div class="demo-toolbar" role="toolbar">
-            <div class="demo-btn-group">
+            <div class="demo-btn-category">
               ${buttonWithTooltip(
                 { id: 'step-back', disabled: this.playing, tooltipText: demoText.multiChartsTab.stepBackward.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepBackwardClick, ariaLabel: demoText.multiChartsTab.stepBackward.aria },
                 icon({ size: 'lg', fixedWidth: true, name: 'backward-step' })

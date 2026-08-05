@@ -69,7 +69,7 @@ const defaultRate = 2000;
         <form class="demo-form-row">
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-group">
+              <div class="demo-btn-category">
                 <app-button-with-tooltip id="randomize-back" [disabled]="playing()" [label]="text.back.label"
                                          [tooltipText]="text.back.tooltip" tooltipPlacement="top-start"
                                          [onClick]="onRandomizeBack" [aria-label]="text.back.aria">
@@ -94,21 +94,21 @@ const defaultRate = 2000;
                 <!-- Anchored to the whole strip: \`align: 'end'\` pins the
                      panel's right edge to the anchor's, and the export trigger
                      sits to the ⋯'s right. -->
-                <div class="demo-btn-group">
+                <div class="demo-btn-category">
                   <app-overflow-menu [text]="overflowText" [placement]="randomPlacement" [getAnchor]="getControlsAnchor" [active]="active">
-                    <div class="demo-btn-group">
+                    <div class="demo-btn-category">
                       <ng-container [ngTemplateOutlet]="playButton" />
                       <ng-container [ngTemplateOutlet]="stopButton" />
                     </div>
                     <div class="demo-menu-divider"></div>
-                    <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="reuseButton" /></div>
+                    <div class="demo-btn-category"><ng-container [ngTemplateOutlet]="reuseButton" /></div>
                     <div class="demo-menu-divider"></div>
                     <ng-container [ngTemplateOutlet]="rateField" />
                   </app-overflow-menu>
                   <app-export-share-menu idPrefix="random" [active]="active" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
                 </div>
               } @else {
-                <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="reuseButton" /></div>
+                <div class="demo-btn-category"><ng-container [ngTemplateOutlet]="reuseButton" /></div>
                 <app-export-share-menu idPrefix="random" [active]="active" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
               }
             </div>

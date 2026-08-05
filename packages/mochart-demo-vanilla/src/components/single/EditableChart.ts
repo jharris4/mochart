@@ -91,7 +91,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   let focusedValueAxisId = props.focusedValueAxisId ?? null;
   let focusedSeriesId = props.focusedSeriesId ?? null;
 
-  // Working copies of the demo data; mutated in place by the group/series
+  // Working copies of the demo data; mutated in place by the category/series
   // editing controls (same pattern as the framework demos).
   let filteredData: Row[] = [];
   let removedData: Row[] = [];
@@ -102,9 +102,9 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   let categoryValuesText = '';
   let seriesIndex = 0;
   let seriesValuesText = '';
-  let selectionMode = 'group';
+  let selectionMode = 'category';
   let sequencePlaying = false;
-  // pie-mode slice editing: slices are the series, so the group machinery has
+  // pie-mode slice editing: slices are the series, so the category machinery has
   // nothing to operate on and a single slice panel replaces both panels
   let slices: PieSliceInfo[] = [];
   let sliceIndex = 0;
@@ -229,7 +229,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     }
   }
 
-  // The pie analog of the group add/remove sequences: filter the slices one
+  // The pie analog of the category add/remove sequences: filter the slices one
   // at a time (via the shared legend filter, so the remaining slices re-sweep
   // and center totals count along), then restore them.
   function startSliceSequence(): void {
@@ -286,7 +286,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       categoryIndex = clickedCategoryIndex;
       seriesValuesText = getSeriesValuesText(mochartDemoConfig, filteredData, clickedCategoryIndex, seriesIndex);
     }
-    else if (selectionMode === 'group') {
+    else if (selectionMode === 'category') {
       const dataCategoryValues: any[] = [];
       const count = filteredData.length;
       for (let i = 0; i < count; i++) {
@@ -307,7 +307,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   }
 
   function onModeToggle(): void {
-    selectionMode = selectionMode === 'group' ? 'series' : 'group';
+    selectionMode = selectionMode === 'category' ? 'series' : 'category';
     sync();
   }
 
@@ -687,7 +687,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     content: [icon('bullseye', { size: 'lg', fixedWidth: true })]
   });
   // The export/share menu sits at the far right of the controls row (past the
-  // group/series input). Share is only offered on the chart flagged for it
+  // category/series input). Share is only offered on the chart flagged for it
   // (the first, when two are shown).
   const exportShareMenuHandle = exportShareMenu({
     idPrefix: 'edit',
@@ -717,31 +717,31 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     getAnchor: () => menuSpan
   });
   const menuSpan = el('span', { className: 'chart-controls-menu' }, [overflowMenuHandle.el, exportShareMenuHandle.el]);
-  const chartCountControl = chartCountButton ? el('div', { className: 'demo-btn-group' }, [chartCountButton.el]) : null;
-  const modeControl = el('div', { className: 'demo-btn-group' }, [modeButton.el]);
+  const chartCountControl = chartCountButton ? el('div', { className: 'demo-btn-category' }, [chartCountButton.el]) : null;
+  const modeControl = el('div', { className: 'demo-btn-category' }, [modeButton.el]);
   const commonControls = [...(chartCountControl ? [chartCountControl] : []), modeControl];
 
-  // Group-mode panel
+  // Category-mode panel
   const resetCategoriesButton = buttonWithTooltip({
-    id: 'edit-reset-groups', label: demoText.editableChart.resetCategories.label, ariaLabel: demoText.editableChart.resetCategories.aria,
+    id: 'edit-reset-categories', label: demoText.editableChart.resetCategories.label, ariaLabel: demoText.editableChart.resetCategories.aria,
     tooltipText: demoText.editableChart.resetCategories.tooltip,
     onClick: resetCategories,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const reverseCategoriesButton = buttonWithTooltip({
-    id: 'edit-reverse-groups', label: demoText.editableChart.reverseCategories.label, ariaLabel: demoText.editableChart.reverseCategories.aria,
+    id: 'edit-reverse-categories', label: demoText.editableChart.reverseCategories.label, ariaLabel: demoText.editableChart.reverseCategories.aria,
     tooltipText: demoText.editableChart.reverseCategories.tooltip,
     onClick: reverseCategories,
     content: [icon('right-left', { size: 'lg', fixedWidth: true })]
   });
   const addCategoriesButton = buttonWithTooltip({
-    id: 'edit-add-groups', label: demoText.editableChart.addCategories.label, ariaLabel: demoText.editableChart.addCategories.aria,
+    id: 'edit-add-categories', label: demoText.editableChart.addCategories.label, ariaLabel: demoText.editableChart.addCategories.aria,
     tooltipText: demoText.editableChart.addCategories.tooltip,
     onClick: addCategories,
     content: [icon('plus', { size: 'lg', fixedWidth: true })]
   });
   const removeCategoriesButton = buttonWithTooltip({
-    id: 'edit-remove-groups', label: demoText.editableChart.removeCategories.label, ariaLabel: demoText.editableChart.removeCategories.aria,
+    id: 'edit-remove-categories', label: demoText.editableChart.removeCategories.label, ariaLabel: demoText.editableChart.removeCategories.aria,
     tooltipText: demoText.editableChart.removeCategories.tooltip,
     onClick: removeCategories,
     content: [icon('minus', { size: 'lg', fixedWidth: true })]
@@ -788,13 +788,13 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     resetCategoriesButton.el, reverseCategoriesButton.el, addCategoriesButton.el, removeCategoriesButton.el,
     playAddButton.el, playRemoveButton.el, stopButton.el, selectAllButton.el
   ];
-  const categoryButtonGroup = el('div', { className: 'demo-btn-group' }, categoryButtons);
-  const categoryToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [categoryButtonGroup]);
+  const categoryButtonCategory = el('div', { className: 'demo-btn-category' }, categoryButtons);
+  const categoryToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [categoryButtonCategory]);
 
   // Menu-side homes for the loose buttons the fold takes out of the strip —
-  // cached `.demo-btn-group`s; OverflowMenu.ts's header says why that shape.
-  const menuOrderGroup = el('div', { className: 'demo-btn-group' });
-  const menuSequenceGroup = el('div', { className: 'demo-btn-group' });
+  // cached `.demo-btn-category`s; OverflowMenu.ts's header says why that shape.
+  const menuOrderCategory = el('div', { className: 'demo-btn-category' });
+  const menuSequenceGroup = el('div', { className: 'demo-btn-category' });
   const categoryPanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [
       el('form', { className: 'demo-form-row' }, [
@@ -808,13 +808,13 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Series-mode panel
   const categoryDecreaseButton = buttonWithTooltip({
-    id: 'edit-group-decrease', ariaLabel: demoText.editableChart.decreaseCategoryOrder.aria,
+    id: 'edit-category-decrease', ariaLabel: demoText.editableChart.decreaseCategoryOrder.aria,
     tooltipText: demoText.editableChart.decreaseCategoryOrder.tooltip,
     onClick: decreaseCategoryOrder,
     content: [icon('arrow-left', { size: 'lg', fixedWidth: true })]
   });
   const categoryIncreaseButton = buttonWithTooltip({
-    id: 'edit-group-increase', ariaLabel: demoText.editableChart.increaseCategoryOrder.aria,
+    id: 'edit-category-increase', ariaLabel: demoText.editableChart.increaseCategoryOrder.aria,
     tooltipText: demoText.editableChart.increaseCategoryOrder.tooltip,
     onClick: increaseCategoryOrder,
     content: [icon('arrow-right', { size: 'lg', fixedWidth: true })]
@@ -847,7 +847,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // The index sits in its own fixed-width span so stepping through indexes
   // never shifts the controls to the right of the label.
   //
-  // The `Group: ` / `Series: ` prefixes get a span of their own so the phone
+  // The `Category: ` / `Series: ` prefixes get a span of their own so the phone
   // tier can take them out of the layout — see `.demo-label-prefix` in the
   // stylesheet's phone block, and the width arithmetic beside the margin
   // toggle in placeControls. They are CLIPPED there, not removed: the readout
@@ -856,7 +856,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // The compact spans are the phone-tier stand-ins: a bare `-1` between two
   // arrows names nothing visually, so `G` / `S` carry the meaning in the space
   // the strip can actually spare. `aria-hidden`, so the accessible name stays
-  // the clipped full prefix and never doubles up as "Group: G -1". Hidden by
+  // the clipped full prefix and never doubles up as "Category: G -1". Hidden by
   // the base stylesheet at every other width.
   const categoryIndexValue = el('span', { className: 'demo-index-value' });
   const seriesIndexValue = el('span', { className: 'demo-index-value' });
@@ -882,34 +882,34 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // input it applies. `seriesActionButtons` is also the list the unfold
   // restores, so the desktop order has exactly one definition.
   const seriesActionButtons = [resetSeriesButton.el, applySeriesButton.el];
-  const seriesActionGroup = el('div', { className: 'demo-btn-group' }, seriesActionButtons);
+  const seriesActionGroup = el('div', { className: 'demo-btn-category' }, seriesActionButtons);
   const seriesForm = el('form', { className: 'demo-form-row' }, [
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'demo-btn-group' }, [categoryDecreaseButton.el])
+        el('div', { className: 'demo-btn-category' }, [categoryDecreaseButton.el])
       ])
     ]),
     el('div', { className: 'demo-field' }, [categoryIndexLabel]),
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'demo-btn-group' }, [categoryIncreaseButton.el])
+        el('div', { className: 'demo-btn-category' }, [categoryIncreaseButton.el])
       ])
     ]),
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'demo-btn-group' }, [previousSeriesButton.el])
+        el('div', { className: 'demo-btn-category' }, [previousSeriesButton.el])
       ])
     ]),
     el('div', { className: 'demo-field' }, [seriesIndexLabel]),
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'demo-btn-group' }, [nextSeriesButton.el]),
+        el('div', { className: 'demo-btn-category' }, [nextSeriesButton.el]),
         seriesActionGroup
       ])
     ])
   ]);
-  // Menu-side home for Reset (a cached `.demo-btn-group` — see OverflowMenu.ts).
-  const menuSeriesActionGroup = el('div', { className: 'demo-btn-group' });
+  // Menu-side home for Reset (a cached `.demo-btn-category` — see OverflowMenu.ts).
+  const menuSeriesActionGroup = el('div', { className: 'demo-btn-category' });
   const seriesCommonToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
   // Emptied by the fold (commonControls move into the menu), and an empty flex
   // item still spends one of `.demo-form-row`'s 10px column gaps — which the
@@ -953,7 +953,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     onClick: applySliceChanges,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
   });
-  // Icon-only at every width by design, so — like the group panel's transport
+  // Icon-only at every width by design, so — like the category panel's transport
   // buttons — they carry `menuLabel` for the fold, which renders only inside a
   // menu and so leaves the desktop strip untouched.
   const playSliceButton = buttonWithTooltip({
@@ -985,12 +985,12 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // the whole play/stop group folds out of the toolbar (moving the group itself
   // rather than emptying it, so no empty flex item is left spending a gap).
   const sliceActionButtons = [resetSliceButton.el, applySliceButton.el];
-  const sliceStepGroup = el('div', { className: 'demo-btn-group' }, [nextSliceButton.el]);
-  const sliceActionGroup = el('div', { className: 'demo-btn-group' }, sliceActionButtons);
-  const sliceSequenceGroup = el('div', { className: 'demo-btn-group' }, [playSliceButton.el, stopSliceButton.el]);
+  const sliceStepGroup = el('div', { className: 'demo-btn-category' }, [nextSliceButton.el]);
+  const sliceActionGroup = el('div', { className: 'demo-btn-category' }, sliceActionButtons);
+  const sliceSequenceGroup = el('div', { className: 'demo-btn-category' }, [playSliceButton.el, stopSliceButton.el]);
   const sliceToolbarGroups = [sliceStepGroup, sliceActionGroup, sliceSequenceGroup];
   const sliceToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, sliceToolbarGroups);
-  const menuSliceActionGroup = el('div', { className: 'demo-btn-group' });
+  const menuSliceActionGroup = el('div', { className: 'demo-btn-category' });
   // The slice menu's optional tail. Built once, and empty rather than
   // `[divider, null]` when there is no second-chart button: `setItems` drops
   // nulls but keeps dividers, so the unconditional form would rule off the
@@ -1002,7 +1002,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     sliceCommonField,
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-        el('div', { className: 'demo-btn-group' }, [previousSliceButton.el])
+        el('div', { className: 'demo-btn-category' }, [previousSliceButton.el])
       ])
     ]),
     el('div', { className: 'demo-field' }, [sliceLabel]),
@@ -1044,8 +1044,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
    * Only the visible panel folds. The other two are `display: none` at this
    * point, so their strips are restored unconditionally — that is also what
    * pulls their controls back out of the menu when the active panel changes
-   * (switching Edit Groups → Edit Series swaps the whole item list, which
-   * detaches the group panel's menu rows; the restore below re-homes them).
+   * (switching Edit Categories → Edit Series swaps the whole item list, which
+   * detaches the category panel's menu rows; the restore below re-homes them).
    */
   function placeControls(pieMode: boolean, categoryMode: boolean): void {
     const foldCategory = isPhone && !pieMode && categoryMode;
@@ -1057,29 +1057,29 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     // controls back rather than believing they are already placed.
     //
     // The slice list carries `chartCountControl` but not `modeControl`: there
-    // are no group/series panels to switch to in pie mode, which is why the
+    // are no category/series panels to switch to in pie mode, which is why the
     // desktop branch removes that button rather than placing it.
     overflowMenuHandle.setItems(
-      foldCategory ? [menuOrderGroup, menuDivider, menuSequenceGroup, menuDivider, ...commonControls]
+      foldCategory ? [menuOrderCategory, menuDivider, menuSequenceGroup, menuDivider, ...commonControls]
         : foldSeries ? [menuSeriesActionGroup, menuDivider, ...commonControls]
           : foldSlice ? [menuSliceActionGroup, menuDivider, sliceSequenceGroup, ...sliceMenuTail]
             : []);
 
-    // Group panel. Add/Remove act on what is typed in the input beside them, so
+    // Category panel. Add/Remove act on what is typed in the input beside them, so
     // they stay in the strip; everything else folds.
-    setChildren(categoryButtonGroup, foldCategory ? [addCategoriesButton.el, removeCategoriesButton.el] : categoryButtons);
+    setChildren(categoryButtonCategory, foldCategory ? [addCategoriesButton.el, removeCategoriesButton.el] : categoryButtons);
     if (foldCategory) {
-      setChildren(menuOrderGroup, [resetCategoriesButton.el, reverseCategoriesButton.el, selectAllButton.el]);
+      setChildren(menuOrderCategory, [resetCategoriesButton.el, reverseCategoriesButton.el, selectAllButton.el]);
       setChildren(menuSequenceGroup, [playAddButton.el, playRemoveButton.el, stopButton.el]);
     }
 
-    // Series panel. The steppers and their readouts stay — they are how a group
+    // Series panel. The steppers and their readouts stay — they are how a category
     // and a series get picked at all. Apply stays visible too, but moves DOWN,
     // onto the input row beside the JSON it applies: with it gone the stepper
     // row is four buttons and two readouts, which is what lets the panel hold
     // two rows even at 320x568 (five buttons wrapped it to three). Reset is the
     // one button with no partner anywhere, so it folds into the menu. The
-    // emptied action group is `display: none`d by `.demo-btn-group:empty`.
+    // emptied action group is `display: none`d by `.demo-btn-category:empty`.
     setChildren(seriesActionGroup, foldSeries ? [] : seriesActionButtons);
     setChildren(seriesInputForm, foldSeries ? [seriesInput, applySeriesButton.el] : [seriesInput]);
     if (foldSeries) {
@@ -1140,9 +1140,9 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     const error = chartDataError || configError;
     const filteredCategoryValues: any[] = error || !dataProvider?.getCategoryValues ? [] : dataProvider.getCategoryValues();
     const selectedCategoryValues = (error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(',');
-    const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, group) => { map[group] = true; return map; }, {});
-    const disableRemove = orderChanged || !selectedCategoryValues.some(group => filteredCategoryMap[group]);
-    const disableAdd = orderChanged || !selectedCategoryValues.some(group => !filteredCategoryMap[group]);
+    const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
+    const disableRemove = orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]);
+    const disableAdd = orderChanged || !selectedCategoryValues.some(category => !filteredCategoryMap[category]);
     const seriesControlsDisabled = sequencePlaying || categoryIndex === -1;
     const categoryOrderControlsDisabled = sequencePlaying || categoryIndex === -1;
     const isFirstCategory = categoryIndex === 0;
@@ -1151,9 +1151,9 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     const hasNextSeries = seriesIndex < mochartDemoConfig.seriesCount - 1;
 
     // panel visibility + common controls placement (pie mode shows only the
-    // slice panel; the group/series machinery has nothing to edit there)
+    // slice panel; the category/series machinery has nothing to edit there)
     const pieMode = mochartDemoConfig.pieMode;
-    const categoryMode = selectionMode === 'group';
+    const categoryMode = selectionMode === 'category';
     placeControls(pieMode, categoryMode);
     categoryPanel.style.display = !pieMode && categoryMode ? '' : 'none';
     seriesPanel.style.display = !pieMode && !categoryMode ? '' : 'none';

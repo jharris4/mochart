@@ -91,7 +91,7 @@ function onShare() {
 </script>
 
 <template>
-  <div class="demo-btn-group demo-menu-up mochart-export-share-menu">
+  <div class="demo-btn-category demo-menu-up mochart-export-share-menu">
     <button :ref="setTrigger" type="button" v-bind="triggerProps"
             :class="'demo-btn demo-btn-secondary demo-menu-trigger' + (open ? ' active' : '')"
             :disabled="props.disabled"

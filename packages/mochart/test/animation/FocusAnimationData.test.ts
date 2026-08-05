@@ -28,9 +28,9 @@ describe('getFocusAnimationData', () => {
     const end = focusData();
     const data = getFocusAnimationData(config, start, end);
     expect(data.deltaPercentage).toBe(0);
-    expect(data.group.deltas).toEqual([0, 0, 0]);
-    expect(data.group.deltaPercentages).toBeNull();
-    expect(data.group.deltaFactors).toBeNull();
+    expect(data.category.deltas).toEqual([0, 0, 0]);
+    expect(data.category.deltaPercentages).toBeNull();
+    expect(data.category.deltaFactors).toBeNull();
     expect(data.valueAxis.deltaPercentages).toBeNull();
     expect(data.series.deltaPercentages).toBeNull();
     expect(data.start).toBe(start);
@@ -38,15 +38,15 @@ describe('getFocusAnimationData', () => {
     expect(data.final).toBe(end);
   });
 
-  it('computes group deltas, percentages and factors relative to the largest delta', () => {
+  it('computes category deltas, percentages and factors relative to the largest delta', () => {
     const start = focusData({ categoryFocusPercentages: [0, 1, 0.5] });
     const end = focusData({ categoryFocusPercentages: [1, 1, 0.75] });
     const data = getFocusAnimationData(config, start, end);
-    expect(data.group.deltas).toEqual([1, 0, 0.25]);
-    expect(data.group.deltaPercentage).toBe(1);
+    expect(data.category.deltas).toEqual([1, 0, 0.25]);
+    expect(data.category.deltaPercentage).toBe(1);
     // unchanged entries get 0, others are scaled by the max delta
-    expect(data.group.deltaPercentages).toEqual([1, 0, 0.25]);
-    expect(data.group.deltaFactors).toEqual([1, 0, 4]);
+    expect(data.category.deltaPercentages).toEqual([1, 0, 0.25]);
+    expect(data.category.deltaFactors).toEqual([1, 0, 4]);
     expect(data.deltaPercentage).toBe(1);
   });
 
@@ -54,11 +54,11 @@ describe('getFocusAnimationData', () => {
     const start = focusData({ categoryFocusPercentages: [null, 1] });
     const end = focusData({ categoryFocusPercentages: [1, null] });
     const data = getFocusAnimationData(config, start, end);
-    expect(data.group.deltas).toEqual([1, -1]);
-    expect(data.group.deltaPercentage).toBe(1);
+    expect(data.category.deltas).toEqual([1, -1]);
+    expect(data.category.deltaPercentage).toBe(1);
   });
 
-  it('computes series axis map deltas with mixed changed and unchanged entries', () => {
+  it('computes value axis map deltas with mixed changed and unchanged entries', () => {
     const start = focusData({ valueAxisFocusPercentages: { VA0: 0, VA1: 0.5 } });
     const end = focusData({ valueAxisFocusPercentages: { VA0: 0.5, VA1: 0.5 } });
     const data = getFocusAnimationData(config, start, end);
@@ -86,7 +86,7 @@ describe('getFocusAnimationData', () => {
       seriesFocusPercentages: { S0: 0.5, S1: 0 }
     });
     const data = getFocusAnimationData(config, start, end);
-    expect(data.group.deltaPercentage).toBe(0.25);
+    expect(data.category.deltaPercentage).toBe(0.25);
     expect(data.valueAxis.deltaPercentage).toBe(0.75);
     expect(data.series.deltaPercentage).toBe(0.5);
     expect(data.deltaPercentage).toBe(0.75);

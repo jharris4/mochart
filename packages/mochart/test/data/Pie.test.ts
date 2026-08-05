@@ -37,8 +37,8 @@ describe('createPie', () => {
     const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs, chart: chartConfig } = createPie(items());
     expect(chartConfig).toEqual({ type: 'pie' });
     expect(data).toHaveLength(1);
-    expect(data[0]).toEqual({ group: 'all', slice0: 62, slice1: 20, slice2: 18 });
-    expect(categoryAxisConfig).toEqual({ property: 'group', type: 'string', scale: 'ordinal' });
+    expect(data[0]).toEqual({ category: 'all', slice0: 62, slice1: 20, slice2: 18 });
+    expect(categoryAxisConfig).toEqual({ property: 'category', type: 'string', scale: 'ordinal' });
     expect(seriesConfigs).toEqual([
       { id: 'slice0', property: 'slice0', title: 'Chrome' },
       { id: 'slice1', property: 'slice1', title: 'Safari' },
@@ -48,7 +48,7 @@ describe('createPie', () => {
 
   it('honors categoryValue, explicit colors and valueFormat', () => {
     const { data, series: seriesConfigs } = createPie([{ label: 'A', value: 1, color: '#ff0000' }], { categoryValue: 'total', valueFormat: '.1f' });
-    expect(data[0].group).toBe('total');
+    expect(data[0].category).toBe('total');
     expect(seriesConfigs[0]).toMatchObject({ shapeStyle: { normal: { strokeColor: '#ff0000', fillColor: '#ff0000' } }, valueFormat: '.1f' });
   });
 
@@ -57,7 +57,7 @@ describe('createPie', () => {
     // percentages are computed by the chart from the live slice shares, so
     // nothing is baked into the row and no tooltipProperty is wired up
     expect(pieConfig).toEqual({ tooltipValues: 'percentValue' });
-    expect(data[0]).toEqual({ group: 'all', slice0: 62, slice1: 20, slice2: 18 });
+    expect(data[0]).toEqual({ category: 'all', slice0: 62, slice1: 20, slice2: 18 });
     expect(seriesConfigs[0].tooltipProperty).toBeUndefined();
   });
 
@@ -88,7 +88,7 @@ describe('createPie', () => {
     const mochartConfig = enhanceConfig(config);
     expect(mochartConfig.validation.errors).toEqual([]);
     expect(mochartConfig.validation.valid).toBe(true);
-    const provider = new ArrayOfObjectsDataProvider(pie.data, 'group');
+    const provider = new ArrayOfObjectsDataProvider(pie.data, 'category');
     expect(getDataErrors(mochartConfig, provider)).toEqual([]);
   });
 });

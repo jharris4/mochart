@@ -443,7 +443,7 @@ html, body {
 }
 /* Export/share menu sits at the far right of the single-mode controls row.
    On phones the overflow trigger joins it, so the row needs the same spacing a
-   `.demo-btn-group` uses between buttons. Inert above that tier, where the
+   `.demo-btn-category` uses between buttons. Inert above that tier, where the
    overflow trigger is `hidden` and a single child has nothing to be spaced
    from. */
 .chart-controls-menu {
@@ -811,7 +811,7 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
 }
 /* Groups wrap internally too — a group is otherwise one unbreakable unit, so
    the whole controls strip could not shrink past its widest group. */
-.demo-btn-group {
+.demo-btn-category {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
@@ -1007,7 +1007,7 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
 /* The notes panel reuses .demo-menu's popover plumbing (fixed positioning by
    the opener, escaping ancestor overflow) but holds prose, not menu items — so
    it is wider and its text wraps. It opens downward from the navigation row. */
-/* Also a .demo-btn-group, whose `display: inline-flex` outranks the user-agent
+/* Also a .demo-btn-category, whose `display: inline-flex` outranks the user-agent
    `[hidden] { display: none }` rule — so restate it for demos without notes. */
 .mochart-demo-notes-menu {
     position: relative;
@@ -1062,7 +1062,7 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     position: relative;
 }
 /* Same trap as .mochart-demo-notes-menu above: the trigger wrapper is also a
-   `.demo-btn-group`, and that rule's `display: inline-flex` outranks the
+   `.demo-btn-category`, and that rule's `display: inline-flex` outranks the
    user-agent `[hidden] { display: none }`. Without this restatement a view with
    nothing folded would still draw an empty trigger slot. */
 .demo-overflow-menu[hidden] {
@@ -1091,7 +1091,7 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
    to be a column, so each control is its own full-width row and the group's own
    `gap` stops adding a horizontal rhythm nothing else in the menu has. */
 .demo-menu-overflow .demo-toolbar,
-.demo-menu-overflow .demo-btn-group {
+.demo-menu-overflow .demo-btn-category {
     display: flex;
     flex-flow: column;
     flex-wrap: nowrap;
@@ -1103,7 +1103,7 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
    draw their parent's `gap` on both sides of a zero-width box, leaving a
    double gap in the strip where the group used to be.
    Unconditional, not phone-scoped, and that is safe today: an audit of all six
-   ports found no `.demo-btn-group` that can render with zero children in any
+   ports found no `.demo-btn-category` that can render with zero children in any
    reachable state. Every occurrence either always contains at least one static
    button, or is itself conditionally rendered (`v-if`/`{#if}`/`@if`/`&&` on the
    group), which removes it from the DOM rather than emptying it.
@@ -1112,7 +1112,7 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
    chart-count group, so it renders childless for the second of two charts and
    for a pane too narrow for a second chart. That state is desktop-reachable, so
    hiding it would be a rendering change, however small. */
-.demo-btn-group:empty {
+.demo-btn-category:empty {
     display: none;
 }
 

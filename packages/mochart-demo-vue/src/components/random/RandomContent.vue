@@ -89,7 +89,7 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
     const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
     if (dataErrors.length > 0) {
       console.error('data errors: ', dataErrors);
-      console.warn('group values: ', categoryValues);
+      console.warn('category values: ', categoryValues);
       console.warn('series values: ', seriesValues);
       dataProvider.value = {
         getCategoryValues: () => [],

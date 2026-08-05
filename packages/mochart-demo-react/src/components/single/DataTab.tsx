@@ -134,7 +134,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
               <OverflowMenu text={demoText.overflowMenu.editor}
                 placement={{ side: 'top', align: 'end', gap: 4 }}
                 anchorRef={footerRef} active={active !== false}>
-                <div className="demo-btn-group">{resetButton}{unusedButton}</div>
+                <div className="demo-btn-category">{resetButton}{unusedButton}</div>
               </OverflowMenu>
               {errorSpan}
             </>

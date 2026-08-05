@@ -10,7 +10,7 @@
     "tooltipValues": "valuePercent"
   },
   "categoryAxis": {
-    "property": "group",
+    "property": "category",
     "type": "string",
     "scale": "ordinal"
   },

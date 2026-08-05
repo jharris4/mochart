@@ -124,7 +124,7 @@ generated artifact instead of each re-walking the config modules.
 - [x] Codegen JSDoc onto the config types: `scripts/generateJsdoc.ts`
       rewrites doc comments on every model-covered property (description +
       details + defaults, incl. conditional defaults and merged
-      group/series-axis defaults on `AxisConfigBase`), leaving uncovered
+      category/value-axis defaults on `AxisConfigBase`), leaving uncovered
       members untouched. `npm run generate-jsdoc -w @mochart/core`; the
       ratchet is `test/config/jsdocSync.test.ts`, which fails when the file
       drifts from the model.

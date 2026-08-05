@@ -168,7 +168,7 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
     },
     // Mirror the framework lifecycle: a config change rebuilds the demo config
     // and resets focus/filter state when the structure changed (or on data
-    // errors); a data change remaps the focused group index onto the new data.
+    // errors); a data change remaps the focused category index onto the new data.
     update(next: { config: DemoConfig | null; data: DataRow[] | null; dataError: string | boolean | null }) {
       const nextConfig = next.config;
       const nextData = next.data;

@@ -1,6 +1,6 @@
 /**
  * End-to-end render of the createHeatmap helper output: a grid with a missing
- * cell must draw one colored bar per cell on the hidden pinned series axis.
+ * cell must draw one colored bar per cell on the hidden pinned value axis.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 
@@ -76,7 +76,7 @@ describe('heatmap helper rendering', () => {
     const fills = Array.from(container.querySelectorAll('path[fill^="rgb"]')).map((path) => path.getAttribute('fill'));
     expect(fills).toHaveLength(5);
     expect(new Set(fills).size).toBe(5);
-    // The series axis names the rows via explicit ticks.
+    // The value axis names the rows via explicit ticks.
     const labels = Array.from(container.querySelectorAll('text')).map((text) => text.textContent);
     expect(labels).toContain('A');
     expect(labels).toContain('B');

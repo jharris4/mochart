@@ -462,8 +462,8 @@ function createAxisDeltaData(startChartData: ChartData, endChartData: ChartData,
     deltas: {
       domain: {
         axis: {
-          group: categoryAxisDomainDelta,
-          series: {
+          category: categoryAxisDomainDelta,
+          value: {
             raw: rawValueAxisDomainDeltas,
             filtered: filteredValueAxisDomainDeltas
           }
@@ -474,7 +474,7 @@ function createAxisDeltaData(startChartData: ChartData, endChartData: ChartData,
         }
       },
       values: {
-        group: categoryValueDeltaData
+        category: categoryValueDeltaData
       }
     },
     end: endChartData,
@@ -525,17 +525,17 @@ function setDomainDeltaFactor(domainDeltaObject: SeriesDomainDelta, deltaPercent
 }
 
 function invertAxisDeltas(axisDeltaData: AxisDeltaData): AxisDeltaData {
-  if (axisDeltaData.deltas.domain.axis.group.delta !== null) {
-    invertDomainDeltas(axisDeltaData.deltas.domain.axis.group.delta);
+  if (axisDeltaData.deltas.domain.axis.category.delta !== null) {
+    invertDomainDeltas(axisDeltaData.deltas.domain.axis.category.delta);
   }
-  const rawValueAxisDeltas = axisDeltaData.deltas.domain.axis.series.raw.deltas;
+  const rawValueAxisDeltas = axisDeltaData.deltas.domain.axis.value.raw.deltas;
   if (rawValueAxisDeltas !== null) {
     const axisIds = Object.keys(rawValueAxisDeltas);
     for (const axisId of axisIds) {
       invertDomainDeltas(rawValueAxisDeltas[axisId].delta!);
     }
   }
-  const filteredValueAxisDeltas = axisDeltaData.deltas.domain.axis.series.filtered.deltas;
+  const filteredValueAxisDeltas = axisDeltaData.deltas.domain.axis.value.filtered.deltas;
   if (filteredValueAxisDeltas !== null) {
     const axisIds = Object.keys(filteredValueAxisDeltas);
     for (const axisId of axisIds) {

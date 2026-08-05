@@ -21,7 +21,7 @@ import * as gauge from '../examples/gauge'
 - `createPie` returns config *fragments* (like the other chart-type
   helpers): a `chart` fragment setting the type, a `categoryAxis`
   naming the single category column, and one series per slice. The data is a
-  single row — `{ group: 'all', slice0: 420, slice1: 210, ... }`.
+  single row — `{ category: 'all', slice0: 420, slice1: 210, ... }`.
 - **Slices are series.** Hovering a slice or its legend entry focuses it,
   and clicking a legend entry filters it — the remaining slices grow to
   fill the circle, animated with the usual

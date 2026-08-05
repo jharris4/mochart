@@ -17,7 +17,7 @@ export function getFocusAnimationData(_mochartConfig: EnhancedMochartConfig, old
   return {
     start: startFocusData,
     deltaPercentage: Math.max(categoryFocusDeltaData.deltaPercentage, valueAxisFocusDeltaData.deltaPercentage, seriesFocusDeltaData.deltaPercentage),
-    group: categoryFocusDeltaData,
+    category: categoryFocusDeltaData,
     valueAxis: valueAxisFocusDeltaData,
     series: seriesFocusDeltaData,
     end: endFocusData,

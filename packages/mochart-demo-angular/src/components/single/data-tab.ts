@@ -50,7 +50,7 @@ import type { DemoConfig, DataRow } from '../../types';
           @if (phone()) {
             <ng-container [ngTemplateOutlet]="applyButton" />
             <app-overflow-menu [text]="overflowText" [placement]="editorPlacement" [getAnchor]="getFooterAnchor" [active]="active">
-              <div class="demo-btn-group">
+              <div class="demo-btn-category">
                 <ng-container [ngTemplateOutlet]="resetButton" />
                 <ng-container [ngTemplateOutlet]="unusedButton" />
               </div>

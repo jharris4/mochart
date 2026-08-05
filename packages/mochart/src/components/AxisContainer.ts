@@ -19,7 +19,7 @@ interface AxisContainerProps {
   plotLayoutInfo: SpacingLayoutInfo;
   seriesData: SeriesData;
   focusData: FocusData;
-  axisData: AxisData & { group: CategoryAxisData; series: ValueAxisData };
+  axisData: AxisData & { category: CategoryAxisData; value: ValueAxisData };
   categoryAxisTitleClipPathUniqueId: string;
   categoryAxisTickLabelClipPathUniqueId: string;
   valueAxisTitleClipPathUniqueIds: Record<string, string>;
@@ -41,7 +41,7 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, onFocus } = this.props;
     const { categoryFocusDomainPercentages = [], valueAxisComputedFocusDomainPercentages = {},
       valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
-    const { group: categoryAxisData, series: valueAxisData } = axisData;
+    const { category: categoryAxisData, value: valueAxisData } = axisData;
 
     const { categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
 
@@ -58,7 +58,7 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
       const axisFocusPercentage = valueAxisFocusPercentages[id];
       const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : null;
       return {
-        key: 'series-axis-' + id,
+        key: 'value-axis-' + id,
         ctor: ValueAxis,
         props: { front, valueAxisConfig: axisConfig,
           valueAxisLayoutInfo: valueAxisLayoutInfos[id], seriesCount: seriesData.axisSeriesCounts[id],

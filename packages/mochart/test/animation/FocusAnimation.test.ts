@@ -56,7 +56,7 @@ function animationData(start: FocusData, end: FocusData): FocusAnimationData {
     end,
     final: end,
     deltaPercentage: 1,
-    group: categoryDelta,
+    category: categoryDelta,
     valueAxis: valueAxisDelta,
     series: seriesDelta
   };
@@ -106,7 +106,7 @@ describe('getFocusDataForPercent', () => {
     const start = focusData({ focusedCategoryIndex: 0 });
     const end = focusData({ focusedCategoryIndex: 1, categoryFocusPercentages: [1, 1] });
     const data = animationData(start, end);
-    data.group = { ...categoryDelta, deltaPercentages: [0.1, 0.1] };
+    data.category = { ...categoryDelta, deltaPercentages: [0.1, 0.1] };
     const result = getFocusDataForPercent(data, 0.5);
     expect(result.categoryFocusPercentages).toEqual([1, 1]);
   });

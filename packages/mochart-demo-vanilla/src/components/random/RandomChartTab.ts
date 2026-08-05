@@ -140,7 +140,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   // even at 320x568 (278px) with no per-width branch.
   const transportButtons = [backButton.el, nextButton.el, playButton.el, stopButton.el];
   const foldedTransportButtons = [backButton.el, nextButton.el];
-  const transportGroup = el('div', { className: 'demo-btn-group' }, transportButtons);
+  const transportGroup = el('div', { className: 'demo-btn-category' }, transportButtons);
   // `.demo-menu-keep-open` so a press inside the field — the number input's own
   // spinners in particular — cannot dismiss the panel it is hosted in. The class
   // paints nothing, so it is set once here rather than toggled by the fold.
@@ -151,10 +151,10 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   const transportToolbarItems = [transportGroup, rateField];
   const transportToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, transportToolbarItems);
 
-  const reuseCategory = el('div', { className: 'demo-btn-group' }, [reuseButton.el]);
-  // Menu-side home for Play and Stop — a cached `.demo-btn-group`;
+  const reuseCategory = el('div', { className: 'demo-btn-category' }, [reuseButton.el]);
+  // Menu-side home for Play and Stop — a cached `.demo-btn-category`;
   // OverflowMenu.ts's header says why that shape.
-  const menuTransportGroup = el('div', { className: 'demo-btn-group' });
+  const menuTransportGroup = el('div', { className: 'demo-btn-category' });
   const overflowMenuHandle = overflowMenu({
     text: demoText.overflowMenu.random,
     // Opens upward over the chart (the strip is at the bottom of the pane) and
@@ -175,7 +175,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     // 320x568, matching the two editor footers).
     getAnchor: () => controls
   });
-  const menuGroup = el('div', { className: 'demo-btn-group' }, [overflowMenuHandle.el, menu.el]);
+  const menuGroup = el('div', { className: 'demo-btn-category' }, [overflowMenuHandle.el, menu.el]);
   const trailingToolbarItems = [reuseCategory, menuGroup];
   const trailingToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, trailingToolbarItems);
 

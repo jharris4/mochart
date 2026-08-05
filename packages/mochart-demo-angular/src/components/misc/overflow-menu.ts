@@ -42,7 +42,7 @@ import { Icon } from './icon';
   imports: [Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div class="demo-btn-group demo-overflow-menu">
+    <div class="demo-btn-category demo-overflow-menu">
       <button #trigger type="button" class="demo-btn demo-btn-secondary"
               [disabled]="disabled" [attr.title]="text.tooltip" [attr.aria-label]="text.aria"
               (click)="controller?.toggle()">

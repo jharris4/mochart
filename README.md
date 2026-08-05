@@ -6,7 +6,7 @@ the **@mochart/movalid** validation library it uses for config validation.
 
 What sets mochart apart is its
 [staged animation](packages/mochart/README.md#staged-animation) model: updates
-play as axis expansion → value change (including group and series
+play as axis expansion → value change (including category and series
 transitions) → axis contraction, so only one kind of change is in motion at a
 time, and stacked series animate as a single unit so the stack never shows
 gaps between segments mid-transition.

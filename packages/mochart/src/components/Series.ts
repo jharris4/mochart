@@ -23,7 +23,7 @@ import type { AxisScale, CategoryAxisData, NullableDomain, SeriesDomainObject, S
 import type { LayoutInfo } from '../types/layout';
 
 const noOp = () => {};
-const noOpGroup = (_categoryIndex: number) => {};
+const noOpCategory = (_categoryIndex: number) => {};
 
 interface SeriesFocusUpdate {
   seriesId?: string | null;
@@ -80,7 +80,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
   constructor() {
     super();
     this.state = { seriesPositionData: null, onSeriesEnter: noOp, onSeriesLeave: noOp, onSeriesClick: noOp,
-      onCategoryEnter: noOpGroup, onCategoryLeave: noOpGroup, onCategoryClick: noOpGroup };
+      onCategoryEnter: noOpCategory, onCategoryLeave: noOpCategory, onCategoryClick: noOpCategory };
   }
 
   derive(props: SeriesProps, state: SeriesState, prevProps: SeriesProps | null): Partial<SeriesState> | null {
@@ -125,7 +125,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       positionsChanged = true;
       updateState = true;
     }
-    // positionsChanged: the group-index listeners close over skipCategoryIndexMap
+    // positionsChanged: the category-index listeners close over skipCategoryIndexMap
     if (positionsChanged || categoryFocusChanged || seriesFocusChanged || onFocus !== prevProps.onFocus) {
       delta = { ...delta, ...this.buildEventListeners(props, seriesPositionData) };
       updateState = true;
@@ -146,9 +146,9 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
     let onSeriesEnter = noOp;
     let onSeriesLeave = noOp;
     let onSeriesClick = noOp;
-    let onCategoryEnter = noOpGroup;
-    let onCategoryLeave = noOpGroup;
-    let onCategoryClick = noOpGroup;
+    let onCategoryEnter = noOpCategory;
+    let onCategoryLeave = noOpCategory;
+    let onCategoryClick = noOpCategory;
 
     if (seriesConfig.focusOnMouseOver) {
       onSeriesEnter = () => { onFocus({ seriesId }); };
@@ -255,7 +255,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         for (let i = 0; i < seriesPositionData.length; i++) {
           if (seriesPositionData.getDefined(null, i)) {
             // Positions may be compacted, but focus and color values stay
-            // indexed by the raw group index.
+            // indexed by the raw category index.
             const skipI = skipped ? skipCategoryIndexMap[i] : i;
             focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
             if (seriesColorGenerator !== null) {

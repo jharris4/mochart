@@ -3,8 +3,8 @@ import { getCategorySpacingInfo } from '../../src/data/AxisData';
 import type { CategoryAxisConfig } from '../../src/types/config';
 import type { CategoryAxisDomain } from '../../src/types/data';
 
-// getCategorySpacingInfo turns a group axis domain + pixel extent into the pixel
-// range, per-group extent and offset used to place group values. Only a few
+// getCategorySpacingInfo turns a category axis domain + pixel extent into the pixel
+// range, per-category extent and offset used to place category values. Only a few
 // config fields participate; build small partials.
 const axis = (over: Partial<CategoryAxisConfig>): CategoryAxisConfig => ({
   categoryCountPadding: 0,
@@ -35,13 +35,13 @@ describe('getCategorySpacingInfo', () => {
     expect(info.categoryRange).toEqual([20, 180]);
   });
 
-  it('shrinks the group value extent by the outer padding fraction', () => {
+  it('shrinks the category value extent by the outer padding fraction', () => {
     // 50px per unit, 20% outer padding => floor(50 * 0.8) = 40
     const info = getCategorySpacingInfo(axis({ categoryPaddingFraction: { outer: 0.2 } as CategoryAxisConfig['categoryPaddingFraction'] }), [0, 4] as CategoryAxisDomain, 200);
     expect(info.categoryValueExtent).toBe(40);
   });
 
-  it('never drops below the configured minimum group value extent', () => {
+  it('never drops below the configured minimum category value extent', () => {
     const info = getCategorySpacingInfo(axis({ minCategoryValueExtent: 30 }), [0, 100] as CategoryAxisDomain, 200);
     expect(info.categoryValueExtent).toBe(30);
   });

@@ -17,7 +17,7 @@ import * as errorBars from '../examples/errorBars'
 
 ## How it works
 
-- The bounds are **absolute values** in series-axis units (e.g. the ends of a
+- The bounds are **absolute values** in value-axis units (e.g. the ends of a
   confidence interval), not deltas from the value. For `value ± error` data,
   derive the bound columns once when preparing the rows.
 - The bounds join the value axis domain, so whiskers never clip — note the

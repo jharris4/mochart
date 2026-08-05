@@ -68,7 +68,7 @@ export default function MochartChartTab({ config = null, data = null, dataError 
 
   // Mirror the old UNSAFE_componentWillReceiveProps derived-state logic: rebuild
   // the demo config and reset focus/filter on structural config change or data
-  // error; remap the focused group index onto new data.
+  // error; remap the focused category index onto new data.
   const prev = useRef({ config, data, dataError });
   if (prev.current.config !== config || prev.current.data !== data || prev.current.dataError !== dataError) {
     const { config: oldConfig, data: oldData, dataError: oldDataError } = prev.current;

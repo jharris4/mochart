@@ -47,13 +47,13 @@ export interface BaseChartProps extends ChartCallbackProps {
   loading?: boolean;
   error?: any;
   /**
-   * Controlled focused group index (-1 = none). When set it overrides the
+   * Controlled focused category index (-1 = none). When set it overrides the
    * chart's internal focus on every render; pass back the value reported by
    * `onFocus` to keep several charts in sync. Omit to leave focus
    * chart-managed.
    */
   focusedCategoryIndex?: number;
-  /** Controlled focused series-axis id (null = none). See `focusedCategoryIndex`. */
+  /** Controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
   focusedValueAxisId?: string | null;
   /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
   focusedSeriesId?: string | null;

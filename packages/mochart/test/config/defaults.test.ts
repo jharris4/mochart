@@ -155,8 +155,8 @@ describe('series color-icon defaults', () => {
     expect(showColorFlags()).toEqual({ showColorInLegend: true, showColorInTooltip: true });
   });
 
-  it('hides the color icon for a series colored by group index', () => {
-    // every group styles it differently, so a single swatch would be arbitrary
+  it('hides the color icon for a series colored by category index', () => {
+    // every category styles it differently, so a single swatch would be arbitrary
     expect(showColorFlags({ normal: { strokeColor: 'categoryIndex', fillColor: 'categoryIndex' } }))
       .toEqual({ showColorInLegend: false, showColorInTooltip: false });
     // either member is enough
@@ -166,7 +166,7 @@ describe('series color-icon defaults', () => {
       .toEqual({ showColorInLegend: false, showColorInTooltip: false });
   });
 
-  it('keeps the icon when only a focus state names the group index', () => {
+  it('keeps the icon when only a focus state names the category index', () => {
     expect(showColorFlags({ focused: { fillColor: 'categoryIndex' } }))
       .toEqual({ showColorInLegend: true, showColorInTooltip: true });
   });

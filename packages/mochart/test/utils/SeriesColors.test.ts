@@ -85,12 +85,12 @@ describe('getColor palette + keyword resolution', () => {
     expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'seriesIndex' } } }), palette.length + 2)).toBe(palette[2]);
   });
 
-  it('resolves "categoryIndex" to the palette color for the group index', () => {
+  it('resolves "categoryIndex" to the palette color for the category index', () => {
     const palette = colorPaletteConfig.series.normal.fillColors;
     expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'categoryIndex' } } }), 0, null, '#fallback', 3)).toBe(palette[3]);
   });
 
-  it('returns the default color for "categoryIndex" when no group index is supplied', () => {
+  it('returns the default color for "categoryIndex" when no category index is supplied', () => {
     expect(getSeriesFillColor(colorPaletteConfig, series({ shapeStyle: { normal: { fillColor: 'categoryIndex' } } }), 0, null, '#fallback')).toBe('#fallback');
   });
 

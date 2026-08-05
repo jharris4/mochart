@@ -74,7 +74,7 @@ afterEach(() => {
 });
 
 describe('chart mouse events', () => {
-  it('fires enter, move, leave and click callbacks with a group index payload', () => {
+  it('fires enter, move, leave and click callbacks with a category index payload', () => {
     const enters: ChartEventPayload[] = [];
     const moves: ChartEventPayload[] = [];
     const leaves: ChartEventPayload[] = [];
@@ -101,7 +101,7 @@ describe('chart mouse events', () => {
     mouse(root, 'click', 100, 100);
     expect(clicks.length).toBe(1);
 
-    // payloads carry the nearest group: far left resolves to the first group,
+    // payloads carry the nearest category: far left resolves to the first category,
     // far right to the last
     expect(enters[0].categoryIndex).toBe(0);
     const rightClicks: ChartEventPayload[] = [];
@@ -155,7 +155,7 @@ describe('title layout variants', () => {
 });
 
 describe('tooltip', () => {
-  it('opens on click, closes on the next click, and applies group focus', () => {
+  it('opens on click, closes on the next click, and applies category focus', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig(), {
       onFocus: focus => { focuses.push(focus); }
@@ -167,11 +167,11 @@ describe('tooltip', () => {
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
     expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
-    // tooltip content shows the group and the formatted series line
+    // tooltip content shows the category and the formatted series line
     const tooltipText = container.querySelector('.mochart-tooltip-content')!.textContent;
     expect(tooltipText).toContain('Jan');
     expect(tooltipText).toContain('10');
-    // applyFocus (default true) focused the clicked group
+    // applyFocus (default true) focused the clicked category
     expect(focuses.length).toBeGreaterThan(0);
     expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
 
@@ -201,7 +201,7 @@ describe('tooltip', () => {
     mouse(root, 'mouseenter', 100, 100);
     expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
 
-    // moving within the chart keeps it open and tracks the group
+    // moving within the chart keeps it open and tracks the category
     mouse(root, 'mousemove', 790, 100);
     expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
 
@@ -210,7 +210,7 @@ describe('tooltip', () => {
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
   });
 
-  it('steps between groups with the tooltip controls', () => {
+  it('steps between categories with the tooltip controls', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({ tooltip: { showControls: true } }), {
       onFocus: focus => { focuses.push(focus); }
@@ -238,7 +238,7 @@ describe('tooltip', () => {
     expect(visibleText()).toContain('Jan');
     expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
 
-    // prev at the first group is a no-op
+    // prev at the first category is a no-op
     prev.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(visibleText()).toContain('Jan');
   });
@@ -312,7 +312,7 @@ describe('tooltip', () => {
     expect(hiding.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S0"]')).not.toBeNull();
   });
 
-  it('renders plain series lines when rightAlignValues is off and prefixes the group label', () => {
+  it('renders plain series lines when rightAlignValues is off and prefixes the category label', () => {
     const container = mountChart(makeConfig({
       tooltip: { rightAlignValues: false },
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', valueLabel: 'Month' }
@@ -434,10 +434,10 @@ describe('tooltip', () => {
     modeButton().dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(modeButton().textContent).toBe('focus');
 
-    // in focus mode a group line click toggles group focus
+    // in focus mode a category line click toggles category focus
     const categoryLine = container.querySelector('.mochart-tooltip .mochart-tooltip-category-line')!;
     categoryLine.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1); // toggled off (was focused group 0)
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1); // toggled off (was focused category 0)
     categoryLine.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
   });
@@ -489,7 +489,7 @@ describe('tooltip', () => {
     });
     const root = chartRoot(container);
 
-    // in an inverted plot the group position follows chartY
+    // in an inverted plot the category position follows chartY
     mouse(root, 'mouseenter', 400, 10);
     mouse(root, 'mousemove', 400, 590);
     expect(moves[moves.length - 1].categoryIndex).toBe(rows.length - 1);
@@ -497,7 +497,7 @@ describe('tooltip', () => {
     mouse(root, 'click', 400, 10);
     const line = container.querySelector('.crosshair-line');
     expect(line).not.toBeNull();
-    // horizontal group line: spans x, constant y
+    // horizontal category line: spans x, constant y
     expect(line!.getAttribute('y1')).toBe(line!.getAttribute('y2'));
     expect(line!.getAttribute('x1')).not.toBe(line!.getAttribute('x2'));
   });
@@ -520,7 +520,7 @@ describe('tooltip', () => {
     expect(seriesLines().length).toBeGreaterThan(0);
   });
 
-  it('hides group crosshair lines when showCategory is off', () => {
+  it('hides category crosshair lines when showCategory is off', () => {
     const container = mountChart(makeConfig({
       crosshair: { showCategory: false }
     }));
@@ -531,7 +531,7 @@ describe('tooltip', () => {
     expect(container.querySelectorAll('.crosshair-category-lines .crosshair-line').length).toBe(0);
   });
 
-  it('renders an axis focus range for the focused group', () => {
+  it('renders an axis focus range for the focused category', () => {
     const container = mountChart(makeConfig({
       categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', showFocusRange: true }
     }));
@@ -757,9 +757,9 @@ describe('legend focus on click', () => {
   });
 });
 
-// Regression: removing the tooltip's group left tooltipVisible true at index
+// Regression: removing the tooltip's category left tooltipVisible true at index
 // -1, so the next plot click toggled an invisible tooltip and was swallowed.
-describe('tooltip on a removed group', () => {
+describe('tooltip on a removed category', () => {
   it('closes fully so the next click opens a tooltip again', () => {
     const container = mountChart(makeConfig());
     const handle = handles[handles.length - 1];

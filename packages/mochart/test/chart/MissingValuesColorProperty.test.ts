@@ -1,8 +1,8 @@
 /**
  * Regression test: a missingValues 'connect' bar series with a colorProperty must color
- * each bar from its raw group index. The bar renderer used the compacted
+ * each bar from its raw category index. The bar renderer used the compacted
  * position index to look up color (and focus) values, so once a gap was
- * skipped every later bar read the wrong group's color value — the heatmap
+ * skipped every later bar read the wrong category's color value — the heatmap
  * helper's grids with missing cells hit this.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
@@ -50,7 +50,7 @@ function runFrames(maxFrames = 500) {
 }
 
 describe('missingValues connect bar series with a colorProperty', () => {
-  it('colors bars after a skipped group from their own color values', () => {
+  it('colors bars after a skipped category from their own color values', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
@@ -62,7 +62,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
         colorScale: { interpolation: 'rgb', min: '#000000', max: '#ffffff' }
       }]
     });
-    // The middle group has no value, so positions compact to two bars while
+    // The middle category has no value, so positions compact to two bars while
     // the color values stay indexed 0..2.
     const data = [
       { label: 'a', value: 5, heat: 0 },

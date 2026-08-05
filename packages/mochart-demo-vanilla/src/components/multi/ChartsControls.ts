@@ -126,7 +126,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
       ]),
       el('div', { className: 'demo-field' }, [
         el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-          el('div', { className: 'demo-btn-group' }, [
+          el('div', { className: 'demo-btn-category' }, [
             stepBackButton.el, stepForwardButton.el, playBackwardButton.el, playForwardButton.el, stopButton.el
           ])
         ])

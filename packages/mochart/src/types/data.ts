@@ -129,8 +129,8 @@ export interface ValueAxisData {
 }
 
 export interface AxisData {
-  group: CategoryAxisData | null;
-  series: ValueAxisData | null;
+  category: CategoryAxisData | null;
+  value: ValueAxisData | null;
 }
 
 export interface CategoryValues {
@@ -168,9 +168,9 @@ export interface CategoryValueObject {
  * this to read straight from an existing store without copying.
  */
 export interface DataProvider<TCategoryValue = CategoryValue, TSeriesValue = unknown> {
-  /** The group (category) values, one per group, in display order. */
+  /** The category values, one per category, in display order. */
   getCategoryValues(): readonly TCategoryValue[];
-  /** The value of `seriesProperty` for the given group (numeric or undefined for series values). */
+  /** The value of `seriesProperty` for the given category (numeric or undefined for series values). */
   getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, seriesProperty: string): TSeriesValue;
   /** When set and truthy, the chart shows its error state. */
   getError?(): unknown;

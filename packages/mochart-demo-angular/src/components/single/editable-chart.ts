@@ -50,7 +50,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
          triple duplication these three branches used to carry. -->
     <ng-template #chartCountControl>
       @if (showChartCountControls) {
-        <div class="demo-btn-group">
+        <div class="demo-btn-category">
           <app-button-with-tooltip id="edit-chart-count" [label]="text.secondChart.label" [pressed]="chartCount === 2"
                                    [tooltipText]="chartCount === 2 ? text.secondChart.tooltipHide : text.secondChart.tooltipShow" tooltipPlacement="right"
                                    [onClick]="onChartCountToggle" [aria-label]="text.secondChart.aria">
@@ -60,7 +60,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
       }
     </ng-template>
     <ng-template #modeControl>
-      <div class="demo-btn-group">
+      <div class="demo-btn-category">
         <app-button-with-tooltip id="edit-mode" [label]="selectionMode() === 'group' ? text.editMode.labelToSeries : text.editMode.labelToCategories"
                                  [tooltipText]="selectionMode() === 'group'
                                    ? text.editMode.tooltipToSeries
@@ -77,7 +77,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
       </app-button-with-tooltip>
     </ng-template>
     <ng-template #sliceSequenceGroup>
-      <div class="demo-btn-group">
+      <div class="demo-btn-category">
         <app-button-with-tooltip id="edit-play-slices" [disabled]="error || sequencePlaying() || slices().length < 2"
                                  [menuLabel]="text.playSliceSequence.menuLabel" [tooltipText]="text.playSliceSequence.tooltip" tooltipPlacement="right"
                                  [onClick]="startSliceSequence" [aria-label]="text.playSliceSequence.aria">
@@ -91,25 +91,25 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
       </div>
     </ng-template>
     <ng-template #resetCategoriesButton>
-      <app-button-with-tooltip id="edit-reset-groups" [disabled]="error || sequencePlaying()" [label]="text.resetCategories.label" [tooltipText]="text.resetCategories.tooltip" tooltipPlacement="right"
+      <app-button-with-tooltip id="edit-reset-categories" [disabled]="error || sequencePlaying()" [label]="text.resetCategories.label" [tooltipText]="text.resetCategories.tooltip" tooltipPlacement="right"
                                [onClick]="resetCategories" [aria-label]="text.resetCategories.aria">
         <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />
       </app-button-with-tooltip>
     </ng-template>
     <ng-template #reverseCategoriesButton>
-      <app-button-with-tooltip id="edit-reverse-groups" [disabled]="error || sequencePlaying()" [label]="text.reverseCategories.label" [tooltipText]="text.reverseCategories.tooltip" tooltipPlacement="right"
+      <app-button-with-tooltip id="edit-reverse-categories" [disabled]="error || sequencePlaying()" [label]="text.reverseCategories.label" [tooltipText]="text.reverseCategories.tooltip" tooltipPlacement="right"
                                [onClick]="reverseCategories" [aria-label]="text.reverseCategories.aria">
         <app-icon size="lg" [fixedWidth]="true" name="right-left" />
       </app-button-with-tooltip>
     </ng-template>
     <ng-template #addCategoriesButton>
-      <app-button-with-tooltip id="edit-add-groups" [disabled]="error || sequencePlaying() || disableAdd" [label]="text.addCategories.label" [tooltipText]="text.addCategories.tooltip" tooltipPlacement="right"
+      <app-button-with-tooltip id="edit-add-categories" [disabled]="error || sequencePlaying() || disableAdd" [label]="text.addCategories.label" [tooltipText]="text.addCategories.tooltip" tooltipPlacement="right"
                                [onClick]="addCategories" [aria-label]="text.addCategories.aria">
         <app-icon size="lg" [fixedWidth]="true" name="plus" />
       </app-button-with-tooltip>
     </ng-template>
     <ng-template #removeCategoriesButton>
-      <app-button-with-tooltip id="edit-remove-groups" [disabled]="error || sequencePlaying() || disableRemove" [label]="text.removeCategories.label" [tooltipText]="text.removeCategories.tooltip" tooltipPlacement="right"
+      <app-button-with-tooltip id="edit-remove-categories" [disabled]="error || sequencePlaying() || disableRemove" [label]="text.removeCategories.label" [tooltipText]="text.removeCategories.tooltip" tooltipPlacement="right"
                                [onClick]="removeCategories" [aria-label]="text.removeCategories.aria">
         <app-icon size="lg" [fixedWidth]="true" name="minus" />
       </app-button-with-tooltip>
@@ -189,7 +189,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                   }
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
-                      <div class="demo-btn-group">
+                      <div class="demo-btn-category">
                         <app-button-with-tooltip id="edit-previous-slice" [disabled]="sliceControlsDisabled || sliceIndex() === 0" [tooltipText]="text.previousSlice.tooltip" tooltipPlacement="right"
                                                  [onClick]="prevSlice" [aria-label]="text.previousSlice.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-left" />
@@ -202,13 +202,13 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
-                      <div class="demo-btn-group">
+                      <div class="demo-btn-category">
                         <app-button-with-tooltip id="edit-next-slice" [disabled]="sliceControlsDisabled || sliceIndex() >= slices().length - 1" [tooltipText]="text.nextSlice.tooltip" tooltipPlacement="right"
                                                  [onClick]="nextSlice" [aria-label]="text.nextSlice.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-right" />
                         </app-button-with-tooltip>
                       </div>
-                      <div class="demo-btn-group">
+                      <div class="demo-btn-category">
                         @if (!foldSlice()) {
                           <ng-container [ngTemplateOutlet]="resetSliceButton" />
                         }
@@ -234,7 +234,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                 @if (foldSlice()) {
                   <app-overflow-menu [text]="overflowText" [placement]="chartPlacement" [getAnchor]="getMenuAnchor"
                                      [disabled]="error" [active]="isActive">
-                    <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="resetSliceButton" /></div>
+                    <div class="demo-btn-category"><ng-container [ngTemplateOutlet]="resetSliceButton" /></div>
                     <div class="demo-menu-divider"></div>
                     <ng-container [ngTemplateOutlet]="sliceSequenceGroup" />
                     @if (showChartCountControls) {
@@ -263,7 +263,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                         <ng-container [ngTemplateOutlet]="chartCountControl" />
                         <ng-container [ngTemplateOutlet]="modeControl" />
                       }
-                      <div class="demo-btn-group">
+                      <div class="demo-btn-category">
                         @if (foldCategory()) {
                           <ng-container [ngTemplateOutlet]="addCategoriesButton" />
                           <ng-container [ngTemplateOutlet]="removeCategoriesButton" />
@@ -292,13 +292,13 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                 @if (foldCategory()) {
                   <app-overflow-menu [text]="overflowText" [placement]="chartPlacement" [getAnchor]="getMenuAnchor"
                                      [disabled]="error" [active]="isActive">
-                    <div class="demo-btn-group">
+                    <div class="demo-btn-category">
                       <ng-container [ngTemplateOutlet]="resetCategoriesButton" />
                       <ng-container [ngTemplateOutlet]="reverseCategoriesButton" />
                       <ng-container [ngTemplateOutlet]="selectAllButton" />
                     </div>
                     <div class="demo-menu-divider"></div>
-                    <div class="demo-btn-group">
+                    <div class="demo-btn-category">
                       <ng-container [ngTemplateOutlet]="playAddButton" />
                       <ng-container [ngTemplateOutlet]="playRemoveButton" />
                       <ng-container [ngTemplateOutlet]="stopCategoriesButton" />
@@ -339,7 +339,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                   }
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
-                      <div class="demo-btn-group">
+                      <div class="demo-btn-category">
                         <app-button-with-tooltip id="edit-group-decrease" [disabled]="error || categoryOrderControlsDisabled || isFirstCategory" [tooltipText]="text.decreaseCategoryOrder.tooltip" tooltipPlacement="right"
                                                  [onClick]="decreaseCategoryOrder" [aria-label]="text.decreaseCategoryOrder.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-left" />
@@ -352,7 +352,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
-                      <div class="demo-btn-group">
+                      <div class="demo-btn-category">
                         <app-button-with-tooltip id="edit-group-increase" [disabled]="error || categoryOrderControlsDisabled || isLastCategory" [tooltipText]="text.increaseCategoryOrder.tooltip" tooltipPlacement="right"
                                                  [onClick]="increaseCategoryOrder" [aria-label]="text.increaseCategoryOrder.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="arrow-right" />
@@ -362,7 +362,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
-                      <div class="demo-btn-group">
+                      <div class="demo-btn-category">
                         <app-button-with-tooltip id="edit-previous-series" [disabled]="error || seriesControlsDisabled || !hasPrevSeries" [tooltipText]="text.previousSeries.tooltip" tooltipPlacement="right"
                                                  [onClick]="prevSeries" [aria-label]="text.previousSeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-down" />
@@ -375,14 +375,14 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                   </div>
                   <div class="demo-field">
                     <div class="demo-toolbar" role="toolbar">
-                      <div class="demo-btn-group">
+                      <div class="demo-btn-category">
                         <app-button-with-tooltip id="edit-next-series" [disabled]="error || seriesControlsDisabled || !hasNextSeries" [tooltipText]="text.nextSeries.tooltip" tooltipPlacement="right"
                                                  [onClick]="nextSeries" [aria-label]="text.nextSeries.aria">
                           <app-icon size="lg" [fixedWidth]="true" name="chevron-up" />
                         </app-button-with-tooltip>
                       </div>
                       @if (!foldSeries()) {
-                        <div class="demo-btn-group">
+                        <div class="demo-btn-category">
                           <ng-container [ngTemplateOutlet]="resetSeriesButton" />
                           <ng-container [ngTemplateOutlet]="applySeriesButton" />
                         </div>
@@ -404,7 +404,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                 @if (foldSeries()) {
                   <app-overflow-menu [text]="overflowText" [placement]="chartPlacement" [getAnchor]="getMenuAnchor"
                                      [disabled]="error" [active]="isActive">
-                    <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="resetSeriesButton" /></div>
+                    <div class="demo-btn-category"><ng-container [ngTemplateOutlet]="resetSeriesButton" /></div>
                     <div class="demo-menu-divider"></div>
                     <ng-container [ngTemplateOutlet]="chartCountControl" />
                     <ng-container [ngTemplateOutlet]="modeControl" />

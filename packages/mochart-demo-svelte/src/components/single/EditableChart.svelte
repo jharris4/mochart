@@ -74,10 +74,10 @@
 
   let chartContentElement = $state<HTMLDivElement | null>(null);
 
-  // Working copies of the demo data; mutated in place by the group/series
+  // Working copies of the demo data; mutated in place by the category/series
   // editing controls (same pattern as the react demo's instance fields). The
   // rows are raw state (never a proxy — the data provider holds the same array)
-  // so the group index label's tooltip re-reads them when the set is replaced.
+  // so the category index label's tooltip re-reads them when the set is replaced.
   let filteredData = $state.raw<Row[]>([]);
   let removedData: Row[] = [];
   let sequenceId: ReturnType<typeof setInterval> | null = null;
@@ -87,9 +87,9 @@
   let categoryValuesText = $state("");
   let seriesIndex = $state(0);
   let seriesValuesText = $state("");
-  let selectionMode = $state('group');
+  let selectionMode = $state('category');
   let sequencePlaying = $state(false);
-  // pie-mode slice editing: slices are the series, so the group machinery has
+  // pie-mode slice editing: slices are the series, so the category machinery has
   // nothing to operate on and a single slice panel replaces both panels
   let slices = $state.raw<PieSliceInfo[]>([]);
   let sliceIndex = $state(0);
@@ -204,7 +204,7 @@
     }
   }
 
-  // The pie analog of the group add/remove sequences: filter the slices one
+  // The pie analog of the category add/remove sequences: filter the slices one
   // at a time (via the shared legend filter, so the remaining slices re-sweep
   // and center totals count along), then restore them.
   function startSliceSequence() {
@@ -301,7 +301,7 @@
       categoryIndex = clickedCategoryIndex;
       seriesValuesText = getSeriesValuesText(mochartDemoConfig, filteredData, clickedCategoryIndex, seriesIndex);
     }
-    else if (selectionMode === 'group') {
+    else if (selectionMode === 'category') {
       const dataCategoryValues: any[] = [];
       const count = filteredData.length;
       for (let i = 0; i < count; i++) {
@@ -321,7 +321,7 @@
   }
 
   function onModeToggle() {
-    selectionMode = selectionMode === 'group' ? 'series' : 'group';
+    selectionMode = selectionMode === 'category' ? 'series' : 'category';
   }
 
   function selectAllCategories() {
@@ -669,9 +669,9 @@
   const error = $derived(chartDataError || configError);
   const filteredCategoryValues = $derived<any[]>(error || !dataProvider?.getCategoryValues ? [] : dataProvider.getCategoryValues());
   const selectedCategoryValues = $derived((error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(','));
-  const filteredCategoryMap = $derived(filteredCategoryValues.reduce<Record<string, boolean>>((map, group) => { map[group] = true; return map; }, {}));
-  const disableRemove = $derived(orderChanged || !selectedCategoryValues.some(group => filteredCategoryMap[group]));
-  const disableAdd = $derived(orderChanged || !selectedCategoryValues.some(group => !filteredCategoryMap[group]));
+  const filteredCategoryMap = $derived(filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {}));
+  const disableRemove = $derived(orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]));
+  const disableAdd = $derived(orderChanged || !selectedCategoryValues.some(category => !filteredCategoryMap[category]));
 
   const seriesControlsDisabled = $derived(sequencePlaying || categoryIndex === -1);
   const categoryOrderControlsDisabled = $derived(sequencePlaying || categoryIndex === -1);
@@ -688,8 +688,8 @@
   // of the two places from the same snippet (see OverflowMenu.svelte).
   const phone = createPhoneViewport();
   const foldSlice = $derived(phone.isPhone && mochartDemoConfig.pieMode);
-  const foldCategory = $derived(phone.isPhone && !mochartDemoConfig.pieMode && selectionMode === 'group');
-  const foldSeries = $derived(phone.isPhone && !mochartDemoConfig.pieMode && selectionMode !== 'group');
+  const foldCategory = $derived(phone.isPhone && !mochartDemoConfig.pieMode && selectionMode === 'category');
+  const foldSeries = $derived(phone.isPhone && !mochartDemoConfig.pieMode && selectionMode !== 'category');
   // The series readouts drop their 5px side margins while folded: the phone
   // tier's 6px field gap is separation enough, and the margins' 20px would
   // wrap the ▲ stepper onto a second row at 320px.
@@ -711,7 +711,7 @@
 
 {#snippet chartCountControl()}
   {#if showChartCountControls}
-    <div class="demo-btn-group">
+    <div class="demo-btn-category">
       <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
                          tooltipText={chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow} tooltipPlacement="right"
                          onClick={onChartCountToggle} aria-label={demoText.editableChart.secondChart.aria}>
@@ -723,20 +723,20 @@
 
 {#snippet commonControls()}
   {@render chartCountControl()}
-  <div class="demo-btn-group">
-    <ButtonWithTooltip id="edit-mode" label={selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories}
-                       tooltipText={selectionMode === 'group'
+  <div class="demo-btn-category">
+    <ButtonWithTooltip id="edit-mode" label={selectionMode === 'category' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories}
+                       tooltipText={selectionMode === 'category'
                          ? demoText.editableChart.editMode.tooltipToSeries
                          : demoText.editableChart.editMode.tooltipToCategories} tooltipPlacement="right"
                        onClick={onModeToggle} aria-label={demoText.editableChart.editMode.aria}>
-      <Icon size="lg" fixedWidth={true} name={selectionMode === 'group' ? "bullseye" : "sliders"} />
+      <Icon size="lg" fixedWidth={true} name={selectionMode === 'category' ? "bullseye" : "sliders"} />
     </ButtonWithTooltip>
   </div>
 {/snippet}
 
 {#snippet controlsMenu(overflowItems: Snippet | null)}
   <!-- The strip's trailing menus, pushed to the far right of the controls row
-       (past the group/series input). Share is only offered on the chart
+       (past the category/series input). Share is only offered on the chart
        flagged for it (the first, when two are shown). The ⋯ renders only
        while its panel is folded, and it lives INSIDE the span: the panel
        anchors to the whole span because the export trigger sits to the ⋯'s
@@ -764,8 +764,8 @@
   </ButtonWithTooltip>
 {/snippet}
 
-{#snippet sliceSequenceGroup()}
-  <div class="demo-btn-group">
+{#snippet sliceSequenceCategory()}
+  <div class="demo-btn-category">
     <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
                        menuLabel={demoText.editableChart.playSliceSequence.menuLabel}
                        tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
@@ -782,9 +782,9 @@
 {/snippet}
 
 {#snippet sliceMenuItems()}
-  <div class="demo-btn-group">{@render resetSliceButton()}</div>
+  <div class="demo-btn-category">{@render resetSliceButton()}</div>
   <div class="demo-menu-divider"></div>
-  {@render sliceSequenceGroup()}
+  {@render sliceSequenceCategory()}
   {#if showChartCountControls}
     <div class="demo-menu-divider"></div>
     {@render chartCountControl()}
@@ -792,7 +792,7 @@
 {/snippet}
 
 {#snippet resetCategoriesButton()}
-  <ButtonWithTooltip id="edit-reset-groups" disabled={error || sequencePlaying} label={demoText.editableChart.resetCategories.label}
+  <ButtonWithTooltip id="edit-reset-categories" disabled={error || sequencePlaying} label={demoText.editableChart.resetCategories.label}
                      tooltipText={demoText.editableChart.resetCategories.tooltip} tooltipPlacement="right"
                      onClick={resetCategories} aria-label={demoText.editableChart.resetCategories.aria}>
     <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
@@ -800,7 +800,7 @@
 {/snippet}
 
 {#snippet reverseCategoriesButton()}
-  <ButtonWithTooltip id="edit-reverse-groups" disabled={error || sequencePlaying} label={demoText.editableChart.reverseCategories.label}
+  <ButtonWithTooltip id="edit-reverse-categories" disabled={error || sequencePlaying} label={demoText.editableChart.reverseCategories.label}
                      tooltipText={demoText.editableChart.reverseCategories.tooltip} tooltipPlacement="right"
                      onClick={reverseCategories} aria-label={demoText.editableChart.reverseCategories.aria}>
     <Icon size="lg" fixedWidth={true} name="right-left" />
@@ -808,7 +808,7 @@
 {/snippet}
 
 {#snippet addCategoriesButton()}
-  <ButtonWithTooltip id="edit-add-groups" disabled={error || sequencePlaying || disableAdd} label={demoText.editableChart.addCategories.label}
+  <ButtonWithTooltip id="edit-add-categories" disabled={error || sequencePlaying || disableAdd} label={demoText.editableChart.addCategories.label}
                      tooltipText={demoText.editableChart.addCategories.tooltip} tooltipPlacement="right"
                      onClick={addCategories} aria-label={demoText.editableChart.addCategories.aria}>
     <Icon size="lg" fixedWidth={true} name="plus" />
@@ -816,7 +816,7 @@
 {/snippet}
 
 {#snippet removeCategoriesButton()}
-  <ButtonWithTooltip id="edit-remove-groups" disabled={error || sequencePlaying || disableRemove} label={demoText.editableChart.removeCategories.label}
+  <ButtonWithTooltip id="edit-remove-categories" disabled={error || sequencePlaying || disableRemove} label={demoText.editableChart.removeCategories.label}
                      tooltipText={demoText.editableChart.removeCategories.tooltip} tooltipPlacement="right"
                      onClick={removeCategories} aria-label={demoText.editableChart.removeCategories.aria}>
     <Icon size="lg" fixedWidth={true} name="minus" />
@@ -859,9 +859,9 @@
 {/snippet}
 
 {#snippet categoryMenuItems()}
-  <div class="demo-btn-group">{@render resetCategoriesButton()}{@render reverseCategoriesButton()}{@render selectAllButton()}</div>
+  <div class="demo-btn-category">{@render resetCategoriesButton()}{@render reverseCategoriesButton()}{@render selectAllButton()}</div>
   <div class="demo-menu-divider"></div>
-  <div class="demo-btn-group">{@render playAddButton()}{@render playRemoveButton()}{@render stopCategoriesButton()}</div>
+  <div class="demo-btn-category">{@render playAddButton()}{@render playRemoveButton()}{@render stopCategoriesButton()}</div>
   <div class="demo-menu-divider"></div>
   {@render commonControls()}
 {/snippet}
@@ -883,7 +883,7 @@
 {/snippet}
 
 {#snippet seriesMenuItems()}
-  <div class="demo-btn-group">{@render resetSeriesButton()}</div>
+  <div class="demo-btn-category">{@render resetSeriesButton()}</div>
   <div class="demo-menu-divider"></div>
   {@render commonControls()}
 {/snippet}
@@ -893,7 +893,7 @@
     <div class="editable-chart-content" bind:this={chartContentElement}>
       <!-- ManagedChart (behind mochart-svelte's Chart) picks animated vs static
            from the config; focus/filter is controlled by the parent ChartTab so
-           the 1–2 charts stay in sync, with the group index translated into
+           the 1–2 charts stay in sync, with the category index translated into
            this chart's filtered-data coordinates (filteredFocusedCategoryIndex).
            Width is explicit; height tracks the container. -->
       <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
@@ -921,7 +921,7 @@
               {/if}
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-group">
+                  <div class="demo-btn-category">
                     <ButtonWithTooltip id="edit-previous-slice" disabled={sliceControlsDisabled || sliceIndex === 0}
                                        tooltipText={demoText.editableChart.previousSlice.tooltip} tooltipPlacement="right"
                                        onClick={() => selectSlice(sliceIndex - 1)} aria-label={demoText.editableChart.previousSlice.aria}>
@@ -935,14 +935,14 @@
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-group">
+                  <div class="demo-btn-category">
                     <ButtonWithTooltip id="edit-next-slice" disabled={sliceControlsDisabled || sliceIndex >= slices.length - 1}
                                        tooltipText={demoText.editableChart.nextSlice.tooltip} tooltipPlacement="right"
                                        onClick={() => selectSlice(sliceIndex + 1)} aria-label={demoText.editableChart.nextSlice.aria}>
                       <Icon size="lg" fixedWidth={true} name="chevron-right" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="demo-btn-group">
+                  <div class="demo-btn-category">
                     {#if !foldSlice}{@render resetSliceButton()}{/if}
                     <ButtonWithTooltip id="edit-apply-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.applySlice.label}
                                        tooltipText={demoText.editableChart.applySlice.tooltip} tooltipPlacement="right"
@@ -950,7 +950,7 @@
                       <Icon size="lg" fixedWidth={true} name="check" />
                     </ButtonWithTooltip>
                   </div>
-                  {#if !foldSlice}{@render sliceSequenceGroup()}{/if}
+                  {#if !foldSlice}{@render sliceSequenceCategory()}{/if}
                 </div>
               </div>
             </form>
@@ -962,7 +962,7 @@
           </span>
           {@render controlsMenu(foldSlice ? sliceMenuItems : null)}
         </div>
-      {:else if selectionMode === 'group'}
+      {:else if selectionMode === 'category'}
         <!-- The fold keeps Add and Remove — they act on what is typed in the
              input beside them — plus the input; everything else goes to the
              menu, split into the same sections the vanilla port uses (order
@@ -973,7 +973,7 @@
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
                   {#if !foldCategory}{@render commonControls()}{/if}
-                  <div class="demo-btn-group">
+                  <div class="demo-btn-category">
                     {#if foldCategory}
                       {@render addCategoriesButton()}{@render removeCategoriesButton()}
                     {:else}
@@ -993,7 +993,7 @@
         </div>
       {:else}
         <!-- The fold keeps the steppers and their readouts — they are how a
-             group and a series get picked at all. Apply stays visible too, but
+             category and a series get picked at all. Apply stays visible too, but
              moves DOWN, onto the input row beside the JSON it applies: with it
              out of the stepper row the panel holds two rows even at 320x568.
              Reset is the one button with no partner anywhere, so it folds into
@@ -1012,8 +1012,8 @@
               {/if}
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-group-decrease" disabled={error || categoryOrderControlsDisabled || isFirstCategory}
+                  <div class="demo-btn-category">
+                    <ButtonWithTooltip id="edit-category-decrease" disabled={error || categoryOrderControlsDisabled || isFirstCategory}
                                        tooltipText={demoText.editableChart.decreaseCategoryOrder.tooltip} tooltipPlacement="right"
                                        onClick={decreaseCategoryOrder} aria-label={demoText.editableChart.decreaseCategoryOrder.aria}>
                       <Icon size="lg" fixedWidth={true} name="arrow-left" />
@@ -1026,8 +1026,8 @@
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-group">
-                    <ButtonWithTooltip id="edit-group-increase" disabled={error || categoryOrderControlsDisabled || isLastCategory}
+                  <div class="demo-btn-category">
+                    <ButtonWithTooltip id="edit-category-increase" disabled={error || categoryOrderControlsDisabled || isLastCategory}
                                        tooltipText={demoText.editableChart.increaseCategoryOrder.tooltip} tooltipPlacement="right"
                                        onClick={increaseCategoryOrder} aria-label={demoText.editableChart.increaseCategoryOrder.aria}>
                       <Icon size="lg" fixedWidth={true} name="arrow-right" />
@@ -1037,7 +1037,7 @@
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-group">
+                  <div class="demo-btn-category">
                     <ButtonWithTooltip id="edit-previous-series" disabled={error || seriesControlsDisabled || !hasPrevSeries}
                                        tooltipText={demoText.editableChart.previousSeries.tooltip} tooltipPlacement="right"
                                        onClick={prevSeries} aria-label={demoText.editableChart.previousSeries.aria}>
@@ -1051,7 +1051,7 @@
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-group">
+                  <div class="demo-btn-category">
                     <ButtonWithTooltip id="edit-next-series" disabled={error || seriesControlsDisabled || !hasNextSeries}
                                        tooltipText={demoText.editableChart.nextSeries.tooltip} tooltipPlacement="right"
                                        onClick={nextSeries} aria-label={demoText.editableChart.nextSeries.aria}>
@@ -1059,7 +1059,7 @@
                     </ButtonWithTooltip>
                   </div>
                   {#if !foldSeries}
-                    <div class="demo-btn-group">
+                    <div class="demo-btn-category">
                       {@render resetSeriesButton()}
                       {@render applySeriesButton()}
                     </div>

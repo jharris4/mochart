@@ -18,7 +18,7 @@ export function getFocusDataForPercent(focusAnimationData: FocusAnimationData, p
     return focusAnimationData.end;
   }
   else {
-    const categoryFocusPercentages = getCategoryFocusPercentages(focusAnimationData.group, percentage);
+    const categoryFocusPercentages = getCategoryFocusPercentages(focusAnimationData.category, percentage);
     const valueAxisFocusPercentages = getValueAxisFocusPercentages(focusAnimationData.valueAxis, percentage);
     const seriesFocusPercentages = getSeriesFocusPercentages(focusAnimationData.series, percentage);
 

@@ -21,8 +21,8 @@ export function getAxisData(mochartConfig: EnhancedMochartConfig, chartLayoutInf
   const valueAxisData = getValueAxisData(mochartConfig.plot, mochartConfig.valueAxes, chartLayoutInfo.valueAxisLayoutInfos, chartData);
 
   return {
-    group: categoryAxisData,
-    series: valueAxisData
+    category: categoryAxisData,
+    value: valueAxisData
   };
 }
 
@@ -50,12 +50,12 @@ export function getAxisDataWithMutations(axisData: AxisData | null, mochartConfi
 
 export function getAxisDataForCategoryChange(axisData: AxisData, mochartConfig: EnhancedMochartConfig, chartLayoutInfo: ChartLayoutInfo, chartData: ChartData | null): AxisData {
   const categoryAxisData = getCategoryAxisData(mochartConfig.categoryAxis, chartLayoutInfo.categoryAxisLayoutInfo, chartData);
-  return getWithMutations(axisData, Object.assign({}, axisData, { group: categoryAxisData }), scaleMutator);
+  return getWithMutations(axisData, Object.assign({}, axisData, { category: categoryAxisData }), scaleMutator);
 }
 
 export function getAxisDataForSeriesChange(axisData: AxisData, mochartConfig: EnhancedMochartConfig, chartLayoutInfo: ChartLayoutInfo, chartData: ChartData | null): AxisData {
   const valueAxisData = getValueAxisData(mochartConfig.plot, mochartConfig.valueAxes, chartLayoutInfo.valueAxisLayoutInfos, chartData);
-  return getWithMutations(axisData, Object.assign({}, axisData, { series: valueAxisData }), scaleMutator);
+  return getWithMutations(axisData, Object.assign({}, axisData, { value: valueAxisData }), scaleMutator);
 }
 
 function getCategoryAxisData(categoryAxisConfig: CategoryAxisConfig, axisLayoutInfo: CategoryAxisLayoutInfo, chartData: ChartData | null): CategoryAxisData | null {
@@ -100,7 +100,7 @@ export function getCategorySpacingInfo(categoryAxisConfig: CategoryAxisConfig, c
     categoryValueExtent = maxPosition;
   }
   else if (categoryCountPadding > 0) {
-    categoryValueExtent = maxPosition / (categoryAxisDomainExtent + categoryCountPadding); // group extent is smaller, ex: to allow for bar widths
+    categoryValueExtent = maxPosition / (categoryAxisDomainExtent + categoryCountPadding); // category extent is smaller, ex: to allow for bar widths
     minPosition+= categoryValueExtent / 2.0; // shift the visual range of the scale, ex: so the first and last bars aren't sliced in half
     maxPosition-= categoryValueExtent / 2.0;
   }

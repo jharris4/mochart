@@ -316,7 +316,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     const { chart: chartConfig, pie: pieConfig, tooltip: tooltipConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, series: seriesConfigs, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
 
-    const { group, series } = tooltipValueObject;
+    const { category, series } = tooltipValueObject;
     const { raw, filtered, filteredFlags } = series;
     const { axisDomains } = raw;
 
@@ -351,13 +351,13 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     const tooltipLines: RendererItem[] = [];
 
-    // pie charts render a single group, so its value is chart-level noise in the tooltip
+    // pie charts render a single category, so its value is chart-level noise in the tooltip
     if (tooltipConfig.showCategory) {
-      const categoryText = group.values.parsed;
+      const categoryText = category.values.parsed;
       const categoryFormat = getCategoryFormat(categoryAxisConfig);
       const categoryLabel = categoryAxisConfig.valueLabel !== NONE ? categoryAxisConfig.valueLabel + ": " : "";
       tooltipLines.push({
-        key: 'group',
+        key: 'category',
         ctor: TooltipCategoryLine,
         props: { lineStyle, categoryLabel, categoryText: categoryFormat(categoryText!),
           onMouseEnter: (event: Event) => this.onCategoryMouseEnter(event),

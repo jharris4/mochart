@@ -60,7 +60,7 @@ function onStepForward() {
       <form class="demo-form-row">
         <div class="demo-field">
           <div class="demo-toolbar" role="toolbar">
-            <div class="demo-btn-group">
+            <div class="demo-btn-category">
               <ButtonWithTooltip id="transition-back" :label="demoText.transitionChartTab.back.label" :tooltip-text="demoText.transitionChartTab.back.tooltip" tooltip-placement="top-start"
                                  :on-click="onStepBack" :aria-label="demoText.transitionChartTab.back.aria">
                 <Icon size="lg" :fixed-width="true" name="backward-step" />

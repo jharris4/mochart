@@ -55,7 +55,7 @@ describe('generateChartTypeDataProvider', () => {
       expect(second.seriesValues).toEqual(first.seriesValues);
     });
 
-    it(`${snapshot.id}: consecutive steps share most group values`, () => {
+    it(`${snapshot.id}: consecutive steps share most category values`, () => {
       const a = generateChartTypeDataProvider(snapshot.id, mochartConfig, demoRandom(snapshot.id), 3).getCategoryValues();
       const b = new Set(generateChartTypeDataProvider(snapshot.id, mochartConfig, demoRandom(snapshot.id), 4).getCategoryValues());
       const shared = a.filter(value => b.has(value)).length;
@@ -273,7 +273,7 @@ describe('random config wiring', () => {
     expect(three.getCategoryValues()).toHaveLength(9);
   });
 
-  it('error-bars: months.min/max bound the group count and missing drops points with their bounds', () => {
+  it('error-bars: months.min/max bound the category count and missing drops points with their bounds', () => {
     const mochartConfig = configFor('error-bars');
     const provider = generateChartTypeDataProvider('error-bars', mochartConfig, {
       months: { min: 3, max: 3 }, margin: { min: 3, max: 7 }, missing: { probability: 1 }, reuse: { global: false, step: false }

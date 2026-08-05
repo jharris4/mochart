@@ -68,7 +68,7 @@ export default class SeriesErrorBars extends Renderer<SeriesErrorBarsProps> {
       for (let i = 0; i < length; i++) {
         if (getDefined(null, i)) {
           // Positions may be compacted, but values and focus percentages stay
-          // indexed by the raw group index.
+          // indexed by the raw category index.
           const skipI = skipped ? skipCategoryIndexMap[i] : i;
           const errorLow = errorLowValues !== null ? errorLowValues[skipI] : undefined;
           const errorHigh = errorHighValues !== null ? errorHighValues[skipI] : undefined;

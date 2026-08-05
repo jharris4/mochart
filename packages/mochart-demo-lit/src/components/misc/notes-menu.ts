@@ -87,7 +87,7 @@ export class NotesMenu extends LightElement {
     if (this.notes === undefined) {
       return nothing;
     }
-    return html`<div class="demo-btn-group mochart-demo-notes-menu">
+    return html`<div class="demo-btn-category mochart-demo-notes-menu">
       <button type="button" class="demo-btn demo-btn-secondary mochart-demo-notes-trigger"
               title=${demoText.demoNotes.trigger.tooltip} aria-label=${demoText.demoNotes.trigger.aria}
               @click=${() => this.controller?.toggle()}>${icon({ size: 'lg', fixedWidth: true, name: 'circle-info' })}</button>

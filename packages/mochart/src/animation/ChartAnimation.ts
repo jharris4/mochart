@@ -64,11 +64,11 @@ export function getChartDataForAxisDelta(
   else {
     const deltaPercentage = axisDeltaData.deltaPercentage * percentage;
     const categoryAxisDomain = getCategoryAxisDomainForDelta(mochartConfig.categoryAxis, axisDeltaData.start.categoryData.axisDomain as AxisDomain, axisDeltaData.end.categoryData.axisDomain as AxisDomain,
-      axisDeltaData.deltas.domain.axis.group, deltaPercentage, percentage);
+      axisDeltaData.deltas.domain.axis.category, deltaPercentage, percentage);
     const rawValueAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.raw.axisDomains, axisDeltaData.end.seriesData.raw.axisDomains,
-      axisDeltaData.deltas.domain.axis.series.raw, deltaPercentage, percentage);
+      axisDeltaData.deltas.domain.axis.value.raw, deltaPercentage, percentage);
     const filteredValueAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.filtered.axisDomains, axisDeltaData.end.seriesData.filtered.axisDomains,
-      axisDeltaData.deltas.domain.axis.series.filtered, deltaPercentage, percentage);
+      axisDeltaData.deltas.domain.axis.value.filtered, deltaPercentage, percentage);
     const numericCategoryValues = getNumericCategoryValuesForDelta(axisDeltaData, deltaPercentage, percentage);
     const rawSeriesDomains = getSeriesDomainsForDeltas(axisDeltaData.start.seriesData.raw.domains, axisDeltaData.end.seriesData.raw.domains,
       axisDeltaData.deltas.domain.series.raw, deltaPercentage, percentage);
@@ -84,7 +84,7 @@ export function getChartDataForAxisDelta(
 }
 
 function getNumericCategoryValuesForDelta(axisDeltaData: AxisDeltaData, deltaPercentage: number, percentage: number): number[] | null {
-  const categoryValueDeltaData = axisDeltaData.deltas.values.group;
+  const categoryValueDeltaData = axisDeltaData.deltas.values.category;
   if (categoryValueDeltaData !== null) {
     if (categoryValueDeltaData.deltaPercentage >= deltaPercentage) {
       const deltaFactorPercentage = categoryValueDeltaData.deltaFactor! * percentage;
@@ -268,7 +268,7 @@ export function getChartDataForValueDelta(
 
 function getCategoryNumericValuesForDelta(categoryOrderDeltaData: NumericArrayDelta, deltaPercentage: number, percentage: number): number[] {
   if (categoryOrderDeltaData.start === undefined || categoryOrderDeltaData.end === undefined) {
-    throw new Error('Cannot interpolate an empty group-order transition');
+    throw new Error('Cannot interpolate an empty category-order transition');
   }
   if (categoryOrderDeltaData.deltaPercentage < deltaPercentage) {
     return categoryOrderDeltaData.end;

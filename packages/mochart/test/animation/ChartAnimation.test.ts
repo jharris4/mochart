@@ -169,9 +169,9 @@ describe('getChartDataForValueDelta (a point entering from undefined)', () => {
   });
 });
 
-// Regression: the group index maps used indexOf, which compares Date group
+// Regression: the category index maps used indexOf, which compares Date category
 // values by identity, so date charts lost their mid-animation focus remap.
-describe('group index maps with Date group values', () => {
+describe('category index maps with Date category values', () => {
   const dateConfig = makeConfig({
     categoryAxis: { property: 'g', type: 'date', scale: 'ordinal' },
     series: [{ property: 'a', renderer: 'bar' }]

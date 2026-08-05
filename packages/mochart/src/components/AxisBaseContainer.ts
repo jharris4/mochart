@@ -50,7 +50,7 @@ export default class AxisBaseContainer extends Renderer<AxisBaseContainerProps> 
       const basePercentage = base !== NONE && domainMin !== null && domainMax !== null && domainMin !== domainMax && base > domainMin && base < domainMax ? (base - domainMin) / (domainMax - domainMin) : 0;
 
       items.push({
-        key: 'series-axis-' + id,
+        key: 'value-axis-' + id,
         ctor: AxisBaseLine,
         props: { plotConfig, valueAxisConfig: axisConfig,
           axisBaseLineClass: mochartCssClasses['valueAxisBaseLine'] + id,

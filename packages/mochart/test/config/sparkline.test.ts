@@ -41,7 +41,7 @@ describe('createSparklineConfig', () => {
     expect(mochartConfig.series[0].axis).toBe(mochartConfig.valueAxes[0].id);
   });
 
-  it('hides every series axis when there are several', () => {
+  it('hides every value axis when there are several', () => {
     const config = baseConfig();
     config.valueAxes = [{ id: 'sa' }, { id: 'sb' }];
     config.series = [

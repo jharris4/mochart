@@ -171,7 +171,7 @@ function getMappedIndicesForValues(valueToIndexMap: CategoryIndexMap, values: re
   for (let i=0; i<count; i++) {
     const index = valueToIndexMap[getMapKey(values[i])];
     if (index === undefined) {
-      throw new Error('Group value is missing from the merged index');
+      throw new Error('Category value is missing from the merged index');
     }
     indices.push(index);
   }
@@ -331,14 +331,14 @@ function getCategoryValuesMerged(
   }
   else {
     if (categoryValuesRemoved.length > 0) {
-      if (categoryValuesNew.length === 0) { // all groups were removed, and none were added
+      if (categoryValuesNew.length === 0) { // all categories were removed, and none were added
         categoryValuesMerged = categoryValuesOld;
       }
       else {
         categoryValuesMerged = getCategoryValuesMergedSorted(categoryValuesRemoved, categoryValuesNew);
       }
     }
-    else { // no groups removed, all old groups present in new groups...
+    else { // no categories removed, all old categories present in new categories...
       categoryValuesMerged = categoryValuesNew;
     }
   }

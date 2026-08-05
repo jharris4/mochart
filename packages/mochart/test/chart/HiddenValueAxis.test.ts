@@ -48,7 +48,7 @@ function runFrames(maxFrames = 500) {
   }
 }
 
-describe('hidden series axis rendering', () => {
+describe('hidden value axis rendering', () => {
   it('renders finite series positions when every axis is hidden', () => {
     const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
     const mochartConfig = enhanceConfig({

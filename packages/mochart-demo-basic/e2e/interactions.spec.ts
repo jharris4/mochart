@@ -52,14 +52,14 @@ test('clicking a legend item filters the series out and back in', async ({ page 
   await expect(series).toHaveCount(initialCount);
 });
 
-test('toolbar add/remove group updates the group axis', async ({ page }) => {
+test('toolbar add/remove category updates the category axis', async ({ page }) => {
   const ticks = page.locator(categoryTickLabels);
   const initialCount = await ticks.count();
 
-  await page.click('#add-group');
+  await page.click('#add-category');
   await expect(ticks).toHaveCount(initialCount + 1);
 
-  await page.click('#remove-group');
+  await page.click('#remove-category');
   await expect(ticks).toHaveCount(initialCount);
 });
 
@@ -86,8 +86,8 @@ function barOverflow(page: Page): Promise<number> {
   });
 }
 
-test('randomized values stay within a fixed series axis range', async ({ page }) => {
-  // the christmas demo pins the series axis at min 0 with all-positive data,
+test('randomized values stay within a fixed value axis range', async ({ page }) => {
+  // the christmas demo pins the value axis at min 0 with all-positive data,
   // so any randomized value below 0 renders outside the plot; navigate via
   // the sidebar because the app only reads the location hash at startup
   await page.locator('#demo-list button', { hasText: 'Christmas Tree Bars' }).click();
@@ -101,7 +101,7 @@ test('randomized values stay within a fixed series axis range', async ({ page })
   }
 });
 
-test('randomize changes bar geometry and reset restores group count', async ({ page }) => {
+test('randomize changes bar geometry and reset restores category count', async ({ page }) => {
   const ticks = page.locator(categoryTickLabels);
   const initialTicks = await ticks.count();
   const initialGeometry = await barGeometry(page);
@@ -109,7 +109,7 @@ test('randomize changes bar geometry and reset restores group count', async ({ p
   await page.click('#randomize');
   await expect.poll(() => barGeometry(page)).not.toBe(initialGeometry);
 
-  await page.click('#add-group');
+  await page.click('#add-category');
   await expect(ticks).toHaveCount(initialTicks + 1);
   await page.click('#reset');
   await expect(ticks).toHaveCount(initialTicks);

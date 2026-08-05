@@ -47,7 +47,7 @@ export function getCategorySeriesValueObject(chartData: ChartData, categoryIndex
   const { categoryData, seriesData } = chartData;
 
   return {
-    group: getCategoryValueObject(categoryData, categoryIndex),
+    category: getCategoryValueObject(categoryData, categoryIndex),
     series: getSeriesValueObjects(seriesData, categoryIndex),
   }
 }

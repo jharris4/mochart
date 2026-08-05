@@ -1,6 +1,6 @@
 /**
  * Axis title / tick label / focus range box placement for start ("outer left")
- * and after ("outer right") series axes, and for the group axis.
+ * and after ("outer right") value axes, and for the category axis.
  *
  * These boxes are drawn inside the axis group (translated by the axis bounds)
  * and are offset only across the axis - a vertical axis' boxes always start at
@@ -125,7 +125,7 @@ describe('axis box placement along the axis', () => {
     }
   });
 
-  it('starts the title and tick label boxes at the left of the group axis', () => {
+  it('starts the title and tick label boxes at the left of the category axis', () => {
     const container = mountChart(makeConfig());
     const group = axisGroup(container, 'mochart-category-axis');
     expect(rect(group, '.mochart-axis-title rect').x).toBe(0);
@@ -133,7 +133,7 @@ describe('axis box placement along the axis', () => {
   });
 });
 
-describe('series axis focus range placement', () => {
+describe('value axis focus range placement', () => {
   it('places the focus range identically on titled before and after axes', () => {
     const before = mountChart(makeConfig());
     focusSeries(before, 'S0');
@@ -156,7 +156,7 @@ describe('series axis focus range placement', () => {
     const axisHeight = rect(group, '.mochart-axis-tick-labels rect').height;
 
     expect(range.y).toBeGreaterThan(0);
-    // the focused group's value runs down to the axis base, which sits at the
+    // the focused category's value runs down to the axis base, which sits at the
     // bottom of the axis
     expect(range.y + range.height).toBe(axisHeight);
   });

@@ -26,7 +26,7 @@ export interface ChartFocus {
   focusedValueAxisId: string | null;
   /** Id of the focused series, or null when no series is focused. */
   focusedSeriesId: string | null;
-  /** Index of the focused group, -1 when no group is focused. */
+  /** Index of the focused category, -1 when no category is focused. */
   focusedCategoryIndex: number;
 }
 
@@ -72,7 +72,7 @@ export interface ChartFactoryContext {
   dataProvider?: DataProvider | null;
   /** The `error` prop, when the chart is in its error state. */
   error?: unknown;
-  /** False when the dataset has no groups. */
+  /** False when the dataset has no categories. */
   hasData?: boolean;
 }
 
@@ -104,7 +104,7 @@ export interface ChartCallbacks {
   /** The chart title was clicked (see `titleConfig.link`/`linkDisabled`). */
   onTitleClick?: () => void;
   /**
-   * The focused series/group/axis changed — via pointer over/click on the
+   * The focused value/category/axis changed — via pointer over/click on the
    * plot or the legend, per the `focusOnMouseOver`/`focusOnClick` config.
    */
   onFocus?: (focus: ChartFocus) => void;
@@ -126,7 +126,7 @@ export interface ChartFactories {
   getLoadingComponent?: ChartContentFactory;
   /** Rendered while the `error` prop is set. */
   getErrorComponent?: ChartContentFactory;
-  /** Rendered when the dataset has no groups. */
+  /** Rendered when the dataset has no categories. */
   getNoDataComponent?: ChartContentFactory;
   /** Rendered when width or height is 0. */
   getNoSizeComponent?: ChartContentFactory;
@@ -149,13 +149,13 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
   /** Switches the chart into its error state (see `getErrorComponent`). */
   error?: unknown;
   /**
-   * Externally-controlled focused group index (-1 = none). When set (not
+   * Externally-controlled focused category index (-1 = none). When set (not
    * undefined) it overrides the chart's internal focus state on every update;
    * pass back the value reported by `onFocus` to keep several charts in sync.
    * Leave undefined to let the chart manage focus internally.
    */
   focusedCategoryIndex?: number;
-  /** Externally-controlled focused series-axis id (null = none). See `focusedCategoryIndex`. */
+  /** Externally-controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
   focusedValueAxisId?: string | null;
   /** Externally-controlled focused series id (null = none). See `focusedCategoryIndex`. */
   focusedSeriesId?: string | null;
@@ -180,7 +180,7 @@ export interface DefaultChartProps extends BaseChartProps {
   /** The raw config; validated and enhanced internally on every change. */
   config: MochartInputConfig;
   /**
-   * The dataset as one object per group; wrapped in an
+   * The dataset as one object per category; wrapped in an
    * `ArrayOfObjectsDataProvider` keyed by `categoryAxisConfig.property`.
    */
   data: readonly DataRow[];

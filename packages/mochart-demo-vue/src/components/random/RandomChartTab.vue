@@ -152,7 +152,7 @@ const RateField = () => h('div', { class: 'demo-field demo-menu-keep-open' }, [
       <form class="demo-form-row">
         <div class="demo-field">
           <div class="demo-toolbar" role="toolbar">
-            <div class="demo-btn-group">
+            <div class="demo-btn-category">
               <ButtonWithTooltip id="randomize-back" :disabled="playing" :label="demoText.randomChartTab.back.label"
                                  :tooltip-text="demoText.randomChartTab.back.tooltip" tooltip-placement="top-start"
                                  :on-click="props.onRandomizeBack" :aria-label="demoText.randomChartTab.back.aria">
@@ -174,21 +174,21 @@ const RateField = () => h('div', { class: 'demo-field demo-menu-keep-open' }, [
             <!-- Anchored to the whole strip: `align: 'end'` pins the panel's
                  right edge to the anchor's, and the export trigger sits to
                  the ⋯'s right. -->
-            <div v-if="isPhone" class="demo-btn-group">
+            <div v-if="isPhone" class="demo-btn-category">
               <OverflowMenu :text="demoText.overflowMenu.random"
                             :placement="{ side: 'top', align: 'end', gap: 4 }"
                             :get-anchor="getControlsAnchor"
                             :active="props.active">
-                <div class="demo-btn-group"><PlayButton /><StopButton /></div>
+                <div class="demo-btn-category"><PlayButton /><StopButton /></div>
                 <div class="demo-menu-divider"></div>
-                <div class="demo-btn-group"><ReuseButton /></div>
+                <div class="demo-btn-category"><ReuseButton /></div>
                 <div class="demo-menu-divider"></div>
                 <RateField />
               </OverflowMenu>
               <ExportShareMenu id-prefix="random" :active="props.active" :export-png="onExportPng" :export-svg="onExportSvg" :get-share-state="getRandomShareState" />
             </div>
             <template v-else>
-              <div class="demo-btn-group"><ReuseButton /></div>
+              <div class="demo-btn-category"><ReuseButton /></div>
               <ExportShareMenu id-prefix="random" :active="props.active" :export-png="onExportPng" :export-svg="onExportSvg" :get-share-state="getRandomShareState" />
             </template>
           </div>

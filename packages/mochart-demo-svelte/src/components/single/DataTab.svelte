@@ -159,7 +159,7 @@
                       placement={{ side: 'top', align: 'end', gap: 4 }}
                       getAnchor={() => footerElement}
                       active={active !== false}>
-          <div class="demo-btn-group">{@render resetButton()}{@render unusedButton()}</div>
+          <div class="demo-btn-category">{@render resetButton()}{@render unusedButton()}</div>
         </OverflowMenu>
       {:else}
         {@render resetButton()}

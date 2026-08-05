@@ -53,7 +53,7 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
       const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
       const valueAxisDomain = adjustForFiltering ? valueAxisFilteredDomains[id] : valueAxisRawDomains[id];
       return {
-        key: 'series-axis-' + id,
+        key: 'value-axis-' + id,
         ctor: AxisThreshold,
         props: { front, plotConfig, axisConfig, axisLayoutInfo: valueAxisLayoutInfos[id],
           hidden: axisSeriesCounts[id] === 0, seriesLayoutInfo, axisDomain: valueAxisDomain, vertical: !inverted, ascending: inverted,

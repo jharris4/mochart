@@ -42,7 +42,7 @@ export interface MapFocusDeltaData {
 export interface FocusAnimationData {
   start: FocusData;
   deltaPercentage: number;
-  group: ArrayFocusDeltaData;
+  category: ArrayFocusDeltaData;
   valueAxis: MapFocusDeltaData;
   series: MapFocusDeltaData;
   end: FocusData;
@@ -121,12 +121,12 @@ export interface AxisDeltaData {
   deltas: {
     domain: {
       axis: {
-        group: DomainDelta;
-        series: { raw: DomainDeltaMap; filtered: DomainDeltaMap };
+        category: DomainDelta;
+        value: { raw: DomainDeltaMap; filtered: DomainDeltaMap };
       };
       series: { raw: SeriesDomainDeltaMap; filtered: SeriesDomainDeltaMap };
     };
-    values: { group: CompleteNumericArrayDelta | null };
+    values: { category: CompleteNumericArrayDelta | null };
   };
   end: AnimationChartData;
   final: AnimationChartData;

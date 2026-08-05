@@ -6,7 +6,7 @@ standalone lit-html templates and inside `LitElement` render methods alike.
 
 Re-renders get mochart's
 [staged animations](https://github.com/jharris4/mochart/tree/main/packages/mochart#staged-animation)
-for free — axis expansion, value change (with group and series transitions),
+for free — axis expansion, value change (with category and series transitions),
 axis contraction, and gapless stacked transitions — no extra wiring needed.
 
 ## Install

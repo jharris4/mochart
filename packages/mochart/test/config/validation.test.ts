@@ -43,7 +43,7 @@ describe('validation message helpers', () => {
 });
 
 describe('reference validation', () => {
-  it('flags a series axis reference that matches no axis', () => {
+  it('flags a value axis reference that matches no axis', () => {
     expect(errorsFor({ version: V, categoryAxis: { property: 'p' }, series: [{ property: 'a', axis: 'nope' }] }))
       .toContain('series[0] - axis - should equal the id property of one of the valueAxes: "nope"');
   });
@@ -53,7 +53,7 @@ describe('reference validation', () => {
       .toContain('series[0] - gradient - should equal the id property of one of the linearGradients or radialGradients: "nope"');
   });
 
-  it('accepts a series axis reference that resolves', () => {
+  it('accepts a value axis reference that resolves', () => {
     const errors = errorsFor({
       version: V,
       categoryAxis: { property: 'p' },
@@ -103,7 +103,7 @@ describe('unique-key validation', () => {
     ]));
   });
 
-  it('flags duplicate series axis ids', () => {
+  it('flags duplicate value axis ids', () => {
     const errors = errorsFor({
       version: V,
       categoryAxis: { property: 'p' },

@@ -139,7 +139,7 @@ const ApplyButton = () => h(ButtonWithTooltip, {
                         :placement="{ side: 'top', align: 'end', gap: 4 }"
                         :get-anchor="getFooterAnchor"
                         :active="props.active">
-            <div class="demo-btn-group"><ResetButton /><UnusedButton /></div>
+            <div class="demo-btn-category"><ResetButton /><UnusedButton /></div>
           </OverflowMenu>
         </template>
         <template v-else>

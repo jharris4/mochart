@@ -25,8 +25,8 @@ const demoTitle = document.getElementById('demo-title') as HTMLSpanElement;
 const chartHost = document.getElementById('chart-host') as HTMLDivElement;
 const errorsPane = document.getElementById('errors') as HTMLPreElement;
 const randomizeButton = document.getElementById('randomize') as HTMLButtonElement;
-const addCategoryButton = document.getElementById('add-group') as HTMLButtonElement;
-const removeCategoryButton = document.getElementById('remove-group') as HTMLButtonElement;
+const addCategoryButton = document.getElementById('add-category') as HTMLButtonElement;
+const removeCategoryButton = document.getElementById('remove-category') as HTMLButtonElement;
 const autoplayButton = document.getElementById('autoplay') as HTMLButtonElement;
 const resetButton = document.getElementById('reset') as HTMLButtonElement;
 const exportPngButton = document.getElementById('export-png') as HTMLButtonElement;
@@ -78,7 +78,7 @@ function randomValue({ min, max, round }: SeriesBounds): number {
 
 function makeDataProvider(): any {
   if (categoryProperty === undefined) {
-    throw new Error('Cannot create a data provider without a group property');
+    throw new Error('Cannot create a data provider without a category property');
   }
   return new ArrayOfObjectsDataProvider(currentData, categoryProperty);
 }

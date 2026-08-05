@@ -16,7 +16,7 @@ interface AxisGridContainerProps {
   seriesLayoutInfo: LayoutInfo;
   seriesData: SeriesData;
   focusData: FocusData;
-  axisData: AxisData & { group: CategoryAxisData; series: ValueAxisData };
+  axisData: AxisData & { category: CategoryAxisData; value: ValueAxisData };
 }
 
 export default class AxisGridContainer extends Renderer<AxisGridContainerProps> {
@@ -31,7 +31,7 @@ export default class AxisGridContainer extends Renderer<AxisGridContainerProps> 
   sync() {
     const { front, mochartConfig, seriesLayoutInfo, seriesData, focusData, axisData } = this.props;
     const { valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
-    const { group: categoryAxisData, series: valueAxisData } = axisData;
+    const { category: categoryAxisData, value: valueAxisData } = axisData;
     const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
     const { gridLineFront } = categoryAxisConfig;
 
@@ -53,7 +53,7 @@ export default class AxisGridContainer extends Renderer<AxisGridContainerProps> 
       const axisFocusPercentage = valueAxisFocusPercentages[id];
       const seriesFocusPercentage = useSeriesFocus ? getAggregateSeriesFocusPercentage(seriesConfigs ?? [], seriesFocusPercentages) : 0;
       items.push({
-        key: 'series-axis-' + id,
+        key: 'value-axis-' + id,
         ctor: ValueAxisGrid,
         props: { plotConfig, valueAxisConfig: axisConfig,
           seriesCount: seriesData.axisSeriesCounts[id],

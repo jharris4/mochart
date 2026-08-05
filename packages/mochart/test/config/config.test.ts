@@ -299,7 +299,7 @@ describe('ignored entries and sole-id defaults', () => {
     expect(mochartConfig.series.map(seriesConfig => seriesConfig.stack)).toEqual(['st', 'st']);
   });
 
-  it('two active axes still require an explicit series axis', () => {
+  it('two active axes still require an explicit value axis', () => {
     const mochartConfig = enhance({ ...base,
       series: [{ property: 'v' }],
       valueAxes: [{ id: 'a' }, { id: 'b' }]

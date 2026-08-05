@@ -11,7 +11,7 @@ import { ordinalConfig, makeConfig, ArrayOfObjectsDataProvider } from './fixture
 import type { CategoryValue } from '../../src/types/data';
 
 describe('getCategoryData', () => {
-  it('reads raw group values from the provider', () => {
+  it('reads raw category values from the provider', () => {
     const config = ordinalConfig();
     const provider = new ArrayOfObjectsDataProvider(
       [{ month: 'Jan' }, { month: 'Feb' }, { month: 'Mar' }],

@@ -148,7 +148,7 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
     const dataErrors = getDataErrors(mochartConfig, dataProvider as unknown as DataProvider);
     if (dataErrors.length > 0) {
       console.error('data errors: ', dataErrors);
-      console.warn('group values: ', categoryValues);
+      console.warn('category values: ', categoryValues);
       console.warn('series values: ', seriesValues);
       return {
         dataProvider: { getCategoryValues: () => [], getError: () => demoText.errors.creatingDataProvider },

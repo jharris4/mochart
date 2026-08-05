@@ -57,7 +57,7 @@ export interface PieData {
   series: DeepPartial<SeriesConfig>[];
 }
 
-const CATEGORY_PROPERTY = 'group';
+const CATEGORY_PROPERTY = 'category';
 const DEFAULT_CATEGORY_VALUE = 'all';
 const DEFAULT_DONUT_INNER_RADIUS_FRACTION = 0.6;
 

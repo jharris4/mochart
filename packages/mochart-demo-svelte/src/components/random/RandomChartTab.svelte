@@ -174,7 +174,7 @@
     <form class="demo-form-row">
       <div class="demo-field">
         <div class="demo-toolbar" role="toolbar">
-          <div class="demo-btn-group">
+          <div class="demo-btn-category">
             <ButtonWithTooltip id="randomize-back" disabled={playing} label={demoText.randomChartTab.back.label}
                                tooltipText={demoText.randomChartTab.back.tooltip} tooltipPlacement="top-start"
                                onClick={onRandomizeBack} aria-label={demoText.randomChartTab.back.aria}>
@@ -191,7 +191,7 @@
         </div>
         <div class="demo-toolbar" role="toolbar">
           {#if phone.isPhone}
-            <div class="demo-btn-group">
+            <div class="demo-btn-category">
               <!-- Anchored to the whole strip: `align: 'end'` pins the panel's
                    right edge to the anchor's, and the export trigger sits to
                    the ⋯'s right. -->
@@ -199,16 +199,16 @@
                             placement={{ side: 'top', align: 'end', gap: 4 }}
                             getAnchor={() => controlsElement}
                             active={active !== false}>
-                <div class="demo-btn-group">{@render playButton()}{@render stopButton()}</div>
+                <div class="demo-btn-category">{@render playButton()}{@render stopButton()}</div>
                 <div class="demo-menu-divider"></div>
-                <div class="demo-btn-group">{@render reuseButton()}</div>
+                <div class="demo-btn-category">{@render reuseButton()}</div>
                 <div class="demo-menu-divider"></div>
                 {@render rateField()}
               </OverflowMenu>
               {@render exportMenu()}
             </div>
           {:else}
-            <div class="demo-btn-group">{@render reuseButton()}</div>
+            <div class="demo-btn-category">{@render reuseButton()}</div>
             {@render exportMenu()}
           {/if}
         </div>

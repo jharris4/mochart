@@ -43,7 +43,7 @@ export class ChartTab extends LightElement {
 
   // Mirror the react lifecycle: a config change rebuilds the demo config and
   // resets focus/filter state when the structure changed (or on data errors);
-  // a data change remaps the focused group index onto the new data.
+  // a data change remaps the focused category index onto the new data.
   override willUpdate(changed: PropertyValues<this>): void {
     if (!this.hasUpdated) {
       this.mochartDemoConfig = this.config ? buildMochartDemoConfig(this.config) : null;

@@ -8,19 +8,19 @@ describe('ArrayOfObjectsDataProvider', () => {
     { month: 'Mar', sales: 30, costs: 12 }
   ];
 
-  it('returns group values in row order', () => {
+  it('returns category values in row order', () => {
     const provider = new ArrayOfObjectsDataProvider(rows, 'month');
     expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
-  it('looks up a series value by group value regardless of index', () => {
+  it('looks up a series value by caetgory value regardless of index', () => {
     const provider = new ArrayOfObjectsDataProvider(rows, 'month');
-    // the index argument is ignored: lookup is keyed on the group value
+    // the index argument is ignored: lookup is keyed on the caetgory value
     expect(provider.getSeriesValue('Feb', 0, 'sales')).toBe(20);
     expect(provider.getSeriesValue('Feb', 99, 'costs')).toBe(8);
   });
 
-  it('coerces non-string group values to string keys', () => {
+  it('coerces non-string category values to string keys', () => {
     const numericRows = [
       { year: 2020, value: 1 },
       { year: 2021, value: 2 }
@@ -30,7 +30,7 @@ describe('ArrayOfObjectsDataProvider', () => {
     expect(provider.getSeriesValue(2021, 1, 'value')).toBe(2);
   });
 
-  it('keeps the last row when group values collide', () => {
+  it('keeps the last row when category values collide', () => {
     const dupes = [
       { month: 'Jan', sales: 10 },
       { month: 'Jan', sales: 99 }
@@ -38,7 +38,7 @@ describe('ArrayOfObjectsDataProvider', () => {
     const provider = new ArrayOfObjectsDataProvider(dupes, 'month');
     // getCategoryValues preserves every raw value...
     expect(provider.getCategoryValues()).toEqual(['Jan', 'Jan']);
-    // ...but the row map is keyed by group value, so the later row wins
+    // ...but the row map is keyed by category value, so the later row wins
     expect(provider.getSeriesValue('Jan', 0, 'sales')).toBe(99);
   });
 });
@@ -50,14 +50,14 @@ describe('ObjectOfArraysDataProvider', () => {
     costs: [4, 8, 12]
   };
 
-  it('returns the group column as group values', () => {
+  it('returns the category column as category values', () => {
     const provider = new ObjectOfArraysDataProvider(data, 'month');
     expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
-  it('looks up a series value by group index', () => {
+  it('looks up a series value by category index', () => {
     const provider = new ObjectOfArraysDataProvider(data, 'month');
-    // this provider keys on the index argument, not the group value
+    // this provider keys on the index argument, not the category value
     expect(provider.getSeriesValue('Feb', 1, 'sales')).toBe(20);
     expect(provider.getSeriesValue('ignored', 2, 'costs')).toBe(12);
   });
@@ -66,7 +66,7 @@ describe('ObjectOfArraysDataProvider', () => {
 // Regression: a configured property absent from the data threw a TypeError
 // (crashing getDataErrors, the API meant to report it) instead of reading as
 // missing like the row provider.
-describe('missing properties and groups', () => {
+describe('missing properties and categories', () => {
   const data = { month: ['Jan', 'Feb'], sales: [10, 20] };
   const rows = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
 
@@ -75,7 +75,7 @@ describe('missing properties and groups', () => {
     expect(new ArrayOfObjectsDataProvider(rows, 'month').getSeriesValue('Jan', 0, 'vlaue')).toBeUndefined();
   });
 
-  it('reads an unknown group value as undefined in the row provider', () => {
+  it('reads an unknown category value as undefined in the row provider', () => {
     expect(new ArrayOfObjectsDataProvider(rows, 'month').getSeriesValue('Apr', 0, 'sales')).toBeUndefined();
   });
 });

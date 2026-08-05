@@ -33,13 +33,13 @@ export const baseChartProps = {
   loading: { type: Boolean, default: undefined },
   error: anyProp,
   /**
-   * Controlled focused group index (-1 = none). When set it overrides the
+   * Controlled focused category index (-1 = none). When set it overrides the
    * chart's internal focus on every render; pass back the value reported by
    * `onFocus` to keep several charts in sync. Omit to leave focus
    * chart-managed.
    */
   focusedCategoryIndex: { type: Number, default: undefined },
-  /** Controlled focused series-axis id (null = none). See `focusedCategoryIndex`. */
+  /** Controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
   focusedValueAxisId: { type: String as PropType<string | null>, default: undefined },
   /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
   focusedSeriesId: { type: String as PropType<string | null>, default: undefined },

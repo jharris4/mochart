@@ -7,7 +7,7 @@ import type { LayoutInfo } from '../../src/types/layout';
 import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 
 // Horizontal-waterfall shape: ranged bars with the skip flags createWaterfall
-// emits, series axis based at the domain minimum.
+// emits, value axis based at the domain minimum.
 const config = enhanceConfig({
   version: '1.0.0',
   plot: { inverted: true },
@@ -16,7 +16,7 @@ const config = enhanceConfig({
   series: [{ property: 'end', rangeProperty: 'start', renderer: 'bar', missingValues: 'connect', partialRangeIsMissing: true }]
 } as unknown as MochartInputConfig) as unknown as EnhancedMochartConfig;
 
-// An inverted series axis ranges [0, extent], so the domain minimum maps to
+// An inverted value axis ranges [0, extent], so the domain minimum maps to
 // pixel 0 exactly - the value the old || fallback treated as missing.
 const scale = Object.assign((value: unknown) => (value as number) * 10, {
   domain: () => [0, 30],

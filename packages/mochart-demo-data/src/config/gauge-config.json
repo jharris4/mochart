@@ -21,7 +21,7 @@
     "centerOffsetYFraction": -0.25
   },
   "categoryAxis": {
-    "property": "group",
+    "property": "category",
     "type": "string",
     "scale": "ordinal"
   },

@@ -170,7 +170,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
         <form className="demo-form-row">
           <div className="demo-field">
             <div className="demo-toolbar" role="toolbar">
-              <div className="demo-btn-group">
+              <div className="demo-btn-category">
                 {backButton}
                 {nextButton}
                 {isPhone ? null : <>{playButton}{stopButton}</>}
@@ -179,16 +179,16 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
             </div>
             <div className="demo-toolbar" role="toolbar">
               {isPhone ? (
-                <div className="demo-btn-group">
+                <div className="demo-btn-category">
                   {/* Anchored to the whole strip: `align: 'end'` pins the
                       panel's right edge to the anchor's, and the export
                       trigger sits to the ⋯'s right. */}
                   <OverflowMenu text={demoText.overflowMenu.random}
                     placement={{ side: 'top', align: 'end', gap: 4 }}
                     anchorRef={controlsRef} active={active !== false}>
-                    <div className="demo-btn-group">{playButton}{stopButton}</div>
+                    <div className="demo-btn-category">{playButton}{stopButton}</div>
                     <MenuDivider />
-                    <div className="demo-btn-group">{reuseButton}</div>
+                    <div className="demo-btn-category">{reuseButton}</div>
                     <MenuDivider />
                     {rateField}
                   </OverflowMenu>
@@ -196,7 +196,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
                 </div>
               ) : (
                 <>
-                  <div className="demo-btn-group">{reuseButton}</div>
+                  <div className="demo-btn-category">{reuseButton}</div>
                   {exportShareMenu}
                 </>
               )}

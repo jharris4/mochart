@@ -46,12 +46,12 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   @Input() noSeriesComponent?: PlaceholderComponent;
   @Input() configErrorComponent?: PlaceholderComponent;
   /**
-   * Controlled focused group index (-1 = none). When set it overrides the
+   * Controlled focused category index (-1 = none). When set it overrides the
    * chart's internal focus on every update; pass back the value reported by
    * `focus` to keep several charts in sync. Omit to leave focus chart-managed.
    */
   @Input() focusedCategoryIndex?: number;
-  /** Controlled focused series-axis id (null = none). See `focusedCategoryIndex`. */
+  /** Controlled focused value-axis id (null = none). See `focusedCategoryIndex`. */
   @Input() focusedValueAxisId?: string | null;
   /** Controlled focused series id (null = none). See `focusedCategoryIndex`. */
   @Input() focusedSeriesId?: string | null;

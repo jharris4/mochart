@@ -143,7 +143,7 @@ export interface ChartTextBoundsData {
 /** The slice of ChartData that the layout functions read. */
 export interface ChartDataForLayout {
   seriesData: {
-    /** Count of unfiltered series per series-axis id. */
+    /** Count of unfiltered series per value-axis id. */
     axisSeriesCounts: Record<string, number>;
   };
 }

@@ -172,7 +172,7 @@ const ApplyButton = () => h(ButtonWithTooltip, {
                         :placement="{ side: 'top', align: 'end', gap: 4 }"
                         :get-anchor="getFooterAnchor"
                         :active="props.active">
-            <div class="demo-btn-group"><ResetButton /><DefaultsButton /><InvertedButton /><SlowButton /></div>
+            <div class="demo-btn-category"><ResetButton /><DefaultsButton /><InvertedButton /><SlowButton /></div>
             <template v-if="hasDocsLinks">
               <div class="demo-menu-divider"></div>
               <DocsLinks :config="demoConfig.configWithoutDefaults" />

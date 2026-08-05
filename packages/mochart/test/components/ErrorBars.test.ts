@@ -124,13 +124,13 @@ describe('error bars on bar series', () => {
     }
   });
 
-  it('expands the series axis domain to cover the error bounds', () => {
+  it('expands the value axis domain to cover the error bounds', () => {
     const container = mountChart(makeConfig([
       { id: 'V', property: 'value', renderer: 'bar', errorLowProperty: 'low', errorHighProperty: 'high' }
     ]));
     const valueBars = barRects(container, 'V');
     const valueWhiskers = whiskers(container, 'V');
-    // the highest bound (37 on group C) must render inside the plot: above
+    // the highest bound (37 on category C) must render inside the plot: above
     // its bar's value edge yet at a non-negative plot y
     const topWhisker = valueWhiskers[2];
     expect(topWhisker.high).toBeLessThan(valueBars[2].y);
@@ -221,7 +221,7 @@ describe('missing bounds and values', () => {
     const referenceBars = barRects(container, 'R');
     const valueWhiskers = whiskers(container, 'V');
     expect(valueWhiskers).toHaveLength(2);
-    // group A: high is missing, so the whisker runs from the value position
+    // category A: high is missing, so the whisker runs from the value position
     // down to the low bound with a single cap on the low end
     expect(valueWhiskers[0].high).toBeCloseTo(referenceBars[0].y, 6);
     expect(valueWhiskers[0].low).toBeGreaterThan(valueWhiskers[0].high);
@@ -230,7 +230,7 @@ describe('missing bounds and values', () => {
     expect(valueWhiskers[1].caps).toHaveLength(2);
   });
 
-  it('skips error bars for groups with no bounds and for missing points', () => {
+  it('skips error bars for categories with no bounds and for missing points', () => {
     const data = [
       { label: 'A', value: 10 },
       { label: 'B', low: 15, high: 24 },

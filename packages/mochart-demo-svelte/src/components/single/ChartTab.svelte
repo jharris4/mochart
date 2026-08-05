@@ -44,7 +44,7 @@
 
   // Mirror the react lifecycle: a config change rebuilds the demo config and
   // resets focus/filter state when the structure changed (or on data errors);
-  // a data change remaps the focused group index onto the new data.
+  // a data change remaps the focused category index onto the new data.
   // svelte-ignore state_referenced_locally
   let previousConfig = config;
   // svelte-ignore state_referenced_locally

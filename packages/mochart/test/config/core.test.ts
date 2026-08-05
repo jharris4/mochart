@@ -117,7 +117,7 @@ describe('hasConfigStructureChange', () => {
     expect(hasConfigStructureChange(base(), invalid)).toBe(true);
   });
 
-  it('reports a change when the group axis property differs', () => {
+  it('reports a change when the category axis property differs', () => {
     const other = makeConfig({
       categoryAxis: { property: 'week', type: 'string', scale: 'ordinal' },
       series: [{ property: 'sales' }]

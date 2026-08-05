@@ -64,7 +64,7 @@ function makeHarness(): Harness {
 }
 
 describe('FocusController focus handling', () => {
-  it('tracks group, series and series axis focus independently', () => {
+  it('tracks category, series and value axis focus independently', () => {
     const { controller } = makeHarness();
 
     expect(controller.applyFocus({ categoryIndex: 1 }))
@@ -76,12 +76,12 @@ describe('FocusController focus handling', () => {
     expect(controller.applyFocus({ valueAxisId: 'VA0' }))
       .toEqual({ focusedCategoryIndex: 1, focusedValueAxisId: 'VA0', focusedSeriesId: 'S0' });
 
-    // null group index clears back to -1; null ids clear the id focus
+    // null category index clears back to -1; null ids clear the id focus
     expect(controller.applyFocus({ categoryIndex: null, seriesId: null, valueAxisId: null }))
       .toEqual({ focusedCategoryIndex: -1, focusedValueAxisId: null, focusedSeriesId: null });
   });
 
-  it('remaps the focused group index when the data provider changes', () => {
+  it('remaps the focused category index when the data provider changes', () => {
     const harness = makeHarness();
     harness.controller.applyFocus({ categoryIndex: 1 }); // Feb
 
@@ -95,9 +95,9 @@ describe('FocusController focus handling', () => {
     expect(harness.focuses[harness.focuses.length - 1].focusedCategoryIndex).toBe(2);
   });
 
-  // Regression: the remap compared Date group values by object identity, so a
+  // Regression: the remap compared Date category values by object identity, so a
   // data update with fresh Date instances for the same dates dropped the focus.
-  it('remaps Date group values by value, not object identity', () => {
+  it('remaps Date category values by value, not object identity', () => {
     const harness = makeHarness();
     const dateRows = (offset: number) => [
       { month: new Date(2026, 0, 1), sales: 10 + offset },
@@ -117,7 +117,7 @@ describe('FocusController focus handling', () => {
     expect(harness.focuses[harness.focuses.length - 1].focusedCategoryIndex).toBe(0);
   });
 
-  it('drops group focus when the focused group disappears from the data', () => {
+  it('drops category focus when the focused category disappears from the data', () => {
     const harness = makeHarness();
     harness.controller.applyFocus({ categoryIndex: 1 }); // Feb
 
@@ -129,7 +129,7 @@ describe('FocusController focus handling', () => {
     expect(harness.focuses[harness.focuses.length - 1].focusedCategoryIndex).toBe(-1);
   });
 
-  it('keeps focus and filters when the data changes without a focused group', () => {
+  it('keeps focus and filters when the data changes without a focused category', () => {
     const harness = makeHarness();
     harness.controller.applyFocus({ seriesId: 'S0' });
 

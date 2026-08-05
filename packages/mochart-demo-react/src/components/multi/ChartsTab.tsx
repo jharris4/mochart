@@ -428,7 +428,7 @@ function MultiMochartControls({ playing, initialRows, initialCols, initialRate, 
         </div>
         <div className="demo-field">
           <div className="demo-toolbar" role="toolbar">
-            <div className="demo-btn-group">
+            <div className="demo-btn-category">
               <ButtonWithTooltip id="step-back" disabled={playing} tooltipText={demoText.multiChartsTab.stepBackward.tooltip} tooltipPlacement="top-start"
                 onClick={onStepBackwardClick} aria-label={demoText.multiChartsTab.stepBackward.aria}>
                 <Icon size="lg" fixedWidth={true} name="backward-step" />

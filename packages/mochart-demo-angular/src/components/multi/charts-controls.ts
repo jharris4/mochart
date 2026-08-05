@@ -29,7 +29,7 @@ const defaultRate = 2000;
         </div>
         <div class="demo-field">
           <div class="demo-toolbar" role="toolbar">
-            <div class="demo-btn-group">
+            <div class="demo-btn-category">
               <app-button-with-tooltip id="step-back" [disabled]="playing" [tooltipText]="text.stepBackward.tooltip" tooltipPlacement="top-start"
                                        [onClick]="onStepBackwardClick" [aria-label]="text.stepBackward.aria">
                 <app-icon size="lg" [fixedWidth]="true" name="backward-step" />

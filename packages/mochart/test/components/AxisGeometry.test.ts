@@ -1,5 +1,5 @@
 /**
- * Regression tests for inverted-chart geometry: the group-axis threshold
+ * Regression tests for inverted-chart geometry: the category-axis threshold
  * position and the per-side series label positions.
  */
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
@@ -43,10 +43,10 @@ function thresholdTranslateY(container: Element): number {
   return Number(transform.match(/translate\([^,]+,\s*([^)]+)\)/)![1]);
 }
 
-// Regression: the vertical branch assumed the bottom-up series-axis pixel
-// convention, but a vertical group axis (inverted chart) ascends top-down, so
-// group thresholds rendered mirrored.
-describe('group-axis threshold on an inverted chart', () => {
+// Regression: the vertical branch assumed the bottom-up value-axis pixel
+// convention, but a vertical category axis (inverted chart) ascends top-down, so
+// category thresholds rendered mirrored.
+describe('category-axis threshold on an inverted chart', () => {
   it('places a low threshold nearer the top than a high one', () => {
     const rows = Array.from({ length: 11 }, (_, g) => ({ g, value: g * 2 }));
     const configFor = (threshold: number) => ({

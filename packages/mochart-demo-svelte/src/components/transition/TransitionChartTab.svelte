@@ -71,7 +71,7 @@
     <form class="demo-form-row">
       <div class="demo-field">
         <div class="demo-toolbar" role="toolbar">
-          <div class="demo-btn-group">
+          <div class="demo-btn-category">
             <ButtonWithTooltip id="transition-back" label={demoText.transitionChartTab.back.label} tooltipText={demoText.transitionChartTab.back.tooltip} tooltipPlacement="top-start"
                                onClick={onStepBack} aria-label={demoText.transitionChartTab.back.aria}>
               <Icon size="lg" fixedWidth={true} name="backward-step" />

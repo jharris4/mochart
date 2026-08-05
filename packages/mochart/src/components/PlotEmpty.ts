@@ -50,7 +50,7 @@ export default class PlotEmpty extends Renderer<PlotEmptyProps> {
     this.valueAxes.sync(valueAxisConfigs.map((axisConfig: EnhancedValueAxisConfig) => {
       const { id } = axisConfig;
       return {
-        key: 'series-axis-' + id,
+        key: 'value-axis-' + id,
         ctor: Axis,
         props: { front: false, axisClass: mochartCssClasses['valueAxis'] + id, axisConfig,
           axisLayoutInfo: valueAxisLayoutInfos[id], titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],

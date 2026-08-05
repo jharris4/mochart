@@ -259,7 +259,7 @@ describe('pie chart rendering', () => {
     });
   });
 
-  it('leaves the single group value out of the tooltip unless showCategory is set', () => {
+  it('leaves the single category value out of the tooltip unless showCategory is set', () => {
     const hidden = pieChartProps(ITEMS, { categoryValue: 'all' });
     const hiddenChart = mountChart(hidden.config, hidden.data);
     const hiddenRoot = hiddenChart.container.querySelector('[data-mochart-version]')!;

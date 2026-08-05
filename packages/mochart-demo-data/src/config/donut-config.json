@@ -14,7 +14,7 @@
     "focusOffsetFraction": 0.05
   },
   "categoryAxis": {
-    "property": "group",
+    "property": "category",
     "type": "string",
     "scale": "ordinal"
   },

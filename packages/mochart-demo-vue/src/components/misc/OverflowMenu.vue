@@ -12,9 +12,9 @@
   // control twice and hides one with CSS has missed the design.
   //
   // The panel's children keep their own classes (`.demo-btn`,
-  // `.demo-btn-group`, `.demo-toolbar`); `css/demo.css`'s `.demo-menu-overflow`
+  // `.demo-btn-category`, `.demo-toolbar`); `css/demo.css`'s `.demo-menu-overflow`
   // rules restyle them into full-width menu rows by context. Loose buttons
-  // (not part of a group) should be wrapped in a `.demo-btn-group`, the class
+  // (not part of a group) should be wrapped in a `.demo-btn-category`, the class
   // those rules turn into a full-width column.
   //
   // Activating any button or link inside the panel closes it, except inside a
@@ -73,7 +73,7 @@
 </script>
 
 <template>
-  <div class="demo-btn-group demo-overflow-menu">
+  <div class="demo-btn-category demo-overflow-menu">
     <button :ref="setTrigger" type="button" v-bind="triggerProps"
             :class="'demo-btn demo-btn-secondary' + (open ? ' active' : '')"
             :disabled="props.disabled" :title="props.text.tooltip" :aria-label="props.text.aria">

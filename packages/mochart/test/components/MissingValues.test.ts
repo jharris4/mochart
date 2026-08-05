@@ -84,7 +84,7 @@ describe('missingValues base', () => {
   });
 });
 
-describe('missingValues connect group-index remapping', () => {
+describe('missingValues connect category-index remapping', () => {
   it('remaps click focus through the current data, not a stale map', () => {
     const focuses: ChartFocus[] = [];
     const { container, handle } = mountChart(
@@ -93,11 +93,11 @@ describe('missingValues connect group-index remapping', () => {
       { onFocus: focus => { focuses.push(focus); } }
     );
 
-    // bars are keyed by compacted index: bar-1 is raw group 2 (Mar)
+    // bars are keyed by compacted index: bar-1 is raw category 2 (Mar)
     click(container.querySelector('.mochart-series-bar-1')!);
     expect(focuses[focuses.length - 1]!.focusedCategoryIndex).toBe(2);
 
-    // same groups, but now Feb is defined and Mar is missing: bar-1 is raw group 1
+    // same categories, but now Feb is defined and Mar is missing: bar-1 is raw category 1
     handle.update({ data: [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }, { month: 'Mar' }] } as Partial<DefaultChartProps>);
     click(container.querySelector('.mochart-series-bar-1')!);
     expect(focuses[focuses.length - 1]!.focusedCategoryIndex).toBe(1);
@@ -109,7 +109,7 @@ describe('missingValues connect group-index remapping', () => {
       shapeStyle: { normal: { fillColor: 'categoryIndex' } }
     }), [{ month: 'Jan', sales: 10 }, { month: 'Feb' }, { month: 'Mar', sales: 30 }]);
 
-    // bar-1 is raw group 2, so it takes palette slot 2, not slot 1
+    // bar-1 is raw category 2, so it takes palette slot 2, not slot 1
     const bar = container.querySelector('.mochart-series-bar-1')!;
     expect(bar.getAttribute('fill')).toBe(PALETTE_2);
     expect(bar.getAttribute('fill')).not.toBe(PALETTE_1);

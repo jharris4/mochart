@@ -115,7 +115,7 @@ export function getRegularDefaults() {
   };
 }
 
-// A group-index colored shape has no one color to put in a legend or tooltip swatch, so such a series
+// A category-index colored shape has no one color to put in a legend or tooltip swatch, so such a series
 // defaults to no color icon. Only the normal state counts; the other two resolve back to it via 'same'.
 function isCategoryIndexColored({ shapeStyle }: SeriesConfig): boolean {
   const { strokeColor, fillColor } = shapeStyle.normal;

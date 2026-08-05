@@ -25,7 +25,7 @@ import { el, icon, withPreservedFocus } from './dom';
 // swaps classes on the way in and an unfold cannot leave a stale one behind.
 //
 // Callers that fold LOOSE buttons (rather than one of the strip's existing
-// groups) give them a menu-side home: a cached `.demo-btn-group`. A group,
+// groups) give them a menu-side home: a cached `.demo-btn-category`. A group,
 // because that is the class `.demo-menu-overflow` restyles into a full-width
 // column — a loose `span.button-with-tooltip` dropped straight into the panel
 // would lay out inline. Cached, because a wrapper minted per call is never
@@ -100,7 +100,7 @@ export function overflowMenu(props: OverflowMenuProps): OverflowMenuHandle {
   const panel = el('div', { className: 'demo-menu demo-menu-overflow' });
 
   const root = el('div', {
-    className: 'demo-btn-group demo-overflow-menu' + (className === undefined ? '' : ' ' + className)
+    className: 'demo-btn-category demo-overflow-menu' + (className === undefined ? '' : ' ' + className)
   }, [trigger, panel]);
   // Nothing is folded until the caller says so, and an empty trigger slot in a
   // desktop strip would be a visible regression.

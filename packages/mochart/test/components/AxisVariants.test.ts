@@ -1,9 +1,9 @@
 /**
- * Group-axis variant tests: date and number axes (linear and ordinal scales),
+ * Category-axis variant tests: date and number axes (linear and ordinal scales),
  * tick label formatting (auto and explicit, prefix/suffix), explicit min/max
  * domains beyond the data, tick count overrides, and rotated (non-parallel)
  * tick labels. Charts are mounted through createDefaultChart in jsdom, and
- * assertions read the rendered group-axis tick labels.
+ * assertions read the rendered category-axis tick labels.
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
@@ -75,7 +75,7 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('date group axes', () => {
+describe('date category axes', () => {
   it('formats linear time axis ticks with an explicit format', () => {
     const container = mountChart(makeConfig({
       property: 'time', type: 'date', scale: 'linear', dateUTC: true, tickLabelFormat: '%H:%M'
@@ -125,7 +125,7 @@ describe('date group axes', () => {
   });
 });
 
-describe('number group axes', () => {
+describe('number category axes', () => {
   it('formats ordinal number axis ticks with an explicit format', () => {
     const container = mountChart(makeConfig({
       property: 'level', type: 'number', scale: 'ordinal', tickLabelFormat: '.1f'

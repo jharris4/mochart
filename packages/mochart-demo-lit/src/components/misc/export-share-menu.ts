@@ -113,7 +113,7 @@ export class ExportShareMenu extends LightElement {
   };
 
   override render(): unknown {
-    return html`<div class="demo-btn-group demo-menu-up mochart-export-share-menu">
+    return html`<div class="demo-btn-category demo-menu-up mochart-export-share-menu">
       <button id=${this.idPrefix + '-export-share'} type="button"
               class="demo-btn demo-btn-secondary demo-menu-trigger"
               ?disabled=${this.disabled}

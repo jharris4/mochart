@@ -15,7 +15,7 @@ import type { AxisData, ChartData, CategoryAxisData, ValueAxisData, StackData } 
 import type { FocusData } from '../types/animation';
 import type { AxisLayoutInfo, CategoryAxisLayoutInfo, LayoutInfo, SpacingLayoutInfo } from '../types/layout';
 
-type CompleteAxisData = AxisData & { group: CategoryAxisData; series: ValueAxisData };
+type CompleteAxisData = AxisData & { category: CategoryAxisData; value: ValueAxisData };
 
 interface PlotFrontBackProps {
   front: boolean;
@@ -94,7 +94,7 @@ export default class Plot extends Renderer<PlotProps> {
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, onFocus, shapeRef } = this.props;
     const { plot: plotConfig } = mochartConfig;
     const { categoryFocusDomainPercentages = [], seriesFocusDomainPercentages = [] } = focusData;
-    const { series: valueAxisData } = axisData;
+    const { value: valueAxisData } = axisData;
 
     const frontBackProps = (front: boolean) => ({
       front,

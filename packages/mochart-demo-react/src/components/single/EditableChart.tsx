@@ -66,7 +66,7 @@ interface EditableState {
   sequencePlaying: boolean;
   filteredFocusedCategoryIndex: number;
   orderChanged: boolean;
-  // pie-mode slice editing: slices are the series, so the group machinery has
+  // pie-mode slice editing: slices are the series, so the category machinery has
   // nothing to operate on and a single slice panel replaces both panels
   slices: PieSliceInfo[];
   sliceIndex: number;
@@ -173,7 +173,7 @@ export default function EditableChart(props: Props) {
       categoryValuesText: "",
       seriesIndex: 0,
       seriesValuesText: "",
-      selectionMode: 'group',
+      selectionMode: 'category',
       filteredData: null,
       sequencePlaying: false,
       filteredFocusedCategoryIndex: -1,
@@ -306,7 +306,7 @@ export default function EditableChart(props: Props) {
       const seriesValuesText = getSeriesValuesText(mochartDemoConfig, filteredData, categoryIndex, seriesIndex);
       setState(prev => ({ ...prev, categoryIndex, seriesValuesText }));
     }
-    else if (selectionMode === 'group') {
+    else if (selectionMode === 'category') {
       const dataCategoryValues: any[] = [];
       const count = filteredData.length;
       for (let i = 0; i < count; i++) {
@@ -325,7 +325,7 @@ export default function EditableChart(props: Props) {
     }
   };
 
-  const onModeToggle = () => setState(prev => ({ ...prev, selectionMode: prev.selectionMode === 'group' ? 'series' : 'group' }));
+  const onModeToggle = () => setState(prev => ({ ...prev, selectionMode: prev.selectionMode === 'category' ? 'series' : 'category' }));
 
   const selectAllCategories = () => {
     const { data } = props;
@@ -708,7 +708,7 @@ export default function EditableChart(props: Props) {
     }
   };
 
-  // The pie analog of the group add/remove sequences: filter the slices one
+  // The pie analog of the category add/remove sequences: filter the slices one
   // at a time (via the shared legend filter, so the remaining slices re-sweep
   // and center totals count along), then restore them.
   const startSliceSequence = () => {
@@ -750,18 +750,18 @@ export default function EditableChart(props: Props) {
   const error = dataError || configError;
   const filteredCategoryValues: any[] = error || !dataProvider?.getCategoryValues ? [] : dataProvider.getCategoryValues();
   const selectedCategoryValues = (error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(',');
-  const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, group) => { map[group] = true; return map; }, {});
-  const disableRemove = orderChanged || !selectedCategoryValues.some(group => filteredCategoryMap[group]);
-  const disableAdd = orderChanged || !selectedCategoryValues.some(group => !filteredCategoryMap[group]);
+  const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
+  const disableRemove = orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]);
+  const disableAdd = orderChanged || !selectedCategoryValues.some(category => !filteredCategoryMap[category]);
 
   const modeControlContent = (
-    <div className="demo-btn-group" key="modeControls">
-      <ButtonWithTooltip id="edit-mode" label={selectionMode === 'group' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories}
-        tooltipText={selectionMode === 'group'
+    <div className="demo-btn-category" key="modeControls">
+      <ButtonWithTooltip id="edit-mode" label={selectionMode === 'category' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories}
+        tooltipText={selectionMode === 'category'
           ? demoText.editableChart.editMode.tooltipToSeries
           : demoText.editableChart.editMode.tooltipToCategories} tooltipPlacement="right"
         onClick={onModeToggle} aria-label={demoText.editableChart.editMode.aria}>
-        <Icon size="lg" fixedWidth={true} name={selectionMode === 'group' ? "bullseye" : "sliders"} />
+        <Icon size="lg" fixedWidth={true} name={selectionMode === 'category' ? "bullseye" : "sliders"} />
       </ButtonWithTooltip>
     </div>
   );
@@ -793,8 +793,8 @@ export default function EditableChart(props: Props) {
   );
 
   const foldSlice = isPhone && mochartDemoConfig.pieMode;
-  const foldCategory = isPhone && !mochartDemoConfig.pieMode && selectionMode === 'group';
-  const foldSeries = isPhone && !mochartDemoConfig.pieMode && selectionMode !== 'group';
+  const foldCategory = isPhone && !mochartDemoConfig.pieMode && selectionMode === 'category';
+  const foldSeries = isPhone && !mochartDemoConfig.pieMode && selectionMode !== 'category';
 
   // The strip's trailing menus, pushed to the far right of the controls row.
   // The ⋯ renders only while its panel is folded, and it lives INSIDE the
@@ -815,7 +815,7 @@ export default function EditableChart(props: Props) {
   );
 
   const chartCountControlContent = showChartCountControls ? (
-    <div className="demo-btn-group" key="chartCountControls">
+    <div className="demo-btn-category" key="chartCountControls">
       <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
         tooltipText={chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow} tooltipPlacement="right"
         onClick={onChartCountToggle} aria-label={demoText.editableChart.secondChart.aria}>
@@ -849,8 +849,8 @@ export default function EditableChart(props: Props) {
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
     );
-    const sliceSequenceGroup = (
-      <div className="demo-btn-group">
+    const sliceSequenceCategory = (
+      <div className="demo-btn-category">
         <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
           menuLabel={demoText.editableChart.playSliceSequence.menuLabel}
           tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
@@ -880,7 +880,7 @@ export default function EditableChart(props: Props) {
             )}
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-group">
+                <div className="demo-btn-category">
                   <ButtonWithTooltip id="edit-previous-slice" disabled={sliceControlsDisabled || sliceIndex === 0}
                     tooltipText={demoText.editableChart.previousSlice.tooltip} tooltipPlacement="right"
                     onClick={() => selectSlice(sliceIndex - 1)} aria-label={demoText.editableChart.previousSlice.aria}>
@@ -898,14 +898,14 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-group">
+                <div className="demo-btn-category">
                   <ButtonWithTooltip id="edit-next-slice" disabled={sliceControlsDisabled || sliceIndex >= slices.length - 1}
                     tooltipText={demoText.editableChart.nextSlice.tooltip} tooltipPlacement="right"
                     onClick={() => selectSlice(sliceIndex + 1)} aria-label={demoText.editableChart.nextSlice.aria}>
                     <Icon size="lg" fixedWidth={true} name="chevron-right" />
                   </ButtonWithTooltip>
                 </div>
-                <div className="demo-btn-group">
+                <div className="demo-btn-category">
                   {foldSlice ? null : resetSliceButton}
                   <ButtonWithTooltip id="edit-apply-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.applySlice.label}
                     tooltipText={demoText.editableChart.applySlice.tooltip} tooltipPlacement="right"
@@ -913,7 +913,7 @@ export default function EditableChart(props: Props) {
                     <Icon size="lg" fixedWidth={true} name="check" />
                   </ButtonWithTooltip>
                 </div>
-                {foldSlice ? null : sliceSequenceGroup}
+                {foldSlice ? null : sliceSequenceCategory}
               </div>
             </div>
           </form>
@@ -925,43 +925,43 @@ export default function EditableChart(props: Props) {
         </span>
         {controlsMenu(foldSlice ? (
           <>
-            <div className="demo-btn-group">{resetSliceButton}</div>
+            <div className="demo-btn-category">{resetSliceButton}</div>
             <MenuDivider />
-            {sliceSequenceGroup}
+            {sliceSequenceCategory}
             {chartCountControlContent !== null ? <><MenuDivider />{chartCountControlContent}</> : null}
           </>
         ) : null)}
       </div>
     );
   }
-  else if (selectionMode === 'group') {
+  else if (selectionMode === 'category') {
     // The fold keeps Add and Remove — they act on what is typed in the input
     // beside them — plus the input; everything else goes to the menu, split
     // into the same sections the vanilla port uses (order edits, then the
     // sequence transport, then the shared controls).
     const resetCategoriesButton = (
-      <ButtonWithTooltip id="edit-reset-groups" disabled={error || sequencePlaying} label={demoText.editableChart.resetCategories.label}
+      <ButtonWithTooltip id="edit-reset-categories" disabled={error || sequencePlaying} label={demoText.editableChart.resetCategories.label}
         tooltipText={demoText.editableChart.resetCategories.tooltip} tooltipPlacement="right"
         onClick={resetCategories} aria-label={demoText.editableChart.resetCategories.aria}>
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
     );
     const reverseCategoriesButton = (
-      <ButtonWithTooltip id="edit-reverse-groups" disabled={error || sequencePlaying} label={demoText.editableChart.reverseCategories.label}
+      <ButtonWithTooltip id="edit-reverse-categories" disabled={error || sequencePlaying} label={demoText.editableChart.reverseCategories.label}
         tooltipText={demoText.editableChart.reverseCategories.tooltip} tooltipPlacement="right"
         onClick={reverseCategories} aria-label={demoText.editableChart.reverseCategories.aria}>
         <Icon size="lg" fixedWidth={true} name="right-left" />
       </ButtonWithTooltip>
     );
     const addCategoriesButton = (
-      <ButtonWithTooltip id="edit-add-groups" disabled={error || sequencePlaying || disableAdd} label={demoText.editableChart.addCategories.label}
+      <ButtonWithTooltip id="edit-add-categories" disabled={error || sequencePlaying || disableAdd} label={demoText.editableChart.addCategories.label}
         tooltipText={demoText.editableChart.addCategories.tooltip} tooltipPlacement="right"
         onClick={addCategories} aria-label={demoText.editableChart.addCategories.aria}>
         <Icon size="lg" fixedWidth={true} name="plus" />
       </ButtonWithTooltip>
     );
     const removeCategoriesButton = (
-      <ButtonWithTooltip id="edit-remove-groups" disabled={error || sequencePlaying || disableRemove} label={demoText.editableChart.removeCategories.label}
+      <ButtonWithTooltip id="edit-remove-categories" disabled={error || sequencePlaying || disableRemove} label={demoText.editableChart.removeCategories.label}
         tooltipText={demoText.editableChart.removeCategories.tooltip} tooltipPlacement="right"
         onClick={removeCategories} aria-label={demoText.editableChart.removeCategories.aria}>
         <Icon size="lg" fixedWidth={true} name="minus" />
@@ -1005,7 +1005,7 @@ export default function EditableChart(props: Props) {
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
                 {foldCategory ? null : commonControlContent}
-                <div className="demo-btn-group">
+                <div className="demo-btn-category">
                   {foldCategory
                     ? <>{addCategoriesButton}{removeCategoriesButton}</>
                     : <>{resetCategoriesButton}{reverseCategoriesButton}{addCategoriesButton}{removeCategoriesButton}{playAddButton}{playRemoveButton}{stopButton}{selectAllButton}</>}
@@ -1021,9 +1021,9 @@ export default function EditableChart(props: Props) {
         </span>
         {controlsMenu(foldCategory ? (
           <>
-            <div className="demo-btn-group">{resetCategoriesButton}{reverseCategoriesButton}{selectAllButton}</div>
+            <div className="demo-btn-category">{resetCategoriesButton}{reverseCategoriesButton}{selectAllButton}</div>
             <MenuDivider />
-            <div className="demo-btn-group">{playAddButton}{playRemoveButton}{stopButton}</div>
+            <div className="demo-btn-category">{playAddButton}{playRemoveButton}{stopButton}</div>
             <MenuDivider />
             {commonControlContent}
           </>
@@ -1034,7 +1034,7 @@ export default function EditableChart(props: Props) {
   else {
     const categoryIndexText = demoText.editableChart.categoryIndexPrefix;
     const seriesIndexText = demoText.editableChart.seriesIndexPrefix;
-    // the index labels are fixed-width, so which group/series is selected is
+    // the index labels are fixed-width, so which category/series is selected is
     // named by the native tooltip instead
     const categoryIndexTitle = getCategoryIndexTitle(mochartDemoConfig, filteredDataRef.current, categoryIndex);
     const seriesIndexTitle = getSeriesIndexTitle(mochartDemoConfig, seriesIndex);
@@ -1045,7 +1045,7 @@ export default function EditableChart(props: Props) {
     const hasPrevSeries = seriesIndex > 0;
     const hasNextSeries = seriesIndex < mochartDemoConfig.seriesCount - 1;
 
-    // The fold keeps the steppers and their readouts — they are how a group
+    // The fold keeps the steppers and their readouts — they are how a category
     // and a series get picked at all. Apply stays visible too, but moves DOWN,
     // onto the input row beside the JSON it applies: with it out of the
     // stepper row the panel holds two rows even at 320x568. Reset is the one
@@ -1083,8 +1083,8 @@ export default function EditableChart(props: Props) {
             )}
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-group">
-                  <ButtonWithTooltip id="edit-group-decrease" disabled={error || categoryOrderControlsDisabled || isFirstCategory}
+                <div className="demo-btn-category">
+                  <ButtonWithTooltip id="edit-category-decrease" disabled={error || categoryOrderControlsDisabled || isFirstCategory}
                     tooltipText={demoText.editableChart.decreaseCategoryOrder.tooltip} tooltipPlacement="right"
                     onClick={decreaseCategoryOrder} aria-label={demoText.editableChart.decreaseCategoryOrder.aria}>
                     <Icon size="lg" fixedWidth={true} name="arrow-left" />
@@ -1101,8 +1101,8 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-group">
-                  <ButtonWithTooltip id="edit-group-increase" disabled={error || categoryOrderControlsDisabled || isLastCategory}
+                <div className="demo-btn-category">
+                  <ButtonWithTooltip id="edit-category-increase" disabled={error || categoryOrderControlsDisabled || isLastCategory}
                     tooltipText={demoText.editableChart.increaseCategoryOrder.tooltip} tooltipPlacement="right"
                     onClick={increaseCategoryOrder} aria-label={demoText.editableChart.increaseCategoryOrder.aria}>
                     <Icon size="lg" fixedWidth={true} name="arrow-right" />
@@ -1112,7 +1112,7 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-group">
+                <div className="demo-btn-category">
                   <ButtonWithTooltip id="edit-previous-series" disabled={error || seriesControlsDisabled || !hasPrevSeries}
                     tooltipText={demoText.editableChart.previousSeries.tooltip} tooltipPlacement="right"
                     onClick={prevSeries} aria-label={demoText.editableChart.previousSeries.aria}>
@@ -1130,7 +1130,7 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-group">
+                <div className="demo-btn-category">
                   <ButtonWithTooltip id="edit-next-series" disabled={error || seriesControlsDisabled || !hasNextSeries}
                     tooltipText={demoText.editableChart.nextSeries.tooltip} tooltipPlacement="right"
                     onClick={nextSeries} aria-label={demoText.editableChart.nextSeries.aria}>
@@ -1138,7 +1138,7 @@ export default function EditableChart(props: Props) {
                   </ButtonWithTooltip>
                 </div>
                 {foldSeries ? null : (
-                  <div className="demo-btn-group">
+                  <div className="demo-btn-category">
                     {resetSeriesButton}
                     {applySeriesButton}
                   </div>
@@ -1155,7 +1155,7 @@ export default function EditableChart(props: Props) {
         </span>
         {controlsMenu(foldSeries ? (
           <>
-            <div className="demo-btn-group">{resetSeriesButton}</div>
+            <div className="demo-btn-category">{resetSeriesButton}</div>
             <MenuDivider />
             {commonControlContent}
           </>
@@ -1168,7 +1168,7 @@ export default function EditableChart(props: Props) {
   // Width comes from the parent as an explicit prop; Chart self-measures the
   // available height (the old code used a sizer HOC for the same purpose).
   // Focus/filter is controlled by the parent ChartTab so the 1–2 charts stay
-  // in sync; the group index is translated into this chart's filtered-data
+  // in sync; the category index is translated into this chart's filtered-data
   // coordinates (filteredFocusedCategoryIndex).
   const chartContent = (
     <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}

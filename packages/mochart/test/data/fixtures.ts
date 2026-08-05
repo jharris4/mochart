@@ -17,7 +17,7 @@ export function makeConfig(input: Record<string, unknown>): EnhancedMochartConfi
   return enhanceConfig({ version: VERSION, ...input } as MochartInputConfig) as EnhancedMochartConfig;
 }
 
-/** A minimal valid config: one ordinal string group axis. */
+/** A minimal valid config: one ordinal string category axis. */
 export function ordinalConfig(categoryAxisOverrides: Record<string, unknown> = {}): EnhancedMochartConfig {
   return makeConfig({
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', ...categoryAxisOverrides }

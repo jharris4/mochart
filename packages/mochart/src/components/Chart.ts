@@ -393,7 +393,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { layoutInfo, axisData, tooltipCategoryIndex, tooltipSeriesPercentage, tooltipCategoryPercentage, tooltipBounds } =
       { ...this.state, ...state };
 
-    const categoryValueData = axisData?.group?.valueData;
+    const categoryValueData = axisData?.category?.valueData;
     if (tooltipBounds === null) {
       return getTooltipLayoutInfo(mochartConfig, null);
     }
@@ -738,7 +738,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   getChartEventPayload = (chartX: number, chartY: number): ChartEventPayload => {
     const { mochartConfig } = this.props;
     const { axisData, layoutInfo } = this.state;
-    const dataCategoryPositions = axisData!.group!.valueData.positions;
+    const dataCategoryPositions = axisData!.category!.valueData.positions;
     const { seriesLayoutInfo } = layoutInfo!;
     const { plot: plotConfig } = mochartConfig;
 
@@ -952,7 +952,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     ];
 
     if (hasChartDataContent) {
-      maxTickLabelLength = axisData!.group!.maxTickLabelLength;
+      maxTickLabelLength = axisData!.category!.maxTickLabelLength;
 
       clips.push({ key: 'tooltip-clip', ctor: TooltipClip, props: { mochartConfig, tooltipVisible, tooltipShown,
         tooltipLayoutInfo, chartContentLayoutInfo, width, height,
@@ -960,15 +960,15 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
 
     clips.push(
-      { key: 'group-axis-title-clip', ctor: AxisTitleClip, props: { axisConfig: mochartConfig.categoryAxis, chartContentLayoutInfo,
+      { key: 'category-axis-title-clip', ctor: AxisTitleClip, props: { axisConfig: mochartConfig.categoryAxis, chartContentLayoutInfo,
         axisLayoutInfo: categoryAxisLayoutInfo, axisTitleClipPathUniqueId: categoryAxisTitleClipPathUniqueId } },
-      { key: 'group-axis-tick-label-clip', ctor: CategoryAxisTickLabelClip, props: { mochartConfig, maxTickLabelLength,
+      { key: 'category-axis-tick-label-clip', ctor: CategoryAxisTickLabelClip, props: { mochartConfig, maxTickLabelLength,
         chartContentLayoutInfo, categoryAxisLayoutInfo,
         categoryAxisTickLabelClipPathUniqueId } }
     );
 
     clips = clips.concat(mochartConfig.valueAxes.map((valueAxisConfig: EnhancedValueAxisConfig) => ({
-      key: 'series-axis-clip-' + valueAxisConfig.id,
+      key: 'value-axis-clip-' + valueAxisConfig.id,
       ctor: AxisTitleClip,
       props: { axisConfig: valueAxisConfig,
         chartContentLayoutInfo, axisLayoutInfo: valueAxisLayoutInfos[valueAxisConfig.id],
@@ -1009,7 +1009,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     body.contentGroup.set({ transform: chartTransform });
 
     if (hasChartDataContent) {
-      const { group: categoryAxisData } = axisData!;
+      const { category: categoryAxisData } = axisData!;
       const { valueData: categoryValueData } = categoryAxisData!;
 
       if (mochartConfig.chart.type === CHART_TYPE_PIE) {

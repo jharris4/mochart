@@ -111,7 +111,7 @@ export class OverflowMenu extends LightElement {
   };
 
   override render(): TemplateResult {
-    return html`<div class="demo-btn-group demo-overflow-menu">
+    return html`<div class="demo-btn-category demo-overflow-menu">
       <button type="button" class="demo-btn demo-btn-secondary" ?disabled=${this.disabled}
               title=${this.text.tooltip} aria-label=${this.text.aria}
               @click=${() => this.controller?.toggle()}>${icon({ size: 'lg', fixedWidth: true, name: 'ellipsis' })}</button>
