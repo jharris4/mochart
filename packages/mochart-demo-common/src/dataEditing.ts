@@ -124,9 +124,9 @@ export function applyDataEdit(text: string, fullData: DataRow[], viewUsedPropert
 }
 
 /**
- * The native tooltip for the group index stepper label: the selected group's
+ * The native tooltip for the category index stepper label: the selected category's
  * display value when the axis has a displayProperty (that is what the chart
- * shows), otherwise its raw group value. Empty when no group is selected.
+ * shows), otherwise its raw category value. Empty when no category is selected.
  */
 export function getCategoryIndexTitle({ mochartConfig }: MochartDemoConfig, rows: DataRow[], categoryIndex: number): string {
   const row = categoryIndex >= 0 ? rows[categoryIndex] : undefined;

@@ -39,7 +39,7 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
     let getCategoryValue: (index: number) => unknown;
     if (categoryAxisConfig.displayProperty !== NONE) {
       if (categoryValues.some(g => !(stringValidator(g) || numberValidator(g)))) {
-        dataErrors.push('raw group values must be number or string when display property is set');
+        dataErrors.push('raw category values must be number or string when display property is set');
       }
       const displayProperty = categoryAxisConfig.displayProperty;
       getCategoryValue = i => dataProvider.getSeriesValue(categoryValues[i], i, displayProperty);
@@ -58,12 +58,12 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
       validator = validators.string();
     }
     if(categoryValues.some((_g, i) => !validator(getCategoryValue(i)))) {
-      dataErrors.push((categoryAxisConfig.displayProperty !== NONE ? 'display ' : '') + 'group values must all match the specified type');
+      dataErrors.push((categoryAxisConfig.displayProperty !== NONE ? 'display ' : '') + 'category values must all match the specified type');
     }
     if (dataErrors.length === 0) { // duplicate matching needs all the values to be primitives...
       const duplicates = getDuplicates(categoryValues);
       if (duplicates.length > 0) {
-        dataErrors.push('group values must be unique, duplicates: ' + duplicates.join(', '));
+        dataErrors.push('category values must be unique, duplicates: ' + duplicates.join(', '));
       }
     }
     for (const seriesConfig of seriesConfigs) {

@@ -105,8 +105,8 @@ export class EditableChart extends LightElement {
   @state() private filteredFocusedCategoryIndex = -1;
   @state() private orderChanged = false;
 
-  // Translate the parent's focused group index (in full-data coordinates)
-  // into this chart's filtered-data coordinates by group value.
+  // Translate the parent's focused category index (in full-data coordinates)
+  // into this chart's filtered-data coordinates by category value.
   private getFilteredFocusedCategoryIndex(nextFilteredData: Row[]): number {
     let nextFilteredFocusedCategoryIndex = -1;
     if (this.focusedCategoryIndex >= 0) {

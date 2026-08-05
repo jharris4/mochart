@@ -751,7 +751,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     for (let dataCategoryIndex = 0; dataCategoryIndex < categoryCount; dataCategoryIndex++) {
       dataCategoryPosition = dataCategoryPositions[dataCategoryIndex];
       const currentDifference = Math.abs(dataCategoryPosition - categoryPosition);
-      if (currentDifference <= categoryDifference) { // <= means we'll pick the greater group value on a tie
+      if (currentDifference <= categoryDifference) { // <= means we'll pick the greater category value on a tie
         categoryDifference = currentDifference;
         categoryIndex = dataCategoryIndex;
       }

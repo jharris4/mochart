@@ -12,7 +12,7 @@ export interface PieItem {
 
 export interface CreatePieOptions {
   /**
-   * The single group value the pie renders (pie data is one row).
+   * The single category value the pie renders (pie data is one row).
    *
    * @default 'all'
    */
@@ -45,7 +45,7 @@ export interface PieData {
   total: number;
   /** Each slice's fraction of the total, in item order (all 0 when total is 0). */
   fractions: number[];
-  /** A single row: the group value plus `slice{i}` per item. */
+  /** A single row: the category value plus `slice{i}` per item. */
   data: Record<string, number | string>[];
   /** Fragment to spread into the chart config's `chart` (sets type: 'pie'). */
   chart: Partial<ChartConfig>;

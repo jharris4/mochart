@@ -68,7 +68,7 @@ export interface CreateOhlcOptions {
 export interface OhlcData {
   candles: Candlestick[];
   /**
-   * One row per bar: `label` (the group value), the raw `open`/`high`/`low`/
+   * One row per bar: `label` (the category value), the raw `open`/`high`/`low`/
    * `close` plus `change` and `direction`, and the direction-split values the
    * series read (the other direction stays undefined): the close under `up`/
    * `down`, the high under `upHigh`/`downHigh` and the open under `upOpen`/

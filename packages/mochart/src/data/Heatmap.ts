@@ -39,7 +39,7 @@ export interface CreateHeatmapColorScaleOptions {
 
 export interface CreateHeatmapOptions extends CreateHeatmapColorScaleOptions {
   /**
-   * The column labels, used as the group values (must be unique). Defaults to
+   * The column labels, used as the category values (must be unique). Defaults to
    * the 1-based column numbers as strings.
    */
   columnLabels?: readonly string[];

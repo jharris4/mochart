@@ -107,7 +107,7 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
   }
 
   if (stack === NONE || skip) {
-    normalizePriorPositions(seriesPositions, seriesPriorPositions, seriesBasePosition, inverted); // if there are prior positions, normalize and sort them per group value
+    normalizePriorPositions(seriesPositions, seriesPriorPositions, seriesBasePosition, inverted); // if there are prior positions, normalize and sort them per category value
   }
 
   const skipCategoryIndexMap: Record<number, number> = {};

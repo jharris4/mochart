@@ -3,7 +3,7 @@ import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } f
 export type CandlestickDirection = 'up' | 'down';
 
 export interface CandlestickItem {
-  /** The candle label (e.g. the trading day), used as the group value when charted. */
+  /** The candle label (e.g. the trading day), used as the category value when charted. */
   label: string;
   open: number;
   high: number;
@@ -102,7 +102,7 @@ export interface CreateCandlestickOptions {
 export interface CandlestickData {
   candles: Candlestick[];
   /**
-   * One row per candle: `label` (the group value), the raw `open`/`high`/
+   * One row per candle: `label` (the category value), the raw `open`/`high`/
    * `low`/`close` plus `change` and `direction`, and the close under the
    * property matching its direction (`up` or `down` — the other stays
    * undefined) with the high mirrored the same way (`upHigh`/`downHigh`) so

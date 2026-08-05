@@ -3,7 +3,7 @@ import type { DeepPartial, CategoryAxisConfig, SeriesConfig } from '../types/con
 export type WaterfallDirection = 'increase' | 'decrease' | 'total';
 
 export interface WaterfallItem {
-  /** The step label, used as the group value when charted. */
+  /** The step label, used as the category value when charted. */
   label: string;
   /**
    * The signed change for a delta step. For a `total` step it instead resets
@@ -52,7 +52,7 @@ export interface CreateWaterfallOptions {
 export interface WaterfallData {
   steps: WaterfallStep[];
   /**
-   * One row per step: `label` (the group value), `start` (the shared range
+   * One row per step: `label` (the category value), `start` (the shared range
    * property) and the step's `end` under the property matching its direction
    * (`increase`, `decrease` or `total` — the other two stay undefined), plus
    * `delta`, `cumulative` and `direction`.

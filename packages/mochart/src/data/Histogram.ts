@@ -5,7 +5,7 @@ export interface HistogramBin {
   start: number;
   /** Exclusive upper edge of the bin (inclusive for the last bin). */
   end: number;
-  /** Midpoint of the bin, used as the group value when charted. */
+  /** Midpoint of the bin, used as the category value when charted. */
   center: number;
   /** Number of values that fell into the bin. */
   count: number;
@@ -67,7 +67,7 @@ export interface CreateHistogramOptions extends BinValuesOptions {
 export interface HistogramData {
   bins: HistogramBin[];
   /**
-   * One row per bin: `binLabel` (the group value), the value property, plus
+   * One row per bin: `binLabel` (the category value), the value property, plus
    * `binStart`, `binEnd`, `binCenter` and `count`.
    */
   data: Record<string, number | string>[];

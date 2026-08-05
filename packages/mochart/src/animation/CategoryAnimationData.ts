@@ -23,7 +23,7 @@ function categoryMapKey(value: CategoryValue): CategoryMapKey {
   return value instanceof Date ? '' + value.getTime() : String(value);
 }
 
-/** indexOf by the merge keying: Date group values compare by value, not identity. */
+/** indexOf by the merge keying: Date category values compare by value, not identity. */
 export function indexOfCategoryValue(values: readonly CategoryValue[], value: CategoryValue): number {
   const key = categoryMapKey(value);
   for (let i = 0; i < values.length; i++) {
@@ -345,7 +345,7 @@ function getCategoryValuesMerged(
   return categoryValuesMerged;
 }
 
-// Returns a merged list of group values for the inputs, where the result is sorted by value
+// Returns a merged list of category values for the inputs, where the result is sorted by value
 function getCategoryValuesMergedSorted(categoryValuesRemoved: readonly CategoryValue[], categoryValuesNew: readonly CategoryValue[]): CategoryValue[] {
   const categoryValuesMerged: CategoryValue[] = [];
   const removedLength = categoryValuesRemoved.length;
@@ -372,7 +372,7 @@ function getCategoryValuesMergedSorted(categoryValuesRemoved: readonly CategoryV
   return categoryValuesMerged;
 }
 
-// Returns a merged list of group values for the inputs, where the result is a best effort to preserve group value ordering
+// Returns a merged list of category values for the inputs, where the result is a best effort to preserve category value ordering
 function getCategoryValuesMergedOrdered(
   categoryValuesRemoved: readonly CategoryValue[],
   categoryValuesNew: readonly CategoryValue[],
@@ -388,10 +388,10 @@ function getCategoryValuesMergedOrdered(
   const oldNewIndices = getMappedIndicesForValues(oldCategoryValueToNewIndexMap, categoryValuesOld, getMapKey);
 
   const categoryValuesMerged: CategoryValue[] = [];
-  // loop through the new indices of group values forwards, and then backwards, so we can find the closest non-removed
-  // old-group value index for each group value that was removed.
-  // If the closest non-removed index is before, add 0.5 from its index so the removed group will appear after it.
-  // If the closest non-removed index is after, subtract 0.5 from its index so the removed group will appear before it.
+  // loop through the new indices of category values forwards, and then backwards, so we can find the closest non-removed
+  // old-category value index for each category value that was removed.
+  // If the closest non-removed index is before, add 0.5 from its index so the removed category will appear after it.
+  // If the closest non-removed index is after, subtract 0.5 from its index so the removed category will appear before it.
   const oldTargetIndices: number[] = [];
   let foundIndex = -1;
   const oldLength = oldNewIndices.length;
@@ -418,12 +418,12 @@ function getCategoryValuesMergedOrdered(
     }
   }
 
-  // for all old & removed group values we now have the index where they should be inserted in the merged list
-  // such that they will remain as close as possible to (non removed) group values that they were adjacent to in the
-  // old group value list.
+  // for all old & removed category values we now have the index where they should be inserted in the merged list
+  // such that they will remain as close as possible to (non removed) category values that they were adjacent to in the
+  // old category value list.
 
-  // now build up the merged list group value by group value, using the (pre-sorted) new group list and old removed list
-  // at each step, check whether there is an old removed group value that should be inserted, otherwise insert a new group value.
+  // now build up the merged list category value by category value, using the (pre-sorted) new category list and old removed list
+  // at each step, check whether there is an old removed category value that should be inserted, otherwise insert a new category value.
   // The use of the +/- 0.5 on the old insert indices helps us keep things nicely sorted by occurrence order
   let oldIndex = 0;
   let newIndex = 0;

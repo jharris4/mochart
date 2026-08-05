@@ -61,7 +61,7 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
-  it('flags duplicate group values', () => {
+  it('flags duplicate category values', () => {
     const config = stringConfig();
     const provider = new ArrayOfObjectsDataProvider(
       [
@@ -70,10 +70,10 @@ describe('getDataErrors', () => {
       ],
       'month'
     );
-    expect(getDataErrors(config, provider)).toEqual(['group values must be unique, duplicates: Jan']);
+    expect(getDataErrors(config, provider)).toEqual(['category values must be unique, duplicates: Jan']);
   });
 
-  it('flags group values that do not match a numeric axis type', () => {
+  it('flags category values that do not match a numeric axis type', () => {
     const config = makeConfig({
       categoryAxis: { property: 'x', type: 'number', scale: 'linear' },
       series: [{ property: 'y' }]
@@ -85,7 +85,7 @@ describe('getDataErrors', () => {
       ],
       'x'
     );
-    expect(getDataErrors(config, provider)).toEqual(['group values must all match the specified type']);
+    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
   });
 
   it('validates extra series properties (range, marker, color, label)', () => {
@@ -124,7 +124,7 @@ describe('getDataErrors', () => {
     ]);
   });
 
-  it('accepts date group values on a date axis', () => {
+  it('accepts date category values on a date axis', () => {
     const config = makeConfig({
       categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
       series: [{ property: 'y' }]
@@ -139,7 +139,7 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, provider)).toEqual([]);
   });
 
-  it('flags non-date group values on a date axis', () => {
+  it('flags non-date category values on a date axis', () => {
     const config = makeConfig({
       categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
       series: [{ property: 'y' }]
@@ -151,7 +151,7 @@ describe('getDataErrors', () => {
       ],
       'd'
     );
-    expect(getDataErrors(config, provider)).toEqual(['group values must all match the specified type']);
+    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
   });
 
   it('validates the display property values against the axis type', () => {
@@ -159,7 +159,7 @@ describe('getDataErrors', () => {
       categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
       series: [{ property: 'y' }]
     });
-    // raw group ids are numbers (valid), but one display label is not a string
+    // raw category ids are numbers (valid), but one display label is not a string
     const provider = new ArrayOfObjectsDataProvider(
       [
         { id: 1, label: 'Jan', y: 5 },
@@ -167,7 +167,7 @@ describe('getDataErrors', () => {
       ],
       'id'
     );
-    expect(getDataErrors(config, provider)).toEqual(['display group values must all match the specified type']);
+    expect(getDataErrors(config, provider)).toEqual(['display category values must all match the specified type']);
   });
 
   it('accepts valid display property values', () => {

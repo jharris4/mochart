@@ -35,7 +35,7 @@ export interface SeriesDataSet {
   axisDomains: AxisDomains;
   domains: SeriesDomainObjects;
   values: SeriesValueObjects;
-  /** Added by animation transitions while aligning old and new group values. */
+  /** Added by animation transitions while aligning old and new category values. */
   priorIndices?: number[];
 }
 
