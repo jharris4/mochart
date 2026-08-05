@@ -94,9 +94,8 @@ describe('Chart auto-sizing', () => {
       unobserve() {}
     }
     (globalThis as any).ResizeObserver = FakeResizeObserver;
-    const rectSpy = vi
-      .spyOn(Element.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ width: 320.7, height: 240.2 } as DOMRect);
+    const widthSpy = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(320);
+    const heightSpy = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(240);
     try {
       const { container, root } = host();
       act(() => {
@@ -106,7 +105,8 @@ describe('Chart auto-sizing', () => {
       expect(svg!.getAttribute('width')).toBe('320');
       expect(svg!.getAttribute('height')).toBe('240');
 
-      rectSpy.mockReturnValue({ width: 500, height: 400 } as DOMRect);
+      widthSpy.mockReturnValue(500);
+      heightSpy.mockReturnValue(400);
       for (const { callback } of observed) {
         callback([], undefined as any);
       }
@@ -118,8 +118,37 @@ describe('Chart auto-sizing', () => {
       });
       container.remove();
     } finally {
-      rectSpy.mockRestore();
+      widthSpy.mockRestore();
+      heightSpy.mockRestore();
       delete (globalThis as any).ResizeObserver;
+    }
+  });
+
+  it('ignores the transform-scaled client rect when measuring the container', () => {
+    // a mount during e.g. a dialog's scale(0.95) entry animation: the rect is
+    // scaled, the layout size is not — and no resize event ever corrects it
+    const widthSpy = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(400);
+    const heightSpy = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(300);
+    const rectSpy = vi
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ width: 380, height: 285 } as DOMRect);
+    try {
+      const { container, root } = host();
+      act(() => {
+        root.render(<DefaultChart config={rawConfig()} data={rows} />);
+      });
+      const svg = container.querySelector('svg');
+      expect(svg!.getAttribute('width')).toBe('400');
+      expect(svg!.getAttribute('height')).toBe('300');
+
+      act(() => {
+        root.unmount();
+      });
+      container.remove();
+    } finally {
+      widthSpy.mockRestore();
+      heightSpy.mockRestore();
+      rectSpy.mockRestore();
     }
   });
 });

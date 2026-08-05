@@ -18,8 +18,9 @@ interface Size {
 }
 
 function measure(container: HTMLElement): Size {
-  const rect = container.getBoundingClientRect();
-  return { width: Math.floor(rect.width), height: Math.floor(rect.height) };
+  // offset sizes: the client rect is scaled by active CSS transforms, which the
+  // layout-driven ResizeObserver would never fire to correct after mount
+  return { width: container.offsetWidth, height: container.offsetHeight };
 }
 
 function withSize(props: Record<string, any>, measured: Size): Record<string, any> {

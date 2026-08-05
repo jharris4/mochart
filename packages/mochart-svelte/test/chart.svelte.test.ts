@@ -91,9 +91,8 @@ describe('Chart auto-sizing', () => {
       unobserve() {}
     }
     globalThis.ResizeObserver = FakeResizeObserver as unknown as typeof ResizeObserver;
-    const rectSpy = vi
-      .spyOn(Element.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ width: 320.7, height: 240.2 } as DOMRect);
+    const widthSpy = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(320);
+    const heightSpy = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(240);
     try {
       const el = target();
       const props = $state({ config: rawConfig(), data: rows });
@@ -103,7 +102,8 @@ describe('Chart auto-sizing', () => {
       expect(svg!.getAttribute('width')).toBe('320');
       expect(svg!.getAttribute('height')).toBe('240');
 
-      rectSpy.mockReturnValue({ width: 500, height: 400 } as DOMRect);
+      widthSpy.mockReturnValue(500);
+      heightSpy.mockReturnValue(400);
       for (const { callback } of observed) {
         callback([], undefined as unknown as ResizeObserver);
       }
@@ -113,7 +113,8 @@ describe('Chart auto-sizing', () => {
       void unmount(instance);
       el.remove();
     } finally {
-      rectSpy.mockRestore();
+      widthSpy.mockRestore();
+      heightSpy.mockRestore();
       delete (globalThis as any).ResizeObserver;
     }
   });
