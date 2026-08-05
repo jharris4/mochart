@@ -778,9 +778,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseMove?.(eventPayload);
     if (mochartConfig.tooltip.followPointer) {
+      const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
       const { valuePercentage: seriesPercentage, categoryPercentage, categoryIndex } = eventPayload;
-      if (mochartConfig.tooltip.visible) {
+      // same applyFocus gate as toggleTooltip: enter, move and leave must
+      // agree on whether pointer interactions may change the focused category
+      if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
         onFocus?.({ categoryIndex });
+      }
+      if (tooltipConfig.visible) {
         if (this.state.tooltipVisible) {
           // track the pointer: content follows the nearest category, position
           // follows the pointer percentages (measure() remeasures on index change)

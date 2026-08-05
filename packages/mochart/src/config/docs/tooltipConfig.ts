@@ -17,7 +17,7 @@ const backgroundStyle: NestedDescription = {
 export default function getDescriptions() {
   return {
     visible: 'whether or not to show the tooltip',
-    applyFocus: 'whether to change the focused category as the tooltip is shown or hidden',
+    applyFocus: 'whether to change the focused category as the tooltip is shown or hidden, and as it tracks the pointer when followPointer is on',
     snapToCategory: 'whether the tooltip should be centered at the closest category value (true) or at the click/tap position (false)',
     followPointer: 'whether the tooltip should track the mouse position in the chart drawing area',
     closeOnClick: 'whether to hide the tooltip when the user clicks/taps within it',

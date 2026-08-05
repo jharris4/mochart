@@ -510,7 +510,7 @@ export interface CrosshairConfig {
   visible: boolean;
   /**
    * Whether to change the focused category as the crosshairs are shown or
-   * hidden.
+   * hidden, and as the pointer moves when the tooltip's followPointer is on.
    *
    * @default true
    */
@@ -971,7 +971,8 @@ export interface TooltipConfig extends SeriesIconConfig {
    */
   visible: boolean;
   /**
-   * Whether to change the focused category as the tooltip is shown or hidden.
+   * Whether to change the focused category as the tooltip is shown or hidden,
+   * and as it tracks the pointer when followPointer is on.
    *
    * @default true
    */

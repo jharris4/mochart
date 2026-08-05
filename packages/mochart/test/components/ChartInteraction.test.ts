@@ -298,6 +298,39 @@ describe('tooltip', () => {
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
   });
 
+  it('tracks the focused category on move for a crosshair-only followPointer chart', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      tooltip: { visible: false, followPointer: true },
+      crosshair: { visible: true }
+    }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    const root = chartRoot(container);
+
+    mouse(root, 'mouseenter', 100, 100);
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
+    mouse(root, 'mousemove', 790, 100);
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(rows.length - 1);
+  });
+
+  it('never drives focus from a followPointer tooltip with applyFocus off', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      tooltip: { followPointer: true, applyFocus: false },
+      crosshair: { visible: false }
+    }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    const root = chartRoot(container);
+
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'mousemove', 790, 100);
+    expect(focuses.length).toBe(0);
+    // the tooltip itself still follows the pointer
+    expect(container.querySelector('.mochart-tooltip')!.textContent).toContain('Mar');
+  });
+
   it('leaves showInTooltip: false series out of the tooltip', () => {
     const container = mountChart(makeConfig({
       series: [{ property: 'sales' }, { property: 'costs', showInTooltip: false }]
