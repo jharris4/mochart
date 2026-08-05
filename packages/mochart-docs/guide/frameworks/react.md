@@ -1,7 +1,7 @@
 # React
 
 `@mochart/react` wraps [@mochart/core](https://github.com/jharris4/mochart/tree/main/packages/mochart)
-in React components. Prop changes get mochart's
+in React components. Config and data changes get mochart's
 [staged animations](/guide/staged-animation) for free — axis expansion, value
 change, axis contraction, and gapless stacked transitions — no extra wiring
 needed.

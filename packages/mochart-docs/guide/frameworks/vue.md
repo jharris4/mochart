@@ -1,7 +1,7 @@
 # Vue
 
 `@mochart/vue` wraps [@mochart/core](https://github.com/jharris4/mochart/tree/main/packages/mochart)
-in Vue 3 components. Prop changes get mochart's
+in Vue 3 components. Config and data changes get mochart's
 [staged animations](/guide/staged-animation) for free — axis expansion, value
 change, axis contraction, and gapless stacked transitions — no extra wiring
 needed.

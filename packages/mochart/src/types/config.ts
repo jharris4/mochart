@@ -129,11 +129,12 @@ export interface AnimationConfig {
   /**
    * Whether all animation should be enabled or disabled.
    *
-   * The master switch for staged animation. When `false`, config, data, and
-   * size changes apply instantly. When `true`, each update plays up to three
+   * The master switch for staged animation. When `false`, config and data
+   * changes apply instantly. When `true`, each update plays up to three
    * sequential phases — axis expansion, value change, axis contraction —
    * skipping phases it does not need, and each phase’s duration scales with the
    * size of its change (small updates play faster than the configured maximum).
+   * Width/height changes re-layout the chart instantly either way.
    *
    * @default true
    */

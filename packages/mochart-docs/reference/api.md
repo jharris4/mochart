@@ -67,10 +67,10 @@ interface ChartHandle<TProps> {
 ```
 
 - `update(nextProps)` merges new props into the chart. Change detection is
-  by object identity — pass a new config/data reference. Config, data, and
-  size changes animate through the
+  by object identity — pass a new config/data reference. Config and data
+  changes animate through the
   [staged animation](/guide/staged-animation) phases when animation is
-  enabled.
+  enabled; width/height changes re-layout the chart instantly.
 - `replace(nextProps)` swaps the props wholesale: a key absent from
   `nextProps` is unset and returns to chart-managed behavior, where `update`
   would keep its previous value. For hosts that pass the complete prop set

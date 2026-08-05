@@ -11,7 +11,7 @@ export default function getDescriptions() {
 
 export function getDetails() {
   return {
-    animate: 'The master switch for staged animation. When `false`, config, data, and size changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum).',
+    animate: 'The master switch for staged animation. When `false`, config and data changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum). Width/height changes re-layout the chart instantly either way.',
     initialDuration: 'Duration (in milliseconds) of the first render animation when the chart mounts with data.',
     expansionDuration: 'Duration (in milliseconds) of the axis expansion phase, which plays first when an update needs larger axis domains (new categories or larger values) so incoming data has room to land.',
     valueChangeDuration: 'Duration (in milliseconds) of the value change phase, which tweens values to their new positions and also plays category transitions (categories added/removed/reordered) and series transitions (series added, removed, or filtered via the legend).',

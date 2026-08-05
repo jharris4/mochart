@@ -1,7 +1,7 @@
 # Angular
 
 `@mochart/angular` wraps [@mochart/core](https://github.com/jharris4/mochart/tree/main/packages/mochart)
-in Angular components. Input changes get mochart's
+in Angular components. Config and data changes get mochart's
 [staged animations](/guide/staged-animation) for free — axis expansion, value
 change, axis contraction, and gapless stacked transitions — no extra wiring
 needed.

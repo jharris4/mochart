@@ -101,10 +101,11 @@ one in place is not detected. If you do mutate your data in place, call
 `refresh` to re-read it. (There is also `replace`, which swaps the
 whole prop set at once, for hosts that pass every prop on every render.)
 
-When animation is enabled (the default), data, config, and size changes —
-and `refresh` — all animate through mochart's
+When animation is enabled (the default), data and config changes — and
+`refresh` — animate through mochart's
 [staged animation](/guide/staged-animation) phases — try the button under the
-chart above.
+chart above. Size changes are the exception: a new `width`/`height`
+re-lays the chart out instantly.
 
 ## The lower-level entry point
 
