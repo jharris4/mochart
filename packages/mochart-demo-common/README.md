@@ -36,5 +36,5 @@ compiles it (no build step).
 Everything is exported from the package root:
 
 ```ts
-import { buildMochartDemoConfig, removeUnusedDataProperties } from '@mochart/demo-common';
+import { buildMochartDemoConfig, collectUsedDataProperties } from '@mochart/demo-common';
 ```

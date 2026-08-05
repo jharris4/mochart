@@ -2659,7 +2659,7 @@ export interface SeriesStackConfig {
    * The unique identifier of the value axis that the series stack belongs to.
    *
    * Default:
-   * - `first axis id` — value axis
+   * - `sole axis id` — value axis
    */
   axis?: string;
   /**
