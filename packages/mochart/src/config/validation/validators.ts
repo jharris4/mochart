@@ -1,4 +1,5 @@
 import validators from '@mochart/movalid';
+import type { Validator } from '@mochart/movalid';
 import { NONE, MARGIN_KEYS, PADDING_KEYS, COLOR_CURRENT } from '../core/constants';
 
 const dashArrayRegexp = /^(\d+)([,\s]\s*\d+)*$/;
@@ -45,8 +46,16 @@ const numberFormat = () => validators.regexp(numberFormatRegexp).withCustomName(
 const dateFormat = () => validators.string().withCustomName('dateFormat').withMessage('should be a valid date format');
 const propertyRequired = () => validators.notOneOf([undefined, NONE]).withCustomName('propertyRequired').withMessage('should be a defined value');
 const propertyOptional = () => validators.notEqual(undefined).orEqual(NONE).withCustomName('propertyOptional').withMessage('should be a defined value or equal to null');
-const margin = () => validators.objectWith(MARGIN_KEYS, validators.numberMin(0));
-const padding = () => validators.objectWith(PADDING_KEYS, validators.numberMin(0));
+// Partial like every nested config (deep-merged over its default); extras pass for the unknown-key walk.
+const partialObjectWith = (keys: string[], valueValidator: Validator): Validator => {
+  const shape: Record<string, Validator> = {};
+  for (const key of keys) {
+    shape[key] = valueValidator;
+  }
+  return validators.partialObjectWithShape(shape, true);
+};
+const margin = () => partialObjectWith(MARGIN_KEYS, validators.numberMin(0));
+const padding = () => partialObjectWith(PADDING_KEYS, validators.numberMin(0));
 // Partial (a style is deep-merged over its default), and extra members pass so that an unknown member
 // is reported once by the unknown-key walk rather than as an error as well.
 const style = () => validators.partialObjectWithShape(styleKeyMap, true);
@@ -69,6 +78,7 @@ const configValidators = Object.assign({}, validators, {
   dateFormat,
   propertyRequired,
   propertyOptional,
+  partialObjectWith,
   margin,
   padding,
   style,

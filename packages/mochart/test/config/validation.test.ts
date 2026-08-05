@@ -441,6 +441,44 @@ describe('list-section shape validation', () => {
   });
 });
 
+// Regression: margin/padding (and categoryPaddingFraction) demanded all their
+// keys at once, though nested configs deep-merge over their defaults and the
+// DeepPartial input type promises partial objects.
+describe('partial spacing validation', () => {
+  const base = { version: V, categoryAxis: { property: 'p' }, series: [{ property: 'v' }] };
+
+  it('accepts partial margin, padding, and categoryPaddingFraction objects', () => {
+    const errors = errorsFor({
+      ...base,
+      chart: { margin: { top: 10 } },
+      tooltip: { padding: { left: 4 } },
+      categoryAxis: { property: 'p', categoryPaddingFraction: { inner: 0.5 } }
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('accepts a palette entry with only one color list', () => {
+    const errors = errorsFor({
+      ...base,
+      colorPalette: { series: { normal: { strokeColors: ['#336699'] } } }
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('still rejects invalid spacing member values', () => {
+    expect(errorsFor({ ...base, chart: { margin: { top: -1 } } }))
+      .toContainEqual(expect.stringContaining('margin'));
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p', categoryPaddingFraction: { inner: 2 } } }))
+      .toContainEqual(expect.stringContaining('categoryPaddingFraction'));
+  });
+
+  it('reports an unknown spacing member as a warning only, not an error', () => {
+    const detailed = detailedFor({ ...base, chart: { margin: { tpo: 1 } } });
+    expect(detailed.errors.filter(error => error.includes('margin'))).toEqual([]);
+    expect(detailed.warnings.some(warning => warning.includes('margin'))).toBe(true);
+  });
+});
+
 // The null contract: plain styles accept null members (leave the svg
 // attribute unset), while style states keep colors and opacities concrete so
 // host css cannot bleed through and focus animation can interpolate. Widths

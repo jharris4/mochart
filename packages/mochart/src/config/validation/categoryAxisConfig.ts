@@ -32,7 +32,7 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
 
     displayProperty: validators.propertyOptional(),
 
-    categoryPaddingFraction: validators.objectWith(['inner', 'outer'], validators.numberMinMax(0, 1)),
+    categoryPaddingFraction: validators.partialObjectWith(['inner', 'outer'], validators.numberMinMax(0, 1)),
     categoryCountPadding: validators.numberMin(0),
 
     max: validators.conditional([
