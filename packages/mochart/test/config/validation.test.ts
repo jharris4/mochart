@@ -441,6 +441,21 @@ describe('list-section shape validation', () => {
   });
 });
 
+// Regression: the tooltip drop-shadow offsets rejected negative values, though
+// negative css box-shadow offsets (shadow cast up/left) are legitimate.
+describe('tooltip drop-shadow validation', () => {
+  const base = { version: V, categoryAxis: { property: 'p' }, series: [{ property: 'v' }] };
+
+  it('accepts negative shadow offsets', () => {
+    expect(errorsFor({ ...base, tooltip: { dropShadowOffsetX: -3, dropShadowOffsetY: -5 } })).toEqual([]);
+  });
+
+  it('still rejects a negative blur radius', () => {
+    expect(errorsFor({ ...base, tooltip: { dropShadowBlurRadius: -1 } }))
+      .toContainEqual(expect.stringContaining('dropShadowBlurRadius'));
+  });
+});
+
 // Regression: margin/padding (and categoryPaddingFraction) demanded all their
 // keys at once, though nested configs deep-merge over their defaults and the
 // DeepPartial input type promises partial objects.

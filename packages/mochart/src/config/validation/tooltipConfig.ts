@@ -25,8 +25,9 @@ export default function getValidators() {
     backgroundStyle: validators.cssStyle(),
     borderRadius: validators.numberMin(0),
     dropShadowColor: validators.cssColor(),
-    dropShadowOffsetX: validators.numberMin(0),
-    dropShadowOffsetY: validators.numberMin(0),
+    // negative offsets cast the css box-shadow up/left; only the blur radius must stay >= 0
+    dropShadowOffsetX: validators.number(),
+    dropShadowOffsetY: validators.number(),
     dropShadowBlurRadius: validators.numberMin(0),
     showIconColors: validators.boolean(),
     showIconShapes: validators.boolean(),
