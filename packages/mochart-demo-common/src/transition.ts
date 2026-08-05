@@ -85,7 +85,7 @@ export function getTransitionMochartConfig(transitionConfig: TransitionConfig): 
 }
 
 export function getTransitionDataProviders(transitionConfig: TransitionConfig): ChartDataProviderLike[] {
-  // TODO - this doesn't handle group display property or extra series properties...
+  // TODO - this doesn't handle category display property or extra series properties...
   const categoryProperty = transitionConfig.config.categoryAxis.property;
   return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, categoryProperty));
 }

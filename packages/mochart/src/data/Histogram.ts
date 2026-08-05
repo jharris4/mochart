@@ -57,7 +57,7 @@ export interface CreateHistogramOptions extends BinValuesOptions {
   /** The series title, e.g. shown in the legend and tooltip. */
   seriesTitle?: string;
   /**
-   * Formats each bin's `binLabel`, shown as the group tick label.
+   * Formats each bin's `binLabel`, shown as the category tick label.
    *
    * @default bin => `${bin.start}–${bin.end}`
    */

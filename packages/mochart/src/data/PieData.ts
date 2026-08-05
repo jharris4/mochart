@@ -20,7 +20,7 @@ export function degreesToRadians(degrees: number): number {
  * the accessor returns (missing, non-finite and non-positive values count as
  * 0; a non-positive total yields all-zero fractions). The slice geometry and
  * the pie tooltip both normalize through here — the tooltip reads scalars off
- * a single group while the slices read per-group arrays — so a percentage can
+ * a single category while the slices read per-category arrays — so a percentage can
  * never mean one thing in a label and another in the tooltip.
  */
 export function getPieSliceFractions(seriesConfigs: SeriesConfig[], valueOf: (seriesId: string) => number | null | undefined):
@@ -38,7 +38,7 @@ export function getPieSliceFractions(seriesConfigs: SeriesConfig[], valueOf: (se
 
 /**
  * The slice fractions keyed by series id, for the pie tooltip's percent
- * values: it holds one group's values as scalars (not the per-group arrays the
+ * values: it holds one category's values as scalars (not the per-category arrays the
  * slices work from), so it passes its own accessor.
  */
 export function getPieSliceFractionMap(seriesConfigs: SeriesConfig[], valueOf: (seriesId: string) => number | null | undefined): Record<string, number> {

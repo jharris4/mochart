@@ -4,8 +4,8 @@
 // bar's start must meet its neighbour's end, a heatmap cell must sit on its
 // row band). Instead, these generators randomize the *inputs* to the core
 // chart helpers and re-run the helper, so every generated dataset is a valid
-// chart of its type. Group labels come from fixed pools so successive random
-// steps share most groups and transitions animate as updates plus edge
+// chart of its type. Category labels come from fixed pools so successive random
+// steps share most categories and transitions animate as updates plus edge
 // enter/exit rather than a full teardown.
 //
 // Each generator reads its demo's random config (the per-generator schemas in
@@ -170,7 +170,7 @@ interface WaterfallStepPoolEntry {
   dropWeight?: number;
 }
 
-// Optional steps give random mode group enter/exit: when one appears, every
+// Optional steps give random mode category enter/exit: when one appears, every
 // bar downstream of it shifts as the helper recomputes the running totals.
 // Drop weights make the rarer steps flakier than the config's baseline.
 const WATERFALL_STEP_POOL: WaterfallStepPoolEntry[] = [
@@ -263,7 +263,7 @@ const HEATMAP_COLUMNS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 function heatmapRows({ columns, missing, reuse }: HeatmapRandomConfig, randomId: number): DataRow[] {
   const maxDropped = Math.min(HEATMAP_COLUMNS.length - 1, Math.max(0, Math.round(columns.maxDropped)));
 
-  // Column dropouts churn per step regardless of reuse — they are the group
+  // Column dropouts churn per step regardless of reuse — they are the category
   // enter/exit the demo shows. Cells key on their column label, so a kept
   // column's values are unaffected by its neighbours dropping.
   const columnRng = seedrandom('heatmap:columns:' + randomId);
@@ -509,7 +509,7 @@ function buildOhlcSnapshot(): ChartTypeDemoSnapshot {
 // so there is no core helper to re-run — but the generic randomizer would draw
 // value, low and high independently and break low ≤ value ≤ high. This
 // generator draws each point's value and its two error margins instead, and
-// derives the bounds. The fixed month pool keeps most groups shared between
+// derives the bounds. The fixed month pool keeps most categories shared between
 // random steps, so the bars and whiskers animate in place while tail months
 // enter and exit.
 const ERROR_BARS_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

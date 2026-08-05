@@ -61,8 +61,8 @@ export function makeConfig(type: ScenarioType, seriesCount: number, options: Sce
     },
     legend: { visible: options.legend },
     categoryAxis: {
-      valueLabel: 'Group',
-      property: 'group',
+      valueLabel: 'Category',
+      property: 'category',
       type: 'number',
       scale: 'ordinal'
     },
@@ -75,8 +75,8 @@ export function makeConfig(type: ScenarioType, seriesCount: number, options: Sce
 
 export function makeData(seriesCount: number, categoryCount: number): any[] {
   const rows: any[] = [];
-  for (let g = 0; g < categoryCount; g++) {
-    const row: any = { group: g };
+  for (let c = 0; c < categoryCount; c++) {
+    const row: any = { category: c };
     for (let s = 0; s < seriesCount; s++) {
       row[seriesProperty(s)] = Math.round(Math.random() * 500);
     }

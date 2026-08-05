@@ -76,9 +76,9 @@ export function getSeriesPositionData(categoryAxisConfig: CategoryAxisConfig, se
     categoryValueOffset += (fullValueExtent - categoryValueExtent) * barAlignFraction;
   }
 
-  // With partialRangeIsMissing, a ranged group missing either of its two values is
+  // With partialRangeIsMissing, a ranged category missing either of its two values is
   // treated as wholly missing here, before normalizePriorPositions can back-fill
-  // the absent side and collapse the group to a zero-extent span. Stacked series
+  // the absent side and collapse the category to a zero-extent span. Stacked series
   // are exempt: their min holds stack priors, not range values.
   const requireBothValues = partialRangeIsMissing && rangeProperty !== NONE && stack === NONE && min !== null;
 

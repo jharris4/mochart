@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "title": {
-    "text": "Ordinal Group Scale"
+    "text": "Ordinal Category Scale"
   },
   "categoryAxis": {
     "valueLabel": "Category",

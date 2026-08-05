@@ -90,7 +90,7 @@ describe('getChartDataForAxisDelta (group added)', () => {
     chartDataFor([{ g: 0, a: 10 }, { g: 1, a: 20 }, { g: 2, a: 30 }])
   );
 
-  it('expands the ordinal group domain from the start to the end span', () => {
+  it('expands the ordinal category domain from the start to the end span', () => {
     expect(getChartDataForAxisDelta(config, cad, true, 0).categoryData.axisDomain).toEqual([0, 1]);
     expect(getChartDataForAxisDelta(config, cad, true, 1).categoryData.axisDomain).toEqual([0, 2]);
   });
