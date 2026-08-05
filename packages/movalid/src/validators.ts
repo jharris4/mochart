@@ -532,15 +532,17 @@ const validatorArgsToIsEnum: Record<string, (...args: any[]) => boolean> = {
   or: validators => !validators.some((validator: Validator) => !validator.isEnum)
 };
 
-const validatorDefinitions = Object.assign(
+// explicit: Object.assign with 4+ sources falls through to the any-returning overload
+type ValidatorDefinitionMap = typeof typeValidatorDefinitions & typeof customTypeValidatorDefinitions &
+  typeof argumentTypeValidatorDefinitions & typeof compoundValidatorDefinitions;
+
+const validatorDefinitions: ValidatorDefinitionMap = Object.assign(
   {},
   typeValidatorDefinitions,
   customTypeValidatorDefinitions,
   argumentTypeValidatorDefinitions,
   compoundValidatorDefinitions
 );
-
-type ValidatorDefinitionMap = typeof validatorDefinitions;
 
 export type Validators = {
   [K in keyof ValidatorDefinitionMap]: (...args: Parameters<ValidatorDefinitionMap[K]["validator"]>) => Validator;

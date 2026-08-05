@@ -5,6 +5,9 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    // no development customConditions: this package enables noUncheckedIndexedAccess, which the
+    // workspace sources don't satisfy — types resolve through the built dist like the doc generators do
+
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node"],
     "strict": true,

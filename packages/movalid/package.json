@@ -22,8 +22,8 @@
   "types": "./dist/validators.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/validators.d.ts",
       "development": "./src/validators.ts",
+      "types": "./dist/validators.d.ts",
       "default": "./dist/validators.js"
     }
   },

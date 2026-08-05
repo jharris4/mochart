@@ -1,3 +1,6 @@
+// The ambient d3 module shims must ride along for consumers that typecheck this package from source
+// (the development export condition) — their programs only see files reachable from this entry.
+/// <reference path="./types/d3.d.ts" />
 export type * from './types';
 export { createChart, createDefaultChart } from './createChart';
 export type { ChartHandle } from './createChart';
