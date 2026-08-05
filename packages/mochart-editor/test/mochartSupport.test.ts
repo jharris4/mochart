@@ -46,12 +46,46 @@ function viewFor(source: string) {
   return view;
 }
 
+/** Run the completion source at the marker and accept `label` through its apply. */
+async function acceptCompletion(markedSource: string, label: string): Promise<string> {
+  const { source, position, state } = markedState(markedSource);
+  const result = await Promise.resolve(
+    mochartSupportTesting.completionSource(new CompletionContext(state, position, true))
+  ) as CompletionResult | null;
+  expect(result).not.toBeNull();
+  const option = result!.options.find(candidate => candidate.label === label);
+  expect(option).toBeDefined();
+  const view = viewFor(source);
+  view.dispatch({ selection: { anchor: position } });
+  expect(typeof option!.apply).toBe('function');
+  (option!.apply as (view: EditorView, completion: Completion, from: number, to: number) => void)(
+    view, option!, result!.from, position);
+  return view.state.doc.toString();
+}
+
 describe('Mochart support completions', () => {
   it('suggests missing top-level properties with strict-JSON insertions', async () => {
     const options = await completionOptions('{"|": null, "version": "1.0.0"}');
     expect(labels(options)).toContain('chart');
     expect(labels(options)).not.toContain('version');
-    expect(options.find(option => option.label === 'chart')?.apply).toBe('"chart": {}');
+    expect(await acceptCompletion('{"|"}', 'chart')).toBe('{"chart": {}}');
+  });
+
+  it('matches property completions against the bare key after a typed quote', async () => {
+    // the match span must exclude the opening quote or "ti" never matches "title"
+    const { source, position, state } = markedState('{"ti|": null, "version": "1.0.0"}');
+    const result = await Promise.resolve(
+      mochartSupportTesting.completionSource(new CompletionContext(state, position, true))
+    ) as CompletionResult | null;
+    expect(result).not.toBeNull();
+    expect(labels(result!.options)).toContain('title');
+    expect(source.slice(result!.from, position)).toBe('ti');
+  });
+
+  it('accepts a property completion through the auto-closed quote', async () => {
+    const doc = await acceptCompletion('{"ti|"}', 'title');
+    expect(doc).toBe('{"title": {}}');
+    expect(() => JSON.parse(doc)).not.toThrow();
   });
 
   it('suggests nested properties instead of section properties', async () => {
@@ -63,6 +97,17 @@ describe('Mochart support completions', () => {
   it('suggests enum values', async () => {
     const options = await completionOptions('{"chart":{"type":"|"}}');
     expect(labels(options)).toEqual(expect.arrayContaining(['"xy"', '"pie"']));
+  });
+
+  it('accepts a value completion inside an auto-closed quote pair without corrupting the JSON', async () => {
+    const doc = await acceptCompletion('{"chart":{"type":"|"}}', '"xy"');
+    expect(doc).toBe('{"chart":{"type":"xy"}}');
+    expect(() => JSON.parse(doc)).not.toThrow();
+  });
+
+  it('accepts a value completion over a partially typed quoted value', async () => {
+    const doc = await acceptCompletion('{"chart":{"type":"p|"}}', '"pie"');
+    expect(doc).toBe('{"chart":{"type":"pie"}}');
   });
 
   it('suggests configured ids and filters common references', async () => {

@@ -1,5 +1,5 @@
-import { autocompletion, type Completion, type CompletionContext } from '@codemirror/autocomplete';
-import { hoverTooltip } from '@codemirror/view';
+import { autocompletion, pickedCompletion, type Completion, type CompletionContext } from '@codemirror/autocomplete';
+import { hoverTooltip, type EditorView } from '@codemirror/view';
 import { getDefaults, validateConfigDetailed } from '@mochart/core';
 import type { Diagnostic } from '@codemirror/lint';
 import model from './mochartConfigModel.generated.js';
@@ -161,6 +161,22 @@ function referencedValues(document: unknown, property: EditorPropertyModel, path
   return values;
 }
 
+// Insertions carry their own quotes, so the change must swallow the quotes at
+// the cursor: the typed opening quote before the match and the rest of the
+// token — including its auto-closed/closing quote — after it.
+function applyJsonText(text: string) {
+  return (view: EditorView, completion: Completion, from: number, to: number) => {
+    const start = view.state.sliceDoc(from - 1, from) === '"' ? from - 1 : from;
+    const tail = /^[\w-]*"?/.exec(view.state.sliceDoc(to, to + 80))?.[0] ?? '';
+    view.dispatch({
+      changes: { from: start, to: to + tail.length, insert: text },
+      selection: { anchor: start + text.length },
+      userEvent: 'input.complete',
+      annotations: pickedCompletion.of(completion)
+    });
+  };
+}
+
 function valueOptions(property: EditorPropertyModel, document: unknown, path: JsonPath): Completion[] {
   const values = [...(property.editor.enum ?? []), ...referencedValues(document, property, path)]
     .filter(value => value !== undefined);
@@ -169,7 +185,7 @@ function valueOptions(property: EditorPropertyModel, document: unknown, path: Js
     .filter((value, index) => values.findIndex(candidate => Object.is(candidate, value)) === index)
     .map(value => ({
       label: JSON.stringify(value),
-      apply: JSON.stringify(value),
+      apply: applyJsonText(JSON.stringify(value)),
       type: typeof value === 'boolean' ? 'keyword' : 'constant',
       detail: property.reference ? 'configured id' : undefined
     }));
@@ -180,7 +196,9 @@ function completionSource(context: CompletionContext) {
   if (!object) return null;
   const containerPath = objectPath(context.state, object);
   const word = context.matchBefore(/"?[\w-]*/);
-  const from = word?.from ?? context.pos;
+  // the match span starts after any typed quote so it filters against the bare
+  // labels; applyJsonText re-swallows the quote when inserting
+  const from = word ? word.from + (word.text.startsWith('"') ? 1 : 0) : context.pos;
   if (isPropertyPosition(context.state, context.pos, object)) {
     const existing = new Set(existingObjectKeys(context.state, object));
     const properties = propertiesForObject(containerPath);
@@ -188,12 +206,12 @@ function completionSource(context: CompletionContext) {
       from,
       options: properties.filter(property => !existing.has(property.key)).map(property => ({
         label: property.key,
-        apply: JSON.stringify(property.key) + ': ' + defaultText(property),
+        apply: applyJsonText(JSON.stringify(property.key) + ': ' + defaultText(property)),
         type: 'property',
         detail: property.editor.types.join(' | '),
         info: propertyInfo(property)
       })),
-      validFor: /^"?[\w-]*$/
+      validFor: /^[\w-]*$/
     };
   }
 
