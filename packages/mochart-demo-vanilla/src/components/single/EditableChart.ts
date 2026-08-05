@@ -788,8 +788,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     resetCategoriesButton.el, reverseCategoriesButton.el, addCategoriesButton.el, removeCategoriesButton.el,
     playAddButton.el, playRemoveButton.el, stopButton.el, selectAllButton.el
   ];
-  const categoryButtonCategory = el('div', { className: 'demo-btn-group' }, categoryButtons);
-  const categoryToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [categoryButtonCategory]);
+  const categoryButtonGroup = el('div', { className: 'demo-btn-group' }, categoryButtons);
+  const categoryToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [categoryButtonGroup]);
 
   // Menu-side homes for the loose buttons the fold takes out of the strip —
   // cached `.demo-btn-group`s; OverflowMenu.ts's header says why that shape.
@@ -1067,7 +1067,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
     // Category panel. Add/Remove act on what is typed in the input beside them, so
     // they stay in the strip; everything else folds.
-    setChildren(categoryButtonCategory, foldCategory ? [addCategoriesButton.el, removeCategoriesButton.el] : categoryButtons);
+    setChildren(categoryButtonGroup, foldCategory ? [addCategoriesButton.el, removeCategoriesButton.el] : categoryButtons);
     if (foldCategory) {
       setChildren(menuOrderCategory, [resetCategoriesButton.el, reverseCategoriesButton.el, selectAllButton.el]);
       setChildren(menuSequenceGroup, [playAddButton.el, playRemoveButton.el, stopButton.el]);
