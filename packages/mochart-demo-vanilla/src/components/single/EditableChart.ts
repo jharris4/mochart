@@ -793,7 +793,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Menu-side homes for the loose buttons the fold takes out of the strip —
   // cached `.demo-btn-group`s; OverflowMenu.ts's header says why that shape.
-  const menuOrderCategory = el('div', { className: 'demo-btn-group' });
+  const menuOrderGroup = el('div', { className: 'demo-btn-group' });
   const menuSequenceGroup = el('div', { className: 'demo-btn-group' });
   const categoryPanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [
@@ -1060,7 +1060,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     // are no category/series panels to switch to in pie mode, which is why the
     // desktop branch removes that button rather than placing it.
     overflowMenuHandle.setItems(
-      foldCategory ? [menuOrderCategory, menuDivider, menuSequenceGroup, menuDivider, ...commonControls]
+      foldCategory ? [menuOrderGroup, menuDivider, menuSequenceGroup, menuDivider, ...commonControls]
         : foldSeries ? [menuSeriesActionGroup, menuDivider, ...commonControls]
           : foldSlice ? [menuSliceActionGroup, menuDivider, sliceSequenceGroup, ...sliceMenuTail]
             : []);
@@ -1069,7 +1069,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     // they stay in the strip; everything else folds.
     setChildren(categoryButtonGroup, foldCategory ? [addCategoriesButton.el, removeCategoriesButton.el] : categoryButtons);
     if (foldCategory) {
-      setChildren(menuOrderCategory, [resetCategoriesButton.el, reverseCategoriesButton.el, selectAllButton.el]);
+      setChildren(menuOrderGroup, [resetCategoriesButton.el, reverseCategoriesButton.el, selectAllButton.el]);
       setChildren(menuSequenceGroup, [playAddButton.el, playRemoveButton.el, stopButton.el]);
     }
 
