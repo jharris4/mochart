@@ -51,5 +51,13 @@ for what each one renders, and
 [`ChartFactoryContext`](/reference/props#factoryContext) for the context
 fields.
 
-The framework bindings pass these through unchanged, so the same factories
-work in Angular, Lit, React, Svelte, and Vue.
+The framework bindings do not take these DOM factories — each exposes a
+framework-native placeholder prop per state instead. `loadingComponent` and
+friends take an Angular, React, Svelte, or Vue **component** that receives
+the same context as props; the Lit binding's `loadingTemplate` and friends
+take a **lit-html template function**. The binding renders it into the DOM
+node the core factory must return. See the framework guides
+([Angular](/guide/frameworks/angular), [Lit](/guide/frameworks/lit),
+[React](/guide/frameworks/react), [Svelte](/guide/frameworks/svelte),
+[Vue](/guide/frameworks/vue)) or
+[Framework props](/reference/framework-props) for each binding's shape.
