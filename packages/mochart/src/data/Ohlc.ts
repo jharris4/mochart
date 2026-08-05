@@ -15,13 +15,13 @@ export interface CreateOhlcOptions {
    */
   colors?: Partial<Record<CandlestickDirection, string>>;
   /**
-   * The fraction (0 - 1) of the group slot used by the vertical low/high line.
+   * The fraction (0 - 1) of the category slot used by the vertical low/high line.
    *
    * @default 0.15
    */
   lineWidthFraction?: number;
   /**
-   * The fraction (0 - 1) of the group slot used by each open/close tick. Ticks
+   * The fraction (0 - 1) of the category slot used by each open/close tick. Ticks
    * extend from the slot edge to its center, so at the default each tick spans
    * half the slot.
    *
@@ -140,7 +140,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   };
 
   // Three bar series per direction, each defined for exactly one direction per
-  // group (missingValues 'connect' + partialRangeIsMissing skip the other, as in the
+  // category (missingValues 'connect' + partialRangeIsMissing skip the other, as in the
   // candlestick helper): a thin centered low→high line, plus zero-extent range
   // bars (property and rangeProperty read the same value) that barMinExtent
   // expands into tick marks — the open tick in the left half of the slot
@@ -148,7 +148,7 @@ export function createOhlc(items: readonly CandlestickItem[], options: CreateOhl
   // 1), each reaching the center line. The lines carry the legend entries;
   // the ticks stay out of the legend but follow their line's filtering and
   // focus via followSeries, so the whole bar acts as one mark. Tooltip rows
-  // per group: the range (low – high) then the open and close ticks, whose
+  // per category : the range (low – high) then the open and close ticks, whose
   // equal-ended ranges collapse to single values.
   const lineConfigs = DIRECTIONS.map((direction) => ({
     id: direction,

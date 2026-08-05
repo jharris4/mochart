@@ -27,7 +27,7 @@ const baseConfig = {
     "text": "The Title"
   },
   "categoryAxis": {
-    "valueLabel": "Group",
+    "valueLabel": "Category",
     "property": "c",
     "displayProperty": "cd",
     "type": "string",

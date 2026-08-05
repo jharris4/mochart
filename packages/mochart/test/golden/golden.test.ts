@@ -166,7 +166,7 @@ function getSeriesProperties(mochartConfig: EnhancedMochartConfig): string[] {
 }
 
 function makeProvider(mochartConfig: EnhancedMochartConfig, rows: Row[]): DataProvider {
-  // every demo config defines a group property; the optionality is only for malformed input
+  // every demo config defines a category property; the optionality is only for malformed input
   return new mochart.ArrayOfObjectsDataProvider(rows, getCategoryProperty(mochartConfig)!) as unknown as DataProvider;
 }
 
@@ -184,7 +184,7 @@ function transformValues(mochartConfig: EnhancedMochartConfig, rows: Row[]): Row
   });
 }
 
-/** Deterministic version of the demo app's "add group" button. */
+/** Deterministic version of the demo app's "add category" button. */
 function addCategoryRow(mochartConfig: EnhancedMochartConfig, rows: Row[]): Row[] {
   const categoryProperty = getCategoryProperty(mochartConfig);
   if (!categoryProperty || rows.length === 0) {
@@ -255,17 +255,17 @@ describe.each(allDemos)('demo: $id', (demo) => {
     runFrames();
     await expectSnapshot(container, demo.id, 'values-settled');
 
-    // group addition, run to completion
+    // category addition, run to completion
     const addedRows = addCategoryRow(mochartConfig, changedRows);
     chart.update({ dataProvider: makeProvider(mochartConfig, addedRows) });
     runFrames();
-    await expectSnapshot(container, demo.id, 'group-added');
+    await expectSnapshot(container, demo.id, 'category-added');
 
-    // group removal, run to completion
+    // category removal, run to completion
     const removedRows = removeCategoryRow(addedRows);
     chart.update({ dataProvider: makeProvider(mochartConfig, removedRows) });
     runFrames();
-    await expectSnapshot(container, demo.id, 'group-removed');
+    await expectSnapshot(container, demo.id, 'category-removed');
 
     chart.destroy();
     expect(container.innerHTML).toBe('');

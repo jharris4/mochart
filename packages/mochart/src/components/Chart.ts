@@ -620,7 +620,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
                   tooltipStateSource = { ...this.state, tooltipCategoryIndex, tooltipValueObject };
                 }
                 else {
-                  // the tooltip's group disappeared: close fully so the next
+                  // the tooltip's category disappeared: close fully so the next
                   // click opens instead of toggling an invisible tooltip
                   tooltipStateSource = getInitialTooltipState();
                 }

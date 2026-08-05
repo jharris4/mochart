@@ -1,4 +1,4 @@
-// A scatter chart is marker-only series (renderer 'none') on a linear group
+// A scatter chart is marker-only series (renderer 'none') on a linear category
 // axis, so points sit at their measured x values. Point markerProperty at a
 // data property to scale marker size per point — a bubble chart.
 import type { MochartInputConfig } from '@mochart/core';

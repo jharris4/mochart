@@ -154,7 +154,7 @@ describe('animated chart interactions', () => {
     const frames = runFrames();
     expect(frames).toBeGreaterThan(0);
     expect(vi.getTimerCount()).toBe(0);
-    // the new group made it into the rendered chart
+    // the new category made it into the rendered chart
     expect(chartRoot(container).innerHTML).toContain('Apr');
   });
 

@@ -1,5 +1,5 @@
 /**
- * partialRangeIsMissing: a ranged bar series treats a group missing either of
+ * partialRangeIsMissing: a ranged bar series treats a category missing either of
  * property/rangeProperty as missing, so missingValues 'connect' drops it instead of
  * collapsing it to a zero-extent bar at the defined value. The waterfall
  * helper relies on this — every row carries the shared `start` range
@@ -8,7 +8,7 @@
  * `start` (visible as stray bar lines during filtering animations).
  *
  * The default (false) intentionally keeps the collapse behavior, so ranged
- * shapes stay connected through half-defined groups.
+ * shapes stay connected through half-defined categories.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
 
@@ -77,7 +77,7 @@ function renderWaterfall(partialRangeIsMissing: boolean | undefined) {
   const chart = createChart(container, {
     mochartConfig,
     // The direction properties are undefined off their own rows, so the row
-    // type needs narrowing to satisfy the provider's group-value constraint.
+    // type needs narrowing to satisfy the provider's category-value constraint.
     dataProvider: new ArrayOfObjectsDataProvider(waterfall.data as Record<string, string | number>[], 'label'),
     width: 400,
     height: 200
@@ -91,17 +91,17 @@ describe('partialRangeIsMissing on a connect bar series with a rangeProperty', (
     const { chart, container } = renderWaterfall(undefined);
 
     // Each step belongs to exactly one direction series; the other two series
-    // must skip the group rather than draw a zero-extent bar at `start`.
+    // must skip the category rather than draw a zero-extent bar at `start`.
     const bars = container.querySelectorAll('path.mochart-series-bar');
     expect(bars.length).toBe(4);
 
     chart.destroy();
   });
 
-  it('collapses half-defined groups to zero-extent bars when disabled', () => {
+  it('collapses half-defined categories to zero-extent bars when disabled', () => {
     const { chart, container } = renderWaterfall(false);
 
-    // Every series keeps every group: the missing direction value is
+    // Every series keeps every category: the missing direction value is
     // back-filled from the shared `start` range value.
     const bars = container.querySelectorAll('path.mochart-series-bar');
     expect(bars.length).toBe(12);

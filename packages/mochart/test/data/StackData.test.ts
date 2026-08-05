@@ -5,24 +5,24 @@ import { makeConfig, ArrayOfObjectsDataProvider } from './fixtures';
 
 function stackedSetup(rows: Record<string, number>[]) {
   const config = makeConfig({
-    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
     series: [
       { stack: 'SS0', property: 'a', renderer: 'bar' },
       { stack: 'SS0', property: 'b', renderer: 'bar' }
     ],
     seriesStacks: [{ id: 'SS0' }]
   });
-  const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows, 'g'), {});
+  const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows, 'c'), {});
   return { config, chartData };
 }
 
 describe('getStackData', () => {
-  it('records the outermost positive and negative series per group', () => {
-    // group 0: both series positive -> S1 is the outer (last-stacked) positive
-    // group 1: both series negative -> S1 is the outer negative
+  it('records the outermost positive and negative series per category', () => {
+    // category 0: both series positive -> S1 is the outer (last-stacked) positive
+    // category 1: both series negative -> S1 is the outer negative
     const { config, chartData } = stackedSetup([
-      { g: 0, a: 5, b: 3 },
-      { g: 1, a: -2, b: -4 }
+      { c: 0, a: 5, b: 3 },
+      { c: 1, a: -2, b: -4 }
     ]);
     const stackData = getStackData(config, chartData);
     expect(stackData.outerPositiveSeriesIds).toEqual({ SS0: ['S1', undefined] });
@@ -30,12 +30,12 @@ describe('getStackData', () => {
   });
 
   it('classifies by cumulative stack value and leaves holes for absent signs', () => {
-    // group 0: a=4 (cumulative 4), b=0 (cumulative still 4) -> both cumulative
+    // category 0: a=4 (cumulative 4), b=0 (cumulative still 4) -> both cumulative
     //          totals are positive, so the outer positive is S1; no negatives.
-    // group 1: everything is zero -> neither sign contributes, all holes.
+    // category 1: everything is zero -> neither sign contributes, all holes.
     const { config, chartData } = stackedSetup([
-      { g: 0, a: 4, b: 0 },
-      { g: 1, a: 0, b: 0 }
+      { c: 0, a: 4, b: 0 },
+      { c: 1, a: 0, b: 0 }
     ]);
     const stackData = getStackData(config, chartData);
     expect(stackData.outerPositiveSeriesIds.SS0).toEqual(['S1', undefined]);
@@ -43,11 +43,11 @@ describe('getStackData', () => {
   });
 
   it('skips undefined stack values via the positive/negative guards', () => {
-    // group 0: only a (S0) has a value -> S0 is the outer positive, b is a hole
-    // group 1: only b (S1) has a value -> S1 is the outer positive, a is a hole
+    // category 0: only a (S0) has a value -> S0 is the outer positive, b is a hole
+    // category 1: only b (S1) has a value -> S1 is the outer positive, a is a hole
     const { config, chartData } = stackedSetup([
-      { g: 0, a: 5 },
-      { g: 1, b: 3 }
+      { c: 0, a: 5 },
+      { c: 1, b: 3 }
     ]);
     const stackData = getStackData(config, chartData);
     expect(stackData.outerPositiveSeriesIds.SS0).toEqual(['S0', 'S1']);
@@ -57,7 +57,7 @@ describe('getStackData', () => {
 
   it('mirrors raw ids into the filtered ids when nothing is filtered', () => {
     const { config, chartData } = stackedSetup([
-      { g: 0, a: 5, b: 3 }
+      { c: 0, a: 5, b: 3 }
     ]);
     const stackData = getStackData(config, chartData);
     expect(stackData.filteredOuterPositiveSeriesIds).toEqual(stackData.outerPositiveSeriesIds);
@@ -68,8 +68,8 @@ describe('getStackData', () => {
 describe('getStackDataWithMutations', () => {
   it('produces stack data equal to a fresh computation', () => {
     const { config, chartData } = stackedSetup([
-      { g: 0, a: 5, b: 3 },
-      { g: 1, a: -2, b: -4 }
+      { c: 0, a: 5, b: 3 },
+      { c: 1, a: -2, b: -4 }
     ]);
     const fresh = getStackData(config, chartData);
     const mutated = getStackDataWithMutations(null, config, chartData);

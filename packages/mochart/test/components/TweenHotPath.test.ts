@@ -1,6 +1,6 @@
 /**
  * Hot-path regression tests for data tweens. A value-only data update (same
- * groups, same domains) must not remeasure text from the DOM on every tween
+ * categories, same domains) must not remeasure text from the DOM on every tween
  * frame — rendered text only changes when the config or axisData changes.
  *
  * Unlike the other suites these shims return non-zero sizes, so measured
@@ -41,7 +41,7 @@ const reversedRows = [
   { month: 'Mar', sales: 10 }
 ];
 
-// different group labels — tick text changes, so a remeasure is required
+// different category labels — tick text changes, so a remeasure is required
 const renamedRows = [
   { month: 'April', sales: 10 },
   { month: 'May', sales: 20 },

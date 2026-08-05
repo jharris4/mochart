@@ -78,7 +78,7 @@ describe('getFocusAnimationData', () => {
     expect(data.series.deltaFactors).toEqual({ S0: 1, S1: 4 });
   });
 
-  it('takes the overall delta from the largest of group, axis and series deltas', () => {
+  it('takes the overall delta from the largest of category, value-axis and series deltas', () => {
     const start = focusData();
     const end = focusData({
       categoryFocusPercentages: [0.25, 0, 0],

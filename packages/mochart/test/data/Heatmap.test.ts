@@ -47,7 +47,7 @@ describe('createHeatmap', () => {
     ]);
   });
 
-  it('trims cellPadding from each side of the bands and group slots', () => {
+  it('trims cellPadding from each side of the bands and category slots', () => {
     const { data, categoryAxis: categoryAxisConfig } = createHeatmap(rows(), { cellPadding: 0.1 });
     expect(data[0].row0Start).toBeCloseTo(2.1);
     expect(data[0].row0).toBeCloseTo(2.9);
@@ -147,7 +147,7 @@ describe('createHeatmap', () => {
       series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
     });
     expect(mochartConfig.validation.valid).toBe(true);
-    // The group property is always set; only cell properties can be undefined.
+    // The category property is always set; only cell properties can be undefined.
     const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data as Record<string, string | number>[], 'column');
     expect(getDataErrors(mochartConfig, dataProvider)).toEqual([]);
   });

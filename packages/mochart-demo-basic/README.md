@@ -18,7 +18,7 @@ stable element ids, and hash routing. That makes it two things:
 Live controls exercise mochart's
 [staged animations](../mochart/README.md#staged-animation):
 randomize values (kept within each demo's random spec and axis range),
-add/remove groups — which plays the full axis expansion → value change →
+add/remove categories — which plays the full axis expansion → value change →
 axis contraction sequence — and autoplay. The stacked demos show the gapless
 stacked transitions.
 

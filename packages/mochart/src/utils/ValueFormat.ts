@@ -14,14 +14,14 @@ const autoValueFormatNumber = ".2s";
 const autoCategoryFormatNumber = '.2s';
 const autoCategoryFormatDate = '%c';
 
-export function getCategoryFormat(categoryAxisConfig: CategoryAxisConfig): (group: CategoryValue) => CategoryValue {
-  let categoryFormat = (group: CategoryValue): CategoryValue => group;
+export function getCategoryFormat(categoryAxisConfig: CategoryAxisConfig): (category: CategoryValue) => CategoryValue {
+  let categoryFormat = (category: CategoryValue): CategoryValue => category;
   if (categoryAxisConfig.type === TYPE_DATE) {
     if (categoryAxisConfig.dateUTC) {
-      categoryFormat = (group: CategoryValue) => (group as Date).toUTCString();
+      categoryFormat = (category: CategoryValue) => (category as Date).toUTCString();
     }
     else {
-      categoryFormat = (group: CategoryValue) => group.toString();
+      categoryFormat = (category: CategoryValue) => category.toString();
     }
   }
   if (categoryAxisConfig.valueFormat !== NONE) {
@@ -31,21 +31,21 @@ export function getCategoryFormat(categoryAxisConfig: CategoryAxisConfig): (grou
         if (categoryAxisConfig.tickLabelFormat === AUTO) {
           if (categoryAxisConfig.type === TYPE_DATE) {
             const formatter = timeFormatter(autoCategoryFormatDate);
-            categoryFormat = group => formatter(group as Date);
+            categoryFormat = category => formatter(category as Date);
           }
           else if (categoryAxisConfig.type === TYPE_NUMBER) {
             const formatter = format(autoCategoryFormatNumber);
-            categoryFormat = group => formatter(group as number);
+            categoryFormat = category => formatter(category as number);
           }
         }
         else {
           if (categoryAxisConfig.type === TYPE_DATE) {
             const formatter = timeFormatter(categoryAxisConfig.tickLabelFormat);
-            categoryFormat = group => formatter(group as Date);
+            categoryFormat = category => formatter(category as Date);
           }
           else if (categoryAxisConfig.type === TYPE_NUMBER) {
             const formatter = format(categoryAxisConfig.tickLabelFormat);
-            categoryFormat = group => formatter(group as number);
+            categoryFormat = category => formatter(category as number);
           }
         }
       }
@@ -53,11 +53,11 @@ export function getCategoryFormat(categoryAxisConfig: CategoryAxisConfig): (grou
     else {
       if (categoryAxisConfig.type === TYPE_DATE) {
         const formatter = timeFormatter(categoryAxisConfig.valueFormat);
-        categoryFormat = group => formatter(group as Date);
+        categoryFormat = category => formatter(category as Date);
       }
       else if (categoryAxisConfig.type === TYPE_NUMBER) {
         const formatter = format(categoryAxisConfig.valueFormat);
-        categoryFormat = group => formatter(group as number);
+        categoryFormat = category => formatter(category as number);
       }
     }
   }

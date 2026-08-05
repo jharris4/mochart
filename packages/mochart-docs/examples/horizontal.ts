@@ -1,4 +1,4 @@
-// plotConfig.inverted swaps the axes: groups run down the left side and
+// plotConfig.inverted swaps the axes: categories run down the left side and
 // values extend horizontally.
 import type { MochartInputConfig } from '@mochart/core';
 

@@ -5,7 +5,7 @@ import type { TooltipConfig } from '../../src/types/config';
 import type { ChartData, SeriesValueObject } from '../../src/types/data';
 import type { EnhancedSeriesConfig } from '../../src/types/enhanced';
 
-// getSeriesText walks a "group series slice" shaped like the runtime's data
+// getSeriesText walks a "category series slice" shaped like the runtime's data
 // layer. Build small typed-loose fixtures rather than a full ChartData.
 type ValueObj = Record<string, number | null | undefined>;
 interface Slice {
@@ -379,15 +379,15 @@ describe('getSeriesText', () => {
 describe('getFilteredValue', () => {
   const seriesConfig = makeSeriesConfig({ valueAxisConfig: { id: 'y' } as EnhancedSeriesConfig['valueAxisConfig'] });
 
-  function makeChartData(over: Partial<{ base: number; groups: (unknown)[]; markerDomain: number[]; tooltipDomain: number[] }> = {}): ChartData {
+  function makeChartData(over: Partial<{ base: number; categories: (unknown)[]; markerDomain: number[]; tooltipDomain: number[] }> = {}): ChartData {
     const base = over.base ?? 5;
-    const groups = over.groups ?? ['a', 'b', undefined];
+    const categories = over.categories ?? ['a', 'b', undefined];
     return {
       seriesData: {
         axisBases: { y: base },
         raw: { domains: { s1: { marker: over.markerDomain ?? [3, 9], tooltip: over.tooltipDomain ?? [2, 8] } } }
       },
-      categoryData: { values: { raw: groups } }
+      categoryData: { values: { raw: categories } }
     } as unknown as ChartData;
   }
 
@@ -396,7 +396,7 @@ describe('getFilteredValue', () => {
     expect(getFilteredValue(makeChartData(), seriesConfig, valueObject)).toBe(valueObject);
   });
 
-  it('fills plain values from the axis base, keeping group holes', () => {
+  it('fills plain values from the axis base, keeping category holes', () => {
     const valueObject = { plain: null } as unknown as SeriesValueObject;
     const out = getFilteredValue(makeChartData({ base: 5 }), seriesConfig, valueObject);
     expect(out.plain).toEqual([5, 5, undefined]);

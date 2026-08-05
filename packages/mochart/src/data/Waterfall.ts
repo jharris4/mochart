@@ -126,12 +126,12 @@ export function createWaterfall(items: readonly WaterfallItem[], options: Create
   };
 
   // One series per direction, all floating from the shared `start` property;
-  // each group carries a value for exactly one of them, so the bars render
+  // each category carries a value for exactly one of them, so the bars render
   // full-width in their slot (group/stack null keeps them out of any
   // configured grouping) and the legend names the three directions.
   // partialRangeIsMissing matters because `start` exists on every row: without it
   // the two off-direction series would keep zero-extent bars at `start`
-  // instead of skipping the group.
+  // instead of skipping the category.
   // The shape's strokeColor matches its fill: bars grow a 1px outline when
   // focused, and the default strokeColor is the palette color for the series
   // *index*, which would rim the bar in an unrelated color.

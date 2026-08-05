@@ -13,13 +13,13 @@ import type { AnimationChartData } from '../../src/types/animation';
 import type { EnhancedMochartConfig } from '../../src/types/enhanced';
 
 const config: EnhancedMochartConfig = makeConfig({
-  categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+  categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
   series: [{ property: 'a', renderer: 'bar' }]
 });
 const seriesId = config.series[0].id;
 
 function chartDataFor(rows: Record<string, number>[]): AnimationChartData {
-  return getChartData(config, new ArrayOfObjectsDataProvider(rows, 'g'), {});
+  return getChartData(config, new ArrayOfObjectsDataProvider(rows, 'c'), {});
 }
 
 function plain(chartData: AnimationChartData): (number | undefined)[] | null {
@@ -28,12 +28,12 @@ function plain(chartData: AnimationChartData): (number | undefined)[] | null {
 
 describe('getChartAnimationData', () => {
   it('marks the first animation (no prior data) as initial', () => {
-    const cad = getChartAnimationData(config, null, chartDataFor([{ g: 0, a: 5 }]));
+    const cad = getChartAnimationData(config, null, chartDataFor([{ c: 0, a: 5 }]));
     expect(cad.initialAnimation).toBe(true);
   });
 
   it('is a transition (not initial) when prior data exists', () => {
-    const cad = getChartAnimationData(config, chartDataFor([{ g: 0, a: 5 }]), chartDataFor([{ g: 0, a: 9 }]));
+    const cad = getChartAnimationData(config, chartDataFor([{ c: 0, a: 5 }]), chartDataFor([{ c: 0, a: 9 }]));
     expect(cad.initialAnimation).toBe(false);
   });
 });
@@ -41,8 +41,8 @@ describe('getChartAnimationData', () => {
 describe('getChartDataForValueDelta', () => {
   const cad = getChartAnimationData(
     config,
-    chartDataFor([{ g: 0, a: 0 }, { g: 1, a: 0 }]),
-    chartDataFor([{ g: 0, a: 10 }, { g: 1, a: 20 }])
+    chartDataFor([{ c: 0, a: 0 }, { c: 1, a: 0 }]),
+    chartDataFor([{ c: 0, a: 10 }, { c: 1, a: 20 }])
   );
 
   it('returns the start values at percentage 0', () => {
@@ -67,15 +67,15 @@ describe('getChartDataForValueDelta', () => {
 });
 
 describe('getChartDataForValueDelta with an undefined hole', () => {
-  // group 1 animates from a defined 0 to an undefined (missing) value
+  // category 1 animates from a defined 0 to an undefined (missing) value
   const cad = getChartAnimationData(
     config,
-    chartDataFor([{ g: 0, a: 0 }, { g: 1, a: 0 }]),
-    chartDataFor([{ g: 0, a: 10 }, { g: 1 }])
+    chartDataFor([{ c: 0, a: 0 }, { c: 1, a: 0 }]),
+    chartDataFor([{ c: 0, a: 10 }, { c: 1 }])
   );
 
   it('interpolates the defined point and holds the vanishing point at its start', () => {
-    // group 0 tweens 0 -> 10 as usual; group 1 has no end value, so its delta
+    // category 0 tweens 0 -> 10 as usual; category 1 has no end value, so its delta
     // is zero and it holds at the start value rather than becoming undefined
     expect(plain(getChartDataForValueDelta(config, cad, 0))).toEqual([0, 0]);
     expect(plain(getChartDataForValueDelta(config, cad, 0.5))).toEqual([5, 0]);
@@ -83,11 +83,11 @@ describe('getChartDataForValueDelta with an undefined hole', () => {
   });
 });
 
-describe('getChartDataForAxisDelta (group added)', () => {
+describe('getChartDataForAxisDelta (category added)', () => {
   const cad = getChartAnimationData(
     config,
-    chartDataFor([{ g: 0, a: 10 }, { g: 1, a: 20 }]),
-    chartDataFor([{ g: 0, a: 10 }, { g: 1, a: 20 }, { g: 2, a: 30 }])
+    chartDataFor([{ c: 0, a: 10 }, { c: 1, a: 20 }]),
+    chartDataFor([{ c: 0, a: 10 }, { c: 1, a: 20 }, { c: 2, a: 30 }])
   );
 
   it('expands the ordinal category domain from the start to the end span', () => {
@@ -100,8 +100,8 @@ describe('getStartChartData / getEndChartData', () => {
   it('exposes the value-change transition endpoints', () => {
     const cad = getChartAnimationData(
       config,
-      chartDataFor([{ g: 0, a: 1 }]),
-      chartDataFor([{ g: 0, a: 2 }])
+      chartDataFor([{ c: 0, a: 1 }]),
+      chartDataFor([{ c: 0, a: 2 }])
     );
     expect(getStartChartData(cad)).toBe(cad.valueChangeData.start);
     expect(getEndChartData(cad)).toBe(cad.valueChangeData.end);
@@ -110,27 +110,27 @@ describe('getStartChartData / getEndChartData', () => {
 
 describe('getChartDataForValueDelta (range channel with an undefined hole)', () => {
   const rangeConfig: EnhancedMochartConfig = makeConfig({
-    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
     series: [{ property: 'a', rangeProperty: 'hi', renderer: 'bar' }]
   });
   const rangeSeriesId = rangeConfig.series[0].id;
 
   function rangeChartData(rows: Record<string, number>[]): AnimationChartData {
-    return getChartData(rangeConfig, new ArrayOfObjectsDataProvider(rows, 'g'), {});
+    return getChartData(rangeConfig, new ArrayOfObjectsDataProvider(rows, 'c'), {});
   }
 
-  // group 1's range value (hi) disappears at the end while its plain value stays
+  // category 1's range value (hi) disappears at the end while its plain value stays
   const cad = getChartAnimationData(
     rangeConfig,
-    rangeChartData([{ g: 0, a: 0, hi: 0 }, { g: 1, a: 0, hi: 0 }]),
-    rangeChartData([{ g: 0, a: 10, hi: 15 }, { g: 1, a: 20 }])
+    rangeChartData([{ c: 0, a: 0, hi: 0 }, { c: 1, a: 0, hi: 0 }]),
+    rangeChartData([{ c: 0, a: 10, hi: 15 }, { c: 1, a: 20 }])
   );
 
   it('tweens the plain channel while holding the vanishing range point', () => {
     const mid = getChartDataForValueDelta(rangeConfig, cad, 0.5).seriesData.raw.values[rangeSeriesId];
     const end = getChartDataForValueDelta(rangeConfig, cad, 1).seriesData.raw.values[rangeSeriesId];
-    // plain animates on both groups; range animates on group 0 but the missing
-    // group-1 range has a zero delta and holds at its start value. The ranged
+    // plain animates on both categories; range animates on category 0 but the missing
+    // category-1 range has a zero delta and holds at its start value. The ranged
     // series' plain/range keys share one duration (each key at proportional
     // speed) so the shape's edges arrive together — hence range is at half its
     // journey at the midpoint, like plain, rather than ahead of it.
@@ -142,11 +142,11 @@ describe('getChartDataForValueDelta (range channel with an undefined hole)', () 
 });
 
 describe('getChartDataForValueDelta (a point entering from undefined)', () => {
-  // group 1 starts undefined (absent) and animates in to a defined end value
+  // category 1 starts undefined (absent) and animates in to a defined end value
   const cad = getChartAnimationData(
     config,
-    chartDataFor([{ g: 0, a: 10 }, { g: 1 }]),
-    chartDataFor([{ g: 0, a: 10 }, { g: 1, a: 20 }])
+    chartDataFor([{ c: 0, a: 10 }, { c: 1 }]),
+    chartDataFor([{ c: 0, a: 10 }, { c: 1, a: 20 }])
   );
 
   it('animates the entering point from a defined baseline up to its end value', () => {
@@ -173,19 +173,19 @@ describe('getChartDataForValueDelta (a point entering from undefined)', () => {
 // values by identity, so date charts lost their mid-animation focus remap.
 describe('category index maps with Date category values', () => {
   const dateConfig = makeConfig({
-    categoryAxis: { property: 'g', type: 'date', scale: 'ordinal' },
+    categoryAxis: { property: 'c', type: 'date', scale: 'ordinal' },
     series: [{ property: 'a', renderer: 'bar' }]
   });
   const dateRows = (offset: number) => [
-    { g: new Date(2026, 0, 1), a: 1 + offset },
-    { g: new Date(2026, 1, 1), a: 2 + offset }
+    { c: new Date(2026, 0, 1), a: 1 + offset },
+    { c: new Date(2026, 1, 1), a: 2 + offset }
   ];
 
   it('maps indices by value across fresh Date instances', () => {
     const cad = getChartAnimationData(
       dateConfig,
-      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(0), 'g'), {}),
-      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(5), 'g'), {})
+      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(0), 'c'), {}),
+      getChartData(dateConfig, new ArrayOfObjectsDataProvider(dateRows(5), 'c'), {})
     );
     expect(oldIndexForNewIndex(cad.categoryDeltaData, 1)).toBe(1);
     expect(newIndexForOldIndex(cad.categoryDeltaData, 0)).toBe(0);
@@ -199,16 +199,16 @@ describe('category index maps with Date category values', () => {
 describe('filtered series-domain deltas drive the phase pacing', () => {
   it('includes the filtered map in the overall delta and keeps factors >= 1', () => {
     const filteredConfig = makeConfig({
-      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
       valueAxes: [{ adjustForFiltering: false }],
       series: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
     });
     const dataFor = (rows: Record<string, number>[]) =>
-      getChartData(filteredConfig, new ArrayOfObjectsDataProvider(rows, 'g'), { S0: true });
+      getChartData(filteredConfig, new ArrayOfObjectsDataProvider(rows, 'c'), { S0: true });
     const cad = getChartAnimationData(
       filteredConfig,
-      dataFor([{ g: 0, a: 100, b: 5 }, { g: 1, a: 80, b: 10 }]),
-      dataFor([{ g: 0, a: 100, b: 25 }, { g: 1, a: 80, b: 50 }])
+      dataFor([{ c: 0, a: 100, b: 5 }, { c: 1, a: 80, b: 10 }]),
+      dataFor([{ c: 0, a: 100, b: 25 }, { c: 1, a: 80, b: 50 }])
     ) as any;
 
     for (const phase of [cad.axisExpansionData, cad.axisContractionData]) {
@@ -227,15 +227,15 @@ describe('filtered series-domain deltas drive the phase pacing', () => {
 describe('tooltip value deltas drive the phase pacing', () => {
   it('counts a tooltip-only change and keeps its factor >= 1', () => {
     const tooltipConfig = makeConfig({
-      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
       series: [{ property: 'a', tooltipProperty: 'info', renderer: 'bar' }]
     });
     const dataFor = (rows: Record<string, number>[]) =>
-      getChartData(tooltipConfig, new ArrayOfObjectsDataProvider(rows, 'g'), {});
+      getChartData(tooltipConfig, new ArrayOfObjectsDataProvider(rows, 'c'), {});
     const cad = getChartAnimationData(
       tooltipConfig,
-      dataFor([{ g: 0, a: 10, info: 100 }, { g: 1, a: 20, info: 200 }]),
-      dataFor([{ g: 0, a: 10, info: 900 }, { g: 1, a: 20, info: 50 }])
+      dataFor([{ c: 0, a: 10, info: 100 }, { c: 1, a: 20, info: 200 }]),
+      dataFor([{ c: 0, a: 10, info: 900 }, { c: 1, a: 20, info: 50 }])
     ) as any;
 
     const raw = cad.valueChangeData.deltas.raw;
@@ -253,14 +253,14 @@ describe('tooltip value deltas drive the phase pacing', () => {
 // cover them (the value phase renders the returning series against them).
 describe('hidden series are excluded from axis phase pacing', () => {
   const pacingConfig = makeConfig({
-    categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+    categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
     series: [{ property: 'a', renderer: 'bar' }, { property: 'b', renderer: 'bar' }]
   });
   const bId = pacingConfig.series[1].id;
   // b stays inside a's extent so toggling it never changes any axis domain
-  const rows = [{ g: 0, a: 0, b: 10 }, { g: 1, a: 100, b: 90 }];
+  const rows = [{ c: 0, a: 0, b: 10 }, { c: 1, a: 100, b: 90 }];
   const dataFor = (filtered: Record<string, boolean>) =>
-    getChartData(pacingConfig, new ArrayOfObjectsDataProvider(rows, 'g'), filtered);
+    getChartData(pacingConfig, new ArrayOfObjectsDataProvider(rows, 'c'), filtered);
 
   it('unfiltering starts the value phase immediately (no dead expansion phase)', () => {
     const cad = getChartAnimationData(pacingConfig, dataFor({ [bId]: true }), dataFor({})) as any;

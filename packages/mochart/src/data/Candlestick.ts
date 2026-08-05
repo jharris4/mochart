@@ -59,13 +59,13 @@ export interface CreateCandlestickOptions {
    */
   colors?: Partial<Record<CandlestickDirection, string>>;
   /**
-   * The fraction (0 - 1) of the group slot used by the low/high wick bars.
+   * The fraction (0 - 1) of the category slot used by the low/high wick bars.
    *
    * @default 0.15
    */
   wickWidthFraction?: number;
   /**
-   * The fraction (0 - 1) of the group slot used by the open/close body bars.
+   * The fraction (0 - 1) of the category slot used by the open/close body bars.
    *
    * @default 1
    */
@@ -208,7 +208,7 @@ export function buildVolumeValueAxisConfigs(volumeOptions: Required<CandlestickV
 // One volume bar series per direction, mirroring the price series' split:
 // out of the legend but following their direction series, so filtering and
 // focusing a direction takes its volume bars along, and the tooltip shows a
-// single volume row per group.
+// single volume row per category.
 export function buildVolumeSeriesConfigs(volumeOptions: Required<CandlestickVolumeOptions>, colors: Partial<Record<CandlestickDirection, string>> | undefined): DeepPartial<SeriesConfig>[] {
   return DIRECTIONS.map((direction) => {
     const color = colors?.[direction] ?? DEFAULT_COLORS[direction];
@@ -268,12 +268,12 @@ export function createCandlestick(items: readonly CandlestickItem[], options: Cr
   };
 
   // Two bar series per direction, each defined for exactly one direction per
-  // group (missingValues 'connect' + partialRangeIsMissing skip the other, as in the waterfall
+  // category (missingValues 'connect' + partialRangeIsMissing skip the other, as in the waterfall
   // helper): a thin low→high wick and a full-width open→close body painted
   // over it. Fills are opaque so the body fully covers the wick where they
   // overlap. Wicks stay out of the legend (they'd duplicate the body entries)
   // but follow their body's legend filtering via followSeries, and label
-  // their tooltip row with the shared range title, so each group shows one
+  // their tooltip row with the shared range title, so each category shows one
   // body row (open – close) and one range row (low – high).
   //
   // In hollow mode the wick can't run behind the body (it would show through

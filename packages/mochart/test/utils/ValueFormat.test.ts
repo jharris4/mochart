@@ -16,7 +16,7 @@ const valueAxis = (over: Record<string, unknown>): EnhancedValueAxisConfig => ov
 const series = (over: Record<string, unknown>): EnhancedSeriesConfig => over as unknown as EnhancedSeriesConfig;
 
 describe('getCategoryFormat', () => {
-  it('is an identity for string groups with no formatting', () => {
+  it('is an identity for string categories with no formatting', () => {
     const fmt = getCategoryFormat(categoryAxis({
       type: 'string', valueFormat: null, valuePrefix: null, valueSuffix: null
     }));
