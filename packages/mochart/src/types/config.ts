@@ -1211,7 +1211,7 @@ export interface ThresholdConfig {
   titleBackgroundStyle?: Partial<Style>;
 }
 
-/** Shared properties of the group axis and series axes (config/defaults/axisConfig.ts). */
+/** Shared properties of the category axis and value axes (config/defaults/axisConfig.ts). */
 export interface AxisConfigBase {
   /**
    * Whether to show a line along the length of the axis.
@@ -1259,10 +1259,10 @@ export interface AxisConfigBase {
    * Whether the axis is placed at the start (top/left) or end (bottom/right) of
    * the chart.
    *
-   * Group axis defaults:
+   * Category axis defaults:
    * - `"start"` — when plot.inverted is true
    * - `"end"` — when plot.inverted is false
-   * Series axis default: `"start"`.
+   * Value axis default: `"start"`.
    */
   side: AxisSide;
 
@@ -1277,8 +1277,8 @@ export interface AxisConfigBase {
    * Whether to show the focus range on the axis when it has a focused series
    * domain or category value.
    *
-   * Group axis default: `false`.
-   * Series axis default: `true`.
+   * Category axis default: `false`.
+   * Value axis default: `true`.
    */
   showFocusRange: boolean;
   /**
@@ -1306,8 +1306,8 @@ export interface AxisConfigBase {
    * Whether to show lines perpendicular to the axis showing the focused series
    * domain or category value.
    *
-   * Group axis default: `true`.
-   * Series axis default: `false`.
+   * Category axis default: `true`.
+   * Value axis default: `false`.
    */
   showFocusTickMarks: boolean;
   /**
@@ -1391,10 +1391,10 @@ export interface AxisConfigBase {
    * The maximum number of ticks to show along the length of the axis (use 0 to
    * disable the maximum).
    *
-   * Group axis defaults:
+   * Category axis defaults:
    * - `10` — when scale is linear
    * - `0` — when scale is ordinal
-   * Series axis default: `10`.
+   * Value axis default: `10`.
    */
   maxTickCount: number;
 
@@ -1420,10 +1420,10 @@ export interface AxisConfigBase {
    * The minimum space (in pixels) to allow between the bounds of any tick label
    * text.
    *
-   * Group axis defaults:
+   * Category axis defaults:
    * - `12` — when scale is linear
    * - `4` — when scale is ordinal
-   * Series axis default: `12`.
+   * Value axis default: `12`.
    */
   minTickSpacing: number;
   /**
@@ -1689,10 +1689,10 @@ export interface AxisConfigBase {
   /**
    * Whether the axis should be visible.
    *
-   * Group axis defaults:
+   * Category axis defaults:
    * - `false` — when chart.type is pie
    * - `true` — when chart.type is xy
-   * Series axis defaults:
+   * Value axis defaults:
    * - `false` — when chart.type is pie
    * - `true` — when chart.type is xy
    */
@@ -1837,7 +1837,7 @@ export interface ValueAxisTick {
 
 export interface ValueAxisConfig extends AxisConfigBase {
   /**
-   * The unique identifier for the series axis so it can be referenced by series
+   * The unique identifier for the value axis so it can be referenced by series
    * that belong to it.
    *
    * Referenced by `series[].axis` (and `seriesStacks[].axis`) to assign series
@@ -1848,11 +1848,11 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   id: string;
   /**
-   * The unique integer order of the series axis controlling its order of
+   * The unique integer order of the value axis controlling its order of
    * appearance.
    *
    * Default:
-   * - `${index}` — series axis index
+   * - `${index}` — value axis index
    */
   order: number;
   /**
@@ -1886,8 +1886,8 @@ export interface ValueAxisConfig extends AxisConfigBase {
    *
    * Default:
    * - `0` — when chart.type is pie
-   * - `0` — series axis has stacks
-   * - `null` — series axis has no stacks
+   * - `0` — value axis has stacks
+   * - `null` — value axis has no stacks
    */
   base: number | null;
   /**
@@ -1910,14 +1910,14 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   baseLineStyle: StrokeStyleStates;
   /**
-   * Whether the series axis should be focused whenever the user mouses over a
+   * Whether the value axis should be focused whenever the user mouses over a
    * part of it in the chart.
    *
    * @default true
    */
   focusOnMouseOver: boolean;
   /**
-   * Whether the series axis should be focused whenever the user clicks/taps a
+   * Whether the value axis should be focused whenever the user clicks/taps a
    * part of it in the chart.
    *
    * @default false
@@ -1950,7 +1950,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   minMarginFraction: number;
   /**
-   * The scale of the series axis, must be linear.
+   * The scale of the value axis, must be linear.
    *
    * @default "linear"
    */
@@ -1969,7 +1969,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    */
   ticks: ValueAxisTick[] | null;
   /**
-   * The type of the series axis, must be number.
+   * The type of the value axis, must be number.
    *
    * @default "number"
    */
@@ -2096,8 +2096,8 @@ export interface SeriesConfig {
    * The property to retrieve from the data provider for the absolute lower
    * error bound values used to draw error bars (use null for none).
    *
-   * The bounds are absolute values in series axis units, not deltas from the
-   * series value, and they join the series axis domain so the whiskers never
+   * The bounds are absolute values in value axis units, not deltas from the
+   * series value, and they join the value axis domain so the whiskers never
    * clip. Either bound can be used alone for a one-sided error bar; a category
    * whose bound is undefined just omits that side of the whisker. Error bars
    * draw on `bar`, `line`, `area` and `none` renderer series (centered on each
@@ -2160,7 +2160,7 @@ export interface SeriesConfig {
    * axis id.
    *
    * Default:
-   * - `sole axis id` — series axis
+   * - `sole axis id` — value axis
    */
   axis?: string;
   /**
@@ -2208,7 +2208,7 @@ export interface SeriesConfig {
    * none).
    *
    * `bar` draws a rectangle per category value, `line` connects the values with
-   * a path, `area` fills between the value line and the series axis base, and
+   * a path, `area` fills between the value line and the value axis base, and
    * `none` draws no shape. Different series in the same chart can use different
    * renderers, e.g. bars with a line overlay.
    *
@@ -2231,11 +2231,11 @@ export interface SeriesConfig {
   /**
    * What to draw at a category whose value is missing: break the shape at the
    * gap (break), connect the neighbouring defined values (connect), or draw the
-   * point at the series axis base value (base).
+   * point at the value axis base value (base).
    *
    * With `"connect"`, lines and areas bridge missing categories directly
    * between the neighbouring defined values; with `"base"` the point is drawn
-   * at the series axis base value; the default `"break"` leaves a gap in the
+   * at the value axis base value; the default `"break"` leaves a gap in the
    * shape. For a series with a `rangeProperty`, a category counts as missing
    * only when both properties are undefined — see `partialRangeIsMissing`.
    *
@@ -2368,11 +2368,11 @@ export interface SeriesConfig {
   /**
    * The d3 format string to be applied to the series value when displayed in
    * the tooltip (use null for none, use "auto" to derive from data ("auto" will
-   * use the series axis tick label format if it is set)).
+   * use the value axis tick label format if it is set)).
    *
    * A d3-format specifier applied to the value shown in the tooltip, e.g.
    * `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring
-   * the series axis `tickLabelFormat` when that is set.
+   * the value axis `tickLabelFormat` when that is set.
    *
    * @default "auto"
    */
@@ -2633,7 +2633,7 @@ export interface SeriesConfig {
    */
   focusCategoryOnClick: boolean;
   /**
-   * Whether to show the series as focused when the series axis it belongs to is
+   * Whether to show the series as focused when the value axis it belongs to is
    * focused.
    *
    * @default true
@@ -2656,10 +2656,10 @@ export interface SeriesStackConfig {
    */
   id: string;
   /**
-   * The unique identifier of the series axis that the series stack belongs to.
+   * The unique identifier of the value axis that the series stack belongs to.
    *
    * Default:
-   * - `first axis id` — series axis
+   * - `first axis id` — value axis
    */
   axis?: string;
   /**

@@ -8,21 +8,21 @@ export interface ChartEventPayload {
   chartX: number;
   /** Pointer y relative to the chart container, in pixels. */
   chartY: number;
-  /** Pointer position along the group axis, in plot pixels. */
+  /** Pointer position along the category axis, in plot pixels. */
   categoryPosition: number;
   /** Pointer position along the value axis, in plot pixels. */
   valuePosition: number;
-  /** Pointer position along the group axis as a 0–1 fraction of the plot. */
+  /** Pointer position along the category axis as a 0–1 fraction of the plot. */
   categoryPercentage: number;
   /** Pointer position along the value axis as a 0–1 fraction of the plot. */
   valuePercentage: number;
-  /** Index of the group nearest the pointer, -1 when none. */
+  /** Index of the category nearest the pointer, -1 when none. */
   categoryIndex: number;
 }
 
 /** The chart's current focus, reported by `onFocus`. */
 export interface ChartFocus {
-  /** Id of the focused series axis, or null when no axis is focused. */
+  /** Id of the focused value axis, or null when no axis is focused. */
   focusedValueAxisId: string | null;
   /** Id of the focused series, or null when no series is focused. */
   focusedSeriesId: string | null;

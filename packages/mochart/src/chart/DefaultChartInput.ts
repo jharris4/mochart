@@ -86,7 +86,7 @@ export class DefaultChartInput {
       if (dataChanged || categoryPropertyChanged) {
         this.rawDataProvider = createRawDataProvider(mochartConfig!, data);
       }
-      // validity depends on the config too (series properties, group axis),
+      // validity depends on the config too (series properties, category axis),
       // so it is rechecked even when only the config changed
       this.mochartConfig = mochartConfig;
       this.dataProvider = this.validateDataProvider(mochartConfig!);

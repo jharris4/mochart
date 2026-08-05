@@ -68,7 +68,7 @@ table thead td { border-bottom-width: 2px; }
 <td>tooltip</td><td>Configure the chart tooltip styling and behavior</td><td>should be an object</td><td>{}</td><td><a href="#tooltip">Details</a></td>
 </tr>
 <tr>
-<td>valueAxes<br/>valueAxisDefaults</td><td>Configure the chart series axes content and styling<br/>undefined</td><td>should be a non-empty array with elements that should be an object<br/>should be an object</td><td>[]<br/>{}</td><td><a href="#valueAxes">Details</a></td>
+<td>valueAxes<br/>valueAxisDefaults</td><td>Configure the chart value axes content and styling<br/>undefined</td><td>should be a non-empty array with elements that should be an object<br/>should be an object</td><td>[]<br/>{}</td><td><a href="#valueAxes">Details</a></td>
 </tr>
 <tr>
 <td>version</td><td>The version of the configuration format (optional: omitted means the current format; include it in stored or shared configs so future releases can migrate them)</td><td>should be equal to "1.0.0" or be equal to undefined</td><td></td><td></td>
@@ -432,7 +432,7 @@ table thead td { border-bottom-width: 2px; }
 </table>
 </div>
 <div id="categoryAxis">
-<h2>Group Axis Config</h2>
+<h2>Category Axis Config</h2>
 <table>
 <thead>
 <tr>
@@ -1840,7 +1840,7 @@ table thead td { border-bottom-width: 2px; }
 </table>
 </div>
 <div id="valueAxes">
-<h2>Series Axis Config</h2>
+<h2>Value Axis Config</h2>
 <table>
 <thead>
 <tr>
@@ -1961,8 +1961,8 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="valueAxes.base">
 <td><a href="#valueAxes.base">base</a></td><td>the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)<br/><br/>The value that bars and areas grow from, and the resting position shapes animate from/to when series enter or leave. With mixed positive/negative data the base separates the two directions.</td><td>should be a number or be equal to null</td><td><div>0 (when chart.type is pie)</div>
-<div>0 (series axis has stacks)</div>
-<div>null (series axis has no stacks)</div>
+<div>0 (value axis has stacks)</div>
+<div>null (value axis has no stacks)</div>
 </td>
 </tr>
 <tr id="valueAxes.baseLineFront">
@@ -2038,11 +2038,11 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.focusOnClick">
-<td><a href="#valueAxes.focusOnClick">focusOnClick</a></td><td>whether the series axis should be focused whenever the user clicks/taps a part of it in the chart</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#valueAxes.focusOnClick">focusOnClick</a></td><td>whether the value axis should be focused whenever the user clicks/taps a part of it in the chart</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="valueAxes.focusOnMouseOver">
-<td><a href="#valueAxes.focusOnMouseOver">focusOnMouseOver</a></td><td>whether the series axis should be focused whenever the user mouses over a part of it in the chart</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#valueAxes.focusOnMouseOver">focusOnMouseOver</a></td><td>whether the value axis should be focused whenever the user mouses over a part of it in the chart</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="valueAxes.focusRangeApplyToTitle">
@@ -2182,7 +2182,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.id">
-<td><a href="#valueAxes.id">id</a></td><td>the unique identifier for the series axis so it can be referenced by series that belong to it<br/><br/>Referenced by `series[].axis` (and `seriesStacks[].axis`) to assign series to this axis. With a single axis the ids can be omitted everywhere.</td><td><p>should be a string</p>
+<td><a href="#valueAxes.id">id</a></td><td>the unique identifier for the value axis so it can be referenced by series that belong to it<br/><br/>Referenced by `series[].axis` (and `seriesStacks[].axis`) to assign series to this axis. With a single axis the ids can be omitted everywhere.</td><td><p>should be a string</p>
 <p>should be unique</p>
 </td><td><div>VA${index} (value axis index)</div>
 </td>
@@ -2232,9 +2232,9 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.order">
-<td><a href="#valueAxes.order">order</a></td><td>the unique integer order of the series axis controlling its order of appearance</td><td><p>should be an integer</p>
+<td><a href="#valueAxes.order">order</a></td><td>the unique integer order of the value axis controlling its order of appearance</td><td><p>should be an integer</p>
 <p>should be unique</p>
-</td><td><div>${index} (series axis index)</div>
+</td><td><div>${index} (value axis index)</div>
 </td>
 </tr>
 <tr id="valueAxes.paddingInner">
@@ -2246,7 +2246,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.scale">
-<td><a href="#valueAxes.scale">scale</a></td><td>the scale of the series axis, must be linear</td><td>should be equal to "linear"</td><td><div>"linear"</div>
+<td><a href="#valueAxes.scale">scale</a></td><td>the scale of the value axis, must be linear</td><td>should be equal to "linear"</td><td><div>"linear"</div>
 </td>
 </tr>
 <tr id="valueAxes.showAxisLine">
@@ -2686,7 +2686,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.type">
-<td><a href="#valueAxes.type">type</a></td><td>the type of the series axis, must be number</td><td>should be equal to "number"</td><td><div>"number"</div>
+<td><a href="#valueAxes.type">type</a></td><td>the type of the value axis, must be number</td><td>should be equal to "number"</td><td><div>"number"</div>
 </td>
 </tr>
 <tr id="valueAxes.useSeriesFocus">
@@ -2722,7 +2722,7 @@ table thead td { border-bottom-width: 2px; }
 <tr id="series.axis">
 <td><a href="#series.axis">axis</a></td><td>the unique identifier of the axis that the series belongs to<br/><br/>Assigns the series to the value axis in `valueAxes` whose `id` matches. With a single configured axis this can be omitted — it defaults to that axis id.</td><td><p>should be a string</p>
 <p>should equal the id property of one of the valueAxes</p>
-</td><td><div>sole axis id (series axis)</div>
+</td><td><div>sole axis id (value axis)</div>
 </td>
 </tr>
 <tr id="series.barAlignFraction">
@@ -2917,7 +2917,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.errorLowProperty">
-<td><a href="#series.errorLowProperty">errorLowProperty</a></td><td>the property to retrieve from the data provider for the absolute lower error bound values used to draw error bars (use null for none)<br/><br/>The bounds are absolute values in series axis units, not deltas from the series value, and they join the series axis domain so the whiskers never clip. Either bound can be used alone for a one-sided error bar; a category whose bound is undefined just omits that side of the whisker. Error bars draw on `bar`, `line`, `area` and `none` renderer series (centered on each bar — including grouped sub-slot bars — or on each point), but not on stacked series, where absolute bounds have no meaning against the cumulative stack position.</td><td><p>should be equal to null when stack is not null</p>
+<td><a href="#series.errorLowProperty">errorLowProperty</a></td><td>the property to retrieve from the data provider for the absolute lower error bound values used to draw error bars (use null for none)<br/><br/>The bounds are absolute values in value axis units, not deltas from the series value, and they join the value axis domain so the whiskers never clip. Either bound can be used alone for a one-sided error bar; a category whose bound is undefined just omits that side of the whisker. Error bars draw on `bar`, `line`, `area` and `none` renderer series (centered on each bar — including grouped sub-slot bars — or on each point), but not on stacked series, where absolute bounds have no meaning against the cumulative stack position.</td><td><p>should be equal to null when stack is not null</p>
 <p>should be a defined value or equal to null when stack is null</p>
 </td><td><div>null</div>
 </td>
@@ -3230,7 +3230,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.missingValues">
-<td><a href="#series.missingValues">missingValues</a></td><td>what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the series axis base value (base)<br/><br/>With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the series axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.</td><td>should be one of [ "break", "connect", "base" ]</td><td><div>"break"</div>
+<td><a href="#series.missingValues">missingValues</a></td><td>what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the value axis base value (base)<br/><br/>With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the value axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.</td><td>should be one of [ "break", "connect", "base" ]</td><td><div>"break"</div>
 </td>
 </tr>
 <tr id="series.order">
@@ -3252,7 +3252,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.renderer">
-<td><a href="#series.renderer">renderer</a></td><td>the shape renderer to use when drawing the series shape (line, area, bar, none)<br/><br/>`bar` draws a rectangle per category value, `line` connects the values with a path, `area` fills between the value line and the series axis base, and `none` draws no shape. Different series in the same chart can use different renderers, e.g. bars with a line overlay.</td><td>should be one of [ "bar", "line", "area", "none" ]</td><td><div>"line"</div>
+<td><a href="#series.renderer">renderer</a></td><td>the shape renderer to use when drawing the series shape (line, area, bar, none)<br/><br/>`bar` draws a rectangle per category value, `line` connects the values with a path, `area` fills between the value line and the value axis base, and `none` draws no shape. Different series in the same chart can use different renderers, e.g. bars with a line overlay.</td><td>should be one of [ "bar", "line", "area", "none" ]</td><td><div>"line"</div>
 </td>
 </tr>
 <tr id="series.shapeStyle">
@@ -3404,7 +3404,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.useAxisFocus">
-<td><a href="#series.useAxisFocus">useAxisFocus</a></td><td>whether to show the series as focused when the series axis it belongs to is focused</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#series.useAxisFocus">useAxisFocus</a></td><td>whether to show the series as focused when the value axis it belongs to is focused</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="series.useTitleForValueLabel">
@@ -3412,7 +3412,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.valueFormat">
-<td><a href="#series.valueFormat">valueFormat</a></td><td>the d3 format string to be applied to the series value when displayed in the tooltip (use null for none, use "auto" to derive from data ("auto" will use the series axis tick label format if it is set))<br/><br/>A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the series axis `tickLabelFormat` when that is set.</td><td>should be a valid number format or be one of [ null, "auto" ]</td><td><div>"auto"</div>
+<td><a href="#series.valueFormat">valueFormat</a></td><td>the d3 format string to be applied to the series value when displayed in the tooltip (use null for none, use "auto" to derive from data ("auto" will use the value axis tick label format if it is set))<br/><br/>A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the value axis `tickLabelFormat` when that is set.</td><td>should be a valid number format or be one of [ null, "auto" ]</td><td><div>"auto"</div>
 </td>
 </tr>
 <tr id="series.valueLabel">
@@ -3454,9 +3454,9 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="seriesStacks.axis">
-<td><a href="#seriesStacks.axis">axis</a></td><td>the unique identifier of the series axis that the series stack belongs to</td><td><p>should be a string</p>
+<td><a href="#seriesStacks.axis">axis</a></td><td>the unique identifier of the value axis that the series stack belongs to</td><td><p>should be a string</p>
 <p>should equal the id property of one of the valueAxes</p>
-</td><td><div>first axis id (series axis)</div>
+</td><td><div>first axis id (value axis)</div>
 </td>
 </tr>
 <tr id="seriesStacks.id">

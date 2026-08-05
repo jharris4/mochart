@@ -1,4 +1,4 @@
-// A linear date group axis positions each point by its actual date, so uneven
+// A linear date category axis positions each point by its actual date, so uneven
 // sampling shows as uneven spacing. Dates arrive as ISO strings.
 import type { MochartInputConfig } from '@mochart/core';
 

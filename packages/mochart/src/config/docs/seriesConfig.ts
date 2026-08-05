@@ -65,7 +65,7 @@ export default function getDescriptions() {
     },
     ignore: 'whether to ignore this series and treat it as though it were not specified',
     renderer: 'the shape renderer to use when drawing the series shape (line, area, bar, none)',
-    missingValues: 'what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the series axis base value (base)',
+    missingValues: 'what to draw at a category whose value is missing: break the shape at the gap (break), connect the neighbouring defined values (connect), or draw the point at the value axis base value (base)',
     partialRangeIsMissing: 'whether to treat a value as missing when either of property or rangeProperty is undefined, instead of collapsing to the defined one',
     curve: {
       description: 'the d3 curve type and param to use when drawing the series shape',
@@ -84,7 +84,7 @@ export default function getDescriptions() {
     errorBarCapSize: 'the full width (in pixels) of the horizontal caps drawn at the ends of the series error bars (use 0 to hide the caps)',
     errorBarStyle: styleStates('the style of the series error bars', lineMembers, 'errorBar', true),
     valueLabel: 'the label to show before a series value in the tooltip (use null for none)',
-    valueFormat: 'the d3 format string to be applied to the series value when displayed in the tooltip (use null for none, use "auto" to derive from data ("auto" will use the series axis tick label format if it is set))',
+    valueFormat: 'the d3 format string to be applied to the series value when displayed in the tooltip (use null for none, use "auto" to derive from data ("auto" will use the value axis tick label format if it is set))',
     valuePrefix: 'the text to prefix series values with when showing them in the tooltip (use null for none)',
     valueSuffix: 'the text to append series values with when showing them in the tooltip (use null for none)',
     useTitleForValueLabel: 'whether to use the title value for the valueLabel value when the valueLabel is not set',
@@ -121,25 +121,25 @@ export default function getDescriptions() {
     focusOnClick: 'whether the series should be focused whenever the user clicks/taps a part of it in the chart',
     focusCategoryOnMouseOver: 'whether the category should be focused whenever the user mouses over a category of the series in the chart',
     focusCategoryOnClick: 'whether the category should be focused whenever the user clicks/taps a category of the series in the chart',
-    useAxisFocus: 'whether to show the series as focused when the series axis it belongs to is focused',
+    useAxisFocus: 'whether to show the series as focused when the value axis it belongs to is focused',
     animateBaseFromAdjacent: 'whether to animate leading/trailing series position values from their adjacent values (true) or from the base value (false)'
   };
 }
 export function getDetails() {
   return {
     property: 'The chart reads this property from each category of the data provider to get the series value — it is the only series property without a default, so every series must set it. Use `getDataErrors` to check a dataset against the configured properties.',
-    renderer: '`bar` draws a rectangle per category value, `line` connects the values with a path, `area` fills between the value line and the series axis base, and `none` draws no shape. Different series in the same chart can use different renderers, e.g. bars with a line overlay.',
+    renderer: '`bar` draws a rectangle per category value, `line` connects the values with a path, `area` fills between the value line and the value axis base, and `none` draws no shape. Different series in the same chart can use different renderers, e.g. bars with a line overlay.',
     rangeProperty: 'When set, the series shape spans from the `rangeProperty` value to the `property` value instead of starting at the axis base — producing floating bars or a banded (low/high) area.',
-    errorLowProperty: 'The bounds are absolute values in series axis units, not deltas from the series value, and they join the series axis domain so the whiskers never clip. Either bound can be used alone for a one-sided error bar; a category whose bound is undefined just omits that side of the whisker. Error bars draw on `bar`, `line`, `area` and `none` renderer series (centered on each bar — including grouped sub-slot bars — or on each point), but not on stacked series, where absolute bounds have no meaning against the cumulative stack position.',
+    errorLowProperty: 'The bounds are absolute values in value axis units, not deltas from the series value, and they join the value axis domain so the whiskers never clip. Either bound can be used alone for a one-sided error bar; a category whose bound is undefined just omits that side of the whisker. Error bars draw on `bar`, `line`, `area` and `none` renderer series (centered on each bar — including grouped sub-slot bars — or on each point), but not on stacked series, where absolute bounds have no meaning against the cumulative stack position.',
     errorHighProperty: 'See `errorLowProperty` — the same rules apply to the upper bound.',
     errorBarCapSize: 'The caps are the horizontal ticks at the whisker ends. On a `bar` renderer series the cap width is clamped to the bar layout slot so caps never overlap a neighbouring bar; use `0` to draw plain whiskers without caps.',
     axis: 'Assigns the series to the value axis in `valueAxes` whose `id` matches. With a single configured axis this can be omitted — it defaults to that axis id.',
     stack: 'Series sharing the same stack id (an `id` from `seriesStacks`) are drawn stacked on one another and animate as a single unit, so the stack stays gapless mid-transition. Defaults to the sole stack id when exactly one stack is configured; use `null` to opt a series out.',
     group: 'Series sharing the same group id (an `id` from `seriesGroups`) are laid out side by side within each category slot — grouped/clustered bars. Defaults to the sole group id when exactly one series group is configured; use `null` to opt a series out.',
     curve: 'Only affects the `line` and `area` renderers. `type` selects the d3-shape curve (`linear`, `monotoneX`, `natural`, `step`, `cardinal`, `catmullRom`, …) and `param` is passed to the curve’s tension/alpha configurator for the curve types that take one.',
-    missingValues: 'With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the series axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.',
+    missingValues: 'With `"connect"`, lines and areas bridge missing categories directly between the neighbouring defined values; with `"base"` the point is drawn at the value axis base value; the default `"break"` leaves a gap in the shape. For a series with a `rangeProperty`, a category counts as missing only when both properties are undefined — see `partialRangeIsMissing`.',
     partialRangeIsMissing: 'Only affects series with a `rangeProperty` (stacked series are unaffected). By default a category with just one of `property`/`rangeProperty` undefined keeps a zero-extent span collapsed at the defined value, so ranged areas stay connected through it. When `true` such categories count as missing instead, following the configured `missingValues` treatment.',
-    valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the series axis `tickLabelFormat` when that is set.',
+    valueFormat: 'A d3-format specifier applied to the value shown in the tooltip, e.g. `".1f"` or `",.0f"`. `"auto"` derives a format from the data, preferring the value axis `tickLabelFormat` when that is set.',
     capType: 'Draws a decorative cap on the value end of each bar in the series; `capSize` controls its extent. To cap only the outside of a stacked bar, see `capOnlyStackOuter` and `seriesStacks[].outerCapType`.',
     barWidthFraction: 'Only affects the `bar` renderer. Narrows each bar within its layout slot (the full category slot, or the series’ sub-slot when grouped), so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range. The narrowed bar is centered by default; `barAlignFraction` moves it within the slot.',
     barAlignFraction: 'Only affects the `bar` renderer, and only when `barWidthFraction` is less than 1. Lets narrowed bars from different series share one slot side by side — e.g. the left open tick and right close tick of an OHLC bar.',

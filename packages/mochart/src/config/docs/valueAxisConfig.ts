@@ -3,10 +3,10 @@ import getAxisDescriptions, { axisStyleStatesDescription, axisStrokeMembers } fr
 export default function getDescriptions() {
   return {
     ...getAxisDescriptions(),
-    id: 'the unique identifier for the series axis so it can be referenced by series that belong to it',
-    type: 'the type of the series axis, must be number',
-    scale: 'the scale of the series axis, must be linear',
-    order: 'the unique integer order of the series axis controlling its order of appearance',
+    id: 'the unique identifier for the value axis so it can be referenced by series that belong to it',
+    type: 'the type of the value axis, must be number',
+    scale: 'the scale of the value axis, must be linear',
+    order: 'the unique integer order of the value axis controlling its order of appearance',
     base: 'the numeric base value of the axis, used for animation and relative positioning for shapes (use null for none)',
     showBaseLine: 'whether to show a line along the base of the axis',
     baseLineFront: 'whether the base line should be shown in front (true) or behind (false) the series shapes',
@@ -18,8 +18,8 @@ export default function getDescriptions() {
     ticks: 'the explicit ticks to show on the axis in place of the generated ones, each { value, label } placing label text at an axis value (label falls back to the formatted value, use null for none)',
     maxMarginFraction: 'the margin, as a fraction (0 or greater) of the domain of the axis, to use at the maximum extent of the axis (only applied if max is "auto" and max value is not equal base)',
     minMarginFraction: 'the margin, as a fraction (0 or greater) of the domain of the axis, to use at the minimum extent of the axis (only applied if min is "auto" and min value is not equal base)',
-    focusOnMouseOver: 'whether the series axis should be focused whenever the user mouses over a part of it in the chart',
-    focusOnClick: 'whether the series axis should be focused whenever the user clicks/taps a part of it in the chart',
+    focusOnMouseOver: 'whether the value axis should be focused whenever the user mouses over a part of it in the chart',
+    focusOnClick: 'whether the value axis should be focused whenever the user clicks/taps a part of it in the chart',
     useSeriesFocus: 'whether to show the axis as focused when any series belonging to it is focused',
   };
 }

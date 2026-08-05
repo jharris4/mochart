@@ -41,7 +41,7 @@ import * as gauge from '../examples/gauge'
   defaults to `false` — a pie has a single category, so its value (`createPie`
   writes `'all'`) would head every tooltip. Set `showCategory: true` with a
   meaningful `categoryValue` if you want that line back.
-- The category and series axes still exist structurally (the category column and
+- The category and value axes still exist structurally (the category column and
   value domains feed the data model and animations) but default to
   [`visible: false`](/reference/categoryAxis#categoryAxis.visible) in
   pie mode. The crosshair does not apply.

@@ -155,7 +155,7 @@ export function createHistogram(values: readonly number[], options: CreateHistog
 
   // Bins are contiguous and equal width, so an ordinal axis positions them
   // identically to a linear one while letting the bars fill each bin (on a
-  // linear group axis a bar always spans a single group *value*, which for a
+  // linear category axis a bar always spans a single category *value*, which for a
   // multi-unit-wide bin leaves the bars as slivers).
   const categoryAxis: Partial<CategoryAxisConfig> = {
     property: CATEGORY_PROPERTY,

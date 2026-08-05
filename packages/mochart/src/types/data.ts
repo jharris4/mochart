@@ -1,4 +1,4 @@
-/** Values supported by a chart's group axis. */
+/** Values supported by a chart's category axis. */
 export type CategoryValue = string | number | Date;
 export type DomainValue = number | Date;
 export type NullableDomain<T extends DomainValue = number> = [T | null, T | null];

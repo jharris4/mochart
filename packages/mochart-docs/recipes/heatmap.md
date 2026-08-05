@@ -15,7 +15,7 @@ import * as heatmap from '../examples/heatmap'
 ## How it works
 
 - Each row is a `bar` series floating on a fixed one-unit band of the
-  series axis via
+  value axis via
   [`rangeProperty`](/reference/series#series.rangeProperty)
   (`rows[0]` on top). The returned `valueAxisConfig` pins the axis to
   exactly the stacked bands and labels each band's center with the row name

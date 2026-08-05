@@ -41,7 +41,7 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
 
     this.root.set({ className: mochartCssClasses['axisThresholdContainer'] });
 
-    // The group axis renders ascending in both orientations; a series axis
+    // The category axis renders ascending in both orientations; a value axis
     // ascends only when horizontal (inverted charts).
     this.categoryThreshold.set(AxisThreshold, { front, plotConfig, axisConfig: categoryAxisConfig, axisLayoutInfo: categoryAxisLayoutInfo,
       hidden: false, seriesLayoutInfo, axisDomain: categoryAxisDomain, vertical: inverted, ascending: true,

@@ -49,7 +49,7 @@ function lineConfig(renderer: 'line' | 'area', color: string): DemoConfig {
   return createSparklineConfig({
     version: '1.0.0',
     categoryAxis: { property: 'i', type: 'number', scale: 'linear' },
-    // The preset hides series axes through valueAxisAllConfig, which only
+    // The preset hides value axes through valueAxisAllConfig, which only
     // merges into *declared* axes — so declare the (otherwise defaulted) one.
     valueAxes: [{}],
     series: [

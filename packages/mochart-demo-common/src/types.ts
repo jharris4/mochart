@@ -7,7 +7,7 @@ export type {
   RandomConfig, WalkRandomConfig, WaterfallRandomConfig
 } from '@mochart/demo-data';
 
-/** A value on the group axis of a generated data set. */
+/** A value on the category axis of a generated data set. */
 export type CategoryValue = number | string;
 
 /** Map of series id -> whether that series is currently filtered out. */

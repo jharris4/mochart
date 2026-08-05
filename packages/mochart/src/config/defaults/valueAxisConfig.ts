@@ -56,8 +56,8 @@ export function getConditionalDefaults(configWithRegularDefaults: ValueAxisConfi
       // pie slices collapse to nothing when filtered, so their values must
       // animate to 0 — a domain-min base would strand the shrink partway
       { condition: () => pieMode, suffix: 'when chart.type is pie', default: 0, defaultText: '0' },
-      { condition: (_config, _index) => hasStack, suffix: 'series axis has stacks', default: 0, defaultText: '0' },
-      { condition: (_config, _index) => !hasStack, suffix: 'series axis has no stacks', default: NONE, defaultText: NONE },
+      { condition: (_config, _index) => hasStack, suffix: 'value axis has stacks', default: 0, defaultText: '0' },
+      { condition: (_config, _index) => !hasStack, suffix: 'value axis has no stacks', default: NONE, defaultText: NONE },
       { ...defaultRule, default: NONE }
     ], configWithRegularDefaults, index),
     id: conditionalDefault([
@@ -65,7 +65,7 @@ export function getConditionalDefaults(configWithRegularDefaults: ValueAxisConfi
       { ...defaultRule, default: 'VA' + index }
     ], configWithRegularDefaults, index),
     order: conditionalDefault([
-      { condition: (_config, _index) => true, suffix: 'series axis index', default: index, defaultText: '${index}' },
+      { condition: (_config, _index) => true, suffix: 'value axis index', default: index, defaultText: '${index}' },
       { ...defaultRule, default: index }
     ], configWithRegularDefaults, index)
   };

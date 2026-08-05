@@ -34,7 +34,7 @@ export interface WaterfallStep {
 export interface CreateWaterfallOptions {
   /**
    * The value the running total starts from and total bars span from. Also
-   * worth setting as the series axis `base` so delta bars near it read
+   * worth setting as the value axis `base` so delta bars near it read
    * correctly.
    *
    * @default 0

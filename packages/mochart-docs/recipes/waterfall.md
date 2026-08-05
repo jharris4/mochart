@@ -34,7 +34,7 @@ import * as waterfall from '../examples/waterfall'
   and dark surfaces. Override per direction with `colors`, and rename the
   series with `seriesTitles`.
 - `base` sets the value the running total starts from and total bars span
-  from (default 0). When it's not 0, also set the series axis
+  from (default 0). When it's not 0, also set the value axis
   [`base`](/reference/valueAxes#valueAxes.base) so delta
   bars near it read correctly.
 - Each row also carries `delta`, `cumulative` and `direction`, and the

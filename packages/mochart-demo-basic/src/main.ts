@@ -48,7 +48,7 @@ function showErrors(messages: string[]): void {
 }
 
 // Per-property value bounds from the demo's random spec, clamped to the
-// series axis config (when limitToAxisConfig) so random values never land
+// value axis config (when limitToAxisConfig) so random values never land
 // outside a fixed axis range.
 function computeSeriesBounds(config: any, randomSpec: any): Record<string, SeriesBounds> {
   const numberSpec = randomSpec?.series?.number ?? {};

@@ -64,15 +64,15 @@ export interface HeatmapData {
   /** Maps a cell value to its hex color, e.g. for building a color legend. */
   colorScale: (value: number) => string;
   /**
-   * One entry per column: `column` (the group value) plus, for each heatmap
+   * One entry per column: `column` (the category value) plus, for each heatmap
    * row `r` with a cell in the column, `row{r}` / `row{r}Start` (the cell's
-   * band on the series axis) and `row{r}Value` (the cell value). With an
+   * band on the value axis) and `row{r}Value` (the cell value). With an
    * explicit domain a domain-clamped `row{r}Color` drives the color instead.
    */
   data: Record<string, number | string | undefined>[];
   /** Fragment to spread into the chart config's `categoryAxis`. */
   categoryAxis: Partial<CategoryAxisConfig>;
-  /** Fragment to spread into the chart config's (sole) series axis config. */
+  /** Fragment to spread into the chart config's (sole) value axis config. */
   valueAxisConfig: Partial<ValueAxisConfig>;
   /** Fragments to spread into the chart config's `series`, one per row. */
   series: DeepPartial<SeriesConfig>[];
@@ -113,8 +113,8 @@ export function createHeatmapColorScale(domain: [number, number], options: Creat
 /**
  * Turns a grid of values into the pieces of a heatmap chart: each row becomes
  * a full-width `bar` series floating on a fixed one-unit band of a linear
- * series axis labelled with the row names via explicit `ticks` (`rows[0]` on
- * top), columns become ordinal group values, and each cell's `colorProperty`
+ * value axis labelled with the row names via explicit `ticks` (`rows[0]` on
+ * top), columns become ordinal category values, and each cell's `colorProperty`
  * value colors it from a shared sequential ramp. Spread the fragments into a
  * chart config and chart the `data`. The row series stay out of the legend
  * (`showInLegend: false`) — the axis names the rows and a color-scale strip

@@ -174,18 +174,18 @@ function mergedAxisMemberDoc(categoryProperty: PropertyDoc, seriesProperty: Prop
     : defaultValueText(seriesProperty.default ?? { kind: 'none' });
   if (categoryProperty.conditionalDefaults || seriesProperty.conditionalDefaults) {
     if (categoryProperty.conditionalDefaults) {
-      doc.defaultLines.push('Group axis defaults:');
+      doc.defaultLines.push('Category axis defaults:');
       doc.defaultLines.push(...conditionalDefaultLines(categoryProperty.conditionalDefaults).slice(1));
     }
     else if (categoryText !== undefined) {
-      doc.defaultLines.push('Group axis default: `' + categoryText + '`.');
+      doc.defaultLines.push('Category axis default: `' + categoryText + '`.');
     }
     if (seriesProperty.conditionalDefaults) {
-      doc.defaultLines.push('Series axis defaults:');
+      doc.defaultLines.push('Value axis defaults:');
       doc.defaultLines.push(...conditionalDefaultLines(seriesProperty.conditionalDefaults).slice(1));
     }
     else if (seriesText !== undefined) {
-      doc.defaultLines.push('Series axis default: `' + seriesText + '`.');
+      doc.defaultLines.push('Value axis default: `' + seriesText + '`.');
     }
   }
   else if (categoryText === seriesText) {
@@ -195,10 +195,10 @@ function mergedAxisMemberDoc(categoryProperty: PropertyDoc, seriesProperty: Prop
   }
   else {
     if (categoryText !== undefined) {
-      doc.defaultLines.push('Group axis default: `' + categoryText + '`.');
+      doc.defaultLines.push('Category axis default: `' + categoryText + '`.');
     }
     if (seriesText !== undefined) {
-      doc.defaultLines.push('Series axis default: `' + seriesText + '`.');
+      doc.defaultLines.push('Value axis default: `' + seriesText + '`.');
     }
   }
   return doc;
@@ -265,8 +265,8 @@ function buildInterfaceDocs(sections: SectionDoc[], warnings: string[]): Map<str
     interfaceDocs.set(interfaceName, memberDocs);
   }
 
-  // AxisConfigBase holds the properties shared by the group axis and the
-  // series axes; where their defaults differ, both are documented.
+  // AxisConfigBase holds the properties shared by the category axis and the
+  // value axes; where their defaults differ, both are documented.
   const categoryProperties = bySection.get('categoryAxis');
   const seriesProperties = bySection.get('valueAxes');
   if (categoryProperties && seriesProperties) {
