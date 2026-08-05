@@ -10,7 +10,7 @@ and series filtering out of the box.
 ## Features
 
 - **Renderers**: `bar`, `line`, and `area` series, mixable in one chart
-- **Scales**: ordinal, linear, and date group axes (via d3-scale)
+- **Scales**: ordinal and linear category axes over string, number, and date values (via d3-scale)
 - **Animation**: [staged transitions](#staged-animation) — axis expansion,
   value change (with group and series transitions), axis contraction — and
   gapless stacked animation
@@ -120,8 +120,9 @@ Both return a `ChartHandle`:
 
 ## Configuration
 
-A config is a plain object made of per-concern sections. Every section and
-property is optional and falls back to a sensible default:
+A config is a plain object made of per-concern sections. Nearly every section
+and property is optional and falls back to a sensible default — only
+`categoryAxis.property` and each series entry's `property` are required:
 
 | Section | Configures |
 | --- | --- |
@@ -134,7 +135,7 @@ property is optional and falls back to a sensible default:
 | `legend` | legend placement, item style, series filtering on click |
 | `tooltip` | tooltip content, formatting, positioning |
 | `crosshair` | crosshair line style and snapping |
-| `animation` | `animate` on/off plus per-phase durations (initial, value change, expansion, collapse, focus) |
+| `animation` | `animate` on/off plus per-phase durations (initial, expansion, value change, contraction, focus) |
 | `plot` | plot area (e.g. `inverted` for horizontal charts) |
 | `chart` / `colorPalette` / `linearGradients` / `radialGradients` | chart-wide style, palette, and gradient definitions |
 

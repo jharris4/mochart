@@ -7,9 +7,9 @@ report everything through optional callback props.
 import * as interaction from '../examples/interaction'
 </script>
 
-Hover the bars to focus a series, click the plot to pin the tooltip and
-crosshair, and click legend items to filter series in and out — filtering
-plays the staged series transition:
+Hover a legend entry to focus its series, click the plot to pin the tooltip
+and crosshair, and click legend entries to filter series in and out —
+filtering plays the staged series transition:
 
 <LiveChart :config="interaction.config" :data="interaction.data" />
 

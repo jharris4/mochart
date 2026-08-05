@@ -48,9 +48,11 @@ controlled per series with
 
 ## Validating data against a config
 
-`getDataErrors` checks a dataset against an enhanced config — missing
-properties, non-numeric series values, duplicate category values — and returns
-readable messages:
+`getDataErrors` checks a dataset against an enhanced config — non-numeric
+series values, category values that don't match the configured type,
+duplicate category values — and returns readable messages. Note that a
+property absent from every row is not an error: it reads as all-`undefined`,
+which is valid missing-value data.
 
 ```js
 import { enhanceConfig, getDataErrors, ArrayOfObjectsDataProvider } from '@mochart/core';

@@ -60,14 +60,23 @@ Returned by both entry points:
 ```ts
 interface ChartHandle<TProps> {
   update(nextProps: Partial<TProps>): void;
+  replace(nextProps: TProps): void;
+  refresh(): void;
   destroy(): void;
 }
 ```
 
-- `update(nextProps)` merges new props into the chart. Config, data, and
+- `update(nextProps)` merges new props into the chart. Change detection is
+  by object identity — pass a new config/data reference. Config, data, and
   size changes animate through the
   [staged animation](/guide/staged-animation) phases when animation is
   enabled.
+- `replace(nextProps)` swaps the props wholesale: a key absent from
+  `nextProps` is unset and returns to chart-managed behavior, where `update`
+  would keep its previous value. For hosts that pass the complete prop set
+  on every render.
+- `refresh()` re-reads the current data without a new reference — the escape
+  hatch for hosts that mutate their data in place.
 - `destroy()` cancels running tweens and removes the chart's DOM.
 
 ## Data providers
@@ -116,8 +125,10 @@ getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data pr
 - `enhanceConfig` produces the fully-built `MochartConfig` that
   `createChart` consumes: validated, every default applied, `*Defaults`
   sections merged, and cross-references resolved.
-- `getDataErrors` checks a dataset against an enhanced config — missing
-  properties, non-numeric series values, duplicate groups.
+- `getDataErrors` checks a dataset against an enhanced config —
+  non-numeric series values, category values that don't match the configured
+  type, duplicate category values. A property absent from every row is not
+  an error: it reads as all-`undefined` (missing values).
 
 ## Chart helpers
 
