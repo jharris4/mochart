@@ -341,7 +341,8 @@ export function hasConfigStructureChange(configOld: MochartConfig, configNew: Mo
   for (let seriesIndex = 0; seriesIndex < seriesConfigs.length; seriesIndex++) {
     const seriesConfig = seriesConfigs[seriesIndex];
     const newSeriesConfig = newSeriesConfigs[seriesIndex];
-    if (seriesConfig.property !== newSeriesConfig.property ||
+    if (seriesConfig.id !== newSeriesConfig.id ||
+        seriesConfig.property !== newSeriesConfig.property ||
         seriesConfig.rangeProperty !== newSeriesConfig.rangeProperty ||
         seriesConfig.errorLowProperty !== newSeriesConfig.errorLowProperty ||
         seriesConfig.errorHighProperty !== newSeriesConfig.errorHighProperty ||

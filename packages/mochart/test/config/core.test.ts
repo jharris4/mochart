@@ -140,4 +140,14 @@ describe('hasConfigStructureChange', () => {
     });
     expect(hasConfigStructureChange(base(), other)).toBe(true);
   });
+
+  it('reports a change when a series id differs', () => {
+    const withId = (id: string) =>
+      makeConfig({
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        series: [{ id, property: 'sales' }]
+      });
+    expect(hasConfigStructureChange(withId('a'), withId('a'))).toBe(false);
+    expect(hasConfigStructureChange(withId('a'), withId('b'))).toBe(true);
+  });
 });
