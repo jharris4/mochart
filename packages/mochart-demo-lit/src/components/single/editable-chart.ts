@@ -710,7 +710,7 @@ export class EditableChart extends LightElement {
     );
   }
 
-  private renderSliceSequenceCategory(error: boolean): unknown {
+  private renderSliceSequenceGroup(error: boolean): unknown {
     return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
         { id: 'edit-play-slices', disabled: error || this.sequencePlaying || this.slices.length < 2, menuLabel: demoText.editableChart.playSliceSequence.menuLabel, tooltipText: demoText.editableChart.playSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.startSliceSequence, ariaLabel: demoText.editableChart.playSliceSequence.aria },
@@ -958,7 +958,7 @@ export class EditableChart extends LightElement {
                   icon({ size: 'lg', fixedWidth: true, name: 'check' })
                 )}
               </div>
-              ${folded ? nothing : this.renderSliceSequenceCategory(error)}
+              ${folded ? nothing : this.renderSliceSequenceGroup(error)}
             </div>
           </div>
         </form>
@@ -971,7 +971,7 @@ export class EditableChart extends LightElement {
       </span>
       ${this.renderControlsMenu(error, folded ? () => html`<div class="demo-btn-group">${this.renderResetSliceButton(sliceControlsDisabled)}</div>
       <div class="demo-menu-divider"></div>
-      ${this.renderSliceSequenceCategory(error)}
+      ${this.renderSliceSequenceGroup(error)}
       ${this.showChartCountControls ? html`<div class="demo-menu-divider"></div>${this.renderChartCountControls()}` : nothing}` : null)}
     </div>`;
   }
