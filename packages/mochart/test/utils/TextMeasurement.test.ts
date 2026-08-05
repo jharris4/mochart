@@ -6,7 +6,7 @@
  * to default 20px bounds, mis-sizing (and mis-centering) the legend.
  */
 import { describe, it, expect } from 'vitest';
-import { getLegendItemTextRawBounds } from '../../src/utils/TextMeasurement';
+import { getLegendItemTextRawBounds, getSvgMaxWidthAndHeight } from '../../src/utils/TextMeasurement';
 import { enhanceConfig } from '../../src';
 import type { ChartDomAccessors } from '../../src/types/chart';
 import type { EnhancedMochartConfig } from '../../src/types/enhanced';
@@ -47,5 +47,24 @@ describe('getLegendItemTextRawBounds', () => {
       { width: 30, height: 10 },
       { width: 50, height: 10 }
     ]);
+  });
+});
+
+describe('getSvgMaxWidthAndHeight', () => {
+  const element = (width: number, height: number): SVGGraphicsElement =>
+    ({ getBBox: () => ({ x: 0, y: 0, width, height }) } as unknown as SVGGraphicsElement);
+
+  it('measures all-zero bboxes as 0x0 so the default-bounds fallback can trigger', () => {
+    // regression: a display:none container reports 0x0 for every element; this
+    // must not round up to 1x1 or the re-measure retry loop never runs
+    expect(getSvgMaxWidthAndHeight([element(0, 0), element(0, 0)])).toEqual({ width: 0, height: 0 });
+  });
+
+  it('takes the per-dimension max over the elements', () => {
+    expect(getSvgMaxWidthAndHeight([element(0, 0), element(30.2, 9.5), element(12, 14)])).toEqual({ width: 31, height: 14 });
+  });
+
+  it('measures an empty list as 0x0', () => {
+    expect(getSvgMaxWidthAndHeight([])).toEqual({ width: 0, height: 0 });
   });
 });

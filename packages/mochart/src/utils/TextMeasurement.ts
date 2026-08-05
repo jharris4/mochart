@@ -157,21 +157,19 @@ export function getBoundsWithMutations<T extends Size>(oldBounds: T | null, newB
 }
 
 export function getSvgMaxWidthAndHeight(domElements: ArrayLike<SVGGraphicsElement>): Size {
+  // 0 seeds, never Number.MIN_VALUE: all-zero bboxes (hidden container) must
+  // measure 0x0 so the default-bounds fallback marks them for re-measure
   let maxWidth = 0;
   let maxHeight = 0;
-  if (domElements.length > 0) {
-    maxWidth = Number.MIN_VALUE;
-    maxHeight = Number.MIN_VALUE;
-    let boundingBox;
-    const count = domElements.length;
-    for (let i = 0; i < count; i++) {
-      boundingBox = domElements[i].getBBox();
-      if (boundingBox.width > maxWidth) {
-        maxWidth = boundingBox.width;
-      }
-      if (boundingBox.height > maxHeight) {
-        maxHeight = boundingBox.height;
-      }
+  let boundingBox;
+  const count = domElements.length;
+  for (let i = 0; i < count; i++) {
+    boundingBox = domElements[i].getBBox();
+    if (boundingBox.width > maxWidth) {
+      maxWidth = boundingBox.width;
+    }
+    if (boundingBox.height > maxHeight) {
+      maxHeight = boundingBox.height;
     }
   }
   return {

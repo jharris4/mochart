@@ -50,9 +50,11 @@ beforeAll(() => {
     measureCalls++;
     return count * PX_PER_CHAR;
   };
-  if (typeof svgProto.getBBox !== 'function') {
-    svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
-  }
+  // proportional like the text lengths: zero-size bboxes would keep the
+  // default-bounds re-measure marker set, which wipes truncation every update
+  svgProto.getBBox = function (this: SVGGraphicsElement) {
+    return { x: 0, y: 0, width: (this.textContent ?? '').length * PX_PER_CHAR, height: 12 };
+  };
 });
 
 afterEach(() => {
