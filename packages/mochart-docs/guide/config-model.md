@@ -82,7 +82,8 @@ exception — they are always concrete numbers, never `'same'`.
 Series styles additionally accept the palette modes `'series'`,
 `'seriesIndex'` and `'categoryIndex'` in place of a color; see
 [`colorPalette`](/reference/colorPalette). Any style color also
-accepts `'currentColor'` to follow the host page's CSS `color`, and `'none'`
+accepts `'currentColor'` to follow the host page's CSS `color` (how chart
+chrome themes itself — see [Theming and dark mode](/guide/theming)), and `'none'`
 to switch that half of the style off.
 
 Reference pages link to nested members with dotted anchors, so

@@ -61,7 +61,8 @@ high-DPI displays.
 ### Dark pages
 
 The chart's structural colors (axis and legend text, grid lines, …) default
-to following the host page via `currentColor`, and the export inlines those
+to following the host page via `currentColor`
+(see [Theming and dark mode](/guide/theming)), and the export inlines those
 resolved colors. On a dark page that means light text — so pass a
 `backgroundColor` that matches the page instead of the white default (the
 buttons above do exactly that, following the site theme), or export

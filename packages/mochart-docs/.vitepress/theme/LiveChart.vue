@@ -22,12 +22,15 @@ const props = withDefaults(defineProps<{
   demo?: string;
   /** Show Download SVG / Download PNG buttons (the export guide's live demo). */
   exportButtons?: boolean;
+  /** CSS color set on the chart host — shows chrome following `currentColor`. */
+  color?: string;
 }>(), {
   altData: undefined,
   height: 320,
   demoLink: true,
   demo: 'stacked',
-  exportButtons: false
+  exportButtons: false,
+  color: undefined
 });
 
 // Deep link into the vanilla gallery with this chart's config/data as the
@@ -107,7 +110,7 @@ async function download(format: 'svg' | 'png') {
     <!-- The card carries the padding/border; the chart measures the unpadded
          host, so clientWidth is the true content width. -->
     <div class="live-chart-card">
-      <div ref="host" class="live-chart-host" :style="{ height: height + 'px' }" />
+      <div ref="host" class="live-chart-host" :style="{ height: height + 'px', color: color }" />
     </div>
     <div v-if="altData || exportButtons || demoUrl" class="live-chart-controls">
       <button v-if="altData" type="button" @click="toggle">
