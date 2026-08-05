@@ -178,6 +178,18 @@ createSparklineConfig(config, options?)  // → config with the sparkline preset
   margins for tiny inline charts. Values already set on the passed config
   win. See [Sparklines](/recipes/sparklines).
 
+For TypeScript hosts, every helper's item, option, and result shapes are
+exported as named types — histogram: `BinValuesOptions`, `HistogramBin`,
+`CreateHistogramOptions`, `HistogramData`; waterfall: `WaterfallItem`,
+`WaterfallDirection`, `WaterfallStep`, `CreateWaterfallOptions`,
+`WaterfallData`; heatmap: `HeatmapRow`, `CreateHeatmapOptions`,
+`CreateHeatmapColorScaleOptions`, `HeatmapData`; candlestick:
+`CandlestickItem`, `CandlestickDirection`, `Candlestick`,
+`CreateCandlestickOptions`, `CandlestickVolumeOptions`, `CandlestickData`;
+OHLC: `CreateOhlcOptions`, `OhlcData`; pie: `PieItem`, `CreatePieOptions`,
+`PieData`; sparkline: `CreateSparklineConfigOptions`. The shipped `.d.ts`
+documents every field — hover the type in your editor.
+
 ## Constants
 
 `AUTO` (`'auto'`), `NONE` (`null`), the category axis types `TYPE_STRING` /

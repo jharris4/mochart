@@ -1,12 +1,17 @@
-// Checks that the public API is documented. Two ratchets, matching how the
-// two halves of the reference are produced:
+// Checks that the public API is documented. Four ratchets, matching how the
+// pieces of the reference are produced:
 //
 // - chart props, callbacks, and payload fields must appear in the generated
 //   api-reference model (the generator itself fails when a member has no
 //   JSDoc or its interface has no page group, so this is the backstop for a
 //   member quietly moving to an undocumented interface);
-// - public exports from index.ts, which no generator covers, must be
-//   mentioned in a docs page.
+// - public exports from core's index.ts — values and named types alike —
+//   must be mentioned in a docs page (the `export type *` wildcard is the
+//   exception: that surface is the generated config reference / the .d.ts);
+// - `ChartHandle` methods must appear in a docs page as a call —
+//   `` `name(` `` — so renaming a method breaks the check;
+// - @mochart/export's declared exports must be mentioned in a docs page
+//   (the binding packages are covered by the framework-props generator).
 //
 // Names that are deliberately undocumented go in `undocumented` below, with a
 // reason. Usage: tsx scripts/checkApiCoverage.ts (run `npm run gen` first).
@@ -78,11 +83,11 @@ function readDocumentedPropKeys(): Set<string> {
   return keys;
 }
 
-function exportedValueNames(source: string): string[] {
+function exportedBraceNames(source: string, wantTypeOnly: boolean): string[] {
   const names = new Set<string>();
   const blocks = source.matchAll(/export\s+(type\s+)?\{([^}]*)\}/g);
   for (const [, typeOnly, body] of blocks) {
-    if (typeOnly !== undefined) continue; // type-only exports live in the .d.ts
+    if ((typeOnly !== undefined) !== wantTypeOnly) continue;
     for (const entry of (body ?? '').split(',')) {
       const trimmed = entry.trim();
       if (trimmed === '') continue;
@@ -94,10 +99,17 @@ function exportedValueNames(source: string): string[] {
   return [...names].sort();
 }
 
-function interfaceMemberNames(source: string, interfaceName: string): string[] {
-  const start = source.indexOf(`interface ${interfaceName} `);
+/** Exports declared in place: `export function foo`, `export interface Foo`, … */
+function declaredExportNames(source: string): string[] {
+  return [...source.matchAll(/^export\s+(?:async\s+)?(?:function|interface|class|const|enum)\s+(\w+)/gm)]
+    .flatMap(match => match[1] ?? [])
+    .sort();
+}
+
+function interfaceMemberNames(source: string, interfaceName: string, sourceLabel: string): string[] {
+  const start = source.search(new RegExp(`interface ${interfaceName}\\b`));
   if (start === -1) {
-    console.error(`✗ interface ${interfaceName} not found in types/chart.ts`);
+    console.error(`✗ interface ${interfaceName} not found in ${sourceLabel}`);
     process.exit(1);
   }
   const open = source.indexOf('{', start);
@@ -122,6 +134,9 @@ const docsText = readDocsText();
 const documentedPropKeys = readDocumentedPropKeys();
 const indexSource = fs.readFileSync(path.join(coreSrcDir, 'index.ts'), 'utf8');
 const chartTypesSource = fs.readFileSync(path.join(coreSrcDir, 'types', 'chart.ts'), 'utf8');
+const createChartSource = fs.readFileSync(path.join(coreSrcDir, 'createChart.ts'), 'utf8');
+const exportIndexSource = fs.readFileSync(
+  path.join(docsDir, '..', 'mochart-export', 'src', 'index.ts'), 'utf8');
 
 const missing: { kind: string; name: string; where: string }[] = [];
 const seen = new Set<string>();
@@ -134,12 +149,21 @@ function check(kind: string, name: string, documented: boolean, where: string) {
 }
 
 for (const interfaceName of propInterfaces) {
-  for (const member of interfaceMemberNames(chartTypesSource, interfaceName)) {
+  for (const member of interfaceMemberNames(chartTypesSource, interfaceName, 'types/chart.ts')) {
     check(interfaceName, member, documentedPropKeys.has(member), 'the api-reference model');
   }
 }
-for (const name of exportedValueNames(indexSource)) {
+for (const member of interfaceMemberNames(createChartSource, 'ChartHandle', 'createChart.ts')) {
+  check('ChartHandle', member, docsText.includes('`' + member + '('), 'any docs page as a `' + member + '(…)` call');
+}
+for (const name of exportedBraceNames(indexSource, false)) {
   check('export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
+}
+for (const name of exportedBraceNames(indexSource, true)) {
+  check('type export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
+}
+for (const name of declaredExportNames(exportIndexSource)) {
+  check('@mochart/export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
 }
 
 const stale = Object.keys(undocumented).filter(name => !seen.has(name));
