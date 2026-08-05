@@ -32,7 +32,8 @@ function memberValidator(member: SeriesStyleMember, allowSeries: boolean, allowS
     case 'fillOpacity':
       return validators.opacity();
     case 'strokeWidth':
-      return allowSame ? validators.numberMin(0).orEqual(COLOR_SAME) : validators.numberMin(0);
+      // null (leave the attribute unset) is a supported width like on the axis style states — getFocusStrokeWidth handles it
+      return allowSame ? validators.numberMin(0).orOneOf([NONE, COLOR_SAME]) : validators.numberMin(0).orEqual(NONE);
     case 'strokeDashArray':
       return allowSame ? validators.dashArray().orOneOf([NONE, COLOR_SAME]) : validators.dashArray().orEqual(NONE);
   }

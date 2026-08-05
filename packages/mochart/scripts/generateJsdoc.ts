@@ -74,6 +74,8 @@ interface SharedInterfaceSource {
 const sharedInterfaceSources: SharedInterfaceSource[] = [
   { interfaceName: 'StrokeStyle', sectionId: 'chart', propertyKey: 'backgroundStyle', members: ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'] },
   { interfaceName: 'Style', sectionId: 'chart', propertyKey: 'backgroundStyle', members: ['fillColor', 'fillOpacity'] },
+  { interfaceName: 'StrokeStyleState', sectionId: 'categoryAxis', propertyKey: 'axisLineStyle.normal', members: ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'] },
+  { interfaceName: 'StyleState', sectionId: 'categoryAxis', propertyKey: 'tickLabelTextStyle.normal', members: ['fillColor', 'fillOpacity'] },
   { interfaceName: 'ColorPaletteStates', sectionId: 'colorPalette', propertyKey: 'series' },
   { interfaceName: 'ColorPalette', sectionId: 'colorPalette', propertyKey: 'series.normal' },
   { interfaceName: 'SeriesCurve', sectionId: 'series', propertyKey: 'curve' },

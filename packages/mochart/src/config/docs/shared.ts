@@ -45,6 +45,16 @@ export const colorPaletteDescriptions: DescriptionMap = {
   fillColors: 'the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors'
 };
 
+/** The style-state (`StyleState` / `StrokeStyleState`) members: a style state always writes its color and opacity attributes, so those are never null; width and dash array stay nullable. */
+export const styleStateDescriptions: DescriptionMap = {
+  strokeColor: 'the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page\'s css color',
+  strokeOpacity: 'the opacity (0 - 1) of the stroke',
+  strokeWidth: styleDescriptions.strokeWidth,
+  strokeDashArray: styleDescriptions.strokeDashArray,
+  fillColor: 'the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page\'s css color',
+  fillOpacity: 'the opacity (0 - 1) of the fill'
+};
+
 /** A property holding a `Style` (or the stroke-only `StrokeStyle`). */
 export function style(description: string): NestedDescription {
   return { description, properties: styleDescriptions };

@@ -62,14 +62,56 @@ export interface Style<C = string, S = never> extends StrokeStyle<C, S> {
 }
 
 /**
+ * One focus state of a stroke style. Unlike a plain `StrokeStyle`, a style
+ * state always writes its color and opacity attributes — so a host-css stroke
+ * cannot bleed onto chart chrome and focus animation can interpolate — which
+ * is why the colors and opacities are never null. Width and dash array stay
+ * nullable.
+ */
+export interface StrokeStyleState<C = string, S = never> {
+  /**
+   * The color of the stroke (outline): use "none" to switch the stroke off, or
+   * "currentColor" to follow the host page's css color.
+   */
+  strokeColor: C;
+  /** The opacity (0 - 1) of the stroke. */
+  strokeOpacity: number;
+  /**
+   * The width (in pixels) of the stroke, or null to leave the svg stroke-width
+   * attribute unset.
+   */
+  strokeWidth: number | null | S;
+  /**
+   * The dash array pattern of the stroke (e.g. "5, 5"), or null for a solid
+   * stroke.
+   */
+  strokeDashArray?: string | null | S;
+}
+
+/**
+ * One focus state of a full style: a stroke plus a fill, for shapes that have
+ * an interior (bars, markers, text). Like the stroke half, the fill color and
+ * opacity are never null.
+ */
+export interface StyleState<C = string, S = never> extends StrokeStyleState<C, S> {
+  /**
+   * The color of the fill: use "none" to switch the fill off, or "currentColor"
+   * to follow the host page's css color.
+   */
+  fillColor: C;
+  /** The opacity (0 - 1) of the fill. */
+  fillOpacity: number;
+}
+
+/**
  * A line style in each of its three focus states. `'same'` in the focused /
  * defocused states means "inherit the normal state's value" — for the colors
  * and also for the stroke width and dash array.
  */
 export interface StrokeStyleStates<C = string> {
-  normal: StrokeStyle<C>;
-  focused: StrokeStyle<C | 'same', 'same'>;
-  defocused: StrokeStyle<C | 'same', 'same'>;
+  normal: StrokeStyleState<C>;
+  focused: StrokeStyleState<C | 'same', 'same'>;
+  defocused: StrokeStyleState<C | 'same', 'same'>;
 }
 
 /**
@@ -78,9 +120,9 @@ export interface StrokeStyleStates<C = string> {
  * and also for the stroke width and dash array.
  */
 export interface StyleStates<C = string> {
-  normal: Style<C>;
-  focused: Style<C | 'same', 'same'>;
-  defocused: Style<C | 'same', 'same'>;
+  normal: StyleState<C>;
+  focused: StyleState<C | 'same', 'same'>;
+  defocused: StyleState<C | 'same', 'same'>;
 }
 
 export interface AnimationConfig {
@@ -1258,7 +1300,7 @@ export interface AxisConfigBase {
    *
    * @default { strokeColor: "currentColor", strokeOpacity: 0.2, strokeWidth: 1, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.12 }
    */
-  focusRangeStyle: Style;
+  focusRangeStyle: StyleState;
 
   /**
    * Whether to show lines perpendicular to the axis showing the focused series
@@ -1293,7 +1335,7 @@ export interface AxisConfigBase {
    *
    * @default { strokeColor: "currentColor", strokeOpacity: 1, strokeWidth: 3, strokeDashArray: null }
    */
-  focusTickMarkStyle: StrokeStyle;
+  focusTickMarkStyle: StrokeStyleState;
 
   /**
    * Whether to show grid lines perpendicular to each tick on the axis.

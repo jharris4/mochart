@@ -1,4 +1,4 @@
-import { style, spacing, styleDescriptions } from './shared';
+import { style, spacing, styleStateDescriptions } from './shared';
 import type { DescriptionMap, NestedDescription } from './shared';
 
 const strokeMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
@@ -11,7 +11,7 @@ const sameMembers = new Set(['strokeColor', 'fillColor', 'strokeWidth', 'strokeD
 function styleMembers(members: string[], allowSame: boolean): DescriptionMap {
   const descriptions: DescriptionMap = {};
   for (const member of members) {
-    const description = styleDescriptions[member] as string;
+    const description = styleStateDescriptions[member] as string;
     descriptions[member] = allowSame && sameMembers.has(member)
       ? description + (member.endsWith('Color') ? sameNote : sameValueNote)
       : description;
@@ -51,7 +51,7 @@ export default function getDescriptions() {
     showFocusRange: 'whether to show the focus range on the axis when it has a focused series domain or category value',
     focusRangeFront: 'whether the focus range should be shown in front (true) or behind (false) the series shapes',
     focusRangeApplyToTitle: 'whether to show the focus range only over tick labels (false) or over both tick labels and title (true)',
-    focusRangeStyle: style('the style of the focus range'),
+    focusRangeStyle: partialStyle('the style of the focus range', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
 
     showFocusTickMarks: 'whether to show lines perpendicular to the axis showing the focused series domain or category value',
     focusTickMarkFront: 'whether the focus tick marks should be shown in front (true) or behind (false) the series shapes',
@@ -87,7 +87,7 @@ export default function getDescriptions() {
         titleMargin: spacing('the margin (in pixels) of the threshold title, relative to its orientation'),
         titlePadding: spacing('the padding (in pixels) of the threshold title, relative to its orientation'),
         titleTextStyle: styleStates('the style of the threshold title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
-        titleBackgroundStyle: partialStyle('the styles to apply to the threshold title background', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity'])
+        titleBackgroundStyle: style('the styles to apply to the threshold title background')
       }
     },
     tickCount: 'the number of ticks to show along the length of the axis (use "auto" to derive the tick count from the data)',

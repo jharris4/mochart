@@ -441,6 +441,40 @@ describe('list-section shape validation', () => {
   });
 });
 
+// The null contract: plain styles accept null members (leave the svg
+// attribute unset), while style states keep colors and opacities concrete so
+// host css cannot bleed through and focus animation can interpolate. Widths
+// and dash arrays are nullable in both.
+describe('style null semantics', () => {
+  const base = { version: V, categoryAxis: { property: 'p' } };
+
+  it('accepts null members on a plain style', () => {
+    const errors = errorsFor({ ...base, chart: { backgroundStyle: { strokeColor: null, fillOpacity: null } }, series: [{ property: 'v' }] });
+    expect(errors).toEqual([]);
+  });
+
+  it('accepts a null stroke width on axis and series style states', () => {
+    const errors = errorsFor({
+      ...base,
+      categoryAxis: { property: 'p', axisLineStyle: { normal: { strokeWidth: null } } },
+      series: [{ property: 'v', shapeStyle: { normal: { strokeWidth: null }, focused: { strokeWidth: null } } }]
+    });
+    expect(errors).toEqual([]);
+  });
+
+  it('rejects null style-state colors on axis and series', () => {
+    expect(errorsFor({ ...base, categoryAxis: { property: 'p', axisLineStyle: { normal: { strokeColor: null } } }, series: [{ property: 'v' }] }))
+      .toContainEqual(expect.stringContaining('strokeColor'));
+    expect(errorsFor({ ...base, series: [{ property: 'v', shapeStyle: { normal: { fillColor: null } } }] }))
+      .toContainEqual(expect.stringContaining('fillColor'));
+  });
+
+  it('rejects null style-state opacities', () => {
+    expect(errorsFor({ ...base, series: [{ property: 'v', shapeStyle: { normal: { fillOpacity: null } } }] }))
+      .toContainEqual(expect.stringContaining('fillOpacity'));
+  });
+});
+
 // Regression: curve was the only nested config validated with the exact-shape
 // validator, so { param } alone (type comes from the default) was rejected and
 // unknown members were hard errors instead of the single unknown-key warning.

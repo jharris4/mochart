@@ -1,4 +1,4 @@
-import { styleDescriptions } from './shared';
+import { styleStateDescriptions } from './shared';
 import type { DescriptionMap, NestedDescription } from './shared';
 
 const lineMembers = ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray'];
@@ -11,7 +11,7 @@ const paletteNote = ', or "seriesIndex" / "categoryIndex" to take the matching c
 function members(memberKeys: string[], element: string, allowSeries: boolean, allowSame: boolean): DescriptionMap {
   const descriptions: DescriptionMap = {};
   for (const member of memberKeys) {
-    const description = styleDescriptions[member] as string;
+    const description = styleStateDescriptions[member] as string;
     descriptions[member] = member.endsWith('Color')
       ? description + (allowSeries ? seriesNote : '') + (allowSame ? sameNote : '') + paletteNote.replace('colorPalette', 'colorPalette ' + element)
       : description;
