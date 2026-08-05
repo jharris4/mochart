@@ -13,12 +13,12 @@ function focusData(overrides: Partial<FocusData> = {}): FocusData {
     focusedValueAxisId: null,
     focusedSeriesId: null,
     categoryFocusPercentages: [0, 0],
-    valueAxisFocusPercentages: { SA0: 0 },
+    valueAxisFocusPercentages: { VA0: 0 },
     seriesFocusPercentages: { S0: 0 },
     categoryFocusDomainPercentages: [0],
     valueAxisFocusDomainPercentages: [0],
     seriesFocusDomainPercentages: [0],
-    valueAxisComputedFocusDomainPercentages: { SA0: [0] },
+    valueAxisComputedFocusDomainPercentages: { VA0: [0] },
     ...overrides
   };
 }
@@ -33,12 +33,12 @@ const categoryDelta: ArrayFocusDeltaData = {
 };
 
 const valueAxisDelta: MapFocusDeltaData = {
-  start: { SA0: 0 },
-  deltas: { SA0: 1 },
+  start: { VA0: 0 },
+  deltas: { VA0: 1 },
   deltaPercentage: 1,
-  deltaPercentages: { SA0: 1 },
-  deltaFactors: { SA0: 1 },
-  end: { SA0: 1 }
+  deltaPercentages: { VA0: 1 },
+  deltaFactors: { VA0: 1 },
+  end: { VA0: 1 }
 };
 
 const seriesDelta: MapFocusDeltaData = {
@@ -86,14 +86,14 @@ describe('getFocusDataForPercent', () => {
     const end = focusData({
       focusedCategoryIndex: 1,
       categoryFocusPercentages: [1, 1],
-      valueAxisFocusPercentages: { SA0: 1 },
+      valueAxisFocusPercentages: { VA0: 1 },
       seriesFocusPercentages: { S0: 1 },
       categoryFocusDomainPercentages: [1]
     });
     const result = getFocusDataForPercent(animationData(start, end), 0.5);
     // start 0 + percentage 0.5 * deltaFactor 1 * delta 1 = 0.5
     expect(result.categoryFocusPercentages).toEqual([0.5, 0.5]);
-    expect(result.valueAxisFocusPercentages).toEqual({ SA0: 0.5 });
+    expect(result.valueAxisFocusPercentages).toEqual({ VA0: 0.5 });
     expect(result.seriesFocusPercentages).toEqual({ S0: 0.5 });
     // focused identifiers and domain percentages are taken from the end state
     expect(result.focusedCategoryIndex).toBe(1);

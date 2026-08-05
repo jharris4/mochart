@@ -341,10 +341,10 @@ describe('single-object sections with a *Defaults section', () => {
 });
 
 // Regression: the stack-axis map was keyed by raw axis ids, so a stack
-// explicitly referencing a defaulted axis id (SA0) missed the base: 0 stacked
+// explicitly referencing a defaulted axis id (VA0) missed the base: 0 stacked
 // default that the implicit reference received.
 describe('stack referencing a defaulted axis id', () => {
-  it('applies the stacked base default to the explicit SA0 reference', () => {
+  it('applies the stacked base default to the explicit VA0 reference', () => {
     const base = { version: VERSION_STRING, categoryAxis: { property: 'g' } };
     const explicit = enhance({ ...base,
       series: [{ property: 'a', stack: 'st' }, { property: 'b', stack: 'st' }],

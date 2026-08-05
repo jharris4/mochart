@@ -12,7 +12,7 @@ export const config: MochartInputConfig = {
     type: 'number',
     scale: 'linear'
   },
-  valueAxes: [{ id: 'SA0', title: 'Latency (ms)' }],
+  valueAxes: [{ id: 'VA0', title: 'Latency (ms)' }],
   seriesDefaults: { renderer: 'none' },
   series: [
     {

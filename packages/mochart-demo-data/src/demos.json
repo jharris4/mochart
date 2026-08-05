@@ -85,7 +85,7 @@
       "id": "cluttered",
       "title": "Cluttered",
       "description": "Nine series across two axes — lines, bars, grouped bars and stacked areas — crowded onto one plot.",
-      "notes": "Axis SA0 carries a marker line, a black-filled bar with a light stroke and an area, while SA1 carries another line, two bars grouped through seriesGroups (SG0) and three areas stacked through seriesStacks (SS1), all at markerSize 6. Both value axes take axisLineMargin 3 from valueAxisDefaults and sit on opposite sides (SA0 before, SA1 after), and the tooltip is restyled to padding 1 with a translucent grey background and a 3px black border so the overlapping hit targets are easy to see. The bundled data is 26 rows of small values (0-35) on a numeric ordinal category axis whose categoryNO column is deliberately out of order for the first six rows.",
+      "notes": "Axis VA0 carries a marker line, a black-filled bar with a light stroke and an area, while VA1 carries another line, two bars grouped through seriesGroups (SG0) and three areas stacked through seriesStacks (SS1), all at markerSize 6. Both value axes take axisLineMargin 3 from valueAxisDefaults and sit on opposite sides (VA0 before, VA1 after), and the tooltip is restyled to padding 1 with a translucent grey background and a 3px black border so the overlapping hit targets are easy to see. The bundled data is 26 rows of small values (0-35) on a numeric ordinal category axis whose categoryNO column is deliberately out of order for the first six rows.",
       "config": "cluttered-config.json",
       "data": "mixed-categories-positive-values-data.json",
       "random": "default-random.json"
@@ -204,7 +204,7 @@
       "id": "grouped-multi-axis",
       "title": "Grouped Across Axes",
       "description": "Two bar series grouped side by side while each scales against its own value axis.",
-      "notes": "Both series share the sole seriesGroups entry so they cluster in each slot, but one names axis SA0 (drawn before the plot) and the other SA1 (after), each pinned to min 0. The sample data deliberately pairs a single-digit property (value1) with one in the hundreds (value8) over string categories on an ordinal scale, so the bars are only comparable because each reads its own scale.",
+      "notes": "Both series share the sole seriesGroups entry so they cluster in each slot, but one names axis VA0 (drawn before the plot) and the other VA1 (after), each pinned to min 0. The sample data deliberately pairs a single-digit property (value1) with one in the hundreds (value8) over string categories on an ordinal scale, so the bars are only comparable because each reads its own scale.",
       "config": "grouped-multi-axis-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "default-random.json"
@@ -240,7 +240,7 @@
       "id": "axis-filtering",
       "title": "Axis Filtering Adjustment",
       "description": "Stacked bars and two lines on separate value axes, whose domains rescale as the legend filters series.",
-      "notes": "valueAxisDefaults.adjustForFiltering is on for both axes, so hiding a series from the legend recomputes that axis' domain instead of leaving dead space behind. The three bars fall into the sole seriesStacks entry (pinned to SA0) while the two lines opt out with stack: null and read SA1 on the other side, so each axis rescales independently. All four animation durations are stretched to 2000ms to make the rescale easy to follow.",
+      "notes": "valueAxisDefaults.adjustForFiltering is on for both axes, so hiding a series from the legend recomputes that axis' domain instead of leaving dead space behind. The three bars fall into the sole seriesStacks entry (pinned to VA0) while the two lines opt out with stack: null and read VA1 on the other side, so each axis rescales independently. All four animation durations are stretched to 2000ms to make the rescale easy to follow.",
       "config": "axis-filtering-adjust-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "positive-random.json"
@@ -303,7 +303,7 @@
       "id": "currency-pos-neg",
       "title": "Positive Negative Currency",
       "description": "Area and line series mixing positive and negative currency values over a date axis, one series per value axis.",
-      "notes": "Two value axes are declared — SA0 before (left) for the small-dollar line and SA1 after (right) for the large-dollar area — while valueAxisDefaults gives both a zero base and a '$.2f' tick label format. The date category axis uses an ordinal scale, so dates occupy evenly spaced slots instead of a continuous timeline. Both bundled columns cross zero, so the area fills above and below its base and each axis has to cover both directions.",
+      "notes": "Two value axes are declared — VA0 before (left) for the small-dollar line and VA1 after (right) for the large-dollar area — while valueAxisDefaults gives both a zero base and a '$.2f' tick label format. The date category axis uses an ordinal scale, so dates occupy evenly spaced slots instead of a continuous timeline. Both bundled columns cross zero, so the area fills above and below its base and each axis has to cover both directions.",
       "config": "positive-negative-currency-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "default-random.json"
@@ -366,7 +366,7 @@
       "id": "picket-pos-neg",
       "title": "Pos/Neg Picket Fence Bars",
       "description": "Capped bars crossing zero, with a small-dollar and a large-dollar series on their own value axes.",
-      "notes": "Both bar series carry caps at capSize 15 — capType 'point' on the small-dollar series, 'curve' on the large one — drawn at the value end of each bar, so they point downward on negative values. The series sit on separate axes (SA0 before, SA1 after) because their magnitudes differ by two orders of magnitude in the bundled data; valueAxisDefaults gives both base 0, softMin/softMax 0 and '$.2f' tick labels so each keeps zero on screen. The category axis is ordinal over dates, so bars keep equal slots regardless of date gaps. The animation durations are lopsided — 3s for a value change against 300ms enter and exit — so bars sweep through the base slowly while the caps track their moving ends.",
+      "notes": "Both bar series carry caps at capSize 15 — capType 'point' on the small-dollar series, 'curve' on the large one — drawn at the value end of each bar, so they point downward on negative values. The series sit on separate axes (VA0 before, VA1 after) because their magnitudes differ by two orders of magnitude in the bundled data; valueAxisDefaults gives both base 0, softMin/softMax 0 and '$.2f' tick labels so each keeps zero on screen. The category axis is ordinal over dates, so bars keep equal slots regardless of date gaps. The animation durations are lopsided — 3s for a value change against 300ms enter and exit — so bars sweep through the base slowly while the caps track their moving ends.",
       "config": "positive-negative-picket-fence-bars-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "default-random.json"
