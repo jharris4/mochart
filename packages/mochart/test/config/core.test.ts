@@ -150,4 +150,15 @@ describe('hasConfigStructureChange', () => {
     expect(hasConfigStructureChange(withId('a'), withId('a'))).toBe(false);
     expect(hasConfigStructureChange(withId('a'), withId('b'))).toBe(true);
   });
+
+  it('reports a change when a series showInLegend differs', () => {
+    const withShowInLegend = (showInLegend: boolean) =>
+      makeConfig({
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        series: [{ property: 'sales', showInLegend }]
+      });
+    expect(hasConfigStructureChange(withShowInLegend(true), withShowInLegend(true))).toBe(false);
+    expect(hasConfigStructureChange(withShowInLegend(false), withShowInLegend(true))).toBe(true);
+    expect(hasConfigStructureChange(withShowInLegend(true), withShowInLegend(false))).toBe(true);
+  });
 });

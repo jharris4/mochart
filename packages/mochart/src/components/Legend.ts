@@ -177,16 +177,22 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
     onClick(seriesConfig.id);
   }
 
+  // leave mirrors the enter that actually fired: the filtered flag can flip
+  // mid-hover (legend click, controlled filter), so it can't gate the leave
+  hoverActive = false;
+
   onMouseEnter = () => {
     const { onMouseEnter, seriesConfig, seriesIsFiltered } = this.props;
     if (!seriesIsFiltered) {
+      this.hoverActive = true;
       onMouseEnter(seriesConfig.id);
     }
   }
 
   onMouseLeave = () => {
-    const { onMouseLeave, seriesConfig, seriesIsFiltered } = this.props;
-    if (!seriesIsFiltered) {
+    const { onMouseLeave, seriesConfig } = this.props;
+    if (this.hoverActive) {
+      this.hoverActive = false;
       onMouseLeave(seriesConfig.id);
     }
   }

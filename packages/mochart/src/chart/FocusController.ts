@@ -145,6 +145,10 @@ export class FocusController {
       }
     }
     this.filteredSeriesIds = filteredSeriesIds;
+    // a filtered series cannot stay focused
+    if (this.focusedSeriesId !== null && filteredSeriesIds[this.focusedSeriesId] === true) {
+      this.focusedSeriesId = null;
+    }
     return { filteredSeriesIds };
   }
 }

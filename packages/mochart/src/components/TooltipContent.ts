@@ -278,6 +278,11 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const shouldFilter = showControls ? mode === MODE_FILTER : filterSeriesOnClick;
     if (shouldFocus || shouldFilter) {
       event.stopPropagation();
+      // filter before focus, like the legend click: an explicit focus request
+      // must land after the filter toggle's derived focus clear
+      if (shouldFilter) {
+        onSeriesFilter(seriesId);
+      }
       if (shouldFocus) {
         if (focusedSeriesId !== undefined && focusedSeriesId !== null) {
           onFocus({ seriesId: seriesId === focusedSeriesId ? null : seriesId });
@@ -285,9 +290,6 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         else {
           onFocus({ seriesId });
         }
-      }
-      if (shouldFilter) {
-        onSeriesFilter(seriesId);
       }
     }
   }

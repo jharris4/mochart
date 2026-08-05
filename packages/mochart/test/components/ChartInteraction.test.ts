@@ -463,6 +463,47 @@ describe('tooltip', () => {
     expect(filters[1].filteredSeriesIds).toEqual({});
   });
 
+  it('clears series focus when a legend click filters the hovered series', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      legend: { visible: true },
+      series: [{ property: 'sales' }, { property: 'costs' }]
+    }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+
+    const item = container.querySelector('[class*="mochart-legend-item-S1"]')!;
+    item.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
+
+    // filtering the hovered series must not strand focus on it
+    item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe(null);
+
+    item.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe(null);
+  });
+
+  it('clears series focus on leave when the hovered series was filtered externally', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      legend: { visible: true },
+      series: [{ property: 'sales' }, { property: 'costs' }]
+    }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+
+    const item = container.querySelector('[class*="mochart-legend-item-S1"]')!;
+    item.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
+
+    // the host filters the hovered series through the controlled prop; the
+    // leave must still fire even though the series is filtered by then
+    handles[handles.length - 1].update({ filteredSeriesIds: { S1: true } } as Partial<DefaultChartProps>);
+    item.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe(null);
+  });
+
   it('sizes legend icons from measured text by default and preserves numeric sizes', () => {
     const seriesConfigs = [{ property: 'sales' }, { property: 'costs' }];
     const automatic = mountChart(makeConfig({
