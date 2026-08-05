@@ -138,7 +138,7 @@ export const demoText = {
     // `-1` between two arrows names nothing visually either — so a one-letter,
     // aria-hidden prefix carries the meaning for sighted users while the
     // clipped full text keeps carrying the accessible name.
-    categoryIndexPrefixCompact: 'G',
+    categoryIndexPrefixCompact: 'C',
     seriesIndexPrefixCompact: 'S',
     secondChart: {
       label: '2nd Chart',
