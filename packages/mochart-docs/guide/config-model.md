@@ -94,7 +94,7 @@ is addressable in its own right.
 Config layers are merged member by member at every depth, so a config only
 names what it changes. In the example above `shapeStyle.normal.strokeColor`,
 `strokeWidth` and both other states' colors keep their defaults — writing one
-member never blanks out its siblings. The same holds when a `*All` section
+member never blanks out its siblings. The same holds when a `*Defaults` section
 merges into an individual list entry.
 
 Two values do not merge:
@@ -173,7 +173,7 @@ update. The lower-level `createChart` expects that work done up front via
 import { enhanceConfig } from '@mochart/core';
 
 const mochartConfig = enhanceConfig(config);
-// validated, defaults applied, *All sections merged, references resolved
+// validated, defaults applied, *Defaults sections merged, references resolved
 ```
 
 `enhanceConfig` returns a `MochartConfig` — the fully-built form with every

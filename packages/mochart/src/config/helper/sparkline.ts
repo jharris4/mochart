@@ -37,7 +37,7 @@ export function createSparklineConfig(config: MochartInputConfig, options: Creat
     tooltip: { visible: interactive, ...config.tooltip },
     crosshair: { visible: interactive, ...config.crosshair },
     categoryAxis: { visible: false, ...config.categoryAxis },
-    // *All sections only reach declared entries, so declare the default axis
+    // *Defaults sections only reach declared entries, so declare the default axis
     valueAxes: config.valueAxes ?? [{}],
     valueAxisDefaults: { visible: false, ...config.valueAxisDefaults },
     seriesDefaults: { markerShape: null, ...config.seriesDefaults }

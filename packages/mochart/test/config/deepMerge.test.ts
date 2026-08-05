@@ -177,7 +177,7 @@ describe('partial nested config sections', () => {
     expect(config.linearGradients[0]!.stops).toEqual([{ offset: 0, color: '#ff0000', opacity: 1 }]);
   });
 
-  it('deep-merges an *All config into each array entry', () => {
+  it('deep-merges a *Defaults section into each array entry', () => {
     const config = enhanceConfig({
       version: V,
       categoryAxis: { property: 'p' },
@@ -191,7 +191,7 @@ describe('partial nested config sections', () => {
     expect(config.series[1]!.curve).toEqual({ type: 'natural' });
   });
 
-  it('deep-merges an *All config member into an entry that overrides a sibling member', () => {
+  it('deep-merges a *Defaults section member into an entry that overrides a sibling member', () => {
     const config = enhanceConfig({
       version: V,
       categoryAxis: { property: 'p' },

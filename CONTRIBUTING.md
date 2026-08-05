@@ -71,7 +71,7 @@ Beyond the three sources and the type, a new section must be registered in a
 few generated-docs consumers (each is a simple list):
 
 - `scripts/configReferenceModel.ts` — the `getSectionSources()` descriptor
-  list (and `sectionKeyAllMap` handling if it has an `*AllConfig`).
+  list (and `sectionKeyAllMap` handling if it has a companion `*Defaults` section).
 - `scripts/generateJsdoc.ts` — `sectionInterfaceMap`.
 - `packages/mochart-demo-common/src/docsLinks.ts` — the section id list that
   drives the demo Config tab's reference links.

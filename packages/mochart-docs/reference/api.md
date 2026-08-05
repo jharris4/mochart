@@ -114,8 +114,8 @@ getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data pr
 - `migrateConfig` upgrades a config written against an older
   [`version`](/guide/config-model#validation) to the current format.
 - `enhanceConfig` produces the fully-built `MochartConfig` that
-  `createChart` consumes: validated, every default applied, `*All` sections
-  merged, and cross-references resolved.
+  `createChart` consumes: validated, every default applied, `*Defaults`
+  sections merged, and cross-references resolved.
 - `getDataErrors` checks a dataset against an enhanced config — missing
   properties, non-numeric series values, duplicate groups.
 

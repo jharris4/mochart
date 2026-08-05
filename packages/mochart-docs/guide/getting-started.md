@@ -126,7 +126,7 @@ See [The config model](/guide/config-model) for what "enhanced" means and
 ## Where to go next
 
 - [The config model](/guide/config-model) — how config sections, shared
-  `*All` sections, defaults, and validation fit together
+  `*Defaults` sections, defaults, and validation fit together
 - [Staged animation](/guide/staged-animation) — what animates, in what order,
   and how to tune it
 - [Interaction](/guide/interaction) — focus, legend filtering, tooltip,
