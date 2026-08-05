@@ -711,7 +711,7 @@
 
 {#snippet chartCountControl()}
   {#if showChartCountControls}
-    <div class="demo-btn-category">
+    <div class="demo-btn-group">
       <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
                          tooltipText={chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow} tooltipPlacement="right"
                          onClick={onChartCountToggle} aria-label={demoText.editableChart.secondChart.aria}>
@@ -723,7 +723,7 @@
 
 {#snippet commonControls()}
   {@render chartCountControl()}
-  <div class="demo-btn-category">
+  <div class="demo-btn-group">
     <ButtonWithTooltip id="edit-mode" label={selectionMode === 'category' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories}
                        tooltipText={selectionMode === 'category'
                          ? demoText.editableChart.editMode.tooltipToSeries
@@ -765,7 +765,7 @@
 {/snippet}
 
 {#snippet sliceSequenceCategory()}
-  <div class="demo-btn-category">
+  <div class="demo-btn-group">
     <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
                        menuLabel={demoText.editableChart.playSliceSequence.menuLabel}
                        tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
@@ -782,7 +782,7 @@
 {/snippet}
 
 {#snippet sliceMenuItems()}
-  <div class="demo-btn-category">{@render resetSliceButton()}</div>
+  <div class="demo-btn-group">{@render resetSliceButton()}</div>
   <div class="demo-menu-divider"></div>
   {@render sliceSequenceCategory()}
   {#if showChartCountControls}
@@ -859,9 +859,9 @@
 {/snippet}
 
 {#snippet categoryMenuItems()}
-  <div class="demo-btn-category">{@render resetCategoriesButton()}{@render reverseCategoriesButton()}{@render selectAllButton()}</div>
+  <div class="demo-btn-group">{@render resetCategoriesButton()}{@render reverseCategoriesButton()}{@render selectAllButton()}</div>
   <div class="demo-menu-divider"></div>
-  <div class="demo-btn-category">{@render playAddButton()}{@render playRemoveButton()}{@render stopCategoriesButton()}</div>
+  <div class="demo-btn-group">{@render playAddButton()}{@render playRemoveButton()}{@render stopCategoriesButton()}</div>
   <div class="demo-menu-divider"></div>
   {@render commonControls()}
 {/snippet}
@@ -883,7 +883,7 @@
 {/snippet}
 
 {#snippet seriesMenuItems()}
-  <div class="demo-btn-category">{@render resetSeriesButton()}</div>
+  <div class="demo-btn-group">{@render resetSeriesButton()}</div>
   <div class="demo-menu-divider"></div>
   {@render commonControls()}
 {/snippet}
@@ -921,7 +921,7 @@
               {/if}
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-previous-slice" disabled={sliceControlsDisabled || sliceIndex === 0}
                                        tooltipText={demoText.editableChart.previousSlice.tooltip} tooltipPlacement="right"
                                        onClick={() => selectSlice(sliceIndex - 1)} aria-label={demoText.editableChart.previousSlice.aria}>
@@ -935,14 +935,14 @@
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-next-slice" disabled={sliceControlsDisabled || sliceIndex >= slices.length - 1}
                                        tooltipText={demoText.editableChart.nextSlice.tooltip} tooltipPlacement="right"
                                        onClick={() => selectSlice(sliceIndex + 1)} aria-label={demoText.editableChart.nextSlice.aria}>
                       <Icon size="lg" fixedWidth={true} name="chevron-right" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     {#if !foldSlice}{@render resetSliceButton()}{/if}
                     <ButtonWithTooltip id="edit-apply-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.applySlice.label}
                                        tooltipText={demoText.editableChart.applySlice.tooltip} tooltipPlacement="right"
@@ -973,7 +973,7 @@
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
                   {#if !foldCategory}{@render commonControls()}{/if}
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     {#if foldCategory}
                       {@render addCategoriesButton()}{@render removeCategoriesButton()}
                     {:else}
@@ -1012,7 +1012,7 @@
               {/if}
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-category-decrease" disabled={error || categoryOrderControlsDisabled || isFirstCategory}
                                        tooltipText={demoText.editableChart.decreaseCategoryOrder.tooltip} tooltipPlacement="right"
                                        onClick={decreaseCategoryOrder} aria-label={demoText.editableChart.decreaseCategoryOrder.aria}>
@@ -1026,7 +1026,7 @@
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-category-increase" disabled={error || categoryOrderControlsDisabled || isLastCategory}
                                        tooltipText={demoText.editableChart.increaseCategoryOrder.tooltip} tooltipPlacement="right"
                                        onClick={increaseCategoryOrder} aria-label={demoText.editableChart.increaseCategoryOrder.aria}>
@@ -1037,7 +1037,7 @@
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-previous-series" disabled={error || seriesControlsDisabled || !hasPrevSeries}
                                        tooltipText={demoText.editableChart.previousSeries.tooltip} tooltipPlacement="right"
                                        onClick={prevSeries} aria-label={demoText.editableChart.previousSeries.aria}>
@@ -1051,7 +1051,7 @@
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-next-series" disabled={error || seriesControlsDisabled || !hasNextSeries}
                                        tooltipText={demoText.editableChart.nextSeries.tooltip} tooltipPlacement="right"
                                        onClick={nextSeries} aria-label={demoText.editableChart.nextSeries.aria}>
@@ -1059,7 +1059,7 @@
                     </ButtonWithTooltip>
                   </div>
                   {#if !foldSeries}
-                    <div class="demo-btn-category">
+                    <div class="demo-btn-group">
                       {@render resetSeriesButton()}
                       {@render applySeriesButton()}
                     </div>

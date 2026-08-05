@@ -93,7 +93,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     menu.append(el('div', { className: 'demo-menu-divider' }), shareItem);
   }
 
-  const root = el('div', { className: 'demo-btn-category demo-menu-up mochart-export-share-menu' }, [trigger, menu]);
+  const root = el('div', { className: 'demo-btn-group demo-menu-up mochart-export-share-menu' }, [trigger, menu]);
 
   // Opens upward (the controls row sits at the bottom of the pane) and
   // right-aligned (the trigger is the last control in the row). The controller

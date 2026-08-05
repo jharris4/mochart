@@ -32,7 +32,7 @@ import { Icon } from './icon';
   imports: [Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div class="demo-btn-category mochart-demo-notes-menu">
+    <div class="demo-btn-group mochart-demo-notes-menu">
       <button type="button" #trigger class="demo-btn demo-btn-secondary mochart-demo-notes-trigger"
               [attr.title]="text.trigger.tooltip" [attr.aria-label]="text.trigger.aria"
               (click)="controller?.toggle()">

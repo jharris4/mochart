@@ -82,7 +82,7 @@ function rateChanged(event: Event) {
       </div>
       <div class="demo-field">
         <div class="demo-toolbar" role="toolbar">
-          <div class="demo-btn-category">
+          <div class="demo-btn-group">
             <ButtonWithTooltip id="step-back" :disabled="props.playing" :tooltip-text="demoText.multiChartsTab.stepBackward.tooltip" tooltip-placement="top-start"
                                :on-click="props.onStepBackwardClick" :aria-label="demoText.multiChartsTab.stepBackward.aria">
               <Icon size="lg" :fixed-width="true" name="backward-step" />

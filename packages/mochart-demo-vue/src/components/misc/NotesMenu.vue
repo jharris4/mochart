@@ -40,7 +40,7 @@ watch(() => [props.title, props.notes], () => {
 </script>
 
 <template>
-  <div v-if="props.notes !== undefined" class="demo-btn-category mochart-demo-notes-menu">
+  <div v-if="props.notes !== undefined" class="demo-btn-group mochart-demo-notes-menu">
     <button :ref="setTrigger" type="button" v-bind="triggerProps"
             :class="'demo-btn demo-btn-secondary mochart-demo-notes-trigger' + (open ? ' active' : '')"
             :title="demoText.demoNotes.trigger.tooltip" :aria-label="demoText.demoNotes.trigger.aria">

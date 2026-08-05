@@ -85,7 +85,7 @@ export default function ExportShareMenu({ idPrefix, exportPng, exportSvg, getSha
   };
 
   return (
-    <div className="demo-btn-category demo-menu-up mochart-export-share-menu">
+    <div className="demo-btn-group demo-menu-up mochart-export-share-menu">
       <button type="button" ref={menu.triggerRef} {...menu.triggerProps}
         className={'demo-btn demo-btn-secondary demo-menu-trigger' + (menu.open ? ' active' : '')}
         disabled={disabled}

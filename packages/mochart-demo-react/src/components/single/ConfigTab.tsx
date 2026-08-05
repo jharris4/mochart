@@ -179,7 +179,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
               <OverflowMenu text={demoText.overflowMenu.editor}
                 placement={{ side: 'top', align: 'end', gap: 4 }}
                 anchorRef={footerRef} active={active !== false}>
-                <div className="demo-btn-category">{resetButton}{defaultsButton}{invertedButton}{slowButton}</div>
+                <div className="demo-btn-group">{resetButton}{defaultsButton}{invertedButton}{slowButton}</div>
                 {hasDocsLinks ? <><MenuDivider />{docsLinks}</> : null}
               </OverflowMenu>
               {errorSpan}

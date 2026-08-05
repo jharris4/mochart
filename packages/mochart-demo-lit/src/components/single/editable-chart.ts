@@ -632,7 +632,7 @@ export class EditableChart extends LightElement {
     if (!this.showChartCountControls) {
       return nothing;
     }
-    return html`<div class="demo-btn-category">
+    return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
         { id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: this.chartCount === 2, tooltipText: this.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow, tooltipPlacement: 'right', onClick: this.onChartCountToggle, ariaLabel: demoText.editableChart.secondChart.aria },
         icon({ size: 'lg', fixedWidth: true, name: this.chartCount === 2 ? 'window-maximize' : 'window-restore' })
@@ -641,7 +641,7 @@ export class EditableChart extends LightElement {
   }
 
   private renderModeToggle(): unknown {
-    return html`<div class="demo-btn-category">
+    return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
         { id: 'edit-mode', label: this.selectionMode === 'category' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories, tooltipText: this.selectionMode === 'category' ? demoText.editableChart.editMode.tooltipToSeries : demoText.editableChart.editMode.tooltipToCategories, tooltipPlacement: 'right', onClick: this.onModeToggle, ariaLabel: demoText.editableChart.editMode.aria },
         icon({ size: 'lg', fixedWidth: true, name: this.selectionMode === 'category' ? 'bullseye' : 'sliders' })
@@ -711,7 +711,7 @@ export class EditableChart extends LightElement {
   }
 
   private renderSliceSequenceCategory(error: boolean): unknown {
-    return html`<div class="demo-btn-category">
+    return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
         { id: 'edit-play-slices', disabled: error || this.sequencePlaying || this.slices.length < 2, menuLabel: demoText.editableChart.playSliceSequence.menuLabel, tooltipText: demoText.editableChart.playSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.startSliceSequence, ariaLabel: demoText.editableChart.playSliceSequence.aria },
         icon({ size: 'lg', fixedWidth: true, name: 'play' })
@@ -797,7 +797,7 @@ export class EditableChart extends LightElement {
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
               ${folded ? nothing : html`${this.renderChartCountControls()}${this.renderModeToggle()}`}
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${folded
                   ? html`${this.renderAddCategoriesButton(error, disableAdd)}${this.renderRemoveCategoriesButton(error, disableRemove)}`
                   : html`${this.renderResetCategoriesButton(error)}${this.renderReverseCategoriesButton(error)}${this.renderAddCategoriesButton(error, disableAdd)}${this.renderRemoveCategoriesButton(error, disableRemove)}${this.renderSequenceCategoryButtons(error, disableAdd, disableRemove)}${this.renderSelectAllButton(error)}`}
@@ -812,11 +812,11 @@ export class EditableChart extends LightElement {
                  @input=${(event: Event) => { this.categoryValuesText = (event.currentTarget as HTMLInputElement).value; }} />
         </form>
       </span>
-      ${this.renderControlsMenu(error, folded ? () => html`<div class="demo-btn-category">
+      ${this.renderControlsMenu(error, folded ? () => html`<div class="demo-btn-group">
         ${this.renderResetCategoriesButton(error)}${this.renderReverseCategoriesButton(error)}${this.renderSelectAllButton(error)}
       </div>
       <div class="demo-menu-divider"></div>
-      <div class="demo-btn-category">${this.renderSequenceCategoryButtons(error, disableAdd, disableRemove)}</div>
+      <div class="demo-btn-group">${this.renderSequenceCategoryButtons(error, disableAdd, disableRemove)}</div>
       <div class="demo-menu-divider"></div>
       ${this.renderChartCountControls()}${this.renderModeToggle()}` : null)}
     </div>`;
@@ -850,7 +850,7 @@ export class EditableChart extends LightElement {
           </div>`}
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-category-decrease', disabled: error || categoryOrderControlsDisabled || isFirstCategory, tooltipText: demoText.editableChart.decreaseCategoryOrder.tooltip, tooltipPlacement: 'right', onClick: this.decreaseCategoryOrder, ariaLabel: demoText.editableChart.decreaseCategoryOrder.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-left' })
@@ -863,7 +863,7 @@ export class EditableChart extends LightElement {
           </div>
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-category-increase', disabled: error || categoryOrderControlsDisabled || isLastCategory, tooltipText: demoText.editableChart.increaseCategoryOrder.tooltip, tooltipPlacement: 'right', onClick: this.increaseCategoryOrder, ariaLabel: demoText.editableChart.increaseCategoryOrder.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-right' })
@@ -873,7 +873,7 @@ export class EditableChart extends LightElement {
           </div>
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-previous-series', disabled: error || seriesControlsDisabled || !hasPrevSeries, tooltipText: demoText.editableChart.previousSeries.tooltip, tooltipPlacement: 'right', onClick: this.prevSeries, ariaLabel: demoText.editableChart.previousSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-down' })
@@ -886,13 +886,13 @@ export class EditableChart extends LightElement {
           </div>
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-next-series', disabled: error || seriesControlsDisabled || !hasNextSeries, tooltipText: demoText.editableChart.nextSeries.tooltip, tooltipPlacement: 'right', onClick: this.nextSeries, ariaLabel: demoText.editableChart.nextSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-up' })
                 )}
               </div>
-              ${folded ? nothing : html`<div class="demo-btn-category">
+              ${folded ? nothing : html`<div class="demo-btn-group">
                 ${this.renderResetSeriesButton(error || seriesControlsDisabled)}${this.renderApplySeriesButton(error || seriesControlsDisabled)}
               </div>`}
             </div>
@@ -906,7 +906,7 @@ export class EditableChart extends LightElement {
           ${folded ? this.renderApplySeriesButton(error || seriesControlsDisabled) : nothing}
         </form>
       </span>
-      ${this.renderControlsMenu(error, folded ? () => html`<div class="demo-btn-category">${this.renderResetSeriesButton(error || seriesControlsDisabled)}</div>
+      ${this.renderControlsMenu(error, folded ? () => html`<div class="demo-btn-group">${this.renderResetSeriesButton(error || seriesControlsDisabled)}</div>
       <div class="demo-menu-divider"></div>
       ${this.renderChartCountControls()}${this.renderModeToggle()}` : null)}
     </div>`;
@@ -930,7 +930,7 @@ export class EditableChart extends LightElement {
           </div>`}
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-previous-slice', disabled: sliceControlsDisabled || this.sliceIndex === 0, tooltipText: demoText.editableChart.previousSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex - 1), ariaLabel: demoText.editableChart.previousSlice.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-left' })
@@ -945,13 +945,13 @@ export class EditableChart extends LightElement {
           </div>
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'edit-next-slice', disabled: sliceControlsDisabled || this.sliceIndex >= this.slices.length - 1, tooltipText: demoText.editableChart.nextSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex + 1), ariaLabel: demoText.editableChart.nextSlice.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-right' })
                 )}
               </div>
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${folded ? nothing : this.renderResetSliceButton(sliceControlsDisabled)}
                 ${buttonWithTooltip(
                   { id: 'edit-apply-slice', disabled: sliceControlsDisabled, label: demoText.editableChart.applySlice.label, tooltipText: demoText.editableChart.applySlice.tooltip, tooltipPlacement: 'right', onClick: this.applySliceChanges, ariaLabel: demoText.editableChart.applySlice.aria },
@@ -969,7 +969,7 @@ export class EditableChart extends LightElement {
                  @input=${(event: Event) => { this.sliceValueText = (event.currentTarget as HTMLInputElement).value; }} />
         </form>
       </span>
-      ${this.renderControlsMenu(error, folded ? () => html`<div class="demo-btn-category">${this.renderResetSliceButton(sliceControlsDisabled)}</div>
+      ${this.renderControlsMenu(error, folded ? () => html`<div class="demo-btn-group">${this.renderResetSliceButton(sliceControlsDisabled)}</div>
       <div class="demo-menu-divider"></div>
       ${this.renderSliceSequenceCategory(error)}
       ${this.showChartCountControls ? html`<div class="demo-menu-divider"></div>${this.renderChartCountControls()}` : nothing}` : null)}

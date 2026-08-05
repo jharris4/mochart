@@ -61,7 +61,7 @@ export class TransitionChartTab extends LightElement {
         <form class="demo-form-row">
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'transition-back', label: demoText.transitionChartTab.back.label, tooltipText: demoText.transitionChartTab.back.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepBack, ariaLabel: demoText.transitionChartTab.back.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'backward-step' })

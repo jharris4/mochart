@@ -73,7 +73,7 @@ export function notesMenu(props: NotesMenuProps): NotesMenuHandle {
   const bodyEl = el('span', { className: 'demo-menu-notes-body', text: props.notes ?? '' });
   const menu = el('div', { className: 'demo-menu demo-menu-notes' }, [titleEl, bodyEl]);
 
-  const root = el('div', { className: 'demo-btn-category mochart-demo-notes-menu' }, [trigger, menu]);
+  const root = el('div', { className: 'demo-btn-group mochart-demo-notes-menu' }, [trigger, menu]);
 
   // Opens downward from the navigation row and left-aligned with the trigger,
   // clamped so a 340px panel opened from a right-hand trigger stays on screen.

@@ -149,7 +149,7 @@ export class RandomChartTab extends LightElement {
         <form class="demo-form-row">
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'randomize-back', disabled: this.playing, label: demoText.randomChartTab.back.label, tooltipText: demoText.randomChartTab.back.tooltip, tooltipPlacement: 'top-start', onClick: this.onRandomizeBack, ariaLabel: demoText.randomChartTab.back.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'dice', flip: 'horizontal' })
@@ -164,20 +164,20 @@ export class RandomChartTab extends LightElement {
             </div>
             <div class="demo-toolbar" role="toolbar">
               ${folded
-                ? html`<div class="demo-btn-category">
+                ? html`<div class="demo-btn-group">
                     <!-- Anchored to the whole strip: \`align: 'end'\` pins the
                          panel's right edge to the anchor's, and the export
                          trigger sits to the ⋯'s right. -->
                     <overflow-menu .text=${demoText.overflowMenu.random} .placement=${randomPlacement}
                       .getAnchor=${this.getControlsAnchor} .active=${this.active}
-                      .items=${() => html`<div class="demo-btn-category">${this.renderPlayButton()}${this.renderStopButton()}</div>
+                      .items=${() => html`<div class="demo-btn-group">${this.renderPlayButton()}${this.renderStopButton()}</div>
                         <div class="demo-menu-divider"></div>
-                        <div class="demo-btn-category">${this.renderReuseButton()}</div>
+                        <div class="demo-btn-group">${this.renderReuseButton()}</div>
                         <div class="demo-menu-divider"></div>
                         ${this.renderRateField()}`}></overflow-menu>
                     ${this.renderExportShareMenu()}
                   </div>`
-                : html`<div class="demo-btn-category">${this.renderReuseButton()}</div>${this.renderExportShareMenu()}`}
+                : html`<div class="demo-btn-group">${this.renderReuseButton()}</div>${this.renderExportShareMenu()}`}
             </div>
           </div>
         </form>

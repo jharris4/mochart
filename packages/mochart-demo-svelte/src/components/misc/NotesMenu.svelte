@@ -40,7 +40,7 @@
 </script>
 
 {#if notes !== undefined}
-  <div class="demo-btn-category mochart-demo-notes-menu">
+  <div class="demo-btn-group mochart-demo-notes-menu">
     <button type="button" bind:this={menu.trigger} {...menu.triggerProps}
             class={'demo-btn demo-btn-secondary mochart-demo-notes-trigger' + (menu.open ? ' active' : '')}
             title={demoText.demoNotes.trigger.tooltip} aria-label={demoText.demoNotes.trigger.aria}>

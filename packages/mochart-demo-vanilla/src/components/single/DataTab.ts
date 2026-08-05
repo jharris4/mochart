@@ -126,9 +126,9 @@ export function dataTab(props: DataTabProps): DataTabHandle {
     getAnchor: () => footer
   });
 
-  // Menu-side home for the folded footer buttons — a cached `.demo-btn-category`;
+  // Menu-side home for the folded footer buttons — a cached `.demo-btn-group`;
   // OverflowMenu.ts's header says why that shape.
-  const menuActionGroup = el('div', { className: 'demo-btn-category' });
+  const menuActionGroup = el('div', { className: 'demo-btn-group' });
   const menuActionButtons = [resetButton.el, unusedButton.el];
 
   // The footer's order at desktop widths; also the list the unfold restores, so

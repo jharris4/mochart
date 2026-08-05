@@ -31,7 +31,7 @@ const copiedFeedbackMs = 1500;
   imports: [Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div class="demo-btn-category demo-menu-up mochart-export-share-menu">
+    <div class="demo-btn-group demo-menu-up mochart-export-share-menu">
       <button [id]="idPrefix + '-export-share'" type="button" #trigger
               class="demo-btn demo-btn-secondary demo-menu-trigger"
               [disabled]="disabled"

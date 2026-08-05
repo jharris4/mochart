@@ -17,10 +17,10 @@ import { menuKeepOpenClassName, useMenu } from './useMenu';
 // no second accessible name, no mirrored disabled/pressed state. A port that
 // renders a control twice and hides one with CSS has missed the design.
 //
-// The panel's children keep their own classes (`.demo-btn`, `.demo-btn-category`,
+// The panel's children keep their own classes (`.demo-btn`, `.demo-btn-group`,
 // `.demo-toolbar`); `css/demo.css`'s `.demo-menu-overflow` rules restyle them
 // into full-width menu rows by context. Loose buttons (not part of a group)
-// should be wrapped in a `.demo-btn-category`, the class those rules turn into a
+// should be wrapped in a `.demo-btn-group`, the class those rules turn into a
 // full-width column.
 //
 // Activating any button or link inside the panel closes it, except inside a
@@ -66,7 +66,7 @@ export default function OverflowMenu(props: OverflowMenuProps) {
   };
 
   return (
-    <div className="demo-btn-category demo-overflow-menu">
+    <div className="demo-btn-group demo-overflow-menu">
       <button type="button" ref={menu.triggerRef} {...menu.triggerProps}
         className={'demo-btn demo-btn-secondary' + (menu.open ? ' active' : '')}
         disabled={disabled} title={text.tooltip} aria-label={text.aria}>

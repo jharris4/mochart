@@ -75,7 +75,7 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
                  wrong thing. Anchored to the full-width footer — the trigger
                  sits mid-row, left of an error span that comes and goes. -->
             <app-overflow-menu [text]="overflowText" [placement]="editorPlacement" [getAnchor]="getFooterAnchor" [active]="active">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 <ng-container [ngTemplateOutlet]="resetButton" />
                 <ng-container [ngTemplateOutlet]="defaultsButton" />
                 <ng-container [ngTemplateOutlet]="invertedButton" />

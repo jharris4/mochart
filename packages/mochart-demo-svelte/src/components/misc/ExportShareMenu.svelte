@@ -87,7 +87,7 @@
   }
 </script>
 
-<div class="demo-btn-category demo-menu-up mochart-export-share-menu">
+<div class="demo-btn-group demo-menu-up mochart-export-share-menu">
   <button type="button" bind:this={menu.trigger} {...menu.triggerProps}
           class={'demo-btn demo-btn-secondary demo-menu-trigger' + (menu.open ? ' active' : '')}
           {disabled}

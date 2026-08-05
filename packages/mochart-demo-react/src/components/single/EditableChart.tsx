@@ -755,7 +755,7 @@ export default function EditableChart(props: Props) {
   const disableAdd = orderChanged || !selectedCategoryValues.some(category => !filteredCategoryMap[category]);
 
   const modeControlContent = (
-    <div className="demo-btn-category" key="modeControls">
+    <div className="demo-btn-group" key="modeControls">
       <ButtonWithTooltip id="edit-mode" label={selectionMode === 'category' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories}
         tooltipText={selectionMode === 'category'
           ? demoText.editableChart.editMode.tooltipToSeries
@@ -815,7 +815,7 @@ export default function EditableChart(props: Props) {
   );
 
   const chartCountControlContent = showChartCountControls ? (
-    <div className="demo-btn-category" key="chartCountControls">
+    <div className="demo-btn-group" key="chartCountControls">
       <ButtonWithTooltip id="edit-chart-count" label={demoText.editableChart.secondChart.label} pressed={chartCount === 2}
         tooltipText={chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow} tooltipPlacement="right"
         onClick={onChartCountToggle} aria-label={demoText.editableChart.secondChart.aria}>
@@ -850,7 +850,7 @@ export default function EditableChart(props: Props) {
       </ButtonWithTooltip>
     );
     const sliceSequenceCategory = (
-      <div className="demo-btn-category">
+      <div className="demo-btn-group">
         <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
           menuLabel={demoText.editableChart.playSliceSequence.menuLabel}
           tooltipText={demoText.editableChart.playSliceSequence.tooltip} tooltipPlacement="right"
@@ -880,7 +880,7 @@ export default function EditableChart(props: Props) {
             )}
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-category">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-previous-slice" disabled={sliceControlsDisabled || sliceIndex === 0}
                     tooltipText={demoText.editableChart.previousSlice.tooltip} tooltipPlacement="right"
                     onClick={() => selectSlice(sliceIndex - 1)} aria-label={demoText.editableChart.previousSlice.aria}>
@@ -898,14 +898,14 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-category">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-next-slice" disabled={sliceControlsDisabled || sliceIndex >= slices.length - 1}
                     tooltipText={demoText.editableChart.nextSlice.tooltip} tooltipPlacement="right"
                     onClick={() => selectSlice(sliceIndex + 1)} aria-label={demoText.editableChart.nextSlice.aria}>
                     <Icon size="lg" fixedWidth={true} name="chevron-right" />
                   </ButtonWithTooltip>
                 </div>
-                <div className="demo-btn-category">
+                <div className="demo-btn-group">
                   {foldSlice ? null : resetSliceButton}
                   <ButtonWithTooltip id="edit-apply-slice" disabled={sliceControlsDisabled} label={demoText.editableChart.applySlice.label}
                     tooltipText={demoText.editableChart.applySlice.tooltip} tooltipPlacement="right"
@@ -925,7 +925,7 @@ export default function EditableChart(props: Props) {
         </span>
         {controlsMenu(foldSlice ? (
           <>
-            <div className="demo-btn-category">{resetSliceButton}</div>
+            <div className="demo-btn-group">{resetSliceButton}</div>
             <MenuDivider />
             {sliceSequenceCategory}
             {chartCountControlContent !== null ? <><MenuDivider />{chartCountControlContent}</> : null}
@@ -1005,7 +1005,7 @@ export default function EditableChart(props: Props) {
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
                 {foldCategory ? null : commonControlContent}
-                <div className="demo-btn-category">
+                <div className="demo-btn-group">
                   {foldCategory
                     ? <>{addCategoriesButton}{removeCategoriesButton}</>
                     : <>{resetCategoriesButton}{reverseCategoriesButton}{addCategoriesButton}{removeCategoriesButton}{playAddButton}{playRemoveButton}{stopButton}{selectAllButton}</>}
@@ -1021,9 +1021,9 @@ export default function EditableChart(props: Props) {
         </span>
         {controlsMenu(foldCategory ? (
           <>
-            <div className="demo-btn-category">{resetCategoriesButton}{reverseCategoriesButton}{selectAllButton}</div>
+            <div className="demo-btn-group">{resetCategoriesButton}{reverseCategoriesButton}{selectAllButton}</div>
             <MenuDivider />
-            <div className="demo-btn-category">{playAddButton}{playRemoveButton}{stopButton}</div>
+            <div className="demo-btn-group">{playAddButton}{playRemoveButton}{stopButton}</div>
             <MenuDivider />
             {commonControlContent}
           </>
@@ -1083,7 +1083,7 @@ export default function EditableChart(props: Props) {
             )}
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-category">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-category-decrease" disabled={error || categoryOrderControlsDisabled || isFirstCategory}
                     tooltipText={demoText.editableChart.decreaseCategoryOrder.tooltip} tooltipPlacement="right"
                     onClick={decreaseCategoryOrder} aria-label={demoText.editableChart.decreaseCategoryOrder.aria}>
@@ -1101,7 +1101,7 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-category">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-category-increase" disabled={error || categoryOrderControlsDisabled || isLastCategory}
                     tooltipText={demoText.editableChart.increaseCategoryOrder.tooltip} tooltipPlacement="right"
                     onClick={increaseCategoryOrder} aria-label={demoText.editableChart.increaseCategoryOrder.aria}>
@@ -1112,7 +1112,7 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-category">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-previous-series" disabled={error || seriesControlsDisabled || !hasPrevSeries}
                     tooltipText={demoText.editableChart.previousSeries.tooltip} tooltipPlacement="right"
                     onClick={prevSeries} aria-label={demoText.editableChart.previousSeries.aria}>
@@ -1130,7 +1130,7 @@ export default function EditableChart(props: Props) {
             </div>
             <div className="demo-field">
               <div className="demo-toolbar" role="toolbar">
-                <div className="demo-btn-category">
+                <div className="demo-btn-group">
                   <ButtonWithTooltip id="edit-next-series" disabled={error || seriesControlsDisabled || !hasNextSeries}
                     tooltipText={demoText.editableChart.nextSeries.tooltip} tooltipPlacement="right"
                     onClick={nextSeries} aria-label={demoText.editableChart.nextSeries.aria}>
@@ -1138,7 +1138,7 @@ export default function EditableChart(props: Props) {
                   </ButtonWithTooltip>
                 </div>
                 {foldSeries ? null : (
-                  <div className="demo-btn-category">
+                  <div className="demo-btn-group">
                     {resetSeriesButton}
                     {applySeriesButton}
                   </div>
@@ -1155,7 +1155,7 @@ export default function EditableChart(props: Props) {
         </span>
         {controlsMenu(foldSeries ? (
           <>
-            <div className="demo-btn-category">{resetSeriesButton}</div>
+            <div className="demo-btn-group">{resetSeriesButton}</div>
             <MenuDivider />
             {commonControlContent}
           </>

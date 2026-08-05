@@ -696,7 +696,7 @@ const getMenuAnchor = () => menuSpanElement.value;
 const iconChild = (name: string) => () => h(Icon, { size: 'lg', fixedWidth: true, name });
 
 const ChartCountControl = () => (props.showChartCountControls
-  ? h('div', { class: 'demo-btn-category' }, [
+  ? h('div', { class: 'demo-btn-group' }, [
       h(ButtonWithTooltip, {
         id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: props.chartCount === 2,
         tooltipText: props.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow,
@@ -705,7 +705,7 @@ const ChartCountControl = () => (props.showChartCountControls
     ])
   : null);
 
-const ModeControl = () => h('div', { class: 'demo-btn-category' }, [
+const ModeControl = () => h('div', { class: 'demo-btn-group' }, [
   h(ButtonWithTooltip, {
     id: 'edit-mode',
     label: selectionMode.value === 'category' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories,
@@ -720,7 +720,7 @@ const ResetSliceButton = () => h(ButtonWithTooltip, {
   onClick: resetSliceChanges, 'aria-label': demoText.editableChart.resetSlice.aria
 }, iconChild('arrow-rotate-left'));
 
-const SliceSequenceCategory = () => h('div', { class: 'demo-btn-category' }, [
+const SliceSequenceCategory = () => h('div', { class: 'demo-btn-group' }, [
   h(ButtonWithTooltip, {
     id: 'edit-play-slices', disabled: error.value || sequencePlaying.value || slices.value.length < 2,
     menuLabel: demoText.editableChart.playSliceSequence.menuLabel,
@@ -839,7 +839,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-previous-slice" :disabled="error || sliceControlsDisabled || sliceIndex === 0" :tooltip-text="demoText.editableChart.previousSlice.tooltip" tooltip-placement="right"
                                        :on-click="() => selectSlice(sliceIndex - 1)" :aria-label="demoText.editableChart.previousSlice.aria">
                       <Icon size="lg" :fixed-width="true" name="chevron-left" />
@@ -852,13 +852,13 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-next-slice" :disabled="error || sliceControlsDisabled || sliceIndex >= slices.length - 1" :tooltip-text="demoText.editableChart.nextSlice.tooltip" tooltip-placement="right"
                                        :on-click="() => selectSlice(sliceIndex + 1)" :aria-label="demoText.editableChart.nextSlice.aria">
                       <Icon size="lg" :fixed-width="true" name="chevron-right" />
                     </ButtonWithTooltip>
                   </div>
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ResetSliceButton v-if="!foldSlice" />
                     <ButtonWithTooltip id="edit-apply-slice" :disabled="error || sliceControlsDisabled" :label="demoText.editableChart.applySlice.label" :tooltip-text="demoText.editableChart.applySlice.tooltip" tooltip-placement="right"
                                        :on-click="applySliceChanges" :aria-label="demoText.editableChart.applySlice.aria">
@@ -880,7 +880,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
                           :placement="{ side: 'top', align: 'end', gap: 4 }"
                           :get-anchor="getMenuAnchor"
                           :disabled="error" :active="props.isActive">
-              <div class="demo-btn-category"><ResetSliceButton /></div>
+              <div class="demo-btn-group"><ResetSliceButton /></div>
               <div class="demo-menu-divider"></div>
               <SliceSequenceCategory />
               <template v-if="props.showChartCountControls">
@@ -906,7 +906,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
                     <ChartCountControl />
                     <ModeControl />
                   </template>
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <template v-if="foldCategory">
                       <AddCategoriesButton />
                       <RemoveCategoriesButton />
@@ -936,9 +936,9 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
                           :placement="{ side: 'top', align: 'end', gap: 4 }"
                           :get-anchor="getMenuAnchor"
                           :disabled="error" :active="props.isActive">
-              <div class="demo-btn-category"><ResetCategoriesButton /><ReverseCategoriesButton /><SelectAllButton /></div>
+              <div class="demo-btn-group"><ResetCategoriesButton /><ReverseCategoriesButton /><SelectAllButton /></div>
               <div class="demo-menu-divider"></div>
-              <div class="demo-btn-category"><PlayAddButton /><PlayRemoveButton /><StopCategoriesButton /></div>
+              <div class="demo-btn-group"><PlayAddButton /><PlayRemoveButton /><StopCategoriesButton /></div>
               <div class="demo-menu-divider"></div>
               <ChartCountControl />
               <ModeControl />
@@ -967,7 +967,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-category-decrease" :disabled="error || categoryOrderControlsDisabled || isFirstCategory" :tooltip-text="demoText.editableChart.decreaseCategoryOrder.tooltip" tooltip-placement="right"
                                        :on-click="decreaseCategoryOrder" :aria-label="demoText.editableChart.decreaseCategoryOrder.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-left" />
@@ -980,7 +980,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-category-increase" :disabled="error || categoryOrderControlsDisabled || isLastCategory" :tooltip-text="demoText.editableChart.increaseCategoryOrder.tooltip" tooltip-placement="right"
                                        :on-click="increaseCategoryOrder" :aria-label="demoText.editableChart.increaseCategoryOrder.aria">
                       <Icon size="lg" :fixed-width="true" name="arrow-right" />
@@ -990,7 +990,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-previous-series" :disabled="error || seriesControlsDisabled || !hasPrevSeries" :tooltip-text="demoText.editableChart.previousSeries.tooltip" tooltip-placement="right"
                                        :on-click="prevSeries" :aria-label="demoText.editableChart.previousSeries.aria">
                       <Icon size="lg" :fixed-width="true" name="chevron-down" />
@@ -1003,13 +1003,13 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
               </div>
               <div class="demo-field">
                 <div class="demo-toolbar" role="toolbar">
-                  <div class="demo-btn-category">
+                  <div class="demo-btn-group">
                     <ButtonWithTooltip id="edit-next-series" :disabled="error || seriesControlsDisabled || !hasNextSeries" :tooltip-text="demoText.editableChart.nextSeries.tooltip" tooltip-placement="right"
                                        :on-click="nextSeries" :aria-label="demoText.editableChart.nextSeries.aria">
                       <Icon size="lg" :fixed-width="true" name="chevron-up" />
                     </ButtonWithTooltip>
                   </div>
-                  <div v-if="!foldSeries" class="demo-btn-category">
+                  <div v-if="!foldSeries" class="demo-btn-group">
                     <ResetSeriesButton />
                     <ApplySeriesButton />
                   </div>
@@ -1028,7 +1028,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
                           :placement="{ side: 'top', align: 'end', gap: 4 }"
                           :get-anchor="getMenuAnchor"
                           :disabled="error" :active="props.isActive">
-              <div class="demo-btn-category"><ResetSeriesButton /></div>
+              <div class="demo-btn-group"><ResetSeriesButton /></div>
               <div class="demo-menu-divider"></div>
               <ChartCountControl />
               <ModeControl />

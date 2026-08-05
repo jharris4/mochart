@@ -193,7 +193,7 @@
                       placement={{ side: 'top', align: 'end', gap: 4 }}
                       getAnchor={() => footerElement}
                       active={active !== false}>
-          <div class="demo-btn-category">{@render resetButton()}{@render defaultsButton()}{@render invertedButton()}{@render slowButton()}</div>
+          <div class="demo-btn-group">{@render resetButton()}{@render defaultsButton()}{@render invertedButton()}{@render slowButton()}</div>
           {#if hasDocsLinks}
             <div class="demo-menu-divider"></div>
             {@render docsLinks()}

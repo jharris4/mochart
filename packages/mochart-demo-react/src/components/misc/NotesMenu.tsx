@@ -40,7 +40,7 @@ export default function NotesMenu({ title, notes }: Props) {
   }
 
   return (
-    <div className="demo-btn-category mochart-demo-notes-menu">
+    <div className="demo-btn-group mochart-demo-notes-menu">
       <button type="button" ref={menu.triggerRef} {...menu.triggerProps}
         className={'demo-btn demo-btn-secondary mochart-demo-notes-trigger' + (menu.open ? ' active' : '')}
         title={demoText.demoNotes.trigger.tooltip} aria-label={demoText.demoNotes.trigger.aria}>

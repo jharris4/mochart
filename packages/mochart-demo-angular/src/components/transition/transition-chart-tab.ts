@@ -25,7 +25,7 @@ import type { ChartDataProviderLike } from '../../types';
         <form class="demo-form-row">
           <div class="demo-field">
             <div class="demo-toolbar" role="toolbar">
-              <div class="demo-btn-category">
+              <div class="demo-btn-group">
                 <app-button-with-tooltip id="transition-back" [label]="text.back.label" [tooltipText]="text.back.tooltip" tooltipPlacement="top-start"
                                          [onClick]="onStepBack" [aria-label]="text.back.aria">
                   <app-icon size="lg" [fixedWidth]="true" name="backward-step" />

@@ -68,7 +68,7 @@ export function transitionChartTab(props: TransitionChartTabProps): TransitionCh
       el('form', { className: 'demo-form-row' }, [
         el('div', { className: 'demo-field' }, [
           el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
-            el('div', { className: 'demo-btn-category' }, [backButton.el, forwardButton.el])
+            el('div', { className: 'demo-btn-group' }, [backButton.el, forwardButton.el])
           ])
         ])
       ])
