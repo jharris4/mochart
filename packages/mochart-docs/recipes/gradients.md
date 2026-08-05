@@ -26,4 +26,4 @@ import * as gradients from '../examples/gradients'
   instead of a vector.
 - Shared values for several gradients can go in `linearGradientDefaults` /
   `radialGradientDefaults`, like every list section
-  (see [the config model](/guide/config-model#shared-all-sections)).
+  (see [the config model](/guide/config-model#shared-defaults-sections)).

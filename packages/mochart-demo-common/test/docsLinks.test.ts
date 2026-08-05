@@ -25,7 +25,7 @@ describe('getReferenceSectionIds', () => {
     })).toEqual(['animation', 'series', 'title']);
   });
 
-  it('maps *AllConfig keys onto their list section', () => {
+  it('maps *Defaults keys onto their list section', () => {
     expect(getReferenceSectionIds({
       seriesDefaults: {},
       seriesStackDefaults: {}

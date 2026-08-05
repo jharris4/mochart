@@ -14,7 +14,7 @@ describe('sparkline metrics', () => {
       const mochartConfig = enhanceConfig(metric.config);
       expect(mochartConfig.validation.valid).toBe(true);
       expect(mochartConfig.validation.warnings).toEqual([]);
-      // The preset must reach every axis: valueAxisAllConfig only merges
+      // The preset must reach every axis: valueAxisDefaults only merges
       // into declared axes, so an undeclared axis would render its stub.
       for (const valueAxisConfig of mochartConfig.valueAxes) {
         expect(valueAxisConfig.visible).toBe(false);

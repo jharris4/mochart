@@ -17,7 +17,7 @@ validators, and defaults that power [config validation](/guide/config-model#vali
 produce these pages, so they cannot drift from the code.
 
 The list sections (`series`, `valueAxes`, gradients, groups,
-stacks) take an array of config objects and have a companion `*AllConfig`
+stacks) take an array of config objects and have a companion `*Defaults`
 section for values shared by every entry — see
 [The config model](/guide/config-model) for how sharing and defaulting work.
 

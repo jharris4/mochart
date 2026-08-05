@@ -75,12 +75,12 @@ const listSectionIds = new Set([
 ]);
 
 const allKeySectionMap: Record<string, string> = {
-  linearGradientAllConfig: 'linearGradients',
-  radialGradientAllConfig: 'radialGradients',
+  linearGradientDefaults: 'linearGradients',
+  radialGradientDefaults: 'radialGradients',
   valueAxisDefaults: 'valueAxes',
   seriesDefaults: 'series',
-  seriesGroupAllConfig: 'seriesGroups',
-  seriesStackAllConfig: 'seriesStacks'
+  seriesGroupDefaults: 'seriesGroups',
+  seriesStackDefaults: 'seriesStacks'
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {

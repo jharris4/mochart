@@ -37,9 +37,9 @@ Sections come in two shapes:
   Passing a single object instead of an array is allowed and treated as a
   one-entry list.
 
-## Shared `*All` sections
+## Shared `*Defaults` sections
 
-Every list section has a companion `*AllConfig` section — `seriesDefaults`,
+Every list section has a companion `*Defaults` section — `seriesDefaults`,
 `valueAxisDefaults`, and so on — whose values apply to **every** entry of
 the list. A value set on an individual entry wins over the shared one:
 

@@ -199,7 +199,7 @@ export interface SectionDoc {
   id: string;
   title: string;
   description: string;
-  /** Companion `*AllConfig` key whose values apply to every entry, if any. */
+  /** Companion `*Defaults` key whose values apply to every entry, if any. */
   allKey?: string;
   allDescription?: string;
   /** Per-entry unique properties (e.g. id/order) — not settable on the all config. */

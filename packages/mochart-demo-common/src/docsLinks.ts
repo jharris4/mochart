@@ -54,7 +54,7 @@ export function getDocsBaseUrl(basePath: string = getRouterBasePath()): string {
 
 /**
  * The reference section ids a config actually uses (in reference order),
- * with `*AllConfig` keys mapped onto their list section.
+ * with `*Defaults` keys mapped onto their list section.
  */
 export function getReferenceSectionIds(config: Record<string, unknown> | null | undefined): string[] {
   if (config === null || config === undefined) {

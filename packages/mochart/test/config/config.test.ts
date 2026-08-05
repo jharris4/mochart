@@ -310,8 +310,8 @@ describe('ignored entries and sole-id defaults', () => {
 });
 
 // Regression: the single-object list-section shape merged only defaults +
-// entry, dropping the *AllConfig layer that the array shape applies.
-describe('single-object sections with an all config', () => {
+// entry, dropping the *Defaults layer that the array shape applies.
+describe('single-object sections with a *Defaults section', () => {
   const base = { version: VERSION_STRING, categoryAxis: { property: 'g' } };
 
   it('applies the all config to a single-object section like an array of one', () => {
