@@ -5,7 +5,7 @@
 // back to its core counterpart (`loadingComponent` → `getLoadingComponent`,
 // Angular's `chartClick` output → `onChartClick`), so the prose has exactly
 // one home; a binding prop only needs its own JSDoc when it has no core
-// counterpart (`className`, `class`). Integrity errors — reported by
+// counterpart (`className`, `class`, `style`). Integrity errors — reported by
 // scripts/generateBindings.ts, which fails the docs build and `npm test` —
 // cover the three ways this drifts:
 //
@@ -127,7 +127,9 @@ const bindingSources: BindingSource[] = [
     guideLink: '/guide/frameworks/react',
     surface: 'component props on `Chart` and `DefaultChart`',
     style: 'interfaces',
-    expectedMissing: {}
+    expectedMissing: {
+      style: 'the binding has its own style prop, applied to the container div it renders rather than forwarded to core'
+    }
   },
   {
     id: 'svelte',
@@ -137,7 +139,9 @@ const bindingSources: BindingSource[] = [
     guideLink: '/guide/frameworks/svelte',
     surface: 'component props on `Chart` and `DefaultChart`',
     style: 'interfaces',
-    expectedMissing: {}
+    expectedMissing: {
+      style: 'the binding has its own style prop, applied to the container div it renders rather than forwarded to core'
+    }
   },
   {
     id: 'vue',
@@ -159,7 +163,9 @@ const bindingSources: BindingSource[] = [
     guideLink: '/guide/frameworks/lit',
     surface: 'directive props on `chart()` and `defaultChart()`',
     style: 'interfaces',
-    expectedMissing: {}
+    expectedMissing: {
+      style: 'the directive has its own style prop, applied to the container div it renders rather than forwarded to core'
+    }
   },
   {
     id: 'angular',
@@ -213,8 +219,15 @@ function classifyKey(key: string, hint: BindingPropKind | undefined): BindingPro
   return hint ?? 'prop';
 }
 
+// Bindings strip `style` and apply it to the container div they render, so the
+// same-named core prop (inline style on core's root element) is not its counterpart.
+const bindingOwnKeys = new Set(['style']);
+
 /** The core prop a binding prop mirrors, following each binding's renaming rules. */
 function coreKeyFor(key: string, coreKeys: Set<string>): string | undefined {
+  if (bindingOwnKeys.has(key)) {
+    return undefined;
+  }
   if (coreKeys.has(key)) {
     return key;
   }
