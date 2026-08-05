@@ -751,7 +751,7 @@ export class EditableChart extends LightElement {
     );
   }
 
-  private renderSequenceCategoryButtons(error: boolean, disableAdd: boolean, disableRemove: boolean): unknown {
+  private renderSequenceGroupButtons(error: boolean, disableAdd: boolean, disableRemove: boolean): unknown {
     return html`${buttonWithTooltip(
       { id: 'edit-play-add', disabled: error || this.sequencePlaying || disableAdd, menuLabel: demoText.editableChart.playAddCategories.menuLabel, tooltipText: demoText.editableChart.playAddCategories.tooltip, tooltipPlacement: 'right', onClick: this.startAddSequence, ariaLabel: demoText.editableChart.playAddCategories.aria },
       html`${icon({ size: 'lg', name: 'play' })}<span style="padding-right: 2px;"></span>${icon({ size: 'lg', name: 'plus' })}`
@@ -800,7 +800,7 @@ export class EditableChart extends LightElement {
               <div class="demo-btn-group">
                 ${folded
                   ? html`${this.renderAddCategoriesButton(error, disableAdd)}${this.renderRemoveCategoriesButton(error, disableRemove)}`
-                  : html`${this.renderResetCategoriesButton(error)}${this.renderReverseCategoriesButton(error)}${this.renderAddCategoriesButton(error, disableAdd)}${this.renderRemoveCategoriesButton(error, disableRemove)}${this.renderSequenceCategoryButtons(error, disableAdd, disableRemove)}${this.renderSelectAllButton(error)}`}
+                  : html`${this.renderResetCategoriesButton(error)}${this.renderReverseCategoriesButton(error)}${this.renderAddCategoriesButton(error, disableAdd)}${this.renderRemoveCategoriesButton(error, disableRemove)}${this.renderSequenceGroupButtons(error, disableAdd, disableRemove)}${this.renderSelectAllButton(error)}`}
               </div>
             </div>
           </div>
@@ -816,7 +816,7 @@ export class EditableChart extends LightElement {
         ${this.renderResetCategoriesButton(error)}${this.renderReverseCategoriesButton(error)}${this.renderSelectAllButton(error)}
       </div>
       <div class="demo-menu-divider"></div>
-      <div class="demo-btn-group">${this.renderSequenceCategoryButtons(error, disableAdd, disableRemove)}</div>
+      <div class="demo-btn-group">${this.renderSequenceGroupButtons(error, disableAdd, disableRemove)}</div>
       <div class="demo-menu-divider"></div>
       ${this.renderChartCountControls()}${this.renderModeToggle()}` : null)}
     </div>`;
