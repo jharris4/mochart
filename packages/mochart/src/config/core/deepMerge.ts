@@ -22,7 +22,7 @@ export function withoutUndefined<T extends object>(object: T): T {
   const source = object as MergeRecord;
   const keysFiltered = keys.filter(key => source[key] !== undefined);
   if (keysFiltered.length < keys.length) {
-    const clone: MergeRecord = {};
+    const clone: MergeRecord = Object.create(null);
     for (const key of keysFiltered) {
       clone[key] = source[key];
     }
@@ -33,7 +33,7 @@ export function withoutUndefined<T extends object>(object: T): T {
 
 /** Merge `source` over `target` without mutating either. Key order is target-first, which fixes the order of the svg attributes written from a merged style. */
 export function deepMerge<T extends object>(target: T | null | undefined, source: object | null | undefined): T {
-  const merged: MergeRecord = {};
+  const merged: MergeRecord = Object.create(null); // null proto: a JSON-owned __proto__ key must not rewrite the merged prototype
   if (target) {
     const targetRecord = target as MergeRecord;
     for (const key of Object.keys(targetRecord)) {

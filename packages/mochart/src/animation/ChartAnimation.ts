@@ -163,7 +163,7 @@ function getAxisDomainsForDeltas(
     return endAxisDomains;
   }
   else {
-    const axisDomains: AxisDomains = {};
+    const axisDomains: AxisDomains = Object.create(null);
     const deltas = axisDeltaObject.deltas;
     if (deltas === null) {
       return endAxisDomains;
@@ -187,7 +187,7 @@ function getSeriesDomainsForDeltas(
     return endSeriesDomains;
   }
   else {
-    const seriesDomains: SeriesDomainObjects = {};
+    const seriesDomains: SeriesDomainObjects = Object.create(null);
     const deltas = domainDeltaObject.deltas;
     if (deltas === null) {
       return endSeriesDomains;
@@ -290,7 +290,7 @@ function getValueObjectsForDelta(
   }
   else {
     const valueDeltaObjects = valueDeltaObjectData.deltas;
-    const valueObjects: SeriesValueObjects = {};
+    const valueObjects: SeriesValueObjects = Object.create(null);
     const seriesIds = Object.keys(startValueObjects);
     for (const seriesId of seriesIds) {
       valueObjects[seriesId] = getValueObjectForDelta(startValueObjects[seriesId], endValueObjects[seriesId], valueDeltaObjects[seriesId], deltaPercentage, percentage);
@@ -315,7 +315,7 @@ function getFilteredValueObjectsForDelta(
   }
   else {
     const valueDeltaObjects = valueDeltaObjectData.deltas;
-    const valueObjects: SeriesValueObjects = {};
+    const valueObjects: SeriesValueObjects = Object.create(null);
     const seriesIds = Object.keys(startValueObjects);
     for (const seriesId of seriesIds) {
       valueObjects[seriesId] = getFilteredValueObjectForDelta(startValueObjects[seriesId], endValueObjects[seriesId], valueDeltaObjects[seriesId], rawValueObjects[seriesId], deltaPercentage, percentage);

@@ -86,7 +86,7 @@ function getValueAxisFocusPercentages(
     return start;
   }
   else if (deltaPercentages !== null && deltaFactors !== null) {
-    const focusPercentages: FocusPercentageMap = {}; // TODO, investigate reusing this map for subsequent calls
+    const focusPercentages: FocusPercentageMap = Object.create(null); // TODO, investigate reusing this map for subsequent calls
     const valueAxisIds = Object.keys(start);
     for (const valueAxisId of valueAxisIds) {
       if (deltaPercentages[valueAxisId] >= percentage) {
@@ -112,7 +112,7 @@ function getSeriesFocusPercentages(
     return start;
   }
   else if (deltaPercentages !== null && deltaFactors !== null) {
-    const focusPercentages: FocusPercentageMap = {}; // TODO, investigate reusing this map for subsequent calls
+    const focusPercentages: FocusPercentageMap = Object.create(null); // TODO, investigate reusing this map for subsequent calls
     const seriesIds = Object.keys(start);
     for (const seriesId of seriesIds) {
       if (deltaPercentages[seriesId] >= percentage) {

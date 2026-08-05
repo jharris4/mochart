@@ -328,8 +328,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     // like the slice labels do, off freezes them at the full-total shares.
     const pieTooltipValues = pieConfig.tooltipValues;
     let piePercentFormat: ((fraction: number) => string) | null = null;
-    let rawFractions: Record<string, number> = {};
-    let adjustedFractions: Record<string, number> = {};
+    let rawFractions: Record<string, number> = Object.create(null);
+    let adjustedFractions: Record<string, number> = Object.create(null);
     if (chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(pieTooltipValues)) {
       piePercentFormat = getPieTooltipPercentFormat(pieConfig);
       rawFractions = getPieSliceFractionMap(seriesConfigs, seriesId => raw.values[seriesId]?.plain);

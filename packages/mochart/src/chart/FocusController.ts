@@ -133,7 +133,8 @@ export class FocusController {
    */
   toggleSeriesFilter(seriesId: string, followerSeriesIds: readonly string[] = []): ChartSeriesFilter {
     // copy before mutating so snapshots handed to host callbacks stay frozen
-    const filteredSeriesIds = { ...this.filteredSeriesIds };
+    // null proto: an id of __proto__ must land as an own key, not hit the prototype setter
+    const filteredSeriesIds: Record<string, boolean> = Object.assign(Object.create(null), this.filteredSeriesIds);
     const filtered = filteredSeriesIds[seriesId] !== true;
     for (const id of [seriesId, ...followerSeriesIds]) {
       if (filtered) {

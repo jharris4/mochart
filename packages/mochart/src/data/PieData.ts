@@ -43,7 +43,7 @@ export function getPieSliceFractions(seriesConfigs: SeriesConfig[], valueOf: (se
  */
 export function getPieSliceFractionMap(seriesConfigs: SeriesConfig[], valueOf: (seriesId: string) => number | null | undefined): Record<string, number> {
   const { fractions } = getPieSliceFractions(seriesConfigs, valueOf);
-  const fractionMap: Record<string, number> = {};
+  const fractionMap: Record<string, number> = Object.create(null);
   seriesConfigs.forEach((seriesConfig, i) => {
     fractionMap[seriesConfig.id] = fractions[i];
   });
@@ -66,7 +66,7 @@ export function getPieSliceAngles(seriesConfigs: SeriesConfig[], filteredValues:
     return plain !== null ? plain[categoryIndex] : undefined;
   });
 
-  const angles: Record<string, PieSliceAngles> = {};
+  const angles: Record<string, PieSliceAngles> = Object.create(null);
   if (total <= 0) {
     return angles;
   }
@@ -102,7 +102,7 @@ export function sweepPieSliceAngles(angles: Record<string, PieSliceAngles>, pieC
   }
   const clamped = Math.max(percentage, 0);
   const startOffset = degreesToRadians(pieConfig.startAngle);
-  const swept: Record<string, PieSliceAngles> = {};
+  const swept: Record<string, PieSliceAngles> = Object.create(null);
   for (const id of Object.keys(angles)) {
     const sliceAngles = angles[id];
     swept[id] = {

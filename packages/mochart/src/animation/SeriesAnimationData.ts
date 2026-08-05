@@ -98,7 +98,7 @@ export function getFilterDeltaData(mochartConfig: EnhancedMochartConfig, oldSeri
 }
 
 function getFilteredFlagsFromValues(oldSeriesData: SeriesData, newSeriesData: SeriesData): Record<string, boolean> {
-  const filteredFlags: Record<string, boolean> = {};
+  const filteredFlags: Record<string, boolean> = Object.create(null);
   const oldFilteredValueObjects = oldSeriesData.filtered.values;
   const newFilteredValueObjects = newSeriesData.filtered.values;
   const seriesIds = Object.keys(oldFilteredValueObjects);
@@ -559,7 +559,7 @@ function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartDa
 
 function createRawValueDeltaData(mochartConfig: EnhancedMochartConfig, startValueObjects: SeriesValueObjects, endValueObjects: SeriesValueObjects, valueAxisExtents: AxisExtents, seriesDomains: SeriesDomainObjects): SeriesValueDeltaMap {
   let deltaPercentage = 0;
-  const deltas: Record<string, ValueDeltaObject> = {};
+  const deltas: Record<string, ValueDeltaObject> = Object.create(null);
   let deltaObject: ValueDeltaObject;
 
   const seriesConfigs = mochartConfig.series;
@@ -649,7 +649,7 @@ function adjustDeltaPercentagesForFollowerCategories(seriesConfigs: EnhancedSeri
   let followerCategories: Record<string, EnhancedSeriesConfig[]> | null = null;
   for (const seriesConfig of seriesConfigs) {
     if (seriesConfig.followSeries !== NONE && seriesConfig.stack === NONE) {
-      followerCategories ??= {};
+      followerCategories ??= Object.create(null) as Record<string, EnhancedSeriesConfig[]>;
       (followerCategories[seriesConfig.followSeries] ??= []).push(seriesConfig);
     }
   }
@@ -781,7 +781,7 @@ function getAllDeltaCopied(valueDeltaObject: ValueDeltaObject): boolean {
 function createFilteredValueDeltaData(mochartConfig: EnhancedMochartConfig, startFilteredValueObjects: SeriesValueObjects, endFilteredValueObjects: SeriesValueObjects, startValueObjects: SeriesValueObjects, endValueObjects: SeriesValueObjects, valueDeltaData: SeriesValueDeltaMap, valueAxisExtents: AxisExtents, seriesDomains: SeriesDomainObjects): SeriesValueDeltaMap {
   let deltaPercentage = 0;
   let deltaCopied = true;
-  const deltas: Record<string, ValueDeltaObject> = {};
+  const deltas: Record<string, ValueDeltaObject> = Object.create(null);
   let deltaObject: ValueDeltaObject;
 
   const seriesConfigs = mochartConfig.series;

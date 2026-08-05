@@ -28,8 +28,9 @@ export function getWithMutations(oldValue: unknown, newValue: unknown, customMut
     const incomingObject = newValue as Record<string, unknown>;
     const oldKeys = Object.keys(oldValue);
     const newKeys = Object.keys(newValue);
-    const oldKeyMap = oldKeys.reduce<Record<string, boolean>>((map, key) => { map[key] = true; return map }, {});
-    const newObject: Record<string, unknown> = {};
+    // null proto: merged maps can be keyed by external ids (__proto__ must survive the merge)
+    const oldKeyMap = oldKeys.reduce<Record<string, boolean>>((map, key) => { map[key] = true; return map }, Object.create(null));
+    const newObject: Record<string, unknown> = Object.create(null);
     for (const newKey of newKeys) {
       if (oldKeyMap[newKey]) {
         newObject[newKey] = getWithMutations(oldObject[newKey], incomingObject[newKey], customMutator);

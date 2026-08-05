@@ -9,6 +9,11 @@ function isConfigObject(value: unknown): value is ConfigObject {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+// own-key check: user config keys (__proto__, constructor, ...) must not resolve to prototype members
+function hasOwn(object: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(object, key);
+}
+
 const objectValidator = validators.object();
 
 const suffix = ' - ';
@@ -73,7 +78,7 @@ function addErrorMessageForKey(prefix: string, properties: string[], value: unkn
   const nested = nestedValidators(validator);
   if (nested !== null && isPlainObject(value)) {
     const failedKeys = Object.keys(value).filter(nestedKey => {
-      const nestedValidator = nested[nestedKey];
+      const nestedValidator = hasOwn(nested, nestedKey) ? nested[nestedKey] : undefined;
       return nestedValidator !== undefined && value[nestedKey] !== undefined && !nestedValidator(value[nestedKey]);
     });
     if (failedKeys.length > 0) {
@@ -93,7 +98,7 @@ function addErrorMessagesInternal(prefix: string, config: unknown, validatorMap:
   if (objectValidator(config) && isConfigObject(config)) {
     const validatorKeys = Object.keys(validatorMap);
     const configKeys = Object.keys(config);
-    const keys = all ? validatorKeys : configKeys.filter(configKey => validatorMap[configKey] !== undefined)
+    const keys = all ? validatorKeys : configKeys.filter(configKey => hasOwn(validatorMap, configKey) && validatorMap[configKey] !== undefined)
 
     for (const key of keys) {
       addErrorMessageForKey(prefix, [key], config[key], validatorMap[key]!, errorMessages, errorDetails, i);
@@ -116,7 +121,7 @@ function addWarningMessagesForObject(prefix: string, properties: string[], confi
     let invalidPropertyCount = 0;
     const configProperties = Object.keys(config);
     for (const property of configProperties) {
-      if (!propertyMap[property]) {
+      if (!(hasOwn(propertyMap, property) && propertyMap[property])) {
         if (invalidProperties.length < maxInvalidProperties) {
           invalidProperties.push(property);
         }
@@ -137,7 +142,7 @@ function addWarningMessagesForObject(prefix: string, properties: string[], confi
       warningDetails.push({ path: messagePath(prefix, i, ...properties), message });
     }
     for (const property of configProperties) {
-      const nested = nestedValidators(propertyMap[property]);
+      const nested = nestedValidators(hasOwn(propertyMap, property) ? propertyMap[property] : undefined);
       if (nested !== null && isPlainObject(config[property])) {
         addWarningMessagesForObject(prefix, [...properties, property], config[property], nested,
           warningMessages, warningDetails, i);
@@ -147,9 +152,9 @@ function addWarningMessagesForObject(prefix: string, properties: string[], confi
 }
 
 function objectWithKeys<T>(object: Record<string, T>, keys: string[]): Record<string, T> {
-  const clone: Record<string, T> = {};
+  const clone: Record<string, T> = Object.create(null); // null proto: keys may come from user configs
   for (const key of keys) {
-    if (object[key] !== undefined) {
+    if (hasOwn(object, key) && object[key] !== undefined) {
       clone[key] = object[key];
     }
   }

@@ -356,7 +356,7 @@ const compoundValidatorDefinitions = {
       if (valueKeys.length === 0 || valueKeys.length > properties.length) {
         return false;
       }
-      const propertyMap: Record<string, string> = {};
+      const propertyMap: Record<string, string> = Object.create(null); // null proto: probed with user keys (__proto__, constructor, ...)
       properties.forEach(property => {
         propertyMap[property] = property;
       });

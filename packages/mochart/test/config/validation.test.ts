@@ -139,6 +139,25 @@ describe('unique-key validation', () => {
   });
 });
 
+// Regression: JSON.parse creates __proto__ as an own key; the message builders
+// resolved it against Object.prototype and crashed invoking it as a validator.
+describe('prototype-key config validation', () => {
+  it('does not crash on a JSON-owned top-level __proto__ key', () => {
+    const config = JSON.parse(
+      `{"version":"${V}","categoryAxis":{"property":"p"},"series":[{"property":"a"}],"__proto__":{"polluted":true}}`);
+    expect(() => detailedFor(config)).not.toThrow();
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+
+  it('does not crash on a JSON-owned __proto__ key inside a section or list entry', () => {
+    const config = JSON.parse(
+      `{"version":"${V}","categoryAxis":{"property":"p","__proto__":{"polluted":true}},` +
+      '"series":[{"property":"a","__proto__":{"polluted":true}}]}');
+    expect(() => detailedFor(config)).not.toThrow();
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+});
+
 describe('non-strict validation', () => {
   it('treats warnings as acceptable when strict is false', () => {
     // an unknown extra property produces a warning, not an error

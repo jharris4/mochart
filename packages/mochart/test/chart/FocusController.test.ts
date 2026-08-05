@@ -211,4 +211,20 @@ describe('FocusController focus handling', () => {
     expect(second).toEqual({ S0: true, S1: true });
     expect(controller.filteredSeriesIds).toEqual({ S1: true });
   });
+
+  // Regression: the filter map was a plain {}, so assigning a __proto__ id hit
+  // the prototype setter instead of creating a key — the series could never be filtered.
+  it('toggles a series whose id is a prototype member name', () => {
+    const { controller } = makeHarness();
+
+    const filtered = controller.toggleSeriesFilter('__proto__').filteredSeriesIds;
+    expect(Object.prototype.hasOwnProperty.call(filtered, '__proto__')).toBe(true);
+    expect(filtered['__proto__']).toBe(true);
+
+    const cleared = controller.toggleSeriesFilter('__proto__').filteredSeriesIds;
+    expect(Object.prototype.hasOwnProperty.call(cleared, '__proto__')).toBe(false);
+
+    expect(controller.toggleSeriesFilter('constructor').filteredSeriesIds['constructor']).toBe(true);
+    expect(Object.keys(controller.toggleSeriesFilter('constructor').filteredSeriesIds)).toEqual([]);
+  });
 });

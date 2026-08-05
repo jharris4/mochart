@@ -170,7 +170,7 @@ export function getSeriesConfigsOrderedByFocus(mochartConfig: EnhancedMochartCon
   const { focusedValueAxisId, focusedSeriesId, seriesFocusPercentages } = focusData;
   const { series: seriesConfigs } = mochartConfig;
 
-  const focusedSeriesIdsMap: Record<string, boolean> = {};
+  const focusedSeriesIdsMap: Record<string, boolean> = Object.create(null);
 
   if (isFocused(focusedValueAxisId)) {
     const focusedValueAxisConfig = mochartConfig.valueAxesById[focusedValueAxisId];

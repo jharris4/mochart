@@ -412,19 +412,19 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const legendClipPathUniqueId = legendClipPathIdPrefix + uniqueId;
     const categoryAxisTitleClipPathUniqueId = categoryAxisTitleClipPathIdPrefix + uniqueId;
     const categoryAxisTickLabelClipPathUniqueId = gridAxisTickLabelClipPathIdPrefix + uniqueId;
-    const valueAxisTitleClipPathUniqueIds: Record<string, string> = {};
+    const valueAxisTitleClipPathUniqueIds: Record<string, string> = Object.create(null);
     for (const { id } of valueAxisConfigs) {
       valueAxisTitleClipPathUniqueIds[id] = valueAxisTitleClipPathIdPrefix + uniqueId + '__' + id;
     }
-    const linearGradientIdMap: Record<string, string> = {};
+    const linearGradientIdMap: Record<string, string> = Object.create(null);
     for (const { id } of linearGradientConfigs) {
       linearGradientIdMap[id] = linearGradientIdPrefix + uniqueId + '__' + id;
     }
-    const radialGradientIdMap: Record<string, string> = {};
+    const radialGradientIdMap: Record<string, string> = Object.create(null);
     for (const { id } of radialGradientConfigs) {
       radialGradientIdMap[id] = radialGradientIdPrefix + uniqueId + '__' + id;
     }
-    const seriesColorGradientUniqueIds: Record<string, string> = {};
+    const seriesColorGradientUniqueIds: Record<string, string> = Object.create(null);
     for (const { id } of seriesConfigs) {
       seriesColorGradientUniqueIds[id] = seriesColorGradientIdPrefix + uniqueId + '__' + id;
     }

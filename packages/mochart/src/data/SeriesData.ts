@@ -160,7 +160,7 @@ function setExtraSeriesValues(seriesConfigs: EnhancedSeriesConfig[], rawCategory
   let valueObject: SeriesValueObject;
   for (const seriesConfig of seriesConfigs) {
     valueObject = valueObjects[seriesConfig.id];
-    const existingProperties: Record<string, ValueKey> = {};
+    const existingProperties: Record<string, ValueKey> = Object.create(null); // null proto: keyed by data property names
     existingProperties[seriesConfig.property!] = 'plain';
     if (seriesConfig.rangeProperty !== NONE) {
       existingProperties[seriesConfig.rangeProperty] = 'range';
@@ -360,7 +360,7 @@ export function setMinMax(valueObjects: Record<string, Partial<SeriesValueObject
 }
 
 function getSeriesDomainObjects(seriesValueObjects: SeriesValueObjects): SeriesDomainObjects {
-  const seriesDomainObjects: SeriesDomainObjects = {};
+  const seriesDomainObjects: SeriesDomainObjects = Object.create(null);
 
   const seriesIds = Object.keys(seriesValueObjects);
   for (const seriesId of seriesIds) {
@@ -404,9 +404,11 @@ function setSeriesDomain(seriesDomainObject: SeriesDomainObject, seriesValuesObj
 }
 
 function getSeriesFilteredFlags(seriesConfigs: EnhancedSeriesConfig[], filteredSeriesMap: Record<string, unknown>): Record<string, boolean> {
-  const seriesFilteredFlags: Record<string, boolean> = {};
+  const seriesFilteredFlags: Record<string, boolean> = Object.create(null);
   for (const seriesConfig of seriesConfigs) {
-    seriesFilteredFlags[seriesConfig.id] = filteredSeriesMap[seriesConfig.id] !== undefined;
+    // own-key check: the map may be a host-provided plain object, so ids like constructor must not hit Object.prototype
+    seriesFilteredFlags[seriesConfig.id] = Object.prototype.hasOwnProperty.call(filteredSeriesMap, seriesConfig.id) &&
+      filteredSeriesMap[seriesConfig.id] !== undefined;
   }
   return seriesFilteredFlags;
 }

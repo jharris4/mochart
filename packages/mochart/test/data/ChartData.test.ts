@@ -144,3 +144,31 @@ describe('undefined series values', () => {
     expect(chartData.seriesData.raw.domains[seriesId].range).toEqual([15, 35]);
   });
 });
+
+// Regression: the filter map lookup went through Object.prototype, so a series
+// with a prototype-member id counted as always-filtered (and __proto__ could never be).
+describe('prototype-member series ids', () => {
+  const protoRows = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
+
+  function makeProtoChartData(id: string, filteredSeriesMap: Record<string, unknown>) {
+    const config = makeConfig({
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ id, property: 'sales' }]
+    });
+    return getChartData(config, new ArrayOfObjectsDataProvider(protoRows, 'month'), filteredSeriesMap);
+  }
+
+  it('does not treat a series with a prototype-member id as filtered', () => {
+    const chartData = makeProtoChartData('constructor', {});
+    expect(chartData.seriesData.filteredFlags['constructor']).toBe(false);
+    expect(chartData.seriesData.filtered.values['constructor'].plain).toEqual([10, 20]);
+  });
+
+  it('filters a series whose id is __proto__', () => {
+    const filterMap: Record<string, boolean> = Object.create(null);
+    filterMap['__proto__'] = true;
+    const chartData = makeProtoChartData('__proto__', filterMap);
+    expect(chartData.seriesData.filteredFlags['__proto__']).toBe(true);
+    expect(chartData.seriesData.filtered.values['__proto__'].plain).toBe(null);
+  });
+});

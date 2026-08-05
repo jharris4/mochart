@@ -71,7 +71,7 @@ function getCategoryFocusDeltaData(oldFocusPercentages: FocusPercentage[], newFo
 }
 
 function getValueAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFocusPercentages: FocusPercentageMap): MapFocusDeltaData {
-  const focusDeltas: Record<string, number> = {};
+  const focusDeltas: Record<string, number> = Object.create(null);
   let focusDelta, maxDelta = 0;
   const valueAxisIds = Object.keys(oldFocusPercentages);
   for (const valueAxisId of valueAxisIds) {
@@ -84,8 +84,8 @@ function getValueAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, new
   let deltaPercentages: Record<string, number> | null = null;
   let deltaFactors: Record<string, number> | null = null;
   if (maxDelta > 0) {
-    deltaPercentages = {};
-    deltaFactors = {};
+    deltaPercentages = Object.create(null) as Record<string, number>;
+    deltaFactors = Object.create(null) as Record<string, number>;
     let focusDelta;
     for (const valueAxisId of valueAxisIds) {
       focusDelta = Math.abs(focusDeltas[valueAxisId]);
@@ -110,7 +110,7 @@ function getValueAxisFocusDeltaData(oldFocusPercentages: FocusPercentageMap, new
 }
 
 function getSeriesFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFocusPercentages: FocusPercentageMap): MapFocusDeltaData {
-  const focusDeltas: Record<string, number> = {};
+  const focusDeltas: Record<string, number> = Object.create(null);
   let focusDelta, maxDelta = 0;
   const seriesIds = Object.keys(oldFocusPercentages);
   for (const seriesId of seriesIds) {
@@ -123,8 +123,8 @@ function getSeriesFocusDeltaData(oldFocusPercentages: FocusPercentageMap, newFoc
   let deltaPercentages: Record<string, number> | null = null;
   let deltaFactors: Record<string, number> | null = null;
   if (maxDelta > 0) {
-    deltaPercentages = {};
-    deltaFactors = {};
+    deltaPercentages = Object.create(null) as Record<string, number>;
+    deltaFactors = Object.create(null) as Record<string, number>;
     let focusDelta;
     for (const seriesId of seriesIds) {
       focusDelta = Math.abs(focusDeltas[seriesId]);

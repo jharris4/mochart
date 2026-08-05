@@ -84,7 +84,7 @@ function getDomainExtentWithValueGetter(domain: CategoryAxisDomain, getValue: (v
 }
 
 export function getMaxAxisDomains(domains: AxisDomains, otherDomains: AxisDomains): AxisDomains {
-  const maxDomains: AxisDomains = {};
+  const maxDomains: AxisDomains = Object.create(null);
   const axisIds = Object.keys(domains);
   for (const axisId of axisIds) {
     maxDomains[axisId] = getMaxDomain(domains[axisId], otherDomains[axisId]);
@@ -101,7 +101,7 @@ function getMaxSeriesDomain(domainObject: SeriesDomainObject, otherDomainObject:
 }
 
 function getMaxSeriesDomains(domainObjects: SeriesDomainObjects, otherDomainObjects: SeriesDomainObjects): SeriesDomainObjects {
-  const newDomainObjects: SeriesDomainObjects = {};
+  const newDomainObjects: SeriesDomainObjects = Object.create(null);
   const seriesIds = Object.keys(domainObjects);
   for (const seriesId of seriesIds) {
     newDomainObjects[seriesId] = getMaxSeriesDomain(domainObjects[seriesId], otherDomainObjects[seriesId]);
@@ -369,7 +369,7 @@ function adjustFilteredAxisDomainDeltas(valueAxisConfigs: EnhancedValueAxisConfi
  **/
 function getValueAxisDomainDeltas(fromValueAxisDomains: AxisDomains, toValueAxisDomains: AxisDomains, fromValueAxisDomainExtents: Record<string, number>): DomainDeltaMap {
   let deltaPercentage = 0;
-  const deltas: Record<string, DomainDelta> = {};
+  const deltas: Record<string, DomainDelta> = Object.create(null);
 
   let axisDelta, axisDeltaPercentage;
   const valueAxisIds = Object.keys(fromValueAxisDomains);
@@ -410,7 +410,7 @@ function getCategoryAxisDomainDelta(fromCategoryAxisDomain: CategoryAxisDomain, 
 
 function getSeriesDomainDeltas(seriesConfigs: EnhancedSeriesConfig[], fromDomainObjects: SeriesDomainObjects, toDomainObjects: SeriesDomainObjects, fromAxisExtents: Record<string, number>): SeriesDomainDeltaMap {
   let deltaPercentage = 0;
-  const deltas: Record<string, SeriesDomainDelta> = {};
+  const deltas: Record<string, SeriesDomainDelta> = Object.create(null);
   let domainDelta;
   for (const seriesConfig of seriesConfigs) {
     const { id } = seriesConfig;

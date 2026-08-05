@@ -142,7 +142,7 @@ function setValuesForIndices(targetValues: CategoryValue[], sourceValues: readon
 }
 
 function getValueToNewIndexMap(values: readonly CategoryValue[], newValues: readonly CategoryValue[], getMapKey: CategoryMapKeyAccessor): CategoryIndexMap {
-  const valueToNewIndexMap: CategoryIndexMap = {};
+  const valueToNewIndexMap: CategoryIndexMap = Object.create(null); // null proto: keyed by user data category values
   let i, count = values.length;
   for (i=0; i<count; i++) {
     valueToNewIndexMap[getMapKey(values[i])] = -1;
@@ -157,7 +157,7 @@ function getValueToNewIndexMap(values: readonly CategoryValue[], newValues: read
 }
 
 function getValueToIndexMap(values: readonly CategoryValue[], getMapKey: CategoryMapKeyAccessor): CategoryIndexMap {
-  const valueToIndexMap: CategoryIndexMap = {};
+  const valueToIndexMap: CategoryIndexMap = Object.create(null);
   const count = values.length;
   for (let i=0; i<count; i++) {
     valueToIndexMap[getMapKey(values[i])] = i;

@@ -5,7 +5,7 @@ import type { MochartConfig } from '../types/config';
 import type { DataProvider, CategoryValue } from '../types/data';
 
 function getDuplicates(values: readonly CategoryValue[]): CategoryValue[] {
-  const valueMap: Record<string, number> = {};
+  const valueMap: Record<string, number> = Object.create(null); // null proto: keyed by user data category values
   for (const value of values) {
     const key = String(value);
     valueMap[key] = (valueMap[key] ?? 0) + 1;

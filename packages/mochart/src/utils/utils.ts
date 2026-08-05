@@ -5,7 +5,7 @@ export function arrayToMap<T, V = T>(
   keyAccessor: (element: NoInfer<T>) => string,
   valueFormatter: (element: NoInfer<T>) => V = element => element as unknown as V
 ): Record<string, V> {
-  const map: Record<string, V> = {};
+  const map: Record<string, V> = Object.create(null); // null proto: keys are external ids (__proto__ must work)
   for (const element of theArray) {
     map[keyAccessor(element)] = valueFormatter(element);
   }
@@ -14,7 +14,7 @@ export function arrayToMap<T, V = T>(
 
 export function mapMap<V, R>(map: Record<string, V>, mapFunction: (value: V) => R): Record<string, R> {
   const mapKeys = Object.keys(map);
-  const newMap: Record<string, R> = {};
+  const newMap: Record<string, R> = Object.create(null);
   for (const mapKey of mapKeys) {
     newMap[mapKey] = mapFunction(map[mapKey]);
   }
