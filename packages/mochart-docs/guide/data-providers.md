@@ -25,7 +25,35 @@ new ObjectOfArraysDataProvider(
 [`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property)
 as the category property. The lower-level `createChart` accepts any object
 implementing the `DataProvider` interface, so a custom provider can read
-straight from an existing store without copying.
+straight from an existing store without copying — see
+[when the data changes](#when-the-data-changes) for how to tell the chart
+the store moved.
+
+## When the data changes
+
+The chart pulls values through the provider when it (re)computes its chart
+data — not on every frame. Recomputation is triggered by prop identity:
+`update` only sees a config, `data`, or `dataProvider` change when a **new
+object reference** is passed. Mutating the store a custom provider reads
+from — or mutating a `data` array in place — changes what the provider
+*would* return, but nothing tells the chart to ask again.
+
+Two ways to tell it:
+
+- **Pass a new identity.** A new `data` array (default charts) or a new
+  provider instance (`createChart`) — the natural fit for immutable stores.
+  The change animates as a normal data update.
+- **Call `refresh()`.** Re-reads the current inputs without a new
+  reference: a default chart rebuilds its provider over the `data` array,
+  and a `createChart` chart re-reads its `dataProvider` — the escape hatch
+  made for live, store-backed providers. One caveat: the built-in providers
+  index their dataset at construction, so on a `createChart` chart
+  `refresh` cannot un-snapshot an `ArrayOfObjectsDataProvider` — pass a new
+  provider instead.
+
+Both paths animate to the new values. See
+[Updating and destroying](/guide/getting-started#updating-and-destroying)
+for the full `ChartHandle` semantics.
 
 ## Which properties are read
 
