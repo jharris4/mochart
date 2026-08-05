@@ -764,7 +764,7 @@
   </ButtonWithTooltip>
 {/snippet}
 
-{#snippet sliceSequenceCategory()}
+{#snippet sliceSequenceGroup()}
   <div class="demo-btn-group">
     <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
                        menuLabel={demoText.editableChart.playSliceSequence.menuLabel}
@@ -784,7 +784,7 @@
 {#snippet sliceMenuItems()}
   <div class="demo-btn-group">{@render resetSliceButton()}</div>
   <div class="demo-menu-divider"></div>
-  {@render sliceSequenceCategory()}
+  {@render sliceSequenceGroup()}
   {#if showChartCountControls}
     <div class="demo-menu-divider"></div>
     {@render chartCountControl()}
@@ -950,7 +950,7 @@
                       <Icon size="lg" fixedWidth={true} name="check" />
                     </ButtonWithTooltip>
                   </div>
-                  {#if !foldSlice}{@render sliceSequenceCategory()}{/if}
+                  {#if !foldSlice}{@render sliceSequenceGroup()}{/if}
                 </div>
               </div>
             </form>

@@ -849,7 +849,7 @@ export default function EditableChart(props: Props) {
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />
       </ButtonWithTooltip>
     );
-    const sliceSequenceCategory = (
+    const sliceSequenceGroup = (
       <div className="demo-btn-group">
         <ButtonWithTooltip id="edit-play-slices" disabled={error || sequencePlaying || slices.length < 2}
           menuLabel={demoText.editableChart.playSliceSequence.menuLabel}
@@ -913,7 +913,7 @@ export default function EditableChart(props: Props) {
                     <Icon size="lg" fixedWidth={true} name="check" />
                   </ButtonWithTooltip>
                 </div>
-                {foldSlice ? null : sliceSequenceCategory}
+                {foldSlice ? null : sliceSequenceGroup}
               </div>
             </div>
           </form>
@@ -927,7 +927,7 @@ export default function EditableChart(props: Props) {
           <>
             <div className="demo-btn-group">{resetSliceButton}</div>
             <MenuDivider />
-            {sliceSequenceCategory}
+            {sliceSequenceGroup}
             {chartCountControlContent !== null ? <><MenuDivider />{chartCountControlContent}</> : null}
           </>
         ) : null)}
