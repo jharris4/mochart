@@ -1,4 +1,4 @@
-// Alternate dataset adds groups and a much larger maximum, so animating to it
+// Alternate dataset adds categories and a much larger maximum, so animating to it
 // plays axis expansion before the value change — and animating back plays the
 // value change before axis contraction.
 import type { MochartInputConfig } from '@mochart/core';
