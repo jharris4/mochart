@@ -92,4 +92,13 @@ export class DefaultChartInput {
       this.dataProvider = this.validateDataProvider(mochartConfig!);
     }
   }
+
+  /** Rebuild the provider over the current `data` reference, picking up in-place mutations. */
+  refresh(props: DefaultChartProps): void {
+    const { mochartConfig } = this;
+    if (mochartConfig !== null) {
+      this.rawDataProvider = createRawDataProvider(mochartConfig, props.data);
+      this.dataProvider = this.validateDataProvider(mochartConfig);
+    }
+  }
 }

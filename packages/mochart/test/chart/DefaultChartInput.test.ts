@@ -45,6 +45,32 @@ function startInput(config: MochartInputConfig, data: readonly unknown[]): { inp
   return { input, props: initial };
 }
 
+describe('DefaultChartInput in-place data mutation', () => {
+  it('does not detect an in-place mutation through update (identity contract)', () => {
+    const data = rows.map(row => ({ ...row }));
+    const { input, props: initial } = startInput(salesConfig(), data);
+    const provider = input.dataProvider;
+
+    data.push({ month: 'Apr', sales: 40, label: 'forty' });
+    input.update(initial, initial);
+
+    expect(input.dataProvider).toBe(provider);
+    expect(input.dataProvider!.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
+  });
+
+  it('refresh rebuilds the provider over the mutated array', () => {
+    const data = rows.map(row => ({ ...row }));
+    const { input, props: initial } = startInput(salesConfig(), data);
+    const provider = input.dataProvider;
+
+    data.push({ month: 'Apr', sales: 40, label: 'forty' });
+    input.refresh(initial);
+
+    expect(input.dataProvider).not.toBe(provider);
+    expect(input.dataProvider!.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar', 'Apr']);
+  });
+});
+
 describe('DefaultChartInput data validation', () => {
   it('exposes a valid provider for matching config and data', () => {
     const { input } = startInput(salesConfig(), rows);

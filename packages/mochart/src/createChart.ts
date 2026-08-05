@@ -1,22 +1,52 @@
 import { ChartController } from './chart/ChartController';
 import { DefaultChartInput } from './chart/DefaultChartInput';
 import type { DefaultChartProps, ManagedChartProps } from './types/chart';
+import type { DataProvider } from './types/data';
 
 /** Handle returned by `createChart`/`createDefaultChart` for a mounted chart. */
 export interface ChartHandle<TProps extends object = ManagedChartProps> {
   /**
-   * Merge new props into the chart. Config, data, and size changes animate
-   * through the staged animation phases when animation is enabled.
+   * Merge new props into the chart. Change detection is by object identity:
+   * a config, data, or provider change is only seen when a new reference is
+   * passed — mutating the previous object in place is not detected (use
+   * `refresh` for that). Config, data, and size changes animate through the
+   * staged animation phases when animation is enabled.
    */
   update(nextProps: Partial<TProps>): void;
   /**
    * Replace the props wholesale: a key absent from `nextProps` is unset and
    * returns to chart-managed behavior, where `update` would keep its previous
-   * value. For hosts that pass the complete prop set on every render.
+   * value. Change detection is by object identity, as with `update`. For
+   * hosts that pass the complete prop set on every render.
    */
   replace(nextProps: TProps): void;
+  /**
+   * Re-read the current data without a new reference: a default chart
+   * rebuilds its provider over the `data` array, a managed chart re-reads its
+   * `dataProvider`, and the chart animates to whatever they now return. The
+   * escape hatch for hosts that mutate data in place. Note that a managed
+   * chart's snapshotting provider (e.g. `ArrayOfObjectsDataProvider`) still
+   * reports what it captured at construction — pass a new provider instead.
+   */
+  refresh(): void;
   /** Cancel running tweens and remove the chart's DOM from the container. */
   destroy(): void;
+}
+
+/** A delegating copy with a new identity, so the pipeline re-reads a provider it has already seen. */
+function withFreshIdentity(dataProvider: DataProvider): DataProvider {
+  const fresh: DataProvider = {
+    getCategoryValues: () => dataProvider.getCategoryValues(),
+    getSeriesValue: (categoryValue, categoryIndex, seriesProperty) =>
+      dataProvider.getSeriesValue(categoryValue, categoryIndex, seriesProperty)
+  };
+  if (dataProvider.getError) {
+    fresh.getError = () => dataProvider.getError!();
+  }
+  if (dataProvider.getLoading) {
+    fresh.getLoading = () => dataProvider.getLoading!();
+  }
+  return fresh;
 }
 
 /**
@@ -27,14 +57,24 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
  */
 export function createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps> {
   let currentProps = { ...props };
+  // the host's own provider, never a refresh wrapper, so wrappers don't nest
+  let hostDataProvider = props.dataProvider;
   const controller = new ChartController(container, currentProps);
   return {
     update(nextProps: Partial<ManagedChartProps>) {
+      if (nextProps.dataProvider !== undefined) {
+        hostDataProvider = nextProps.dataProvider;
+      }
       currentProps = { ...currentProps, ...nextProps };
       controller.update(currentProps);
     },
     replace(nextProps: ManagedChartProps) {
+      hostDataProvider = nextProps.dataProvider;
       currentProps = { ...nextProps };
+      controller.update(currentProps);
+    },
+    refresh() {
+      currentProps = { ...currentProps, dataProvider: withFreshIdentity(hostDataProvider) };
       controller.update(currentProps);
     },
     destroy() {
@@ -63,6 +103,10 @@ export function createDefaultChart(container: Element, props: DefaultChartProps)
       const prevProps = currentProps;
       currentProps = { ...nextProps };
       input.update(prevProps, currentProps);
+      controller.update(toManagedProps(currentProps, input));
+    },
+    refresh() {
+      input.refresh(currentProps);
       controller.update(toManagedProps(currentProps, input));
     },
     destroy() {

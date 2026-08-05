@@ -1,5 +1,11 @@
 import type { DataProvider, DataRow } from '../types/data';
 
+/**
+ * Snapshots the category values and the row set at construction: rows added
+ * to or removed from the source array afterwards are not seen — build a new
+ * provider (or use the chart handle's `refresh`) after such a mutation.
+ * Series values are read off the captured rows live.
+ */
 export class ArrayOfObjectsDataProvider<
   TRow extends DataRow = DataRow,
   TCategoryProperty extends keyof TRow & string = keyof TRow & string
@@ -9,7 +15,7 @@ export class ArrayOfObjectsDataProvider<
 
   constructor(data: readonly TRow[], categoryProperty: TCategoryProperty) {
     this.categoryValues = data.map(row => row[categoryProperty]);
-    this.rowsByCategoryValue = {};
+    this.rowsByCategoryValue = Object.create(null); // null proto: keyed by user data category values
     for (const row of data) {
       this.rowsByCategoryValue[String(row[categoryProperty])] = row;
     }

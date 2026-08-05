@@ -85,17 +85,24 @@ Three things to notice:
 
 ## Updating and destroying
 
-The returned `ChartHandle` has two methods:
+The returned `ChartHandle`:
 
 ```js
 chart.update({ data: nextData });   // animates to the new data
 chart.update({ width, height });    // re-layout at a new size
 chart.update({ config: nextConfig }); // config changes animate too
+chart.refresh();                    // re-read data that was mutated in place
 chart.destroy();                    // cancel tweens, remove the chart's DOM
 ```
 
-`update` merges new props into the chart. When animation is enabled (the
-default), data, config, and size changes all animate through mochart's
+`update` merges new props into the chart and detects changes by object
+identity: pass a **new** data array or config object — mutating the previous
+one in place is not detected. If you do mutate your data in place, call
+`refresh` to re-read it. (There is also `replace`, which swaps the
+whole prop set at once, for hosts that pass every prop on every render.)
+
+When animation is enabled (the default), data, config, and size changes —
+and `refresh` — all animate through mochart's
 [staged animation](/guide/staged-animation) phases — try the button under the
 chart above.
 
