@@ -11,5 +11,13 @@ import type { ChartProps } from './types.js';
 export default function Chart(props: ChartProps): ReactElement {
   const { className, style, ...chartProps } = props;
   const containerRef = useChartHost(createChart, chartProps);
-  return <div ref={containerRef} className={className} style={{ width: props.width, height: props.height, ...style }} />;
+  // explicit size props win over the container style, like in the other bindings
+  const containerStyle = { ...style };
+  if (props.width !== undefined) {
+    containerStyle.width = props.width;
+  }
+  if (props.height !== undefined) {
+    containerStyle.height = props.height;
+  }
+  return <div ref={containerRef} className={className} style={containerStyle} />;
 }

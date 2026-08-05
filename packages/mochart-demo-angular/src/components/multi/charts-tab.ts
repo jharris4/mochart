@@ -38,7 +38,7 @@ function clampGrid(value: number): number {
                                [width]="chartWidth" [height]="chartHeight"
                                [filteredSeriesIds]="chartFilteredSeriesIds(i)" [focusedCategoryIndex]="focusedCategoryIndexAt(i)"
                                [focusedValueAxisId]="focusedValueAxisId()" [focusedSeriesId]="focusedSeriesId()"
-                               (seriesFilter)="onSeriesFilter($event)" (focus)="onChartFocus(i, $event)" />
+                               (seriesFilter)="onSeriesFilter($event)" (focusChange)="onChartFocus(i, $event)" />
               </div>
             }
           </div>

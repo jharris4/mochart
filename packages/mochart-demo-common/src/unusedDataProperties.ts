@@ -47,11 +47,35 @@ export function filterDataProperties(data: DataRow[], usedProperties: Set<string
 
 /**
  * Rebuild full rows from a filtered (used-properties-only) view: properties the
- * view hid are restored by index from fullRows; edits made in the view win.
+ * view hid are restored from fullRows; edits made in the view win. Rows are
+ * matched by their category value when it identifies rows uniquely (so deleting
+ * or reordering view rows keeps hidden columns with their row), falling back to
+ * the row index (which covers in-place category edits).
  */
-export function restoreHiddenDataProperties(viewRows: DataRow[], fullRows: DataRow[], usedProperties: Set<string>): DataRow[] {
+export function restoreHiddenDataProperties(viewRows: DataRow[], fullRows: DataRow[], usedProperties: Set<string>, categoryProperty?: string | null): DataRow[] {
+  let fullRowsByCategory: Map<unknown, DataRow> | null = null;
+  if (categoryProperty) {
+    const byCategory = new Map<unknown, DataRow>();
+    let unique = true;
+    for (const fullRow of fullRows) {
+      const value = fullRow[categoryProperty];
+      if (value === undefined || byCategory.has(value)) {
+        unique = false;
+        break;
+      }
+      byCategory.set(value, fullRow);
+    }
+    fullRowsByCategory = unique ? byCategory : null;
+  }
   return viewRows.map((row, index) => {
-    const fullRow = fullRows[index];
+    let fullRow: DataRow | undefined;
+    if (fullRowsByCategory !== null && categoryProperty) {
+      const key = row[categoryProperty];
+      if (key !== undefined) {
+        fullRow = fullRowsByCategory.get(key);
+      }
+    }
+    fullRow ??= fullRows[index];
     if (!fullRow) {
       return row;
     }

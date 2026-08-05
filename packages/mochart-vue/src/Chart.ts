@@ -12,15 +12,23 @@ import { chartProps } from './props.js';
 export default defineComponent({
   name: 'Chart',
   props: chartProps,
-  setup(props) {
+  // inheritAttrs off so the explicit size props can win over a fallthrough style
+  inheritAttrs: false,
+  setup(props, { attrs }) {
     const containerRef = useChartHost(createChart, () => ({ ...props }));
-    return () =>
-      h('div', {
+    return () => {
+      const sizeStyle: Record<string, string> = {};
+      if (typeof props.width === 'number') {
+        sizeStyle.width = `${props.width}px`;
+      }
+      if (typeof props.height === 'number') {
+        sizeStyle.height = `${props.height}px`;
+      }
+      return h('div', {
+        ...attrs,
         ref: containerRef,
-        style: {
-          width: typeof props.width === 'number' ? `${props.width}px` : undefined,
-          height: typeof props.height === 'number' ? `${props.height}px` : undefined
-        }
+        style: [attrs.style, sizeStyle]
       });
+    };
   }
 });

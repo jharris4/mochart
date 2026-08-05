@@ -5,6 +5,21 @@ import type { CreateChartFn, HostHandle } from './host.js';
 import { createPlaceholderAdapter } from './placeholders.js';
 import type { PlaceholderComponent } from './types.js';
 
+/** An EventEmitter that pings after subscribe/unsubscribe, so the chart can re-sync its callback props. */
+class ResyncingEventEmitter<T> extends EventEmitter<T> {
+  onObservedChange?: () => void;
+  override subscribe(next?: any, error?: any, complete?: any): ReturnType<EventEmitter<T>['subscribe']> {
+    const subscription = super.subscribe(next, error, complete);
+    this.onObservedChange?.();
+    const originalUnsubscribe = subscription.unsubscribe.bind(subscription);
+    subscription.unsubscribe = () => {
+      originalUnsubscribe();
+      this.onObservedChange?.();
+    };
+    return subscription;
+  }
+}
+
 /**
  * Shared input/output surface and chart lifecycle for `Chart` and
  * `DefaultChart`. The component's own host element is the container the chart
@@ -46,15 +61,15 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
    */
   @Input() filteredSeriesIds?: Record<string, boolean>;
 
-  @Output() chartClick = new EventEmitter<any>();
-  @Output() sliceClick = new EventEmitter<any>();
-  @Output() chartMouseEnter = new EventEmitter<any>();
-  @Output() chartMouseMove = new EventEmitter<any>();
-  @Output() chartMouseLeave = new EventEmitter<any>();
-  @Output() titleClick = new EventEmitter<any>();
-  @Output() focus = new EventEmitter<any>();
-  @Output() seriesFilter = new EventEmitter<any>();
-  @Output() seriesLayoutBoundsChange = new EventEmitter<any>();
+  @Output() chartClick = this.chartOutput();
+  @Output() sliceClick = this.chartOutput();
+  @Output() chartMouseEnter = this.chartOutput();
+  @Output() chartMouseMove = this.chartOutput();
+  @Output() chartMouseLeave = this.chartOutput();
+  @Output() titleClick = this.chartOutput<void>();
+  @Output() focusChange = this.chartOutput();
+  @Output() seriesFilter = this.chartOutput();
+  @Output() seriesLayoutBoundsChange = this.chartOutput();
 
   private readonly elementRef = inject(ElementRef) as ElementRef<HTMLElement>;
   private readonly environmentInjector = inject(EnvironmentInjector);
@@ -67,6 +82,27 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   protected abstract readonly create: CreateChartFn;
   /** The subclass-specific chart props (config and data). */
   protected abstract collectChartProps(): Record<string, any>;
+
+  private callbackSyncScheduled = false;
+
+  /** Outputs re-sync the callback props when (un)subscribed after mount, e.g. via @ViewChild. */
+  private chartOutput<T = any>(): EventEmitter<T> {
+    const emitter = new ResyncingEventEmitter<T>();
+    emitter.onObservedChange = () => this.scheduleCallbackSync();
+    return emitter;
+  }
+
+  private scheduleCallbackSync(): void {
+    // before the mount there is nothing to re-sync: the mount reads the current subscriptions itself
+    if (this.callbackSyncScheduled || this.host === null) {
+      return;
+    }
+    this.callbackSyncScheduled = true;
+    queueMicrotask(() => {
+      this.callbackSyncScheduled = false;
+      this.host?.update(this.buildProps());
+    });
+  }
 
   private buildProps(): Record<string, any> {
     const props: Record<string, any> = {
@@ -88,6 +124,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
     };
     // Only subscribed outputs are forwarded to the core: some core behaviors
     // (e.g. clickable-title styling) switch on the presence of a callback.
+    // Subscription changes after mount re-run this via scheduleCallbackSync.
     const callbacks: [EventEmitter<any>, string][] = [
       [this.chartClick, 'onChartClick'],
       [this.sliceClick, 'onSliceClick'],
@@ -95,7 +132,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
       [this.chartMouseMove, 'onChartMouseMove'],
       [this.chartMouseLeave, 'onChartMouseLeave'],
       [this.titleClick, 'onTitleClick'],
-      [this.focus, 'onFocus'],
+      [this.focusChange, 'onFocus'],
       [this.seriesFilter, 'onSeriesFilter'],
       [this.seriesLayoutBoundsChange, 'onSeriesLayoutBoundsChange']
     ];

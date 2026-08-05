@@ -45,14 +45,14 @@ export function toggleConfigProperty(currentDemoConfig: DemoConfigView, section:
   configWithDefaults = { ...configWithDefaults };
   configWithoutDefaults = { ...configWithoutDefaults };
   const sectionConfig = configWithoutDefaults[section];
-  if (!sectionConfig) {
-    configWithoutDefaults[section] = { [key]: defaultValue };
-    configWithDefaults[section] = { ...configWithDefaults[section], [key]: defaultValue };
-  }
-  else {
-    configWithoutDefaults[section] = { ...sectionConfig, [key]: !sectionConfig[key] };
-    configWithDefaults[section] = { ...configWithDefaults[section], [key]: !sectionConfig[key] };
-  }
+  const sectionWithDefaults = configWithDefaults[section];
+  // toggle from the effective (defaulted) value, so a property whose core default
+  // is true switches off on the first press instead of writing true again
+  const rawValue = sectionConfig !== undefined ? sectionConfig[key] : undefined;
+  const effectiveValue = rawValue !== undefined ? rawValue : sectionWithDefaults !== undefined ? sectionWithDefaults[key] : undefined;
+  const newValue = effectiveValue === undefined ? defaultValue : !effectiveValue;
+  configWithoutDefaults[section] = { ...sectionConfig, [key]: newValue };
+  configWithDefaults[section] = { ...sectionWithDefaults, [key]: newValue };
   return { configWithDefaults, configWithoutDefaults };
 }
 

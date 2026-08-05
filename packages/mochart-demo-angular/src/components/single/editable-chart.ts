@@ -164,7 +164,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                          [width]="width" [mochartConfig]="mochartDemoConfig.mochartConfig" [dataProvider]="dataProvider()"
                          [filteredSeriesIds]="filteredSeriesIds" [focusedCategoryIndex]="filteredFocusedCategoryIndex()"
                          [focusedValueAxisId]="focusedValueAxisId ?? null" [focusedSeriesId]="focusedSeriesId ?? null"
-                         (focus)="onChartFocus($event)" (seriesFilter)="onSeriesFilter($event)" (chartClick)="onChartClick($event)"
+                         (focusChange)="onChartFocus($event)" (seriesFilter)="onSeriesFilter($event)" (chartClick)="onChartClick($event)"
                          (sliceClick)="onChartSliceClick($event)" />
         </div>
         <div class="editable-chart-controls">

@@ -16,7 +16,12 @@ export function useChartHost(create: CreateChartFn, chartProps: Record<string, a
   const hostRef = useRef<HostHandle | null>(null);
   const latestPropsRef = useRef(chartProps);
   const justMountedRef = useRef(false);
-  latestPropsRef.current = chartProps;
+
+  // committed-props ref: written in an effect (never during render, where a
+  // discarded concurrent render could overwrite it), before the mount effect below
+  useIsomorphicLayoutEffect(() => {
+    latestPropsRef.current = chartProps;
+  });
 
   useIsomorphicLayoutEffect(() => {
     const host = mountChartHost(create, containerRef.current as HTMLDivElement, latestPropsRef.current);

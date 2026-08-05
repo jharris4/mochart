@@ -67,7 +67,7 @@ export type ParsedFullData = { full: DataRow[] } | { error: 'json' | 'data' };
  * filtered (used-properties-only) view, properties the view hid are restored
  * by row index from fullData.
  */
-export function parseFullData(text: string, fullData: DataRow[], viewUsedProperties: Set<string> | null): ParsedFullData {
+export function parseFullData(text: string, fullData: DataRow[], viewUsedProperties: Set<string> | null, categoryProperty?: string | null): ParsedFullData {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
@@ -79,7 +79,7 @@ export function parseFullData(text: string, fullData: DataRow[], viewUsedPropert
     return { error: 'data' };
   }
   const rows = parsed as DataRow[];
-  return { full: viewUsedProperties === null ? rows : restoreHiddenDataProperties(rows, fullData, viewUsedProperties) };
+  return { full: viewUsedProperties === null ? rows : restoreHiddenDataProperties(rows, fullData, viewUsedProperties, categoryProperty) };
 }
 
 export type DataApplyResult =
@@ -91,7 +91,10 @@ export type DataApplyResult =
  * the onDataError payload on failure, or the full dataset to apply on success.
  */
 export function applyDataEdit(text: string, fullData: DataRow[], viewUsedProperties: Set<string> | null, config: DemoConfig): DataApplyResult {
-  const parsed = parseFullData(text, fullData, viewUsedProperties);
+  // rows are matched by category value when restoring hidden properties, so
+  // structural view edits (delete/reorder) keep hidden columns with their row
+  const categoryProperty = (config as { categoryAxis?: { property?: string } }).categoryAxis?.property ?? null;
+  const parsed = parseFullData(text, fullData, viewUsedProperties, categoryProperty);
   if ('error' in parsed) {
     if (parsed.error === 'json') {
       console.warn('Invalid Data JSON');

@@ -20,9 +20,11 @@ class PlaceholderSlot {
   private mounted: PlaceholderComponent | null = null;
   private instance: Record<string, any> | null = null;
   private props: PlaceholderProps = $state({});
+  private readonly componentContext: Map<any, any> | undefined;
 
-  constructor(component: PlaceholderComponent) {
+  constructor(component: PlaceholderComponent, componentContext?: Map<any, any>) {
     this.component = component;
+    this.componentContext = componentContext;
     this.container = document.createElement('div');
     // The container is a neutral wrapper; the placeholder component owns layout.
     this.container.style.display = 'contents';
@@ -41,7 +43,8 @@ class PlaceholderSlot {
       this.instance = null;
     }
     if (!this.instance) {
-      this.instance = mount(this.component, { target: this.container, props: this.props });
+      // the chart component's contexts, so placeholders can read app-level providers
+      this.instance = mount(this.component, { target: this.container, props: this.props, context: this.componentContext });
       this.mounted = this.component;
     }
     return this.container;
@@ -67,7 +70,7 @@ export interface PlaceholderAdapter {
  * factory identity is stable per slot; component changes flow through
  * `transform` and take effect (as a remount) on the next factory call.
  */
-export function createPlaceholderAdapter(): PlaceholderAdapter {
+export function createPlaceholderAdapter(componentContext?: Map<any, any>): PlaceholderAdapter {
   const slots = new Map<string, PlaceholderSlot>();
 
   return {
@@ -79,7 +82,7 @@ export function createPlaceholderAdapter(): PlaceholderAdapter {
         if (component) {
           let slot = slots.get(propName);
           if (!slot) {
-            slot = new PlaceholderSlot(component);
+            slot = new PlaceholderSlot(component, componentContext);
             slots.set(propName, slot);
           }
           slot.component = component;

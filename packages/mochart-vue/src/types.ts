@@ -19,7 +19,7 @@ export interface ChartCallbackProps {
   onChartMouseEnter?: (eventPayload: any) => void;
   onChartMouseMove?: (eventPayload: any) => void;
   onChartMouseLeave?: (eventPayload: any) => void;
-  onTitleClick?: (eventPayload: any) => void;
+  onTitleClick?: () => void; // core calls it with no arguments
   onFocus?: (focusData: any) => void;
   onSeriesFilter?: (filterData: any) => void;
   onSeriesLayoutBoundsChange?: (bounds: any) => void;

@@ -25,6 +25,12 @@ function getModule(modules: ModuleMap, dir: string, file: string): unknown {
 
 const { demos, testDemos } = demosJson as { demos: DemoManifestEntry[]; testDemos: DemoManifestEntry[] };
 
+// deep copies: nested config sections and data rows must never be shared
+// module-level singletons, or one consumer's in-place edit poisons the rest
+function deepCopy<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 function buildDemo(entry: DemoManifestEntry, configModuleMap: ModuleMap, configDir: string): Demo {
   const { id, title, description, notes, config, data, random, generator } = entry;
   return {
@@ -32,9 +38,9 @@ function buildDemo(entry: DemoManifestEntry, configModuleMap: ModuleMap, configD
     title,
     description,
     notes,
-    config: Object.assign({}, getModule(configModuleMap, configDir, config) as DemoConfig),
-    data: (getModule(dataModules, './data/', data) as DataRow[]).slice(),
-    random: Object.assign({}, getModule(randomModules, './random/', random) as DemoRandomConfig),
+    config: deepCopy(getModule(configModuleMap, configDir, config) as DemoConfig),
+    data: deepCopy(getModule(dataModules, './data/', data) as DataRow[]),
+    random: deepCopy(getModule(randomModules, './random/', random) as DemoRandomConfig),
     generator
   };
 }

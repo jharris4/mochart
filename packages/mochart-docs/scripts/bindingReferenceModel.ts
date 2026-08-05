@@ -223,6 +223,14 @@ function coreKeyFor(key: string, coreKeys: Set<string>): string | undefined {
   if (coreKeys.has(asCallback)) {
     return asCallback;
   }
+  // An Angular `xChange` output mirrors a core `onX` callback when the bare
+  // name would shadow a native DOM event: focusChange → onFocus.
+  if (key.endsWith('Change')) {
+    const asChangeCallback = 'on' + upperFirst(key.slice(0, -'Change'.length));
+    if (coreKeys.has(asChangeCallback)) {
+      return asChangeCallback;
+    }
+  }
   // Placeholders replace the core factories: loadingComponent (or lit's
   // loadingTemplate) → getLoadingComponent.
   const placeholder = /^(.*)(Component|Template)$/.exec(key);

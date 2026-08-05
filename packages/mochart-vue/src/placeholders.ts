@@ -1,4 +1,5 @@
 import { h, render } from 'vue';
+import type { AppContext } from 'vue';
 import type { PlaceholderComponent, PlaceholderProps } from './types.js';
 
 // Maps the wrapper's component props to the core's DOM-factory prop names.
@@ -29,7 +30,7 @@ export interface PlaceholderAdapter {
  * is stable per slot; component changes flow through `transform` and take
  * effect on the next factory call.
  */
-export function createPlaceholderAdapter(): PlaceholderAdapter {
+export function createPlaceholderAdapter(appContext: AppContext | null = null): PlaceholderAdapter {
   const slots = new Map<string, PlaceholderSlot>();
 
   function getSlot(propName: string, component: PlaceholderComponent): PlaceholderSlot {
@@ -43,7 +44,10 @@ export function createPlaceholderAdapter(): PlaceholderAdapter {
         container,
         factory: (context: PlaceholderProps) => {
           const current = slots.get(propName)!;
-          render(h(current.component as any, { ...context }), current.container);
+          const vnode = h(current.component as any, { ...context });
+          // the host app's context, so placeholders can inject app-level providers
+          vnode.appContext = appContext;
+          render(vnode, current.container);
           return current.container;
         }
       };

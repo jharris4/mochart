@@ -1,4 +1,5 @@
 import type { ChartHandle } from '@mochart/core';
+import type { AppContext } from 'vue';
 import { createPlaceholderAdapter } from './placeholders.js';
 
 // `create` is used for both createChart (Chart) and createDefaultChart
@@ -34,8 +35,8 @@ function withSize(props: Record<string, any>, measured: Size): Record<string, an
  * props always win; whichever dimension is omitted tracks the container's own
  * size (via ResizeObserver, where available).
  */
-export function mountChartHost(create: CreateChartFn, container: HTMLElement, props: Record<string, any>): HostHandle {
-  const placeholders = createPlaceholderAdapter();
+export function mountChartHost(create: CreateChartFn, container: HTMLElement, props: Record<string, any>, appContext: AppContext | null = null): HostHandle {
+  const placeholders = createPlaceholderAdapter(appContext);
   let lastProps = placeholders.transform(props);
   let measured = measure(container);
   const chart = create(container, withSize(lastProps, measured));

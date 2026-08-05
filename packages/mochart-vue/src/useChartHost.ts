@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { getCurrentInstance, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import { mountChartHost } from './host.js';
 import type { CreateChartFn, HostHandle } from './host.js';
@@ -14,9 +14,11 @@ export function useChartHost(
 ): Ref<HTMLDivElement | null> {
   const containerRef = ref<HTMLDivElement | null>(null);
   let host: HostHandle | null = null;
+  // captured at setup time: placeholders render with the host app's context
+  const appContext = getCurrentInstance()?.appContext ?? null;
 
   onMounted(() => {
-    host = mountChartHost(create, containerRef.value as HTMLDivElement, getChartProps());
+    host = mountChartHost(create, containerRef.value as HTMLDivElement, getChartProps(), appContext);
   });
 
   onBeforeUnmount(() => {

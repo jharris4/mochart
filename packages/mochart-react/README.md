@@ -62,6 +62,10 @@ chart follows it:
 <Chart mochartConfig={mochartConfig} dataProvider={dataProvider} style={{ width: '100%', height: 400 }} />
 ```
 
+Explicit `width`/`height` props win over conflicting `style` values. Note that
+placeholder components render in their own React root, so they do not inherit
+the host app's context providers (unlike the other bindings).
+
 ## Props
 
 Both components accept the chart callbacks (`onChartClick`,

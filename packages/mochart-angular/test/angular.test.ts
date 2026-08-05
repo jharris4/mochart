@@ -270,3 +270,38 @@ describe('removed placeholder components', () => {
     expect(el.querySelector('.mochart-loading')).not.toBeNull();
   });
 });
+
+// Regression: callback forwarding snapshotted emitter.observed at buildProps
+// time, so a subscription made after mount (e.g. via @ViewChild) received no
+// events until an unrelated input change re-ran ngOnChanges.
+describe('programmatic output subscription after mount', () => {
+  it('forwards events to a subscription made after the chart mounted', async () => {
+    // processChartEvent needs a real chart rect to place the pointer inside;
+    // jsdom returns zero rects, so give every element a 400x300 one.
+    const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = () =>
+      ({ x: 0, y: 0, left: 0, top: 0, right: 400, bottom: 300, width: 400, height: 300, toJSON: () => ({}) }) as DOMRect;
+    try {
+      const fixture = createWith(Chart, {
+        mochartConfig: enhanceConfig(rawConfig()),
+        dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+        width: 400,
+        height: 300
+      });
+      const el: HTMLElement = fixture.nativeElement;
+      const svg = el.querySelector('svg')!;
+      expect(svg).not.toBeNull();
+
+      const payloads: any[] = [];
+      (fixture.componentInstance as Chart).chartClick.subscribe((payload: any) => payloads.push(payload));
+      // the callback re-sync is coalesced into a microtask
+      await Promise.resolve();
+
+      svg.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 50, clientY: 50 }));
+      expect(payloads.length).toBe(1);
+    }
+    finally {
+      Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    }
+  });
+});
