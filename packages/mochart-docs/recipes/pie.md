@@ -128,7 +128,7 @@ gauge — an `endAngle` *smaller* than `startAngle` runs counterclockwise.
   [`centerOffsetYFraction`](/reference/pie#pie.centerOffsetYFraction)
   nudge it by fractions of the outer radius — the example's `-0.25` lifts it
   into the hole.
-- The center text is painted by
+- The center text is styled by
   [`centerLabelTextStyle`](/reference/pie#pie.centerLabelTextStyle)
   and
   [`centerTotalTextStyle`](/reference/pie#pie.centerTotalTextStyle),

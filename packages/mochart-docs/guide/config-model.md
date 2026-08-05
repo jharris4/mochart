@@ -53,7 +53,7 @@ series: [
 
 ## Styles and focus states
 
-Everything the chart draws is painted by a **style** object rather than by a
+Everything the chart draws is styled by a **style** object rather than by a
 flat set of color properties. A style holds `strokeColor`, `strokeOpacity`
 and `strokeWidth`, plus `fillColor` and `fillOpacity` for shapes that have an
 interior. Lines — grid lines, tick marks, thresholds, crosshairs, error-bar

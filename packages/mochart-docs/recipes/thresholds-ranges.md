@@ -16,10 +16,10 @@ import * as thresholdRange from '../examples/thresholdRange'
 
 - [`thresholds`](/reference/valueAxes#valueAxes.thresholds) on
   a value axis draws reference lines: one entry per line, each with a `value`,
-  an optional `title` label beside it, and a `style` painting the line —
+  an optional `title` label beside it, and a `style` styling the line —
   colors, width and dash array, each in its `normal`, `focused` and
   `defocused` states. The entry's `titleSide`, `titleTextStyle` and the other
-  `title*` members cover the label's placement and painting, and several
+  `title*` members cover the label's placement and styling, and several
   entries draw several lines. The category axis supports the same `thresholds`
   property for vertical reference lines (with a linear scale).
 - The band is an ordinary `area` series with

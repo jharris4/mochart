@@ -16,7 +16,7 @@ plays the staged series transition:
 ## Focus
 
 Hovering or clicking a series (per its `focusOnMouseOver` / `focusOnClick`
-config) focuses it: the focused series is painted from the `focused` state of
+config) focuses it: the focused series is styled from the `focused` state of
 its [styles](/guide/config-model#styles-and-focus-states) and every other
 series from their `defocused` state, animated over
 [`focusDuration`](/reference/animation#animation.focusDuration).

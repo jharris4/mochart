@@ -32,7 +32,7 @@ describe('cssColor', () => {
   });
 
   it('rejects "none", which is not a css color', () => {
-    // in a css declaration 'none' is dropped as invalid, it does not switch the paint off
+    // in a css declaration 'none' is dropped as invalid, it does not switch the style off
     expect(validate('none')).toBe(false);
   });
 

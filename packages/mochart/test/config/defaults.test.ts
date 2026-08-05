@@ -156,7 +156,7 @@ describe('series color-icon defaults', () => {
   });
 
   it('hides the color icon for a series colored by group index', () => {
-    // every group paints it differently, so a single swatch would be arbitrary
+    // every group styles it differently, so a single swatch would be arbitrary
     expect(showColorFlags({ normal: { strokeColor: 'categoryIndex', fillColor: 'categoryIndex' } }))
       .toEqual({ showColorInLegend: false, showColorInTooltip: false });
     // either member is enough

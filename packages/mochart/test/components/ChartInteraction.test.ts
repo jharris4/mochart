@@ -652,7 +652,7 @@ describe('showFilteringOnLabels', () => {
     expect(filteredText.style.textDecoration).toBe('line-through');
   });
 
-  it('paints a filtered legend icon with iconFilteredColor', () => {
+  it('styles a filtered legend icon with iconFilteredColor', () => {
     function filteredIconFill(legend: Record<string, unknown>): string | null {
       const container = mountChart(makeConfig({ ...twoSeries, legend: { visible: true, ...legend } }));
       filter(container, 'S1');

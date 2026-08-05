@@ -162,7 +162,7 @@ describe('series axis focus range placement', () => {
   });
 
   // The golden snapshots never activate an axis focus, so its style is pinned here.
-  it('paints the focus range with the host page color', () => {
+  it('styles the focus range with the host page color', () => {
     const container = mountChart(makeConfig());
     focusSeries(container, 'S1');
     const el = axisGroup(container, 'mochart-value-axis-VA1')
@@ -174,7 +174,7 @@ describe('series axis focus range placement', () => {
     expect(el.getAttribute('fill-opacity')).toBe('0.12');
   });
 
-  it('paints the focus tick marks with the host page color', () => {
+  it('styles the focus tick marks with the host page color', () => {
     const container = mountChart(makeConfig({
       valueAxisDefaults: { showFocusTickMarks: true }
     }));
