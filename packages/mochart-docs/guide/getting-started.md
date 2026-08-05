@@ -131,6 +131,8 @@ See [The config model](/guide/config-model) for what "enhanced" means and
   and how to tune it
 - [Interaction](/guide/interaction) — focus, legend filtering, tooltip,
   crosshair, and the callback props
+- [Exporting images](/guide/export) — download any chart as a standalone
+  SVG or PNG file
 - [Recipes](/recipes/stacked-bars) — working configs for common chart shapes
 - The demo galleries ([Vanilla](/vanilla/demos), [Angular](/angular/demos),
   [Lit](/lit/demos), [React](/react/demos), [Svelte](/svelte/demos), [Vue](/vue/demos)) — browse

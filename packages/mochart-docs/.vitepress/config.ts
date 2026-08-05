@@ -95,7 +95,8 @@ function guideSidebar() {
         { text: 'Data providers', link: '/guide/data-providers' },
         { text: 'Staged animation', link: '/guide/staged-animation' },
         { text: 'Interaction', link: '/guide/interaction' },
-        { text: 'Chart states', link: '/guide/chart-states' }
+        { text: 'Chart states', link: '/guide/chart-states' },
+        { text: 'Exporting images', link: '/guide/export' }
       ]
     },
     {

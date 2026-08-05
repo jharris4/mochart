@@ -36,6 +36,10 @@
   color: var(--vp-c-white);
 }
 
+.live-chart-controls button + button {
+  margin-left: 8px;
+}
+
 .live-chart-controls .live-chart-demo-link {
   margin-left: 12px;
   font-size: 13px;

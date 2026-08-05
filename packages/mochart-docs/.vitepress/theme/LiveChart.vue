@@ -4,7 +4,7 @@
 // container so examples stay responsive.
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
-import { encodeShareState, shareHashPrefix } from '@mochart/demo-common';
+import { encodeShareState, getChartExportOptions, shareHashPrefix } from '@mochart/demo-common';
 import type { DemoConfig } from '@mochart/demo-common';
 
 interface ChartHandle {
@@ -20,11 +20,14 @@ const props = withDefaults(defineProps<{
   demoLink?: boolean;
   /** Vanilla-gallery demo slug to host the share link (see demos.json ids). */
   demo?: string;
+  /** Show Download SVG / Download PNG buttons (the export guide's live demo). */
+  exportButtons?: boolean;
 }>(), {
   altData: undefined,
   height: 320,
   demoLink: true,
-  demo: 'stacked'
+  demo: 'stacked',
+  exportButtons: false
 });
 
 // Deep link into the vanilla gallery with this chart's config/data as the
@@ -82,6 +85,21 @@ function toggle() {
   showingAlt.value = !showingAlt.value;
   chart.update({ data: showingAlt.value ? props.altData : props.data });
 }
+
+// Imported on click for the same SSR-safety reason as the chart module; the
+// background color follows the site theme so dark-mode text stays readable.
+async function download(format: 'svg' | 'png') {
+  const el = host.value;
+  if (el === null) {
+    return;
+  }
+  const { exportSVG, exportPNG } = await import('@mochart/export');
+  if (format === 'svg') {
+    exportSVG(el, getChartExportOptions());
+  } else {
+    await exportPNG(el, getChartExportOptions());
+  }
+}
 </script>
 
 <template>
@@ -91,9 +109,15 @@ function toggle() {
     <div class="live-chart-card">
       <div ref="host" class="live-chart-host" :style="{ height: height + 'px' }" />
     </div>
-    <div v-if="altData || demoUrl" class="live-chart-controls">
+    <div v-if="altData || exportButtons || demoUrl" class="live-chart-controls">
       <button v-if="altData" type="button" @click="toggle">
         {{ showingAlt ? 'Animate back' : 'Animate to new data' }}
+      </button>
+      <button v-if="exportButtons" type="button" @click="download('svg')">
+        Download SVG
+      </button>
+      <button v-if="exportButtons" type="button" @click="download('png')">
+        Download PNG
       </button>
       <!-- target=_self keeps VitePress's SPA router from intercepting the
            navigation into the (non-VitePress) demo gallery. -->

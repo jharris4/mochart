@@ -190,9 +190,9 @@ built in code can avoid string literals.
 
 `mochartCssClasses` maps every chart part to the CSS class the renderer puts
 on it (`mochart-chart`, `mochart-title-text`, `mochart-plot`, …) — useful
-for targeted CSS overrides and DOM queries.
-[@mochart/export](https://github.com/jharris4/mochart/tree/main/packages/mochart-export)
-uses these to serialize rendered charts to SVG/PNG.
+for targeted CSS overrides and DOM queries. The `@mochart/export` package
+uses these to serialize rendered charts to SVG/PNG — see
+[Exporting images](/guide/export).
 
 `getVersionString()` returns the library's version.
 

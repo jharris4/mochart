@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "@mochart/core": "^1.0.0",
-    "@mochart/demo-common": "^1.0.0"
+    "@mochart/demo-common": "^1.0.0",
+    "@mochart/export": "^1.0.0"
   },
   "devDependencies": {
     "tsx": "^4.20.6",
