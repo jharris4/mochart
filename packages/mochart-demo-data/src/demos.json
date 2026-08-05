@@ -231,7 +231,7 @@
       "id": "color-property",
       "title": "Color Property",
       "description": "Bars colored per data row from a color property in the data instead of the series config.",
-      "notes": "One bar series reads both its height and its fill from the same property, interpolating in HCL from colorScale.min (#8f8fff) to colorScale.max (#0000ff) across the color property's extent — the palest bar is always the smallest value and the darkest the largest, however the numbers move. Setting colorProperty is what switches a series off its single palette color; leaving it null gives the usual per-series color, painted from shapeStyle. Compare the Color and Base Property demo, which splits the same ramp in two around colorScale.base.value.",
+      "notes": "One bar series reads both its height and its fill from the same property, interpolating in HCL from colorScale.min (#8f8fff) to colorScale.max (#0000ff) across the color property's extent — the palest bar is always the smallest value and the darkest the largest, however the numbers move. Setting colorProperty is what switches a series off its single palette color; leaving it null gives the usual per-series color, styled from shapeStyle. Compare the Color and Base Property demo, which splits the same ramp in two around colorScale.base.value.",
       "config": "color-property-bars-config.json",
       "data": "mixed-categories-mixed-values-data.json",
       "random": "default-random.json"
