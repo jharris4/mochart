@@ -348,7 +348,7 @@
       "id": "scatter",
       "title": "Scatter",
       "description": "A scatter chart: marker-only series (renderer none) on a linear category axis.",
-      "notes": "Points are positioned by irregular measured x values rather than evenly spaced groups: the category axis is a number property on scale 'linear', so the gaps in the data (0.4, 1.1, 1.5, 2.8, ...) are preserved as real distances. All three series share renderer 'none' and markerSize 6 from seriesDefaults and are told apart by markerShape alone — star, cross and wye.",
+      "notes": "Points are positioned by irregular measured x values rather than evenly spaced categories: the category axis is a number property on scale 'linear', so the gaps in the data (0.4, 1.1, 1.5, 2.8, ...) are preserved as real distances. All three series share renderer 'none' and markerSize 6 from seriesDefaults and are told apart by markerShape alone — star, cross and wye.",
       "config": "scatter-config.json",
       "data": "scatter-data.json",
       "random": "scatter-random.json"
