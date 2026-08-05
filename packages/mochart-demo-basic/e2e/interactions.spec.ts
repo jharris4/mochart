@@ -52,6 +52,30 @@ test('clicking a legend item filters the series out and back in', async ({ page 
   await expect(series).toHaveCount(initialCount);
 });
 
+test('legend filtering is keyboard accessible', async ({ page }) => {
+  const series = page.locator('.mochart-series');
+  const initialCount = await series.count();
+
+  const firstLegendItem = page.locator('[data-series-id]').first();
+  await firstLegendItem.focus();
+  await expect(firstLegendItem).toHaveAttribute('aria-pressed', 'true');
+
+  await page.keyboard.press('Enter');
+  await expect(series).toHaveCount(initialCount - 1);
+  await expect(firstLegendItem).toHaveAttribute('aria-pressed', 'false');
+
+  await page.keyboard.press('Space');
+  await expect(series).toHaveCount(initialCount);
+  await expect(firstLegendItem).toHaveAttribute('aria-pressed', 'true');
+
+  // arrows move focus and the roving tab stop to the next item
+  await page.keyboard.press('ArrowRight');
+  const secondLegendItem = page.locator('[data-series-id]').nth(1);
+  await expect(secondLegendItem).toBeFocused();
+  await expect(secondLegendItem).toHaveAttribute('tabindex', '0');
+  await expect(firstLegendItem).toHaveAttribute('tabindex', '-1');
+});
+
 test('toolbar add/remove category updates the category axis', async ({ page }) => {
   const ticks = page.locator(categoryTickLabels);
   const initialCount = await ticks.count();

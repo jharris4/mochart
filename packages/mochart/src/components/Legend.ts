@@ -54,6 +54,12 @@ interface LegendItemProps {
   seriesIsFocused: boolean;
   seriesIsDefocused: boolean;
   seriesFocusPercentage: number | null;
+  /** clicking does something (filter or focus), so the item is keyboard-reachable */
+  interactive: boolean;
+  /** the roving tab stop: one legend item is Tab-reachable, arrows move between items */
+  tabStop: boolean;
+  /** filtering applies, so the item exposes aria-pressed (pressed = series shown) */
+  showsFilterState: boolean;
   onClick: (seriesId: string) => void;
   onMouseEnter: (seriesId: string) => void;
   onMouseLeave: (seriesId: string) => void;
@@ -61,12 +67,60 @@ interface LegendItemProps {
 
 interface LegendItemState { truncationData: TruncationDataValue }
 
+interface LegendState { rovingSeriesId: string | null }
+
 const hiddenStyle = { visibility: 'hidden' };
 
-export default class Legend extends Renderer<LegendProps> {
+export default class Legend extends Renderer<LegendProps, LegendState> {
   root = svgEl('g');
   background = this.slot(this.root);
   items = this.rendererList(this.root);
+
+  constructor() {
+    super();
+    this.state = { rovingSeriesId: null };
+  }
+
+  private interactiveItemNodes(): SVGElement[] {
+    return Array.from(this.root.node.querySelectorAll<SVGElement>('g[tabindex]'));
+  }
+
+  /** any focus landing on an item (Tab, arrows, mouse) makes it the roving tab stop */
+  legendFocusIn = (event: Event) => {
+    const seriesId = (event.target as Element).getAttribute('data-series-id');
+    if (seriesId !== null && seriesId !== this.state.rovingSeriesId) {
+      this.setState({ rovingSeriesId: seriesId });
+    }
+  }
+
+  legendKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    const itemNodes = this.interactiveItemNodes();
+    const index = itemNodes.indexOf(event.target as SVGElement);
+    if (index === -1) {
+      return;
+    }
+    let nextIndex: number;
+    if (key === 'ArrowRight' || key === 'ArrowDown') {
+      nextIndex = Math.min(index + 1, itemNodes.length - 1);
+    }
+    else if (key === 'ArrowLeft' || key === 'ArrowUp') {
+      nextIndex = Math.max(index - 1, 0);
+    }
+    else if (key === 'Home') {
+      nextIndex = 0;
+    }
+    else if (key === 'End') {
+      nextIndex = itemNodes.length - 1;
+    }
+    else {
+      return;
+    }
+    event.preventDefault();
+    if (nextIndex !== index) {
+      itemNodes[nextIndex].focus();
+    }
+  }
 
   legendItemMouseEnter = (seriesId: string) => {
     const { mochartConfig, onFocus } = this.props;
@@ -112,8 +166,22 @@ export default class Legend extends Renderer<LegendProps> {
 
       const clipPath = truncationEnabled ? getClipPathReference(legendClipPathUniqueId) : null;
 
+      const itemIsInteractive = (seriesConfig: EnhancedSeriesConfig): boolean =>
+        (legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick;
+      const interactiveIds = seriesConfigs
+        .filter(seriesConfig => seriesConfig.showInLegend && itemIsInteractive(seriesConfig))
+        .map(seriesConfig => seriesConfig.id);
+      const { rovingSeriesId } = this.state;
+      // the remembered roving item keeps the tab stop while it exists; otherwise the first item takes it
+      const effectiveRovingId = rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1
+        ? rovingSeriesId : interactiveIds[0] ?? null;
+      const anyInteractive = interactiveIds.length > 0;
+
       this.setPresent(true);
-      this.root.set({ className: mochartCssClasses['legend'], transform });
+      this.root.set({ className: mochartCssClasses['legend'], transform,
+        role: anyInteractive ? 'group' : null, ariaLabel: anyInteractive ? 'Legend' : null,
+        onKeyDown: anyInteractive ? this.legendKeyDown : null,
+        onFocusIn: anyInteractive ? this.legendFocusIn : null });
       this.background.set(Background, { config: legendConfig, classKey: 'legendBackground', spacingRelative: true, spacingLayoutInfo: legendLayoutInfo });
 
       const items: RendererItem<LegendItemProps>[] = [];
@@ -138,7 +206,11 @@ export default class Legend extends Renderer<LegendProps> {
               legendItemRawLayoutInfo: legendItemRawLayoutInfos[i], legendItemTextLayoutInfo,
               uniqueIds, colorPaletteConfig, seriesIndex,
               seriesIsFiltered, seriesIsFocused, seriesIsDefocused,
-              seriesFocusPercentage, clipPath, onClick: this.legendItemClick,
+              seriesFocusPercentage, clipPath,
+              interactive: itemIsInteractive(seriesConfig),
+              tabStop: id === effectiveRovingId,
+              showsFilterState: legendConfig.filterOnClick && seriesConfig.filterable,
+              onClick: this.legendItemClick,
               onMouseEnter: this.legendItemMouseEnter, onMouseLeave: this.legendItemMouseLeave }
           });
         }
@@ -181,6 +253,14 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
   // mid-hover (legend click, controlled filter), so it can't gate the leave
   hoverActive = false;
 
+  onKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      this.onClick();
+    }
+  }
+
   onMouseEnter = () => {
     const { onMouseEnter, seriesConfig, seriesIsFiltered } = this.props;
     if (!seriesIsFiltered) {
@@ -195,6 +275,15 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       this.hoverActive = false;
       onMouseLeave(seriesConfig.id);
     }
+  }
+
+  // keyboard focus mirrors hover, so the focused series highlights the same way
+  onFocusIn = () => {
+    this.onMouseEnter();
+  }
+
+  onFocusOut = () => {
+    this.onMouseLeave();
   }
 
   derive(props: LegendItemProps, _state: LegendItemState, prevProps: LegendItemProps | null): Partial<LegendItemState> | null {
@@ -251,8 +340,19 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
 
     const { dy, transform: textTransform } = centerTextY({ x: x + iconWidth, y, height: itemInnerHeight });
 
+    const { interactive, tabStop, showsFilterState } = this.props;
     this.root.set({ className: mochartCssClasses['legendItem'] + seriesConfig.id, transform,
-      onClick: this.onClick, onMouseEnter: this.onMouseEnter, onMouseLeave: this.onMouseLeave });
+      dataSeriesId: interactive ? seriesConfig.id : null,
+      tabindex: interactive ? (tabStop ? '0' : '-1') : null,
+      role: interactive ? 'button' : null,
+      // the untruncated label, so assistive tech hears the full series name
+      ariaLabel: interactive ? seriesLabel : null,
+      // pressed = series shown; toggling filters it out
+      ariaPressed: showsFilterState ? String(!seriesIsFiltered) : null,
+      onClick: this.onClick, onMouseEnter: this.onMouseEnter, onMouseLeave: this.onMouseLeave,
+      onKeyDown: interactive ? this.onKeyDown : null,
+      onFocusIn: interactive ? this.onFocusIn : null,
+      onFocusOut: interactive ? this.onFocusOut : null });
     this.background.set(Background, { config: legendConfig, configStyleKey: 'itemBackgroundStyle', classKey: 'legendItemBackground', spacingRelative: true, spacingLayoutInfo: legendItemLayoutInfo });
     this.iconGroup.set({ className: mochartCssClasses['legendItemIcon'], transform: iconTransform });
     this.icon.set(SeriesColorIcon, { seriesContextConfig: legendConfig, seriesConfig, focused: seriesIsFocused, defocused: seriesIsDefocused,

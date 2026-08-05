@@ -1,0 +1,122 @@
+/**
+ * Keyboard accessibility of legend filtering: legend items are buttons with
+ * a roving tab stop — one item is Tab-reachable, arrows move between items,
+ * Enter/Space toggles like a click, and aria-pressed tracks visibility
+ * (pressed = series shown).
+ */
+import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { installSvgMeasurementShims } from './svgShims';
+import { createDefaultChart } from '../../src/createChart';
+import type { ChartHandle } from '../../src/createChart';
+import type { DefaultChartProps } from '../../src/types/chart';
+import type { MochartInputConfig } from '../../src/types/config';
+
+const rows = [
+  { month: 'Jan', sales: 10, costs: 5, profit: 5 },
+  { month: 'Feb', sales: 20, costs: 8, profit: 12 }
+];
+
+function makeConfig(legend: Record<string, unknown> = {}): MochartInputConfig {
+  return {
+    version: '1.0.0',
+    animation: { animate: false },
+    legend: { visible: true, ...legend },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [
+      { id: 'S0', property: 'sales' },
+      { id: 'S1', property: 'costs' },
+      { id: 'S2', property: 'profit' }
+    ]
+  } as unknown as MochartInputConfig;
+}
+
+let handles: ChartHandle<DefaultChartProps>[] = [];
+
+function mountChart(config: MochartInputConfig): Element {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  handles.push(createDefaultChart(container, { config, data: rows, width: 800, height: 600 }));
+  return container;
+}
+
+function legendItems(container: Element): SVGElement[] {
+  return Array.from(container.querySelectorAll<SVGElement>('g[data-series-id]'));
+}
+
+function key(target: Element, keyValue: string): void {
+  target.dispatchEvent(new KeyboardEvent('keydown', { key: keyValue, bubbles: true, cancelable: true }));
+}
+
+beforeAll(() => {
+  installSvgMeasurementShims();
+  // jsdom lacks focus() on SVG elements; route it through the shared focus bookkeeping
+  const svgProto = SVGElement.prototype as unknown as { focus?: () => void };
+  if (typeof svgProto.focus !== 'function') {
+    svgProto.focus = HTMLElement.prototype.focus;
+  }
+});
+
+afterEach(() => {
+  for (const handle of handles) {
+    handle.destroy();
+  }
+  handles = [];
+  document.body.innerHTML = '';
+});
+
+describe('legend keyboard semantics', () => {
+  it('exposes items as toggle buttons with one roving tab stop', () => {
+    const container = mountChart(makeConfig());
+    const items = legendItems(container);
+    expect(items.length).toBe(3);
+
+    for (const item of items) {
+      expect(item.getAttribute('role')).toBe('button');
+      expect(item.getAttribute('aria-pressed')).toBe('true'); // pressed = shown
+    }
+    expect(items[0].getAttribute('aria-label')).toBe('Series S0'); // the series title, untruncated
+    expect(items.map(item => item.getAttribute('tabindex'))).toEqual(['0', '-1', '-1']);
+
+    const legend = items[0].parentElement!.closest('[role="group"]');
+    expect(legend).not.toBeNull();
+    expect(legend!.getAttribute('aria-label')).toBe('Legend');
+  });
+
+  it('has no keyboard semantics when clicking does nothing', () => {
+    const container = mountChart(makeConfig({ filterOnClick: false, focusOnClick: false }));
+    expect(legendItems(container).length).toBe(0);
+    expect(container.querySelectorAll('g[tabindex]').length).toBe(0);
+  });
+
+  it('toggles filtering with Enter and Space and updates aria-pressed', () => {
+    const container = mountChart(makeConfig());
+    const first = legendItems(container)[0];
+
+    key(first, 'Enter');
+    expect(legendItems(container)[0].getAttribute('aria-pressed')).toBe('false');
+
+    key(legendItems(container)[0], ' ');
+    expect(legendItems(container)[0].getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('moves focus and the roving tab stop with arrow keys', () => {
+    const container = mountChart(makeConfig());
+    const items = legendItems(container);
+    items[0].focus();
+
+    key(items[0], 'ArrowRight');
+    expect(document.activeElement).toBe(items[1]);
+    expect(legendItems(container).map(item => item.getAttribute('tabindex'))).toEqual(['-1', '0', '-1']);
+
+    key(items[1], 'End');
+    expect(document.activeElement).toBe(items[2]);
+
+    // clamped at the last item
+    key(items[2], 'ArrowDown');
+    expect(document.activeElement).toBe(items[2]);
+
+    key(items[2], 'Home');
+    expect(document.activeElement).toBe(items[0]);
+    expect(legendItems(container).map(item => item.getAttribute('tabindex'))).toEqual(['0', '-1', '-1']);
+  });
+});
