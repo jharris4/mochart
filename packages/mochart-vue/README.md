@@ -70,7 +70,7 @@ however you like and the chart follows it:
 
 ## Props
 
-Both components accept the chart callbacks (`onChartClick`,
+Both components accept the chart callbacks (`onChartClick`, `onSliceClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
 `onFocus`, `onSeriesFilter`, `onSeriesLayoutBoundsChange` — usable as
 `@chart-click` etc. in templates) and the placeholder components
@@ -79,3 +79,14 @@ Both components accept the chart callbacks (`onChartClick`,
 **Vue component** that receives the chart context (`width`, `height`, `error`,
 …) as props and is rendered while the chart is in that state. Both components
 also accept `loading` and `error` to force the loading or error state.
+
+### Controlled state
+
+Focus and legend filtering are chart-managed by default, but each piece of
+that state has a matching prop that takes over while it is set (not
+`undefined`): `focusedCategoryIndex` (`-1` = none), `focusedSeriesId` and
+`focusedValueAxisId` (`null` = none), and `filteredSeriesIds` (a map of
+series id → `true` = filtered out). Pass back what `onFocus` and
+`onSeriesFilter` report to keep focus and filtering in sync across several
+charts; leave a prop `undefined` to let the chart keep managing that piece
+itself.

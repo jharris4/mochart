@@ -76,9 +76,10 @@ container, so size it however you like and the chart follows it:
 ## Inputs & outputs
 
 Both components emit the chart callbacks as outputs (`chartClick`,
-`chartMouseEnter`, `chartMouseMove`, `chartMouseLeave`, `titleClick`, `focusChange`,
-`seriesFilter`, `seriesLayoutBoundsChange` — usable as `(chartClick)="..."` etc.
-in templates; only subscribed outputs are wired into the chart) and accept the
+`sliceClick`, `chartMouseEnter`, `chartMouseMove`, `chartMouseLeave`,
+`titleClick`, `focusChange`, `seriesFilter`, `seriesLayoutBoundsChange` —
+usable as `(chartClick)="..."` etc. in templates; only subscribed outputs
+are wired into the chart) and accept the
 placeholder components (`loadingComponent`, `errorComponent`,
 `noDataComponent`, `noSizeComponent`, `noSeriesComponent`,
 `configErrorComponent`). Each placeholder input takes an **Angular component
@@ -86,3 +87,14 @@ class** whose declared inputs among the chart context names (`width`,
 `height`, `error`, …) are kept up to date while the chart is in that state.
 Both components also accept `loading` and `error` to force the loading or
 error state.
+
+### Controlled state
+
+Focus and legend filtering are chart-managed by default, but each piece of
+that state has a matching input that takes over while it is set (not
+`undefined`): `focusedCategoryIndex` (`-1` = none), `focusedSeriesId` and
+`focusedValueAxisId` (`null` = none), and `filteredSeriesIds` (a map of
+series id → `true` = filtered out). Pass back what the `focusChange` and
+`seriesFilter` outputs emit to keep focus and filtering in sync across
+several charts; leave an input `undefined` to let the chart keep managing
+that piece itself.
