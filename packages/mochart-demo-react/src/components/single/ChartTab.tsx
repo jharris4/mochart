@@ -77,20 +77,18 @@ export default function MochartChartTab({ config = null, data = null, dataError 
     const before = { ...focus.current };
     let nextMochartDemoConfig = state.mochartDemoConfig;
 
-    if (dataError || config !== oldConfig) {
-      let configChanged = false;
-      if (config !== oldConfig) {
-        nextMochartDemoConfig = config ? buildMochartDemoConfig(config) : null;
-        if (nextMochartDemoConfig && state.mochartDemoConfig) {
-          configChanged = hasConfigStructureChange(state.mochartDemoConfig.mochartConfig, nextMochartDemoConfig.mochartConfig);
-        }
-      }
-      if (dataError || configChanged) {
-        initFocusAndFiltered();
+    let configChanged = false;
+    if (config !== oldConfig) {
+      nextMochartDemoConfig = config ? buildMochartDemoConfig(config) : null;
+      if (nextMochartDemoConfig && state.mochartDemoConfig) {
+        configChanged = hasConfigStructureChange(state.mochartDemoConfig.mochartConfig, nextMochartDemoConfig.mochartConfig);
       }
     }
+    if (dataError || configChanged) {
+      initFocusAndFiltered();
+    }
     else if (data !== oldData) {
-      const mdc = state.mochartDemoConfig;
+      const mdc = nextMochartDemoConfig;
       if (mdc) {
         const { configValidation, mochartConfig } = mdc;
         const { valid } = configValidation;

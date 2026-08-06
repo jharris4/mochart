@@ -55,18 +55,16 @@ function resetFocusAndFiltered() {
 watch(
   () => [props.config, props.data, props.dataError] as const,
   ([nextConfig, nextData, nextDataError], [previousConfig, previousData, previousDataError]) => {
-    if (nextDataError || nextConfig !== previousConfig) {
-      let configChanged = false;
-      if (nextConfig !== previousConfig) {
-        const nextDemoConfig = nextConfig ? buildMochartDemoConfig(nextConfig) : null;
-        if (nextDemoConfig && mochartDemoConfig.value) {
-          configChanged = hasConfigStructureChange(mochartDemoConfig.value.mochartConfig, nextDemoConfig.mochartConfig);
-        }
-        mochartDemoConfig.value = nextDemoConfig;
+    let configChanged = false;
+    if (nextConfig !== previousConfig) {
+      const nextDemoConfig = nextConfig ? buildMochartDemoConfig(nextConfig) : null;
+      if (nextDemoConfig && mochartDemoConfig.value) {
+        configChanged = hasConfigStructureChange(mochartDemoConfig.value.mochartConfig, nextDemoConfig.mochartConfig);
       }
-      if (nextDataError || configChanged) {
-        resetFocusAndFiltered();
-      }
+      mochartDemoConfig.value = nextDemoConfig;
+    }
+    if (nextDataError || configChanged) {
+      resetFocusAndFiltered();
     }
     else if (nextData !== previousData) {
       const { configValidation, mochartConfig } = mochartDemoConfig.value ?? {};

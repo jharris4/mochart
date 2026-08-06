@@ -55,18 +55,16 @@ export class ChartTab extends LightElement {
     const previousConfig = changed.has('config') ? (changed.get('config') as DemoConfig | null) : this.config;
     const previousData = changed.has('data') ? (changed.get('data') as DataRow[] | null) : this.data;
     const previousDataError = changed.has('dataError') ? (changed.get('dataError') as string | boolean | null) : this.dataError;
-    if (this.dataError || this.config !== previousConfig) {
-      let configChanged = false;
-      if (this.config !== previousConfig) {
-        const nextDemoConfig = this.config ? buildMochartDemoConfig(this.config) : null;
-        if (nextDemoConfig && this.mochartDemoConfig) {
-          configChanged = hasConfigStructureChange(this.mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
-        }
-        this.mochartDemoConfig = nextDemoConfig;
+    let configChanged = false;
+    if (this.config !== previousConfig) {
+      const nextDemoConfig = this.config ? buildMochartDemoConfig(this.config) : null;
+      if (nextDemoConfig && this.mochartDemoConfig) {
+        configChanged = hasConfigStructureChange(this.mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
       }
-      if (this.dataError || configChanged) {
-        this.resetFocusAndFiltered();
-      }
+      this.mochartDemoConfig = nextDemoConfig;
+    }
+    if (this.dataError || configChanged) {
+      this.resetFocusAndFiltered();
     }
     else if (this.data !== previousData) {
       const { configValidation, mochartConfig } = this.mochartDemoConfig ?? {};

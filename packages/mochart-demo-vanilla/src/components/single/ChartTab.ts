@@ -173,18 +173,16 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
       const nextConfig = next.config;
       const nextData = next.data;
       const nextDataError = next.dataError;
-      if (nextDataError || nextConfig !== config) {
-        let configChanged = false;
-        if (nextConfig !== config) {
-          const nextDemoConfig = nextConfig ? buildMochartDemoConfig(nextConfig) : null;
-          if (nextDemoConfig && mochartDemoConfig) {
-            configChanged = hasConfigStructureChange(mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
-          }
-          mochartDemoConfig = nextDemoConfig;
+      let configChanged = false;
+      if (nextConfig !== config) {
+        const nextDemoConfig = nextConfig ? buildMochartDemoConfig(nextConfig) : null;
+        if (nextDemoConfig && mochartDemoConfig) {
+          configChanged = hasConfigStructureChange(mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
         }
-        if (nextDataError || configChanged) {
-          resetFocusAndFiltered();
-        }
+        mochartDemoConfig = nextDemoConfig;
+      }
+      if (nextDataError || configChanged) {
+        resetFocusAndFiltered();
       }
       else if (nextData !== data) {
         const { configValidation, mochartConfig } = mochartDemoConfig ?? {};

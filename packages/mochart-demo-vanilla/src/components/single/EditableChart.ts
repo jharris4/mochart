@@ -124,7 +124,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     let nextFilteredFocusedCategoryIndex = -1;
     if (focusedCategoryIndex >= 0) {
       const categoryProperty = mochartDemoConfig.categoryProperty ?? '';
-      const categoryValue = data[focusedCategoryIndex][categoryProperty];
+      // a stale index (combined config+data update) must degrade to no focus, not throw
+      const categoryValue = data[focusedCategoryIndex]?.[categoryProperty];
       const count = nextFilteredData.length;
       for (let i = 0; i < count; i++) {
         if (nextFilteredData[i][categoryProperty] === categoryValue) {

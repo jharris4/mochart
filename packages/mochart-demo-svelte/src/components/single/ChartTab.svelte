@@ -56,18 +56,16 @@
     const nextData = data;
     const nextDataError = dataError;
     untrack(() => {
-      if (nextDataError || nextConfig !== previousConfig) {
-        let configChanged = false;
-        if (nextConfig !== previousConfig) {
-          const nextDemoConfig = nextConfig ? buildMochartDemoConfig(nextConfig) : null;
-          if (nextDemoConfig && mochartDemoConfig) {
-            configChanged = hasConfigStructureChange(mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
-          }
-          mochartDemoConfig = nextDemoConfig;
+      let configChanged = false;
+      if (nextConfig !== previousConfig) {
+        const nextDemoConfig = nextConfig ? buildMochartDemoConfig(nextConfig) : null;
+        if (nextDemoConfig && mochartDemoConfig) {
+          configChanged = hasConfigStructureChange(mochartDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
         }
-        if (nextDataError || configChanged) {
-          resetFocusAndFiltered();
-        }
+        mochartDemoConfig = nextDemoConfig;
+      }
+      if (nextDataError || configChanged) {
+        resetFocusAndFiltered();
       }
       else if (nextData !== previousData) {
         const { configValidation, mochartConfig } = mochartDemoConfig ?? {};

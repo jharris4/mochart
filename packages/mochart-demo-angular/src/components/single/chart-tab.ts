@@ -87,19 +87,17 @@ export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     if ([configChange, dataChange, dataErrorChange].some(change => change?.firstChange)) {
       return;
     }
-    if (this.dataError || configChange) {
-      let configChanged = false;
-      if (configChange) {
-        const nextDemoConfig = this.config ? buildMochartDemoConfig(this.config) : null;
-        const currentDemoConfig = this.mochartDemoConfig();
-        if (nextDemoConfig && currentDemoConfig) {
-          configChanged = hasConfigStructureChange(currentDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
-        }
-        this.mochartDemoConfig.set(nextDemoConfig);
+    let configChanged = false;
+    if (configChange) {
+      const nextDemoConfig = this.config ? buildMochartDemoConfig(this.config) : null;
+      const currentDemoConfig = this.mochartDemoConfig();
+      if (nextDemoConfig && currentDemoConfig) {
+        configChanged = hasConfigStructureChange(currentDemoConfig.mochartConfig, nextDemoConfig.mochartConfig);
       }
-      if (this.dataError || configChanged) {
-        this.resetFocusAndFiltered();
-      }
+      this.mochartDemoConfig.set(nextDemoConfig);
+    }
+    if (this.dataError || configChanged) {
+      this.resetFocusAndFiltered();
     }
     else if (dataChange) {
       const previousData = dataChange.previousValue as DataRow[] | null;

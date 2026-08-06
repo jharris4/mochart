@@ -526,7 +526,8 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     let nextFilteredFocusedCategoryIndex = -1;
     if (this.focusedCategoryIndex >= 0) {
       const categoryProperty = this.mochartDemoConfig.categoryProperty ?? '';
-      const categoryValue = this.data[this.focusedCategoryIndex][categoryProperty];
+      // a stale index (combined config+data update) must degrade to no focus, not throw
+      const categoryValue = this.data[this.focusedCategoryIndex]?.[categoryProperty];
       const count = nextFilteredData.length;
       for (let i = 0; i < count; i++) {
         if (nextFilteredData[i][categoryProperty] === categoryValue) {

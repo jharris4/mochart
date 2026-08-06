@@ -85,7 +85,8 @@ function getFilteredFocusedCategoryIndex(nextFilteredData: Row[]): number {
   let nextFilteredFocusedCategoryIndex = -1;
   if (props.focusedCategoryIndex >= 0) {
     const categoryProperty = props.mochartDemoConfig.categoryProperty ?? '';
-    const categoryValue = props.data[props.focusedCategoryIndex][categoryProperty];
+    // a stale index (combined config+data update) must degrade to no focus, not throw
+    const categoryValue = props.data[props.focusedCategoryIndex]?.[categoryProperty];
     const count = nextFilteredData.length;
     for (let i = 0; i < count; i++) {
       if (nextFilteredData[i][categoryProperty] === categoryValue) {
