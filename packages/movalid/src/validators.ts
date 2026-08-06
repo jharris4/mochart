@@ -727,8 +727,9 @@ const appendSuffix = (message: string, suffix?: string): string =>
   suffix !== undefined ? message + " " + suffix : message;
 
 validators.conditional = (rules: ConditionalRule[], object: any): Validator => {
-  const matchedRule = rules.find(rule => rule.condition(object))!;
-  const validatorFunction = ((v?: any) => matchedRule.validator(v)) as Validator;
+  const matchedRule = rules.find(rule => rule.condition(object));
+  // No matched rule fails validation with every rule's message rather than crashing at construction.
+  const validatorFunction = ((v?: any) => matchedRule !== undefined && matchedRule.validator(v)) as Validator;
   validatorFunction.validatorName = "conditional";
   validatorFunction.customName = null;
   validatorFunction.extensionNames = null;
@@ -738,8 +739,10 @@ validators.conditional = (rules: ConditionalRule[], object: any): Validator => {
   validatorFunction.alternativeValidators = rules.map(rule => rule.validator);
   validatorFunction.rangeValues = null;
   validatorFunction.isEnum = false;
-  validatorFunction.errorMessage = appendSuffix(matchedRule.validator.errorMessage, matchedRule.suffix);
   validatorFunction.errorMessages = rules.map(rule => appendSuffix(rule.validator.errorMessage, rule.suffix));
+  validatorFunction.errorMessage = matchedRule !== undefined
+    ? appendSuffix(matchedRule.validator.errorMessage, matchedRule.suffix)
+    : (validatorFunction.errorMessages.join(" or ") || "no conditional rule matched");
   validatorFunction.getErrorMessage = v => appendValue(validatorFunction.errorMessage, v);
   addExtensions(validatorFunction, true, false);
   return validatorFunction;

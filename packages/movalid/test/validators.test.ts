@@ -1566,6 +1566,33 @@ describe("validators", () => {
       ]);
     });
 
+    it("should fail validation with every rule's message when no rule matches", () => {
+      const rules: ConditionalRule[] = [
+        {
+          condition: ({ type }) => type === "string",
+          suffix: "when type is string",
+          validator: baseValidators.string()
+        },
+        {
+          condition: ({ type }) => type === "number",
+          suffix: "when type is number",
+          validator: baseValidators.number()
+        }
+      ];
+      const validator = baseValidators.conditional(rules, { type: "boolean" });
+      expect(validator("a")).toIsEqual(false);
+      expect(validator(1)).toIsEqual(false);
+      expect(validator.errorMessage).toIsEqual(
+        "should be a string when type is string or should be a number when type is number"
+      );
+    });
+
+    it("should fail validation with a fixed message for an empty rules array", () => {
+      const validator = baseValidators.conditional([], {});
+      expect(validator("a")).toIsEqual(false);
+      expect(validator.errorMessage).toIsEqual("no conditional rule matched");
+    });
+
     it("should set the error message to the message of the validator for the matched rule", () => {
       const rules: ConditionalRule[] = [
         {
