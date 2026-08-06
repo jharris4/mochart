@@ -22,7 +22,7 @@ const multiState: ShareState = { mode: 'multi', rows: 2, cols: 3, step: 5, inter
 
 const randomState = {
   mode: 'random',
-  randomConfig: { group: { count: 10 }, series: {} },
+  randomConfig: { category: { count: 10 }, series: {} },
   applyReuse: false,
   interval: 2000
 } as unknown as ShareState;

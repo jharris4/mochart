@@ -89,7 +89,7 @@ describe('common-reference validation', () => {
     expect(errors).toEqual([]);
   });
 
-  it('flags a defaulted stack whose axis conflicts with an explicit series axis', () => {
+  it('flags a defaulted stack whose axis conflicts with an explicit value axis', () => {
     // stack is omitted, so the sole-stack default assigns 'S'; the conflict
     // only exists on the built entry (defaulted stack + explicit axis)
     const errors = errorsFor({

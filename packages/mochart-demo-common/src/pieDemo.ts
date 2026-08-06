@@ -1,5 +1,5 @@
 // Pie-mode (pie/donut/gauge) demo helpers. Slices are series and the data is
-// a single row, so the group-editing machinery of the xy demos has nothing to
+// a single row, so the category-editing machinery of the xy demos has nothing to
 // operate on; these helpers back the pie-specific UI instead: the single-mode
 // slice panel (select a slice, edit its value, play a filter/restore
 // sequence) and the multi-mode filtering stepper.

@@ -290,14 +290,14 @@ function buildShots(options) {
     // `hidden`, so there is nothing to open and the shot would be a guaranteed
     // failure rather than a missing state.
     //
-    // One shot per panel, because each folds a different list: the group panel
+    // One shot per panel, because each folds a different list: the category panel
     // sends eight buttons over, the series panel Reset plus the mode toggle,
     // the slice panel Reset plus the play/stop pair. `clickEditMode` reaches
-    // the series panel through the group panel's own fold (revealControl opens
+    // the series panel through the category panel's own fold (revealControl opens
     // the ⋯ to get at `#edit-mode`), and the trigger follows the panel it
     // switched to, so the second step finds it in place.
     //
-    // The shortest phone tier does double duty: at 896x414 the group panel's
+    // The shortest phone tier does double duty: at 896x414 the category panel's
     // `max-height` (the room above a trigger 414px down the screen) is smaller
     // than the eight rows it holds, so that shot is also the `overflow-y: auto`
     // case — the one that decides what happens as more controls fold in.

@@ -50,8 +50,8 @@
                 version: '1.0.0',
                 title: { text: 'Income statement (fictional, $k)' },
                 categoryAxis: categoryAxisConfig,
-                valueAxes: [{ id: 'sa' }],
-                series: seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
+                valueAxes: [{ id: 'va' }],
+                series: seriesConfigs.map((seriesConfig) => ({ ...seriesConfig, axis: 'va' }))
             });
             const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.categoryAxis.property);
 

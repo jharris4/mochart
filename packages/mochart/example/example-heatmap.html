@@ -63,9 +63,9 @@
                 version: '1.0.0',
                 title: { text: 'Support tickets by weekday (fictional)' },
                 categoryAxis: heatmap.categoryAxis,
-                valueAxes: [{ ...heatmap.valueAxisConfig, id: 'sa' }],
+                valueAxes: [{ ...heatmap.valueAxisConfig, id: 'va' }],
                 // valueFormat applies to the tooltip's cell values (tooltipProperty)
-                series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa', valueFormat: ',.0f' }))
+                series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'va', valueFormat: ',.0f' }))
             });
             const dataProvider = new ArrayOfObjectsDataProvider(heatmap.data, mochartConfig.categoryAxis.property);
 

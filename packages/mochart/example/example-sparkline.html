@@ -49,8 +49,8 @@
         const singleSeries = (renderer, color) => ({
             version: '1.0.0',
             categoryAxis: { property: 'i', type: 'number', scale: 'linear' },
-            valueAxes: [{ id: 'sa' }],
-            series: [{ axis: 'sa', property: 'value', renderer, strokeColor: color, fillColor: color }]
+            valueAxes: [{ id: 'va' }],
+            series: [{ axis: 'va', property: 'value', renderer, strokeColor: color, fillColor: color }]
         });
 
         // Win/loss reuses the waterfall trick: one property (and color) per
@@ -58,10 +58,10 @@
         const winLossConfig = {
             version: '1.0.0',
             categoryAxis: { property: 'i', type: 'string', scale: 'ordinal' },
-            valueAxes: [{ id: 'sa', base: 0, min: -1, max: 1 }],
+            valueAxes: [{ id: 'va', base: 0, min: -1, max: 1 }],
             series: [
-                { axis: 'sa', property: 'up', renderer: 'bar', missingValues: 'connect', fillColor: '#1baf7a' },
-                { axis: 'sa', property: 'down', renderer: 'bar', missingValues: 'connect', fillColor: '#e34948' }
+                { axis: 'va', property: 'up', renderer: 'bar', missingValues: 'connect', fillColor: '#1baf7a' },
+                { axis: 'va', property: 'down', renderer: 'bar', missingValues: 'connect', fillColor: '#e34948' }
             ]
         };
 

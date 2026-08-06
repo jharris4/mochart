@@ -143,8 +143,8 @@ describe('createHeatmap', () => {
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
       categoryAxis: heatmap.categoryAxis,
-      valueAxes: [{ ...heatmap.valueAxisConfig, id: 'sa' }],
-      series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'sa' }))
+      valueAxes: [{ ...heatmap.valueAxisConfig, id: 'va' }],
+      series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'va' }))
     });
     expect(mochartConfig.validation.valid).toBe(true);
     // The category property is always set; only cell properties can be undefined.

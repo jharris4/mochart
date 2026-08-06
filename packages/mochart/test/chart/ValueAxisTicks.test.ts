@@ -52,8 +52,8 @@ function renderChart(valueAxisConfig: Record<string, unknown>) {
   const mochartConfig = enhanceConfig({
     version: '1.0.0',
     categoryAxis: { property: 'label', type: 'string', scale: 'ordinal', visible: false },
-    valueAxes: [{ id: 'sa', min: 0, max: 3, ...valueAxisConfig }],
-    series: [{ axis: 'sa', property: 'value', renderer: 'bar' }]
+    valueAxes: [{ id: 'va', min: 0, max: 3, ...valueAxisConfig }],
+    series: [{ axis: 'va', property: 'value', renderer: 'bar' }]
   });
   expect(mochartConfig.validation.valid).toBe(true);
   const data = [

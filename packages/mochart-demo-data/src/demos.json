@@ -148,7 +148,7 @@
       "id": "undefined-skipped-stacked",
       "title": "Skip Missing Stacked Values",
       "description": "Three stacked areas skipping their missing values, so each band closes across its own gaps.",
-      "notes": "The three areas share one stack (seriesStacks plus a seriesDefaults that sets renderer, stack and missingValues \"connect\") on a single axis with base 0 and softMin/softMax of 0. Skipping is per band rather than per group: Value 6 is missing at categories 9, 16, 17 and 36, Value 7 at 9, 10, 14, 15, 36 and 37, and Value 8 at 11 and 12, so a band draws straight from its last defined category to its next while the remaining bands still stack over the reduced total at the category in between — which is why the bands can overlap there instead of sitting cleanly on one another. Categories 1, 31 and 38 have no values at all and drop out of all three bands, and the tooltip still reports each absent band as N/A.",
+      "notes": "The three areas share one stack (seriesStacks plus a seriesDefaults that sets renderer, stack and missingValues \"connect\") on a single axis with base 0 and softMin/softMax of 0. Skipping is per band rather than per category: Value 6 is missing at categories 9, 16, 17 and 36, Value 7 at 9, 10, 14, 15, 36 and 37, and Value 8 at 11 and 12, so a band draws straight from its last defined category to its next while the remaining bands still stack over the reduced total at the category in between — which is why the bands can overlap there instead of sitting cleanly on one another. Categories 1, 31 and 38 have no values at all and drop out of all three bands, and the tooltip still reports each absent band as N/A.",
       "config": "undefined-skip-stacked-config.json",
       "data": "undefined-values-data.json",
       "random": "undefined-random.json"
@@ -213,7 +213,7 @@
       "id": "stacked-grouped",
       "title": "Stacked & Grouped",
       "description": "Stacking and grouping composed: four series in two stacks, placed side by side within each category.",
-      "notes": "Every series names both a stack (SS0/SS1) and a group (SG0/SG1): the group id decides which sub-slot of the group slot the bar occupies, the stack id decides what it accumulates on. Each group slot therefore holds two side-by-side columns, each a two-segment stack, all sharing one value axis with min 0.",
+      "notes": "Every series names both a stack (SS0/SS1) and a group (SG0/SG1): the group id decides which sub-slot of the category slot the bar occupies, the stack id decides what it accumulates on. Each category slot therefore holds two side-by-side columns, each a two-segment stack, all sharing one value axis with min 0.",
       "config": "stacked-grouped-config.json",
       "data": "mixed-categories-positive-values-data.json",
       "random": "positive-random.json"

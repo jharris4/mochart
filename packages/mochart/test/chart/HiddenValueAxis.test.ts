@@ -54,8 +54,8 @@ describe('hidden value axis rendering', () => {
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
       categoryAxis: { property: 'i', type: 'number', scale: 'linear', visible: false },
-      valueAxes: [{ id: 'sa', visible: false }],
-      series: [{ axis: 'sa', property: 'value', renderer: 'line' }]
+      valueAxes: [{ id: 'va', visible: false }],
+      series: [{ axis: 'va', property: 'value', renderer: 'line' }]
     });
     const data = [
       { i: 0, value: 3 },

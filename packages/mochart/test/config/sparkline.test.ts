@@ -6,8 +6,8 @@ import type { MochartInputConfig } from '../../src/types/config';
 const baseConfig = (): MochartInputConfig => ({
   version: '1.0.0',
   categoryAxis: { property: 'i', type: 'number', scale: 'linear' },
-  valueAxes: [{ id: 'sa' }],
-  series: [{ axis: 'sa', property: 'value', renderer: 'line' }]
+  valueAxes: [{ id: 'va' }],
+  series: [{ axis: 'va', property: 'value', renderer: 'line' }]
 });
 
 describe('createSparklineConfig', () => {
@@ -43,9 +43,9 @@ describe('createSparklineConfig', () => {
 
   it('hides every value axis when there are several', () => {
     const config = baseConfig();
-    config.valueAxes = [{ id: 'sa' }, { id: 'sb' }];
+    config.valueAxes = [{ id: 'va' }, { id: 'sb' }];
     config.series = [
-      { axis: 'sa', property: 'value', renderer: 'line' },
+      { axis: 'va', property: 'value', renderer: 'line' },
       { axis: 'sb', property: 'other', renderer: 'line' }
     ];
     const mochartConfig = enhanceConfig(createSparklineConfig(config));

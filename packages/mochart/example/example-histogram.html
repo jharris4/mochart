@@ -67,8 +67,8 @@
                 version: '1.0.0',
                 title: { text: 'Distribution of 2,000 samples (μ = 100, σ = 15)' },
                 categoryAxis: { ...categoryAxisConfig, title: 'Value' },
-                valueAxes: [{ id: 'sa', min: 0 }],
-                series: [{ ...seriesConfig, axis: 'sa' }]
+                valueAxes: [{ id: 'va', min: 0 }],
+                series: [{ ...seriesConfig, axis: 'va' }]
             });
             const dataProvider = new ArrayOfObjectsDataProvider(data, mochartConfig.categoryAxis.property);
 

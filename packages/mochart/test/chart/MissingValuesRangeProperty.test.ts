@@ -65,10 +65,10 @@ function renderWaterfall(partialRangeIsMissing: boolean | undefined) {
   const mochartConfig = enhanceConfig({
     version: '1.0.0',
     categoryAxis: waterfall.categoryAxis,
-    valueAxes: [{ id: 'sa' }],
+    valueAxes: [{ id: 'va' }],
     series: waterfall.series.map((seriesConfig) => ({
       ...seriesConfig,
-      axis: 'sa',
+      axis: 'va',
       ...(partialRangeIsMissing === undefined ? {} : { partialRangeIsMissing })
     }))
   });

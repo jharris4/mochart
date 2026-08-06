@@ -55,9 +55,9 @@ describe('missingValues connect bar series with a colorProperty', () => {
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
       categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
-      valueAxes: [{ id: 'sa' }],
+      valueAxes: [{ id: 'va' }],
       series: [{
-        axis: 'sa', property: 'value', renderer: 'bar', missingValues: 'connect',
+        axis: 'va', property: 'value', renderer: 'bar', missingValues: 'connect',
         colorProperty: 'heat',
         colorScale: { interpolation: 'rgb', min: '#000000', max: '#ffffff' }
       }]
