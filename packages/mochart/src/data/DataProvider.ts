@@ -1,23 +1,28 @@
 import type { DataProvider, DataRow } from '../types/data';
 
 /**
- * Snapshots the category values and the row set at construction: rows added
- * to or removed from the source array afterwards are not seen — build a new
- * provider (or use the chart handle's `refresh`) after such a mutation.
- * Series values are read off the captured rows live.
+ * Snapshots the category values and the row set at construction and on
+ * `refresh()`; the chart handle's `refresh` re-indexes, so rows added to or
+ * removed from the source array in place are seen after a refresh. Series
+ * values are read off the indexed rows live.
  */
 export class ArrayOfObjectsDataProvider<
   TRow extends DataRow = DataRow,
   TCategoryProperty extends keyof TRow & string = keyof TRow & string
 > implements DataProvider<TRow[TCategoryProperty]> {
-  private readonly categoryValues: TRow[TCategoryProperty][];
-  private readonly rowsByCategoryValue: Record<string, TRow>;
+  private categoryValues!: TRow[TCategoryProperty][];
+  private rowsByCategoryValue!: Record<string, TRow>;
 
-  constructor(data: readonly TRow[], categoryProperty: TCategoryProperty) {
-    this.categoryValues = data.map(row => row[categoryProperty]);
+  constructor(private readonly data: readonly TRow[], private readonly categoryProperty: TCategoryProperty) {
+    this.refresh();
+  }
+
+  /** Rebuild the category snapshot and row index from the current source array. */
+  refresh(): void {
+    this.categoryValues = this.data.map(row => row[this.categoryProperty]);
     this.rowsByCategoryValue = Object.create(null); // null proto: keyed by user data category values
-    for (const row of data) {
-      this.rowsByCategoryValue[String(row[categoryProperty])] = row;
+    for (const row of this.data) {
+      this.rowsByCategoryValue[String(row[this.categoryProperty])] = row;
     }
   }
 
@@ -32,14 +37,26 @@ export class ArrayOfObjectsDataProvider<
 
 type ColumnData = Record<string, readonly unknown[]>;
 
+/**
+ * Holds the supplied column object and reads series columns live: in-place
+ * column mutations (including rows pushed onto every column) are visible on
+ * the next read. Only the category column's array identity is captured —
+ * `refresh()` re-captures it, so even a reassigned `data[categoryProperty]`
+ * array is seen after the chart handle's `refresh`.
+ */
 export class ObjectOfArraysDataProvider<
   TData extends ColumnData = ColumnData,
   TCategoryProperty extends keyof TData & string = keyof TData & string
 > implements DataProvider<TData[TCategoryProperty][number]> {
-  private readonly categoryValues: TData[TCategoryProperty];
+  private categoryValues!: TData[TCategoryProperty];
 
-  constructor(private readonly data: TData, categoryProperty: TCategoryProperty) {
-    this.categoryValues = data[categoryProperty];
+  constructor(private readonly data: TData, private readonly categoryProperty: TCategoryProperty) {
+    this.refresh();
+  }
+
+  /** Re-capture the category column from the current source object. */
+  refresh(): void {
+    this.categoryValues = this.data[this.categoryProperty];
   }
 
   getCategoryValues(): TData[TCategoryProperty] {

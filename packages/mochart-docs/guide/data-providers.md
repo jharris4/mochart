@@ -45,11 +45,13 @@ Two ways to tell it:
   The change animates as a normal data update.
 - **Call `refresh()`.** Re-reads the current inputs without a new
   reference: a default chart rebuilds its provider over the `data` array,
-  and a `createChart` chart re-reads its `dataProvider` — the escape hatch
-  made for live, store-backed providers. One caveat: the built-in providers
-  index their dataset at construction, so on a `createChart` chart
-  `refresh` cannot un-snapshot an `ArrayOfObjectsDataProvider` — pass a new
-  provider instead.
+  and a `createChart` chart first calls the provider's optional `refresh()`
+  hook and then re-reads it — the escape hatch made for live, store-backed
+  providers. The built-in providers implement the hook by re-indexing
+  their dataset, so `refresh` picks up any in-place change, including
+  added, removed, and replaced rows. A custom provider that caches
+  anything off its store should implement `refresh()` to invalidate that
+  cache; a provider that reads straight through needs nothing.
 
 Both paths animate to the new values. See
 [Updating and destroying](/guide/getting-started#updating-and-destroying)

@@ -92,6 +92,29 @@ describe('createDefaultChart refresh', () => {
 });
 
 describe('createChart refresh', () => {
+  it('un-snapshots a built-in row provider via its refresh hook', () => {
+    const data = [
+      { label: 'a', value: 1 },
+      { label: 'b', value: 3 }
+    ];
+    const dataProvider = new mochart.ArrayOfObjectsDataProvider(data, 'label');
+    const mochartConfig = mochart.enhanceConfig(config as never);
+    expect(mochartConfig.validation.valid).toBe(true);
+
+    const container = mountContainer();
+    const chart = mochart.createChart(container, {
+      mochartConfig, dataProvider, width: 300, height: 200
+    });
+    runFrames();
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b']);
+
+    data.push({ label: 'c', value: 2 });
+    chart.refresh();
+    runFrames();
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b', 'c']);
+    chart.destroy();
+  });
+
   it('re-reads a live custom provider on refresh', () => {
     const liveCategories = ['a', 'b'];
     const liveValues: Record<string, number> = { a: 1, b: 3, c: 2 };

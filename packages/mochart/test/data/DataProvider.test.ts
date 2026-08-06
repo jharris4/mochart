@@ -41,6 +41,28 @@ describe('ArrayOfObjectsDataProvider', () => {
     // ...but the row map is keyed by category value, so the later row wins
     expect(provider.getSeriesValue('Jan', 0, 'sales')).toBe(99);
   });
+
+  it('re-indexes added, removed, and replaced rows on refresh', () => {
+    const mutable = [
+      { month: 'Jan', sales: 10 },
+      { month: 'Feb', sales: 20 }
+    ];
+    const provider = new ArrayOfObjectsDataProvider(mutable, 'month');
+
+    mutable.push({ month: 'Mar', sales: 30 });
+    mutable[0] = { month: 'Jan', sales: 11 };
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb']); // snapshot until refresh
+    expect(provider.getSeriesValue('Jan', 0, 'sales')).toBe(10);
+
+    provider.refresh();
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
+    expect(provider.getSeriesValue('Jan', 0, 'sales')).toBe(11);
+    expect(provider.getSeriesValue('Mar', 2, 'sales')).toBe(30);
+
+    mutable.pop();
+    provider.refresh();
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb']);
+  });
 });
 
 describe('ObjectOfArraysDataProvider', () => {
@@ -60,6 +82,19 @@ describe('ObjectOfArraysDataProvider', () => {
     // this provider keys on the index argument, not the category value
     expect(provider.getSeriesValue('Feb', 1, 'sales')).toBe(20);
     expect(provider.getSeriesValue('ignored', 2, 'costs')).toBe(12);
+  });
+
+  it('re-captures a reassigned category column on refresh', () => {
+    const mutable: Record<string, readonly unknown[]> = { month: ['Jan', 'Feb'], sales: [10, 20] };
+    const provider = new ObjectOfArraysDataProvider(mutable, 'month');
+
+    mutable.month = ['Jan', 'Feb', 'Mar'];
+    mutable.sales = [10, 20, 30];
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb']); // captured array until refresh
+    expect(provider.getSeriesValue('ignored', 2, 'sales')).toBe(30); // series columns read live
+
+    provider.refresh();
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb', 'Mar']);
   });
 });
 

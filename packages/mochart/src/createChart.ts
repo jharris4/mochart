@@ -23,11 +23,12 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
   replace(nextProps: TProps): void;
   /**
    * Re-read the current data without a new reference: a default chart
-   * rebuilds its provider over the `data` array, a managed chart re-reads its
-   * `dataProvider`, and the chart animates to whatever they now return. The
-   * escape hatch for hosts that mutate data in place. Note that a managed
-   * chart's snapshotting provider (e.g. `ArrayOfObjectsDataProvider`) still
-   * reports what it captured at construction — pass a new provider instead.
+   * rebuilds its provider over the `data` array; a managed chart first calls
+   * the provider's optional `refresh()` hook (the built-in providers
+   * re-index their dataset in it) and then re-reads it. The chart animates
+   * to whatever they now return — the escape hatch for hosts that mutate
+   * data in place. A custom provider that caches anything should implement
+   * `refresh()` to invalidate its cache.
    */
   refresh(): void;
   /** Cancel running tweens and remove the chart's DOM from the container. */
@@ -75,6 +76,7 @@ export function createChart(container: Element, props: ManagedChartProps): Chart
       controller.update(currentProps);
     },
     refresh() {
+      hostDataProvider.refresh?.();
       currentProps = { ...currentProps, dataProvider: withFreshIdentity(hostDataProvider) };
       controller.update(currentProps);
     },

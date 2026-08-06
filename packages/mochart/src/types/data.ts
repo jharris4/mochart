@@ -176,6 +176,8 @@ export interface DataProvider<TCategoryValue = CategoryValue, TSeriesValue = unk
   getError?(): unknown;
   /** When set and true, the chart shows its loading state. */
   getLoading?(): boolean;
+  /** Re-index anything cached off the source dataset; the chart handle's `refresh` calls it before re-reading. */
+  refresh?(): void;
 }
 
 export type DataRow = Record<string, unknown>;
