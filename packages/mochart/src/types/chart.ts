@@ -146,7 +146,7 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
   style?: string | Record<string, string | number | null | undefined>;
   /** Switches the chart into its loading state (see `getLoadingComponent`). */
   loading?: boolean;
-  /** Switches the chart into its error state (see `getErrorComponent`). */
+  /** Switches the chart into its error state when set to anything but null/undefined — `''` and `0` count (see `getErrorComponent`). */
   error?: unknown;
   /**
    * Externally-controlled focused category index (-1 = none). When set (not

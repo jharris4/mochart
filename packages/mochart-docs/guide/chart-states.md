@@ -19,11 +19,15 @@ chart.update({ error: 'Request failed' }); // show the error state
 ```
 
 - **Loading** — the `loading` prop is `true`
-- **Error** — the `error` prop is set
+- **Error** — the `error` prop is set to anything but `null` or `undefined`
+  (`''` and `0` count)
 - **Config error** — the config failed [validation](/guide/config-model#validation)
 - **No data / no series** — the dataset is empty or no series are configured
 - **No size** — width or height is 0 (e.g. the container hasn't been laid
   out yet)
+
+When `loading` and `error` are both set, the error state wins: the loading
+overlay is not shown while an error is active.
 
 ## Customizing what renders
 
