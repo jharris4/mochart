@@ -15,6 +15,17 @@ axis contraction, and gapless stacked transitions — no extra wiring needed.
 npm install @mochart/lit lit-html
 ```
 
+## The optional stylesheet
+
+If your app uses a global CSS reset (Tailwind's preflight, a
+`normalize.css`-style reset), also import the core package's optional
+stylesheet — it re-asserts the browser defaults the chart's tooltip and
+message overlays rely on, and never overrides the chart's own styling:
+
+```js
+import '@mochart/core/mochart.css';
+```
+
 ## Usage
 
 `defaultChart` is the simplest entry point — give it a raw config and a plain
