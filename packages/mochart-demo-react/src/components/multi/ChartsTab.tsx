@@ -5,7 +5,7 @@ import type { MochartConfig } from '@mochart/core';
 import { Chart } from '@mochart/react';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, demoText, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -253,9 +253,14 @@ export default function MultiMochartChartsTab({ demoObject, active }: Props) {
     }));
   };
 
-  // The chart owns filter toggling now and reports the whole map.
-  const onSeriesFilter = ({ filteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }) => {
-    setState(prev => ({ ...prev, filteredSeriesIds: { ...filteredSeriesIds } }));
+  // The chart reports the whole union it was shown; keep only the user delta.
+  const onSeriesFilter = (chartIndex: number, { filteredSeriesIds: reported }: { filteredSeriesIds: FilteredSeriesIds }) => {
+    setState(prev => {
+      const shown = prev.mochartDemoConfig.pieMode
+        ? { ...prev.filteredSeriesIds, ...getPieStepFilteredIds(prev.sliceIds, chartIndex, prev.currentDataCount) }
+        : prev.filteredSeriesIds;
+      return { ...prev, filteredSeriesIds: applyReportedSeriesFilter(prev.filteredSeriesIds, shown, reported) };
+    });
   };
 
   const { filteredSeriesIds, focusedCategoryIndices, focusedValueAxisId, focusedSeriesId, playing, mochartDemoConfig, dataProviders, chartRows, chartCols } = state;
@@ -326,7 +331,7 @@ interface ChartsProps {
   focusedCategoryIndices: number[];
   focusedValueAxisId?: string | null;
   focusedSeriesId?: string | null;
-  onSeriesFilter: (filterData: { filteredSeriesIds: FilteredSeriesIds }) => void;
+  onSeriesFilter: (chartIndex: number, filterData: { filteredSeriesIds: FilteredSeriesIds }) => void;
   onChartFocus: (chartIndex: number, focusData: any) => void;
 }
 
@@ -344,7 +349,7 @@ function MultiMochartCharts({ width, height, mochartConfig, dataProviders, chart
         <Chart mochartConfig={mochartConfig} dataProvider={dataProviders[i]} width={chartWidth} height={chartHeight}
           filteredSeriesIds={chartFilteredSeriesIds(i)} focusedCategoryIndex={focusedCategoryIndices[i] ?? -1}
           focusedValueAxisId={focusedValueAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
-          onSeriesFilter={onSeriesFilter} onFocus={(fd) => onChartFocus(chartIndex, fd)} />
+          onSeriesFilter={(fd) => onSeriesFilter(chartIndex, fd)} onFocus={(fd) => onChartFocus(chartIndex, fd)} />
       </div>
     );
   }

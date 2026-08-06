@@ -4,7 +4,7 @@ import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from 
 import { Chart } from '@mochart/angular';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter } from '@mochart/demo-common';
 import type { MultiShareState, ShareState } from '@mochart/demo-common';
 
 import { ChartsControls } from './charts-controls';
@@ -38,7 +38,7 @@ function clampGrid(value: number): number {
                                [width]="chartWidth" [height]="chartHeight"
                                [filteredSeriesIds]="chartFilteredSeriesIds(i)" [focusedCategoryIndex]="focusedCategoryIndexAt(i)"
                                [focusedValueAxisId]="focusedValueAxisId()" [focusedSeriesId]="focusedSeriesId()"
-                               (seriesFilter)="onSeriesFilter($event)" (focusChange)="onChartFocus(i, $event)" />
+                               (seriesFilter)="onSeriesFilter(i, $event)" (focusChange)="onChartFocus(i, $event)" />
               </div>
             }
           </div>
@@ -308,9 +308,9 @@ export class ChartsTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     return this.focusedCategoryIndices()[chartIndex] ?? -1;
   }
 
-  // The chart owns filter toggling now and reports the whole map.
-  onSeriesFilter = ({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }): void => {
-    this.filteredSeriesIds.set({ ...nextFilteredSeriesIds });
+  // The chart reports the whole union it was shown; keep only the user delta.
+  onSeriesFilter = (chartIndex: number, { filteredSeriesIds: reported }: { filteredSeriesIds: FilteredSeriesIds }): void => {
+    this.filteredSeriesIds.set(applyReportedSeriesFilter(this.filteredSeriesIds(), this.chartFilteredSeriesIds(chartIndex), reported));
   };
 
   // Pie mode unions the stepper's per-chart filtering with the user's

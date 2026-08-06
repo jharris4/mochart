@@ -6,7 +6,7 @@ import type { PropertyValues } from 'lit';
 import { chart } from '@mochart/lit';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -252,18 +252,22 @@ export class ChartsTab extends LightElement {
   }
 
   // The chart owns filter toggling now and reports the whole map.
-  private onSeriesFilter = ({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }): void => {
-    this.filteredSeriesIds = { ...nextFilteredSeriesIds };
+  // Pie mode unions the stepper's per-chart filtering with the user's
+  // legend filtering, so the legend stays interactive while stepping.
+  private chartFilteredSeriesIds(i: number): FilteredSeriesIds {
+    return this.mochartDemoConfig.pieMode
+      ? { ...this.filteredSeriesIds, ...getPieStepFilteredIds(this.sliceIds, i, this.currentDataCount) }
+      : this.filteredSeriesIds;
+  }
+
+  // The chart reports the whole union it was shown; keep only the user delta.
+  private onSeriesFilter = (chartIndex: number, { filteredSeriesIds: reported }: { filteredSeriesIds: FilteredSeriesIds }): void => {
+    this.filteredSeriesIds = applyReportedSeriesFilter(this.filteredSeriesIds, this.chartFilteredSeriesIds(chartIndex), reported);
   };
 
   override render(): unknown {
     const chartWidth = Math.floor((this.size.width - scrollWidthOffset) / this.chartCols);
     const chartHeight = Math.floor(this.size.height / this.chartRows);
-    // Pie mode unions the stepper's per-chart filtering with the user's
-    // legend filtering, so the legend stays interactive while stepping.
-    const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => this.mochartDemoConfig.pieMode
-      ? { ...this.filteredSeriesIds, ...getPieStepFilteredIds(this.sliceIds, i, this.currentDataCount) }
-      : this.filteredSeriesIds;
     return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div ${ref(this.size.attach)} class="multi-charts-sizer">
         ${this.size.width > 0
@@ -274,11 +278,11 @@ export class ChartsTab extends LightElement {
                   dataProvider,
                   width: chartWidth,
                   height: chartHeight,
-                  filteredSeriesIds: chartFilteredSeriesIds(i),
+                  filteredSeriesIds: this.chartFilteredSeriesIds(i),
                   focusedCategoryIndex: this.focusedCategoryIndices[i] ?? -1,
                   focusedValueAxisId: this.focusedValueAxisId ?? null,
                   focusedSeriesId: this.focusedSeriesId ?? null,
-                  onSeriesFilter: this.onSeriesFilter,
+                  onSeriesFilter: (filterData: { filteredSeriesIds: FilteredSeriesIds }) => this.onSeriesFilter(i, filterData),
                   onFocus: (focusData: any) => this.onChartFocus(i, focusData)
                 })}
               </div>`)}

@@ -33,7 +33,7 @@ export {
 
 export { getDataProvidersForDataCount } from './multiCharts';
 
-export { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepFilteredIds, getPieSequenceSteps } from './pieDemo';
+export { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter, getPieSequenceSteps } from './pieDemo';
 export type { PieSliceInfo } from './pieDemo';
 
 export { rotationData, rotationConfigs } from './rotationConfigs';

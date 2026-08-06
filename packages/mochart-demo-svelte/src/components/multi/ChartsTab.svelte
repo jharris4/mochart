@@ -4,7 +4,7 @@
   import { Chart } from '@mochart/svelte';
   import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
+  import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter } from '@mochart/demo-common';
   import type { ShareState } from '@mochart/demo-common';
 
   import ChartsControls from './ChartsControls.svelte';
@@ -231,9 +231,17 @@
     focusedCategoryIndices = nextFocusedCategoryIndices;
   }
 
-  // The chart owns filter toggling now and reports the whole map.
-  function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }) {
-    filteredSeriesIds = { ...nextFilteredSeriesIds };
+  // Pie mode unions the stepper's per-chart filtering with the user's
+  // legend filtering, so the legend stays interactive while stepping.
+  function chartFilteredSeriesIds(i: number): FilteredSeriesIds {
+    return mochartDemoConfig.pieMode
+      ? { ...filteredSeriesIds, ...getPieStepFilteredIds(sliceIds, i, currentDataCount) }
+      : filteredSeriesIds;
+  }
+
+  // The chart reports the whole union it was shown; keep only the user delta.
+  function onSeriesFilter(chartIndex: number, { filteredSeriesIds: reported }: { filteredSeriesIds: FilteredSeriesIds }) {
+    filteredSeriesIds = applyReportedSeriesFilter(filteredSeriesIds, chartFilteredSeriesIds(chartIndex), reported);
   }
 
   // The whole grid exports as one tiled image; share captures the grid size,
@@ -274,17 +282,12 @@
       <div class="multi-charts">
         {#each dataProviders as dataProvider, i (i)}
           <div class="multi-mochart-chart">
-            <!-- Pie mode unions the stepper's per-chart filtering with the
-                 user's legend filtering, so the legend stays interactive while
-                 stepping. -->
             <Chart mochartConfig={mochartDemoConfig.mochartConfig} {dataProvider}
                    width={chartWidth} height={chartHeight}
-                   filteredSeriesIds={mochartDemoConfig.pieMode
-                     ? { ...filteredSeriesIds, ...getPieStepFilteredIds(sliceIds, i, currentDataCount) }
-                     : filteredSeriesIds}
+                   filteredSeriesIds={chartFilteredSeriesIds(i)}
                    focusedCategoryIndex={focusedCategoryIndices[i] ?? -1}
                    focusedValueAxisId={focusedValueAxisId ?? null} focusedSeriesId={focusedSeriesId ?? null}
-                   {onSeriesFilter} onFocus={(focusData) => onChartFocus(i, focusData)} />
+                   onSeriesFilter={(filterData) => onSeriesFilter(i, filterData)} onFocus={(focusData) => onChartFocus(i, focusData)} />
           </div>
         {/each}
       </div>

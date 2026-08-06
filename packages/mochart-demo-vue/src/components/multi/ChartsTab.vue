@@ -4,7 +4,7 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { Chart } from '@mochart/vue';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ChartsControls from './ChartsControls.vue';
@@ -218,9 +218,9 @@ function onChartFocus(chartIndex: number, focusData: { focusedValueAxisId?: stri
   focusedCategoryIndices.value = nextFocusedCategoryIndices;
 }
 
-// The chart owns filter toggling now and reports the whole map.
-function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }) {
-  filteredSeriesIds.value = { ...nextFilteredSeriesIds };
+// The chart reports the whole union it was shown; keep only the user delta.
+function onSeriesFilter(chartIndex: number, { filteredSeriesIds: reported }: { filteredSeriesIds: FilteredSeriesIds }) {
+  filteredSeriesIds.value = applyReportedSeriesFilter(filteredSeriesIds.value, chartFilteredSeriesIds(chartIndex), reported);
 }
 
 // Pie mode unions the stepper's per-chart filtering with the user's
@@ -272,7 +272,7 @@ function getMultiShareState(): ShareState {
                  :width="chartWidth" :height="chartHeight"
                  :filtered-series-ids="chartFilteredSeriesIds(i)" :focused-category-index="focusedCategoryIndices[i] ?? -1"
                  :focused-value-axis-id="focusedValueAxisId ?? null" :focused-series-id="focusedSeriesId ?? null"
-                 :on-series-filter="onSeriesFilter" :on-focus="(focusData: any) => onChartFocus(i, focusData)" />
+                 :on-series-filter="(filterData: any) => onSeriesFilter(i, filterData)" :on-focus="(focusData: any) => onChartFocus(i, focusData)" />
         </div>
       </div>
     </div>

@@ -63,6 +63,28 @@ export function getPieStepFilteredIds(sliceIds: string[], chartIndex: number, st
 }
 
 /**
+ * Fold a chart's reported filter map back into the user's own map. A pie-mode
+ * multi chart is shown the union of the user map and the stepper's per-chart
+ * overlay, and it reports the whole updated union on a legend toggle — only
+ * the delta against what that chart was shown belongs in the user map, or the
+ * overlay leaks into every chart's user filtering and can never step back out.
+ */
+export function applyReportedSeriesFilter(userFilteredSeriesIds: FilteredSeriesIds, shownFilteredSeriesIds: FilteredSeriesIds, reportedFilteredSeriesIds: FilteredSeriesIds): FilteredSeriesIds {
+  const next: FilteredSeriesIds = { ...userFilteredSeriesIds };
+  for (const id of Object.keys({ ...shownFilteredSeriesIds, ...reportedFilteredSeriesIds })) {
+    const shown = shownFilteredSeriesIds[id] === true;
+    const reported = reportedFilteredSeriesIds[id] === true;
+    if (reported && !shown) {
+      next[id] = true;
+    }
+    else if (!reported && shown) {
+      delete next[id];
+    }
+  }
+  return next;
+}
+
+/**
  * The single-mode slice sequence: filter the slices one at a time from the
  * last down to one remaining, then restore them in reverse, ending fully
  * restored. Returned as the filter map to show at each 2s tick.

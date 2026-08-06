@@ -4,7 +4,7 @@ import { enhanceConfig } from '@mochart/core';
 
 import demoData from '@mochart/demo-data';
 
-import { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepFilteredIds, getPieSequenceSteps } from '../src/pieDemo';
+import { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter, getPieSequenceSteps } from '../src/pieDemo';
 
 const pieDemo = demoData.demoObjectMap['pie'];
 const donutDemo = demoData.demoObjectMap['donut'];
@@ -80,5 +80,34 @@ describe('getPieSequenceSteps', () => {
   it('is empty-ended and short for a three-slice gauge', () => {
     const steps = getPieSequenceSteps(['a', 'b', 'c']);
     expect(steps.map(step => Object.keys(step).sort().join(','))).toEqual(['c', 'b,c', 'c', '']);
+  });
+});
+
+describe('applyReportedSeriesFilter', () => {
+  it('keeps only the user delta when a stepped chart reports its union', () => {
+    // chart shows step overlay {c,d}; the user filters "a" on that chart
+    const next = applyReportedSeriesFilter({}, { c: true, d: true }, { c: true, d: true, a: true });
+    expect(next).toEqual({ a: true });
+  });
+
+  it('removes a user filter the chart reports as unfiltered', () => {
+    const next = applyReportedSeriesFilter({ a: true }, { a: true, d: true }, { d: true });
+    expect(next).toEqual({});
+  });
+
+  it('treats unfiltering a step-only slice as no user filter change', () => {
+    const next = applyReportedSeriesFilter({}, { d: true }, {});
+    expect(next).toEqual({});
+  });
+
+  it('keeps a user filter that overlaps the step overlay', () => {
+    // "d" is user-filtered AND step-filtered; toggling "a" must not drop it
+    const next = applyReportedSeriesFilter({ d: true }, { c: true, d: true }, { c: true, d: true, a: true });
+    expect(next).toEqual({ d: true, a: true });
+  });
+
+  it('acts as plain replacement when no overlay is shown', () => {
+    const next = applyReportedSeriesFilter({ a: true }, { a: true }, { b: true });
+    expect(next).toEqual({ b: true });
   });
 });

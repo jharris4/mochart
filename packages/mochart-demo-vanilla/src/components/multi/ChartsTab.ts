@@ -1,5 +1,5 @@
 
-import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds } from '@mochart/demo-common';
+import { getChartExportOptions, buildMochartDemoConfig, consumeShareState, getDataProvidersForDataCount, getPieSlices, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 import { exportChartsPNG, exportChartsSVG } from '@mochart/export';
 
@@ -196,9 +196,17 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
     syncCharts();
   }
 
-  // The chart owns filter toggling now and reports the whole map.
-  function onSeriesFilter({ filteredSeriesIds: nextFilteredSeriesIds }: { filteredSeriesIds: FilteredSeriesIds }): void {
-    filteredSeriesIds = { ...nextFilteredSeriesIds };
+  // Pie mode unions the stepper's per-chart filtering with the user's
+  // legend filtering, so the legend stays interactive while stepping.
+  function chartFilteredSeriesIds(i: number): FilteredSeriesIds {
+    return mochartDemoConfig.pieMode
+      ? { ...filteredSeriesIds, ...getPieStepFilteredIds(sliceIds, i, currentDataCount) }
+      : filteredSeriesIds;
+  }
+
+  // The chart reports the whole union it was shown; keep only the user delta.
+  function onChartSeriesFilter(chartIndex: number, { filteredSeriesIds: reported }: { filteredSeriesIds: FilteredSeriesIds }): void {
+    filteredSeriesIds = applyReportedSeriesFilter(filteredSeriesIds, chartFilteredSeriesIds(chartIndex), reported);
     syncCharts();
   }
 
@@ -271,12 +279,6 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
       host.destroy();
       host.el.parentElement?.remove();
     }
-    // Pie mode unions the stepper's per-chart filtering with the user's
-    // legend filtering, so the legend stays interactive while stepping.
-    const chartFilteredSeriesIds = (i: number): FilteredSeriesIds => mochartDemoConfig.pieMode
-      ? { ...filteredSeriesIds, ...getPieStepFilteredIds(sliceIds, i, currentDataCount) }
-      : filteredSeriesIds;
-
     while (chartHosts.length < dataProviders.length) {
       const i = chartHosts.length;
       const host = mountChart({
@@ -288,7 +290,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         focusedCategoryIndex: focusedCategoryIndices[i] ?? -1,
         focusedValueAxisId: focusedValueAxisId ?? null,
         focusedSeriesId: focusedSeriesId ?? null,
-        onSeriesFilter,
+        onSeriesFilter: (filterData: { filteredSeriesIds: FilteredSeriesIds }) => onChartSeriesFilter(i, filterData),
         onFocus: (focusData: any) => onChartFocus(i, focusData)
       });
       chartHosts.push(host);
@@ -304,7 +306,7 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
         focusedCategoryIndex: focusedCategoryIndices[i] ?? -1,
         focusedValueAxisId: focusedValueAxisId ?? null,
         focusedSeriesId: focusedSeriesId ?? null,
-        onSeriesFilter,
+        onSeriesFilter: (filterData: { filteredSeriesIds: FilteredSeriesIds }) => onChartSeriesFilter(i, filterData),
         onFocus: (focusData: any) => onChartFocus(i, focusData)
       });
     });
