@@ -858,6 +858,30 @@ describe('legend focus on click', () => {
   });
 });
 
+// Regression: a value-axis click always emitted its own id, so the focus set
+// by a click could never be cleared by repeating it like every other
+// click-to-focus site.
+describe('value axis focus on click', () => {
+  it('moves the focus to the clicked axis and toggles the focused one', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      series: [{ property: 'sales', axis: 'left' }, { property: 'costs', axis: 'right' }],
+      valueAxes: [{ id: 'left', focusOnClick: true }, { id: 'right', focusOnClick: true }]
+    }), { onFocus: focus => { focuses.push(focus); } });
+
+    // the axis class is on the outer group; the event listeners live on its inner group
+    const axisFor = (id: string) => container.querySelector('.mochart-value-axis-' + id + ' > g')!;
+    axisFor('left').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedValueAxisId).toBe('left');
+
+    axisFor('right').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedValueAxisId).toBe('right');
+
+    axisFor('right').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedValueAxisId).toBeNull();
+  });
+});
+
 // Regression: removing the tooltip's category left tooltipVisible true at index
 // -1, so the next plot click toggled an invisible tooltip and was swallowed.
 describe('tooltip on a removed category', () => {

@@ -65,6 +65,7 @@ export default class AxisContainer extends Renderer<AxisContainerProps> {
           focusPercentages: valueAxisComputedFocusDomainPercentages[id] ?? [], valueAxisData,
           axisFocusPercentage, seriesFocusPercentage,
           titleClipPathUniqueId: valueAxisTitleClipPathUniqueIds[id],
+          focusedValueAxisId: focusData.focusedValueAxisId,
           plotLayoutInfo, onFocus }
       };
     }));

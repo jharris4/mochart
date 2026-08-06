@@ -19,6 +19,7 @@ interface ValueAxisProps {
   seriesCount: number;
   valueAxisData: ValueAxisData & { axisTickData: Record<string, AxisTick[]> };
   titleClipPathUniqueId: string;
+  focusedValueAxisId: string | null;
   onFocus: (focus: ValueAxisFocus) => void;
 }
 interface ValueAxisState {
@@ -41,15 +42,15 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
     if (prevProps === null) {
       return this.buildEventListeners(props);
     }
-    const { valueAxisConfig, onFocus } = props;
-    if (valueAxisConfig !== prevProps.valueAxisConfig || onFocus !== prevProps.onFocus) {
+    const { valueAxisConfig, onFocus, focusedValueAxisId } = props;
+    if (valueAxisConfig !== prevProps.valueAxisConfig || onFocus !== prevProps.onFocus || focusedValueAxisId !== prevProps.focusedValueAxisId) {
       return this.buildEventListeners(props);
     }
     return null;
   }
 
   buildEventListeners(props: ValueAxisProps): ValueAxisState {
-    const { valueAxisConfig, onFocus } = props;
+    const { valueAxisConfig, onFocus, focusedValueAxisId } = props;
     const valueAxisId = valueAxisConfig.id;
 
     let onValueAxisEnter = noOp;
@@ -61,7 +62,8 @@ export default class ValueAxis extends Renderer<ValueAxisProps, ValueAxisState> 
       onValueAxisLeave = () => { onFocus({ valueAxisId: null }); };
     }
     if (valueAxisConfig.focusOnClick) {
-      onValueAxisClick = () => { onFocus({ valueAxisId }); }; // TODO what about toggle?
+      // second click on the focused axis toggles the focus off, matching series/legend clicks
+      onValueAxisClick = () => { onFocus({ valueAxisId: valueAxisId === focusedValueAxisId ? null : valueAxisId }); };
     }
 
     return { onValueAxisEnter, onValueAxisLeave, onValueAxisClick };
