@@ -114,8 +114,15 @@ const chart = createChart(container, { mochartConfig, dataProvider, width: 640, 
 
 Both return a `ChartHandle`:
 
-- `update(nextProps)` — merge new props into the chart; config, data, and size
-  changes animate when animation is enabled
+- `update(nextProps)` — merge new props into the chart; config and data
+  changes animate when animation is enabled, width/height changes re-layout
+  instantly. Change detection is by object identity — pass new references,
+  or use `refresh` after mutating in place
+- `replace(nextProps)` — replace the props wholesale; a key absent from
+  `nextProps` is unset and returns to chart-managed behavior, where `update`
+  would keep its previous value
+- `refresh()` — re-read the current data without a new reference; the escape
+  hatch for hosts that mutate the `data` array in place
 - `destroy()` — cancel running tweens and remove the chart's DOM
 
 ## Configuration
