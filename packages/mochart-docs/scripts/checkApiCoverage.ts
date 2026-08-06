@@ -1,17 +1,22 @@
-// Checks that the public API is documented. Four ratchets, matching how the
+// Checks that the public API is documented. Five ratchets, matching how the
 // pieces of the reference are produced:
 //
 // - chart props, callbacks, and payload fields must appear in the generated
 //   api-reference model (the generator itself fails when a member has no
 //   JSDoc or its interface has no page group, so this is the backstop for a
 //   member quietly moving to an undocumented interface);
-// - public exports from core's index.ts — values and named types alike —
-//   must be mentioned in a docs page (the `export type *` wildcard is the
-//   exception: that surface is the generated config reference / the .d.ts);
+// - public exports from core's index.ts — values and named types alike, in
+//   any export syntax, resolved through the TypeScript checker — must be
+//   mentioned in a docs page. Exports declared under src/types/ are the
+//   exception: that surface is the generated config reference / the .d.ts;
 // - `ChartHandle` methods must appear in a docs page as a call —
 //   `` `name(` `` — so renaming a method breaks the check;
-// - @mochart/export's declared exports must be mentioned in a docs page
-//   (the binding packages are covered by the framework-props generator).
+// - @mochart/export's exports (checker-resolved, like core's) must be
+//   mentioned in a docs page (the binding packages are covered by the
+//   framework-props generator);
+// - the non-JS surface — core's subpath exports (the optional stylesheet)
+//   and the IIFE script-tag artifact — must be mentioned in a docs page.
+//   (@mochart/editor is exempt while private; add it here when it ships.)
 //
 // Names that are deliberately undocumented go in `undocumented` below, with a
 // reason. Usage: tsx scripts/checkApiCoverage.ts (run `npm run gen` first).
@@ -19,6 +24,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const docsDir = path.join(scriptDir, '..');
@@ -83,27 +89,40 @@ function readDocumentedPropKeys(): Set<string> {
   return keys;
 }
 
-function exportedBraceNames(source: string, wantTypeOnly: boolean): string[] {
-  const names = new Set<string>();
-  const blocks = source.matchAll(/export\s+(type\s+)?\{([^}]*)\}/g);
-  for (const [, typeOnly, body] of blocks) {
-    if ((typeOnly !== undefined) !== wantTypeOnly) continue;
-    for (const entry of (body ?? '').split(',')) {
-      const trimmed = entry.trim();
-      if (trimmed === '') continue;
-      // `default as Chart` / `foo as bar` — the public name is the alias.
-      const aliased = /\sas\s+(\w+)$/.exec(trimmed);
-      names.add(aliased?.[1] ?? trimmed);
-    }
+/**
+ * Every export of the module at `entryPath`, resolved through the TypeScript
+ * checker so the syntax cannot create blind spots: brace re-exports, inline
+ * declarations, `export * from`, and `export type *` all land in the
+ * module's export table. Each name carries the files its (alias-resolved)
+ * declarations live in, so callers can exempt whole surfaces by path.
+ */
+function moduleExports(entryPath: string): { name: string; declarationFiles: string[] }[] {
+  const program = ts.createProgram([entryPath], {
+    module: ts.ModuleKind.ESNext,
+    target: ts.ScriptTarget.ES2020,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    customConditions: ['development'],
+    skipLibCheck: true
+  });
+  const checker = program.getTypeChecker();
+  const sourceFile = program.getSourceFile(entryPath);
+  const moduleSymbol = sourceFile === undefined ? undefined : checker.getSymbolAtLocation(sourceFile);
+  if (moduleSymbol === undefined) {
+    console.error(`✗ could not resolve the module at ${entryPath}`);
+    process.exit(1);
   }
-  return [...names].sort();
-}
-
-/** Exports declared in place: `export function foo`, `export interface Foo`, … */
-function declaredExportNames(source: string): string[] {
-  return [...source.matchAll(/^export\s+(?:async\s+)?(?:function|interface|class|const|enum)\s+(\w+)/gm)]
-    .flatMap(match => match[1] ?? [])
-    .sort();
+  const exports = checker.getExportsOfModule(moduleSymbol).map(symbol => {
+    const resolved = (symbol.flags & ts.SymbolFlags.Alias) !== 0 ? checker.getAliasedSymbol(symbol) : symbol;
+    return {
+      name: symbol.name,
+      declarationFiles: (resolved.declarations ?? []).map(declaration => declaration.getSourceFile().fileName)
+    };
+  });
+  if (exports.length === 0) {
+    console.error(`✗ found no exports at ${entryPath} — the coverage check would be vacuous`);
+    process.exit(1);
+  }
+  return exports.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function interfaceMemberNames(source: string, interfaceName: string, sourceLabel: string): string[] {
@@ -132,11 +151,8 @@ function interfaceMemberNames(source: string, interfaceName: string, sourceLabel
 
 const docsText = readDocsText();
 const documentedPropKeys = readDocumentedPropKeys();
-const indexSource = fs.readFileSync(path.join(coreSrcDir, 'index.ts'), 'utf8');
 const chartTypesSource = fs.readFileSync(path.join(coreSrcDir, 'types', 'chart.ts'), 'utf8');
 const createChartSource = fs.readFileSync(path.join(coreSrcDir, 'createChart.ts'), 'utf8');
-const exportIndexSource = fs.readFileSync(
-  path.join(docsDir, '..', 'mochart-export', 'src', 'index.ts'), 'utf8');
 
 const missing: { kind: string; name: string; where: string }[] = [];
 const seen = new Set<string>();
@@ -156,15 +172,32 @@ for (const interfaceName of propInterfaces) {
 for (const member of interfaceMemberNames(createChartSource, 'ChartHandle', 'createChart.ts')) {
   check('ChartHandle', member, docsText.includes('`' + member + '('), 'any docs page as a `' + member + '(…)` call');
 }
-for (const name of exportedBraceNames(indexSource, false)) {
+// Types declared under src/types are the `export type *` wildcard surface —
+// the generated config reference / shipped .d.ts, not docs-page material.
+const coreTypesDir = path.join(coreSrcDir, 'types') + path.sep;
+for (const { name, declarationFiles } of moduleExports(path.join(coreSrcDir, 'index.ts'))) {
+  if (declarationFiles.length > 0 && declarationFiles.every(file => file.startsWith(coreTypesDir))) continue;
   check('export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
 }
-for (const name of exportedBraceNames(indexSource, true)) {
-  check('type export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
-}
-for (const name of declaredExportNames(exportIndexSource)) {
+for (const { name } of moduleExports(path.join(docsDir, '..', 'mochart-export', 'src', 'index.ts'))) {
   check('@mochart/export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
 }
+
+// Non-JS surface: subpath exports (the optional stylesheet) and the IIFE
+// script-tag artifact.
+const corePackageJson = JSON.parse(fs.readFileSync(path.join(corePackageDir, 'package.json'), 'utf8')) as { exports?: Record<string, unknown> };
+for (const subpath of Object.keys(corePackageJson.exports ?? {})) {
+  if (subpath === '.') continue;
+  const specifier = '@mochart/core' + subpath.slice(1);
+  check('subpath export', specifier, docsText.includes(specifier), 'any docs page');
+}
+const viteConfigSource = fs.readFileSync(path.join(corePackageDir, 'vite.config.ts'), 'utf8');
+const iifeArtifact = /'([\w.-]+\.iife\.js)'/.exec(viteConfigSource)?.[1];
+if (iifeArtifact === undefined) {
+  console.error('✗ could not find the IIFE artifact name in core vite.config.ts');
+  process.exit(1);
+}
+check('script-tag artifact', iifeArtifact, docsText.includes(iifeArtifact), 'any docs page');
 
 const stale = Object.keys(undocumented).filter(name => !seen.has(name));
 

@@ -127,8 +127,8 @@ See [The config model](/guide/config-model) for what "enhanced" means and
 ## Browser support
 
 Mochart targets modern evergreen browsers (Chrome/Edge, Firefox, Safari);
-the published builds are ES modules (plus an IIFE bundle for script
-tags) targeting ES2020. Everything the core
+the published builds are ES modules (plus an IIFE bundle for script tags,
+`dist/mochart.iife.js`, exposing the global `mochart`) targeting ES2020. Everything the core
 uses — SVG rendering, SVG text measurement (`getBBox`,
 `getComputedTextLength`) for layout and truncation, and
 `requestAnimationFrame` for animation — is baseline in that set, so no
