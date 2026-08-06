@@ -20,7 +20,7 @@ export {
   slowAnimationConfig, formatMochartDemoConfig,
   copyDemoConfig, parseConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, isConfigSectionActive
 } from './configEditing';
-export type { ConfigTextToggle, DemoConfigView } from './configEditing';
+export type { DemoConfigView } from './configEditing';
 
 export { generateDemoDataProvider } from './chartTypeGenerators';
 
