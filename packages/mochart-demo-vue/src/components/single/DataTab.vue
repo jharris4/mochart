@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, watch } from 'vue';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -43,7 +43,7 @@ function renderView(fullRows: DataRow[]): void {
 }
 
 function parseCurrentFullData(): ReturnType<typeof parseFullData> {
-  return parseFullData(dataText.value, fullData, viewUsedProperties);
+  return parseFullData(dataText.value, fullData, viewUsedProperties, getCategoryProperty(props.config));
 }
 
 renderView(props.data);

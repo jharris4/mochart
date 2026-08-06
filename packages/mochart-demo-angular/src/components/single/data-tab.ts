@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { TextAreaContent } from '../misc/text-area-content';
@@ -127,7 +127,7 @@ export class DataTab implements OnInit, OnChanges {
   }
 
   private parseCurrentFullData(): ParsedFullData {
-    return parseFullData(this.dataText(), this.fullData, this.viewUsedProperties);
+    return parseFullData(this.dataText(), this.fullData, this.viewUsedProperties, getCategoryProperty(this.config));
   }
 
   onTextChange = (nextDataText: string): void => {

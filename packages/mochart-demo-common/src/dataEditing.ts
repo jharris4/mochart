@@ -60,6 +60,11 @@ export function getJsonError(text: string): string | null {
   }
 }
 
+/** The config's category property, for category-value row matching. */
+export function getCategoryProperty(config: DemoConfig): string | null {
+  return (config as { categoryAxis?: { property?: string } }).categoryAxis?.property ?? null;
+}
+
 export type ParsedFullData = { full: DataRow[] } | { error: 'json' | 'data' };
 
 /**
@@ -93,8 +98,7 @@ export type DataApplyResult =
 export function applyDataEdit(text: string, fullData: DataRow[], viewUsedProperties: Set<string> | null, config: DemoConfig): DataApplyResult {
   // rows are matched by category value when restoring hidden properties, so
   // structural view edits (delete/reorder) keep hidden columns with their row
-  const categoryProperty = (config as { categoryAxis?: { property?: string } }).categoryAxis?.property ?? null;
-  const parsed = parseFullData(text, fullData, viewUsedProperties, categoryProperty);
+  const parsed = parseFullData(text, fullData, viewUsedProperties, getCategoryProperty(config));
   if ('error' in parsed) {
     if (parsed.error === 'json') {
       console.warn('Invalid Data JSON');

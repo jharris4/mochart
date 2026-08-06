@@ -11,7 +11,7 @@ export { collectUsedDataProperties } from './unusedDataProperties';
 
 export {
   formatData, formatDataView,
-  getJsonError, parseFullData, applyDataEdit,
+  getJsonError, getCategoryProperty, parseFullData, applyDataEdit,
   getCategoryIndexTitle, getSeriesIndexTitle
 } from './dataEditing';
 export type { ParsedFullData } from './dataEditing';

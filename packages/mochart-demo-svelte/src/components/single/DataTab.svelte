@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+  import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -42,7 +42,7 @@
   }
 
   function parseCurrentFullData(): ReturnType<typeof parseFullData> {
-    return parseFullData(dataText, fullData, viewUsedProperties);
+    return parseFullData(dataText, fullData, viewUsedProperties, getCategoryProperty(config));
   }
 
   // Props intentionally seed local state with their initial value only; the

@@ -1,4 +1,4 @@
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, isPhoneViewport, parseFullData, watchPhoneViewport } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, isPhoneViewport, getCategoryProperty, parseFullData, watchPhoneViewport } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer, textAreaContent } from '../misc/dom';
 import { overflowMenu } from '../misc/OverflowMenu';
@@ -56,7 +56,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   }
 
   function parseCurrentFullData(): ReturnType<typeof parseFullData> {
-    return parseFullData(textArea.getValue(), fullData, viewUsedProperties);
+    return parseFullData(textArea.getValue(), fullData, viewUsedProperties, getCategoryProperty(config));
   }
 
   function resetData(): void {

@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 
 import TextAreaContent from '../misc/TextAreaContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -40,7 +40,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const footerRef = useRef<HTMLDivElement>(null);
 
-  const parseCurrentFullData = (text: string) => parseFullData(text, fullDataRef.current, viewUsedRef.current);
+  const parseCurrentFullData = (text: string) => parseFullData(text, fullDataRef.current, viewUsedRef.current, getCategoryProperty(config ?? {}));
 
   // Reformat when the incoming data changes.
   const prevData = useRef(data);

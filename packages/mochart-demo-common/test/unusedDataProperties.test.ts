@@ -3,6 +3,7 @@ import { enhanceConfig } from '@mochart/core';
 import type { MochartInputConfig } from '@mochart/core';
 
 import { collectUsedDataProperties, filterDataProperties } from '../src/unusedDataProperties';
+import { parseFullData } from '../src/dataEditing';
 import { generateDemoDataProvider } from '../src/chartTypeGenerators';
 
 const config = enhanceConfig({
@@ -54,5 +55,35 @@ describe('generic random generation for tooltip and error-bar properties', () =>
     const provider = generateDemoDataProvider(undefined, config, randomConfig as never, 1);
     const keys = Object.keys(provider.seriesValues ?? {});
     expect(keys).toEqual(expect.arrayContaining(['a', 'aInfo', 'aLow', 'aHigh']));
+  });
+});
+
+// Regression: the Unused toggle parsed the view without the category property,
+// so deleting/reordering filtered rows reattached hidden columns by index.
+describe('parseFullData row matching', () => {
+  const fullData = [
+    { month: 'Jan', sales: 10, note: 'jan-note' },
+    { month: 'Feb', sales: 20, note: 'feb-note' },
+    { month: 'Mar', sales: 30, note: 'mar-note' }
+  ];
+  const used = new Set(['month', 'sales']);
+  // the filtered view with Feb deleted and Mar moved first
+  const editedView = JSON.stringify([
+    { month: 'Mar', sales: 31 },
+    { month: 'Jan', sales: 11 }
+  ]);
+
+  it('keeps hidden columns with their row across delete/reorder edits', () => {
+    expect(parseFullData(editedView, fullData, used, 'month')).toEqual({ full: [
+      { month: 'Mar', sales: 31, note: 'mar-note' },
+      { month: 'Jan', sales: 11, note: 'jan-note' }
+    ] });
+  });
+
+  it('falls back to index matching without a category property', () => {
+    expect(parseFullData(editedView, fullData, used)).toEqual({ full: [
+      { month: 'Mar', sales: 31, note: 'jan-note' },
+      { month: 'Jan', sales: 11, note: 'feb-note' }
+    ] });
   });
 });

@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -61,7 +61,7 @@ export class DataTab extends LightElement {
   }
 
   private parseCurrentFullData(): ParsedFullData {
-    return parseFullData(this.dataText, this.fullData, this.viewUsedProperties);
+    return parseFullData(this.dataText, this.fullData, this.viewUsedProperties, getCategoryProperty(this.config));
   }
 
   private onTextChange = (nextDataText: string): void => {
