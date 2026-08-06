@@ -105,9 +105,15 @@ describe('truncateSVGText', () => {
   });
 
   it('makes an initial proportional guess when over the limit for the first time', () => {
-    // length 200, max 100 => keep ~half: floor((100/200)*11)=5 chars of "Hello World"
+    // length 200, max 100 => keep ~half minus the suffix: floor((100/200)*11)-1=4 chars of "Hello World"
     const out = truncateSVGText(el(200), 100, ELLIPSIS, { text: 'Hello World' });
-    expect(out).toEqual({ text: 'Hello World', truncatedText: 'Hello', lastText: 'Hello World' });
+    expect(out).toEqual({ text: 'Hello World', truncatedText: 'Hell', lastText: 'Hello World' });
+  });
+
+  it('guesses from the rendered truncated length after a reset', () => {
+    // rendered is "Hello Wo" + ellipsis (9 chars) at length 180, max 60 => floor((60/180)*9)-1=2 chars
+    const out = truncateSVGText(el(180), 60, ELLIPSIS, { text: 'Hello World', truncatedText: 'Hello Wo' });
+    expect(out).toEqual({ text: 'Hello World', truncatedText: 'He', lastText: 'Hello World' });
   });
 
   it('shrinks by one character on a subsequent over-limit pass', () => {
@@ -136,7 +142,7 @@ describe('updateTruncation', () => {
   it('measures and truncates a single element that overflows', () => {
     const { checkTruncation, truncationData } = updateTruncation(ELLIPSIS, null, 'Hello World', 100, el(200));
     expect(checkTruncation).toBe(true);
-    expect(truncationData).toEqual({ text: 'Hello World', truncatedText: 'Hello', lastText: 'Hello World' });
+    expect(truncationData).toEqual({ text: 'Hello World', truncatedText: 'Hell', lastText: 'Hello World' });
   });
 
   it('seeds and measures an array of elements', () => {

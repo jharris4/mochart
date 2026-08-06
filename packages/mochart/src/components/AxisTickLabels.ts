@@ -215,11 +215,12 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
       }
 
       const { checkTruncation, truncationData } = updateTruncation(tickLabelTruncationValue, this.state.truncationData, axisTickLabels, maxLength, domElements);
+      // fields must be written before setState: its commit flush runs the next measure pass synchronously
+      this.truncationData = truncationData;
+      this.checkTruncation = checkTruncation;
       if (checkTruncation) {
         this.setState({ truncationData });
-        this.truncationData = truncationData;
       }
-      this.checkTruncation = checkTruncation;
     }
   }
 }

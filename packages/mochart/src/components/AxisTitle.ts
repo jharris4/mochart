@@ -109,11 +109,12 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
       const maxLength = axisLayoutInfo.vertical ? axisLayoutInfo.height : axisLayoutInfo.width;
       const { title, titleTruncationValue } = axisConfig;
       const { checkTruncation, truncationData } = updateTruncation(titleTruncationValue, this.state.truncationData, title!, maxLength, domElement);
+      // fields must be written before setState: its commit flush runs the next measure pass synchronously
+      this.truncationData = truncationData;
+      this.checkTruncation = checkTruncation;
       if (checkTruncation) {
         this.setState({ truncationData });
-        this.truncationData = truncationData;
       }
-      this.checkTruncation = checkTruncation;
     }
   }
 }

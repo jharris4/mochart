@@ -108,7 +108,7 @@ export function updateTruncation(truncationValue: string, oldTruncationData: Tru
   };
 }
 
-export function truncateSVGText(textElement: SVGTextContentElement, maxTextLength: number, _truncationText: string, truncationData: TruncationData): TruncationData {
+export function truncateSVGText(textElement: SVGTextContentElement, maxTextLength: number, truncationText: string, truncationData: TruncationData): TruncationData {
   const { text, truncatedText = text, lastText } = truncationData;
   if (text.length === 0) {
     return {
@@ -123,7 +123,10 @@ export function truncateSVGText(textElement: SVGTextContentElement, maxTextLengt
   const textLength = textElement.getComputedTextLength();
   if (textLength > maxTextLength) {
     if (lastText === undefined) {
-      const initialTruncatedLength = Math.min(text.length -1, Math.floor((maxTextLength / textLength) * text.length));
+      // ratio against what is actually rendered (truncatedText + suffix after a reset, not the full text)
+      const renderedLength = truncatedText === text ? text.length : truncatedText.length + truncationText.length;
+      const initialTruncatedLength = Math.min(text.length - 1,
+        Math.max(0, Math.floor((maxTextLength / textLength) * renderedLength) - truncationText.length));
       return {
         text,
         truncatedText: text.substr(0, initialTruncatedLength),

@@ -281,11 +281,12 @@ class LegendItem extends Renderer<LegendItemProps, LegendItemState> {
       const title = getSeriesTitle(seriesConfig);
       const maxLength = Math.max(width, 0);
       const { checkTruncation, truncationData } = updateTruncation(truncationValue, this.state.truncationData, title, maxLength, domElement);
+      // fields must be written before setState: its commit flush runs the next measure pass synchronously
+      this.truncationData = truncationData;
+      this.checkTruncation = checkTruncation;
       if (checkTruncation) {
         this.setState({ truncationData });
-        this.truncationData = truncationData;
       }
-      this.checkTruncation = checkTruncation;
     }
   }
 }
