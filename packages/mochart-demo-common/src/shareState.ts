@@ -68,6 +68,16 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && isFinite(value);
 }
 
+// Hand-edited links bypass the demos' interval inputs; restore within the same 5–60000ms limits.
+function clampInterval(value: number): number {
+  return Math.min(60000, Math.max(5, value));
+}
+
+// Playback steps are counted up from 0; hand-edited fractions/negatives seek nonsense positions.
+function normalizeStep(value: number): number {
+  return Math.max(0, Math.round(value));
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -96,14 +106,14 @@ export function decodeShareState(encoded: string): ShareState | null {
         if (!isFiniteNumber(rows) || !isFiniteNumber(cols) || !isFiniteNumber(step) || !isFiniteNumber(interval)) {
           return null;
         }
-        return { mode: 'multi', rows, cols, step, interval };
+        return { mode: 'multi', rows, cols, step: normalizeStep(step), interval: clampInterval(interval) };
       }
       case 'random': {
         const { randomConfig, applyReuse, interval } = parsed;
         if (!isPlainObject(randomConfig) || typeof applyReuse !== 'boolean' || !isFiniteNumber(interval)) {
           return null;
         }
-        return { mode: 'random', randomConfig: randomConfig as unknown as DemoRandomConfig, applyReuse, interval };
+        return { mode: 'random', randomConfig: randomConfig as unknown as DemoRandomConfig, applyReuse, interval: clampInterval(interval) };
       }
       default:
         return null;

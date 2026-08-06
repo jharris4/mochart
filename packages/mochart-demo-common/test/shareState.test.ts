@@ -41,6 +41,17 @@ describe('shareState codec', () => {
     expect(decodeShareState(encodeShareState(randomState))).toEqual(randomState);
   });
 
+  it('clamps a hand-edited interval into the input limits', () => {
+    expect(decodeShareState(encodeShareState({ ...multiState, interval: 0 } as ShareState))).toMatchObject({ interval: 5 });
+    expect(decodeShareState(encodeShareState({ ...multiState, interval: 999999 } as ShareState))).toMatchObject({ interval: 60000 });
+    expect(decodeShareState(encodeShareState({ ...randomState, interval: -100 } as ShareState))).toMatchObject({ interval: 5 });
+  });
+
+  it('normalizes a hand-edited step to a non-negative integer', () => {
+    expect(decodeShareState(encodeShareState({ ...multiState, step: -3.7 } as ShareState))).toMatchObject({ step: 0 });
+    expect(decodeShareState(encodeShareState({ ...multiState, step: 4.4 } as ShareState))).toMatchObject({ step: 4 });
+  });
+
   it('produces URL-safe output', () => {
     const encoded = encodeShareState(singleState);
     expect(encoded).toMatch(/^[A-Za-z0-9_-]+$/);
