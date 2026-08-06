@@ -78,7 +78,9 @@ container, so size it however you like and the chart follows it:
 Both components emit the [chart callbacks](/guide/interaction#callbacks) as
 outputs, dropping the core `on` prefix — `onChartClick` becomes `chartClick`,
 `onSliceClick` becomes `sliceClick` — usable as `(chartClick)="..."` in
-templates; only subscribed outputs are wired into the chart. They also accept
+templates; only subscribed outputs are wired into the chart. The one exception
+is `onFocus`, exposed as `focusChange` — a bare `(focus)` would collide with
+the native focus event. They also accept
 a placeholder input per state. Each placeholder input takes an **Angular
 component class** whose declared inputs among the
 [chart state context](/guide/chart-states) names (`width`, `height`,
