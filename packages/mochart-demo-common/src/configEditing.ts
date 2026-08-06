@@ -1,3 +1,6 @@
+import buildMochartDemoConfig from './mochartDemoConfig';
+import { demoText } from './demoText';
+
 import type { DemoConfig, MochartDemoConfig } from './types';
 
 // The with/without-defaults config views the editor toggles between. Config
@@ -38,6 +41,39 @@ export function parseConfig(configText: string): DemoConfig | null {
     console.warn('Invalid Chart Config JSON: ' + configText);
     return null;
   }
+}
+
+export type ConfigTextToggle =
+  { demoConfig: DemoConfigView; text: string; error: null } |
+  { demoConfig: null; text: null; error: string };
+
+/**
+ * Run an editor toggle against the CURRENT config text (the Defaults toggle's
+ * pattern): parse and rebuild first, so unapplied textarea edits survive the
+ * toggle instead of being overwritten from the last built snapshot.
+ */
+export function toggleConfigFromText(configText: string, showDefaults: boolean, transform: (current: DemoConfigView) => DemoConfigView): ConfigTextToggle {
+  let parsed: DemoConfig;
+  try {
+    parsed = JSON.parse(configText);
+  }
+  catch {
+    console.warn('Invalid Chart Config JSON: ' + configText);
+    return { demoConfig: null, text: null, error: demoText.errors.invalidJson };
+  }
+  const build = buildMochartDemoConfig(parsed);
+  if (!build.configValidation.valid) {
+    const { errors, warnings } = build.configValidation;
+    if (errors.length > 0) {
+      console.warn('errors: ', errors);
+    }
+    if (warnings.length > 0) {
+      console.warn('warnings: ', warnings);
+    }
+    return { demoConfig: null, text: null, error: demoText.errors.invalidChartConfig };
+  }
+  const demoConfig = transform(copyDemoConfig(build));
+  return { demoConfig, text: formatMochartDemoConfig(demoConfig, showDefaults), error: null };
 }
 
 export function toggleConfigProperty(currentDemoConfig: DemoConfigView, section: string, key: string, defaultValue: unknown): DemoConfigView {

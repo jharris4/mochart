@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -79,14 +79,26 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
 
   const toggleConfigDefaults = () => updateShowDefaults(!state.showDefaults);
 
+  // Toggle against the current text (the Defaults toggle's pattern), so
+  // unapplied textarea edits survive the toggle instead of being overwritten.
+  const applyConfigToggle = (transform: (current: DemoConfigView) => DemoConfigView) => {
+    const result = toggleConfigFromText(state.configText, state.showDefaults, transform);
+    if (result.error !== null) {
+      setErrorMessage(result.error);
+    }
+    else {
+      const { demoConfig, text } = result;
+      setErrorMessage(null);
+      setState(prev => ({ ...prev, demoConfig, configText: text }));
+    }
+  };
+
   const toggleConfigInverted = () => {
-    const demoConfig = toggleConfigProperty(state.demoConfig, 'plot', 'inverted', true);
-    setState(prev => ({ ...prev, demoConfig, configText: formatMochartDemoConfig(demoConfig, prev.showDefaults) }));
+    applyConfigToggle(current => toggleConfigProperty(current, 'plot', 'inverted', true));
   };
 
   const toggleConfigAnimationSlow = () => {
-    const demoConfig = toggleConfigSection(state.mochartDemoConfig, state.demoConfig, 'animation', slowAnimationConfig);
-    setState(prev => ({ ...prev, demoConfig, configText: formatMochartDemoConfig(demoConfig, prev.showDefaults) }));
+    applyConfigToggle(current => toggleConfigSection(state.mochartDemoConfig, current, 'animation', slowAnimationConfig));
   };
 
   const applyConfig = () => {

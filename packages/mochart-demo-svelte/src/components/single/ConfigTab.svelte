@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
   import TextAreaContent from '../misc/TextAreaContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -10,6 +10,7 @@
   import OverflowMenu from '../misc/OverflowMenu.svelte';
   import { createPhoneViewport } from '../misc/phoneViewport.svelte';
 
+  import type { DemoConfigView } from '@mochart/demo-common';
   import type { DemoConfig } from '../../types';
 
   interface Props {
@@ -89,14 +90,26 @@
     updateShowDefaults(!showDefaults);
   }
 
+  // Toggle against the current text (the Defaults toggle's pattern), so
+  // unapplied textarea edits survive the toggle instead of being overwritten.
+  function applyConfigToggle(transform: (current: DemoConfigView) => DemoConfigView) {
+    const result = toggleConfigFromText(configText, showDefaults, transform);
+    if (result.error !== null) {
+      errorMessage = result.error;
+    }
+    else {
+      demoConfig = result.demoConfig;
+      configText = result.text;
+      errorMessage = null;
+    }
+  }
+
   function toggleConfigInverted() {
-    demoConfig = toggleConfigProperty(demoConfig, 'plot', 'inverted', true) ?? demoConfig;
-    configText = formatMochartDemoConfig(demoConfig, showDefaults);
+    applyConfigToggle(current => toggleConfigProperty(current, 'plot', 'inverted', true));
   }
 
   function toggleConfigAnimationSlow() {
-    demoConfig = toggleConfigSection(mochartDemoConfig, demoConfig, 'animation', slowAnimationConfig) ?? demoConfig;
-    configText = formatMochartDemoConfig(demoConfig, showDefaults);
+    applyConfigToggle(current => toggleConfigSection(mochartDemoConfig, current, 'animation', slowAnimationConfig));
   }
 
   function applyConfig() {

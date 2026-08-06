@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { copyDemoConfig, isConfigSectionActive, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
+import { copyDemoConfig, isConfigSectionActive, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
 import { restoreHiddenDataProperties } from '../src/unusedDataProperties';
 import { formatData, stringifyWithSpacedCommas } from '../src/dataEditing';
 import type { MochartDemoConfig } from '../src/types';
@@ -121,5 +121,55 @@ describe('toggleConfigProperty effective defaults', () => {
     const toggled = toggleConfigProperty(view, 'plot', 'inverted', true);
     expect(toggled.configWithoutDefaults.plot).toEqual({ inverted: false });
     expect(toggled.configWithDefaults.plot).toEqual({ inverted: false, other: 1 });
+  });
+});
+
+// Regression: the Invert/Slow toggles rebuilt the textarea from the last built
+// snapshot, silently discarding unapplied edits and reverting applied ones.
+describe('toggleConfigFromText', () => {
+  const baseText = JSON.stringify({
+    categoryAxis: { property: 'month' },
+    series: [{ property: 'sales' }]
+  });
+  const invert = (current: Parameters<typeof toggleConfigProperty>[0]) =>
+    toggleConfigProperty(current, 'plot', 'inverted', true);
+
+  it('keeps an unapplied edit through a toggle', () => {
+    const edited = JSON.stringify({
+      categoryAxis: { property: 'month' },
+      title: { text: 'Edited title' },
+      series: [{ property: 'sales' }]
+    });
+    const result = toggleConfigFromText(edited, false, invert);
+    expect(result.error).toBeNull();
+    const toggled = JSON.parse(result.text!);
+    expect(toggled.title.text).toBe('Edited title');
+    expect(toggled.plot).toEqual({ inverted: true });
+  });
+
+  it('reports invalid JSON without toggling', () => {
+    const result = toggleConfigFromText('{ not json', false, invert);
+    expect(result.demoConfig).toBeNull();
+    expect(result.text).toBeNull();
+    expect(typeof result.error).toBe('string');
+  });
+
+  it('reports an invalid chart config without toggling', () => {
+    const invalid = JSON.stringify({
+      categoryAxis: { property: 'month' },
+      series: [{ property: 'sales', axis: 'nope' }]
+    });
+    const result = toggleConfigFromText(invalid, false, invert);
+    expect(result.demoConfig).toBeNull();
+    expect(typeof result.error).toBe('string');
+  });
+
+  it('formats the with-defaults view when defaults are shown', () => {
+    const result = toggleConfigFromText(baseText, true, invert);
+    expect(result.error).toBeNull();
+    const toggled = JSON.parse(result.text!);
+    expect(toggled.plot.inverted).toBe(true);
+    // with-defaults view carries defaulted keys the raw text never had
+    expect(toggled.legend).toBeDefined();
   });
 });

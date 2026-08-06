@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -80,14 +80,26 @@ export class ConfigTab extends LightElement {
     this.updateShowDefaults(!this.showDefaults);
   };
 
+  // Toggle against the current text (the Defaults toggle's pattern), so
+  // unapplied textarea edits survive the toggle instead of being overwritten.
+  private applyConfigToggle(transform: (current: DemoConfigView) => DemoConfigView): void {
+    const result = toggleConfigFromText(this.configText, this.showDefaults, transform);
+    if (result.error !== null) {
+      this.errorMessage = result.error;
+    }
+    else {
+      this.demoConfig = result.demoConfig;
+      this.configText = result.text;
+      this.errorMessage = null;
+    }
+  }
+
   private toggleConfigInverted = (): void => {
-    this.demoConfig = toggleConfigProperty(this.demoConfig, 'plot', 'inverted', true) ?? this.demoConfig;
-    this.configText = formatMochartDemoConfig(this.demoConfig, this.showDefaults);
+    this.applyConfigToggle(current => toggleConfigProperty(current, 'plot', 'inverted', true));
   };
 
   private toggleConfigAnimationSlow = (): void => {
-    this.demoConfig = toggleConfigSection(this.mochartDemoConfig, this.demoConfig, 'animation', slowAnimationConfig) ?? this.demoConfig;
-    this.configText = formatMochartDemoConfig(this.demoConfig, this.showDefaults);
+    this.applyConfigToggle(current => toggleConfigSection(this.mochartDemoConfig, current, 'animation', slowAnimationConfig));
   };
 
   private applyConfig = (): void => {

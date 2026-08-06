@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -185,14 +185,26 @@ export class ConfigTab implements OnInit, OnChanges {
     this.updateShowDefaults(!this.showDefaults());
   };
 
+  // Toggle against the current text (the Defaults toggle's pattern), so
+  // unapplied textarea edits survive the toggle instead of being overwritten.
+  private applyConfigToggle(transform: (current: DemoConfigView) => DemoConfigView): void {
+    const result = toggleConfigFromText(this.configText(), this.showDefaults(), transform);
+    if (result.error !== null) {
+      this.errorMessage.set(result.error);
+    }
+    else {
+      this.demoConfig.set(result.demoConfig);
+      this.configText.set(result.text);
+      this.errorMessage.set(null);
+    }
+  }
+
   toggleConfigInverted = (): void => {
-    this.demoConfig.set(toggleConfigProperty(this.demoConfig()!, 'plot', 'inverted', true));
-    this.configText.set(formatMochartDemoConfig(this.demoConfig()!, this.showDefaults()));
+    this.applyConfigToggle(current => toggleConfigProperty(current, 'plot', 'inverted', true));
   };
 
   toggleConfigAnimationSlow = (): void => {
-    this.demoConfig.set(toggleConfigSection(this.mochartDemoConfig()!, this.demoConfig()!, 'animation', slowAnimationConfig));
-    this.configText.set(formatMochartDemoConfig(this.demoConfig()!, this.showDefaults()));
+    this.applyConfigToggle(current => toggleConfigSection(this.mochartDemoConfig()!, current, 'animation', slowAnimationConfig));
   };
 
   applyConfig = (): void => {
