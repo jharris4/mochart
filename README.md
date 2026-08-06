@@ -22,6 +22,7 @@ gaps between segments mid-transition.
 | [@mochart/svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
 | [@mochart/vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
 | [@mochart/export](packages/mochart-export/README.md) | SVG and PNG image export for rendered mochart charts. |
+| [@mochart/editor](packages/mochart-editor/README.md) | Framework-neutral JSON editor with mochart config intelligence (private while its API stabilizes) — powers the config/data editors in the demo apps. |
 | [@mochart/demo-vanilla](packages/mochart-demo-vanilla/README.md) | Full-featured demo gallery in plain TypeScript (private) — the no-framework peer of the framework demo apps. |
 | [@mochart/demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the Playwright e2e suite. |
 | [@mochart/demo-data](packages/mochart-demo-data/README.md) | Shared demo configs, datasets, and random specs (private) used by every demo app. |
@@ -57,6 +58,7 @@ Run from the repo root:
 npm run dev         # dev server for the demo gallery (@mochart/demo-vanilla)
 npm run dev:basic   # dev server for the minimal harness (@mochart/demo-basic)
 npm run dev:docs    # dev server for the documentation site (@mochart/docs)
+npm run dev:editor  # dev playground for the JSON editor (@mochart/editor)
 npm run build       # build the demo gallery
 npm test            # run tests in every workspace that has them
 npm run typecheck   # typecheck every workspace that has a typecheck script
