@@ -1,5 +1,11 @@
 export type CustomMutator = (oldValue: unknown, newValue: unknown) => unknown;
 
+// Merged outputs are created with a null prototype, so both must pass.
+function isPlainObject(value: object): boolean {
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
 /**
  * Structurally merges newValue with oldValue, returning oldValue (or its
  * sub-objects) wherever nothing changed, so unchanged references are preserved.
@@ -23,7 +29,11 @@ export function getWithMutations(oldValue: unknown, newValue: unknown, customMut
       return newValue;
     }
   }
-  else if (typeof oldValue === "object" && typeof newValue === "object") {
+  else if (oldValue instanceof Date && newValue instanceof Date) {
+    return oldValue.getTime() === newValue.getTime() ? oldValue : newValue;
+  }
+  // Plain objects only: keyless exotics (Date, Map, Set) would vacuously compare equal below.
+  else if (typeof oldValue === "object" && typeof newValue === "object" && isPlainObject(oldValue) && isPlainObject(newValue)) {
     const oldObject = oldValue as Record<string, unknown>;
     const incomingObject = newValue as Record<string, unknown>;
     const oldKeys = Object.keys(oldValue);
