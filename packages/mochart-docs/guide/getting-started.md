@@ -124,6 +124,40 @@ const chart = createChart(container, { mochartConfig, dataProvider, width: 640, 
 See [The config model](/guide/config-model) for what "enhanced" means and
 [Data providers](/guide/data-providers) for the provider interface.
 
+## Browser support
+
+Mochart targets modern evergreen browsers (Chrome/Edge, Firefox, Safari);
+the published builds are ES modules (plus an IIFE bundle for script
+tags) targeting ES2020. Everything the core
+uses — SVG rendering, SVG text measurement (`getBBox`,
+`getComputedTextLength`) for layout and truncation, and
+`requestAnimationFrame` for animation — is baseline in that set, so no
+polyfills are required.
+
+A few boundaries worth knowing:
+
+- **`ResizeObserver`** is used only by the framework bindings, and only to
+  track the container when `width`/`height` are omitted. It is
+  feature-detected: without it, charts with explicit sizes are unaffected —
+  omitted dimensions just stop tracking the container.
+- **Server-side rendering** — the core `createChart`/`createDefaultChart`
+  need a real DOM; do not call them during server rendering. All five
+  framework bindings are SSR-safe out of the box: on the server they render
+  only their container (or nothing) and mount the chart in the browser
+  (React defers to an effect, Angular checks `PLATFORM_ID`, Lit's directive
+  falls back to its no-DOM render path, and Vue/Svelte mount hooks are
+  client-only).
+- **Test environments** — jsdom has no SVG layout engine; shim
+  `getBBox`/`getComputedTextLength`/`getSubStringLength` to return zero
+  sizes and the chart takes its documented default-bounds fallbacks (the
+  binding test suites show the shims).
+- **Export** — [`@mochart/export`](/guide/export) additionally uses
+  `XMLSerializer`, `Blob`/`URL.createObjectURL`, and (for PNG) a 2D canvas
+  decoding an SVG image — all baseline in the supported browsers. Exports
+  inline the chart's computed styles but do not embed font files: an
+  exported SVG renders with whatever fonts the viewer has, and a PNG
+  rasterizes with the fonts loaded on the exporting page.
+
 ## Where to go next
 
 - [The config model](/guide/config-model) — how config sections, shared

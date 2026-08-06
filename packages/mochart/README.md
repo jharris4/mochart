@@ -233,6 +233,21 @@ Available factories: `getLoadingComponent`, `getErrorComponent`,
 Each wrapper adds automatic container sizing (omit `width`/`height` to track
 the container) on top of the same chart props.
 
+## Browser support
+
+Mochart targets modern evergreen browsers (Chrome/Edge, Firefox, Safari);
+the published builds are ES modules (plus an IIFE bundle for script
+tags) targeting ES2020, and no polyfills are
+required. The core renders SVG, measures text with the SVG APIs
+(`getBBox`, `getComputedTextLength`), and animates with
+`requestAnimationFrame` — it needs a real DOM, so do not call
+`createChart`/`createDefaultChart` during server rendering (the framework
+wrappers are SSR-safe and mount only in the browser). `ResizeObserver` is
+used only by the wrappers, feature-detected, and only when
+`width`/`height` are omitted. In jsdom-style test environments, shim the
+SVG measurement APIs to return zero sizes and the chart takes its
+default-bounds fallbacks.
+
 ## Examples
 
 Build-free static HTML examples (script tag and ES module) live in
