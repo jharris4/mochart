@@ -8,9 +8,11 @@ on:
 permissions:
   contents: read
 
+# Superseded PR/branch runs are cancelled; main runs queue instead so an
+# in-flight deploy is never killed (rapid pushes skip straight to the newest).
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build-test:
