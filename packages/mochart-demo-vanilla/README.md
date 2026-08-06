@@ -10,8 +10,10 @@ reactivity layer. It is a feature-for-feature peer of the framework galleries
 [@mochart/demo-react](../mochart-demo-react/README.md),
 [@mochart/demo-svelte](../mochart-demo-svelte/README.md),
 [@mochart/demo-vue](../mochart-demo-vue/README.md)): browse every demo chart in
-single, multi, random, transition, and rotation modes, edit configs and data
-as JSON, and export charts as SVG/PNG. Comparing this package with a framework
+three modes — single edits one chart's config and data as JSON, multi
+steps a configurable grid of charts through dataset sizes together, and
+random generates whole seeded random datasets — visit the transition,
+rotation, and sparkline showcases, and export charts as SVG/PNG. Comparing this package with a framework
 port shows exactly what the mochart bindings do for you.
 
 Components are plain factory functions returning DOM elements plus targeted

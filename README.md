@@ -33,9 +33,12 @@ gaps between segments mid-transition.
 
 Each wrapper framework also has a full-featured demo gallery —
 `@mochart/demo-angular`, `@mochart/demo-lit`, `@mochart/demo-react`,
-`@mochart/demo-svelte`, and `@mochart/demo-vue` (all private) — with
-single/multi/random/transition/rotation
-demo modes; `@mochart/demo-vanilla` is the same gallery in plain TypeScript.
+`@mochart/demo-svelte`, and `@mochart/demo-vue` (all private) — with three
+demo modes (single edits one chart's config and data as JSON, multi steps a
+configurable grid of charts through dataset sizes together, and random
+generates whole seeded random datasets) plus transition, rotation, and
+sparkline showcases; `@mochart/demo-vanilla` is the same gallery in plain
+TypeScript.
 All of them share the demo configs from `@mochart/demo-data` and the
 framework-agnostic demo logic from `@mochart/demo-common`.
 There are also build-free static HTML examples in
