@@ -132,8 +132,13 @@ function getLoadingComponent({ width = 0, height = 0 }: ChartFactoryContext): No
   return buildMessageDiv({ width: width, height: height, textAlign: 'center', verticalAlign: 'middle', display: 'table-cell' }, 'Loading...');
 }
 
+// A provided error (including '' or 0) is the error state; null/undefined are not.
+function isErrorActive(error: unknown): boolean {
+  return error != null;
+}
+
 function getErrorComponent({ width = 0, height = 0, error }: ChartFactoryContext): Node {
-  const errorMessage = error ? typeof error === 'object' ? JSON.stringify(error) : String(error) : 'Invalid Chart Config';
+  const errorMessage = isErrorActive(error) ? typeof error === 'object' ? JSON.stringify(error) : String(error) : 'Invalid Chart Config';
   return buildMessageDiv({ width: width, height: height, textAlign: 'center', verticalAlign: 'middle', display: 'table-cell' }, errorMessage);
 }
 
@@ -868,11 +873,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       return;
     }
 
-    const error = propsError ? propsError : dataProvider && !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : false;
+    const error = propsError != null ? propsError : dataProvider && !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : undefined;
     const loading = Boolean(propsLoading ? propsLoading : dataProvider && dataProvider.getLoading?.());
 
     if (!mochartConfig) {
-      if (error) {
+      if (isErrorActive(error)) {
         this.setPresent(true);
         this.chartRef = null;
         this.root.set({ className: mochartCssClasses['chartError'], style, 'data-mochart-version': getVersionString() });
@@ -926,7 +931,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { chartData } = this.props;
     const hasChartData = chartData !== null;
     const categoryCount = hasChartData ? getChartDataCategoryCount(chartData) : 0;
-    return !error && hasChartData && categoryCount > 0;
+    return !isErrorActive(error) && hasChartData && categoryCount > 0;
   }
 
   /** Fill in the ChartBody's slots — called from ChartBody.sync with the body renderer. */
@@ -959,7 +964,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const seriesFocusPercentages = focusData ? focusData.seriesFocusPercentages : {};
     const hasChartData = chartData !== null;
     const categoryCount = hasChartData ? getChartDataCategoryCount(chartData) : 0;
-    const hasChartDataContent = !error && hasChartData && categoryCount > 0;
+    const hasChartDataContent = !isErrorActive(error) && hasChartData && categoryCount > 0;
     const tooltipShown = hasChartData && tooltipBounds !== null && tooltipCategoryIndex >= 0;
     const filteredFlags = hasChartData ? chartData.seriesData.filteredFlags : emptyFilteredFlags;
     let maxTickLabelLength = seriesLayoutInfo.width;
@@ -1101,7 +1106,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       };
 
       let noDataContent: FactoryContent = false;
-      if (error) {
+      if (isErrorActive(error)) {
         noDataContent = errorFactory({ mochartConfig, dataProvider, width, height, error });
       }
       else if (!loading && hasChartData && categoryCount === 0) {
@@ -1121,7 +1126,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       uniqueIds: uniqueIds!, onSeriesFilter: onSeriesFilter ?? (() => {}), legendLayoutInfo: legendLayoutInfo!, legendItemTextLayoutInfo: legendItemTextLayoutInfo!,
       legendItemLayoutInfos: legendItemLayoutInfos!, legendItemRawLayoutInfos: legendItemRawLayoutInfos! });
 
-    if (loading) {
+    // The error state wins: never stack the loading overlay on top of error content.
+    if (loading && !isErrorActive(error)) {
       const { x, y, width, height } = seriesLayoutInfo;
 
       const loadingStyle = {
