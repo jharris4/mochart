@@ -135,7 +135,7 @@ and property is optional and falls back to a sensible default — only
 | --- | --- |
 | `title` | chart title text, alignment, style, click behavior |
 | `categoryAxis` | the category axis: data `property`, `type` (`string`/`number`/`date`), `scale` (`ordinal`/`linear`), ticks, thresholds |
-| `series` | one entry per series: data `property`, `title`, `renderer` (`bar`/`line`/`area`), colors, markers, labels, focus behavior |
+| `series` | one entry per series: data `property`, `title`, `renderer` (`bar`/`line`/`area`/`none`), colors, markers, labels, focus behavior |
 | `seriesDefaults` | shared defaults applied to every entry of `series` |
 | `valueAxes` | one or more value axes; series are assigned by `axis` id |
 | `seriesGroups` / `seriesStacks` | grouping and stacking of series |
@@ -144,6 +144,7 @@ and property is optional and falls back to a sensible default — only
 | `crosshair` | crosshair line style and snapping |
 | `animation` | `animate` on/off plus per-phase durations (initial, expansion, value change, contraction, focus) |
 | `plot` | plot area (e.g. `inverted` for horizontal charts) |
+| `pie` | pie/donut slice geometry and slice labels when `chart.type` is `pie`: radii, angles, label type and formats, tooltip values |
 | `chart` / `colorPalette` / `linearGradients` / `radialGradients` | chart-wide style, palette, and gradient definitions |
 
 The full property-by-property reference is generated from the validation
