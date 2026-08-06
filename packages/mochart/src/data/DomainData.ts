@@ -14,6 +14,9 @@ export function getCategoryDomainForValues<T extends DomainValue>(values: readon
   const valueCount = values.length;
   for (let i=0; i<valueCount; i++) {
     value = values[i];
+    if (Number.isNaN(numericValue(value))) { // NaN (e.g. an Invalid Date) would seed min/max and stick
+      continue;
+    }
     if (min === null || numericValue(value) < numericValue(min)) {
       min = value;
     }
@@ -32,7 +35,7 @@ export function getDomainForValues(values: readonly (number | undefined)[] | nul
     const valueCount = values.length;
     for (let i=0; i<valueCount; i++) {
       value = values[i];
-      if (value !== undefined) {
+      if (value !== undefined && !Number.isNaN(value)) {
         if (min === null || value < min) {
           min = value;
         }

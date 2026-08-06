@@ -30,6 +30,20 @@ describe('getCategoryDomainForValues', () => {
   it('handles a single value as both min and max', () => {
     expect(getCategoryDomainForValues([7])).toEqual([7, 7]);
   });
+
+  it('skips a leading NaN instead of letting it poison the domain', () => {
+    expect(getCategoryDomainForValues([NaN, 3, 1])).toEqual([1, 3]);
+  });
+
+  it('skips Invalid Date values', () => {
+    const a = new Date('2020-01-01');
+    const b = new Date('2020-06-01');
+    expect(getCategoryDomainForValues([new Date('invalid'), a, b])).toEqual([a, b]);
+  });
+
+  it('returns the null domain when every value is NaN', () => {
+    expect(getCategoryDomainForValues([NaN, NaN])).toEqual([null, null]);
+  });
 });
 
 describe('getDomainForValues', () => {
@@ -47,6 +61,18 @@ describe('getDomainForValues', () => {
 
   it('handles negative values', () => {
     expect(getDomainForValues([-3, -1, -7])).toEqual([-7, -1]);
+  });
+
+  it('skips a leading NaN instead of letting it poison the domain', () => {
+    expect(getDomainForValues([NaN, 5, 2])).toEqual([2, 5]);
+  });
+
+  it('skips NaN anywhere in the values', () => {
+    expect(getDomainForValues([5, NaN, 2])).toEqual([2, 5]);
+  });
+
+  it('returns the null domain when every value is NaN or undefined', () => {
+    expect(getDomainForValues([NaN, undefined, NaN])).toEqual([null, null]);
   });
 });
 
