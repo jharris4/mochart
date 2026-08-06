@@ -4,7 +4,7 @@ import type { ChildPart, PartInfo } from 'lit-html/async-directive.js';
 import { createChart, createDefaultChart } from '@mochart/core';
 import { mountChartHost } from './host.js';
 import type { CreateChartFn, HostHandle } from './host.js';
-import type { ChartProps, DefaultChartProps } from './types.js';
+import type { ChartProps, ChartRef, DefaultChartProps } from './types.js';
 
 /**
  * Child-part directive that renders a container div and mounts a chart into
@@ -19,6 +19,9 @@ abstract class ChartHostDirective extends AsyncDirective {
   private host: HostHandle | null = null;
   private props: Record<string, any> = {};
   private mountQueued = false;
+  private chartRefCallback: ((ref: ChartRef | null) => void) | null = null;
+  // stable across renders, so callback consumers can hold onto it
+  private readonly chartRef: ChartRef = { refresh: () => { this.host?.refresh(); } };
 
   constructor(partInfo: PartInfo) {
     super(partInfo);
@@ -34,11 +37,18 @@ abstract class ChartHostDirective extends AsyncDirective {
   }
 
   override update(_part: ChildPart, [props]: [Record<string, any>]): unknown {
-    // `className`/`style` belong to the container div, not the chart.
-    const { className, style, ...chartProps } = props;
+    // `className`/`style` belong to the container div and `chartRef` to the
+    // directive, not the chart.
+    const { className, style, chartRef, ...chartProps } = props;
     this.props = chartProps;
     if (this.container === null) {
       this.container = document.createElement('div');
+    }
+    const previousCallback = this.chartRefCallback;
+    this.chartRefCallback = typeof chartRef === 'function' ? chartRef : null;
+    // a callback swapped in after mount still gets the handle, like Lit's ref()
+    if (this.host !== null && this.chartRefCallback !== previousCallback) {
+      this.chartRefCallback?.(this.chartRef);
     }
     this.applyContainerProps(className, style);
     if (this.host !== null) {
@@ -75,12 +85,16 @@ abstract class ChartHostDirective extends AsyncDirective {
         return;
       }
       this.host = mountChartHost(this.create, this.container, this.props);
+      this.chartRefCallback?.(this.chartRef);
     });
   }
 
   override disconnected(): void {
     const host = this.host;
     this.host = null;
+    if (host !== null) {
+      this.chartRefCallback?.(null);
+    }
     host?.destroy();
   }
 

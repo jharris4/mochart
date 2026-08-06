@@ -7,15 +7,16 @@ import { chartProps } from './props.js';
  * Vue wrapper around mochart's `createChart`: takes an enhanced config
  * (`mochartConfig`) and a data provider. Omit `width`/`height` to have the
  * chart track the container div's size. `class`/`style` fall through to the
- * container div.
+ * container div. A template ref on the component exposes `refresh()`.
  */
 export default defineComponent({
   name: 'Chart',
   props: chartProps,
   // inheritAttrs off so the explicit size props can win over a fallthrough style
   inheritAttrs: false,
-  setup(props, { attrs }) {
-    const containerRef = useChartHost(createChart, () => ({ ...props }));
+  setup(props, { attrs, expose }) {
+    const { containerRef, refresh } = useChartHost(createChart, () => ({ ...props }));
+    expose({ refresh });
     return () => {
       const sizeStyle: Record<string, string> = {};
       if (typeof props.width === 'number') {

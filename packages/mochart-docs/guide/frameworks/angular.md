@@ -73,6 +73,44 @@ container, so size it however you like and the chart follows it:
 <mochart-chart [mochartConfig]="mochartConfig" [dataProvider]="dataProvider" style="width: 100%; height: 400px" />
 ```
 
+## When the data changes
+
+Config and data changes are detected **by reference identity**: the chart
+compares the inputs it receives, not their contents. An in-place `push`
+leaves the input reference unchanged, so change detection has nothing new
+to pass on — reassign instead of mutate:
+
+```ts
+// ✓ a new array — the chart animates to it
+this.data = [...this.data, { month: 'Mar', revenue: 30 }];
+
+// ✗ invisible — same reference, the input never changes
+this.data.push({ month: 'Mar', revenue: 30 });
+```
+
+The same rule applies to `config` on `mochart-default-chart` and to
+`mochartConfig`/`dataProvider` on `mochart-chart` — pass a new object (or
+provider) to change them.
+
+For hosts that do mutate data in place, the components expose the core
+[`refresh()`](/guide/data-providers#when-the-data-changes) escape hatch as
+a public method — it re-reads the current config/data, re-indexing the
+built-in providers. Reach it through a template reference variable or
+`@ViewChild`:
+
+```ts
+@ViewChild('chart') chart!: DefaultChart;
+
+addRow(row: DataRow) {
+  this.data.push(row);
+  this.chart.refresh();
+}
+```
+
+```html
+<mochart-default-chart #chart [config]="config" [data]="data" />
+```
+
 ## Inputs, outputs, and states
 
 Both components emit the [chart callbacks](/guide/interaction#callbacks) as

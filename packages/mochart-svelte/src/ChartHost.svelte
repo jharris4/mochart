@@ -17,6 +17,11 @@
   let container: HTMLDivElement;
   let host: HostHandle | null = null;
   let firstSync = true;
+
+  /** Re-read the current config/data without new references (see Chart/DefaultChart). */
+  export function refresh(): void {
+    host?.refresh();
+  }
   // captured at init time: placeholders mount with this component's contexts
   const componentContext = getAllContexts();
 

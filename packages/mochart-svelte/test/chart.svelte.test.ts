@@ -251,3 +251,19 @@ describe('removed props', () => {
     el.remove();
   });
 });
+
+describe('refresh', () => {
+  it('re-reads in-place data mutations through the instance method', () => {
+    const el = target();
+    const data = [...rows];
+    const component = mount(DefaultChart, { target: el, props: { config: rawConfig(), data, width: 400, height: 300 } });
+    flushSync();
+    expect(el.textContent).toContain('C');
+    expect(el.textContent).not.toContain('D');
+
+    data.push({ name: 'D', value: 40 });
+    (component as { refresh(): void }).refresh();
+    expect(el.textContent).toContain('D');
+    void unmount(component);
+  });
+});

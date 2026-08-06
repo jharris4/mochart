@@ -1,4 +1,14 @@
-import type { ComponentType, CSSProperties } from 'react';
+import type { ComponentType, CSSProperties, Ref } from 'react';
+
+/**
+ * Imperative handle exposed through the `ref` prop of both components.
+ * `refresh()` re-reads the current config/data (rebuilding or re-indexing the
+ * data provider) without needing new references — the escape hatch for hosts
+ * that mutate data in place.
+ */
+export interface ChartRef {
+  refresh(): void;
+}
 
 /** Props mochart passes to placeholder components (loading, error, and empty states). */
 export interface PlaceholderProps {
@@ -32,6 +42,8 @@ export interface ChartCallbackProps {
 }
 
 export interface BaseChartProps extends ChartCallbackProps {
+  /** Receives the imperative `ChartRef` handle (`refresh()`). */
+  ref?: Ref<ChartRef>;
   /** Explicit pixel width; omit to track the container element's width. */
   width?: number;
   /** Explicit pixel height; omit to track the container element's height. */

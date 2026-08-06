@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { html, nothing, render } from 'lit-html';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart, defaultChart } from '../src/index';
-import type { PlaceholderProps } from '../src/index';
+import type { ChartRef, PlaceholderProps } from '../src/index';
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
@@ -244,5 +244,22 @@ describe('removed props', () => {
 
     render(nothing, el);
     el.remove();
+  });
+});
+
+describe('refresh', () => {
+  it('re-reads in-place data mutations through the chartRef handle', async () => {
+    const el = mountPoint();
+    const data = [...rows];
+    let handle: ChartRef | null = null;
+    render(html`${defaultChart({ config: rawConfig(), data, width: 400, height: 300, chartRef: (chartRefValue) => { handle = chartRefValue; } })}`, el);
+    await flushMount();
+    expect(handle).not.toBeNull();
+    expect(el.textContent).toContain('C');
+    expect(el.textContent).not.toContain('D');
+
+    data.push({ name: 'D', value: 40 });
+    handle!.refresh();
+    expect(el.textContent).toContain('D');
   });
 });

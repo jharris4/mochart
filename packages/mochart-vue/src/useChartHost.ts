@@ -8,10 +8,15 @@ import type { CreateChartFn, HostHandle } from './host.js';
  * changes through the chart handle whenever the reactive props read by
  * `getChartProps` change, and destroys the chart on unmount.
  */
+export interface ChartHost {
+  containerRef: Ref<HTMLDivElement | null>;
+  refresh: () => void;
+}
+
 export function useChartHost(
   create: CreateChartFn,
   getChartProps: () => Record<string, any>
-): Ref<HTMLDivElement | null> {
+): ChartHost {
   const containerRef = ref<HTMLDivElement | null>(null);
   let host: HostHandle | null = null;
   // captured at setup time: placeholders render with the host app's context
@@ -33,5 +38,10 @@ export function useChartHost(
     host?.update(next);
   });
 
-  return containerRef;
+  return {
+    containerRef,
+    refresh: () => {
+      host?.refresh();
+    }
+  };
 }

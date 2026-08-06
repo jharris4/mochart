@@ -32,7 +32,23 @@ export interface ChartCallbackProps {
   configErrorTemplate?: PlaceholderTemplate;
 }
 
+/**
+ * The imperative handle a `chartRef` callback receives. `refresh()` re-reads
+ * the current config/data (rebuilding or re-indexing the data provider)
+ * without needing new references — the escape hatch for hosts that mutate
+ * data in place.
+ */
+export interface ChartRef {
+  refresh(): void;
+}
+
 export interface BaseChartProps extends ChartCallbackProps {
+  /**
+   * Callback ref, like Lit's own `ref()` directive: called with the
+   * `ChartRef` handle once the chart mounts and with `null` when the
+   * directive disconnects.
+   */
+  chartRef?: (ref: ChartRef | null) => void;
   /** Explicit pixel width; omit to track the container element's width. */
   width?: number;
   /** Explicit pixel height; omit to track the container element's height. */

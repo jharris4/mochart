@@ -68,6 +68,47 @@ however you like and the chart follows it:
 <Chart :mochart-config="mochartConfig" :data-provider="dataProvider" style="width: 100%; height: 400px" />
 ```
 
+## When the data changes
+
+Config and data changes are detected **by reference identity**: the chart
+compares the props it receives, not their contents. Vue's deep reactivity
+re-renders your own template after an in-place `push`, but the chart still
+sees the same array — replace instead of mutate:
+
+```js
+const data = ref(initialData);
+
+// ✓ a new array — the chart animates to it
+data.value = [...data.value, { month: 'Mar', revenue: 30 }];
+
+// ✗ invisible to the chart — same array identity
+data.value.push({ month: 'Mar', revenue: 30 });
+```
+
+The same rule applies to `config` on `DefaultChart` and to
+`mochartConfig`/`dataProvider` on `Chart` — pass a new object (or provider)
+to change them.
+
+For hosts that do mutate data in place, a template ref on the component
+exposes the core
+[`refresh()`](/guide/data-providers#when-the-data-changes) escape hatch —
+it re-reads the current config/data, re-indexing the built-in providers:
+
+```vue
+<script setup>
+const chart = ref(null);
+
+function addRow(row) {
+  data.value.push(row);
+  chart.value.refresh();
+}
+</script>
+
+<template>
+  <DefaultChart ref="chart" :config="config" :data="data" />
+</template>
+```
+
 ## Callbacks and states
 
 Both components accept the [chart callbacks](/guide/interaction#callbacks)

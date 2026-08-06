@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
+import type { ChartRef } from '../src/index';
 
 declare global {
    
@@ -347,5 +348,23 @@ describe('size props vs container style', () => {
       root.unmount();
     });
     container.remove();
+  });
+});
+
+describe('refresh', () => {
+  it('re-reads in-place data mutations through the ref handle', () => {
+    const { container, root } = host();
+    const data = [...rows];
+    const ref: { current: ChartRef | null } = { current: null };
+    act(() => {
+      root.render(<DefaultChart ref={ref} config={rawConfig()} data={data} width={400} height={300} />);
+    });
+    expect(container.textContent).toContain('C');
+    expect(container.textContent).not.toContain('D');
+
+    data.push({ name: 'D', value: 40 });
+    act(() => { ref.current!.refresh(); });
+    expect(container.textContent).toContain('D');
+    act(() => root.unmount());
   });
 });

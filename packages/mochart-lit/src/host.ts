@@ -8,6 +8,7 @@ export type CreateChartFn = (container: Element, props: any) => ChartHandle<any>
 
 export interface HostHandle {
   update(props: Record<string, any>): void;
+  refresh(): void;
   destroy(): void;
 }
 
@@ -60,6 +61,9 @@ export function mountChartHost(create: CreateChartFn, container: HTMLElement, pr
     update(nextProps: Record<string, any>) {
       lastProps = placeholders.transform(nextProps);
       chart.replace(withSize(lastProps, measured));
+    },
+    refresh() {
+      chart.refresh();
     },
     destroy() {
       if (observer) {

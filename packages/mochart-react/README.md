@@ -66,6 +66,35 @@ Explicit `width`/`height` props win over conflicting `style` values. Note that
 placeholder components render in their own React root, so they do not inherit
 the host app's context providers (unlike the other bindings).
 
+## When the data changes
+
+Config and data changes are detected **by reference identity**: passing the
+same array or object again — even after mutating it in place — leaves the
+chart unchanged. Idiomatic React state updates already produce new
+references:
+
+```tsx
+// ✓ a new array — the chart animates to it
+setData(current => [...current, { month: 'Mar', revenue: 30 }]);
+
+// ✗ invisible — same array identity (and no React re-render either)
+data.push({ month: 'Mar', revenue: 30 });
+```
+
+The same rule applies to `config` on `DefaultChart` and to
+`mochartConfig`/`dataProvider` on `Chart`. For hosts that do mutate data in
+place, the `ref` prop exposes a `ChartRef` handle whose `refresh()`
+re-reads the current config/data, re-indexing the built-in providers:
+
+```tsx
+const chartRef = useRef<ChartRef>(null);
+
+<DefaultChart ref={chartRef} config={config} data={data} />;
+
+data.push({ month: 'Mar', revenue: 30 });
+chartRef.current?.refresh();
+```
+
 ## Props
 
 Both components accept the chart callbacks (`onChartClick`, `onSliceClick`,

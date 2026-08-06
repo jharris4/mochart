@@ -64,6 +64,44 @@ follows it:
 <Chart {mochartConfig} {dataProvider} style="width: 100%; height: 400px" />
 ```
 
+## When the data changes
+
+Config and data changes are detected **by reference identity**: the chart
+compares the props it receives, not their contents. `$state`'s deep
+reactivity updates your own markup after an in-place `push`, but the chart
+still sees the same array — reassign instead of mutate:
+
+```svelte
+let data = $state(initialData);
+
+// ✓ a new array — the chart animates to it
+data = [...data, { month: 'Mar', revenue: 30 }];
+
+// ✗ invisible to the chart — same array identity
+data.push({ month: 'Mar', revenue: 30 });
+```
+
+The same rule applies to `config` on `DefaultChart` and to
+`mochartConfig`/`dataProvider` on `Chart` — pass a new object (or provider)
+to change them.
+
+For hosts that do mutate data in place, `bind:this` exposes the core
+[`refresh()`](/guide/data-providers#when-the-data-changes) escape hatch —
+it re-reads the current config/data, re-indexing the built-in providers:
+
+```svelte
+<script>
+  let chart;
+
+  function addRow(row) {
+    data.push(row);
+    chart.refresh();
+  }
+</script>
+
+<DefaultChart bind:this={chart} {config} {data} />
+```
+
 ## Callbacks and states
 
 Both components accept the [chart callbacks](/guide/interaction#callbacks)

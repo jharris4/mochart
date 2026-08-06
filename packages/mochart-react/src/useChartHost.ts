@@ -1,7 +1,12 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import { mountChartHost } from './host.js';
 import type { CreateChartFn, HostHandle } from './host.js';
+
+export interface ChartHost {
+  containerRef: RefObject<HTMLDivElement | null>;
+  refresh: () => void;
+}
 
 // useLayoutEffect warns when rendered on the server; charts only mount in the DOM.
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
@@ -11,7 +16,7 @@ const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffec
  * changes through the chart handle on every render, and destroys the chart on
  * unmount.
  */
-export function useChartHost(create: CreateChartFn, chartProps: Record<string, any>): RefObject<HTMLDivElement | null> {
+export function useChartHost(create: CreateChartFn, chartProps: Record<string, any>): ChartHost {
   const containerRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HostHandle | null>(null);
   const latestPropsRef = useRef(chartProps);
@@ -41,5 +46,9 @@ export function useChartHost(create: CreateChartFn, chartProps: Record<string, a
     hostRef.current?.update(chartProps);
   });
 
-  return containerRef;
+  const refresh = useCallback(() => {
+    hostRef.current?.refresh();
+  }, []);
+
+  return { containerRef, refresh };
 }

@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { createApp, defineComponent, h, markRaw, nextTick, reactive } from 'vue';
+import { createApp, defineComponent, h, markRaw, nextTick, reactive, ref } from 'vue';
 import type { App } from 'vue';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
+import type { ChartRef } from '../src/index';
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
@@ -267,5 +268,24 @@ describe('size props vs container style', () => {
     expect(containerDiv.style.margin).toBe('4px');
     app.unmount();
     el.remove();
+  });
+});
+
+describe('refresh', () => {
+  it('re-reads in-place data mutations through a template ref', async () => {
+    const el = document.createElement('div');
+    document.body.appendChild(el);
+    const data = [...rows];
+    const chartRef = ref<ChartRef | null>(null);
+    const app = createApp({ render: () => h(DefaultChart, { ref: chartRef, config: rawConfig(), data, width: 400, height: 300 }) });
+    app.mount(el);
+    await nextTick();
+    expect(el.textContent).toContain('C');
+    expect(el.textContent).not.toContain('D');
+
+    data.push({ name: 'D', value: 40 });
+    chartRef.value!.refresh();
+    expect(el.textContent).toContain('D');
+    app.unmount();
   });
 });

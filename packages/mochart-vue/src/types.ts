@@ -1,5 +1,15 @@
 import type { Component } from 'vue';
 
+/**
+ * The interface a template ref on `Chart`/`DefaultChart` exposes.
+ * `refresh()` re-reads the current config/data (rebuilding or re-indexing the
+ * data provider) without needing new references — the escape hatch for hosts
+ * that mutate data in place.
+ */
+export interface ChartRef {
+  refresh(): void;
+}
+
 /** Props mochart passes to placeholder components (loading, error, and empty states). */
 export interface PlaceholderProps {
   width?: number;

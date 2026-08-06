@@ -144,6 +144,16 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
     return props;
   }
 
+  /**
+   * Re-read the current config/data (rebuilding or re-indexing the data
+   * provider) without needing new references — the escape hatch for hosts
+   * that mutate data in place. Reach it through a template reference
+   * variable or `@ViewChild`.
+   */
+  refresh(): void {
+    this.host?.refresh();
+  }
+
   ngAfterViewInit(): void {
     // Under SSR this runs on the server too; the chart only mounts in a browser.
     if (!this.isBrowser) {

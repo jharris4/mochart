@@ -72,6 +72,47 @@ wrappers get (explicit `width`/`height` props still win over `style`):
 html`${chart({ mochartConfig, dataProvider, style: 'flex: 1 1 auto; min-width: 0;' })}`
 ```
 
+## When the data changes
+
+Config and data changes are detected **by reference identity**: the chart
+compares the values it receives, not their contents. That matches Lit's own
+change detection (`hasChanged` is identity-based too), so the familiar Lit
+rule applies doubly here — reassign instead of mutate:
+
+```ts
+// ✓ a new array — Lit re-renders and the chart animates to it
+this.data = [...this.data, { month: 'Mar', revenue: 30 }];
+
+// ✗ invisible — same reference: neither Lit nor the chart sees it
+this.data.push({ month: 'Mar', revenue: 30 });
+```
+
+The same rule applies to `config` and to `mochartConfig`/`dataProvider` —
+pass a new object (or provider) to change them.
+
+For hosts that do mutate data in place, the `chartRef` prop — a callback
+ref, like Lit's own `ref()` directive — receives a `ChartRef` handle with
+the core [`refresh()`](/guide/data-providers#when-the-data-changes) escape
+hatch. It re-reads the current config/data, re-indexing the built-in
+providers:
+
+```ts
+private chart: ChartRef | null = null;
+
+render() {
+  return html`${defaultChart({
+    config,
+    data: this.data,
+    chartRef: (chart) => { this.chart = chart; }
+  })}`;
+}
+
+addRow(row: DataRow) {
+  this.data.push(row);
+  this.chart?.refresh();
+}
+```
+
 ## Callbacks and states
 
 Both directives accept the [chart callbacks](/guide/interaction#callbacks)

@@ -62,6 +62,41 @@ chart follows it:
 <Chart mochartConfig={mochartConfig} dataProvider={dataProvider} style={{ width: '100%', height: 400 }} />
 ```
 
+## When the data changes
+
+Config and data changes are detected **by reference identity**: passing the
+same array or object again — even after mutating it in place — leaves the
+chart unchanged. Update state with a new reference and the change animates
+as a normal data update:
+
+```tsx
+const [data, setData] = useState(initialData);
+
+// ✓ a new array — the chart animates to it
+setData(current => [...current, { month: 'Mar', revenue: 30 }]);
+
+// ✗ invisible — same array identity (and no React re-render either)
+data.push({ month: 'Mar', revenue: 30 });
+```
+
+Idiomatic React state updates already work this way. The same rule applies
+to `config` on `DefaultChart` and to `mochartConfig`/`dataProvider` on
+`Chart` — pass a new object (or provider) to change them.
+
+For hosts that do mutate data in place, the `ref` prop exposes a `ChartRef`
+handle with the core
+[`refresh()`](/guide/data-providers#when-the-data-changes) escape hatch —
+it re-reads the current config/data, re-indexing the built-in providers:
+
+```tsx
+const chartRef = useRef<ChartRef>(null);
+
+<DefaultChart ref={chartRef} config={config} data={data} />;
+
+data.push({ month: 'Mar', revenue: 30 });
+chartRef.current?.refresh();
+```
+
 ## Callbacks and states
 
 Both components accept the [chart callbacks](/guide/interaction#callbacks)

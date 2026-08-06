@@ -306,3 +306,17 @@ describe('programmatic output subscription after mount', () => {
     }
   });
 });
+
+describe('refresh', () => {
+  it('re-reads in-place data mutations through the component method', () => {
+    const data = [...rows];
+    const fixture = createWith(DefaultChart, { config: rawConfig(), data, width: 400, height: 300 });
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('C');
+    expect(el.textContent).not.toContain('D');
+
+    data.push({ name: 'D', value: 40 });
+    (fixture.componentInstance as DefaultChart).refresh();
+    expect(el.textContent).toContain('D');
+  });
+});
