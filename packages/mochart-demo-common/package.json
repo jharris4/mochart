@@ -20,7 +20,8 @@
   },
   "devDependencies": {
     "@types/lodash.merge": "^4.6.9",
-    "@types/seedrandom": "^3.0.8"
+    "@types/seedrandom": "^3.0.8",
+    "tsx": "^4.20.6"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
