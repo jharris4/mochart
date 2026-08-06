@@ -116,12 +116,14 @@ describe('getSafeDomainExtent', () => {
     expect(getSafeDomainExtent([2, 6])).toBe(4);
   });
 
-  it('falls back to the value itself for a degenerate non-null domain', () => {
+  it('falls back to the value magnitude for a degenerate non-null domain', () => {
     expect(getSafeDomainExtent([5, 5])).toBe(5);
+    expect(getSafeDomainExtent([-3, -3])).toBe(3);
   });
 
-  it('falls back to 1 for a null domain', () => {
+  it('falls back to 1 for a null or all-zero domain', () => {
     expect(getSafeDomainExtent([null, null])).toBe(1);
+    expect(getSafeDomainExtent([0, 0])).toBe(1);
   });
 });
 

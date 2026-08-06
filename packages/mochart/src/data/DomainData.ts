@@ -72,9 +72,12 @@ export function getDomainExtents<T extends DomainValue>(domains: Record<string, 
   return mapMap(domains, x => getDomainExtent(x));
 }
 
-// TODO - check if this is leading to unexpected marker / color / label behaviour
+// Collapsed domains fall back to the value's magnitude (1 when null or 0) so delta weights stay positive.
 export function getSafeDomainExtent(domain: NullableDomain): number {
-  return domain[0] !== domain[1] ? getDomainExtent(domain) : (domain[0] !== null ? domain[0] : 1);
+  if (domain[0] !== domain[1]) {
+    return getDomainExtent(domain);
+  }
+  return domain[0] === null || domain[0] === 0 ? 1 : Math.abs(domain[0]);
 }
 
 export function getMaxDomain<T extends DomainValue>(domain: NullableDomain<T>, otherDomain: NullableDomain<T>): NullableDomain<T> {
