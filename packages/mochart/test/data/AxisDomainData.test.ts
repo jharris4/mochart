@@ -67,6 +67,26 @@ describe('getAxisDomain', () => {
     expect(getAxisDomain(cfg({ minOffset: -5, maxOffset: 5 }), () => [10, 90])).toEqual([5, 95]);
   });
 
+  it('collapses to the softMin when the data domain is empty', () => {
+    expect(getAxisDomain(cfg({ softMin: 50 }), () => [null, null])).toEqual([50, 50]);
+  });
+
+  it('collapses to the softMax when the data domain is empty', () => {
+    expect(getAxisDomain(cfg({ softMax: 200 }), () => [null, null])).toEqual([200, 200]);
+  });
+
+  it('spans softMin to softMax when the data domain is empty', () => {
+    expect(getAxisDomain(cfg({ softMin: -5, softMax: 200 }), () => [null, null])).toEqual([-5, 200]);
+  });
+
+  it('collapses to an explicit min when the data domain is empty and max is auto', () => {
+    expect(getAxisDomain(cfg({ min: 5 }), () => [null, null])).toEqual([5, 5]);
+  });
+
+  it('stays fully null when the data domain is empty and no bounds are set', () => {
+    expect(getAxisDomain(cfg({}), () => [null, null])).toEqual([null, null]);
+  });
+
   it('creates Date bounds for a date axis', () => {
     const t0 = Date.UTC(2020, 0, 1);
     const t1 = Date.UTC(2021, 0, 1);

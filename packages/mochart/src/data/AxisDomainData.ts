@@ -46,6 +46,13 @@ function getAxisDomainWithMinAndMax(axisConfig: AxisDomainConfig, axisDomainCalc
     else {
       axisDomain[1] = valueCreator(max);
     }
+    // Empty data with a soft/fixed bound on one end only: collapse to keep the null-pair invariant.
+    if (axisDomain[0] === null && axisDomain[1] !== null) {
+      axisDomain[0] = axisDomain[1];
+    }
+    else if (axisDomain[1] === null && axisDomain[0] !== null) {
+      axisDomain[1] = axisDomain[0];
+    }
     const axisExtent = getDomainExtent(axisDomain);
     if (axisExtent > 0) {
       const { minMarginFraction = 0, maxMarginFraction = 0 } = axisConfig;
