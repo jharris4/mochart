@@ -148,8 +148,8 @@ repository variables — see `.github/workflows/ci.yml`.
 
 ## Config format versioning
 
-Configs carry a `version` that strict validation requires to equal
-`CONFIG_VERSION` (`src/config/core/constants.ts`). If a change to the config
-format bumps it, add a migration step to `src/config/migration/` so
-`migrateConfig` upgrades older configs, and update the version in the demo
-configs and docs examples.
+Configs may carry a `version`; when present, strict validation requires it to
+equal `CONFIG_VERSION` (`src/config/core/constants.ts`), and omitting it means
+"the current format". If a change to the config format bumps it, add a
+migration step to `src/config/migration/` so `migrateConfig` upgrades older
+configs, and update the version in the demo configs and docs examples.
