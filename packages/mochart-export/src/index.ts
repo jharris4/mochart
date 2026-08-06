@@ -33,7 +33,7 @@ export interface ExportSvgOptions {
   filenamePrefix?: string;
   /** Keep the background transparent instead of painting it with backgroundColor. */
   transparent?: boolean;
-  /** Background color painted behind the chart when not transparent. */
+  /** Background color painted behind the chart when not transparent. Defaults to the effective page background behind the chart (white when untraceable). */
   backgroundColor?: string;
 }
 
@@ -131,6 +131,32 @@ export function getChartSvgText(element: Element, options: ExportSvgOptions = {}
   return svgElement ? getSvgText(svgElement, options) : null;
 }
 
+function isTransparentColor(color: string): boolean {
+  if (!color || color === 'transparent') {
+    return true;
+  }
+  const match = /^rgba\((?:[^,]+,){3}\s*([0-9.]+)\s*\)$/.exec(color);
+  return match !== null && parseFloat(match[1]) === 0;
+}
+
+/**
+ * The effective page background behind the chart: the nearest ancestor with a
+ * non-transparent computed background. The export inlines the page's computed
+ * (theme-resolved) chart colors, so this default keeps exports WYSIWYG — a
+ * chart on a dark page exports onto its dark background, not onto white.
+ */
+function getEffectiveBackgroundColor(element: Element): string {
+  let current: Element | null = element;
+  while (current) {
+    const color = getComputedStyle(current).backgroundColor;
+    if (!isTransparentColor(color)) {
+      return color;
+    }
+    current = current.parentElement;
+  }
+  return '#ffffff';
+}
+
 function makeBackgroundRect(width: number, height: number, backgroundColor: string): SVGRectElement {
   const backgroundRect = document.createElementNS(SVG_NS, 'rect') as SVGRectElement;
   backgroundRect.setAttribute('width', String(width));
@@ -155,7 +181,7 @@ function cloneChartSvg(svgElement: SVGSVGElement): SVGSVGElement {
 }
 
 function getSvgText(svgElement: SVGSVGElement, options: ExportSvgOptions): string {
-  const { transparent = false, backgroundColor = '#ffffff' } = options;
+  const { transparent = false, backgroundColor = getEffectiveBackgroundColor(svgElement) } = options;
   const svgCloneElement = cloneChartSvg(svgElement);
 
   if (!transparent) {
@@ -172,7 +198,7 @@ function getSvgText(svgElement: SVGSVGElement, options: ExportSvgOptions): strin
  * chart so the grid stays aligned. Returns null when no chart svg is found.
  */
 function getStitchedSvgText(elements: Element[], options: StitchOptions): string | null {
-  const { transparent = false, backgroundColor = '#ffffff', cols, gap = 0 } = options;
+  const { transparent = false, cols, gap = 0 } = options;
   const charts: { svg: SVGSVGElement; width: number; height: number }[] = [];
   for (const element of elements) {
     const svg = findChartSvg(element);
@@ -184,6 +210,7 @@ function getStitchedSvgText(elements: Element[], options: StitchOptions): string
   if (charts.length === 0) {
     return null;
   }
+  const backgroundColor = options.backgroundColor ?? getEffectiveBackgroundColor(charts[0].svg);
   const columns = Math.max(1, Math.floor(cols));
   const rows = Math.ceil(charts.length / columns);
   const cellWidth = charts.reduce((max, chart) => Math.max(max, chart.width), 0);

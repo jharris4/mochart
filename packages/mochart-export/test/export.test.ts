@@ -75,8 +75,8 @@ describe('getChartSvgText', () => {
     expect(svgText).not.toBeNull();
     expect(svgText).toContain('<svg');
     expect(svgText).toContain('Test Chart');
-    // the injected background rect spans the chart and is painted white
-    // (jsdom normalizes hex style colors to rgb)
+    // nothing paints a background in jsdom, so the effective-background walk
+    // falls back to white (jsdom normalizes hex style colors to rgb)
     expect(svgText).toMatch(/<rect[^>]*width="400"[^>]*height="300"[^>]*fill: rgb\(255, 255, 255\)/);
   });
 
@@ -88,6 +88,32 @@ describe('getChartSvgText', () => {
   it('uses a custom background color', () => {
     const svgText = getChartSvgText(container, { backgroundColor: '#123456' })!;
     expect(svgText).toMatch(/fill: rgb\(18, 52, 86\)/);
+  });
+
+  it('defaults the background to the effective page background behind the chart', () => {
+    // a dark page: the export inlines dark-theme chart colors, so the default
+    // background must match the page, not hardcode white
+    container.style.backgroundColor = 'rgb(32, 33, 39)';
+    const svgText = getChartSvgText(container)!;
+    expect(svgText).toMatch(/fill: rgb\(32, 33, 39\)/);
+    expect(svgText).not.toMatch(/fill: rgb\(255, 255, 255\)/);
+  });
+
+  it('finds the page background through transparent ancestors', () => {
+    document.body.style.backgroundColor = 'rgb(24, 24, 28)';
+    try {
+      const svgText = getChartSvgText(container)!;
+      expect(svgText).toMatch(/fill: rgb\(24, 24, 28\)/);
+    }
+    finally {
+      document.body.style.backgroundColor = '';
+    }
+  });
+
+  it('lets an explicit background win over the page background', () => {
+    container.style.backgroundColor = 'rgb(32, 33, 39)';
+    const svgText = getChartSvgText(container, { backgroundColor: '#ffffff' })!;
+    expect(svgText).toMatch(/fill: rgb\(255, 255, 255\)/);
   });
 
   it('strips the crosshair from the exported svg', () => {

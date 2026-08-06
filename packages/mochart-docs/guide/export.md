@@ -45,7 +45,7 @@ exportSVG(element, {
   filename: 'my-chart',      // exact filename (no extension); overrides the title
   filenamePrefix: 'acme-',   // prefix for the title-derived filename
   transparent: true,         // keep the background transparent
-  backgroundColor: '#f5f5f5' // background when not transparent (default #ffffff)
+  backgroundColor: '#f5f5f5' // background when not transparent (defaults to the page background behind the chart)
 });
 
 await exportPNG(element, {
@@ -63,10 +63,12 @@ high-DPI displays.
 The chart's structural colors (axis and legend text, grid lines, …) default
 to following the host page via `currentColor`
 (see [Theming and dark mode](/guide/theming)), and the export inlines those
-resolved colors. On a dark page that means light text — so pass a
-`backgroundColor` that matches the page instead of the white default (the
-buttons above do exactly that, following the site theme), or export
-`transparent` and let the destination supply the background.
+resolved colors. The default background matches: with no `backgroundColor`
+given, the export paints the effective page background behind the chart (the
+nearest ancestor with a non-transparent background, white when there is none),
+so a chart on a dark page exports dark-on-dark instead of light-on-white. Pass
+an explicit `backgroundColor` to override, or export `transparent` and let the
+destination supply the background.
 
 ## Multiple charts in one image
 
