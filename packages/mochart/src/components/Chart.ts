@@ -111,7 +111,7 @@ const tooltipClipPathIdPrefix = 'tooltip__clippath__';
 const titleClipPathIdPrefix = 'title__clippath__';
 const legendClipPathIdPrefix = 'legend__clippath__';
 const categoryAxisTitleClipPathIdPrefix = 'categoryaxistitle__clippath__';
-const gridAxisTickLabelClipPathIdPrefix = 'categoryaxisticklabel__clippath__';
+const categoryAxisTickLabelClipPathIdPrefix = 'categoryaxisticklabel__clippath__';
 const valueAxisTitleClipPathIdPrefix = 'valueaxistitle__clippath__';
 const linearGradientIdPrefix = 'linear__gradient__';
 const radialGradientIdPrefix = 'radial__gradient__';
@@ -411,7 +411,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const titleClipPathUniqueId = titleClipPathIdPrefix + uniqueId;
     const legendClipPathUniqueId = legendClipPathIdPrefix + uniqueId;
     const categoryAxisTitleClipPathUniqueId = categoryAxisTitleClipPathIdPrefix + uniqueId;
-    const categoryAxisTickLabelClipPathUniqueId = gridAxisTickLabelClipPathIdPrefix + uniqueId;
+    const categoryAxisTickLabelClipPathUniqueId = categoryAxisTickLabelClipPathIdPrefix + uniqueId;
     const valueAxisTitleClipPathUniqueIds: Record<string, string> = Object.create(null);
     for (const { id } of valueAxisConfigs) {
       valueAxisTitleClipPathUniqueIds[id] = valueAxisTitleClipPathIdPrefix + uniqueId + '__' + id;
