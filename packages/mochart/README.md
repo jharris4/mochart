@@ -121,8 +121,10 @@ Both return a `ChartHandle`:
 - `replace(nextProps)` — replace the props wholesale; a key absent from
   `nextProps` is unset and returns to chart-managed behavior, where `update`
   would keep its previous value
-- `refresh()` — re-read the current data without a new reference; the escape
-  hatch for hosts that mutate the `data` array in place
+- `refresh()` — re-read the current data without a new reference: a default
+  chart rebuilds its provider over `data`, a `createChart` chart calls the
+  provider's optional `refresh()` hook and re-reads it — the escape hatch
+  for hosts that mutate data in place
 - `destroy()` — cancel running tweens and remove the chart's DOM
 
 ## Configuration
