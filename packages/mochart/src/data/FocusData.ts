@@ -34,6 +34,10 @@ function getPercentageForDomain(domain: [number, number], value: number, inverte
 export function getFocusData(mochartConfig: EnhancedMochartConfig, chartData: ChartData, focusedCategoryIndex: number, focusedValueAxisId: string | null, focusedSeriesId: string | null, computeDomainPercentages = true): FocusData {
   const { valueAxes: valueAxisConfigs, series: seriesConfigs } = mochartConfig;
   const categoryValues = chartData.categoryData.values.raw;
+  // an out-of-range controlled index is unfocused, never a sparse write past the data
+  if (focusedCategoryIndex >= categoryValues.length) {
+    focusedCategoryIndex = -1;
+  }
   let categoryFocusPercentages: FocusPercentage[];
   let valueAxisFocusPercentages: Record<string, FocusPercentage>;
   let seriesFocusPercentages: Record<string, FocusPercentage>;

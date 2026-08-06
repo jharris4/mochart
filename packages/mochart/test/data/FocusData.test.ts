@@ -41,6 +41,17 @@ describe('getFocusData', () => {
     expect(fd.categoryFocusDomainPercentages).toEqual([]);
   });
 
+  it('treats an out-of-range category index as unfocused', () => {
+    // a host's controlled index can outlive its data (e.g. rows removed in the
+    // same update); it must degrade to no focus, not dim everything
+    const { config, chartData } = makeChart();
+    const fd = getFocusData(config, chartData, 10, null, null);
+    expect(fd.focusedCategoryIndex).toBe(-1);
+    expect(fd.categoryFocusPercentages).toEqual([null, null, null]);
+    expect(fd.categoryFocusPercentages.length).toBe(3);
+    expect(fd.categoryFocusDomainPercentages).toEqual([]);
+  });
+
   it('marks the focused category at +1 and the rest at -1', () => {
     const { config, chartData } = makeChart();
     const fd = getFocusData(config, chartData, 1, null, null);
