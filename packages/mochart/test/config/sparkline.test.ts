@@ -15,7 +15,7 @@ describe('createSparklineConfig', () => {
     const mochartConfig = enhanceConfig(createSparklineConfig(baseConfig()));
     expect(mochartConfig.validation.valid).toBe(true);
     expect(mochartConfig.categoryAxis.visible).toBe(false);
-    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.sa.visible).toBe(false);
+    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.va.visible).toBe(false);
     expect(mochartConfig.legend.visible).toBe(false);
     expect(mochartConfig.tooltip.visible).toBe(false);
     expect(mochartConfig.crosshair.visible).toBe(false);
@@ -43,14 +43,14 @@ describe('createSparklineConfig', () => {
 
   it('hides every value axis when there are several', () => {
     const config = baseConfig();
-    config.valueAxes = [{ id: 'va' }, { id: 'sb' }];
+    config.valueAxes = [{ id: 'va' }, { id: 'vb' }];
     config.series = [
       { axis: 'va', property: 'value', renderer: 'line' },
-      { axis: 'sb', property: 'other', renderer: 'line' }
+      { axis: 'vb', property: 'other', renderer: 'line' }
     ];
     const mochartConfig = enhanceConfig(createSparklineConfig(config));
-    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.sa.visible).toBe(false);
-    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.sb.visible).toBe(false);
+    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.va.visible).toBe(false);
+    expect((mochartConfig as unknown as { valueAxesById: Record<string, { visible: boolean }> }).valueAxesById.vb.visible).toBe(false);
   });
 
   it('keeps the tooltip and crosshairs when interactive', () => {
