@@ -30,10 +30,23 @@ import * as scatterBubble from '../examples/scatterBubble'
   [`labelFormat`](/reference/series#series.labelFormat)
   formats the value (`"auto"` derives from the data).
 - [`labelPosition`](/reference/series#series.labelPosition)
-  places labels `inside`, `center`, or `outside` the shape, and the
-  `labelMin*Fraction` guards hide labels that wouldn't fit (the
-  `labelMinRangeFraction` above hides labels on bars shorter than 5% of the
-  axis).
+  places labels `inside`, `center`, or `outside` the shape, and
+  [`labelOffset`](/reference/series#series.labelOffset) nudges every label
+  by a fixed pixel amount along the series axis.
+- Three fraction guards hide labels that wouldn't fit:
+  [`labelMinRangeFraction`](/reference/series#series.labelMinRangeFraction)
+  (used above — it hides labels on bars shorter than 5% of the axis), and
+  [`labelMinPositionFraction`](/reference/series#series.labelMinPositionFraction) /
+  [`labelMaxPositionFraction`](/reference/series#series.labelMaxPositionFraction),
+  which hide labels whose values sit too close to the domain's minimum or
+  maximum.
+- `labelPosition`, `labelOffset`, and the two position-fraction guards each
+  have `labelAboveBase*` / `labelBelowBase*` variants
+  ([`labelAboveBasePosition`](/reference/series#series.labelAboveBasePosition),
+  [`labelBelowBaseOffset`](/reference/series#series.labelBelowBaseOffset), …)
+  that override them only for values above or below the series base — handy
+  for labeling positive and negative bars differently. Their default
+  `'auto'` inherits the base knob.
 - [`labelTextStyle`](/reference/series#series.labelTextStyle)
   paints the label text, again per focus state. Its colors accept the palette
   modes (`series`, `seriesIndex`, `categoryIndex`) as well as literal colors —
