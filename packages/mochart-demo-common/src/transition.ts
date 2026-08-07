@@ -85,7 +85,8 @@ export function getTransitionMochartConfig(transitionConfig: TransitionConfig): 
 }
 
 export function getTransitionDataProviders(transitionConfig: TransitionConfig): ChartDataProviderLike[] {
-  // TODO - this doesn't handle category display property or extra series properties...
+  // the providers wrap the rows wholesale: displayProperty and extra series
+  // properties are read through getSeriesValue like any other row property
   const categoryProperty = transitionConfig.config.categoryAxis.property;
   return transitionConfig.data.map(data => new ArrayOfObjectsDataProvider(data, categoryProperty));
 }
