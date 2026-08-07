@@ -66,6 +66,12 @@ describe('chart aria semantics', () => {
     expect(container.querySelector('svg')!.getAttribute('aria-label')).toBe('Chart');
   });
 
+  // Regression: '' is a valid title text and produced aria-label=""
+  it('falls back to a generic name when the title text is empty', () => {
+    const container = mountChart(makeConfig({ title: { text: '' } }));
+    expect(container.querySelector('svg')!.getAttribute('aria-label')).toBe('Chart');
+  });
+
   it('hides the decorative geometry from assistive tech', () => {
     const container = mountChart(makeConfig());
     for (const selector of ['.mochart-plot-back', '.mochart-plot-front', '.mochart-crosshair']) {

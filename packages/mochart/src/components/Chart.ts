@@ -1138,7 +1138,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     body.svg.set({ xmlns: 'http://www.w3.org/2000/svg', id: svgUniqueId, width, height,
       role: accessibility ? 'group' : null,
       ariaRoledescription: accessibility ? accessibilityConfig.chartRoleDescription : null,
-      ariaLabel: accessibility ? mochartConfig.title.text ?? accessibilityConfig.chartLabel : null });
+      ariaLabel: accessibility ? mochartConfig.title.text || accessibilityConfig.chartLabel : null }); // ||: an empty title must not blank the accessible name
 
     // the keyboard announcer: visually hidden, spoken via role="status"
     const liveRegion = accessibility ? body.liveRegionSlot.set('div', () => htmlEl('div')) : body.liveRegionSlot.set(null);
