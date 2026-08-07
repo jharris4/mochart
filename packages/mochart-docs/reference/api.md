@@ -17,6 +17,7 @@ import {
   ArrayOfObjectsDataProvider, ObjectOfArraysDataProvider,
   validateConfig, validateConfigDetailed, migrateConfig, enhanceConfig, getDefaults, getDataErrors,
   createHistogram, createWaterfall, createSparklineConfig, createHeatmap, createCandlestick,
+  createOhlc, createPie,
   mochartCssClasses, getVersionString
 } from '@mochart/core';
 ```
