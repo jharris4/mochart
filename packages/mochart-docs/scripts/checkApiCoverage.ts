@@ -11,12 +11,13 @@
 //   exception: that surface is the generated config reference / the .d.ts;
 // - `ChartHandle` methods must appear in a docs page as a call —
 //   `` `name(` `` — so renaming a method breaks the check;
-// - @mochart/export's exports (checker-resolved, like core's) must be
-//   mentioned in a docs page (the binding packages are covered by the
-//   framework-props generator);
-// - the non-JS surface — core's subpath exports (the optional stylesheet)
-//   and the IIFE script-tag artifact — must be mentioned in a docs page.
-//   (@mochart/editor is exempt until it gets a docs page; add it here then.)
+// - @mochart/export's and @mochart/editor's exports (checker-resolved, like
+//   core's) must be mentioned in a docs page (the binding packages are
+//   covered by the framework-props generator). The editor's model.ts types
+//   are the exception: that surface is the shipped .d.ts;
+// - the non-JS surface — core's and the editor's subpath exports (the
+//   optional stylesheets) and the IIFE script-tag artifact — must be
+//   mentioned in a docs page.
 //
 // Names that are deliberately undocumented go in `undocumented` below, with a
 // reason. Usage: tsx scripts/checkApiCoverage.ts (run `npm run gen` first).
@@ -182,6 +183,14 @@ for (const { name, declarationFiles } of moduleExports(path.join(coreSrcDir, 'in
 for (const { name } of moduleExports(path.join(docsDir, '..', 'mochart-export', 'src', 'index.ts'))) {
   check('@mochart/export', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
 }
+// The editor's model.ts types are the generated-model surface — the shipped
+// .d.ts, not docs-page material.
+const editorPackageDir = path.join(docsDir, '..', 'mochart-editor');
+const editorModelPath = path.join(editorPackageDir, 'src', 'model.ts');
+for (const { name, declarationFiles } of moduleExports(path.join(editorPackageDir, 'src', 'index.ts'))) {
+  if (declarationFiles.length > 0 && declarationFiles.every(file => file === editorModelPath)) continue;
+  check('@mochart/editor', name, new RegExp(`\\b${name}\\b`).test(docsText), 'any docs page');
+}
 
 // Non-JS surface: subpath exports (the optional stylesheet) and the IIFE
 // script-tag artifact.
@@ -189,6 +198,12 @@ const corePackageJson = JSON.parse(fs.readFileSync(path.join(corePackageDir, 'pa
 for (const subpath of Object.keys(corePackageJson.exports ?? {})) {
   if (subpath === '.') continue;
   const specifier = '@mochart/core' + subpath.slice(1);
+  check('subpath export', specifier, docsText.includes(specifier), 'any docs page');
+}
+const editorPackageJson = JSON.parse(fs.readFileSync(path.join(editorPackageDir, 'package.json'), 'utf8')) as { exports?: Record<string, unknown> };
+for (const subpath of Object.keys(editorPackageJson.exports ?? {})) {
+  if (subpath === '.') continue;
+  const specifier = '@mochart/editor' + subpath.slice(1);
   check('subpath export', specifier, docsText.includes(specifier), 'any docs page');
 }
 const viteConfigSource = fs.readFileSync(path.join(corePackageDir, 'vite.config.ts'), 'utf8');
