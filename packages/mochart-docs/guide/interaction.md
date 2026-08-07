@@ -1,7 +1,8 @@
 # Interaction
 
 Charts respond to hover, click, and legend interaction out of the box, and
-report everything through optional callback props.
+report everything through optional callback props. Every interaction on this
+page also works from the keyboard — see [Accessibility](/guide/accessibility).
 
 <script setup>
 import * as interaction from '../examples/interaction'

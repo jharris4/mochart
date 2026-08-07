@@ -1,0 +1,138 @@
+# Accessibility
+
+Charts are keyboard-accessible and screen-reader labeled by default. The
+plot area, legend, and interactive pie slices are tab stops; the keyboard
+drives the same tooltip, focus, and filtering as the mouse; and assistive
+tech hears roles, names, and live value announcements instead of a thicket
+of unlabeled shapes. It all works out of the box — the
+[`accessibility`](/reference/accessibility) config section tunes it, localizes
+its labels, or turns it off.
+
+<script setup>
+import * as a11y from '../examples/accessibility'
+</script>
+
+Try it: Tab to the plot area of this chart, press <kbd>Enter</kbd>, and step
+through the categories with the arrow keys. Tab again to reach the legend
+and filter a series with <kbd>Enter</kbd>:
+
+<LiveChart :config="a11y.config" :data="a11y.data" />
+
+This example's config names its own tab stops — a screen reader announces the
+plot area as "Weekly signup values" and the legend as "Signup types":
+
+```js
+accessibility: {
+  plotLabel: 'Weekly signup values',
+  legendLabel: 'Signup types'
+}
+```
+
+## Keyboard map
+
+The plot area is a single tab stop whenever the
+[`tooltip`](/reference/tooltip#tooltip.visible) or
+[`crosshair`](/reference/crosshair#crosshair.visible) is enabled:
+
+| Key | Action |
+| --- | --- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | open the tooltip; press again to close |
+| <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd> | step the shown category (opens the tooltip if closed) |
+| <kbd>Home</kbd> / <kbd>End</kbd> | jump to the first / last category |
+| <kbd>Esc</kbd> | close the tooltip |
+
+Reopening returns to the last category you were viewing. On single-category
+charts (a pie or donut), the arrow keys are inert and
+<kbd>Enter</kbd>/<kbd>Space</kbd> still toggles the tooltip.
+
+Legend items are keyboard-reachable whenever clicking them does something
+([`legend.filterOnClick`](/reference/legend#legend.filterOnClick) or
+[`legend.focusOnClick`](/reference/legend#legend.focusOnClick)). They form a
+single tab stop with a roving focus: <kbd>Tab</kbd> enters the legend, the
+arrow keys and <kbd>Home</kbd>/<kbd>End</kbd> move between items, and
+<kbd>Enter</kbd>/<kbd>Space</kbd> acts exactly like a click — filtering or
+focusing the series. A keyboard-focused item highlights its series the same
+way hovering it does.
+
+Pie and donut slices work the same way when they are interactive (the series
+has [`focusOnClick`](/reference/series#series.focusOnClick) or the chart has
+an `onSliceClick` callback): one tab stop, arrow keys moving between slices
+in config order, and <kbd>Enter</kbd>/<kbd>Space</kbd> acting as a click at
+the slice's center.
+
+## What screen readers hear
+
+The chart svg is announced as a chart (via `aria-roledescription`) and named
+from [`title.text`](/reference/title#title.text); an untitled chart falls
+back to
+[`accessibility.chartLabel`](/reference/accessibility#accessibility.chartLabel).
+Decorative geometry — axes, grid lines, series shapes, the crosshair — is
+`aria-hidden`, so a screen reader lands on the meaningful stops: the plot
+area button, the legend, and the tooltip.
+
+Keyboard navigation speaks. Opening or stepping the tooltip announces its
+content through a visually-hidden live region — "Mon: Trial: 18, Paid: 6" —
+mirroring exactly what the tooltip shows, including per-series value
+formatting. Legend items expose their filtered state as a toggle-button
+`aria-pressed` (pressed means the series is shown), and interactive pie
+slices are named with their series title and current share.
+
+## The focus ring
+
+The visible keyboard focus ring ships in the optional stylesheet:
+
+```js
+import '@mochart/core/mochart.css';
+```
+
+It draws a 2px `currentColor` outline on the focused tab stop, only for
+keyboard focus (`:focus-visible`) — mouse clicks stay ring-free — and inset
+on the plot rect so it stays clear of the axis labels. Without the import,
+charts fall back to the browser's default focus outline; keyboard access
+itself works either way.
+
+## Reduced motion
+
+When the user's system requests reduced motion, the chart applies every
+update instantly instead of animating, and the preference is watched live.
+This is on by default and controlled by
+[`accessibility.respectReducedMotion`](/reference/accessibility#accessibility.respectReducedMotion)
+— see [Reduced motion](/guide/staged-animation#reduced-motion) in the
+animation guide.
+
+## Localizing the labels
+
+Every built-in accessibility string is a config key:
+
+```js
+const config = {
+  // ...
+  accessibility: {
+    chartLabel: 'Diagramm',        // svg name when the title has no text
+    chartRoleDescription: 'Diagramm',
+    plotLabel: 'Diagrammwerte',    // the plot-area tab stop
+    legendLabel: 'Legende'         // the legend group
+  }
+};
+```
+
+Series and category announcements are built from your data and titles, so
+they need no extra translation.
+
+## Turning it off
+
+Set [`accessibility.enabled`](/reference/accessibility#accessibility.enabled)
+to `false` to render the chart with none of the above — no tab stops, key
+handlers, roles, labels, `aria-hidden` markers, or live region — for example
+when the host page provides its own accessible alternative to the chart.
+Pointer interactions are unaffected, and `respectReducedMotion` is
+deliberately not gated by this switch.
+
+## Exports
+
+A downloaded SVG is a static image, so [exporting](/guide/export) removes
+the interactive semantics — the tab stops and their `role`, `aria-label`,
+`aria-expanded`, and `aria-pressed` attributes — and marks the root svg
+`role="img"`. The chart's own `aria-label` (its title, or
+[`chartLabel`](/reference/accessibility#accessibility.chartLabel)) is left
+in place, so the exported image is still announced by the chart's name.
