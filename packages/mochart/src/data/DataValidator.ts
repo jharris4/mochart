@@ -1,6 +1,6 @@
 import validators from '@mochart/movalid';
 import { isDataProviderValid } from './ChartData';
-import { NONE, TYPE_DATE, TYPE_NUMBER } from '../config/core/constants';
+import { NONE, TYPE_DATE, TYPE_NUMBER, SCALE_LINEAR, RENDERER_LINE, RENDERER_AREA } from '../config/core/constants';
 import type { MochartConfig } from '../types/config';
 import type { DataProvider, CategoryValue } from '../types/data';
 
@@ -23,6 +23,25 @@ function getDuplicates(values: readonly CategoryValue[]): CategoryValue[] {
     }
   }
   return duplicates;
+}
+
+/** Values breaking the sequence's overall direction (equal neighbours are the duplicate check's job). */
+function getOutOfOrderValues(isDate: boolean, categoryValues: readonly CategoryValue[]): CategoryValue[] {
+  const numeric = categoryValues.map(value => isDate
+    ? (value instanceof Date ? value.getTime() : new Date(value as string | number).getTime())
+    : value as number);
+  let direction = Math.sign(numeric[numeric.length - 1] - numeric[0]);
+  if (direction === 0) {
+    direction = 1;
+  }
+  const outOfOrder: CategoryValue[] = [];
+  for (let i = 1; i < numeric.length; i++) {
+    const step = Math.sign(numeric[i] - numeric[i - 1]);
+    if (step !== 0 && step !== direction) {
+      outOfOrder.push(categoryValues[i]);
+    }
+  }
+  return outOfOrder;
 }
 
 function checkProperty(dataErrors: string[], dataProvider: DataProvider, categoryValues: readonly CategoryValue[], property: string): void {
@@ -75,6 +94,18 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
       const duplicates = getDuplicates(categoryValues);
       if (duplicates.length > 0) {
         dataErrors.push('category values must be unique, duplicates: ' + duplicates.join(', '));
+      }
+    }
+    // Only line/area paths zigzag on out-of-order data; bar/none charts render
+    // position-correct regardless, so they are deliberately not flagged. Nor are
+    // displayProperty configs: display values position the chart there, and may
+    // legitimately fold back (the DST repeated-hour idiom).
+    if (dataErrors.length === 0 && categoryAxisConfig.scale === SCALE_LINEAR
+      && categoryAxisConfig.displayProperty === NONE
+      && seriesConfigs.some(({ renderer }) => renderer === RENDERER_LINE || renderer === RENDERER_AREA)) {
+      const outOfOrder = getOutOfOrderValues(categoryAxisConfig.type === TYPE_DATE, categoryValues);
+      if (outOfOrder.length > 0) {
+        dataErrors.push('category values must be in order on a linear category scale, out-of-order values: ' + outOfOrder.join(', '));
       }
     }
     for (const seriesConfig of seriesConfigs) {

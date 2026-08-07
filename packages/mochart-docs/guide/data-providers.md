@@ -85,7 +85,13 @@ keep a marker at the missing values — most useful with
 series values, category values that don't match the configured type,
 duplicate category values — and returns readable messages. A provider that
 exposes its category property (`getCategoryProperty` — both built-ins do)
-also gets its keying checked against `categoryAxis.property`. Note that a
+also gets its keying checked against `categoryAxis.property`. On a linear
+category scale, out-of-order category values are flagged too when a `line`
+or `area` series would zigzag through them; monotonic data in either
+direction passes, order-independent charts (bars, scatter) are not checked,
+and [`displayProperty`](/reference/categoryAxis#categoryAxis.displayProperty)
+configs are exempt since their display values may legitimately fold back
+across a DST-style repeated hour. Note that a
 property absent from every row is not an error: it reads as all-`undefined`,
 which is valid missing-value data.
 

@@ -294,6 +294,93 @@ describe('getDataErrors', () => {
     } as unknown as DataProvider;
     expect(getDataErrors(config, bare)).toEqual([]);
   });
+
+  it('flags out-of-order category values on a linear scale with a line series', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'x', type: 'number', scale: 'linear' },
+      series: [{ property: 'y', renderer: 'line' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }],
+      'x'
+    );
+    expect(getDataErrors(config, provider)).toEqual([
+      'category values must be in order on a linear category scale, out-of-order values: 2'
+    ]);
+  });
+
+  it('allows descending category values on a linear scale', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'x', type: 'number', scale: 'linear' },
+      series: [{ property: 'y', renderer: 'line' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [{ x: 3, y: 10 }, { x: 2, y: 20 }, { x: 1, y: 30 }],
+      'x'
+    );
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('allows out-of-order category values for bar and marker-only series', () => {
+    const provider = new ArrayOfObjectsDataProvider(
+      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }],
+      'x'
+    );
+    for (const renderer of ['bar', 'none']) {
+      const config = makeConfig({
+        categoryAxis: { property: 'x', type: 'number', scale: 'linear' },
+        series: [{ property: 'y', renderer }]
+      });
+      expect(getDataErrors(config, provider)).toEqual([]);
+    }
+  });
+
+  it('allows out-of-order category values on an ordinal scale', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'x', type: 'number', scale: 'ordinal' },
+      series: [{ property: 'y', renderer: 'line' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [{ x: 1, y: 10 }, { x: 3, y: 20 }, { x: 2, y: 30 }],
+      'x'
+    );
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('exempts displayProperty configs from the order check (DST repeated-hour idiom)', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'stamp', displayProperty: 'clock', type: 'date', scale: 'linear' },
+      series: [{ property: 'y', renderer: 'line' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { stamp: '2017-11-05T01:00:00-04:00', clock: '2017-11-05T01:00:00Z', y: 10 },
+        { stamp: '2017-11-05T01:30:00-04:00', clock: '2017-11-05T01:30:00Z', y: 20 },
+        { stamp: '2017-11-05T01:00:00-05:00', clock: '2017-11-05T01:00:00Z', y: 30 },
+        { stamp: '2017-11-05T01:30:00-05:00', clock: '2017-11-05T01:30:00Z', y: 40 }
+      ],
+      'stamp'
+    );
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('flags out-of-order date category values on a linear scale', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'day', type: 'date', scale: 'linear' },
+      series: [{ property: 'y', renderer: 'area' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { day: '2026-01-01', y: 10 },
+        { day: '2026-01-03', y: 20 },
+        { day: '2026-01-02', y: 30 }
+      ],
+      'day'
+    );
+    expect(getDataErrors(config, provider)).toEqual([
+      'category values must be in order on a linear category scale, out-of-order values: 2026-01-02'
+    ]);
+  });
 });
 
 // Regression: getDataErrors crashed inside checkProperty for a mistyped
