@@ -122,6 +122,7 @@ function guideSidebar() {
         { text: 'Horizontal charts', link: '/recipes/horizontal-bars' },
         { text: 'Thresholds and ranges', link: '/recipes/thresholds-ranges' },
         { text: 'Gradients', link: '/recipes/gradients' },
+        { text: 'Color by value', link: '/recipes/color-by-value' },
         { text: 'Markers and labels', link: '/recipes/markers-labels' },
         { text: 'Tooltip formatting', link: '/recipes/tooltip-formatting' },
         { text: 'Histogram', link: '/recipes/histogram' },

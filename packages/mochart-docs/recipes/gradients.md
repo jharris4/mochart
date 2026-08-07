@@ -27,3 +27,5 @@ import * as gradients from '../examples/gradients'
 - Shared values for several gradients can go in `linearGradientDefaults` /
   `radialGradientDefaults`, like every list section
   (see [the config model](/guide/config-model#shared-defaults-sections)).
+- Gradients are positional — the fade follows the shape, not the data. For
+  color driven by data values, see [color by value](/recipes/color-by-value).
