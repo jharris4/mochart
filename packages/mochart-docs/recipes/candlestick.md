@@ -59,7 +59,7 @@ hollow-candle style where a filled body means down:
 
 <LiveChart :config="candlestickHollow.config" :data="candlestickHollow.data" demo="candlestick-hollow" />
 
-<<< @/examples/candlestickHollow.ts{20}
+<<< @/examples/candlestickHollow.ts{18}
 
 In hollow mode the low→high wick can't be painted behind the body (it would
 show through the hollow interior), so the helper splits it into segments
@@ -80,7 +80,7 @@ direction-colored volume bars along the bottom of the plot:
 
 <LiveChart :config="candlestickVolume.config" :data="candlestickVolume.data" demo="candlestick" />
 
-<<< @/examples/candlestickVolume.ts{21}
+<<< @/examples/candlestickVolume.ts{19}
 
 The pane is pure domain-margin geometry on a second value axis, so it adapts
 to every data update: the result gains a `valueAxes` fragment with a
