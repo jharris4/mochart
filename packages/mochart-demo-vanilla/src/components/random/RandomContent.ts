@@ -218,6 +218,8 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
     },
     destroy() {
       chart.destroy();
+      config.destroy();
+      dataView.destroy();
     }
   };
 }

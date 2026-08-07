@@ -1,9 +1,8 @@
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, createJsonEditorContent, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
 import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer } from '../misc/dom';
-import { jsonEditorContent } from '../misc/jsonEditorContent';
 import { menuDivider, overflowMenu } from '../misc/OverflowMenu';
 
 import type { MenuItem } from '../misc/OverflowMenu';
@@ -41,9 +40,10 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     sync();
   });
 
-  const configEditor = jsonEditorContent({
+  const configEditor = createJsonEditorContent({
     value: formatMochartDemoConfig(demoConfig, false),
     ariaLabel: demoText.configTab.editorAria,
+    formatOnSet: true,
     support: editor => editor.createMochartConfigSupport(),
     onChange: onTextChange
   });

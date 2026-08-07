@@ -1,7 +1,7 @@
 # @mochart/editor
 
 A framework-neutral, strict JSON editor with optional Mochart config intelligence.
-It is currently private while its API is exercised in the Mochart demos.
+It powers the JSON editing tabs in the Mochart demos.
 
 ```ts
 import { createJsonEditor, createMochartConfigSupport } from '@mochart/editor';

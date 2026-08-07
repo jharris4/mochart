@@ -1,15 +1,16 @@
 import type { JsonEditorHandle, JsonEditorSupport } from '@mochart/editor';
 
-import { el } from './dom';
-
 type EditorModule = typeof import('@mochart/editor');
 
 export interface JsonEditorContentOptions {
   value: string;
   ariaLabel: string;
+  readOnly?: boolean;
+  /** Normalize programmatic values to 2-space JSON (initial value and every setValue); user-typed text is never touched. */
+  formatOnSet?: boolean;
   /** Built from the lazily imported module so support code stays in the editor chunk. */
   support?: (editor: EditorModule) => JsonEditorSupport | JsonEditorSupport[];
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
 }
 
 export interface JsonEditorContentHandle {
@@ -21,7 +22,6 @@ export interface JsonEditorContentHandle {
   destroy(): void;
 }
 
-// Programmatic values are shown pre-formatted; user-typed text is never reformatted.
 function formatJson(text: string): string {
   try {
     return JSON.stringify(JSON.parse(text), null, 2);
@@ -31,11 +31,13 @@ function formatJson(text: string): string {
   }
 }
 
-/** CodeMirror-backed drop-in for `textAreaContent`; loads @mochart/editor lazily to keep it out of the main chunk. */
-export function jsonEditorContent(options: JsonEditorContentOptions): JsonEditorContentHandle {
-  const container = el('div', { className: 'text-area-content' });
+/** CodeMirror-backed drop-in for the demos' JSON textareas; loads @mochart/editor lazily to keep it out of the main chunk. */
+export function createJsonEditorContent(options: JsonEditorContentOptions): JsonEditorContentHandle {
+  const container = document.createElement('div');
+  container.className = 'text-area-content';
+  const normalize = options.formatOnSet === true ? formatJson : (text: string) => text;
   const isDark = () => document.documentElement.classList.contains('dark');
-  let value = formatJson(options.value);
+  let value = normalize(options.value);
   let editor: JsonEditorHandle | null = null;
   let themeObserver: MutationObserver | null = null;
   let destroyed = false;
@@ -48,10 +50,11 @@ export function jsonEditorContent(options: JsonEditorContentOptions): JsonEditor
       value,
       ariaLabel: options.ariaLabel,
       theme: isDark() ? 'dark' : 'light',
+      readOnly: options.readOnly,
       support: options.support?.(module),
       onChange: options.onChange
     });
-    // Follow the site theme off <html>'s dark class: ModeSwitcher's ThemeController only notifies its own listeners.
+    // Follow the site theme off <html>'s dark class: the demos' ThemeController only notifies its own listeners.
     themeObserver = new MutationObserver(() => editor?.setTheme(isDark() ? 'dark' : 'light'));
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   }, (error: unknown) => console.error('failed to load @mochart/editor', error));
@@ -60,7 +63,7 @@ export function jsonEditorContent(options: JsonEditorContentOptions): JsonEditor
     el: container,
     getValue: () => editor ? editor.getValue() : value,
     setValue(nextValue: string) {
-      value = formatJson(nextValue);
+      value = normalize(nextValue);
       editor?.setValue(value);
     },
     format() {

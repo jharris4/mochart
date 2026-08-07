@@ -91,6 +91,7 @@ export function demoTransition(props: DemoTransitionProps): DemoTransitionHandle
     destroy() {
       bar.destroy();
       chart.destroy();
+      config.destroy();
     }
   };
 }

@@ -79,7 +79,8 @@ export const demoText = {
   dataTab: {
     reset: { label: 'Reset', tooltip: "Restore this demo's original data", aria: 'Reset' },
     unused: { label: 'Unused', tooltip: 'Show or hide data properties the chart config does not use', aria: 'Toggle Unused' },
-    apply: { label: 'Apply', tooltip: 'Apply this data — the chart updates when you return to the Chart tab', aria: 'Apply' }
+    apply: { label: 'Apply', tooltip: 'Apply this data — the chart updates when you return to the Chart tab', aria: 'Apply' },
+    editorAria: 'Chart data JSON'
   },
   exportButtons: {
     png: { label: 'PNG', aria: 'Export PNG' },
@@ -214,7 +215,11 @@ export const demoText = {
   },
   randomConfigTab: {
     reset: { label: 'Reset', tooltip: 'Restore the original random generator config', aria: 'Reset' },
-    apply: { label: 'Apply', tooltip: 'Apply this generator config to the random chart', aria: 'Apply' }
+    apply: { label: 'Apply', tooltip: 'Apply this generator config to the random chart', aria: 'Apply' },
+    editorAria: 'Random generator config JSON'
+  },
+  randomDataTab: {
+    editorAria: 'Generated data JSON (read-only)'
   },
   transitionChartTab: {
     back: { label: 'Back', tooltip: 'Transition to the previous dataset', aria: 'Step Backward' },
@@ -222,7 +227,8 @@ export const demoText = {
   },
   transitionConfigTab: {
     reset: { label: 'Reset', tooltip: 'Restore the original transition config', aria: 'Reset' },
-    apply: { label: 'Apply', tooltip: 'Apply this config to the transition charts', aria: 'Apply' }
+    apply: { label: 'Apply', tooltip: 'Apply this config to the transition charts', aria: 'Apply' },
+    editorAria: 'Transition config JSON'
   },
   // The sparkline showcase page: prose with inline charts woven between the
   // segments (segment count = inline chart count + 1, see sparklines.ts),

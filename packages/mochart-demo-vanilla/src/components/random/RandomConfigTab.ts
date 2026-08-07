@@ -1,7 +1,7 @@
 
-import { buttonWithTooltip, el, icon, setActiveClass, tabContainer, textAreaContent } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, tabContainer } from '../misc/dom';
 
-import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+import { createJsonEditorContent, demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -18,6 +18,7 @@ export interface RandomConfigTabHandle {
   el: HTMLElement;
   setActive(active: boolean): void;
   setRandomConfig(randomConfig: RandomConfigWithValid): void;
+  destroy(): void;
 }
 
 export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHandle {
@@ -26,14 +27,19 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
   let randomConfig = props.randomConfig;
   let errorMessage: string | null = null;
 
-  const textArea = textAreaContent(formatRandomConfig(randomConfig), () => {
-    errorMessage = null;
-    sync();
+  const configEditor = createJsonEditorContent({
+    value: formatRandomConfig(randomConfig),
+    ariaLabel: demoText.randomConfigTab.editorAria,
+    formatOnSet: true,
+    onChange: () => {
+      errorMessage = null;
+      sync();
+    }
   });
 
   function jsonError(): string | null {
     try {
-      JSON.parse(textArea.getValue());
+      JSON.parse(configEditor.getValue());
       return null;
     }
     catch {
@@ -43,13 +49,13 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
 
   function onUpdateClick(): void {
     try {
-      const newConfig = JSON.parse(textArea.getValue());
+      const newConfig = JSON.parse(configEditor.getValue());
       newConfig.valid = validateRandomConfig(newConfig, getGenerator());
       errorMessage = newConfig.valid ? null : demoText.errors.invalidRandomConfigValues;
       onUpdate(newConfig);
     }
     catch {
-      console.warn('Invalid Random Config JSON: ' + textArea.getValue());
+      console.warn('Invalid Random Config JSON: ' + configEditor.getValue());
       errorMessage = demoText.errors.invalidJson;
     }
     sync();
@@ -72,7 +78,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
   footerError.hidden = true;
 
   const container = tabContainer('demo-layout-col config', props.active, [
-    el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
+    el('div', { className: 'mochart-demo-tab-content' }, [configEditor.el]),
     el('div', { className: 'mochart-demo-tab-footer' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
         resetButton.el, applyButton.el, footerError
@@ -97,9 +103,12 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
     setRandomConfig(nextRandomConfig: RandomConfigWithValid) {
       if (nextRandomConfig !== randomConfig) {
         randomConfig = nextRandomConfig;
-        textArea.setValue(formatRandomConfig(nextRandomConfig));
+        configEditor.setValue(formatRandomConfig(nextRandomConfig));
         sync();
       }
+    },
+    destroy() {
+      configEditor.destroy();
     }
   };
 }

@@ -289,29 +289,6 @@ export function buttonWithTooltip(options: ButtonOptions): ButtonHandle {
 }
 
 // ---------------------------------------------------------------------------
-// TextAreaContent — the resizable JSON editor pane (css does the sizing).
-// ---------------------------------------------------------------------------
-
-export interface TextAreaHandle {
-  el: HTMLElement;
-  getValue(): string;
-  setValue(value: string): void;
-}
-
-export function textAreaContent(value: string, onChange: (value: string) => void): TextAreaHandle {
-  const textarea = el('textarea');
-  textarea.value = value;
-  textarea.addEventListener('input', () => onChange(textarea.value));
-  return {
-    el: el('div', { className: 'text-area-content' }, [textarea]),
-    getValue: () => textarea.value,
-    setValue(nextValue: string) {
-      textarea.value = nextValue;
-    }
-  };
-}
-
-// ---------------------------------------------------------------------------
 // ErrorTab — error-boundary equivalent of the framework demos' ErrorTab. The
 // child is created (and updated) inside a try/catch; on a throw, the pane is
 // replaced with the same error alert the other demos render.

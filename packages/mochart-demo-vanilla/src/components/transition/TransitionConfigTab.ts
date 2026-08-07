@@ -1,7 +1,7 @@
 
-import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, createJsonEditorContent, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon, setActiveClass, tabContainer, textAreaContent } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, tabContainer } from '../misc/dom';
 
 import type { TransitionConfig } from '../../types';
 
@@ -16,6 +16,7 @@ export interface TransitionConfigTabHandle {
   el: HTMLElement;
   setActive(active: boolean): void;
   setTransitionConfig(transitionConfig: TransitionConfig): void;
+  destroy(): void;
 }
 
 export function transitionConfigTab(props: TransitionConfigTabProps): TransitionConfigTabHandle {
@@ -24,14 +25,19 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
   let transitionConfig = props.transitionConfig;
   let errorMessage: string | null = null;
 
-  const textArea = textAreaContent(formatTransitionConfig(transitionConfig), () => {
-    errorMessage = null;
-    sync();
+  // No formatOnSet: formatTransitionConfig's compact data-row layout must survive.
+  const configEditor = createJsonEditorContent({
+    value: formatTransitionConfig(transitionConfig),
+    ariaLabel: demoText.transitionConfigTab.editorAria,
+    onChange: () => {
+      errorMessage = null;
+      sync();
+    }
   });
 
   function jsonError(): string | null {
     try {
-      JSON.parse(textArea.getValue());
+      JSON.parse(configEditor.getValue());
       return null;
     }
     catch {
@@ -40,7 +46,7 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
   }
 
   function onUpdateClick(): void {
-    const result = applyTransitionConfigEdit(textArea.getValue());
+    const result = applyTransitionConfigEdit(configEditor.getValue());
     if (result.ok) {
       errorMessage = null;
       onUpdate(result.config);
@@ -68,7 +74,7 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
   footerError.hidden = true;
 
   const container = tabContainer('demo-layout-col config', props.active, [
-    el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
+    el('div', { className: 'mochart-demo-tab-content' }, [configEditor.el]),
     el('div', { className: 'mochart-demo-tab-footer' }, [
       el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
         resetButton.el, applyButton.el, footerError
@@ -93,10 +99,13 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
     setTransitionConfig(nextTransitionConfig: TransitionConfig) {
       if (nextTransitionConfig !== transitionConfig) {
         transitionConfig = nextTransitionConfig;
-        textArea.setValue(formatTransitionConfig(nextTransitionConfig));
+        configEditor.setValue(formatTransitionConfig(nextTransitionConfig));
         errorMessage = null;
         sync();
       }
+    },
+    destroy() {
+      configEditor.destroy();
     }
   };
 }

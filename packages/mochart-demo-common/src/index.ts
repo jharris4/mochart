@@ -26,6 +26,9 @@ export { generateDemoDataProvider } from './chartTypeGenerators';
 
 export { createErrorDataProvider } from './errorDataProvider';
 
+export { createJsonEditorContent } from './jsonEditorContent';
+export type { JsonEditorContentHandle, JsonEditorContentOptions } from './jsonEditorContent';
+
 export { validateRandomConfig, restoreSharedRandomConfig, formatRandomConfig, neutralizeRandomReuse } from './randomConfig';
 
 export {

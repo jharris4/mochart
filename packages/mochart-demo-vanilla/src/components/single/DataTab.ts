@@ -1,6 +1,6 @@
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, isPhoneViewport, getCategoryProperty, parseFullData, watchPhoneViewport } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, createJsonEditorContent, demoText, formatDataView, getJsonError, isPhoneViewport, getCategoryProperty, parseFullData, watchPhoneViewport } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer, textAreaContent } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer } from '../misc/dom';
 import { overflowMenu } from '../misc/OverflowMenu';
 
 import type { DemoConfig, DataRow } from '../../types';
@@ -30,7 +30,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   let errorMessage: string | null = null;
   // Data properties the chart config does not read are hidden by default; the
   // Unused button toggles them. fullData is the complete dataset backing the
-  // textarea, viewUsedProperties the used-set its current content was rendered
+  // editor, viewUsedProperties the used-set its current content was rendered
   // with (null when every property is shown).
   let showUnused = false;
   let fullData = data;
@@ -45,18 +45,23 @@ export function dataTab(props: DataTabProps): DataTabHandle {
     sync();
   });
 
-  const textArea = textAreaContent('', () => {
-    errorMessage = null;
-    sync();
+  // No formatOnSet: formatDataView's one-row-per-line layout must survive.
+  const dataEditor = createJsonEditorContent({
+    value: '',
+    ariaLabel: demoText.dataTab.editorAria,
+    onChange: () => {
+      errorMessage = null;
+      sync();
+    }
   });
 
   function render(): void {
     viewUsedProperties = showUnused ? null : usedProperties;
-    textArea.setValue(formatDataView(fullData, viewUsedProperties));
+    dataEditor.setValue(formatDataView(fullData, viewUsedProperties));
   }
 
   function parseCurrentFullData(): ReturnType<typeof parseFullData> {
-    return parseFullData(textArea.getValue(), fullData, viewUsedProperties, getCategoryProperty(config));
+    return parseFullData(dataEditor.getValue(), fullData, viewUsedProperties, getCategoryProperty(config));
   }
 
   function resetData(): void {
@@ -82,7 +87,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   }
 
   function applyData(): void {
-    const result = applyDataEdit(textArea.getValue(), fullData, viewUsedProperties, config);
+    const result = applyDataEdit(dataEditor.getValue(), fullData, viewUsedProperties, config);
     if (result.ok) {
       errorMessage = null;
       fullData = result.data;
@@ -141,7 +146,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   const footer = el('div', { className: 'mochart-demo-tab-footer' }, [toolbar]);
 
   const container = tabContainer('demo-layout-col data', props.active, [
-    el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
+    el('div', { className: 'mochart-demo-tab-content' }, [dataEditor.el]),
     footer
   ]);
 
@@ -161,7 +166,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   }
 
   function sync(): void {
-    const currentJsonError = getJsonError(textArea.getValue());
+    const currentJsonError = getJsonError(dataEditor.getValue());
     const currentFooterError = currentJsonError ?? errorMessage;
     applyButton.setDisabled(currentJsonError !== null);
     footerError.hidden = currentFooterError === null;
@@ -212,6 +217,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
     destroy() {
       unwatchViewport();
       overflowMenuHandle.destroy();
+      dataEditor.destroy();
     }
   };
 }

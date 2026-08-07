@@ -16,7 +16,7 @@
 //   framework-props generator);
 // - the non-JS surface — core's subpath exports (the optional stylesheet)
 //   and the IIFE script-tag artifact — must be mentioned in a docs page.
-//   (@mochart/editor is exempt while private; add it here when it ships.)
+//   (@mochart/editor is exempt until it gets a docs page; add it here then.)
 //
 // Names that are deliberately undocumented go in `undocumented` below, with a
 // reason. Usage: tsx scripts/checkApiCoverage.ts (run `npm run gen` first).
