@@ -129,6 +129,18 @@ component — as in the other bindings.
 Every prop, with its type and its core counterpart, is listed in
 [Framework props](/reference/framework-props#react).
 
+## Controlled state
+
+Focus and legend filtering are chart-managed by default, but each piece of
+that state has a matching prop that takes over while it is set (not
+`undefined`): `focusedCategoryIndex` (`-1` = none), `focusedSeriesId` and
+`focusedValueAxisId` (`null` = none), and `filteredSeriesIds` (a map of
+series id → `true` = filtered out). Pass back what `onFocus` and
+`onSeriesFilter` report to keep focus and filtering in sync across several
+charts (the round-trip is shown in
+[Controlled focus and filtering](/guide/interaction#controlled-focus-and-filtering));
+leave a prop `undefined` to let the chart keep managing that piece itself.
+
 ## See it in action
 
 The [React demo gallery](/react/demos) is a full application built on

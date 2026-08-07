@@ -141,6 +141,18 @@ state.
 Every input and output, with its type and its core counterpart, is listed in
 [Framework props](/reference/framework-props#angular).
 
+## Controlled state
+
+Focus and legend filtering are chart-managed by default, but each piece of
+that state has a matching input that takes over while it is set (not
+`undefined`): `focusedCategoryIndex` (`-1` = none), `focusedSeriesId` and
+`focusedValueAxisId` (`null` = none), and `filteredSeriesIds` (a map of
+series id → `true` = filtered out). Pass back what the `focusChange` and
+`seriesFilter` outputs emit to keep focus and filtering in sync across
+several charts (the round-trip is shown in
+[Controlled focus and filtering](/guide/interaction#controlled-focus-and-filtering));
+leave an input `undefined` to let the chart keep managing that piece itself.
+
 ## See it in action
 
 The [Angular demo gallery](/angular/demos) is a full application built on
