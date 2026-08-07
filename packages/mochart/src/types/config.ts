@@ -2887,6 +2887,8 @@ export interface ConfigDiagnostic {
   path: (string | number)[];
   severity: ConfigDiagnosticSeverity;
   message: string;
+  /** The offending key names (capped) when the message reports invalid properties. */
+  invalidProperties?: string[];
   source: 'mochart';
 }
 

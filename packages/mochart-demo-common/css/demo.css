@@ -553,6 +553,7 @@ html, body {
 .mochart-demo-tab-footer {
     display: flex;
     flex: none;
+    flex-wrap: wrap;
     width: 100%;
     min-height: 0;
     align-items: center;
@@ -1297,6 +1298,8 @@ details.mochart-demo-gallery-section > summary .mochart-demo-gallery-section-tit
     font-size: 0.85em;
     color: var(--demo-text-muted);
     padding: 4px 2px 0;
+    /* Yield before the button row: wrap beside it while ≥340px remains, then drop below it as a full-width row. */
+    flex: 1 1 340px;
 }
 
 /* ============================================================

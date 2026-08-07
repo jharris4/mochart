@@ -2,7 +2,8 @@ import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConf
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
-import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer, textAreaContent } from '../misc/dom';
+import { buttonWithTooltip, el, icon, setActiveClass, setChildren, tabContainer } from '../misc/dom';
+import { jsonEditorContent } from '../misc/jsonEditorContent';
 import { menuDivider, overflowMenu } from '../misc/OverflowMenu';
 
 import type { MenuItem } from '../misc/OverflowMenu';
@@ -40,10 +41,15 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     sync();
   });
 
-  const textArea = textAreaContent(formatMochartDemoConfig(demoConfig, false), onTextChange);
+  const configEditor = jsonEditorContent({
+    value: formatMochartDemoConfig(demoConfig, false),
+    ariaLabel: demoText.configTab.editorAria,
+    support: editor => editor.createMochartConfigSupport(),
+    onChange: onTextChange
+  });
 
   function getConfigText(): string {
-    return textArea.getValue();
+    return configEditor.getValue();
   }
 
   function jsonError(): string | null {
@@ -69,7 +75,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
       const { valid } = configValidation;
       if (valid) {
         showDefaults = nextShowDefaults;
-        textArea.setValue(formatMochartDemoConfig(newMochartDemoConfig, nextShowDefaults));
+        configEditor.setValue(formatMochartDemoConfig(newMochartDemoConfig, nextShowDefaults));
         errorMessage = null;
       }
       else {
@@ -99,7 +105,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     }
     else {
       demoConfig = result.demoConfig;
-      textArea.setValue(result.text);
+      configEditor.setValue(result.text);
       errorMessage = null;
     }
     sync();
@@ -143,6 +149,12 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     tooltipText: demoText.configTab.slow.tooltip,
     onClick: toggleConfigAnimationSlow,
     content: [icon('hourglass-end', { size: 'lg', fixedWidth: true })]
+  });
+  const formatButton = buttonWithTooltip({
+    id: 'config-format', label: demoText.configTab.format.label, ariaLabel: demoText.configTab.format.aria,
+    tooltipText: demoText.configTab.format.tooltip,
+    onClick: () => configEditor.format(),
+    content: [icon('indent', { size: 'lg', fixedWidth: true })]
   });
   const applyButton = buttonWithTooltip({
     id: 'config-apply', label: demoText.configTab.apply.label, ariaLabel: demoText.configTab.apply.aria,
@@ -211,12 +223,12 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   // Menu-side home for the folded footer buttons — a cached `.demo-btn-group`;
   // OverflowMenu.ts's header says why that shape.
   const menuActionGroup = el('div', { className: 'demo-btn-group' });
-  const menuActionButtons = [resetButton.el, defaultsButton.el, invertedButton.el, slowButton.el];
+  const menuActionButtons = [resetButton.el, defaultsButton.el, invertedButton.el, slowButton.el, formatButton.el];
 
   // The footer's order at desktop widths; also the list the unfold restores, so
   // the desktop layout has exactly one definition.
   const toolbarItems = [
-    resetButton.el, defaultsButton.el, invertedButton.el, slowButton.el, applyButton.el, footerError
+    resetButton.el, defaultsButton.el, invertedButton.el, slowButton.el, formatButton.el, applyButton.el, footerError
   ];
   // Apply stays beside the editor it applies, and the error span carries
   // `role="alert"` — a message that has to be read cannot live behind a tap.
@@ -226,7 +238,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   const footer = el('div', { className: 'mochart-demo-tab-footer' }, footerItems);
 
   const container = tabContainer('demo-layout-col config', props.active, [
-    el('div', { className: 'mochart-demo-tab-content' }, [textArea.el]),
+    el('div', { className: 'mochart-demo-tab-content' }, [configEditor.el]),
     footer
   ]);
 
@@ -258,6 +270,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     const currentJsonError = jsonError();
     const currentFooterError = currentJsonError ?? errorMessage;
     applyButton.setDisabled(currentJsonError !== null);
+    formatButton.setDisabled(currentJsonError !== null);
     footerError.hidden = currentFooterError === null;
     footerError.textContent = currentFooterError ?? '';
 
@@ -294,7 +307,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
         config = nextConfig;
         mochartDemoConfig = buildMochartDemoConfig(nextConfig);
         demoConfig = copyDemoConfig(mochartDemoConfig);
-        textArea.setValue(formatMochartDemoConfig(demoConfig, showDefaults));
+        configEditor.setValue(formatMochartDemoConfig(demoConfig, showDefaults));
         errorMessage = null;
         sync();
       }
@@ -302,6 +315,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
     destroy() {
       unwatchViewport();
       overflowMenuHandle.destroy();
+      configEditor.destroy();
     }
   };
 }

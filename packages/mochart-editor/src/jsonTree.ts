@@ -95,7 +95,7 @@ export function isPropertyPosition(state: EditorState, position: number, object:
   return colon < comma || colon === -1;
 }
 
-export function rangeForPath(state: EditorState, path: JsonPath): { from: number; to: number } {
+function nodeForPath(state: EditorState, path: JsonPath): SyntaxNode | null {
   let node: SyntaxNode | null = syntaxTree(state).topNode.firstChild;
   for (const segment of path) {
     if (!node) break;
@@ -107,5 +107,21 @@ export function rangeForPath(state: EditorState, path: JsonPath): { from: number
       node = property ? propertyValue(property) ?? property : node;
     }
   }
+  return node;
+}
+
+export function rangeForPath(state: EditorState, path: JsonPath): { from: number; to: number } {
+  const node = nodeForPath(state, path);
   return node ? { from: node.from, to: Math.max(node.from + 1, node.to) } : { from: 0, to: Math.min(1, state.doc.length) };
+}
+
+/** The range of `key`'s name token inside the object at `path`; falls back to that object's range. */
+export function keyRangeForPath(state: EditorState, path: JsonPath, key: string): { from: number; to: number } {
+  const object = nodeForPath(state, path);
+  if (object?.name === 'Object') {
+    const property = children(object).find(child => child.name === 'Property' && propertyKey(state, child) === key);
+    const name = property ? children(property).find(child => child.name === 'PropertyName') : undefined;
+    if (name) return { from: name.from, to: Math.max(name.from + 1, name.to) };
+  }
+  return rangeForPath(state, path);
 }

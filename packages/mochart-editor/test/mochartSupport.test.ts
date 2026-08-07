@@ -156,6 +156,24 @@ describe('Mochart support diagnostics', () => {
     expect(diagnostic.source).toBe('mochart');
   });
 
+  it('ranges invalid-property warnings on the offending key names', () => {
+    const source = `{
+      "version": "1.0.0",
+      "notARealSection": true,
+      "categoryAxis": { "property": "month", "bogusKey": 1 },
+      "series": [{ "property": "revenue" }]
+    }`;
+    const view = viewFor(source);
+    const diagnostics = mochartSupportTesting.semanticDiagnostics(view);
+    const topLevel = diagnostics.find(item => item.message.includes('notARealSection'));
+    const nested = diagnostics.find(item => item.message.includes('bogusKey'));
+
+    expect(topLevel).toBeDefined();
+    expect(source.slice(topLevel!.from, topLevel!.to)).toBe('"notARealSection"');
+    expect(nested).toBeDefined();
+    expect(source.slice(nested!.from, nested!.to)).toBe('"bogusKey"');
+  });
+
   // Regression: these mid-edit states threw inside getDefaults; the exception
   // escaped the linter and silently froze diagnostics on the previous pass.
   it('reports errors instead of throwing on junk section shapes', () => {

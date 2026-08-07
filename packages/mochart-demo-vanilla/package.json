@@ -10,6 +10,7 @@
     "@mochart/core": "^1.0.0",
     "@mochart/demo-common": "^1.0.0",
     "@mochart/demo-data": "^1.0.0",
+    "@mochart/editor": "^1.0.0",
     "@mochart/export": "^1.0.0"
   },
   "devDependencies": {

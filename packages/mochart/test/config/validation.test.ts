@@ -301,6 +301,7 @@ describe('detailed validation', () => {
       path: ['series', 0],
       severity: 'warning',
       message: 'had 1 invalid properties: unknownExtra',
+      invalidProperties: ['unknownExtra'],
       source: 'mochart'
     });
   });

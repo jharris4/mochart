@@ -23,6 +23,8 @@ export const DEFAULT = 'Default ';
 export interface LocatedValidationMessage {
   path: (string | number)[];
   message: string;
+  /** The offending key names (capped) when the message reports invalid properties. */
+  invalidProperties?: string[];
 }
 
 function messagePath(prefix: string, i: number | undefined, ...properties: string[]): (string | number)[] {
@@ -139,7 +141,7 @@ function addWarningMessagesForObject(prefix: string, properties: string[], confi
       warningMessages.push(properties.length === 0
         ? prefixErrorMessage(prefix, message, i)
         : prefixPropertyErrorMessage(prefix, joinProperties(properties), message, i));
-      warningDetails.push({ path: messagePath(prefix, i, ...properties), message });
+      warningDetails.push({ path: messagePath(prefix, i, ...properties), message, invalidProperties });
     }
     for (const property of configProperties) {
       const nested = nestedValidators(hasOwn(propertyMap, property) ? propertyMap[property] : undefined);

@@ -4,7 +4,7 @@ import { getDefaults, validateConfigDetailed } from '@mochart/core';
 import type { Diagnostic } from '@codemirror/lint';
 import model from './mochartConfigModel.generated.js';
 import type { EditorPropertyModel, EditorSectionModel, EditorValueModel } from './model.js';
-import { containingObject, existingObjectKeys, isPropertyPosition, objectPath, pathAt, rangeForPath } from './jsonTree.js';
+import { containingObject, existingObjectKeys, isPropertyPosition, keyRangeForPath, objectPath, pathAt, rangeForPath } from './jsonTree.js';
 import { defineSupport } from './support.js';
 import type { JsonPath } from './types.js';
 
@@ -258,15 +258,24 @@ function semanticDiagnostics(view: import('@codemirror/view').EditorView): Diagn
   }
   try {
     const defaults = getDefaults(config);
-    return validateConfigDetailed(config, defaults).diagnostics.map(diagnostic => {
-      const range = rangeForPath(view.state, diagnostic.path);
-      return {
-        ...range,
+    return validateConfigDetailed(config, defaults).diagnostics.flatMap(diagnostic => {
+      // Invalid-property reports range each offending key name, not the whole container.
+      if (diagnostic.invalidProperties && diagnostic.invalidProperties.length > 0) {
+        return diagnostic.invalidProperties.map(key => ({
+          ...keyRangeForPath(view.state, diagnostic.path, key),
+          severity: diagnostic.severity,
+          message: diagnostic.message,
+          source: 'mochart',
+          path: [...diagnostic.path, key]
+        } as Diagnostic));
+      }
+      return [{
+        ...rangeForPath(view.state, diagnostic.path),
         severity: diagnostic.severity,
         message: diagnostic.message,
         source: 'mochart',
         path: diagnostic.path
-      } as Diagnostic;
+      } as Diagnostic];
     });
   }
   catch {

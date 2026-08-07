@@ -72,7 +72,9 @@ export const demoText = {
     defaults: { label: 'Defaults', tooltip: 'Show or hide the default config values merged into the JSON', aria: 'Toggle Defaults' },
     invert: { label: 'Invert', tooltip: 'Swap the chart between vertical and horizontal orientation', aria: 'Toggle Inverted' },
     slow: { label: 'Slow', tooltip: 'Slow all animations down so transitions are easy to watch', aria: 'Toggle Slow' },
-    apply: { label: 'Apply', tooltip: 'Apply this config — the chart updates when you return to the Chart tab', aria: 'Apply' }
+    format: { label: 'Format', tooltip: 'Reformat the config JSON', aria: 'Format' },
+    apply: { label: 'Apply', tooltip: 'Apply this config — the chart updates when you return to the Chart tab', aria: 'Apply' },
+    editorAria: 'Chart config JSON'
   },
   dataTab: {
     reset: { label: 'Reset', tooltip: "Restore this demo's original data", aria: 'Reset' },
