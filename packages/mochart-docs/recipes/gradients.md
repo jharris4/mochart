@@ -4,7 +4,10 @@ Series fills and strokes can use SVG gradients: declare them in
 [`linearGradients`](/reference/linearGradients) (or
 [`radialGradients`](/reference/radialGradients)) and point a
 series at one with
-[`gradient`](/reference/series#series.gradient).
+[`gradient`](/reference/series#series.gradient). As with
+[stacks](/recipes/stacked-bars) and [groups](/recipes/grouped-series), a
+sole configured gradient is applied to every series automatically —
+`gradient` ids only come into play once several are declared.
 
 <script setup>
 import * as gradients from '../examples/gradients'
