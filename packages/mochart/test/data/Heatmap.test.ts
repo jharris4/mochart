@@ -61,6 +61,16 @@ describe('createHeatmap', () => {
     expect(data[1].row1Value).toBeUndefined();
     expect(data[2].row2Value).toBeUndefined();
     expect(seriesConfigs.every((seriesConfig) => seriesConfig.missingValues === 'connect')).toBe(true);
+    expect(seriesConfigs.every((seriesConfig) => seriesConfig.colorScale!.missing === undefined)).toBe(true);
+  });
+
+  it('renders missing cells as missingColor bands when the option is set', () => {
+    const { data, series: seriesConfigs } = createHeatmap(rows(), { missingColor: '#e0e0e0', cellPadding: 0 });
+    // the South row's missing middle cell keeps its band, minus any value
+    expect(data[1].row1Start).toBe(1);
+    expect(data[1].row1).toBe(2);
+    expect(data[1].row1Value).toBeUndefined();
+    expect(seriesConfigs.every((seriesConfig) => seriesConfig.colorScale!.missing === '#e0e0e0')).toBe(true);
   });
 
   it('uses custom column labels', () => {

@@ -6,7 +6,7 @@ import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } f
 export interface HeatmapRow {
   /** The row title, e.g. shown in the legend and tooltip. */
   label: string;
-  /** One cell value per column; null/undefined leaves a gap in the grid. */
+  /** One cell value per column; null/undefined leaves a gap in the grid (or a `missingColor` cell). */
   values: readonly (number | null | undefined)[];
 }
 
@@ -56,6 +56,13 @@ export interface CreateHeatmapOptions extends CreateHeatmapColorScaleOptions {
    * @default 0.03
    */
   cellPadding?: number;
+  /**
+   * When set, a cell whose value is missing renders as a full band in this
+   * color instead of leaving a gap in the grid (it becomes each row series'
+   * `colorScale.missing`). Pick a color clearly off the ramp so missing cells
+   * read as "no data" rather than as a value.
+   */
+  missingColor?: string;
 }
 
 export interface HeatmapData {
@@ -156,6 +163,11 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
           entry['row' + r + 'Color'] = clampValue(value, explicitDomain);
         }
       }
+      else if (options.missingColor !== undefined) {
+        // the band renders (colored colorScale.missing) with no cell value
+        entry['row' + r] = rowCount - r - cellPadding;
+        entry['row' + r + 'Start'] = rowCount - r - 1 + cellPadding;
+      }
     }
     data.push(entry);
   }
@@ -193,7 +205,8 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
       colorScale: {
         interpolation: options.colorInterpolation ?? DEFAULT_COLOR_INTERPOLATION,
         min: colorScale(rowDomain[0]),
-        max: colorScale(rowDomain[1])
+        max: colorScale(rowDomain[1]),
+        ...(options.missingColor !== undefined ? { missing: options.missingColor } : {})
       },
       renderer: 'bar',
       missingValues: 'connect',

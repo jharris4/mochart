@@ -261,8 +261,10 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
             const skipI = skipped ? skipCategoryIndexMap[i] : i;
             focusPercentage = getCategoryFocusPercentage(categoryFocusPercentages[skipI], seriesFocusPercentage);
             if (seriesColorGenerator !== null) {
-              barStrokeColor = seriesColorGenerator(skipI);
-              barFillColor = barStrokeColor;
+              // null = colorScale.missing is null: keep the series' own colors
+              const generatedColor = seriesColorGenerator(skipI);
+              barStrokeColor = generatedColor !== null ? generatedColor : seriesStrokeColor;
+              barFillColor = generatedColor !== null ? generatedColor : seriesFillColor;
             }
             else if (hasDifferentColors) {
               if (hasDifferentStrokeColors) {

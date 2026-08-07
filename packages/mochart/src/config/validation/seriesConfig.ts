@@ -149,6 +149,10 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
         { ...colorBaseRule, validator: validators.equal(NONE) },
         { ...colorBaseNoneRule, validator: validators.color() },
       ], config),
+      missing: validators.conditional([
+        { ...colorPropertyNoneRule, validator: validators.equal(NONE) },
+        { ...colorPropertyRule, validator: validators.color().orEqual(NONE) },
+      ], config),
       base: validators.partialObjectWithShape({
         value: validators.number().orEqual(NONE),
         aboveMin: validators.conditional([

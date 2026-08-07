@@ -2124,6 +2124,11 @@ export interface SeriesColorScale {
    */
   max: string | null;
   /**
+   * The color drawn for a value whose color property value is missing (use null
+   * to fall back to the series style colors).
+   */
+  missing: string | null;
+  /**
    * The data threshold that splits the color ramp in two, and the two ramps
    * either side of it.
    */
@@ -2222,7 +2227,7 @@ export interface SeriesConfig {
   /**
    * The color ramp the series color values are mapped through.
    *
-   * @default { interpolation: null, min: null, max: null, base: { … } }
+   * @default { interpolation: null, min: null, max: null, missing: null, base: { … } }
    */
   colorScale: SeriesColorScale;
   /**

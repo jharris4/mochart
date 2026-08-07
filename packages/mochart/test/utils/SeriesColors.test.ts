@@ -165,6 +165,47 @@ describe('getSeriesColorGenerator', () => {
     expect(typeof gen(0)).toBe('string');
     expect(typeof gen(2)).toBe('string');
   });
+
+  it('returns the missing color for a row without a color value', () => {
+    const gen = getSeriesColorGenerator(
+      series({ colorScale: { min: '#000000', max: '#ffffff', missing: '#123456', interpolation: 'rgb', base: { value: null } } }),
+      null, rawDomains, { color: [0, undefined, 10] } as never
+    );
+    expect(gen(1)).toBe('#123456');
+    expect(typeof gen(0)).toBe('string');
+    expect(typeof gen(2)).toBe('string');
+  });
+
+  it('returns the missing color for a row without a color value on a base-split scale', () => {
+    const gen = getSeriesColorGenerator(
+      series({ colorScale: { missing: '#123456', interpolation: null, base: { value: 5, belowMin: '#000000', belowMax: '#0000ff', aboveMin: '#ff0000', aboveMax: '#ffffff' } } }),
+      null,
+      { color: [0, 10] } as never,
+      { color: [0, undefined, 10] } as never
+    );
+    expect(gen(1)).toBe('#123456');
+  });
+
+  it('returns the missing color for every row when no row has a color value', () => {
+    const gen = getSeriesColorGenerator(
+      series({ colorScale: { min: '#000000', max: '#ffffff', missing: '#123456', interpolation: 'rgb', base: { value: null } } }),
+      null,
+      { color: [null, null] } as never,
+      { color: [undefined, undefined, undefined] } as never
+    );
+    expect(gen(0)).toBe('#123456');
+    expect(gen(1)).toBe('#123456');
+    expect(gen(2)).toBe('#123456');
+  });
+
+  it('returns null for missing rows when missing is null, deferring to the series colors', () => {
+    const gen = getSeriesColorGenerator(
+      series({ colorScale: { min: '#000000', max: '#ffffff', missing: null, interpolation: 'rgb', base: { value: null } } }),
+      null, rawDomains, { color: [0, undefined, 10] } as never
+    );
+    expect(gen(1)).toBe(null);
+    expect(typeof gen(0)).toBe('string');
+  });
 });
 
 describe('getSeriesGradientColors', () => {

@@ -51,6 +51,7 @@ export default function getDescriptions() {
         interpolation: 'the type of d3 color interpolation to apply when using a color property (rgb, hsl, lab, hcl) (use null for none)',
         min: 'the minimum color to use when interpolating the series shape color with a color property (use null for none)',
         max: 'the maximum color to use when interpolating the series shape color with a color property (use null for none)',
+        missing: 'the color drawn for a value whose color property value is missing (use null to fall back to the series style colors)',
         base: {
           description: 'the data threshold that splits the color ramp in two, and the two ramps either side of it',
           properties: {

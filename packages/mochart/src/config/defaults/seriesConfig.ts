@@ -87,6 +87,7 @@ export function getRegularDefaults() {
       interpolation: NONE,
       min: NONE,
       max: NONE,
+      missing: NONE,
       base: {
         value: NONE,
         aboveMin: NONE,
@@ -252,6 +253,11 @@ export function getConditionalDefaults(configWithRegularDefaults: SeriesConfig, 
         { condition: ({ colorProperty }) => colorProperty === NONE, suffix: colorPropertyNoneSuffix, default: NONE },
         { condition: ({ colorProperty, colorScale }) => colorProperty !== NONE && colorScale?.base?.value === NONE, suffix: colorBaseNoneSuffix, default: '#0000ff' },
         { condition: ({ colorProperty, colorScale }) => colorProperty !== NONE && colorScale?.base?.value !== NONE, suffix: colorBaseSuffix, default: NONE },
+        { ...defaultRule, default: NONE }
+      ], configWithRegularDefaults, index),
+      missing: conditionalDefault([
+        { condition: ({ colorProperty }) => colorProperty === NONE, suffix: colorPropertyNoneSuffix, default: NONE },
+        { condition: ({ colorProperty }) => colorProperty !== NONE, suffix: colorPropertySuffix, default: '#cccccc' },
         { ...defaultRule, default: NONE }
       ], configWithRegularDefaults, index),
       base: {

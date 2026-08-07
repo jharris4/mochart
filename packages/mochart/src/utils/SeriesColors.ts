@@ -184,27 +184,39 @@ function getColorInterpolator(seriesConfig: EnhancedSeriesConfig): ColorInterpol
 }
 
 function buildScale(colorRange: readonly (string | null)[], colorDomain: readonly number[], interpolator: ColorInterpolator | null): ColorScale {
-  // TODO - handle colorDomain === [null, null]
   const colorScale = scaleLinear() as unknown as ColorScale;
   colorScale.range(colorRange).domain(colorDomain);
   return interpolator ? colorScale.interpolate(interpolator) : colorScale;
 }
 
-export function getSeriesColorGenerator(seriesConfig: EnhancedSeriesConfig, _focusPercentage: FocusPercentage, rawDomains: SeriesDomainObject, filteredValues: SeriesValueObject): (index: number) => string {
+/**
+ * Per-datum colors for a `colorProperty` series. A row without a color value
+ * (and every row when none has one, i.e. a `[null, null]` domain) gets the
+ * scale's `missing` color; with `missing: null` the generator returns `null`
+ * and the caller falls back to the series' own colors.
+ */
+export function getSeriesColorGenerator(seriesConfig: EnhancedSeriesConfig, _focusPercentage: FocusPercentage, rawDomains: SeriesDomainObject, filteredValues: SeriesValueObject): (index: number) => string | null {
   const colorValues = filteredValues.color as NumericValues;
   const interpolator = getColorInterpolator(seriesConfig);
 
-  const { min, max, base } = seriesConfig.colorScale;
+  const { min, max, missing, base } = seriesConfig.colorScale;
+  const [colorDomainMin, colorDomainMax] = rawDomains.color;
+  if (colorDomainMin === null || colorDomainMax === null) {
+    return () => missing;
+  }
+
   if (base.value !== NONE) {
     const colorBase = base.value;
     const aboveColorScale = buildScale([base.aboveMin, base.aboveMax],
-      [colorBase, Math.max(rawDomains.color[1]!, colorBase)], interpolator);
+      [colorBase, Math.max(colorDomainMax, colorBase)], interpolator);
     const belowColorScale = buildScale([base.belowMin, base.belowMax],
-      [Math.min(rawDomains.color[0]!, colorBase), colorBase], interpolator);
+      [Math.min(colorDomainMin, colorBase), colorBase], interpolator);
 
     return function getColor(index: number) {
-      // TODO - what if color property-value is undefined?!?!
-      const colorValue = colorValues[index]!;
+      const colorValue = colorValues[index];
+      if (colorValue === undefined) {
+        return missing;
+      }
       if (colorValue < colorBase) {
         return belowColorScale(colorValue);
       }
@@ -214,10 +226,12 @@ export function getSeriesColorGenerator(seriesConfig: EnhancedSeriesConfig, _foc
     }
   }
   else {
-    const colorScale = buildScale([min, max], rawDomains.color as [number, number], interpolator);
+    const colorScale = buildScale([min, max], [colorDomainMin, colorDomainMax], interpolator);
     return function getColor(index: number) {
-      // TODO - what if color property-value is undefined?!?!
-      const colorValue = colorValues[index]!;
+      const colorValue = colorValues[index];
+      if (colorValue === undefined) {
+        return missing;
+      }
       return colorScale(colorValue);
     }
   }

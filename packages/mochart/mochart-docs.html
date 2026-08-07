@@ -2795,7 +2795,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.colorScale">
-<td><a href="#series.colorScale">colorScale</a></td><td>the color ramp the series color values are mapped through</td><td>should be an object with any of the properties { interpolation: should be one of [ "rgb", "hsl", "lab", "hcl" ] when colorProperty is not null, min: should be equal to null when colorProperty is not null and colorScale.base.value is not null, max: should be equal to null when colorProperty is not null and colorScale.base.value is not null, base: should be an object with any of the properties { value: should be a number or be equal to null, aboveMin: should be a valid color when colorProperty is not null and colorScale.base.value is not null, aboveMax: should be a valid color when colorProperty is not null and colorScale.base.value is not null, belowMin: should be a valid color when colorProperty is not null and colorScale.base.value is not null, belowMax: should be a valid color when colorProperty is not null and colorScale.base.value is not null } }</td><td><div>{ interpolation: null, min: null, max: null, base: { … } }</div>
+<td><a href="#series.colorScale">colorScale</a></td><td>the color ramp the series color values are mapped through</td><td>should be an object with any of the properties { interpolation: should be one of [ "rgb", "hsl", "lab", "hcl" ] when colorProperty is not null, min: should be equal to null when colorProperty is not null and colorScale.base.value is not null, max: should be equal to null when colorProperty is not null and colorScale.base.value is not null, missing: should be a valid color or be equal to null when colorProperty is not null, base: should be an object with any of the properties { value: should be a number or be equal to null, aboveMin: should be a valid color when colorProperty is not null and colorScale.base.value is not null, aboveMax: should be a valid color when colorProperty is not null and colorScale.base.value is not null, belowMin: should be a valid color when colorProperty is not null and colorScale.base.value is not null, belowMax: should be a valid color when colorProperty is not null and colorScale.base.value is not null } }</td><td><div>{ interpolation: null, min: null, max: null, missing: null, base: { … } }</div>
 </td>
 </tr>
 <tr id="series.colorScale.base">
@@ -2865,6 +2865,13 @@ table thead td { border-bottom-width: 2px; }
 </td><td><div>null (when colorProperty is null)</div>
 <div><span class="colorIcon" style="background-color: #8f8fff"></span> (when colorProperty is not null and colorScale.base.value is null)</div>
 <div>null (when colorProperty is not null and colorScale.base.value is not null)</div>
+</td>
+</tr>
+<tr id="series.colorScale.missing">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#series.colorScale.missing">colorScale.missing</a></td><td>the color drawn for a value whose color property value is missing (use null to fall back to the series style colors)</td><td><p>should be equal to null when colorProperty is null</p>
+<p>should be a valid color or be equal to null when colorProperty is not null</p>
+</td><td><div>null (when colorProperty is null)</div>
+<div><span class="colorIcon" style="background-color: #cccccc"></span> (when colorProperty is not null)</div>
 </td>
 </tr>
 <tr id="series.curve">
