@@ -23,9 +23,9 @@ shows gaps mid-transition (see
 - Opt a series out of the stack with
   [`stack: null`](/reference/series#series.stack) — handy for
   overlaying a line on stacked bars.
-- Cap only the top of the whole stack with
+- Cap only the outer end of the whole stack with
   [`outerCapType`](/reference/seriesStacks#seriesStacks.outerCapType)
-  plus [`capOnlyStackOuter`](/reference/series#series.capOnlyStackOuter).
+  — see the [bar caps recipe](/recipes/bar-caps#capping-a-stack).
 - Side-by-side (grouped) bars instead of stacked: declare a
   [`seriesGroups`](/reference/seriesGroups) entry rather than a
   stack — series default into a sole group the same way.
