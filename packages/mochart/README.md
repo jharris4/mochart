@@ -190,6 +190,7 @@ createDefaultChart(container, {
   onFocus: ({ focusedSeriesId, focusedCategoryIndex }) => { /* hover/click focus changed */ },
   onSeriesFilter: ({ filteredSeriesIds }) => { /* legend filtering changed */ },
   onChartClick: ({ categoryIndex, chartX, chartY }) => { /* plot area clicked */ },
+  onSliceClick: ({ seriesId }) => { /* pie slice clicked */ },
   onTitleClick: () => {}
 });
 ```
@@ -201,6 +202,8 @@ createDefaultChart(container, {
 - `onChartClick` / `onChartMouseEnter` / `onChartMouseMove` /
   `onChartMouseLeave` — plot-area pointer events with chart coordinates and
   the nearest category index
+- `onSliceClick(payload)` — a slice of a pie or donut chart was clicked
+  (fires only on click, unlike `onFocus`, so it can anchor selection)
 - `onSeriesLayoutBoundsChange(bounds)` — the plot area was re-laid-out
 
 ## Loading, error, and empty states
