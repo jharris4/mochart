@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import Icon from '../misc/Icon';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { DataProvider } from '@mochart/core';
 import { Chart } from '@mochart/react';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 
 import type { PieSliceInfo } from '@mochart/demo-common';
 
@@ -16,19 +17,13 @@ import { usePhoneViewport } from '../misc/usePhoneViewport';
 
 import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../types';
 
-// The binding forwards all props through to the core chart, but its typed
-
 const emptyCategoryText = demoText.editableChart.emptyCategoryText;
 
 // Mutable working rows are keyed by config-driven property names, so their
 // value type is intentionally loose.
 type Row = Record<string, any>;
 
-interface EditableDataProvider {
-  getCategoryValues?: (...args: any[]) => any;
-  getSeriesValue?: (...args: any[]) => any;
-  getError?: (...args: any[]) => any;
-}
+type EditableDataProvider = DataProvider<unknown>;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -153,7 +148,7 @@ export default function EditableChart(props: Props) {
       next.dataProvider = new ArrayOfObjectsDataProvider(filteredData, mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
     }
     else if (dataError) {
-      next.dataProvider = { getError: () => dataError };
+      next.dataProvider = createErrorDataProvider(dataError);
     }
     else {
       next.dataProvider = null;
@@ -749,7 +744,7 @@ export default function EditableChart(props: Props) {
   const dataError = !!(dataProvider && dataProvider.getError && dataProvider.getError());
   const configError = !mochartDemoConfig.valid;
   const error = dataError || configError;
-  const filteredCategoryValues: any[] = error || !dataProvider?.getCategoryValues ? [] : dataProvider.getCategoryValues();
+  const filteredCategoryValues: readonly any[] = error || !dataProvider ? [] : dataProvider.getCategoryValues();
   const selectedCategoryValues = (error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(',');
   const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
   const disableRemove = orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]);

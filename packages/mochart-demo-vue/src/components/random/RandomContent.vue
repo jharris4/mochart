@@ -2,14 +2,14 @@
 import { ref, shallowRef, watch } from 'vue';
 
 import { NONE, getDataErrors } from '@mochart/core';
-import type { MochartConfig, DataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
 
 import RandomChartTab from './RandomChartTab.vue';
 import RandomConfigTab from './RandomConfigTab.vue';
 import RandomDataTab from './RandomDataTab.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, CategoryValue } from '../../types';
 
@@ -86,15 +86,12 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
     const nextDataProvider = generateDemoDataProvider(props.generator, mochartConfig, generatorConfig, props.randomId);
     const { categoryValues = [], seriesValues = {} } = nextDataProvider;
     const nextData = getData(mochartConfig, categoryValues, seriesValues);
-    const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
+    const dataErrors = getDataErrors(mochartConfig, nextDataProvider);
     if (dataErrors.length > 0) {
       console.error('data errors: ', dataErrors);
       console.warn('category values: ', categoryValues);
       console.warn('series values: ', seriesValues);
-      dataProvider.value = {
-        getCategoryValues: () => [],
-        getError: () => demoText.errors.creatingDataProvider
-      };
+      dataProvider.value = createErrorDataProvider(demoText.errors.creatingDataProvider);
       data.value = { error: demoText.errors.creatingDataProvider };
       randomConfig.value = nextRandomConfig;
     }
@@ -105,10 +102,7 @@ function updateDataProvider(forcedRandomConfig?: RandomConfigWithValid) {
     }
   }
   else {
-    dataProvider.value = {
-      getCategoryValues: () => [],
-      getError: () => demoText.errors.invalidRandomConfig
-    };
+    dataProvider.value = createErrorDataProvider(demoText.errors.invalidRandomConfig);
     data.value = {
       error: demoText.errors.invalidRandomConfig
     };

@@ -24,6 +24,8 @@ export type { DemoConfigView } from './configEditing';
 
 export { generateDemoDataProvider } from './chartTypeGenerators';
 
+export { createErrorDataProvider } from './errorDataProvider';
+
 export { validateRandomConfig, restoreSharedRandomConfig, formatRandomConfig, neutralizeRandomReuse } from './randomConfig';
 
 export {

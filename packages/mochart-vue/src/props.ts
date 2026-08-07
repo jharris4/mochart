@@ -1,12 +1,21 @@
 import type { PropType } from 'vue';
+import type {
+  Bounds, ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload,
+  DataProvider, DataRow, MochartConfig, MochartInputConfig
+} from '@mochart/core';
 import type { PlaceholderComponent } from './types.js';
 
 // Runtime prop declarations shared by Chart and DefaultChart. Declaring the
 // `on*` callbacks as props keeps them out of fallthrough attrs (they go to the
 // chart, not the container div) while still letting templates use `@chart-click`.
-const anyProp = { type: null as unknown as PropType<any>, default: undefined };
-const requiredAnyProp = { type: null as unknown as PropType<any>, required: true as const };
-const callbackProp = { type: Function as PropType<(payload: any) => void>, default: undefined };
+// `type: null` skips runtime validation; the PropType cast still types the prop.
+const errorProp = { type: null as unknown as PropType<unknown>, default: undefined };
+function requiredProp<T>() {
+  return { type: null as unknown as PropType<T>, required: true as const };
+}
+function callbackProp<T>() {
+  return { type: Function as PropType<(payload: T) => void>, default: undefined };
+}
 // Components are options objects or (functional) render functions.
 const placeholderProp = { type: [Object, Function] as PropType<PlaceholderComponent>, default: undefined };
 
@@ -15,15 +24,15 @@ export const baseChartProps = {
   width: { type: Number, default: undefined },
   /** Explicit pixel height; omit to track the container element's height. */
   height: { type: Number, default: undefined },
-  onChartClick: callbackProp,
-  onSliceClick: callbackProp,
-  onChartMouseEnter: callbackProp,
-  onChartMouseMove: callbackProp,
-  onChartMouseLeave: callbackProp,
-  onTitleClick: callbackProp,
-  onFocus: callbackProp,
-  onSeriesFilter: callbackProp,
-  onSeriesLayoutBoundsChange: callbackProp,
+  onChartClick: callbackProp<ChartEventPayload>(),
+  onSliceClick: callbackProp<ChartSliceClickPayload>(),
+  onChartMouseEnter: callbackProp<ChartEventPayload>(),
+  onChartMouseMove: callbackProp<ChartEventPayload>(),
+  onChartMouseLeave: callbackProp<ChartEventPayload>(),
+  onTitleClick: { type: Function as PropType<() => void>, default: undefined },
+  onFocus: callbackProp<ChartFocus>(),
+  onSeriesFilter: callbackProp<ChartSeriesFilter>(),
+  onSeriesLayoutBoundsChange: callbackProp<Bounds>(),
   loadingComponent: placeholderProp,
   errorComponent: placeholderProp,
   noDataComponent: placeholderProp,
@@ -31,7 +40,7 @@ export const baseChartProps = {
   noSeriesComponent: placeholderProp,
   configErrorComponent: placeholderProp,
   loading: { type: Boolean, default: undefined },
-  error: anyProp,
+  error: errorProp,
   /**
    * Controlled focused category index (-1 = none). When set it overrides the
    * chart's internal focus on every render; pass back the value reported by
@@ -52,12 +61,12 @@ export const baseChartProps = {
 
 export const chartProps = {
   ...baseChartProps,
-  mochartConfig: requiredAnyProp,
-  dataProvider: requiredAnyProp
+  mochartConfig: requiredProp<MochartConfig | null>(),
+  dataProvider: requiredProp<DataProvider<unknown> | null>()
 };
 
 export const defaultChartProps = {
   ...baseChartProps,
-  config: requiredAnyProp,
-  data: { type: Array as PropType<any[]>, required: true as const }
+  config: requiredProp<MochartInputConfig>(),
+  data: { type: Array as PropType<readonly DataRow[]>, required: true as const }
 };

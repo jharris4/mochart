@@ -1,5 +1,6 @@
 import { ApplicationRef, Directive, ElementRef, EnvironmentInjector, EventEmitter, Input, Output, PLATFORM_ID, inject } from '@angular/core';
 import type { AfterViewInit, OnChanges, OnDestroy } from '@angular/core';
+import type { Bounds, ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload } from '@mochart/core';
 import { mountChartHost } from './host.js';
 import type { CreateChartFn, HostHandle } from './host.js';
 import { createPlaceholderAdapter } from './placeholders.js';
@@ -38,7 +39,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   /** Explicit pixel height; omit to track the host element's height. */
   @Input() height?: number;
   @Input() loading?: boolean;
-  @Input() error?: any;
+  @Input() error?: unknown;
   @Input() loadingComponent?: PlaceholderComponent;
   @Input() errorComponent?: PlaceholderComponent;
   @Input() noDataComponent?: PlaceholderComponent;
@@ -61,15 +62,15 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
    */
   @Input() filteredSeriesIds?: Record<string, boolean>;
 
-  @Output() chartClick = this.chartOutput();
-  @Output() sliceClick = this.chartOutput();
-  @Output() chartMouseEnter = this.chartOutput();
-  @Output() chartMouseMove = this.chartOutput();
-  @Output() chartMouseLeave = this.chartOutput();
+  @Output() chartClick = this.chartOutput<ChartEventPayload>();
+  @Output() sliceClick = this.chartOutput<ChartSliceClickPayload>();
+  @Output() chartMouseEnter = this.chartOutput<ChartEventPayload>();
+  @Output() chartMouseMove = this.chartOutput<ChartEventPayload>();
+  @Output() chartMouseLeave = this.chartOutput<ChartEventPayload>();
   @Output() titleClick = this.chartOutput<void>();
-  @Output() focusChange = this.chartOutput();
-  @Output() seriesFilter = this.chartOutput();
-  @Output() seriesLayoutBoundsChange = this.chartOutput();
+  @Output() focusChange = this.chartOutput<ChartFocus>();
+  @Output() seriesFilter = this.chartOutput<ChartSeriesFilter>();
+  @Output() seriesLayoutBoundsChange = this.chartOutput<Bounds>();
 
   private readonly elementRef = inject(ElementRef) as ElementRef<HTMLElement>;
   private readonly environmentInjector = inject(EnvironmentInjector);

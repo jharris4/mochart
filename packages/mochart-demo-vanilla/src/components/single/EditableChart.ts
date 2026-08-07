@@ -1,7 +1,8 @@
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { DataProvider } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
+import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
@@ -64,11 +65,7 @@ export interface EditableChartHandle {
   destroy(): void;
 }
 
-interface EditableDataProvider {
-  getCategoryValues?: (...args: any[]) => any;
-  getSeriesValue?: (...args: any[]) => any;
-  getError?: (...args: any[]) => any;
-}
+type EditableDataProvider = DataProvider<unknown>;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -154,7 +151,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
     }
     else if (dataError) {
-      dataProvider = { getError: () => dataError };
+      dataProvider = createErrorDataProvider(dataError);
     }
     else {
       dataProvider = null;
@@ -1139,7 +1136,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     const chartDataError = !!(dataProvider && dataProvider.getError && dataProvider.getError());
     const configError = !mochartDemoConfig.valid;
     const error = chartDataError || configError;
-    const filteredCategoryValues: any[] = error || !dataProvider?.getCategoryValues ? [] : dataProvider.getCategoryValues();
+    const filteredCategoryValues: readonly any[] = error || !dataProvider ? [] : dataProvider.getCategoryValues();
     const selectedCategoryValues = (error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(',');
     const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
     const disableRemove = orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]);

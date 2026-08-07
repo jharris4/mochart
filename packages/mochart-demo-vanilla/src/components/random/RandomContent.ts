@@ -1,5 +1,5 @@
 import { NONE, getDataErrors } from '@mochart/core';
-import type { MochartConfig, DataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
 
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
@@ -10,7 +10,7 @@ import type { RandomConfigTabHandle } from './RandomConfigTab';
 import { randomDataTab } from './RandomDataTab';
 import type { RandomDataTabHandle } from './RandomDataTab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, CategoryValue } from '../../types';
 
@@ -101,15 +101,12 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
       const nextDataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
       const { categoryValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = getData(mochartConfig, categoryValues, seriesValues);
-      const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
+      const dataErrors = getDataErrors(mochartConfig, nextDataProvider);
       if (dataErrors.length > 0) {
         console.error('data errors: ', dataErrors);
         console.warn('category values: ', categoryValues);
         console.warn('series values: ', seriesValues);
-        dataProvider = {
-          getCategoryValues: () => [],
-          getError: () => demoText.errors.creatingDataProvider
-        };
+        dataProvider = createErrorDataProvider(demoText.errors.creatingDataProvider);
         data = { error: demoText.errors.creatingDataProvider };
         randomConfig = nextRandomConfig;
       }
@@ -120,10 +117,7 @@ export function randomContent(props: RandomContentProps): RandomContentHandle {
       }
     }
     else {
-      dataProvider = {
-        getCategoryValues: () => [],
-        getError: () => demoText.errors.invalidRandomConfig
-      };
+      dataProvider = createErrorDataProvider(demoText.errors.invalidRandomConfig);
       data = {
         error: demoText.errors.invalidRandomConfig
       };

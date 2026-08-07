@@ -1,4 +1,8 @@
 import type { Component } from 'vue';
+import type {
+  Bounds, ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload,
+  DataProvider, DataRow, MochartConfig, MochartInputConfig
+} from '@mochart/core';
 
 /**
  * The interface a template ref on `Chart`/`DefaultChart` exposes.
@@ -14,9 +18,9 @@ export interface ChartRef {
 export interface PlaceholderProps {
   width?: number;
   height?: number;
-  mochartConfig?: any;
-  dataProvider?: any;
-  error?: any;
+  mochartConfig?: MochartConfig | null;
+  dataProvider?: DataProvider<unknown> | null;
+  error?: unknown;
   hasData?: boolean;
 }
 
@@ -24,15 +28,15 @@ export interface PlaceholderProps {
 export type PlaceholderComponent = Component<PlaceholderProps>;
 
 export interface ChartCallbackProps {
-  onChartClick?: (eventPayload: any) => void;
-  onSliceClick?: (payload: any) => void;
-  onChartMouseEnter?: (eventPayload: any) => void;
-  onChartMouseMove?: (eventPayload: any) => void;
-  onChartMouseLeave?: (eventPayload: any) => void;
+  onChartClick?: (eventPayload: ChartEventPayload) => void;
+  onSliceClick?: (payload: ChartSliceClickPayload) => void;
+  onChartMouseEnter?: (eventPayload: ChartEventPayload) => void;
+  onChartMouseMove?: (eventPayload: ChartEventPayload) => void;
+  onChartMouseLeave?: (eventPayload: ChartEventPayload) => void;
   onTitleClick?: () => void; // core calls it with no arguments
-  onFocus?: (focusData: any) => void;
-  onSeriesFilter?: (filterData: any) => void;
-  onSeriesLayoutBoundsChange?: (bounds: any) => void;
+  onFocus?: (focusData: ChartFocus) => void;
+  onSeriesFilter?: (filterData: ChartSeriesFilter) => void;
+  onSeriesLayoutBoundsChange?: (bounds: Bounds) => void;
   loadingComponent?: PlaceholderComponent;
   errorComponent?: PlaceholderComponent;
   noDataComponent?: PlaceholderComponent;
@@ -49,7 +53,7 @@ export interface BaseChartProps extends ChartCallbackProps {
   /** Explicit pixel height; omit to track the container element's height. */
   height?: number;
   loading?: boolean;
-  error?: any;
+  error?: unknown;
   /**
    * Controlled focused category index (-1 = none). When set it overrides the
    * chart's internal focus on every render; pass back the value reported by
@@ -68,14 +72,14 @@ export interface BaseChartProps extends ChartCallbackProps {
   filteredSeriesIds?: Record<string, boolean>;
 }
 
-/** Props for `Chart`: a pre-enhanced config plus a data provider. */
+/** Props for `Chart`: a pre-enhanced config plus a data provider (null while loading). */
 export interface ChartProps extends BaseChartProps {
-  mochartConfig: any;
-  dataProvider: any;
+  mochartConfig: MochartConfig | null;
+  dataProvider: DataProvider<unknown> | null;
 }
 
 /** Props for `DefaultChart`: a raw config plus a plain array-of-objects dataset. */
 export interface DefaultChartProps extends BaseChartProps {
-  config: any;
-  data: any[];
+  config: MochartInputConfig;
+  data: readonly DataRow[];
 }

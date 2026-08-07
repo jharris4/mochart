@@ -2,14 +2,14 @@ import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { NONE, getDataErrors } from '@mochart/core';
-import type { MochartConfig, DataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
 
 import { RandomChartTab } from './random-chart-tab';
 import { RandomConfigTab } from './random-config-tab';
 import { RandomDataTab } from './random-data-tab';
 import { ErrorTab } from '../misc/error-tab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, CategoryValue } from '../../types';
 
@@ -122,15 +122,12 @@ export class RandomContent implements OnInit, OnChanges {
       const nextDataProvider = generateDemoDataProvider(this.generator, mochartConfig, generatorConfig, this.randomId);
       const { categoryValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = this.getData(mochartConfig, categoryValues, seriesValues);
-      const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
+      const dataErrors = getDataErrors(mochartConfig, nextDataProvider);
       if (dataErrors.length > 0) {
         console.error('data errors: ', dataErrors);
         console.warn('category values: ', categoryValues);
         console.warn('series values: ', seriesValues);
-        this.dataProvider.set({
-          getCategoryValues: () => [],
-          getError: () => demoText.errors.creatingDataProvider
-        });
+        this.dataProvider.set(createErrorDataProvider(demoText.errors.creatingDataProvider));
         this.data.set({ error: demoText.errors.creatingDataProvider });
         this.randomConfig.set(nextRandomConfig);
       }
@@ -141,10 +138,7 @@ export class RandomContent implements OnInit, OnChanges {
       }
     }
     else {
-      this.dataProvider.set({
-        getCategoryValues: () => [],
-        getError: () => demoText.errors.invalidRandomConfig
-      });
+      this.dataProvider.set(createErrorDataProvider(demoText.errors.invalidRandomConfig));
       this.data.set({
         error: demoText.errors.invalidRandomConfig
       });

@@ -3,11 +3,12 @@ import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { DataProvider } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
 import { Chart } from '@mochart/angular';
 
-import { applyPieSliceValue, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 
 import type { PieSliceInfo } from '@mochart/demo-common';
 
@@ -23,11 +24,7 @@ import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../type
 // value type is intentionally loose.
 type Row = Record<string, any>;
 
-interface EditableDataProvider {
-  getCategoryValues?: (...args: any[]) => any;
-  getSeriesValue?: (...args: any[]) => any;
-  getError?: (...args: any[]) => any;
-}
+type EditableDataProvider = DataProvider<unknown>;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -556,7 +553,7 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
       this.dataProvider.set(new ArrayOfObjectsDataProvider(nextFilteredData, this.mochartDemoConfig.mochartConfig.categoryAxis.property ?? ''));
     }
     else if (this.dataError) {
-      this.dataProvider.set({ getError: () => this.dataError });
+      this.dataProvider.set(createErrorDataProvider(this.dataError));
     }
     else {
       this.dataProvider.set(null);
@@ -1107,9 +1104,9 @@ export class EditableChart implements OnInit, OnChanges, OnDestroy {
     return this.chartDataError || this.configError;
   }
 
-  get filteredCategoryValues(): any[] {
+  get filteredCategoryValues(): readonly any[] {
     const dataProvider = this.dataProvider();
-    return this.error || !dataProvider?.getCategoryValues ? [] : dataProvider.getCategoryValues();
+    return this.error || !dataProvider ? [] : dataProvider.getCategoryValues();
   }
 
   get selectedCategoryValues(): string[] {

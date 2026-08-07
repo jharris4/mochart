@@ -2,10 +2,11 @@
 import { computed, h, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { DataProvider } from '@mochart/core';
 import { Chart } from '@mochart/vue';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -39,11 +40,7 @@ interface Props {
   onChartCountToggle: () => void;
 }
 
-interface EditableDataProvider {
-  getCategoryValues?: (...args: any[]) => any;
-  getSeriesValue?: (...args: any[]) => any;
-  getError?: (...args: any[]) => any;
-}
+type EditableDataProvider = DataProvider<unknown>;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -115,7 +112,7 @@ function updateFilteredDataState(
     dataProvider.value = new ArrayOfObjectsDataProvider(nextFilteredData, props.mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
   }
   else if (props.dataError) {
-    dataProvider.value = { getError: () => props.dataError };
+    dataProvider.value = createErrorDataProvider(props.dataError);
   }
   else {
     dataProvider.value = null;
@@ -631,7 +628,7 @@ onBeforeUnmount(() => {
 const chartDataError = computed(() => !!(dataProvider.value && dataProvider.value.getError && dataProvider.value.getError()));
 const configError = computed(() => !props.mochartDemoConfig.valid);
 const error = computed(() => chartDataError.value || configError.value);
-const filteredCategoryValues = computed<any[]>(() => error.value || !dataProvider.value?.getCategoryValues ? [] : dataProvider.value.getCategoryValues());
+const filteredCategoryValues = computed<readonly any[]>(() => error.value || !dataProvider.value ? [] : dataProvider.value.getCategoryValues());
 const selectedCategoryValues = computed(() => (error.value || categoryValuesText.value === emptyCategoryText) ? [] : categoryValuesText.value.split(','));
 const filteredCategoryMap = computed(() => filteredCategoryValues.value.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {}));
 const disableRemove = computed(() => orderChanged.value || !selectedCategoryValues.value.some(category => filteredCategoryMap.value[category]));

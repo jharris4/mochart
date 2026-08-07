@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { createDefaultChart } from '@mochart/core';
+import type { DataRow, MochartInputConfig } from '@mochart/core';
 import { BaseChart } from './base-chart.js';
 import type { CreateChartFn } from './host.js';
 
@@ -15,8 +16,8 @@ import type { CreateChartFn } from './host.js';
   styles: [':host { display: block; }']
 })
 export class DefaultChart extends BaseChart {
-  @Input({ required: true }) config: any;
-  @Input({ required: true }) data!: any[];
+  @Input({ required: true }) config!: MochartInputConfig;
+  @Input({ required: true }) data!: readonly DataRow[];
 
   protected override readonly create: CreateChartFn = createDefaultChart;
 

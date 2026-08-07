@@ -3,7 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
 import { NONE, getDataErrors } from '@mochart/core';
-import type { MochartConfig, DataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
 
 import { LightElement } from '../misc/LightElement';
 import './random-chart-tab';
@@ -11,7 +11,7 @@ import './random-config-tab';
 import './random-data-tab';
 import '../misc/error-tab';
 
-import { consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 
 import type { MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, CategoryValue } from '../../types';
 
@@ -79,15 +79,12 @@ export class RandomContent extends LightElement {
       const nextDataProvider = generateDemoDataProvider(this.generator, mochartConfig, generatorConfig, this.randomId);
       const { categoryValues = [], seriesValues = {} } = nextDataProvider;
       const nextData = this.getData(mochartConfig, categoryValues, seriesValues);
-      const dataErrors = getDataErrors(mochartConfig, nextDataProvider as unknown as DataProvider);
+      const dataErrors = getDataErrors(mochartConfig, nextDataProvider);
       if (dataErrors.length > 0) {
         console.error('data errors: ', dataErrors);
         console.warn('category values: ', categoryValues);
         console.warn('series values: ', seriesValues);
-        this.dataProvider = {
-          getCategoryValues: () => [],
-          getError: () => demoText.errors.creatingDataProvider
-        };
+        this.dataProvider = createErrorDataProvider(demoText.errors.creatingDataProvider);
         this.data = { error: demoText.errors.creatingDataProvider };
         this.randomConfig = nextRandomConfig;
       }
@@ -98,10 +95,7 @@ export class RandomContent extends LightElement {
       }
     }
     else {
-      this.dataProvider = {
-        getCategoryValues: () => [],
-        getError: () => demoText.errors.invalidRandomConfig
-      };
+      this.dataProvider = createErrorDataProvider(demoText.errors.invalidRandomConfig);
       this.data = {
         error: demoText.errors.invalidRandomConfig
       };

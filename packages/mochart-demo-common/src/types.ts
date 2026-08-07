@@ -1,4 +1,4 @@
-import type { ConfigValidation, MochartConfig } from '@mochart/core';
+import type { ConfigValidation, DataProvider, MochartConfig } from '@mochart/core';
 import type { DemoRandomConfig } from '@mochart/demo-data';
 
 export type {
@@ -26,21 +26,15 @@ export interface TransitionConfig {
   data: Record<string, any>[][];
 }
 
-/** Loose structural view of a data provider as consumed by the demo charts. */
-export interface ChartDataProviderLike {
-  getCategoryValues: () => readonly any[];
-  getSeriesValue?: (...args: any[]) => any;
-  getError?: (...args: any[]) => any;
-}
+/** The data provider shape the demo charts hand to the chart bindings. */
+export type ChartDataProviderLike = DataProvider<unknown>;
 
 /**
- * The duck-typed data provider produced by the random generator and consumed
- * by the chart / getDataErrors. `getError` marks the error/invalid variants.
+ * The data provider produced by the random generator and consumed by the
+ * chart / getDataErrors. `getError` marks the error/invalid variants.
  */
-export interface DemoDataProvider {
-  getCategoryValues: () => CategoryValue[];
-  getSeriesValue?: (categoryValue: CategoryValue, categoryIndex: number, seriesProperty: string) => unknown;
-  getError?: () => string;
+export interface DemoDataProvider extends DataProvider<CategoryValue> {
+  getError?: () => string | boolean;
   categoryValues?: CategoryValue[];
   seriesValues?: Record<string, (number | undefined)[]>;
 }

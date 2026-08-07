@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
 
 import { NONE, getDataErrors } from '@mochart/core';
-import type { MochartConfig, DataProvider } from '@mochart/core';
+import type { MochartConfig } from '@mochart/core';
 
-import { buildMochartDemoConfig, consumeShareState, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import RandomMochartChartTab from './RandomChartTab';
@@ -145,13 +145,13 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
     const dataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
     const { categoryValues = [], seriesValues = {} } = dataProvider;
     const data = getData(mochartConfig, categoryValues, seriesValues);
-    const dataErrors = getDataErrors(mochartConfig, dataProvider as unknown as DataProvider);
+    const dataErrors = getDataErrors(mochartConfig, dataProvider);
     if (dataErrors.length > 0) {
       console.error('data errors: ', dataErrors);
       console.warn('category values: ', categoryValues);
       console.warn('series values: ', seriesValues);
       return {
-        dataProvider: { getCategoryValues: () => [], getError: () => demoText.errors.creatingDataProvider },
+        dataProvider: createErrorDataProvider(demoText.errors.creatingDataProvider),
         data: { error: demoText.errors.creatingDataProvider },
         randomConfig
       };
@@ -162,7 +162,7 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
   }
   else {
     return {
-      dataProvider: { getCategoryValues: () => [], getError: () => demoText.errors.invalidRandomConfig },
+      dataProvider: createErrorDataProvider(demoText.errors.invalidRandomConfig),
       data: { error: demoText.errors.invalidRandomConfig },
       randomConfig
     };

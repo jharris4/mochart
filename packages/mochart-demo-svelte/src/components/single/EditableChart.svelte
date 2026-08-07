@@ -2,7 +2,8 @@
   import { untrack, onDestroy } from 'svelte';
 
   import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
-  import { applyPieSliceValue, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+  import type { DataProvider } from '@mochart/core';
+  import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
   import type { PieSliceInfo } from '@mochart/demo-common';
   import { exportPNG, exportSVG } from '@mochart/export';
   import { Chart } from '@mochart/svelte';
@@ -40,11 +41,7 @@
     onChartCountToggle: () => void;
   }
 
-  interface EditableDataProvider {
-    getCategoryValues?: (...args: any[]) => any;
-    getSeriesValue?: (...args: any[]) => any;
-    getError?: (...args: any[]) => any;
-  }
+  type EditableDataProvider = DataProvider<unknown>;
 
   interface FocusPayload {
     valueAxisId?: string | null;
@@ -131,7 +128,7 @@
       dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
     }
     else if (dataError) {
-      dataProvider = { getError: () => dataError };
+      dataProvider = createErrorDataProvider(dataError);
     }
     else {
       dataProvider = null;
@@ -668,7 +665,7 @@
   const chartDataError = $derived(!!(dataProvider && dataProvider.getError && dataProvider.getError()));
   const configError = $derived(!mochartDemoConfig.valid);
   const error = $derived(chartDataError || configError);
-  const filteredCategoryValues = $derived<any[]>(error || !dataProvider?.getCategoryValues ? [] : dataProvider.getCategoryValues());
+  const filteredCategoryValues = $derived<readonly any[]>(error || !dataProvider ? [] : dataProvider.getCategoryValues());
   const selectedCategoryValues = $derived((error || categoryValuesText === emptyCategoryText) ? [] : categoryValuesText.split(','));
   const filteredCategoryMap = $derived(filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {}));
   const disableRemove = $derived(orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]));

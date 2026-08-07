@@ -3,10 +3,11 @@ import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
 import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@mochart/core';
+import type { DataProvider } from '@mochart/core';
 import { chart } from '@mochart/lit';
 import type { ChartProps } from '@mochart/lit';
 import { exportPNG, exportSVG } from '@mochart/export';
-import { applyPieSliceValue, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
 import type { PieSliceInfo } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -21,11 +22,7 @@ import type { MochartDemoConfig, FilteredSeriesIds, FocusData } from '../../type
 // value type is intentionally loose.
 type Row = Record<string, any>;
 
-interface EditableDataProvider {
-  getCategoryValues?: (...args: any[]) => any;
-  getSeriesValue?: (...args: any[]) => any;
-  getError?: (...args: any[]) => any;
-}
+type EditableDataProvider = DataProvider<unknown>;
 
 interface FocusPayload {
   valueAxisId?: string | null;
@@ -141,7 +138,7 @@ export class EditableChart extends LightElement {
       this.dataProvider = new ArrayOfObjectsDataProvider(nextFilteredData, this.mochartDemoConfig.mochartConfig.categoryAxis.property ?? '');
     }
     else if (this.dataError) {
-      this.dataProvider = { getError: () => this.dataError };
+      this.dataProvider = createErrorDataProvider(this.dataError);
     }
     else {
       this.dataProvider = null;
@@ -824,7 +821,7 @@ export class EditableChart extends LightElement {
   }
 
   private renderSeriesControls(error: boolean): unknown {
-    const filteredCategoryValuesCount = this.dataProvider?.getCategoryValues ? this.dataProvider.getCategoryValues().length : 0;
+    const filteredCategoryValuesCount = this.dataProvider ? this.dataProvider.getCategoryValues().length : 0;
     const seriesControlsDisabled = this.sequencePlaying || this.categoryIndex === -1;
     const categoryOrderControlsDisabled = this.sequencePlaying || this.categoryIndex === -1;
     const isFirstCategory = this.categoryIndex === 0;
@@ -981,7 +978,7 @@ export class EditableChart extends LightElement {
     const chartDataError = !!(this.dataProvider && this.dataProvider.getError && this.dataProvider.getError());
     const configError = !this.mochartDemoConfig.valid;
     const error = chartDataError || configError;
-    const filteredCategoryValues: any[] = error || !this.dataProvider?.getCategoryValues ? [] : this.dataProvider.getCategoryValues();
+    const filteredCategoryValues: readonly any[] = error || !this.dataProvider ? [] : this.dataProvider.getCategoryValues();
     const selectedCategoryValues = (error || this.categoryValuesText === emptyCategoryText) ? [] : this.categoryValuesText.split(',');
     const filteredCategoryMap = filteredCategoryValues.reduce<Record<string, boolean>>((map, category) => { map[category] = true; return map; }, {});
     const disableRemove = this.orderChanged || !selectedCategoryValues.some(category => filteredCategoryMap[category]);
