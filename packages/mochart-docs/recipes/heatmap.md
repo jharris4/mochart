@@ -28,7 +28,8 @@ import * as heatmap from '../examples/heatmap'
   strip built from `colorScale` makes the better legend.
 - Cell colors come from
   [`colorProperty`](/reference/series#series.colorProperty):
-  each cell's value drives its fill. The core color scale spans each
+  each cell's value drives its fill
+  (see [color by value](/recipes/color-by-value) for the basic per-bar usage). The core color scale spans each
   series' *own* extent, so the helper sets every row's
   [`colorScale.min`](/reference/series#series.colorScale.min)/[`colorScale.max`](/reference/series#series.colorScale.max)
   to the global ramp sampled at that row's min/max — keeping cell colors
