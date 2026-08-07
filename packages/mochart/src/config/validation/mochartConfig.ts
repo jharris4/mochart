@@ -421,7 +421,7 @@ function validateReferencesInternal(config: ConfigRecord, targetSections: unknow
     sourceSections = config[sourceSectionKey];
   }
   if (Array.isArray(sourceSections)) {
-    const sources: Record<string, boolean> = {};
+    const sources: Record<string, boolean> = Object.create(null); // null proto: ids like "__proto__" must be storable
     const sourceSectionRecords = sourceSections.filter(isConfigRecord);
     for (const sourceSection of sourceSectionRecords) {
       if (sourceSection[sourceProperty] !== undefined) {

@@ -62,6 +62,18 @@ describe('reference validation', () => {
     });
     expect(errors).toEqual([]);
   });
+
+  // Regression: the sources map was a plain {}, so an id of "__proto__" could
+  // never be stored and every reference to it was reported unresolved.
+  it('accepts a reference to a source id of "__proto__"', () => {
+    const errors = errorsFor({
+      version: V,
+      categoryAxis: { property: 'p' },
+      valueAxes: [{ id: '__proto__' }],
+      series: [{ property: 'a', axis: '__proto__' }]
+    });
+    expect(errors).toEqual([]);
+  });
 });
 
 describe('common-reference validation', () => {
