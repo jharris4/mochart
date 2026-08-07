@@ -21,7 +21,7 @@ const pie = createPie(
 export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Revenue by Product (fictional, $k)' },
-  // chartConfig.type 'pie' swaps the axis plot for the radial plot.
+  // chart.type 'pie' swaps the axis plot for the radial plot.
   chart: pie.chart,
   pie: pie.pie,
   categoryAxis: pie.categoryAxis,

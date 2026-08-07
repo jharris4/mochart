@@ -1,6 +1,6 @@
 // The volume option adds a pane of direction-colored volume bars along the
 // bottom of the plot: a hidden second axis confines the bars to the lower
-// band via domain margins, and the returned valueAxisConfigs fragment
+// band via domain margins, and the returned valueAxes fragment
 // carries both pane axes.
 import { createCandlestick } from '@mochart/core';
 import type { MochartInputConfig } from '@mochart/core';

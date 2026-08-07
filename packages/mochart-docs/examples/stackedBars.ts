@@ -1,4 +1,4 @@
-// With exactly one entry in seriesStackConfigs, every series defaults its
+// With exactly one entry in seriesStacks, every series defaults its
 // `stack` to that stack's id — no per-series wiring needed.
 import type { MochartInputConfig } from '@mochart/core';
 
