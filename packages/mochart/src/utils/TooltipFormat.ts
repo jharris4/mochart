@@ -1,10 +1,13 @@
-import { NONE, PIE_LABEL_TYPE_PERCENT, MISSING_VALUES_CONNECT } from '../config/core/constants';
+import { NONE, PIE_LABEL_TYPE_PERCENT, MISSING_VALUES_CONNECT, CHART_TYPE_PIE } from '../config/core/constants';
 import { getSeriesLabel } from './SeriesTitle';
-import { formatPieLabelType, pieLabelTypeUsesPercent } from '../data/PieLabel';
+import { getCategoryFormat, getSeriesFormats } from './ValueFormat';
+import { formatPieLabelType, pieLabelTypeUsesPercent, getPieTooltipPercentFormat } from '../data/PieLabel';
+import { getPieSliceFractionMap } from '../data/PieData';
 import type { PieTooltipLabelType } from '../config/core/constants';
 import type { TooltipConfig } from '../types/config';
-import type { EnhancedSeriesConfig } from '../types/enhanced';
+import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
 import type { ChartData, SeriesDomainObjects, SeriesValueObject } from '../types/data';
+import type { CategorySeriesValueObject as ChartCategorySeriesValueObject } from '../data/ChartData';
 import type { ValueKey } from '../data/constants';
 import type { ValueFormatter } from './ValueFormat';
 
@@ -185,6 +188,64 @@ export function getSeriesText(tooltipConfig: TooltipConfig, seriesConfig: Enhanc
     labelText,
     valueText
   };
+}
+
+/**
+ * The tooltip's content as one plain sentence for the keyboard aria-live
+ * announcer — "Jan: Sales: 42, Costs: 17" — mirroring TooltipContent's rows:
+ * the category line (showCategory), then every showInTooltip series whose row
+ * has a value, with pie percent values normalized like the slice labels.
+ */
+export function getTooltipAnnouncement(mochartConfig: EnhancedMochartConfig, tooltipValueObject: ChartCategorySeriesValueObject): string {
+  const { chart: chartConfig, pie: pieConfig, tooltip: tooltipConfig, categoryAxis: categoryAxisConfig,
+    valueAxes: valueAxisConfigs, series: seriesConfigs } = mochartConfig;
+  const { category, series } = tooltipValueObject;
+  const { raw, filtered, filteredFlags } = series;
+
+  const pieTooltipValues = pieConfig.tooltipValues;
+  let piePercentFormat: ((fraction: number) => string) | null = null;
+  let rawFractions: Record<string, number> = {};
+  let adjustedFractions: Record<string, number> = {};
+  if (chartConfig.type === CHART_TYPE_PIE && pieLabelTypeUsesPercent(pieTooltipValues)) {
+    piePercentFormat = getPieTooltipPercentFormat(pieConfig);
+    rawFractions = getPieSliceFractionMap(seriesConfigs, seriesId => raw.values[seriesId]?.plain);
+    adjustedFractions = tooltipConfig.adjustForFiltering ?
+      getPieSliceFractionMap(seriesConfigs, seriesId => filtered.values[seriesId]?.plain) : rawFractions;
+  }
+
+  let categoryPart = '';
+  if (tooltipConfig.showCategory) {
+    const categoryFormat = getCategoryFormat(categoryAxisConfig);
+    const categoryLabel = categoryAxisConfig.valueLabel !== NONE ? categoryAxisConfig.valueLabel + ': ' : '';
+    categoryPart = categoryLabel + String(categoryFormat(category.values.parsed!));
+  }
+
+  const rows: string[] = [];
+  const valueFormats = getSeriesFormats(seriesConfigs, valueAxisConfigs, raw.axisDomains);
+  for (const seriesConfig of seriesConfigs) {
+    if (!seriesConfig.showInTooltip) {
+      continue;
+    }
+    const seriesId = seriesConfig.id;
+    const seriesIsFiltered = filteredFlags[seriesId];
+    if (seriesIsFiltered && tooltipConfig.hideFiltered) {
+      continue;
+    }
+    const pieValues: PieTooltipValues | undefined = piePercentFormat === null ? undefined : {
+      tooltipValues: pieTooltipValues, percentFormat: piePercentFormat,
+      fraction: adjustedFractions[seriesId] ?? 0, rawFraction: rawFractions[seriesId] ?? 0,
+      filtered: seriesIsFiltered
+    };
+    const { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormats[seriesId], series, true, pieValues);
+    if (valueText !== null) {
+      rows.push(labelText + valueText);
+    }
+  }
+
+  if (categoryPart === '') {
+    return rows.join(', ');
+  }
+  return rows.length === 0 ? categoryPart : categoryPart + ': ' + rows.join(', ');
 }
 
 export function getFilteredValue(chartData: ChartData, seriesConfig: EnhancedSeriesConfig, valueObject: SeriesValueObject): SeriesValueObject {

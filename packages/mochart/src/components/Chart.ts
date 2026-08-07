@@ -31,6 +31,7 @@ import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
 import { translateObject } from '../utils/utils';
 import { getSeriesGradientColors } from '../utils/SeriesColors';
+import { getTooltipAnnouncement } from '../utils/TooltipFormat';
 import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
 import type { LinearGradientConfig, RadialGradientConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
@@ -257,6 +258,7 @@ class ChartBody extends Renderer<ChartBodyProps> {
   noSeriesSlot!: ElSlot;
   loadingSlot!: ElSlot;
   tooltip!: Slot;
+  liveRegionSlot!: ElSlot;
   create() {
     this.svg = svgEl('svg');
     this.defs = svgEl('defs');
@@ -278,6 +280,7 @@ class ChartBody extends Renderer<ChartBodyProps> {
     this.noSeriesSlot = this.elSlot();
     this.loadingSlot = this.elSlot();
     this.tooltip = this.slot();
+    this.liveRegionSlot = this.elSlot();
     return null;
   }
 
@@ -288,6 +291,12 @@ class ChartBody extends Renderer<ChartBodyProps> {
 }
 
 const defaultChartStyle = { position: 'relative' };
+
+// visually hidden but still read by assistive tech (the clipped-1px-box idiom)
+const liveRegionStyle = {
+  position: 'absolute', width: 1, height: 1, margin: -1, padding: 0, border: 0,
+  overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap'
+};
 
 export default class Chart extends Renderer<ChartProps, ChartState> {
   root = htmlEl('div');
@@ -711,6 +720,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   closeTooltip = () => {
+    this.announceTooltipCategory(null);
     this.setState({ ...getInitialTooltipState(), tooltipBounds: null });
   }
 
@@ -735,6 +745,9 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       tooltipCategoryIndex = tooltipVisible ? categoryIndex : -1;
       if (tooltipVisible) {
         this.lastTooltipCategoryIndex = tooltipCategoryIndex;
+      }
+      else {
+        this.announceTooltipCategory(null);
       }
       tooltipValueObject = tooltipVisible ? getCategorySeriesValueObject(chartData!, tooltipCategoryIndex) : null;
       if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
@@ -839,6 +852,18 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   /** where keyboard toggling reopens: the last category the tooltip showed */
   lastTooltipCategoryIndex = 0;
 
+  /** the visually-hidden aria-live node; keyboard navigation speaks the tooltip through it */
+  liveRegionNode: Node | null = null;
+
+  /** announce a category's tooltip values to screen readers; null silences the region */
+  announceTooltipCategory(categoryIndex: number | null): void {
+    if (this.liveRegionNode !== null) {
+      const { mochartConfig, chartData } = this.props;
+      this.liveRegionNode.textContent = categoryIndex === null ? '' :
+        getTooltipAnnouncement(mochartConfig, getCategorySeriesValueObject(chartData!, categoryIndex));
+    }
+  }
+
   /** toggle via the pointer-click path, with the position synthesized from the category */
   toggleTooltipAtCategory(categoryIndex: number): void {
     const { axisData, layoutInfo } = this.state;
@@ -870,6 +895,9 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     if (key === 'Enter' || key === ' ') {
       event.preventDefault();
       this.toggleTooltipAtCategory(tooltipVisible ? tooltipCategoryIndex : rememberedIndex);
+      if (!tooltipVisible) {
+        this.announceTooltipCategory(rememberedIndex);
+      }
     }
     else if (key === 'Escape') {
       if (tooltipVisible) {
@@ -887,6 +915,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (!tooltipVisible) {
         const index = key === 'Home' ? 0 : key === 'End' ? categoryCount - 1 : rememberedIndex;
         this.toggleTooltipAtCategory(index);
+        this.announceTooltipCategory(index);
       }
       else {
         const nextIndex =
@@ -895,6 +924,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           key === 'Home' ? 0 : categoryCount - 1;
         if (nextIndex !== tooltipCategoryIndex) {
           this.stepTooltipCategoryIndex(nextIndex);
+          this.announceTooltipCategory(nextIndex);
         }
       }
     }
@@ -1095,6 +1125,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       role: accessibility ? 'group' : null,
       ariaRoledescription: accessibility ? 'chart' : null,
       ariaLabel: accessibility ? mochartConfig.title.text ?? 'Chart' : null });
+
+    // the keyboard announcer: visually hidden, spoken via role="status"
+    const liveRegion = accessibility ? body.liveRegionSlot.set('div', () => htmlEl('div')) : body.liveRegionSlot.set(null);
+    liveRegion?.set({ role: 'status', style: liveRegionStyle });
+    this.liveRegionNode = liveRegion !== null ? liveRegion.node : null;
     body.clips.sync(clips);
     body.seriesColorGradients.sync(seriesColorGradients);
     body.linearGradients.sync(linearGradients);

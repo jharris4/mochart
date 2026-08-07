@@ -49,6 +49,10 @@ function tooltipText(container: Element): string {
   return container.querySelector('.mochart-tooltip')?.textContent ?? '';
 }
 
+function liveText(container: Element): string {
+  return container.querySelector('[role="status"]')?.textContent ?? '';
+}
+
 function key(target: Element, keyValue: string): void {
   target.dispatchEvent(new KeyboardEvent('keydown', { key: keyValue, bubbles: true, cancelable: true }));
 }
@@ -162,6 +166,34 @@ describe('plot keyboard semantics', () => {
 
     key(rect, 'Enter');
     expect(rect.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('announces the tooltip values while navigating with the keyboard', () => {
+    const container = mountChart(makeConfig());
+    const rect = plotRect(container);
+    expect(container.querySelector('[role="status"]')).not.toBeNull();
+    expect(liveText(container)).toBe('');
+
+    key(rect, 'Enter');
+    expect(liveText(container)).toBe('Jan: Series S0: 10.00, Series S1: 5.00');
+
+    key(rect, 'ArrowRight');
+    expect(liveText(container)).toBe('Feb: Series S0: 20.00, Series S1: 8.00');
+
+    key(rect, 'End');
+    expect(liveText(container)).toBe('Mar: Series S0: 15.00, Series S1: 6.00');
+
+    // clamped at the last category: nothing new to announce
+    key(rect, 'ArrowRight');
+    expect(liveText(container)).toBe('Mar: Series S0: 15.00, Series S1: 6.00');
+
+    key(rect, 'Escape');
+    expect(liveText(container)).toBe('');
+  });
+
+  it('has no live region when chart accessibility is disabled', () => {
+    const container = mountChart(makeConfig({ chart: { accessibility: false } }));
+    expect(container.querySelector('[role="status"]')).toBeNull();
   });
 
   it('opens on arrows when closed and reopens at the last shown category', () => {
