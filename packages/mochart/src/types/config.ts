@@ -2165,7 +2165,8 @@ export interface SeriesConfig {
    *
    * When set, the series shape spans from the `rangeProperty` value to the
    * `property` value instead of starting at the axis base — producing floating
-   * bars or a banded (low/high) area.
+   * bars, a banded (low/high) area, or a pair of lines with the `line`
+   * renderer.
    *
    * @default null
    */

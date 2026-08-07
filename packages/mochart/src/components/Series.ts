@@ -1,7 +1,7 @@
 import { Renderer, svgEl, ElList } from '../render';
 
 import { getSeriesPositionData } from '../utils/SeriesPositions';
-import { getLineGenerator, getAreaGenerator, getColumnGenerator } from '../utils/SeriesShapes';
+import { getLineGenerator, getRangeLineGenerator, getAreaGenerator, getColumnGenerator } from '../utils/SeriesShapes';
 import { getSeriesColorGenerator } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -73,6 +73,7 @@ const barAdapter: ElListAdapter<BarData, BarHandle> = {
 export default class Series extends Renderer<SeriesProps, SeriesState> {
   root = svgEl('g');
   shape = this.elSlot(this.root);
+  rangeShape = this.elSlot(this.root); // second line of a ranged line series
   errorBars = this.slot(this.root); // declaration order fixes DOM order: shape, then error bars, then markers/labels above them
   markers = this.slot(this.root);
   labels = this.slot(this.root);
@@ -219,12 +220,22 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       const seriesStrokeOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.strokeOpacity!, shapeFocused.strokeOpacity!, shapeDefocused.strokeOpacity!);
       const seriesFillOpacity = getFocusValue(seriesFocusPercentage, shapeNormal.fillOpacity!, shapeFocused.fillOpacity!, shapeDefocused.fillOpacity!);
 
-      if (seriesConfig.renderer === RENDERER_LINE) { // TODO - consider drawing a second line for range series...
+      if (seriesConfig.renderer === RENDERER_LINE) {
         const lineGenerator = getLineGenerator(seriesConfig, seriesPositionData, inverted);
         this.shape.set('line', () => svgEl('path'))!.set({
           d: lineGenerator(), className: mochartCssClasses['seriesLine'], strokeWidth: seriesStrokeWidth,
           strokeDasharray: seriesStrokeDashArray, stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor,
           onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
+        if (seriesConfig.rangeProperty !== NONE) { // a ranged line series draws its rangeProperty bound as a second line
+          const rangeLineGenerator = getRangeLineGenerator(seriesConfig, seriesPositionData, inverted);
+          this.rangeShape.set('line', () => svgEl('path'))!.set({
+            d: rangeLineGenerator(), className: mochartCssClasses['seriesLine'], strokeWidth: seriesStrokeWidth,
+            strokeDasharray: seriesStrokeDashArray, stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor,
+            onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
+        }
+        else {
+          this.rangeShape.set(null);
+        }
       }
       else if (seriesConfig.renderer === RENDERER_AREA) {
         if (seriesConfig.gradient !== NONE) {
@@ -236,6 +247,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
           strokeDasharray: seriesStrokeDashArray,
           stroke: seriesStrokeColor, strokeOpacity: seriesStrokeOpacity, fill: seriesFillColor, fillOpacity: seriesFillOpacity,
           onMouseEnter: onSeriesEnter, onMouseLeave: onSeriesLeave, onClick: onSeriesClick });
+        this.rangeShape.set(null);
       }
       else if (seriesConfig.renderer === RENDERER_BAR) {
         const bars: BarData[] = [];
@@ -303,10 +315,12 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         }
         this.shape.set('bars', () => this.barsGroup);
         this.bars.sync(bars, barAdapter);
+        this.rangeShape.set(null);
       }
       else {
         // RENDERER_NONE (or anything unrecognized) renders no shape
         this.shape.set(null);
+        this.rangeShape.set(null);
       }
 
       this.setPresent(true);

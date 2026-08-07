@@ -179,6 +179,15 @@
       "config": "undefined-all-config.json",
       "data": "undefined-all-values-data.json",
       "random": "undefined-positive-random.json"
+    },
+    {
+      "id": "range-line",
+      "title": "Range Line",
+      "description": "A ranged series drawn by the line renderer: its two bounds render as a pair of lines.",
+      "notes": "The Range series reads range-max as its property and range-min as its rangeProperty like the range demo, but renders with the line renderer instead of area, so each bound draws as its own line sharing the series' style, focus, and legend filtering. Markers stay off (markerShape null) — with markers on they would mark only the property bound. The Middle line rides between the pair, and the tooltip prints both ends joined by rangeValueSeparator.",
+      "config": "range-line-config.json",
+      "data": "range-data.json",
+      "random": "positive-random.json"
     }
   ],
   "demos": [

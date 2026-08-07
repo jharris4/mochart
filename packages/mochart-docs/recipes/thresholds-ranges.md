@@ -30,7 +30,9 @@ import * as thresholdRange from '../examples/thresholdRange'
   to 0 and
   [`fillOpacity`](/reference/series#series.shapeStyle.normal.fillOpacity)
   low keeps it as background context — the shape's colors and its focused and
-  defocused states are left at their defaults.
+  defocused states are left at their defaults. `rangeProperty` works with the
+  other renderers too: `bar` draws floating bars, and `line` draws the two
+  bounds as a pair of lines sharing the series' style and legend entry.
 - Thresholds never extend the axis: a line whose value falls outside the
   current domain is simply not drawn. If the data alone wouldn't reach the
   threshold, set [`softMax`](/reference/valueAxes#valueAxes.softMax) at or

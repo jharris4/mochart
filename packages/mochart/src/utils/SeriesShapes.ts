@@ -64,6 +64,18 @@ export function getLineGenerator(seriesConfig: EnhancedSeriesConfig, seriesPosit
   return () => lineGenerator(seriesPositionData);
 }
 
+/** The rangeProperty bound of a ranged line series, drawn as a second line. */
+export function getRangeLineGenerator(seriesConfig: EnhancedSeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
+  const lineGenerator = applyCurve(line().defined(seriesPositionData.getDefined), seriesConfig.curve);
+  if (inverted) {
+    lineGenerator.x(seriesPositionData.getPriorSeriesPosition).y(seriesPositionData.getCategoryPosition);
+  }
+  else {
+    lineGenerator.x(seriesPositionData.getCategoryPosition).y(seriesPositionData.getPriorSeriesPosition);
+  }
+  return () => lineGenerator(seriesPositionData);
+}
+
 export function getAreaGenerator(seriesConfig: EnhancedSeriesConfig, seriesPositionData: SeriesPositionData, inverted: boolean): () => string | null {
   const areaGenerator = applyCurve(area().defined(seriesPositionData.getDefined), seriesConfig.curve);
   if (inverted) {
