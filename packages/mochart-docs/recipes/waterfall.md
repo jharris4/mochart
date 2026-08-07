@@ -41,3 +41,6 @@ import * as waterfall from '../examples/waterfall'
   computed steps come back under `steps` — or call
   `computeWaterfallSteps(items, base)` alone for the math without the
   chart fragments.
+- The floating deltas visualize signed changes without ever plotting below
+  the axis; for charts whose bars themselves cross zero, see
+  [positive and negative values](/recipes/positive-negative).

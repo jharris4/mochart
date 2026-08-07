@@ -29,3 +29,5 @@ shows gaps mid-transition (see
 - Side-by-side (grouped) bars instead of stacked: declare a
   [`seriesGroups`](/reference/seriesGroups) entry rather than a
   stack — series default into a sole group the same way.
+- Series with negative values stack downward from the same zero base —
+  see [positive and negative values](/recipes/positive-negative#stacking-mixed-signs).
