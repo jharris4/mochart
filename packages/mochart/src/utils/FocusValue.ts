@@ -4,7 +4,7 @@ import type { Style } from '../types/config';
 import type { EnhancedSeriesConfig } from '../types/enhanced';
 
 export function getFocusValue(focusPercentage: FocusPercentage, normalValue: number, focusedValue: number, defocusedValue: number): number {
-  // TODO - this assumes that focusedValue >= normalValue >= defocusedValue. This should be validated or improved...
+  // piecewise linear interpolation through (-1, defocused), (0, normal), (1, focused) — exact for any value ordering
   if (focusPercentage === null || focusPercentage === 0) {
     return normalValue;
   }

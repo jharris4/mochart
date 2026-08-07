@@ -33,6 +33,16 @@ describe('getFocusValue', () => {
     expect(getFocusValue(-1, NORMAL, FOCUSED, DEFOCUSED)).toBe(5);
     expect(getFocusValue(-0.5, NORMAL, FOCUSED, DEFOCUSED)).toBe(7.5);
   });
+
+  // The linear interpolation is exact for any value ordering — an inverted style config
+  // (focused below normal, defocused above) still lands on every endpoint.
+  it('interpolates exactly with an inverted value ordering', () => {
+    expect(getFocusValue(1, 0.6, 0.2, 1)).toBeCloseTo(0.2);
+    expect(getFocusValue(0.5, 0.6, 0.2, 1)).toBeCloseTo(0.4);
+    expect(getFocusValue(0, 0.6, 0.2, 1)).toBeCloseTo(0.6);
+    expect(getFocusValue(-0.5, 0.6, 0.2, 1)).toBeCloseTo(0.8);
+    expect(getFocusValue(-1, 0.6, 0.2, 1)).toBeCloseTo(1);
+  });
 });
 
 describe('getCategoryFocusPercentage / combined focus', () => {
