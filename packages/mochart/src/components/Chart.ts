@@ -883,8 +883,18 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.updateTooltipCategoryIndex(categoryIndex);
   }
 
+  isLoading(): boolean {
+    const { dataProvider, loading } = this.props;
+    return Boolean(loading ? loading : dataProvider && dataProvider.getLoading?.());
+  }
+
   onPlotKeyDown = (event: Event) => {
     const { key } = event as KeyboardEvent;
+    // loading pauses stepping like it pauses pointer events, but Escape still
+    // closes the tooltip — its close button stays clickable during loading too
+    if (this.isLoading() && key !== 'Escape') {
+      return;
+    }
     const { chartData } = this.props;
     const categoryCount = chartData !== null ? getChartDataCategoryCount(chartData) : 0;
     if (categoryCount === 0) {
@@ -945,7 +955,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   sync() {
     const {
-      mochartConfig, dataProvider, style = defaultChartStyle, width, height, error: propsError, loading: propsLoading,
+      mochartConfig, dataProvider, style = defaultChartStyle, width, height, error: propsError,
       getErrorComponent: errorFactory = getErrorComponent,
       getLoadingComponent: loadingFactory = getLoadingComponent,
       getNoSizeComponent: noSizeFactory = getNoSizeComponent,
@@ -972,7 +982,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
 
     const error = propsError != null ? propsError : dataProvider && !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : undefined;
-    const loading = Boolean(propsLoading ? propsLoading : dataProvider && dataProvider.getLoading?.());
+    const loading = this.isLoading();
 
     if (!mochartConfig) {
       if (isErrorActive(error)) {
@@ -1150,7 +1160,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
       // keyboard tab stop on the series-area rect: Enter/Space toggles the
       // tooltip, arrows step categories, Escape closes
-      const plotA11yProps = accessibility && !loading && (mochartConfig.tooltip.visible || mochartConfig.crosshair.visible) ? {
+      // kept during loading — dropping tabindex would dump keyboard focus to <body>
+      const plotA11yProps = accessibility && (mochartConfig.tooltip.visible || mochartConfig.crosshair.visible) ? {
         ariaLabel: accessibilityConfig.plotLabel,
         ariaExpanded: String(tooltipVisible),
         onKeyDown: this.onPlotKeyDown

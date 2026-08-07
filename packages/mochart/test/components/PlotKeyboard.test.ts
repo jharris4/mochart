@@ -196,6 +196,44 @@ describe('plot keyboard semantics', () => {
     expect(container.querySelector('[role="status"]')).toBeNull();
   });
 
+  // Regression: loading used to strip the rect's tabindex, dropping keyboard
+  // focus to <body> mid-refresh and desyncing aria-expanded from the tooltip.
+  it('keeps the tab stop while loading and pauses stepping like pointer events', () => {
+    const container = mountChart(makeConfig());
+    const handle = handles[handles.length - 1];
+    const rect = plotRect(container);
+
+    key(rect, 'Enter');
+    key(rect, 'ArrowRight');
+    expect(tooltipText(container)).toContain('Feb');
+
+    handle.update({ loading: true });
+    expect(rect.getAttribute('tabindex')).toBe('0');
+    expect(rect.getAttribute('role')).toBe('button');
+    expect(rect.getAttribute('aria-expanded')).toBe('true');
+
+    key(rect, 'ArrowRight');
+    expect(tooltipText(container)).toContain('Feb');
+    key(rect, 'Enter');
+    expect(rect.getAttribute('aria-expanded')).toBe('true');
+
+    handle.update({ loading: false });
+    key(rect, 'ArrowRight');
+    expect(tooltipText(container)).toContain('Mar');
+  });
+
+  it('still closes the tooltip with Escape while loading', () => {
+    const container = mountChart(makeConfig());
+    const handle = handles[handles.length - 1];
+    const rect = plotRect(container);
+
+    key(rect, 'Enter');
+    handle.update({ loading: true });
+    key(rect, 'Escape');
+    expect(rect.getAttribute('aria-expanded')).toBe('false');
+    expect(tooltipText(container)).toBe('');
+  });
+
   it('opens on arrows when closed and reopens at the last shown category', () => {
     const container = mountChart(makeConfig());
     const rect = plotRect(container);
