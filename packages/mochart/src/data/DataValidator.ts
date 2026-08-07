@@ -37,6 +37,13 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
   if (mochartConfig.validation.valid && dataProvider != null && isDataProviderValid(dataProvider)) {
     const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochartConfig;
 
+    if (dataProvider.getCategoryProperty !== undefined) {
+      const providerCategoryProperty = dataProvider.getCategoryProperty();
+      if (providerCategoryProperty !== categoryAxisConfig.property) {
+        dataErrors.push('categoryAxis.property (' + categoryAxisConfig.property + ') does not match the data provider category property (' + providerCategoryProperty + ')');
+      }
+    }
+
     const categoryValues = dataProvider.getCategoryValues();
     const numberValidator = validators.number();
     const stringValidator = validators.string();

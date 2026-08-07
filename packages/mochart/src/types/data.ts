@@ -169,6 +169,8 @@ export interface DataProvider<TCategoryValue = CategoryValue, TSeriesValue = unk
   getCategoryValues(): readonly TCategoryValue[];
   /** The value of `seriesProperty` for the given category (numeric or undefined for series values). */
   getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, seriesProperty: string): TSeriesValue;
+  /** The data property the category values come from; when present, `getDataErrors` flags a mismatch with `categoryAxis.property`. */
+  getCategoryProperty?(): string;
   /** When set and truthy, the chart shows its error state. */
   getError?(): unknown;
   /** When set and true, the chart shows its loading state. */

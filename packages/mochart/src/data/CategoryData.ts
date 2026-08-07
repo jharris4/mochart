@@ -61,8 +61,7 @@ function getCategoryValues(
 }
 
 function getRawCategoryValues(_categoryAxisConfig: CategoryAxisConfig, dataProvider: DataProvider): readonly CategoryValue[] {
-  // TODO - should perhaps ensure that categoryAxisConfig.property matches dataProvider.getCategoryProperty()
-  // TODO - should perhaps ensure that category values are unique, not-undefined, and even sorted
+  // config/provider mismatches and duplicate/undefined categories are getDataErrors' job; this hot path trusts its input
   return dataProvider.getCategoryValues();
 }
 

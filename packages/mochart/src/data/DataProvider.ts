@@ -30,6 +30,10 @@ export class ArrayOfObjectsDataProvider<
     return this.categoryValues;
   }
 
+  getCategoryProperty(): TCategoryProperty {
+    return this.categoryProperty;
+  }
+
   getSeriesValue(categoryValue: TRow[TCategoryProperty], _categoryIndex: number, seriesProperty: string): unknown {
     return this.rowsByCategoryValue[String(categoryValue)]?.[seriesProperty];
   }
@@ -61,6 +65,10 @@ export class ObjectOfArraysDataProvider<
 
   getCategoryValues(): TData[TCategoryProperty] {
     return this.categoryValues;
+  }
+
+  getCategoryProperty(): TCategoryProperty {
+    return this.categoryProperty;
   }
 
   getSeriesValue(_categoryValue: TData[TCategoryProperty][number], categoryIndex: number, seriesProperty: string): unknown {

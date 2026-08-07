@@ -271,6 +271,29 @@ describe('getDataErrors', () => {
     } as unknown as DataProvider;
     expect(getDataErrors(config, errored)).toEqual([]);
   });
+
+  it('flags a category property mismatch between config and provider', () => {
+    const config = stringConfig();
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { day: 'Jan', sales: 10 },
+        { day: 'Feb', sales: 20 }
+      ],
+      'day'
+    );
+    expect(getDataErrors(config, provider)).toEqual([
+      'categoryAxis.property (month) does not match the data provider category property (day)'
+    ]);
+  });
+
+  it('skips the category property check on a provider that does not expose it', () => {
+    const config = stringConfig();
+    const bare = {
+      getCategoryValues: () => ['Jan', 'Feb'],
+      getSeriesValue: (categoryValue: unknown) => (categoryValue === 'Jan' ? 10 : 20)
+    } as unknown as DataProvider;
+    expect(getDataErrors(config, bare)).toEqual([]);
+  });
 });
 
 // Regression: getDataErrors crashed inside checkProperty for a mistyped

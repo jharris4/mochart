@@ -83,7 +83,9 @@ keep a marker at the missing values — most useful with
 
 `getDataErrors` checks a dataset against an enhanced config — non-numeric
 series values, category values that don't match the configured type,
-duplicate category values — and returns readable messages. Note that a
+duplicate category values — and returns readable messages. A provider that
+exposes its category property (`getCategoryProperty` — both built-ins do)
+also gets its keying checked against `categoryAxis.property`. Note that a
 property absent from every row is not an error: it reads as all-`undefined`,
 which is valid missing-value data.
 
