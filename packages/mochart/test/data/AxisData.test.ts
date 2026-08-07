@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { getCategorySpacingInfo } from '../../src/data/AxisData';
+import { scaleTime, scaleLinear } from 'd3-scale';
+import { getCategorySpacingInfo, getCategoryAxisTickData } from '../../src/data/AxisData';
+import { makeConfig } from './fixtures';
 import type { CategoryAxisConfig } from '../../src/types/config';
-import type { CategoryAxisDomain } from '../../src/types/data';
+import type { AxisScale, CategoryAxisDomain } from '../../src/types/data';
+import type { CategoryAxisLayoutInfo } from '../../src/types/layout';
 
 // getCategorySpacingInfo turns a category axis domain + pixel extent into the pixel
 // range, per-category extent and offset used to place category values. Only a few
@@ -49,5 +52,26 @@ describe('getCategorySpacingInfo', () => {
   it('treats a null domain bound as a zero extent', () => {
     const info = getCategorySpacingInfo(axis({}), [null, null] as CategoryAxisDomain, 120);
     expect(info.categoryValueExtent).toBe(120);
+  });
+});
+
+describe('getCategoryAxisTickData', () => {
+  const layout = { tickLabelParallel: false } as CategoryAxisLayoutInfo;
+
+  // Regression: domain() on a d3 time scale returns fresh Date objects, so the
+  // old reference comparison drew two identical overlapping ticks.
+  it('draws a single tick for a single-category linear date axis', () => {
+    const config = makeConfig({ categoryAxis: { property: 'when', type: 'date', scale: 'linear' } });
+    const date = new Date('2026-08-07T00:00:00Z');
+    const axisScale = scaleTime().domain([date, date]).range([0, 200]) as unknown as AxisScale;
+    const ticks = getCategoryAxisTickData(config.categoryAxis, layout, axisScale, [date, date] as CategoryAxisDomain, [date], [100]);
+    expect(ticks).toHaveLength(1);
+  });
+
+  it('draws a single tick for a single-category linear number axis', () => {
+    const config = makeConfig({ categoryAxis: { property: 'x', type: 'number', scale: 'linear' } });
+    const axisScale = scaleLinear().domain([5, 5]).range([0, 200]) as unknown as AxisScale;
+    const ticks = getCategoryAxisTickData(config.categoryAxis, layout, axisScale, [5, 5] as CategoryAxisDomain, [5], [100]);
+    expect(ticks).toHaveLength(1);
   });
 });

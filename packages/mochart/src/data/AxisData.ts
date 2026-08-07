@@ -174,7 +174,7 @@ function createOrdinalTickObject(scaleTickValue: number, categoryValues: readonl
   return { ...tickObjectWithoutHidden, hidden: isHidden(tickObjectWithoutHidden) };
 }
 
-function getCategoryAxisTickData(axisConfig: CategoryAxisConfig, axisLayoutInfo: CategoryAxisLayoutInfo, axisScale: AxisScale, axisDomain: CategoryAxisDomain, categoryValues: readonly CategoryValue[], categoryPositions: number[]): AxisTick[] {
+export function getCategoryAxisTickData(axisConfig: CategoryAxisConfig, axisLayoutInfo: CategoryAxisLayoutInfo, axisScale: AxisScale, axisDomain: CategoryAxisDomain, categoryValues: readonly CategoryValue[], categoryPositions: number[]): AxisTick[] {
   let ticks: AxisTick[] = [];
   const categoryAxisRangeExtent = axisScale.range()[1] - axisScale.range()[0]; // different because of bar offset??
   const categoryAxisDomainExtent = +axisScale.domain()[1] - +axisScale.domain()[0];
@@ -190,7 +190,8 @@ function getCategoryAxisTickData(axisConfig: CategoryAxisConfig, axisLayoutInfo:
       else {
         const axisMin = axisScale.domain()[0];
         const axisMax = axisScale.domain()[1];
-        if (axisMin !== axisMax) {
+        // value compare: d3 time scales return fresh Date objects from domain()
+        if (+axisMin !== +axisMax) {
           scaleTicks = [axisMin, axisMax];
         }
         else {
