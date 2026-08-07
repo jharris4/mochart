@@ -4,8 +4,9 @@ import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { AxisDomains, ChartData, DataProvider, CategoryAxisDomain, CategoryData, SeriesData, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
 
 export function isDataProviderValid(dataProvider: DataProvider | null | undefined): boolean {
-  const dataProviderError = dataProvider && dataProvider.getError && dataProvider.getError instanceof Function && dataProvider.getError();
-  return !!dataProvider && !dataProviderError;
+  // '' and 0 count as errors, matching the error prop; only null/undefined don't
+  const dataProviderError = dataProvider && dataProvider.getError instanceof Function ? dataProvider.getError() : undefined;
+  return !!dataProvider && dataProviderError == null;
 }
 
 export function getChartData(mochartConfig: EnhancedMochartConfig, dataProvider: DataProvider, filteredSeriesMap: Record<string, unknown>): ChartData {

@@ -37,14 +37,24 @@ describe('isDataProviderValid', () => {
     expect(isDataProviderValid(provider)).toBe(true);
   });
 
-  it('is true for a provider whose getError returns falsy', () => {
-    const provider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => null } as unknown as DataProvider;
-    expect(isDataProviderValid(provider)).toBe(true);
+  it('is true for a provider whose getError returns null or undefined', () => {
+    const nullProvider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => null } as unknown as DataProvider;
+    expect(isDataProviderValid(nullProvider)).toBe(true);
+    const undefinedProvider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => undefined } as unknown as DataProvider;
+    expect(isDataProviderValid(undefinedProvider)).toBe(true);
   });
 
   it('is false for a provider whose getError returns a message', () => {
     const provider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => 'boom' } as unknown as DataProvider;
     expect(isDataProviderValid(provider)).toBe(false);
+  });
+
+  // Regression: truthiness let '' and 0 through, though the error prop honors them
+  it('is false for a provider whose getError returns a falsy non-null error', () => {
+    const emptyStringProvider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => '' } as unknown as DataProvider;
+    expect(isDataProviderValid(emptyStringProvider)).toBe(false);
+    const zeroProvider = { getCategoryValues: () => [], getSeriesValue: () => 0, getError: () => 0 } as unknown as DataProvider;
+    expect(isDataProviderValid(zeroProvider)).toBe(false);
   });
 });
 
