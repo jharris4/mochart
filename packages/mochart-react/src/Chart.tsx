@@ -1,8 +1,7 @@
 import { createChart } from '@mochart/core';
-import { useImperativeHandle } from 'react';
-import type { ReactElement } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { useChartHost } from './useChartHost.js';
-import type { ChartProps } from './types.js';
+import type { ChartProps, ChartRef } from './types.js';
 
 /**
  * React wrapper around mochart's `createChart`: takes an enhanced config
@@ -10,8 +9,9 @@ import type { ChartProps } from './types.js';
  * chart track the container div's size. `ref` receives a `ChartRef` with
  * `refresh()`.
  */
-export default function Chart(props: ChartProps): ReactElement {
-  const { className, style, ref, ...chartProps } = props;
+// forwardRef, not the React 19 ref prop: React 18 hosts strip ref from props
+const Chart = forwardRef<ChartRef, ChartProps>(function Chart(props, ref) {
+  const { className, style, ...chartProps } = props;
   const { containerRef, refresh } = useChartHost(createChart, chartProps);
   useImperativeHandle(ref, () => ({ refresh }), [refresh]);
   // explicit size props win over the container style, like in the other bindings
@@ -23,4 +23,6 @@ export default function Chart(props: ChartProps): ReactElement {
     containerStyle.height = props.height;
   }
   return <div ref={containerRef} className={className} style={containerStyle} />;
-}
+});
+
+export default Chart;

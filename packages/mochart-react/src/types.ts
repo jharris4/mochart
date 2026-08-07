@@ -1,4 +1,4 @@
-import type { ComponentType, CSSProperties, Ref } from 'react';
+import type { ComponentType, CSSProperties } from 'react';
 
 /**
  * Imperative handle exposed through the `ref` prop of both components.
@@ -42,8 +42,6 @@ export interface ChartCallbackProps {
 }
 
 export interface BaseChartProps extends ChartCallbackProps {
-  /** Receives the imperative `ChartRef` handle (`refresh()`). */
-  ref?: Ref<ChartRef>;
   /** Explicit pixel width; omit to track the container element's width. */
   width?: number;
   /** Explicit pixel height; omit to track the container element's height. */
