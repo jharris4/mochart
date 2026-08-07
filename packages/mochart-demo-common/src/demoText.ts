@@ -14,7 +14,6 @@
 // span instead, which demo.css hides everywhere except inside a menu.
 export const demoText = {
   tabs: {
-    demos: 'Demos',
     chart: 'Chart',
     config: 'Config',
     data: 'Data',
@@ -81,8 +80,8 @@ export const demoText = {
     apply: { label: 'Apply', tooltip: 'Apply this data — the chart updates when you return to the Chart tab', aria: 'Apply' }
   },
   exportButtons: {
-    png: { label: 'PNG', tooltip: 'Download the chart as a PNG image', aria: 'Export PNG' },
-    svg: { label: 'SVG', tooltip: 'Download the chart as an SVG image', aria: 'Export SVG' }
+    png: { label: 'PNG', aria: 'Export PNG' },
+    svg: { label: 'SVG', aria: 'Export SVG' }
   },
   // The collapsed export/share menu at the end of each mode's controls row.
   exportShareMenu: {
