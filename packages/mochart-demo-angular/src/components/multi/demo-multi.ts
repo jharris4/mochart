@@ -25,7 +25,9 @@ import type { DemoData, SwitchableDemoMode } from '../../types';
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
           <app-error-tab [active]="true">
-            <app-charts-tab [active]="true" [demoObject]="demoData.demoObjectMap[demoId()]" />
+            <ng-template>
+              <app-charts-tab [active]="true" [demoObject]="demoData.demoObjectMap[demoId()]" />
+            </ng-template>
           </app-error-tab>
         </div>
       </div>

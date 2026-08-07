@@ -26,16 +26,22 @@ interface EventKeys {
   template: `
     <div class="mochart-demo-content">
       <app-error-tab [active]="activeKey === eventKeys.eventKeyChart">
-        <app-random-chart-tab [active]="activeKey === eventKeys.eventKeyChart" [mochartConfig]="mochartDemoConfig.mochartConfig" [dataProvider]="dataProvider()"
-                              [randomConfig]="randomConfig()!" [initialRate]="initialRate()"
-                              [onRandomizeBack]="onRandomizeBack" [onRandomizeNext]="onRandomizeNext"
-                              [applyReuse]="applyReuse()" [toggleApplyReuse]="toggleApplyReuse" />
+        <ng-template>
+          <app-random-chart-tab [active]="activeKey === eventKeys.eventKeyChart" [mochartConfig]="mochartDemoConfig.mochartConfig" [dataProvider]="dataProvider()"
+                                [randomConfig]="randomConfig()!" [initialRate]="initialRate()"
+                                [onRandomizeBack]="onRandomizeBack" [onRandomizeNext]="onRandomizeNext"
+                                [applyReuse]="applyReuse()" [toggleApplyReuse]="toggleApplyReuse" />
+        </ng-template>
       </app-error-tab>
       <app-error-tab [active]="activeKey === eventKeys.eventKeyConfig">
-        <app-random-config-tab [active]="activeKey === eventKeys.eventKeyConfig" [randomConfig]="randomConfig()!" [generator]="generator" [onUpdate]="onUpdateConfig" [onReset]="onResetConfig" />
+        <ng-template>
+          <app-random-config-tab [active]="activeKey === eventKeys.eventKeyConfig" [randomConfig]="randomConfig()!" [generator]="generator" [onUpdate]="onUpdateConfig" [onReset]="onResetConfig" />
+        </ng-template>
       </app-error-tab>
       <app-error-tab [active]="activeKey === eventKeys.eventKeyData">
-        <app-random-data-tab [active]="activeKey === eventKeys.eventKeyData" [data]="data()" />
+        <ng-template>
+          <app-random-data-tab [active]="activeKey === eventKeys.eventKeyData" [data]="data()" />
+        </ng-template>
       </app-error-tab>
     </div>
   `

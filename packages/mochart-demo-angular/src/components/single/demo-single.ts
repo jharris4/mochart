@@ -43,14 +43,20 @@ const eventKeyData = 3;
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
           <app-error-tab [active]="activeKey() === eventKeyChart">
-            <app-chart-tab [active]="activeKey() === eventKeyChart" [config]="viewingConfig()" [data]="viewingData()" [dataError]="viewingDataError()" />
+            <ng-template>
+              <app-chart-tab [active]="activeKey() === eventKeyChart" [config]="viewingConfig()" [data]="viewingData()" [dataError]="viewingDataError()" />
+            </ng-template>
           </app-error-tab>
           <app-error-tab [active]="activeKey() === eventKeyConfig">
-            <app-config-tab [active]="activeKey() === eventKeyConfig" [config]="config()!" [onConfigChange]="onConfigChange" [onConfigReset]="onConfigReset" />
+            <ng-template>
+              <app-config-tab [active]="activeKey() === eventKeyConfig" [config]="config()!" [onConfigChange]="onConfigChange" [onConfigReset]="onConfigReset" />
+            </ng-template>
           </app-error-tab>
           <app-error-tab [active]="activeKey() === eventKeyData">
-            <app-data-tab [active]="activeKey() === eventKeyData" [config]="viewingConfig()!" [data]="data()!"
-                          [onDataChange]="onDataChange" [onDataError]="onDataError" [onDataReset]="onDataReset" />
+            <ng-template>
+              <app-data-tab [active]="activeKey() === eventKeyData" [config]="viewingConfig()!" [data]="data()!"
+                            [onDataChange]="onDataChange" [onDataError]="onDataError" [onDataReset]="onDataReset" />
+            </ng-template>
           </app-error-tab>
         </div>
       </div>
