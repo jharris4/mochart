@@ -21,8 +21,9 @@ describe('getReferenceSectionIds', () => {
       version: '1.0.0',
       series: [],
       title: {},
+      accessibility: {},
       animation: {}
-    })).toEqual(['animation', 'series', 'title']);
+    })).toEqual(['accessibility', 'animation', 'series', 'title']);
   });
 
   it('maps *Defaults keys onto their list section', () => {

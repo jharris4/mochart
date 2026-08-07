@@ -6,6 +6,7 @@
 // links back to the demos.
 
 const referenceSectionIds = [
+  'accessibility',
   'animation',
   'chart',
   'colorPalette',
