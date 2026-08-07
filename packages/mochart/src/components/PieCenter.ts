@@ -51,7 +51,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
     }
 
     this.setPresent(true);
-    this.root.set({ className: mochartCssClasses['pieCenter'],
+    this.root.set({ className: mochartCssClasses['pieCenter'], ariaHidden: 'true',
       transform: translate(
         seriesLayoutInfo.x + radialLayoutInfo.cx + pieConfig.centerOffsetXFraction * radialLayoutInfo.outerRadius,
         seriesLayoutInfo.y + radialLayoutInfo.cy + pieConfig.centerOffsetYFraction * radialLayoutInfo.outerRadius) });

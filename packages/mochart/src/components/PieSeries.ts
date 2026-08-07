@@ -154,7 +154,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     }
 
     this.setPresent(true);
-    this.root.set({ className: mochartCssClasses['series'] + seriesConfig.id,
+    this.root.set({ className: mochartCssClasses['series'] + seriesConfig.id, ariaHidden: 'true',
       transform: translate(seriesLayoutInfo.x + radialLayoutInfo.cx + offsetX, seriesLayoutInfo.y + radialLayoutInfo.cy + offsetY) });
 
     this.shape.set('slice', () => svgEl('path'))!.set({

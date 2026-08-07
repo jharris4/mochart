@@ -1085,7 +1085,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }));
 
     body.svgSlot.set('svg', () => body.svg);
-    body.svg.set({ xmlns: 'http://www.w3.org/2000/svg', id: svgUniqueId, width, height });
+    body.svg.set({ xmlns: 'http://www.w3.org/2000/svg', id: svgUniqueId, width, height,
+      role: 'group', ariaRoledescription: 'chart', ariaLabel: mochartConfig.title.text ?? 'Chart' });
     body.clips.sync(clips);
     body.seriesColorGradients.sync(seriesColorGradients);
     body.linearGradients.sync(linearGradients);
