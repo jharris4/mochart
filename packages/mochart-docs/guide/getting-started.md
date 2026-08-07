@@ -132,7 +132,9 @@ the published builds are ES modules (plus an IIFE bundle for script tags,
 uses — SVG rendering, SVG text measurement (`getBBox`,
 `getComputedTextLength`) for layout and truncation, and
 `requestAnimationFrame` for animation — is baseline in that set, so no
-polyfills are required.
+polyfills are required. Build-free static HTML examples of both flavors —
+script tag and ES module — live in
+[packages/mochart/example](https://github.com/jharris4/mochart/tree/main/packages/mochart/example).
 
 A few boundaries worth knowing:
 
