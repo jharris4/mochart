@@ -16,7 +16,12 @@
 
   let container: HTMLDivElement;
   let host: HostHandle | null = null;
-  let firstSync = true;
+  let syncedProps: Record<string, any> = {};
+
+  function sameProps(a: Record<string, any>, b: Record<string, any>): boolean {
+    const aKeys = Object.keys(a);
+    return aKeys.length === Object.keys(b).length && aKeys.every((key) => Object.is(a[key], b[key]));
+  }
 
   /** Re-read the current config/data without new references (see Chart/DefaultChart). */
   export function refresh(): void {
@@ -26,7 +31,8 @@
   const componentContext = getAllContexts();
 
   onMount(() => {
-    host = mountChartHost(create, container, { ...chartProps }, componentContext);
+    syncedProps = { ...chartProps };
+    host = mountChartHost(create, container, syncedProps, componentContext);
     return () => {
       const current = host;
       host = null;
@@ -35,14 +41,15 @@
   });
 
   $effect(() => {
-    // Spreading reads every chart prop so this effect tracks them all; the
-    // first run happens right after onMount with identical props, so skip it.
+    // Spreading reads every chart prop so this effect tracks them all; comparing
+    // (not run-counting) keeps a change made before the first run, e.g. in a
+    // parent's onMount, from being dropped.
     const next = { ...chartProps };
-    if (firstSync) {
-      firstSync = false;
+    if (host === null || sameProps(next, syncedProps)) {
       return;
     }
-    host?.update(next);
+    syncedProps = next;
+    host.update(next);
   });
 </script>
 

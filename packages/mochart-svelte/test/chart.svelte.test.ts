@@ -6,6 +6,7 @@ import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
 import Loading from './Loading.svelte';
 import ConfigError from './ConfigError.svelte';
+import MountMutation from './MountMutation.svelte';
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
@@ -221,6 +222,25 @@ describe('DefaultChart', () => {
 
     void unmount(instance);
     flushSync();
+    el.remove();
+  });
+});
+
+// Regression: run-counting skipped the whole first $effect run, so a prop
+// change made in the parent's onMount (which flushes after the chart's) was
+// silently dropped.
+describe('pre-effect prop changes', () => {
+  it('applies a prop change made in the parent onMount', () => {
+    const el = target();
+    const mochartConfig = enhanceConfig(rawConfig());
+    const instance = mount(MountMutation, {
+      target: el,
+      props: { mochartConfig, dataProvider: new ArrayOfObjectsDataProvider(rows, 'name') }
+    });
+    flushSync();
+    expect(el.querySelector('svg')!.getAttribute('width')).toBe('500');
+
+    void unmount(instance);
     el.remove();
   });
 });
