@@ -97,9 +97,8 @@ export function formatTransitionConfig(transitionConfig: TransitionConfig): stri
     let configText = '{}';
     let dataText = '[]';
     if (transitionConfig.config && objectValidator(transitionConfig.config)) {
-      configText = JSON.stringify(transitionConfig.config, null, '\t');
-      configText = configText.replace(/\n\t/g, '\n\t\t');
-      configText = configText.replace(/\n}/g, '\n\t}');
+      // Raw newlines in stringify output are always structural, so re-indenting by newline is safe.
+      configText = JSON.stringify(transitionConfig.config, null, 2).replace(/\n/g, '\n  ');
     }
     if (transitionConfig.data && arrayValidator(transitionConfig.data)) {
       const dataArray = transitionConfig.data;
@@ -109,13 +108,13 @@ export function formatTransitionConfig(transitionConfig: TransitionConfig): stri
         if (data && arrayValidator(data)) {
           // structural spacing keeps commas inside string values untouched
           const rowTexts = (data as unknown[]).map(row => stringifyWithSpacedCommas(row));
-          aDataText = rowTexts.length === 0 ? '[]' : '[\n\t\t\t' + rowTexts.join(', \n\t\t\t') + '\n\t\t]';
+          aDataText = rowTexts.length === 0 ? '[]' : '[\n      ' + rowTexts.join(', \n      ') + '\n    ]';
           dataTexts.push(aDataText);
         }
       }
-      dataText = '[\n\t\t' + dataTexts.join(',\n\t\t') + '\n\t]';
+      dataText = '[\n    ' + dataTexts.join(',\n    ') + '\n  ]';
     }
-    return '{\n' + '\t"config": ' + configText + ',\n\t"data": ' + dataText + '\n}';
+    return '{\n' + '  "config": ' + configText + ',\n  "data": ' + dataText + '\n}';
   }
   else {
     return String(transitionConfig);
