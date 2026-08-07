@@ -85,7 +85,7 @@ export default function getValidators() {
     paddingOuter: validators.numberMin(0),
 
     thresholds: validators.arrayOf(validators.objectWithShape({
-      value: validators.dateAny(),
+      value: validators.datePrimitive(),
       front: validators.boolean().orEqual(undefined),
       style: styleStates(lineMembers).orEqual(undefined),
       title: validators.string().orOneOf([NONE, undefined]),

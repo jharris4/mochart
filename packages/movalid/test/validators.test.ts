@@ -70,7 +70,9 @@ describe("validators", () => {
     numeric: { args: [], valid: "123.45", invalid: "a" },
     integer: { args: [], valid: 123, invalid: 123.45 },
     color: { args: [], valid: "#FFF", invalid: "#FFFF" },
+    dateInstance: { args: [], valid: new Date(0), invalid: new Date(NaN) },
     dateISO: { args: [], valid: "2016-09-01T00:00:00Z", invalid: "1234567" },
+    datePrimitive: { args: [], valid: 1, invalid: new Date(0) },
     dateAny: { args: [], valid: 1, invalid: "1234567" },
     instanceOf: { args: [AClass], valid: new AClass(), invalid: "abc" },
     typeOf: { args: ["object"], valid: {}, invalid: 123 },
@@ -635,6 +637,66 @@ describe("validators", () => {
       });
     });
 
+    describe("dateInstance", () => {
+      it("should allow a Date instance", () => {
+        expect(baseValidators.dateInstance()(new Date("2016-09-01T00:00:00Z"))).toBe(true);
+      });
+
+      it("should not allow an invalid Date instance", () => {
+        expect(baseValidators.dateInstance()(new Date(NaN))).toBe(false);
+      });
+
+      it("should allow a pre-1970 Date instance", () => {
+        expect(baseValidators.dateInstance()(new Date(-86400000))).toBe(true);
+      });
+
+      it("should not allow an epoch number", () => {
+        expect(baseValidators.dateInstance()(123)).toBe(false);
+      });
+
+      it("should not allow an iso date string", () => {
+        expect(baseValidators.dateInstance()("2016-09-01T00:00:00Z")).toBe(false);
+      });
+
+      it("should not allow undefined", () => {
+        expect(baseValidators.dateInstance()(undefined)).toBe(false);
+      });
+
+      it("should not allow null", () => {
+        expect(baseValidators.dateInstance()(null)).toBe(false);
+      });
+    });
+
+    describe("datePrimitive", () => {
+      it("should allow a number", () => {
+        expect(baseValidators.datePrimitive()(123)).toBe(true);
+      });
+
+      it("should allow a negative epoch number", () => {
+        expect(baseValidators.datePrimitive()(-86400000)).toBe(true);
+      });
+
+      it("should allow a full date string", () => {
+        expect(baseValidators.datePrimitive()("2016-09-01T00:00:00Z")).toBe(true);
+      });
+
+      it("should not allow a Date instance", () => {
+        expect(baseValidators.datePrimitive()(new Date(0))).toBe(false);
+      });
+
+      it("should not allow a non-iso date string", () => {
+        expect(baseValidators.datePrimitive()("1234567")).toBe(false);
+      });
+
+      it("should not allow undefined", () => {
+        expect(baseValidators.datePrimitive()(undefined)).toBe(false);
+      });
+
+      it("should not allow null", () => {
+        expect(baseValidators.datePrimitive()(null)).toBe(false);
+      });
+    });
+
     describe("dateAny", () => {
       it("should not allow a boolean", () => {
         expect(baseValidators.dateAny()(false)).toBe(false);
@@ -654,6 +716,27 @@ describe("validators", () => {
 
       it("should allow a number", () => {
         expect(baseValidators.dateAny()(123)).toBe(true);
+      });
+
+      it("should allow a negative epoch number", () => {
+        expect(baseValidators.dateAny()(-86400000)).toBe(true);
+      });
+
+      it("should allow epoch zero", () => {
+        expect(baseValidators.dateAny()(0)).toBe(true);
+      });
+
+      it("should not allow a non-finite number", () => {
+        expect(baseValidators.dateAny()(Infinity)).toBe(false);
+        expect(baseValidators.dateAny()(NaN)).toBe(false);
+      });
+
+      it("should allow a Date instance", () => {
+        expect(baseValidators.dateAny()(new Date("2016-09-01T00:00:00Z"))).toBe(true);
+      });
+
+      it("should not allow an invalid Date instance", () => {
+        expect(baseValidators.dateAny()(new Date(NaN))).toBe(false);
       });
 
       it("should allow a full date string", () => {

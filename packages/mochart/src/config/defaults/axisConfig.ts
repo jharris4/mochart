@@ -142,7 +142,7 @@ export function getThresholdEntryDefaults() {
 
 /** A `thresholds` entry with every member filled from the entry defaults. */
 export interface ResolvedThreshold {
-  /** A number, or an ISO date string on date axes (validated by dateAny); other strings never validate or render. */
+  /** A number, or an ISO date string on date axes (validated by datePrimitive); other strings never validate or render. */
   value: number | string;
   front: boolean;
   style: StrokeStyleStates;

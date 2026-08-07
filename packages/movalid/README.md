@@ -29,8 +29,9 @@ isRenderer.getErrorMessage('pie');
 All are called as `validators.name(...args)`:
 
 - **Types** — `boolean`, `number`, `string`, `array`, `object`, `any`
-- **Custom types** — `numeric`, `integer`, `color` (hex/rgb/rgba), `dateISO`,
-  `dateAny`
+- **Custom types** — `numeric`, `integer`, `color` (hex/rgb/rgba),
+  `dateInstance` (a valid `Date` object), `dateISO` (iso date string),
+  `datePrimitive` (iso date string or epoch number), `dateAny` (any of the three)
 - **Instances** — `instanceOf(Class)`, `typeOf('object')`, `custom(fn)` (give
   `fn` a `message` property)
 - **Ranges** — `numberMin/Max/MinMax`, `numericMin/Max/MinMax`,

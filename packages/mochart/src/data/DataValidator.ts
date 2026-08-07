@@ -4,15 +4,19 @@ import { NONE, TYPE_DATE, TYPE_NUMBER } from '../config/core/constants';
 import type { MochartConfig } from '../types/config';
 import type { DataProvider, CategoryValue } from '../types/data';
 
+function getDuplicateKey(value: CategoryValue): string {
+  return value instanceof Date ? String(value.getTime()) : String(value); // Date#toString drops milliseconds
+}
+
 function getDuplicates(values: readonly CategoryValue[]): CategoryValue[] {
   const valueMap: Record<string, number> = Object.create(null); // null proto: keyed by user data category values
   for (const value of values) {
-    const key = String(value);
+    const key = getDuplicateKey(value);
     valueMap[key] = (valueMap[key] ?? 0) + 1;
   }
   const duplicates: CategoryValue[] = [];
   for (const value of values) {
-    const key = String(value);
+    const key = getDuplicateKey(value);
     if (valueMap[key] > 1) {
       duplicates.push(value);
       valueMap[key] = 1; // only push duplicates once

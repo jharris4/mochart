@@ -154,6 +154,83 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
   });
 
+  it('accepts Date instance category values on a date axis', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { d: new Date('2020-01-01T00:00:00Z'), y: 5 },
+        { d: new Date('2020-02-01T00:00:00Z'), y: 6 }
+      ],
+      'd'
+    );
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('flags invalid Date instances on a date axis', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { d: new Date('2020-01-01T00:00:00Z'), y: 5 },
+        { d: new Date(NaN), y: 6 }
+      ],
+      'd'
+    );
+    expect(getDataErrors(config, provider)).toEqual(['category values must all match the specified type']);
+  });
+
+  it('flags duplicate Date category values', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { d: new Date('2020-01-01T00:00:00Z'), y: 5 },
+        { d: new Date('2020-01-01T00:00:00Z'), y: 6 }
+      ],
+      'd'
+    );
+    expect(getDataErrors(config, provider)).toEqual([
+      'category values must be unique, duplicates: ' + String(new Date('2020-01-01T00:00:00Z'))
+    ]);
+  });
+
+  it('does not flag Date values that differ only in milliseconds as duplicates', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { d: new Date('2020-01-01T00:00:00.000Z'), y: 5 },
+        { d: new Date('2020-01-01T00:00:00.500Z'), y: 6 }
+      ],
+      'd'
+    );
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
+  it('accepts negative epoch number category values on a date axis', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'd', type: 'date', scale: 'linear' },
+      series: [{ property: 'y' }]
+    });
+    const provider = new ArrayOfObjectsDataProvider(
+      [
+        { d: -86400000, y: 5 }, // 1969-12-31
+        { d: 0, y: 6 }
+      ],
+      'd'
+    );
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
   it('validates the display property values against the axis type', () => {
     const config = makeConfig({
       categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },

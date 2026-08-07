@@ -547,7 +547,7 @@ function editorTypesForValidator(validator: Validator): EditorValueType[] {
     case 'numericMin':
     case 'numericMax':
     case 'numericMinMax':
-    case 'dateAny': return ['number', 'string'];
+    case 'datePrimitive': return ['number', 'string'];
     case 'object':
     case 'objectWith':
     case 'objectWithSome':

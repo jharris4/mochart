@@ -49,8 +49,8 @@ const genericValidator = {
     },
     date: {
       rangeValidator: (o: any) => new Date(o.min).getTime() <= new Date(o.max).getTime(),
-      min: validators.dateAny(),
-      max: validators.dateAny(),
+      min: validators.datePrimitive(),
+      max: validators.datePrimitive(),
       interval: validators.integerMin(1),
       intervalUnit: validators.oneOf(['second', 'minute', 'hour', 'day'])
     },

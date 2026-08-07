@@ -36,7 +36,7 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
     categoryCountPadding: validators.numberMin(0),
 
     max: validators.conditional([
-      { ...linearDateRule, validator: validators.dateAny().orEqual(AUTO) },
+      { ...linearDateRule, validator: validators.datePrimitive().orEqual(AUTO) },
       { ...linearNumberRule, validator: validators.number().orEqual(AUTO) },
       { ...scaleOrdinalRule, validator: validators.equal(AUTO) },
       { ...defaultRule, validator: validators.any() }
@@ -48,7 +48,7 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
     ], config),
 
     min: validators.conditional([
-      { ...linearDateRule, validator: validators.dateAny().orEqual(AUTO) },
+      { ...linearDateRule, validator: validators.datePrimitive().orEqual(AUTO) },
       { ...linearNumberRule, validator: validators.number().orEqual(AUTO) },
       { ...scaleOrdinalRule, validator: validators.equal(AUTO) },
       { ...defaultRule, validator: validators.any() }
@@ -68,13 +68,13 @@ export default function getValidators(config: Partial<CategoryAxisConfig>) {
     ], config),
 
     softMax: validators.conditional([
-      { ...linearDateRule, validator: validators.dateAny().orEqual(NONE) },
+      { ...linearDateRule, validator: validators.datePrimitive().orEqual(NONE) },
       { ...linearNumberRule, validator: validators.number().orEqual(NONE) },
       { ...scaleOrdinalRule, validator: validators.equal(NONE) },
       { ...defaultRule, validator: validators.any() }
     ], config),
     softMin: validators.conditional([
-      { ...linearDateRule, validator: validators.dateAny().orEqual(NONE) },
+      { ...linearDateRule, validator: validators.datePrimitive().orEqual(NONE) },
       { ...linearNumberRule, validator: validators.number().orEqual(NONE) },
       { ...scaleOrdinalRule, validator: validators.equal(NONE) },
       { ...defaultRule, validator: validators.any() }
