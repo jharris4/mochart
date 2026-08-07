@@ -81,6 +81,16 @@ describe('pie slice keyboard semantics', () => {
     expect(label).toContain('%');
   });
 
+  // Regression: untitled slices were announced by raw id ("S0, 25%") while the
+  // legend says "Series S0" — two names for the same series on one chart.
+  it('announces untitled slices with the same name the legend uses', () => {
+    const container = mountChart(makeConfig({
+      series: [{ id: 'S0', property: 's0' }, { id: 'S1', property: 's1' }, { id: 'S2', property: 's2' }]
+    }), () => {});
+    const label = slices(container)[0].getAttribute('aria-label')!;
+    expect(label.startsWith('Series S0, ')).toBe(true);
+  });
+
   it('keeps non-interactive slices hidden and unfocusable', () => {
     const container = mountChart(makeConfig());
     expect(slices(container).length).toBe(0);

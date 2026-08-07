@@ -5,6 +5,7 @@ import { Renderer, svgEl, textEl } from '../render';
 import { degreesToRadians } from '../data/PieData';
 import { getSeriesFillColor, getSeriesStrokeColor, getSeriesLabelFillColor, getSeriesLabelStrokeColor } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
+import { getSeriesTitle } from '../utils/SeriesTitle';
 import { getFocusValue, getFocusStrokeWidth } from '../utils/FocusValue';
 import { getGradientReference } from '../utils/svgUtils';
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -179,7 +180,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
       dataSeriesId: interactive ? seriesConfig.id : null,
       tabindex: interactive ? (tabStop ? '0' : '-1') : null,
       role: interactive ? 'button' : null,
-      ariaLabel: interactive ? (seriesConfig.title ?? seriesConfig.id) + ', ' + percentFormat(labelFraction) : null,
+      ariaLabel: interactive ? getSeriesTitle(seriesConfig) + ', ' + percentFormat(labelFraction) : null,
       onKeyDown: interactive ? this.onKeyDown : null,
       transform: translate(seriesLayoutInfo.x + radialLayoutInfo.cx + offsetX, seriesLayoutInfo.y + radialLayoutInfo.cy + offsetY) });
 
