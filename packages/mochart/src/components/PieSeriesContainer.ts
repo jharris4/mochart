@@ -72,6 +72,11 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     if (target.getAttribute?.('data-series-id') == null) {
       return; // not a slice (e.g. the plot-area rect handles its own keys)
     }
+    if (key === 'Escape') {
+      // mirror the plot rect: Escape from a slice closes the open tooltip
+      this.props.a11yProps?.onKeyDown(event);
+      return;
+    }
     const nodes = this.orderedSliceNodes();
     const index = nodes.indexOf(target as SVGElement);
     if (index === -1) {

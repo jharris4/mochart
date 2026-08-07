@@ -134,6 +134,23 @@ describe('pie slice keyboard semantics', () => {
     expect(document.activeElement).toBe(items[0]);
   });
 
+  // Regression: Escape lived only on the plot rect, so a keyboard user whose
+  // focus was on a slice could only toggle the tooltip closed with Enter again.
+  it('closes the tooltip with Escape from a slice', () => {
+    const container = mountChart(makeConfig(), () => {});
+    const items = slices(container);
+    const rect = container.querySelector<SVGElement>('.mochart-series-background rect')!;
+
+    // opened via the plot rect: jsdom's zero-size bboxes drop the slice's
+    // synthesized click before the chart-level tooltip toggle
+    key(rect, 'Enter');
+    expect(rect.getAttribute('aria-expanded')).toBe('true');
+
+    key(items[0], 'Escape');
+    expect(rect.getAttribute('aria-expanded')).toBe('false');
+    expect(container.querySelector('.mochart-tooltip')?.textContent ?? '').toBe('');
+  });
+
   it('keeps DOM focus on the slice when focusing reorders the slice nodes', () => {
     const container = mountChart(makeConfig({ seriesDefaults: { focusOnClick: true } }));
     const items = slices(container);
