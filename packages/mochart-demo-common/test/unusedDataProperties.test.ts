@@ -41,7 +41,7 @@ describe('generic random generation for tooltip and error-bar properties', () =>
         count: 6,
         order: { sort: true },
         missing: { probability: 0 },
-        reuse: { globalPercentage: 0, stepPercentage: 0 },
+        reuse: { globalFraction: 0, stepFraction: 0 },
         number: { min: 0, max: 100, interval: 1 },
         string: { minLength: 1, maxLength: 8 },
         date: { min: '2020-01-01', max: '2024-01-01', interval: 30, intervalUnit: 'day' }

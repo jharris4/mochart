@@ -147,10 +147,10 @@ function generateChartCategoryValues(
   const { type } = categoryAxisConfig;
   const { count, missing, reuse } = categoryConfig;
   const { probability } = missing;
-  const { globalPercentage, stepPercentage } = reuse;
+  const { globalFraction, stepFraction } = reuse;
 
-  const globalCount = Math.floor(globalPercentage * count);
-  const stepCount = globalPercentage < 1 && stepPercentage > 0 ? 2 * Math.floor((count - globalCount) * stepPercentage / 2.0) : 0;
+  const globalCount = Math.floor(globalFraction * count);
+  const stepCount = globalFraction < 1 && stepFraction > 0 ? 2 * Math.floor((count - globalCount) * stepFraction / 2.0) : 0;
   const halfStepCount = Math.floor(stepCount / 2);
   const ownCount = count - globalCount - stepCount;
 

@@ -9,7 +9,7 @@ const genericConfig = {
     count: 15,
     order: { sort: true },
     missing: { probability: 0 },
-    reuse: { globalPercentage: 0.5, stepPercentage: 0.5 },
+    reuse: { globalFraction: 0.5, stepFraction: 0.5 },
     number: { min: -100, max: 100, interval: 1 },
     string: { minLength: 1, maxLength: 20 },
     date: { min: '2014-01-01', max: '2018-01-01', interval: 30, intervalUnit: 'day' }
@@ -24,7 +24,7 @@ const genericConfig = {
 const pieConfig = {
   value: { min: 0, max: 420 },
   missing: { probability: 0.25 },
-  reuse: { globalPercentage: 0, stepPercentage: 0.5 }
+  reuse: { globalFraction: 0, stepFraction: 0.5 }
 };
 
 const walkConfig = {
@@ -91,7 +91,7 @@ describe('validateRandomConfig', () => {
     it('rejects out-of-range order/missing/reuse/round settings', () => {
       expect(validateRandomConfig(withCategory({ order: { sort: 'yes' } }))).toBe(false);
       expect(validateRandomConfig(withCategory({ missing: { probability: 5 } }))).toBe(false);
-      expect(validateRandomConfig(withCategory({ reuse: { globalPercentage: 2, stepPercentage: 0.5 } }))).toBe(false);
+      expect(validateRandomConfig(withCategory({ reuse: { globalFraction: 2, stepFraction: 0.5 } }))).toBe(false);
       expect(validateRandomConfig({ ...genericConfig,
         series: { ...genericConfig.series, number: { ...genericConfig.series.number, round: 1 } } })).toBe(false);
       expect(validateRandomConfig({ ...genericConfig,
@@ -99,13 +99,13 @@ describe('validateRandomConfig', () => {
     });
 
     it('accounts for the step-reuse preview lineages', () => {
-      // count 12, stepPercentage 1 -> preview lineages need 18 uniques; 15 lattice values is enough for count alone
+      // count 12, stepFraction 1 -> preview lineages need 18 uniques; 15 lattice values is enough for count alone
       const number = { min: 0, max: 14, interval: 1 };
       expect(validateRandomConfig(withCategory({
-        count: 12, number, reuse: { globalPercentage: 0, stepPercentage: 1 }
+        count: 12, number, reuse: { globalFraction: 0, stepFraction: 1 }
       }))).toBe(false);
       expect(validateRandomConfig(withCategory({
-        count: 12, number, reuse: { globalPercentage: 0, stepPercentage: 0 }
+        count: 12, number, reuse: { globalFraction: 0, stepFraction: 0 }
       }))).toBe(true);
     });
   });
@@ -136,16 +136,16 @@ describe('restoreSharedRandomConfig', () => {
 describe('neutralizeRandomReuse', () => {
   it('zeroes the generic category/series reuse settings', () => {
     const neutralized = neutralizeRandomReuse(genericConfig);
-    expect(neutralized.category.reuse).toEqual({ globalPercentage: 0, stepPercentage: 0 });
+    expect(neutralized.category.reuse).toEqual({ globalFraction: 0, stepFraction: 0 });
     expect(neutralized.series.reuse).toEqual({ global: false, step: false });
     expect(neutralized.category.count).toBe(15);
     expect(genericConfig.series.reuse.step).toBe(true);
   });
 
   it('neutralizes a top-level reuse section structurally', () => {
-    expect(neutralizeRandomReuse(pieConfig).reuse).toEqual({ globalPercentage: 0, stepPercentage: 0 });
+    expect(neutralizeRandomReuse(pieConfig).reuse).toEqual({ globalFraction: 0, stepFraction: 0 });
     expect(neutralizeRandomReuse(walkConfig).reuse).toEqual({ step: false });
-    expect(pieConfig.reuse.stepPercentage).toBe(0.5);
+    expect(pieConfig.reuse.stepFraction).toBe(0.5);
   });
 });
 

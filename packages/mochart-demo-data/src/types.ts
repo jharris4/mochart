@@ -12,7 +12,7 @@ export interface RandomConfig {
     count: number;
     order: { sort: boolean };
     missing: { probability: number };
-    reuse: { globalPercentage: number; stepPercentage: number };
+    reuse: { globalFraction: number; stepFraction: number };
     number: { min: number; max: number; interval: number };
     string: { minLength: number; maxLength: number };
     date: {
@@ -39,7 +39,7 @@ export interface RandomConfig {
 export interface PieRandomConfig {
   value: { min: number; max: number };
   missing: { probability: number };
-  reuse: { globalPercentage: number; stepPercentage: number };
+  reuse: { globalFraction: number; stepFraction: number };
 }
 
 /**
@@ -50,7 +50,7 @@ export interface PieRandomConfig {
 export interface WaterfallRandomConfig {
   value: { min: number; max: number };
   missing: { probability: number };
-  reuse: { globalPercentage: number; stepPercentage: number };
+  reuse: { globalFraction: number; stepFraction: number };
 }
 
 /**

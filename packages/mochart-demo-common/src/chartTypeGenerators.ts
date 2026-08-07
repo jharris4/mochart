@@ -58,15 +58,15 @@ function reusedDraw(scope: string, key: string, randomId: number, reuseGlobal: b
 
 /**
  * The draw stream for pool entry `index` at step `randomId` under the pool
- * reuse fractions: the first globalPercentage of entries pin to a global seed
- * (their state never changes), then stepPercentage of the remainder read a
+ * reuse fractions: the first globalFraction of entries pin to a global seed
+ * (their state never changes), then stepFraction of the remainder read a
  * half-step seed shared with one neighbouring step — staggered by entry
  * parity, so every step boundary sees half of them persist exactly — and the
  * rest draw fresh each step.
  */
-function poolEntryRng(scope: string, index: number, randomId: number, poolSize: number, globalPercentage: number, stepPercentage: number): Rng {
-  const globalCount = Math.round(clamp01(globalPercentage) * poolSize);
-  const stepCount = Math.round(clamp01(stepPercentage) * (poolSize - globalCount));
+function poolEntryRng(scope: string, index: number, randomId: number, poolSize: number, globalFraction: number, stepFraction: number): Rng {
+  const globalCount = Math.round(clamp01(globalFraction) * poolSize);
+  const stepCount = Math.round(clamp01(stepFraction) * (poolSize - globalCount));
   if (index < globalCount) {
     return seedrandom(scope + ':global:' + index);
   }
@@ -202,7 +202,7 @@ function waterfallRows({ value, missing, reuse }: WaterfallRandomConfig, randomI
     }
     // one fixed-order stream per entry — [drop roll, value roll] — so a
     // persisted entry keeps its whole state across the shared steps
-    const entryRng = poolEntryRng('waterfall', index, randomId, WATERFALL_STEP_POOL.length, reuse.globalPercentage, reuse.stepPercentage);
+    const entryRng = poolEntryRng('waterfall', index, randomId, WATERFALL_STEP_POOL.length, reuse.globalFraction, reuse.stepFraction);
     const dropRoll = entryRng();
     const valueRoll = entryRng();
     if ((step.dropWeight ?? 0) > 0 && dropRoll < clamp01(missing.probability * step.dropWeight!)) {
@@ -639,7 +639,7 @@ function pieItems(pool: PieSlicePoolEntry[], scope: string, { value, missing, re
   return pool.map((slice, index) => {
     // one fixed-order stream per slice — [drop roll, value roll] — so a
     // persisted slice keeps its whole state across the shared steps
-    const sliceRng = poolEntryRng(scope, index, randomId, pool.length, reuse.globalPercentage, reuse.stepPercentage);
+    const sliceRng = poolEntryRng(scope, index, randomId, pool.length, reuse.globalFraction, reuse.stepFraction);
     const dropRoll = sliceRng();
     const valueRoll = sliceRng();
     if ((slice.dropWeight ?? 0) > 0 && dropRoll < clamp01(missing.probability * slice.dropWeight!)) {

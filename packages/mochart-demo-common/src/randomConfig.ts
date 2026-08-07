@@ -38,8 +38,8 @@ const genericValidator = {
       probability: probabilityValidator
     },
     reuse: {
-      globalPercentage: probabilityValidator,
-      stepPercentage: probabilityValidator
+      globalFraction: probabilityValidator,
+      stepFraction: probabilityValidator
     },
     number: {
       rangeValidator: minMaxRange,
@@ -85,7 +85,7 @@ const schemaValidators: Record<RandomSchemaId, Record<string, Record<string, unk
   pool: {
     value: { rangeValidator: minMaxRange, min: validators.number(), max: validators.number() },
     missing: { probability: probabilityValidator },
-    reuse: { globalPercentage: probabilityValidator, stepPercentage: probabilityValidator }
+    reuse: { globalFraction: probabilityValidator, stepFraction: probabilityValidator }
   },
   walk: {
     candles: { rangeValidator: minMaxRange, min: validators.integerMin(1), max: validators.integerMin(1) },
@@ -164,10 +164,10 @@ function addGenericErrorMessages(errorMessages: string[], randomConfig: any): vo
       const { count, number, date, string, reuse } = categoryConfig;
 
       // mirrors generateChartCategoryValues: the step-preview lineages draw up to global + 3*halfStep uniques
-      const globalPercentage = typeof reuse?.globalPercentage === 'number' ? reuse.globalPercentage : 0;
-      const stepPercentage = typeof reuse?.stepPercentage === 'number' ? reuse.stepPercentage : 0;
-      const globalCount = Math.floor(globalPercentage * count);
-      const stepCount = globalPercentage < 1 && stepPercentage > 0 ? 2 * Math.floor((count - globalCount) * stepPercentage / 2.0) : 0;
+      const globalFraction = typeof reuse?.globalFraction === 'number' ? reuse.globalFraction : 0;
+      const stepFraction = typeof reuse?.stepFraction === 'number' ? reuse.stepFraction : 0;
+      const globalCount = Math.floor(globalFraction * count);
+      const stepCount = globalFraction < 1 && stepFraction > 0 ? 2 * Math.floor((count - globalCount) * stepFraction / 2.0) : 0;
       const halfStepCount = Math.floor(stepCount / 2);
       const requiredDistinct = Math.max(count, globalCount + 3 * halfStepCount);
 
