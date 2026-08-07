@@ -1120,11 +1120,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }));
 
     body.svgSlot.set('svg', () => body.svg);
-    const { accessibility } = mochartConfig.chart;
+    const { accessibility: accessibilityConfig } = mochartConfig;
+    const accessibility = accessibilityConfig.enabled;
     body.svg.set({ xmlns: 'http://www.w3.org/2000/svg', id: svgUniqueId, width, height,
       role: accessibility ? 'group' : null,
-      ariaRoledescription: accessibility ? 'chart' : null,
-      ariaLabel: accessibility ? mochartConfig.title.text ?? 'Chart' : null });
+      ariaRoledescription: accessibility ? accessibilityConfig.chartRoleDescription : null,
+      ariaLabel: accessibility ? mochartConfig.title.text ?? accessibilityConfig.chartLabel : null });
 
     // the keyboard announcer: visually hidden, spoken via role="status"
     const liveRegion = accessibility ? body.liveRegionSlot.set('div', () => htmlEl('div')) : body.liveRegionSlot.set(null);
@@ -1147,7 +1148,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       // keyboard tab stop on the series-area rect: Enter/Space toggles the
       // tooltip, arrows step categories, Escape closes
       const plotA11yProps = accessibility && !loading && (mochartConfig.tooltip.visible || mochartConfig.crosshair.visible) ? {
-        ariaLabel: 'Chart values',
+        ariaLabel: accessibilityConfig.plotLabel,
         ariaExpanded: String(tooltipVisible),
         onKeyDown: this.onPlotKeyDown
       } : null;

@@ -39,6 +39,7 @@ interface MemberDoc {
 // --- Model → per-interface member docs --------------------------------------
 
 const sectionInterfaceMap: Record<string, string> = {
+  accessibility: 'AccessibilityConfig',
   animation: 'AnimationConfig',
   chart: 'ChartConfig',
   colorPalette: 'ColorPaletteConfig',

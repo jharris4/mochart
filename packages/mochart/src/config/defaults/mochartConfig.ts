@@ -3,6 +3,7 @@ import { CHART_TYPE_PIE, NONE } from '../core/constants';
 import { deepMergeAll } from '../core/deepMerge';
 import { configWithAll, filterConfigs, filterConfig } from '../core/mochartConfig';
 
+import getAccessibilityDefaults from './accessibilityConfig';
 import getAnimationDefaults from './animationConfig';
 import getChartDefaults from './chartConfig';
 import getColorPaletteDefaults from './colorPaletteConfig';
@@ -81,6 +82,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
       getSeriesDefaults(aConfig, index, soleValueAxisId, soleSeriesStackId, soleSeriesGroupId, soleGradientConfigId);
 
     return {
+      accessibility: getAccessibilityDefaults(),
       animation: getAnimationDefaults(),
       chart: chartConfig,
       colorPalette: getColorPaletteDefaults(),

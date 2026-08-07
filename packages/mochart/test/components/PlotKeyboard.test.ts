@@ -85,7 +85,7 @@ describe('plot keyboard semantics', () => {
   });
 
   it('has no keyboard semantics when chart accessibility is disabled', () => {
-    const container = mountChart(makeConfig({ chart: { accessibility: false } }));
+    const container = mountChart(makeConfig({ accessibility: { enabled: false } }));
     const rect = plotRect(container);
     expect(rect.getAttribute('tabindex')).toBeNull();
     expect(rect.getAttribute('role')).toBeNull();
@@ -192,7 +192,7 @@ describe('plot keyboard semantics', () => {
   });
 
   it('has no live region when chart accessibility is disabled', () => {
-    const container = mountChart(makeConfig({ chart: { accessibility: false } }));
+    const container = mountChart(makeConfig({ accessibility: { enabled: false } }));
     expect(container.querySelector('[role="status"]')).toBeNull();
   });
 

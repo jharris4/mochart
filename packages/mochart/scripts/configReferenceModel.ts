@@ -16,6 +16,10 @@ import {
 import getSectionDescriptions from '../src/config/docs/mochartConfig';
 import { sectionKeyAllMap } from '../src/config/core/mochartConfig';
 
+import getAccessibilityDefaults from '../src/config/defaults/accessibilityConfig';
+import getAccessibilityValidators from '../src/config/validation/accessibilityConfig';
+import * as accessibilityDocs from '../src/config/docs/accessibilityConfig';
+
 import getAnimationDefaults from '../src/config/defaults/animationConfig';
 import getAnimationValidators from '../src/config/validation/animationConfig';
 import * as animationDocs from '../src/config/docs/animationConfig';
@@ -247,6 +251,7 @@ interface SectionSource {
 
 function getSectionSources(): SectionSource[] {
   return [
+    { id: 'accessibility', title: 'Accessibility Config', regularDefaults: getAccessibilityDefaults(), validators: getAccessibilityValidators(), docs: accessibilityDocs },
     { id: 'animation', title: 'Animation Config', regularDefaults: getAnimationDefaults(), validators: getAnimationValidators(), docs: animationDocs },
     { id: 'chart', title: 'Chart Config', regularDefaults: getChartDefaults(), validators: getChartValidators(), docs: chartDocs },
     { id: 'colorPalette', title: 'Color Palette Config', regularDefaults: getColorPaletteDefaults(), validators: getColorPaletteValidators(), docs: colorPaletteDocs },

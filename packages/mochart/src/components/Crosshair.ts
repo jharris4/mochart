@@ -48,7 +48,7 @@ class Crosshair extends Renderer<CrosshairProps> {
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['crosshair'], clipPath,
-        ariaHidden: mochartConfig.chart.accessibility ? 'true' : null });
+        ariaHidden: mochartConfig.accessibility.enabled ? 'true' : null });
       this.categoryLinesGroup.set({ className: mochartCssClasses['crosshairCategoryLines'] });
       this.seriesLinesGroup.set({ className: mochartCssClasses['crosshairSeriesLines'] });
 

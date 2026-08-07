@@ -66,7 +66,7 @@ export class ChartController {
     if (!mochartConfig || !mochartConfig.animation.animate) {
       return false;
     }
-    return !(mochartConfig.animation.respectReducedMotion && this.reducedMotion?.matches);
+    return !(mochartConfig.accessibility.respectReducedMotion && this.reducedMotion?.matches);
   }
 
   /** applyInput swaps the data source when the effective animate flag flipped. */

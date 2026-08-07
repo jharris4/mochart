@@ -89,7 +89,7 @@ describe('legend keyboard semantics', () => {
   });
 
   it('has no keyboard semantics when chart accessibility is disabled, but mouse filtering still works', () => {
-    const container = mountChart({ ...makeConfig(), chart: { accessibility: false } });
+    const container = mountChart({ ...makeConfig(), accessibility: { enabled: false } });
     expect(legendItems(container).length).toBe(0);
     expect(container.querySelectorAll('g[tabindex], [role], [aria-pressed]').length).toBe(0);
 

@@ -125,6 +125,75 @@ export interface StyleStates<C = string> {
   defocused: StyleState<C | 'same', 'same'>;
 }
 
+export interface AccessibilityConfig {
+  /**
+   * Whether the chart exposes keyboard navigation and screen-reader semantics.
+   *
+   * When `true`, the chart is keyboard- and screen-reader-accessible: the plot
+   * area is a tab stop that opens and steps the tooltip (with the values spoken
+   * through a hidden live region), legend items and interactive pie slices are
+   * roving tab stops, and the svg carries roles, labels and `aria-hidden`
+   * markers for assistive tech. Set to `false` to render the chart without any
+   * of these attributes or key handlers — for example when the host page
+   * provides its own accessible alternative. `respectReducedMotion` is not
+   * gated by this switch.
+   *
+   * @default true
+   */
+  enabled: boolean;
+  /**
+   * Whether to respect the user’s reduced-motion system preference.
+   *
+   * When `true` and the user’s system requests reduced motion (the
+   * `prefers-reduced-motion: reduce` accessibility setting, for users sensitive
+   * to movement), the chart behaves as if `animation.animate` were `false`:
+   * config, data, and focus changes apply instantly. The preference is watched
+   * live, so changing the system setting takes effect without re-creating the
+   * chart. Set to `false` to animate regardless of the preference. Independent
+   * of `enabled`.
+   *
+   * @default true
+   */
+  respectReducedMotion: boolean;
+  /**
+   * The screen-reader name for the chart when the title has no text.
+   *
+   * The accessible name of the chart svg when `title.text` is unset; a set
+   * title always wins. Replace to localize the announced name.
+   *
+   * @default "Chart"
+   */
+  chartLabel: string;
+  /**
+   * The role description screen readers announce for the chart.
+   *
+   * Announced by screen readers in place of the generic "group" role, e.g.
+   * "Monthly sales, chart". Replace to localize it, as required for
+   * `aria-roledescription` values.
+   *
+   * @default "chart"
+   */
+  chartRoleDescription: string;
+  /**
+   * The screen-reader label for the keyboard-focusable plot area.
+   *
+   * The accessible name of the plot-area tab stop that keyboard users activate
+   * to open and step the tooltip. Replace to localize it.
+   *
+   * @default "Chart values"
+   */
+  plotLabel: string;
+  /**
+   * The screen-reader label for the legend.
+   *
+   * The accessible name of the legend group that contains the
+   * keyboard-reachable legend items. Replace to localize it.
+   *
+   * @default "Legend"
+   */
+  legendLabel: string;
+}
+
 export interface AnimationConfig {
   /**
    * Whether all animation should be enabled or disabled.
@@ -134,24 +203,13 @@ export interface AnimationConfig {
    * sequential phases — axis expansion, value change, axis contraction —
    * skipping phases it does not need, and each phase’s duration scales with the
    * size of its change (small updates play faster than the configured maximum).
-   * Width/height changes re-layout the chart instantly either way.
+   * Width/height changes re-layout the chart instantly either way. The user’s
+   * reduced-motion preference can also disable animation — see
+   * `accessibility.respectReducedMotion`.
    *
    * @default true
    */
   animate: boolean;
-  /**
-   * Whether to respect the user’s reduced-motion system preference.
-   *
-   * When `true` and the user’s system requests reduced motion (the
-   * `prefers-reduced-motion: reduce` accessibility setting, for users sensitive
-   * to movement), the chart behaves as if `animate` were `false`: config, data,
-   * and focus changes apply instantly. The preference is watched live, so
-   * changing the system setting takes effect without re-creating the chart. Set
-   * to `false` to animate regardless of the preference.
-   *
-   * @default true
-   */
-  respectReducedMotion: boolean;
   /**
    * The maximum duration for the initial animation when chart data is first
    * loaded.
@@ -216,21 +274,6 @@ export interface ChartConfig {
    * @default "xy"
    */
   type: ChartType;
-  /**
-   * Whether the chart exposes keyboard navigation and screen-reader semantics.
-   *
-   * When `true`, the chart is keyboard- and screen-reader-accessible: the plot
-   * area is a tab stop that opens and steps the tooltip, legend items and
-   * interactive pie slices are roving tab stops, and the svg carries roles,
-   * labels and `aria-hidden` markers for assistive tech. Set to `false` to
-   * render the chart without any of these attributes or key handlers — for
-   * example when the host page provides its own accessible alternative. The
-   * reduced-motion preference is separate and stays governed by
-   * `animation.respectReducedMotion`.
-   *
-   * @default true
-   */
-  accessibility: boolean;
   /**
    * The margin (in pixels) for the top, right, bottom and left sides of the
    * chart.
@@ -2849,6 +2892,7 @@ export interface DetailedConfigValidation extends ConfigValidation {
 /** The fully built config returned by buildMochartConfig (all defaults applied). */
 export interface MochartConfig {
   id?: string;
+  accessibility: AccessibilityConfig;
   animation: AnimationConfig;
   chart: ChartConfig;
   colorPalette: ColorPaletteConfig;
@@ -2899,6 +2943,7 @@ export interface MochartInputConfig {
    * releases can migrate them deterministically.
    */
   version?: string;
+  accessibility?: DeepPartial<AccessibilityConfig>;
   animation?: DeepPartial<AnimationConfig>;
   chart?: DeepPartial<ChartConfig>;
   colorPalette?: DeepPartial<ColorPaletteConfig>;

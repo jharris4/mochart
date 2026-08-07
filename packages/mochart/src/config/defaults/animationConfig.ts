@@ -1,7 +1,6 @@
 export default function getDefaults() {
   return {
     animate: true,
-    respectReducedMotion: true,
     initialDuration: 1000,
     expansionDuration: 1000,
     valueChangeDuration: 1000,

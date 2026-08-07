@@ -166,7 +166,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
 
       const clipPath = truncationEnabled ? getClipPathReference(legendClipPathUniqueId) : null;
 
-      const { accessibility } = mochartConfig.chart;
+      const { enabled: accessibility, legendLabel } = mochartConfig.accessibility;
       const itemIsInteractive = (seriesConfig: EnhancedSeriesConfig): boolean =>
         accessibility && ((legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick);
       const interactiveIds = seriesConfigs
@@ -180,7 +180,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['legend'], transform,
-        role: anyInteractive ? 'group' : null, ariaLabel: anyInteractive ? 'Legend' : null,
+        role: anyInteractive ? 'group' : null, ariaLabel: anyInteractive ? legendLabel : null,
         onKeyDown: anyInteractive ? this.legendKeyDown : null,
         onFocusIn: anyInteractive ? this.legendFocusIn : null });
       this.background.set(Background, { config: legendConfig, classKey: 'legendBackground', spacingRelative: true, spacingLayoutInfo: legendLayoutInfo });

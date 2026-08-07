@@ -4,6 +4,7 @@ import type { LocatedValidationMessage } from './messages';
 import { NONE, CONFIG_VERSION } from '../core/constants';
 import { applyDefaults, configWithAll, filterConfig, sectionKeyAllMap } from '../core/mochartConfig';
 
+import accessibilityValidators from './accessibilityConfig';
 import animationValidators from './animationConfig';
 import chartValidators from './chartConfig';
 import colorPaletteValidators from './colorPaletteConfig';
@@ -80,6 +81,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
   },
   id: {
     validator: validators.any()
+  },
+  accessibility: {
+    validator: objectValidator,
+    validators: () => accessibilityValidators()
   },
   animation: {
     validator: objectValidator,

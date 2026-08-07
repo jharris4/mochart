@@ -48,7 +48,6 @@ All knobs live in [`animation`](/reference/animation):
 | Property | Controls |
 | --- | --- |
 | [`animate`](/reference/animation#animation.animate) | master switch — `false` applies every update instantly |
-| [`respectReducedMotion`](/reference/animation#animation.respectReducedMotion) | honor the OS reduced-motion preference (on by default) |
 | [`initialDuration`](/reference/animation#animation.initialDuration) | the first render when the chart mounts |
 | [`expansionDuration`](/reference/animation#animation.expansionDuration) | the axis expansion phase |
 | [`valueChangeDuration`](/reference/animation#animation.valueChangeDuration) | the value change phase (incl. category/series transitions) |
@@ -67,5 +66,5 @@ When the user's system requests reduced motion (the `prefers-reduced-motion:
 reduce` accessibility setting), the chart applies every update instantly, as
 if `animate` were `false`. The preference is watched live — flipping the OS
 setting takes effect immediately, without re-creating the chart. Set
-[`respectReducedMotion`](/reference/animation#animation.respectReducedMotion)
+[`accessibility.respectReducedMotion`](/reference/accessibility#accessibility.respectReducedMotion)
 to `false` to keep animating regardless of the preference.

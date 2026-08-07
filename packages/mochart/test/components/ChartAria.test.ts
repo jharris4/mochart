@@ -101,7 +101,7 @@ describe('chart aria semantics', () => {
   });
 
   it('renders without any aria semantics when chart accessibility is disabled', () => {
-    const container = mountChart(makeConfig({ title: { text: 'Monthly sales' }, chart: { accessibility: false } }));
+    const container = mountChart(makeConfig({ title: { text: 'Monthly sales' }, accessibility: { enabled: false } }));
     const svg = container.querySelector('svg')!;
     expect(svg.getAttribute('role')).toBeNull();
     expect(svg.getAttribute('aria-roledescription')).toBeNull();
@@ -110,7 +110,7 @@ describe('chart aria semantics', () => {
   });
 
   it('renders a pie without any aria semantics when chart accessibility is disabled', () => {
-    const container = mountChart(makeConfig({ chart: { type: 'pie', accessibility: false } }));
+    const container = mountChart(makeConfig({ chart: { type: 'pie' }, accessibility: { enabled: false } }));
     expect(container.querySelectorAll('.mochart-series').length).toBe(2);
     expect(container.querySelectorAll('[aria-hidden], [role], [tabindex], [aria-label]').length).toBe(0);
   });

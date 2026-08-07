@@ -20,6 +20,9 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr>
+<td>accessibility</td><td>Configure the chart accessibility features and screen-reader labels</td><td>should be an object</td><td>{}</td><td><a href="#accessibility">Details</a></td>
+</tr>
+<tr>
 <td>animation</td><td>Configure the chart animation settings</td><td>should be an object</td><td>{}</td><td><a href="#animation">Details</a></td>
 </tr>
 <tr>
@@ -75,6 +78,40 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </table>
 </div>
+<div id="accessibility">
+<h2>Accessibility Config</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th><th>Description</th><th>Validation Rules</th><th>Default</th>
+</tr>
+</thead>
+<tr id="accessibility.chartLabel">
+<td><a href="#accessibility.chartLabel">chartLabel</a></td><td>the screen-reader name for the chart when the title has no text<br/><br/>The accessible name of the chart svg when `title.text` is unset; a set title always wins. Replace to localize the announced name.</td><td>should be a string</td><td><div>"Chart"</div>
+</td>
+</tr>
+<tr id="accessibility.chartRoleDescription">
+<td><a href="#accessibility.chartRoleDescription">chartRoleDescription</a></td><td>the role description screen readers announce for the chart<br/><br/>Announced by screen readers in place of the generic "group" role, e.g. "Monthly sales, chart". Replace to localize it, as required for `aria-roledescription` values.</td><td>should be a string</td><td><div>"chart"</div>
+</td>
+</tr>
+<tr id="accessibility.enabled">
+<td><a href="#accessibility.enabled">enabled</a></td><td>whether the chart exposes keyboard navigation and screen-reader semantics<br/><br/>When `true`, the chart is keyboard- and screen-reader-accessible: the plot area is a tab stop that opens and steps the tooltip (with the values spoken through a hidden live region), legend items and interactive pie slices are roving tab stops, and the svg carries roles, labels and `aria-hidden` markers for assistive tech. Set to `false` to render the chart without any of these attributes or key handlers — for example when the host page provides its own accessible alternative. `respectReducedMotion` is not gated by this switch.</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="accessibility.legendLabel">
+<td><a href="#accessibility.legendLabel">legendLabel</a></td><td>the screen-reader label for the legend<br/><br/>The accessible name of the legend group that contains the keyboard-reachable legend items. Replace to localize it.</td><td>should be a string</td><td><div>"Legend"</div>
+</td>
+</tr>
+<tr id="accessibility.plotLabel">
+<td><a href="#accessibility.plotLabel">plotLabel</a></td><td>the screen-reader label for the keyboard-focusable plot area<br/><br/>The accessible name of the plot-area tab stop that keyboard users activate to open and step the tooltip. Replace to localize it.</td><td>should be a string</td><td><div>"Chart values"</div>
+</td>
+</tr>
+<tr id="accessibility.respectReducedMotion">
+<td><a href="#accessibility.respectReducedMotion">respectReducedMotion</a></td><td>whether to respect the user’s reduced-motion system preference<br/><br/>When `true` and the user’s system requests reduced motion (the `prefers-reduced-motion: reduce` accessibility setting, for users sensitive to movement), the chart behaves as if `animation.animate` were `false`: config, data, and focus changes apply instantly. The preference is watched live, so changing the system setting takes effect without re-creating the chart. Set to `false` to animate regardless of the preference. Independent of `enabled`.</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+</table>
+</div>
 <div id="animation">
 <h2>Animation Config</h2>
 <table>
@@ -84,7 +121,7 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 </thead>
 <tr id="animation.animate">
-<td><a href="#animation.animate">animate</a></td><td>whether all animation should be enabled or disabled<br/><br/>The master switch for staged animation. When `false`, config and data changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum). Width/height changes re-layout the chart instantly either way.</td><td>should be a boolean</td><td><div>true</div>
+<td><a href="#animation.animate">animate</a></td><td>whether all animation should be enabled or disabled<br/><br/>The master switch for staged animation. When `false`, config and data changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum). Width/height changes re-layout the chart instantly either way. The user’s reduced-motion preference can also disable animation — see `accessibility.respectReducedMotion`.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="animation.contractionDuration">
@@ -101,10 +138,6 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="animation.initialDuration">
 <td><a href="#animation.initialDuration">initialDuration</a></td><td>the maximum duration for the initial animation when chart data is first loaded<br/><br/>Duration (in milliseconds) of the first render animation when the chart mounts with data.</td><td>should be a number >= to 0</td><td><div>1000</div>
-</td>
-</tr>
-<tr id="animation.respectReducedMotion">
-<td><a href="#animation.respectReducedMotion">respectReducedMotion</a></td><td>whether to respect the user’s reduced-motion system preference<br/><br/>When `true` and the user’s system requests reduced motion (the `prefers-reduced-motion: reduce` accessibility setting, for users sensitive to movement), the chart behaves as if `animate` were `false`: config, data, and focus changes apply instantly. The preference is watched live, so changing the system setting takes effect without re-creating the chart. Set to `false` to animate regardless of the preference.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 <tr id="animation.valueChangeDuration">

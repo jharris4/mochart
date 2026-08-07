@@ -131,7 +131,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     // Focused slices draw last so their stroke sits above their neighbours'.
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
-    const { accessibility } = mochartConfig.chart;
+    const { enabled: accessibility } = mochartConfig.accessibility;
     const sliceIsInteractive = (id: string): boolean =>
       accessibility &&
       (mochartConfig.seriesById[id].focusOnClick || onSliceClick !== undefined) &&

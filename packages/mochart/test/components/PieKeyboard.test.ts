@@ -93,7 +93,7 @@ describe('pie slice keyboard semantics', () => {
   });
 
   it('has no keyboard semantics when chart accessibility is disabled', () => {
-    const container = mountChart(makeConfig({ chart: { type: 'pie', accessibility: false } }), () => {});
+    const container = mountChart(makeConfig({ chart: { type: 'pie' }, accessibility: { enabled: false } }), () => {});
     expect(slices(container).length).toBe(0);
     const sliceGroups = container.querySelectorAll('.mochart-series-container .mochart-series');
     expect(sliceGroups.length).toBe(3);

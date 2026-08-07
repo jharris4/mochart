@@ -1,5 +1,5 @@
 /**
- * animation.respectReducedMotion: when the OS-level prefers-reduced-motion
+ * accessibility.respectReducedMotion: when the OS-level prefers-reduced-motion
  * setting is on, the managed chart swaps to the static (instant) data source
  * — unless the config opts out — and follows live preference changes.
  */
@@ -70,7 +70,7 @@ const config = {
 
 const configKeepAnimating = {
   ...(config as object),
-  animation: { respectReducedMotion: false }
+  accessibility: { respectReducedMotion: false }
 } as unknown as MochartInputConfig;
 
 const initialData = () => [
@@ -104,7 +104,7 @@ function settledPaths(chartConfig: MochartInputConfig, data: Record<string, unkn
   return paths;
 }
 
-describe('animation.respectReducedMotion', () => {
+describe('accessibility.respectReducedMotion', () => {
   it('applies data changes instantly when the system prefers reduced motion', () => {
     reducedMotionQuery.matches = true;
     const finalPaths = settledPaths(config, changedData());

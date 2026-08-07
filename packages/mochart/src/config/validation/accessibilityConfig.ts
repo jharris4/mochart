@@ -1,0 +1,12 @@
+import validators from './validators';
+
+export default function getValidators() {
+  return {
+    enabled: validators.boolean(),
+    respectReducedMotion: validators.boolean(),
+    chartLabel: validators.string(),
+    chartRoleDescription: validators.string(),
+    plotLabel: validators.string(),
+    legendLabel: validators.string()
+  };
+}
