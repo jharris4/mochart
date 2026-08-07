@@ -177,6 +177,15 @@ function cloneChartSvg(svgElement: SVGSVGElement): SVGSVGElement {
   for (const crosshairElement of svgCloneElement.querySelectorAll('.' + crosshairClass)) {
     crosshairElement.parentNode?.removeChild(crosshairElement);
   }
+  // The export is a static image: the tab stops and button semantics need the
+  // live keyboard handlers, so strip them and expose the svg as a plain
+  // labeled image instead of an interactive group.
+  for (const interactiveElement of svgCloneElement.querySelectorAll('[tabindex]')) {
+    for (const attribute of ['tabindex', 'role', 'aria-label', 'aria-expanded', 'aria-pressed']) {
+      interactiveElement.removeAttribute(attribute);
+    }
+  }
+  svgCloneElement.setAttribute('role', 'img');
   return svgCloneElement;
 }
 

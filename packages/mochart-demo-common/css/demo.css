@@ -1,3 +1,7 @@
+/* The chart's own optional stylesheet: overlay structural defaults and the
+   keyboard focus ring (:focus-visible, which inline styles cannot express). */
+@import '@mochart/core/mochart.css';
+
 /* Restyles the charts' structural colors (axis text, grid, tooltip, …) for
    the dark theme; the docs site imports the same file for its live examples. */
 @import './chart-dark.css';

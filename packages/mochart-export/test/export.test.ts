@@ -80,6 +80,24 @@ describe('getChartSvgText', () => {
     expect(svgText).toMatch(/<rect[^>]*width="400"[^>]*height="300"[^>]*fill: rgb\(255, 255, 255\)/);
   });
 
+  it('strips the live keyboard semantics and exports a plain labeled image', () => {
+    // the live chart has keyboard tab stops; the static export must not
+    const liveSvg = findChartSvg(container)!;
+    expect(liveSvg.querySelector('[tabindex]')).not.toBeNull();
+
+    const svgText = getChartSvgText(container)!;
+    expect(svgText).not.toContain('tabindex');
+    expect(svgText).not.toContain('role="button"');
+    expect(svgText).not.toContain('aria-expanded');
+    expect(svgText).not.toContain('aria-pressed');
+    expect(svgText).not.toContain('<style');
+    // a static svg is an image, named like the live chart
+    expect(svgText).toContain('role="img"');
+    expect(svgText).toContain('aria-label="Test Chart"');
+    // decorative geometry stays hidden from AT reading the raw svg
+    expect(svgText).toContain('aria-hidden="true"');
+  });
+
   it('omits the background rect when transparent', () => {
     const svgText = getChartSvgText(container, { transparent: true })!;
     expect(svgText).not.toMatch(/fill: rgb\(255, 255, 255\)/);

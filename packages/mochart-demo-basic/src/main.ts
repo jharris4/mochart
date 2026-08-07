@@ -5,6 +5,7 @@ import {
   ArrayOfObjectsDataProvider
 } from '@mochart/core';
 import type { ChartHandle } from '@mochart/core';
+import '@mochart/core/mochart.css';
 import { exportPNG, exportSVG } from '@mochart/export';
 import demoData from '@mochart/demo-data';
 import type { Demo } from '@mochart/demo-data';

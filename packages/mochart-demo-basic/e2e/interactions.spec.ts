@@ -106,6 +106,25 @@ test('the tooltip and crosshair are keyboard accessible from the plot area', asy
   await expect(plotRect).toHaveAttribute('aria-expanded', 'false');
 });
 
+test('keyboard focus shows a ring, mouse focus does not', async ({ page }) => {
+  // a keystroke first, so the scripted focus below counts as keyboard-driven
+  await page.keyboard.press('Tab');
+  const plotRect = page.locator('.mochart-series-background rect');
+  await plotRect.focus();
+  await expect(plotRect).toBeFocused();
+  const keyboardOutline = await plotRect.evaluate((el) => {
+    const style = getComputedStyle(el);
+    return style.outlineStyle + ' ' + style.outlineWidth;
+  });
+  expect(keyboardOutline).toBe('solid 2px');
+
+  const firstLegendItem = page.locator('.mochart-legend-item').first();
+  await firstLegendItem.click();
+  await expect(firstLegendItem).toBeFocused();
+  const mouseOutline = await firstLegendItem.evaluate((el) => getComputedStyle(el).outlineStyle);
+  expect(mouseOutline).toBe('none');
+});
+
 test('toolbar add/remove category updates the category axis', async ({ page }) => {
   const ticks = page.locator(categoryTickLabels);
   const initialCount = await ticks.count();
