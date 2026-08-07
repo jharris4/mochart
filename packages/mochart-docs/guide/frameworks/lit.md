@@ -109,6 +109,9 @@ hatch. It re-reads the current config/data, re-indexing the built-in
 providers:
 
 ```ts
+import type { DataRow } from '@mochart/core';
+import type { ChartRef } from '@mochart/lit';
+
 private chart: ChartRef | null = null;
 
 render() {

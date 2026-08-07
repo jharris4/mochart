@@ -104,6 +104,9 @@ ref, like Lit's own `ref()` directive — receives a `ChartRef` handle whose
 providers:
 
 ```ts
+import type { DataRow } from '@mochart/core';
+import type { ChartRef } from '@mochart/lit';
+
 private chart: ChartRef | null = null;
 
 render() {

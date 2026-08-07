@@ -101,6 +101,9 @@ handle with the core
 it re-reads the current config/data, re-indexing the built-in providers:
 
 ```tsx
+import { useRef } from 'react';
+import type { ChartRef } from '@mochart/react';
+
 const chartRef = useRef<ChartRef>(null);
 
 <DefaultChart ref={chartRef} config={config} data={data} />;

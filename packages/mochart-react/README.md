@@ -96,6 +96,9 @@ place, the `ref` prop exposes a `ChartRef` handle whose `refresh()`
 re-reads the current config/data, re-indexing the built-in providers:
 
 ```tsx
+import { useRef } from 'react';
+import type { ChartRef } from '@mochart/react';
+
 const chartRef = useRef<ChartRef>(null);
 
 <DefaultChart ref={chartRef} config={config} data={data} />;
