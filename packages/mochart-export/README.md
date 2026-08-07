@@ -40,7 +40,7 @@ exportSVG(element, {
   filename: 'my-chart',      // exact filename (no extension); overrides the title
   filenamePrefix: 'acme-',   // prefix for the title-derived filename
   transparent: true,         // keep the background transparent
-  backgroundColor: '#f5f5f5' // background color when not transparent (default #ffffff)
+  backgroundColor: '#f5f5f5' // background when not transparent (defaults to the page background behind the chart)
 });
 
 await exportPNG(element, {
