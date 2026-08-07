@@ -80,6 +80,8 @@ however you like and the chart follows it:
 <Chart :mochart-config="mochartConfig" :data-provider="dataProvider" style="width: 100%; height: 400px" />
 ```
 
+Explicit `width`/`height` props win over conflicting `style` values.
+
 ## When the data changes
 
 Config and data changes are detected **by reference identity**: the chart

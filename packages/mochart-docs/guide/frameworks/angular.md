@@ -85,6 +85,8 @@ container, so size it however you like and the chart follows it:
 <mochart-chart [mochartConfig]="mochartConfig" [dataProvider]="dataProvider" style="width: 100%; height: 400px" />
 ```
 
+Explicit `width`/`height` inputs win over conflicting `style` values.
+
 ## When the data changes
 
 Config and data changes are detected **by reference identity**: the chart
