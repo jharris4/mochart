@@ -1,9 +1,10 @@
 # mochart documentation improvement plan
 
-Status: proposed (July 2026). This is the working plan for bringing mochart's
-documentation from "good READMEs + a raw HTML config dump" to a real docs
-site with a generated reference, guides, IDE hover docs, and demo integration.
-Check items off as they land.
+Status: delivered (August 2026) — every non-optional item is checked off;
+only the explicitly optional/later entries remain open. This was the working
+plan for bringing mochart's documentation from "good READMEs + a raw HTML
+config dump" to a real docs site with a generated reference, guides, IDE
+hover docs, and demo integration.
 
 ## Where we are today
 
@@ -149,7 +150,7 @@ generated artifact instead of each re-walking the config modules.
       - Demo config editors: the Config tab footer links each reference
         section the edited config uses to its generated reference page
         (derived from the config keys, so no curation needed).
-- [x] Per-demo blurbs: all 22 demos carry a description in demos.json,
+- [x] Per-demo blurbs: every demo carries a description in demos.json,
       rendered under the title in every gallery's Demos list.
 - [x] Docs → demo hand-off: every live chart on the docs site has an "Open
       in demo" link that deep-links the vanilla gallery with that chart's
