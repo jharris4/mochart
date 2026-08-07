@@ -30,7 +30,9 @@ import * as histogram from '../examples/histogram'
   `'probability'` (sums to 1) or `'density'` (integrates to 1), and
   `cumulative: true` accumulates the bins left to right. The default series
   title follows the mode; set `seriesTitle` to override it.
-- Each data row also carries `binStart`, `binEnd`, `binCenter` and `count`,
+- Each row stores its bin's value under the property named by
+  `valueProperty` (default `'value'`) — the returned series fragment points
+  at it. Rows also carry `binStart`, `binEnd`, `binCenter` and `count`,
   and the raw bin descriptions come back under `bins` — useful for custom
   tick labels via `binLabel` or annotations built alongside the chart.
 - The lower-level `binValues(values, options)` returns just the bins with

@@ -53,7 +53,8 @@ import * as gauge from '../examples/gauge'
 
 An inner radius via
 [`pie.innerRadiusFraction`](/reference/pie#pie.innerRadiusFraction)
-(or the helper's `donut` shorthand) turns the pie into a donut, and
+turns the pie into a donut — the helper's `donut` shorthand sets it to
+`0.6`, and its own `innerRadiusFraction` option picks the exact value — and
 [`pie.showLabels`](/reference/pie#pie.showLabels) puts
 value, percent or title labels at the slice centroids.
 
@@ -84,7 +85,8 @@ value, percent or title labels at the slice centroids.
   `'valuePercent'` / `'percentValue'` combinations. The value part keeps its
   per-series formatting
   ([`valueFormat`](/reference/series#series.valueFormat),
-  `valuePrefix`, `valueSuffix`); the percent part is formatted by
+  `valuePrefix`, `valueSuffix`) — the helper's `valueFormat` option stamps
+  one format onto every slice's series; the percent part is formatted by
   [`tooltipPercentFormat`](/reference/pie#pie.tooltipPercentFormat).
   The helper's `tooltipValues` option forwards straight to it.
 - Tooltip percentages are computed from the same slice shares as the labels,

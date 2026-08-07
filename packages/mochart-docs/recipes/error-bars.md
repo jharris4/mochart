@@ -41,10 +41,11 @@ import * as errorBars from '../examples/errorBars'
   [`errorBarStyle`](/reference/series#series.errorBarStyle)
   paints the whisker itself. Being a line, it takes a stroke-only style —
   [`strokeColor`](/reference/series#series.errorBarStyle.normal.strokeColor),
-  [`strokeOpacity`](/reference/series#series.errorBarStyle.normal.strokeOpacity)
-  and
+  [`strokeOpacity`](/reference/series#series.errorBarStyle.normal.strokeOpacity),
   [`strokeWidth`](/reference/series#series.errorBarStyle.normal.strokeWidth)
-  — once per focus state. The default `strokeColor` is `"series"` in
+  and
+  [`strokeDashArray`](/reference/series#series.errorBarStyle.normal.strokeDashArray)
+  (e.g. `"5, 5"`; `null` for a solid whisker) — once per focus state. The default `strokeColor` is `"series"` in
   [`normal`](/reference/series#series.errorBarStyle.normal) and
   `"same"` in
   [`focused`](/reference/series#series.errorBarStyle.focused) and
