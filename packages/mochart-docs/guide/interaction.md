@@ -26,6 +26,13 @@ By default those states change only opacity and width — their colors are
 same focus via
 [`legend.focusOnMouseOver`](/reference/legend#legend.focusOnMouseOver).
 
+Category focus has knobs of its own: the series'
+[`focusCategoryOnMouseOver`](/reference/series#series.focusCategoryOnMouseOver)
+and [`focusCategoryOnClick`](/reference/series#series.focusCategoryOnClick)
+focus the category the pointer is on, and a series with
+[`useAxisFocus`](/reference/series#series.useAxisFocus) shows as focused
+whenever the value axis it belongs to is.
+
 ## Legend filtering
 
 With [`legend.filterOnClick`](/reference/legend#legend.filterOnClick)
@@ -37,6 +44,10 @@ mark it filtered; set
 to strike through the item text as well, and
 [`tooltip.showFilteringOnLabels`](/reference/tooltip#tooltip.showFilteringOnLabels)
 to do the same to the series' tooltip label. Both default to `false`.
+Set [`filterable: false`](/reference/series#series.filterable) on a series
+to exempt it from legend (and tooltip) filtering entirely, and
+[`showColorInLegend: false`](/reference/series#series.showColorInLegend) to
+drop the color icon from its legend item.
 
 ## Tooltip and crosshair
 
@@ -47,6 +58,13 @@ values — label, prefix/suffix, d3-format string — lives on the series
 ([`valueLabel`](/reference/series#series.valueLabel),
 [`valueFormat`](/reference/series#series.valueFormat), and
 friends).
+
+The tooltip can drive focus too:
+[`tooltip.focusCategoryOnMouseOver`](/reference/tooltip#tooltip.focusCategoryOnMouseOver)
+and [`tooltip.focusCategoryOnClick`](/reference/tooltip#tooltip.focusCategoryOnClick)
+focus the category value the pointer is on inside the tooltip. Each series
+can also drop its color icon from the tooltip rows with
+[`showColorInTooltip: false`](/reference/series#series.showColorInTooltip).
 
 ## Callbacks
 

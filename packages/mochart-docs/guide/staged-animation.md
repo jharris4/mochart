@@ -43,7 +43,7 @@ from the stack. Try it in the [stacked bars recipe](/recipes/stacked-bars).
 
 ## Tuning
 
-All knobs live in [`animation`](/reference/animation):
+Nearly all knobs live in [`animation`](/reference/animation):
 
 | Property | Controls |
 | --- | --- |
@@ -59,6 +59,11 @@ changes complete proportionally faster. On an axis running `0` to `100` with
 `valueChangeDuration: 1000`, a bar growing the full height of the axis takes
 1000 ms, one going from `50` to `100` takes 500 ms, and one going from `95` to
 `100` takes 50 ms.
+
+The one knob that lives on the series instead:
+[`animateBaseFromAdjacent`](/reference/series#series.animateBaseFromAdjacent)
+picks whether a series' leading/trailing values animate from their adjacent
+values (`true`) or from the base value (`false`).
 
 ## Reduced motion
 

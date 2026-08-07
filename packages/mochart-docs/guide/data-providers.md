@@ -74,7 +74,10 @@ The config decides which properties the chart pulls from the provider:
 
 Series values must be numeric or `undefined` — how missing values render is
 controlled per series with
-[`missingValues`](/reference/series#series.missingValues).
+[`missingValues`](/reference/series#series.missingValues). Pair it with
+[`missingValueMarkers`](/reference/series#series.missingValueMarkers) to
+keep a marker at the missing values — most useful with
+`missingValues: 'base'`, which gives the marker a position.
 
 ## Validating data against a config
 
