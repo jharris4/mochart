@@ -5,8 +5,10 @@ import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConf
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
-import TextAreaContent from '../misc/TextAreaContent';
+import JsonEditorContent from '../misc/JsonEditorContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
+
+import type { JsonEditorContentRef } from '../misc/JsonEditorContent';
 import DocsLinks from '../misc/DocsLinks';
 import OverflowMenu, { MenuDivider } from '../misc/OverflowMenu';
 import { usePhoneViewport } from '../misc/usePhoneViewport';
@@ -37,6 +39,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   const [state, setState] = useState<ConfigTabState>(() => build(config));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const footerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<JsonEditorContentRef>(null);
 
   // Rebuild when the incoming config changes.
   const prevConfig = useRef(config);
@@ -164,6 +167,13 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
       <Icon size="lg" fixedWidth={true} name={slowIcon} />
     </ButtonWithTooltip>
   );
+  const formatButton = (
+    <ButtonWithTooltip id="config-format" label={demoText.configTab.format.label} disabled={jsonError !== null}
+      tooltipText={demoText.configTab.format.tooltip} tooltipPlacement="top-start"
+      onClick={() => editorRef.current?.format()} aria-label={demoText.configTab.format.aria}>
+      <Icon size="lg" fixedWidth={true} name="indent" />
+    </ButtonWithTooltip>
+  );
   const applyButton = (
     <ButtonWithTooltip id="config-apply" label={demoText.configTab.apply.label} disabled={jsonError !== null}
       tooltipText={demoText.configTab.apply.tooltip} tooltipPlacement="top-start"
@@ -177,7 +187,8 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   return (
     <div className={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
       <div className="mochart-demo-tab-content">
-        <TextAreaContent value={configText} onChange={(text: string) => { setState(prev => ({ ...prev, configText: text })); setErrorMessage(null); }} />
+        <JsonEditorContent value={configText} ariaLabel={demoText.configTab.editorAria} formatOnSet mochartSupport ref={editorRef}
+          onChange={(text: string) => { setState(prev => ({ ...prev, configText: text })); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer" ref={footerRef}>
         <div className="demo-toolbar" role="toolbar">
@@ -191,7 +202,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
               <OverflowMenu text={demoText.overflowMenu.editor}
                 placement={{ side: 'top', align: 'end', gap: 4 }}
                 anchorRef={footerRef} active={active !== false}>
-                <div className="demo-btn-group">{resetButton}{defaultsButton}{invertedButton}{slowButton}</div>
+                <div className="demo-btn-group">{resetButton}{defaultsButton}{invertedButton}{slowButton}{formatButton}</div>
                 {hasDocsLinks ? <><MenuDivider />{docsLinks}</> : null}
               </OverflowMenu>
               {errorSpan}
@@ -202,6 +213,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
               {defaultsButton}
               {invertedButton}
               {slowButton}
+              {formatButton}
               {applyButton}
               {errorSpan}
             </>

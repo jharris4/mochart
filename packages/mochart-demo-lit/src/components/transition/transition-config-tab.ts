@@ -5,7 +5,8 @@ import type { PropertyValues } from 'lit';
 import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
-import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
+import { buttonWithTooltip, icon } from '../misc/templates';
+import '../misc/json-editor-content';
 
 import type { TransitionConfig } from '../../types';
 
@@ -56,7 +57,7 @@ export class TransitionConfigTab extends LightElement {
     const footerError = jsonError ?? this.errorMessage;
     return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
-        ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
+        <json-editor-content .value=${this.configText} .ariaLabelText=${demoText.transitionConfigTab.editorAria} .onChange=${this.onTextChange}></json-editor-content>
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="demo-toolbar" role="toolbar">

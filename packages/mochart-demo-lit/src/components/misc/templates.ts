@@ -5,7 +5,7 @@ import { demoText, getReferenceSectionIds, getReferenceSectionUrl } from '@mocha
 
 // Stateless building blocks kept as plain lit-html template functions rather
 // than custom elements — the natural Lit altitude for the Vue demo's Icon /
-// ButtonWithTooltip / TextAreaContent components.
+// ButtonWithTooltip components.
 
 interface IconProps {
   name: string;
@@ -70,18 +70,6 @@ export function buttonWithTooltip(
       ${children}${menuLabel ? html`<span class="btn-menu-label">${menuLabel}</span>` : nothing}${label ? html`<span class="btn-label">${label}</span>` : nothing}
     </button>
   </span>`;
-}
-
-interface TextAreaContentProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
-/** The sized textarea the config/data editor tabs share (css in demo.css). */
-export function textAreaContent({ value, onChange }: TextAreaContentProps): TemplateResult {
-  return html`<div class="text-area-content">
-    <textarea .value=${value} @input=${(event: Event) => onChange((event.currentTarget as HTMLTextAreaElement).value)}></textarea>
-  </div>`;
 }
 
 /**

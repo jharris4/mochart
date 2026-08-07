@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import TextAreaContent from '../misc/TextAreaContent';
+import JsonEditorContent from '../misc/JsonEditorContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
 import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
@@ -54,7 +54,8 @@ export default function RandomMochartConfigTab({ active, randomConfig, generator
   return (
     <div className={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
       <div className="mochart-demo-tab-content">
-        <TextAreaContent value={configText} onChange={(text: string) => { setConfigText(text); setErrorMessage(null); }} />
+        <JsonEditorContent value={configText} ariaLabel={demoText.randomConfigTab.editorAria} formatOnSet
+          onChange={(text: string) => { setConfigText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
         <div className="demo-toolbar" role="toolbar">

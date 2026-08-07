@@ -16,6 +16,7 @@
     "@mochart/angular": "^1.0.0",
     "@mochart/demo-common": "^1.0.0",
     "@mochart/demo-data": "^1.0.0",
+    "@mochart/editor": "^1.0.0",
     "@mochart/export": "^1.0.0",
     "rxjs": "^7.8.2",
     "tslib": "^2.8.1"

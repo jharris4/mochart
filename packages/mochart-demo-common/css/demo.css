@@ -565,6 +565,8 @@ html, body {
 .mochart-demo-text-area-container {
     display: flex;
     flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
 }
 .text-area-content {
     display: flex;

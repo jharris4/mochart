@@ -3,7 +3,7 @@
 
   import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
-  import TextAreaContent from '../misc/TextAreaContent.svelte';
+  import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import DocsLinks from '../misc/DocsLinks.svelte';
   import Icon from '../misc/Icon.svelte';
@@ -145,6 +145,7 @@
   const phone = createPhoneViewport();
   const hasDocsLinks = $derived(getReferenceSectionIds(demoConfig.configWithoutDefaults).length > 0);
   let footerElement = $state<HTMLElement | null>(null);
+  let editor = $state<JsonEditorContent | null>(null);
 </script>
 
 {#snippet resetButton()}
@@ -178,6 +179,14 @@
   </ButtonWithTooltip>
 {/snippet}
 
+{#snippet formatButton()}
+  <ButtonWithTooltip id="config-format" label={demoText.configTab.format.label} disabled={jsonError !== null}
+                     tooltipText={demoText.configTab.format.tooltip} tooltipPlacement="top-start"
+                     onClick={() => editor?.format()} aria-label={demoText.configTab.format.aria}>
+    <Icon size="lg" fixedWidth={true} name="indent" />
+  </ButtonWithTooltip>
+{/snippet}
+
 {#snippet applyButton()}
   <ButtonWithTooltip id="config-apply" label={demoText.configTab.apply.label} disabled={jsonError !== null}
                      tooltipText={demoText.configTab.apply.tooltip} tooltipPlacement="top-start"
@@ -192,7 +201,8 @@
 
 <div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
-    <TextAreaContent value={configText} onChange={onTextChange} />
+    <JsonEditorContent value={configText} ariaLabel={demoText.configTab.editorAria} formatOnSet={true} mochartSupport={true}
+                       bind:this={editor} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer" bind:this={footerElement}>
     <div class="demo-toolbar" role="toolbar">
@@ -206,7 +216,7 @@
                       placement={{ side: 'top', align: 'end', gap: 4 }}
                       getAnchor={() => footerElement}
                       active={active !== false}>
-          <div class="demo-btn-group">{@render resetButton()}{@render defaultsButton()}{@render invertedButton()}{@render slowButton()}</div>
+          <div class="demo-btn-group">{@render resetButton()}{@render defaultsButton()}{@render invertedButton()}{@render slowButton()}{@render formatButton()}</div>
           {#if hasDocsLinks}
             <div class="demo-menu-divider"></div>
             {@render docsLinks()}
@@ -220,6 +230,7 @@
         {@render defaultsButton()}
         {@render invertedButton()}
         {@render slowButton()}
+        {@render formatButton()}
         {@render applyButton()}
         {#if footerError}
           <span class="mochart-demo-footer-error" role="alert">{footerError}</span>

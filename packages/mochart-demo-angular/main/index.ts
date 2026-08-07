@@ -1,6 +1,7 @@
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/solid.min.css';
 import '@mochart/demo-common/demo.css';
+import '@mochart/editor/editor.css';
 
 import { ErrorHandler, provideZonelessChangeDetection } from '@angular/core';
 import { APP_BASE_HREF } from '@angular/common';

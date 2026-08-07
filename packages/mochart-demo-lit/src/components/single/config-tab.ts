@@ -8,7 +8,8 @@ import type { DemoConfigView } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { PhoneViewportController } from '../misc/PhoneViewportController';
-import { textAreaContent, buttonWithTooltip, docsLinks, icon } from '../misc/templates';
+import { buttonWithTooltip, docsLinks, icon } from '../misc/templates';
+import '../misc/json-editor-content';
 import '../misc/overflow-menu';
 
 import type { DemoConfig, MochartDemoConfig } from '../../types';
@@ -109,6 +110,10 @@ export class ConfigTab extends LightElement {
     }
   };
 
+  private formatConfig = (): void => {
+    this.querySelector('json-editor-content')?.format();
+  };
+
   // Live JSON validity — disables Apply and shows an inline hint while the
   // editor holds unparseable text.
   private get jsonError(): string | null {
@@ -149,6 +154,10 @@ export class ConfigTab extends LightElement {
       { id: 'config-animate-slow', label: demoText.configTab.slow.label, pressed: slow, tooltipText: demoText.configTab.slow.tooltip, tooltipPlacement: 'top-start', onClick: this.toggleConfigAnimationSlow, ariaLabel: demoText.configTab.slow.aria },
       icon({ size: 'lg', fixedWidth: true, name: slowIcon })
     );
+    const formatButton = buttonWithTooltip(
+      { id: 'config-format', label: demoText.configTab.format.label, disabled: jsonError !== null, tooltipText: demoText.configTab.format.tooltip, tooltipPlacement: 'top-start', onClick: this.formatConfig, ariaLabel: demoText.configTab.format.aria },
+      icon({ size: 'lg', fixedWidth: true, name: 'indent' })
+    );
     const applyButton = buttonWithTooltip(
       { id: 'config-apply', label: demoText.configTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.configTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.applyConfig, ariaLabel: demoText.configTab.apply.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'check' })
@@ -156,7 +165,8 @@ export class ConfigTab extends LightElement {
     const links = docsLinks(this.demoConfig.configWithoutDefaults);
     return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
-        ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
+        <json-editor-content .value=${this.configText} .ariaLabelText=${demoText.configTab.editorAria}
+          .formatOnSet=${true} .mochartSupport=${true} .onChange=${this.onTextChange}></json-editor-content>
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="demo-toolbar" role="toolbar">
@@ -169,9 +179,9 @@ export class ConfigTab extends LightElement {
                    goes. -->
               <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${editorPlacement}
                 .getAnchor=${this.getFooterAnchor} .active=${this.active}
-                .items=${() => html`<div class="demo-btn-group">${resetButton}${defaultsButton}${invertedButton}${slowButton}</div>
+                .items=${() => html`<div class="demo-btn-group">${resetButton}${defaultsButton}${invertedButton}${slowButton}${formatButton}</div>
                   ${links === nothing ? nothing : html`<div class="demo-menu-divider"></div>${links}`}`}></overflow-menu>`
-            : html`${resetButton}${defaultsButton}${invertedButton}${slowButton}${applyButton}`}
+            : html`${resetButton}${defaultsButton}${invertedButton}${slowButton}${formatButton}${applyButton}`}
           ${footerError ? html`<span class="mochart-demo-footer-error" role="alert">${footerError}</span>` : nothing}
         </div>
         ${folded ? nothing : links}

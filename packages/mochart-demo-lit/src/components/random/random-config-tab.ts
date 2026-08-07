@@ -3,7 +3,8 @@ import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
 import { LightElement } from '../misc/LightElement';
-import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
+import { buttonWithTooltip, icon } from '../misc/templates';
+import '../misc/json-editor-content';
 
 import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
 
@@ -60,7 +61,8 @@ export class RandomConfigTab extends LightElement {
     const footerError = jsonError ?? this.errorMessage;
     return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
-        ${textAreaContent({ value: this.configText, onChange: this.onTextChange })}
+        <json-editor-content .value=${this.configText} .ariaLabelText=${demoText.randomConfigTab.editorAria}
+          .formatOnSet=${true} .onChange=${this.onTextChange}></json-editor-content>
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="demo-toolbar" role="toolbar">

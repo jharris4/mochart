@@ -3,7 +3,7 @@ import { computed, h, ref, shallowRef, watch } from 'vue';
 
 import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
-import TextAreaContent from '../misc/TextAreaContent.vue';
+import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import DocsLinks from '../misc/DocsLinks.vue';
 import Icon from '../misc/Icon.vue';
@@ -135,6 +135,7 @@ const isPhone = usePhoneViewport();
 const hasDocsLinks = computed(() => getReferenceSectionIds(demoConfig.value.configWithoutDefaults).length > 0);
 const footerElement = ref<HTMLElement | null>(null);
 const getFooterAnchor = () => footerElement.value;
+const editorComponent = ref<InstanceType<typeof JsonEditorContent> | null>(null);
 
 const iconChild = (name: string) => () => h(Icon, { size: 'lg', fixedWidth: true, name });
 
@@ -161,6 +162,12 @@ const SlowButton = () => h(ButtonWithTooltip, {
   onClick: toggleConfigAnimationSlow, 'aria-label': demoText.configTab.slow.aria
 }, iconChild(slowIcon.value));
 
+const FormatButton = () => h(ButtonWithTooltip, {
+  id: 'config-format', label: demoText.configTab.format.label, disabled: jsonError.value !== null,
+  tooltipText: demoText.configTab.format.tooltip, tooltipPlacement: 'top-start',
+  onClick: () => { editorComponent.value?.format(); }, 'aria-label': demoText.configTab.format.aria
+}, iconChild('indent'));
+
 const ApplyButton = () => h(ButtonWithTooltip, {
   id: 'config-apply', label: demoText.configTab.apply.label, disabled: jsonError.value !== null,
   tooltipText: demoText.configTab.apply.tooltip, tooltipPlacement: 'top-start',
@@ -171,7 +178,8 @@ const ApplyButton = () => h(ButtonWithTooltip, {
 <template>
   <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
-      <TextAreaContent :value="configText" :on-change="onTextChange" />
+      <JsonEditorContent ref="editorComponent" :value="configText" :ariaLabel="demoText.configTab.editorAria"
+                         :format-on-set="true" :mochart-support="true" :on-change="onTextChange" />
     </div>
     <div class="mochart-demo-tab-footer" ref="footerElement">
       <div class="demo-toolbar" role="toolbar">
@@ -185,7 +193,7 @@ const ApplyButton = () => h(ButtonWithTooltip, {
                         :placement="{ side: 'top', align: 'end', gap: 4 }"
                         :get-anchor="getFooterAnchor"
                         :active="props.active">
-            <div class="demo-btn-group"><ResetButton /><DefaultsButton /><InvertedButton /><SlowButton /></div>
+            <div class="demo-btn-group"><ResetButton /><DefaultsButton /><InvertedButton /><SlowButton /><FormatButton /></div>
             <template v-if="hasDocsLinks">
               <div class="demo-menu-divider"></div>
               <DocsLinks :config="demoConfig.configWithoutDefaults" />
@@ -197,6 +205,7 @@ const ApplyButton = () => h(ButtonWithTooltip, {
           <DefaultsButton />
           <InvertedButton />
           <SlowButton />
+          <FormatButton />
           <ApplyButton />
         </template>
         <span v-if="footerError" class="mochart-demo-footer-error" role="alert">{{ footerError }}</span>

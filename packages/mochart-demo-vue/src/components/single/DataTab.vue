@@ -3,7 +3,7 @@ import { computed, h, ref, watch } from 'vue';
 
 import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 
-import TextAreaContent from '../misc/TextAreaContent.vue';
+import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import Icon from '../misc/Icon.vue';
 import OverflowMenu from '../misc/OverflowMenu.vue';
@@ -129,7 +129,7 @@ const ApplyButton = () => h(ButtonWithTooltip, {
 <template>
   <div :class="'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
-      <TextAreaContent :value="dataText" :on-change="onTextChange" />
+      <JsonEditorContent :value="dataText" :ariaLabel="demoText.dataTab.editorAria" :on-change="onTextChange" />
     </div>
     <div class="mochart-demo-tab-footer" ref="footerElement">
       <div class="demo-toolbar" role="toolbar">

@@ -1,8 +1,8 @@
-import { formatData } from '@mochart/demo-common';
+import { demoText, formatData } from '@mochart/demo-common';
 
 import { useState, useRef } from 'react';
 
-import TextAreaContent from '../misc/TextAreaContent';
+import JsonEditorContent from '../misc/JsonEditorContent';
 
 interface Props {
   active?: boolean;
@@ -21,7 +21,7 @@ export default function RandomMochartDataTab({ active, data }: Props) {
   return (
     <div className={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")} inert={!active}>
       <div className="mochart-demo-tab-content">
-        <TextAreaContent value={dataText} onChange={() => {}} />
+        <JsonEditorContent value={dataText} ariaLabel={demoText.randomDataTab.editorAria} readOnly />
       </div>
     </div>
   );

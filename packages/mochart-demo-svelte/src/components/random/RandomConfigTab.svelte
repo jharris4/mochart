@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import TextAreaContent from '../misc/TextAreaContent.svelte';
+  import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
 
@@ -70,7 +70,7 @@
 
 <div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
-    <TextAreaContent value={configText} onChange={onTextChange} />
+    <JsonEditorContent value={configText} ariaLabel={demoText.randomConfigTab.editorAria} formatOnSet={true} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer">
     <div class="demo-toolbar" role="toolbar">

@@ -3,7 +3,7 @@ import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
 
-import { TextAreaContent } from '../misc/text-area-content';
+import { JsonEditorContent } from '../misc/json-editor-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { Icon } from '../misc/icon';
 
@@ -11,12 +11,12 @@ import type { TransitionConfig } from '../../types';
 
 @Component({
   selector: 'app-transition-config-tab',
-  imports: [TextAreaContent, ButtonWithTooltip, Icon],
+  imports: [JsonEditorContent, ButtonWithTooltip, Icon],
   styles: [':host { display: contents; }'],
   template: `
     <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
-        <app-text-area-content [value]="configText()" [onChange]="onTextChange" />
+        <app-json-editor-content [value]="configText()" [ariaLabel]="text.editorAria" [onChange]="onTextChange" />
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="demo-toolbar" role="toolbar">

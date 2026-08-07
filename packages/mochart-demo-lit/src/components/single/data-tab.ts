@@ -7,7 +7,8 @@ import type { ParsedFullData } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { PhoneViewportController } from '../misc/PhoneViewportController';
-import { textAreaContent, buttonWithTooltip, icon } from '../misc/templates';
+import { buttonWithTooltip, icon } from '../misc/templates';
+import '../misc/json-editor-content';
 import '../misc/overflow-menu';
 
 import type { DemoConfig, DataRow } from '../../types';
@@ -119,7 +120,7 @@ export class DataTab extends LightElement {
     );
     return html`<div class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
-        ${textAreaContent({ value: this.dataText, onChange: this.onTextChange })}
+        <json-editor-content .value=${this.dataText} .ariaLabelText=${demoText.dataTab.editorAria} .onChange=${this.onTextChange}></json-editor-content>
       </div>
       <div class="mochart-demo-tab-footer">
         <div class="demo-toolbar" role="toolbar">

@@ -3,7 +3,7 @@ import Icon from '../misc/Icon';
 
 import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 
-import TextAreaContent from '../misc/TextAreaContent';
+import JsonEditorContent from '../misc/JsonEditorContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 import OverflowMenu from '../misc/OverflowMenu';
 import { usePhoneViewport } from '../misc/usePhoneViewport';
@@ -124,7 +124,8 @@ export default function MochartDataTab({ active, config = null, data = null, onD
   return (
     <div className={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")} inert={!active}>
       <div className="mochart-demo-tab-content">
-        <TextAreaContent value={dataText} onChange={(text: string) => { setDataText(text); setErrorMessage(null); }} />
+        <JsonEditorContent value={dataText} ariaLabel={demoText.dataTab.editorAria}
+          onChange={(text: string) => { setDataText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer" ref={footerRef}>
         <div className="demo-toolbar" role="toolbar">

@@ -1,11 +1,11 @@
-import { formatData } from '@mochart/demo-common';
+import { demoText, formatData } from '@mochart/demo-common';
 
 import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
 import { LightElement } from '../misc/LightElement';
-import { textAreaContent } from '../misc/templates';
+import '../misc/json-editor-content';
 
 @customElement('random-data-tab')
 export class RandomDataTab extends LightElement {
@@ -23,7 +23,7 @@ export class RandomDataTab extends LightElement {
   override render(): unknown {
     return html`<div class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
-        ${textAreaContent({ value: this.dataText, onChange: () => {} })}
+        <json-editor-content .value=${this.dataText} .ariaLabelText=${demoText.randomDataTab.editorAria} .readOnly=${true}></json-editor-content>
       </div>
     </div>`;
   }

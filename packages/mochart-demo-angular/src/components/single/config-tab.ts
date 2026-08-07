@@ -6,7 +6,7 @@ import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConf
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
-import { TextAreaContent } from '../misc/text-area-content';
+import { JsonEditorContent } from '../misc/json-editor-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { DocsLinks } from '../misc/docs-links';
 import { Icon } from '../misc/icon';
@@ -17,7 +17,7 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
 
 @Component({
   selector: 'app-config-tab',
-  imports: [TextAreaContent, ButtonWithTooltip, DocsLinks, Icon, NgTemplateOutlet, OverflowMenu],
+  imports: [JsonEditorContent, ButtonWithTooltip, DocsLinks, Icon, NgTemplateOutlet, OverflowMenu],
   styles: [':host { display: contents; }'],
   template: `
     <ng-template #resetButton>
@@ -47,6 +47,13 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
         <app-icon size="lg" [fixedWidth]="true" [name]="slowIcon" />
       </app-button-with-tooltip>
     </ng-template>
+    <ng-template #formatButton>
+      <app-button-with-tooltip id="config-format" [label]="text.format.label" [disabled]="jsonError !== null"
+                               [tooltipText]="text.format.tooltip" tooltipPlacement="top-start"
+                               [onClick]="formatConfig" [aria-label]="text.format.aria">
+        <app-icon size="lg" [fixedWidth]="true" name="indent" />
+      </app-button-with-tooltip>
+    </ng-template>
     <ng-template #applyButton>
       <app-button-with-tooltip id="config-apply" [label]="text.apply.label" [disabled]="jsonError !== null"
                                [tooltipText]="text.apply.tooltip" tooltipPlacement="top-start"
@@ -64,7 +71,8 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
          links, goes to the \`⋯\` menu. -->
     <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
-        <app-text-area-content [value]="configText()" [onChange]="onTextChange" />
+        <app-json-editor-content #editor [value]="configText()" [ariaLabel]="text.editorAria" [formatOnSet]="true"
+                                 [mochartSupport]="true" [onChange]="onTextChange" />
       </div>
       <div class="mochart-demo-tab-footer" #footer>
         <div class="demo-toolbar" role="toolbar">
@@ -80,6 +88,7 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
                 <ng-container [ngTemplateOutlet]="defaultsButton" />
                 <ng-container [ngTemplateOutlet]="invertedButton" />
                 <ng-container [ngTemplateOutlet]="slowButton" />
+                <ng-container [ngTemplateOutlet]="formatButton" />
               </div>
               @if (hasDocsLinks) {
                 <div class="demo-menu-divider"></div>
@@ -91,6 +100,7 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
             <ng-container [ngTemplateOutlet]="defaultsButton" />
             <ng-container [ngTemplateOutlet]="invertedButton" />
             <ng-container [ngTemplateOutlet]="slowButton" />
+            <ng-container [ngTemplateOutlet]="formatButton" />
             <ng-container [ngTemplateOutlet]="applyButton" />
           }
           @if (footerError) {
@@ -112,6 +122,7 @@ export class ConfigTab implements OnInit, OnChanges {
 
   // The phone fold (see the comment above the pane in the template).
   @ViewChild('footer', { static: true }) footerElement!: ElementRef<HTMLDivElement>;
+  @ViewChild('editor', { static: true }) editorComponent!: JsonEditorContent;
   readonly phone = phoneViewport();
   readonly overflowText = demoText.overflowMenu.editor;
   readonly editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
@@ -205,6 +216,10 @@ export class ConfigTab implements OnInit, OnChanges {
 
   toggleConfigAnimationSlow = (): void => {
     this.applyConfigToggle(current => toggleConfigSection(this.mochartDemoConfig()!, current, 'animation', slowAnimationConfig));
+  };
+
+  formatConfig = (): void => {
+    this.editorComponent.format();
   };
 
   applyConfig = (): void => {

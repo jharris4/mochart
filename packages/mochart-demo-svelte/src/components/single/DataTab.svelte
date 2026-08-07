@@ -3,7 +3,7 @@
 
   import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 
-  import TextAreaContent from '../misc/TextAreaContent.svelte';
+  import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
   import OverflowMenu from '../misc/OverflowMenu.svelte';
@@ -149,7 +149,7 @@
 
 <div class={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
-    <TextAreaContent value={dataText} onChange={onTextChange} />
+    <JsonEditorContent value={dataText} ariaLabel={demoText.dataTab.editorAria} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer" bind:this={footerElement}>
     <div class="demo-toolbar" role="toolbar">

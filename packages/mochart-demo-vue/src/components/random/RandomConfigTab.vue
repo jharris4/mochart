@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import TextAreaContent from '../misc/TextAreaContent.vue';
+import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
 import Icon from '../misc/Icon.vue';
 
@@ -62,7 +62,7 @@ const footerError = computed(() => jsonError.value ?? errorMessage.value);
 <template>
   <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
-      <TextAreaContent :value="configText" :on-change="onTextChange" />
+      <JsonEditorContent :value="configText" :ariaLabel="demoText.randomConfigTab.editorAria" :format-on-set="true" :on-change="onTextChange" />
     </div>
     <div class="mochart-demo-tab-footer">
       <div class="demo-toolbar" role="toolbar">

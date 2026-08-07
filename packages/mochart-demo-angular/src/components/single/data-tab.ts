@@ -5,7 +5,7 @@ import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
-import { TextAreaContent } from '../misc/text-area-content';
+import { JsonEditorContent } from '../misc/json-editor-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
 import { Icon } from '../misc/icon';
 import { OverflowMenu } from '../misc/overflow-menu';
@@ -15,7 +15,7 @@ import type { DemoConfig, DataRow } from '../../types';
 
 @Component({
   selector: 'app-data-tab',
-  imports: [TextAreaContent, ButtonWithTooltip, Icon, NgTemplateOutlet, OverflowMenu],
+  imports: [JsonEditorContent, ButtonWithTooltip, Icon, NgTemplateOutlet, OverflowMenu],
   styles: [':host { display: contents; }'],
   template: `
     <ng-template #resetButton>
@@ -43,7 +43,7 @@ import type { DemoConfig, DataRow } from '../../types';
          stay inline, the rest goes to the \`⋯\`; the reasons live on ConfigTab. -->
     <div [class]="'mochart-demo-tab-container demo-layout-col data' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
-        <app-text-area-content [value]="dataText()" [onChange]="onTextChange" />
+        <app-json-editor-content [value]="dataText()" [ariaLabel]="text.editorAria" [onChange]="onTextChange" />
       </div>
       <div class="mochart-demo-tab-footer" #footer>
         <div class="demo-toolbar" role="toolbar">
