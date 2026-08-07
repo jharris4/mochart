@@ -10,7 +10,7 @@ spacing below matching the gaps in the data.
 import * as dateAxis from '../examples/dateAxis'
 </script>
 
-<LiveChart :config="dateAxis.config" :data="dateAxis.data" />
+<LiveChart :config="dateAxis.config" :data="dateAxis.data" demo="tick-prune" />
 
 <<< @/examples/dateAxis.ts
 

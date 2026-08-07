@@ -9,7 +9,7 @@ works unchanged.
 import * as horizontal from '../examples/horizontal'
 </script>
 
-<LiveChart :config="horizontal.config" :data="horizontal.data" :alt-data="horizontal.altData" />
+<LiveChart :config="horizontal.config" :data="horizontal.data" :alt-data="horizontal.altData" demo="capped-inverted" />
 
 <<< @/examples/horizontal.ts
 

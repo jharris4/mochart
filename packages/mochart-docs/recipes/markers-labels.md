@@ -8,7 +8,7 @@ import * as markersLabels from '../examples/markersLabels'
 import * as scatterBubble from '../examples/scatterBubble'
 </script>
 
-<LiveChart :config="markersLabels.config" :data="markersLabels.data" />
+<LiveChart :config="markersLabels.config" :data="markersLabels.data" demo="label-property-stacked" />
 
 <<< @/examples/markersLabels.ts
 

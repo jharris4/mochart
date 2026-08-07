@@ -8,7 +8,7 @@ the two series' formatting.
 import * as tooltipFormat from '../examples/tooltipFormat'
 </script>
 
-<LiveChart :config="tooltipFormat.config" :data="tooltipFormat.data" />
+<LiveChart :config="tooltipFormat.config" :data="tooltipFormat.data" demo="currency-pos-neg" />
 
 <<< @/examples/tooltipFormat.ts
 

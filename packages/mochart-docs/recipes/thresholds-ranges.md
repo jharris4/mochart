@@ -8,7 +8,7 @@ between two data properties.
 import * as thresholdRange from '../examples/thresholdRange'
 </script>
 
-<LiveChart :config="thresholdRange.config" :data="thresholdRange.data" />
+<LiveChart :config="thresholdRange.config" :data="thresholdRange.data" demo="threshold-line" />
 
 <<< @/examples/thresholdRange.ts
 

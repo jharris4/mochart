@@ -5,7 +5,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { encodeShareState, getChartExportOptions, shareHashPrefix } from '@mochart/demo-common';
-import type { DemoConfig } from '@mochart/demo-common';
+import type { DemoConfig, ShowcaseMode } from '@mochart/demo-common';
 
 interface ChartHandle {
   update(props: Record<string, unknown>): void;
@@ -20,6 +20,8 @@ const props = withDefaults(defineProps<{
   demoLink?: boolean;
   /** Vanilla-gallery demo slug to host the share link (see demos.json ids). */
   demo?: string;
+  /** Link to a vanilla-gallery showcase page instead of a single demo. */
+  showcase?: ShowcaseMode;
   /** Show Download SVG / Download PNG buttons (the export guide's live demo). */
   exportButtons?: boolean;
   /** CSS color set on the chart host — shows chrome following `currentColor`. */
@@ -29,6 +31,7 @@ const props = withDefaults(defineProps<{
   height: 320,
   demoLink: true,
   demo: 'stacked',
+  showcase: undefined,
   exportButtons: false,
   color: undefined
 });
@@ -43,6 +46,10 @@ const demoUrl = computed(() => {
   if (!props.demoLink) {
     return null;
   }
+  // Showcase pages are curated, so they get a plain link without a payload.
+  if (props.showcase !== undefined) {
+    return import.meta.env.BASE_URL + 'vanilla/' + props.showcase;
+  }
   const payload = encodeShareState({
     mode: 'single',
     config: props.config as DemoConfig,
@@ -50,6 +57,10 @@ const demoUrl = computed(() => {
   });
   return import.meta.env.BASE_URL + 'vanilla/single/' + props.demo + '/' + shareHashPrefix + payload;
 });
+
+const demoLinkTitle = computed(() => props.showcase === undefined
+  ? "Open this chart in the demo gallery's editor"
+  : `Open the ${props.showcase} showcase in the demo gallery`);
 
 const host = ref<HTMLElement | null>(null);
 const showingAlt = ref(false);
@@ -124,7 +135,7 @@ async function download(format: 'svg' | 'png') {
       </button>
       <!-- target=_self keeps VitePress's SPA router from intercepting the
            navigation into the (non-VitePress) demo gallery. -->
-      <a v-if="demoUrl" class="live-chart-demo-link" :href="demoUrl" target="_self" title="Open this chart in the demo gallery's editor">
+      <a v-if="demoUrl" class="live-chart-demo-link" :href="demoUrl" target="_self" :title="demoLinkTitle">
         Open in demo ↗
       </a>
     </div>

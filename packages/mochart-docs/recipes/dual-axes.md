@@ -10,7 +10,7 @@ against its own percent-formatted axis on the right.
 import * as dualAxes from '../examples/dualAxes'
 </script>
 
-<LiveChart :config="dualAxes.config" :data="dualAxes.data" />
+<LiveChart :config="dualAxes.config" :data="dualAxes.data" demo="axis-multiple" />
 
 <<< @/examples/dualAxes.ts
 

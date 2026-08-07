@@ -8,7 +8,7 @@ margins collapsed — leaving only the plotted shapes for tiny inline charts.
 import * as sparkline from '../examples/sparkline'
 </script>
 
-<LiveChart :config="sparkline.config" :data="sparkline.data" :height="56" />
+<LiveChart :config="sparkline.config" :data="sparkline.data" :height="56" showcase="sparkline" />
 
 <<< @/examples/sparkline.ts
 
