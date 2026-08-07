@@ -106,6 +106,43 @@ test('the tooltip and crosshair are keyboard accessible from the plot area', asy
   await expect(plotRect).toHaveAttribute('aria-expanded', 'false');
 });
 
+test('pie slices are keyboard accessible', async ({ page }) => {
+  // a hash-only goto would not remount the app, so switch demos via the sidebar
+  await page.locator('#demo-list button[data-id="pie"]').click();
+  const slices = page.locator('.mochart-series-container g[data-series-id]');
+  await expect(slices.first()).toBeAttached();
+
+  // a pie has one category, so arrows on the plot stop have nothing to step
+  const plotRect = page.locator('.mochart-series-background rect');
+  await plotRect.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('.mochart-tooltip')).toBeHidden();
+
+  const firstSlice = slices.first();
+  await expect(firstSlice).toHaveAttribute('role', 'button');
+  await expect(firstSlice).toHaveAttribute('tabindex', '0');
+  await firstSlice.focus();
+
+  // Enter is click-equivalent: the app's slice handler fires AND the bubbled
+  // chart click opens the tooltip, exactly like a mouse click on the slice
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#chart-host')).toHaveAttribute('data-last-slice-click', 'slice0');
+  const tooltip = page.locator('.mochart-tooltip');
+  await expect(tooltip).toBeVisible();
+
+  // arrows rove between slices in config order
+  await page.keyboard.press('ArrowRight');
+  const secondSlice = page.locator('.mochart-series-container g[data-series-id="slice1"]');
+  await expect(secondSlice).toBeFocused();
+  await expect(secondSlice).toHaveAttribute('tabindex', '0');
+  await expect(firstSlice).toHaveAttribute('tabindex', '-1');
+
+  // a second activation toggles the tooltip closed, like a second click would
+  await page.keyboard.press(' ');
+  await expect(page.locator('#chart-host')).toHaveAttribute('data-last-slice-click', 'slice1');
+  await expect(tooltip).toBeHidden();
+});
+
 test('keyboard focus shows a ring, mouse focus does not', async ({ page }) => {
   // a keystroke first, so the scripted focus below counts as keyboard-driven
   await page.keyboard.press('Tab');

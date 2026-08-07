@@ -136,6 +136,22 @@ describe('plot keyboard semantics', () => {
     expect(tooltipText(container)).toContain('Jan');
   });
 
+  it('keeps arrows inert on a single-category chart, where Enter still toggles', () => {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    handles.push(createDefaultChart(container, {
+      config: makeConfig({ chart: { type: 'pie' } }), data: [rows[0]], width: 800, height: 600
+    }));
+    const rect = plotRect(container);
+
+    key(rect, 'ArrowRight');
+    key(rect, 'Home');
+    expect(rect.getAttribute('aria-expanded')).toBe('false');
+
+    key(rect, 'Enter');
+    expect(rect.getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('opens on arrows when closed and reopens at the last shown category', () => {
     const container = mountChart(makeConfig());
     const rect = plotRect(container);

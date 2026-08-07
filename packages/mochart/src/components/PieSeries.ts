@@ -46,6 +46,8 @@ interface PieSeriesProps {
   onFocus: (focus: PieSeriesFocusUpdate) => void;
   /** Click-only slice event for selection; independent of the focus flags. */
   onSliceClick?: (payload: { seriesId: string }) => void;
+  /** The roving tab stop: one slice is Tab-reachable, arrows move between slices. */
+  tabStop: boolean;
 }
 
 interface PieSeriesState {
@@ -108,13 +110,28 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     return { onSeriesEnter, onSeriesLeave, onSeriesClick };
   }
 
+  onKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      // keyboard activation = a real click at the slice's center, so the
+      // bubbled chart-level behavior (tooltip toggle) fires like a mouse click
+      const shapeNode = this.root.node.querySelector('.' + mochartCssClasses['seriesSlice']);
+      if (shapeNode !== null) {
+        const bounds = shapeNode.getBoundingClientRect();
+        shapeNode.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true,
+          clientX: bounds.x + bounds.width / 2, clientY: bounds.y + bounds.height / 2 }));
+      }
+    }
+  }
+
   create() {
     return this.root.node;
   }
 
   sync() {
     const { colorPaletteConfig, pieConfig, seriesConfig, seriesIndex, seriesLayoutInfo, radialLayoutInfo,
-      sliceAngles, labelFraction, focusData, gradientIdMap, hideLabels } = this.props;
+      sliceAngles, labelFraction, focusData, gradientIdMap, hideLabels, onSliceClick, tabStop } = this.props;
     const { onSeriesEnter, onSeriesLeave, onSeriesClick } = this.state;
 
     if (sliceAngles === undefined || sliceAngles.fraction <= 0 || focusData === null) {
@@ -154,7 +171,17 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     }
 
     this.setPresent(true);
-    this.root.set({ className: mochartCssClasses['series'] + seriesConfig.id, ariaHidden: 'true',
+    // clicking does something (focus or selection), so the slice is keyboard-reachable;
+    // keyboard focus shows only the ring — mirroring hover would reorder the DOM under the focused node
+    const interactive = seriesConfig.focusOnClick || onSliceClick !== undefined;
+    const { percentFormat } = getPieLabelFormats(pieConfig);
+    this.root.set({ className: mochartCssClasses['series'] + seriesConfig.id,
+      ariaHidden: interactive ? null : 'true',
+      dataSeriesId: interactive ? seriesConfig.id : null,
+      tabindex: interactive ? (tabStop ? '0' : '-1') : null,
+      role: interactive ? 'button' : null,
+      ariaLabel: interactive ? (seriesConfig.title ?? seriesConfig.id) + ', ' + percentFormat(labelFraction) : null,
+      onKeyDown: interactive ? this.onKeyDown : null,
       transform: translate(seriesLayoutInfo.x + radialLayoutInfo.cx + offsetX, seriesLayoutInfo.y + radialLayoutInfo.cy + offsetY) });
 
     this.shape.set('slice', () => svgEl('path'))!.set({

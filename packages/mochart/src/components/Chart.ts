@@ -878,6 +878,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
     }
     else if (key === 'ArrowRight' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowUp' || key === 'Home' || key === 'End') {
+      // arrows exist to step categories; with a single category (a pie) they
+      // stay inert instead of popping the tooltip — Enter/Space still toggles
+      if (categoryCount <= 1) {
+        return;
+      }
       event.preventDefault();
       if (!tooltipVisible) {
         const index = key === 'Home' ? 0 : key === 'End' ? categoryCount - 1 : rememberedIndex;

@@ -29,11 +29,75 @@ interface PieSeriesContainerProps {
   a11yProps: SeriesShapeA11yProps | null;
 }
 
-export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps> {
+interface PieSeriesContainerState { rovingSeriesId: string | null }
+
+export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps, PieSeriesContainerState> {
   root = svgEl('g');
   background = this.slot(this.root);
   series = this.rendererList(this.root);
   center = this.slot(this.root);
+
+  constructor() {
+    super();
+    this.state = { rovingSeriesId: null };
+  }
+
+  /** interactive slice nodes in config order (the DOM is focus-ordered, so it cannot drive navigation) */
+  private orderedSliceNodes(): SVGElement[] {
+    const nodeById = new Map<string, SVGElement>();
+    for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
+      nodeById.set(node.getAttribute('data-series-id')!, node);
+    }
+    const nodes: SVGElement[] = [];
+    for (const seriesConfig of this.props.mochartConfig.series) {
+      const node = nodeById.get(seriesConfig.id);
+      if (node !== undefined) {
+        nodes.push(node);
+      }
+    }
+    return nodes;
+  }
+
+  /** any focus landing on a slice (Tab, arrows, mouse) makes it the roving tab stop */
+  sliceFocusIn = (event: Event) => {
+    const seriesId = (event.target as Element).getAttribute?.('data-series-id');
+    if (seriesId != null && seriesId !== this.state.rovingSeriesId) {
+      this.setState({ rovingSeriesId: seriesId });
+    }
+  }
+
+  sliceKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    const target = event.target as Element;
+    if (target.getAttribute?.('data-series-id') == null) {
+      return; // not a slice (e.g. the plot-area rect handles its own keys)
+    }
+    const nodes = this.orderedSliceNodes();
+    const index = nodes.indexOf(target as SVGElement);
+    if (index === -1) {
+      return;
+    }
+    let nextIndex: number;
+    if (key === 'ArrowRight' || key === 'ArrowDown') {
+      nextIndex = Math.min(index + 1, nodes.length - 1);
+    }
+    else if (key === 'ArrowLeft' || key === 'ArrowUp') {
+      nextIndex = Math.max(index - 1, 0);
+    }
+    else if (key === 'Home') {
+      nextIndex = 0;
+    }
+    else if (key === 'End') {
+      nextIndex = nodes.length - 1;
+    }
+    else {
+      return;
+    }
+    event.preventDefault();
+    if (nextIndex !== index) {
+      nodes[nextIndex].focus();
+    }
+  }
 
   create() {
     return this.root.node;
@@ -67,8 +131,24 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     // Focused slices draw last so their stroke sits above their neighbours'.
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
-    this.root.set({ className: mochartCssClasses['seriesContainer'] });
+    const sliceIsInteractive = (id: string): boolean =>
+      (mochartConfig.seriesById[id].focusOnClick || onSliceClick !== undefined) &&
+      (sliceAngles[id]?.fraction ?? 0) > 0;
+    const interactiveIds = mochartConfig.series.map(sc => sc.id).filter(sliceIsInteractive);
+    const { rovingSeriesId } = this.state;
+    // the remembered roving slice keeps the tab stop while it exists; otherwise the first takes it
+    const effectiveRovingId = rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1
+      ? rovingSeriesId : interactiveIds[0] ?? null;
+
+    this.root.set({ className: mochartCssClasses['seriesContainer'],
+      onKeyDown: interactiveIds.length > 0 ? this.sliceKeyDown : null,
+      onFocusIn: interactiveIds.length > 0 ? this.sliceFocusIn : null });
     this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
+
+    // reordering below moves the focused slice's node, which drops DOM focus
+    const activeElement = document.activeElement;
+    const focusedSlice = activeElement !== null && this.root.node.contains(activeElement) &&
+      activeElement.getAttribute('data-series-id') !== null ? activeElement as SVGElement : null;
 
     this.series.sync(orderedSeriesConfigs.map(seriesConfig => ({
       key: 'series-' + seriesConfig.id,
@@ -80,8 +160,13 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
         labelFraction: pieConfig.adjustLabelsForFiltering
           ? sliceAngles[seriesConfig.id]?.fraction ?? 0
           : rawSliceAngles![seriesConfig.id]?.fraction ?? 0,
-        focusData, gradientIdMap, hideLabels: sweeping, onFocus, onSliceClick }
+        focusData, gradientIdMap, hideLabels: sweeping, onFocus, onSliceClick,
+        tabStop: seriesConfig.id === effectiveRovingId }
     })));
+
+    if (focusedSlice !== null && document.activeElement !== focusedSlice && focusedSlice.isConnected) {
+      focusedSlice.focus();
+    }
 
     // The center total sums the current (possibly mid-tween) values, so it
     // counts along with value changes — and with filtering, unless

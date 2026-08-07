@@ -111,7 +111,10 @@ function mountDemo(demo: Demo): void {
     mochartConfig,
     dataProvider: makeDataProvider(),
     width: Math.floor(width),
-    height: Math.floor(height)
+    height: Math.floor(height),
+    // makes pie slices interactive (like the framework demos' slice panels);
+    // the stamped id doubles as the e2e observation point
+    onSliceClick: (payload) => { chartHost.dataset.lastSliceClick = payload.seriesId; }
   });
 
   for (const button of demoList.querySelectorAll('button')) {
