@@ -88,6 +88,17 @@ describe('legend keyboard semantics', () => {
     expect(container.querySelectorAll('g[tabindex]').length).toBe(0);
   });
 
+  it('has no keyboard semantics when chart accessibility is disabled, but mouse filtering still works', () => {
+    const container = mountChart({ ...makeConfig(), chart: { accessibility: false } });
+    expect(legendItems(container).length).toBe(0);
+    expect(container.querySelectorAll('g[tabindex], [role], [aria-pressed]').length).toBe(0);
+
+    expect(container.querySelectorAll('.mochart-series').length).toBe(3);
+    container.querySelector('.mochart-legend-item-S0')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+  });
+
   it('toggles filtering with Enter and Space and updates aria-pressed', () => {
     const container = mountChart(makeConfig());
     const first = legendItems(container)[0];

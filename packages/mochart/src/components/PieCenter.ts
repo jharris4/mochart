@@ -20,6 +20,8 @@ interface PieCenterProps {
   radialLayoutInfo: RadialLayoutInfo;
   /** The current (possibly mid-tween) total of the unfiltered slice values. */
   total: number;
+  /** When true, the decorative center is hidden from assistive tech. */
+  accessibility: boolean;
 }
 
 /**
@@ -41,7 +43,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
   }
 
   sync() {
-    const { pieConfig, seriesLayoutInfo, radialLayoutInfo, total } = this.props;
+    const { pieConfig, seriesLayoutInfo, radialLayoutInfo, total, accessibility } = this.props;
     const { centerLabel, showCenterTotal, centerLabelTextStyle, centerTotalTextStyle } = pieConfig;
     const showLabel = centerLabel !== NONE;
 
@@ -51,7 +53,7 @@ export default class PieCenter extends Renderer<PieCenterProps> {
     }
 
     this.setPresent(true);
-    this.root.set({ className: mochartCssClasses['pieCenter'], ariaHidden: 'true',
+    this.root.set({ className: mochartCssClasses['pieCenter'], ariaHidden: accessibility ? 'true' : null,
       transform: translate(
         seriesLayoutInfo.x + radialLayoutInfo.cx + pieConfig.centerOffsetXFraction * radialLayoutInfo.outerRadius,
         seriesLayoutInfo.y + radialLayoutInfo.cy + pieConfig.centerOffsetYFraction * radialLayoutInfo.outerRadius) });

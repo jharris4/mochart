@@ -80,6 +80,18 @@ describe('plot keyboard semantics', () => {
     expect(rect.getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('has no keyboard semantics when chart accessibility is disabled', () => {
+    const container = mountChart(makeConfig({ chart: { accessibility: false } }));
+    const rect = plotRect(container);
+    expect(rect.getAttribute('tabindex')).toBeNull();
+    expect(rect.getAttribute('role')).toBeNull();
+    expect(rect.getAttribute('aria-label')).toBeNull();
+    expect(rect.getAttribute('aria-expanded')).toBeNull();
+
+    key(rect, 'Enter');
+    expect(tooltipText(container)).toBe('');
+  });
+
   it('has no keyboard semantics when the tooltip and crosshair are hidden', () => {
     const container = mountChart(makeConfig({ tooltip: { visible: false }, crosshair: { visible: false } }));
     const rect = plotRect(container);

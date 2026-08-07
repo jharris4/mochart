@@ -166,8 +166,9 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
 
       const clipPath = truncationEnabled ? getClipPathReference(legendClipPathUniqueId) : null;
 
+      const { accessibility } = mochartConfig.chart;
       const itemIsInteractive = (seriesConfig: EnhancedSeriesConfig): boolean =>
-        (legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick;
+        accessibility && ((legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick);
       const interactiveIds = seriesConfigs
         .filter(seriesConfig => seriesConfig.showInLegend && itemIsInteractive(seriesConfig))
         .map(seriesConfig => seriesConfig.id);
@@ -209,7 +210,7 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
               seriesFocusPercentage, clipPath,
               interactive: itemIsInteractive(seriesConfig),
               tabStop: id === effectiveRovingId,
-              showsFilterState: legendConfig.filterOnClick && seriesConfig.filterable,
+              showsFilterState: accessibility && legendConfig.filterOnClick && seriesConfig.filterable,
               onClick: this.legendItemClick,
               onMouseEnter: this.legendItemMouseEnter, onMouseLeave: this.legendItemMouseLeave }
           });

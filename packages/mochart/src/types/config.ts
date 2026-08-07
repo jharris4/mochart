@@ -217,6 +217,21 @@ export interface ChartConfig {
    */
   type: ChartType;
   /**
+   * Whether the chart exposes keyboard navigation and screen-reader semantics.
+   *
+   * When `true`, the chart is keyboard- and screen-reader-accessible: the plot
+   * area is a tab stop that opens and steps the tooltip, legend items and
+   * interactive pie slices are roving tab stops, and the svg carries roles,
+   * labels and `aria-hidden` markers for assistive tech. Set to `false` to
+   * render the chart without any of these attributes or key handlers — for
+   * example when the host page provides its own accessible alternative. The
+   * reduced-motion preference is separate and stays governed by
+   * `animation.respectReducedMotion`.
+   *
+   * @default true
+   */
+  accessibility: boolean;
+  /**
    * The margin (in pixels) for the top, right, bottom and left sides of the
    * chart.
    *

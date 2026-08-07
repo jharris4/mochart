@@ -99,4 +99,19 @@ describe('chart aria semantics', () => {
     }
     expect(container.querySelector('svg')!.getAttribute('role')).toBe('group');
   });
+
+  it('renders without any aria semantics when chart accessibility is disabled', () => {
+    const container = mountChart(makeConfig({ title: { text: 'Monthly sales' }, chart: { accessibility: false } }));
+    const svg = container.querySelector('svg')!;
+    expect(svg.getAttribute('role')).toBeNull();
+    expect(svg.getAttribute('aria-roledescription')).toBeNull();
+    expect(svg.getAttribute('aria-label')).toBeNull();
+    expect(container.querySelectorAll('[aria-hidden], [role], [tabindex], [aria-label]').length).toBe(0);
+  });
+
+  it('renders a pie without any aria semantics when chart accessibility is disabled', () => {
+    const container = mountChart(makeConfig({ chart: { type: 'pie', accessibility: false } }));
+    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+    expect(container.querySelectorAll('[aria-hidden], [role], [tabindex], [aria-label]').length).toBe(0);
+  });
 });

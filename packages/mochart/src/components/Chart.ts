@@ -1090,8 +1090,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }));
 
     body.svgSlot.set('svg', () => body.svg);
+    const { accessibility } = mochartConfig.chart;
     body.svg.set({ xmlns: 'http://www.w3.org/2000/svg', id: svgUniqueId, width, height,
-      role: 'group', ariaRoledescription: 'chart', ariaLabel: mochartConfig.title.text ?? 'Chart' });
+      role: accessibility ? 'group' : null,
+      ariaRoledescription: accessibility ? 'chart' : null,
+      ariaLabel: accessibility ? mochartConfig.title.text ?? 'Chart' : null });
     body.clips.sync(clips);
     body.seriesColorGradients.sync(seriesColorGradients);
     body.linearGradients.sync(linearGradients);
@@ -1108,7 +1111,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
       // keyboard tab stop on the series-area rect: Enter/Space toggles the
       // tooltip, arrows step categories, Escape closes
-      const plotA11yProps = !loading && (mochartConfig.tooltip.visible || mochartConfig.crosshair.visible) ? {
+      const plotA11yProps = accessibility && !loading && (mochartConfig.tooltip.visible || mochartConfig.crosshair.visible) ? {
         ariaLabel: 'Chart values',
         ariaExpanded: String(tooltipVisible),
         onKeyDown: this.onPlotKeyDown

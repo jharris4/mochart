@@ -131,7 +131,9 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     // Focused slices draw last so their stroke sits above their neighbours'.
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
+    const { accessibility } = mochartConfig.chart;
     const sliceIsInteractive = (id: string): boolean =>
+      accessibility &&
       (mochartConfig.seriesById[id].focusOnClick || onSliceClick !== undefined) &&
       (sliceAngles[id]?.fraction ?? 0) > 0;
     const interactiveIds = mochartConfig.series.map(sc => sc.id).filter(sliceIsInteractive);
@@ -161,7 +163,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
           ? sliceAngles[seriesConfig.id]?.fraction ?? 0
           : rawSliceAngles![seriesConfig.id]?.fraction ?? 0,
         focusData, gradientIdMap, hideLabels: sweeping, onFocus, onSliceClick,
-        tabStop: seriesConfig.id === effectiveRovingId }
+        accessibility, tabStop: seriesConfig.id === effectiveRovingId }
     })));
 
     if (focusedSlice !== null && document.activeElement !== focusedSlice && focusedSlice.isConnected) {
@@ -176,6 +178,6 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     for (const id of Object.keys(totalAngles)) {
       total += totalAngles[id].value;
     }
-    this.center.set(PieCenter, { pieConfig, seriesLayoutInfo, radialLayoutInfo, total });
+    this.center.set(PieCenter, { pieConfig, seriesLayoutInfo, radialLayoutInfo, total, accessibility });
   }
 }

@@ -61,7 +61,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
           valueAxisScale: valueAxisData.axisScales[axis!],
           rawValueAxisDomain: rawValueAxisDomains[axis!], rawDomains: rawDomains[id],
           filteredValues: filteredValues[id],
-          gradientIdMap, onFocus }
+          gradientIdMap, onFocus, accessibility: mochartConfig.chart.accessibility }
       };
     }));
   }

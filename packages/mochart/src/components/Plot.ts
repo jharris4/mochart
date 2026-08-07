@@ -60,7 +60,8 @@ class PlotFrontBack extends Renderer<PlotFrontBackProps> {
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, onFocus } = this.props;
     const { seriesData } = chartData;
 
-    this.root.set({ className: mochartCssClasses[front ? 'plotFront' : 'plotBack'], ariaHidden: 'true' });
+    this.root.set({ className: mochartCssClasses[front ? 'plotFront' : 'plotBack'],
+      ariaHidden: mochartConfig.chart.accessibility ? 'true' : null });
 
     this.gridContainer.set(AxisGridContainer, { front, mochartConfig, seriesLayoutInfo,
       seriesData, focusData, axisData });

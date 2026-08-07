@@ -6,6 +6,7 @@ import { CHART_TYPE_XY, NONE, COLOR_CURRENT } from '../core/constants';
 export default function getDefaults() {
   return {
     type: CHART_TYPE_XY,
+    accessibility: true,
     margin: { top: 2, right: 2, bottom: 2, left: 2 },
     padding: { top: 3, right: 3, bottom: 3, left: 3 },
     backgroundStyle: { strokeColor: COLOR_CURRENT, strokeOpacity: 0, strokeWidth: NONE, strokeDashArray: NONE, fillColor: NONE, fillOpacity: 0 }

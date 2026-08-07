@@ -92,6 +92,18 @@ describe('pie slice keyboard semantics', () => {
     }
   });
 
+  it('has no keyboard semantics when chart accessibility is disabled', () => {
+    const container = mountChart(makeConfig({ chart: { type: 'pie', accessibility: false } }), () => {});
+    expect(slices(container).length).toBe(0);
+    const sliceGroups = container.querySelectorAll('.mochart-series-container .mochart-series');
+    expect(sliceGroups.length).toBe(3);
+    for (const group of sliceGroups) {
+      expect(group.getAttribute('aria-hidden')).toBeNull();
+      expect(group.getAttribute('tabindex')).toBeNull();
+      expect(group.getAttribute('role')).toBeNull();
+    }
+  });
+
   it('clicks with Enter and Space', () => {
     const clicks: string[] = [];
     const container = mountChart(makeConfig(), (payload) => clicks.push(payload.seriesId));

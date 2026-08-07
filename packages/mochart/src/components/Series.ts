@@ -45,6 +45,8 @@ interface SeriesProps {
   filteredValues: SeriesValueObject;
   gradientIdMap: Record<string, string>;
   onFocus: (focus: SeriesFocusUpdate) => void;
+  /** When true, the decorative series geometry is hidden from assistive tech. */
+  accessibility: boolean;
 }
 
 interface SeriesState {
@@ -306,7 +308,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       }
 
       this.setPresent(true);
-      this.root.set({ className: mochartCssClasses['series'] + seriesId, ariaHidden: 'true',
+      this.root.set({ className: mochartCssClasses['series'] + seriesId,
+        ariaHidden: this.props.accessibility ? 'true' : null,
         transform: translateObject(seriesLayoutInfo) });
       this.errorBars.set(SeriesErrorBars, { colorPaletteConfig, seriesConfig, seriesIndex,
         seriesPositionData, valueAxisScale, filteredValues, inverted, focusData });
