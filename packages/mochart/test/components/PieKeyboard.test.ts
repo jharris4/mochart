@@ -134,6 +134,25 @@ describe('pie slice keyboard semantics', () => {
     expect(document.activeElement).toBe(items[0]);
   });
 
+  // Regression: Enter synthesized a click at the slice's bbox center, and the
+  // chart-level bounds gate swallowed it whenever the center fell outside the
+  // series rect (exploded edge slices; jsdom's zero-size bboxes reproduce it) —
+  // toggling the focus but leaving the tooltip out of sync.
+  it('toggles the tooltip with Enter and Space regardless of slice geometry', () => {
+    const container = mountChart(makeConfig(), () => {});
+    const items = slices(container);
+    const rect = container.querySelector<SVGElement>('.mochart-series-background rect')!;
+
+    key(items[0], 'Enter');
+    expect(rect.getAttribute('aria-expanded')).toBe('true');
+    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+    // keyboard activation announces like the plot rect does
+    expect(container.querySelector('[role="status"]')?.textContent ?? '').not.toBe('');
+
+    key(items[0], ' ');
+    expect(rect.getAttribute('aria-expanded')).toBe('false');
+  });
+
   // Regression: Escape lived only on the plot rect, so a keyboard user whose
   // focus was on a slice could only toggle the tooltip closed with Enter again.
   it('closes the tooltip with Escape from a slice', () => {
@@ -141,9 +160,7 @@ describe('pie slice keyboard semantics', () => {
     const items = slices(container);
     const rect = container.querySelector<SVGElement>('.mochart-series-background rect')!;
 
-    // opened via the plot rect: jsdom's zero-size bboxes drop the slice's
-    // synthesized click before the chart-level tooltip toggle
-    key(rect, 'Enter');
+    key(items[0], 'Enter');
     expect(rect.getAttribute('aria-expanded')).toBe('true');
 
     key(items[0], 'Escape');

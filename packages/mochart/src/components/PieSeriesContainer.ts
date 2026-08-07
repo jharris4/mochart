@@ -72,8 +72,9 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     if (target.getAttribute?.('data-series-id') == null) {
       return; // not a slice (e.g. the plot-area rect handles its own keys)
     }
-    if (key === 'Escape') {
-      // mirror the plot rect: Escape from a slice closes the open tooltip
+    if (key === 'Escape' || key === 'Enter' || key === ' ') {
+      // mirror the plot rect: Enter/Space toggles the tooltip (and announces),
+      // Escape closes it — the slice itself handles only focus/selection
       this.props.a11yProps?.onKeyDown(event);
       return;
     }

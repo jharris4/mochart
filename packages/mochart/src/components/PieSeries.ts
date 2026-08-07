@@ -116,14 +116,11 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     const { key } = event as KeyboardEvent;
     if (key === 'Enter' || key === ' ') {
       event.preventDefault();
-      // keyboard activation = a real click at the slice's center, so the
-      // bubbled chart-level behavior (tooltip toggle) fires like a mouse click
-      const shapeNode = this.root.node.querySelector('.' + mochartCssClasses['seriesSlice']);
-      if (shapeNode !== null) {
-        const bounds = shapeNode.getBoundingClientRect();
-        shapeNode.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true,
-          clientX: bounds.x + bounds.width / 2, clientY: bounds.y + bounds.height / 2 }));
-      }
+      // the slice half only (focus toggle / selection); the container forwards
+      // the same keydown to the plot handler for the tooltip half — a synthesized
+      // click's coordinates can land outside the chart rect on an exploded edge
+      // slice and get swallowed there
+      this.state.onSeriesClick();
     }
   }
 
