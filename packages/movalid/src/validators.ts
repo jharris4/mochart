@@ -344,8 +344,13 @@ const compoundValidatorDefinitions = {
       if (!typeValidators.object(v) || Object.keys(v).length !== properties.length) {
         return false;
       }
-      const someInvalid = properties.some(property => {
-        if (!propertyValidator(v[property])) {
+      const propertyMap: Record<string, string> = Object.create(null); // null proto: probed with user keys (__proto__, constructor, ...)
+      properties.forEach(property => {
+        propertyMap[property] = property;
+      });
+      // membership check too: same-sized objects with wrong keys must not pass
+      const someInvalid = Object.keys(v).some(valueKey => {
+        if (propertyMap[valueKey] === undefined || !propertyValidator(v[valueKey])) {
           return true;
         }
         return false;

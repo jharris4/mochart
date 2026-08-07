@@ -1344,6 +1344,16 @@ describe("validators", () => {
           baseValidators.objectWith(["a", "b", "c"], baseValidators.notEqual(null))({ a: 6, bbb: 2, c: 4, d: 5 })
         ).toBe(false);
       });
+
+      // Regression: only the key count was checked, so a same-sized object with
+      // entirely wrong keys passed whenever the validator accepted undefined
+      it("should not allow an object with the right key count but wrong keys", () => {
+        expect(baseValidators.objectWith(["a", "b"], baseValidators.notEqual(null))({ x: 1, y: 2 })).toBe(false);
+      });
+
+      it("should not treat prototype member names as listed properties", () => {
+        expect(baseValidators.objectWith(["a"], baseValidators.notEqual(null))(JSON.parse('{"__proto__": 1}'))).toBe(false);
+      });
     });
 
     describe("object with some", () => {
