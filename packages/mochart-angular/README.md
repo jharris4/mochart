@@ -118,6 +118,12 @@ addRow(row: DataRow) {
 <mochart-default-chart #chart [config]="config" [data]="data" />
 ```
 
+Both components extend the exported abstract `BaseChart`, which carries
+everything except the config/data inputs — sizing, the state and placeholder
+inputs, the controlled focus/filter inputs, every output, and `refresh()`.
+Type a `@ViewChild` (or a helper accepting either component) as `BaseChart`
+when it shouldn't care which chart it gets.
+
 ## Inputs & outputs
 
 Both components emit the chart callbacks as outputs (`chartClick`,
