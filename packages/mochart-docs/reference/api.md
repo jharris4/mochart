@@ -95,6 +95,7 @@ interface DataProvider<TCategoryValue, TSeriesValue> {
   getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, seriesProperty: string): TSeriesValue;
   getError?(): unknown;    // truthy → the chart shows its error state
   getLoading?(): boolean;  // true → the chart shows its loading state
+  refresh?(): void;        // the handle's refresh() calls it before re-reading — invalidate caches here
 }
 ```
 
