@@ -119,6 +119,10 @@ that receives the [chart state context](/guide/chart-states) (`width`,
 state. Both components also accept `loading` and `error` to force the
 loading or error state.
 
+Placeholder components render through portals in the host tree, so they
+inherit the app's context providers (theme, router, i18n, …) like any other
+component — as in the other bindings.
+
 Every prop, with its type and its core counterpart, is listed in
 [Framework props](/reference/framework-props#react).
 

@@ -73,9 +73,7 @@ chart follows it:
 <Chart mochartConfig={mochartConfig} dataProvider={dataProvider} style={{ width: '100%', height: 400 }} />
 ```
 
-Explicit `width`/`height` props win over conflicting `style` values. Note that
-placeholder components render in their own React root, so they do not inherit
-the host app's context providers (unlike the other bindings).
+Explicit `width`/`height` props win over conflicting `style` values.
 
 ## When the data changes
 
@@ -115,8 +113,9 @@ components (`loadingComponent`, `errorComponent`, `noDataComponent`,
 `noSizeComponent`, `noSeriesComponent`, `configErrorComponent`). Each
 placeholder prop takes a **React component** that receives the chart context
 (`width`, `height`, `error`, …) as props and is rendered while the chart is in
-that state. Both components also accept `loading` and `error` to force the
-loading or error state.
+that state. Placeholders render through portals in the host tree, so they
+inherit the app's context providers. Both components also accept `loading`
+and `error` to force the loading or error state.
 
 ### Controlled state
 

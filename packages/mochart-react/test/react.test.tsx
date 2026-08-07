@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { act } from 'react';
+import { act, createContext, useContext } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
@@ -215,6 +215,39 @@ describe('placeholder components', () => {
       );
     });
     expect(container.textContent).toContain('Bad config 400x300');
+
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  // Placeholders render through portals in the host tree, so they inherit the
+  // app's context providers — and follow provider updates.
+  it('gives placeholders the host tree context, including provider updates', () => {
+    const { container, root } = host();
+    const ThemeContext = createContext('light');
+    function Loading() {
+      return <div>Theme: {useContext(ThemeContext)}</div>;
+    }
+
+    act(() => {
+      root.render(
+        <ThemeContext.Provider value="dark">
+          <Chart mochartConfig={null} dataProvider={null} loading loadingComponent={Loading} width={400} height={300} />
+        </ThemeContext.Provider>
+      );
+    });
+    expect(container.textContent).toContain('Theme: dark');
+
+    act(() => {
+      root.render(
+        <ThemeContext.Provider value="sepia">
+          <Chart mochartConfig={null} dataProvider={null} loading loadingComponent={Loading} width={400} height={300} />
+        </ThemeContext.Provider>
+      );
+    });
+    expect(container.textContent).toContain('Theme: sepia');
 
     act(() => {
       root.unmount();
