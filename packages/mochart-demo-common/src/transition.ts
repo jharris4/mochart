@@ -4,6 +4,7 @@ import { ArrayOfObjectsDataProvider } from '@mochart/core';
 import type { MochartConfig } from '@mochart/core';
 
 import buildMochartDemoConfig from './mochartDemoConfig';
+import { demoText } from './demoText';
 import { stringifyWithSpacedCommas } from './dataEditing';
 
 import type { TransitionConfig, ChartDataProviderLike } from './types';
@@ -138,7 +139,7 @@ export function applyTransitionConfigEdit(configText: string): TransitionConfigE
           }
           else {
             console.warn('Invalid Transition Config, data should be an array of arrays: ', newConfig.data);
-            return { ok: false, errorMessage: '"data" should be an array of arrays' };
+            return { ok: false, errorMessage: demoText.errors.transitionDataArrays };
           }
         }
         else {
@@ -148,21 +149,21 @@ export function applyTransitionConfigEdit(configText: string): TransitionConfigE
           if (warnings.length > 0) {
             console.warn('warnings: ', warnings);
           }
-          return { ok: false, errorMessage: 'Invalid chart config — details in the browser console' };
+          return { ok: false, errorMessage: demoText.errors.invalidChartConfig };
         }
       }
       else {
         console.warn('Invalid Transition Config, config should be an object: ', newConfig.config);
-        return { ok: false, errorMessage: '"config" should be an object' };
+        return { ok: false, errorMessage: demoText.errors.transitionConfigObject };
       }
     }
     else {
       console.warn('Invalid Transition Config, should be an object: ', configText);
-      return { ok: false, errorMessage: 'Transition config should be an object' };
+      return { ok: false, errorMessage: demoText.errors.transitionObject };
     }
   }
   catch {
     console.warn('Invalid Transition Config JSON: ', configText);
-    return { ok: false, errorMessage: 'Invalid JSON' };
+    return { ok: false, errorMessage: demoText.errors.invalidJson };
   }
 }

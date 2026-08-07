@@ -2,8 +2,10 @@ import { describe, it, expect } from 'vitest';
 
 import { copyDemoConfig, isConfigSectionActive, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
 import { restoreHiddenDataProperties } from '../src/unusedDataProperties';
-import { formatData, stringifyWithSpacedCommas } from '../src/dataEditing';
-import type { MochartDemoConfig } from '../src/types';
+import { applyDataEdit, formatData, stringifyWithSpacedCommas } from '../src/dataEditing';
+import { applyTransitionConfigEdit } from '../src/transition';
+import { demoText } from '../src/demoText';
+import type { DemoConfig, MochartDemoConfig } from '../src/types';
 
 // Regression: the Slow toggle detected its state by object identity with the
 // module constant, which every Apply's JSON-clone destroyed — the button read
@@ -171,5 +173,47 @@ describe('toggleConfigFromText', () => {
     expect(toggled.plot.inverted).toBe(true);
     // with-defaults view carries defaulted keys the raw text never had
     expect(toggled.legend).toBeDefined();
+  });
+});
+
+// Regression: Apply hardcoded its own copy, so the same invalid data showed
+// "Invalid Data — should be an array of objects" on live edits but
+// "Invalid Data — details in the browser console" on Apply.
+describe('applyDataEdit error copy', () => {
+  const config = {
+    version: '1.0.0',
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }]
+  } as unknown as DemoConfig;
+
+  it('uses the shared live-edit copy for non-array data', () => {
+    const result = applyDataEdit('{"not": "an array"}', [], null, config);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errorMessage).toBe(demoText.errors.invalidDataArray);
+      expect(result.callbackError).toBe(demoText.errors.invalidData);
+    }
+  });
+
+  it('uses the shared copy for invalid JSON', () => {
+    const result = applyDataEdit('not json', [], null, config);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errorMessage).toBe(demoText.errors.invalidJson);
+      expect(result.callbackError).toBe(demoText.errors.invalidData);
+    }
+  });
+});
+
+describe('applyTransitionConfigEdit error copy', () => {
+  it('uses the shared copy for each failure path', () => {
+    expect(applyTransitionConfigEdit('not json')).toEqual({ ok: false, errorMessage: demoText.errors.invalidJson });
+    expect(applyTransitionConfigEdit('[1]')).toEqual({ ok: false, errorMessage: demoText.errors.transitionObject });
+    expect(applyTransitionConfigEdit('{"config": 5}')).toEqual({ ok: false, errorMessage: demoText.errors.transitionConfigObject });
+    const validConfig = JSON.stringify({
+      config: { version: '1.0.0', categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' }, series: [{ property: 'sales' }] },
+      data: [{ month: 'Jan' }]
+    });
+    expect(applyTransitionConfigEdit(validConfig)).toEqual({ ok: false, errorMessage: demoText.errors.transitionDataArrays });
   });
 });

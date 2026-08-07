@@ -2,6 +2,7 @@ import { ArrayOfObjectsDataProvider, getDataErrors } from '@mochart/core';
 import type { DataProvider } from '@mochart/core';
 
 import buildMochartDemoConfig from './mochartDemoConfig';
+import { demoText } from './demoText';
 import { filterDataProperties, restoreHiddenDataProperties } from './unusedDataProperties';
 
 import type { DataRow, DemoConfig, MochartDemoConfig } from './types';
@@ -102,10 +103,11 @@ export function applyDataEdit(text: string, fullData: DataRow[], viewUsedPropert
   if ('error' in parsed) {
     if (parsed.error === 'json') {
       console.warn('Invalid Data JSON');
-      return { ok: false, errorMessage: 'Invalid JSON', callbackError: 'Invalid Data ' };
+      return { ok: false, errorMessage: demoText.errors.invalidJson, callbackError: demoText.errors.invalidData };
     }
     console.warn('Invalid Data - should be an array of objects');
-    return { ok: false, errorMessage: 'Invalid Data — details in the browser console', callbackError: 'Invalid Data' };
+    // same copy as the live-edit path, so Apply and live edits agree
+    return { ok: false, errorMessage: demoText.errors.invalidDataArray, callbackError: demoText.errors.invalidData };
   }
   const parsedData = parsed.full;
   let error: string | null = null;
@@ -114,15 +116,15 @@ export function applyDataEdit(text: string, fullData: DataRow[], viewUsedPropert
     const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.categoryAxis.property ?? '') as unknown as DataProvider);
     if (dataErrors.length > 0) {
       console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
-      error = 'Invalid Data Content';
+      error = demoText.errors.invalidDataContent;
     }
   }
   else {
     console.warn('Could not validate data since mochart config was not valid');
-    error = 'Invalid Config & Data';
+    error = demoText.errors.invalidConfigAndData;
   }
   if (error) {
-    return { ok: false, errorMessage: error + ' — details in the browser console', callbackError: error };
+    return { ok: false, errorMessage: error + demoText.errors.detailsInConsoleSuffix, callbackError: error };
   }
   return { ok: true, data: parsedData };
 }

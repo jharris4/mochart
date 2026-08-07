@@ -29,7 +29,16 @@ export const demoText = {
     invalidRandomConfigValues: 'Config has invalid values — details in the browser console',
     invalidDataArray: 'Invalid Data — should be an array of objects',
     invalidRandomConfig: 'Invalid Random Config',
-    creatingDataProvider: 'Error creating DataProvider'
+    creatingDataProvider: 'Error creating DataProvider',
+    // short labels shown as the chart's error state (the onDataError payload)
+    invalidData: 'Invalid Data',
+    invalidDataContent: 'Invalid Data Content',
+    invalidConfigAndData: 'Invalid Config & Data',
+    // appended to a short label when the console warning has the specifics
+    detailsInConsoleSuffix: ' — details in the browser console',
+    transitionObject: 'Transition config should be an object',
+    transitionConfigObject: '"config" should be an object',
+    transitionDataArrays: '"data" should be an array of arrays'
   },
   // The standalone demo gallery page (the landing route).
   gallery: {
