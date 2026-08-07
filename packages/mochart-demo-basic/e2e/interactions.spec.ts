@@ -76,6 +76,36 @@ test('legend filtering is keyboard accessible', async ({ page }) => {
   await expect(firstLegendItem).toHaveAttribute('tabindex', '-1');
 });
 
+test('the tooltip and crosshair are keyboard accessible from the plot area', async ({ page }) => {
+  const plotRect = page.locator('.mochart-series-background rect');
+  await expect(plotRect).toHaveAttribute('role', 'button');
+  await expect(plotRect).toHaveAttribute('aria-expanded', 'false');
+  await plotRect.focus();
+
+  await page.keyboard.press('Enter');
+  const tooltip = page.locator('.mochart-tooltip');
+  await expect(tooltip).toBeVisible();
+  await expect(plotRect).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('.mochart-crosshair .crosshair-line').first()).toBeAttached();
+
+  // compare category labels only: series values animate, and the demo's
+  // category values are not consecutive
+  const categoryLabel = async () => (await tooltip.textContent())?.match(/Category: [\d.]+/)?.[0];
+  const firstLabel = await categoryLabel();
+  expect(firstLabel).toBeTruthy();
+
+  // arrows step the shown category
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(categoryLabel).not.toBe(firstLabel);
+
+  await page.keyboard.press('ArrowLeft');
+  await expect.poll(categoryLabel).toBe(firstLabel);
+
+  await page.keyboard.press('Escape');
+  await expect(tooltip).toBeHidden();
+  await expect(plotRect).toHaveAttribute('aria-expanded', 'false');
+});
+
 test('toolbar add/remove category updates the category axis', async ({ page }) => {
   const ticks = page.locator(categoryTickLabels);
   const initialCount = await ticks.count();

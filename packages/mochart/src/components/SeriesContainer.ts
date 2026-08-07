@@ -4,6 +4,7 @@ import { getSeriesConfigsOrderedByFocus } from '../data/FocusData';
 import { mochartCssClasses } from '../utils/ChartDom';
 
 import SeriesBackground from './SeriesBackground';
+import type { SeriesShapeA11yProps } from './SeriesBackground';
 import Series from './Series';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { CategoryAxisData, ValueAxisData, SeriesData, StackData } from '../types/data';
@@ -21,6 +22,7 @@ interface SeriesContainerProps {
   gradientIdMap: Record<string, string>;
   onFocus: (focus: { seriesId?: string | null; categoryIndex?: number | null }) => void;
   shapeRef: (element: Element | null) => void;
+  a11yProps: SeriesShapeA11yProps | null;
 }
 
 export default class SeriesContainer extends Renderer<SeriesContainerProps> {
@@ -33,7 +35,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, onFocus, shapeRef } = this.props;
+    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, onFocus, shapeRef, a11yProps } = this.props;
 
     const { categoryAxis: categoryAxisConfig, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
 
@@ -44,7 +46,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
     this.root.set({ className: mochartCssClasses['seriesContainer'] });
-    this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef });
+    this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
 
     this.series.sync(orderedSeriesConfigs.map(seriesConfig => {
       const { id, axis } = seriesConfig;

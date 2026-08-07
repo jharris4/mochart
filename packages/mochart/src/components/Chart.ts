@@ -716,12 +716,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   updateTooltipCategoryIndex = (tooltipCategoryIndex: number): void => {
     const { chartData } = this.props;
+    this.lastTooltipCategoryIndex = tooltipCategoryIndex;
     const tooltipValueObject = getCategorySeriesValueObject(chartData!, tooltipCategoryIndex);
     const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.props, { ...this.state, tooltipCategoryIndex });
     this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipLayoutInfo });
   }
 
-  toggleTooltip({ categoryIndex, categoryPercentage, valuePercentage: seriesPercentage }: ChartEventPayload): void {
+  toggleTooltip({ categoryIndex, categoryPercentage, valuePercentage: seriesPercentage }: Pick<ChartEventPayload, 'categoryIndex' | 'categoryPercentage' | 'valuePercentage'>): void {
     const { mochartConfig, onFocus, chartData } = this.props;
     const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
     if (tooltipConfig.visible || crosshairConfig.visible) {
@@ -732,6 +733,9 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       tooltipBounds = null;
       tooltipVisible = !tooltipVisible;
       tooltipCategoryIndex = tooltipVisible ? categoryIndex : -1;
+      if (tooltipVisible) {
+        this.lastTooltipCategoryIndex = tooltipCategoryIndex;
+      }
       tooltipValueObject = tooltipVisible ? getCategorySeriesValueObject(chartData!, tooltipCategoryIndex) : null;
       if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
         onFocus?.({ categoryIndex: tooltipCategoryIndex });
@@ -829,6 +833,65 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     onChartClick?.(eventPayload);
     if (!mochartConfig.tooltip.followPointer) {
       this.toggleTooltip(eventPayload);
+    }
+  }
+
+  /** where keyboard toggling reopens: the last category the tooltip showed */
+  lastTooltipCategoryIndex = 0;
+
+  /** toggle via the pointer-click path, with the position synthesized from the category */
+  toggleTooltipAtCategory(categoryIndex: number): void {
+    const { axisData, layoutInfo } = this.state;
+    const positions = axisData!.category!.valueData.positions;
+    const { categoryExtent } = layoutInfo!.seriesLayoutInfo;
+    const categoryPercentage = categoryExtent > 0 ? (positions[categoryIndex] ?? 0) / categoryExtent : 0;
+    this.toggleTooltip({ categoryIndex, categoryPercentage, valuePercentage: 0.5 });
+  }
+
+  /** step the open tooltip to a category, moving the focus like the pointer would */
+  stepTooltipCategoryIndex(categoryIndex: number): void {
+    const { mochartConfig, onFocus } = this.props;
+    const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
+    if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
+      onFocus?.({ categoryIndex });
+    }
+    this.updateTooltipCategoryIndex(categoryIndex);
+  }
+
+  onPlotKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    const { chartData } = this.props;
+    const categoryCount = chartData !== null ? getChartDataCategoryCount(chartData) : 0;
+    if (categoryCount === 0) {
+      return;
+    }
+    const { tooltipVisible, tooltipCategoryIndex } = this.state;
+    const rememberedIndex = Math.min(this.lastTooltipCategoryIndex, categoryCount - 1);
+    if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      this.toggleTooltipAtCategory(tooltipVisible ? tooltipCategoryIndex : rememberedIndex);
+    }
+    else if (key === 'Escape') {
+      if (tooltipVisible) {
+        event.preventDefault();
+        this.toggleTooltipAtCategory(tooltipCategoryIndex);
+      }
+    }
+    else if (key === 'ArrowRight' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowUp' || key === 'Home' || key === 'End') {
+      event.preventDefault();
+      if (!tooltipVisible) {
+        const index = key === 'Home' ? 0 : key === 'End' ? categoryCount - 1 : rememberedIndex;
+        this.toggleTooltipAtCategory(index);
+      }
+      else {
+        const nextIndex =
+          key === 'ArrowRight' || key === 'ArrowDown' ? Math.min(tooltipCategoryIndex + 1, categoryCount - 1) :
+          key === 'ArrowLeft' || key === 'ArrowUp' ? Math.max(tooltipCategoryIndex - 1, 0) :
+          key === 'Home' ? 0 : categoryCount - 1;
+        if (nextIndex !== tooltipCategoryIndex) {
+          this.stepTooltipCategoryIndex(nextIndex);
+        }
+      }
     }
   }
 
@@ -1037,18 +1100,27 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       const { category: categoryAxisData } = axisData!;
       const { valueData: categoryValueData } = categoryAxisData!;
 
+      // keyboard tab stop on the series-area rect: Enter/Space toggles the
+      // tooltip, arrows step categories, Escape closes
+      const plotA11yProps = !loading && (mochartConfig.tooltip.visible || mochartConfig.crosshair.visible) ? {
+        ariaLabel: 'Chart values',
+        ariaExpanded: String(tooltipVisible),
+        onKeyDown: this.onPlotKeyDown
+      } : null;
+
       if (mochartConfig.chart.type === CHART_TYPE_PIE) {
         body.plot.set(RadialPlot, { mochartConfig, gradientIdMap, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData: focusData!,
           initialAnimationPercentage: this.props.initialAnimationPercentage ?? null,
           onFocus: onFocus ?? (() => {}), onSliceClick: this.props.onSliceClick,
-          shapeRef: this.setChartRectRef });
+          shapeRef: this.setChartRectRef, a11yProps: plotA11yProps });
       }
       else {
         body.plot.set(Plot, { mochartConfig, gradientIdMap, categoryAxisLayoutInfo,
           valueAxisLayoutInfos, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData, axisData: axisData!,
           stackData: stackData!, categoryValueData, onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef,
+          a11yProps: plotA11yProps,
           categoryAxisTitleClipPathUniqueId,
           categoryAxisTickLabelClipPathUniqueId,
           valueAxisTitleClipPathUniqueIds,

@@ -7,6 +7,7 @@ import { getRadialLayoutInfo } from '../layout/RadialLayout';
 import { mochartCssClasses } from '../utils/ChartDom';
 
 import SeriesBackground from './SeriesBackground';
+import type { SeriesShapeA11yProps } from './SeriesBackground';
 import PieSeries from './PieSeries';
 import PieCenter from './PieCenter';
 import type { EnhancedMochartConfig } from '../types/enhanced';
@@ -25,6 +26,7 @@ interface PieSeriesContainerProps {
   onFocus: (focus: { seriesId?: string | null; categoryIndex?: number | null }) => void;
   onSliceClick?: (payload: { seriesId: string }) => void;
   shapeRef: (element: Element | null) => void;
+  a11yProps: SeriesShapeA11yProps | null;
 }
 
 export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps> {
@@ -38,7 +40,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef } = this.props;
+    const { mochartConfig, seriesLayoutInfo, seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps } = this.props;
     const { pie: pieConfig, colorPalette: colorPaletteConfig, seriesIndicesById: seriesConfigIndicesById } = mochartConfig;
     const { values: filteredValues } = seriesData.filtered;
 
@@ -66,7 +68,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
     this.root.set({ className: mochartCssClasses['seriesContainer'] });
-    this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef });
+    this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
 
     this.series.sync(orderedSeriesConfigs.map(seriesConfig => ({
       key: 'series-' + seriesConfig.id,

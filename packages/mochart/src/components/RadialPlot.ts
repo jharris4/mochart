@@ -4,6 +4,7 @@ import { mochartCssClasses } from '../utils/ChartDom';
 
 import Background from './Background';
 import PieSeriesContainer from './PieSeriesContainer';
+import type { SeriesShapeA11yProps } from './SeriesBackground';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartSliceClickPayload, InternalFocus } from '../types/chart';
 import type { ChartData } from '../types/data';
@@ -22,6 +23,7 @@ interface RadialPlotProps {
   onFocus: (focus: InternalFocus) => void;
   onSliceClick?: (payload: ChartSliceClickPayload) => void;
   shapeRef: (element: Element | null) => void;
+  a11yProps: SeriesShapeA11yProps | null;
 }
 
 /** The pie/donut counterpart of Plot: background + slices, no axes or crosshair. */
@@ -35,7 +37,7 @@ export default class RadialPlot extends Renderer<RadialPlotProps> {
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, plotLayoutInfo, chartData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef } = this.props;
+    const { mochartConfig, seriesLayoutInfo, plotLayoutInfo, chartData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps } = this.props;
     const { plot: plotConfig } = mochartConfig;
 
     this.root.set({ className: mochartCssClasses['radialPlot'] });
@@ -43,6 +45,6 @@ export default class RadialPlot extends Renderer<RadialPlotProps> {
     this.background.set(Background, { config: plotConfig, classKey: 'plotBackground', spacingRelative: false, spacingLayoutInfo: plotLayoutInfo });
 
     this.pieContainer.set(PieSeriesContainer, { mochartConfig, seriesLayoutInfo,
-      seriesData: chartData.seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef });
+      seriesData: chartData.seriesData, focusData, gradientIdMap, initialAnimationPercentage, onFocus, onSliceClick, shapeRef, a11yProps });
   }
 }

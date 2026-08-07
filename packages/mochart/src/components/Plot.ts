@@ -8,6 +8,7 @@ import AxisBaseContainer from './AxisBaseContainer';
 import AxisContainer from './AxisContainer';
 import AxisThresholdContainer from './AxisThresholdContainer';
 import SeriesContainer from './SeriesContainer';
+import type { SeriesShapeA11yProps } from './SeriesBackground';
 import Crosshair from './Crosshair';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { InternalFocus } from '../types/chart';
@@ -39,6 +40,7 @@ interface PlotProps extends Omit<PlotFrontBackProps, 'front'> {
   gradientIdMap: Record<string, string>;
   tooltipClipPathUniqueId: string;
   shapeRef: (element: Element | null) => void;
+  a11yProps: SeriesShapeA11yProps | null;
 }
 
 class PlotFrontBack extends Renderer<PlotFrontBackProps> {
@@ -91,7 +93,7 @@ export default class Plot extends Renderer<PlotProps> {
   sync() {
     const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, seriesLayoutInfo, plotLayoutInfo,
       chartData, focusData, axisData, stackData, categoryValueData, gradientIdMap, categoryAxisTitleClipPathUniqueId,
-      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, onFocus, shapeRef } = this.props;
+      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, onFocus, shapeRef, a11yProps } = this.props;
     const { plot: plotConfig } = mochartConfig;
     const { categoryFocusDomainPercentages = [], seriesFocusDomainPercentages = [] } = focusData;
     const { value: valueAxisData } = axisData;
@@ -121,7 +123,7 @@ export default class Plot extends Renderer<PlotProps> {
 
     this.seriesContainer.set(SeriesContainer, { mochartConfig, seriesLayoutInfo, seriesData: chartData.seriesData,
       valueAxisData, stackData, focusData, onFocus, categoryValueData,
-      gradientIdMap, shapeRef });
+      gradientIdMap, shapeRef, a11yProps });
 
     this.front.set(PlotFrontBack, frontBackProps(true));
 
