@@ -64,17 +64,19 @@ const docsExamples: { config: object; page: UsageLink }[] = [
   { config: errorBars.config, page: { text: 'Error Bars', link: '/recipes/error-bars' } }
 ];
 
-const objectSectionIds = new Set([
+// exported for scripts/checkSectionCoverage.ts, which verifies these
+// registries against the sections the core enhancer actually emits
+export const objectSectionIds = new Set([
   'accessibility', 'animation', 'chart', 'colorPalette', 'crosshair',
   'categoryAxis', 'legend', 'pie', 'plot', 'title', 'tooltip'
 ]);
 
-const listSectionIds = new Set([
+export const listSectionIds = new Set([
   'linearGradients', 'radialGradients', 'valueAxes',
   'series', 'seriesGroups', 'seriesStacks'
 ]);
 
-const allKeySectionMap: Record<string, string> = {
+export const allKeySectionMap: Record<string, string> = {
   linearGradientDefaults: 'linearGradients',
   radialGradientDefaults: 'radialGradients',
   valueAxisDefaults: 'valueAxes',

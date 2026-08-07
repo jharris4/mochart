@@ -74,9 +74,11 @@ few generated-docs consumers (each is a simple list):
   list (and `sectionKeyAllMap` handling if it has a companion `*Defaults` section).
 - `scripts/generateJsdoc.ts` — `sectionInterfaceMap`.
 - `packages/mochart-demo-common/src/docsLinks.ts` — the section id list that
-  drives the demo Config tab's reference links.
+  drives the demo Config tab's reference links (enforced by that package's
+  `docsLinks.test.ts` coverage guard).
 - `packages/mochart-docs/.vitepress/lib/usageIndex.ts` — the object/list
-  section id sets.
+  section id sets (enforced by the docs `scripts/checkSectionCoverage.ts`
+  check in its test script).
 
 ## Golden snapshot tests
 
