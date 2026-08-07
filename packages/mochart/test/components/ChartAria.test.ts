@@ -100,6 +100,14 @@ describe('chart aria semantics', () => {
     expect(container.querySelector('svg')!.getAttribute('role')).toBe('group');
   });
 
+  it('tags the chart root with the accessible state class only when enabled', () => {
+    const onContainer = mountChart(makeConfig());
+    expect(onContainer.querySelector('.mochart-chart')!.classList.contains('mochart-accessible')).toBe(true);
+
+    const offContainer = mountChart(makeConfig({ accessibility: { enabled: false } }));
+    expect(offContainer.querySelector('.mochart-chart')!.classList.contains('mochart-accessible')).toBe(false);
+  });
+
   it('renders without any aria semantics when chart accessibility is disabled', () => {
     const container = mountChart(makeConfig({ title: { text: 'Monthly sales' }, accessibility: { enabled: false } }));
     const svg = container.querySelector('svg')!;

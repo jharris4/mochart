@@ -91,6 +91,13 @@ on the plot rect so it stays clear of the axis labels. Without the import,
 charts fall back to the browser's default focus outline; keyboard access
 itself works either way.
 
+The ring rules are scoped to a `mochart-accessible` class that the chart
+puts on its root element only while
+[`accessibility.enabled`](/reference/accessibility#accessibility.enabled) is
+`true` — so a chart with accessibility disabled keeps browser-default
+outlines on its native controls (the tooltip's buttons, a linked title)
+even with the stylesheet imported.
+
 ## Reduced motion
 
 When the user's system requests reduced motion, the chart applies every

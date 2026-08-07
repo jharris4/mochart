@@ -1,5 +1,7 @@
 export const mochartCssClasses = {
   chart: 'mochart-chart',
+  // state class: present only while accessibility.enabled — gates the css focus rules
+  accessible: 'mochart-accessible',
     background: 'mochart-background',
     title: 'mochart-title',
       titleBackground: 'mochart-title-background',

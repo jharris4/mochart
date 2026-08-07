@@ -60,16 +60,19 @@
 /* Keyboard focus ring for the chart's tab stops (plot area, legend items,
  * tooltip buttons). :focus-visible keeps mouse clicks ring-free, and
  * currentColor follows the host theme. The inset offset on the plot rect
- * keeps its ring inside the plot bounds, clear of the axis labels. */
-.mochart-chart :focus {
+ * keeps its ring inside the plot bounds, clear of the axis labels.
+ * Scoped to .mochart-accessible (present while accessibility.enabled), so a
+ * chart with accessibility disabled keeps browser-default outlines on its
+ * native controls instead of this custom treatment. */
+.mochart-chart.mochart-accessible :focus {
   outline: none;
 }
 
-.mochart-chart :focus-visible {
+.mochart-chart.mochart-accessible :focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 1px;
 }
 
-.mochart-chart .mochart-series-background rect:focus-visible {
+.mochart-chart.mochart-accessible .mochart-series-background rect:focus-visible {
   outline-offset: -2px;
 }

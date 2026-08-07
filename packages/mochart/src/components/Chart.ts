@@ -1000,7 +1000,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const chartEventHandler = (hasChartDataContent && !loading) ? this.chartEventHandler : {};
 
     this.setPresent(true);
-    this.root.set({ className: mochartCssClasses['chart'], ...chartEventHandler, style, 'data-mochart-version': getVersionString() });
+    const rootClassName = (mochartConfig?.accessibility.enabled ?? true)
+      ? mochartCssClasses['chart'] + ' ' + mochartCssClasses['accessible']
+      : mochartCssClasses['chart'];
+    this.root.set({ className: rootClassName, ...chartEventHandler, style, 'data-mochart-version': getVersionString() });
     this.chartRef = this.root.node;
     this.setSimpleContent(false);
     this.body.set(ChartBody, { chart: this, chartProps: this.props, chartState: this.state, error, loading });
