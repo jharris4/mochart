@@ -16,6 +16,10 @@ and series filtering out of the box.
   gapless stacked animation
 - **Interaction**: crosshair, tooltip, legend with series filtering, click and
   hover callbacks
+- **Accessibility**: keyboard-driven tooltip, legend filtering, and pie-slice
+  interaction, with screen-reader roles, labels, and live value announcements
+  — on by default; the `accessibility` config section localizes or disables
+  it, and honors the reduced-motion system preference
 - **Extras**: axis thresholds and ranges, linear/radial gradients, series
   markers and labels, stacked and grouped series
 - **Config validation**: configs are validated with

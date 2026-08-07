@@ -11,6 +11,12 @@ transitions) → axis contraction, so only one kind of change is in motion at a
 time, and stacked series animate as a single unit so the stack never shows
 gaps between segments mid-transition.
 
+Charts are also accessible by default: the keyboard drives the same tooltip,
+legend filtering, and pie-slice interaction as the mouse, assistive tech
+hears roles, labels, and live value announcements, and the reduced-motion
+system preference is honored — all tunable through the `accessibility`
+config section.
+
 ## Packages
 
 | Package | Description |

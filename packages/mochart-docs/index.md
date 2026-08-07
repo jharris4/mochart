@@ -29,6 +29,10 @@ features:
     details: Plain-object configs where everything is optional and defaulted, validated with human-readable error messages. The config reference is generated from the validators themselves.
     link: /reference/
     linkText: Browse the reference
+  - title: Accessible by default
+    details: The keyboard drives the same tooltip, legend filtering, and pie slices as the mouse, screen readers hear roles, labels, and live value announcements, and reduced motion is honored — tune or localize it all in one config section.
+    link: /guide/accessibility
+    linkText: See the keyboard map
 ---
 
 <script setup>

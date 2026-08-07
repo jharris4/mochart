@@ -166,6 +166,9 @@ A few boundaries worth knowing:
   and how to tune it
 - [Interaction](/guide/interaction) — focus, legend filtering, tooltip,
   crosshair, and the callback props
+- [Accessibility](/guide/accessibility) — the keyboard map, screen-reader
+  behavior, and reduced-motion support, on by default and tuned via the
+  `accessibility` config section
 - [Theming and dark mode](/guide/theming) — chart chrome follows your
   page's CSS `color`, dark mode included
 - [Exporting images](/guide/export) — download any chart as a standalone
