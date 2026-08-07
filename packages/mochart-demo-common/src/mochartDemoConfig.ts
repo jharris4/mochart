@@ -112,7 +112,10 @@ function withoutDefaults(configWithDefaults: unknown, configDefaults: unknown): 
               newSection = removeSectionDefaults(defaultSections[i], allSection, configSection[i]);
               newSections.push(newSection);
             }
-            configWithoutDefaults[sectionKey] = newSections;
+            // defaults-only sections (e.g. seriesStacks: []) stay out, like empty objects below
+            if (newSections.length > 0) {
+              configWithoutDefaults[sectionKey] = newSections;
+            }
           }
           else if (isObject(configSection)) {
             const newSection = removeSectionDefaults(configDefaultSection, allSection, configSection);
