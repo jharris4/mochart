@@ -156,16 +156,13 @@ export interface CategoryValueObject {
 }
 
 /**
- * The data contract consumed by mochart.
+ * The interface charts read data through. `ArrayOfObjectsDataProvider` and
+ * `ObjectOfArraysDataProvider` cover the common dataset shapes; implement
+ * this to read straight from an existing store without copying.
  *
  * Providers may expose loading and error state in addition to the two data
  * accessors. Series values remain unknown until the chart config selects and
  * validates a property.
- */
-/**
- * The interface charts read data through. `ArrayOfObjectsDataProvider` and
- * `ObjectOfArraysDataProvider` cover the common dataset shapes; implement
- * this to read straight from an existing store without copying.
  */
 export interface DataProvider<TCategoryValue = CategoryValue, TSeriesValue = unknown> {
   /** The category values, one per category, in display order. */
