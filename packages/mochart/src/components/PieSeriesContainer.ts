@@ -144,9 +144,21 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
       (sliceAngles[id]?.fraction ?? 0) > 0;
     const interactiveIds = mochartConfig.series.map(sc => sc.id).filter(sliceIsInteractive);
     const { rovingSeriesId } = this.state;
-    // the remembered roving slice keeps the tab stop while it exists; otherwise the first takes it
-    const effectiveRovingId = rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1
-      ? rovingSeriesId : interactiveIds[0] ?? null;
+    // the remembered roving slice keeps the tab stop while it exists; when it is
+    // gone (filtered out) its nearest following config-order neighbor inherits
+    // it, else the nearest preceding one; with no memory the first slice takes it
+    let effectiveRovingId: string | null;
+    if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {
+      effectiveRovingId = rovingSeriesId;
+    }
+    else if (rovingSeriesId !== null && interactiveIds.length > 0) {
+      const removedIndex = seriesConfigIndicesById[rovingSeriesId] ?? -1;
+      effectiveRovingId = interactiveIds.find(id => seriesConfigIndicesById[id] > removedIndex) ??
+        interactiveIds[interactiveIds.length - 1];
+    }
+    else {
+      effectiveRovingId = interactiveIds[0] ?? null;
+    }
 
     this.root.set({ className: mochartCssClasses['seriesContainer'],
       onKeyDown: interactiveIds.length > 0 ? this.sliceKeyDown : null,
@@ -172,8 +184,20 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
         accessibility, tabStop: seriesConfig.id === effectiveRovingId }
     })));
 
-    if (focusedSlice !== null && document.activeElement !== focusedSlice && focusedSlice.isConnected) {
-      focusedSlice.focus();
+    if (focusedSlice !== null && document.activeElement !== focusedSlice) {
+      if (focusedSlice.isConnected) {
+        focusedSlice.focus();
+      }
+      else if (effectiveRovingId !== null) {
+        // the focused slice was filtered out: keep keyboard focus in the pie,
+        // on the slice that inherited the tab stop
+        for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
+          if (node.getAttribute('data-series-id') === effectiveRovingId) {
+            node.focus();
+            break;
+          }
+        }
+      }
     }
 
     // The center total sums the current (possibly mid-tween) values, so it

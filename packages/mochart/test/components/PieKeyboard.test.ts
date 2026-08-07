@@ -168,6 +168,26 @@ describe('pie slice keyboard semantics', () => {
     expect(container.querySelector('.mochart-tooltip')?.textContent ?? '').toBe('');
   });
 
+  // Regression: filtering out the focused slice detached its node, and the
+  // focus-restore skipped disconnected nodes — keyboard focus fell to <body>.
+  it('moves focus to a neighbor slice when the focused slice is filtered out', () => {
+    const container = mountChart(makeConfig(), () => {});
+    const handle = handles[handles.length - 1];
+    const items = slices(container);
+    items[1].focus();
+
+    handle.update({ filteredSeriesIds: { S1: true } });
+    const remaining = slices(container);
+    expect(remaining.map(item => item.getAttribute('data-series-id'))).toEqual(['S0', 'S2']);
+    // the next slice in config order inherits focus and the tab stop
+    expect(document.activeElement).toBe(remaining[1]);
+    expect(remaining[1].getAttribute('tabindex')).toBe('0');
+
+    // filtering the last remaining follower falls back to the preceding slice
+    handle.update({ filteredSeriesIds: { S1: true, S2: true } });
+    expect((document.activeElement as Element | null)?.getAttribute('data-series-id')).toBe('S0');
+  });
+
   it('keeps DOM focus on the slice when focusing reorders the slice nodes', () => {
     const container = mountChart(makeConfig({ seriesDefaults: { focusOnClick: true } }));
     const items = slices(container);
