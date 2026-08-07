@@ -241,7 +241,9 @@ function setInitialExtraSeriesValues(valueObject: SeriesValueObject, rawValueObj
 }
 
 function getInitialFilteredSeriesValueObjects(seriesStackConfigs: EnhancedSeriesStackConfig[], initialValueObjects: SeriesValueObjects, seriesFilteredFlags: Record<string, boolean>): SeriesValueObjects {
-  const valueObjects = mapMap(initialValueObjects, valueObject => valueObject);
+  // copy objects (inner arrays stay shared for identity checks): the stack/prior/
+  // min/max writes below must not leak into the raw side
+  const valueObjects = mapMap(initialValueObjects, valueObject => ({ ...valueObject }));
   const seriesIds = Object.keys(initialValueObjects);
   for (const seriesId of seriesIds) {
     if (seriesFilteredFlags[seriesId] === true) {

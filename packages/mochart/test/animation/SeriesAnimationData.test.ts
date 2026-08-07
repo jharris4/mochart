@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getChartData } from '../../src/data/ChartData';
 import { getChartAnimationData } from '../../src/animation/ChartAnimationData';
+import { getInitialValueChangeData } from '../../src/animation/SeriesAnimationData';
 import { makeConfig, ArrayOfObjectsDataProvider } from '../data/fixtures';
 
 // Regression: filtered series shared one module-level null value object, so a
@@ -44,5 +45,30 @@ describe('getInitialValueChangeData with filtered series', () => {
     });
     const plainData = getChartData(plainConfig, new ArrayOfObjectsDataProvider(rows, 'g'), { S1: true });
     expect(() => getChartAnimationData(plainConfig, null, plainData)).not.toThrow();
+  });
+
+  // Regression: the filtered map shallow-copied only the map, so the filtered
+  // stack/prior writes mutated the raw side's value objects in place.
+  it('keeps raw priors intact when a stacked series is filtered at mount', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'g', type: 'number', scale: 'ordinal' },
+      series: [
+        { stack: 'SS0', property: 'a', renderer: 'bar' },
+        { stack: 'SS0', property: 'b', renderer: 'bar' },
+        { stack: 'SS0', property: 'c', renderer: 'bar' }
+      ],
+      seriesStacks: [{ id: 'SS0' }]
+    });
+    const chartData = getChartData(config, new ArrayOfObjectsDataProvider(rows, 'g'), { S0: true });
+    const changeData = getInitialValueChangeData(config, chartData);
+    const raw = changeData.start.seriesData.raw.values;
+    const filtered = changeData.start.seriesData.filtered.values;
+
+    // raw ignores filtering: S1 stacks on S0, so its prior is a real array
+    expect(raw['S1'].prior).not.toBeNull();
+    // filtered: S0 is gone, so S1 has no prior and S2's prior is S1's stack
+    expect(filtered['S1'].prior).toBeNull();
+    expect(filtered['S2'].prior).toBe(filtered['S1'].stack);
+    expect(raw['S2'].prior).not.toBe(filtered['S2'].prior);
   });
 });
