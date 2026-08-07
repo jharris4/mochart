@@ -570,6 +570,17 @@ describe("validators", () => {
         expect(baseValidators.color()("rgba(123,123,123, 1)")).toBe(true);
       });
 
+      // Regression: the alpha regex required a leading digit, rejecting ".5"
+      it("should allow rgba notation strings with a leading-zero-less alpha", () => {
+        expect(baseValidators.color()("rgba(0, 0, 0, .5)")).toBe(true);
+        expect(baseValidators.color()("rgba(123,123,123,0.5)")).toBe(true);
+      });
+
+      it("should not allow rgba notation strings with a bare-dot or trailing-dot alpha", () => {
+        expect(baseValidators.color()("rgba(123,123,123,.)")).toBe(false);
+        expect(baseValidators.color()("rgba(123,123,123,1.)")).toBe(false);
+      });
+
       it("should not allow rgba notation strings when the alpha value is greater than 1", () => {
         expect(baseValidators.color()("rgba(123,256,123,1.1)")).toBe(false);
       });

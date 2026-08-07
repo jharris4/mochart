@@ -107,7 +107,7 @@ const colorHexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 const colorRGBARegex = /^(rgba\()(.*)(\))$/;
 const colorRGBRegex = /^(rgb\()(.*)(\))$/;
 const colorThreeDigitRegex = /^[0-9]{1,3}$/;
-const colorAlphaRegex = /^(0(\.\d+)?|1(\.0+)?)$/;
+const colorAlphaRegex = /^(0(\.\d+)?|\.\d+|1(\.0+)?)$/; // CSS allows the leading-zero-less ".5" form
 
 // The canonical ISO-8601 pattern, kept byte-identical to its upstream form. Its
 // redundant escapes are harmless, and rewriting a regex this dense for cosmetics
