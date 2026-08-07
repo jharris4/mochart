@@ -48,6 +48,7 @@ All knobs live in [`animation`](/reference/animation):
 | Property | Controls |
 | --- | --- |
 | [`animate`](/reference/animation#animation.animate) | master switch — `false` applies every update instantly |
+| [`respectReducedMotion`](/reference/animation#animation.respectReducedMotion) | honor the OS reduced-motion preference (on by default) |
 | [`initialDuration`](/reference/animation#animation.initialDuration) | the first render when the chart mounts |
 | [`expansionDuration`](/reference/animation#animation.expansionDuration) | the axis expansion phase |
 | [`valueChangeDuration`](/reference/animation#animation.valueChangeDuration) | the value change phase (incl. category/series transitions) |
@@ -59,3 +60,12 @@ changes complete proportionally faster. On an axis running `0` to `100` with
 `valueChangeDuration: 1000`, a bar growing the full height of the axis takes
 1000 ms, one going from `50` to `100` takes 500 ms, and one going from `95` to
 `100` takes 50 ms.
+
+## Reduced motion
+
+When the user's system requests reduced motion (the `prefers-reduced-motion:
+reduce` accessibility setting), the chart applies every update instantly, as
+if `animate` were `false`. The preference is watched live — flipping the OS
+setting takes effect immediately, without re-creating the chart. Set
+[`respectReducedMotion`](/reference/animation#animation.respectReducedMotion)
+to `false` to keep animating regardless of the preference.

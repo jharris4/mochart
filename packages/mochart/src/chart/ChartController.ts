@@ -22,8 +22,14 @@ export class ChartController {
   private props: ManagedChartProps;
   private lastInput: ChartDataSourceInput;
   private destroyed = false;
+  private reducedMotion: MediaQueryList | null;
 
   constructor(container: Element, props: ManagedChartProps) {
+    // environments without matchMedia (SSR) count as no preference
+    this.reducedMotion = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+    this.reducedMotion?.addEventListener('change', this.handleReducedMotionChange);
     this.props = props;
     this.focus.applyExternal(props);
     this.source = this.createSource();
@@ -50,13 +56,24 @@ export class ChartController {
       return;
     }
     this.destroyed = true;
+    this.reducedMotion?.removeEventListener('change', this.handleReducedMotionChange);
     this.source.dispose();
     this.chart.destroy();
   }
 
   private isAnimated(): boolean {
     const { mochartConfig } = this.props;
-    return Boolean(mochartConfig && mochartConfig.animation.animate);
+    if (!mochartConfig || !mochartConfig.animation.animate) {
+      return false;
+    }
+    return !(mochartConfig.animation.respectReducedMotion && this.reducedMotion?.matches);
+  }
+
+  /** applyInput swaps the data source when the effective animate flag flipped. */
+  private handleReducedMotionChange = (): void => {
+    if (!this.destroyed) {
+      this.applyInput();
+    }
   }
 
   private createSource(): ChartDataSource {

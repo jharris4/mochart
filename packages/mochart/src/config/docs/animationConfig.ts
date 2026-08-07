@@ -1,6 +1,7 @@
 export default function getDescriptions() {
   return {
     animate: 'whether all animation should be enabled or disabled',
+    respectReducedMotion: 'whether to respect the user’s reduced-motion system preference',
     initialDuration: 'the maximum duration for the initial animation when chart data is first loaded',
     expansionDuration: 'the maximum duration for the axis expansion animation phase when new data is added to the chart',
     valueChangeDuration: 'the maximum duration for the value change animation phase when data in the chart changes',
@@ -12,6 +13,7 @@ export default function getDescriptions() {
 export function getDetails() {
   return {
     animate: 'The master switch for staged animation. When `false`, config and data changes apply instantly. When `true`, each update plays up to three sequential phases — axis expansion, value change, axis contraction — skipping phases it does not need, and each phase’s duration scales with the size of its change (small updates play faster than the configured maximum). Width/height changes re-layout the chart instantly either way.',
+    respectReducedMotion: 'When `true` and the user’s system requests reduced motion (the `prefers-reduced-motion: reduce` accessibility setting, for users sensitive to movement), the chart behaves as if `animate` were `false`: config, data, and focus changes apply instantly. The preference is watched live, so changing the system setting takes effect without re-creating the chart. Set to `false` to animate regardless of the preference.',
     initialDuration: 'Duration (in milliseconds) of the first render animation when the chart mounts with data.',
     expansionDuration: 'Duration (in milliseconds) of the axis expansion phase, which plays first when an update needs larger axis domains (new categories or larger values) so incoming data has room to land.',
     valueChangeDuration: 'Duration (in milliseconds) of the value change phase, which tweens values to their new positions and also plays category transitions (categories added/removed/reordered) and series transitions (series added, removed, or filtered via the legend).',

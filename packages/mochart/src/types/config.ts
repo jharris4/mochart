@@ -140,6 +140,19 @@ export interface AnimationConfig {
    */
   animate: boolean;
   /**
+   * Whether to respect the user’s reduced-motion system preference.
+   *
+   * When `true` and the user’s system requests reduced motion (the
+   * `prefers-reduced-motion: reduce` accessibility setting, for users sensitive
+   * to movement), the chart behaves as if `animate` were `false`: config, data,
+   * and focus changes apply instantly. The preference is watched live, so
+   * changing the system setting takes effect without re-creating the chart. Set
+   * to `false` to animate regardless of the preference.
+   *
+   * @default true
+   */
+  respectReducedMotion: boolean;
+  /**
    * The maximum duration for the initial animation when chart data is first
    * loaded.
    *
