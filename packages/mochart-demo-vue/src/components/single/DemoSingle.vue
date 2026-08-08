@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue';
 
-import { consumeSingleShareState, demoText } from '@mochart/demo-common';
+import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import TopBar from '../misc/TopBar.vue';
@@ -112,6 +112,9 @@ function onDataReset() {
 // Chart tab so it's visible that something is waiting there.
 const hasPendingChanges = computed(() =>
   activeKey.value !== eventKeyChart && (pendingConfig.value !== null || pendingData.value !== null));
+
+// editor-reported error, or the viewing config/data pair failing validation
+const chartDataError = computed(() => viewingDataError.value || getConfigDataError(viewingConfig.value, viewingData.value));
 </script>
 
 <template>
@@ -144,7 +147,7 @@ const hasPendingChanges = computed(() =>
     <div class="mochart-demo-content-pane">
       <div class="mochart-demo-content">
         <ErrorTab :active="activeKey === eventKeyChart">
-          <ChartTab :active="activeKey === eventKeyChart" :config="viewingConfig" :data="viewingData" :data-error="viewingDataError" />
+          <ChartTab :active="activeKey === eventKeyChart" :config="viewingConfig" :data="viewingData" :data-error="chartDataError" />
         </ErrorTab>
         <ErrorTab :active="activeKey === eventKeyConfig">
           <ConfigTab :active="activeKey === eventKeyConfig" :config="config" :on-config-change="onConfigChange" :on-config-reset="onConfigReset" />

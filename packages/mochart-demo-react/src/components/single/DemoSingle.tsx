@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
-import { consumeSingleShareState, demoText } from '@mochart/demo-common';
+import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/demo-common';
 
 import MochartChartTab from './ChartTab';
 import MochartDataTab from './DataTab';
@@ -171,11 +171,14 @@ function MochartDemoContent(props: ContentProps) {
 
   const { viewingConfig, viewingData, viewingDataError, config, data } = state;
 
+  // editor-reported error, or the viewing config/data pair failing validation
+  const derivedDataError = useMemo(() => getConfigDataError(viewingConfig, viewingData), [viewingConfig, viewingData]);
+
   return (
     <div className="mochart-demo-content-pane">
       <div className="mochart-demo-content">
         <ErrorTab active={activeKey === eventKeyChart}>
-          <MochartChartTab config={viewingConfig} data={viewingData} dataError={viewingDataError} />
+          <MochartChartTab config={viewingConfig} data={viewingData} dataError={viewingDataError || derivedDataError} />
         </ErrorTab>
         <ErrorTab active={activeKey === eventKeyConfig}>
           <MochartConfigTab config={config} onConfigChange={onConfigChange} onConfigReset={onConfigReset} />

@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { consumeSingleShareState, demoText } from '@mochart/demo-common';
+import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -42,6 +42,9 @@ export class DemoSingle extends LightElement {
   @state() private viewingConfig: DemoConfig | null = null;
   @state() private viewingData: DataRow[] | null = null;
   @state() private viewingDataError: DataError = false;
+  // editor-reported error, or the viewing config/data pair failing validation;
+  // recomputed wherever the viewing values change, so a render always follows
+  private chartDataError: DataError = false;
 
 
   override willUpdate(changed: PropertyValues<this>): void {
@@ -60,6 +63,7 @@ export class DemoSingle extends LightElement {
       this.viewingConfig = this.config;
       this.viewingData = this.data;
       this.viewingDataError = false;
+      this.chartDataError = getConfigDataError(this.viewingConfig, this.viewingData);
       return;
     }
     // When the routed demo changes (history navigation between two demos),
@@ -87,6 +91,7 @@ export class DemoSingle extends LightElement {
         this.viewingDataError = this.pendingDataError;
         this.pendingDataError = null;
       }
+      this.chartDataError = this.viewingDataError || getConfigDataError(this.viewingConfig!, this.viewingData!);
     }
   }
 
@@ -147,7 +152,7 @@ export class DemoSingle extends LightElement {
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
           <error-tab .active=${this.activeKey === eventKeyChart} .content=${() =>
-            html`<chart-tab .active=${this.activeKey === eventKeyChart} .config=${this.viewingConfig} .data=${this.viewingData} .dataError=${this.viewingDataError}></chart-tab>`}></error-tab>
+            html`<chart-tab .active=${this.activeKey === eventKeyChart} .config=${this.viewingConfig} .data=${this.viewingData} .dataError=${this.chartDataError}></chart-tab>`}></error-tab>
           <error-tab .active=${this.activeKey === eventKeyConfig} .content=${() =>
             html`<config-tab .active=${this.activeKey === eventKeyConfig} .config=${this.config!} .onConfigChange=${this.onConfigChange} .onConfigReset=${this.onConfigReset}></config-tab>`}></error-tab>
           <error-tab .active=${this.activeKey === eventKeyData} .content=${() =>

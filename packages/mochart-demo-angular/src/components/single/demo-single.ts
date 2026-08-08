@@ -1,7 +1,7 @@
-import { Component, Input, signal } from '@angular/core';
+import { Component, Input, computed, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { consumeSingleShareState, demoText } from '@mochart/demo-common';
+import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/demo-common';
 
 import { ChartTab } from './chart-tab';
 import { ConfigTab } from './config-tab';
@@ -44,7 +44,7 @@ const eventKeyData = 3;
         <div class="mochart-demo-content">
           <app-error-tab [active]="activeKey() === eventKeyChart">
             <ng-template>
-              <app-chart-tab [active]="activeKey() === eventKeyChart" [config]="viewingConfig()" [data]="viewingData()" [dataError]="viewingDataError()" />
+              <app-chart-tab [active]="activeKey() === eventKeyChart" [config]="viewingConfig()" [data]="viewingData()" [dataError]="chartDataError()" />
             </ng-template>
           </app-error-tab>
           <app-error-tab [active]="activeKey() === eventKeyConfig">
@@ -90,6 +90,13 @@ export class DemoSingle implements OnInit, OnChanges {
   viewingConfig = signal<DemoConfig | null>(null);
   viewingData = signal<DataRow[] | null>(null);
   viewingDataError = signal<DataError>(false);
+  // editor-reported error, or the viewing config/data pair failing validation
+  chartDataError = computed<DataError>(() => {
+    const viewingConfig = this.viewingConfig();
+    const viewingData = this.viewingData();
+    return this.viewingDataError() ||
+      (viewingConfig !== null && viewingData !== null ? getConfigDataError(viewingConfig, viewingData) : false);
+  });
 
   ngOnInit(): void {
     const { initialDemoId } = this;

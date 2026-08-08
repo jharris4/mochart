@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { consumeSingleShareState, demoText } from '@mochart/demo-common';
+  import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/demo-common';
   import type { SwitchableDemoMode } from '@mochart/demo-common';
 
   import ChartTab from './ChartTab.svelte';
@@ -121,6 +121,9 @@
   // Applied config/data edits are held until the Chart tab is shown; badge the
   // Chart tab so it's visible that something is waiting there.
   const hasPendingChanges = $derived(activeKey !== eventKeyChart && (pendingConfig !== null || pendingData !== null));
+
+  // editor-reported error, or the viewing config/data pair failing validation
+  const chartDataError = $derived(viewingDataError || getConfigDataError(viewingConfig, viewingData));
 </script>
 
 <div class="mochart-demo-container">
@@ -152,7 +155,7 @@
   <div class="mochart-demo-content-pane">
     <div class="mochart-demo-content">
       <ErrorTab active={activeKey === eventKeyChart}>
-        <ChartTab active={activeKey === eventKeyChart} config={viewingConfig} data={viewingData} dataError={viewingDataError} />
+        <ChartTab active={activeKey === eventKeyChart} config={viewingConfig} data={viewingData} dataError={chartDataError} />
       </ErrorTab>
       <ErrorTab active={activeKey === eventKeyConfig}>
         <ConfigTab active={activeKey === eventKeyConfig} {config} {onConfigChange} {onConfigReset} />

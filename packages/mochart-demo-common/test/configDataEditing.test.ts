@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import { copyDemoConfig, isConfigSectionActive, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
 import { restoreHiddenDataProperties } from '../src/unusedDataProperties';
-import { applyDataEdit, formatData, stringifyWithSpacedCommas } from '../src/dataEditing';
+import { applyDataEdit, formatData, getConfigDataError, stringifyWithSpacedCommas } from '../src/dataEditing';
 import { applyTransitionConfigEdit } from '../src/transition';
 import { demoText } from '../src/demoText';
 import type { DemoConfig, MochartDemoConfig } from '../src/types';
@@ -202,6 +202,31 @@ describe('applyDataEdit error copy', () => {
       expect(result.errorMessage).toBe(demoText.errors.invalidJson);
       expect(result.callbackError).toBe(demoText.errors.invalidData);
     }
+  });
+});
+
+// Regression: config edits (and the initial demo load) never validated the
+// data against the config, so a wrong categoryAxis.property rendered a chart
+// of undefined categories with no error.
+describe('getConfigDataError', () => {
+  const makeConfig = (categoryProperty: string) => ({
+    version: '1.0.0',
+    categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }]
+  } as unknown as DemoConfig);
+  const rows = [{ month: 'Jan', sales: 1 }, { month: 'Feb', sales: 2 }];
+
+  it('is false for a config/data pair that validates', () => {
+    expect(getConfigDataError(makeConfig('month'), rows)).toBe(false);
+  });
+
+  it('reports the shared data content copy for a category property missing from the data', () => {
+    expect(getConfigDataError(makeConfig('wrong'), rows)).toBe(demoText.errors.invalidDataContent);
+  });
+
+  it('is false when the config itself is invalid (config errors have their own display)', () => {
+    const invalidConfig = { version: '1.0.0', categoryAxis: { property: 'month' } } as unknown as DemoConfig;
+    expect(getConfigDataError(invalidConfig, rows)).toBe(false);
   });
 });
 

@@ -88,6 +88,26 @@ export function parseFullData(text: string, fullData: DataRow[], viewUsedPropert
   return { full: viewUsedProperties === null ? rows : restoreHiddenDataProperties(rows, fullData, viewUsedProperties, categoryProperty) };
 }
 
+/** Validate rows against an already-built valid config: the shared short error message, or false when clean (details go to the console). */
+function getMochartConfigDataError(mochartConfig: MochartDemoConfig['mochartConfig'], rows: DataRow[]): string | false {
+  const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(rows, mochartConfig.categoryAxis.property ?? '') as unknown as DataProvider);
+  if (dataErrors.length > 0) {
+    console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
+    return demoText.errors.invalidDataContent;
+  }
+  return false;
+}
+
+/**
+ * Validate a config/data pair for the chart path (initial load and applied
+ * config/data edits): the dataError to show, or false when the data is clean —
+ * or when the config itself is invalid, which the config error UI reports.
+ */
+export function getConfigDataError(config: DemoConfig, data: DataRow[]): string | false {
+  const { mochartConfig } = buildMochartDemoConfig(config);
+  return mochartConfig.validation.valid ? getMochartConfigDataError(mochartConfig, data) : false;
+}
+
 export type DataApplyResult =
   | { ok: true; data: DataRow[] }
   | { ok: false; errorMessage: string; callbackError: string };
@@ -113,11 +133,7 @@ export function applyDataEdit(text: string, fullData: DataRow[], viewUsedPropert
   let error: string | null = null;
   const { mochartConfig } = buildMochartDemoConfig(config);
   if (mochartConfig.validation.valid) {
-    const dataErrors = getDataErrors(mochartConfig, new ArrayOfObjectsDataProvider(parsedData, mochartConfig.categoryAxis.property ?? '') as unknown as DataProvider);
-    if (dataErrors.length > 0) {
-      console.warn('Invalid Data - Content Errors: ', dataErrors.join('\n'));
-      error = demoText.errors.invalidDataContent;
-    }
+    error = getMochartConfigDataError(mochartConfig, parsedData) || null;
   }
   else {
     console.warn('Could not validate data since mochart config was not valid');

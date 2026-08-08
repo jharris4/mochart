@@ -1,4 +1,4 @@
-import { consumeSingleShareState, demoText } from '@mochart/demo-common';
+import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { el, errorTab } from '../misc/dom';
@@ -54,6 +54,8 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
   let viewingConfig: DemoConfig = config;
   let viewingData: DataRow[] = data;
   let viewingDataError: DataError = false;
+  // editor-reported error, or the viewing config/data pair failing validation
+  let chartDataError: DataError = viewingDataError || getConfigDataError(viewingConfig, viewingData);
 
   // ---------------------------------------------------------------------
   // children
@@ -63,7 +65,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
     active: activeKey === eventKeyChart,
     config: viewingConfig,
     data: viewingData,
-    dataError: viewingDataError
+    dataError: chartDataError
   });
   const configEditor: ConfigTabHandle = configTab({
     active: activeKey === eventKeyConfig,
@@ -153,7 +155,8 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
         viewingDataError = pendingDataError;
         pendingDataError = null;
       }
-      chartBoundary.guard(() => chart.update({ config: viewingConfig, data: viewingData, dataError: viewingDataError }));
+      chartDataError = viewingDataError || getConfigDataError(viewingConfig, viewingData);
+      chartBoundary.guard(() => chart.update({ config: viewingConfig, data: viewingData, dataError: chartDataError }));
       dataBoundary.guard(() => dataEditor.setConfig(viewingConfig));
     }
   }
