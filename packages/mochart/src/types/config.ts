@@ -192,6 +192,28 @@ export interface AccessibilityConfig {
    * @default "Legend"
    */
   legendLabel: string;
+  /**
+   * The label for the tooltip controls’ previous-category button (aria-label
+   * and hover title).
+   *
+   * The accessible name and hover title of the ‹ button shown when
+   * `tooltip.showControls` is on; the button itself shows only the glyph.
+   * Replace to localize it.
+   *
+   * @default "Previous category"
+   */
+  tooltipPreviousLabel: string;
+  /**
+   * The label for the tooltip controls’ next-category button (aria-label and
+   * hover title).
+   *
+   * The accessible name and hover title of the › button shown when
+   * `tooltip.showControls` is on; the button itself shows only the glyph.
+   * Replace to localize it.
+   *
+   * @default "Next category"
+   */
+  tooltipNextLabel: string;
 }
 
 export interface AnimationConfig {
@@ -1102,6 +1124,9 @@ export interface TooltipConfig extends SeriesIconConfig {
    * Whether series should be focused when the user mouses over them in the
    * tooltip.
    *
+   * Ignored while `showControls` is on — there the controls’ mode decides: a
+   * row’s series focuses on hover while filter mode is active.
+   *
    * @default false
    */
   focusSeriesOnMouseOver: boolean;
@@ -1118,9 +1143,42 @@ export interface TooltipConfig extends SeriesIconConfig {
    * Whether the focus/filter controls should be shown at the top of the
    * tooltip.
    *
+   * When `true`, a control strip renders above the tooltip lines: ‹ and ›
+   * buttons step the shown category, and a mode button toggles what clicking a
+   * tooltip row does. In filter mode (the initial mode) a series row toggles
+   * its series out of the chart like a legend click (`filterable` permitting),
+   * and hovering a series row focuses its series like hovering its legend item;
+   * in focus mode a row click pins focus on its series or category. With the
+   * controls shown, the mode decides click and series-hover behavior — the
+   * `focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnMouseOver` settings
+   * are not consulted (`focusCategoryOnMouseOver` still is). The mode button
+   * shows the active mode via `filterModeText` / `focusModeText`, and the step
+   * buttons are labeled for assistive tech by
+   * `accessibility.tooltipPreviousLabel` / `tooltipNextLabel`.
+   *
    * @default false
    */
   showControls: boolean;
+  /**
+   * The text shown on the tooltip controls’ mode button while filter mode is
+   * active.
+   *
+   * The visible text of the mode button while clicking a series row filters its
+   * series. Replace to localize it.
+   *
+   * @default "Filter"
+   */
+  filterModeText: string;
+  /**
+   * The text shown on the tooltip controls’ mode button while focus mode is
+   * active.
+   *
+   * The visible text of the mode button while clicking a row focuses its series
+   * or category. Replace to localize it.
+   *
+   * @default "Focus"
+   */
+  focusModeText: string;
   /**
    * Whether to keep the tooltip within the series drawing area (true) or allow
    * it to overlap the axes (false).

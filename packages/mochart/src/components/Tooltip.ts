@@ -24,6 +24,7 @@ interface TooltipProps {
   seriesFocusPercentages: FocusPercentageMap;
   tooltipLayoutInfo: SpacingLayoutInfo;
   onClose: () => void;
+  onEscape: () => void;
   updateTooltipCategoryIndex: (categoryIndex: number) => void;
   onFocus: (focus: { categoryIndex?: number | null; seriesId?: string | null }) => void;
   onSeriesFilter: (seriesId: string) => void;
@@ -45,7 +46,7 @@ export default class Tooltip extends Renderer<TooltipProps> {
     const { mochartConfig, tooltipVisible, tooltipCategoryIndex } = this.props;
     if (mochartConfig.tooltip.visible && tooltipVisible && tooltipCategoryIndex >= 0) {
       const { svgUniqueId, categoryCount, focusedCategoryIndex, tooltipBounds, tooltipValueObject, focusedSeriesId,
-        valueAxisFocusPercentages, seriesFocusPercentages, tooltipLayoutInfo, onClose, updateTooltipCategoryIndex, onFocus, onSeriesFilter } = this.props;
+        valueAxisFocusPercentages, seriesFocusPercentages, tooltipLayoutInfo, onClose, onEscape, updateTooltipCategoryIndex, onFocus, onSeriesFilter } = this.props;
 
       const { tooltip: tooltipConfig } = mochartConfig;
 
@@ -88,7 +89,7 @@ export default class Tooltip extends Renderer<TooltipProps> {
         mochartConfig, tooltipValueObject, tooltipCategoryIndex, focusedCategoryIndex,
         focusedSeriesId, valueAxisFocusPercentages, seriesFocusPercentages,
         svgUniqueId, updateTooltipCategoryIndex,
-        onClose, onFocus, onSeriesFilter, categoryCount
+        onClose, onEscape, onFocus, onSeriesFilter, categoryCount
       };
 
       this.setPresent(true);

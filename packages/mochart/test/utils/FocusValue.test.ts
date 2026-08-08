@@ -61,9 +61,21 @@ describe('getCategoryFocusPercentage / combined focus', () => {
     expect(getCategoryFocusPercentage(-0.2, -0.8)).toBe(-0.8);
   });
 
-  it('takes the strongest focus (max) otherwise', () => {
+  it('takes the strongest focus (max) when both are positive', () => {
     expect(getCategoryFocusPercentage(0.2, 0.8)).toBe(0.8);
-    expect(getCategoryFocusPercentage(-0.2, 0.8)).toBe(0.8);
+  });
+
+  it('blends opposite signs continuously (a + b - a*b)', () => {
+    // a series focus tweening 0 -> 1 under a steady category defocus must
+    // travel -1 -> 1 without snapping the moment it crosses zero
+    expect(getCategoryFocusPercentage(-1, 0.01)).toBeCloseTo(-0.98);
+    expect(getCategoryFocusPercentage(-1, 0.5)).toBeCloseTo(0);
+    expect(getCategoryFocusPercentage(-0.2, 0.8)).toBeCloseTo(0.76);
+  });
+
+  it('resolves full-strength opposite pairs to the positive side, like the max it replaced', () => {
+    expect(getCategoryFocusPercentage(-1, 1)).toBe(1);
+    expect(getCategoryFocusPercentage(1, -1)).toBe(1);
   });
 });
 

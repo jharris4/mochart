@@ -222,10 +222,10 @@ describe('tooltip', () => {
     mouse(root, 'click', 100, 100);
 
     // the content is rendered twice (hidden sizer + visible tooltip); drive
-    // the visible copy. Handlers live on the button containers, so bubble.
+    // the visible copy.
     const visibleButtons = () => Array.from(container.querySelectorAll('.mochart-tooltip button'));
-    const prev = visibleButtons().find(button => button.textContent === 'p')!;
-    const next = visibleButtons().find(button => button.textContent === 'n')!;
+    const prev = visibleButtons().find(button => button.textContent === '‹')!;
+    const next = visibleButtons().find(button => button.textContent === '›')!;
     expect(prev).toBeDefined();
     expect(next).toBeDefined();
     const visibleText = () => container.querySelector('.mochart-tooltip .mochart-tooltip-content')!.textContent;
@@ -488,11 +488,11 @@ describe('tooltip', () => {
     mouse(root, 'click', 100, 100);
 
     const modeButton = () => Array.from(container.querySelectorAll('.mochart-tooltip button'))
-      .find(button => button.textContent === 'filter' || button.textContent === 'focus')!;
-    expect(modeButton().textContent).toBe('filter');
+      .find(button => button.textContent === 'Filter' || button.textContent === 'Focus')!;
+    expect(modeButton().textContent).toBe('Filter');
 
     modeButton().dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(modeButton().textContent).toBe('focus');
+    expect(modeButton().textContent).toBe('Focus');
 
     // in focus mode a category line click toggles category focus
     const categoryLine = container.querySelector('.mochart-tooltip .mochart-tooltip-category-line')!;

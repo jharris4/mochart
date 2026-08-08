@@ -15,9 +15,11 @@
  * - Inline styles set by the chart always take precedence, so it never
  *   overrides intentional chart styling.
  * - Typography and colors are NOT pinned: overlays inherit the host page's
- *   font and text color by design. Likewise button appearance and
- *   `box-sizing` are left to the host, since the chart measures and renders
- *   under the same rules either way.
+ *   font and text color by design. Likewise `box-sizing` is left to the
+ *   host, since the chart measures and renders under the same rules either
+ *   way. The tooltip control buttons set their look inline (currentColor on
+ *   a transparent background); this file only adds their hover/active
+ *   tints, which need pseudo-classes inline styles cannot express.
  *
  * It also carries the chart's keyboard focus ring: the ring needs the
  * :focus-visible pseudo-class, which core's inline styles cannot express.
@@ -48,6 +50,18 @@
  * the icon on the row text. */
 .mochart-tooltip-container svg {
   display: inline-block;
+}
+
+/* Hover/active feedback for the tooltip control buttons (tooltip.showControls).
+ * Their base look is inline; only the tints live here. currentColor keeps them
+ * legible on any host theme, and aria-disabled ends (which stay focusable so
+ * keyboard focus is not dropped) skip the feedback. */
+.mochart-tooltip-container .mochart-tooltip-controls button:hover:not([aria-disabled]) {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.mochart-tooltip-container .mochart-tooltip-controls button:active:not([aria-disabled]) {
+  background: color-mix(in srgb, currentColor 22%, transparent);
 }
 
 /* Message overlays (and any custom factory content dropped into them). */

@@ -10,7 +10,7 @@ import { getPieSliceFractionMap } from '../data/PieData';
 import { getPieTooltipPercentFormat, pieLabelTypeUsesPercent } from '../data/PieLabel';
 import { NONE, CHART_TYPE_PIE } from '../config/core/constants';
 
-import TooltipControls from './TooltipControls';
+import TooltipControls, { MODE_FOCUS, MODE_FILTER } from './TooltipControls';
 import SeriesColorIcon from './SeriesColorIcon';
 import type { ColorPaletteConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
@@ -24,6 +24,9 @@ interface TooltipCategoryLineProps {
   lineStyle: LineStyle;
   categoryLabel: string;
   categoryText: string | number | Date;
+  rowKey: string;
+  interactive: boolean;
+  tabStop: boolean;
   onMouseEnter: (event: Event) => void;
   onMouseLeave: (event: Event) => void;
   onClick: (event: Event) => void;
@@ -43,6 +46,11 @@ interface TooltipSeriesLineProps {
   labelText: string;
   valueText: string;
   style: LineStyle;
+  rowKey: string;
+  interactive: boolean;
+  tabStop: boolean;
+  /** filtering applies, so the row exposes aria-pressed (pressed = series shown) */
+  showsFilterState: boolean;
   onMouseEnter: (event: Event) => void;
   onMouseLeave: (event: Event) => void;
   onClick: (event: Event) => void;
@@ -63,19 +71,17 @@ interface TooltipContentProps {
   onFocus: (focus: InternalFocus) => void;
   onSeriesFilter: (seriesId: string) => void;
   onClose: () => void;
+  onEscape?: () => void;
   valueAxisFocusPercentages: FocusPercentageMap;
   seriesFocusPercentages: FocusPercentageMap;
 }
 
-interface TooltipContentState { mode: typeof MODE_FOCUS | typeof MODE_FILTER }
+interface TooltipContentState { mode: typeof MODE_FOCUS | typeof MODE_FILTER; rovingRowKey: string | null }
 
 type AlignedLineEl = El & { leftHandle: El; labelHandle: El; spacerHandle: El; valueHandle: El };
 type PlainLineEl = El & { textHandle: El };
 
 const itemPadding = 2;
-
-const MODE_FOCUS = 'focus';
-const MODE_FILTER = 'filter';
 
 const baseLineStyle = {
   whiteSpace: 'nowrap',
@@ -94,15 +100,38 @@ class TooltipCategoryLine extends Renderer<TooltipCategoryLineProps> {
   root = htmlEl('div');
   text = textEl();
 
+  onKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      this.props.onClick(event);
+    }
+  }
+
+  // keyboard focus mirrors hover, so the focused row highlights the same way
+  onFocusIn = (event: Event) => {
+    this.props.onMouseEnter(event);
+  }
+
+  onFocusOut = (event: Event) => {
+    this.props.onMouseLeave(event);
+  }
+
   create() {
     this.root.append(this.text);
     return this.root.node;
   }
 
   sync() {
-    const { lineStyle, categoryLabel, categoryText, onMouseEnter, onMouseLeave, onClick } = this.props;
+    const { lineStyle, categoryLabel, categoryText, rowKey, interactive, tabStop, onMouseEnter, onMouseLeave, onClick } = this.props;
     this.root.set({ className: mochartCssClasses['tooltipCategoryLine'], style: lineStyle,
-      onMouseEnter, onMouseLeave, onClick });
+      'data-row-key': interactive ? rowKey : null,
+      tabindex: interactive ? (tabStop ? '0' : '-1') : null,
+      role: interactive ? 'button' : null,
+      onMouseEnter, onMouseLeave, onClick,
+      onKeyDown: interactive ? this.onKeyDown : null,
+      onFocusIn: interactive ? this.onFocusIn : null,
+      onFocusOut: interactive ? this.onFocusOut : null });
     this.text.set(categoryLabel + String(categoryText));
   }
 }
@@ -113,6 +142,23 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
   iconSlot!: Slot;
   labelValue: TextEl | null = null;
   valueValue: TextEl | null = null;
+
+  onKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      this.props.onClick(event);
+    }
+  }
+
+  // keyboard focus mirrors hover, so the focused row highlights its series
+  onFocusIn = (event: Event) => {
+    this.props.onMouseEnter(event);
+  }
+
+  onFocusOut = (event: Event) => {
+    this.props.onMouseLeave(event);
+  }
 
   create() {
     return this.root.node;
@@ -151,11 +197,20 @@ class TooltipSeriesLine extends Renderer<TooltipSeriesLineProps> {
 
   sync() {
     const { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
-      colorPaletteConfig, svgUniqueId, visible, labelText, valueText, style, onMouseEnter, onMouseLeave, onClick } = this.props;
+      colorPaletteConfig, svgUniqueId, visible, labelText, valueText, style, rowKey, interactive, tabStop, showsFilterState,
+      onMouseEnter, onMouseLeave, onClick } = this.props;
     const { tooltip: tooltipConfig } = mochartConfig;
 
     this.root.set({ className: mochartCssClasses['tooltipSeriesLine'] + seriesConfig.id, style,
-      onMouseEnter, onMouseLeave, onClick });
+      'data-row-key': interactive ? rowKey : null,
+      tabindex: interactive ? (tabStop ? '0' : '-1') : null,
+      role: interactive ? 'button' : null,
+      // pressed = series shown; toggling filters it out
+      'aria-pressed': showsFilterState ? String(!seriesIsFiltered) : null,
+      onMouseEnter, onMouseLeave, onClick,
+      onKeyDown: interactive ? this.onKeyDown : null,
+      onFocusIn: interactive ? this.onFocusIn : null,
+      onFocusOut: interactive ? this.onFocusOut : null });
 
     // html, so this has to be a style: a top-level prop would be written as an attribute, which means nothing here
     const labelStyle = { textDecoration: tooltipConfig.showFilteringOnLabels && seriesIsFiltered ? 'line-through' : null };
@@ -199,7 +254,64 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
   constructor() {
     super();
-    this.state = { mode: MODE_FILTER };
+    this.state = { mode: MODE_FILTER, rovingRowKey: null };
+  }
+
+  private interactiveRowNodes(): HTMLElement[] {
+    return Array.from(this.linesContainer.node.querySelectorAll<HTMLElement>('[data-row-key]'));
+  }
+
+  /** any focus landing on a row (Tab, arrows, mouse) makes it the roving tab stop */
+  linesFocusIn = (event: Event) => {
+    const rowKey = (event.target as Element).getAttribute('data-row-key');
+    if (rowKey !== null && rowKey !== this.state.rovingRowKey) {
+      this.setState({ rovingRowKey: rowKey });
+    }
+  }
+
+  linesKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    const rowNodes = this.interactiveRowNodes();
+    const index = rowNodes.indexOf(event.target as HTMLElement);
+    if (index === -1) {
+      return;
+    }
+    let nextIndex: number;
+    if (key === 'ArrowRight' || key === 'ArrowDown') {
+      nextIndex = Math.min(index + 1, rowNodes.length - 1);
+    }
+    else if (key === 'ArrowLeft' || key === 'ArrowUp') {
+      nextIndex = Math.max(index - 1, 0);
+    }
+    else if (key === 'Home') {
+      nextIndex = 0;
+    }
+    else if (key === 'End') {
+      nextIndex = rowNodes.length - 1;
+    }
+    else {
+      return;
+    }
+    event.preventDefault();
+    if (nextIndex !== index) {
+      rowNodes[nextIndex].focus();
+    }
+  }
+
+  onRootKeyDown = (event: Event) => {
+    if ((event as KeyboardEvent).key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.props.onEscape?.();
+    }
+  }
+
+  /** filtering with hideFiltered unmounts the acted-on row synchronously; keep focus inside the tooltip */
+  private restoreRowFocus(activeElement: Element | null): void {
+    if (activeElement !== null && activeElement !== document.body && !activeElement.isConnected) {
+      const fallback = this.interactiveRowNodes()[0] ?? this.controlsContainer.node.querySelector('button');
+      fallback?.focus();
+    }
   }
 
   toggleMode = () => {
@@ -213,6 +325,9 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     this.setState({ mode });
   }
 
+  // the category row's hover-focus stays opt-in (focusCategoryOnMouseOver):
+  // its mouseleave clears the category focus, which would silently break the
+  // applyFocus pin whenever the pointer crosses the open tooltip
   onCategoryMouseEnter = (_event: Event) => {
     const { mochartConfig, tooltipCategoryIndex, onFocus } = this.props;
     const { mode } = this.state;
@@ -248,12 +363,13 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   }
 
   onSeriesMouseEnter = (_event: Event, seriesId: string) => {
-    const { mochartConfig, onFocus } = this.props;
+    const { mochartConfig, tooltipValueObject, onFocus } = this.props;
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
     const { showControls, focusSeriesOnMouseOver } = tooltipConfig;
-    const shouldFocus = focusSeriesOnMouseOver && (showControls ? mode === MODE_FILTER : true);
-    if (shouldFocus) {
+    const shouldFocus = showControls ? mode === MODE_FILTER : focusSeriesOnMouseOver;
+    // a filtered series has nothing visible to highlight, like the legend
+    if (shouldFocus && tooltipValueObject.series.filteredFlags[seriesId] !== true) {
       onFocus({ seriesId });
     }
   }
@@ -263,7 +379,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { mode } = this.state;
     const { tooltip: tooltipConfig } = mochartConfig;
     const { showControls, focusSeriesOnMouseOver } = tooltipConfig;
-    const shouldFocus = focusSeriesOnMouseOver && (showControls ? mode === MODE_FILTER : true);
+    const shouldFocus = showControls ? mode === MODE_FILTER : focusSeriesOnMouseOver;
     if (shouldFocus) {
       onFocus({ seriesId: null });
     }
@@ -275,9 +391,13 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const { tooltip: tooltipConfig } = mochartConfig;
     const { showControls, focusSeriesOnClick, filterSeriesOnClick } = tooltipConfig;
     const shouldFocus = showControls ? mode === MODE_FOCUS : focusSeriesOnClick;
-    const shouldFilter = showControls ? mode === MODE_FILTER : filterSeriesOnClick;
+    // filterable gates filtering like the legend; the row acts on its leader
+    // (followSeries), so the leader's filterable decides
+    const shouldFilter = (showControls ? mode === MODE_FILTER : filterSeriesOnClick) &&
+      mochartConfig.seriesById[seriesId].filterable;
     if (shouldFocus || shouldFilter) {
       event.stopPropagation();
+      const activeElement = document.activeElement;
       // filter before focus, like the legend click: an explicit focus request
       // must land after the filter toggle's derived focus clear
       if (shouldFilter) {
@@ -291,6 +411,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
           onFocus({ seriesId });
         }
       }
+      this.restoreRowFocus(activeElement);
     }
   }
 
@@ -339,12 +460,22 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         getPieSliceFractionMap(seriesConfigs, seriesId => filtered.values[seriesId]?.plain) : rawFractions;
     }
 
-    this.root.set({ className: mochartCssClasses['tooltipContent'], onClick: this.onClick });
+    const accessibility = mochartConfig.accessibility.enabled;
+    // a row is a tab stop only when clicking it would do something (the same
+    // conditions the click handlers apply), and only on the shown copy — the
+    // hidden sizer copy must not carry tab stops
+    const a11yRows = accessibility && visible;
+    const categoryRowInteractive = a11yRows && (tooltipConfig.showControls ? mode === MODE_FOCUS : tooltipConfig.focusCategoryOnClick);
+    const seriesRowFocuses = tooltipConfig.showControls ? mode === MODE_FOCUS : tooltipConfig.focusSeriesOnClick;
+    const seriesRowFilters = tooltipConfig.showControls ? mode === MODE_FILTER : tooltipConfig.filterSeriesOnClick;
+    const interactiveRowKeys: string[] = [];
+
+    this.root.set({ className: mochartCssClasses['tooltipContent'], onClick: this.onClick,
+      onKeyDown: accessibility && visible ? this.onRootKeyDown : null });
     this.controlsContainer.set({ className: mochartCssClasses['tooltipControls'] });
     this.controls.set(TooltipControls, { mochartConfig, categoryCount, updateTooltipCategoryIndex,
       tooltipCategoryIndex, focusedCategoryIndex,
       onFocus, mode, toggleMode: this.toggleMode, minWidth });
-    this.linesContainer.set({ className: mochartCssClasses['tooltipLines'], style: { clear: 'both' } });
 
     const lastLineStyle = minWidth !== null ? { ...baseLineStyle, minWidth } : baseLineStyle;
     const lineStyle = {
@@ -358,10 +489,14 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       const categoryText = category.values.parsed;
       const categoryFormat = getCategoryFormat(categoryAxisConfig);
       const categoryLabel = categoryAxisConfig.valueLabel !== NONE ? categoryAxisConfig.valueLabel + ": " : "";
+      if (categoryRowInteractive) {
+        interactiveRowKeys.push('category');
+      }
       tooltipLines.push({
         key: 'category',
         ctor: TooltipCategoryLine,
         props: { lineStyle, categoryLabel, categoryText: categoryFormat(categoryText!),
+          rowKey: 'category', interactive: categoryRowInteractive, tabStop: false,
           onMouseEnter: (event: Event) => this.onCategoryMouseEnter(event),
           onMouseLeave: (event: Event) => this.onCategoryMouseLeave(event),
           onClick: (event: Event) => this.onCategoryClick(event) }
@@ -393,12 +528,21 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         const { labelText, valueText } = getSeriesText(tooltipConfig, seriesConfig, valueFormat, series, adjustForFiltering, pieValues);
         if (valueText !== null) {
           lastSeriesLineIndex = tooltipLines.length;
+          const rowKey = 'series-' + seriesId;
+          // filtering acts on the leader (followSeries), so its filterable decides
+          const rowFilters = seriesRowFilters && mochartConfig.seriesById[focusSeriesId].filterable;
+          const rowInteractive = a11yRows && (seriesRowFocuses || rowFilters);
+          if (rowInteractive) {
+            interactiveRowKeys.push(rowKey);
+          }
           tooltipLines.push({
-            key: 'series-' + seriesId,
+            key: rowKey,
             ctor: TooltipSeriesLine,
             props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
               colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
               style: lineStyle,
+              rowKey, interactive: rowInteractive, tabStop: false,
+              showsFilterState: a11yRows && rowFilters,
               onMouseEnter: (event: Event) => this.onSeriesMouseEnter(event, focusSeriesId),
               onMouseLeave: (event: Event) => this.onSeriesMouseLeave(event),
               onClick: (event: Event) => this.onSeriesClick(event, focusSeriesId) }
@@ -411,6 +555,20 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     if (lastSeriesLineIndex !== -1) {
       (tooltipLines[lastSeriesLineIndex].props as { style: unknown }).style = lastLineStyle;
     }
+
+    // the remembered roving row keeps the tab stop while it exists; otherwise the first takes it
+    const { rovingRowKey } = this.state;
+    const effectiveRovingKey = rovingRowKey !== null && interactiveRowKeys.indexOf(rovingRowKey) !== -1
+      ? rovingRowKey : interactiveRowKeys[0] ?? null;
+    if (effectiveRovingKey !== null) {
+      const rovingLine = tooltipLines.find(line => line.key === effectiveRovingKey);
+      (rovingLine!.props as { tabStop: boolean }).tabStop = true;
+    }
+
+    const anyInteractiveRows = interactiveRowKeys.length > 0;
+    this.linesContainer.set({ className: mochartCssClasses['tooltipLines'], style: { clear: 'both' },
+      onKeyDown: anyInteractiveRows ? this.linesKeyDown : null,
+      onFocusIn: anyInteractiveRows ? this.linesFocusIn : null });
 
     this.lines.sync(tooltipLines);
   }

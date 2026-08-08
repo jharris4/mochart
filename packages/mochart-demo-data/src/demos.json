@@ -515,6 +515,15 @@
       "data": "gauge-data.json",
       "random": "gauge-random.json",
       "generator": "gauge"
+    },
+    {
+      "id": "tooltip-controls",
+      "title": "Tooltip Controls",
+      "description": "A bar chart with controls enabled on the tooltip.",
+      "notes": "The controls come from tooltip.showControls true (the tooltip itself is visible by default). They render as a strip above the tooltip lines: the ‹ and › buttons step the shown category, and the mode button toggles what clicking a tooltip row does — filter mode toggles the row's series out of the chart like a legend click, focus mode pins focus on it. The rows and buttons also work from the keyboard, and Esc inside the tooltip closes it.",
+      "config": "tooltip-controls-config.json",
+      "data": "mixed-categories-positive-values-data.json",
+      "random": "positive-random.json"
     }
   ]
 }

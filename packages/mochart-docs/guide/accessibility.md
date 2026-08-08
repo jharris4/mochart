@@ -45,6 +45,22 @@ Reopening returns to the last category you were viewing. On single-category
 charts (a pie or donut), the arrow keys are inert and
 <kbd>Enter</kbd>/<kbd>Space</kbd> still toggles the tooltip.
 
+An open tooltip is part of the tab order. With
+[`tooltip.showControls`](/reference/tooltip#tooltip.showControls) on, its
+‹ / › / mode controls are ordinary buttons (the ends report
+`aria-disabled` instead of dropping out of the tab order), and the
+tooltip's rows are keyboard-reachable whenever clicking them does something
+— per the controls' current mode, or the
+[`focusCategoryOnClick`](/reference/tooltip#tooltip.focusCategoryOnClick) /
+[`focusSeriesOnClick`](/reference/tooltip#tooltip.focusSeriesOnClick) /
+[`filterSeriesOnClick`](/reference/tooltip#tooltip.filterSeriesOnClick)
+config. Like legend items they form a single tab stop with a roving focus:
+arrows and <kbd>Home</kbd>/<kbd>End</kbd> move between rows,
+<kbd>Enter</kbd>/<kbd>Space</kbd> acts exactly like a click, and a
+keyboard-focused row highlights the same way a hovered one does.
+<kbd>Esc</kbd> anywhere inside the tooltip closes it and returns focus to
+the plot area.
+
 Legend items are keyboard-reachable whenever clicking them does something
 ([`legend.filterOnClick`](/reference/legend#legend.filterOnClick) or
 [`legend.focusOnClick`](/reference/legend#legend.focusOnClick)). They form a
@@ -73,9 +89,10 @@ area button, the legend, and the tooltip.
 Keyboard navigation speaks. Opening or stepping the tooltip announces its
 content through a visually-hidden live region — "Mon: Trial: 18, Paid: 6" —
 mirroring exactly what the tooltip shows, including per-series value
-formatting. Legend items expose their filtered state as a toggle-button
-`aria-pressed` (pressed means the series is shown), and interactive pie
-slices are named with their series title and current share.
+formatting. Legend items — and tooltip series rows, when clicking them
+filters — expose their filtered state as a toggle-button `aria-pressed`
+(pressed means the series is shown), and interactive pie slices are named
+with their series title and current share.
 
 ## The focus ring
 
@@ -118,13 +135,19 @@ const config = {
     chartLabel: 'Diagramm',        // svg name when the title has no text
     chartRoleDescription: 'Diagramm',
     plotLabel: 'Diagrammwerte',    // the plot-area tab stop
-    legendLabel: 'Legende'         // the legend group
+    legendLabel: 'Legende',        // the legend group
+    tooltipPreviousLabel: 'Vorherige Kategorie', // the tooltip controls' ‹ button
+    tooltipNextLabel: 'Nächste Kategorie'        // … and its › button
   }
 };
 ```
 
 Series and category announcements are built from your data and titles, so
-they need no extra translation.
+they need no extra translation. The one visible string in the set is the
+[tooltip controls'](/guide/interaction#tooltip-controls) mode button, which
+is chart UI rather than a screen-reader label — its words localize through
+[`tooltip.filterModeText`](/reference/tooltip#tooltip.filterModeText) and
+[`tooltip.focusModeText`](/reference/tooltip#tooltip.focusModeText).
 
 ## Turning it off
 

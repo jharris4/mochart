@@ -5,6 +5,8 @@ export default function getDefaults() {
     chartLabel: 'Chart',
     chartRoleDescription: 'chart',
     plotLabel: 'Chart values',
-    legendLabel: 'Legend'
+    legendLabel: 'Legend',
+    tooltipPreviousLabel: 'Previous category',
+    tooltipNextLabel: 'Next category'
   };
 }

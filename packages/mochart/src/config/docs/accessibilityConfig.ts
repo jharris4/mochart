@@ -5,7 +5,9 @@ export default function getDescriptions() {
     chartLabel: 'the screen-reader name for the chart when the title has no text',
     chartRoleDescription: 'the role description screen readers announce for the chart',
     plotLabel: 'the screen-reader label for the keyboard-focusable plot area',
-    legendLabel: 'the screen-reader label for the legend'
+    legendLabel: 'the screen-reader label for the legend',
+    tooltipPreviousLabel: 'the label for the tooltip controls’ previous-category button (aria-label and hover title)',
+    tooltipNextLabel: 'the label for the tooltip controls’ next-category button (aria-label and hover title)'
   };
 }
 
@@ -16,6 +18,8 @@ export function getDetails() {
     chartLabel: 'The accessible name of the chart svg when `title.text` is unset; a set title always wins. Replace to localize the announced name.',
     chartRoleDescription: 'Announced by screen readers in place of the generic "group" role, e.g. "Monthly sales, chart". Replace to localize it, as required for `aria-roledescription` values.',
     plotLabel: 'The accessible name of the plot-area tab stop that keyboard users activate to open and step the tooltip. Replace to localize it.',
-    legendLabel: 'The accessible name of the legend group that contains the keyboard-reachable legend items. Replace to localize it.'
+    legendLabel: 'The accessible name of the legend group that contains the keyboard-reachable legend items. Replace to localize it.',
+    tooltipPreviousLabel: 'The accessible name and hover title of the ‹ button shown when `tooltip.showControls` is on; the button itself shows only the glyph. Replace to localize it.',
+    tooltipNextLabel: 'The accessible name and hover title of the › button shown when `tooltip.showControls` is on; the button itself shows only the glyph. Replace to localize it.'
   };
 }

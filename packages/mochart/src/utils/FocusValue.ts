@@ -34,8 +34,16 @@ function getCombinedFocusPercentage(percentageA: FocusPercentage, percentageB: F
   else if (percentageA < 0 && percentageB < 0) {
     return Math.min(percentageA, percentageB);
   }
-  else {
+  else if (percentageA > 0 && percentageB > 0) {
     return Math.max(percentageA, percentageB);
+  }
+  else {
+    // opposite signs: a bilinear blend. The ±1 endpoints resolve to the
+    // positive side, like the Math.max this replaces, but the path is
+    // continuous — a series focus tweening up under a steady category
+    // defocus animates -1 → 1 instead of snapping to the positive track
+    // the moment it crosses zero.
+    return percentageA + percentageB - percentageA * percentageB;
   }
 }
 

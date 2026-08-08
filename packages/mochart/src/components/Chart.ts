@@ -724,6 +724,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.setState({ ...getInitialTooltipState(), tooltipBounds: null });
   }
 
+  /** Escape pressed inside the tooltip: close it and hand keyboard focus back to the plot tab stop */
+  escapeTooltip = () => {
+    this.closeTooltip();
+    (this.chartRectRef as SVGElement | null)?.focus();
+  }
+
   updateTooltipCategoryIndex = (tooltipCategoryIndex: number): void => {
     const { chartData } = this.props;
     this.lastTooltipCategoryIndex = tooltipCategoryIndex;
@@ -1191,7 +1197,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         focusedSeriesId, valueAxisFocusPercentages, seriesFocusPercentages,
         tooltipVisible, categoryCount: chartData.categoryData.values.raw.length,
         tooltipLayoutInfo: tooltipLayoutInfo!, tooltipBounds, svgUniqueId,
-        onClose: this.closeTooltip, updateTooltipCategoryIndex: this.updateTooltipCategoryIndex,
+        onClose: this.closeTooltip, onEscape: this.escapeTooltip, updateTooltipCategoryIndex: this.updateTooltipCategoryIndex,
         onFocus: onFocus ?? (() => {}), onSeriesFilter: onSeriesFilter ?? (() => {}) });
 
       if (mochartConfig.series.length === 0) {

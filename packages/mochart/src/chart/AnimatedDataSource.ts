@@ -119,21 +119,23 @@ export class AnimatedDataSource implements ChartDataSource {
         }
       }
       else if (focusChanged || categoriesChanged) {
-        if (focusCategoryChanged || categoriesChanged) {
-          if (focusedCategoryIndex >= 0 && this.dataTweening && !this.valuesTweened) {
-            if (this.valuesTweening) {
-              this.startFocusTween(input, mergedIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));
-            }
-            else {
-              this.startFocusTween(input, oldIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));
-            }
+        // The category target always derives from the input, mapped into the
+        // tween's index space while a data tween is in flight. Series/axis-only
+        // changes must not read it from this.focusData: a focus tween starts
+        // after a small cancel-window delay, so focusData can still hold the
+        // category from BEFORE a just-created (and now canceled) tween — e.g.
+        // a tooltip row hover landing right after the click that pinned the
+        // category — and the stale index would drop the pin from the target.
+        if (focusedCategoryIndex >= 0 && this.dataTweening && !this.valuesTweened) {
+          if (this.valuesTweening) {
+            this.startFocusTween(input, mergedIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));
           }
           else {
-            this.startFocusTween(input);
+            this.startFocusTween(input, oldIndexForNewIndex(this.chartAnimationData!.categoryDeltaData, focusedCategoryIndex));
           }
         }
         else {
-          this.startFocusTween(input, this.focusData!.focusedCategoryIndex);
+          this.startFocusTween(input);
         }
       }
     }

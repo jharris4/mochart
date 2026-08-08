@@ -110,6 +110,14 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#accessibility.respectReducedMotion">respectReducedMotion</a></td><td>whether to respect the user’s reduced-motion system preference<br/><br/>When `true` and the user’s system requests reduced motion (the `prefers-reduced-motion: reduce` accessibility setting, for users sensitive to movement), the chart behaves as if `animation.animate` were `false`: config, data, and focus changes apply instantly. The preference is watched live, so changing the system setting takes effect without re-creating the chart. Set to `false` to animate regardless of the preference. Independent of `enabled`.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
+<tr id="accessibility.tooltipNextLabel">
+<td><a href="#accessibility.tooltipNextLabel">tooltipNextLabel</a></td><td>the label for the tooltip controls’ next-category button (aria-label and hover title)<br/><br/>The accessible name and hover title of the › button shown when `tooltip.showControls` is on; the button itself shows only the glyph. Replace to localize it.</td><td>should be a string</td><td><div>"Next category"</div>
+</td>
+</tr>
+<tr id="accessibility.tooltipPreviousLabel">
+<td><a href="#accessibility.tooltipPreviousLabel">tooltipPreviousLabel</a></td><td>the label for the tooltip controls’ previous-category button (aria-label and hover title)<br/><br/>The accessible name and hover title of the ‹ button shown when `tooltip.showControls` is on; the button itself shows only the glyph. Replace to localize it.</td><td>should be a string</td><td><div>"Previous category"</div>
+</td>
+</tr>
 </table>
 </div>
 <div id="animation">
@@ -4009,6 +4017,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.dropShadowOffsetY">dropShadowOffsetY</a></td><td>the y offset (in pixels) of the drop shadow effect used for the tooltip</td><td>should be a number</td><td><div>5</div>
 </td>
 </tr>
+<tr id="tooltip.filterModeText">
+<td><a href="#tooltip.filterModeText">filterModeText</a></td><td>the text shown on the tooltip controls’ mode button while filter mode is active<br/><br/>The visible text of the mode button while clicking a series row filters its series. Replace to localize it.</td><td>should be a string</td><td><div>"Filter"</div>
+</td>
+</tr>
 <tr id="tooltip.filterSeriesOnClick">
 <td><a href="#tooltip.filterSeriesOnClick">filterSeriesOnClick</a></td><td>whether series should be filtered when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
@@ -4029,12 +4041,16 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#tooltip.focusCategoryOnMouseOver">focusCategoryOnMouseOver</a></td><td>whether category values should be focused when the user mouses over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
+<tr id="tooltip.focusModeText">
+<td><a href="#tooltip.focusModeText">focusModeText</a></td><td>the text shown on the tooltip controls’ mode button while focus mode is active<br/><br/>The visible text of the mode button while clicking a row focuses its series or category. Replace to localize it.</td><td>should be a string</td><td><div>"Focus"</div>
+</td>
+</tr>
 <tr id="tooltip.focusSeriesOnClick">
 <td><a href="#tooltip.focusSeriesOnClick">focusSeriesOnClick</a></td><td>whether series should be focused when the user clicks/taps on them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltip.focusSeriesOnMouseOver">
-<td><a href="#tooltip.focusSeriesOnMouseOver">focusSeriesOnMouseOver</a></td><td>whether series should be focused when the user mouses over them in the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#tooltip.focusSeriesOnMouseOver">focusSeriesOnMouseOver</a></td><td>whether series should be focused when the user mouses over them in the tooltip<br/><br/>Ignored while `showControls` is on — there the controls’ mode decides: a row’s series focuses on hover while filter mode is active.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltip.followPointer">
@@ -4123,7 +4139,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="tooltip.showControls">
-<td><a href="#tooltip.showControls">showControls</a></td><td>whether the focus/filter controls should be shown at the top of the tooltip</td><td>should be a boolean</td><td><div>false</div>
+<td><a href="#tooltip.showControls">showControls</a></td><td>whether the focus/filter controls should be shown at the top of the tooltip<br/><br/>When `true`, a control strip renders above the tooltip lines: ‹ and › buttons step the shown category, and a mode button toggles what clicking a tooltip row does. In filter mode (the initial mode) a series row toggles its series out of the chart like a legend click (`filterable` permitting), and hovering a series row focuses its series like hovering its legend item; in focus mode a row click pins focus on its series or category. With the controls shown, the mode decides click and series-hover behavior — the `focus…OnClick` / `filterSeriesOnClick` / `focusSeriesOnMouseOver` settings are not consulted (`focusCategoryOnMouseOver` still is). The mode button shows the active mode via `filterModeText` / `focusModeText`, and the step buttons are labeled for assistive tech by `accessibility.tooltipPreviousLabel` / `tooltipNextLabel`.</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="tooltip.showFilteringOnLabels">

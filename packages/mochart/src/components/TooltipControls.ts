@@ -16,7 +16,30 @@ interface TooltipControlsProps {
   minWidth?: number | null;
 }
 
+export const MODE_FOCUS = 'focus';
+export const MODE_FILTER = 'filter';
+
 const buttonWidth = 35;
+
+const containerStyle = { flex: '0 0 auto', width: buttonWidth };
+const modeContainerStyle = { flex: '1 1 auto', minWidth: 0 };
+
+// currentColor keeps the buttons legible on any host theme; hover/active tints live in mochart.css
+const buttonStyle = {
+  width: '100%',
+  font: 'inherit',
+  fontSize: '0.85em',
+  lineHeight: 1.5,
+  color: 'inherit',
+  background: 'transparent',
+  border: '1px solid color-mix(in srgb, currentColor 35%, transparent)',
+  borderRadius: 3,
+  padding: '0 6px',
+  cursor: 'pointer'
+};
+
+// aria-disabled rather than disabled: the end buttons stay focusable so keyboard focus is not dropped
+const disabledButtonStyle = { ...buttonStyle, opacity: 0.4, cursor: 'default' };
 
 export default class TooltipControls extends Renderer<TooltipControlsProps> {
   root = htmlEl('div');
@@ -58,40 +81,53 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
     toggleMode();
   }
 
+  // clicks in the gaps between buttons must not reach the tooltip's closeOnClick
+  onControlsClick = (event: Event) => {
+    event.stopPropagation();
+  }
+
   create() {
-    this.prevButton.append(textEl('p'));
+    this.prevButton.append(textEl('‹'));
     this.prevContainer.append(this.prevButton);
     this.modeButton.append(this.modeText);
     this.modeContainer.append(this.modeButton);
-    this.nextButton.append(textEl('n'));
+    this.nextButton.append(textEl('›'));
     this.nextContainer.append(this.nextButton);
     this.root.append(this.prevContainer, this.modeContainer, this.nextContainer);
     return this.root.node;
   }
 
   sync() {
-    const { mochartConfig, minWidth, mode } = this.props;
-    if (mochartConfig.tooltip.showControls) {
-      const modeWidth = 'calc(100% - ' + (buttonWidth * 2) + 'px)';
+    const { mochartConfig, categoryCount, tooltipCategoryIndex, minWidth, mode } = this.props;
+    const { tooltip: tooltipConfig, accessibility: accessibilityConfig } = mochartConfig;
+    if (tooltipConfig.showControls) {
       const controlsStyle: Record<string, string | number> = {
-        float: 'left',
-        clear: 'both',
-        width: '100%'
+        display: 'flex',
+        gap: 3,
+        width: '100%',
+        marginBottom: 3
       };
       if (minWidth != null) {
         controlsStyle.width = minWidth;
         controlsStyle.minWidth = minWidth;
       }
 
+      const prevDisabled = tooltipCategoryIndex <= 0;
+      const nextDisabled = tooltipCategoryIndex < 0 || tooltipCategoryIndex >= categoryCount - 1;
+
       this.setPresent(true);
-      this.root.set({ className: mochartCssClasses['tooltipControls'], style: controlsStyle });
-      this.prevContainer.set({ style: { float: 'left', minWidth: buttonWidth, width: buttonWidth }, onClick: this.onCategoryPrevClick });
-      this.prevButton.set({ style: { width: '100%' } });
-      this.modeContainer.set({ style: { float: 'left', minWidth: modeWidth, width: modeWidth }, onClick: this.onTooltipModeClick });
-      this.modeButton.set({ style: { width: '100%' } });
-      this.modeText.set(mode);
-      this.nextContainer.set({ style: { float: 'right', minWidth: buttonWidth, width: buttonWidth }, onClick: this.onCategoryNextClick });
-      this.nextButton.set({ style: { width: '100%' } });
+      this.root.set({ className: mochartCssClasses['tooltipControls'], style: controlsStyle, onClick: this.onControlsClick });
+      this.prevContainer.set({ style: containerStyle });
+      this.prevButton.set({ type: 'button', style: prevDisabled ? disabledButtonStyle : buttonStyle,
+        title: accessibilityConfig.tooltipPreviousLabel, 'aria-label': accessibilityConfig.tooltipPreviousLabel,
+        'aria-disabled': prevDisabled ? 'true' : null, onClick: this.onCategoryPrevClick });
+      this.modeContainer.set({ style: modeContainerStyle });
+      this.modeButton.set({ type: 'button', style: buttonStyle, onClick: this.onTooltipModeClick });
+      this.modeText.set(mode === MODE_FILTER ? tooltipConfig.filterModeText : tooltipConfig.focusModeText);
+      this.nextContainer.set({ style: containerStyle });
+      this.nextButton.set({ type: 'button', style: nextDisabled ? disabledButtonStyle : buttonStyle,
+        title: accessibilityConfig.tooltipNextLabel, 'aria-label': accessibilityConfig.tooltipNextLabel,
+        'aria-disabled': nextDisabled ? 'true' : null, onClick: this.onCategoryNextClick });
     }
     else {
       this.setPresent(false);

@@ -16,6 +16,8 @@ export default function getValidators() {
     focusSeriesOnMouseOver: validators.boolean(),
     showCategory: validators.boolean(),
     showControls: validators.boolean(),
+    filterModeText: validators.string(),
+    focusModeText: validators.string(),
     keepInside: validators.boolean(),
     minWidth: validators.numberMin(0),
     padding: validators.padding(),

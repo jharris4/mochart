@@ -66,6 +66,28 @@ focus the category value the pointer is on inside the tooltip. Each series
 can also drop its color icon from the tooltip rows with
 [`showColorInTooltip: false`](/reference/series#series.showColorInTooltip).
 
+### Tooltip controls
+
+[`tooltip.showControls`](/reference/tooltip#tooltip.showControls) adds a
+control strip above the tooltip's lines: ‹ and › buttons step the shown
+category, and a mode button toggles what clicking a tooltip row does. In
+filter mode (the initial mode) clicking a series row toggles its series out
+of the chart, exactly like a legend click — respecting
+[`filterable`](/reference/series#series.filterable) — and hovering a row
+focuses its series the way hovering its legend item does; in focus mode
+clicking a row pins focus on its series — or, on the category line, on the
+category. The mode
+button shows the active mode via
+[`tooltip.filterModeText`](/reference/tooltip#tooltip.filterModeText) /
+[`tooltip.focusModeText`](/reference/tooltip#tooltip.focusModeText)
+(`'Filter'` / `'Focus'` by default), and the step buttons take their
+accessible labels from
+[`accessibility.tooltipPreviousLabel`](/reference/accessibility#accessibility.tooltipPreviousLabel)
+and
+[`accessibility.tooltipNextLabel`](/reference/accessibility#accessibility.tooltipNextLabel).
+The buttons and rows all work from the keyboard — see the
+[keyboard map](/guide/accessibility#keyboard-map).
+
 ## Callbacks
 
 All callbacks are optional props on either entry point:
