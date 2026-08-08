@@ -30,6 +30,18 @@ describe('ArrayOfObjectsDataProvider', () => {
     expect(provider.getSeriesValue(2021, 1, 'value')).toBe(2);
   });
 
+  it('distinguishes Date category values that differ only in milliseconds', () => {
+    const dateRows = [
+      { instant: new Date('2020-01-01T00:00:00.000Z'), value: 1 },
+      { instant: new Date('2020-01-01T00:00:00.500Z'), value: 2 }
+    ];
+    const provider = new ArrayOfObjectsDataProvider(dateRows, 'instant');
+
+    // Fresh Date instances also resolve by time value rather than identity.
+    expect(provider.getSeriesValue(new Date('2020-01-01T00:00:00.000Z'), 99, 'value')).toBe(1);
+    expect(provider.getSeriesValue(new Date('2020-01-01T00:00:00.500Z'), 99, 'value')).toBe(2);
+  });
+
   it('keeps the last row when category values collide', () => {
     const dupes = [
       { month: 'Jan', sales: 10 },

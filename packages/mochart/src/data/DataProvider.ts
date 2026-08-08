@@ -1,4 +1,5 @@
 import type { DataProvider, DataRow } from '../types/data';
+import { getCategoryValueKey } from './CategoryValue';
 
 /**
  * Snapshots the category values and the row set at construction and on
@@ -23,7 +24,7 @@ export class ArrayOfObjectsDataProvider<
     this.categoryValues = this.data.map(row => row[this.categoryProperty]);
     this.rowsByCategoryValue = Object.create(null); // null proto: keyed by user data category values
     for (const row of this.data) {
-      this.rowsByCategoryValue[String(row[this.categoryProperty])] = row;
+      this.rowsByCategoryValue[getCategoryValueKey(row[this.categoryProperty])] = row;
     }
     // all-undefined is the wrong-property signature: the index above would silently collapse every row onto one key
     this.error = this.data.length > 0 && this.categoryValues.every(value => value === undefined)
@@ -44,7 +45,7 @@ export class ArrayOfObjectsDataProvider<
   }
 
   getSeriesValue(categoryValue: TRow[TCategoryProperty], _categoryIndex: number, seriesProperty: string): unknown {
-    return this.rowsByCategoryValue[String(categoryValue)]?.[seriesProperty];
+    return this.rowsByCategoryValue[getCategoryValueKey(categoryValue)]?.[seriesProperty];
   }
 }
 

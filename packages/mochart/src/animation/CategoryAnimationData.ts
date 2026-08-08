@@ -1,4 +1,5 @@
 import { NONE, SCALE_ORDINAL } from '../config/core/constants';
+import { getCategoryValueKey } from '../data/CategoryValue';
 import { getMaxAbsoluteValue } from '../utils/utils';
 import type { CategoryAxisConfig } from '../types/config';
 import type { EnhancedMochartConfig } from '../types/enhanced';
@@ -19,8 +20,7 @@ type CategoryMergedValuesWithoutDisplay = Omit<CategoryMergedValuesData, 'displa
 type ChartDataWithCategories = { categoryData: CategoryData };
 
 function categoryMapKey(value: CategoryValue): CategoryMapKey {
-  // Dates key by time value: String(Date) is slow and only second-precise.
-  return value instanceof Date ? '' + value.getTime() : String(value);
+  return getCategoryValueKey(value);
 }
 
 /** indexOf by the merge keying: Date category values compare by value, not identity. */
