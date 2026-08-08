@@ -2,7 +2,7 @@ import { hasConfigStructureChange } from '../config/core/mochartConfig';
 import { indexOfCategoryValue } from '../animation/CategoryAnimationData';
 import type { ChartFocus, ChartSeriesFilter } from '../types/chart';
 import type { MochartConfig } from '../types/config';
-import type { DataProvider } from '../types/data';
+import type { CategoryValue, DataProvider } from '../types/data';
 import type { InternalFocus } from './ChartDataSource';
 
 export interface FocusControllerInput {
@@ -61,10 +61,13 @@ export class FocusController {
    * Reconcile focus/filter state with a config or data-provider change:
    * a structural config change resets everything, a data change remaps the
    * focused category by value (dropping it when the category disappeared).
-   * Returns what changed; no callbacks fire here, so the caller can commit
-   * its own state first and notify re-entrancy-safely.
+   * `renderedCategoryValues` is the ordering the chart last committed — the
+   * old provider can't be re-read for it, since a refresh() may already have
+   * mutated it in place. Returns what changed; no callbacks fire here, so
+   * the caller can commit its own state first and notify re-entrancy-safely.
    */
-  reconcile(prev: FocusControllerInput, next: FocusControllerInput): FocusReconcileResult {
+  reconcile(prev: FocusControllerInput, next: FocusControllerInput,
+    renderedCategoryValues: readonly CategoryValue[] | null): FocusReconcileResult {
     const { mochartConfig, dataProvider } = next;
     const { mochartConfig: oldMochartConfig, dataProvider: oldDataProvider } = prev;
     const { focusedValueAxisId: oldFocusedValueAxisId, focusedSeriesId: oldFocusedSeriesId,
@@ -76,10 +79,9 @@ export class FocusController {
     else if (dataProvider !== oldDataProvider) {
       if (oldDataProvider && dataProvider) {
         if (this.focusedCategoryIndex >= 0) {
-          const oldCategoryValues = oldDataProvider.getCategoryValues();
           const newCategoryValues = dataProvider.getCategoryValues();
-          if (oldCategoryValues && newCategoryValues) {
-            const categoryValue = oldCategoryValues[this.focusedCategoryIndex];
+          if (renderedCategoryValues && newCategoryValues) {
+            const categoryValue = renderedCategoryValues[this.focusedCategoryIndex];
             this.focusedCategoryIndex = indexOfCategoryValue(newCategoryValues, categoryValue);
           }
           else {

@@ -1,10 +1,12 @@
 import Chart from '../components/Chart';
+import { isDataProviderValid } from '../data/ChartData';
 import { FocusController } from './FocusController';
 import { StaticDataSource } from './StaticDataSource';
 import { AnimatedDataSource } from './AnimatedDataSource';
 import type { ChartDataSource, ChartDataSourceInput, InternalFocus } from './ChartDataSource';
 import type { ChartProps } from '../components/Chart';
 import type { ManagedChartProps } from '../types/chart';
+import type { CategoryValue } from '../types/data';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 
 /**
@@ -21,6 +23,7 @@ export class ChartController {
   private source: ChartDataSource;
   private props: ManagedChartProps;
   private lastInput: ChartDataSourceInput;
+  private lastCategoryValues: readonly CategoryValue[] | null = null;
   private destroyed = false;
   private reducedMotion: MediaQueryList | null;
 
@@ -34,6 +37,7 @@ export class ChartController {
     this.focus.applyExternal(props);
     this.source = this.createSource();
     this.lastInput = this.buildInput();
+    this.captureCategoryValues();
     this.source.start(this.lastInput);
     this.chart.mount(container, null, this.chartProps());
   }
@@ -43,7 +47,7 @@ export class ChartController {
       return;
     }
     const prev = this.props;
-    const changes = this.focus.reconcile(prev, props);
+    const changes = this.focus.reconcile(prev, props, this.lastCategoryValues);
     this.props = props;
     this.focus.applyExternal(props);
     this.applyInput();
@@ -85,6 +89,15 @@ export class ChartController {
     return this.isAnimated() ? new AnimatedDataSource(this.push) : new StaticDataSource();
   }
 
+  /** Snapshot the committed category ordering (the sources' read gate); reconcile remaps focus from it. */
+  private captureCategoryValues(): void {
+    const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig | null | undefined;
+    const { dataProvider } = this.props;
+    this.lastCategoryValues = mochartConfig?.validation.valid && dataProvider && isDataProviderValid(dataProvider)
+      ? [...dataProvider.getCategoryValues()]
+      : null;
+  }
+
   private buildInput(): ChartDataSourceInput {
     const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig;
     const { dataProvider } = this.props;
@@ -97,6 +110,10 @@ export class ChartController {
     const prevInput = this.lastInput;
     const input = this.buildInput();
     this.lastInput = input;
+    // the ordering can only change when the source re-reads: a config or provider identity change
+    if (input.mochartConfig !== prevInput.mochartConfig || input.dataProvider !== prevInput.dataProvider) {
+      this.captureCategoryValues();
+    }
     if (this.source.animated !== this.isAnimated()) {
       this.source.dispose();
       this.source = this.createSource();

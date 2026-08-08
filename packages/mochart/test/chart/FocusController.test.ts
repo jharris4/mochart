@@ -52,7 +52,11 @@ function makeHarness(): Harness {
     filters,
     reconcileWith(next: Partial<FocusControllerInput>) {
       const nextInput = { ...harness.input, ...next };
-      const changes = controller.reconcile(harness.input, nextInput);
+      // what ChartController snapshots at commit: the ordering last read from the provider
+      const renderedCategoryValues = harness.input.dataProvider
+        ? [...harness.input.dataProvider.getCategoryValues()]
+        : null;
+      const changes = controller.reconcile(harness.input, nextInput, renderedCategoryValues);
       if (changes.focus) {
         focuses.push(changes.focus);
       }

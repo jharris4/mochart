@@ -42,6 +42,9 @@ function withFreshIdentity(dataProvider: DataProvider): DataProvider {
     getSeriesValue: (categoryValue, categoryIndex, seriesProperty) =>
       dataProvider.getSeriesValue(categoryValue, categoryIndex, seriesProperty)
   };
+  if (dataProvider.getCategoryProperty) {
+    fresh.getCategoryProperty = () => dataProvider.getCategoryProperty!();
+  }
   if (dataProvider.getError) {
     fresh.getError = () => dataProvider.getError!();
   }
@@ -58,26 +61,32 @@ function withFreshIdentity(dataProvider: DataProvider): DataProvider {
  * attributes that actually changed; there is no vdom.
  */
 export function createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps> {
-  let currentProps = { ...props };
   // the host's own provider, never a refresh wrapper, so wrappers don't nest
   let hostDataProvider = props.dataProvider;
+  let chartDataProvider = withFreshIdentity(hostDataProvider);
+  let currentProps = { ...props, dataProvider: chartDataProvider };
   const controller = new ChartController(container, currentProps);
   return {
     update(nextProps: Partial<ManagedChartProps>) {
-      if (nextProps.dataProvider !== undefined) {
+      if (nextProps.dataProvider !== undefined && nextProps.dataProvider !== hostDataProvider) {
         hostDataProvider = nextProps.dataProvider;
+        chartDataProvider = withFreshIdentity(hostDataProvider);
       }
-      currentProps = { ...currentProps, ...nextProps };
+      currentProps = { ...currentProps, ...nextProps, dataProvider: chartDataProvider };
       controller.update(currentProps);
     },
     replace(nextProps: ManagedChartProps) {
-      hostDataProvider = nextProps.dataProvider;
-      currentProps = { ...nextProps };
+      if (nextProps.dataProvider !== hostDataProvider) {
+        hostDataProvider = nextProps.dataProvider;
+        chartDataProvider = withFreshIdentity(hostDataProvider);
+      }
+      currentProps = { ...nextProps, dataProvider: chartDataProvider };
       controller.update(currentProps);
     },
     refresh() {
       hostDataProvider.refresh?.();
-      currentProps = { ...currentProps, dataProvider: withFreshIdentity(hostDataProvider) };
+      chartDataProvider = withFreshIdentity(hostDataProvider);
+      currentProps = { ...currentProps, dataProvider: chartDataProvider };
       controller.update(currentProps);
     },
     destroy() {
