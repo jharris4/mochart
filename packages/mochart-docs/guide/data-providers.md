@@ -29,6 +29,12 @@ straight from an existing store without copying — see
 [when the data changes](#when-the-data-changes) for how to tell the chart
 the store moved.
 
+Both built-ins guard the most common wiring mistake: a category property
+that matches nothing — absent from every row, or a missing or
+all-`undefined` category column — is reported through the provider's
+`getError()`, and the chart renders that message as its error state
+instead of silently indexing every row under the same key.
+
 ## When the data changes
 
 The chart pulls values through the provider when it (re)computes its chart
@@ -91,9 +97,12 @@ or `area` series would zigzag through them; monotonic data in either
 direction passes, order-independent charts (bars, scatter) are not checked,
 and [`displayProperty`](/reference/categoryAxis#categoryAxis.displayProperty)
 configs are exempt since their display values may legitimately fold back
-across a DST-style repeated hour. Note that a
+across a DST-style repeated hour. Note that a *series*
 property absent from every row is not an error: it reads as all-`undefined`,
-which is valid missing-value data.
+which is valid missing-value data. A *category* property that matches
+nothing is caught earlier — the built-in providers report it through
+`getError()`, and `getDataErrors` defers to a provider-reported error
+rather than repeating it.
 
 ```js
 import { enhanceConfig, getDataErrors, ArrayOfObjectsDataProvider } from '@mochart/core';
@@ -101,5 +110,13 @@ import { enhanceConfig, getDataErrors, ArrayOfObjectsDataProvider } from '@mocha
 const errors = getDataErrors(enhanceConfig(config), new ArrayOfObjectsDataProvider(data, 'month'));
 // e.g. ["series values must be numeric or undefined for property: revenue"]
 ```
+
+Who runs this check depends on the entry point. Default charts
+(`createDefaultChart`, the bindings' `DefaultChart`) validate for you:
+they re-run `getDataErrors` whenever the config or data changes and show
+the error state when it fails. Managed charts (`createChart`, the
+bindings' `Chart`) trust the enhanced config and provider they are given
+— validation is the host's job there, so run `getDataErrors` whenever
+your config or data changes if the inputs aren't guaranteed valid.
 
 This is the same check the docs run over every example on this site in CI.

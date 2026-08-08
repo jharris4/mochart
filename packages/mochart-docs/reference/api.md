@@ -87,6 +87,10 @@ new ArrayOfObjectsDataProvider(data, categoryProperty)  // [{ month: 'Jan', reve
 new ObjectOfArraysDataProvider(data, categoryProperty)  // { month: ['Jan', …], revenue: [10, …] }
 ```
 
+Both report a category property that matches nothing — absent from every
+row, or a missing / all-`undefined` column — through `getError()`, which
+the chart renders as its error state.
+
 Both implement the `DataProvider` interface, which custom providers can
 implement to read straight from an existing store:
 
@@ -130,8 +134,10 @@ getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data pr
   sections merged, and cross-references resolved.
 - `getDataErrors` checks a dataset against an enhanced config —
   non-numeric series values, category values that don't match the configured
-  type, duplicate category values. A property absent from every row is not
-  an error: it reads as all-`undefined` (missing values).
+  type, duplicate category values. A series property absent from every row
+  is not an error: it reads as all-`undefined` (missing values). A category
+  property that matches nothing is reported by the built-in providers'
+  `getError()` instead, which `getDataErrors` defers to.
 
 ## Chart helpers
 

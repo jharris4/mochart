@@ -272,6 +272,16 @@ describe('getDataErrors', () => {
     expect(getDataErrors(config, errored)).toEqual([]);
   });
 
+  // the built-in provider's own getError guard reports this case, and the
+  // chart renders that message directly — getDataErrors stays out of its way
+  it('leaves a wrong-category-property provider to its getError guard', () => {
+    const config = stringConfig();
+    const rows: Array<Record<string, unknown>> = [{ day: 'Jan', sales: 10 }];
+    const provider = new ArrayOfObjectsDataProvider(rows, 'month');
+    expect(provider.getError()).toBe('no category values found for property: month');
+    expect(getDataErrors(config, provider as unknown as DataProvider)).toEqual([]);
+  });
+
   it('flags a category property mismatch between config and provider', () => {
     const config = stringConfig();
     const provider = new ArrayOfObjectsDataProvider(

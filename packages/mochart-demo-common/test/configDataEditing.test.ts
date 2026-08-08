@@ -220,7 +220,15 @@ describe('getConfigDataError', () => {
     expect(getConfigDataError(makeConfig('month'), rows)).toBe(false);
   });
 
-  it('reports the shared data content copy for a category property missing from the data', () => {
+  it('reports the shared data content copy when the data fails validation', () => {
+    // numeric category values against a string-typed category axis
+    const numericRows = [{ month: 1, sales: 1 }, { month: 2, sales: 2 }];
+    expect(getConfigDataError(makeConfig('month'), numericRows)).toBe(demoText.errors.invalidDataContent);
+  });
+
+  // getDataErrors defers this case to the provider's getError guard; the demo
+  // layer folds that back in so the Data tab and chart keep the shared copy
+  it('reports the shared copy for a category property missing from the data', () => {
     expect(getConfigDataError(makeConfig('wrong'), rows)).toBe(demoText.errors.invalidDataContent);
   });
 

@@ -114,3 +114,59 @@ describe('missing properties and categories', () => {
     expect(new ArrayOfObjectsDataProvider(rows, 'month').getSeriesValue('Apr', 0, 'sales')).toBeUndefined();
   });
 });
+
+// Regression: a category property absent from every row collapsed the whole
+// row index onto the "undefined" key — every category silently rendered the
+// last row's values. Both providers now report the mistake through getError.
+describe('wrong category property guard', () => {
+  const rows: Array<Record<string, unknown>> = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
+  const columns: Record<string, readonly unknown[]> = { month: ['Jan', 'Feb'], sales: [10, 20] };
+
+  it('reports no error for a present category property', () => {
+    expect(new ArrayOfObjectsDataProvider(rows, 'month').getError()).toBeUndefined();
+    expect(new ObjectOfArraysDataProvider(columns, 'month').getError()).toBeUndefined();
+  });
+
+  it('reports a category property absent from every row', () => {
+    expect(new ArrayOfObjectsDataProvider(rows, 'category').getError())
+      .toBe('no category values found for property: category');
+  });
+
+  it('reports a missing category column', () => {
+    expect(new ObjectOfArraysDataProvider(columns, 'category').getError())
+      .toBe('no category column found for property: category');
+  });
+
+  it('reports a category column holding only undefined values', () => {
+    const holey: Record<string, readonly unknown[]> = { month: [undefined, undefined], sales: [10, 20] };
+    expect(new ObjectOfArraysDataProvider(holey, 'month').getError())
+      .toBe('no category values found for property: month');
+  });
+
+  it('does not flag empty datasets', () => {
+    expect(new ArrayOfObjectsDataProvider([] as Array<Record<string, unknown>>, 'month').getError()).toBeUndefined();
+    expect(new ObjectOfArraysDataProvider({ month: [], sales: [] }, 'month').getError()).toBeUndefined();
+  });
+
+  // partial gaps are legitimate holey data; flagging them is getDataErrors' job
+  it('does not flag a property present on only some rows', () => {
+    const partial: Array<Record<string, unknown>> = [{ month: 'Jan', sales: 1 }, { sales: 2 }];
+    expect(new ArrayOfObjectsDataProvider(partial, 'month').getError()).toBeUndefined();
+  });
+
+  it('clears the error when a refresh finds the property', () => {
+    const mutableRows: Array<Record<string, unknown>> = [{ sales: 10 }];
+    const rowProvider = new ArrayOfObjectsDataProvider(mutableRows, 'month');
+    expect(rowProvider.getError()).toBe('no category values found for property: month');
+    mutableRows[0] = { month: 'Jan', sales: 10 };
+    rowProvider.refresh();
+    expect(rowProvider.getError()).toBeUndefined();
+
+    const mutableColumns: Record<string, readonly unknown[]> = { sales: [10] };
+    const columnProvider = new ObjectOfArraysDataProvider(mutableColumns, 'month');
+    expect(columnProvider.getError()).toBe('no category column found for property: month');
+    mutableColumns.month = ['Jan'];
+    columnProvider.refresh();
+    expect(columnProvider.getError()).toBeUndefined();
+  });
+});

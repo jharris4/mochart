@@ -12,6 +12,7 @@ export class ArrayOfObjectsDataProvider<
 > implements DataProvider<TRow[TCategoryProperty]> {
   private categoryValues!: TRow[TCategoryProperty][];
   private rowsByCategoryValue!: Record<string, TRow>;
+  private error: string | undefined;
 
   constructor(private readonly data: readonly TRow[], private readonly categoryProperty: TCategoryProperty) {
     this.refresh();
@@ -24,6 +25,14 @@ export class ArrayOfObjectsDataProvider<
     for (const row of this.data) {
       this.rowsByCategoryValue[String(row[this.categoryProperty])] = row;
     }
+    // all-undefined is the wrong-property signature: the index above would silently collapse every row onto one key
+    this.error = this.data.length > 0 && this.categoryValues.every(value => value === undefined)
+      ? 'no category values found for property: ' + this.categoryProperty
+      : undefined;
+  }
+
+  getError(): string | undefined {
+    return this.error;
   }
 
   getCategoryValues(): readonly TRow[TCategoryProperty][] {
@@ -53,6 +62,7 @@ export class ObjectOfArraysDataProvider<
   TCategoryProperty extends keyof TData & string = keyof TData & string
 > implements DataProvider<TData[TCategoryProperty][number]> {
   private categoryValues!: TData[TCategoryProperty];
+  private error: string | undefined;
 
   constructor(private readonly data: TData, private readonly categoryProperty: TCategoryProperty) {
     this.refresh();
@@ -60,7 +70,21 @@ export class ObjectOfArraysDataProvider<
 
   /** Re-capture the category column from the current source object. */
   refresh(): void {
-    this.categoryValues = this.data[this.categoryProperty];
+    const categoryValues = this.data[this.categoryProperty];
+    this.categoryValues = categoryValues;
+    if (!Array.isArray(categoryValues)) {
+      this.error = 'no category column found for property: ' + this.categoryProperty;
+    }
+    else if (categoryValues.length > 0 && categoryValues.every(value => value === undefined)) {
+      this.error = 'no category values found for property: ' + this.categoryProperty;
+    }
+    else {
+      this.error = undefined;
+    }
+  }
+
+  getError(): string | undefined {
+    return this.error;
   }
 
   getCategoryValues(): TData[TCategoryProperty] {

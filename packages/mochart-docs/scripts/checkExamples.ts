@@ -64,8 +64,13 @@ for (const file of exampleFiles) {
   }
   const dataMessages: string[] = [];
   for (const [label, dataset] of datasets) {
-    const provider = new ArrayOfObjectsDataProvider(dataset, categoryProperty(module.config) ?? '') as unknown as DataErrorsProvider;
-    const dataErrors = getDataErrors(mochartConfig, provider);
+    const provider = new ArrayOfObjectsDataProvider(dataset, categoryProperty(module.config) ?? '');
+    // getDataErrors defers to a provider-reported error, so check it explicitly
+    const providerError = provider.getError();
+    if (providerError != null) {
+      dataMessages.push(`${label}: ${providerError}`);
+    }
+    const dataErrors = getDataErrors(mochartConfig, provider as unknown as DataErrorsProvider);
     dataMessages.push(...dataErrors.map(error => `${label}: ${error}`));
   }
   if (dataMessages.length > 0) {
