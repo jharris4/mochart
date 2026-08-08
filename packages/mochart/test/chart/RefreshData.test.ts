@@ -162,6 +162,24 @@ describe('createChart refresh', () => {
     chart.destroy();
   });
 
+  it('tolerates a null provider (loading hosts) across mount, refresh and update', () => {
+    const mochartConfig = mochart.enhanceConfig(config as never);
+    const container = mountContainer();
+    const chart = mochart.createChart(container, {
+      mochartConfig, dataProvider: null as never, loading: true, width: 300, height: 200
+    });
+    runFrames();
+    chart.refresh();
+    runFrames();
+    expect(getCategoryLabels(container)).toEqual([]);
+
+    const data = [{ label: 'a', value: 1 }, { label: 'b', value: 3 }];
+    chart.update({ dataProvider: new mochart.ArrayOfObjectsDataProvider(data, 'label'), loading: false });
+    runFrames();
+    expect(getCategoryLabels(container).sort()).toEqual(['a', 'b']);
+    chart.destroy();
+  });
+
   it('un-snapshots a built-in row provider via its refresh hook', () => {
     const data = [
       { label: 'a', value: 1 },

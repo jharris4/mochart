@@ -63,14 +63,15 @@ function withFreshIdentity(dataProvider: DataProvider): DataProvider {
 export function createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps> {
   // the host's own provider, never a refresh wrapper, so wrappers don't nest
   let hostDataProvider = props.dataProvider;
-  let chartDataProvider = withFreshIdentity(hostDataProvider);
+  // despite the prop type, bindings mount with a null provider for loading/error states
+  let chartDataProvider = hostDataProvider ? withFreshIdentity(hostDataProvider) : hostDataProvider;
   let currentProps = { ...props, dataProvider: chartDataProvider };
   const controller = new ChartController(container, currentProps);
   return {
     update(nextProps: Partial<ManagedChartProps>) {
       if (nextProps.dataProvider !== undefined && nextProps.dataProvider !== hostDataProvider) {
         hostDataProvider = nextProps.dataProvider;
-        chartDataProvider = withFreshIdentity(hostDataProvider);
+        chartDataProvider = hostDataProvider ? withFreshIdentity(hostDataProvider) : hostDataProvider;
       }
       currentProps = { ...currentProps, ...nextProps, dataProvider: chartDataProvider };
       controller.update(currentProps);
@@ -78,14 +79,14 @@ export function createChart(container: Element, props: ManagedChartProps): Chart
     replace(nextProps: ManagedChartProps) {
       if (nextProps.dataProvider !== hostDataProvider) {
         hostDataProvider = nextProps.dataProvider;
-        chartDataProvider = withFreshIdentity(hostDataProvider);
+        chartDataProvider = hostDataProvider ? withFreshIdentity(hostDataProvider) : hostDataProvider;
       }
       currentProps = { ...nextProps, dataProvider: chartDataProvider };
       controller.update(currentProps);
     },
     refresh() {
-      hostDataProvider.refresh?.();
-      chartDataProvider = withFreshIdentity(hostDataProvider);
+      hostDataProvider?.refresh?.();
+      chartDataProvider = hostDataProvider ? withFreshIdentity(hostDataProvider) : hostDataProvider;
       currentProps = { ...currentProps, dataProvider: chartDataProvider };
       controller.update(currentProps);
     },
