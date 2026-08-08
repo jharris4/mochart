@@ -28,11 +28,11 @@ beforeAll(() => {
   }
 });
 
-function rawConfig(): any {
+function rawConfig(categoryProperty = 'name'): any {
   return {
     version: '1.0.0',
     title: { text: 'Test Chart' },
-    categoryAxis: { property: 'name', type: 'string', scale: 'ordinal' },
+    categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
     seriesDefaults: { renderer: 'bar' },
     series: [{ property: 'value', title: 'Value' }],
     animation: { animate: false }
@@ -40,9 +40,9 @@ function rawConfig(): any {
 }
 
 const rows = [
-  { name: 'A', value: 10 },
-  { name: 'B', value: 20 },
-  { name: 'C', value: 30 }
+  { name: 'A', period: 'P1', value: 10 },
+  { name: 'B', period: 'P2', value: 20 },
+  { name: 'C', period: 'P3', value: 30 }
 ];
 
 function host(): { container: HTMLDivElement; root: Root } {
@@ -257,7 +257,7 @@ describe('placeholder components', () => {
 });
 
 describe('DefaultChart', () => {
-  it('enhances a raw config, renders data rows as bars, and updates on data change', () => {
+  it('enhances a raw config and updates data and structural config', () => {
     const { container, root } = host();
 
     act(() => {
@@ -269,10 +269,16 @@ describe('DefaultChart', () => {
 
     act(() => {
       root.render(
-        <DefaultChart config={rawConfig()} data={[...rows, { name: 'D', value: 40 }]} width={400} height={300} />
+        <DefaultChart config={rawConfig()} data={[...rows, { name: 'D', period: 'P4', value: 40 }]} width={400} height={300} />
       );
     });
     expect(container.textContent).toContain('D');
+
+    act(() => {
+      root.render(<DefaultChart config={rawConfig('period')} data={rows} width={400} height={300} />);
+    });
+    expect(container.textContent).toContain('P1');
+    expect(container.textContent).not.toContain('A');
 
     act(() => {
       root.unmount();
@@ -395,7 +401,7 @@ describe('refresh', () => {
     expect(container.textContent).toContain('C');
     expect(container.textContent).not.toContain('D');
 
-    data.push({ name: 'D', value: 40 });
+    data.push({ name: 'D', period: 'P4', value: 40 });
     act(() => { ref.current!.refresh(); });
     expect(container.textContent).toContain('D');
     act(() => root.unmount());

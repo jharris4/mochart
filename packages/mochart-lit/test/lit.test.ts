@@ -19,11 +19,11 @@ beforeAll(() => {
   }
 });
 
-function rawConfig(): any {
+function rawConfig(categoryProperty = 'name'): any {
   return {
     version: '1.0.0',
     title: { text: 'Test Chart' },
-    categoryAxis: { property: 'name', type: 'string', scale: 'ordinal' },
+    categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
     seriesDefaults: { renderer: 'bar' },
     series: [{ property: 'value', title: 'Value' }],
     animation: { animate: false }
@@ -31,9 +31,9 @@ function rawConfig(): any {
 }
 
 const rows = [
-  { name: 'A', value: 10 },
-  { name: 'B', value: 20 },
-  { name: 'C', value: 30 }
+  { name: 'A', period: 'P1', value: 10 },
+  { name: 'B', period: 'P2', value: 20 },
+  { name: 'C', period: 'P3', value: 30 }
 ];
 
 function mountPoint(): HTMLDivElement {
@@ -186,9 +186,9 @@ describe('placeholder templates', () => {
 });
 
 describe('defaultChart', () => {
-  it('enhances a raw config, renders data rows as bars, and updates on data change', async () => {
+  it('enhances a raw config and updates data and structural config', async () => {
     const el = mountPoint();
-    const template = (data: any[]) => html`${defaultChart({ config: rawConfig(), data, width: 400, height: 300 })}`;
+    const template = (data: any[], config = rawConfig()) => html`${defaultChart({ config, data, width: 400, height: 300 })}`;
 
     render(template(rows), el);
     await flushMount();
@@ -197,8 +197,12 @@ describe('defaultChart', () => {
     expect(el.textContent).toContain('Test Chart');
     expect(el.textContent).not.toContain('D');
 
-    render(template([...rows, { name: 'D', value: 40 }]), el);
+    render(template([...rows, { name: 'D', period: 'P4', value: 40 }]), el);
     expect(el.textContent).toContain('D');
+
+    render(template(rows, rawConfig('period')), el);
+    expect(el.textContent).toContain('P1');
+    expect(el.textContent).not.toContain('A');
 
     render(nothing, el);
     expect(el.querySelector('svg')).toBeNull();
@@ -258,7 +262,7 @@ describe('refresh', () => {
     expect(el.textContent).toContain('C');
     expect(el.textContent).not.toContain('D');
 
-    data.push({ name: 'D', value: 40 });
+    data.push({ name: 'D', period: 'P4', value: 40 });
     handle!.refresh();
     expect(el.textContent).toContain('D');
   });

@@ -23,11 +23,11 @@ beforeAll(() => {
   }
 });
 
-function rawConfig(): any {
+function rawConfig(categoryProperty = 'name'): any {
   return {
     version: '1.0.0',
     title: { text: 'Test Chart' },
-    categoryAxis: { property: 'name', type: 'string', scale: 'ordinal' },
+    categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
     seriesDefaults: { renderer: 'bar' },
     series: [{ property: 'value', title: 'Value' }],
     animation: { animate: false }
@@ -35,9 +35,9 @@ function rawConfig(): any {
 }
 
 const rows = [
-  { name: 'A', value: 10 },
-  { name: 'B', value: 20 },
-  { name: 'C', value: 30 }
+  { name: 'A', period: 'P1', value: 10 },
+  { name: 'B', period: 'P2', value: 20 },
+  { name: 'C', period: 'P3', value: 30 }
 ];
 
 function target() {
@@ -175,7 +175,7 @@ describe('placeholder components', () => {
 });
 
 describe('DefaultChart', () => {
-  it('enhances a raw config, renders data rows as bars, and updates on data change', () => {
+  it('enhances a raw config and updates data and structural config', () => {
     const el = target();
     const props = $state({
       config: rawConfig(),
@@ -190,9 +190,15 @@ describe('DefaultChart', () => {
     expect(el.textContent).toContain('Test Chart');
     expect(el.textContent).not.toContain('D');
 
-    props.data = [...rows, { name: 'D', value: 40 }];
+    props.data = [...rows, { name: 'D', period: 'P4', value: 40 }];
     flushSync();
     expect(el.textContent).toContain('D');
+
+    props.config = rawConfig('period');
+    props.data = rows;
+    flushSync();
+    expect(el.textContent).toContain('P1');
+    expect(el.textContent).not.toContain('A');
 
     void unmount(instance);
     flushSync();
@@ -281,7 +287,7 @@ describe('refresh', () => {
     expect(el.textContent).toContain('C');
     expect(el.textContent).not.toContain('D');
 
-    data.push({ name: 'D', value: 40 });
+    data.push({ name: 'D', period: 'P4', value: 40 });
     (component as { refresh(): void }).refresh();
     expect(el.textContent).toContain('D');
     void unmount(component);

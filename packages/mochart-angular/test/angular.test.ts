@@ -33,11 +33,11 @@ beforeEach(() => {
   });
 });
 
-function rawConfig(): any {
+function rawConfig(categoryProperty = 'name'): any {
   return {
     version: '1.0.0',
     title: { text: 'Test Chart' },
-    categoryAxis: { property: 'name', type: 'string', scale: 'ordinal' },
+    categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
     seriesDefaults: { renderer: 'bar' },
     series: [{ property: 'value', title: 'Value' }],
     animation: { animate: false }
@@ -45,9 +45,9 @@ function rawConfig(): any {
 }
 
 const rows = [
-  { name: 'A', value: 10 },
-  { name: 'B', value: 20 },
-  { name: 'C', value: 30 }
+  { name: 'A', period: 'P1', value: 10 },
+  { name: 'B', period: 'P2', value: 20 },
+  { name: 'C', period: 'P3', value: 30 }
 ];
 
 function createWith(component: any, inputs: Record<string, any>) {
@@ -189,7 +189,7 @@ describe('placeholder components', () => {
 });
 
 describe('DefaultChart', () => {
-  it('enhances a raw config, renders data rows as bars, and updates on data change', () => {
+  it('enhances a raw config and updates data and structural config', () => {
     const fixture = createWith(DefaultChart, {
       config: rawConfig(),
       data: rows,
@@ -202,9 +202,15 @@ describe('DefaultChart', () => {
     expect(el.textContent).toContain('Test Chart');
     expect(el.textContent).not.toContain('D');
 
-    fixture.componentRef.setInput('data', [...rows, { name: 'D', value: 40 }]);
+    fixture.componentRef.setInput('data', [...rows, { name: 'D', period: 'P4', value: 40 }]);
     fixture.detectChanges();
     expect(el.textContent).toContain('D');
+
+    fixture.componentRef.setInput('config', rawConfig('period'));
+    fixture.componentRef.setInput('data', rows);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('P1');
+    expect(el.textContent).not.toContain('A');
 
     fixture.destroy();
     expect(el.querySelector('svg')).toBeNull();
@@ -315,7 +321,7 @@ describe('refresh', () => {
     expect(el.textContent).toContain('C');
     expect(el.textContent).not.toContain('D');
 
-    data.push({ name: 'D', value: 40 });
+    data.push({ name: 'D', period: 'P4', value: 40 });
     (fixture.componentInstance as DefaultChart).refresh();
     expect(el.textContent).toContain('D');
   });
