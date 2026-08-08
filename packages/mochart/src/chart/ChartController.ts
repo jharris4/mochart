@@ -119,14 +119,14 @@ export class ChartController {
   private chartProps(): ChartProps {
     const {
       mochartConfig, dataProvider, loading, error, style, width, height,
-      onChartClick, onSliceClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
+      onChartClick, onSliceClick, onSeriesClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent
     } = this.props;
     return { mochartConfig: mochartConfig as EnhancedMochartConfig, dataProvider, loading, error, style, width, height, standalone: true,
       chartData: this.source.chartData, focusData: this.source.focusData,
       initialAnimationPercentage: this.source.initialAnimationPercentage,
       onFocus: this.handleFocus, onSeriesFilter: this.handleSeriesFilter,
-      onChartClick, onSliceClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
+      onChartClick, onSliceClick, onSeriesClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent };
   }
 

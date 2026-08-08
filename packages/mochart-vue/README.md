@@ -116,7 +116,7 @@ function addRow(row) {
 
 ## Props
 
-Both components accept the chart callbacks (`onChartClick`, `onSliceClick`,
+Both components accept the chart callbacks (`onChartClick`, `onSliceClick`, `onSeriesClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
 `onFocus`, `onSeriesFilter`, `onSeriesLayoutBoundsChange` — usable as
 `@chart-click` etc. in templates) and the placeholder components

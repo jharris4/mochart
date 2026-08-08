@@ -181,6 +181,12 @@ const pageSources: PageSource[] = [
         title: 'ChartSliceClickPayload',
         interfaceName: 'ChartSliceClickPayload',
         description: 'Received by `onSliceClick`.'
+      },
+      {
+        id: 'chartSeriesClickPayload',
+        title: 'ChartSeriesClickPayload',
+        interfaceName: 'ChartSeriesClickPayload',
+        description: 'Received by `onSeriesClick`.'
       }
     ]
   }

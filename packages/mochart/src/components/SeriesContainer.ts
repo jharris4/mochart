@@ -22,6 +22,7 @@ interface SeriesContainerProps {
   categoryValueData: CategoryAxisData['valueData'];
   gradientIdMap: Record<string, string>;
   onFocus: (focus: { seriesId?: string | null; categoryIndex?: number | null }) => void;
+  onSeriesShapeClick: ((seriesId: string, categoryIndex: number, event: Event) => void) | null;
   shapeRef: (element: Element | null) => void;
   a11yProps: SeriesShapeA11yProps | null;
 }
@@ -36,7 +37,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, onFocus, shapeRef, a11yProps } = this.props;
+    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
 
     const { categoryAxis: categoryAxisConfig, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
 
@@ -62,7 +63,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
           valueAxisScale: valueAxisData.axisScales[axis!],
           rawValueAxisDomain: rawValueAxisDomains[axis!], rawDomains: rawDomains[id],
           filteredValues: filteredValues[id],
-          gradientIdMap, onFocus, accessibility: accessibilityActive(mochartConfig.accessibility) }
+          gradientIdMap, onFocus, onSeriesShapeClick, accessibility: accessibilityActive(mochartConfig.accessibility) }
       };
     }));
   }

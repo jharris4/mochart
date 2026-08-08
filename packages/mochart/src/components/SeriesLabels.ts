@@ -67,7 +67,7 @@ interface SeriesLabelsProps {
   focusData: FocusData;
   onCategoryEnter: (categoryIndex: number) => void;
   onCategoryLeave: (categoryIndex: number) => void;
-  onCategoryClick: (categoryIndex: number) => void;
+  onCategoryClick: (categoryIndex: number, event: Event) => void;
 }
 
 export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
@@ -246,7 +246,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
               key: 'label-' + i,
               attrs: { className: mochartCssClasses['seriesLabel'] + i, transform: translate(x, y),
                 textAnchor, dy, stroke: labelStrokeColor, fill: labelFillColor, fillOpacity: labelFillOpacity, strokeOpacity: labelStrokeOpacity,
-                strokeWidth: labelStrokeWidth, onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: () => onCategoryClick(i) },
+                strokeWidth: labelStrokeWidth, onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: (event: Event) => onCategoryClick(i, event) },
               text: String(valueFormat(labelValues[skipI]!))
             });
           }

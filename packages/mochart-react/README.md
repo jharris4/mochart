@@ -109,7 +109,7 @@ chartRef.current?.refresh();
 
 ## Props
 
-Both components accept the chart callbacks (`onChartClick`, `onSliceClick`,
+Both components accept the chart callbacks (`onChartClick`, `onSliceClick`, `onSeriesClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
 `onFocus`, `onSeriesFilter`, `onSeriesLayoutBoundsChange`) and the placeholder
 components (`loadingComponent`, `errorComponent`, `noDataComponent`,

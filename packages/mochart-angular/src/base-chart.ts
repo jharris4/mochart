@@ -1,6 +1,6 @@
 import { ApplicationRef, Directive, ElementRef, EnvironmentInjector, EventEmitter, Input, Output, PLATFORM_ID, inject } from '@angular/core';
 import type { AfterViewInit, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import type { Bounds, ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload } from '@mochart/core';
+import type { Bounds, ChartEventPayload, ChartFocus, ChartSeriesClickPayload, ChartSeriesFilter, ChartSliceClickPayload } from '@mochart/core';
 import { mountChartHost } from './host.js';
 import type { CreateChartFn, HostHandle } from './host.js';
 import { createPlaceholderAdapter } from './placeholders.js';
@@ -66,6 +66,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
 
   @Output() chartClick = this.chartOutput<ChartEventPayload>();
   @Output() sliceClick = this.chartOutput<ChartSliceClickPayload>();
+  @Output() seriesClick = this.chartOutput<ChartSeriesClickPayload>();
   @Output() chartMouseEnter = this.chartOutput<ChartEventPayload>();
   @Output() chartMouseMove = this.chartOutput<ChartEventPayload>();
   @Output() chartMouseLeave = this.chartOutput<ChartEventPayload>();
@@ -131,6 +132,7 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
     const callbacks: [EventEmitter<any>, string][] = [
       [this.chartClick, 'onChartClick'],
       [this.sliceClick, 'onSliceClick'],
+      [this.seriesClick, 'onSeriesClick'],
       [this.chartMouseEnter, 'onChartMouseEnter'],
       [this.chartMouseMove, 'onChartMouseMove'],
       [this.chartMouseLeave, 'onChartMouseLeave'],

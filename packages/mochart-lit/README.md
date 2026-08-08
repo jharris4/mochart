@@ -125,7 +125,7 @@ addRow(row: DataRow) {
 
 ## Props
 
-Both directives accept the chart callbacks (`onChartClick`, `onSliceClick`,
+Both directives accept the chart callbacks (`onChartClick`, `onSliceClick`, `onSeriesClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
 `onFocus`, `onSeriesFilter`, `onSeriesLayoutBoundsChange`) and the placeholder
 templates (`loadingTemplate`, `errorTemplate`, `noDataTemplate`,

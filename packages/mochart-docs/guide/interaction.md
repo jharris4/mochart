@@ -99,6 +99,7 @@ createDefaultChart(container, {
   onSeriesFilter: ({ filteredSeriesIds }) => { /* legend filtering changed */ },
   onChartClick: ({ categoryIndex, chartX, chartY }) => { /* plot area clicked */ },
   onSliceClick: ({ seriesId }) => { /* pie slice clicked */ },
+  onSeriesClick: ({ seriesId, categoryIndex }) => { /* bar/point/line clicked */ },
   onTitleClick: () => {}
 });
 ```
@@ -112,6 +113,11 @@ createDefaultChart(container, {
   the nearest category index
 - `onSliceClick(payload)` — a slice of a [pie or donut](/recipes/pie) chart
   was clicked
+- `onSeriesClick(payload)` — a cartesian series shape (bar, marker, label, or
+  line/area path) was clicked; reports the series id, the shape's category
+  index (`-1` for a whole-series path), and the category index nearest the
+  pointer. Fires whether or not the series' `focusOnClick` config is set, and
+  only on click — the cartesian counterpart of `onSliceClick`
 - `onTitleClick()` — the chart title was clicked (see
   [`title.link`](/reference/title#title.link) and
   `linkDisabled`)

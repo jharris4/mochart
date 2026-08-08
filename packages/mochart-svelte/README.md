@@ -110,7 +110,7 @@ config/data, re-indexing the built-in providers:
 
 ## Props
 
-Both components accept the chart callbacks (`onChartClick`, `onSliceClick`,
+Both components accept the chart callbacks (`onChartClick`, `onSliceClick`, `onSeriesClick`,
 `onChartMouseEnter`, `onChartMouseMove`, `onChartMouseLeave`, `onTitleClick`,
 `onFocus`, `onSeriesFilter`, `onSeriesLayoutBoundsChange`) and the placeholder
 components (`loadingComponent`, `errorComponent`, `noDataComponent`,

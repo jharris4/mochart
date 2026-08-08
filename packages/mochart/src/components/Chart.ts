@@ -32,7 +32,7 @@ import RadialGradient from './RadialGradient';
 import { accessibilityActive, translateObject } from '../utils/utils';
 import { getSeriesGradientColors } from '../utils/SeriesColors';
 import { getTooltipAnnouncement } from '../utils/TooltipFormat';
-import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
+import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSeriesClickPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
 import type { LinearGradientConfig, RadialGradientConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type { AxisData, ChartData, DataProvider, StackData } from '../types/data';
@@ -58,6 +58,7 @@ export interface ChartProps {
   onSeriesFilter?: (seriesId: string) => void;
   onChartClick?: (payload: ChartEventPayload) => void;
   onSliceClick?: (payload: ChartSliceClickPayload) => void;
+  onSeriesClick?: (payload: ChartSeriesClickPayload) => void;
   onChartMouseEnter?: (payload: ChartEventPayload) => void;
   onChartMouseMove?: (payload: ChartEventPayload) => void;
   onChartMouseLeave?: (payload: ChartEventPayload) => void;
@@ -855,6 +856,17 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
+  // no in-bounds gate: markers/labels can overflow the plot rect
+  onSeriesShapeClick = (seriesId: string, categoryIndex: number, event: Event): void => {
+    const { onSeriesClick } = this.props;
+    if (onSeriesClick) {
+      const { clientX, clientY } = event as MouseEvent;
+      const chartRect = this.chartRectRef!.getBoundingClientRect();
+      const { categoryIndex: nearestCategoryIndex } = this.getChartEventPayload(clientX - chartRect.left, clientY - chartRect.top);
+      onSeriesClick({ seriesId, categoryIndex, nearestCategoryIndex });
+    }
+  }
+
   /** where keyboard toggling reopens: the last category the tooltip showed */
   lastTooltipCategoryIndex = 0;
 
@@ -1186,7 +1198,9 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         body.plot.set(Plot, { mochartConfig, gradientIdMap, categoryAxisLayoutInfo,
           valueAxisLayoutInfos, seriesLayoutInfo,
           plotLayoutInfo, chartData: chartData!, focusData, axisData: axisData!,
-          stackData: stackData!, categoryValueData, onFocus: onFocus ?? (() => {}), shapeRef: this.setChartRectRef,
+          stackData: stackData!, categoryValueData, onFocus: onFocus ?? (() => {}),
+          onSeriesShapeClick: this.props.onSeriesClick ? this.onSeriesShapeClick : null,
+          shapeRef: this.setChartRectRef,
           a11yProps: plotA11yProps,
           categoryAxisTitleClipPathUniqueId,
           categoryAxisTickLabelClipPathUniqueId,

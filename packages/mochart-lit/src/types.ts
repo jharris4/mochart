@@ -1,5 +1,5 @@
 import type {
-  Bounds, ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload,
+  Bounds, ChartEventPayload, ChartFocus, ChartSeriesClickPayload, ChartSeriesFilter, ChartSliceClickPayload,
   DataProvider, DataRow, MochartConfig, MochartInputConfig
 } from '@mochart/core';
 
@@ -22,6 +22,7 @@ export type PlaceholderTemplate = (props: PlaceholderProps) => unknown;
 export interface ChartCallbackProps {
   onChartClick?: (eventPayload: ChartEventPayload) => void;
   onSliceClick?: (payload: ChartSliceClickPayload) => void;
+  onSeriesClick?: (payload: ChartSeriesClickPayload) => void;
   onChartMouseEnter?: (eventPayload: ChartEventPayload) => void;
   onChartMouseMove?: (eventPayload: ChartEventPayload) => void;
   onChartMouseLeave?: (eventPayload: ChartEventPayload) => void;

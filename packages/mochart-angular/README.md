@@ -127,7 +127,7 @@ when it shouldn't care which chart it gets.
 ## Inputs & outputs
 
 Both components emit the chart callbacks as outputs (`chartClick`,
-`sliceClick`, `chartMouseEnter`, `chartMouseMove`, `chartMouseLeave`,
+`sliceClick`, `seriesClick`, `chartMouseEnter`, `chartMouseMove`, `chartMouseLeave`,
 `titleClick`, `focusChange`, `seriesFilter`, `seriesLayoutBoundsChange` —
 usable as `(chartClick)="..."` etc. in templates; only subscribed outputs
 are wired into the chart) and accept the

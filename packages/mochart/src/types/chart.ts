@@ -86,6 +86,16 @@ export interface ChartSliceClickPayload {
   seriesId: string;
 }
 
+/** A cartesian series shape click, reported by `onSeriesClick`. */
+export interface ChartSeriesClickPayload {
+  /** Id of the clicked shape's series (the leader for follower series). */
+  seriesId: string;
+  /** Index of the clicked bar/marker/label's category; -1 for a whole-series shape (line/area path). */
+  categoryIndex: number;
+  /** Index of the category nearest the pointer, as `onChartClick` reports it; -1 when none. */
+  nearestCategoryIndex: number;
+}
+
 /** Optional interaction callbacks accepted by both chart entry points. */
 export interface ChartCallbacks {
   /** The plot area was clicked. */
@@ -95,6 +105,12 @@ export interface ChartCallbacks {
    * hover also drives), this fires only on click, so it can anchor selection.
    */
   onSliceClick?: (payload: ChartSliceClickPayload) => void;
+  /**
+   * A cartesian series shape (bar, marker, label, line/area path) was
+   * clicked. Fires independently of the `focusOnClick` config, and only on
+   * click, so it can anchor selection.
+   */
+  onSeriesClick?: (payload: ChartSeriesClickPayload) => void;
   /** The pointer entered the plot area. */
   onChartMouseEnter?: (event: ChartEventPayload) => void;
   /** The pointer moved within the plot area. */

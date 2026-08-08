@@ -8,7 +8,7 @@ import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
-import type { ChartEventPayload, ChartFocus, DefaultChartProps } from '../../src/types/chart';
+import type { ChartEventPayload, ChartFocus, ChartSeriesClickPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 
 const VERSION = '1.0.0';
@@ -833,6 +833,78 @@ describe('followSeries follower focus', () => {
 
     wickBar().dispatchEvent(new MouseEvent('click', {}));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
+  });
+});
+
+describe('onSeriesClick', () => {
+  const barSeries = {
+    series: [{ property: 'sales', renderer: 'bar' }, { property: 'costs', renderer: 'bar' }]
+  };
+
+  it('reports a bar click with series id, category index and nearest category, without focusOnClick', () => {
+    const clicks: ChartSeriesClickPayload[] = [];
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig(barSeries), {
+      onSeriesClick: payload => { clicks.push(payload); },
+      onFocus: focus => { focuses.push(focus); }
+    });
+
+    const bar = container.querySelector('.mochart-series-S0 [class*="mochart-series-bar-1"]')!;
+    bar.dispatchEvent(new MouseEvent('click', { clientX: 400, clientY: 100 }));
+    expect(clicks).toEqual([{ seriesId: 'S0', categoryIndex: 1, nearestCategoryIndex: 1 }]);
+    // the callback alone enabled the click handler; no focusOnClick means no focus change
+    expect(focuses.length).toBe(0);
+  });
+
+  it('reports categoryIndex -1 and the nearest category for a line path click', () => {
+    const clicks: ChartSeriesClickPayload[] = [];
+    const container = mountChart(makeConfig(), {
+      onSeriesClick: payload => { clicks.push(payload); }
+    });
+
+    const line = container.querySelector('.mochart-series-S0 path.mochart-series-line')!;
+    line.dispatchEvent(new MouseEvent('click', { clientX: 790, clientY: 100 }));
+    expect(clicks).toEqual([{ seriesId: 'S0', categoryIndex: -1, nearestCategoryIndex: rows.length - 1 }]);
+  });
+
+  it('maps bars of a series with missing values back to raw category indices', () => {
+    const clicks: ChartSeriesClickPayload[] = [];
+    const data = [{ month: 'Jan', sales: 10 }, { month: 'Feb' }, { month: 'Mar', sales: 30 }];
+    const container = mountChart(makeConfig({ series: [{ property: 'sales', renderer: 'bar' }] }), {
+      onSeriesClick: payload => { clicks.push(payload); }
+    }, data);
+
+    const bars = container.querySelectorAll('.mochart-series-S0 [class*="mochart-series-bar-"]');
+    expect(bars.length).toBe(2);
+    bars[bars.length - 1].dispatchEvent(new MouseEvent('click', { clientX: 700, clientY: 100 }));
+    expect(clicks.length).toBe(1);
+    expect(clicks[0].seriesId).toBe('S0');
+    expect(clicks[0].categoryIndex).toBe(2);
+  });
+
+  it('reports the leader series for a follower shape click, alongside focusOnClick', () => {
+    const clicks: ChartSeriesClickPayload[] = [];
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      series: [
+        { id: 'wick', property: 'high', rangeProperty: 'low', renderer: 'bar', barWidthFraction: 0.2,
+          showInLegend: false, followSeries: 'body', focusOnClick: true },
+        { id: 'body', property: 'close', rangeProperty: 'open', renderer: 'bar', focusOnClick: true }
+      ]
+    }), {
+      onSeriesClick: payload => { clicks.push(payload); },
+      onFocus: focus => { focuses.push(focus); }
+    }, [
+      { month: 'Jan', high: 30, low: 5, open: 10, close: 20 },
+      { month: 'Feb', high: 40, low: 12, open: 22, close: 25 }
+    ]);
+
+    const wickBar = container.querySelector('.mochart-series-wick path')!;
+    wickBar.dispatchEvent(new MouseEvent('click', { clientX: 100, clientY: 100 }));
+    expect(clicks.length).toBe(1);
+    expect(clicks[0].seriesId).toBe('body');
+    // the configured focus toggle still fires alongside the report
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('body');
   });
 });
 

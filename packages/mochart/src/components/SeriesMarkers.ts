@@ -39,7 +39,7 @@ interface SeriesMarkersProps {
   focusData: FocusData;
   onCategoryEnter: (categoryIndex: number) => void;
   onCategoryLeave: (categoryIndex: number) => void;
-  onCategoryClick: (categoryIndex: number) => void;
+  onCategoryClick: (categoryIndex: number, event: Event) => void;
 }
 
 export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
@@ -120,7 +120,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
               key: 'marker-' + i,
               attrs: { className: mochartCssClasses['seriesMarker'] + i, d: theSymbol, transform: translate(cx, cy),
                 stroke: markerStrokeColor, fill: markerFillColor, strokeWidth: markerStrokeWidth, strokeDasharray: markerStrokeDashArray, strokeOpacity: markerStrokeOpacity, fillOpacity: markerFillOpacity,
-                onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: () => onCategoryClick(i) }
+                onMouseEnter: () => onCategoryEnter(i), onMouseLeave: () => onCategoryLeave(i), onClick: (event: Event) => onCategoryClick(i, event) }
             });
           }
         }

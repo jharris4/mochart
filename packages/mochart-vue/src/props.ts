@@ -1,6 +1,6 @@
 import type { PropType } from 'vue';
 import type {
-  Bounds, ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload,
+  Bounds, ChartEventPayload, ChartFocus, ChartSeriesClickPayload, ChartSeriesFilter, ChartSliceClickPayload,
   DataProvider, DataRow, MochartConfig, MochartInputConfig
 } from '@mochart/core';
 import type { PlaceholderComponent } from './types.js';
@@ -28,6 +28,7 @@ export const baseChartProps = {
   dataTestId: { type: String, default: undefined },
   onChartClick: callbackProp<ChartEventPayload>(),
   onSliceClick: callbackProp<ChartSliceClickPayload>(),
+  onSeriesClick: callbackProp<ChartSeriesClickPayload>(),
   onChartMouseEnter: callbackProp<ChartEventPayload>(),
   onChartMouseMove: callbackProp<ChartEventPayload>(),
   onChartMouseLeave: callbackProp<ChartEventPayload>(),
