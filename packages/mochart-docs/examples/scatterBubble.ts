@@ -12,6 +12,9 @@ export const config: MochartInputConfig = {
     type: 'number',
     scale: 'linear'
   },
+  chart: {
+    margin: { right: 5 }
+  },
   valueAxes: [{ id: 'VA0', title: 'Latency (ms)' }],
   seriesDefaults: { renderer: 'none' },
   series: [
