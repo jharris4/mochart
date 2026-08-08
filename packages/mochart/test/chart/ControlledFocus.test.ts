@@ -103,6 +103,61 @@ describe('controlled filteredSeriesIds', () => {
   });
 });
 
+describe('synchronous host re-entrancy', () => {
+  // Regression: reconcile fired onSeriesFilter before the new props were
+  // committed, so a host that synchronously re-entered update() from the
+  // callback (the vanilla demo) re-detected the same structural change forever.
+  it('survives a host that re-enters update() from onSeriesFilter on a structural config change', () => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const makeConfig = (categoryProperty: string) => enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: false },
+      categoryAxis: { property: categoryProperty, type: 'string', scale: 'ordinal' },
+      series: [
+        { id: 'sales', property: 'sales', renderer: 'line' },
+        { id: 'costs', property: 'costs', renderer: 'line' }
+      ]
+    });
+    const rows = data.map((row, index) => ({ ...row, week: 'W' + index }));
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+
+    const reported: Record<string, boolean>[] = [];
+    const host = {
+      chart: null as ReturnType<typeof createChart> | null,
+      onSeriesFilter(filter: { filteredSeriesIds: Record<string, boolean> }) {
+        reported.push(filter.filteredSeriesIds);
+        // the demo pattern: clone (new identity) and synchronously push back
+        host.chart!.update({ filteredSeriesIds: { ...filter.filteredSeriesIds } });
+      }
+    };
+    host.chart = createChart(container, {
+      mochartConfig: makeConfig('month'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'month'),
+      width: 300, height: 200,
+      filteredSeriesIds: {},
+      onSeriesFilter: host.onSeriesFilter
+    });
+    runFrames();
+
+    host.chart.update({ filteredSeriesIds: { costs: true } });
+    runFrames();
+    expect(seriesIds(container)).toEqual(['mochart-series-sales']);
+
+    // structural change (new category property) while a series is filtered:
+    // the reset must be reported exactly once, to a host that re-enters
+    host.chart.update({
+      mochartConfig: makeConfig('week'),
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'week'),
+      filteredSeriesIds: {}
+    });
+    runFrames();
+
+    expect(reported).toEqual([{}]);
+    expect(seriesIds(container)).toEqual(['mochart-series-sales', 'mochart-series-costs']);
+  });
+});
+
 describe('controlled focus props', () => {
   it('re-renders focus state from focusedSeriesId and focusedCategoryIndex', () => {
     const { chart, container } = mountChart();

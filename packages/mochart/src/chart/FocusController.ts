@@ -10,9 +10,19 @@ export interface FocusControllerInput {
   dataProvider: DataProvider;
 }
 
-export interface FocusChangeCallbacks {
-  onFocus?: (focus: ChartFocus) => void;
-  onSeriesFilter?: (filter: ChartSeriesFilter) => void;
+/** What a `reconcile` pass changed, for the controller to report after it commits the new props. */
+export interface FocusReconcileResult {
+  focus?: ChartFocus;
+  seriesFilter?: ChartSeriesFilter;
+}
+
+function sameFilteredSeriesIds(a: Record<string, boolean>, b: Record<string, boolean>): boolean {
+  if (a === b) {
+    return true;
+  }
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  return aKeys.length === bKeys.length && aKeys.every(key => a[key] === b[key]);
 }
 
 /** Externally-controlled focus/filter values (undefined = uncontrolled). */
@@ -51,9 +61,10 @@ export class FocusController {
    * Reconcile focus/filter state with a config or data-provider change:
    * a structural config change resets everything, a data change remaps the
    * focused category by value (dropping it when the category disappeared).
-   * Fires the callbacks when anything changed.
+   * Returns what changed; no callbacks fire here, so the caller can commit
+   * its own state first and notify re-entrancy-safely.
    */
-  reconcile(prev: FocusControllerInput, next: FocusControllerInput, callbacks: FocusChangeCallbacks): void {
+  reconcile(prev: FocusControllerInput, next: FocusControllerInput): FocusReconcileResult {
     const { mochartConfig, dataProvider } = next;
     const { mochartConfig: oldMochartConfig, dataProvider: oldDataProvider } = prev;
     const { focusedValueAxisId: oldFocusedValueAxisId, focusedSeriesId: oldFocusedSeriesId,
@@ -82,13 +93,15 @@ export class FocusController {
     }
     const { focusedValueAxisId, focusedSeriesId, focusedCategoryIndex, filteredSeriesIds } = this;
     const focusChanged = focusedValueAxisId !== oldFocusedValueAxisId || focusedSeriesId !== oldFocusedSeriesId || focusedCategoryIndex !== oldFocusedCategoryIndex;
-    const seriesFilterChanged = filteredSeriesIds !== oldFilteredSeriesIds;
+    const result: FocusReconcileResult = {};
     if (focusChanged) {
-      callbacks.onFocus?.(this.focus());
+      result.focus = this.focus();
     }
-    if (seriesFilterChanged) {
-      callbacks.onSeriesFilter?.({ filteredSeriesIds });
+    // by value, not identity: a reset that finds no filters is not a change
+    if (!sameFilteredSeriesIds(filteredSeriesIds, oldFilteredSeriesIds)) {
+      result.seriesFilter = { filteredSeriesIds };
     }
+    return result;
   }
 
   /**

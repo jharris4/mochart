@@ -43,12 +43,17 @@ export class ChartController {
       return;
     }
     const prev = this.props;
-    // reconcile notifies through the callbacks that were in effect when the
-    // change was made, matching the old willReceiveProps ordering
-    this.focus.reconcile(prev, props, prev);
+    const changes = this.focus.reconcile(prev, props);
     this.props = props;
     this.focus.applyExternal(props);
     this.applyInput();
+    // notify after the commit: a host may synchronously update() again from these
+    if (changes.focus) {
+      prev.onFocus?.(changes.focus);
+    }
+    if (changes.seriesFilter) {
+      prev.onSeriesFilter?.(changes.seriesFilter);
+    }
   }
 
   destroy(): void {

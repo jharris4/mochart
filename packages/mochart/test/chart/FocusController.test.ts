@@ -45,10 +45,6 @@ function makeHarness(): Harness {
   const controller = new FocusController();
   const focuses: ChartFocus[] = [];
   const filters: ChartSeriesFilter[] = [];
-  const callbacks = {
-    onFocus: (focus: ChartFocus) => { focuses.push(focus); },
-    onSeriesFilter: (filter: ChartSeriesFilter) => { filters.push(filter); }
-  };
   const harness: Harness = {
     controller,
     input: { mochartConfig: makeConfig(), dataProvider: makeProvider(rows) },
@@ -56,7 +52,13 @@ function makeHarness(): Harness {
     filters,
     reconcileWith(next: Partial<FocusControllerInput>) {
       const nextInput = { ...harness.input, ...next };
-      controller.reconcile(harness.input, nextInput, callbacks);
+      const changes = controller.reconcile(harness.input, nextInput);
+      if (changes.focus) {
+        focuses.push(changes.focus);
+      }
+      if (changes.seriesFilter) {
+        filters.push(changes.seriesFilter);
+      }
       harness.input = nextInput;
     }
   };
@@ -149,6 +151,19 @@ describe('FocusController focus handling', () => {
 
     expect(harness.focuses[harness.focuses.length - 1]).toEqual({ focusedCategoryIndex: -1, focusedValueAxisId: null, focusedSeriesId: null });
     expect(harness.filters[harness.filters.length - 1].filteredSeriesIds).toEqual({});
+  });
+
+  // Regression: filter-change detection was by identity, so a structural reset
+  // with nothing filtered still reported a series-filter "change".
+  it('does not report a series-filter change when a structural reset finds no filters', () => {
+    const harness = makeHarness();
+    harness.controller.applyFocus({ categoryIndex: 1 });
+
+    const structurallyDifferent = makeConfig({ series: [{ property: 'sales' }, { property: 'other' }] });
+    harness.reconcileWith({ mochartConfig: structurallyDifferent });
+
+    expect(harness.focuses.length).toBe(1); // the focus reset still reports
+    expect(harness.filters.length).toBe(0);
   });
 
   it('resets focus when the data provider becomes unavailable', () => {
