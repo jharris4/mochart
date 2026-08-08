@@ -103,8 +103,8 @@ export class AnimatedDataSource implements ChartDataSource {
     const focusChanged = focusCategoryChanged || focusValueAxisChanged || focusSeriesChanged;
     const configValid = mochartConfig && mochartConfig.validation.valid;
     const mochartConfigStructureChanged = configChanged && hasConfigStructureChange(prevInput.mochartConfig, mochartConfig);
-    const followSeriesChanged = hasFollowSeriesChange(prevInput.mochartConfig, mochartConfig);
-    const focusConfigChanged = configChanged && !mochartConfigStructureChanged && focusedSeriesId !== null && followSeriesChanged
+    const focusConfigChanged = configChanged && !mochartConfigStructureChanged && focusedSeriesId !== null &&
+      hasFollowSeriesChange(prevInput.mochartConfig, mochartConfig);
     if (dataProviderValidityChanged || mochartConfigStructureChanged) {
       this.start(input);
     }

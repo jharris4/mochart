@@ -99,8 +99,10 @@ function barRects(container: Element, seriesId: string): BarRect[] {
   });
 }
 
-function barOpacity(container: Element, seriesId: string): string | null {
-  return container.querySelector(`.mochart-series-${seriesId} path`)!.getAttribute('fill-opacity');
+function barOpacity(container: Element, seriesId: string): string {
+  const opacity = container.querySelector(`.mochart-series-${seriesId} path`)!.getAttribute('fill-opacity');
+  expect(opacity, `no fill-opacity on ${seriesId}`).not.toBeNull();
+  return opacity!;
 }
 
 /** The wick segments' inner edges must sit exactly on the body's edges. */
