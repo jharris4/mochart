@@ -145,6 +145,47 @@ describe('FocusController focus handling', () => {
     expect(harness.controller.focusedSeriesId).toBe('S0');
   });
 
+  it('unfilters an ex-follower when its followSeries link is removed in place', () => {
+    const harness = makeHarness();
+    const series = (followers: boolean) => [
+      { id: 'S0', property: 'sales' },
+      { id: 'S1', property: 'other', showInLegend: false, ...(followers ? { followSeries: 'S0' } : {}) }
+    ];
+    harness.reconcileWith({ mochartConfig: makeConfig({ series: series(true) }) }); // structural vs base, resets nothing set
+    harness.controller.toggleSeriesFilter('S0', ['S1']);
+    expect(harness.controller.filteredSeriesIds).toEqual({ S0: true, S1: true });
+
+    harness.reconcileWith({ mochartConfig: makeConfig({ series: series(false) }) }); // followSeries-only change
+    expect(harness.controller.filteredSeriesIds).toEqual({ S0: true });
+    expect(harness.filters[harness.filters.length - 1].filteredSeriesIds).toEqual({ S0: true });
+  });
+
+  it('filters a series that starts following an already-filtered leader', () => {
+    const harness = makeHarness();
+    const series = (followers: boolean) => [
+      { id: 'S0', property: 'sales' },
+      { id: 'S1', property: 'other', ...(followers ? { followSeries: 'S0' } : {}) }
+    ];
+    harness.reconcileWith({ mochartConfig: makeConfig({ series: series(false) }) });
+    harness.controller.toggleSeriesFilter('S0');
+    harness.controller.applyFocus({ seriesId: 'S1' });
+
+    harness.reconcileWith({ mochartConfig: makeConfig({ series: series(true) }) });
+    expect(harness.controller.filteredSeriesIds).toEqual({ S0: true, S1: true });
+    // the new follower was focused; a filtered series cannot stay focused
+    expect(harness.controller.focusedSeriesId).toBe(null);
+    expect(harness.focuses[harness.focuses.length - 1].focusedSeriesId).toBe(null);
+  });
+
+  it('reports no filter change for a non-structural update without a followSeries delta', () => {
+    const harness = makeHarness();
+    harness.controller.toggleSeriesFilter('S0');
+
+    harness.reconcileWith({ mochartConfig: makeConfig() }); // same values, new identity
+    expect(harness.filters.length).toBe(0);
+    expect(harness.controller.filteredSeriesIds).toEqual({ S0: true });
+  });
+
   it('resets focus and filters when the config structure changes', () => {
     const harness = makeHarness();
     harness.controller.applyFocus({ categoryIndex: 1, seriesId: 'S0' });
