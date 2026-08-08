@@ -1,3 +1,5 @@
+import { scaleLinear } from 'd3-scale';
+
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
@@ -64,19 +66,16 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
         markerSizes = [];
         const markerValues = filteredValues.marker!;
         const markerDomain = rawDomains.marker;
-        // TODO - should use a linear scale here...
-        const markerMin = markerDomain[0]!;
-        const markerMax = markerDomain[1]!;
-        const markerExtent = Math.max(1, (markerMax - markerMin));
-        const markerSizeExtent = markerSize - markerMinSize;
+        const markerSizeScale = scaleLinear()
+          .domain([markerDomain[0]!, markerDomain[1]!])
+          .range([markerMinSize, markerSize])
+          .clamp(true);
         // Raw-indexed: marker values can be missing in a different pattern than
         // the main values, so this must not follow the position compaction.
         const count = markerValues.length;
         for (let m = 0; m < count; m++) {
           const markerValue = markerValues[m];
-          markerSizes.push(markerValue !== undefined
-            ? markerMinSize + (markerValue - markerMin) / markerExtent * markerSizeExtent
-            : undefined);
+          markerSizes.push(markerValue !== undefined ? markerSizeScale(markerValue) : undefined);
         }
       }
 
