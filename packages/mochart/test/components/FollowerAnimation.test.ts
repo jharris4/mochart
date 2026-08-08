@@ -99,6 +99,10 @@ function barRects(container: Element, seriesId: string): BarRect[] {
   });
 }
 
+function barOpacity(container: Element, seriesId: string): string | null {
+  return container.querySelector(`.mochart-series-${seriesId} path`)!.getAttribute('fill-opacity');
+}
+
 /** The wick segments' inner edges must sit exactly on the body's edges. */
 function expectSegmentsGluedToBody(container: Element, frameLabel: string) {
   const [body] = barRects(container, 'up');
@@ -109,6 +113,44 @@ function expectSegmentsGluedToBody(container: Element, frameLabel: string) {
 }
 
 describe('followSeries animation sync (hollow candlestick)', () => {
+  it('recomputes follower focus when followSeries changes in place', () => {
+    const makeConfig = (followLeader: boolean) => mochart.enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: true, focusDuration: 64 },
+      categoryAxis: { property: 'label', type: 'string', scale: 'ordinal' },
+      series: [
+        { id: 'companion', property: 'high', renderer: 'bar', showInLegend: false,
+          ...(followLeader ? { followSeries: 'leader' } : {}) },
+        { id: 'leader', property: 'close', renderer: 'bar' },
+        { id: 'other', property: 'open', renderer: 'bar' }
+      ]
+    } as never);
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const chart = mochart.createChart(container, {
+      mochartConfig: makeConfig(false),
+      dataProvider: new mochart.ArrayOfObjectsDataProvider(ITEMS, 'label') as never,
+      focusedSeriesId: 'leader',
+      width: WIDTH,
+      height: HEIGHT
+    });
+    runFrames();
+
+    expect(barOpacity(container, 'companion')).toBe(barOpacity(container, 'other'));
+    expect(Number(barOpacity(container, 'companion'))).toBeLessThan(Number(barOpacity(container, 'leader')));
+
+    chart.update({ mochartConfig: makeConfig(true) });
+    runFrames();
+    expect(barOpacity(container, 'companion')).toBe(barOpacity(container, 'leader'));
+
+    chart.update({ mochartConfig: makeConfig(false) });
+    runFrames();
+    expect(barOpacity(container, 'companion')).toBe(barOpacity(container, 'other'));
+    expect(Number(barOpacity(container, 'companion'))).toBeLessThan(Number(barOpacity(container, 'leader')));
+
+    chart.destroy();
+  });
+
   it('keeps the wick segments glued to the body through a filtering animation', () => {
     const { container, chart } = mountHollowCandlestick(ITEMS);
     runFrames();

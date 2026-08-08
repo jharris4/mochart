@@ -10,7 +10,13 @@ import { getChartTweenManager, dataTweenValueStart, dataTweenValueUpdate, dataTw
 import type { ChartTweenManager, DataTweenEvent } from '../animation/ChartTweens';
 import type { ChartData } from '../types/data';
 import type { ChartAnimationData, FocusData } from '../types/animation';
+import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { ChartDataSource, ChartDataSourceInput, InternalFocus } from './ChartDataSource';
+
+function hasFollowSeriesChange(previous: EnhancedMochartConfig, next: EnhancedMochartConfig): boolean {
+  return next.series.some((seriesConfig, seriesIndex) =>
+    seriesConfig.followSeries !== previous.series[seriesIndex]?.followSeries);
+}
 
 /**
  * The animation pipeline (was AnimatedChart): owns the tween manager, drives
@@ -97,6 +103,8 @@ export class AnimatedDataSource implements ChartDataSource {
     const focusChanged = focusCategoryChanged || focusValueAxisChanged || focusSeriesChanged;
     const configValid = mochartConfig && mochartConfig.validation.valid;
     const mochartConfigStructureChanged = configChanged && hasConfigStructureChange(prevInput.mochartConfig, mochartConfig);
+    const followSeriesChanged = hasFollowSeriesChange(prevInput.mochartConfig, mochartConfig);
+    const focusConfigChanged = configChanged && !mochartConfigStructureChanged && focusedSeriesId !== null && followSeriesChanged
     if (dataProviderValidityChanged || mochartConfigStructureChanged) {
       this.start(input);
     }
@@ -112,13 +120,13 @@ export class AnimatedDataSource implements ChartDataSource {
       }
 
       if (this.chartData === null) {
-        if (focusChanged) {
+        if (focusChanged || focusConfigChanged) {
           // no frame has landed yet, so there is nothing to animate from: snap
           // focus against the tween's target data, exactly like start() does
           this.focusData = getFocusData(mochartConfig, this.targetChartData!, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId);
         }
       }
-      else if (focusChanged || categoriesChanged) {
+      else if (focusChanged || categoriesChanged || focusConfigChanged) {
         // The category target always derives from the input, mapped into the
         // tween's index space while a data tween is in flight. Series/axis-only
         // changes must not read it from this.focusData: a focus tween starts
