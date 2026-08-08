@@ -77,6 +77,12 @@ series draws no shape, and only its markers remain.
   [`markerMinSize`](/reference/series#series.markerMinSize) and
   [`markerSize`](/reference/series#series.markerSize) with the
   property's value.
+- [`markerSizeScale`](/reference/series#series.markerSizeScale) picks how
+  they scale: the default `sqrt` scales each marker's **area** with its
+  value — the way readers judge bubble magnitude — while `linear` scales
+  its diameter, which visually exaggerates differences. The `markerMinSize`
+  floor keeps the smallest bubble visible (and hoverable); for exactly
+  value-proportional areas, set it to `0` on data whose minimum is `0`.
 - Every series reads its x from the row's category value, so series share x
   positions. For series with points at different x values, give each x its
   own row and leave the other series' properties out — a row draws a marker

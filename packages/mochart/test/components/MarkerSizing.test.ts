@@ -1,7 +1,8 @@
 /**
- * markerProperty size interpolation: sizes come from a clamped linear scale
- * over the marker value domain, so fractional-extent domains span the full
- * configured size range and constant marker values land mid-range.
+ * markerProperty size interpolation: sizes come from a clamped scale over the
+ * marker value domain — sqrt by default (marker area tracks the value),
+ * linear opt-in via markerSizeScale — so fractional-extent domains span the
+ * full configured size range and constant marker values land mid-range.
  */
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
@@ -21,7 +22,7 @@ function markerPath(size: number): string {
   return getSymbolGenerator(size, 'circle')()!;
 }
 
-function mountChart(data: readonly unknown[]): Element {
+function mountChart(data: readonly unknown[], seriesOverrides: Record<string, unknown> = {}): Element {
   const config = {
     version: VERSION,
     animation: { animate: false },
@@ -29,7 +30,8 @@ function mountChart(data: readonly unknown[]): Element {
     categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
     series: [{
       property: 'sales', renderer: 'line', markerShape: 'circle',
-      markerProperty: 'size', markerSize: MARKER_SIZE, markerMinSize: MARKER_MIN_SIZE
+      markerProperty: 'size', markerSize: MARKER_SIZE, markerMinSize: MARKER_MIN_SIZE,
+      ...seriesOverrides
     }]
   } as unknown as MochartInputConfig;
   const container = document.createElement('div');
@@ -58,12 +60,25 @@ afterEach(() => {
 });
 
 describe('markerProperty size scale', () => {
-  it('spans the full size range when the marker domain extent is fractional', () => {
+  it('defaults to sqrt: marker diameter follows the square root of the value', () => {
+    const container = mountChart([
+      { month: 'Jan', sales: 10, size: 0 },
+      { month: 'Feb', sales: 20, size: 0.25 },
+      { month: 'Mar', sales: 30, size: 1 }
+    ]);
+
+    // sqrt(0.25) = 0.5 of the domain, so the middle marker sits mid-range
+    expect(renderedMarkerPaths(container)).toEqual([
+      markerPath(MARKER_MIN_SIZE), markerPath(8), markerPath(MARKER_SIZE)
+    ]);
+  });
+
+  it('spans the full size range when a linear domain extent is fractional', () => {
     const container = mountChart([
       { month: 'Jan', sales: 10, size: 0 },
       { month: 'Feb', sales: 20, size: 0.25 },
       { month: 'Mar', sales: 30, size: 0.5 }
-    ]);
+    ], { markerSizeScale: 'linear' });
 
     expect(renderedMarkerPaths(container)).toEqual([
       markerPath(MARKER_MIN_SIZE), markerPath(8), markerPath(MARKER_SIZE)

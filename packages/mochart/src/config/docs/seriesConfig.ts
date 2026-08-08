@@ -112,6 +112,7 @@ export default function getDescriptions() {
     markerMinSize: 'the minimum marker size (in pixels) to use when interpolating the marker size based on a marker property value',
     missingValueMarkers: 'whether to still show a marker at missing values (most useful with missingValues "base", which gives the marker a position)',
     markerSize: 'the maximum marker size (in pixels) to use when interpolating the marker size based on a marker property value, or the marker size when no marker property is used',
+    markerSizeScale: 'the scale used to interpolate marker sizes from marker property values ("sqrt" scales the marker area with the value, "linear" scales its diameter)',
     showInLegend: 'whether to show the series in the legend',
     showInTooltip: 'whether to show the series in the tooltip',
     showColorInLegend: 'whether to show the series color as an icon next to the series title in the legend',

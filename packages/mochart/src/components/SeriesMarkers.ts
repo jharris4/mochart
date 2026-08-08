@@ -1,9 +1,9 @@
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scaleSqrt } from 'd3-scale';
 
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import { NONE } from '../config/core/constants';
+import { NONE, MARKER_SIZE_SCALE_SQRT } from '../config/core/constants';
 import { translate } from '../utils/utils';
 import { getSymbolGenerator } from '../utils/shapeUtils';
 import { getSeriesMarkerFillColor, getSeriesMarkerStrokeColor } from '../utils/SeriesColors';
@@ -58,7 +58,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
       const { categoryFocusPercentages, valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
       const seriesFocusPercentage = getSeriesFocusPercentage(seriesConfig, valueAxisFocusPercentages, seriesFocusPercentages);
       let markerFillColor, markerStrokeColor, markerStrokeOpacity, markerFillOpacity, markerStrokeWidth;
-      const { markerShape, missingValueMarkers, markerSize, markerMinSize } = seriesConfig;
+      const { markerShape, missingValueMarkers, markerSize, markerMinSize, markerSizeScale } = seriesConfig;
       const { normal: markerNormal, focused: markerFocused, defocused: markerDefocused } = seriesConfig.markerStyle;
       const markers: MarkerItem[] = [];
       let markerSizes: Array<number | undefined> | null = null;
@@ -66,7 +66,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
         markerSizes = [];
         const markerValues = filteredValues.marker!;
         const markerDomain = rawDomains.marker;
-        const markerSizeScale = scaleLinear()
+        const sizeScale = (markerSizeScale === MARKER_SIZE_SCALE_SQRT ? scaleSqrt() : scaleLinear())
           .domain([markerDomain[0]!, markerDomain[1]!])
           .range([markerMinSize, markerSize])
           .clamp(true);
@@ -75,7 +75,7 @@ export default class SeriesMarkers extends Renderer<SeriesMarkersProps> {
         const count = markerValues.length;
         for (let m = 0; m < count; m++) {
           const markerValue = markerValues[m];
-          markerSizes.push(markerValue !== undefined ? markerSizeScale(markerValue) : undefined);
+          markerSizes.push(markerValue !== undefined ? sizeScale(markerValue) : undefined);
         }
       }
 

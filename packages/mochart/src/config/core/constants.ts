@@ -177,6 +177,11 @@ export const MARKER_SHAPES = [
   MARKER_SHAPE_CIRCLE, MARKER_SHAPE_CROSS, MARKER_SHAPE_DIAMOND, MARKER_SHAPE_SQUARE,
   MARKER_SHAPE_STAR, MARKER_SHAPE_TRIANGLE, MARKER_SHAPE_WYE
 ];
+
+export const MARKER_SIZE_SCALE_SQRT = 'sqrt';
+export const MARKER_SIZE_SCALE_LINEAR = 'linear';
+
+export const MARKER_SIZE_SCALES = [MARKER_SIZE_SCALE_SQRT, MARKER_SIZE_SCALE_LINEAR];
 // Literal union types derived from the constant values above.
 export type Auto = typeof AUTO;
 
@@ -208,3 +213,4 @@ export type ColorInterpolation =
 export type MarkerShape =
   typeof MARKER_SHAPE_CIRCLE | typeof MARKER_SHAPE_CROSS | typeof MARKER_SHAPE_DIAMOND | typeof MARKER_SHAPE_SQUARE |
   typeof MARKER_SHAPE_STAR | typeof MARKER_SHAPE_TRIANGLE | typeof MARKER_SHAPE_WYE;
+export type MarkerSizeScale = typeof MARKER_SIZE_SCALE_SQRT | typeof MARKER_SIZE_SCALE_LINEAR;

@@ -1,5 +1,5 @@
 import {
-  AUTO, NONE, RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE, MARKER_SHAPE_CIRCLE, CURVE_TYPE_LINEAR,
+  AUTO, NONE, RENDERER_AREA, RENDERER_BAR, RENDERER_LINE, RENDERER_NONE, MARKER_SHAPE_CIRCLE, MARKER_SIZE_SCALE_SQRT, CURVE_TYPE_LINEAR,
   COLOR_SAME, COLOR_SERIES, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, COLOR_CURRENT, LABEL_POSITION_CENTER,
   COLOR_INTERPOLATION_HCL, MISSING_VALUES_BREAK
 } from '../core/constants';
@@ -99,6 +99,7 @@ export function getRegularDefaults() {
     markerMinSize: 1,
     missingValueMarkers: false,
     markerSize: 6,
+    markerSizeScale: MARKER_SIZE_SCALE_SQRT,
     markerStyle: {
       normal: { strokeColor: COLOR_SERIES, strokeOpacity: 0.9, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_SERIES, fillOpacity: 0.9 },
       focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 3, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },

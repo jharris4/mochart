@@ -1,6 +1,6 @@
 import type {
   Auto, Align, AxisSide, MissingValues, VerticalAlign, Anchor, Position, Scale, DataType, RendererType, ThresholdTitleSide,
-  CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape,
+  CurveType, CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale,
   ChartType, PieLabelType, PieTooltipLabelType
 } from '../config/core/constants';
 import type { MarginPadding, InnerOuter } from './geometry';
@@ -2610,6 +2610,14 @@ export interface SeriesConfig {
    * @default 6
    */
   markerSize: number;
+  /**
+   * The scale used to interpolate marker sizes from marker property values
+   * ("sqrt" scales the marker area with the value, "linear" scales its
+   * diameter).
+   *
+   * @default "sqrt"
+   */
+  markerSizeScale: MarkerSizeScale;
   /**
    * The shape to use when drawing the series marker (circle, cross, diamond,
    * square, star, triangle, wye) (use null for none).

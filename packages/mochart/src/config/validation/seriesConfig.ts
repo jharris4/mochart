@@ -1,7 +1,7 @@
 import validators from './validators';
 
 import {
-  AUTO, NONE, RENDERERS, CURVE_TYPES, CAP_TYPES, LABEL_POSITIONS, COLOR_INTERPOLATIONS, MARKER_SHAPES,
+  AUTO, NONE, RENDERERS, CURVE_TYPES, CAP_TYPES, LABEL_POSITIONS, COLOR_INTERPOLATIONS, MARKER_SHAPES, MARKER_SIZE_SCALES,
   COLOR_SERIES, COLOR_SAME, COLOR_SERIES_INDEX, COLOR_CATEGORY_INDEX, MISSING_VALUES
 } from '../core/constants';
 import type { DeepPartial, SeriesConfig } from '../../types/config';
@@ -181,6 +181,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     markerMinSize: validators.numberMin(0),
     missingValueMarkers: validators.boolean(),
     markerSize: validators.numberMin(0),
+    markerSizeScale: validators.oneOf(MARKER_SIZE_SCALES),
     markerStyle: styleStates(styleMembers, true),
     showInLegend: validators.boolean(),
     showInTooltip: validators.boolean(),
