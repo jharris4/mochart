@@ -16,7 +16,7 @@ import * as basic from '../examples/basic'
 ## Install
 
 ```sh
-npm install @mochart/export
+npm install @mochart/export @mochart/core
 ```
 
 The package is framework-free, like the core library — the same functions

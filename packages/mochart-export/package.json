@@ -34,7 +34,10 @@
     "src",
     "dist"
   ],
-  "dependencies": {
+  "peerDependencies": {
+    "@mochart/core": "^1.0.0"
+  },
+  "devDependencies": {
     "@mochart/core": "^1.0.0"
   },
   "scripts": {

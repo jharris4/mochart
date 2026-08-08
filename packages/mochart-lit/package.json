@@ -35,13 +35,12 @@
     "src",
     "dist"
   ],
-  "dependencies": {
-    "@mochart/core": "^1.0.0"
-  },
   "peerDependencies": {
+    "@mochart/core": "^1.0.0",
     "lit-html": "^3.0.0"
   },
   "devDependencies": {
+    "@mochart/core": "^1.0.0",
     "lit-html": "^3.3.0"
   },
   "scripts": {

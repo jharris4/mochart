@@ -9,7 +9,7 @@ needed.
 ## Install
 
 ```sh
-npm install @mochart/angular @angular/core
+npm install @mochart/angular @mochart/core @angular/core
 ```
 
 ## The optional stylesheet

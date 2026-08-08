@@ -12,7 +12,7 @@ needed.
 ## Install
 
 ```sh
-npm install @mochart/lit lit-html
+npm install @mochart/lit @mochart/core lit-html
 ```
 
 ## The optional stylesheet

@@ -9,7 +9,7 @@ needed.
 ## Install
 
 ```sh
-npm install @mochart/react react react-dom
+npm install @mochart/react @mochart/core react react-dom
 ```
 
 ## The optional stylesheet

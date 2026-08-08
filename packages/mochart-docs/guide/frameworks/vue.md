@@ -9,7 +9,7 @@ needed.
 ## Install
 
 ```sh
-npm install @mochart/vue vue
+npm install @mochart/vue @mochart/core vue
 ```
 
 ## The optional stylesheet

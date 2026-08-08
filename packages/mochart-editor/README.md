@@ -3,6 +3,15 @@
 A framework-neutral, strict JSON editor with optional Mochart config intelligence.
 It powers the JSON editing tabs in the Mochart demos.
 
+## Install
+
+```sh
+npm install @mochart/editor @mochart/core
+```
+
+`@mochart/core` is a peer dependency: the config diagnostics run against your
+app's copy of the library, so they always agree with the chart you render.
+
 ```ts
 import { createJsonEditor, createMochartConfigSupport } from '@mochart/editor';
 import '@mochart/editor/editor.css';

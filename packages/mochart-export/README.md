@@ -14,7 +14,7 @@ tiled into a single image — see
 ## Install
 
 ```sh
-npm install @mochart/export
+npm install @mochart/export @mochart/core
 ```
 
 ## Usage

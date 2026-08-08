@@ -11,7 +11,7 @@ like the core library, and powers the JSON editing tabs in every
 ## Install
 
 ```sh
-npm install @mochart/editor
+npm install @mochart/editor @mochart/core
 ```
 
 The bundled stylesheet ships as a subpath export:

@@ -34,14 +34,13 @@
     "src",
     "dist"
   ],
-  "dependencies": {
-    "@mochart/core": "^1.0.0"
-  },
   "peerDependencies": {
-    "@angular/core": "^22.0.0"
+    "@angular/core": "^22.0.0",
+    "@mochart/core": "^1.0.0"
   },
   "devDependencies": {
     "@angular/compiler": "^22.0.7",
+    "@mochart/core": "^1.0.0",
     "@angular/compiler-cli": "^22.0.7",
     "@angular/core": "^22.0.7",
     "@angular/platform-browser": "^22.0.7",
