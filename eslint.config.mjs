@@ -141,11 +141,11 @@ export default tseslint.config(
       // The two genuine hits were the documented "latest value" and
       // "derive-from-prop-change" patterns, both sanctioned by the React docs.
       'react-hooks/refs': 'off',
-      // OFF for now, but unlike `refs` these 5 are worth revisiting. They are
-      // real "reset state when a prop/tab changes" effects — the pattern React
-      // would rather see done during render. Rewriting them is a behavioural
-      // refactor of components the screenshot gate pins, so it belongs in its
-      // own pass, not in a lint rollout.
+      // OFF for now, but unlike `refs` these 5 findings are worth revisiting.
+      // They are real "reset state when a prop/tab changes" effects — the
+      // pattern React would rather see done during render. Rewriting them is a
+      // behavioural refactor of components the screenshot gate pins, so it
+      // belongs in its own pass, not in a lint rollout.
       'react-hooks/set-state-in-effect': 'off'
     }
   },
