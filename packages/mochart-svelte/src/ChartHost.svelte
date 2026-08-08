@@ -12,7 +12,7 @@
     [key: string]: any;
   };
 
-  let { create, class: className = undefined, style = undefined, ...chartProps }: ChartHostProps = $props();
+  let { create, class: className = undefined, style = undefined, dataTestId = undefined, ...chartProps }: ChartHostProps = $props();
 
   let container: HTMLDivElement;
   let host: HostHandle | null = null;
@@ -57,6 +57,7 @@
   bind:this={container}
   class={className}
   {style}
+  data-testid={dataTestId}
   style:width={typeof chartProps.width === 'number' ? `${chartProps.width}px` : undefined}
   style:height={typeof chartProps.height === 'number' ? `${chartProps.height}px` : undefined}
 ></div>

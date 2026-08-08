@@ -5,7 +5,7 @@ import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
 import { resolveLegendIconSize } from '../layout/LegendLayout';
 import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
-import { translate, translateObject, centerTextY } from '../utils/utils';
+import { accessibilityActive, translate, translateObject, centerTextY } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
 import { getSeriesTitle } from '../utils/SeriesTitle';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
@@ -166,7 +166,8 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
 
       const clipPath = truncationEnabled ? getClipPathReference(legendClipPathUniqueId) : null;
 
-      const { enabled: accessibility, legendLabel } = mochartConfig.accessibility;
+      const accessibility = accessibilityActive(mochartConfig.accessibility);
+      const { legendLabel } = mochartConfig.accessibility;
       const itemIsInteractive = (seriesConfig: EnhancedSeriesConfig): boolean =>
         accessibility && ((legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick);
       const interactiveIds = seriesConfigs

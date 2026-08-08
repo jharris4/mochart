@@ -52,6 +52,8 @@ export interface BaseChartProps extends ChartCallbackProps {
   width?: number;
   /** Explicit pixel height; omit to track the container element's height. */
   height?: number;
+  /** `data-testid` attribute applied to the container div, for test selectors. */
+  dataTestId?: string;
   loading?: boolean;
   error?: unknown;
   /**

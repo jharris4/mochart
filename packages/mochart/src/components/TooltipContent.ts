@@ -6,6 +6,7 @@ import { getSeriesText } from '../utils/TooltipFormat';
 import type { PieTooltipValues } from '../utils/TooltipFormat';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
+import { accessibilityActive } from '../utils/utils';
 import { getPieSliceFractionMap } from '../data/PieData';
 import { getPieTooltipPercentFormat, pieLabelTypeUsesPercent } from '../data/PieLabel';
 import { NONE, CHART_TYPE_PIE } from '../config/core/constants';
@@ -460,7 +461,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         getPieSliceFractionMap(seriesConfigs, seriesId => filtered.values[seriesId]?.plain) : rawFractions;
     }
 
-    const accessibility = mochartConfig.accessibility.enabled;
+    const accessibility = accessibilityActive(mochartConfig.accessibility);
     // a row is a tab stop only when clicking it would do something (the same
     // conditions the click handlers apply), and only on the shown copy — the
     // hidden sizer copy must not carry tab stops

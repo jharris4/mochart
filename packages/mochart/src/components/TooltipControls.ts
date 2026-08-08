@@ -118,16 +118,18 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['tooltipControls'], style: controlsStyle, onClick: this.onControlsClick });
       this.prevContainer.set({ style: containerStyle });
+      // native buttons are tab stops by default; a decorative-hidden chart must not have any
+      const buttonTabindex = accessibilityConfig.hidden ? '-1' : null;
       this.prevButton.set({ type: 'button', style: prevDisabled ? disabledButtonStyle : buttonStyle,
         title: accessibilityConfig.tooltipPreviousLabel, 'aria-label': accessibilityConfig.tooltipPreviousLabel,
-        'aria-disabled': prevDisabled ? 'true' : null, onClick: this.onCategoryPrevClick });
+        'aria-disabled': prevDisabled ? 'true' : null, tabindex: buttonTabindex, onClick: this.onCategoryPrevClick });
       this.modeContainer.set({ style: modeContainerStyle });
-      this.modeButton.set({ type: 'button', style: buttonStyle, onClick: this.onTooltipModeClick });
+      this.modeButton.set({ type: 'button', style: buttonStyle, tabindex: buttonTabindex, onClick: this.onTooltipModeClick });
       this.modeText.set(mode === MODE_FILTER ? tooltipConfig.filterModeText : tooltipConfig.focusModeText);
       this.nextContainer.set({ style: containerStyle });
       this.nextButton.set({ type: 'button', style: nextDisabled ? disabledButtonStyle : buttonStyle,
         title: accessibilityConfig.tooltipNextLabel, 'aria-label': accessibilityConfig.tooltipNextLabel,
-        'aria-disabled': nextDisabled ? 'true' : null, onClick: this.onCategoryNextClick });
+        'aria-disabled': nextDisabled ? 'true' : null, tabindex: buttonTabindex, onClick: this.onCategoryNextClick });
     }
     else {
       this.setPresent(false);

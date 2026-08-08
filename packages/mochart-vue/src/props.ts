@@ -24,6 +24,8 @@ export const baseChartProps = {
   width: { type: Number, default: undefined },
   /** Explicit pixel height; omit to track the container element's height. */
   height: { type: Number, default: undefined },
+  /** `data-testid` attribute applied to the container div, for test selectors. */
+  dataTestId: { type: String, default: undefined },
   onChartClick: callbackProp<ChartEventPayload>(),
   onSliceClick: callbackProp<ChartSliceClickPayload>(),
   onChartMouseEnter: callbackProp<ChartEventPayload>(),

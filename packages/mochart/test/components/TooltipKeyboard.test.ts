@@ -130,6 +130,16 @@ describe('tooltip row keyboard semantics', () => {
     expect(disabled.querySelectorAll('.mochart-tooltip [tabindex], .mochart-tooltip [role="button"]').length).toBe(0);
   });
 
+  it('takes the control buttons out of the tab order on a decorative-hidden chart', () => {
+    const container = mountChart(makeConfig({ showControls: true }, { accessibility: { hidden: true } }));
+    openTooltip(container);
+    const buttons = Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip button'));
+    expect(buttons.length).toBeGreaterThan(0);
+    for (const button of buttons) {
+      expect(button.getAttribute('tabindex')).toBe('-1');
+    }
+  });
+
   it('makes series rows interactive through filterSeriesOnClick without the controls', () => {
     const container = mountChart(makeConfig({ filterSeriesOnClick: true }));
     openTooltip(container);

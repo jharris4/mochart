@@ -278,6 +278,30 @@ describe('removed props', () => {
   });
 });
 
+describe('dataTestId', () => {
+  it('applies and removes data-testid on the container div', () => {
+    const el = target();
+    const props = $state({
+      mochartConfig: enhanceConfig(rawConfig()),
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      width: 400,
+      height: 300,
+      dataTestId: 'revenue-chart' as string | undefined
+    });
+    const instance = mount(Chart, { target: el, props });
+    flushSync();
+    const containerDiv = el.firstElementChild as HTMLDivElement;
+    expect(containerDiv.getAttribute('data-testid')).toBe('revenue-chart');
+
+    props.dataTestId = undefined;
+    flushSync();
+    expect(containerDiv.getAttribute('data-testid')).toBeNull();
+
+    void unmount(instance);
+    el.remove();
+  });
+});
+
 describe('refresh', () => {
   it('re-reads in-place data mutations through the instance method', () => {
     const el = target();

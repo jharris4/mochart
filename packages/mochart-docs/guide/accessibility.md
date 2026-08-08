@@ -158,6 +158,17 @@ when the host page provides its own accessible alternative to the chart.
 Pointer interactions are unaffected, and `respectReducedMotion` is
 deliberately not gated by this switch.
 
+## Decorative charts
+
+`enabled: false` still leaves the chart's text content (title, axis and data
+labels) exposed to screen readers. For a chart that is *purely decorative* —
+say a sparkline repeating a value already shown as text — set
+[`accessibility.hidden`](/reference/accessibility#accessibility.hidden) to
+`true` instead. The chart's container is marked `aria-hidden` so assistive
+tech skips it entirely, and every keyboard tab stop is removed with it, so
+keyboard users cannot land on content screen readers cannot see. Only do
+this when the surrounding page already conveys what the chart shows.
+
 ## Exports
 
 A downloaded SVG is a static image, so [exporting](/guide/export) removes

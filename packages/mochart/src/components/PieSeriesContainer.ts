@@ -5,6 +5,7 @@ import { getPieSliceAngles, sweepPieSliceAngles } from '../data/PieData';
 import type { PieSliceAngles } from '../data/PieData';
 import { getRadialLayoutInfo } from '../layout/RadialLayout';
 import { mochartCssClasses } from '../utils/ChartDom';
+import { accessibilityActive } from '../utils/utils';
 
 import SeriesBackground from './SeriesBackground';
 import type { SeriesShapeA11yProps } from './SeriesBackground';
@@ -137,7 +138,7 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
     // Focused slices draw last so their stroke sits above their neighbours'.
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
-    const { enabled: accessibility } = mochartConfig.accessibility;
+    const accessibility = accessibilityActive(mochartConfig.accessibility);
     const sliceIsInteractive = (id: string): boolean =>
       accessibility &&
       (mochartConfig.seriesById[id].focusOnClick || onSliceClick !== undefined) &&

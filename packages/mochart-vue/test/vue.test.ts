@@ -277,6 +277,28 @@ describe('size props vs container style', () => {
   });
 });
 
+describe('dataTestId', () => {
+  it('applies data-testid to the container div and wins over the fallthrough attr', async () => {
+    const { el, app, state } = mountWith(Chart, {
+      mochartConfig: enhanceConfig(rawConfig()),
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      width: 400,
+      height: 300,
+      dataTestId: 'revenue-chart',
+      'data-testid': 'native-attr'
+    });
+    const containerDiv = el.firstElementChild as HTMLDivElement;
+    expect(containerDiv.getAttribute('data-testid')).toBe('revenue-chart');
+
+    state.dataTestId = undefined;
+    await nextTick();
+    expect(containerDiv.getAttribute('data-testid')).toBe('native-attr');
+
+    app.unmount();
+    el.remove();
+  });
+});
+
 describe('refresh', () => {
   it('re-reads in-place data mutations through a template ref', async () => {
     const el = document.createElement('div');

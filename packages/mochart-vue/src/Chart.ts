@@ -15,7 +15,11 @@ export default defineComponent({
   // inheritAttrs off so the explicit size props can win over a fallthrough style
   inheritAttrs: false,
   setup(props, { attrs, expose }) {
-    const { containerRef, refresh } = useChartHost(createChart, () => ({ ...props }));
+    // dataTestId belongs to the container div, not the chart
+    const { containerRef, refresh } = useChartHost(createChart, () => {
+      const { dataTestId: _dataTestId, ...hostProps } = props;
+      return hostProps;
+    });
     expose({ refresh });
     return () => {
       const sizeStyle: Record<string, string> = {};
@@ -25,11 +29,16 @@ export default defineComponent({
       if (typeof props.height === 'number') {
         sizeStyle.height = `${props.height}px`;
       }
-      return h('div', {
+      const containerProps: Record<string, unknown> = {
         ...attrs,
         ref: containerRef,
         style: [attrs.style, sizeStyle]
-      });
+      };
+      // only override the fallthrough attr when the prop is actually set
+      if (props.dataTestId !== undefined) {
+        containerProps['data-testid'] = props.dataTestId;
+      }
+      return h('div', containerProps);
     };
   }
 });

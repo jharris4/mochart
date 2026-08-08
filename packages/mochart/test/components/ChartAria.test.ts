@@ -129,3 +129,30 @@ describe('chart aria semantics', () => {
     expect(container.querySelectorAll('[aria-hidden], [role], [tabindex], [aria-label]').length).toBe(0);
   });
 });
+
+describe('decorative-hidden charts', () => {
+  it('hides the chart root from assistive tech and removes every tab stop', () => {
+    const container = mountChart(makeConfig({ title: { text: 'Monthly sales' }, accessibility: { hidden: true } }));
+    const root = container.querySelector('.mochart-chart')!;
+    expect(root.getAttribute('aria-hidden')).toBe('true');
+    expect(root.classList.contains('mochart-accessible')).toBe(false);
+    const svg = container.querySelector('svg')!;
+    expect(svg.getAttribute('role')).toBeNull();
+    expect(svg.getAttribute('aria-label')).toBeNull();
+    expect(container.querySelector('[role="status"]')).toBeNull();
+    expect(container.querySelectorAll('[tabindex]').length).toBe(0);
+  });
+
+  it('hides a pie chart and its slice tab stops', () => {
+    const container = mountChart(makeConfig({ chart: { type: 'pie' }, accessibility: { hidden: true } }));
+    expect(container.querySelector('.mochart-chart')!.getAttribute('aria-hidden')).toBe('true');
+    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+    expect(container.querySelectorAll('[tabindex], [role="button"]').length).toBe(0);
+  });
+
+  it('keeps the chart exposed and announced by default', () => {
+    const container = mountChart(makeConfig());
+    expect(container.querySelector('.mochart-chart')!.getAttribute('aria-hidden')).toBeNull();
+    expect(container.querySelector('[role="status"]')).not.toBeNull();
+  });
+});

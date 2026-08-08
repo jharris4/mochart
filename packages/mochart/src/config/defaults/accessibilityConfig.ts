@@ -1,6 +1,7 @@
 export default function getDefaults() {
   return {
     enabled: true,
+    hidden: false,
     respectReducedMotion: true,
     chartLabel: 'Chart',
     chartRoleDescription: 'chart',

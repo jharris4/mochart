@@ -54,6 +54,8 @@ export interface BaseChartProps extends ChartCallbackProps {
   className?: string;
   /** Style applied to the container div the chart mounts into. */
   style?: CSSProperties;
+  /** `data-testid` attribute applied to the container div, for test selectors. */
+  dataTestId?: string;
   loading?: boolean;
   error?: unknown;
   /**

@@ -249,3 +249,8 @@ export function getArrayDeltas(array: readonly number[], otherArray: readonly (n
   }
   return deltas;
 }
+
+// a11y affordances (roles, labels, tab stops) apply only when enabled and not decorative-hidden
+export function accessibilityActive({ enabled, hidden }: { enabled: boolean; hidden: boolean }): boolean {
+  return enabled && !hidden;
+}

@@ -1,6 +1,7 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import { accessibilityActive } from '../utils/utils';
 
 import Background from './Background';
 import AxisGridContainer from './AxisGridContainer';
@@ -61,7 +62,7 @@ class PlotFrontBack extends Renderer<PlotFrontBackProps> {
     const { seriesData } = chartData;
 
     this.root.set({ className: mochartCssClasses[front ? 'plotFront' : 'plotBack'],
-      ariaHidden: mochartConfig.accessibility.enabled ? 'true' : null });
+      ariaHidden: accessibilityActive(mochartConfig.accessibility) ? 'true' : null });
 
     this.gridContainer.set(AxisGridContainer, { front, mochartConfig, seriesLayoutInfo,
       seriesData, focusData, axisData });

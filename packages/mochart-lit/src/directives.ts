@@ -37,9 +37,9 @@ abstract class ChartHostDirective extends AsyncDirective {
   }
 
   override update(_part: ChildPart, [props]: [Record<string, any>]): unknown {
-    // `className`/`style` belong to the container div and `chartRef` to the
-    // directive, not the chart.
-    const { className, style, chartRef, ...chartProps } = props;
+    // `className`/`style`/`dataTestId` belong to the container div and
+    // `chartRef` to the directive, not the chart.
+    const { className, style, dataTestId, chartRef, ...chartProps } = props;
     this.props = chartProps;
     if (this.container === null) {
       this.container = document.createElement('div');
@@ -50,7 +50,7 @@ abstract class ChartHostDirective extends AsyncDirective {
     if (this.host !== null && this.chartRefCallback !== previousCallback) {
       this.chartRefCallback?.(this.chartRef);
     }
-    this.applyContainerProps(className, style);
+    this.applyContainerProps(className, style, dataTestId);
     if (this.host !== null) {
       this.host.update(this.props);
     }
@@ -61,10 +61,16 @@ abstract class ChartHostDirective extends AsyncDirective {
     return this.container;
   }
 
-  private applyContainerProps(className: unknown, style: unknown): void {
+  private applyContainerProps(className: unknown, style: unknown, dataTestId: unknown): void {
     const container = this.container!;
     container.className = typeof className === 'string' ? className : '';
     container.style.cssText = typeof style === 'string' ? style : '';
+    if (typeof dataTestId === 'string') {
+      container.setAttribute('data-testid', dataTestId);
+    }
+    else {
+      container.removeAttribute('data-testid');
+    }
     const { width, height } = this.props;
     if (typeof width === 'number') {
       container.style.width = `${width}px`;

@@ -11,7 +11,7 @@ import type { DefaultChartProps, ChartRef } from './types.js';
  */
 // forwardRef, not the React 19 ref prop: React 18 hosts strip ref from props
 const DefaultChart = forwardRef<ChartRef, DefaultChartProps>(function DefaultChart(props, ref) {
-  const { className, style, ...chartProps } = props;
+  const { className, style, dataTestId, ...chartProps } = props;
   const { containerRef, refresh, placeholderPortals } = useChartHost(createDefaultChart, chartProps);
   useImperativeHandle(ref, () => ({ refresh }), [refresh]);
   // explicit size props win over the container style, like in the other bindings
@@ -24,7 +24,7 @@ const DefaultChart = forwardRef<ChartRef, DefaultChartProps>(function DefaultCha
   }
   return (
     <>
-      <div ref={containerRef} className={className} style={containerStyle} />
+      <div ref={containerRef} className={className} style={containerStyle} data-testid={dataTestId} />
       {placeholderPortals}
     </>
   );

@@ -65,6 +65,8 @@ export interface BaseChartProps extends ChartCallbackProps {
   className?: string;
   /** Inline style for the container div; explicit `width`/`height` props win. */
   style?: string;
+  /** `data-testid` attribute applied to the container div, for test selectors. */
+  dataTestId?: string;
   loading?: boolean;
   error?: unknown;
   /**

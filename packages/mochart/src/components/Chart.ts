@@ -29,7 +29,7 @@ import CategoryAxisTickLabelClip from './CategoryAxisTickLabelClip';
 import SeriesColorGradient from './SeriesColorGradient';
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
-import { translateObject } from '../utils/utils';
+import { accessibilityActive, translateObject } from '../utils/utils';
 import { getSeriesGradientColors } from '../utils/SeriesColors';
 import { getTooltipAnnouncement } from '../utils/TooltipFormat';
 import type { ChartFactoryContent, ChartFactoryContext, ChartContentFactory, ChartEventPayload, ChartSliceClickPayload, InternalFocus } from '../types/chart';
@@ -981,7 +981,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       }
       this.setPresent(true);
       this.chartRef = null;
-      this.root.set({ className: mochartCssClasses['chartError'], style, 'data-mochart-version': getVersionString() });
+      this.root.set({ className: mochartCssClasses['chartError'], style, 'data-mochart-version': getVersionString(),
+        'aria-hidden': mochartConfig?.accessibility.hidden ? 'true' : null });
       this.body.set(null);
       this.setSimpleContent(errorComponent);
       return;
@@ -1016,10 +1017,11 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const chartEventHandler = (hasChartDataContent && !loading) ? this.chartEventHandler : {};
 
     this.setPresent(true);
-    const rootClassName = (mochartConfig?.accessibility.enabled ?? true)
+    const rootClassName = accessibilityActive(mochartConfig.accessibility)
       ? mochartCssClasses['chart'] + ' ' + mochartCssClasses['accessible']
       : mochartCssClasses['chart'];
-    this.root.set({ className: rootClassName, ...chartEventHandler, style, 'data-mochart-version': getVersionString() });
+    this.root.set({ className: rootClassName, ...chartEventHandler, style, 'data-mochart-version': getVersionString(),
+      'aria-hidden': mochartConfig.accessibility.hidden ? 'true' : null });
     this.chartRef = this.root.node;
     this.setSimpleContent(false);
     this.body.set(ChartBody, { chart: this, chartProps: this.props, chartState: this.state, error, loading });
@@ -1140,7 +1142,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
     body.svgSlot.set('svg', () => body.svg);
     const { accessibility: accessibilityConfig } = mochartConfig;
-    const accessibility = accessibilityConfig.enabled;
+    const accessibility = accessibilityActive(accessibilityConfig);
     body.svg.set({ xmlns: 'http://www.w3.org/2000/svg', id: svgUniqueId, width, height,
       role: accessibility ? 'group' : null,
       ariaRoledescription: accessibility ? accessibilityConfig.chartRoleDescription : null,

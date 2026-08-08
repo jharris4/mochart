@@ -87,6 +87,12 @@ container, so size it however you like and the chart follows it:
 
 Explicit `width`/`height` inputs win over conflicting `style` values.
 
+Any other attribute written on the element (`id`, `data-testid`, `aria-…`)
+naturally lands on that same container. The optional `dataTestId` input is
+the same surface the other bindings offer — it sets and removes
+`data-testid` dynamically, and a static `data-testid` attribute is left
+untouched when the input is never used.
+
 ## When the data changes
 
 Config and data changes are detected **by reference identity**: the chart

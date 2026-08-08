@@ -1,5 +1,5 @@
 import { ApplicationRef, Directive, ElementRef, EnvironmentInjector, EventEmitter, Input, Output, PLATFORM_ID, inject } from '@angular/core';
-import type { AfterViewInit, OnChanges, OnDestroy } from '@angular/core';
+import type { AfterViewInit, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import type { Bounds, ChartEventPayload, ChartFocus, ChartSeriesFilter, ChartSliceClickPayload } from '@mochart/core';
 import { mountChartHost } from './host.js';
 import type { CreateChartFn, HostHandle } from './host.js';
@@ -40,6 +40,8 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
   @Input() height?: number;
   @Input() loading?: boolean;
   @Input() error?: unknown;
+  /** `data-testid` attribute applied to the host element, for test selectors. */
+  @Input() dataTestId?: string;
   @Input() loadingComponent?: PlaceholderComponent;
   @Input() errorComponent?: PlaceholderComponent;
   @Input() noDataComponent?: PlaceholderComponent;
@@ -164,7 +166,17 @@ export abstract class BaseChart implements AfterViewInit, OnChanges, OnDestroy {
     this.host = mountChartHost(this.create, this.elementRef.nativeElement, this.buildProps(), placeholders);
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    // set imperatively, not host-bound: a static data-testid attribute must
+    // survive when the input is never used
+    if ('dataTestId' in changes) {
+      if (this.dataTestId !== undefined) {
+        this.elementRef.nativeElement.setAttribute('data-testid', this.dataTestId);
+      }
+      else {
+        this.elementRef.nativeElement.removeAttribute('data-testid');
+      }
+    }
     // Before the first render `host` is null and the mount picks up the
     // current input values itself.
     this.host?.update(this.buildProps());

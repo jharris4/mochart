@@ -2,6 +2,7 @@ import { Renderer, svgEl } from '../render';
 
 import { getSeriesConfigsOrderedByFocus } from '../data/FocusData';
 import { mochartCssClasses } from '../utils/ChartDom';
+import { accessibilityActive } from '../utils/utils';
 
 import SeriesBackground from './SeriesBackground';
 import type { SeriesShapeA11yProps } from './SeriesBackground';
@@ -61,7 +62,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
           valueAxisScale: valueAxisData.axisScales[axis!],
           rawValueAxisDomain: rawValueAxisDomains[axis!], rawDomains: rawDomains[id],
           filteredValues: filteredValues[id],
-          gradientIdMap, onFocus, accessibility: mochartConfig.accessibility.enabled }
+          gradientIdMap, onFocus, accessibility: accessibilityActive(mochartConfig.accessibility) }
       };
     }));
   }

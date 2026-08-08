@@ -1,6 +1,7 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
+import { accessibilityActive } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
 import { styleToAttributes } from '../utils/style';
 import type { EnhancedMochartConfig } from '../types/enhanced';
@@ -48,7 +49,7 @@ class Crosshair extends Renderer<CrosshairProps> {
 
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['crosshair'], clipPath,
-        ariaHidden: mochartConfig.accessibility.enabled ? 'true' : null });
+        ariaHidden: accessibilityActive(mochartConfig.accessibility) ? 'true' : null });
       this.categoryLinesGroup.set({ className: mochartCssClasses['crosshairCategoryLines'] });
       this.seriesLinesGroup.set({ className: mochartCssClasses['crosshairSeriesLines'] });
 

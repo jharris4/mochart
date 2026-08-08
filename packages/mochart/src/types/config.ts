@@ -142,6 +142,21 @@ export interface AccessibilityConfig {
    */
   enabled: boolean;
   /**
+   * Whether the chart is hidden from assistive tech and keyboard navigation,
+   * for purely decorative charts.
+   *
+   * Set to `true` for a purely decorative chart — for example a sparkline that
+   * repeats a value already shown as text. The chart’s container is marked
+   * `aria-hidden` so screen readers skip it entirely, and every keyboard tab
+   * stop (plot area, legend items, pie slices, tooltip rows and controls) is
+   * removed, so keyboard users cannot land on content assistive tech cannot
+   * see. Overrides `enabled`; `respectReducedMotion` is not gated by this
+   * switch.
+   *
+   * @default false
+   */
+  hidden: boolean;
+  /**
    * Whether to respect the user’s reduced-motion system preference.
    *
    * When `true` and the user’s system requests reduced motion (the

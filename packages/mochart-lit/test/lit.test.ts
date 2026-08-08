@@ -94,6 +94,25 @@ describe('chart container props', () => {
     render(nothing, el);
     el.remove();
   });
+
+  it('applies and removes data-testid on the container div', async () => {
+    const mochartConfig = enhanceConfig(rawConfig());
+    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    const el = mountPoint();
+    const template = (dataTestId?: string) =>
+      html`${chart({ mochartConfig, dataProvider, dataTestId, width: 400, height: 300 })}`;
+    render(template('revenue-chart'), el);
+    await flushMount();
+
+    const container = el.querySelector('div[data-testid="revenue-chart"]') as HTMLDivElement;
+    expect(container).not.toBeNull();
+
+    render(template(undefined), el);
+    expect(container.getAttribute('data-testid')).toBeNull();
+
+    render(nothing, el);
+    el.remove();
+  });
 });
 
 describe('chart auto-sizing', () => {

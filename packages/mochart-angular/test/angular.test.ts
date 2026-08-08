@@ -104,6 +104,26 @@ describe('Chart', () => {
   });
 });
 
+describe('dataTestId', () => {
+  it('applies and removes data-testid on the host element', () => {
+    const fixture = createWith(Chart, {
+      mochartConfig: enhanceConfig(rawConfig()),
+      dataProvider: new ArrayOfObjectsDataProvider(rows, 'name'),
+      width: 400,
+      height: 300,
+      dataTestId: 'revenue-chart'
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.getAttribute('data-testid')).toBe('revenue-chart');
+
+    fixture.componentRef.setInput('dataTestId', undefined);
+    fixture.detectChanges();
+    expect(el.getAttribute('data-testid')).toBeNull();
+
+    fixture.destroy();
+  });
+});
+
 describe('Chart auto-sizing', () => {
   it('tracks the host element size when width/height are omitted', () => {
     const observed: { callback: ResizeObserverCallback }[] = [];

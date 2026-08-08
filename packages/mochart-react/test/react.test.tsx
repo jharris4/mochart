@@ -373,6 +373,27 @@ describe('removed props', () => {
 
 // Regression: the user's container style used to override the explicit size
 // props; the size props must win, like in the other bindings.
+describe('dataTestId', () => {
+  it('applies and removes data-testid on the container div', () => {
+    const { container, root } = host();
+    const mochartConfig = enhanceConfig(rawConfig());
+    const dataProvider = new ArrayOfObjectsDataProvider(rows, 'name');
+    act(() => {
+      root.render(<Chart mochartConfig={mochartConfig} dataProvider={dataProvider} width={400} height={300} dataTestId="revenue-chart" />);
+    });
+    const containerDiv = container.firstElementChild as HTMLDivElement;
+    expect(containerDiv.getAttribute('data-testid')).toBe('revenue-chart');
+    act(() => {
+      root.render(<Chart mochartConfig={mochartConfig} dataProvider={dataProvider} width={400} height={300} />);
+    });
+    expect(containerDiv.getAttribute('data-testid')).toBeNull();
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+  });
+});
+
 describe('size props vs container style', () => {
   it('keeps the explicit size when the style sets a conflicting one', () => {
     const { container, root } = host();
