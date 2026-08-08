@@ -113,6 +113,7 @@ export function getRegularDefaults() {
     focusOnClick: false,
     focusCategoryOnMouseOver: false,
     focusCategoryOnClick: false,
+    showPointer: false,
     useAxisFocus: true
   };
 }

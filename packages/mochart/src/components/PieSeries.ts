@@ -176,6 +176,7 @@ export default class PieSeries extends Renderer<PieSeriesProps, PieSeriesState> 
     const interactive = accessibility && (seriesConfig.focusOnClick || onSliceClick !== undefined);
     const { percentFormat } = getPieLabelFormats(pieConfig);
     this.root.set({ className: mochartCssClasses['series'] + seriesConfig.id,
+      cursor: seriesConfig.showPointer ? 'pointer' : null,
       ariaHidden: accessibility && !interactive ? 'true' : null,
       dataSeriesId: interactive ? seriesConfig.id : null,
       tabindex: interactive ? (tabStop ? '0' : '-1') : null,

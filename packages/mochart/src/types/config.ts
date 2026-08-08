@@ -2793,6 +2793,19 @@ export interface SeriesConfig {
    */
   focusCategoryOnClick: boolean;
   /**
+   * Whether to show the pointer cursor when the user mouses over the series
+   * shapes in the chart.
+   *
+   * Sets `cursor: pointer` on the series’ shapes (bars, markers, labels and
+   * line/area paths — or its pie slices), advertising that clicking does
+   * something. Typically paired with the `onSeriesClick`/`onSliceClick`
+   * callbacks or `focusOnClick`, which make the shapes clickable but leave the
+   * cursor unchanged by default.
+   *
+   * @default false
+   */
+  showPointer: boolean;
+  /**
    * Whether to show the series as focused when the value axis it belongs to is
    * focused.
    *

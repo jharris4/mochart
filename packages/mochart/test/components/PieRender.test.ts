@@ -112,6 +112,16 @@ describe('pie chart rendering', () => {
     expect(container.querySelector('.mochart-legend')).not.toBeNull();
   });
 
+  it('sets the pointer cursor on a slice series root only when configured', () => {
+    const { config, data } = pieChartProps(ITEMS);
+    (config.series as Array<Record<string, unknown>>)[0]!.showPointer = true;
+    const { container } = mountChart(config, data);
+    const roots = container.querySelectorAll('.mochart-series');
+    expect(roots).toHaveLength(3);
+    expect(roots[0]!.getAttribute('cursor')).toBe('pointer');
+    expect(roots[1]!.getAttribute('cursor')).toBeNull();
+  });
+
   it('renders a donut with a different arc path than a pie', () => {
     const pie = mountChart(...Object.values(pieChartProps(ITEMS)) as [MochartInputConfig, readonly unknown[]]);
     const { config, data } = pieChartProps(ITEMS, { donut: true });

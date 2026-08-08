@@ -123,6 +123,7 @@ export default function getDescriptions() {
     focusOnClick: 'whether the series should be focused whenever the user clicks/taps a part of it in the chart',
     focusCategoryOnMouseOver: 'whether the category should be focused whenever the user mouses over a category of the series in the chart',
     focusCategoryOnClick: 'whether the category should be focused whenever the user clicks/taps a category of the series in the chart',
+    showPointer: 'whether to show the pointer cursor when the user mouses over the series shapes in the chart',
     useAxisFocus: 'whether to show the series as focused when the value axis it belongs to is focused',
     animateBaseFromAdjacent: 'whether to animate leading/trailing series position values from their adjacent values (true) or from the base value (false)'
   };
@@ -146,6 +147,7 @@ export function getDetails() {
     barWidthFraction: 'Only affects the `bar` renderer. Narrows each bar within its layout slot (the full category slot, or the series’ sub-slot when grouped), so a narrow bar can overlay a full-width one from another series — e.g. a candlestick wick behind its body, or a bullet-chart measure over its backing range. The narrowed bar is centered by default; `barAlignFraction` moves it within the slot.',
     barAlignFraction: 'Only affects the `bar` renderer, and only when `barWidthFraction` is less than 1. Lets narrowed bars from different series share one slot side by side — e.g. the left open tick and right close tick of an OHLC bar.',
     barMinExtent: 'Only affects the `bar` renderer. A bar whose two ends resolve to (nearly) the same position — e.g. a ranged bar whose `property` and `rangeProperty` values are equal — is expanded to this extent, centered on its position, so it stays visible as a tick mark: e.g. the open/close ticks of an OHLC bar, or a candlestick doji body.',
-    followSeries: 'When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it, and it shares the referenced series’ focus state both ways: focusing the leader highlights this series too, and focus interactions on this series target the leader. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering or focusing treats the whole mark as one.'
+    followSeries: 'When the referenced series is toggled out of (or back into) the chart via the legend, this series follows it, and it shares the referenced series’ focus state both ways: focusing the leader highlights this series too, and focus interactions on this series target the leader. For companion series hidden from the legend (`showInLegend: false`) that visually belong to a legend series — e.g. a candlestick wick following its body — so filtering or focusing treats the whole mark as one.',
+    showPointer: 'Sets `cursor: pointer` on the series’ shapes (bars, markers, labels and line/area paths — or its pie slices), advertising that clicking does something. Typically paired with the `onSeriesClick`/`onSliceClick` callbacks or `focusOnClick`, which make the shapes clickable but leave the cursor unchanged by default.'
   };
 }

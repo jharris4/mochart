@@ -341,6 +341,7 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       this.setPresent(true);
       this.root.set({ className: mochartCssClasses['series'] + seriesId,
         ariaHidden: this.props.accessibility ? 'true' : null,
+        cursor: seriesConfig.showPointer ? 'pointer' : null, // inherited: covers bars, markers, labels and paths
         transform: translateObject(seriesLayoutInfo) });
       this.errorBars.set(SeriesErrorBars, { colorPaletteConfig, seriesConfig, seriesIndex,
         seriesPositionData, valueAxisScale, filteredValues, inverted, focusData });

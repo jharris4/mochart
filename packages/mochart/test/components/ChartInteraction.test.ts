@@ -836,6 +836,16 @@ describe('followSeries follower focus', () => {
   });
 });
 
+describe('showPointer', () => {
+  it('sets the pointer cursor on the series root only when configured', () => {
+    const container = mountChart(makeConfig({
+      series: [{ property: 'sales', renderer: 'bar', showPointer: true }, { property: 'costs', renderer: 'bar' }]
+    }));
+    expect(container.querySelector('.mochart-series-S0')!.getAttribute('cursor')).toBe('pointer');
+    expect(container.querySelector('.mochart-series-S1')!.getAttribute('cursor')).toBeNull();
+  });
+});
+
 describe('onSeriesClick', () => {
   const barSeries = {
     series: [{ property: 'sales', renderer: 'bar' }, { property: 'costs', renderer: 'bar' }]

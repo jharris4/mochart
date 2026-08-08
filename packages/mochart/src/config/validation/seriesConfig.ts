@@ -193,6 +193,7 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     focusOnClick: validators.boolean(),
     focusCategoryOnMouseOver: validators.boolean(),
     focusCategoryOnClick: validators.boolean(),
+    showPointer: validators.boolean(),
     useAxisFocus: validators.boolean(),
     animateBaseFromAdjacent: validators.boolean()
   };
