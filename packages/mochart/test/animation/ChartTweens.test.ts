@@ -340,4 +340,42 @@ describe('tweenFocus', () => {
     expect(startCallback).not.toHaveBeenCalled();
     expect(completeCallback).not.toHaveBeenCalled();
   });
+
+  // Regression: the final frame's updateCallback runs before the manager wrapper
+  // clears its slot, so a tween started from inside that emit (a host updating
+  // the chart from an emit-driven callback) was clobbered by the completing
+  // tween's wrapper — orphaned beyond cancelFocusTween — while the replaced
+  // tween wrongly reported complete. Completion is identity-guarded now.
+  it('keeps a tween started from the final frame cancelable, without completing the replaced tween', () => {
+    const manager = makeManager();
+    const first = makeFocusData();
+    const second = makeFocusData();
+    const firstComplete = vi.fn();
+    const secondComplete = vi.fn();
+    const secondUpdate = vi.fn();
+    let reentered = false;
+
+    manager.tweenFocus(makeConfig(), first.animationData, (focusData: unknown) => {
+      if (focusData === first.final && !reentered) {
+        reentered = true;
+        // synchronous re-entry from the final frame
+        manager.tweenFocus(makeConfig(), second.animationData, secondUpdate, { completeCallback: secondComplete });
+      }
+    }, { completeCallback: firstComplete });
+
+    // 8 frames = 128ms: the first tween (5ms delay + 100ms) is done, the replacement is mid-flight
+    for (let frame = 0; frame < 8; frame++) {
+      vi.advanceTimersByTime(FRAME_MS);
+    }
+    expect(reentered).toBe(true);
+    // the replaced tween was superseded mid-completion; superseded tweens do not complete
+    expect(firstComplete).not.toHaveBeenCalled();
+
+    // the replacement must still be governed by the manager: cancel stops it
+    manager.cancelFocusTween();
+    const updateCount = secondUpdate.mock.calls.length;
+    runFrames();
+    expect(secondUpdate.mock.calls.length).toBe(updateCount);
+    expect(secondComplete).not.toHaveBeenCalled();
+  });
 });

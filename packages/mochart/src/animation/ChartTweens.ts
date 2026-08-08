@@ -278,14 +278,21 @@ export function getChartTweenManager(): ChartTweenManager {
       startCallback = () => {}
     } = {}) => {
       self.cancelFocusTween();
-      focusTween = buildFocusTween(mochartConfig, focusAnimationData, {
+      // identity-guarded completion: the final frame's updateCallback may re-enter and replace the slot
+      const tween = buildFocusTween(mochartConfig, focusAnimationData, {
         updateCallback,
-        completeCallback: () => { focusTween = null; completeCallback(); },
+        completeCallback: () => {
+          if (focusTween === tween) {
+            focusTween = null;
+            completeCallback();
+          }
+        },
         startCallback
 
       });
+      focusTween = tween;
       // TODO, defer start until after next raf callback?!
-      focusTween.start();
+      tween.start();
       MochartTween._requestRaf!();
     },
     cancelFocusTween: () => {
@@ -301,15 +308,22 @@ export function getChartTweenManager(): ChartTweenManager {
       startValueChangeCallback = () => {}
     } = {}) => {
       self.cancelDataTween();
-      dataTween = buildDataTween(mochartConfig, chartAnimationData, {
+      // same identity guard as tweenFocus
+      const tween = buildDataTween(mochartConfig, chartAnimationData, {
         updateCallback,
-        completeCallback: () => { dataTween = null; completeCallback(); },
+        completeCallback: () => {
+          if (dataTween === tween) {
+            dataTween = null;
+            completeCallback();
+          }
+        },
         startCallback,
         completeValueChangeCallback,
         startValueChangeCallback
       });
-      if (dataTween !== null) {
-        dataTween.start();
+      dataTween = tween;
+      if (tween !== null) {
+        tween.start();
       }
       else {
         completeCallback();
