@@ -39,8 +39,8 @@ export interface CreateHeatmapColorScaleOptions {
 
 export interface CreateHeatmapOptions extends CreateHeatmapColorScaleOptions {
   /**
-   * The column labels, used as the category values (must be unique). Defaults to
-   * the 1-based column numbers as strings.
+   * The column labels, used as the category values: one per column and unique,
+   * both enforced with a throw. Defaults to the 1-based column numbers as strings.
    */
   columnLabels?: readonly string[];
   /**
@@ -141,6 +141,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
   const cellPadding = options.cellPadding ?? DEFAULT_CELL_PADDING;
   const rowCount = rows.length;
   const columnCount = rows.reduce((count, row) => Math.max(count, row.values.length), 0);
+  checkColumnLabels(options.columnLabels, columnCount);
 
   const explicitDomain = options.domain ?? null;
   const domain = explicitDomain ?? getExtent(rows.flatMap((row) => row.values));
@@ -221,6 +222,20 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
   });
 
   return { domain, colorScale, data, categoryAxis, valueAxisConfig, series: seriesConfigs };
+}
+
+// column values index the rows, so a short list padded with column numbers could collide
+function checkColumnLabels(columnLabels: readonly string[] | undefined, columnCount: number): void {
+  if (columnLabels === undefined) {
+    return;
+  }
+  if (columnLabels.length !== columnCount) {
+    throw new Error(`createHeatmap: ${columnLabels.length} columnLabels for ${columnCount} columns`);
+  }
+  const duplicates = columnLabels.filter((label, index) => columnLabels.indexOf(label) !== index);
+  if (duplicates.length > 0) {
+    throw new Error('createHeatmap: columnLabels must be unique, duplicates: ' + [...new Set(duplicates)].join(', '));
+  }
 }
 
 function clampValue(value: number, [min, max]: [number, number]): number {

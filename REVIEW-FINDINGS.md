@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 25 fixed, 8 open.**
+**33 findings: 26 fixed, 7 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 8 remaining are all Low.
+Nothing High or Medium is open — the 7 remaining are all Low.
 
 ---
 
@@ -417,7 +417,7 @@ The regression test stubs `Image` (jsdom never fires `onload`) and a context
 whose `drawImage` throws; against the unfixed code it does not fail, it *times
 out*, which is the bug stated exactly.
 
-### B16. `createHeatmap` can emit duplicate category values — **Open**
+### B16. `createHeatmap` could emit duplicate category values — **Fixed**
 
 **Low.** `packages/mochart/src/data/Heatmap.ts`
 
@@ -433,8 +433,20 @@ createHeatmap([{ label: 'r', values: [1, 2] }], { columnLabels: ['x', 'x'] })
 ```
 
 The chart's own `getDataErrors` reports duplicate category values as an error,
-so the helper can hand back data its sibling API rejects. A length/uniqueness
-check in the helper would catch it at the source.
+so the helper handed back data its sibling API rejects — and duplicates are a
+real fault, not a label nuisance: `ArrayOfObjectsDataProvider` indexes rows by
+category value, so they collapse onto one key.
+
+**Fix:** `columnLabels`, when given, must be one per column and unique; either
+failure throws, matching how `binValues` already refuses an inverted domain and
+an over-cap bin count.
+
+Checking length as well as uniqueness because they catch different mistakes:
+uniqueness catches the corruption, but a short list that happens not to collide
+(`['Jan']` over 3 columns → `['Jan', '2', '3']`) renders fine with nonsense
+labels and would otherwise report nothing. The length check names that directly
+— "1 columnLabels for 3 columns" — instead of surfacing later as a confusing
+duplicate. Documented on the option and in the heatmap recipe.
 
 ### B15. `followSeries` accepted self-references, cycles and chains — **Fixed**
 

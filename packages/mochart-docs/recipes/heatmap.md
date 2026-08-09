@@ -47,7 +47,8 @@ import * as heatmap from '../examples/heatmap'
   [`missingValues: 'connect'`](/reference/series#series.missingValues) skips
   them without disturbing their neighbours. `cellPadding` sets the gap
   between cells (0 for a contiguous grid), and `columnLabels` names the
-  columns (defaults to 1-based numbers).
+  columns (defaults to 1-based numbers). They become the category values, so
+  pass one per column and keep them unique — `createHeatmap` throws otherwise.
 - The returned `colorScale` maps any value to its hex color and `domain`
   is the scaled extent — the pieces you need to render a color-ramp legend
   next to the chart. `createHeatmapColorScale(domain, options)` builds the
