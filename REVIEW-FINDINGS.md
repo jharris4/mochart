@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 20 fixed, 13 open.**
+**33 findings: 21 fixed, 12 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 13 remaining are all Low.
+Nothing High or Medium is open — the 12 remaining are all Low.
 
 ---
 
@@ -357,7 +357,7 @@ non-`static` value. That names the actual constraint instead of restating the
 default, so someone reaching for `absolute` knows it is fine and someone
 reaching for `static` knows it is not.
 
-### B12. Animated charts leave empty `style=""` attributes — **Open**
+### B12. Animated charts left empty `style=""` attributes — **Fixed**
 
 **Low.** `packages/mochart/src/render/dom.ts` — `setProperty` / `setStyle`
 
@@ -368,11 +368,27 @@ animated chart's settled DOM differs from a static one's — found by rendering
 each scenario both ways and diffing the settled markup. The artifact is baked
 into the checked-in golden snapshots and into SVG exports.
 
-Fixing it (`removeAttribute('style')` once the declaration is empty) works, but
-regenerates 206 golden files and shifts `style` to the end of the attribute
-list on elements that toggle, so ~274 of the 1250 changed lines are pure
-attribute reordering. Left open: that snapshot churn is the user's call before
-a release.
+**Fix:** `removeAttribute('style')` once the declaration is empty, gated on the
+incoming value being falsy so the hot path pays nothing when a style is being
+set.
+
+The cost was a one-time golden regeneration, measured rather than assumed
+before committing. All 1250 changed lines across 206 files classify as exactly
+two mechanical transforms, with nothing unaccounted for:
+
+| | lines |
+| --- | --- |
+| pure `style=""` removal | 976 |
+| attribute reorder only (same attrs, `style` moves to the end) | 274 |
+| anything else | **0** |
+
+The reorder is because removing and re-adding an attribute appends it; it has
+no rendering effect and only matters to string comparison. The regenerated
+snapshots were then re-run twice with no further churn, confirming they are
+deterministic rather than render-order dependent — so this is a single
+regeneration, not recurring churn. Afterwards the DOM is *more* stable than
+before: it no longer depends on whether an element was ever styled during a
+tween.
 
 ### B6. `exportPNG` can hang instead of rejecting — **Open**
 
