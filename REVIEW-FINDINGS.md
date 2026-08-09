@@ -9,15 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**32 findings: 17 fixed, 15 open.**
+**32 findings: 19 fixed, 13 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High is open. The one Medium item left is **D7** (the framework-props
-table reads `—` for `style` in all five bindings while three of them document
-their own `style`); everything else open is Low.
+Nothing High or Medium is open — the 13 remaining are all Low.
 
 ---
 
@@ -540,30 +538,56 @@ claim reads as the commitment it now is.
 for post-target syntax (`??=`, `||=`, `&&=`, `#private`, `static {`) is the
 check that would have caught the original drift.
 
-### D7. The framework-props mapping is misleading about `style` — **Open**
+### D7. The framework-props mapping was misleading about `style` — **Fixed**
 
 **Medium.** `packages/mochart-docs/.vitepress/lib/renderBindingPage.ts`
 
-Core's `style` prop (inline style on the chart's *root element*) is the one row
-in the generated name-mapping table that reads `—` for all five bindings, and
-the page never says what `—` means. Meanwhile React, Svelte, and Lit each
-document their own `style` prop — targeting the *container div* they create —
-in the per-binding section directly below. A reader scanning the mapping
-concludes no binding supports `style`, which is wrong for three of them and
-unexplained for the other two.
+Two different elements are both stylable through a prop called `style`:
 
-A sentence in the mapping intro explaining `—` and distinguishing the
-container-level `style`/`class` props from core's chart-root `style` would fix
-it.
+```html
+<div style="…">                        <!-- the binding's container: its style/class prop -->
+  <div class="mochart-chart" style="…">  <!-- the chart root: core's style prop -->
+    <svg>…</svg>
+  </div>
+</div>
+```
 
-### D8. Vue and Angular document no class/style prop — **Open**
+The generated page said both "no binding has `style`" and "here is React's
+`style`", with nothing reconciling them. Its mapping table promises "every core
+prop and the name each binding gives it" and rendered core's `style` as `—` in
+all five columns — while the per-binding sections directly below listed
+`style` for React, Svelte, and Lit ("Style applied to the container div the
+chart mounts into"). Both statements are true, of different props on different
+elements, and `—` was never given a meaning anywhere on the page.
+
+The fact underneath: core's `style` is genuinely unreachable from every
+binding. Each destructures it out and spends it on its own container
+(`const { className, style, dataTestId, ...chartProps } = props`), so it never
+reaches `createChart`. The generator was behaving correctly — the bindings'
+`style` is a different prop, so it finds no mapping — the page just never said
+so.
+
+**Fix:** the mapping intro now states what `—` means, shows the two-element
+nesting above, and says the per-binding `style`/`class` props target the
+container rather than the chart root. Documentation only: the behaviour is
+right (the container carries the size and is what you normally style), and
+adding a `chartStyle` pass-through would put two style props on one component,
+which is the confusion rather than the cure. The `style` link is read from the
+model rather than hardcoded, so it cannot drift from the generated anchor.
+
+### D8. Vue and Angular documented no class/style prop — **Fixed**
 
 **Low.** React (`className`, `style`), Svelte (`class`, `style`), and Lit
 (`className`, `style`) all expose container props; Vue relies on attribute
 fallthrough (`inheritAttrs: false` plus an `attrs` spread) and Angular on its
-host element. Both work, but neither is stated anywhere in the reference or the
-framework guides, so a Vue or Angular reader has no documented way to class or
-style the chart container.
+host element. Both work, but neither was stated anywhere, so a Vue or Angular
+reader had no documented way to class or style the chart container — and their
+`—` cells looked identical to React's despite meaning something different.
+
+**Fix:** covered by the same D7 intro, which closes with why those two list no
+container props. Fixed together because one sentence resolves both: three
+identical-looking `—` situations (not forwarded, framework fallthrough, host
+element) needed telling apart in one place.
 
 ### D3. Truncated sentence in the core README — **Fixed** (`f33db2eb`)
 
