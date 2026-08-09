@@ -311,6 +311,18 @@ describe('stitching several charts', () => {
     expect([second.getAttribute('width'), second.getAttribute('height')]).toEqual(['200', '150']);
   });
 
+  // cols is an upper bound: columns no chart can reach would only pad the image
+  it('does not reserve columns beyond the chart count', () => {
+    const svgText = getStitchedChartsSvgText([container, secondContainer], { cols: 4 })!;
+    expect(outerSize(svgText)).toEqual({ width: '800', height: '300' });
+  });
+
+  it('still leaves the empty cell of a partly-filled last row', () => {
+    // 3 charts at 2 columns is a 2x2 grid; the fourth cell has nothing to hold
+    const svgText = getStitchedChartsSvgText([container, container, container], { cols: 2 })!;
+    expect(outerSize(svgText)).toEqual({ width: '800', height: '600' });
+  });
+
   it('wraps to a second row and applies the gap', () => {
     const svgText = getStitchedChartsSvgText([container, container, container], { cols: 2, gap: 10 })!;
     // 2 columns x 2 rows of 400x300 cells, with one 10px gap on each axis
