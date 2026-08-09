@@ -149,6 +149,7 @@ and property is optional and falls back to a sensible default — only
 | `tooltip` | tooltip content, formatting, positioning |
 | `crosshair` | crosshair line style and snapping |
 | `animation` | `animate` on/off plus per-phase durations (initial, expansion, value change, contraction, focus) |
+| `accessibility` | keyboard and screen-reader access: `enabled`/`hidden` switches, label localization, `respectReducedMotion` |
 | `plot` | plot area (e.g. `inverted` for horizontal charts) |
 | `pie` | pie/donut slice geometry and slice labels when `chart.type` is `pie`: radii, angles, label type and formats, tooltip values |
 | `chart` / `colorPalette` / `linearGradients` / `radialGradients` | chart-wide style, palette, and gradient definitions |
