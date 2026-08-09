@@ -75,10 +75,9 @@ export class FocusController {
     const { focusedValueAxisId: oldFocusedValueAxisId, focusedSeriesId: oldFocusedSeriesId,
       focusedCategoryIndex: oldFocusedCategoryIndex, filteredSeriesIds: oldFilteredSeriesIds } = this;
 
-    // a config appearing or disappearing (the loading/error states) resets, like a provider does
-    const configStructureChanged = mochartConfig !== oldMochartConfig &&
-      (!oldMochartConfig || !mochartConfig || hasConfigStructureChange(oldMochartConfig, mochartConfig));
-    if (configStructureChanged) {
+    // hasConfigStructureChange counts a config appearing or disappearing (the loading
+    // states) as structural, so this resets then, like a provider change does
+    if (hasConfigStructureChange(oldMochartConfig, mochartConfig)) {
       this.reset();
     }
     else {
