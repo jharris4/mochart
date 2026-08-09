@@ -158,7 +158,12 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
   width: number;
   /** Chart height in pixels (the framework bindings can derive it from the container). */
   height: number;
-  /** Inline style applied to the chart's root element. */
+  /**
+   * Inline style applied to the chart's root element, layered over the default
+   * `position: relative`. The tooltip and the screen-reader live region are
+   * positioned against that root, so override `position` only with another
+   * non-`static` value (`absolute`, `fixed` and `sticky` all work).
+   */
   style?: string | Record<string, string | number | null | undefined>;
   /** Switches the chart into its loading state (see `getLoadingComponent`). */
   loading?: boolean;

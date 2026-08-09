@@ -145,6 +145,39 @@ describe('the provider handed to the state factories', () => {
   });
 });
 
+/**
+ * The tooltip overlay and the live region are absolutely positioned inside the
+ * chart root, so it has to stay a positioned element. Regression: `style` was a
+ * default parameter, so any caller value replaced `position: relative` outright.
+ */
+describe('the chart root position', () => {
+  function rootStyle(style?: unknown): CSSStyleDeclaration {
+    const container = mountChart(style === undefined ? {} : { style } as Partial<DefaultChartProps>);
+    return (container.querySelector('.mochart-chart') as HTMLElement).style;
+  }
+
+  it('is relative by default', () => {
+    expect(rootStyle().position).toBe('relative');
+  });
+
+  it('survives a caller style that says nothing about position', () => {
+    expect(rootStyle({ background: '#fff' }).position).toBe('relative');
+    expect(rootStyle('background: #fff').position).toBe('relative');
+    expect(rootStyle('').position).toBe('relative');
+  });
+
+  it('keeps the caller style alongside it', () => {
+    expect(rootStyle({ background: '#fff' }).background).toContain('255');
+    expect(rootStyle('background: #fff').background).toContain('255');
+  });
+
+  // any non-static value is a containing block, so an explicit one still wins
+  it('lets an explicit position win', () => {
+    expect(rootStyle({ position: 'absolute' }).position).toBe('absolute');
+    expect(rootStyle('position: sticky').position).toBe('sticky');
+  });
+});
+
 describe('the no-size state', () => {
   function chartSvg(width: number, height: number): SVGSVGElement | null {
     return mountChart({ width, height } as Partial<DefaultChartProps>).querySelector('svg');

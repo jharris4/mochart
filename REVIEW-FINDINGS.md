@@ -9,15 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 19 fixed, 14 open.**
+**33 findings: 20 fixed, 13 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High is open. The one Medium item is **B18** (a `style` prop drops
-the chart root's `position: relative`, mispositioning the tooltip); the other
-13 are Low.
+Nothing High or Medium is open — the 13 remaining are all Low.
 
 ---
 
@@ -297,7 +295,7 @@ reuse the value affixes (which is what caused this bug), `labelPrefix` and
 `labelSuffix` were added as their own pair, mirroring the value ones and
 independent of `labelFormat` exactly as those are of `valueFormat`.
 
-### B18. A `style` prop silently drops the chart root's `position: relative` — **Open**
+### B18. A `style` prop silently dropped the chart root's `position: relative` — **Fixed**
 
 **Medium.** `packages/mochart/src/components/Chart.ts` — `sync`
 
@@ -333,11 +331,31 @@ bindings never forward this prop (see D7), so they cannot trigger it. Medium
 rather than Low because the prop is plainly documented, the failure is silent,
 and the symptom (a tooltip in the wrong place) points nowhere near its cause.
 
-Fix is to merge the caller's style over `{ position: 'relative' }` instead of
-replacing it — nothing legitimate wants `position: static` there, and the
-current shape makes a required invariant look optional. Alternatively document
-that callers must include it, but that is a worse trade: an invariant the
-library depends on should not be the caller's job to remember.
+**Fix:** the caller's style is layered over the default rather than replacing
+it, in both accepted forms — `{ ...defaultChartStyle, ...style }` for objects,
+`'position: relative;' + style` for strings, since later declarations win in
+`cssText` just as later keys win in a merge.
+
+Merging under the caller rather than forcing `relative` on top, because the
+real invariant is narrower than the default suggests: the root must be a
+*containing block*, and `absolute`, `fixed` and `sticky` all qualify. Forcing
+`relative` would fix this bug by removing legitimate capability. Verified
+across both forms:
+
+| `style` | resulting position |
+| --- | --- |
+| *(omitted)* | `relative` |
+| `{ background: '#fff' }` / `'background: #fff'` / `''` | `relative`, background kept |
+| `{ position: 'absolute' }` | `absolute` |
+| `'position: sticky'` | `sticky` |
+| `{ position: 'static' }` | `static` — still breaks, by explicit request |
+
+Documented as well as fixed, since merging closes the accidental case but not
+the deliberate one: the prop's JSDoc now says the style layers over
+`position: relative` and that `position` should only be overridden with another
+non-`static` value. That names the actual constraint instead of restating the
+default, so someone reaching for `absolute` knows it is fine and someone
+reaching for `static` knows it is not.
 
 ### B12. Animated charts leave empty `style=""` attributes — **Open**
 
