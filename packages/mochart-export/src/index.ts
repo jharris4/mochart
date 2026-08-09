@@ -220,8 +220,7 @@ function getStitchedSvgText(elements: Element[], options: StitchOptions): string
     return null;
   }
   const backgroundColor = options.backgroundColor ?? getEffectiveBackgroundColor(charts[0].svg);
-  // cols is an upper bound: reserving columns no chart can reach would pad the
-  // image with blank space (a partly-filled last row still leaves its own cells)
+  // cols is an upper bound; columns no chart can reach would only pad the image
   const columns = Math.min(Math.max(1, Math.floor(cols)), charts.length);
   const rows = Math.ceil(charts.length / columns);
   const cellWidth = charts.reduce((max, chart) => Math.max(max, chart.width), 0);
@@ -289,9 +288,7 @@ function rasterizeSvgText(svgText: string, width: number, height: number, scale:
   return new Promise<Blob>((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      // a throw here escapes the event handler rather than the promise executor, so
-      // without this the promise would never settle (drawImage/toBlob raise
-      // SecurityError on a canvas tainted by a cross-origin image in the chart)
+      // a throw escapes the handler, not the executor, so the promise would never settle
       try {
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(width * scale));
@@ -311,8 +308,7 @@ function rasterizeSvgText(svgText: string, width: number, height: number, scale:
         });
       }
       catch (error) {
-        // rejected as-is: a DOMException's name (SecurityError) is the diagnosis,
-        // and wrapping it in a generic Error would throw that away
+        // as-is: a DOMException's SecurityError name is the diagnosis
         reject(error);
       }
     };

@@ -290,12 +290,8 @@ class ChartBody extends Renderer<ChartBodyProps> {
 
 const defaultChartStyle = { position: 'relative' };
 
-/**
- * Layer a caller's style over the default rather than replacing it: the tooltip
- * and the live region are absolutely positioned against the root, so losing
- * `position` entirely would resolve them against some ancestor further up. A
- * caller's own `position` still wins — any non-static value works as well.
- */
+// the tooltip and live region are positioned against the root, so a caller's style
+// layers over the default rather than replacing it; their own position still wins
 function withDefaultChartStyle(style: ChartProps['style']): ChartProps['style'] {
   if (style === undefined) {
     return defaultChartStyle;
@@ -592,8 +588,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const dataChanged = chartData !== prevProps.chartData;
     const sizeChanged = width !== prevProps.width || height !== prevProps.height;
     const mochartConfigChanged = mochartConfig !== prevProps.mochartConfig;
-    // hasConfigStructureChange treats a config appearing or going away as structural,
-    // which is what hosts mounting with null while they load produce
+    // hasConfigStructureChange counts a config appearing or going away as structural
     const mochartConfigStructureChanged = mochartConfigChanged && hasConfigStructureChange(prevProps.mochartConfig, mochartConfig);
 
     if (mochartConfigChanged || dataChanged || sizeChanged) {
@@ -998,8 +993,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     } = this.props;
     const style = withDefaultChartStyle(styleProp);
 
-    // negative and non-finite sizes take the same route as 0: they would otherwise
-    // reach the svg as invalid width/height attributes
+    // negative and non-finite sizes would reach the svg as invalid width/height
     const hasSize = width > 0 && height > 0;
     if (!hasSize || (mochartConfig && !mochartConfig.validation.valid)) {
       let errorComponent: FactoryContent = false;

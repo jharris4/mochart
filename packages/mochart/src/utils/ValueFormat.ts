@@ -98,8 +98,7 @@ function getSeriesLabelFormatter(seriesConfig: EnhancedSeriesConfig, valueAxisCo
   if (seriesConfig.labelFormat === NONE) {
     return value => value;
   }
-  // auto reuses the series' numeric formatting alone: labels render labelProperty, which
-  // can be a different quantity than the series value valuePrefix/valueSuffix describe
+  // numeric formatting alone: labels render labelProperty, not the series value
   if (seriesConfig.labelFormat === AUTO) {
     return getSeriesValueFormatter(seriesConfig, valueAxisConfig, valueAxisScale);
   }

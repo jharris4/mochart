@@ -35,11 +35,7 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
   destroy(): void;
 }
 
-/**
- * A delegating copy with a new identity, so the pipeline re-reads a provider it
- * has already seen. Internal to the read path — `props.dataProvider` stays the
- * host's own object, which is what the state-component factories receive.
- */
+/** A delegating copy with a new identity, so the pipeline re-reads a provider it has already seen. */
 function withFreshIdentity(dataProvider: DataProvider): DataProvider {
   const fresh: DataProvider = {
     getCategoryValues: () => dataProvider.getCategoryValues(),
@@ -65,9 +61,8 @@ function withFreshIdentity(dataProvider: DataProvider): DataProvider {
  * attributes that actually changed; there is no vdom.
  */
 export function createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps> {
-  // props keep the host's own provider — that is what the state-component factories
-  // are handed. The pipeline reads through a fresh-identity delegate instead, so
-  // refresh() can make it re-read a provider whose identity has not changed.
+  // props keep the host's own provider (what the state factories get); the pipeline
+  // reads through a delegate so refresh() can re-read an unchanged identity
   let currentProps = { ...props };
   let readDataProvider = wrapForReads(currentProps.dataProvider);
   const controller = new ChartController(container, currentProps, readDataProvider);
