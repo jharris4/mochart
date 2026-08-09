@@ -12,7 +12,7 @@ source and probing the public API.
 **Fixed** items are committed on this branch, one commit each, referencing the
 id. **Open** items need a decision and were deliberately left alone.
 
-Highest-severity open items: **B3**, **B13**, **B4**, **D2**, **T6**.
+Highest-severity open items: **B13**, **B4**, **D2**, **T6**.
 
 ---
 
@@ -118,17 +118,31 @@ and the markup failed to parse (`duplicate attribute: xmlns`). Consequences:
 path was unaffected. It survived because the whole stitching API had no tests
 (see T1).
 
-### B3. A tiny `binWidth` still allocates without bound — **Open**
+### B3. A tiny `binWidth` allocated without bound — **Fixed**
 
-**High.** `packages/mochart/src/data/Histogram.ts` — `getBinLayout`
+**High.** `packages/mochart/src/data/Histogram.ts` — `binValues`
 
-Distinct from B2. A *valid* finite positive `binWidth` can request an arbitrary
-number of bins: `binValues([1…10], { binWidth: 1e-7 })` asks for 90 million bin
-objects and exhausts the heap before returning. Any host binning
-user-controlled data with a user-controlled width can be hung by one input.
+Distinct from B2. A *valid* finite positive `binWidth` could request an
+arbitrary number of bins: `binValues([1…10], { binWidth: 1e-7 })` asked for 90
+million bin objects and exhausted the heap before returning. Any host binning
+user-controlled data with a user-controlled width could be hung by one input.
 
-Needs a decision: cap the bin count, and whether to throw past the cap (the
-function already throws on an inverted domain) or clamp and widen the bins.
+Capped at 10000 bins, throwing past it (like the existing inverted-domain
+check) rather than clamping — `binWidth` is documented as an *exact* width, so
+clamping would have to silently widen the bins or drop data. The pathological
+cases now throw in ~1ms:
+
+```
+binValues: 90000000 bins requested, more than the 10000 maximum
+```
+
+The cap is a memory safety net, not a legibility rule: nothing legible comes
+near it (the widest plot area is a few thousand device pixels, and Sturges on a
+million values gives 21 bins), so it only ever fires on a mistake. Minimum bar
+width is a separate, already-solved concern —
+[`categoryAxis.minCategoryValueExtent`](packages/mochart/src/data/AxisData.ts#L110)
+defaults to 1px and is applied at layout time, where the width is known and
+resize is handled.
 
 ### B13. `ManagedChartProps` types the loading state as impossible — **Open**
 
