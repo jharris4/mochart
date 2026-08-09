@@ -8,7 +8,8 @@ export interface WaterfallItem {
   /**
    * The signed change for a delta step. For a `total` step it instead resets
    * the running total (e.g. an audited opening or closing balance); when
-   * omitted the total shows the running total accumulated so far.
+   * omitted the total shows the running total accumulated so far. Non-finite
+   * values count as 0, and leave a total at its running value.
    */
   value?: number;
   /**
@@ -92,12 +93,13 @@ export function computeWaterfallSteps(items: readonly WaterfallItem[], base = 0)
   return items.map((item) => {
     const { label } = item;
     if (item.total === true) {
-      if (item.value !== undefined) {
+      if (item.value !== undefined && Number.isFinite(item.value)) {
         running = item.value;
       }
       return { label, delta: running - base, start: base, end: running, cumulative: running, direction: 'total' as const };
     }
-    const value = item.value ?? 0;
+    // a non-finite value would carry NaN through every later step's running total
+    const value = item.value !== undefined && Number.isFinite(item.value) ? item.value : 0;
     const start = running;
     running += value;
     return { label, delta: value, start, end: running, cumulative: running, direction: value < 0 ? 'decrease' as const : 'increase' as const };
