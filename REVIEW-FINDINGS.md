@@ -5,15 +5,20 @@ sweep (B1–B7, T1–T5, D1–D6) and a deeper second sweep (B8–B17, T6–T7, 
 
 Baseline, verified in isolation after every fix below: `npm test` (1213 core
 tests + all workspaces), `npm run typecheck`, `npm run lint`, and
-`npm run deadcode` all pass. Core statement coverage is 96% (branch 88%).
-Nothing here came from a failing check — the findings came from reading the
-source and probing the public API.
+`npm run deadcode` all pass, as does `npm run test:coverage` (96.25%
+statements, 88.52% branches). Nothing here came from a failing check — the
+findings came from reading the source and probing the public API.
+
+**32 findings: 16 fixed, 16 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Highest-severity open items: **T6**, **B12**.
+Nothing High is open. The two Medium items left are **B5** (series labels apply
+the tooltip prefix/suffix only in `auto` mode) and **D7** (the framework-props
+table reads `—` for `style` in all five bindings while three of them document
+their own `style`); everything else open is Low.
 
 ---
 
