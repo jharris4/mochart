@@ -99,7 +99,7 @@ interface DataProvider<TCategoryValue, TSeriesValue> {
   getCategoryValues(): readonly TCategoryValue[];
   getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, seriesProperty: string): TSeriesValue;
   getCategoryProperty?(): string;  // when present, getDataErrors flags a mismatch with categoryAxis.property
-  getError?(): unknown;    // truthy → the chart shows its error state
+  getError?(): unknown;    // non-null → the chart shows its error state ('' and 0 count)
   getLoading?(): boolean;  // true → the chart shows its loading state
   refresh?(): void;        // the handle's refresh() calls it before re-reading — invalidate caches here
 }
