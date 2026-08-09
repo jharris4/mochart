@@ -1,7 +1,7 @@
 # Repo review findings
 
 Review of the `mochart` monorepo on branch `review`, in two passes: a first
-sweep (B1–B7, T1–T5, D1–D6) and a deeper second sweep (B8–B17, T6–T7, D7–D8).
+sweep (B1–B7, T1–T5, D1–D6) and a deeper second sweep (B8–B18, T6–T7, D7–D8).
 
 Baseline, verified in isolation after every fix below: `npm test` (1216 core
 tests + all workspaces), `npm run typecheck`, `npm run lint`, and
@@ -9,13 +9,15 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**32 findings: 19 fixed, 13 open.**
+**33 findings: 19 fixed, 14 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 13 remaining are all Low.
+Nothing High is open. The one Medium item is **B18** (a `style` prop drops
+the chart root's `position: relative`, mispositioning the tooltip); the other
+13 are Low.
 
 ---
 
@@ -294,6 +296,48 @@ the auto one fails on the old code with `expected '$9 USD' to be '9'`.
 reuse the value affixes (which is what caused this bug), `labelPrefix` and
 `labelSuffix` were added as their own pair, mirroring the value ones and
 independent of `labelFormat` exactly as those are of `valueFormat`.
+
+### B18. A `style` prop silently drops the chart root's `position: relative` — **Open**
+
+**Medium.** `packages/mochart/src/components/Chart.ts` — `sync`
+
+`style` is a default *parameter*, so a caller's value replaces the default
+rather than merging with it:
+
+```js
+const defaultChartStyle = { position: 'relative' };
+const { style = defaultChartStyle, … } = this.props;
+```
+
+That default is load-bearing. The tooltip is an HTML overlay mounted inside
+`div.mochart-chart` and positioned `absolute` with `left`/`top` computed in the
+chart's own coordinate space, and the aria live region is `position: absolute`
+with the clipped-1px idiom. Both need the chart root to be a positioned
+ancestor. Measured:
+
+| `style` prop | resulting root style |
+| --- | --- |
+| *(omitted)* | `position: relative` |
+| `{ background: '#fff' }` | `background: rgb(255,255,255)` — **no position** |
+| `'background: #fff'` (string) | `background: rgb(255,255,255)` — **no position** |
+| `{ background: '#fff', position: 'relative' }` | both |
+
+So the natural thing — styling the chart root's background — silently moves the
+tooltip's containing block up to whatever ancestor happens to be positioned,
+and lets the live region escape its clip. Nothing warns: the prop is documented
+as "Inline style applied to the chart's root element" with no mention that one
+declaration is required.
+
+Only reachable through `createChart`/`createDefaultChart` directly — the five
+bindings never forward this prop (see D7), so they cannot trigger it. Medium
+rather than Low because the prop is plainly documented, the failure is silent,
+and the symptom (a tooltip in the wrong place) points nowhere near its cause.
+
+Fix is to merge the caller's style over `{ position: 'relative' }` instead of
+replacing it — nothing legitimate wants `position: static` there, and the
+current shape makes a required invariant look optional. Alternatively document
+that callers must include it, but that is a worse trade: an invariant the
+library depends on should not be the caller's job to remember.
 
 ### B12. Animated charts leave empty `style=""` attributes — **Open**
 
