@@ -86,4 +86,4 @@ documentation site is assembled and deployed.
 
 ## License
 
-BSD-3-Clause
+MIT

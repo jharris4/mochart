@@ -82,4 +82,4 @@ npm test -w @mochart/movalid
 
 ## License
 
-BSD-3-Clause
+MIT

@@ -4,7 +4,7 @@
   "description": "Angular demo gallery for the mochart charting library",
   "private": true,
   "type": "module",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "dependencies": {
     "@angular/common": "^22.0.7",
     "@angular/compiler": "^22.0.7",

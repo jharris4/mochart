@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Monorepo for the mochart charting library, the movalid validation library, and the mochart demo app",
   "private": true,
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "author": {
     "name": "Jon Harris",
     "url": "https://github.com/jharris4"

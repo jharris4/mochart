@@ -293,4 +293,4 @@ renderer changes.
 
 ## License
 
-BSD-3-Clause
+MIT

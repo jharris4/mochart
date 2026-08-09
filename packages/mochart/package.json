@@ -9,7 +9,7 @@
     "dynamic",
     "svg"
   ],
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "author": {
     "name": "Jon Harris",
     "url": "https://github.com/jharris4"
@@ -17,6 +17,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/jharris4/mochart.git"
+  },
+  "homepage": "https://mochart.org",
+  "publishConfig": {
+    "access": "public"
   },
   "type": "module",
   "main": "./dist/mochart.js",

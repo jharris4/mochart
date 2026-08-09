@@ -4,7 +4,7 @@
   "description": "Shared demo configs, datasets, and random specs for the mochart demo apps",
   "private": true,
   "type": "module",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "exports": {
     ".": "./src/index.ts",
     "./demos.json": "./src/demos.json"

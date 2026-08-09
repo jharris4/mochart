@@ -4,7 +4,7 @@
   "description": "Minimal no-framework demo harness for the mochart charting library",
   "private": true,
   "type": "module",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "dependencies": {
     "@mochart/core": "^1.0.0",
     "@mochart/demo-data": "^1.0.0",
