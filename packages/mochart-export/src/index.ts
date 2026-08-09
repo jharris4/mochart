@@ -287,22 +287,32 @@ function rasterizeSvgText(svgText: string, width: number, height: number, scale:
   return new Promise<Blob>((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.round(width * scale));
-      canvas.height = Math.max(1, Math.round(height * scale));
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('mochart-export: could not create a 2d canvas context'));
-        return;
-      }
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error('mochart-export: could not encode the chart canvas as png'));
+      // a throw here escapes the event handler rather than the promise executor, so
+      // without this the promise would never settle (drawImage/toBlob raise
+      // SecurityError on a canvas tainted by a cross-origin image in the chart)
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(width * scale));
+        canvas.height = Math.max(1, Math.round(height * scale));
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('mochart-export: could not create a 2d canvas context'));
           return;
         }
-        resolve(blob);
-      });
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('mochart-export: could not encode the chart canvas as png'));
+            return;
+          }
+          resolve(blob);
+        });
+      }
+      catch (error) {
+        // rejected as-is: a DOMException's name (SecurityError) is the diagnosis,
+        // and wrapping it in a generic Error would throw that away
+        reject(error);
+      }
     };
     img.onerror = () => {
       reject(new Error('mochart-export: failed to rasterize the chart svg'));
