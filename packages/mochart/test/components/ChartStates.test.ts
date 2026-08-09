@@ -104,6 +104,25 @@ describe('chart state arbitration', () => {
   });
 });
 
+describe('the no-size state', () => {
+  function chartSvg(width: number, height: number): SVGSVGElement | null {
+    return mountChart({ width, height } as Partial<DefaultChartProps>).querySelector('svg');
+  }
+
+  it('renders the chart at a positive size', () => {
+    const svg = chartSvg(WIDTH, HEIGHT);
+    expect(svg?.getAttribute('width')).toBe(String(WIDTH));
+  });
+
+  // Regression: only an exact 0 took the no-size route, so negative and
+  // non-finite sizes reached the svg as invalid width/height attributes.
+  it('takes the no-size route for any non-positive or non-finite size', () => {
+    for (const [width, height] of [[0, HEIGHT], [WIDTH, 0], [-100, -50], [NaN, HEIGHT], [WIDTH, NaN]]) {
+      expect(chartSvg(width, height), `${width}x${height}`).toBeNull();
+    }
+  });
+});
+
 /**
  * The managed entry point takes a null mochartConfig (what the bindings pass
  * while a host is still loading). Regression: only the config going *away* was
