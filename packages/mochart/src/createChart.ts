@@ -35,7 +35,11 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
   destroy(): void;
 }
 
-/** A delegating copy with a new identity, so the pipeline re-reads a provider it has already seen. */
+/**
+ * A delegating copy with a new identity, so the pipeline re-reads a provider it
+ * has already seen. Internal to the read path — `props.dataProvider` stays the
+ * host's own object, which is what the state-component factories receive.
+ */
 function withFreshIdentity(dataProvider: DataProvider): DataProvider {
   const fresh: DataProvider = {
     getCategoryValues: () => dataProvider.getCategoryValues(),
@@ -61,39 +65,41 @@ function withFreshIdentity(dataProvider: DataProvider): DataProvider {
  * attributes that actually changed; there is no vdom.
  */
 export function createChart(container: Element, props: ManagedChartProps): ChartHandle<ManagedChartProps> {
-  // the host's own provider, never a refresh wrapper, so wrappers don't nest
-  let hostDataProvider = props.dataProvider;
-  // despite the prop type, bindings mount with a null provider for loading/error states
-  let chartDataProvider = hostDataProvider ? withFreshIdentity(hostDataProvider) : hostDataProvider;
-  let currentProps = { ...props, dataProvider: chartDataProvider };
-  const controller = new ChartController(container, currentProps);
+  // props keep the host's own provider — that is what the state-component factories
+  // are handed. The pipeline reads through a fresh-identity delegate instead, so
+  // refresh() can make it re-read a provider whose identity has not changed.
+  let currentProps = { ...props };
+  let readDataProvider = wrapForReads(currentProps.dataProvider);
+  const controller = new ChartController(container, currentProps, readDataProvider);
   return {
     update(nextProps: Partial<ManagedChartProps>) {
-      if (nextProps.dataProvider !== undefined && nextProps.dataProvider !== hostDataProvider) {
-        hostDataProvider = nextProps.dataProvider;
-        chartDataProvider = hostDataProvider ? withFreshIdentity(hostDataProvider) : hostDataProvider;
+      if (nextProps.dataProvider !== undefined && nextProps.dataProvider !== currentProps.dataProvider) {
+        readDataProvider = wrapForReads(nextProps.dataProvider);
       }
-      currentProps = { ...currentProps, ...nextProps, dataProvider: chartDataProvider };
-      controller.update(currentProps);
+      currentProps = { ...currentProps, ...nextProps };
+      controller.update(currentProps, readDataProvider);
     },
     replace(nextProps: ManagedChartProps) {
-      if (nextProps.dataProvider !== hostDataProvider) {
-        hostDataProvider = nextProps.dataProvider;
-        chartDataProvider = hostDataProvider ? withFreshIdentity(hostDataProvider) : hostDataProvider;
+      if (nextProps.dataProvider !== currentProps.dataProvider) {
+        readDataProvider = wrapForReads(nextProps.dataProvider);
       }
-      currentProps = { ...nextProps, dataProvider: chartDataProvider };
-      controller.update(currentProps);
+      currentProps = { ...nextProps };
+      controller.update(currentProps, readDataProvider);
     },
     refresh() {
-      hostDataProvider?.refresh?.();
-      chartDataProvider = hostDataProvider ? withFreshIdentity(hostDataProvider) : hostDataProvider;
-      currentProps = { ...currentProps, dataProvider: chartDataProvider };
-      controller.update(currentProps);
+      currentProps.dataProvider?.refresh?.();
+      readDataProvider = wrapForReads(currentProps.dataProvider);
+      controller.update(currentProps, readDataProvider);
     },
     destroy() {
       controller.destroy();
     }
   };
+}
+
+/** null stays null: bindings mount with no provider for the loading/error states. */
+function wrapForReads(dataProvider: DataProvider | null | undefined): DataProvider | null {
+  return dataProvider ? withFreshIdentity(dataProvider) : null;
 }
 
 /**
@@ -104,23 +110,24 @@ export function createDefaultChart(container: Element, props: DefaultChartProps)
   let currentProps = { ...props };
   const input = new DefaultChartInput();
   input.start(currentProps);
-  const controller = new ChartController(container, toManagedProps(currentProps, input));
+  // no delegate here: DefaultChartInput mints a new provider whenever it re-reads
+  const controller = new ChartController(container, toManagedProps(currentProps, input), input.dataProvider);
   return {
     update(nextProps: Partial<DefaultChartProps>) {
       const prevProps = currentProps;
       currentProps = { ...currentProps, ...nextProps };
       input.update(prevProps, currentProps);
-      controller.update(toManagedProps(currentProps, input));
+      controller.update(toManagedProps(currentProps, input), input.dataProvider);
     },
     replace(nextProps: DefaultChartProps) {
       const prevProps = currentProps;
       currentProps = { ...nextProps };
       input.update(prevProps, currentProps);
-      controller.update(toManagedProps(currentProps, input));
+      controller.update(toManagedProps(currentProps, input), input.dataProvider);
     },
     refresh() {
       input.refresh(currentProps);
-      controller.update(toManagedProps(currentProps, input));
+      controller.update(toManagedProps(currentProps, input), input.dataProvider);
     },
     destroy() {
       controller.destroy();
