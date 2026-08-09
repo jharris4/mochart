@@ -80,7 +80,7 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/jharris4/mochart' }
     ],
     footer: {
-      message: 'Released under the BSD-3-Clause License.'
+      message: 'Released under the MIT License.'
     }
   }
 });
