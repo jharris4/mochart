@@ -144,7 +144,7 @@ export interface ChartFactories {
   getErrorComponent?: ChartContentFactory;
   /** Rendered when the dataset has no categories. */
   getNoDataComponent?: ChartContentFactory;
-  /** Rendered when width or height is 0. */
+  /** Rendered when width or height is not a positive number (0 before a container is laid out). */
   getNoSizeComponent?: ChartContentFactory;
   /** Rendered when the config declares no series. */
   getNoSeriesComponent?: ChartContentFactory;

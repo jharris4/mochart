@@ -27,8 +27,8 @@ chart.update({ error: 'Request failed' }); // show the error state
   (`''` and `0` count)
 - **Config error** — the config failed [validation](/guide/config-model#validation)
 - **No data / no series** — the dataset is empty or no series are configured
-- **No size** — width or height is 0 (e.g. the container hasn't been laid
-  out yet)
+- **No size** — width or height is not a positive number (e.g. 0, before the
+  container has been laid out)
 
 When `loading` and `error` are both set, the error state wins: the loading
 overlay is not shown while an error is active.

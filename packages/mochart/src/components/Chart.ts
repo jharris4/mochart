@@ -983,9 +983,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       getConfigErrorComponent: configErrorFactory = getConfigErrorComponent
     } = this.props;
 
-    if ((width === 0 || height === 0) || (mochartConfig && !mochartConfig.validation.valid)) {
+    // negative and non-finite sizes take the same route as 0: they would otherwise
+    // reach the svg as invalid width/height attributes
+    const hasSize = width > 0 && height > 0;
+    if (!hasSize || (mochartConfig && !mochartConfig.validation.valid)) {
       let errorComponent: FactoryContent = false;
-      if (width === 0 || height === 0) {
+      if (!hasSize) {
         errorComponent = noSizeFactory({ mochartConfig, width, height });
       }
       else if (mochartConfig) {
