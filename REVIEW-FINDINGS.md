@@ -391,7 +391,7 @@ them failed on the unfixed code, which is what identified B1.
 The cap cases assert on the error text, so the limit cannot be quietly raised
 without the test noticing.
 
-### T6. `npm run test:coverage` does not pass — **Open**
+### T6. `npm run test:coverage` did not pass — **Fixed**
 
 **Medium.** `npm run test:coverage` fails: a golden demo crosses the configured
 30s `testTimeout`, a different one each run (`cluttered`, then
@@ -415,20 +415,25 @@ files' workers busy longer; under that saturation the heaviest demos are
 starved of CPU and stretch past 30s. That is why it never reproduces alone and
 why the victim changes.
 
-**Recommended:** raise `testTimeout` to 120000 scoped to `golden.test.ts` via
-`vi.setConfig`, not globally — the goldens are the only tests within an order
-of magnitude of the limit, and 30s stays a live hang detector for the other 85
-files, whose tests run in milliseconds. 120s is ~4x the worst observed (30.8s)
+**Fix:** `vi.setConfig({ testTimeout: 120_000 })` at the top of
+`golden.test.ts`, with the global 30s left alone and a pointer to the override
+added beside it.
+
+File-scoped rather than global because the goldens are the only tests within an
+order of magnitude of the limit — the other 85 files run in milliseconds, so
+30s stays a live hang detector there. 120s is ~4x the worst observed (30.8s)
 and ~26x the instrumented baseline, while still failing a real hang inside two
-minutes. Verified: `--testTimeout=120000` takes the full coverage run to
-86 files / 1213 tests green in 95s (96.25% statements, 88.52% branches).
+minutes.
 
-Not recommended: excluding the goldens from coverage guts the signal (they are
-what exercises the renderer), and `--no-file-parallelism` removes the
-contention at the cost of every coverage run being far slower.
+Not taken: excluding the goldens from coverage guts the signal (they are what
+exercises the renderer); `--no-file-parallelism` removes the contention at the
+cost of every coverage run being far slower; splitting the file would work but
+is churn for something one line fixes.
 
-Pair it with T5 — CI runs `npm test`, never `test:coverage`, which is why this
-sat broken; running coverage in CI with thresholds is one follow-up, not two.
+**Follow-up (open, low):** nothing keeps this working. CI runs `npm test` and
+never `test:coverage`, which is why it sat broken — that is the same decision
+as T5 (no thresholds), so "run coverage in CI with thresholds" is one
+follow-up, not two. The numbers above are the floors to set.
 
 ### T3. Renderer and component function coverage — **Open**
 

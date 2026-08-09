@@ -5,6 +5,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     // Golden demos with 2000ms animations re-render hundreds of frames; slow CI runners exceed the 5s default.
+    // The golden file raises this further for itself (test/golden/golden.test.ts) — coverage runs starve it.
     testTimeout: 30000,
     coverage: {
       provider: 'v8',
