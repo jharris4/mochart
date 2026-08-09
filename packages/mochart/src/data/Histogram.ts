@@ -19,10 +19,13 @@ export interface BinValuesOptions {
    * Ignored when `binWidth` is set. When omitted — or when non-finite — the
    * count is derived from the data via Sturges' formula. With `nice`
    * enabled (the default) the actual count may differ slightly so that bin
-   * edges land on round numbers.
+   * edges land on round numbers. Asking for more than 10000 bins throws.
    */
   binCount?: number;
-  /** Exact bin width. Takes precedence over `binCount`; ignored unless finite and positive. */
+  /**
+   * Exact bin width. Takes precedence over `binCount`; ignored unless finite
+   * and positive. A width small enough to need more than 10000 bins throws.
+   */
   binWidth?: number;
   /**
    * The value range to bin over. Values outside the domain are ignored.
@@ -81,6 +84,9 @@ export interface HistogramData {
 const CATEGORY_PROPERTY = 'binLabel';
 const DEFAULT_VALUE_PROPERTY = 'value';
 const NICE_STEPS = [1, 2, 5, 10];
+// a tiny binWidth or a huge binCount allocates until the heap gives out; the widest
+// plot area is a few thousand pixels, so nothing legible comes near this
+const MAX_BIN_COUNT = 10000;
 
 export function binValues(values: readonly number[], options: BinValuesOptions = {}): HistogramBin[] {
   const finiteValues = values.filter((value) => Number.isFinite(value));
@@ -94,6 +100,9 @@ export function binValues(values: readonly number[], options: BinValuesOptions =
   }
 
   const { start, width, binCount } = getBinLayout(domainMin, domainMax, finiteValues.length, options);
+  if (binCount > MAX_BIN_COUNT) {
+    throw new Error(`binValues: ${binCount} bins requested, more than the ${MAX_BIN_COUNT} maximum`);
+  }
   const bins: HistogramBin[] = [];
   for (let i = 0; i < binCount; i++) {
     const binStart = roundToPrecision(start + i * width, width);

@@ -68,6 +68,17 @@ describe('binValues', () => {
     expect(() => binValues([1, 2], { domain: [10, 0] })).toThrow();
   });
 
+  it('bins right up to the maximum bin count', () => {
+    expect(binValues([0, 10000], { binWidth: 1, nice: false })).toHaveLength(10000);
+  });
+
+  it('throws rather than allocating past the maximum bin count', () => {
+    expect(() => binValues([0, 10001], { binWidth: 1, nice: false })).toThrow(/10000 maximum/);
+    // a bin width small enough to ask for ~90 million bins used to exhaust the heap
+    expect(() => binValues([1, 10], { binWidth: 1e-7 })).toThrow(/10000 maximum/);
+    expect(() => binValues([1, 10], { binCount: 1e6, nice: false })).toThrow(/10000 maximum/);
+  });
+
   it('rounds a fractional binCount down to a whole count', () => {
     const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const bins = binValues(values, { binCount: 2.5, nice: false });
@@ -128,6 +139,10 @@ describe('binValues', () => {
 });
 
 describe('createHistogram', () => {
+  it('inherits the maximum bin count', () => {
+    expect(() => createHistogram([1, 10], { binWidth: 1e-7 })).toThrow(/10000 maximum/);
+  });
+
   it('returns rows keyed by the default properties', () => {
     const { data } = createHistogram([0, 1, 2, 8, 9], { binWidth: 5 });
     expect(data).toEqual([
