@@ -407,8 +407,9 @@ function getSeriesFilteredFlags(seriesConfigs: EnhancedSeriesConfig[], filteredS
   const seriesFilteredFlags: Record<string, boolean> = Object.create(null);
   for (const seriesConfig of seriesConfigs) {
     // own-key check: the map may be a host-provided plain object, so ids like constructor must not hit Object.prototype
+    // only true filters: a controlled map may carry false for the series it wants shown
     seriesFilteredFlags[seriesConfig.id] = Object.prototype.hasOwnProperty.call(filteredSeriesMap, seriesConfig.id) &&
-      filteredSeriesMap[seriesConfig.id] !== undefined;
+      filteredSeriesMap[seriesConfig.id] === true;
   }
   return seriesFilteredFlags;
 }

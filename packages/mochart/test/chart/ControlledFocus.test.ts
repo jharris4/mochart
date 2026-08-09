@@ -101,6 +101,20 @@ describe('controlled filteredSeriesIds', () => {
     runFrames();
     expect(seriesIds(container)).toEqual(['mochart-series-sales', 'mochart-series-costs']);
   });
+
+  // Regression: the map was read as "present" rather than "true", so a host
+  // that spelled out the unfiltered series hid every one of them.
+  it('treats an explicit false as not filtered', () => {
+    const { chart, container } = mountChart();
+
+    chart.update({ filteredSeriesIds: { sales: false, costs: false } });
+    runFrames();
+    expect(seriesIds(container)).toEqual(['mochart-series-sales', 'mochart-series-costs']);
+
+    chart.update({ filteredSeriesIds: { sales: false, costs: true } });
+    runFrames();
+    expect(seriesIds(container)).toEqual(['mochart-series-sales']);
+  });
 });
 
 describe('synchronous host re-entrancy', () => {
