@@ -136,7 +136,7 @@ column count to the chart count would trim it.
 
 **High.** `exportChartsSVG`, `exportChartsPNG`, and `getStitchedChartsSvgText`
 are documented in the package README and the export guide, and none of the three
-had a single test — which is why B1 shipped. Added 12 cases covering grid sizing,
+had a single test — which is why B1 shipped. Added 11 cases covering grid sizing,
 cell centering, row wrapping and gaps, background handling, elements without a
 chart, filename derivation, the `false`/`null` no-chart returns, keyboard-semantics
 stripping, and the B1 regression.
