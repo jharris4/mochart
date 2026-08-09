@@ -185,10 +185,10 @@ export interface BaseChartProps extends ChartCallbacks, ChartFactories {
 
 /** Props accepted by createChart, which takes an already enhanced config. */
 export interface ManagedChartProps extends BaseChartProps {
-  /** The enhanced config produced by `enhanceConfig` (validated, defaults applied). */
-  mochartConfig: MochartConfig;
-  /** The data source; use a built-in provider or any `DataProvider` implementation. */
-  dataProvider: DataProvider;
+  /** The enhanced config produced by `enhanceConfig` (validated, defaults applied); null while the host is still loading it. */
+  mochartConfig: MochartConfig | null;
+  /** The data source; use a built-in provider or any `DataProvider` implementation. Null while the host is still loading it. */
+  dataProvider: DataProvider | null;
 }
 
 /** Props accepted by createDefaultChart, which enhances a raw config. */

@@ -12,7 +12,7 @@ source and probing the public API.
 **Fixed** items are committed on this branch, one commit each, referencing the
 id. **Open** items need a decision and were deliberately left alone.
 
-Highest-severity open items: **B13**, **B4**, **D2**, **T6**.
+Highest-severity open items: **B4**, **D2**, **T6**.
 
 ---
 
@@ -144,23 +144,35 @@ width is a separate, already-solved concern —
 defaults to 1px and is applied at layout time, where the width is known and
 resize is handled.
 
-### B13. `ManagedChartProps` types the loading state as impossible — **Open**
+### B13. `ManagedChartProps` typed the loading state as impossible — **Fixed**
 
-**Medium.** `packages/mochart/src/types/chart.ts:189`
+**Medium.** `packages/mochart/src/types/chart.ts`
 
 ```ts
 mochartConfig: MochartConfig;   // and dataProvider: DataProvider
 ```
 
-Both are non-nullable, but core implements the null case (`Chart.sync` has
+Both were non-nullable, but core implements the null case (`Chart.sync` has
 explicit `if (!mochartConfig)` branches), all five bindings declare
-`MochartConfig | null` / `DataProvider | null`, and `createChart` carries the
+`MochartConfig | null` / `DataProvider | null`, and `createChart` carried the
 comment *"despite the prop type, bindings mount with a null provider"*. So a
-TypeScript host calling `createChart` directly cannot express the loading state
-the bindings rely on — the regression test added for B10 needs a cast.
+TypeScript host calling `createChart` directly could not express the loading
+state the bindings rely on — the B10 regression test needed a cast.
 
-Fix is to widen both to `| null`. Left open because it changes a published type
-on a release-prep branch.
+Both widened to `| null`, and the cast dropped from that test. Type-only
+change: no runtime behaviour moved, and widening an input type keeps existing
+callers compiling.
+
+**Follow-up (open, low):** the two *internal* types the controller forwards
+into — `ChartProps` (`components/Chart.ts`) and the publicly exported
+`ChartDataSourceInput` (`chart/ChartDataSource.ts`) — still declare both
+non-null, so `ChartController` casts at that boundary (now with a comment
+saying why). Widening them too is correct but cascades to 65 type errors,
+almost all in `Chart.ts` where the config is non-null by control flow rather
+than by type; that is a refactor with real regression risk and no runtime
+change, so it was left out of a release-prep branch. It matters mainly for
+hosts implementing a custom `ChartDataSource`, which the API reference lists
+under "Advanced exports".
 
 ### B4. State-component factories receive an internal provider wrapper — **Open**
 

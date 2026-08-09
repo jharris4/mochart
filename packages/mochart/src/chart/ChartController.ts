@@ -6,7 +6,7 @@ import { AnimatedDataSource } from './AnimatedDataSource';
 import type { ChartDataSource, ChartDataSourceInput, InternalFocus } from './ChartDataSource';
 import type { ChartProps } from '../components/Chart';
 import type { ManagedChartProps } from '../types/chart';
-import type { CategoryValue } from '../types/data';
+import type { CategoryValue, DataProvider } from '../types/data';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 
 /**
@@ -100,8 +100,10 @@ export class ChartController {
   }
 
   private buildInput(): ChartDataSourceInput {
+    // casts: the props are nullable while a host loads, and the internal input/renderer
+    // types still declare them non-null (both guard for null at every read)
     const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig;
-    const { dataProvider } = this.props;
+    const dataProvider = this.props.dataProvider as DataProvider;
     const { filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = this.focus;
     return { mochartConfig, dataProvider, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId };
   }
@@ -140,7 +142,7 @@ export class ChartController {
       onChartClick, onSliceClick, onSeriesClick, onChartMouseEnter, onChartMouseMove, onChartMouseLeave, onTitleClick, onSeriesLayoutBoundsChange,
       getLoadingComponent, getErrorComponent, getNoDataComponent, getNoSizeComponent, getNoSeriesComponent, getConfigErrorComponent
     } = this.props;
-    return { mochartConfig: mochartConfig as EnhancedMochartConfig, dataProvider, loading, error, style, width, height, standalone: true,
+    return { mochartConfig: mochartConfig as EnhancedMochartConfig, dataProvider: dataProvider as DataProvider, loading, error, style, width, height, standalone: true,
       chartData: this.source.chartData, focusData: this.source.focusData,
       initialAnimationPercentage: this.source.initialAnimationPercentage,
       onFocus: this.handleFocus, onSeriesFilter: this.handleSeriesFilter,
