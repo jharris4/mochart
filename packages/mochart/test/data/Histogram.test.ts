@@ -68,6 +68,39 @@ describe('binValues', () => {
     expect(() => binValues([1, 2], { domain: [10, 0] })).toThrow();
   });
 
+  it('rounds a fractional binCount down to a whole count', () => {
+    const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const bins = binValues(values, { binCount: 2.5, nice: false });
+    expect(bins).toHaveLength(2);
+    expect(bins.reduce((sum, bin) => sum + bin.count, 0)).toBe(values.length);
+  });
+
+  it('falls back to the derived count for a non-finite binCount', () => {
+    const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const derived = binValues(values, { nice: false });
+    for (const binCount of [NaN, Infinity, -Infinity]) {
+      const bins = binValues(values, { binCount, nice: false });
+      expect(bins).toHaveLength(derived.length);
+      expect(bins.reduce((sum, bin) => sum + bin.count, 0)).toBe(values.length);
+    }
+  });
+
+  it('clamps a non-positive binCount to a single bin', () => {
+    const bins = binValues([1, 2, 3], { binCount: 0, nice: false });
+    expect(bins).toHaveLength(1);
+    expect(bins[0].count).toBe(3);
+  });
+
+  it('ignores a non-finite or non-positive binWidth', () => {
+    const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const derived = binValues(values);
+    for (const binWidth of [NaN, Infinity, 0, -1]) {
+      const bins = binValues(values, { binWidth });
+      expect(bins).toHaveLength(derived.length);
+      expect(bins.reduce((sum, bin) => sum + bin.count, 0)).toBe(values.length);
+    }
+  });
+
   it('avoids floating point noise on fractional bin edges', () => {
     const bins = binValues([0.05, 0.15, 0.25, 0.35], { binWidth: 0.1 });
     expect(bins.map((bin) => bin.start)).toEqual([0, 0.1, 0.2, 0.3]);
