@@ -15,13 +15,14 @@ export interface HistogramBin {
 
 export interface BinValuesOptions {
   /**
-   * Approximate number of bins. Ignored when `binWidth` is set. When omitted
-   * the count is derived from the data via Sturges' formula. With `nice`
+   * Approximate number of bins, rounded down to a whole count of at least one.
+   * Ignored when `binWidth` is set. When omitted — or when non-finite — the
+   * count is derived from the data via Sturges' formula. With `nice`
    * enabled (the default) the actual count may differ slightly so that bin
    * edges land on round numbers.
    */
   binCount?: number;
-  /** Exact bin width. Takes precedence over `binCount`. */
+  /** Exact bin width. Takes precedence over `binCount`; ignored unless finite and positive. */
   binWidth?: number;
   /**
    * The value range to bin over. Values outside the domain are ignored.
@@ -204,9 +205,11 @@ function getBinLayout(
   const extent = domainMax - domainMin;
   const nice = options.nice ?? true;
 
-  let width = options.binWidth ?? 0;
+  // a non-finite width would carry NaN into every edge, so it counts as unset
+  const requestedWidth = options.binWidth;
+  let width = requestedWidth !== undefined && Number.isFinite(requestedWidth) && requestedWidth > 0 ? requestedWidth : 0;
   if (width <= 0) {
-    const targetCount = options.binCount ?? getSturgesBinCount(valueCount);
+    const targetCount = getTargetBinCount(options.binCount, valueCount);
     if (extent === 0) {
       // All values identical — a single unit-width (or nice-width) bin.
       width = nice ? getNiceStep(1) : 1;
@@ -222,6 +225,15 @@ function getBinLayout(
   // A max landing exactly on an edge still needs a bin to fall into.
   const binCount = Math.max(1, spanned % 1 === 0 && spanned > 0 ? spanned : Math.ceil(spanned));
   return { start, width, binCount };
+}
+
+// bin counts size an array, so a fractional or non-finite request would index bins that do not exist
+function getTargetBinCount(requested: number | undefined, valueCount: number): number {
+  const derived = getSturgesBinCount(valueCount);
+  if (requested === undefined || !Number.isFinite(requested)) {
+    return derived;
+  }
+  return Math.max(1, Math.floor(requested));
 }
 
 function getSturgesBinCount(valueCount: number): number {
