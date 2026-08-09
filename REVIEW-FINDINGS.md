@@ -12,7 +12,7 @@ source and probing the public API.
 **Fixed** items are committed on this branch, one commit each, referencing the
 id. **Open** items need a decision and were deliberately left alone.
 
-Highest-severity open items: **B4**, **D2**, **T6**.
+Highest-severity open items: **D2**, **T6**.
 
 ---
 
@@ -174,25 +174,34 @@ change, so it was left out of a release-prep branch. It matters mainly for
 hosts implementing a custom `ChartDataSource`, which the API reference lists
 under "Advanced exports".
 
-### B4. State-component factories receive an internal provider wrapper — **Open**
+### B4. State-component factories received an internal provider wrapper — **Fixed**
 
 **Medium.** `packages/mochart/src/createChart.ts` — `withFreshIdentity`
 
 `createChart` wraps the host's `dataProvider` in a delegating copy so the
-pipeline re-reads a provider it has already seen. That wrapper — not the host's
-object — reaches the `getLoadingComponent` / `getErrorComponent` / … context:
+pipeline re-reads a provider it has already seen (that is what makes
+`refresh()` work when the host mutates data in place). That wrapper — not the
+host's object — reached the `getLoadingComponent` / `getErrorComponent` / …
+context:
 
 ```
 identity === host: false | instanceof ArrayOfObjectsDataProvider: false | has refresh(): false
 ```
 
-So a factory cannot `instanceof`-check its own provider, read custom members,
-or call `refresh()`. The wrapper forwards `getCategoryProperty`, `getError`,
-and `getLoading` but not `refresh`, so it does not satisfy the `DataProvider`
-contract it is typed as. `createDefaultChart` is unaffected.
+So a factory could not `instanceof`-check its own provider, read custom members
+(`getErrorComponent: ({ dataProvider }) => retry(dataProvider.retry)` got
+`undefined`), or call `refresh()` — all silently. The wrapper forwarded
+`getCategoryProperty`, `getError`, and `getLoading` but not `refresh`, so it did
+not satisfy the `DataProvider` contract it was typed as.
+`createDefaultChart` was unaffected.
 
-Needs a decision: pass the host provider into the factory context, or complete
-the wrapper and document that the context provider is a delegate.
+Fixed by separating the two concerns instead of conflating them:
+`props.dataProvider` now stays the host's own object — what the factories are
+handed — and the fresh-identity delegate moved to an explicit
+`readDataProvider` the controller passes to the data sources.
+`FocusController.reconcile` compares the *read* providers too, since remapping
+focus after an in-place reorder keys off exactly the identity change the
+delegate exists to create.
 
 ### B5. Series labels apply the tooltip prefix/suffix only in `auto` mode — **Open**
 

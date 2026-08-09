@@ -11,7 +11,7 @@ import { createChart, createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import { enhanceConfig } from '../../src/config/helper';
 import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
-import type { DefaultChartProps, ManagedChartProps } from '../../src/types/chart';
+import type { ChartFactoryContext, DefaultChartProps, ManagedChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 
 const WIDTH = 800;
@@ -101,6 +101,47 @@ describe('chart state arbitration', () => {
   it('does not enter the error state for null or undefined', () => {
     expect(stateClasses(mountChart({ error: null }))).toEqual([]);
     expect(stateClasses(mountChart({ error: undefined }))).toEqual([]);
+  });
+});
+
+/**
+ * createChart reads through a fresh-identity delegate so refresh() can re-read a
+ * provider whose identity has not changed. Regression: that delegate, rather than
+ * the host's own provider, was what reached the state-component factories, so it
+ * failed instanceof checks and dropped refresh() and any custom members.
+ */
+describe('the provider handed to the state factories', () => {
+  class CountingProvider extends ArrayOfObjectsDataProvider {
+    readonly label = 'mine';
+    rowCount(): number {
+      return this.getCategoryValues().length;
+    }
+  }
+
+  function seenProvider(): unknown {
+    let seen: unknown = 'NOT CALLED';
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    createChart(container, {
+      mochartConfig: enhanceConfig(config),
+      dataProvider: new CountingProvider(rows, 'month'),
+      width: WIDTH,
+      height: HEIGHT,
+      error: 'boom',
+      getErrorComponent: (context: ChartFactoryContext) => {
+        seen = context.dataProvider;
+        return 'error';
+      }
+    } as unknown as ManagedChartProps);
+    return seen;
+  }
+
+  it('is the host\'s own provider', () => {
+    const seen = seenProvider();
+    expect(seen).toBeInstanceOf(CountingProvider);
+    expect((seen as CountingProvider).label).toBe('mine');
+    expect((seen as CountingProvider).rowCount()).toBe(rows.length);
+    expect(typeof (seen as CountingProvider).refresh).toBe('function');
   });
 });
 

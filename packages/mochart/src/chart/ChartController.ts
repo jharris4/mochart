@@ -22,18 +22,21 @@ export class ChartController {
   private focus = new FocusController();
   private source: ChartDataSource;
   private props: ManagedChartProps;
+  /** What the data sources read: for createChart a fresh-identity delegate, not props.dataProvider (the host's own object, which the state factories get). */
+  private readDataProvider: DataProvider | null;
   private lastInput: ChartDataSourceInput;
   private lastCategoryValues: readonly CategoryValue[] | null = null;
   private destroyed = false;
   private reducedMotion: MediaQueryList | null;
 
-  constructor(container: Element, props: ManagedChartProps) {
+  constructor(container: Element, props: ManagedChartProps, readDataProvider: DataProvider | null) {
     // environments without matchMedia (SSR) count as no preference
     this.reducedMotion = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
       ? window.matchMedia('(prefers-reduced-motion: reduce)')
       : null;
     this.reducedMotion?.addEventListener('change', this.handleReducedMotionChange);
     this.props = props;
+    this.readDataProvider = readDataProvider;
     this.focus.applyExternal(props);
     this.source = this.createSource();
     this.lastInput = this.buildInput();
@@ -42,13 +45,19 @@ export class ChartController {
     this.chart.mount(container, null, this.chartProps());
   }
 
-  update(props: ManagedChartProps): void {
+  update(props: ManagedChartProps, readDataProvider: DataProvider | null): void {
     if (this.destroyed) {
       return;
     }
     const prev = this.props;
-    const changes = this.focus.reconcile(prev, props, this.lastCategoryValues);
+    // reconcile compares the read providers, not the props: refresh() hands the
+    // pipeline a new identity while props.dataProvider (the host's own object) stays put
+    const changes = this.focus.reconcile(
+      { mochartConfig: prev.mochartConfig, dataProvider: this.readDataProvider },
+      { mochartConfig: props.mochartConfig, dataProvider: readDataProvider },
+      this.lastCategoryValues);
     this.props = props;
+    this.readDataProvider = readDataProvider;
     this.focus.applyExternal(props);
     this.applyInput();
     // notify after the commit (a host may synchronously update() again from these),
@@ -93,7 +102,7 @@ export class ChartController {
   /** Snapshot the committed category ordering (the sources' read gate); reconcile remaps focus from it. */
   private captureCategoryValues(): void {
     const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig | null | undefined;
-    const { dataProvider } = this.props;
+    const dataProvider = this.readDataProvider;
     this.lastCategoryValues = mochartConfig?.validation.valid && dataProvider && isDataProviderValid(dataProvider)
       ? [...dataProvider.getCategoryValues()]
       : null;
@@ -103,7 +112,7 @@ export class ChartController {
     // casts: the props are nullable while a host loads, and the internal input/renderer
     // types still declare them non-null (both guard for null at every read)
     const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig;
-    const dataProvider = this.props.dataProvider as DataProvider;
+    const dataProvider = this.readDataProvider as DataProvider;
     const { filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = this.focus;
     return { mochartConfig, dataProvider, filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId };
   }
