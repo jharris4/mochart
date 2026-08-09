@@ -73,6 +73,10 @@ export function getCommonReferenceMessage(sourceSectionKey: string | string[], s
   return 'should equal the ' + sourceProperty + ' property of one of the ' + formatSectionKey(sourceSectionKey) + ' that has the same ' + commonProperty + ' property';
 }
 
+export function getFollowSeriesMessage(): string {
+  return 'should equal the id property of a series that does not itself set followSeries';
+}
+
 export const configWithoutAllValidators: Record<string, ConfigSectionValidator> = {
   version: {
     // optional: an omitted version means the current config format; a present
@@ -284,6 +288,7 @@ function validateConfigInternal(configWithoutDefaults: unknown, configDefaults: 
         }
       }
     }
+    validateFollowSeries(config, configWithoutDefaults, errors, errorDetails);
   }
   else {
     const message = objectValidator.getErrorMessage(configWithoutDefaults);
@@ -468,6 +473,42 @@ function validateReferences(config: ConfigRecord, configWithoutDefaults: ConfigR
   }
   validateReferencesInternal(config, configWithoutDefaults[targetSectionKey], targetSectionKey, targetProperty,
     sourceSectionKey, sourceProperty, errors, errorDetails);
+}
+
+// follower lookups never walk transitively, so a follower must not itself be followed
+function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: ConfigRecord, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+  const seriesSections = config['series'];
+  if (!Array.isArray(seriesSections)) {
+    return;
+  }
+  const isFollower: Record<string, boolean> = Object.create(null); // null proto: ids like "__proto__" must be storable
+  for (const section of seriesSections.filter(isConfigRecord)) {
+    if (section['id'] !== undefined && section['followSeries'] !== undefined && section['followSeries'] !== NONE) {
+      isFollower[String(section['id'])] = true;
+    }
+  }
+  // built sections drop ignored/non-object raw entries, so report at the filtered raw index
+  const rawSections = Array.isArray(configWithoutDefaults['series']) ? configWithoutDefaults['series'] as unknown[] : [configWithoutDefaults['series']];
+  const rawIndices: number[] = [];
+  for (let i = 0; i < rawSections.length; i++) {
+    if (filterConfig(rawSections[i])) {
+      rawIndices.push(i);
+    }
+  }
+  for (let i = 0; i < seriesSections.length; i++) {
+    const section = seriesSections[i];
+    if (!isConfigRecord(section)) {
+      continue;
+    }
+    const followSeries = section['followSeries'];
+    if (followSeries === undefined || followSeries === NONE || isFollower[String(followSeries)] !== true) {
+      continue;
+    }
+    const message = getFollowSeriesMessage() + ': ' + JSON.stringify(followSeries);
+    const reportIndex = rawIndices[i] ?? i;
+    errors.push(getPropertyMessage('series', 'followSeries', message, reportIndex));
+    errorDetails.push({ path: ['series', reportIndex, 'followSeries'], message });
+  }
 }
 
 function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: ConfigRecord, _configDefaults: ConfigRecord, targetSectionKey: string, _targetAllKey: string | undefined, targetProperty: string, sourceSectionKey: string, sourceProperty: string, commonProperty: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
