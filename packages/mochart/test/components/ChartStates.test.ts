@@ -155,9 +155,7 @@ describe('a mochartConfig arriving after mount', () => {
     handle.update({ mochartConfig: enhanced(), dataProvider: provider() });
     expect(seriesCount(container)).toBe(1);
 
-    // cast: ManagedChartProps still types both as non-null, though core and every
-    // binding treat null as the loading state (see the findings report)
-    handle.update({ mochartConfig: null, dataProvider: null, loading: true } as unknown as Partial<ManagedChartProps>);
+    handle.update({ mochartConfig: null, dataProvider: null, loading: true });
     expect(seriesCount(container)).toBe(0);
 
     handle.update({ mochartConfig: enhanced(), dataProvider: provider(), loading: false });
