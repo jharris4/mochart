@@ -227,8 +227,9 @@ function getStitchedSvgText(elements: Element[], options: StitchOptions): string
   const totalWidth = columns * cellWidth + (columns - 1) * gap;
   const totalHeight = rows * cellHeight + (rows - 1) * gap;
 
+  // createElementNS already puts the element in the svg namespace; setting xmlns
+  // here too would serialize the declaration twice and make the markup invalid xml
   const outer = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
-  outer.setAttribute('xmlns', SVG_NS);
   outer.setAttribute('width', String(totalWidth));
   outer.setAttribute('height', String(totalHeight));
   outer.setAttribute('viewBox', '0 0 ' + totalWidth + ' ' + totalHeight);
