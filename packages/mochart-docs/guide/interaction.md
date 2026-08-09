@@ -133,6 +133,11 @@ receive the whole state rather than only what changed. Every callback and
 every payload field is listed in
 [Callbacks and payloads](/reference/callbacks).
 
+Making a shape clickable doesn't change the mouse cursor. Set
+[`showPointer`](/reference/series#series.showPointer) on a series (or
+`seriesDefaults`, as the example below does) to give its shapes — including
+pie slices — `cursor: pointer`, advertising that clicking does something.
+
 Watch them fire — click a bar, hover a series, or toggle a legend entry;
 the log records each event in order and follows the latest (scroll up for
 older ones). One interaction often fires several: with `focusOnClick` set,

@@ -20,7 +20,7 @@ export const config: MochartInputConfig = {
 // reports through onSeriesClick — one interaction, several events.
 export const clicksConfig: MochartInputConfig = {
   ...config,
-  seriesDefaults: { renderer: 'bar', focusOnClick: true }
+  seriesDefaults: { renderer: 'bar', focusOnClick: true, showPointer: true }
 };
 
 export const data = [
