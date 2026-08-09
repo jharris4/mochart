@@ -3,14 +3,15 @@
 Review of the `mochart` monorepo on branch `review`, in two passes: a first
 sweep (B1–B7, T1–T5, D1–D6) and a deeper second sweep (B8–B17, T6–T7, D7–D8).
 
-Baseline, verified in isolation after every fix below: `npm test` (1209 core
+Baseline, verified in isolation after every fix below: `npm test` (1213 core
 tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 `npm run deadcode` all pass. Core statement coverage is 96% (branch 88%).
 Nothing here came from a failing check — the findings came from reading the
 source and probing the public API.
 
-**Fixed** items are committed on this branch, one commit each, referencing the
-id. **Open** items need a decision and were deliberately left alone.
+**Fixed** items are committed on this branch, one commit each, and each records
+what the fix was and why that shape was chosen over the alternatives.
+**Open** items are the ones still needing a decision.
 
 Highest-severity open items: **T6**, **B12**.
 
@@ -40,6 +41,13 @@ whether a series was hidden.
 Confirmed by mounting with `{}` / `{ b: true }` / `{ b: false }` and counting
 rendered `.mochart-series` groups: 2 / 1 / 1.
 
+**Fix:** `=== true` in place of `!== undefined`, keeping the `hasOwnProperty`
+guard. `=== true` rather than a truthiness check because that is both the
+documented contract and what every other reader already used — matching them
+was the point. Safe by construction for existing callers: the internal state
+machine only ever stores `true` or deletes the key, so only host-supplied
+`false` changes behaviour, and only toward what the docs promise.
+
 ### B9. An unknown controlled focus id crashed the chart — **Fixed** (`f0a034fc`)
 
 **High.** `packages/mochart/src/data/FocusData.ts` — `getFocusData`
@@ -56,9 +64,17 @@ This breaks the pattern the interaction guide recommends — mirroring one
 chart's reported focus into another — because sibling charts need not share
 series ids. It threw at mount, on `update()`, and on `replace()`.
 
-Unknown ids now read as unfocused, matching the existing out-of-range
-category-index behaviour; `getSeriesConfigsOrderedByFocus` no longer pushes an
-`undefined` config either.
+**Fix:** unknown ids normalize to "unfocused" in `getFocusData`, right beside
+the existing `focusedCategoryIndex` range check, and
+`getSeriesConfigsOrderedByFocus` no longer pushes an `undefined` config.
+
+Normalizing rather than throwing or warning, because the guard for the third
+focus prop was already there and already chose that answer — the asymmetry was
+the bug, so matching it is the smallest correct change. Normalizing inside
+`getFocusData` covers every path: both data sources build focus data through
+it, and the `getFocusDataWith*` transforms carry the ids forward from there.
+The controller keeps the stale id, exactly as it keeps an out-of-range index,
+so a host echoing focus back is not fought.
 
 ### B10. A `mochartConfig` arriving after mount crashed the chart — **Fixed** (`8835be99`)
 
@@ -79,7 +95,15 @@ through opaquely, so the ordinary async pattern — mount with
 resolves — threw `Cannot read properties of null (reading 'validation')`.
 `replace()` and null → real → null → real cycles threw too.
 
-A config appearing is now treated as structural, like one going away.
+**Fix:** both sites now treat a config *appearing* as structural, symmetrically
+with one going away — `reconcile` resets focus and filter state, `derive`
+re-initializes.
+
+Reset is the right answer rather than an attempt to preserve state: ids from
+before a null gap cannot be assumed to mean the same thing after it, and
+`reconcile` already resets on the equivalent data-provider transition
+(`oldDataProvider && dataProvider ? remap : reset`). The config path was simply
+missing the guard its neighbour had.
 
 ### B11. Negative and non-finite sizes reached the svg — **Fixed** (`a5d3061f`)
 
@@ -87,8 +111,16 @@ A config appearing is now treated as structural, like one going away.
 
 Only an exact `0` took the documented no-size route, so `width: NaN` rendered
 a chart carrying `<svg width="NaN" height="NaN">` and `width: -100` rendered
-`width="-100"` — both invalid SVG. Any non-positive or non-finite size now
-takes the same route as `0`; the prop JSDoc and the chart-states guide follow.
+`width="-100"` — both invalid SVG.
+
+**Fix:** the gate became `width > 0 && height > 0`, which covers `0`, negative,
+`NaN`, and `undefined` in one expression, and the prop JSDoc plus the
+chart-states guide now say "not a positive number" instead of "is 0".
+
+Routing to the existing no-size state rather than clamping or throwing: the
+state is already there, already documented, and already what a host sees before
+its container is laid out — an unusable size is an unusable size regardless of
+which way it is unusable.
 
 ### B2. `binValues` crashed or exhausted memory on out-of-contract options — **Fixed** (`a811134d`)
 
@@ -103,8 +135,15 @@ takes the same route as `0`; the prop JSDoc and the chart-states guide follow.
 | `{ binCount: Infinity, nice: false }` | infinite loop → heap exhaustion |
 | `{ binWidth: NaN }` | `NaN` in every bin edge |
 
-A finite `binCount` now rounds down to at least 1, a non-finite one falls back
-to the Sturges default, and a non-finite `binWidth` counts as unset.
+**Fix:** a finite `binCount` rounds down to at least 1, a non-finite one falls
+back to the Sturges default, and a non-finite `binWidth` counts as unset.
+
+Repairing rather than throwing, unlike B3: these are contract violations that
+have an obvious intended reading (a count must be a whole number ≥ 1; a
+meaningless width is no width), the `binCount` doc already says the actual
+count may differ, and a non-positive `binWidth` was silently ignored before —
+so repairing keeps that precedent. B3's cap throws instead because a
+too-small-but-valid width has no reinterpretation that is not a lie.
 
 ### B1. Stitched multi-chart exports produced invalid XML — **Fixed** (`62a4360f`)
 
@@ -118,7 +157,14 @@ and the markup failed to parse (`duplicate attribute: xmlns`). Consequences:
 path was unaffected. It survived because the whole stitching API had no tests
 (see T1).
 
-### B3. A tiny `binWidth` allocated without bound — **Fixed**
+**Fix:** dropped the `setAttribute('xmlns', …)`. `createElementNS` already puts
+the element in the SVG namespace, so `XMLSerializer` emits the declaration on
+its own — the explicit attribute was not belt-and-braces, it was the whole
+defect. The single-chart path proves it: it clones a live svg, never sets
+`xmlns`, and serializes correctly. Locked in by a test asserting the markup
+parses and carries exactly one declaration per svg (outer plus one per tile).
+
+### B3. A tiny `binWidth` allocated without bound — **Fixed** (`ba1be0a6`)
 
 **High.** `packages/mochart/src/data/Histogram.ts` — `binValues`
 
@@ -127,8 +173,8 @@ arbitrary number of bins: `binValues([1…10], { binWidth: 1e-7 })` asked for 90
 million bin objects and exhausted the heap before returning. Any host binning
 user-controlled data with a user-controlled width could be hung by one input.
 
-Capped at 10000 bins, throwing past it (like the existing inverted-domain
-check) rather than clamping — `binWidth` is documented as an *exact* width, so
+**Fix:** capped at 10000 bins, throwing past it (like the existing
+inverted-domain check) rather than clamping — `binWidth` is documented as an *exact* width, so
 clamping would have to silently widen the bins or drop data. The pathological
 cases now throw in ~1ms:
 
@@ -144,7 +190,7 @@ width is a separate, already-solved concern —
 defaults to 1px and is applied at layout time, where the width is known and
 resize is handled.
 
-### B13. `ManagedChartProps` typed the loading state as impossible — **Fixed**
+### B13. `ManagedChartProps` typed the loading state as impossible — **Fixed** (`c570eab4`)
 
 **Medium.** `packages/mochart/src/types/chart.ts`
 
@@ -159,7 +205,7 @@ comment *"despite the prop type, bindings mount with a null provider"*. So a
 TypeScript host calling `createChart` directly could not express the loading
 state the bindings rely on — the B10 regression test needed a cast.
 
-Both widened to `| null`, and the cast dropped from that test. Type-only
+**Fix:** both widened to `| null`, and the cast dropped from that test. Type-only
 change: no runtime behaviour moved, and widening an input type keeps existing
 callers compiling.
 
@@ -174,7 +220,7 @@ change, so it was left out of a release-prep branch. It matters mainly for
 hosts implementing a custom `ChartDataSource`, which the API reference lists
 under "Advanced exports".
 
-### B4. State-component factories received an internal provider wrapper — **Fixed**
+### B4. State-component factories received an internal provider wrapper — **Fixed** (`4a48e51c`)
 
 **Medium.** `packages/mochart/src/createChart.ts` — `withFreshIdentity`
 
@@ -195,7 +241,7 @@ So a factory could not `instanceof`-check its own provider, read custom members
 not satisfy the `DataProvider` contract it was typed as.
 `createDefaultChart` was unaffected.
 
-Fixed by separating the two concerns instead of conflating them:
+**Fix:** separate the two concerns instead of conflating them.
 `props.dataProvider` now stays the host's own object — what the factories are
 handed — and the fresh-identity delegate moved to an explicit
 `readDataProvider` the controller passes to the data sources.
@@ -312,22 +358,38 @@ column count to the chart count would trim it.
 **High.** B8, B9, and B10 were each reachable through documented, ordinary
 usage, and no test in any package exercised them: no test mounted with a null
 `mochartConfig`, none passed a controlled focus id that names nothing, and none
-passed a `filteredSeriesIds` value of `false`. Regression tests now cover all
-three (`ControlledFocus.test.ts`, `ChartStates.test.ts`), plus the non-positive
-size cases from B11.
+passed a `filteredSeriesIds` value of `false`.
+
+**Fix:** regression tests in `ControlledFocus.test.ts` and
+`ChartStates.test.ts`, each written to fail against the old code before the fix
+landed, plus the non-positive size cases from B11 and the provider-identity
+case from B4.
+
+The common shape of all four bugs is worth recording: a guard existed for one
+member of a set and not its siblings — one focus prop range-checked out of
+three, the config-gone case handled but not config-arriving, `0` handled but
+not `NaN`. The tests are written per *set* rather than per case, so a future
+prop or state added to one of these groups has an obvious place to be covered.
 
 ### T1. The export stitching API had no tests — **Fixed** (`14d5dba1`)
 
 **High.** `exportChartsSVG`, `exportChartsPNG`, and `getStitchedChartsSvgText`
 are documented in the package README and the export guide, and none of the
-three had a single test — which is how B1 shipped. Added 11 cases covering grid
-sizing, cell centering, row wrapping and gaps, background handling, elements
-without a chart, filename derivation, the `false`/`null` no-chart returns,
-keyboard-semantics stripping, and the B1 regression.
+three had a single test — which is how B1 shipped.
 
-### T2. `binValues` invalid-input paths — **Fixed** (`61461aec`)
+**Fix:** 11 cases covering grid sizing, cell centering, row wrapping and gaps,
+background handling, elements without a chart, filename derivation, the
+`false`/`null` no-chart returns, keyboard-semantics stripping, and the B1
+regression. Written against the public entry points rather than the internal
+`getStitchedSvgText`, so they pin the contract the README documents; four of
+them failed on the unfixed code, which is what identified B1.
 
-Fractional, non-finite, and non-positive `binCount`, and non-finite `binWidth`.
+### T2. `binValues` invalid-input paths — **Fixed** (`61461aec`, `ba1be0a6`)
+
+**Fix:** fractional, non-finite, and non-positive `binCount`, and non-finite
+`binWidth` (B2), plus just-under/just-over the bin cap and the `1e-7` heap repro (B3).
+The cap cases assert on the error text, so the limit cannot be quietly raised
+without the test noticing.
 
 ### T6. `npm run test:coverage` does not pass — **Open**
 
@@ -377,7 +439,12 @@ License." on every page of the deployed site. The project relicensed to MIT in
 `c9b1857`; the root `LICENSE`, every `package.json`, and every per-package
 `LICENSE` say MIT. This was the only surviving BSD reference in the repo.
 
-### D2. The documented build target did not match what shipped — **Fixed**
+**Fix:** the footer string. Confirmed exhaustive by grepping every tracked
+`.ts`/`.md`/`.json`/`.vue`/`.mjs`/`.js`/`.html` file for "BSD" — one hit, now
+zero — and by checking the `license` field and `LICENSE` file of all 20
+packages.
+
+### D2. The documented build target did not match what shipped — **Fixed** (`83e1b89f`)
 
 **Medium.** `packages/mochart/README.md` and
 `packages/mochart-docs/guide/getting-started.md` both stated the published
@@ -391,7 +458,7 @@ $ grep -oE '\?\?=|\|\|=|&&=' dist/mochart.js | sort | uniq -c
 
 (`tsconfig.json` targets ES2020, but esbuild, not tsc, emits the bundle.)
 
-Fixed by pinning `build.target: 'es2020'` rather than reheading the docs, for
+**Fix:** pinned `build.target: 'es2020'` rather than rewording the docs, for
 two reasons. Core was the only publishable package whose target floated — the
 other seven pin ES2020 in their tsconfigs (Angular ES2022, as it requires), and
 only core opted out by going through Vite, which ignores tsconfig's `target`
@@ -434,6 +501,10 @@ style the chart container.
 
 **Low.** The `onSeriesClick` bullet ended mid-clause at "the cartesian
 `onSliceClick`".
+
+**Fix:** completed to "the cartesian counterpart of `onSliceClick`", which is
+what the surrounding text and the callback's behaviour imply — it fires on
+click regardless of `focusOnClick`, exactly as `onSliceClick` does for pie.
 
 ### D6. `@mochart/angular` exports no prop types — **Open**
 
