@@ -2993,7 +2993,7 @@ export interface DetailedConfigValidation extends ConfigValidation {
 
 /** The fully built config returned by buildMochartConfig (all defaults applied). */
 export interface MochartConfig {
-  id?: string;
+  id?: unknown;
   accessibility: AccessibilityConfig;
   animation: AnimationConfig;
   chart: ChartConfig;
@@ -3038,7 +3038,7 @@ export type DeepPartial<T> =
 
 /** The user-facing config accepted by buildMochartConfig, before defaults are applied. */
 export interface MochartInputConfig {
-  id?: string;
+  id?: unknown;
   /**
    * The config format version. Optional: when omitted the config is read as
    * the current format. Include it in configs you store or share, so future
