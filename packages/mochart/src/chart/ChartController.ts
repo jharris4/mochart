@@ -51,12 +51,13 @@ export class ChartController {
     this.props = props;
     this.focus.applyExternal(props);
     this.applyInput();
-    // notify after the commit: a host may synchronously update() again from these
+    // notify after the commit (a host may synchronously update() again from these),
+    // through the committed props: hosts replace callback closures on every render
     if (changes.focus) {
-      prev.onFocus?.(changes.focus);
+      props.onFocus?.(changes.focus);
     }
     if (changes.seriesFilter) {
-      prev.onSeriesFilter?.(changes.seriesFilter);
+      props.onSeriesFilter?.(changes.seriesFilter);
     }
   }
 

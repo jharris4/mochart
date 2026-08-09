@@ -193,4 +193,44 @@ describe('controlled focus props', () => {
 
     a.chart.destroy();
   });
+
+  // Regression: reconcile-driven events fired at the PREVIOUS props' callbacks,
+  // so a host replacing its closures in the render that changed the data (the
+  // framework-adapter norm) had the stale closure notified and the new one skipped.
+  it('notifies the callbacks committed in the same update, not the replaced ones', () => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const mochartConfig = enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: false },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ id: 'sales', property: 'sales', renderer: 'line' }]
+    });
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const staleFocus = vi.fn();
+    const freshFocus = vi.fn();
+    const props = {
+      mochartConfig,
+      dataProvider: new ArrayOfObjectsDataProvider(data, 'month'),
+      width: 300,
+      height: 200,
+      onFocus: staleFocus
+    };
+    const chart = createChart(container, { ...props, focusedCategoryIndex: 1 });
+    runFrames();
+    chart.replace(props); // release the controlled value, keeping internal focus on Feb
+
+    // one update swaps the data AND the callback, as a framework re-render does
+    const [jan, feb, mar] = data;
+    chart.update({
+      dataProvider: new ArrayOfObjectsDataProvider([feb, jan, mar], 'month'),
+      onFocus: freshFocus
+    });
+    runFrames();
+
+    expect(staleFocus).not.toHaveBeenCalled();
+    expect(freshFocus).toHaveBeenCalledTimes(1);
+    expect(freshFocus).toHaveBeenCalledWith(expect.objectContaining({ focusedCategoryIndex: 0 }));
+    chart.destroy();
+  });
 });
