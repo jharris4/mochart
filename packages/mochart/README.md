@@ -211,7 +211,8 @@ createDefaultChart(container, {
 - `onSeriesClick(payload)` — a cartesian series shape (bar, marker, label, or
   line/area path) was clicked; reports the series id, the shape's category
   index (`-1` for a whole-series path), and the nearest category index. Fires
-  whether or not `focusOnClick` is set — the cartesian `onSliceClick`
+  whether or not `focusOnClick` is set — the cartesian counterpart of
+  `onSliceClick`
 - `onSeriesLayoutBoundsChange(bounds)` — the plot area was re-laid-out
 
 ## Loading, error, and empty states
