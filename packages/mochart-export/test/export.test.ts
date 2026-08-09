@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
 import { createDefaultChart, mochartCssClasses } from '@mochart/core';
 import type { ChartHandle, DefaultChartProps } from '@mochart/core';
-import { findChartSvg, getChartSvgText, exportSVG, exportPNG } from '../src/index';
+import {
+  findChartSvg, getChartSvgText, exportSVG, exportPNG,
+  getStitchedChartsSvgText, exportChartsSVG, exportChartsPNG
+} from '../src/index';
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
@@ -198,5 +201,121 @@ describe('exportSVG', () => {
 describe('exportPNG', () => {
   it('resolves false when no chart is present', async () => {
     await expect(exportPNG(document.createElement('div'))).resolves.toBe(false);
+  });
+});
+
+describe('stitching several charts', () => {
+  // a second, smaller chart so the max-sized-cell centering is observable
+  let secondContainer: HTMLDivElement;
+  let secondChart: ChartHandle<DefaultChartProps> | null = null;
+
+  beforeEach(() => {
+    secondContainer = document.createElement('div');
+    document.body.appendChild(secondContainer);
+    secondChart = createDefaultChart(secondContainer, {
+      config: { ...rawConfig(), title: { text: 'Second Chart' } },
+      data: rows,
+      width: 200,
+      height: 150
+    });
+  });
+
+  afterEach(() => {
+    secondChart?.destroy();
+    secondChart = null;
+    secondContainer.remove();
+  });
+
+  function outerSize(svgText: string): { width: string | null; height: string | null } {
+    const outer = new DOMParser().parseFromString(svgText, 'image/svg+xml').documentElement;
+    return { width: outer.getAttribute('width'), height: outer.getAttribute('height') };
+  }
+
+  function tiles(svgText: string): Element[] {
+    const outer = new DOMParser().parseFromString(svgText, 'image/svg+xml').documentElement;
+    return Array.from(outer.children).filter(child => child.tagName.toLowerCase() === 'svg');
+  }
+
+  it('serializes as valid xml with a single namespace declaration', () => {
+    const svgText = getStitchedChartsSvgText([container, secondContainer], { cols: 2 })!;
+    // a second xmlns declaration on the outer svg makes browsers and image
+    // decoders reject the file, which silently broke png stitching
+    expect(svgText.match(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/g)!.length).toBe(3);
+    const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+    expect(doc.querySelector('parsererror')).toBeNull();
+  });
+
+  it('tiles the charts into a grid sized to the largest chart', () => {
+    const svgText = getStitchedChartsSvgText([container, secondContainer], { cols: 2 })!;
+    expect(svgText).not.toBeNull();
+    // one cell per chart, each the size of the largest (400x300)
+    expect(outerSize(svgText)).toEqual({ width: '800', height: '300' });
+    expect(tiles(svgText)).toHaveLength(2);
+  });
+
+  it('centers a smaller chart within its cell', () => {
+    const svgText = getStitchedChartsSvgText([container, secondContainer], { cols: 2 })!;
+    const [first, second] = tiles(svgText);
+    expect([first.getAttribute('x'), first.getAttribute('y')]).toEqual(['0', '0']);
+    expect([first.getAttribute('width'), first.getAttribute('height')]).toEqual(['400', '300']);
+    // second cell starts at 400; (400-200)/2 and (300-150)/2 center the smaller chart
+    expect([second.getAttribute('x'), second.getAttribute('y')]).toEqual(['500', '75']);
+    expect([second.getAttribute('width'), second.getAttribute('height')]).toEqual(['200', '150']);
+  });
+
+  it('wraps to a second row and applies the gap', () => {
+    const svgText = getStitchedChartsSvgText([container, container, container], { cols: 2, gap: 10 })!;
+    // 2 columns x 2 rows of 400x300 cells, with one 10px gap on each axis
+    expect(outerSize(svgText)).toEqual({ width: '810', height: '610' });
+    const [, , third] = tiles(svgText);
+    expect([third.getAttribute('x'), third.getAttribute('y')]).toEqual(['0', '310']);
+  });
+
+  it('paints a background rect by default and omits it when transparent', () => {
+    const opaque = getStitchedChartsSvgText([container, secondContainer], { cols: 2 })!;
+    expect(opaque).toMatch(/<rect[^>]*width="800"[^>]*height="300"/);
+    const transparent = getStitchedChartsSvgText([container, secondContainer], { cols: 2, transparent: true })!;
+    expect(transparent).not.toMatch(/<rect[^>]*width="800"[^>]*height="300"/);
+  });
+
+  it('skips elements without a chart', () => {
+    const empty = document.createElement('div');
+    const svgText = getStitchedChartsSvgText([empty, container, empty], { cols: 2 })!;
+    expect(tiles(svgText)).toHaveLength(1);
+  });
+
+  it('returns null when none of the elements contain a chart', () => {
+    expect(getStitchedChartsSvgText([document.createElement('div')], { cols: 2 })).toBeNull();
+  });
+
+  it('strips the live keyboard semantics from every tile', () => {
+    const svgText = getStitchedChartsSvgText([container, secondContainer], { cols: 2 })!;
+    expect(svgText).not.toContain('tabindex');
+    expect(svgText).not.toContain('aria-pressed');
+  });
+
+  it('exportChartsSVG downloads a file named from the first chart found', () => {
+    (URL as any).createObjectURL = vi.fn(() => 'blob:mock');
+    (URL as any).revokeObjectURL = vi.fn();
+    const downloads: string[] = [];
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloads.push(this.download);
+    });
+    try {
+      expect(exportChartsSVG([document.createElement('div'), container, secondContainer], { cols: 2 })).toBe(true);
+      expect(exportChartsSVG([container, secondContainer], { cols: 2, filename: 'grid' })).toBe(true);
+      expect(downloads).toEqual(['Test_Chart.svg', 'grid.svg']);
+    }
+    finally {
+      click.mockRestore();
+    }
+  });
+
+  it('exportChartsSVG returns false when no chart is present', () => {
+    expect(exportChartsSVG([document.createElement('div')], { cols: 2 })).toBe(false);
+  });
+
+  it('exportChartsPNG resolves false when no chart is present', async () => {
+    await expect(exportChartsPNG([document.createElement('div')], { cols: 2 })).resolves.toBe(false);
   });
 });
