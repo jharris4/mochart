@@ -92,6 +92,8 @@ export default function getDescriptions() {
     title: 'the title to display for the series in the legend (use null for none)',
     shapeStyle: styleStates('the style of the series shape', styleMembers, 'series', false),
     labelFormat: 'the d3 format string to be applied to the series label values (use null for none, use "auto" to derive from data)',
+    labelPrefix: 'the text to prefix series label values with when drawing them on the plot (use null for none)',
+    labelSuffix: 'the text to append series label values with when drawing them on the plot (use null for none)',
     labelTextStyle: styleStates('the style of the series label values', styleMembers, 'label', true),
     labelMinPositionFraction: 'the minimum position fraction (0 - 1) from the domain minimum for which series labels should be shown (use null for none)',
     labelMaxPositionFraction: 'the maximum position fraction (0 - 1) from the domain maximum for which series labels should be shown (use null for none)',

@@ -2564,6 +2564,20 @@ export interface SeriesConfig {
    */
   labelFormat: string | Auto | null;
   /**
+   * The text to prefix series label values with when drawing them on the plot
+   * (use null for none).
+   *
+   * @default null
+   */
+  labelPrefix: string | null;
+  /**
+   * The text to append series label values with when drawing them on the plot
+   * (use null for none).
+   *
+   * @default null
+   */
+  labelSuffix: string | null;
+  /**
    * The style of the series label values.
    *
    * @default { normal: { … }, focused: { … }, defocused: { … } }

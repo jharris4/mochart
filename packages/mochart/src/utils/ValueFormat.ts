@@ -89,15 +89,17 @@ function getSeriesValueFormatter(seriesConfig: EnhancedSeriesConfig, valueAxisCo
 
 export function getSeriesFormat(seriesConfig: EnhancedSeriesConfig, valueAxisConfig: EnhancedValueAxisConfig, valueAxisScale: AxisScale): ValueFormatter {
   // valuePrefix/valueSuffix decorate the series value, which is what the tooltip shows
-  return applyPrefixAndSuffix(seriesConfig, getSeriesValueFormatter(seriesConfig, valueAxisConfig, valueAxisScale));
+  return applyAffixes(seriesConfig.valuePrefix, seriesConfig.valueSuffix,
+    getSeriesValueFormatter(seriesConfig, valueAxisConfig, valueAxisScale));
 }
 
-export function getSeriesLabelFormat(seriesConfig: EnhancedSeriesConfig, valueAxisConfig: EnhancedValueAxisConfig, valueAxisScale: AxisScale): ValueFormatter {
+/** The numeric formatting a series applies to its label values, before any prefix/suffix. */
+function getSeriesLabelFormatter(seriesConfig: EnhancedSeriesConfig, valueAxisConfig: EnhancedValueAxisConfig, valueAxisScale: AxisScale): ValueFormatter {
   if (seriesConfig.labelFormat === NONE) {
     return value => value;
   }
-  // auto reuses the numeric formatting alone: labels render labelProperty, which can be
-  // a different quantity than the series value valuePrefix/valueSuffix describe
+  // auto reuses the series' numeric formatting alone: labels render labelProperty, which
+  // can be a different quantity than the series value valuePrefix/valueSuffix describe
   if (seriesConfig.labelFormat === AUTO) {
     return getSeriesValueFormatter(seriesConfig, valueAxisConfig, valueAxisScale);
   }
@@ -105,20 +107,25 @@ export function getSeriesLabelFormat(seriesConfig: EnhancedSeriesConfig, valueAx
   return value => formatter(value as number);
 }
 
-function applyPrefixAndSuffix<T>(formatConfig: Pick<CategoryAxisConfig | EnhancedSeriesConfig, 'valuePrefix' | 'valueSuffix'>, oldFormat: (value: T) => CategoryValue): (value: T) => CategoryValue {
-  if (formatConfig.valuePrefix !== NONE || formatConfig.valueSuffix !== NONE) {
-    if (formatConfig.valuePrefix !== NONE && formatConfig.valueSuffix !== NONE) {
-      return value => (formatConfig.valuePrefix! + oldFormat(value) + formatConfig.valueSuffix!);
-    }
-    else if (formatConfig.valuePrefix !== NONE) {
-      return value => (formatConfig.valuePrefix! + oldFormat(value));
-    }
-    else if (formatConfig.valueSuffix !== NONE) {
-      return value => (oldFormat(value) + formatConfig.valueSuffix!);
-    }
+export function getSeriesLabelFormat(seriesConfig: EnhancedSeriesConfig, valueAxisConfig: EnhancedValueAxisConfig, valueAxisScale: AxisScale): ValueFormatter {
+  // labelPrefix/labelSuffix are independent of labelFormat, as the value pair is of valueFormat
+  return applyAffixes(seriesConfig.labelPrefix, seriesConfig.labelSuffix,
+    getSeriesLabelFormatter(seriesConfig, valueAxisConfig, valueAxisScale));
+}
+
+function applyPrefixAndSuffix<T>(formatConfig: Pick<CategoryAxisConfig, 'valuePrefix' | 'valueSuffix'>, oldFormat: (value: T) => CategoryValue): (value: T) => CategoryValue {
+  return applyAffixes(formatConfig.valuePrefix, formatConfig.valueSuffix, oldFormat);
+}
+
+function applyAffixes<T>(prefix: string | null, suffix: string | null, oldFormat: (value: T) => CategoryValue): (value: T) => CategoryValue {
+  if (prefix !== NONE && suffix !== NONE) {
+    return value => (prefix + String(oldFormat(value)) + suffix);
   }
-  else {
-    return oldFormat;
+  if (prefix !== NONE) {
+    return value => (prefix + String(oldFormat(value)));
+  }
+  if (suffix !== NONE) {
+    return value => (String(oldFormat(value)) + suffix);
   }
   return oldFormat;
 }
