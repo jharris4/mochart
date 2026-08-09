@@ -6,6 +6,9 @@ import { defineConfig } from 'vite';
 //   dist/mochart.iife.js — classic script, exposes the global `mochart`
 export default defineConfig({
   build: {
+    // pinned, not left to Vite's default: that default tracks current browser
+    // baselines, so the documented support floor would rise on every Vite major
+    target: 'es2020',
     lib: {
       entry: 'src/index.ts',
       name: 'mochart',
