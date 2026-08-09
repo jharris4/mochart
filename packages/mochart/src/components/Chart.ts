@@ -290,6 +290,20 @@ class ChartBody extends Renderer<ChartBodyProps> {
 
 const defaultChartStyle = { position: 'relative' };
 
+/**
+ * Layer a caller's style over the default rather than replacing it: the tooltip
+ * and the live region are absolutely positioned against the root, so losing
+ * `position` entirely would resolve them against some ancestor further up. A
+ * caller's own `position` still wins — any non-static value works as well.
+ */
+function withDefaultChartStyle(style: ChartProps['style']): ChartProps['style'] {
+  if (style === undefined) {
+    return defaultChartStyle;
+  }
+  // later declarations win in cssText, as later keys do in the merged object
+  return typeof style === 'string' ? 'position: relative;' + style : { ...defaultChartStyle, ...style };
+}
+
 // visually hidden but still read by assistive tech (the clipped-1px-box idiom)
 const liveRegionStyle = {
   position: 'absolute', width: 1, height: 1, margin: -1, padding: 0, border: 0,
@@ -976,12 +990,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   sync() {
     const {
-      mochartConfig, dataProvider, style = defaultChartStyle, width, height, error: propsError,
+      mochartConfig, dataProvider, style: styleProp, width, height, error: propsError,
       getErrorComponent: errorFactory = getErrorComponent,
       getLoadingComponent: loadingFactory = getLoadingComponent,
       getNoSizeComponent: noSizeFactory = getNoSizeComponent,
       getConfigErrorComponent: configErrorFactory = getConfigErrorComponent
     } = this.props;
+    const style = withDefaultChartStyle(styleProp);
 
     // negative and non-finite sizes take the same route as 0: they would otherwise
     // reach the svg as invalid width/height attributes
