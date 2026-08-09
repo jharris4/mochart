@@ -28,7 +28,7 @@ config section.
 | [@mochart/svelte](packages/mochart-svelte/README.md) | Svelte 5 components wrapping mochart. |
 | [@mochart/vue](packages/mochart-vue/README.md) | Vue 3 components wrapping mochart. |
 | [@mochart/export](packages/mochart-export/README.md) | SVG and PNG image export for rendered mochart charts. |
-| [@mochart/editor](packages/mochart-editor/README.md) | Framework-neutral JSON editor with mochart config intelligence (private while its API stabilizes) — powers the config/data editors in the demo apps. |
+| [@mochart/editor](packages/mochart-editor/README.md) | Framework-neutral JSON editor with mochart config intelligence — powers the config/data editors in the demo apps. |
 | [@mochart/demo-vanilla](packages/mochart-demo-vanilla/README.md) | Full-featured demo gallery in plain TypeScript (private) — the no-framework peer of the framework demo apps. |
 | [@mochart/demo-basic](packages/mochart-demo-basic/README.md) | Minimal no-framework demo harness (private) — smallest integration example; home of the Playwright e2e suite. |
 | [@mochart/demo-data](packages/mochart-demo-data/README.md) | Shared demo configs, datasets, and random specs (private) used by every demo app. |
