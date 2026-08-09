@@ -38,6 +38,13 @@ export function getFocusData(mochartConfig: EnhancedMochartConfig, chartData: Ch
   if (focusedCategoryIndex >= categoryValues.length) {
     focusedCategoryIndex = -1;
   }
+  // likewise an id naming no series/axis: hosts mirror focus between charts that need not share ids
+  if (focusedSeriesId !== null && mochartConfig.seriesById[focusedSeriesId] === undefined) {
+    focusedSeriesId = null;
+  }
+  if (focusedValueAxisId !== null && mochartConfig.valueAxesById[focusedValueAxisId] === undefined) {
+    focusedValueAxisId = null;
+  }
   let categoryFocusPercentages: FocusPercentage[];
   let valueAxisFocusPercentages: Record<string, FocusPercentage>;
   let seriesFocusPercentages: Record<string, FocusPercentage>;
@@ -221,7 +228,7 @@ export function getSeriesConfigsOrderedByFocus(mochartConfig: EnhancedMochartCon
       }
     }
   }
-  if (isFocused(focusedSeriesId)) {
+  if (isFocused(focusedSeriesId) && mochartConfig.seriesById[focusedSeriesId] !== undefined) {
     focusedSeriesConfigs.push(mochartConfig.seriesById[focusedSeriesId]);
   }
   return defocusedSeriesConfigs.concat(focusedSeriesConfigs);

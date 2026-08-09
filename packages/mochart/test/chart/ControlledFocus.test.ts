@@ -187,6 +187,47 @@ describe('controlled focus props', () => {
     expect(container.innerHTML).toBe(unfocusedHtml);
   });
 
+  // Regression: only focusedCategoryIndex was range-checked, so mirroring focus
+  // between charts that do not share ids threw instead of rendering unfocused.
+  it('ignores a focusedSeriesId or focusedValueAxisId that names nothing', () => {
+    const { chart, container } = mountChart();
+    const unfocusedHtml = container.innerHTML;
+
+    chart.update({ focusedSeriesId: 'notASeries' });
+    runFrames();
+    expect(container.innerHTML).toBe(unfocusedHtml);
+
+    chart.update({ focusedSeriesId: null, focusedValueAxisId: 'notAnAxis' });
+    runFrames();
+    expect(container.innerHTML).toBe(unfocusedHtml);
+
+    chart.update({ focusedValueAxisId: null, focusedCategoryIndex: 99 });
+    runFrames();
+    expect(container.innerHTML).toBe(unfocusedHtml);
+  });
+
+  it('mounts with a focusedSeriesId that names nothing', () => {
+    const { createChart, enhanceConfig, ArrayOfObjectsDataProvider } = mochart;
+    const mochartConfig = enhanceConfig({
+      version: '1.0.0',
+      animation: { animate: false },
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+      series: [{ id: 'sales', property: 'sales', renderer: 'line' }]
+    });
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    createChart(container, {
+      mochartConfig,
+      dataProvider: new ArrayOfObjectsDataProvider(data, 'month'),
+      width: 300,
+      height: 200,
+      focusedSeriesId: 'fromAnotherChart',
+      focusedValueAxisId: 'alsoUnknown'
+    });
+    runFrames();
+    expect(seriesIds(container)).toEqual(['mochart-series-sales']);
+  });
+
   it('mirrors one chart\'s reported focus into another chart', () => {
     // The demo pattern: chart A reports focus via onFocus, the host passes the
     // snapshot into chart B as controlled props.
