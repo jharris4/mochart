@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 24 fixed, 9 open.**
+**33 findings: 25 fixed, 8 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 9 remaining are all Low.
+Nothing High or Medium is open — the 8 remaining are all Low.
 
 ---
 
@@ -436,14 +436,34 @@ The chart's own `getDataErrors` reports duplicate category values as an error,
 so the helper can hand back data its sibling API rejects. A length/uniqueness
 check in the helper would catch it at the source.
 
-### B15. `followSeries` accepts self-references and cycles — **Open**
+### B15. `followSeries` accepted self-references, cycles and chains — **Fixed**
 
-**Low.** `packages/mochart/src/config/validation/seriesConfig.ts`
+**Medium.** `packages/mochart/src/config/validation/mochartConfig.ts`
 
-`{ id: 's', followSeries: 's' }` and a two-series cycle (`a → b → a`) both pass
-validation. Neither crashes — both render — but a series following itself is
-meaningless, and the validator already rejects a `followSeries` naming no
-series, so the remaining cases look like an oversight.
+Filed as Low on the assumption these were merely meaningless. They are not —
+measured, with `onSeriesClick` set:
+
+| config | interactive series | click on `a` reports |
+| --- | --- | --- |
+| normal | 2 | `a` |
+| `b` follows `a` (intended) | 1 | `a` |
+| self-reference `a→a` | 1 (`a` lost its own) | `a` |
+| cycle `a↔b` | **0** | **`b`** |
+
+Interactivity is gated on `followSeries === NONE` in both `SeriesContainer` and
+`Series`, so in a cycle every series is a follower and none gets a tab stop or
+button role — all keyboard access and every `onSeriesClick` target disappears.
+Worse, `Series` redirects a follower's id to its leader, so in a cycle each
+click reports the *other* series and a host acts on the wrong data.
+
+Chains fail the same way: follower lookups are
+`series.filter(config => config.followSeries === id)`, never transitive, so in
+`a ← b ← c` filtering `a` collects `[b]` and leaves `c` behind.
+
+**Fix:** one rule — a `followSeries` must name a series that does not itself set
+`followSeries`. No graph walk, and it rejects self-references, cycles and chains
+together, because all three violate the same single-level invariant the code
+relies on. The built-in candlestick and OHLC helpers always satisfy it.
 
 ### B17. One `NaN` poisons a whole waterfall — **Open**
 

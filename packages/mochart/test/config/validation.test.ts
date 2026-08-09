@@ -620,6 +620,46 @@ describe('series curve validation', () => {
   });
 });
 
+// a follower must not itself be followed: self-references, cycles and chains all
+// lose the keyboard tab stop and report a leader's id from onSeriesClick
+describe('followSeries depth validation', () => {
+  const withSeries = (series: unknown[]) => errorsFor({ version: V, categoryAxis: { property: 'p' }, series });
+  const followError = expect.stringContaining('does not itself set followSeries');
+
+  it('accepts the intended shape: several followers on one leader', () => {
+    expect(withSeries([
+      { id: 'a', property: 'a' },
+      { id: 'b', property: 'b', followSeries: 'a' },
+      { id: 'c', property: 'c', followSeries: 'a' }
+    ])).toEqual([]);
+  });
+
+  it('rejects a series following itself', () => {
+    expect(withSeries([{ id: 'a', property: 'a', followSeries: 'a' }])).toContainEqual(followError);
+  });
+
+  it('rejects a cycle', () => {
+    const errors = withSeries([
+      { id: 'a', property: 'a', followSeries: 'b' },
+      { id: 'b', property: 'b', followSeries: 'a' }
+    ]);
+    expect(errors.filter(error => error.includes('does not itself set followSeries'))).toHaveLength(2);
+  });
+
+  it('rejects a chain, whose tail never reaches the head', () => {
+    expect(withSeries([
+      { id: 'a', property: 'a' },
+      { id: 'b', property: 'b', followSeries: 'a' },
+      { id: 'c', property: 'c', followSeries: 'b' }
+    ])).toContainEqual(followError);
+  });
+
+  it('still rejects a followSeries naming no series at all', () => {
+    expect(withSeries([{ id: 'a', property: 'a', followSeries: 'ghost' }]))
+      .toContainEqual(expect.stringContaining('followSeries'));
+  });
+});
+
 // Regression: uniqueness was checked on the raw config and the defaults
 // separately, so an explicit id colliding with another entry's defaulted id
 // passed and collapsed the id-lookup maps.
