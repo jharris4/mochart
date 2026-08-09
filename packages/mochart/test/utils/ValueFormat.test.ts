@@ -206,12 +206,42 @@ describe('getSeriesLabelFormat', () => {
     expect(fmt(3.14)).toBe('3.1');
   });
 
-  it('delegates to the series value format when labelFormat is auto', () => {
+  it('reuses the series numeric format when labelFormat is auto', () => {
     const fmt = getSeriesLabelFormat(
       series({ labelFormat: 'auto', valueFormat: '.0f', valuePrefix: null, valueSuffix: null }),
       valueAxis({ tickLabelFormat: 'auto' }),
       scale
     );
     expect(fmt(8.6)).toBe('9');
+  });
+
+  // Regression: auto reused the series value format wholesale, which dragged the
+  // prefix/suffix along. Labels render labelProperty — potentially a different
+  // quantity than the series value those affixes describe.
+  it('leaves the tooltip prefix and suffix off labels in auto mode', () => {
+    const fmt = getSeriesLabelFormat(
+      series({ labelFormat: 'auto', valueFormat: '.0f', valuePrefix: '$', valueSuffix: ' USD' }),
+      valueAxis({ tickLabelFormat: 'auto' }),
+      scale
+    );
+    expect(fmt(8.6)).toBe('9');
+  });
+
+  it('leaves them off with an explicit labelFormat too', () => {
+    const fmt = getSeriesLabelFormat(
+      series({ labelFormat: '.1f', valuePrefix: '$', valueSuffix: ' USD' }),
+      valueAxis({ tickLabelFormat: 'auto' }),
+      scale
+    );
+    expect(fmt(3.14)).toBe('3.1');
+  });
+
+  it('still leaves them off when labelFormat is none', () => {
+    const fmt = getSeriesLabelFormat(
+      series({ labelFormat: null, valuePrefix: '$', valueSuffix: ' USD' }),
+      valueAxis({ tickLabelFormat: 'auto' }),
+      scale
+    );
+    expect(fmt(3)).toBe(3);
   });
 });

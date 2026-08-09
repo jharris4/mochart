@@ -3,20 +3,19 @@
 Review of the `mochart` monorepo on branch `review`, in two passes: a first
 sweep (B1–B7, T1–T5, D1–D6) and a deeper second sweep (B8–B17, T6–T7, D7–D8).
 
-Baseline, verified in isolation after every fix below: `npm test` (1213 core
+Baseline, verified in isolation after every fix below: `npm test` (1216 core
 tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 `npm run deadcode` all pass, as does `npm run test:coverage` (96.25%
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**32 findings: 16 fixed, 16 open.**
+**32 findings: 17 fixed, 15 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High is open. The two Medium items left are **B5** (series labels apply
-the tooltip prefix/suffix only in `auto` mode) and **D7** (the framework-props
+Nothing High is open. The one Medium item left is **D7** (the framework-props
 table reads `—` for `style` in all five bindings while three of them document
 their own `style`); everything else open is Low.
 
@@ -254,17 +253,49 @@ handed — and the fresh-identity delegate moved to an explicit
 focus after an in-place reorder keys off exactly the identity change the
 delegate exists to create.
 
-### B5. Series labels apply the tooltip prefix/suffix only in `auto` mode — **Open**
+### B5. Series labels applied the tooltip prefix/suffix only in `auto` mode — **Fixed**
 
 **Medium.** `packages/mochart/src/utils/ValueFormat.ts` — `getSeriesLabelFormat`
 
-With `labelFormat: 'auto'` the function delegates to `getSeriesFormat`, which
-appends `valuePrefix`/`valueSuffix`; with an explicit d3 specifier it does not.
-So `valuePrefix: '$'` yields `$9` on the label with `'auto'` and `9.0` with
-`'.1f'`. The config docs describe both as tooltip-only ("when showing them **in
-the tooltip**"), which the `auto` branch contradicts.
+With `labelFormat: 'auto'` the function delegated to `getSeriesFormat`, which
+appends `valuePrefix`/`valueSuffix`; with an explicit d3 specifier it did not.
+So `valuePrefix: '$'` yielded `$9` on the label with `'auto'` and `9.0` with
+`'.1f'`.
 
-Needs a decision: apply prefix/suffix to labels in both branches, or neither.
+This looked like a coin flip — apply the affixes to labels in both branches or
+neither — until what labels actually format settled it. They render
+**`labelProperty`**, a separate data column (default `null`; labels only draw
+when it is set):
+
+```js
+// SeriesLabels.ts
+text: String(valueFormat(labelValues[skipI]!))   // labelValues = the labelProperty column
+```
+
+`valuePrefix`/`valueSuffix` describe the *series value*, which is why the docs
+scope them to the tooltip — the one place series values are shown as text. A
+config plotting `revenue` with `valuePrefix: '$'` and
+`labelProperty: 'unitsSold'` was stamping `$` onto a unit count, and only when
+`labelFormat` happened to be `'auto'`. So the docs were right and the `auto`
+branch was the defect.
+
+**Fix:** the numeric formatting moved into a shared `getSeriesValueFormatter`.
+`getSeriesFormat` wraps it in `applyPrefixAndSuffix` (the tooltip path);
+`getSeriesLabelFormat` reuses it bare. Extracting rather than deleting one call
+makes the asymmetry unrepresentable instead of fixed by hand.
+
+Invisible to everything the repo renders: one file anywhere uses these affixes
+(`mochart-docs/examples/tooltipFormat.ts`) and it sets no `labelProperty`, so no
+golden moved and no doc example changed — which is also why it went unnoticed.
+The pre-existing `auto` test had set both affixes to `null`, neutralising the
+very case that was broken; it now covers both branches with affixes set, and
+the auto one fails on the old code with `expected '$9 USD' to be '9'`.
+
+**Follow-up (open, low):** this leaves no way to put an arbitrary suffix on a
+label — d3's `$` format type covers currency prefixes, but not `' kg'`. The
+right shape is separate `labelPrefix`/`labelSuffix` precisely *because* the
+label may be a different quantity from the value; reusing the value affixes is
+what caused this bug.
 
 ### B12. Animated charts leave empty `style=""` attributes — **Open**
 
