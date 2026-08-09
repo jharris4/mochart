@@ -220,7 +220,9 @@ function getStitchedSvgText(elements: Element[], options: StitchOptions): string
     return null;
   }
   const backgroundColor = options.backgroundColor ?? getEffectiveBackgroundColor(charts[0].svg);
-  const columns = Math.max(1, Math.floor(cols));
+  // cols is an upper bound: reserving columns no chart can reach would pad the
+  // image with blank space (a partly-filled last row still leaves its own cells)
+  const columns = Math.min(Math.max(1, Math.floor(cols)), charts.length);
   const rows = Math.ceil(charts.length / columns);
   const cellWidth = charts.reduce((max, chart) => Math.max(max, chart.width), 0);
   const cellHeight = charts.reduce((max, chart) => Math.max(max, chart.height), 0);

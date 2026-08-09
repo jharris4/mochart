@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 23 fixed, 10 open.**
+**33 findings: 24 fixed, 9 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 10 remaining are all Low.
+Nothing High or Medium is open — the 9 remaining are all Low.
 
 ---
 
@@ -481,13 +481,26 @@ it in the helper let both call sites drop that duplication, so the rule now
 lives in one place instead of three. Widening a parameter type is backward
 compatible for existing callers.
 
-### B7. Stitched grid reserves empty columns — **Open**
+### B7. Stitched grid reserved empty columns — **Fixed**
 
 **Low.** `packages/mochart-export/src/index.ts` — `getStitchedSvgText`
 
-`totalWidth` is always `cols * cellWidth + (cols - 1) * gap`, so exporting 2
-charts with `{ cols: 4 }` yields an image half of which is blank. Clamping the
-column count to the chart count would trim it.
+`totalWidth` was always `cols * cellWidth + (cols - 1) * gap`, so exporting 2
+charts with `{ cols: 4 }` yielded an image half of which was blank.
+
+**Fix:** `columns = min(cols, charts.length)` — `cols` is an upper bound rather
+than a literal column count.
+
+The distinction that makes this safe: an empty cell in a partly-filled *last
+row* is inherent to grid layout and is left alone (3 charts at `cols: 2` still
+produce a 2×2 grid with one empty cell); only columns that no chart can ever
+reach are trimmed. Both behaviours have a test so the two cases cannot be
+conflated later.
+
+The one thing clamping removes is a stable output width across exports of
+differing chart counts, which would let batches line up. No caller in the repo
+relies on it, and the README only promises "tiled left to right, top to bottom
+into `cols` columns", which the clamp still satisfies.
 
 ---
 
