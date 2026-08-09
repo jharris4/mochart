@@ -6,8 +6,9 @@ import type { CategoryValue, DataProvider } from '../types/data';
 import type { InternalFocus } from './ChartDataSource';
 
 export interface FocusControllerInput {
-  mochartConfig: MochartConfig;
-  dataProvider: DataProvider;
+  // both are null while a host is still loading: the chart renders its loading/error state
+  mochartConfig: MochartConfig | null;
+  dataProvider: DataProvider | null;
 }
 
 /** What a `reconcile` pass changed, for the controller to report after it commits the new props. */
@@ -74,12 +75,15 @@ export class FocusController {
     const { focusedValueAxisId: oldFocusedValueAxisId, focusedSeriesId: oldFocusedSeriesId,
       focusedCategoryIndex: oldFocusedCategoryIndex, filteredSeriesIds: oldFilteredSeriesIds } = this;
 
-    if (mochartConfig !== oldMochartConfig && hasConfigStructureChange(oldMochartConfig, mochartConfig)) {
+    // a config appearing or disappearing (the loading/error states) resets, like a provider does
+    const configStructureChanged = mochartConfig !== oldMochartConfig &&
+      (!oldMochartConfig || !mochartConfig || hasConfigStructureChange(oldMochartConfig, mochartConfig));
+    if (configStructureChanged) {
       this.reset();
     }
     else {
       if (mochartConfig !== oldMochartConfig) {
-        this.reconcileFollowerFilters(oldMochartConfig, mochartConfig);
+        this.reconcileFollowerFilters(oldMochartConfig!, mochartConfig!);
       }
       if (dataProvider !== oldDataProvider) {
         if (oldDataProvider && dataProvider) {

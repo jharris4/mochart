@@ -7,9 +7,11 @@
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
-import { createDefaultChart } from '../../src/createChart';
+import { createChart, createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
-import type { DefaultChartProps } from '../../src/types/chart';
+import { enhanceConfig } from '../../src/config/helper';
+import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
+import type { DefaultChartProps, ManagedChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 
 const WIDTH = 800;
@@ -99,5 +101,55 @@ describe('chart state arbitration', () => {
   it('does not enter the error state for null or undefined', () => {
     expect(stateClasses(mountChart({ error: null }))).toEqual([]);
     expect(stateClasses(mountChart({ error: undefined }))).toEqual([]);
+  });
+});
+
+/**
+ * The managed entry point takes a null mochartConfig (what the bindings pass
+ * while a host is still loading). Regression: only the config going *away* was
+ * treated as structural, so a config arriving after mount threw.
+ */
+describe('a mochartConfig arriving after mount', () => {
+  function mountManaged(props: Partial<ManagedChartProps>): { container: Element; handle: ChartHandle<ManagedChartProps> } {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const handle = createChart(container, {
+      mochartConfig: null, dataProvider: null, width: WIDTH, height: HEIGHT, ...props
+    } as unknown as ManagedChartProps);
+    return { container, handle };
+  }
+
+  const enhanced = () => enhanceConfig(config);
+  const provider = () => new ArrayOfObjectsDataProvider(rows, 'month');
+  const seriesCount = (container: Element) => container.querySelectorAll('.mochart-series').length;
+
+  it('renders the series once the config and provider arrive', () => {
+    const { container, handle } = mountManaged({ loading: true });
+    expect(seriesCount(container)).toBe(0);
+
+    handle.update({ mochartConfig: enhanced(), dataProvider: provider(), loading: false });
+    expect(seriesCount(container)).toBe(1);
+  });
+
+  it('survives the config going away and coming back', () => {
+    const { container, handle } = mountManaged({});
+    handle.update({ mochartConfig: enhanced(), dataProvider: provider() });
+    expect(seriesCount(container)).toBe(1);
+
+    // cast: ManagedChartProps still types both as non-null, though core and every
+    // binding treat null as the loading state (see the findings report)
+    handle.update({ mochartConfig: null, dataProvider: null, loading: true } as unknown as Partial<ManagedChartProps>);
+    expect(seriesCount(container)).toBe(0);
+
+    handle.update({ mochartConfig: enhanced(), dataProvider: provider(), loading: false });
+    expect(seriesCount(container)).toBe(1);
+  });
+
+  it('accepts the arriving config through replace()', () => {
+    const { container, handle } = mountManaged({});
+    handle.replace({
+      mochartConfig: enhanced(), dataProvider: provider(), width: WIDTH, height: HEIGHT
+    } as unknown as ManagedChartProps);
+    expect(seriesCount(container)).toBe(1);
   });
 });

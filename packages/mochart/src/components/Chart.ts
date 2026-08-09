@@ -578,7 +578,9 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const dataChanged = chartData !== prevProps.chartData;
     const sizeChanged = width !== prevProps.width || height !== prevProps.height;
     const mochartConfigChanged = mochartConfig !== prevProps.mochartConfig;
-    const mochartConfigStructureChanged = mochartConfigChanged && (!mochartConfig || hasConfigStructureChange(prevProps.mochartConfig, mochartConfig));
+    // a config appearing is as structural as one going away: hosts mount with null while loading
+    const mochartConfigStructureChanged = mochartConfigChanged &&
+      (!mochartConfig || !prevProps.mochartConfig || hasConfigStructureChange(prevProps.mochartConfig, mochartConfig));
 
     if (mochartConfigChanged || dataChanged || sizeChanged) {
       if (!mochartConfig || mochartConfigStructureChanged || (dataChanged && chartData === null)) {
