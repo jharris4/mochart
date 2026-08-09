@@ -40,7 +40,8 @@ export const noData: Record<string, unknown>[] = [];
 export function getLoadingComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
   const el = document.createElement('div');
   el.style.cssText = `width:${width}px;height:${height}px;display:flex;align-items:center;` +
-    'justify-content:center;gap:10px;font-size:14px;opacity:0.75;';
+    'justify-content:center;gap:10px;font-size:14px;' +
+    'backdrop-filter:blur(3px);background:color-mix(in srgb, currentColor 4%, transparent);';
   const spinner = document.createElement('div');
   spinner.style.cssText = 'width:18px;height:18px;border-radius:50%;' +
     'border:3px solid color-mix(in srgb, currentColor 25%, transparent);border-top-color:currentColor;';
