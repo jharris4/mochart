@@ -2,7 +2,7 @@
 // Mounts a live mochart chart from a raw config + dataset. The chart module
 // is imported on mount so pages stay SSR-safe, and the chart width tracks the
 // container so examples stay responsive.
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { encodeShareState, getChartExportOptions, shareHashPrefix } from '@mochart/demo-common';
 import type { DemoConfig, ShowcaseMode } from '@mochart/demo-common';
@@ -26,6 +26,8 @@ const props = withDefaults(defineProps<{
   exportButtons?: boolean;
   /** CSS color set on the chart host — shows chrome following `currentColor`. */
   color?: string;
+  /** Wire the click/focus/filter callbacks and log the last few events under the chart. */
+  events?: boolean;
 }>(), {
   altData: undefined,
   height: 320,
@@ -33,7 +35,8 @@ const props = withDefaults(defineProps<{
   demo: 'stacked',
   showcase: undefined,
   exportButtons: false,
-  color: undefined
+  color: undefined,
+  events: false
 });
 
 // Deep link into the vanilla gallery with this chart's config/data as the
@@ -67,17 +70,52 @@ const showingAlt = ref(false);
 let chart: ChartHandle | null = null;
 let observer: ResizeObserver | null = null;
 
+// Rolling log of the chart's reported events, in console order (newest last).
+// Payloads render as JSON because the log's job is teaching their shapes.
+interface LoggedEvent { key: number; name: string; payload: string | null }
+const eventLog = ref<LoggedEvent[]>([]);
+const eventList = ref<HTMLElement | null>(null);
+let eventKey = 0;
+
+function logEvent(name: string, payload?: unknown) {
+  // follow the tail like a console — unless the reader scrolled up to older entries
+  const list = eventList.value;
+  const following = list === null || list.scrollHeight - list.scrollTop - list.clientHeight < 8;
+  eventLog.value = [
+    ...eventLog.value,
+    { key: eventKey++, name, payload: payload === undefined ? null : JSON.stringify(payload) }
+    // safety valve only — hover focus events accumulate fast on a long-lived page
+  ].slice(-100);
+  if (following) {
+    void nextTick(() => {
+      const el = eventList.value;
+      if (el !== null) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+  }
+}
+
 onMounted(async () => {
   const { createDefaultChart } = await import('@mochart/core');
   const el = host.value;
   if (el === null) {
     return;
   }
+  const eventProps = props.events ? {
+    onFocus: (payload: unknown) => logEvent('onFocus', payload),
+    onSeriesFilter: (payload: unknown) => logEvent('onSeriesFilter', payload),
+    onChartClick: (payload: unknown) => logEvent('onChartClick', payload),
+    onSliceClick: (payload: unknown) => logEvent('onSliceClick', payload),
+    onSeriesClick: (payload: unknown) => logEvent('onSeriesClick', payload),
+    onTitleClick: () => logEvent('onTitleClick')
+  } : {};
   chart = createDefaultChart(el, {
     config: props.config,
     data: props.data,
     width: el.clientWidth,
-    height: props.height
+    height: props.height,
+    ...eventProps
   }) as ChartHandle;
   observer = new ResizeObserver(() => {
     chart?.update({ width: el.clientWidth });
@@ -122,6 +160,22 @@ async function download(format: 'svg' | 'png') {
          host, so clientWidth is the true content width. -->
     <div class="live-chart-card">
       <div ref="host" class="live-chart-host" :style="{ height: height + 'px', color: color }" />
+    </div>
+    <div v-if="events" class="live-chart-events">
+      <template v-if="eventLog.length > 0">
+        <button type="button" class="live-chart-events-clear" @click="eventLog = []">
+          Clear
+        </button>
+        <div ref="eventList" class="live-chart-events-list">
+          <div v-for="entry in eventLog" :key="entry.key" class="live-chart-event">
+            <span class="live-chart-event-name">{{ entry.name }}</span>
+            <span v-if="entry.payload !== null" class="live-chart-event-payload">{{ entry.payload }}</span>
+          </div>
+        </div>
+      </template>
+      <div v-else class="live-chart-events-hint">
+        Interact with the chart — its events appear here.
+      </div>
     </div>
     <div v-if="altData || exportButtons || demoUrl" class="live-chart-controls">
       <button v-if="altData" type="button" @click="toggle">

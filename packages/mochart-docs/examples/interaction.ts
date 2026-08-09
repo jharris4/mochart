@@ -16,6 +16,13 @@ export const config: MochartInputConfig = {
   }
 };
 
+// The callbacks demo: clicking a bar focuses its series (focusOnClick) AND
+// reports through onSeriesClick — one interaction, several events.
+export const clicksConfig: MochartInputConfig = {
+  ...config,
+  seriesDefaults: { renderer: 'bar', focusOnClick: true }
+};
+
 export const data = [
   { day: 'Mon', inStore: 12, online: 20, pickup: 6 },
   { day: 'Tue', inStore: 14, online: 22, pickup: 7 },

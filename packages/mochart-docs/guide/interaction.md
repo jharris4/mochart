@@ -6,6 +6,7 @@ page also works from the keyboard — see [Accessibility](/guide/accessibility).
 
 <script setup>
 import * as interaction from '../examples/interaction'
+import * as pie from '../examples/pie'
 </script>
 
 Hover a legend entry to focus its series, click the plot to pin the tooltip
@@ -131,6 +132,17 @@ coordinates in three frames, plus the nearest category index).
 receive the whole state rather than only what changed. Every callback and
 every payload field is listed in
 [Callbacks and payloads](/reference/callbacks).
+
+Watch them fire — click a bar, hover a series, or toggle a legend entry;
+the log records each event in order and follows the latest (scroll up for
+older ones). One interaction often fires several: with `focusOnClick` set,
+clicking a bar reports `onFocus` and `onSeriesClick` together.
+
+<LiveChart :config="interaction.clicksConfig" :data="interaction.data" events />
+
+Pie charts report slice clicks through `onSliceClick` instead:
+
+<LiveChart :config="pie.config" :data="pie.data" demo="pie" events />
 
 ## Controlled focus and filtering
 

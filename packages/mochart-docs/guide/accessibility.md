@@ -83,7 +83,11 @@ series, arrow keys moving between them in config order, and
 <kbd>Enter</kbd>/<kbd>Space</kbd> acting as a whole-series click —
 `onSeriesClick` reports `categoryIndex: -1`, as a line or area path click
 does. Follower series ([`followSeries`](/reference/series#series.followSeries))
-stay pointer-only; their clicks belong to their leader.
+stay pointer-only; their clicks belong to their leader. The
+[interaction guide's callbacks example](/guide/interaction#callbacks)
+doubles as a live keyboard demo: <kbd>Tab</kbd> to a series, press
+<kbd>Enter</kbd>, and its event log shows the whole-series `onSeriesClick`
+payload.
 
 ## What screen readers hear
 
