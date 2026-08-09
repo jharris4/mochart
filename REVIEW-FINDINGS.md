@@ -393,15 +393,42 @@ without the test noticing.
 
 ### T6. `npm run test:coverage` does not pass — **Open**
 
-**Medium.** The golden suite runs in ~39s uninstrumented but takes minutes
-under v8 coverage, and individual demos cross the configured 30s
-`testTimeout` — a different demo each run (`cluttered`, then
-`cluttered-inverted`), so it is load-dependent rather than one slow test. The
-documented per-package coverage command therefore fails, and the margin is thin
-enough that a loaded CI runner could fail plain `npm test` too.
+**Medium.** `npm run test:coverage` fails: a golden demo crosses the configured
+30s `testTimeout`, a different one each run (`cluttered`, then
+`cluttered-inverted`), so the documented per-package coverage command does not
+pass.
 
-Needs a decision on the remedy: raise `testTimeout`, or exclude the golden
-demos from coverage instrumentation.
+Measured, because the cause is not the obvious one:
+
+| scenario | result |
+| --- | --- |
+| golden file, no coverage | 121 pass, 39s, slowest test **2.2s** |
+| 4 heaviest demos, with coverage | ~2s each — no overhead in isolation |
+| whole golden file, with coverage | **121 pass**, slowest **4.6s**, durations flat across the run |
+| whole core suite, with coverage | **fails** — one golden test at **30.8s** |
+
+So it is neither per-test instrumentation cost (the heaviest demos are
+unaffected in isolation) nor accumulation across the file (durations do not
+climb: 2717, 4647, 996, 1212, 1330, 1455, 188, 1607, 1610, 2832 ms in
+execution order). Coverage roughly doubles each golden test *and* keeps all 86
+files' workers busy longer; under that saturation the heaviest demos are
+starved of CPU and stretch past 30s. That is why it never reproduces alone and
+why the victim changes.
+
+**Recommended:** raise `testTimeout` to 120000 scoped to `golden.test.ts` via
+`vi.setConfig`, not globally — the goldens are the only tests within an order
+of magnitude of the limit, and 30s stays a live hang detector for the other 85
+files, whose tests run in milliseconds. 120s is ~4x the worst observed (30.8s)
+and ~26x the instrumented baseline, while still failing a real hang inside two
+minutes. Verified: `--testTimeout=120000` takes the full coverage run to
+86 files / 1213 tests green in 95s (96.25% statements, 88.52% branches).
+
+Not recommended: excluding the goldens from coverage guts the signal (they are
+what exercises the renderer), and `--no-file-parallelism` removes the
+contention at the cost of every coverage run being far slower.
+
+Pair it with T5 — CI runs `npm test`, never `test:coverage`, which is why this
+sat broken; running coverage in CI with thresholds is one follow-up, not two.
 
 ### T3. Renderer and component function coverage — **Open**
 
