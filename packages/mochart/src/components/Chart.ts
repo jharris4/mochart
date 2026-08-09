@@ -122,16 +122,31 @@ let chartInstanceCounter = 1;
 
 // The getXxxComponent factory props return a DOM Node (or string). The
 // defaults below build plain DOM; custom factories from the host app must do
-// the same.
-function buildMessageDiv(style: Record<string, string | number | null | undefined>, message: string): Node {
+// the same. The shared builder fills the plot area, flex-centers its message
+// (table-cell centering silently failed when a dimension was 0), and quiets
+// whatever renders behind it — bars keep drawing under a loading overlay —
+// with a color-agnostic blur + faint currentColor tint.
+function buildMessageDiv(width: number, height: number, message: string): Node {
   const el = htmlEl('div');
-  el.set({ style });
+  el.set({ style: {
+    width: width > 0 ? width : '100%',
+    height: height > 0 ? height : '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    padding: '0 16px',
+    boxSizing: 'border-box',
+    overflowWrap: 'anywhere',
+    backdropFilter: 'blur(3px)',
+    background: 'color-mix(in srgb, currentColor 4%, transparent)'
+  } });
   el.node.textContent = message;
   return el.node;
 }
 
 function getLoadingComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
-  return buildMessageDiv({ width: width, height: height, textAlign: 'center', verticalAlign: 'middle', display: 'table-cell' }, 'Loading...');
+  return buildMessageDiv(width, height, 'Loading...');
 }
 
 // A provided error (including '' or 0) is the error state; null/undefined are not.
@@ -141,41 +156,23 @@ function isErrorActive(error: unknown): boolean {
 
 function getErrorComponent({ width = 0, height = 0, error }: ChartFactoryContext): Node {
   const errorMessage = isErrorActive(error) ? typeof error === 'object' ? JSON.stringify(error) : String(error) : 'Invalid Chart Config';
-  return buildMessageDiv({ width: width, height: height, textAlign: 'center', verticalAlign: 'middle', display: 'table-cell' }, errorMessage);
+  return buildMessageDiv(width, height, errorMessage);
 }
 
 function getNoDataComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
-  return buildMessageDiv({ width: width, height: height, textAlign: 'center', verticalAlign: 'middle', display: 'table-cell' }, 'No Data');
+  return buildMessageDiv(width, height, 'No Data');
 }
 
 function getNoSizeComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
-  const style: Record<string, string | number> = {
-    textAlign: 'center', verticalAlign: 'middle', display: 'table-cell'
-  };
-  if (width > 0) {
-    style.width = width;
-  }
-  if (height > 0) {
-    style.height = height;
-  }
-  return buildMessageDiv(style, 'No Size');
+  return buildMessageDiv(width, height, 'No Size');
 }
 
 function getNoSeriesComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
-  return buildMessageDiv({ width: width, height: height, textAlign: 'center', verticalAlign: 'middle', display: 'table-cell' }, 'No Series');
+  return buildMessageDiv(width, height, 'No Series');
 }
 
 function getConfigErrorComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
-  const style: Record<string, string | number> = {
-    textAlign: 'center', verticalAlign: 'middle', display: 'table-cell'
-  };
-  if (width > 0) {
-    style.width = width;
-  }
-  if (height > 0) {
-    style.height = height;
-  }
-  return buildMessageDiv(style, 'Mochart Config Error');
+  return buildMessageDiv(width, height, 'Mochart Config Error');
 }
 
 /** Replace a container's children with factory-produced content (Node | El | string | falsy). */
