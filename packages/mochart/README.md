@@ -274,8 +274,7 @@ Build-free static HTML examples (script tag and ES module) live in
 
 ```sh
 npm run build -w @mochart/core          # bundle to dist/ with vite
-npm test -w @mochart/core               # vitest (includes golden snapshot tests)
-npm run test:coverage -w @mochart/core  # vitest with v8 coverage
+npm test -w @mochart/core               # vitest with v8 coverage (includes golden snapshot tests)
 npm run typecheck -w @mochart/core
 npm run generate-docs -w @mochart/core   # regenerate mochart-docs.html + generated/config-reference.json
 npm run generate-jsdoc -w @mochart/core  # regenerate the JSDoc on src/types/config.ts from the config docs
