@@ -78,6 +78,16 @@ describe('createHeatmap', () => {
     expect(data.map((entry) => entry.column)).toEqual(['Jan', 'Feb', 'Mar']);
   });
 
+  // column values index the rows, so duplicates would collapse them
+  it('rejects a columnLabels list that is not one per column', () => {
+    expect(() => createHeatmap(rows(), { columnLabels: ['Jan'] })).toThrow(/1 columnLabels for 3 columns/);
+    expect(() => createHeatmap(rows(), { columnLabels: ['a', 'b', 'c', 'd'] })).toThrow(/4 columnLabels for 3 columns/);
+  });
+
+  it('rejects duplicate column labels', () => {
+    expect(() => createHeatmap(rows(), { columnLabels: ['a', 'b', 'a'] })).toThrow(/must be unique, duplicates: a/);
+  });
+
   it('titles one bar series per row', () => {
     const { series: seriesConfigs } = createHeatmap(rows());
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.title)).toEqual(['North', 'South', 'West']);
