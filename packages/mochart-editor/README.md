@@ -3,6 +3,9 @@
 A framework-neutral, strict JSON editor with optional Mochart config intelligence.
 It powers the JSON editing tabs in the Mochart demos.
 
+Docs: [mochart.org](https://mochart.org) — start with the
+[editor guide](https://mochart.org/guide/editor).
+
 ## Install
 
 ```sh

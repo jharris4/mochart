@@ -3,6 +3,8 @@
 Angular demo gallery for [@mochart/core](../mochart/README.md), built on
 [@mochart/angular](../mochart-angular/README.md) (private, not published).
 
+See it running live at [mochart.org/angular/demos](https://mochart.org/angular/demos).
+
 The full-featured demo app: browse every demo chart in three modes —
 single edits one chart's config and data as JSON, multi steps a
 configurable grid of charts through dataset sizes together, and random

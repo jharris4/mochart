@@ -3,6 +3,8 @@
 Vue 3 demo gallery for [@mochart/core](../mochart/README.md), built on
 [@mochart/vue](../mochart-vue/README.md) (private, not published).
 
+See it running live at [mochart.org/vue/demos](https://mochart.org/vue/demos).
+
 The full-featured demo app: browse every demo chart in three modes —
 single edits one chart's config and data as JSON, multi steps a
 configurable grid of charts through dataset sizes together, and random

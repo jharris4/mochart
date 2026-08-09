@@ -6,6 +6,9 @@ element containing a rendered chart and it downloads the chart as a
 standalone image — computed styles inlined, crosshair stripped, and an
 optional solid background painted beneath the chart.
 
+Docs: [mochart.org](https://mochart.org) — start with the
+[export guide](https://mochart.org/guide/export).
+
 The export captures everything inside the chart svg (title, plot, axes,
 legend); the HTML tooltip is never included. Several charts can also be
 tiled into a single image — see

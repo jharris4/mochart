@@ -3,6 +3,8 @@
 Lit demo gallery for [@mochart/core](../mochart/README.md), built on
 [@mochart/lit](../mochart-lit/README.md) (private, not published).
 
+See it running live at [mochart.org/lit/demos](https://mochart.org/lit/demos).
+
 The full-featured demo app: browse every demo chart in three modes —
 single edits one chart's config and data as JSON, multi steps a
 configurable grid of charts through dataset sizes together, and random

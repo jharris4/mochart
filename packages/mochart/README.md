@@ -2,6 +2,8 @@
 
 Animated interactive SVG charting library with zero framework dependencies.
 
+Full documentation with live examples: [mochart.org](https://mochart.org).
+
 Charts are drawn with a retained-mode renderer — updates write only the DOM
 attributes that actually changed; there is no vdom and no framework runtime.
 Data and config changes animate smoothly, and charts respond to hover, focus,

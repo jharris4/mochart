@@ -3,6 +3,8 @@
 Vanilla TypeScript demo gallery for the [@mochart/core](../mochart/README.md)
 charting library (private, not published).
 
+See it running live at [mochart.org/vanilla/demos](https://mochart.org/vanilla/demos).
+
 The full-featured demo app in plain TypeScript — no framework, no vdom, no
 reactivity layer. It is a feature-for-feature peer of the framework galleries
 ([@mochart/demo-angular](../mochart-demo-angular/README.md),

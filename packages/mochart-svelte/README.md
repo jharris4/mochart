@@ -2,6 +2,9 @@
 
 Svelte 5 components for the [@mochart/core](https://github.com/jharris4/mochart) charting library.
 
+Docs: [mochart.org](https://mochart.org) — start with the
+[Svelte guide](https://mochart.org/guide/frameworks/svelte).
+
 Config and data changes get mochart's
 [staged animations](https://github.com/jharris4/mochart/tree/main/packages/mochart#staged-animation)
 for free — axis expansion, value change (with category and series transitions),

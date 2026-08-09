@@ -3,6 +3,8 @@
 React demo gallery for [@mochart/core](../mochart/README.md), built on
 [@mochart/react](../mochart-react/README.md) (private, not published).
 
+See it running live at [mochart.org/react/demos](https://mochart.org/react/demos).
+
 The full-featured demo app: browse every demo chart in three modes —
 single edits one chart's config and data as JSON, multi steps a
 configurable grid of charts through dataset sizes together, and random

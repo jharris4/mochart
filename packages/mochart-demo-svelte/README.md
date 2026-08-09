@@ -3,6 +3,8 @@
 Svelte 5 demo gallery for [@mochart/core](../mochart/README.md), built on
 [@mochart/svelte](../mochart-svelte/README.md) (private, not published).
 
+See it running live at [mochart.org/svelte/demos](https://mochart.org/svelte/demos).
+
 The full-featured demo app: browse every demo chart in three modes —
 single edits one chart's config and data as JSON, multi steps a
 configurable grid of charts through dataset sizes together, and random
