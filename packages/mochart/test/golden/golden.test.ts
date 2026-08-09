@@ -20,6 +20,11 @@ interface Demo { id: string; config: string; data: string }
 /** Rows are decoded from arbitrary demo JSON, so values are intentionally loose. */
 type Row = Record<string, any>;
 
+// Headroom for saturated runs, not an expectation that these are slow: the
+// heaviest demo is 2.2s here and 4.6s under coverage, but `test:coverage` keeps
+// every worker busy at once and starves them past the 30s global default.
+vi.setConfig({ testTimeout: 120_000 });
+
 const here = path.dirname(fileURLToPath(import.meta.url));
 const demosDir = path.resolve(here, '../../../mochart-demo-data/src');
 
