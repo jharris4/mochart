@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 26 fixed, 7 open.**
+**33 findings: 27 fixed, 6 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 7 remaining are all Low.
+Nothing High or Medium is open — the 6 remaining are all Low.
 
 ---
 
@@ -477,7 +477,7 @@ Chains fail the same way: follower lookups are
 together, because all three violate the same single-level invariant the code
 relies on. The built-in candlestick and OHLC helpers always satisfy it.
 
-### B17. One `NaN` poisons a whole waterfall — **Open**
+### B17. One `NaN` poisoned a whole waterfall — **Fixed**
 
 **Low.** `packages/mochart/src/data/Waterfall.ts` — `computeWaterfallSteps`
 
@@ -489,8 +489,20 @@ computeWaterfallSteps([{ label: 'a', value: 1 }, { label: 'b', value: NaN }, { l
 // ends: [1, NaN, NaN]
 ```
 
-`createHistogram` and `createPie` both filter non-finite inputs; waterfall does
-not. Needs a decision on the semantics (skip the step, or treat it as 0).
+`binValues` filters non-finite inputs and `computePieFractions` clamps them to
+0; waterfall was the only one of the three that propagated, and because its
+steps are cumulative the damage was not confined to the bad bar — every later
+step and total inherited the `NaN`.
+
+**Fix:** a non-finite value counts as 0, and leaves a `total` step at its
+running value rather than resetting to one.
+
+Zero rather than throwing, because `item.value ?? 0` already treats an
+*omitted* value as zero — throwing on `NaN` while silently accepting
+`undefined` would be a strange split — and because a waterfall fed from live
+data with one gap should degrade by a bar, not fail entirely. `getDataErrors`
+is no safety net here: it inspects the data handed to the chart, by which point
+one `NaN` has already become a column of them.
 
 ### B14. `hasConfigStructureChange` threw on a null config — **Fixed**
 

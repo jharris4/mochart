@@ -53,6 +53,25 @@ describe('computeWaterfallSteps', () => {
     expect(steps[2].end).toBe(100);
   });
 
+  // Regression: one non-finite value carried NaN through every later step
+  it('counts a non-finite delta as 0, leaving later steps intact', () => {
+    const steps = computeWaterfallSteps([
+      { label: 'a', value: 1 },
+      { label: 'b', value: NaN },
+      { label: 'c', value: 5 }
+    ]);
+    expect(steps.map(step => step.end)).toEqual([1, 1, 6]);
+    expect(steps[1]).toEqual({ label: 'b', delta: 0, start: 1, end: 1, cumulative: 1, direction: 'increase' });
+  });
+
+  it('leaves a total at its running value for a non-finite value', () => {
+    const steps = computeWaterfallSteps([
+      { label: 'a', value: 10 },
+      { label: 'total', total: true, value: Infinity }
+    ]);
+    expect(steps[1].end).toBe(10);
+  });
+
   it('offsets everything from a non-zero base', () => {
     const steps = computeWaterfallSteps([
       { label: 'A', value: 10 },
