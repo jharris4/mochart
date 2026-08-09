@@ -5,17 +5,17 @@ sweep (B1–B7, T1–T5, D1–D6) and a deeper second sweep (B8–B18, T6–T7, 
 
 Baseline, verified in isolation after every fix below: `npm test` (1216 core
 tests + all workspaces), `npm run typecheck`, `npm run lint`, and
-`npm run deadcode` all pass, as does `npm run test:coverage` (96.25%
-statements, 88.52% branches). Nothing here came from a failing check — the
+`npm run deadcode` all pass; core's `npm test` is coverage-instrumented and
+held to thresholds (96.29% statements, 88.61% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 27 fixed, 6 open.**
+**33 findings: 28 fixed, 5 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 6 remaining are all Low.
+Nothing High or Medium is open — the 5 remaining are all Low.
 
 ---
 
@@ -651,11 +651,25 @@ whole branches of behaviour are never invoked:
 **Low.** `packages/mochart/src/render/list.ts:93-101` — the DOM-removing branch
 of the keyed list's teardown is uncovered, while `RendererList.destroy` is.
 
-### T5. No coverage thresholds — **Open**
+### T5. No coverage thresholds — **Fixed**
 
-**Low.** `packages/mochart/vitest.config.ts` configures a coverage reporter but
-no `thresholds`, and CI runs `npm test` rather than `test:coverage`, so coverage
-can regress without failing anything. Blocked on T6 in practice.
+**Low.** `packages/mochart/vitest.config.ts` configured a coverage reporter but
+no `thresholds`, and CI ran `npm test`, never `test:coverage` — so coverage was
+measurable on demand and defended by nothing. That is precisely why T6 sat
+broken: the command had been failing and nothing ran it.
+
+**Fix:** thresholds at `statements 96, branches 88, functions 95, lines 96` —
+a whisker under the current 96.29 / 88.61 / 95.82 / 96.42, so real erosion fails
+while an incidental refactor does not. Verified to bite by raising the
+statements floor to 99 and watching the run fail with
+`Coverage for statements (96.29%) does not meet global threshold (99%)`.
+
+Core's `test` script now runs `vitest run --coverage`, replacing the separate
+`test:coverage`. That is what makes CI enforce it without change: `npm test`
+already fans out to every workspace, so core runs **once**, instrumented,
+rather than twice. The cost is a slower local full-suite run for core (~48s →
+~95s); a single test file is unaffected, since that is run directly through
+vitest without coverage.
 
 ---
 

@@ -12,7 +12,9 @@ export default defineConfig({
       include: ['src/**'],
       // Type-only and generated modules carry no runtime behaviour to exercise.
       exclude: ['src/types/**', 'src/**/*.d.ts'],
-      reporter: ['text', 'html']
+      reporter: ['text', 'html'],
+      // a whisker under the current numbers: real erosion fails, an incidental refactor does not
+      thresholds: { statements: 96, branches: 88, functions: 95, lines: 96 }
     }
   }
 });
