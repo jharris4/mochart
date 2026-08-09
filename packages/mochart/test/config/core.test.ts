@@ -112,6 +112,13 @@ describe('hasConfigStructureChange', () => {
     expect(hasConfigStructureChange(base(), base())).toBe(false);
   });
 
+  // hosts hold no config while loading, so either side may be null
+  it('treats a config appearing or disappearing as a change, but two nulls as none', () => {
+    expect(hasConfigStructureChange(null, base())).toBe(true);
+    expect(hasConfigStructureChange(base(), null)).toBe(true);
+    expect(hasConfigStructureChange(null, null)).toBe(false);
+  });
+
   it('reports a change when the new config is invalid', () => {
     const invalid = makeConfig({}) as MochartConfig;
     expect(hasConfigStructureChange(base(), invalid)).toBe(true);

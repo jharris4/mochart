@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 21 fixed, 12 open.**
+**33 findings: 22 fixed, 11 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 12 remaining are all Low.
+Nothing High or Medium is open — the 11 remaining are all Low.
 
 ---
 
@@ -443,15 +443,26 @@ computeWaterfallSteps([{ label: 'a', value: 1 }, { label: 'b', value: NaN }, { l
 `createHistogram` and `createPie` both filter non-finite inputs; waterfall does
 not. Needs a decision on the semantics (skip the step, or treat it as 0).
 
-### B14. `hasConfigStructureChange` throws on a null config — **Open**
+### B14. `hasConfigStructureChange` threw on a null config — **Fixed**
 
 **Low.** `packages/mochart/src/config/core/mochartConfig.ts`
 
-A public export (documented under "Advanced exports") that dereferences
+A public export (documented under "Advanced exports") that dereferenced
 `.validation` on both arguments. Both internal callers were fixed in B10, so it
-is no longer reachable from the chart, but it stays a sharp edge for the
-documented API given that a null config is a real state elsewhere in the
-library.
+was no longer reachable from the chart — but a null config is a real, supported
+state everywhere else: `ManagedChartProps.mochartConfig` is nullable since B13
+and every binding mounts with null while loading. A host following that pattern
+and calling this helper hit a `TypeError` on its first render.
+
+**Fix:** both parameters widened to `MochartConfig | null`, with a null on
+either side counting as a structural change and two nulls as no change.
+
+Accepting null rather than documenting the restriction, because B10 had already
+established that rule — and had taught it to *both* internal callers
+separately, each carrying its own `!oldConfig || !newConfig ||` prefix. Encoding
+it in the helper let both call sites drop that duplication, so the rule now
+lives in one place instead of three. Widening a parameter type is backward
+compatible for existing callers.
 
 ### B7. Stitched grid reserves empty columns — **Open**
 

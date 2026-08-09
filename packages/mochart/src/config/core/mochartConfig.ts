@@ -286,7 +286,16 @@ export default function buildMochartConfig(configWithoutDefaults: unknown, confi
   } as unknown as MochartConfig;
 }
 
-export function hasConfigStructureChange(configOld: MochartConfig, configNew: MochartConfig): boolean {
+/**
+ * Whether two configs differ structurally — enough that focus, filtering and
+ * the rendered element tree cannot carry over. Either side may be null: hosts
+ * hold no config while loading, and a config appearing or disappearing is
+ * itself structural (two nulls are not a change).
+ */
+export function hasConfigStructureChange(configOld: MochartConfig | null, configNew: MochartConfig | null): boolean {
+  if (!configOld || !configNew) {
+    return configOld !== configNew;
+  }
   if (configOld.validation.valid !== configNew.validation.valid || !configNew.validation.valid) {
     return true;
   }
