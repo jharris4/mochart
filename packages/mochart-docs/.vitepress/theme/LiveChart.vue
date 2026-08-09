@@ -28,6 +28,10 @@ const props = withDefaults(defineProps<{
   color?: string;
   /** Wire the click/focus/filter callbacks and log the last few events under the chart. */
   events?: boolean;
+  /** Extra createDefaultChart props: `loading`, `error`, state factories, size overrides. */
+  chartProps?: Record<string, unknown>;
+  /** Render a button that flips the given state prop live (the chart-states guide). */
+  toggle?: 'loading' | 'error';
 }>(), {
   altData: undefined,
   height: 320,
@@ -36,7 +40,9 @@ const props = withDefaults(defineProps<{
   showcase: undefined,
   exportButtons: false,
   color: undefined,
-  events: false
+  events: false,
+  chartProps: undefined,
+  toggle: undefined
 });
 
 // Deep link into the vanilla gallery with this chart's config/data as the
@@ -115,10 +121,14 @@ onMounted(async () => {
     data: props.data,
     width: el.clientWidth,
     height: props.height,
-    ...eventProps
+    ...eventProps,
+    ...props.chartProps
   }) as ChartHandle;
   observer = new ResizeObserver(() => {
-    chart?.update({ width: el.clientWidth });
+    // an explicit width override (the no-size demo) must not be clobbered
+    if (props.chartProps?.width === undefined) {
+      chart?.update({ width: el.clientWidth });
+    }
   });
   observer.observe(el);
 });
@@ -130,12 +140,35 @@ onBeforeUnmount(() => {
   chart = null;
 });
 
-function toggle() {
+function toggleData() {
   if (chart === null || props.altData === undefined) {
     return;
   }
   showingAlt.value = !showingAlt.value;
   chart.update({ data: showingAlt.value ? props.altData : props.data });
+}
+
+// The chart-states guide's live loading/error switch. Starts from whatever
+// the chartProps passthrough set; toggling off an error clears it with null.
+const stateActive = ref(props.toggle === 'loading'
+  ? props.chartProps?.loading === true
+  : props.toggle === 'error' && props.chartProps?.error != null);
+
+const stateLabel = computed(() => props.toggle === 'loading'
+  ? (stateActive.value ? 'Finish loading' : 'Start loading')
+  : (stateActive.value ? 'Clear error' : 'Trigger error'));
+
+function toggleState() {
+  if (chart === null || props.toggle === undefined) {
+    return;
+  }
+  stateActive.value = !stateActive.value;
+  if (props.toggle === 'loading') {
+    chart.update({ loading: stateActive.value });
+  }
+  else {
+    chart.update({ error: stateActive.value ? props.chartProps?.error ?? 'Something went wrong' : null });
+  }
 }
 
 // Imported on click for the same SSR-safety reason as the chart module; the
@@ -177,8 +210,11 @@ async function download(format: 'svg' | 'png') {
         Interact with the chart — its events appear here.
       </div>
     </div>
-    <div v-if="altData || exportButtons || demoUrl" class="live-chart-controls">
-      <button v-if="altData" type="button" @click="toggle">
+    <div v-if="altData || exportButtons || demoUrl || toggle" class="live-chart-controls">
+      <button v-if="toggle" type="button" @click="toggleState">
+        {{ stateLabel }}
+      </button>
+      <button v-if="altData" type="button" @click="toggleData">
         {{ showingAlt ? 'Animate back' : 'Animate to new data' }}
       </button>
       <button v-if="exportButtons" type="button" @click="download('svg')">
