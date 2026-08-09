@@ -45,6 +45,11 @@ Reopening returns to the last category you were viewing. On single-category
 charts (a pie or donut), the arrow keys are inert and
 <kbd>Enter</kbd>/<kbd>Space</kbd> still toggles the tooltip.
 
+With both the tooltip and the crosshair disabled, the chart has no keyboard
+or screen-reader route to its values — the remaining tab stops filter and
+focus series but never read numbers. If you disable both, provide the values
+another way, such as a data table or text summary near the chart.
+
 An open tooltip is part of the tab order. With
 [`tooltip.showControls`](/reference/tooltip#tooltip.showControls) on, its
 ‹ / › / mode controls are ordinary buttons (the ends report
