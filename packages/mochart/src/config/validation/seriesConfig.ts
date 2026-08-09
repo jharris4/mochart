@@ -119,6 +119,8 @@ export default function getValidators(config: DeepPartial<SeriesConfig>) {
     title: validators.string().orEqual(NONE),
     shapeStyle: styleStates(styleMembers, false),
     labelFormat: validators.numberFormat().orOneOf([NONE, AUTO]),
+    labelPrefix: validators.string().orEqual(NONE),
+    labelSuffix: validators.string().orEqual(NONE),
     labelTextStyle: styleStates(styleMembers, true),
     labelMinPositionFraction: validators.numberMinMax(0, 1).orEqual(NONE),
     labelMaxPositionFraction: validators.numberMinMax(0, 1).orEqual(NONE),

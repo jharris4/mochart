@@ -28,7 +28,14 @@ import * as scatterBubble from '../examples/scatterBubble'
   point it at the series' own `property` (as above) for value labels, or at
   any other data property.
   [`labelFormat`](/reference/series#series.labelFormat)
-  formats the value (`"auto"` derives from the data).
+  formats the value (`"auto"` derives from the data), and
+  [`labelPrefix`](/reference/series#series.labelPrefix) /
+  [`labelSuffix`](/reference/series#series.labelSuffix) wrap it with text a d3
+  format can't express, such as a unit. They are independent of `labelFormat`,
+  and separate from the tooltip's
+  [`valuePrefix`](/reference/series#series.valuePrefix) /
+  [`valueSuffix`](/reference/series#series.valueSuffix) because a label may
+  show a different property than the series value.
 - [`labelPosition`](/reference/series#series.labelPosition)
   places labels `inside`, `center`, or `outside` the shape, and
   [`labelOffset`](/reference/series#series.labelOffset) nudges every label

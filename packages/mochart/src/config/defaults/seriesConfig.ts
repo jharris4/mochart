@@ -59,6 +59,8 @@ export function getRegularDefaults() {
     useTitleForValueLabel: true,
     title: NONE,
     labelFormat: AUTO,
+    labelPrefix: NONE,
+    labelSuffix: NONE,
     labelTextStyle: {
       normal: { strokeColor: COLOR_CURRENT, strokeOpacity: 0.8, strokeWidth: 1, strokeDashArray: NONE, fillColor: COLOR_CURRENT, fillOpacity: 0.8 },
       focused: { strokeColor: COLOR_SAME, strokeOpacity: 1, strokeWidth: 1, strokeDashArray: COLOR_SAME, fillColor: COLOR_SAME, fillOpacity: 1 },

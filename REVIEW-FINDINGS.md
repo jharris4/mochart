@@ -291,11 +291,11 @@ The pre-existing `auto` test had set both affixes to `null`, neutralising the
 very case that was broken; it now covers both branches with affixes set, and
 the auto one fails on the old code with `expected '$9 USD' to be '9'`.
 
-**Follow-up (open, low):** this leaves no way to put an arbitrary suffix on a
-label — d3's `$` format type covers currency prefixes, but not `' kg'`. The
-right shape is separate `labelPrefix`/`labelSuffix` precisely *because* the
-label may be a different quantity from the value; reusing the value affixes is
-what caused this bug.
+**Follow-up (done):** the fix left no way to put an arbitrary suffix on a label
+— d3's `$` format type covers currency prefixes, but not `' kg'`. Rather than
+reuse the value affixes (which is what caused this bug), `labelPrefix` and
+`labelSuffix` were added as their own pair, mirroring the value ones and
+independent of `labelFormat` exactly as those are of `valueFormat`.
 
 ### B12. Animated charts leave empty `style=""` attributes — **Open**
 

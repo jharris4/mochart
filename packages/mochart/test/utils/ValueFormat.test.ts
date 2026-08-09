@@ -13,7 +13,10 @@ import type { EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../../src/ty
 // fixtures focused on the branch under test.
 const categoryAxis = (over: Record<string, unknown>): CategoryAxisConfig => over as unknown as CategoryAxisConfig;
 const valueAxis = (over: Record<string, unknown>): EnhancedValueAxisConfig => over as unknown as EnhancedValueAxisConfig;
-const series = (over: Record<string, unknown>): EnhancedSeriesConfig => over as unknown as EnhancedSeriesConfig;
+// the affix fields are read unconditionally (an enhanced config always carries them),
+// so they default to null here rather than each fixture having to remember them
+const series = (over: Record<string, unknown>): EnhancedSeriesConfig =>
+  ({ valuePrefix: null, valueSuffix: null, labelPrefix: null, labelSuffix: null, ...over }) as unknown as EnhancedSeriesConfig;
 
 describe('getCategoryFormat', () => {
   it('is an identity for string categories with no formatting', () => {
@@ -243,5 +246,50 @@ describe('getSeriesLabelFormat', () => {
       scale
     );
     expect(fmt(3)).toBe(3);
+  });
+});
+
+describe('getSeriesLabelFormat prefix and suffix', () => {
+  const scale = scaleLinear().domain([0, 100]);
+  // labelPrefix/labelSuffix are independent of labelFormat, matching how
+  // valuePrefix/valueSuffix are independent of valueFormat.
+  it('applies them with an explicit labelFormat', () => {
+    const fmt = getSeriesLabelFormat(
+      series({ labelFormat: '.1f', labelPrefix: '~', labelSuffix: ' kg' }),
+      valueAxis({ tickLabelFormat: 'auto' }), scale);
+    expect(fmt(3.14)).toBe('~3.1 kg');
+  });
+
+  it('applies them in auto mode', () => {
+    const fmt = getSeriesLabelFormat(
+      series({ labelFormat: 'auto', valueFormat: '.0f', labelPrefix: '~', labelSuffix: ' kg' }),
+      valueAxis({ tickLabelFormat: 'auto' }), scale);
+    expect(fmt(8.6)).toBe('~9 kg');
+  });
+
+  it('applies them with no labelFormat at all', () => {
+    const fmt = getSeriesLabelFormat(
+      series({ labelFormat: null, labelPrefix: '~', labelSuffix: ' kg' }),
+      valueAxis({ tickLabelFormat: 'auto' }), scale);
+    expect(fmt(42)).toBe('~42 kg');
+  });
+
+  it('applies either one alone', () => {
+    const prefixOnly = getSeriesLabelFormat(
+      series({ labelFormat: '.1f', labelPrefix: '~', labelSuffix: null }),
+      valueAxis({ tickLabelFormat: 'auto' }), scale);
+    expect(prefixOnly(3.14)).toBe('~3.1');
+
+    const suffixOnly = getSeriesLabelFormat(
+      series({ labelFormat: '.1f', labelPrefix: null, labelSuffix: ' kg' }),
+      valueAxis({ tickLabelFormat: 'auto' }), scale);
+    expect(suffixOnly(3.14)).toBe('3.1 kg');
+  });
+
+  it('keeps the label pair off the tooltip value format', () => {
+    const fmt = getSeriesFormat(
+      series({ valueFormat: '.0f', valuePrefix: '$', valueSuffix: null, labelPrefix: '~', labelSuffix: ' kg' }),
+      valueAxis({ tickLabelFormat: 'auto' }), scale);
+    expect(fmt(7)).toBe('$7');
   });
 });
