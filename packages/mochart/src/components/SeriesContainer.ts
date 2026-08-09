@@ -3,6 +3,7 @@ import { Renderer, svgEl } from '../render';
 import { getSeriesConfigsOrderedByFocus } from '../data/FocusData';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { accessibilityActive } from '../utils/utils';
+import { NONE } from '../config/core/constants';
 
 import SeriesBackground from './SeriesBackground';
 import type { SeriesShapeA11yProps } from './SeriesBackground';
@@ -27,10 +28,80 @@ interface SeriesContainerProps {
   a11yProps: SeriesShapeA11yProps | null;
 }
 
-export default class SeriesContainer extends Renderer<SeriesContainerProps> {
+interface SeriesContainerState { rovingSeriesId: string | null }
+
+export default class SeriesContainer extends Renderer<SeriesContainerProps, SeriesContainerState> {
   root = svgEl('g');
   background = this.slot(this.root);
   series = this.rendererList(this.root);
+
+  constructor() {
+    super();
+    this.state = { rovingSeriesId: null };
+  }
+
+  /** interactive series nodes in config order (the DOM is focus-ordered, so it cannot drive navigation) */
+  private orderedSeriesNodes(): SVGElement[] {
+    const nodeById = new Map<string, SVGElement>();
+    for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
+      nodeById.set(node.getAttribute('data-series-id')!, node);
+    }
+    const nodes: SVGElement[] = [];
+    for (const seriesConfig of this.props.mochartConfig.series) {
+      const node = nodeById.get(seriesConfig.id);
+      if (node !== undefined) {
+        nodes.push(node);
+      }
+    }
+    return nodes;
+  }
+
+  /** any focus landing on a series (Tab, arrows, mouse) makes it the roving tab stop */
+  seriesFocusIn = (event: Event) => {
+    const seriesId = (event.target as Element).getAttribute?.('data-series-id');
+    if (seriesId != null && seriesId !== this.state.rovingSeriesId) {
+      this.setState({ rovingSeriesId: seriesId });
+    }
+  }
+
+  seriesKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    const target = event.target as Element;
+    if (target.getAttribute?.('data-series-id') == null) {
+      return; // not a series (e.g. the plot-area rect handles its own keys)
+    }
+    if (key === 'Escape' || key === 'Enter' || key === ' ') {
+      // mirror the plot rect: Enter/Space toggles the tooltip (and announces),
+      // Escape closes it — the series itself handles only focus/onSeriesClick
+      this.props.a11yProps?.onKeyDown(event);
+      return;
+    }
+    const nodes = this.orderedSeriesNodes();
+    const index = nodes.indexOf(target as SVGElement);
+    if (index === -1) {
+      return;
+    }
+    let nextIndex: number;
+    if (key === 'ArrowRight' || key === 'ArrowDown') {
+      nextIndex = Math.min(index + 1, nodes.length - 1);
+    }
+    else if (key === 'ArrowLeft' || key === 'ArrowUp') {
+      nextIndex = Math.max(index - 1, 0);
+    }
+    else if (key === 'Home') {
+      nextIndex = 0;
+    }
+    else if (key === 'End') {
+      nextIndex = nodes.length - 1;
+    }
+    else {
+      return;
+    }
+    event.preventDefault();
+    if (nextIndex !== index) {
+      nodes[nextIndex].focus();
+    }
+  }
 
   create() {
     return this.root.node;
@@ -47,8 +118,39 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
 
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);
 
-    this.root.set({ className: mochartCssClasses['seriesContainer'] });
+    const accessibility = accessibilityActive(mochartConfig.accessibility);
+    const seriesIsInteractive = (id: string): boolean =>
+      accessibility &&
+      mochartConfig.seriesById[id].followSeries === NONE &&
+      (mochartConfig.seriesById[id].focusOnClick || onSeriesShapeClick !== null) &&
+      filteredValues[id].plain !== null;
+    const interactiveIds = mochartConfig.series.map(sc => sc.id).filter(seriesIsInteractive);
+    const { rovingSeriesId } = this.state;
+    // the remembered roving series keeps the tab stop while it exists; when it is
+    // gone (filtered out) its nearest following config-order neighbor inherits
+    // it, else the nearest preceding one; with no memory the first series takes it
+    let effectiveRovingId: string | null;
+    if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {
+      effectiveRovingId = rovingSeriesId;
+    }
+    else if (rovingSeriesId !== null && interactiveIds.length > 0) {
+      const removedIndex = seriesConfigIndicesById[rovingSeriesId] ?? -1;
+      effectiveRovingId = interactiveIds.find(id => seriesConfigIndicesById[id] > removedIndex) ??
+        interactiveIds[interactiveIds.length - 1];
+    }
+    else {
+      effectiveRovingId = interactiveIds[0] ?? null;
+    }
+
+    this.root.set({ className: mochartCssClasses['seriesContainer'],
+      onKeyDown: interactiveIds.length > 0 ? this.seriesKeyDown : null,
+      onFocusIn: interactiveIds.length > 0 ? this.seriesFocusIn : null });
     this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
+
+    // reordering below moves the focused series' node, which drops DOM focus
+    const activeElement = document.activeElement;
+    const focusedSeries = activeElement !== null && this.root.node.contains(activeElement) &&
+      activeElement.getAttribute('data-series-id') !== null ? activeElement as SVGElement : null;
 
     this.series.sync(orderedSeriesConfigs.map(seriesConfig => {
       const { id, axis } = seriesConfig;
@@ -63,8 +165,25 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps> {
           valueAxisScale: valueAxisData.axisScales[axis!],
           rawValueAxisDomain: rawValueAxisDomains[axis!], rawDomains: rawDomains[id],
           filteredValues: filteredValues[id],
-          gradientIdMap, onFocus, onSeriesShapeClick, accessibility: accessibilityActive(mochartConfig.accessibility) }
+          gradientIdMap, onFocus, onSeriesShapeClick, accessibility,
+          tabStop: id === effectiveRovingId }
       };
     }));
+
+    if (focusedSeries !== null && document.activeElement !== focusedSeries) {
+      if (focusedSeries.isConnected) {
+        focusedSeries.focus();
+      }
+      else if (effectiveRovingId !== null) {
+        // the focused series was filtered out: keep keyboard focus in the plot,
+        // on the series that inherited the tab stop
+        for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
+          if (node.getAttribute('data-series-id') === effectiveRovingId) {
+            node.focus();
+            break;
+          }
+        }
+      }
+    }
   }
 }

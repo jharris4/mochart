@@ -1,7 +1,7 @@
 # Accessibility
 
 Charts are keyboard-accessible and screen-reader labeled by default. The
-plot area, legend, and interactive pie slices are tab stops; the keyboard
+plot area, legend, and interactive series are tab stops; the keyboard
 drives the same tooltip, focus, and filtering as the mouse; and assistive
 tech hears roles, names, and live value announcements instead of a thicket
 of unlabeled shapes. It all works out of the box — the
@@ -75,6 +75,15 @@ has [`focusOnClick`](/reference/series#series.focusOnClick) or the chart has
 an `onSliceClick` callback): one tab stop, arrow keys moving between slices
 in config order, and <kbd>Enter</kbd>/<kbd>Space</kbd> acting as a click at
 the slice's center.
+
+Cartesian series follow the same pattern when clicking them does something
+(the series has [`focusOnClick`](/reference/series#series.focusOnClick) or
+the chart has an `onSeriesClick` callback): one roving tab stop over the
+series, arrow keys moving between them in config order, and
+<kbd>Enter</kbd>/<kbd>Space</kbd> acting as a whole-series click —
+`onSeriesClick` reports `categoryIndex: -1`, as a line or area path click
+does. Follower series ([`followSeries`](/reference/series#series.followSeries))
+stay pointer-only; their clicks belong to their leader.
 
 ## What screen readers hear
 

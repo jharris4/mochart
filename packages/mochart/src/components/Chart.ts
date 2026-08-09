@@ -861,8 +861,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { onSeriesClick } = this.props;
     if (onSeriesClick) {
       const { clientX, clientY } = event as MouseEvent;
-      const chartRect = this.chartRectRef!.getBoundingClientRect();
-      const { categoryIndex: nearestCategoryIndex } = this.getChartEventPayload(clientX - chartRect.left, clientY - chartRect.top);
+      // keyboard activation has no pointer position to resolve a nearest category from
+      let nearestCategoryIndex = -1;
+      if (clientX !== undefined && clientY !== undefined) {
+        const chartRect = this.chartRectRef!.getBoundingClientRect();
+        ({ categoryIndex: nearestCategoryIndex } = this.getChartEventPayload(clientX - chartRect.left, clientY - chartRect.top));
+      }
       onSeriesClick({ seriesId, categoryIndex, nearestCategoryIndex });
     }
   }

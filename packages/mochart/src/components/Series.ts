@@ -4,6 +4,7 @@ import { getSeriesPositionData } from '../utils/SeriesPositions';
 import { getLineGenerator, getRangeLineGenerator, getAreaGenerator, getColumnGenerator } from '../utils/SeriesShapes';
 import { getSeriesColorGenerator } from '../utils/SeriesColors';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
+import { getSeriesTitle } from '../utils/SeriesTitle';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { areArraysAndEqual, translateObject } from '../utils/utils';
 import { NONE, RENDERER_AREA, RENDERER_LINE, RENDERER_BAR } from '../config/core/constants';
@@ -49,6 +50,8 @@ interface SeriesProps {
   onSeriesShapeClick: ((seriesId: string, categoryIndex: number, event: Event) => void) | null;
   /** When true, the decorative series geometry is hidden from assistive tech. */
   accessibility: boolean;
+  /** Whether this series holds the container's roving tab stop. */
+  tabStop: boolean;
 }
 
 interface SeriesState {
@@ -200,6 +203,16 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
     return { onSeriesEnter, onSeriesLeave, onSeriesClick, onCategoryEnter, onCategoryLeave, onCategoryClick };
   }
 
+  onKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      // the series half only (focus toggle / onSeriesClick); the container
+      // forwards the same keydown to the plot handler for the tooltip half
+      this.state.onSeriesClick(event);
+    }
+  }
+
   computeSeriesPositionData(props: SeriesProps): Pick<SeriesState, 'seriesPositionData'> {
     const { categoryAxisConfig, seriesConfig, categoryValueData, valueAxisScale, filteredValues, seriesLayoutInfo } = props;
     const seriesPositionData = filteredValues.plain !== null ? getSeriesPositionData(categoryAxisConfig, seriesConfig, categoryValueData, valueAxisScale, filteredValues, seriesLayoutInfo) : null;
@@ -339,8 +352,17 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
       }
 
       this.setPresent(true);
+      // clicking does something (focus or onSeriesClick), so the series is keyboard-
+      // reachable, like a pie slice; followers stay pointer-only — their clicks route to the leader
+      const interactive = this.props.accessibility && seriesConfig.followSeries === NONE &&
+        (seriesConfig.focusOnClick || this.props.onSeriesShapeClick !== null);
       this.root.set({ className: mochartCssClasses['series'] + seriesId,
-        ariaHidden: this.props.accessibility ? 'true' : null,
+        ariaHidden: this.props.accessibility && !interactive ? 'true' : null,
+        dataSeriesId: interactive ? seriesId : null,
+        tabindex: interactive ? (this.props.tabStop ? '0' : '-1') : null,
+        role: interactive ? 'button' : null,
+        ariaLabel: interactive ? getSeriesTitle(seriesConfig) : null,
+        onKeyDown: interactive ? this.onKeyDown : null,
         cursor: seriesConfig.showPointer ? 'pointer' : null, // inherited: covers bars, markers, labels and paths
         transform: translateObject(seriesLayoutInfo) });
       this.errorBars.set(SeriesErrorBars, { colorPaletteConfig, seriesConfig, seriesIndex,
