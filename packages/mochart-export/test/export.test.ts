@@ -203,9 +203,8 @@ describe('exportPNG', () => {
     await expect(exportPNG(document.createElement('div'))).resolves.toBe(false);
   });
 
-  // jsdom never loads images, so the rasterization path needs a stubbed Image.
-  // Regression: a synchronous throw inside onload escaped the handler rather
-  // than the promise executor, so the promise never settled and callers hung.
+  // Regression: a throw inside onload escaped the handler, not the executor,
+  // so the promise never settled. jsdom never loads images, hence the stub.
   it('rejects rather than hanging when rasterization throws', async () => {
     const OriginalImage = globalThis.Image;
     class FakeImage {

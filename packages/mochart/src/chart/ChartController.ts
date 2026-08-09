@@ -22,7 +22,7 @@ export class ChartController {
   private focus = new FocusController();
   private source: ChartDataSource;
   private props: ManagedChartProps;
-  /** What the data sources read: for createChart a fresh-identity delegate, not props.dataProvider (the host's own object, which the state factories get). */
+  /** What the sources read: a delegate for createChart, not the host's own props.dataProvider. */
   private readDataProvider: DataProvider | null;
   private lastInput: ChartDataSourceInput;
   private lastCategoryValues: readonly CategoryValue[] | null = null;
@@ -50,8 +50,7 @@ export class ChartController {
       return;
     }
     const prev = this.props;
-    // reconcile compares the read providers, not the props: refresh() hands the
-    // pipeline a new identity while props.dataProvider (the host's own object) stays put
+    // the read providers, not the props: refresh() changes only the delegate's identity
     const changes = this.focus.reconcile(
       { mochartConfig: prev.mochartConfig, dataProvider: this.readDataProvider },
       { mochartConfig: props.mochartConfig, dataProvider: readDataProvider },
@@ -109,8 +108,7 @@ export class ChartController {
   }
 
   private buildInput(): ChartDataSourceInput {
-    // casts: the props are nullable while a host loads, and the internal input/renderer
-    // types still declare them non-null (both guard for null at every read)
+    // casts: the internal input/renderer types still declare these non-null
     const mochartConfig = this.props.mochartConfig as EnhancedMochartConfig;
     const dataProvider = this.readDataProvider as DataProvider;
     const { filteredSeriesIds, focusedCategoryIndex, focusedValueAxisId, focusedSeriesId } = this.focus;

@@ -104,12 +104,8 @@ describe('chart state arbitration', () => {
   });
 });
 
-/**
- * createChart reads through a fresh-identity delegate so refresh() can re-read a
- * provider whose identity has not changed. Regression: that delegate, rather than
- * the host's own provider, was what reached the state-component factories, so it
- * failed instanceof checks and dropped refresh() and any custom members.
- */
+// Regression: the internal read delegate reached the factories instead of the
+// host's own provider, so instanceof, refresh() and custom members were lost.
 describe('the provider handed to the state factories', () => {
   class CountingProvider extends ArrayOfObjectsDataProvider {
     readonly label = 'mine';
@@ -145,11 +141,8 @@ describe('the provider handed to the state factories', () => {
   });
 });
 
-/**
- * The tooltip overlay and the live region are absolutely positioned inside the
- * chart root, so it has to stay a positioned element. Regression: `style` was a
- * default parameter, so any caller value replaced `position: relative` outright.
- */
+// Regression: style was a default parameter, so any caller value replaced
+// position: relative, which the tooltip and live region are positioned against.
 describe('the chart root position', () => {
   function rootStyle(style?: unknown): CSSStyleDeclaration {
     const container = mountChart(style === undefined ? {} : { style } as Partial<DefaultChartProps>);
@@ -197,11 +190,8 @@ describe('the no-size state', () => {
   });
 });
 
-/**
- * The managed entry point takes a null mochartConfig (what the bindings pass
- * while a host is still loading). Regression: only the config going *away* was
- * treated as structural, so a config arriving after mount threw.
- */
+// Regression: only a config going away was treated as structural, so one
+// arriving after mount (what the bindings do while loading) threw.
 describe('a mochartConfig arriving after mount', () => {
   function mountManaged(props: Partial<ManagedChartProps>): { container: Element; handle: ChartHandle<ManagedChartProps> } {
     const container = document.createElement('div');
