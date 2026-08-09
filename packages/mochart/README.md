@@ -253,7 +253,7 @@ the container) on top of the same chart props.
 
 Mochart targets modern evergreen browsers (Chrome/Edge, Firefox, Safari);
 the published builds are ES modules (plus an IIFE bundle for script
-tags) targeting ES2020, and no polyfills are
+tags) pinned to ES2020, and no polyfills are
 required. The core renders SVG, measures text with the SVG APIs
 (`getBBox`, `getComputedTextLength`), and animates with
 `requestAnimationFrame` — it needs a real DOM, so do not call

@@ -12,7 +12,7 @@ source and probing the public API.
 **Fixed** items are committed on this branch, one commit each, referencing the
 id. **Open** items need a decision and were deliberately left alone.
 
-Highest-severity open items: **D2**, **T6**.
+Highest-severity open items: **T6**, **B12**.
 
 ---
 
@@ -377,13 +377,12 @@ License." on every page of the deployed site. The project relicensed to MIT in
 `c9b1857`; the root `LICENSE`, every `package.json`, and every per-package
 `LICENSE` say MIT. This was the only surviving BSD reference in the repo.
 
-### D2. The documented build target does not match what ships — **Open**
+### D2. The documented build target did not match what shipped — **Fixed**
 
-**Medium.** `packages/mochart/README.md:255` and
-`packages/mochart-docs/guide/getting-started.md:131` both state the published
-builds target **ES2020**. `vite.config.ts` sets no `build.target`, so Vite 8's
-default (`baseline-widely-available`) applies and the shipped `dist/mochart.js`
-contains ES2021 logical assignment:
+**Medium.** `packages/mochart/README.md` and
+`packages/mochart-docs/guide/getting-started.md` both stated the published
+builds target **ES2020**. `vite.config.ts` set no `build.target`, so Vite 8's
+default applied and the shipped bundle carried ES2021 logical assignment:
 
 ```
 $ grep -oE '\?\?=|\|\|=|&&=' dist/mochart.js | sort | uniq -c
@@ -391,8 +390,20 @@ $ grep -oE '\?\?=|\|\|=|&&=' dist/mochart.js | sort | uniq -c
 ```
 
 (`tsconfig.json` targets ES2020, but esbuild, not tsc, emits the bundle.)
-Needs a decision: pin `build.target: 'es2020'` so the promise is enforced, or
-restate the docs to match the actual baseline.
+
+Fixed by pinning `build.target: 'es2020'` rather than reheading the docs, for
+two reasons. Core was the only publishable package whose target floated — the
+other seven pin ES2020 in their tsconfigs (Angular ES2022, as it requires), and
+only core opted out by going through Vite, which ignores tsconfig's `target`
+for the bundle. And the real defect was drift, not the specific version: Vite's
+default tracks current browser baselines, so the documented support floor would
+have risen silently on every Vite major. Both bundles now contain no
+post-ES2020 syntax, and the two doc sentences say "pinned to ES2020" so the
+claim reads as the commitment it now is.
+
+**Follow-up (open, low):** nothing enforces this. A CI grep of the built bundle
+for post-target syntax (`??=`, `||=`, `&&=`, `#private`, `static {`) is the
+check that would have caught the original drift.
 
 ### D7. The framework-props mapping is misleading about `style` — **Open**
 
