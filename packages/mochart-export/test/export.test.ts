@@ -202,6 +202,54 @@ describe('exportPNG', () => {
   it('resolves false when no chart is present', async () => {
     await expect(exportPNG(document.createElement('div'))).resolves.toBe(false);
   });
+
+  // jsdom never loads images, so the rasterization path needs a stubbed Image.
+  // Regression: a synchronous throw inside onload escaped the handler rather
+  // than the promise executor, so the promise never settled and callers hung.
+  it('rejects rather than hanging when rasterization throws', async () => {
+    const OriginalImage = globalThis.Image;
+    class FakeImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    (globalThis as any).Image = FakeImage;
+    const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      drawImage() {
+        // what a canvas tainted by a cross-origin image raises
+        throw new DOMException('Tainted canvases may not be exported.', 'SecurityError');
+      }
+    } as unknown as CanvasRenderingContext2D);
+    try {
+      await expect(exportPNG(container)).rejects.toThrow(/Tainted canvases/);
+    }
+    finally {
+      (globalThis as any).Image = OriginalImage;
+      getContext.mockRestore();
+    }
+  });
+
+  it('rejects when no 2d context is available', async () => {
+    const OriginalImage = globalThis.Image;
+    class FakeImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    (globalThis as any).Image = FakeImage;
+    const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    try {
+      await expect(exportPNG(container)).rejects.toThrow(/2d canvas context/);
+    }
+    finally {
+      (globalThis as any).Image = OriginalImage;
+      getContext.mockRestore();
+    }
+  });
 });
 
 describe('stitching several charts', () => {

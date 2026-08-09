@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 statements, 88.52% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 22 fixed, 11 open.**
+**33 findings: 23 fixed, 10 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 11 remaining are all Low.
+Nothing High or Medium is open — the 10 remaining are all Low.
 
 ---
 
@@ -390,15 +390,32 @@ regeneration, not recurring churn. Afterwards the DOM is *more* stable than
 before: it no longer depends on whether an element was ever styled during a
 tween.
 
-### B6. `exportPNG` can hang instead of rejecting — **Open**
+### B6. `exportPNG` hung instead of rejecting — **Fixed**
 
 **Low.** `packages/mochart-export/src/index.ts` — `rasterizeSvgText`
 
-`ctx.drawImage` / `canvas.toBlob` run inside the `img.onload` handler. If
-either throws synchronously — a tainted canvas raises `SecurityError` when the
-chart embeds a cross-origin `<image>` — the exception escapes the handler and
-the promise never settles, so `await exportPNG(...)` hangs. A `try`/`catch`
-that calls `reject` would settle it.
+`ctx.drawImage` / `canvas.toBlob` ran inside the `img.onload` handler. A
+synchronous throw there escapes the *handler*, not the promise executor, so
+nothing rejected and the promise never settled — `await exportPNG(...)` hung
+forever. The realistic trigger is a canvas tainted by a cross-origin `<image>`
+in the chart, which makes `toBlob` raise `SecurityError`.
+
+Who catches it today: **nobody**. Of 17 call sites, 16 are `void exportPNG(…)`
+(every demo gallery) and one is a bare `await` in the docs' `LiveChart.vue`. So
+the practical change is *silent hang → console error*: both still fail to
+download, but one leaves a trace and the other leaves none. No success path
+changes, and the only affected path currently produces nothing at all.
+
+**Fix:** a `try`/`catch` around the handler body that rejects. The caught value
+is passed through unwrapped — an early version wrapped it in a generic `Error`
+and the test caught that swallowing the `DOMException`'s `SecurityError` name,
+which is the whole diagnosis. Rejecting rather than resolving `false` keeps
+"nothing to export" and "rasterization failed" distinct, and matches the
+`img.onerror` path that already rejects.
+
+The regression test stubs `Image` (jsdom never fires `onload`) and a context
+whose `drawImage` throws; against the unfixed code it does not fail, it *times
+out*, which is the bug stated exactly.
 
 ### B16. `createHeatmap` can emit duplicate category values — **Open**
 
