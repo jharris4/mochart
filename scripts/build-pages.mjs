@@ -21,7 +21,7 @@ const siteDir = join(rootDir, 'site');
 // silently ships stale code. Rebuild the libraries when any lib's src (or
 // package.json) is newer than its dist; fresh checkouts (CI's npm ci runs
 // build:libs via the root prepare script) skip straight through.
-const libDirs = ['movalid', 'mochart', 'mochart-export', 'mochart-react',
+const libDirs = ['movalid', 'mochart', 'mochart-export', 'mochart-editor', 'mochart-react',
   'mochart-svelte', 'mochart-vue', 'mochart-lit', 'mochart-angular'];
 
 function newestMtime(path) {
