@@ -45,6 +45,7 @@ export interface EditableChartUpdate {
   dataError?: string | boolean | null;
   isActive: boolean;
   chartCount: number;
+  showChartCountControls: boolean;
   filteredSeriesIds: FilteredSeriesIds;
   focusedCategoryIndex: number;
   focusedValueAxisId?: string | null;
@@ -76,7 +77,9 @@ interface FocusPayload {
 const emptyCategoryText = demoText.editableChart.emptyCategoryText;
 
 export function editableChart(props: EditableChartProps): EditableChartHandle {
-  const { onFocus, onSeriesFilter, onChartCountToggle, showChartCountControls } = props;
+  const { onFocus, onSeriesFilter, onChartCountToggle } = props;
+  // recomputed on every resize: the second chart is only offered on a viewport that can hold two
+  let showChartCountControls = props.showChartCountControls;
 
   let width = props.width;
   let mochartDemoConfig = props.mochartDemoConfig;
@@ -672,12 +675,12 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Common controls shared by both panels; moved into whichever panel is
   // visible (the framework demos render them per-branch instead).
-  const chartCountButton = showChartCountControls ? buttonWithTooltip({
+  const chartCountButton = buttonWithTooltip({
     id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: chartCount === 2, ariaLabel: demoText.editableChart.secondChart.aria,
     tooltipText: chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow,
     onClick: onChartCountToggle,
     content: [icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]
-  }) : null;
+  });
   const modeButton = buttonWithTooltip({
     id: 'edit-mode', label: demoText.editableChart.editMode.labelToSeries, ariaLabel: demoText.editableChart.editMode.aria,
     tooltipText: demoText.editableChart.editMode.tooltipToSeries,
@@ -715,9 +718,9 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     getAnchor: () => menuSpan
   });
   const menuSpan = el('span', { className: 'chart-controls-menu' }, [overflowMenuHandle.el, exportShareMenuHandle.el]);
-  const chartCountControl = chartCountButton ? el('div', { className: 'demo-btn-group' }, [chartCountButton.el]) : null;
+  const chartCountControl = el('div', { className: 'demo-btn-group' }, [chartCountButton.el]);
   const modeControl = el('div', { className: 'demo-btn-group' }, [modeButton.el]);
-  const commonControls = [...(chartCountControl ? [chartCountControl] : []), modeControl];
+  const commonControls = [chartCountControl, modeControl];
 
   // Category-mode panel
   const resetCategoriesButton = buttonWithTooltip({
@@ -994,7 +997,8 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // nulls but keeps dividers, so the unconditional form would rule off the
   // bottom of the panel with nothing under it — which on a phone (where the
   // second chart is never offered) is the usual case, not the corner one.
-  const sliceMenuTail: MenuItem[] = chartCountControl ? [menuDivider, chartCountControl] : [];
+  const sliceMenuTail = (): MenuItem[] => showChartCountControls ? [menuDivider, chartCountControl] : [];
+  const menuCommonControls = (): MenuItem[] => showChartCountControls ? commonControls : [modeControl];
   const sliceCommonField = el('div', { className: 'demo-field' }, [sliceCommonToolbar]);
   const sliceForm = el('form', { className: 'demo-form-row' }, [
     sliceCommonField,
@@ -1046,6 +1050,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
    * detaches the category panel's menu rows; the restore below re-homes them).
    */
   function placeControls(pieMode: boolean, categoryMode: boolean): void {
+    chartCountControl.style.display = showChartCountControls ? '' : 'none';
     const foldCategory = isPhone && !pieMode && categoryMode;
     const foldSeries = isPhone && !pieMode && !categoryMode;
     const foldSlice = isPhone && pieMode;
@@ -1058,9 +1063,9 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     // are no category/series panels to switch to in pie mode, which is why the
     // desktop branch removes that button rather than placing it.
     overflowMenuHandle.setItems(
-      foldCategory ? [menuOrderGroup, menuDivider, menuSequenceGroup, menuDivider, ...commonControls]
-        : foldSeries ? [menuSeriesActionGroup, menuDivider, ...commonControls]
-          : foldSlice ? [menuSliceActionGroup, menuDivider, sliceSequenceGroup, ...sliceMenuTail]
+      foldCategory ? [menuOrderGroup, menuDivider, menuSequenceGroup, menuDivider, ...menuCommonControls()]
+        : foldSeries ? [menuSeriesActionGroup, menuDivider, ...menuCommonControls()]
+          : foldSlice ? [menuSliceActionGroup, menuDivider, sliceSequenceGroup, ...sliceMenuTail()]
             : []);
 
     // Category panel. Add/Remove act on what is typed in the input beside them, so
@@ -1115,7 +1120,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
     if (pieMode) {
       modeControl.remove();
-      if (!foldSlice && chartCountControl && chartCountControl.parentElement !== sliceCommonToolbar) {
+      if (!foldSlice && chartCountControl.parentElement !== sliceCommonToolbar) {
         sliceCommonToolbar.append(chartCountControl);
       }
     }
@@ -1176,7 +1181,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       ? demoText.editableChart.editMode.tooltipToSeries
       : demoText.editableChart.editMode.tooltipToCategories);
     modeButton.setContent([icon(categoryMode ? 'bullseye' : 'sliders', { size: 'lg', fixedWidth: true })]);
-    if (chartCountButton) {
+    {
       chartCountButton.setPressed(chartCount === 2);
       chartCountButton.setTooltip(chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow);
       chartCountButton.setContent([icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]);
@@ -1286,6 +1291,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
       data = next.data;
       dataError = next.dataError ?? false;
       chartCount = next.chartCount;
+      showChartCountControls = next.showChartCountControls;
       filteredSeriesIds = next.filteredSeriesIds;
       focusedCategoryIndex = next.focusedCategoryIndex;
       focusedValueAxisId = next.focusedValueAxisId ?? null;

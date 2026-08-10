@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 24 fixed (2 partial), 4 needing an answer, 126 open.**
+**Status: 25 fixed (2 partial), 4 needing an answer, 125 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1937,7 +1937,7 @@ ships an `accessibility` config section.
 **Fixed automatically.** All six now match `demo-basic` and `mochart-benchmark`.
 
 ### DEMO-5 — vanilla: the "2nd Chart" button never appears or disappears on resize
-**High · Bug · [vanilla ChartTab.ts:118](packages/mochart-demo-vanilla/src/components/single/ChartTab.ts#L118)** — **Open**
+**High · Bug · [vanilla ChartTab.ts:118](packages/mochart-demo-vanilla/src/components/single/ChartTab.ts#L118)** — **Fixed**
 
 `showChartCountControls` is computed only inside the *creation* loop; the update loop omits it,
 `EditableChartUpdate` has no such field, and the component captures it as a `const`. Open a demo
@@ -1947,6 +1947,16 @@ framework ports recompute it every render.
 
 **Fix:** add `showChartCountControls` to `EditableChartUpdate`, pass it from the update loop, and
 make the button's presence part of `sync()`.
+
+**Fixed automatically.** Applied as recommended. The button and its `demo-btn-group` are now built
+unconditionally, so `commonControls` keeps a stable identity — the reparenting logic in
+`placeControls` uses `commonControls[0].parentElement` as its placement guard, and a conditionally
+built array would have made that guard mean different things at different widths. Presence is a
+`display` toggle set at the top of `placeControls`. The two overflow-menu lists drop the control
+*entirely* rather than carrying a hidden one, so a folded panel gets neither an empty menu row nor
+the dangling divider `sliceMenuTail` would otherwise leave. `ChartTab`'s update loop became an
+indexed `for` (a `forEach` closure loses the `mochartDemoConfig !== null` narrowing). Typecheck
+across 20 workspaces, lint, deadcode clean; demo-vanilla builds.
 
 ### DEMO-6 — Config tab's Invert/Slow state and Reference links go stale after any edit
 **Medium · Bug · [vanilla ConfigTab.ts:280](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L280), [:186](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L186), all six ports** — **Open**
