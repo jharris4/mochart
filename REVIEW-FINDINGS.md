@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 held to thresholds (96.29% statements, 88.61% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 28 fixed, 5 open.**
+**33 findings: 29 fixed, 4 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 5 remaining are all Low.
+Nothing High or Medium is open — the 4 remaining are all Low.
 
 ---
 
@@ -646,10 +646,23 @@ whole branches of behaviour are never invoked:
 | `src/components/SeriesLabels.ts` | 73.7% | 86.7% |
 | `src/components/PieSeries.ts` | 75.0% | 94.0% |
 
-### T4. `ElList.destroy(true)` is never exercised — **Open**
+### T4. `ElList.destroy(true)` was never exercised — **Fixed**
 
-**Low.** `packages/mochart/src/render/list.ts:93-101` — the DOM-removing branch
-of the keyed list's teardown is uncovered, while `RendererList.destroy` is.
+**Low.** `packages/mochart/src/render/list.ts` — the DOM-removing branch of the
+keyed list's teardown was uncovered, while `RendererList.destroy` was not.
+
+It turned out to be unreachable rather than merely untested. `Renderer.destroy`
+passes `removeDom && !insideElement`, and every component builds its list as
+`this.elList(this.root)` — hosted on its own root — so the flag is always
+`false` and the element is discarded wholesale instead. The branch only serves
+the no-arg `elList()` form, which hosts on `parentDom` for a pass-through
+renderer with no element of its own, and no component uses that shape.
+
+**Fix:** two unit tests in the existing `ElList` describe, covering
+`destroy(true)` and `destroy(false)` directly — no component needed, and they
+pin the contract for the pass-through shape a future component would hit first.
+`list.ts` statements and lines went 92.94% / 92.68% → **100% / 100%**; the
+residual branch gaps are the defensive `if (node.parentNode)` guards.
 
 ### T5. No coverage thresholds — **Fixed**
 

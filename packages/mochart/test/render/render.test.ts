@@ -382,6 +382,28 @@ describe('ElList', () => {
     expect(markup(parent)).toBe('');
   });
 
+  // only a pass-through renderer (one with no element of its own) destroys a list
+  // with removeDom, since a hosted list is discarded with its owner's element
+  it('removes its blocks and anchor on destroy(true)', () => {
+    const parent = host();
+    const list = new ElList<Row>(parent, null);
+    list.sync([{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }], rowAdapter);
+    expect(parent.childNodes.length).toBe(3); // two blocks plus the anchor comment
+
+    list.destroy(true);
+    expect(markup(parent)).toBe('');
+    expect(parent.childNodes.length).toBe(0);
+  });
+
+  it('leaves the DOM alone on destroy(false)', () => {
+    const parent = host();
+    const list = new ElList<Row>(parent, null);
+    list.sync([{ id: 'a', label: 'A' }], rowAdapter);
+
+    list.destroy(false);
+    expect(markup(parent)).toBe('<li data-id="a">A</li>');
+  });
+
   it('does not leak DOM nodes when items have duplicate keys', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {
