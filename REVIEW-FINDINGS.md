@@ -651,6 +651,45 @@ overall 89.07% → 89.64%. `tickLabelParallel` is derived from the rotation
 (`vertical ? rotation > 70 : rotation < 20`) rather than configured, so the
 rotation cases are what reach it.
 
+### T9. Touch input has no tests — **Closed, not a test gap**
+
+**Low.** `Chart.processChartEvent` branches on `'targetTouches' in event` and
+falls back to `changedTouches[0]`, and no test exercised it. Investigating
+turned up why: **nothing has ever delivered a `TouchEvent` to it.**
+
+- `chartEventHandler` wires exactly four listeners — `onMouseEnter`,
+  `onMouseMove`, `onMouseLeave`, `onClick`. No `onTouch*` prop is passed
+  anywhere in the repo.
+- `processChartEvent` has no callers outside `Chart.ts`.
+- `TouchEvent` appears once in all of `src/`: the type union on line 105.
+
+Browsers synthesise `mousemove`/`click` from taps, but those arrive as
+`MouseEvent`s, so the branch cannot be true. Stronger still, the initial commit
+(ported verbatim from React) read:
+
+```js
+let position = (event.targetTouches && e.targetTouches[0]) || event;
+//                                     ^ `e` is undefined in this scope
+```
+
+It would have thrown a `ReferenceError` had it ever run. The TS port rewrote it
+into today's plausible-looking form, which is why it reads as live code.
+
+**No test written:** any test would have to dispatch a `TouchEvent` typed
+`'mousemove'`, a state no browser produces.
+
+Two things left for a decision rather than changed here: the dead branch and
+the `MouseEvent | TouchEvent` union could go (like `Background.onClick`, code
+for a path nothing wires); and `mochart-demo-common/src/menu.ts` carries a
+comment justifying its `pointerdown`/capture-phase dismissal with *"the chart's
+own `touchstart` handler calls `preventDefault()`"* — a handler that has never
+existed. The workaround is likely still right for other reasons, but its stated
+reason is false in both directions: someone could simplify it away, or preserve
+it against a problem that is not there.
+
+Practical effect today: taps work through synthesised mouse events; dragging a
+finger to move the tooltip does not, and never has.
+
 ### T3. Renderer and component function coverage — **Fixed**
 
 **Low.** Six modules whose *function* coverage trailed their statement
