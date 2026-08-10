@@ -24,6 +24,7 @@
     "dev:basic": "npm run dev -w @mochart/demo-basic",
     "dev:docs": "npm run dev -w @mochart/docs",
     "dev:editor": "npm run dev -w @mochart/editor",
+    "prebuild": "node scripts/ensure-libs-fresh.mjs",
     "build": "npm run build -w @mochart/demo-vanilla",
     "build:pages": "node scripts/build-pages.mjs",
     "preview:pages": "PAGES_BASE=/ node scripts/build-pages.mjs && PAGES_BASE=/ node scripts/preview-pages.mjs",

@@ -29,6 +29,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "prebuild": "node ../../scripts/ensure-libs-fresh.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "ngc -p tsconfig.json",

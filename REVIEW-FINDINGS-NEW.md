@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 25 fixed (2 partial), 5 needing an answer, 125 open.**
+**Status: 26 fixed (2 partial), 5 needing an answer, 124 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -2450,7 +2450,7 @@ one PNG export. Failing that, narrow the README's stated support to what is actu
 # 12. Build, tooling, packaging and CI
 
 ### TOOL-1 — only `build:pages` guards against a stale library `dist`
-**High · Bug · [scripts/build-pages.mjs:18-51](scripts/build-pages.mjs#L18), [package.json:31](package.json#L31)** — **Open**
+**High · Bug · [scripts/build-pages.mjs:18-51](scripts/build-pages.mjs#L18), [package.json:31](package.json#L31)** — **Fixed**
 
 `build-pages.mjs` carries a hand-rolled mtime staleness check that reruns `build:libs`, because (its
 own comment) demo builds resolve the `default` condition → `dist`, "so a dist left over from before
@@ -2468,6 +2468,19 @@ the one guard that exists omits the editor.)
 **Fix:** extract the check into a shared `scripts/ensure-libs-fresh.mjs` run as a `prebuild` on the
 root `build` and on each demo/docs package's `build`, or replace the mtime heuristic with real build
 orchestration (turbo/nx/wireit) so `dist` freshness is a dependency-graph fact.
+
+**Fixed automatically.** Took the first option: `scripts/ensure-libs-fresh.mjs` holds the mtime
+check (now the only copy — `build-pages.mjs` imports `ensureLibsFresh()` and its ~35 duplicated
+lines are gone), and a `prebuild` hook runs it on the root `build` and on all nine packages that
+bundle against `dist`: the six galleries, `docs`, `demo-basic` and `benchmark`. Build orchestration
+was not adopted here because that is a toolchain decision, not a bug fix — see
+[TOOL-2](#tool-2--no-release-pipeline-no-changelog-and-no-version-tooling-for-9-public-packages),
+where the same question comes up for releases.
+
+Verified live: with a stale dist the guard fires and rebuilds (`npm run build -w
+@mochart/demo-vanilla` and `-w @mochart/docs` both caught a touched lib), and a second run is
+silent. All nine library dists — every one of which was stale on this checkout — are now current.
+Lint and deadcode clean.
 
 ### TOOL-2 — no release pipeline, no CHANGELOG, and no version tooling for 9 public packages
 **High · Missing feature · [.github/workflows/](.github/workflows/) (only `ci.yml`)** — **Open**
