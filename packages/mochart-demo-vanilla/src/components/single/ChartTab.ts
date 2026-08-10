@@ -136,14 +136,15 @@ export function chartTab(props: ChartTabProps): ChartTabHandle {
       charts.push(chart);
       chartsHost.append(chart.el);
     }
-    for (const chart of charts) {
-      chart.update({
+    for (let index = 0; index < charts.length; index++) {
+      charts[index].update({
         width: chartWidth,
         mochartDemoConfig,
         data: data ?? [],
         dataError,
         isActive: active,
         chartCount,
+        showChartCountControls: allowed > 1 && index === 0,
         filteredSeriesIds,
         focusedCategoryIndex,
         focusedValueAxisId,
