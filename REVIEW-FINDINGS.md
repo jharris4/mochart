@@ -2,16 +2,16 @@
 
 Review of the `mochart` monorepo on branch `review`, in three passes: a first
 sweep (B1–B7, T1–T5, D1–D6), a deeper second sweep (B8–B18, T6–T7, D7–D8),
-and a branch-coverage sweep (T8–T11).
+and a branch-coverage sweep (T8–T12).
 
-Baseline, verified in isolation after every fix below: `npm test` (1331 core
+Baseline, verified in isolation after every fix below: `npm test` (1348 core
 tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 `npm run deadcode` all pass; core's `npm test` is coverage-instrumented and
-held to thresholds (96.97% statements, 90.13% branches). Nothing here came
+held to thresholds (97.2% statements, 90.59% branches). Nothing here came
 from a failing check — the findings came from reading the source and probing
 the public API.
 
-**37 findings: 35 fixed, 2 closed, 0 open.**
+**38 findings: 36 fixed, 2 closed, 0 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
@@ -737,6 +737,25 @@ Two things the tests pinned down along the way: a threshold needs a continuous
 scale, so an ordinal category axis silently drops it; and `validators.color()`
 takes hex and `rgb()`/`rgba()` only, so `strokeColor: 'red'` fails validation
 despite the message reading "should be a valid svg color".
+
+### T12. Tooltip row interaction was covered one path deep — **Fixed**
+
+**Low.** `TooltipKeyboard.test.ts` covered the tooltip's happy paths, leaving 32
+uncovered branch paths: `ArrowLeft`/`ArrowUp`/`End`, a keydown from outside a
+row, the mode button toggling back, every category-row pointer handler, hover
+over a filtered series, and the two ways a row can be left out of the tooltip.
+
+**Fix:** 14 tests added to the existing file, covering the rest of the roving
+tab stop (backwards, `End`, non-moving keys, refocus, the category row's stop
+and Space), both mode directions, the category row's hover/click handlers with
+and without the controls, moving series focus between rows, the control-button
+fallback when filtering unmounts the last row, and the two omission rules
+(`showInTooltip: false`, and a direction-split row missing one range end).
+`TooltipContent.ts` 84.2% → **98.5%** branches, overall 90.13% → 90.59%.
+
+Two branches are deliberately left: `toggleMode`'s trailing `else if` can only
+be true (the mode is one of two values), and the pie fraction `?? 0` fallbacks
+belong with the pie tooltip tests.
 
 ### T3. Renderer and component function coverage — **Fixed**
 
