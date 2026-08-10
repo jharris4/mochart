@@ -60,9 +60,12 @@ and the ramp splits in two: one color pair above the threshold, another below
 
 <<< @/examples/colorByValueBase.ts
 
-- With `base.value` set, `min`/`max` are ignored and the four
+- With `base.value` set, `min`/`max` must be `null` — their conditional
+  default — and the four
   [`base`](/reference/series#series.colorScale.base) colors take
-  over. Each anchors to its half's data domain: `aboveMin` sits *at* the base
+  over. Leaving `min`/`max` set alongside a base is a validation error, not a
+  silent no-op, so a single-ramp series gaining a diverging base has to drop
+  them. Each anchors to its half's data domain: `aboveMin` sits *at* the base
   and `aboveMax` at the highest value, while `belowMin` sits at the *most
   negative* value and `belowMax` at the base. For the classic diverging look —
   palest at the base, saturated at the extremes — order the below pair
