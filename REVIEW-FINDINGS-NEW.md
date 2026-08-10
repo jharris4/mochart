@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 25 fixed (2 partial), 4 needing an answer, 125 open.**
+**Status: 25 fixed (2 partial), 5 needing an answer, 125 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1912,7 +1912,7 @@ the fix is three lines per port. `parseConfig` is no longer exported from `@moch
 deadcode and demo-common's 243 tests all pass, and demo-vanilla builds.
 
 ### DEMO-3 — showing the 2nd chart duplicates 22 DOM ids
-**High · Bug · [vanilla EditableChart.ts:682](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L682) and ~15 more sites, all six ports** — **Open**
+**High · Bug · [vanilla EditableChart.ts:682](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L682) and ~15 more sites, all six ports** — **Open**, needs an answer
 
 `ChartTab` mounts one `EditableChart` per chart, and every instance renders the full control strip
 with fixed ids (`edit-mode`, `edit-reset-categories`, `edit-apply-series`, `edit-play-slices`, …).
@@ -1922,6 +1922,32 @@ resolve to the first chart only, and AT sees two identically-identified control 
 
 **Fix:** suffix ids per chart instance (thread the index into an `idPrefix`, as `ExportShareMenu`
 already does), or drop the ids where nothing consumes them.
+
+**Needs an answer — not fixed.** Confirmed, and one fact worth adding before the choice is made:
+**nothing in the repo consumes any of the ~22 `edit-*` button ids.** No `getElementById`, no
+`for=`, no `aria-controls`, no CSS rule, no e2e selector. They are pure debugging affordances.
+
+The one id here that *is* consumed is `edit-export-share`: `createMenuController`'s `ensureId`
+returns an element's existing id rather than minting one, so with two charts both panels'
+`aria-controls` point at a duplicated trigger id. That half is a genuine ARIA defect rather than
+a validity nit — and note `idPrefix` is already a prop, it is just passed the constant `'edit'`
+from every chart.
+
+The reason this is not applied automatically: it is ~130 mechanical edits across six ports whose
+id syntax all differs (object literals, JSX, Angular static attributes, Lit template literals),
+and the two options leave the demos in materially different states.
+
+> **QUESTION (needs an answer):** **Which do you want?** (a) **[recommended]** drop the ~22
+> unconsumed `edit-*` ids and thread a per-instance `idPrefix` into `ExportShareMenu` only —
+> smallest diff, removes the duplication rather than renaming it, and fixes the one real ARIA
+> break; (b) thread a per-instance `idPrefix` through every control, keeping all ids and making
+> them unique — preserves them for your own debugging and future e2e selectors, at ~130 edits;
+> (c) as (b), but only in the vanilla port for now, since it is the deployed gallery.
+>
+> *Recommendation: (a).* An id that nothing references is not carrying its weight, and the
+> invalid-HTML problem goes away entirely rather than being renamed around. If you want stable
+> hooks for e2e later, `data-testid` is the better instrument — it does not have to be unique and
+> does not collide with ARIA wiring.
 
 ### DEMO-4 — all six deployed galleries ship `<html>` with no `lang`
 **High · Bug · WCAG 3.1.1 (Level A) · [vanilla index.html:2](packages/mochart-demo-vanilla/index.html#L2) and the five siblings** **[verified]** — **Fixed**
