@@ -56,6 +56,8 @@ export default function getValidators() {
 
     side: validators.oneOf(SIDES),
 
+    reversed: validators.boolean(),
+
     collapsed: validators.boolean(),
 
     showFocusRange: validators.boolean(),

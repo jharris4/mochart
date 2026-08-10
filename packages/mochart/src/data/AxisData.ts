@@ -129,8 +129,14 @@ function getCategoryValuePositions(categoryAxisConfig: CategoryAxisConfig, scale
 function getCategoryAxisScale(axisConfig: CategoryAxisConfig, axisDomain: CategoryAxisDomain, categorySpacingInfo: CategorySpacingInfo): AxisScale {
   const axisScale = (axisConfig.type === TYPE_DATE && axisConfig.scale === SCALE_LINEAR) ? (axisConfig.dateUTC ? scaleUtc() : scaleTime()) : scaleLinear();
   axisScale.domain(axisDomain);
-  axisScale.range(categorySpacingInfo.categoryRange);
+  axisScale.range(reversedRange(categorySpacingInfo.categoryRange, axisConfig.reversed));
   return axisScale;
+}
+
+// reversing the range, not the domain: the domain stays ascending so bases, thresholds, ticks and
+// the animation deltas are all untouched (an ordinal category axis reverses its category order too)
+function reversedRange(range: [number, number], reversed: boolean): [number, number] {
+  return reversed ? [range[1], range[0]] : range;
 }
 
 function getValueAxisScales(valueAxisConfigs: EnhancedValueAxisConfig[], rawAxisDomainArray: Record<string, NullableDomain>, filteredAxisDomainArray: Record<string, NullableDomain>, axisLayountInfoArray: ChartLayoutInfo['valueAxisLayoutInfos'], vertical: boolean): Record<string, AxisScale> {
@@ -144,15 +150,11 @@ function getValueAxisScale(axisConfig: EnhancedValueAxisConfig, rawAxisDomain: N
   return getValueAxisScaleForDomain(axisConfig, axisLayoutInfo, axisConfig.adjustForFiltering ? filteredAxisDomain : rawAxisDomain, vertical);
 }
 
-function getValueAxisScaleForDomain(_axisConfig: EnhancedValueAxisConfig, axisLayoutInfo: AxisLayoutInfo, axisDomain: NullableDomain, vertical: boolean): AxisScale {
+function getValueAxisScaleForDomain(axisConfig: EnhancedValueAxisConfig, axisLayoutInfo: AxisLayoutInfo, axisDomain: NullableDomain, vertical: boolean): AxisScale {
   const axisScale = scaleLinear();
   axisScale.domain(axisDomain);
-  if (vertical) {
-    axisScale.range([axisLayoutInfo.valueExtent, 0]);
-  }
-  else {
-    axisScale.range([0, axisLayoutInfo.valueExtent]);
-  }
+  const range: [number, number] = vertical ? [axisLayoutInfo.valueExtent, 0] : [0, axisLayoutInfo.valueExtent];
+  axisScale.range(reversedRange(range, axisConfig.reversed));
   return axisScale;
 }
 
@@ -176,7 +178,8 @@ function createOrdinalTickObject(scaleTickValue: number, categoryValues: readonl
 
 export function getCategoryAxisTickData(axisConfig: CategoryAxisConfig, axisLayoutInfo: CategoryAxisLayoutInfo, axisScale: AxisScale, axisDomain: CategoryAxisDomain, categoryValues: readonly CategoryValue[], categoryPositions: number[]): AxisTick[] {
   let ticks: AxisTick[] = [];
-  const categoryAxisRangeExtent = axisScale.range()[1] - axisScale.range()[0]; // different because of bar offset??
+  // magnitude: a reversed axis has a descending range, and tick counting needs a positive extent
+  const categoryAxisRangeExtent = Math.abs(axisScale.range()[1] - axisScale.range()[0]); // different because of bar offset??
   const categoryAxisDomainExtent = +axisScale.domain()[1] - +axisScale.domain()[0];
 
   if (categoryValues.length > 0) {
