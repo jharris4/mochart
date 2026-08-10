@@ -632,6 +632,25 @@ never `test:coverage`, which is why it sat broken — that is the same decision
 as T5 (no thresholds), so "run coverage in CI with thresholds" is one
 follow-up, not two. The numbers above are the floors to set.
 
+### T8. Axis placement permutations were untested — **Fixed**
+
+**Low.** `data/AxisData.ts` and `layout/PlotLayout.ts` held the largest cluster
+of uncovered branches (64 paths between them), almost all config permutations
+rather than error paths: `side`, `collapsed`, `visible`, the three
+`tickLabelAnchor` values, `tickLabelRotation` sign, and explicit
+`tickLabelSize`/`titleSize` against `AUTO`. No test file referenced `side:` at
+all.
+
+**Fix:** a matrix in `AxisPlacement.test.ts` over side × inverted, the collapse
+and visibility switches, all three anchors on ordinal, single-category and
+linear axes, rotation in both signs on both sides, and the explicit sizing and
+`focusRangeApplyToTitle` paths.
+
+`PlotLayout.ts` 88.1% → **95.9%** branches, `AxisData.ts` 85.4% → 88.5%,
+overall 89.07% → 89.64%. `tickLabelParallel` is derived from the rotation
+(`vertical ? rotation > 70 : rotation < 20`) rather than configured, so the
+rotation cases are what reach it.
+
 ### T3. Renderer and component function coverage — **Fixed**
 
 **Low.** Six modules whose *function* coverage trailed their statement
