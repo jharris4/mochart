@@ -39,8 +39,8 @@ cases that pass did not reach, and those are flagged as such.
 5 from the SOL pass.)
 
 **Status: 30 fixed (3 partial), 5 needing an answer, 120 open.** ANIM-1 and ANIM-2 both have
-follow-ups that are **decided and awaiting implementation** — see their entries; one minor
-sub-question remains under ANIM-1.
+follow-ups that are **decided and awaiting implementation** — see their entries. ANIM-1's part 3
+carries a full design for clipping and the `plot.clipIndicator*` config.
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -307,9 +307,77 @@ the data happened to be flat. How a collapsed domain **draws** is handled in
 [ANIM-2](#anim-2--a-zero-span-domain-makes-every-update-flash-to-zero-then-to-full-height), which
 covers the `auto` route too.
 
-> **One sub-question still open:** once out-of-range data is clipped it becomes *silently*
-> misleading (the chart looks fine and is wrong) — worth a `console.warn`, or leave it silent?
-> A validation warning is not an option: `strict` defaults to true, so it would blank the chart.
+##### Part 3 design: clipping, and the clip indicator
+
+**Behaviour.** Where an axis has an explicit `min`/`max`, marks are **clipped**, not dropped — a
+bar spanning base 0 → 50 on a `max: 10` axis still shows its 0→10 portion. Dropping it would make
+it indistinguishable from missing data, which is the same silent wrongness in a new place, and
+this library already treats that distinction as load-bearing (`missingValues`,
+`showMissingValues`, `colorScale.missing`). There is **no way to switch clipping off**: unclipped
+overflow painting over the axes is the bug, not a mode.
+
+**Clipping is a viewport operation, not a data one.** A clipped mark still reports its true value
+in the tooltip, in its value label, and in the aria-live announcement. This is the single most
+valuable part of the fix and it is free — but it is exactly the sort of invariant a later
+optimisation quietly breaks, so it wants a test.
+
+**The visual: a clip indicator band.** A band along the affected plot edge, drawn on **any plot
+edge where at least one axis has clipped values** — so up to four, and two value axes clipping at
+the same end produce *one* band. Edges follow the axis direction, so `plot.inverted` remaps which
+edge is the "high" end with no extra handling.
+
+**Config lives on `plot`, not on the axes.** Two reasons, the second decisive: it renders in the
+plot area rather than on an axis; and per-axis config has no answer for two value axes clipping at
+the same end — two overlapping bands with different styles and sizes, or an arbitrary first-wins.
+Gridlines are per-axis plot-area chrome and work fine, but only because each axis's gridlines
+occupy *different positions*; a band is one piece of geometry per edge, so it cannot be owned by an
+axis. A new top-level `clipping` section was also rejected: four properties do not justify the
+section registries, the config-guide list and the reference-page generator.
+
+| Property | Validator | Default |
+|---|---|---|
+| `plot.showClipIndicator` | `boolean` | `true` |
+| `plot.clipIndicatorSize` | `numberMin(0).orEqual(AUTO)` | `AUTO` |
+| `plot.clipIndicatorStyle` | `style()` | tinted fill |
+| `plot.clipIndicatorFront` | `boolean` | `true` |
+| `plot.clipIndicatorLabel` | `string` (or `NONE`) | a short string, **not** `null` |
+| `plot.clipIndicatorTextStyle` | `style()` | — |
+
+**It overlays the plot; it does not reserve space.** Reserving would make the band a layout
+participant, so its text measurement would have to converge before layout settles — the corner
+where the tick-truncation reentrancy bug lived, and not somewhere to add a fourth participant.
+Overlaying also keeps it *in* the plot (reserving would put it between plot and axis, which is
+axis chrome again), and the strip it covers is the ambiguous zone anyway, since every clipped mark
+is already flat against that boundary. This is also what keeps `clipIndicatorFront` meaningful —
+under a reserving design that property would be nonsense and should be dropped.
+
+**`AUTO` sizing** measures the label and sizes the band to it; with `clipIndicatorLabel: null` it
+falls back to a small fixed depth. One rule, both cases. This is not new machinery — it is the
+validator and the pattern `axis.titleSize` and `axis.tickLabelSize` already use
+([axisConfig.ts:104,126](packages/mochart/src/config/validation/axisConfig.ts#L104)).
+
+**The label.** One string for every edge — so it cannot say "more above" / "more below", which is
+the accepted cost of having no per-edge control. Rotation on the left/right edges must match what
+[AxisTitle.ts:79](packages/mochart/src/components/AxisTitle.ts#L79) already does for vertical axis
+titles, reusing `RotatedLayoutInfo`, so the two never disagree on a chart that has both. When the
+label does not fit, **hide the label and keep the band** rather than truncating — a truncated
+`Clip…` is worse than no text, and it avoids adding `truncation*` properties here.
+
+The default is a **short string, not `null`**: a bare band is a shape-only cue that means nothing
+on first sight, and core already ships configurable English defaults for visible chart text
+(`tooltip.filterModeText`) for exactly this reason. Setting it to `null` opts out of the visible
+text *and* the hover text together.
+
+**An SVG `<title>`, rendered always**, mirroring `clipIndicatorLabel`. It gives the hover tooltip
+that recovers a hidden label *and* serves as the band's accessible name, so one element covers
+both. Two cautions: `aria-label` beats `<title>` for assistive tech, so set one or the other on
+the band and never both; and there is **no `<title>` anywhere in `src` today** — everything is
+named with `ariaLabel` — so this is a deliberate divergence and wants a comment saying why, or it
+reads as an inconsistency to the next person.
+
+**This closes the `console.warn` question.** With a visible, hoverable, screen-reader-named
+indicator, clipped data is no longer silent, and a console warning would add noise without adding
+information.
 
 ### ANIM-2 — a zero-span domain makes every update flash to zero, then to full height
 **High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Partially fixed**; collapsed-domain drawing decided, not yet implemented
