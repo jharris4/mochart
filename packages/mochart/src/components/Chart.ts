@@ -395,12 +395,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       if (this.state.layoutInfo !== state.layoutInfo) {
         const newBounds = getBoundsForSeriesLayoutInfo(state.layoutInfo.seriesLayoutInfo);
         if (this.state.layoutInfo === null) {
-          this.onSeriesLayoutBoundsChange(newBounds);
+          this.pendingSeriesLayoutBounds = newBounds;
         }
         else if (state.layoutInfo.seriesLayoutInfo !== this.state.layoutInfo.seriesLayoutInfo) {
           const oldBounds = getBoundsForSeriesLayoutInfo(this.state.layoutInfo.seriesLayoutInfo);
           if (getBoundsAreDifferent(oldBounds, newBounds)) {
-            this.onSeriesLayoutBoundsChange(newBounds);
+            this.pendingSeriesLayoutBounds = newBounds;
           }
         }
       }
@@ -670,6 +670,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   measure(prevProps: ChartProps | null, prevState: ChartState | null): void {
+    this.flushSeriesLayoutBoundsChange();
     if (prevProps === null || prevState === null) {
       this.calculateTextSizes();
       return;
@@ -724,8 +725,20 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
-  onSeriesLayoutBoundsChange(layoutBounds: Bounds): void {
-    this.props.onSeriesLayoutBoundsChange?.(layoutBounds);
+  /**
+   * Bounds recorded by applyLayoutInfo, which can run inside derive() — before the renderer has
+   * assigned this.props. Dispatching there would invoke the *previous* render's callback and, if
+   * the host re-entered update(), let the outer update overwrite the nested one's props. The
+   * post-commit measure hook flushes it instead, reading committed props.
+   */
+  pendingSeriesLayoutBounds: Bounds | null = null;
+
+  flushSeriesLayoutBoundsChange(): void {
+    const layoutBounds = this.pendingSeriesLayoutBounds;
+    if (layoutBounds !== null) {
+      this.pendingSeriesLayoutBounds = null;
+      this.props.onSeriesLayoutBoundsChange?.(layoutBounds);
+    }
   }
 
   closeTooltip = () => {
