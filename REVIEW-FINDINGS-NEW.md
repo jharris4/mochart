@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 28 fixed (3 partial), 7 needing an answer, 122 open.**
+**Status: 29 fixed (3 partial), 7 needing an answer, 121 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -2212,7 +2212,7 @@ Least-covered core files by branches: `LinearGradient.ts`/`RadialGradient.ts` 50
 `Chart.ts` **64/74**.
 
 ### TEST-1 — PNG export success paths have never been executed
-**High · Test gap · [export/index.ts:336](packages/mochart-export/src/index.ts#L336), [:355](packages/mochart-export/src/index.ts#L355), [:388](packages/mochart-export/src/index.ts#L388)** — **Open**
+**High · Test gap · [export/index.ts:336](packages/mochart-export/src/index.ts#L336), [:355](packages/mochart-export/src/index.ts#L355), [:388](packages/mochart-export/src/index.ts#L388)** — **Fixed**
 
 `exportPNG` and `exportChartsPNG` are tested only for their *failure* paths. Coverage confirms the
 `.then(blob => { saveBlob(...); return true; })` callbacks never run, and **`getStitchedSize` is
@@ -2226,6 +2226,17 @@ export at 1×1 and every test would still pass. The e2e suite covers single-char
 `await exportChartsPNG([a, b], {cols: 2})` is `true`, the anchor's `download` ends `.png`, and
 `canvas.width === Math.round(stitchedWidth * 2)` — that last assertion is what pins
 `getStitchedSize`. Add the single-chart equivalent.
+
+**Fixed automatically.** Applied as recommended: a `png export success paths` block with the
+`FakeImage` stub, `toBlob` and `getContext` stubs that capture the canvas, and a `click` spy that
+captures the download. Four tests — single-chart at scale 2 and at scale 1, the stitched export,
+and the no-charts-found `false` path.
+
+The stitched test derives the expected size by reading `width=`/`height=` off
+`getStitchedChartsSvgText`'s own output and first asserts that width **exceeds one chart's 400px**,
+so `canvas.width === Math.round(stitchedWidth * 2)` cannot pass if a per-chart size sneaks through
+— which is precisely the B1 failure mode. Export coverage is now 94.81% statements / 83.95%
+branches, with `getStitchedSize` executed. All 34 export tests pass, typecheck and lint clean.
 
 ### TEST-2 — no binding test asserts that any interaction callback reaches the chart
 **High · Test gap · all five binding test files** — **Open**

@@ -378,3 +378,106 @@ describe('stitching several charts', () => {
     await expect(exportChartsPNG([document.createElement('div')], { cols: 2 })).resolves.toBe(false);
   });
 });
+
+/**
+ * TEST-1: the PNG success paths — the `.then(blob => { saveBlob(...); return true; })`
+ * callbacks — had never executed, and `getStitchedSize` was never called at all. That is the
+ * function B1 broke: multi-chart PNG export shipped permanently non-functional and nothing
+ * noticed. A typo in its width=/height= regex would rasterize every stitched export at 1x1.
+ */
+describe('png export success paths', () => {
+  const OriginalImage = globalThis.Image;
+  let canvases: HTMLCanvasElement[] = [];
+  let downloads: { href: string; download: string }[] = [];
+  let restore: (() => void)[] = [];
+
+  beforeEach(() => {
+    canvases = [];
+    downloads = [];
+
+    class FakeImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    (globalThis as unknown as { Image: unknown }).Image = FakeImage;
+
+    const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockImplementation(function (this: HTMLCanvasElement) {
+        canvases.push(this);
+        return { drawImage() {} } as unknown as CanvasRenderingContext2D;
+      });
+    const toBlob = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+      .mockImplementation(function (callback: BlobCallback) {
+        callback(new Blob(['png'], { type: 'image/png' }));
+      });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(function (this: HTMLAnchorElement) {
+        downloads.push({ href: this.href, download: this.download });
+      });
+    if (typeof URL.createObjectURL !== 'function') {
+      (URL as unknown as { createObjectURL: unknown }).createObjectURL = () => 'blob:fake';
+      (URL as unknown as { revokeObjectURL: unknown }).revokeObjectURL = () => {};
+    }
+
+    restore = [() => getContext.mockRestore(), () => toBlob.mockRestore(), () => click.mockRestore(),
+      () => { (globalThis as unknown as { Image: unknown }).Image = OriginalImage; }];
+  });
+
+  afterEach(() => {
+    for (const undo of restore) {
+      undo();
+    }
+    restore = [];
+  });
+
+  it('rasterizes a single chart at the requested scale and downloads it', async () => {
+    await expect(exportPNG(container, { scale: 2 })).resolves.toBe(true);
+
+    expect(canvases).toHaveLength(1);
+    expect(canvases[0].width).toBe(800);
+    expect(canvases[0].height).toBe(600);
+    expect(downloads).toHaveLength(1);
+    expect(downloads[0].download.endsWith('.png')).toBe(true);
+  });
+
+  it('honours a scale of 1', async () => {
+    await expect(exportPNG(container, { scale: 1 })).resolves.toBe(true);
+    expect(canvases[0].width).toBe(400);
+    expect(canvases[0].height).toBe(300);
+  });
+
+  it('sizes a stitched export from the stitched svg, not from one chart', async () => {
+    const second = document.createElement('div');
+    document.body.appendChild(second);
+    const secondChart = createDefaultChart(second, { config: rawConfig(), data: rows, width: 400, height: 300 });
+    try {
+      const svgText = getStitchedChartsSvgText([container, second], { cols: 2 })!;
+      const stitchedWidth = Number.parseFloat(/\bwidth="([\d.]+)"/.exec(svgText)![1]);
+      const stitchedHeight = Number.parseFloat(/\bheight="([\d.]+)"/.exec(svgText)![1]);
+      // two charts side by side, so this must exceed one chart's width — the assertion that
+      // pins getStitchedSize rather than a per-chart size sneaking through
+      expect(stitchedWidth).toBeGreaterThan(400);
+
+      await expect(exportChartsPNG([container, second], { cols: 2, scale: 2 })).resolves.toBe(true);
+
+      expect(canvases).toHaveLength(1);
+      expect(canvases[0].width).toBe(Math.round(stitchedWidth * 2));
+      expect(canvases[0].height).toBe(Math.round(stitchedHeight * 2));
+      expect(downloads).toHaveLength(1);
+      expect(downloads[0].download.endsWith('.png')).toBe(true);
+    }
+    finally {
+      secondChart.destroy();
+      second.remove();
+    }
+  });
+
+  it('resolves false for a stitched export with no charts in it', async () => {
+    const empty = document.createElement('div');
+    await expect(exportChartsPNG([empty], { cols: 1 })).resolves.toBe(false);
+    expect(downloads).toHaveLength(0);
+  });
+});
