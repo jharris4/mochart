@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 27 fixed (3 partial), 7 needing an answer, 123 open.**
+**Status: 28 fixed (3 partial), 7 needing an answer, 122 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -2244,7 +2244,7 @@ dispatch the triggering DOM event, assert each spy was called. For Angular/Vue, 
 emitter/event names so a new row cannot be added without a case.
 
 ### TEST-3 — the "No Data" and "No Series" chart states are never rendered
-**High · Test gap · [Chart.ts:162](packages/mochart/src/components/Chart.ts#L162), [:1234](packages/mochart/src/components/Chart.ts#L1234), [:1281](packages/mochart/src/components/Chart.ts#L1281)** — **Open**
+**High · Test gap · [Chart.ts:162](packages/mochart/src/components/Chart.ts#L162), [:1234](packages/mochart/src/components/Chart.ts#L1234), [:1281](packages/mochart/src/components/Chart.ts#L1281)** — **Fixed**
 
 Coverage shows `getNoDataComponent`, `getNoSeriesComponent`, the whole `series.length === 0` overlay
 block and the `categoryCount === 0` branch all uncovered. **Five of the six `ChartFactories` props
@@ -2258,6 +2258,21 @@ the plot with nothing failing.
 `.mochart-no-data` text and that its inline `left`/`top` match the series layout bounds;
 (b) `series: []`, assert `.mochart-no-series`; (c) for each of the six factory props, mount with a
 factory returning a marker node and assert it replaces the default.
+
+**Fixed automatically.** `test/components/EmptyStates.test.ts` added, 11 tests covering all three
+parts: the no-data state (default message, overlay geometry, and that it clears when rows arrive),
+the no-series state, and all six factory props each replaced by a marker node. Two adjustments to
+the recommended shape. The geometry assertion checks the overlay sits *inside* the chart with a
+positive offset and does not overflow, rather than matching the background rect's attributes —
+the rect is not rendered in the no-data state, and pinning exact numbers would fail on any
+legitimate layout change while still catching the regression that matters (an overlay parked at
+0,0 or sized past the chart). And the config-error case uses `renderer: 'nope'` rather than a
+numeric `property`, which the finding's sibling example implies is invalid but which actually
+validates clean.
+
+Coverage moved 97.2 → 97.44 statements, 90.59 → 90.83 branches, 97.7 → 98.07 functions. The
+thresholds are left where they are — ratcheting them is its own call, and a tighter gate is not
+something to leave running unattended. Full core suite passes (1417 tests).
 
 ### TEST-4 — `migrateConfig` never runs its only behaviour
 **Medium · Test gap · [migration/mochartConfig.ts:7-10](packages/mochart/src/config/migration/mochartConfig.ts#L7)** — **Open**
