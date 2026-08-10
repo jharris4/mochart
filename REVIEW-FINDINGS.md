@@ -690,6 +690,33 @@ it against a problem that is not there.
 Practical effect today: taps work through synthesised mouse events; dragging a
 finger to move the tooltip does not, and never has.
 
+### T10. Bar cap combinations were untested — **Fixed**
+
+**Low.** No test referenced `capType`. The `capped` golden demos snapshot the
+output, but the logic choosing a cap had 17 uncovered branch paths, including
+this expression:
+
+```js
+const applyStackOuter = stack && (capType !== NONE && capOnlyStackOuter) || (capType === NONE && outerCapType && outerCapType !== NONE);
+```
+
+Mixed `&&`/`||` with no outer parens, so it reads as `(stack && …) || (…)` —
+the second clause apparently applying whether or not the series is stacked.
+**Checked, and it is correct:** `outerCapType` is destructured from
+`seriesStackConfig`, which `assignConfigReferences` attaches only by looking up
+the series' `stack`. An unstacked series has no stack config, so the second
+clause is gated by `stack` implicitly. Left as is; the tests pin it.
+
+**Fix:** `BarCaps.test.ts` covers cap selection across capType × stacked ×
+`capOnlyStackOuter` × `outerCapType` × inverted, the rounded-cap fallbacks for
+bars too short to round and caps wider than the bar, and the ranged-line
+generator on an inverted plot. `SeriesShapes.ts` 84.5% → **91.8%** branches,
+overall 89.64% → 89.77%.
+
+The tests also caught a wrong premise of mine worth recording: declaring a sole
+`seriesStacks` entry makes every series **default into it**, so a series is only
+genuinely unstacked with an explicit `stack: null`.
+
 ### T3. Renderer and component function coverage — **Fixed**
 
 **Low.** Six modules whose *function* coverage trailed their statement
