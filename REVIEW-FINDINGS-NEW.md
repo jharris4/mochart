@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 5 fixed (1 partial), 2 needing an answer, 145 open.**
+**Status: 6 fixed (1 partial), 2 needing an answer, 144 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -411,7 +411,7 @@ leave; keyboard-open then enter); both fail on the unpatched source. Full core s
 (1366 tests), typecheck and lint clean.
 
 ### COMP-2 — `onSeriesLayoutBoundsChange` fires from inside `derive()`, before props commit
-**High · Bug · [Chart.ts:392](packages/mochart/src/components/Chart.ts#L392) → [:727](packages/mochart/src/components/Chart.ts#L727)** **[verified]** — **Open**
+**High · Bug · [Chart.ts:392](packages/mochart/src/components/Chart.ts#L392) → [:727](packages/mochart/src/components/Chart.ts#L727)** **[verified]** — **Fixed**
 
 `applyLayoutInfo` invokes the host callback while `Renderer.update()` is still in `derive` —
 [renderer.ts:116](packages/mochart/src/render/renderer.ts#L116) calls `derive`, and
@@ -434,6 +434,17 @@ components' post-`setState` field writes — it just wasn't fixed here.
 
 **Fix:** record the pending bounds in `applyLayoutInfo` and dispatch from a post-commit hook
 (`enqueue`, or the existing `measure` path) reading the committed `this.props`.
+
+**Fixed automatically.** Applied exactly as recommended. `applyLayoutInfo` now stores the bounds
+in `this.pendingSeriesLayoutBounds` instead of dispatching, and `measure()` — already the
+component's post-commit hook — opens by calling `flushSeriesLayoutBoundsChange()`, which reads the
+committed `this.props`. `Renderer.setState` calls `queueMeasure` just as `update` does, so the two
+`setState`-driven `applyLayoutInfo` call sites (Chart.ts:519, :562) flush on the same path, and
+mount is covered by its own `measure(null, null)`. Three regression tests in
+`test/components/SeriesLayoutBounds.test.ts`; the two the finding describes fail on the unpatched
+source. The reentrancy test is the classic responsive-container pattern — the host resizes to
+500×500 from inside the callback during an outer 400×300 update, and the 500×500 must win.
+Full core suite passes (1369 tests), typecheck and lint clean.
 
 ### COMP-3 — tooltip prev/next buttons leave the `aria-live` announcer stale
 **Medium · Bug (a11y) · [Chart.ts:742](packages/mochart/src/components/Chart.ts#L742), used by [TooltipControls.ts:54](packages/mochart/src/components/TooltipControls.ts#L54)** — **Open**
