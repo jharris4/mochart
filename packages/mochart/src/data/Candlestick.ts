@@ -1,3 +1,4 @@
+import { checkUniqueLabels } from './labels';
 import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } from '../types/config';
 
 export type CandlestickDirection = 'up' | 'down';
@@ -159,6 +160,7 @@ const DEFAULT_VOLUME_GAP_FRACTION = 0.05;
 const DEFAULT_VOLUME_LABEL = 'Volume';
 
 export function computeCandlesticks(items: readonly CandlestickItem[]): Candlestick[] {
+  checkUniqueLabels('createCandlestick', 'labels', items.map((item) => item.label));
   return items.map((item) => {
     const { label, open, high, low, close, volume } = item;
     return {

@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 8 fixed (2 partial), 3 needing an answer, 142 open.**
+**Status: 9 fixed (2 partial), 3 needing an answer, 141 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -638,7 +638,7 @@ the joint constraint. Eight new cases in `test/data/Candlestick.test.ts` cover e
 input plus both usable extremes. Full core suite passes (1379 tests).
 
 ### HELP-2 — duplicate labels in waterfall / candlestick / OHLC produce data the validator rejects
-**High · Bug · [Waterfall.ts:109](packages/mochart/src/data/Waterfall.ts#L109), [Candlestick.ts:231](packages/mochart/src/data/Candlestick.ts#L231), [Ohlc.ts:103](packages/mochart/src/data/Ohlc.ts#L103)** — **Open**
+**High · Bug · [Waterfall.ts:109](packages/mochart/src/data/Waterfall.ts#L109), [Candlestick.ts:231](packages/mochart/src/data/Candlestick.ts#L231), [Ohlc.ts:103](packages/mochart/src/data/Ohlc.ts#L103)** — **Fixed**
 
 All three write `label` straight into the ordinal category column with no uniqueness check.
 `getDataErrors` rejects duplicate category values, and `DefaultChartInput.validateDataProvider`
@@ -655,6 +655,16 @@ already throws for exactly this class on `columnLabels` (B16); its siblings neve
 
 **Fix:** add the `checkColumnLabels` equivalent to `createWaterfall`/`computeWaterfallSteps`,
 `computeCandlesticks` (covering candlestick and OHLC), and over the generated `binLabel` values.
+
+**Fixed automatically.** A shared `checkUniqueLabels(helper, what, labels)` in the new
+`src/data/labels.ts` now guards `computeWaterfallSteps`, `computeCandlesticks` (so `createOhlc`
+inherits it) and `createHistogram`'s generated `binLabel` values; `createHeatmap`'s hand-rolled
+duplicate check was folded into the same helper so all four report identically. Throwing was
+chosen over silently disambiguating (`Other`, `Other (2)`) because it matches the B16
+`createHeatmap` precedent and because renaming a caller's own labels behind their back is worse
+than a message naming the duplicate — a blank chart with no diagnostic is what made this hard to
+find in the first place. Four regression tests, one per helper. Full core suite passes (1383
+tests), typecheck, lint and deadcode clean.
 
 ### HELP-3 — `computeCandlesticks` accepts NaN and missing OHLC fields silently
 **High · Bug · [Candlestick.ts:160](packages/mochart/src/data/Candlestick.ts#L160)** — **Open**

@@ -209,4 +209,10 @@ describe('bin membership on floating-point edges', () => {
       }
     }
   });
+
+  // HELP-2: a custom binLabel can collapse distinct bins onto one category value
+  it('throws when a custom binLabel produces duplicates', () => {
+    expect(() => createHistogram([1, 2, 3, 4, 5, 6], { binCount: 3, binLabel: () => 'bin' }))
+      .toThrow(/createHistogram: binLabel values must be unique, duplicates: bin/);
+  });
 });

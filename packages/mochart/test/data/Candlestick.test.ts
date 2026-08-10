@@ -226,4 +226,12 @@ describe('createCandlestick', () => {
       expect('upOpen' in filledData[0]).toBe(false);
     });
   });
+
+  // HELP-2: duplicates used to reach getDataErrors, which blanks the whole chart
+  it('throws when two candles share a label', () => {
+    expect(() => createCandlestick([
+      { label: 'Mon', open: 1, high: 3, low: 0, close: 2 },
+      { label: 'Mon', open: 2, high: 4, low: 1, close: 1.5 }
+    ])).toThrow(/createCandlestick: labels must be unique, duplicates: Mon/);
+  });
 });

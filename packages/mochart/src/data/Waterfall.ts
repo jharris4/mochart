@@ -1,3 +1,4 @@
+import { checkUniqueLabels } from './labels';
 import type { DeepPartial, CategoryAxisConfig, SeriesConfig } from '../types/config';
 
 export type WaterfallDirection = 'increase' | 'decrease' | 'total';
@@ -89,6 +90,7 @@ const DEFAULT_COLORS: Record<WaterfallDirection, string> = {
 };
 
 export function computeWaterfallSteps(items: readonly WaterfallItem[], base = 0): WaterfallStep[] {
+  checkUniqueLabels('createWaterfall', 'labels', items.map((item) => item.label));
   let running = base;
   return items.map((item) => {
     const { label } = item;
