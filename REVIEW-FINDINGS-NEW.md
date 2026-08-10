@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 7 fixed (2 partial), 3 needing an answer, 143 open.**
+**Status: 8 fixed (2 partial), 3 needing an answer, 142 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -254,9 +254,13 @@ One correction to the finding: `valueAxes: [{ max: 0 }]` with all-positive data 
 > either choice turns a chart that renders today into a config-error state. An inverted domain is
 > also not obviously meaningless — `{min: 0}` on data that is currently all-negative is a
 > reasonable way to pin the axis at zero and let the data grow into it. **Which do you want:**
-> (a) reject `min >= max` as a validation error, (b) emit a warning only, (c) leave it accepted
-> and document that an explicit bound past the data inverts the domain, or (d) clamp the
-> offending bound at build time and warn?
+> (a) reject `min >= max` as a validation error, (b) emit a warning only, (c) **[recommended]**
+> leave it accepted and document that an explicit bound past the data inverts the domain, or
+> (d) clamp the offending bound at build time and warn?
+>
+> *Recommendation: (c).* The hang is fixed and an inverted domain now renders and animates
+> predictably, so nothing is unsafe any more — and (a) and (b) are the same thing in default
+> strict mode, both turning charts that render today into a config-error state.
 
 ### ANIM-2 — a zero-span domain makes every update flash to zero, then to full height
 **High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Partially fixed**, with an open question
@@ -311,7 +315,8 @@ does not anchor to a base.
 > a different reason and all-equal bars change height; (b) keep the static rendering as it is and
 > instead force the animation phases to hold the degenerate domain, so no expansion runs and the
 > update cross-fades in place; (c) leave it, and document that all-equal data animates oddly?
-> Option (b) is the smaller change and preserves every current snapshot.
+> *Recommendation: (b).* It is the smaller change, preserves every current golden snapshot, and
+> keeps a visual-design decision out of a bug fix.
 
 ### LAYOUT-1 — negative `width`/`height` reach background rects on small or heavily spaced charts
 **Medium · Bug · [PlotLayout.ts:91](packages/mochart/src/layout/PlotLayout.ts#L91), [SpacingLayoutInfo.ts:47-53](packages/mochart/src/layout/SpacingLayoutInfo.ts#L47), [LegendLayout.ts:113-121](packages/mochart/src/layout/LegendLayout.ts#L113)** — **Open**
@@ -589,7 +594,10 @@ and category index; both fail on the unpatched source. Full core suite passes (1
 > pixels, so today all four position fields share one origin. **Which do you want:** (a) add the
 > plot offset so `chartX`/`chartY` match their documentation, accepting the silent break; (b)
 > correct the JSDoc to say plot-relative, keeping all four fields consistent; or (c) add separate
-> `containerX`/`containerY` fields and leave `chartX`/`chartY` alone? Note
+> `containerX`/`containerY` fields and leave `chartX`/`chartY` alone?
+>
+> *Recommendation: (b).* It is the only option with no silent behaviour change for existing
+> hosts, and it leaves all four position fields sharing one origin. Note
 > `ChartInteraction.test.ts:56` stubs every rect to the full chart at 1:1, which collapses the two
 > frames onto each other — whichever option you pick, that fixture needs a non-zero plot offset
 > before it can tell them apart.
@@ -599,7 +607,7 @@ and category index; both fail on the unpatched source. Full core suite passes (1
 # 4. Core — chart-type helpers
 
 ### HELP-1 — volume-pane fractions at their documented range ends emit an invalid config
-**High · Bug · [Candlestick.ts:191](packages/mochart/src/data/Candlestick.ts#L191)** **[verified]** — **Open**
+**High · Bug · [Candlestick.ts:191](packages/mochart/src/data/Candlestick.ts#L191)** **[verified]** — **Fixed**
 
 `buildVolumeValueAxisConfigs` divides by `1 - heightFraction - gapFraction` and by
 `heightFraction` with no guard, so in-contract option values produce negative or degenerate
@@ -620,6 +628,14 @@ Both options are documented as "The fraction (0 - 1)…" with no stated joint co
 `gapFraction ∈ [0,1)` and `heightFraction + gapFraction < 1`, matching the throw-on-bad-options
 contract `binValues` and `createHeatmap` already use. Tighten the JSDoc and
 [recipes/candlestick.md:93](packages/mochart-docs/recipes/candlestick.md#L93) to state it.
+
+**Fixed automatically.** Applied exactly as recommended: `getVolumeOptions` now throws for
+`heightFraction ∉ (0,1)`, `gapFraction ∉ [0,1)` and `heightFraction + gapFraction >= 1`, with
+`createCandlestick: volume …` messages matching the `binValues`/`createHeatmap` wording. Failing
+loudly at the helper beats letting a derived margin reach the validator, where the error names
+`minMarginFraction` — a key the caller never set. JSDoc on both options and the recipe now state
+the joint constraint. Eight new cases in `test/data/Candlestick.test.ts` cover every rejected
+input plus both usable extremes. Full core suite passes (1379 tests).
 
 ### HELP-2 — duplicate labels in waterfall / candlestick / OHLC produce data the validator rejects
 **High · Bug · [Waterfall.ts:109](packages/mochart/src/data/Waterfall.ts#L109), [Candlestick.ts:231](packages/mochart/src/data/Candlestick.ts#L231), [Ohlc.ts:103](packages/mochart/src/data/Ohlc.ts#L103)** — **Open**

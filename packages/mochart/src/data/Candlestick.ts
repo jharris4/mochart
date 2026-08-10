@@ -29,14 +29,15 @@ export interface Candlestick {
 
 export interface CandlestickVolumeOptions {
   /**
-   * The fraction (0 - 1) of the plot height used by the volume pane.
+   * The fraction (above 0, below 1) of the plot height used by the volume pane.
+   * `heightFraction + gapFraction` must stay below 1; anything else throws.
    *
    * @default 0.2
    */
   heightFraction?: number;
   /**
-   * The fraction (0 - 1) of the plot height left empty between the price and
-   * volume panes.
+   * The fraction (0 - 1, excluding 1) of the plot height left empty between the panes.
+   * `heightFraction + gapFraction` must stay below 1; anything else throws.
    *
    * @default 0.05
    */
@@ -175,9 +176,21 @@ export function getVolumeOptions(volume: boolean | CandlestickVolumeOptions | un
     return null;
   }
   const options = volume === true ? {} : volume;
+  const heightFraction = options.heightFraction ?? DEFAULT_VOLUME_HEIGHT_FRACTION;
+  const gapFraction = options.gapFraction ?? DEFAULT_VOLUME_GAP_FRACTION;
+  // the pane split divides by heightFraction and by the price share, so each pane needs a real slice
+  if (!(heightFraction > 0 && heightFraction < 1)) {
+    throw new Error(`createCandlestick: volume heightFraction must be between 0 and 1, got ${heightFraction}`);
+  }
+  if (!(gapFraction >= 0 && gapFraction < 1)) {
+    throw new Error(`createCandlestick: volume gapFraction must be at least 0 and below 1, got ${gapFraction}`);
+  }
+  if (heightFraction + gapFraction >= 1) {
+    throw new Error(`createCandlestick: volume heightFraction + gapFraction must be below 1, got ${heightFraction} + ${gapFraction}`);
+  }
   return {
-    heightFraction: options.heightFraction ?? DEFAULT_VOLUME_HEIGHT_FRACTION,
-    gapFraction: options.gapFraction ?? DEFAULT_VOLUME_GAP_FRACTION,
+    heightFraction,
+    gapFraction,
     valueLabel: options.valueLabel ?? DEFAULT_VOLUME_LABEL
   };
 }

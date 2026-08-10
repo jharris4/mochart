@@ -144,6 +144,24 @@ describe('createCandlestick', () => {
       expect(volumeAxis.maxMarginFraction).toBeCloseTo(3, 6);
       expect(seriesConfigs.find((seriesConfig) => seriesConfig.id === 'upVolume')!.valueLabel).toBe('Shares');
     });
+
+    // HELP-1: these all used to produce a config the validator rejects, blanking the chart
+    it.each([
+      ['heightFraction 1', { heightFraction: 1 }],
+      ['heightFraction 0', { heightFraction: 0 }],
+      ['heightFraction below 0', { heightFraction: -0.1 }],
+      ['gapFraction 1', { gapFraction: 1 }],
+      ['gapFraction below 0', { gapFraction: -0.1 }],
+      ['fractions summing to 1', { heightFraction: 0.7, gapFraction: 0.3 }],
+      ['fractions summing above 1', { heightFraction: 0.8, gapFraction: 0.3 }]
+    ])('throws for %s', (_label, volume) => {
+      expect(() => createCandlestick(items, { volume })).toThrow(/createCandlestick: volume/);
+    });
+
+    it('accepts the ends of the usable range', () => {
+      expect(() => createCandlestick(items, { volume: { heightFraction: 0.95, gapFraction: 0 } })).not.toThrow();
+      expect(() => createCandlestick(items, { volume: { heightFraction: 0.01, gapFraction: 0.98 } })).not.toThrow();
+    });
   });
 
   describe('hollow', () => {
