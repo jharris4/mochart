@@ -1411,6 +1411,14 @@ export interface AxisConfigBase {
    * Value axis default: `"start"`.
    */
   side: AxisSide;
+  /**
+   * Whether the axis runs in the opposite direction, so its minimum is drawn
+   * where its maximum normally would be (an ordinal category axis reverses its
+   * category order).
+   *
+   * @default false
+   */
+  reversed: boolean;
 
   /**
    * Whether the axis should consume space in the layout (false) or not (true).

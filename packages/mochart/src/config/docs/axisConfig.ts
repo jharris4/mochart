@@ -45,6 +45,7 @@ export default function getDescriptions() {
     backgroundFront: 'whether the axis background should be shown in front (true) or behind (false) the series shapes',
 
     side: 'whether the axis is placed at the start (top/left) or end (bottom/right) of the chart',
+    reversed: 'whether the axis runs in the opposite direction, so its minimum is drawn where its maximum normally would be (an ordinal category axis reverses its category order)',
 
     collapsed: 'whether the axis should consume space in the layout (false) or not (true)',
 

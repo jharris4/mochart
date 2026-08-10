@@ -20,6 +20,8 @@ export default function getDefaults() {
 
     side: SIDE_START,
 
+    reversed: false,
+
     collapsed: false,
 
     showFocusRange: true,
