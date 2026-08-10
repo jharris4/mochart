@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 11 fixed (2 partial), 4 needing an answer, 139 open.**
+**Status: 12 fixed (2 partial), 4 needing an answer, 138 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -878,7 +878,7 @@ bug. Full core suite passes (1393 tests), movalid 383, typecheck across all 20 w
 and deadcode clean.
 
 ### CONFIG-2 — `valueAxisDefaults` is silently ignored when no `valueAxes` entry is declared
-**High · Bug · [core/mochartConfig.ts:168,173,176](packages/mochart/src/config/core/mochartConfig.ts#L168)** — **Open**
+**High · Bug · [core/mochartConfig.ts:168,173,176](packages/mochart/src/config/core/mochartConfig.ts#L168)** — **Fixed**
 
 `valueAxes` is the one list section with an implicit entry (`singleDefaultIfEmpty`). When the
 user declares no `valueAxes`, `applyDefaults` installs the default list verbatim via
@@ -903,6 +903,16 @@ it with `valueAxes: config.valueAxes ?? [{}]`.
 `defaultsSection.map(entry => isObject(entry) ? deepMerge(entry, allSection) : entry)`. Safe for
 the other list sections, whose defaults list is empty when nothing is declared. Then drop the
 sparkline workaround.
+
+**Fixed automatically.** Applied as recommended: `copyDefaultsList` now takes `allSection` and
+deep-merges it over each entry, which covers all three paths that install the defaults list
+(section undefined, section present but every entry ignored, and a non-object section) rather
+than only the first — so `valueAxes: [{ignore: true}]` now behaves like `valueAxes` absent,
+matching what "treat it as though it were not specified" already promises. The other five list
+sections are unaffected: their defaults list is empty when nothing is declared, so the merge has
+nothing to map over. The sparkline workaround (`valueAxes: config.valueAxes ?? [{}]`) and its
+explanatory comment are gone. Three regression tests in `test/config/core.test.ts`, two of which
+fail on the unpatched source. Full core suite passes (1396 tests), typecheck and lint clean.
 
 ### CONFIG-3 — `ignore: true` entries are still cross-reference-validated
 **High · Bug · [validation/mochartConfig.ts:474](packages/mochart/src/config/validation/mochartConfig.ts#L474)** **[verified]** — **Open**

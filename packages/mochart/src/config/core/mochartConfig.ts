@@ -140,8 +140,9 @@ export function filterConfig(config: unknown): config is ConfigRecord {
 }
 
 // never install the defaults' own entry objects: the build step wires list references onto entries in place
-const copyDefaultsList = (defaultsSection: unknown[]): unknown[] =>
-  defaultsSection.map(entry => isObject(entry) ? { ...entry } : entry);
+// the *Defaults section still applies to an implicit entry, which is the only entry valueAxes ever has
+const copyDefaultsList = (defaultsSection: unknown[], allSection: ConfigRecord): unknown[] =>
+  defaultsSection.map(entry => isObject(entry) ? deepMerge<ConfigRecord>(entry, allSection) : entry);
 
 export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRecord): ConfigRecord {
   if (isObject(configWithoutDefaults)) {
@@ -165,15 +166,15 @@ export function applyDefaults(configWithoutDefaults: unknown, defaults: ConfigRe
             }
           }
           // every entry ignored/non-object means the section was effectively not specified
-          config[sectionKey] = listCount === 0 ? copyDefaultsList(defaultsSection) : filteredConfigSection;
+          config[sectionKey] = listCount === 0 ? copyDefaultsList(defaultsSection, allSection) : filteredConfigSection;
         }
         else if (isObject(configSection)) {
           config[sectionKey] = filterConfig(configSection)
             ? [deepMergeAll<ConfigRecord>(isObject(defaultsSection[0]) ? defaultsSection[0] : {}, allSection, configSection)]
-            : copyDefaultsList(defaultsSection);
+            : copyDefaultsList(defaultsSection, allSection);
         }
         else if (configSection === undefined) {
-          config[sectionKey] = copyDefaultsList(defaultsSection);
+          config[sectionKey] = copyDefaultsList(defaultsSection, allSection);
         }
       }
       else if (isObject(defaultsSection)) {
