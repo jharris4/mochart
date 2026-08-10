@@ -1,15 +1,17 @@
 # Repo review findings
 
-Review of the `mochart` monorepo on branch `review`, in two passes: a first
-sweep (B1–B7, T1–T5, D1–D6) and a deeper second sweep (B8–B18, T6–T7, D7–D8).
+Review of the `mochart` monorepo on branch `review`, in three passes: a first
+sweep (B1–B7, T1–T5, D1–D6), a deeper second sweep (B8–B18, T6–T7, D7–D8),
+and a branch-coverage sweep (T8–T11).
 
-Baseline, verified in isolation after every fix below: `npm test` (1216 core
+Baseline, verified in isolation after every fix below: `npm test` (1331 core
 tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 `npm run deadcode` all pass; core's `npm test` is coverage-instrumented and
-held to thresholds (96.82% statements, 89.07% branches). Nothing here came from a failing check — the
-findings came from reading the source and probing the public API.
+held to thresholds (96.97% statements, 90.13% branches). Nothing here came
+from a failing check — the findings came from reading the source and probing
+the public API.
 
-**33 findings: 32 fixed, 1 closed as won't-fix, 0 open.**
+**37 findings: 35 fixed, 2 closed, 0 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
@@ -716,6 +718,25 @@ overall 89.64% → 89.77%.
 The tests also caught a wrong premise of mine worth recording: declaring a sole
 `seriesStacks` entry makes every series **default into it**, so a series is only
 genuinely unstacked with an explicit `stack: null`.
+
+### T11. Axis threshold title placement was untested — **Fixed**
+
+**Low.** `AxisThresholdLine.ts` had the worst branch coverage in the package
+(73%). Only two demo configs use thresholds, both with a single title at one
+`titleSide`, so the placement arithmetic — axis side, vertical vs horizontal,
+and the four `titleSnapToValue` guards — was covered by one path each.
+
+**Fix:** `AxisThresholds.test.ts` covers the ordinal/out-of-domain/date-string
+cases that draw no line, both axis sides in both orientations, both
+`titleSide`s, snapping at each plot edge, mid-domain no-ops, oversized titles
+with no room to flip, explicit line and title styling, `useSeriesFocus`, and a
+value axis no series uses. `AxisThresholdLine.ts` 73% → **98.6%** branches,
+`AxisThresholdContainer.ts` 66.7% → 83.3%, overall 89.77% → 90.13%.
+
+Two things the tests pinned down along the way: a threshold needs a continuous
+scale, so an ordinal category axis silently drops it; and `validators.color()`
+takes hex and `rgb()`/`rgba()` only, so `strokeColor: 'red'` fails validation
+despite the message reading "should be a valid svg color".
 
 ### T3. Renderer and component function coverage — **Fixed**
 
