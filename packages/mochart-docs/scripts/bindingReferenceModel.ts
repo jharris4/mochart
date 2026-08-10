@@ -298,15 +298,32 @@ function readAngularBinding(source: BindingSource): SourceMember[] {
           kindHint: isOutput ? 'callback' : undefined,
           // Outputs declare no type annotation; their initializer names it.
           type: declaredType === 'unknown' && member.initializer !== undefined
-            ? member.initializer.getText(sourceFile).replace(/^new\s+/, '').replace(/\(\)$/, '')
+            ? outputTypeFromInitializer(member.initializer, sourceFile)
             : declaredType,
-          optional: member.questionToken !== undefined,
+          // an Output is always optional to a host: subscribing to it is opt-in
+          optional: isOutput || member.questionToken !== undefined,
           description: jsDocText(text, member)
         });
       }
     }
   }
   return members;
+}
+
+/**
+ * An output's initializer is a factory call (`this.chartOutput<T>()`) or a constructor
+ * (`new EventEmitter<T>()`). Either way the host-visible type is `EventEmitter<T>`; naming the
+ * factory would publish a private helper.
+ */
+function outputTypeFromInitializer(initializer: ts.Expression, sourceFile: ts.SourceFile): string {
+  if (ts.isNewExpression(initializer) || ts.isCallExpression(initializer)) {
+    const typeArguments = initializer.typeArguments;
+    const args = typeArguments && typeArguments.length > 0
+      ? '<' + typeArguments.map(typeArgument => typeArgument.getText(sourceFile)).join(', ') + '>'
+      : '';
+    return 'EventEmitter' + args;
+  }
+  return initializer.getText(sourceFile);
 }
 
 /** Vue declares props twice: runtime objects in props.ts, types in types.ts. */
