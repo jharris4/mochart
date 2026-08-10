@@ -38,9 +38,9 @@ cases that pass did not reach, and those are flagged as such.
 **152 findings: 1 critical, 31 high, 69 medium, 51 low.** (145 from the Opus pass,
 5 from the SOL pass, 2 found while implementing.)
 
-**Status: 30 fixed (3 partial), 5 needing an answer, 122 open.** ANIM-1 and ANIM-2 both have
-follow-ups that are **decided and awaiting implementation** — see their entries. ANIM-1's part 3
-carries a full design for clipping and the `plot.clipIndicator*` config.
+**Status: 30 fixed (3 partial), 5 needing an answer, 122 open.** ANIM-1's axis-bounds follow-up is
+now **implemented** — see its entry for what landed and where the build revised the design.
+ANIM-2's collapsed-domain follow-up remains **decided and awaiting implementation**.
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -240,7 +240,7 @@ the coming `softMin`/`softMax`, threshold-value and `ticks[].value` checks can r
 # 2. Core — animation and layout
 
 ### ANIM-1 — an `Infinity` phase duration wedges the chart in a permanent rAF loop
-**Critical · Bug · [DomainAnimationData.ts:75](packages/mochart/src/animation/DomainAnimationData.ts#L75)** **[verified]** — **Fixed**; axis-bounds follow-up decided, not yet implemented
+**Critical · Bug · [DomainAnimationData.ts:75](packages/mochart/src/animation/DomainAnimationData.ts#L75)** **[verified]** — **Fixed**; axis-bounds follow-up also implemented
 
 `getPositiveDomainDeltaPercentage` returns `domainDeltaExtent / (domainDeltaExtent + domainExtent)`
 with no guard on the denominator. When a value axis has a *negative* extent — an explicit
@@ -281,7 +281,40 @@ core suite passes (1350 tests), typecheck and lint clean.
 One correction to the finding: `valueAxes: [{ max: 0 }]` with all-positive data does **not** hang
 — only the `min` case reproduces. The `max` case is kept as a second test regardless.
 
-#### Follow-up: axis bounds — **decided, not yet implemented**
+#### Follow-up: axis bounds — **implemented**
+
+Built in seven reviewable units, in the order the notes below require:
+
+| Unit | Commit | What landed |
+|---|---|---|
+| 1 | `140c9d09` | `axis.reversed` on every axis, ordinal included, by flipping the range |
+| 2 | `80f61027` | `min <= max` enforced as a validation error |
+| 3 | `2af9cf99`, `e5c5b91e` | series clipped to the plot on xy charts, with `plot.clipOverflow` |
+| 4 | `e79fd3d9` | `getClippedEdges` — which screen edges have data behind them |
+| 5 | `7fe01c8a` | the `ClipIndicator` band and its config |
+| 6 | `7ae472a0` | label, `auto` sizing, `<title>`, mitred corners, hatch fill, own config section |
+| 7 | uncommitted | [`recipes/axis-bounds.md`](packages/mochart-docs/recipes/axis-bounds.md) |
+
+Three parts of the design below were revised while building it:
+
+- **The derived marker allowance was dropped.** Inflating the clip by the largest `markerSize`
+  was the design; it was replaced by `plot.clipOverflow`, a `margin()`-shaped config the caller
+  sets per side. The derived version guessed at one case (markers) and could not cover labels or
+  thick strokes, and a chart with no clipping paid for it anyway.
+- **The config moved off `plot` into a `clipIndicator` section.** The design rejected a section
+  because "four properties do not justify the section registries" — it reached nine. Members are
+  unprefixed, matching `tooltip`/`crosshair`/`legend`:
+  `visible`, `size`, `padding`, `label`, `textStyle`, `style`, `hatch`, `showInFront`.
+- **The band is hatched, not tinted.** `hatch: {spacing, width}` draws an SVG `<pattern>` from
+  `style.fillColor`; `hatch: null` gives the flat fill, and `style`'s default is conditional on it
+  so turning the hatch off also drops to the lighter unstroked weight. Bands are mitred `<path>`
+  quadrilaterals rather than rects, so neighbouring edges share a diagonal instead of one covering
+  the other's corner — which only matters because the band is now stroked.
+
+Two design notes held up exactly as written: `reversed` had to land before `min > max` was
+rejected, and `AUTO` sizing reused the `axis.titleSize` pattern. One did not survive contact:
+the `<title>` is dropped along with a `null` label rather than "rendered always", since a title
+with no visible label to recover is an accessible name for a shape that means nothing on its own.
 
 The `min`/`max` cross-check was left out of the fix above and then discussed. The original
 question offered "leave it accepted, an inverted domain is useful" — **that was wrong**, and the
