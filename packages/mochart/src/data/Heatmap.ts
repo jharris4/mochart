@@ -1,5 +1,6 @@
 import { interpolateRgb, interpolateHsl, interpolateLab, interpolateHcl } from 'd3-interpolate';
 
+import { checkUniqueLabels } from './labels';
 import type { ColorInterpolation } from '../config/core/constants';
 import type { DeepPartial, CategoryAxisConfig, ValueAxisConfig, SeriesConfig } from '../types/config';
 
@@ -232,10 +233,7 @@ function checkColumnLabels(columnLabels: readonly string[] | undefined, columnCo
   if (columnLabels.length !== columnCount) {
     throw new Error(`createHeatmap: ${columnLabels.length} columnLabels for ${columnCount} columns`);
   }
-  const duplicates = columnLabels.filter((label, index) => columnLabels.indexOf(label) !== index);
-  if (duplicates.length > 0) {
-    throw new Error('createHeatmap: columnLabels must be unique, duplicates: ' + [...new Set(duplicates)].join(', '));
-  }
+  checkUniqueLabels('createHeatmap', 'columnLabels', columnLabels);
 }
 
 function clampValue(value: number, [min, max]: [number, number]): number {

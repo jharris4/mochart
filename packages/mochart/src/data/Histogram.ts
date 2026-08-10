@@ -1,3 +1,4 @@
+import { checkUniqueLabels } from './labels';
 import type { CategoryAxisConfig, SeriesConfig } from '../types/config';
 
 export interface HistogramBin {
@@ -154,8 +155,11 @@ export function createHistogram(values: readonly number[], options: CreateHistog
   const valueProperty = options.valueProperty ?? DEFAULT_VALUE_PROPERTY;
   const binLabel = options.binLabel ?? ((bin: HistogramBin) => `${bin.start}–${bin.end}`);
 
-  const data = bins.map((bin) => ({
-    [CATEGORY_PROPERTY]: binLabel(bin),
+  const labels = bins.map((bin) => binLabel(bin));
+  checkUniqueLabels('createHistogram', 'binLabel values', labels);
+
+  const data = bins.map((bin, index) => ({
+    [CATEGORY_PROPERTY]: labels[index],
     [valueProperty]: bin.value,
     binStart: bin.start,
     binEnd: bin.end,
