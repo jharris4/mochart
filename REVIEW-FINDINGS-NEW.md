@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 10 fixed (2 partial), 3 needing an answer, 140 open.**
+**Status: 11 fixed (2 partial), 4 needing an answer, 139 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -830,7 +830,7 @@ naming conventions are clean (no `*Percent` config props, no "paint", no "suppre
 axis" anywhere in `packages/mochart/src`). The findings below are what survived that sweep.
 
 ### CONFIG-1 — `validators.color()` rejects most valid CSS/SVG colours
-**High · Bug · [movalid/validators.ts:130-179](packages/movalid/src/validators.ts#L130); message authored at [validation/validators.ts:18](packages/mochart/src/config/validation/validators.ts#L18)** **[verified]** — **Open**
+**High · Bug · [movalid/validators.ts:130-179](packages/movalid/src/validators.ts#L130); message authored at [validation/validators.ts:18](packages/mochart/src/config/validation/validators.ts#L18)** **[verified]** — **Fixed** in mochart; movalid left as-is, see VAL-1
 
 The colour predicate is a three-regex whitelist: `#rgb`, `#rrggbb`, `rgb(a,b,c)`, `rgba(a,b,c,d)`.
 Everything else is rejected — while the message says `should be a valid svg color`, which `red`
@@ -854,6 +854,28 @@ gradient `stops`. Nothing in the docs states the accepted formats.
 `d3-color`'s `color()` parse (mochart already depends on it). If the narrow set is genuinely
 intended, change the message to name the accepted forms and document them in
 [guide/config-model.md](packages/mochart-docs/guide/config-model.md).
+
+**Fixed automatically, on the mochart side.** The one-line `color` override in `configValidators`
+(`Object.assign` already shadows movalid's) reaches all eleven call sites. It is now **two
+contracts, not one**, because the finding's own evidence shows the fields differ:
+
+- **Colors mochart interpolates itself** — `colorScale.min`/`max`/`missing`/`base.*` and
+  `colorPalette` entries — delegate to `d3-color`'s parse, exactly as recommended. That is the
+  real contract: what d3 can parse is what `SeriesColors` can interpolate. `red`,
+  `rebeccapurple`, `hsl(…)`, `#ff000080` and `transparent` now pass; `currentColor` and `var()`
+  still fail, which preserves the invariant that a keyword must never reach a d3 color ramp and
+  interpolate to NaN.
+- **Colors written straight to the DOM** — every `shapeStyle`/`backgroundStyle` member, gradient
+  stops, tooltip colors — also accept CSS color functions `d3-color` predates. Delegating to d3
+  alone would *not* have been enough here: `rgb(255 0 0)` and `hsl(200 50% 50%)` (space syntax)
+  and `oklch(…)` all fail d3's parser but render fine, since the browser resolves the attribute.
+
+Every entry in the finding's failing table now validates, and `notacolor`/`''`/non-strings still
+do not. `guide/config-model.md` documents both tiers. `movalid` itself is untouched — see
+[VAL-1](#val-1--color-rejects-most-valid-csssvg-colours) for the open question about that. The
+existing `validators.test.ts` case that asserted `red` is invalid is updated; it was pinning the
+bug. Full core suite passes (1393 tests), movalid 383, typecheck across all 20 workspaces, lint
+and deadcode clean.
 
 ### CONFIG-2 — `valueAxisDefaults` is silently ignored when no `valueAxes` entry is declared
 **High · Bug · [core/mochartConfig.ts:168,173,176](packages/mochart/src/config/core/mochartConfig.ts#L168)** — **Open**
@@ -2489,7 +2511,23 @@ add the intentional pair to `knip.json`'s ignores with a comment.
 ### VAL-1 — `color()` rejects most valid CSS/SVG colours
 **High** — see [CONFIG-1](#config-1--validatorscolor-rejects-most-valid-csssvg-colours), which is
 the same defect seen from the mochart side. Fix belongs here, in
-[validators.ts:130-179](packages/movalid/src/validators.ts#L130). — **Open**
+[validators.ts:130-179](packages/movalid/src/validators.ts#L130). — **Open**, needs an answer
+
+CONFIG-1 is fixed in mochart, so no mochart config is affected any more. movalid's own `color()`
+is unchanged.
+
+> **QUESTION (needs an answer):** movalid has **zero dependencies** today, which looks
+> deliberate, and the recommended fix (delegate to `d3-color`) would end that. **Which do you
+> want:** (a) **[recommended]** leave `color()` as-is and rename it to say what it does
+> (`hexOrRgbColor`), since mochart — its only in-repo consumer — no longer uses it; (b) add
+> `d3-color` as a movalid dependency and delegate; or (c) hand-roll a wider CSS-color predicate
+> in movalid, keeping it dependency-free at the cost of ~150 lines of named-color table plus
+> function-syntax regexes.
+>
+> *Recommendation: (a).* movalid is a general-purpose validation library whose value is being
+> dependency-free; a validator named for the formats it actually accepts is honest, and the
+> "what can I interpolate?" question that motivated the widening is a d3 question, so it belongs
+> in the package that already depends on d3.
 
 ### VAL-2 — `conditional()` returns a validator missing three methods its own type declares
 **Medium · Bug · [validators.ts:763](packages/movalid/src/validators.ts#L763) vs the `Validator` interface at [:33](packages/movalid/src/validators.ts#L33)** — **Open**
