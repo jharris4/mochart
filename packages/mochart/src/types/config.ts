@@ -1526,11 +1526,14 @@ export interface AxisConfigBase {
 
   /**
    * The forced maximum numeric value for the axis (use "auto" to compute from
-   * the values).
+   * the values); must be >= min unless either is "auto" (set reversed to run
+   * the axis backwards).
    *
    * With `"auto"` the maximum is computed from the data (including stacking) on
    * every update, and changes animate through the staged axis
-   * expansion/contraction phases. Set a number to pin the bound instead.
+   * expansion/contraction phases. Set a number to pin the bound instead. Must
+   * be >= `min` unless either is `"auto"` (set
+   * [`reversed`](#valueAxes.reversed) to run the axis backwards).
    *
    * @default "auto"
    */
@@ -1554,11 +1557,14 @@ export interface AxisConfigBase {
 
   /**
    * The forced minimum numeric value for the axis (use "auto" to compute from
-   * the values).
+   * the values); must be <= max unless either is "auto" (set reversed to run
+   * the axis backwards).
    *
    * With `"auto"` the minimum is computed from the data (including stacking) on
    * every update, and changes animate through the staged axis
-   * expansion/contraction phases. Set a number to pin the bound instead.
+   * expansion/contraction phases. Set a number to pin the bound instead. Must
+   * be <= `max` unless either is `"auto"` (set
+   * [`reversed`](#valueAxes.reversed) to run the axis backwards).
    *
    * @default "auto"
    */

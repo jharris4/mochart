@@ -451,3 +451,61 @@ describe('caller-supplied defaults immutability', () => {
     expect(validateConfig(config, defaults as never).valid).toBe(true);
   });
 });
+
+// ANIM-1 part 1: an axis whose min is above its max would run backwards. `reversed` is the
+// supported way to invert, so an inverted domain is a mistake rather than a spelling of it.
+describe('axis min/max bounds', () => {
+  const base = { version: VERSION_STRING, series: [{ property: 'v' }] };
+  const ordinal = { property: 'c', type: 'string', scale: 'ordinal' };
+
+  it('rejects a value axis whose min is above its max', () => {
+    const mochartConfig = enhance({ ...base, categoryAxis: ordinal, valueAxes: [{ min: 10, max: 0 }] });
+    expect(mochartConfig.validation.errors).toEqual([
+      'valueAxes[0] - min - should not be above the max property of the same axis: 0'
+    ]);
+  });
+
+  it('accepts min === max, which auto already produces from flat data', () => {
+    expect(enhance({ ...base, categoryAxis: ordinal, valueAxes: [{ min: 5, max: 5 }] }).validation.valid).toBe(true);
+  });
+
+  it('accepts an ordinary range, and one reversed with `reversed`', () => {
+    expect(enhance({ ...base, categoryAxis: ordinal, valueAxes: [{ min: 0, max: 10 }] }).validation.valid).toBe(true);
+    expect(enhance({ ...base, categoryAxis: ordinal, valueAxes: [{ min: 0, max: 10, reversed: true }] }).validation.valid).toBe(true);
+  });
+
+  it('skips the check when either bound is auto', () => {
+    for (const valueAxis of [{ min: 10 }, { max: 0 }, { min: 10, max: 'auto' }, { min: 'auto', max: 0 }, {}]) {
+      expect(enhance({ ...base, categoryAxis: ordinal, valueAxes: [valueAxis] }).validation.valid, JSON.stringify(valueAxis)).toBe(true);
+    }
+  });
+
+  it('reports the offending axis at its own index', () => {
+    const mochartConfig = enhance({ ...base,
+      categoryAxis: ordinal,
+      series: [{ property: 'v', axis: 'a' }],
+      valueAxes: [{ id: 'a', min: 0, max: 10 }, { id: 'b', min: 9, max: 1 }]
+    });
+    expect(mochartConfig.validation.errors).toEqual([
+      'valueAxes[1] - min - should not be above the max property of the same axis: 1'
+    ]);
+  });
+
+  it('checks a numeric category axis', () => {
+    const mochartConfig = enhance({ ...base,
+      categoryAxis: { property: 'c', type: 'number', scale: 'linear', min: 10, max: 0 } });
+    expect(mochartConfig.validation.errors).toEqual([
+      'categoryAxis - min - should not be above the max property of the same axis: 0'
+    ]);
+  });
+
+  it('compares date bounds by their instant, not their text', () => {
+    const dateAxis = (min: string, max: string) => enhance({ ...base,
+      categoryAxis: { property: 'c', type: 'date', scale: 'linear', min, max } });
+    expect(dateAxis('2020-06-01', '2020-01-01').validation.errors).toEqual([
+      'categoryAxis - min - should not be above the max property of the same axis: "2020-01-01"'
+    ]);
+    expect(dateAxis('2020-01-01', '2020-06-01').validation.valid).toBe(true);
+    expect(dateAxis('2020-01-01', '2020-01-01').validation.valid).toBe(true);
+  });
+});
