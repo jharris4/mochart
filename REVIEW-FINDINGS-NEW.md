@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
-5 from the SOL pass.)
+**151 findings: 1 critical, 31 high, 69 medium, 50 low.** (145 from the Opus pass,
+5 from the SOL pass, 1 found while implementing.)
 
-**Status: 30 fixed (3 partial), 5 needing an answer, 120 open.** ANIM-1 and ANIM-2 both have
+**Status: 30 fixed (3 partial), 5 needing an answer, 121 open.** ANIM-1 and ANIM-2 both have
 follow-ups that are **decided and awaiting implementation** — see their entries. ANIM-1's part 3
 carries a full design for clipping and the `plot.clipIndicator*` config.
 
@@ -51,7 +51,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 
 | § | Section | C | H | M | L | Total |
 |---|---|---|---|---|---|---|
-| [1](#1-core--data-pipeline) | Core — data pipeline | – | 2 | 2 | 2 | 6 |
+| [1](#1-core--data-pipeline) | Core — data pipeline | – | 2 | 2 | 3 | 7 |
 | [2](#2-core--animation-and-layout) | Core — animation & layout | **1** | 1 | 2 | 3 | 7 |
 | [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 3 | 4 | 4 | 11 |
 | [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 3 | 12 |
@@ -64,7 +64,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 3 | 8 | 4 | 15 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 6 | 4 | 13 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **31** | **69** | **49** | **150** |
+| | **Total** | **1** | **31** | **69** | **50** | **151** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -202,6 +202,38 @@ a contradiction.
 
 **Fix:** rename to `getSeriesContainerVisibleSeriesCounts` / `visibleSeriesCount` across
 the six call sites. Behaviour unchanged.
+
+### DATA-7 — six near-copies of "coerce a Date to a comparable number"
+**Low · Inconsistency · [DomainData.ts:6](packages/mochart/src/data/DomainData.ts#L6), [AxisDomainData.ts:80](packages/mochart/src/data/AxisDomainData.ts#L80), [CategoryValue.ts:6](packages/mochart/src/data/CategoryValue.ts#L6), [CategoryData.ts:111](packages/mochart/src/data/CategoryData.ts#L111), [DataValidator.ts:28](packages/mochart/src/data/DataValidator.ts#L28)**
+
+*Found while implementing ANIM-1 part 1, not by either review pass.*
+
+The same idea — turn a value that may be a `Date` into something comparable — is written six times,
+and the copies are not equivalent:
+
+| Site | Handles a date *string*? | Returns |
+|---|---|---|
+| `DomainData.numericValue` | no | `number` |
+| `AxisDomainData.comparableValue` | no | `number` |
+| `CategoryValue.getCategoryValueKey` | no | `string` |
+| `CategoryData.ts:111` | no (casts to `Date`) | `number` |
+| `DataValidator.ts:28` | **yes** | `number` |
+| `validation/mochartConfig.boundValue` | **yes** | `number \| null` |
+
+`numericValue` and `comparableValue` are **byte-identical** — same body, same signature, different
+names, each private to its own module. The rest are near-variants, which is the more dangerous
+shape: whether a `'2020-01-01'` string is understood differs between them, and that is exactly the
+distinction a caller is least likely to check.
+
+Not a bug today — each call site gets the variant it needs. The risk is a seventh copy, or a fix
+applied to one and not its twin.
+
+**Fix:** collapse at least `numericValue`/`comparableValue`, which are the same function. A full
+consolidation is constrained by layering: five of the six live in `src/data/`, and `src/config/`
+imports nothing from the data layer (verified — zero imports), so a single shared helper would
+either live in `src/utils/` or the config copy would stay separate. The config-side one is best
+placed in `config/validation/validators.ts`, beside the existing non-validator predicates, where
+the coming `softMin`/`softMax`, threshold-value and `ticks[].value` checks can reuse it.
 
 ---
 
