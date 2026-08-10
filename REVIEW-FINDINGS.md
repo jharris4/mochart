@@ -6,16 +6,16 @@ sweep (B1–B7, T1–T5, D1–D6) and a deeper second sweep (B8–B18, T6–T7, 
 Baseline, verified in isolation after every fix below: `npm test` (1216 core
 tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 `npm run deadcode` all pass; core's `npm test` is coverage-instrumented and
-held to thresholds (96.29% statements, 88.61% branches). Nothing here came from a failing check — the
+held to thresholds (96.82% statements, 89.07% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 31 fixed, 1 closed as won't-fix, 1 open.**
+**33 findings: 32 fixed, 1 closed as won't-fix, 0 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — only **T3** remains, at Low.
+Nothing is open.
 
 ---
 
@@ -632,19 +632,33 @@ never `test:coverage`, which is why it sat broken — that is the same decision
 as T5 (no thresholds), so "run coverage in CI with thresholds" is one
 follow-up, not two. The numbers above are the floors to set.
 
-### T3. Renderer and component function coverage — **Open**
+### T3. Renderer and component function coverage — **Fixed**
 
-**Low.** Modules whose *function* coverage trails their statement coverage —
-whole branches of behaviour are never invoked:
+**Low.** Six modules whose *function* coverage trailed their statement
+coverage: their pointer handlers and guards were constructed on every render —
+so the statements creating them counted as covered — but never called, because
+no test dispatched the events they wait on. The golden suite pins these modules'
+*output*, not their behaviour under interaction, which is the same blind spot
+B4, B8, B12 and B15 were found in.
 
-| module | funcs | stmts |
+**Fix:** one commit per module, each dispatching the interactions its handlers
+wait on. All six now at 100% functions:
+
+| module | funcs before | after |
 | --- | --- | --- |
-| `src/components/Series.ts` | 62.5% | 88.2% |
-| `src/components/SeriesMarkers.ts` | 62.5% | 95.0% |
-| `src/components/Background.ts` | 66.7% | 78.6% |
-| `src/components/ValueAxis.ts` | 66.7% | 90.6% |
-| `src/components/SeriesLabels.ts` | 73.7% | 86.7% |
-| `src/components/PieSeries.ts` | 75.0% | 94.0% |
+| `components/Series.ts` | 62.5% | 32/32 |
+| `components/SeriesMarkers.ts` | 62.5% | 8/8 |
+| `components/Background.ts` | 66.7% | 3/3 |
+| `components/ValueAxis.ts` | 66.7% | 9/9 |
+| `components/SeriesLabels.ts` | 73.7% | 19/19 |
+| `components/PieSeries.ts` | 75.0% | 12/12 |
+
+Core coverage moved 96.29 → **96.82%** statements, 88.61 → **89.07%** branches,
+95.82 → **97.41%** functions. Three things the tests documented on the way:
+`Background.onClick` is an optional prop no caller ever passes, so its handler
+only ever runs its guard; the value axis handlers sit on the axis's inner
+transform group rather than its root; and only line/area series have a
+whole-series shape, so bars and markers carry per-category handlers instead.
 
 ### T4. `ElList.destroy(true)` was never exercised — **Fixed**
 
