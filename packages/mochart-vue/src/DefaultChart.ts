@@ -2,6 +2,7 @@ import { defineComponent, h } from 'vue';
 import { createDefaultChart } from '@mochart/core';
 import { useChartHost } from './useChartHost.js';
 import { defaultChartProps } from './props.js';
+import type { ChartRef } from './types.js';
 
 /**
  * Vue wrapper around mochart's `createDefaultChart`: takes a raw `config`
@@ -10,7 +11,7 @@ import { defaultChartProps } from './props.js';
  * `class`/`style` fall through to the container div. A template ref on the
  * component exposes `refresh()`.
  */
-export default defineComponent({
+const DefaultChart = defineComponent({
   name: 'DefaultChart',
   props: defaultChartProps,
   // inheritAttrs off so the explicit size props can win over a fallthrough style
@@ -43,3 +44,6 @@ export default defineComponent({
     };
   }
 });
+
+// SetupContext.expose does not reach the instance type, so the exposed surface is declared here
+export default DefaultChart as typeof DefaultChart & { new (...args: never[]): ChartRef };

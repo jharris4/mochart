@@ -300,6 +300,23 @@ describe('dataTestId', () => {
 });
 
 describe('refresh', () => {
+  // BIND-1: SetupContext.expose does not reach the instance type, so a template ref typed the
+  // way a TS host actually writes it used to have no `refresh` at all. Typechecked, not run.
+  it('is on the inferred instance type of both components', async () => {
+    const el = document.createElement('div');
+    document.body.appendChild(el);
+    const chartRef = ref<InstanceType<typeof DefaultChart> | null>(null);
+    const plainRef = ref<InstanceType<typeof Chart> | null>(null);
+    const app = createApp({ render: () => h(DefaultChart, { ref: chartRef, config: rawConfig(), data: rows, width: 400, height: 300 }) });
+    app.mount(el);
+    await nextTick();
+    expect(typeof chartRef.value!.refresh).toBe('function');
+    chartRef.value!.refresh();
+    expect(plainRef.value).toBeNull();
+    app.unmount();
+    el.remove();
+  });
+
   it('re-reads in-place data mutations through a template ref', async () => {
     const el = document.createElement('div');
     document.body.appendChild(el);
