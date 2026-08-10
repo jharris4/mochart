@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import type { ChartHandle } from '../../src/createChart';
-import type { DefaultChartProps } from '../../src/types/chart';
+import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { DeepPartial, MochartInputConfig, PieConfig } from '../../src/types/config';
 import type { PieItem, CreatePieOptions } from '../../src/data/Pie';
 
@@ -406,5 +406,37 @@ describe('pie chart rendering', () => {
     expect(settled).toHaveLength(3);
     expect(settled[0]).not.toBe(initial[0]);
     expect(settled[1]).not.toBe(initial[1]);
+  });
+});
+
+describe('pie slice hover focus', () => {
+  function slice(container: Element, index: number): Element {
+    const slices = container.querySelectorAll('.mochart-series-slice');
+    expect(slices.length).toBeGreaterThan(index);
+    return slices[index];
+  }
+
+  it('focuses and unfocuses the slice series when focusOnMouseOver is set', () => {
+    const focuses: ChartFocus[] = [];
+    const { config, data } = pieChartProps(ITEMS, {}, { seriesDefaults: { focusOnMouseOver: true } });
+    const { container } = mountChart(config, data, { onFocus: focus => { focuses.push(focus); } });
+
+    slice(container, 1).dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: 'slice1' });
+
+    slice(container, 1).dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    expect(focuses[focuses.length - 1]).toMatchObject({ focusedSeriesId: null });
+  });
+
+  it('reports nothing from a slice with no focus config and no slice click handler', () => {
+    const focuses: ChartFocus[] = [];
+    const { config, data } = pieChartProps(ITEMS);
+    const { container } = mountChart(config, data, { onFocus: focus => { focuses.push(focus); } });
+
+    slice(container, 0).dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    slice(container, 0).dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    slice(container, 0).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(focuses).toEqual([]);
   });
 });
