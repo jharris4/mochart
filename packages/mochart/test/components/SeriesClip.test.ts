@@ -11,8 +11,6 @@
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
-import { getSeriesClipAllowance } from '../../src/components/SeriesClip';
-import { makeConfig as makeEnhancedConfig } from '../data/fixtures';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
@@ -103,41 +101,36 @@ describe('series clip', () => {
   });
 });
 
-describe('clip allowance', () => {
-  it('inflates the clip by the largest markerSize so an edge marker is not halved', () => {
+describe('plot.clipOverflow', () => {
+  it('defaults to a clip that is exactly the plot', () => {
     const container = mount(makeConfig({
       valueAxes: [{ min: 0, max: 10 }],
       series: [{ property: 'v', renderer: 'line', markerShape: 'circle', markerSize: 12 }]
     }));
+    // markers do not buy themselves room: a mark whose anchor sits on a bound is cut there
+    expect(clipRect(container)).toEqual(plotRect(container));
+  });
+
+  it('widens the clip per side', () => {
+    const container = mount(makeConfig({
+      valueAxes: [{ min: 0, max: 10 }],
+      plot: { clipOverflow: { top: 6, right: 4, bottom: 3, left: 2 } }
+    }));
     const plot = plotRect(container);
-    const clip = clipRect(container)!;
-    expect(clip.x).toBe(plot.x - 12);
-    expect(clip.y).toBe(plot.y - 12);
-    expect(clip.width).toBe(plot.width + 24);
-    expect(clip.height).toBe(plot.height + 24);
+    expect(clipRect(container)).toEqual({
+      x: plot.x - 2,
+      y: plot.y - 6,
+      width: plot.width + 2 + 4,
+      height: plot.height + 6 + 3
+    });
   });
 
-  it('takes the largest markerSize across series', () => {
-    const config = makeEnhancedConfig(makeConfig({
-      series: [
-        { property: 'v', renderer: 'line', markerShape: 'circle', markerSize: 4 },
-        { property: 'v', renderer: 'line', markerShape: 'square', markerSize: 9 }
-      ]
-    }) as unknown as Record<string, unknown>);
-    expect(getSeriesClipAllowance(config)).toBe(9);
-  });
-
-  it('is zero when no series draws a marker', () => {
-    const config = makeEnhancedConfig(makeConfig({
-      series: [{ property: 'v', renderer: 'bar', markerShape: null }]
-    }) as unknown as Record<string, unknown>);
-    expect(getSeriesClipAllowance(config)).toBe(0);
-  });
-
-  it('ignores markerSize on a series whose markerShape is off', () => {
-    const config = makeEnhancedConfig(makeConfig({
-      series: [{ property: 'v', renderer: 'bar', markerShape: null, markerSize: 40 }]
-    }) as unknown as Record<string, unknown>);
-    expect(getSeriesClipAllowance(config)).toBe(0);
+  it('accepts a partial object, leaving the other sides at zero', () => {
+    const container = mount(makeConfig({
+      valueAxes: [{ min: 0, max: 10 }],
+      plot: { clipOverflow: { top: 8 } }
+    }));
+    const plot = plotRect(container);
+    expect(clipRect(container)).toEqual({ x: plot.x, y: plot.y - 8, width: plot.width, height: plot.height + 8 });
   });
 });

@@ -1802,6 +1802,26 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.backgroundStyle.strokeWidth">backgroundStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
+<tr id="plot.clipOverflow">
+<td><a href="#plot.clipOverflow">clipOverflow</a></td><td>how far (in pixels) the series may overflow each side of the plot before being clipped; the sides are screen sides, so with inverted set the value axis runs left/right</td><td>should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 }</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
+</td>
+</tr>
+<tr id="plot.clipOverflow.bottom">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipOverflow.bottom">clipOverflow.bottom</a></td><td>the space (in pixels) along the bottom edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="plot.clipOverflow.left">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipOverflow.left">clipOverflow.left</a></td><td>the space (in pixels) along the left edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="plot.clipOverflow.right">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipOverflow.right">clipOverflow.right</a></td><td>the space (in pixels) along the right edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="plot.clipOverflow.top">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipOverflow.top">clipOverflow.top</a></td><td>the space (in pixels) along the top edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
 <tr id="plot.inverted">
 <td><a href="#plot.inverted">inverted</a></td><td>whether the category axis should be left to right (false) or top to bottom (true)</td><td>should be a boolean</td><td><div>false</div>
 </td>
