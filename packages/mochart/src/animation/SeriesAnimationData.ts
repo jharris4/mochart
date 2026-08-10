@@ -531,8 +531,7 @@ function setBaseValuesForOuterChange(targetValues: NumericValues | null, sourceV
 }
 
 function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, rawValueAxisDomains: AxisDomains, filteredValueAxisDomains: AxisDomains, rawSeriesDomains: SeriesDomainObjects, ordinalCategoryOrderOffets: number[] | null): ValueChangeData {
-  // a collapsed or inverted axis domain would otherwise weight every value delta at 0,
-  // silently applying the update instantly whatever duration was configured
+  // a collapsed or inverted domain would weight every value delta at 0, skipping the animation
   const rawValueAxisExtents = getSafeDomainExtents(rawValueAxisDomains);
   const filteredValueAxisExtents = getSafeDomainExtents(filteredValueAxisDomains);
   const valueDeltaData = createRawValueDeltaData(mochartConfig, startChartData.seriesData.raw.values,

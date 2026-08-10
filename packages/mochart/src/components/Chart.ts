@@ -381,13 +381,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
-  /**
-   * Convert client coordinates to plot-local SVG user units.
-   *
-   * `getBoundingClientRect()` reports CSS pixels while `seriesLayoutInfo` is in logical SVG
-   * units, so any CSS scaling of the chart — `transform: scale()`, a `width: 100%` SVG, page
-   * zoom — has to be divided back out before the result is compared against plot extents.
-   */
+  /** Client coordinates to plot-local SVG units: the rect is CSS pixels, the extents are logical. */
   toPlotLocalPoint(clientX: number, clientY: number): { x: number; y: number; withinPlot: boolean } {
     const plotRect = this.chartRectRef!.getBoundingClientRect();
     const seriesLayoutInfo = this.state.layoutInfo?.seriesLayoutInfo ?? null;
@@ -742,12 +736,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
-  /**
-   * Bounds recorded by applyLayoutInfo, which can run inside derive() — before the renderer has
-   * assigned this.props. Dispatching there would invoke the *previous* render's callback and, if
-   * the host re-entered update(), let the outer update overwrite the nested one's props. The
-   * post-commit measure hook flushes it instead, reading committed props.
-   */
+  /** applyLayoutInfo can run inside derive(), before props commit; measure() flushes this after. */
   pendingSeriesLayoutBounds: Bounds | null = null;
 
   flushSeriesLayoutBoundsChange(): void {
@@ -777,11 +766,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipLayoutInfo });
   }
 
-  /**
-   * Open or close the tooltip explicitly. Only the click path is a real toggle: pointer enter
-   * must always open and pointer leave must always close, or any other path that changes
-   * `tooltipVisible` in between (a click-to-close, a keyboard open) inverts the pairing.
-   */
+  /** Open or close explicitly: enter must always open and leave always close, or the pairing inverts. */
   setTooltipOpen(open: boolean, { categoryIndex, categoryPercentage, valuePercentage: seriesPercentage }: Pick<ChartEventPayload, 'categoryIndex' | 'categoryPercentage' | 'valuePercentage'>): void {
     const { mochartConfig, onFocus, chartData } = this.props;
     const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
