@@ -124,8 +124,8 @@ export default function getDescriptions() {
     titlePaddingOuter: 'the padding (in pixels) to show between the axis title and the outside of the axis',
     titleTextStyle: styleStates('the style of the axis title text', ['strokeColor', 'strokeOpacity', 'strokeWidth', 'strokeDashArray', 'fillColor', 'fillOpacity']),
 
-    min: 'the forced minimum numeric value for the axis (use "auto" to compute from the values)',
-    max: 'the forced maximum numeric value for the axis (use "auto" to compute from the values)',
+    min: 'the forced minimum numeric value for the axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)',
+    max: 'the forced maximum numeric value for the axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)',
     softMin: 'the forced minimum numeric value for the axis to be used if no data value is less than this value (use null to disable)',
     softMax: 'the forced maximum numeric value for the axis to be used if no data value is greater than this value (use null to disable)',
     minOffset: 'the numeric offset to apply to the minimum value of the axis',
