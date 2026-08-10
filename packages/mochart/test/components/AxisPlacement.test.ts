@@ -1,0 +1,188 @@
+/**
+ * Axis placement and chrome permutations: side, collapsed, visibility, tick
+ * label anchor/rotation/size, title size, and the focus range's title reach.
+ * These decide the axis layout arithmetic, which no single demo config covers.
+ */
+import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { installSvgMeasurementShims } from './svgShims';
+import { createDefaultChart } from '../../src/createChart';
+import type { ChartHandle } from '../../src/createChart';
+import type { DefaultChartProps } from '../../src/types/chart';
+import type { MochartInputConfig } from '../../src/types/config';
+
+const WIDTH = 800;
+const HEIGHT = 600;
+
+const rows = [
+  { month: 'Jan', sales: 10, costs: 4 },
+  { month: 'Feb', sales: 20, costs: 8 },
+  { month: 'Mar', sales: 30, costs: 12 }
+];
+
+let handles: ChartHandle<DefaultChartProps>[] = [];
+
+function mount(overrides: Record<string, unknown>, data: readonly unknown[] = rows): Element {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const config = {
+    version: '1.0.0',
+    animation: { animate: false },
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales', renderer: 'bar' }],
+    ...overrides
+  } as unknown as MochartInputConfig;
+  handles.push(createDefaultChart(container, {
+    config, data, width: WIDTH, height: HEIGHT
+  } as DefaultChartProps));
+  return container;
+}
+
+const categoryAxis = (extra: Record<string, unknown>) => ({
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', ...extra }
+});
+
+function tickLabels(container: Element): string[] {
+  return [...container.querySelectorAll('.mochart-axis-tick-label')].map(el => el.textContent ?? '');
+}
+
+beforeAll(() => {
+  installSvgMeasurementShims();
+  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
+    return {
+      x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
+      width: WIDTH, height: HEIGHT, toJSON: () => ({})
+    } as DOMRect;
+  });
+});
+
+afterEach(() => {
+  for (const handle of handles) {
+    handle.destroy();
+  }
+  handles = [];
+  document.body.innerHTML = '';
+});
+
+describe('axis side and collapse', () => {
+  for (const side of ['start', 'end'] as const) {
+    for (const inverted of [false, true]) {
+      it(`lays out a ${side}-side axis on an ${inverted ? 'inverted' : 'upright'} plot`, () => {
+        const container = mount({
+          ...categoryAxis({ side }),
+          valueAxes: [{ side }],
+          plot: { inverted }
+        });
+        expect(container.querySelector('.mochart-category-axis')).not.toBeNull();
+        expect(tickLabels(container).length).toBeGreaterThan(0);
+      });
+    }
+  }
+
+  // a collapsed axis keeps its ticks but gives its space back to the plot
+  it('collapses an end-side axis', () => {
+    const collapsed = mount({ ...categoryAxis({ side: 'end', collapsed: true }) });
+    const normal = mount({ ...categoryAxis({ side: 'end', collapsed: false }) });
+    expect(collapsed.querySelector('.mochart-category-axis')).not.toBeNull();
+    expect(collapsed.innerHTML).not.toBe(normal.innerHTML);
+  });
+
+  it('collapses a start-side axis', () => {
+    expect(mount({ ...categoryAxis({ side: 'start', collapsed: true }) })
+      .querySelector('.mochart-category-axis')).not.toBeNull();
+  });
+});
+
+describe('axis visibility and chrome', () => {
+  it('renders no category axis when it is hidden', () => {
+    expect(mount({ ...categoryAxis({ visible: false }) })
+      .querySelector('.mochart-category-axis')).toBeNull();
+  });
+
+  it('renders no value axis when it is hidden', () => {
+    expect(mount({ valueAxes: [{ visible: false }] })
+      .querySelector('.mochart-value-axis')).toBeNull();
+  });
+
+  it('omits tick marks when showTickMarks is off', () => {
+    expect(mount({ ...categoryAxis({ showTickMarks: false }) })
+      .querySelector('.mochart-category-axis .mochart-axis-tick-mark')).toBeNull();
+  });
+
+  it('omits the axis line when showAxisLine is off', () => {
+    expect(mount({ ...categoryAxis({ showAxisLine: false }) })
+      .querySelector('.mochart-category-axis .mochart-axis-line')).toBeNull();
+  });
+
+  it('drops a value axis whose series are all filtered when visibleWhenAllFiltered is off', () => {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    handles.push(createDefaultChart(container, {
+      config: {
+        version: '1.0.0',
+        animation: { animate: false },
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        valueAxes: [{ id: 'VA0', visibleWhenAllFiltered: false }],
+        series: [{ id: 'sales', property: 'sales', renderer: 'bar', axis: 'VA0' }]
+      } as unknown as MochartInputConfig,
+      data: rows, width: WIDTH, height: HEIGHT, filteredSeriesIds: { sales: true }
+    } as DefaultChartProps));
+    expect(container.querySelector('.mochart-value-axis')).toBeNull();
+  });
+});
+
+describe('tick label anchoring and rotation', () => {
+  for (const tickLabelAnchor of ['start', 'middle', 'end'] as const) {
+    it(`anchors category tick labels at ${tickLabelAnchor}`, () => {
+      expect(tickLabels(mount({ ...categoryAxis({ tickLabelAnchor }) })).length).toBeGreaterThan(0);
+    });
+
+    it(`anchors tick labels at ${tickLabelAnchor} on a single-category chart`, () => {
+      const container = mount({ ...categoryAxis({ tickLabelAnchor }) }, [rows[0]]);
+      expect(tickLabels(container).length).toBeGreaterThan(0);
+    });
+
+    it(`anchors tick labels at ${tickLabelAnchor} on a linear axis`, () => {
+      const container = mount({
+        categoryAxis: { property: 'x', type: 'number', scale: 'linear', tickLabelAnchor },
+        series: [{ property: 'sales', renderer: 'line' }]
+      }, [{ x: 1, sales: 10 }, { x: 2, sales: 20 }]);
+      expect(tickLabels(container).length).toBeGreaterThan(0);
+    });
+  }
+
+  for (const tickLabelRotation of [45, -45] as const) {
+    for (const side of ['start', 'end'] as const) {
+      it(`rotates ${side}-side tick labels by ${tickLabelRotation}`, () => {
+        const container = mount({ ...categoryAxis({ tickLabelRotation, side }) });
+        // the rotation lands on the text inside the label group, which is translated
+        const text = container.querySelector('.mochart-category-axis .mochart-axis-tick-label text');
+        expect(text!.getAttribute('transform') ?? '').toContain('rotate');
+      });
+    }
+  }
+});
+
+describe('explicit axis sizing', () => {
+  it('uses an explicit tickLabelSize instead of measuring', () => {
+    expect(mount({ ...categoryAxis({ tickLabelSize: 40 }) })
+      .querySelector('.mochart-category-axis')).not.toBeNull();
+  });
+
+  it('uses an explicit titleSize instead of measuring', () => {
+    expect(mount({ ...categoryAxis({ title: 'Month', titleSize: 30 }) })
+      .textContent).toContain('Month');
+  });
+
+  it('extends the focus range over the title when focusRangeApplyToTitle is set', () => {
+    const container = mount({ ...categoryAxis({ title: 'Month', focusRangeApplyToTitle: true }) });
+    expect(container.querySelector('.mochart-axis-focus-range')).not.toBeNull();
+  });
+
+  it('appends a tick label suffix', () => {
+    const container = mount({ valueAxes: [{ tickLabelSuffix: '%' }] });
+    const valueLabels = [...container.querySelectorAll('.mochart-value-axis .mochart-axis-tick-label')]
+      .map(el => el.textContent ?? '');
+    expect(valueLabels.length).toBeGreaterThan(0);
+    expect(valueLabels.every(label => label.endsWith('%'))).toBe(true);
+  });
+});
