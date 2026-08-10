@@ -33,10 +33,10 @@ function makeConfig(overrides: Record<string, unknown> = {}): MochartInputConfig
 
 let handles: ChartHandle<DefaultChartProps>[] = [];
 
-function mountChart(config: MochartInputConfig): Element {
+function mountChart(config: MochartInputConfig, props: Record<string, unknown> = {}): Element {
   const container = document.createElement('div');
   document.body.appendChild(container);
-  handles.push(createDefaultChart(container, { config, data: rows, width: 800, height: 600 }));
+  handles.push(createDefaultChart(container, { config, data: rows, width: 800, height: 600, ...props }));
   return container;
 }
 
@@ -127,6 +127,51 @@ describe('chart aria semantics', () => {
     const container = mountChart(makeConfig({ chart: { type: 'pie' }, accessibility: { enabled: false } }));
     expect(container.querySelectorAll('.mochart-series').length).toBe(2);
     expect(container.querySelectorAll('[aria-hidden], [role], [tabindex], [aria-label]').length).toBe(0);
+  });
+});
+
+// A11Y-2: the title <g> got an onClick unconditionally, with no tabindex, role or key handler,
+// so onTitleClick was reachable by pointer only (WCAG 2.1.1)
+describe('clickable title', () => {
+  it('exposes button semantics and fires on Enter and Space', () => {
+    const clicks: number[] = [];
+    const container = mountChart(
+      makeConfig({ title: { text: 'Monthly sales', prefix: 'Q1' } }),
+      { onTitleClick: () => { clicks.push(1); } });
+    const title = container.querySelector('.mochart-title')!;
+    expect(title.getAttribute('tabindex')).toBe('0');
+    expect(title.getAttribute('role')).toBe('button');
+    expect(title.getAttribute('aria-label')).toBe('Q1 Monthly sales');
+
+    title.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    title.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }));
+    expect(clicks.length).toBe(2);
+
+    title.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true }));
+    expect(clicks.length).toBe(2);
+  });
+
+  it('leaves a title with no click handler inert', () => {
+    const container = mountChart(makeConfig({ title: { text: 'Monthly sales' } }));
+    const title = container.querySelector('.mochart-title')!;
+    expect(title.getAttribute('tabindex')).toBeNull();
+    expect(title.getAttribute('role')).toBeNull();
+  });
+
+  it('leaves a linked title to its anchor rather than nesting a second control', () => {
+    const container = mountChart(
+      makeConfig({ title: { text: 'Monthly sales', link: 'https://example.com' } }),
+      { onTitleClick: () => {} });
+    const title = container.querySelector('.mochart-title')!;
+    expect(title.getAttribute('role')).toBeNull();
+    expect(container.querySelector('.mochart-title a')).not.toBeNull();
+  });
+
+  it('adds no tab stop when accessibility is off', () => {
+    const container = mountChart(
+      makeConfig({ title: { text: 'Monthly sales' }, accessibility: { enabled: false } }),
+      { onTitleClick: () => {} });
+    expect(container.querySelector('.mochart-title')!.getAttribute('tabindex')).toBeNull();
   });
 });
 

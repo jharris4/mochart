@@ -119,9 +119,11 @@ createDefaultChart(container, {
   index (`-1` for a whole-series path), and the category index nearest the
   pointer. Fires whether or not the series' `focusOnClick` config is set, and
   only on click — the cartesian counterpart of `onSliceClick`
-- `onTitleClick()` — the chart title was clicked (see
-  [`title.link`](/reference/title#title.link) and
-  `linkDisabled`)
+- `onTitleClick()` — the chart title was clicked or activated from the
+  keyboard. Supplying it makes the title a button — tab stop, `role="button"`,
+  an accessible name from the title text, Enter and Space — unless
+  [`title.link`](/reference/title#title.link) is set, where the anchor already
+  provides that (see also `linkDisabled`)
 - `onSeriesLayoutBoundsChange(bounds)` — the plot area was re-laid-out
 
 The four pointer callbacks share one payload

@@ -1206,7 +1206,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     body.background.set(Background, { config: mochartConfig.chart, classKey: 'background', spacingRelative: false, spacingLayoutInfo: chartContentLayoutInfo });
     body.title.set(Title, { mochartConfig, titleLayoutInfo, titlePrefixLayoutInfo,
       titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
-      titleClipPathUniqueId, onClick: this.onTitleClick });
+      titleClipPathUniqueId, accessibility, onClick: this.props.onTitleClick ? this.onTitleClick : undefined });
     body.contentGroup.set({ transform: chartTransform });
 
     if (hasChartDataContent) {
