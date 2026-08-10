@@ -32,6 +32,7 @@ interface TitleProps {
   titleTextRawLayoutInfo: SpacingLayoutInfo;
   titleSuffixLayoutInfo: SpacingLayoutInfo;
   titleClipPathUniqueId: string;
+  accessibility: boolean;
   onClick?: () => void;
 }
 interface TitleState { truncationData: TruncationDataValue }
@@ -56,6 +57,14 @@ export default class Title extends Renderer<TitleProps, TitleState> {
     const { onClick } = this.props;
     if (onClick) {
       onClick();
+    }
+  }
+
+  onKeyDown = (event: Event) => {
+    const { key } = event as KeyboardEvent;
+    if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      this.chartTitleClick();
     }
   }
 
@@ -132,7 +141,7 @@ export default class Title extends Renderer<TitleProps, TitleState> {
   }
 
   sync() {
-    const { mochartConfig, titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo, titleClipPathUniqueId } = this.props;
+    const { mochartConfig, titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo, titleClipPathUniqueId, accessibility, onClick } = this.props;
     const { title: titleConfig } = mochartConfig;
 
     if (titleConfig.text !== NONE) {
@@ -152,7 +161,15 @@ export default class Title extends Renderer<TitleProps, TitleState> {
       const clipPath = truncationEnabled ? getClipPathReference(titleClipPathUniqueId) : null;
 
       this.setPresent(true);
-      this.root.set({ className: mochartCssClasses['title'], transform: titleTransform, onClick: this.chartTitleClick });
+      // a clickable title is a control, so it needs button semantics; a linked title already has them
+      const interactive = accessibility && onClick !== undefined && !link;
+      this.root.set({ className: mochartCssClasses['title'], transform: titleTransform,
+        onClick: onClick !== undefined ? this.chartTitleClick : null,
+        tabindex: interactive ? '0' : null,
+        role: interactive ? 'button' : null,
+        ariaLabel: interactive ? [titlePrefix, title, titleSuffix].filter(Boolean).join(' ') : null,
+        onKeyDown: interactive ? this.onKeyDown : null,
+        cursor: interactive ? 'pointer' : null });
       this.background.set(Background, { config: titleConfig, classKey: 'titleBackground', spacingRelative: true, spacingLayoutInfo: titleLayoutInfo });
 
       let wrapperEl: El;

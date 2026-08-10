@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 15 fixed (2 partial), 4 needing an answer, 135 open.**
+**Status: 16 fixed (2 partial), 4 needing an answer, 134 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1280,7 +1280,7 @@ Two new tests, one of which fails on the unpatched source. Full core suite passe
 typecheck and lint clean.
 
 ### A11Y-2 — `onTitleClick` is a mouse-only control
-**High · Bug · WCAG 2.1.1 (Level A) · [Title.ts:155](packages/mochart/src/components/Title.ts#L155), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** **[verified]** — **Open**
+**High · Bug · WCAG 2.1.1 (Level A) · [Title.ts:155](packages/mochart/src/components/Title.ts#L155), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** **[verified]** — **Fixed**
 
 The title `<g>` gets `onClick: this.chartTitleClick` unconditionally, with no `tabindex`, no
 `role`, no key handler — and it is not gated by the `accessibility` section at all. `onTitleClick`
@@ -1291,6 +1291,20 @@ title affordance.
 **Fix:** when `accessibilityActive(...)` and an `onClick` prop is present, give the title `<g>`
 `tabindex="0"`, `role="button"`, an `aria-label` from the title text, and an Enter/Space handler —
 the same treatment [Series.ts:357](packages/mochart/src/components/Series.ts#L357) already applies.
+
+**Fixed automatically.** Applied as recommended, plus the prerequisite the fix depends on: `Chart`
+passed `onClick: this.onTitleClick` *unconditionally*, so `Title` could not tell a host callback
+from none — it now passes `undefined` unless `props.onTitleClick` is set, which also stops
+installing a click handler nothing listens to. The title `<g>` then takes `tabindex="0"`,
+`role="button"`, an `aria-label` built from prefix + text + suffix (so the name matches what is
+visible), an Enter/Space handler and `cursor: pointer`. A **linked** title is deliberately excluded:
+the anchor is already a keyboard-reachable control, and nesting `role="button"` around it would
+announce two controls for one target. Four regression tests in `ChartAria.test.ts`; the guide and
+the interaction docs both describe the new semantics. Full core suite passes (1406 tests),
+typecheck and lint clean.
+
+This also covers the SOL pass's "A callback-only title is inaccessible by keyboard", which was
+skipped as a duplicate of this finding.
 
 ### A11Y-3 — keyboard focus is dropped to `<body>` when the plot or tooltip tab stops are torn down
 **Medium · Bug · WCAG 2.4.3 · [Chart.ts:1192-1257](packages/mochart/src/components/Chart.ts#L1192), [:731](packages/mochart/src/components/Chart.ts#L731)** — **Open**

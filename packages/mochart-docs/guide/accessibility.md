@@ -94,6 +94,11 @@ doubles as a live keyboard demo: <kbd>Tab</kbd> to a series, press
 <kbd>Enter</kbd>, and its event log shows the whole-series `onSeriesClick`
 payload.
 
+A title with an `onTitleClick` callback is a tab stop with `role="button"`,
+named from the title text and activated by <kbd>Enter</kbd>/<kbd>Space</kbd>.
+A title with [`title.link`](/reference/title#title.link) is a link instead, so
+it is already keyboard-reachable and gets no second role.
+
 ## What screen readers hear
 
 The chart svg is announced as a chart (via `aria-roledescription`) and named
