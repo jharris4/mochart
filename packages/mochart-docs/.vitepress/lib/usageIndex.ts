@@ -67,8 +67,8 @@ const docsExamples: { config: object; page: UsageLink }[] = [
 // exported for scripts/checkSectionCoverage.ts, which verifies these
 // registries against the sections the core enhancer actually emits
 export const objectSectionIds = new Set([
-  'accessibility', 'animation', 'chart', 'colorPalette', 'crosshair',
-  'categoryAxis', 'legend', 'pie', 'plot', 'title', 'tooltip'
+  'accessibility', 'animation', 'chart', 'clipIndicator', 'colorPalette',
+  'crosshair', 'categoryAxis', 'legend', 'pie', 'plot', 'title', 'tooltip'
 ]);
 
 export const listSectionIds = new Set([

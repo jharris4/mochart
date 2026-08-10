@@ -36,6 +36,7 @@ interface PlotFrontBackProps {
   valueAxisTitleClipPathUniqueIds: Record<string, string>;
   seriesClipPathUniqueId: string;
   clippedEdges: ClippedEdges;
+  clipIndicatorPatternUniqueId: string;
   onFocus: (focus: InternalFocus) => void;
 }
 
@@ -102,7 +103,7 @@ export default class Plot extends Renderer<PlotProps> {
   sync() {
     const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, seriesLayoutInfo, plotLayoutInfo,
       chartData, focusData, axisData, stackData, categoryValueData, gradientIdMap, categoryAxisTitleClipPathUniqueId,
-      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, seriesClipPathUniqueId, clippedEdges, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
+      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, seriesClipPathUniqueId, clippedEdges, clipIndicatorPatternUniqueId, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
     const { plot: plotConfig } = mochartConfig;
     const { categoryFocusDomainPercentages = [], seriesFocusDomainPercentages = [] } = focusData;
     const { value: valueAxisData } = axisData;
@@ -137,9 +138,9 @@ export default class Plot extends Renderer<PlotProps> {
     this.front.set(PlotFrontBack, frontBackProps(true));
 
     // one slot each side of the series container; only the chosen one is populated
-    const clipIndicatorProps = { mochartConfig, seriesLayoutInfo, clippedEdges };
-    this.clipIndicatorFront.set(mochartConfig.plot.clipIndicatorFront ? ClipIndicator : null, clipIndicatorProps);
-    this.clipIndicatorBack.set(mochartConfig.plot.clipIndicatorFront ? null : ClipIndicator, clipIndicatorProps);
+    const clipIndicatorProps = { mochartConfig, seriesLayoutInfo, clippedEdges, clipIndicatorPatternUniqueId };
+    this.clipIndicatorFront.set(mochartConfig.clipIndicator.showInFront ? ClipIndicator : null, clipIndicatorProps);
+    this.clipIndicatorBack.set(mochartConfig.clipIndicator.showInFront ? null : ClipIndicator, clipIndicatorProps);
 
     this.crosshair.set(Crosshair, { mochartConfig, seriesLayoutInfo,
       categoryPercentages: categoryFocusDomainPercentages, seriesPercentages: seriesFocusDomainPercentages,

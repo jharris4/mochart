@@ -7,6 +7,7 @@ import getAccessibilityDefaults from './accessibilityConfig';
 import getAnimationDefaults from './animationConfig';
 import getChartDefaults from './chartConfig';
 import getColorPaletteDefaults from './colorPaletteConfig';
+import getClipIndicatorDefaults from './clipIndicatorConfig';
 import getCrosshairDefaults from './crosshairConfig';
 import getCategoryAxisDefaults from './categoryAxisConfig';
 import getLegendDefaults from './legendConfig';
@@ -86,6 +87,7 @@ export function getDefaults(config: MochartInputConfig | unknown): Record<string
       animation: getAnimationDefaults(),
       chart: chartConfig,
       colorPalette: getColorPaletteDefaults(),
+      clipIndicator: getClipIndicatorDefaults(inputConfig.clipIndicator),
       crosshair: getCrosshairDefaults(),
       categoryAxis: getCategoryAxisDefaults(inputConfig.categoryAxis, inverted, pieMode),
       legend: getLegendDefaults(inputConfig.legend, seriesCount),

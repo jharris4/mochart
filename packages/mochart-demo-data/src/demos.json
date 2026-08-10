@@ -524,6 +524,15 @@
       "config": "tooltip-controls-config.json",
       "data": "mixed-categories-positive-values-data.json",
       "random": "positive-random.json"
+    },
+    {
+      "id": "clipped",
+      "title": "Clipped Values",
+      "description": "Bounded axes that hide some of the data, with a band marking each plot edge the values run past.",
+      "notes": "Both axes are bounded well inside the data: the linear category axis spans 5 to 20 of a 1 to 27 range, and the value axis spans -5 to 5 over a series reaching -13 to 11. Values outside of the defined range are clipped rather than allowed to overflow the plot area of the chart, so the clip indicator draws a band on each of the four edges hiding something, labelled \"Clipped\" and carrying that same text as an svg title on hover. Adjacent bands are mitred, meeting on a diagonal so no corner is drawn twice, and each is filled with a diagonal hatch from clipIndicator.hatch — set that to null for a flat fill instead. Randomizing redraws the values, so bands come and go as the data moves in and out of the bounds.",
+      "config": "clipped-config.json",
+      "data": "mixed-categories-mixed-values-data.json",
+      "random": "default-random.json"
     }
   ]
 }

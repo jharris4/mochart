@@ -32,6 +32,9 @@ import getColorPaletteDefaults from '../src/config/defaults/colorPaletteConfig';
 import getColorPaletteValidators from '../src/config/validation/colorPaletteConfig';
 import * as colorPaletteDocs from '../src/config/docs/colorPaletteConfig';
 
+import { getRegularDefaults as getClipIndicatorRegularDefaults, getConditionalDefaults as getClipIndicatorConditionalDefaults } from '../src/config/defaults/clipIndicatorConfig';
+import getClipIndicatorValidators from '../src/config/validation/clipIndicatorConfig';
+import * as clipIndicatorDocs from '../src/config/docs/clipIndicatorConfig';
 import getCrosshairDefaults from '../src/config/defaults/crosshairConfig';
 import getCrosshairValidators from '../src/config/validation/crosshairConfig';
 import * as crosshairDocs from '../src/config/docs/crosshairConfig';
@@ -91,6 +94,7 @@ import type { ConditionalDefaultRule } from '../src/config/defaults/conditionalD
 import type { DescriptionEntry, DescriptionMap } from '../src/config/docs/shared';
 import type {
   CategoryAxisConfig,
+  ClipIndicatorConfig,
   LegendConfig,
   LinearGradientConfig,
   PieConfig,
@@ -255,6 +259,7 @@ function getSectionSources(): SectionSource[] {
     { id: 'animation', title: 'Animation Config', regularDefaults: getAnimationDefaults(), validators: getAnimationValidators(), docs: animationDocs },
     { id: 'chart', title: 'Chart Config', regularDefaults: getChartDefaults(), validators: getChartValidators(), docs: chartDocs },
     { id: 'colorPalette', title: 'Color Palette Config', regularDefaults: getColorPaletteDefaults(), validators: getColorPaletteValidators(), docs: colorPaletteDocs },
+    { id: 'clipIndicator', title: 'Clip Indicator Config', regularDefaults: getClipIndicatorRegularDefaults(), conditionalDefaults: getClipIndicatorConditionalDefaults({} as ClipIndicatorConfig), validators: getClipIndicatorValidators(), docs: clipIndicatorDocs },
     { id: 'crosshair', title: 'Crosshair Config', regularDefaults: getCrosshairDefaults(), validators: getCrosshairValidators(), docs: crosshairDocs },
     { id: 'categoryAxis', title: 'Category Axis Config', regularDefaults: getCategoryAxisRegularDefaults(), conditionalDefaults: getCategoryAxisConditionalDefaults({} as CategoryAxisConfig, false, false), validators: getCategoryAxisValidators({}), docs: categoryAxisDocs },
     { id: 'legend', title: 'Legend Config', regularDefaults: getLegendRegularDefaults(), conditionalDefaults: getLegendConditionalDefaults({} as LegendConfig, 0), validators: getLegendValidators(), docs: legendDocs },

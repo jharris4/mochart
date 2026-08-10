@@ -10,6 +10,7 @@ const referenceSectionIds = [
   'animation',
   'chart',
   'colorPalette',
+  'clipIndicator',
   'crosshair',
   'categoryAxis',
   'legend',

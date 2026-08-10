@@ -9,7 +9,7 @@
 <rect x="20" y="0" width="0" height="600">
 </rect>
 </clipPath>
-<clipPath id="series__clippath__55">
+<clipPath id="series__clippath__N">
 <rect x="40" y="35" width="755" height="520">
 </rect>
 </clipPath>
@@ -294,7 +294,7 @@
 </g>
 </g>
 </g>
-<g class="mochart-series-container" clip-path="url(#series__clippath__55)">
+<g class="mochart-series-container" clip-path="url(#series__clippath__N)">
 <g class="mochart-series-background">
 <rect x="40" y="35" width="755" height="520" fill-opacity="0" stroke="none" tabindex="0" role="button" aria-label="Chart values" aria-expanded="false">
 </rect>
@@ -516,9 +516,17 @@
 </g>
 </g>
 </g>
-<g class="mochart-clip-indicator" pointer-events="none">
-<rect class="mochart-clip-indicator-band mochart-clip-indicator-band-top" x="40" y="35" width="755" height="16" stroke-opacity="0" fill="currentColor" fill-opacity="0.15">
-</rect>
+<g class="mochart-clip-indicator">
+<title>Clipped</title>
+<pattern id="clipindicator__pattern__N" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+<line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="2">
+</line>
+</pattern>
+<g class="mochart-clip-indicator-band mochart-clip-indicator-band-top">
+<path d="M40,35L795,35L795,39L40,39Z" stroke="currentColor" stroke-opacity="0.4" stroke-width="1" fill="url(#clipindicator__pattern__N)" fill-opacity="0.4">
+</path>
+<text transform="translate(417,37)" text-anchor="middle" dy="0.35em" pointer-events="none" stroke-opacity="0" fill="currentColor" fill-opacity="0.7">Clipped</text>
+</g>
 </g>
 <g class="mochart-crosshair" clip-path="url(#tooltip__clippath__N)" aria-hidden="true">
 <g class="crosshair-category-lines">

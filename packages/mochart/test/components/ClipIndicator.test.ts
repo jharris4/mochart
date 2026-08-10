@@ -1,8 +1,12 @@
 /**
  * ANIM-1 part 3: the band marking plot edges that have data hidden behind them.
  *
- * It overlays the plot rather than reserving space, so it never enters the layout pass, and it is
- * `pointer-events: none` so it cannot take hover or clicks from the series or the plot hit area.
+ * It overlays the plot rather than reserving space, so it never enters the layout pass. Pointer
+ * events are left on so the `<title>` can show on hover; the chart's own handlers are on the chart
+ * root, so tooltip, crosshair and focus still arrive by bubbling.
+ *
+ * Bands are mitred quadrilaterals, not rects, so adjacent bands share a diagonal instead of one
+ * covering the other's corner — which matters now that they are stroked.
  */
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
@@ -37,12 +41,34 @@ function mount(config = makeConfig(), data: readonly unknown[] = overflowing): E
   return container;
 }
 
-function bands(container: Element) {
-  return [...container.querySelectorAll('.mochart-clip-indicator rect')].map((rect) => ({
-    edge: (rect.getAttribute('class') ?? '').replace(/^.*band-/, ''),
-    x: Number(rect.getAttribute('x')), y: Number(rect.getAttribute('y')),
-    width: Number(rect.getAttribute('width')), height: Number(rect.getAttribute('height'))
-  }));
+interface BandInfo {
+  edge: string;
+  points: [number, number][];
+  x: number; y: number; width: number; height: number;
+  label: string | null; transform: string | null; visibility: string | null;
+}
+
+function bands(container: Element): BandInfo[] {
+  return [...container.querySelectorAll('.mochart-clip-indicator > g')].map((group) => {
+    const d = group.querySelector('path')!.getAttribute('d') ?? '';
+    const points = [...d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map(([, px, py]) => [Number(px), Number(py)] as [number, number]);
+    const xs = points.map(([px]) => px);
+    const ys = points.map(([, py]) => py);
+    const text = group.querySelector('text');
+    return {
+      edge: (group.getAttribute('class') ?? '').replace(/^.*band-/, ''),
+      points,
+      x: Math.min(...xs), y: Math.min(...ys),
+      width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys),
+      label: text?.textContent ?? null,
+      transform: text?.getAttribute('transform') ?? null,
+      visibility: text?.getAttribute('visibility') ?? null
+    };
+  });
+}
+
+function byEdge(container: Element): Record<string, BandInfo | undefined> {
+  return Object.fromEntries(bands(container).map((band) => [band.edge, band]));
 }
 
 function plotRect(container: Element) {
@@ -67,18 +93,15 @@ afterEach(() => {
 
 describe('band presence', () => {
   it('draws a band on the clipped edge', () => {
-    const drawn = bands(mount());
-    expect(drawn.map((band) => band.edge)).toEqual(['top']);
+    expect(bands(mount()).map((band) => band.edge)).toEqual(['top']);
   });
 
   it('draws nothing when the data fits', () => {
-    const container = mount(makeConfig(), contained);
-    expect(container.querySelector('.mochart-clip-indicator')).toBeNull();
+    expect(mount(makeConfig(), contained).querySelector('.mochart-clip-indicator')).toBeNull();
   });
 
   it('draws nothing when the indicator is turned off', () => {
-    const container = mount(makeConfig({ plot: { showClipIndicator: false } }));
-    expect(container.querySelector('.mochart-clip-indicator')).toBeNull();
+    expect(mount(makeConfig({ clipIndicator: { visible: false } })).querySelector('.mochart-clip-indicator')).toBeNull();
   });
 
   it('draws one band per clipped edge', () => {
@@ -93,34 +116,32 @@ describe('band presence', () => {
 });
 
 describe('band geometry', () => {
-  it('spans the clipped edge of the plot', () => {
+  it('is a plain rectangle when no neighbouring edge clips', () => {
     const container = mount();
     const plot = plotRect(container);
     const [band] = bands(container);
-    expect(band.x).toBe(plot.x);
-    expect(band.y).toBe(plot.y);
-    expect(band.width).toBe(plot.width);
+    expect(band.points).toEqual([
+      [plot.x, plot.y], [plot.x + plot.width, plot.y],
+      [plot.x + plot.width, plot.y + band.height], [plot.x, plot.y + band.height]
+    ]);
   });
 
   it('uses an explicit clipIndicatorSize as the depth', () => {
-    const [band] = bands(mount(makeConfig({ plot: { clipIndicatorSize: 9 } })));
-    expect(band.height).toBe(9);
+    expect(bands(mount(makeConfig({ clipIndicator: { size: 9 } })))[0].height).toBe(9);
   });
 
-  it('derives an automatic depth from the font size plus padding on both sides', () => {
-    // jsdom reports no computed font size, so this falls back to the documented default of 12
-    const [band] = bands(mount(makeConfig({ plot: { clipIndicatorPadding: 5 } })));
-    expect(band.height).toBe(12 + 5 * 2);
+  it('derives an automatic depth from the measured label plus padding on both sides', () => {
+    // jsdom's getBBox shim reports 0, so the measured label height is 0 and only padding remains
+    expect(bands(mount(makeConfig({ clipIndicator: { padding: 5 } })))[0].height).toBe(0 + 5 * 2);
   });
 
   it('never grows deeper than the plot itself', () => {
-    const container = mount(makeConfig({ plot: { clipIndicatorSize: 10000 } }));
-    const plot = plotRect(container);
-    expect(bands(container)[0].height).toBe(plot.height);
+    const container = mount(makeConfig({ clipIndicator: { size: 10000 } }));
+    expect(bands(container)[0].height).toBe(plotRect(container).height);
   });
 
   it('anchors a bottom band to the bottom of the plot', () => {
-    const container = mount(makeConfig({ plot: { clipIndicatorSize: 8 } }), [{ c: 'a', v: -50 }, { c: 'b', v: 5 }]);
+    const container = mount(makeConfig({ clipIndicator: { size: 8 } }), [{ c: 'a', v: -50 }, { c: 'b', v: 5 }]);
     const plot = plotRect(container);
     const [band] = bands(container);
     expect(band.edge).toBe('bottom');
@@ -129,34 +150,209 @@ describe('band geometry', () => {
 });
 
 describe('band presentation', () => {
-  it('is not a pointer target', () => {
+  it('is a pointer target, so the <title> can show on hover', () => {
+    expect(mount().querySelector('.mochart-clip-indicator')!.getAttribute('pointer-events')).toBeNull();
+  });
+
+  it('exempts the label, so it shows no I-beam and takes no selection', () => {
+    // the pointer falls through to the band behind, which still triggers the <title>
+    expect(mount().querySelector('.mochart-clip-indicator > g text')!.getAttribute('pointer-events')).toBe('none');
+    expect(mount().querySelector('.mochart-clip-indicator > g path')!.getAttribute('pointer-events')).toBeNull();
+  });
+
+  it('fills the band with a hatch pattern rather than a flat tint', () => {
     const container = mount();
-    expect(container.querySelector('.mochart-clip-indicator')!.getAttribute('pointer-events')).toBe('none');
+    const pattern = container.querySelector('.mochart-clip-indicator pattern')!;
+    const shape = container.querySelector('.mochart-clip-indicator > g path')!;
+    expect(shape.getAttribute('fill')).toBe(`url(#${pattern.getAttribute('id')})`);
+    expect(pattern.getAttribute('patternTransform')).toBe('rotate(45)');
+    expect(pattern.querySelector('line')!.getAttribute('stroke')).toBe('currentColor');
   });
 
-  it('defaults to a currentColor tint', () => {
-    const rect = mount().querySelector('.mochart-clip-indicator rect')!;
-    expect(rect.getAttribute('fill')).toBe('currentColor');
-    expect(rect.getAttribute('fill-opacity')).toBe('0.15');
+  it('strokes the band with a currentColor border by default', () => {
+    const shape = mount().querySelector('.mochart-clip-indicator > g path')!;
+    expect(shape.getAttribute('stroke')).toBe('currentColor');
+    expect(shape.getAttribute('stroke-opacity')).toBe('0.4');
+    expect(shape.getAttribute('stroke-width')).toBe('1');
   });
 
-  it('takes its style from the config', () => {
-    const rect = mount(makeConfig({ plot: { clipIndicatorStyle: { fillColor: '#ff0000', fillOpacity: 0.5 } } }))
-      .querySelector('.mochart-clip-indicator rect')!;
-    expect(rect.getAttribute('fill')).toBe('#ff0000');
-    expect(rect.getAttribute('fill-opacity')).toBe('0.5');
+  it('takes its style from the config, the fill colouring the hatch', () => {
+    const container = mount(makeConfig({
+      clipIndicator: { style: { fillColor: '#ff0000', fillOpacity: 0.5, strokeColor: '#0000ff' } }
+    }));
+    expect(container.querySelector('.mochart-clip-indicator pattern line')!.getAttribute('stroke')).toBe('#ff0000');
+    const shape = container.querySelector('.mochart-clip-indicator > g path')!;
+    expect(shape.getAttribute('fill-opacity')).toBe('0.5');
+    expect(shape.getAttribute('stroke')).toBe('#0000ff');
+  });
+
+  it('takes the hatch geometry from the config', () => {
+    const pattern = mount(makeConfig({ clipIndicator: { hatch: { spacing: 10, width: 3 } } }))
+      .querySelector('.mochart-clip-indicator pattern')!;
+    expect(pattern.getAttribute('width')).toBe('10');
+    expect(pattern.getAttribute('height')).toBe('10');
+    expect(pattern.querySelector('line')!.getAttribute('stroke-width')).toBe('3');
+  });
+
+  it('gives each chart its own pattern id', () => {
+    const idOf = (container: Element) => container.querySelector('.mochart-clip-indicator pattern')!.getAttribute('id');
+    expect(idOf(mount())).not.toBe(idOf(mount()));
   });
 
   it('sits in front of the series by default, and behind when asked', () => {
     const inFront = mount();
-    const seriesContainer = inFront.querySelector('.mochart-series-container')!;
-    const frontIndicator = inFront.querySelector('.mochart-clip-indicator')!;
-    expect(seriesContainer.compareDocumentPosition(frontIndicator) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(inFront.querySelector('.mochart-series-container')!
+      .compareDocumentPosition(inFront.querySelector('.mochart-clip-indicator')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    const behind = mount(makeConfig({ plot: { clipIndicatorFront: false } }));
-    const behindSeries = behind.querySelector('.mochart-series-container')!;
-    const backIndicator = behind.querySelector('.mochart-clip-indicator')!;
-    expect(behindSeries.compareDocumentPosition(backIndicator) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    const behind = mount(makeConfig({ clipIndicator: { showInFront: false } }));
+    expect(behind.querySelector('.mochart-series-container')!
+      .compareDocumentPosition(behind.querySelector('.mochart-clip-indicator')!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+  });
+});
+
+describe('hatch off', () => {
+  const noHatch = () => makeConfig({ clipIndicator: { hatch: null } });
+
+  it('fills the band flat, with no pattern element left behind', () => {
+    const container = mount(noHatch());
+    expect(container.querySelector('.mochart-clip-indicator pattern')).toBeNull();
+    expect(container.querySelector('.mochart-clip-indicator > g path')!.getAttribute('fill')).toBe('currentColor');
+  });
+
+  it('drops to the lighter unstroked style, so the flat band is not a slab', () => {
+    // the style default is conditional on the hatch: a solid fill at the hatched weight reads far heavier
+    const shape = mount(noHatch()).querySelector('.mochart-clip-indicator > g path')!;
+    expect(shape.getAttribute('fill-opacity')).toBe('0.15');
+    expect(shape.getAttribute('stroke')).toBeNull();
+  });
+
+  it('still honours an explicit style', () => {
+    const shape = mount(makeConfig({ clipIndicator: { hatch: null, style: { fillColor: '#ff0000', fillOpacity: 0.6 } } }))
+      .querySelector('.mochart-clip-indicator > g path')!;
+    expect(shape.getAttribute('fill')).toBe('#ff0000');
+    expect(shape.getAttribute('fill-opacity')).toBe('0.6');
+  });
+});
+
+describe('degenerate hatches', () => {
+  const shapeOf = (hatch: unknown) => mount(makeConfig({ clipIndicator: { hatch } }))
+    .querySelector('.mochart-clip-indicator > g path')!;
+
+  it('collapses to a flat fill when the lines are as thick as the gaps', () => {
+    // a closed-up hatch is a solid fill, and drawn as a pattern it would seam along the 45deg tile edge
+    expect(shapeOf({ spacing: 6, width: 6 }).getAttribute('fill')).toBe('currentColor');
+    expect(shapeOf({ spacing: 6, width: 9 }).getAttribute('fill')).toBe('currentColor');
+  });
+
+  it('collapses to a flat fill when the spacing leaves no tile to draw', () => {
+    expect(shapeOf({ spacing: 0, width: 2 }).getAttribute('fill')).toBe('currentColor');
+  });
+
+  it('paints nothing when the lines have no width', () => {
+    expect(shapeOf({ spacing: 6, width: 0 }).getAttribute('fill')).toBeNull();
+  });
+});
+
+describe('label', () => {
+  it('renders the default label in the band, centred', () => {
+    const container = mount();
+    const plot = plotRect(container);
+    const [band] = bands(container);
+    expect(band.label).toBe('Clipped');
+    expect(band.transform).toBe(`translate(${Math.floor(plot.x + plot.width / 2)},${Math.floor(plot.y + band.height / 2)})`);
+    expect(band.visibility).toBeNull();
+  });
+
+  it('renders custom text', () => {
+    expect(bands(mount(makeConfig({ clipIndicator: { label: 'Off the chart' } })))[0].label).toBe('Off the chart');
+  });
+
+  it('drops the label but keeps the band when set to null', () => {
+    const [band] = bands(mount(makeConfig({ clipIndicator: { label: null } })));
+    expect(band.label).toBeNull();
+    expect(band.edge).toBe('top');
+    expect(band.height).toBeGreaterThan(0);
+  });
+
+  it('rotates the label on the side bands, matching the axis title on that side', () => {
+    const dateRows = [{ c: '2020-01-01', v: 5 }, { c: '2020-06-01', v: 8 }];
+    const sideConfig = (extra: Record<string, unknown>) => makeConfig({
+      categoryAxis: { property: 'c', type: 'date', scale: 'linear', ...extra },
+      valueAxes: [{}],
+      series: [{ property: 'v', renderer: 'line' }]
+    });
+    const right = byEdge(mount(sideConfig({ min: '2020-01-01', max: '2020-03-01' }), dateRows)).right!;
+    expect(right.transform).toContain('rotate(270)');
+
+    const left = byEdge(mount(sideConfig({ min: '2020-03-01', max: '2020-12-01' }), dateRows)).left!;
+    expect(left.transform).toContain('rotate(90)');
+  });
+
+  it('takes its text style from the config', () => {
+    const text = mount(makeConfig({ clipIndicator: { textStyle: { fillColor: '#00ff00', fillOpacity: 0.9 } } }))
+      .querySelector('.mochart-clip-indicator > g text')!;
+    expect(text.getAttribute('fill')).toBe('#00ff00');
+    expect(text.getAttribute('fill-opacity')).toBe('0.9');
+  });
+});
+
+describe('accessible name', () => {
+  it('renders an svg <title> mirroring the label', () => {
+    const title = mount().querySelector('.mochart-clip-indicator > title');
+    expect(title).not.toBeNull();
+    expect(title!.textContent).toBe('Clipped');
+  });
+
+  it('tracks a custom label', () => {
+    expect(mount(makeConfig({ clipIndicator: { label: 'Off the chart' } }))
+      .querySelector('.mochart-clip-indicator > title')!.textContent).toBe('Off the chart');
+  });
+
+  it('is dropped along with the label', () => {
+    expect(mount(makeConfig({ clipIndicator: { label: null } }))
+      .querySelector('.mochart-clip-indicator > title')).toBeNull();
+  });
+});
+
+describe('mitred corners', () => {
+  const dateRows = [{ c: '2020-01-01', v: -50 }, { c: '2020-06-01', v: 50 }];
+  const fourEdges = (clipIndicator: Record<string, unknown>) => makeConfig({
+    categoryAxis: { property: 'c', type: 'date', scale: 'linear', min: '2020-02-01', max: '2020-03-01' },
+    valueAxes: [{ min: 0, max: 10 }],
+    clipIndicator,
+    series: [{ property: 'v', renderer: 'line' }]
+  });
+
+  it('draws all four edges, each spanning its full side of the plot', () => {
+    const container = mount(fourEdges({ size: 8 }), dateRows);
+    const edges = byEdge(container);
+    const plot = plotRect(container);
+    expect(Object.keys(edges).sort()).toEqual(['bottom', 'left', 'right', 'top']);
+    // the outer edge of each band runs the whole side, so the frame has no gaps
+    expect(edges.top!.width).toBe(plot.width);
+    expect(edges.bottom!.width).toBe(plot.width);
+    expect(edges.left!.height).toBe(plot.height);
+    expect(edges.right!.height).toBe(plot.height);
+  });
+
+  it('shares a diagonal between adjacent bands, so no corner is covered twice', () => {
+    const container = mount(fourEdges({ size: 8 }), dateRows);
+    const edges = byEdge(container);
+    const plot = plotRect(container);
+    const outerTopRight: [number, number] = [plot.x + plot.width, plot.y];
+    const innerTopRight: [number, number] = [plot.x + plot.width - 8, plot.y + 8];
+
+    // both bands carry the same two corner points, so their shared edge is one diagonal
+    expect(edges.top!.points).toContainEqual(outerTopRight);
+    expect(edges.top!.points).toContainEqual(innerTopRight);
+    expect(edges.right!.points).toContainEqual(outerTopRight);
+    expect(edges.right!.points).toContainEqual(innerTopRight);
+  });
+
+  it('drops the indicator when no band has room', () => {
+    // opposing bands are capped at half the extent they share, so a huge size leaves nothing over
+    const container = mount(fourEdges({ size: 10000 }), dateRows);
+    expect(container.querySelector('.mochart-clip-indicator')).toBeNull();
   });
 });
 
