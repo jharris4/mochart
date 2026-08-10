@@ -365,6 +365,42 @@ export interface PlotConfig {
    */
   clipOverflow: MarginPadding;
   /**
+   * Whether to mark the plot edges that have data hidden behind them, which
+   * happens when an axis min or max excludes some of the values.
+   *
+   * @default true
+   */
+  showClipIndicator: boolean;
+  /**
+   * The depth (in pixels) of the clip indicator band (use "auto" to size it
+   * from the indicator font size plus clipIndicatorPadding on both sides).
+   *
+   * @default "auto"
+   */
+  clipIndicatorSize: number | Auto;
+  /**
+   * The space (in pixels) between the clip indicator label and the edges of its
+   * band, which also determines the band depth when clipIndicatorSize is
+   * "auto".
+   *
+   * @default 2
+   */
+  clipIndicatorPadding: number;
+  /**
+   * The styles to apply to the clip indicator band (strokeColor, strokeOpacity,
+   * strokeWidth, fillColor, fillOpacity (use null for none)).
+   *
+   * @default { strokeColor: null, strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.15 }
+   */
+  clipIndicatorStyle: Style;
+  /**
+   * Whether the clip indicator should be shown in front (true) or behind
+   * (false) the series shapes.
+   *
+   * @default true
+   */
+  clipIndicatorFront: boolean;
+  /**
    * The styles to apply to the plot background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *

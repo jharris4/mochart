@@ -89,6 +89,8 @@ export const mochartCssClasses = {
             tooltipLineLabel: 'mochart-tooltip-line-label',
             tooltipLineValue: 'mochart-tooltip-line-value',
     tooltipSizer: 'mochart-tooltip-sizer',
+  clipIndicator: 'mochart-clip-indicator',
+  clipIndicatorBand: 'mochart-clip-indicator-band mochart-clip-indicator-band-',
   noData: 'mochart-no-data',
   noSeries: 'mochart-no-series',
   loading: 'mochart-loading',
@@ -154,6 +156,7 @@ function getLegendItemTextRawsCssSelector() {
 function getTooltipCssSelector() {
   return '.' + mochartCssClasses['tooltipSizer'];
 }
+
 
 export function getDomAccessors(chartElement: Element): ChartDomAccessors {
   return {
