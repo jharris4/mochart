@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 17 fixed (2 partial), 4 needing an answer, 133 open.**
+**Status: 18 fixed (2 partial), 4 needing an answer, 132 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1482,7 +1482,7 @@ it could never have caught this. `npm run typecheck` fails on the unpatched sour
 pass (11), typecheck, build and lint clean.
 
 ### BIND-2 — the generated reference publishes a private helper as the type of all ten Angular outputs
-**High · Bug (docs generator) · [bindingReferenceModel.ts:299-302](packages/mochart-docs/scripts/bindingReferenceModel.ts#L299)** — **Open**
+**High · Bug (docs generator) · [bindingReferenceModel.ts:299-302](packages/mochart-docs/scripts/bindingReferenceModel.ts#L299)** — **Fixed**
 
 Angular outputs carry no type annotation, so the generator falls back to the initializer text.
 The initializers are `this.chartOutput<T>()`
@@ -1504,6 +1504,17 @@ are also emitted `"optional": false`, wrong for outputs.
 `EventEmitter<` + the call's type arguments + `>`, and force `optional: true`. Alternatively
 annotate the outputs in `base-chart.ts`, which makes `declaredType` non-`unknown` and needs no
 generator change.
+
+**Fixed automatically.** Took the generator fix rather than annotating `base-chart.ts`: the
+generator's fallback is wrong for *any* factory-initialized output, so fixing it there stops the
+next binding from reintroducing the same bug, and it keeps `base-chart.ts` free of type
+annotations that only exist to feed a docs script. A new `outputTypeFromInitializer` maps both
+`this.chartOutput<T>()` and `new EventEmitter<T>()` to `EventEmitter<T>`, and outputs are forced
+`optional: true` — subscribing to an `@Output` is opt-in by definition. All ten Angular callback
+rows now read `EventEmitter<ChartEventPayload>` and friends. Note the `optional` correction is
+model-only: `renderBindingPage` prints Prop / Type / Core prop / Description and never renders it,
+so only the `type` change is visible on `/reference/framework-props`. Docs suite passes (37
+examples, 230 exports, 17 sections, 152 props across 5 bindings), typecheck and lint clean.
 
 ### BIND-3 — every published package resolves to raw source under the `development` condition
 **Medium · Bug (packaging) · [mochart-react/package.json:33](packages/mochart-react/package.json#L33) and the six siblings** **[verified]** — **Open**
