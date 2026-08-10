@@ -244,8 +244,7 @@ function setStackSeriesValues(seriesConfigs: EnhancedSeriesConfig[], seriesStack
   }
 }
 
-// A non-finite value cannot be accumulated: adding one poisons the running total for every later
-// series in the stack, so treat it as missing exactly the way `undefined` already is.
+// a non-finite value would poison the running total for every later series in the stack
 function isStackableValue(value: number | undefined): value is number {
   return value !== undefined && Number.isFinite(value);
 }

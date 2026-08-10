@@ -35,9 +35,7 @@ export function getDomainForValues(values: readonly (number | undefined)[] | nul
     const valueCount = values.length;
     for (let i=0; i<valueCount; i++) {
       value = values[i];
-      // null is the standard JSON missing marker and is not excluded by the declared type at
-      // runtime; it compares as 0 and would re-arm the `min === null` sentinel, discarding the
-      // minimum seen so far. Infinity would stick as a bound.
+      // null compares as 0 and would re-arm the `min === null` sentinel, discarding the minimum
       if (typeof value === 'number' && Number.isFinite(value)) {
         if (min === null || value < min) {
           min = value;
@@ -75,9 +73,7 @@ export function getDomainExtents<T extends DomainValue>(domains: Record<string, 
   return mapMap(domains, x => getDomainExtent(x));
 }
 
-// Collapsed domains fall back to the value's magnitude (1 when null or 0) so delta weights stay
-// positive. An explicit axis min above the data (or max below it) inverts the domain, so the
-// magnitude of the span is taken for the same reason.
+// Collapsed or inverted domains fall back to a positive magnitude (1 when null or 0) so delta weights stay positive.
 export function getSafeDomainExtent(domain: NullableDomain): number {
   if (domain[0] !== domain[1]) {
     return Math.abs(getDomainExtent(domain));

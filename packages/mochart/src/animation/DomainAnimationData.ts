@@ -72,8 +72,7 @@ function getPositiveDomainDelta(fromDomain: NullableDomain, toDomain: NullableDo
 function getPositiveDomainDeltaPercentage(domainDelta: NumericDomain, domainExtent: number): number {
   if (domainDelta[0] < 0 || domainDelta[1] > 0) {
     const domainDeltaExtent = Math.abs(domainDelta[0]) + domainDelta[1];
-    // an explicit min above the data (or max below it) inverts the domain, and a negative extent
-    // can cancel the denominator to zero — which would make the phase duration Infinity
+    // an inverted domain has a negative extent, which could cancel the denominator to zero
     return domainDeltaExtent / (domainDeltaExtent + Math.max(domainExtent, 0));
   }
   else {
