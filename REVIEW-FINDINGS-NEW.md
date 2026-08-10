@@ -347,11 +347,27 @@ existing series-domain callers are unaffected, because `getDomainForValues` neve
 inverted domain; only an explicit axis `min`/`max` can invert one. Regression tests in
 `test/animation/CollapsedDomainDeltas.test.ts`. Full core suite passes (1364 tests).
 
-One correction to the finding: the *collapsed*-domain half of this does not reproduce as
-written. `[{a:7},{b:7}]` on a bar series gives the axis domain `[0, 7]`, not `[7, 7]`, because a
-value axis defaults its `base` to 0 — so the extent is never actually 0 there. Those cases are
-kept as tests and pass both before and after. A genuinely collapsed domain needs a renderer that
-does not anchor to a base.
+~~One correction to the finding: the collapsed-domain half does not reproduce — a value axis
+defaults its `base` to 0.~~ **That was wrong, twice over.** `base` defaults to `NONE`; only pie
+mode and a stacked axis default it to 0
+([valueAxisConfig.ts:55-62](packages/mochart/src/config/defaults/valueAxisConfig.ts#L55)).
+Measured: `[{v:7},{v:7}]` on a plain bar series gives `axisDomain [7, 7]` — **the finding was
+right, the domain really is collapsed.**
+
+What is true is narrower and does not contradict the finding. The collapsed domain never reaches
+the value-delta code, because `getTransitionValueChangeData` is handed `axisExpansionData.final`
+— the domain *after* the expansion phase has already widened it to cover the new data. So the
+`plain` delta for `7,7 → 9,9` is `1` both before and after the fix above, and the fix only ever
+changed the **inverted** (negative-extent) case. The collapsed-domain cases in
+`test/animation/CollapsedDomainDeltas.test.ts` therefore pass either way: they are guards against
+a future regression, not regression tests for this one.
+
+That is also the mechanism behind the flash the finding leads with — expansion widens the domain,
+so mid-animation the same values sit at an extreme rather than at the midpoint. It is fixed by
+widening the domain at its source, which is the decision recorded below.
+
+The commit message on `2bceea43` carries the same wrong claim about `base`; this entry is the
+correction of record.
 
 #### Follow-up: collapsed-domain drawing — **decided, not yet implemented**
 
