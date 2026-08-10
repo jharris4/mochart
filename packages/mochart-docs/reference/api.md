@@ -202,15 +202,30 @@ documents every field — hover the type in your editor.
 ## Constants
 
 Every enumerated config value is exported so configs built in code can avoid
-string literals: `AUTO` (`'auto'`), `NONE` (`null`), `CONFIG_VERSION`, the
-category axis types `TYPE_STRING` / `TYPE_NUMBER` / `TYPE_DATE`, the scales
-`SCALE_ORDINAL` / `SCALE_LINEAR`, the
-[`chart.type`](/reference/chart#chart.type) values `CHART_TYPE_XY` /
-`CHART_TYPE_PIE`, and the `ALIGN_*`, `VERTICAL_ALIGN_*`, `ANCHOR_*`,
-`POSITION_*`, `SIDE_*`, `TITLE_SIDE_*`, `MISSING_VALUES_*`, `RENDERER_*`,
-`CURVE_TYPE_*`, `CAP_TYPE_*`, `LABEL_POSITION_*`, `COLOR_*`,
-`COLOR_INTERPOLATION_*`, `MARKER_SHAPE_*`, `MARKER_SIZE_SCALE_*` and
-`PIE_LABEL_TYPE_*` families.
+string literals. `AUTO` (`'auto'`), `NONE` (`null`) and `CONFIG_VERSION` stand
+alone; the rest come in families:
+
+| Config member | Constants |
+| --- | --- |
+| axis `type` | `TYPE_STRING`, `TYPE_NUMBER`, `TYPE_DATE` |
+| axis `scale` | `SCALE_ORDINAL`, `SCALE_LINEAR` |
+| [`chart.type`](/reference/chart#chart.type) | `CHART_TYPE_XY`, `CHART_TYPE_PIE` |
+| `align` | `ALIGN_LEFT`, `ALIGN_CENTER`, `ALIGN_RIGHT` |
+| `verticalAlign` | `VERTICAL_ALIGN_TOP`, `VERTICAL_ALIGN_MIDDLE`, `VERTICAL_ALIGN_BOTTOM` |
+| `anchor` | `ANCHOR_START`, `ANCHOR_MIDDLE`, `ANCHOR_END` |
+| `position` | `POSITION_TOP`, `POSITION_BOTTOM` |
+| axis `side` | `SIDE_START`, `SIDE_END` |
+| threshold `titleSide` | `TITLE_SIDE_LOW`, `TITLE_SIDE_HIGH` |
+| [`series.missingValues`](/reference/series#series.missingValues) | `MISSING_VALUES_BREAK`, `MISSING_VALUES_CONNECT`, `MISSING_VALUES_BASE` |
+| [`series.renderer`](/reference/series#series.renderer) | `RENDERER_BAR`, `RENDERER_LINE`, `RENDERER_AREA`, `RENDERER_NONE` |
+| [`series.curveType`](/reference/series#series.curveType) | `CURVE_TYPE_LINEAR`, `CURVE_TYPE_MONOTONE_X`, `CURVE_TYPE_MONOTONE_Y`, `CURVE_TYPE_BASIS`, `CURVE_TYPE_CARDINAL`, `CURVE_TYPE_CATMULL_ROM`, `CURVE_TYPE_NATURAL`, `CURVE_TYPE_STEP`, `CURVE_TYPE_STEP_BEFORE`, `CURVE_TYPE_STEP_AFTER` |
+| bar cap type | `CAP_TYPE_POINT`, `CAP_TYPE_CURVE`, `CAP_TYPE_ROUND` |
+| label `position` | `LABEL_POSITION_INSIDE`, `LABEL_POSITION_CENTER`, `LABEL_POSITION_OUTSIDE` |
+| style color modes | `COLOR_SERIES`, `COLOR_SAME`, `COLOR_SERIES_INDEX`, `COLOR_CATEGORY_INDEX`, `COLOR_CURRENT` |
+| `colorScale.interpolation` | `COLOR_INTERPOLATION_RGB`, `COLOR_INTERPOLATION_HSL`, `COLOR_INTERPOLATION_LAB`, `COLOR_INTERPOLATION_HCL` |
+| [`series.markerShape`](/reference/series#series.markerShape) | `MARKER_SHAPE_CIRCLE`, `MARKER_SHAPE_CROSS`, `MARKER_SHAPE_DIAMOND`, `MARKER_SHAPE_SQUARE`, `MARKER_SHAPE_STAR`, `MARKER_SHAPE_TRIANGLE`, `MARKER_SHAPE_WYE` |
+| marker size scale | `MARKER_SIZE_SCALE_SQRT`, `MARKER_SIZE_SCALE_LINEAR` |
+| [`pie`](/reference/pie) label types | `PIE_LABEL_TYPE_VALUE`, `PIE_LABEL_TYPE_PERCENT`, `PIE_LABEL_TYPE_TITLE`, `PIE_LABEL_TYPE_VALUE_PERCENT`, `PIE_LABEL_TYPE_PERCENT_VALUE`, `PIE_LABEL_TYPE_TITLE_VALUE`, `PIE_LABEL_TYPE_TITLE_PERCENT` |
 
 The union types those constants form are exported too — `Align`,
 `VerticalAlign`, `Anchor`, `Position`, `AxisSide`, `ThresholdTitleSide`,
