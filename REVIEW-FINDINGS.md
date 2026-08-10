@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 held to thresholds (96.29% statements, 88.61% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 30 fixed, 1 closed as won't-fix, 2 open.**
+**33 findings: 31 fixed, 1 closed as won't-fix, 1 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 2 remaining are all Low.
+Nothing High or Medium is open — only **T3** remains, at Low.
 
 ---
 
@@ -788,15 +788,25 @@ element) needed telling apart in one place.
 what the surrounding text and the callback's behaviour imply — it fires on
 click regardless of `focusOnClick`, exactly as `onSliceClick` does for pie.
 
-### D6. `@mochart/angular` exports no prop types — **Open**
+### D6. `@mochart/angular` exports no prop types — **Fixed**
 
 **Low.** `mochart-react`, `-vue`, `-lit`, and `-svelte` all export
 `ChartProps` / `DefaultChartProps` / `BaseChartProps` / `ChartCallbackProps`
 (plus `ChartRef` where applicable). `packages/mochart-angular/src/index.ts`
 exports only `PlaceholderProps` and `PlaceholderComponent` — its inputs live on
-the component classes. Defensible given Angular's decorator inputs, but it
-leaves TypeScript hosts of that one binding without a named prop surface, and
-nothing says so.
+the component classes as `@Input()` decorators.
+
+**Fix:** documented, not changed — a sentence in the Angular README and the
+framework guide saying there are no prop interfaces to import, that templates
+type-check against the classes, and that `Chart`/`DefaultChart`/`BaseChart` are
+the types to reference.
+
+Angular's convention really is inputs on the class, and Angular is the one
+binding that exports its base component (`BaseChart`), which *is* its type
+surface. Synthesising `ChartProps` for it would mean a second declaration of
+every input that could drift from the decorators — the same drift the generated
+framework-props page exists to prevent. The genuine gap was that nothing told an
+Angular reader any of this.
 
 ### D4. `@mochart/movalid` has no `homepage` — **Closed, won't fix**
 
