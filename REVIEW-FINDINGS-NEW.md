@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 12 fixed (2 partial), 4 needing an answer, 138 open.**
+**Status: 13 fixed (2 partial), 4 needing an answer, 137 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -915,7 +915,7 @@ explanatory comment are gone. Three regression tests in `test/config/core.test.t
 fail on the unpatched source. Full core suite passes (1396 tests), typecheck and lint clean.
 
 ### CONFIG-3 — `ignore: true` entries are still cross-reference-validated
-**High · Bug · [validation/mochartConfig.ts:474](packages/mochart/src/config/validation/mochartConfig.ts#L474)** **[verified]** — **Open**
+**High · Bug · [validation/mochartConfig.ts:474](packages/mochart/src/config/validation/mochartConfig.ts#L474)** **[verified]** — **Fixed**
 
 `validateReferences` runs over `configWithoutDefaults[targetSectionKey]` — the *unfiltered* raw
 list — so entries carrying `ignore: true` (documented as "treat it as though it were not
@@ -935,6 +935,15 @@ validation on the same entry *is* correctly skipped, which shows the intent.
 **Fix:** filter the raw target list with `filterConfigs` before passing it to
 `validateReferencesInternal`, reporting against the raw index via the same `rawIndices` mapping
 the other three validators use.
+
+**Fixed automatically.** Applied exactly as recommended. `validateReferences` filters the raw
+target list before passing it on, and `validateReferencesInternal` takes an optional `rawIndices`
+mapping so a genuine dangling reference is still reported at its position in the *user's* array —
+`series[1]` stays `series[1]` even when `series[0]` is ignored, which is what the other three
+cross-checks already do. The non-array (single-object) target path is left untouched, since
+`filterConfigs` would turn it into an empty list and skip validation altogether. Two regression
+tests in `test/config/config.test.ts`, alongside the existing ignored-entry block. Full core suite
+passes (1398 tests), typecheck and lint clean.
 
 ### CONFIG-4 — `tooltip.backgroundStyle.strokeDashArray` type-checks but invalidates the config
 **Medium · Inconsistency · [types/config.ts:1235](packages/mochart/src/types/config.ts#L1235) vs [validation/tooltipConfig.ts:27](packages/mochart/src/config/validation/tooltipConfig.ts#L27)** **[verified]** — **Open**

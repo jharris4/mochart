@@ -2,7 +2,7 @@ import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
 import { NONE, CONFIG_VERSION } from '../core/constants';
-import { applyDefaults, configWithAll, filterConfig, sectionKeyAllMap } from '../core/mochartConfig';
+import { applyDefaults, configWithAll, filterConfig, filterConfigs, sectionKeyAllMap } from '../core/mochartConfig';
 
 import accessibilityValidators from './accessibilityConfig';
 import animationValidators from './animationConfig';
@@ -411,7 +411,7 @@ function validateUnique(config: ConfigRecord, configWithoutDefaults: ConfigRecor
   }
 }
 
-function validateReferencesInternal(config: ConfigRecord, targetSections: unknown, targetSectionKey: string, targetProperty: string, sourceSectionKey: string | string[], sourceProperty: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {
+function validateReferencesInternal(config: ConfigRecord, targetSections: unknown, targetSectionKey: string, targetProperty: string, sourceSectionKey: string | string[], sourceProperty: string, errors: string[], errorDetails: LocatedValidationMessage[], rawIndices: number[] | null = null): void {
   let sourceSections: unknown = undefined;
   if (Array.isArray(sourceSectionKey)) {
     let combinedSourceSections: unknown[] = [];
@@ -439,10 +439,11 @@ function validateReferencesInternal(config: ConfigRecord, targetSections: unknow
         target = targetSections[i];
         if (isConfigRecord(target) && target[targetProperty] !== undefined && target[targetProperty] !== NONE && sources[String(target[targetProperty])] !== true) {
           const message = getReferenceMessage(sourceSectionKey, sourceProperty) + ': ' + JSON.stringify(target[targetProperty]);
-          errors.push(getPropertyMessage(targetSectionKey, targetProperty, message, i));
+          const reportIndex = rawIndices !== null ? rawIndices[i]! : i;
+          errors.push(getPropertyMessage(targetSectionKey, targetProperty, message, reportIndex));
           const cleanSectionKey = targetSectionKey.startsWith(DEFAULT)
             ? targetSectionKey.slice(DEFAULT.length) : targetSectionKey;
-          errorDetails.push({ path: [cleanSectionKey, i, targetProperty], message });
+          errorDetails.push({ path: [cleanSectionKey, reportIndex, targetProperty], message });
         }
       }
     }
@@ -471,8 +472,24 @@ function validateReferences(config: ConfigRecord, configWithoutDefaults: ConfigR
     validateReferencesInternal(config, configWithoutDefaults[targetAllKey], targetAllKey, targetProperty, sourceSectionKey,
       sourceProperty, errors, errorDetails);
   }
-  validateReferencesInternal(config, configWithoutDefaults[targetSectionKey], targetSectionKey, targetProperty,
-    sourceSectionKey, sourceProperty, errors, errorDetails);
+  // entries carrying ignore: true are "as though not specified", so they must not be
+  // cross-checked; report at the raw index so messages still point at the user's own array
+  const rawTargetSection = configWithoutDefaults[targetSectionKey];
+  validateReferencesInternal(config, Array.isArray(rawTargetSection) ? filterConfigs(rawTargetSection) : rawTargetSection,
+    targetSectionKey, targetProperty, sourceSectionKey, sourceProperty, errors, errorDetails, getRawIndices(rawTargetSection));
+}
+
+function getRawIndices(sections: unknown): number[] | null {
+  if (!Array.isArray(sections)) {
+    return null;
+  }
+  const rawIndices: number[] = [];
+  for (let i = 0; i < sections.length; i++) {
+    if (filterConfig(sections[i])) {
+      rawIndices.push(i);
+    }
+  }
+  return rawIndices;
 }
 
 // follower lookups never walk transitively, so a follower must not itself be followed
