@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 21 fixed (2 partial), 4 needing an answer, 129 open.**
+**Status: 24 fixed (2 partial), 4 needing an answer, 126 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1875,7 +1875,7 @@ or orphans, all `demoText` keys are consumed, and menu dismissal/disclosure ARIA
 complete and consistent. The divergences below are the whole set.
 
 ### DEMO-1 — `build:pages` never rebuilds `@mochart/editor`, so the site can ship a stale editor
-**High · Bug · [scripts/build-pages.mjs:24](scripts/build-pages.mjs#L24)** **[verified]** — **Open**
+**High · Bug · [scripts/build-pages.mjs:24](scripts/build-pages.mjs#L24)** **[verified]** — **Fixed**
 
 `libDirs` lists eight packages; `mochart-editor` is missing, yet it uses the same
 `development`→`src` / `default`→`dist` export conditions and is a dependency of all six galleries.
@@ -1886,8 +1886,10 @@ so this bites only locally and only intermittently — the worst failure mode.
 
 **Fix:** add `'mochart-editor'` to `libDirs`.
 
+**Fixed automatically.** One-line addition, as recommended.
+
 ### DEMO-2 — applying a structurally invalid config produces a blank chart with no message
-**High · Bug · [vanilla ConfigTab.ts:122](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L122) and the five ports** — **Open**
+**High · Bug · [vanilla ConfigTab.ts:122](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L122) and the five ports** — **Fixed**
 
 `applyConfig()` calls `parseConfig(getConfigText())`, which only checks JSON *syntax*. Downstream,
 `getConfigDataError` returns `false` for an invalid config and `EditableChart` sets
@@ -1899,6 +1901,15 @@ that fails silently.
 
 **Fix:** build and validate before calling `onConfigChange` (reuse the `toggleConfigFromText`
 validity branch) and set `errorMessage` when invalid; apply in all six ports.
+
+**Fixed automatically.** Rather than repeat the validity branch six times, the branch was
+*extracted*: `toggleConfigFromText`'s parse-and-build head is now `parseConfigFromText(text)`
+returning `{ config, error }`, `toggleConfigFromText` calls it, and all six `applyConfig`
+implementations do too — so Apply and the toggles cannot drift apart again, which is how they
+diverged in the first place. Each port already had an `errorMessage` slot wired to its footer, so
+the fix is three lines per port. `parseConfig` is no longer exported from `@mochart/demo-common`
+(nothing outside it used it once Apply switched over). Typecheck across 20 workspaces, lint,
+deadcode and demo-common's 243 tests all pass, and demo-vanilla builds.
 
 ### DEMO-3 — showing the 2nd chart duplicates 22 DOM ids
 **High · Bug · [vanilla EditableChart.ts:682](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L682) and ~15 more sites, all six ports** — **Open**
@@ -1913,7 +1924,7 @@ resolve to the first chart only, and AT sees two identically-identified control 
 already does), or drop the ids where nothing consumes them.
 
 ### DEMO-4 — all six deployed galleries ship `<html>` with no `lang`
-**High · Bug · WCAG 3.1.1 (Level A) · [vanilla index.html:2](packages/mochart-demo-vanilla/index.html#L2) and the five siblings** **[verified]** — **Open**
+**High · Bug · WCAG 3.1.1 (Level A) · [vanilla index.html:2](packages/mochart-demo-vanilla/index.html#L2) and the five siblings** **[verified]** — **Fixed**
 
 Confirmed across all seven demo packages: the six *deployed* galleries emit a bare `<html>`, while
 the non-deployed `demo-basic` harness and `mochart-benchmark` both use `<html lang="en">` and the
@@ -1922,6 +1933,8 @@ voice, mispronouncing the entire UI — on the accessibility showcase for a char
 ships an `accessibility` config section.
 
 **Fix:** `<html lang="en">` in all six.
+
+**Fixed automatically.** All six now match `demo-basic` and `mochart-benchmark`.
 
 ### DEMO-5 — vanilla: the "2nd Chart" button never appears or disappears on resize
 **High · Bug · [vanilla ChartTab.ts:118](packages/mochart-demo-vanilla/src/components/single/ChartTab.ts#L118)** — **Open**

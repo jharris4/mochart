@@ -47,19 +47,15 @@ export type ConfigTextToggle =
   { demoConfig: DemoConfigView; text: string; error: null } |
   { demoConfig: null; text: null; error: string };
 
-/**
- * Run an editor toggle against the CURRENT config text (the Defaults toggle's
- * pattern): parse and rebuild first, so unapplied textarea edits survive the
- * toggle instead of being overwritten from the last built snapshot.
- */
-export function toggleConfigFromText(configText: string, showDefaults: boolean, transform: (current: DemoConfigView) => DemoConfigView): ConfigTextToggle {
-  let parsed: DemoConfig;
-  try {
-    parsed = JSON.parse(configText);
-  }
-  catch {
-    console.warn('Invalid Chart Config JSON: ' + configText);
-    return { demoConfig: null, text: null, error: demoText.errors.invalidJson };
+export type ConfigTextParse =
+  { config: DemoConfig; error: null } |
+  { config: null; error: string };
+
+/** Parse editor text and check it builds: JSON syntax alone leaves a config the chart cannot render. */
+export function parseConfigFromText(configText: string): ConfigTextParse {
+  const parsed = parseConfig(configText);
+  if (parsed === null) {
+    return { config: null, error: demoText.errors.invalidJson };
   }
   const build = buildMochartDemoConfig(parsed);
   if (!build.configValidation.valid) {
@@ -70,9 +66,22 @@ export function toggleConfigFromText(configText: string, showDefaults: boolean, 
     if (warnings.length > 0) {
       console.warn('warnings: ', warnings);
     }
-    return { demoConfig: null, text: null, error: demoText.errors.invalidChartConfig };
+    return { config: null, error: demoText.errors.invalidChartConfig };
   }
-  const demoConfig = transform(copyDemoConfig(build));
+  return { config: parsed, error: null };
+}
+
+/**
+ * Run an editor toggle against the CURRENT config text (the Defaults toggle's
+ * pattern): parse and rebuild first, so unapplied textarea edits survive the
+ * toggle instead of being overwritten from the last built snapshot.
+ */
+export function toggleConfigFromText(configText: string, showDefaults: boolean, transform: (current: DemoConfigView) => DemoConfigView): ConfigTextToggle {
+  const { config, error } = parseConfigFromText(configText);
+  if (config === null) {
+    return { demoConfig: null, text: null, error };
+  }
+  const demoConfig = transform(copyDemoConfig(buildMochartDemoConfig(config)));
   return { demoConfig, text: formatMochartDemoConfig(demoConfig, showDefaults), error: null };
 }
 
