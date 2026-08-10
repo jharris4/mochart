@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 4 fixed (1 partial), 2 needing an answer, 146 open.**
+**Status: 5 fixed (1 partial), 2 needing an answer, 145 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -386,7 +386,7 @@ the invariant is already understood to matter.
 # 3. Core — components, renderer and interaction
 
 ### COMP-1 — pointer enter/leave *toggles* the tooltip instead of opening/closing it
-**High · Bug · [Chart.ts:804](packages/mochart/src/components/Chart.ts#L804), [Chart.ts:849](packages/mochart/src/components/Chart.ts#L849), via [toggleTooltip:750](packages/mochart/src/components/Chart.ts#L750)** — **Open**
+**High · Bug · [Chart.ts:804](packages/mochart/src/components/Chart.ts#L804), [Chart.ts:849](packages/mochart/src/components/Chart.ts#L849), via [toggleTooltip:750](packages/mochart/src/components/Chart.ts#L750)** — **Fixed**
 
 With `tooltip.followPointer: true`, both the enter and the leave handler call `toggleTooltip`,
 which *flips* `tooltipVisible` rather than setting it. Any other path that changes it inverts
@@ -398,6 +398,17 @@ the pairing:
 
 **Fix:** give `toggleTooltip` an explicit `open: boolean` (or add `openTooltip`/`closeTooltipAt`)
 so enter always opens and leave always closes, leaving `onChartClick` as the only true toggle.
+
+**Fixed automatically.** `toggleTooltip` is now `setTooltipOpen(open, payload)` and
+`toggleTooltipAtCategory` is `setTooltipOpenAtCategory(open, categoryIndex)`. Each of the seven
+call sites states its intent: pointer enter passes `true`, pointer leave `false`, Escape `false`,
+arrow-key open `true`, and only `onChartClick` and keyboard Enter/Space pass
+`!this.state.tooltipVisible` — the two paths that are genuinely toggles. The body is otherwise
+unchanged; the old `tooltipVisible ? null : x` expressions were already computing against the
+post-flip state, so `open ? x : null` is exactly equivalent. Two regression tests in
+`ChartInteraction.test.ts` cover both inverted pairings the finding describes (close-by-click then
+leave; keyboard-open then enter); both fail on the unpatched source. Full core suite passes
+(1366 tests), typecheck and lint clean.
 
 ### COMP-2 — `onSeriesLayoutBoundsChange` fires from inside `derive()`, before props commit
 **High · Bug · [Chart.ts:392](packages/mochart/src/components/Chart.ts#L392) → [:727](packages/mochart/src/components/Chart.ts#L727)** **[verified]** — **Open**
