@@ -131,7 +131,12 @@ describe('chart aria semantics', () => {
 });
 
 describe('decorative-hidden charts', () => {
-  it('hides the chart root from assistive tech and removes every tab stop', () => {
+  // A11Y-1: assert against everything that is *natively* focusable, not just [tabindex] —
+  // an svg <a href> takes focus with no tabindex at all, so the old assertion could not see it
+  const FOCUSABLE = ['a[href]', 'button', 'input', 'select', 'textarea', '[tabindex]']
+    .map((selector) => `${selector}:not([tabindex="-1"])`).join(', ');
+
+  it('hides the chart root from assistive tech and removes every tab stop it controls', () => {
     const container = mountChart(makeConfig({ title: { text: 'Monthly sales' }, accessibility: { hidden: true } }));
     const root = container.querySelector('.mochart-chart')!;
     expect(root.getAttribute('aria-hidden')).toBe('true');
@@ -140,14 +145,30 @@ describe('decorative-hidden charts', () => {
     expect(svg.getAttribute('role')).toBeNull();
     expect(svg.getAttribute('aria-label')).toBeNull();
     expect(container.querySelector('[role="status"]')).toBeNull();
-    expect(container.querySelectorAll('[tabindex]').length).toBe(0);
+    expect(container.querySelectorAll(FOCUSABLE).length).toBe(0);
+  });
+
+  it('takes a linked title out of the tab order', () => {
+    const container = mountChart(makeConfig({
+      title: { text: 'Monthly sales', link: 'https://example.com' },
+      accessibility: { hidden: true }
+    }));
+    const anchor = container.querySelector('.mochart-title a')!;
+    expect(anchor.getAttribute('href')).toBe('https://example.com');
+    expect(anchor.getAttribute('tabindex')).toBe('-1');
+    expect(container.querySelectorAll(FOCUSABLE).length).toBe(0);
+  });
+
+  it('leaves a linked title focusable on an ordinary chart', () => {
+    const container = mountChart(makeConfig({ title: { text: 'Monthly sales', link: 'https://example.com' } }));
+    expect(container.querySelector('.mochart-title a')!.getAttribute('tabindex')).toBeNull();
   });
 
   it('hides a pie chart and its slice tab stops', () => {
     const container = mountChart(makeConfig({ chart: { type: 'pie' }, accessibility: { hidden: true } }));
     expect(container.querySelector('.mochart-chart')!.getAttribute('aria-hidden')).toBe('true');
     expect(container.querySelectorAll('.mochart-series').length).toBe(2);
-    expect(container.querySelectorAll('[tabindex], [role="button"]').length).toBe(0);
+    expect(container.querySelectorAll(FOCUSABLE + ', [role="button"]').length).toBe(0);
   });
 
   it('keeps the chart exposed and announced by default', () => {
