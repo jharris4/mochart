@@ -59,6 +59,29 @@ describe('applyDefaults', () => {
     // per-element defaults, then allSection, then the element's own values
     expect(result.series).toEqual([{ order: 0, renderer: 'bar', property: 'a' }]);
   });
+
+  // CONFIG-2: valueAxes is the one list section with an implicit entry, so its *Defaults
+  // section has to reach the defaults list when the user declares nothing
+  it('merges the all-config into the defaults list when the section is not declared', () => {
+    const result = applyDefaults(
+      { valueAxisDefaults: { visible: false, title: 'T' } },
+      { valueAxes: [{ id: 'VA0', visible: true, title: null }] }
+    );
+    expect(result.valueAxes).toEqual([{ id: 'VA0', visible: false, title: 'T' }]);
+  });
+
+  it('merges the all-config into the defaults list when every entry is ignored', () => {
+    const result = applyDefaults(
+      { valueAxes: [{ ignore: true }], valueAxisDefaults: { visible: false } },
+      { valueAxes: [{ id: 'VA0', visible: true }] }
+    );
+    expect(result.valueAxes).toEqual([{ id: 'VA0', visible: false }]);
+  });
+
+  it('leaves the defaults list alone when there is no all-config', () => {
+    const result = applyDefaults({}, { valueAxes: [{ id: 'VA0', visible: true }] });
+    expect(result.valueAxes).toEqual([{ id: 'VA0', visible: true }]);
+  });
 });
 
 describe('configWithAll', () => {
