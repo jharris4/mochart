@@ -109,9 +109,15 @@ Two values do not merge:
 
 - **Arrays replace wholesale.** `ticks`, gradient `stops` and the palette
   color lists are values, not structures to merge element-wise.
-- **`null` is a real value, not a hole.** `{ strokeColor: null }` overrides a
-  non-null default and leaves the SVG attribute unset so CSS can supply it.
-  Use `undefined` (or simply omit the key) to mean "not specified".
+- **`null` is a real value, not a hole.** On a plain style,
+  `{ strokeColor: null }` overrides a non-null default and leaves the SVG
+  attribute unset so CSS can supply it. Use `undefined` (or simply omit the
+  key) to mean "not specified".
+
+  Inside a `normal` / `focused` / `defocused` state this applies to
+  `strokeWidth` and `strokeDashArray` only: a state always writes its color
+  and opacity attributes, so those must be concrete values — use `'none'` to
+  switch a half of the style off.
 
 ## Cross-references and id defaulting
 
