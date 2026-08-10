@@ -2,7 +2,7 @@ import { getChartDataWithSeriesData, getChartDataWithData } from '../data/ChartD
 
 import { getCategoryDataWithAxisDomain, getCategoryDataFromValues, getCategoryDataWithNumericValues } from '../data/CategoryData';
 
-import { getDomainExtents, getSafeDomainExtent } from '../data/DomainData';
+import { getSafeDomainExtent, getSafeDomainExtents } from '../data/DomainData';
 
 import { getSeriesContainerFilteredSeriesCounts, getSeriesDataWithAxisDomains, getSeriesDataWithSeriesValues,
   getSeriesDataWithDomains, setMinMax } from '../data/SeriesData';
@@ -531,8 +531,10 @@ function setBaseValuesForOuterChange(targetValues: NumericValues | null, sourceV
 }
 
 function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, rawValueAxisDomains: AxisDomains, filteredValueAxisDomains: AxisDomains, rawSeriesDomains: SeriesDomainObjects, ordinalCategoryOrderOffets: number[] | null): ValueChangeData {
-  const rawValueAxisExtents = getDomainExtents(rawValueAxisDomains);
-  const filteredValueAxisExtents = getDomainExtents(filteredValueAxisDomains);
+  // a collapsed or inverted axis domain would otherwise weight every value delta at 0,
+  // silently applying the update instantly whatever duration was configured
+  const rawValueAxisExtents = getSafeDomainExtents(rawValueAxisDomains);
+  const filteredValueAxisExtents = getSafeDomainExtents(filteredValueAxisDomains);
   const valueDeltaData = createRawValueDeltaData(mochartConfig, startChartData.seriesData.raw.values,
     endChartData.seriesData.raw.values, rawValueAxisExtents, rawSeriesDomains);
   const filteredValueDeltaData = createFilteredValueDeltaData(mochartConfig,

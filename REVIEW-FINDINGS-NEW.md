@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 3 fixed, 0 needing an answer, 147 open.**
+**Status: 4 fixed (1 partial), 2 needing an answer, 146 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -259,7 +259,7 @@ One correction to the finding: `valueAxes: [{ max: 0 }]` with all-positive data 
 > offending bound at build time and warn?
 
 ### ANIM-2 — a zero-span domain makes every update flash to zero, then to full height
-**High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Open**
+**High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Partially fixed**, with an open question
 
 When all values on an axis are equal the domain collapses (`[7, 7]`). d3 renders that at
 the range midpoint, but the expansion/contraction phases interpolate to and from a
@@ -280,6 +280,38 @@ silently skipping *all* animation (`valueAxes: [{min: 100}]` with data 10→20 a
 the scale or the animation deltas. At minimum use `getSafeDomainExtent`
 ([DomainData.ts:76](packages/mochart/src/data/DomainData.ts#L76) — already written for
 exactly this case) in `createValueDeltaData` and as the denominator above.
+
+**Partially fixed automatically — the rest needs an answer.** This finding is two problems
+sharing a root, and only one of them has a fix that does not require a decision.
+
+*Fixed:* the silently-skipped animation. `getSeriesValuesDeltas` weights a change as
+`maxAbsoluteDelta / valueAxisExtent` gated on `valueAxisExtent > 0`, and `createValueDeltaData`
+fed it raw `getDomainExtents`, so a **negative** extent zeroed every value delta and applied the
+update instantly whatever duration was configured. `createValueDeltaData` now uses a new
+`getSafeDomainExtents`, and `getSafeDomainExtent` takes `Math.abs` of a non-collapsed span — which
+is what its own comment ("so delta weights stay positive") already claimed it did. The two
+existing series-domain callers are unaffected, because `getDomainForValues` never returns an
+inverted domain; only an explicit axis `min`/`max` can invert one. Regression tests in
+`test/animation/CollapsedDomainDeltas.test.ts`. Full core suite passes (1364 tests).
+
+One correction to the finding: the *collapsed*-domain half of this does not reproduce as
+written. `[{a:7},{b:7}]` on a bar series gives the axis domain `[0, 7]`, not `[7, 7]`, because a
+value axis defaults its `base` to 0 — so the extent is never actually 0 there. Those cases are
+kept as tests and pass both before and after. A genuinely collapsed domain needs a renderer that
+does not anchor to a base.
+
+> **QUESTION (needs an answer):** the visual flash is left unfixed. Its cause is that a collapsed
+> domain is rendered by d3 at the *range midpoint*, while the expansion/contraction phases
+> interpolate to and from a non-degenerate domain where those same values sit at an *extreme* —
+> hence `h=81 → h=0 → h=161 → h=81`. Closing that gap means widening a zero-extent domain before
+> it reaches the scale, which **changes where an all-equal chart draws its bars when nothing is
+> animating at all**, and will churn the golden snapshots. That is a visual-design call, not a
+> bug fix. **Which do you want:** (a) widen a zero-extent domain to `[v - 0.5, v + 0.5]` (or
+> `[0, 1]` for v = 0) everywhere, accepting that an all-equal line chart then draws mid-plot for
+> a different reason and all-equal bars change height; (b) keep the static rendering as it is and
+> instead force the animation phases to hold the degenerate domain, so no expansion runs and the
+> update cross-fades in place; (c) leave it, and document that all-equal data animates oddly?
+> Option (b) is the smaller change and preserves every current snapshot.
 
 ### LAYOUT-1 — negative `width`/`height` reach background rects on small or heavily spaced charts
 **Medium · Bug · [PlotLayout.ts:91](packages/mochart/src/layout/PlotLayout.ts#L91), [SpacingLayoutInfo.ts:47-53](packages/mochart/src/layout/SpacingLayoutInfo.ts#L47), [LegendLayout.ts:113-121](packages/mochart/src/layout/LegendLayout.ts#L113)** — **Open**
