@@ -810,11 +810,13 @@ no `thresholds`, and CI ran `npm test`, never `test:coverage` — so coverage wa
 measurable on demand and defended by nothing. That is precisely why T6 sat
 broken: the command had been failing and nothing ran it.
 
-**Fix:** thresholds at `statements 96, branches 88, functions 95, lines 96` —
-a whisker under the current 96.29 / 88.61 / 95.82 / 96.42, so real erosion fails
+**Fix:** thresholds a whisker under the current numbers, so real erosion fails
 while an incidental refactor does not. Verified to bite by raising the
 statements floor to 99 and watching the run fail with
 `Coverage for statements (96.29%) does not meet global threshold (99%)`.
+Set at `96 / 88 / 95 / 96` against 96.29 / 88.61 / 95.82 / 96.42, then
+re-baselined to `97 / 90 / 97 / 97` after the T8–T12 sweep took coverage to
+97.2 / 90.59 / 97.7 / 97.2.
 
 Core's `test` script now runs `vitest run --coverage`, replacing the separate
 `test:coverage`. That is what makes CI enforce it without change: `npm test`

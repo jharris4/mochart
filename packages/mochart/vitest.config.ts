@@ -14,7 +14,7 @@ export default defineConfig({
       exclude: ['src/types/**', 'src/**/*.d.ts'],
       reporter: ['text', 'html'],
       // a whisker under the current numbers: real erosion fails, an incidental refactor does not
-      thresholds: { statements: 96, branches: 88, functions: 95, lines: 96 }
+      thresholds: { statements: 97, branches: 90, functions: 97, lines: 97 }
     }
   }
 });
