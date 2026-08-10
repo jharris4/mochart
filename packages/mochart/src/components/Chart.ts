@@ -26,6 +26,7 @@ import TooltipClip from './TooltipClip';
 import TitleClip from './TitleClip';
 import AxisTitleClip from './AxisTitleClip';
 import CategoryAxisTickLabelClip from './CategoryAxisTickLabelClip';
+import SeriesClip from './SeriesClip';
 import SeriesColorGradient from './SeriesColorGradient';
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
@@ -79,6 +80,7 @@ interface ChartUniqueIds {
   categoryAxisTitleClipPathUniqueId: string;
   categoryAxisTickLabelClipPathUniqueId: string;
   valueAxisTitleClipPathUniqueIds: Record<string, string>;
+  seriesClipPathUniqueId: string;
   seriesColorGradientUniqueIds: Record<string, string>;
   gradientIdMap: Record<string, string>;
   linearGradientIdMap: Record<string, string>;
@@ -115,6 +117,7 @@ const legendClipPathIdPrefix = 'legend__clippath__';
 const categoryAxisTitleClipPathIdPrefix = 'categoryaxistitle__clippath__';
 const categoryAxisTickLabelClipPathIdPrefix = 'categoryaxisticklabel__clippath__';
 const valueAxisTitleClipPathIdPrefix = 'valueaxistitle__clippath__';
+const seriesClipPathIdPrefix = 'series__clippath__';
 const linearGradientIdPrefix = 'linear__gradient__';
 const radialGradientIdPrefix = 'radial__gradient__';
 const seriesColorGradientIdPrefix = 'seriescolor__gradient__';
@@ -445,6 +448,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const legendClipPathUniqueId = legendClipPathIdPrefix + uniqueId;
     const categoryAxisTitleClipPathUniqueId = categoryAxisTitleClipPathIdPrefix + uniqueId;
     const categoryAxisTickLabelClipPathUniqueId = categoryAxisTickLabelClipPathIdPrefix + uniqueId;
+    const seriesClipPathUniqueId = seriesClipPathIdPrefix + uniqueId;
     const valueAxisTitleClipPathUniqueIds: Record<string, string> = Object.create(null);
     for (const { id } of valueAxisConfigs) {
       valueAxisTitleClipPathUniqueIds[id] = valueAxisTitleClipPathIdPrefix + uniqueId + '__' + id;
@@ -465,7 +469,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const uniqueIds = {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId,
       categoryAxisTitleClipPathUniqueId, categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds,
-      seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
+      seriesClipPathUniqueId, seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
     };
     return { uniqueIds };
   }
@@ -1114,8 +1118,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
     const {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId, categoryAxisTitleClipPathUniqueId,
-      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, seriesColorGradientUniqueIds, gradientIdMap,
-      linearGradientIdMap, radialGradientIdMap
+      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, seriesClipPathUniqueId,
+      seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
     } = uniqueIds!;
     const {
       chartContentLayoutInfo, titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
@@ -1148,6 +1152,12 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       clips.push({ key: 'tooltip-clip', ctor: TooltipClip, props: { mochartConfig, tooltipVisible, tooltipShown,
         tooltipLayoutInfo, chartContentLayoutInfo, width, height,
         tooltipClipPathUniqueId } });
+      // cartesian only: a pie has no axis bounds to exceed, and PieSeriesContainer never
+      // references the clip, so emitting it there would leave dead markup in every pie chart
+      if (mochartConfig.chart.type !== CHART_TYPE_PIE) {
+        clips.push({ key: 'series-clip', ctor: SeriesClip, props: { mochartConfig,
+          seriesLayoutInfo: layoutInfo!.seriesLayoutInfo, seriesClipPathUniqueId } });
+      }
     }
 
     clips.push(
@@ -1239,6 +1249,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           a11yProps: plotA11yProps,
           categoryAxisTitleClipPathUniqueId,
           categoryAxisTickLabelClipPathUniqueId,
+          seriesClipPathUniqueId,
           valueAxisTitleClipPathUniqueIds,
           tooltipClipPathUniqueId });
       }

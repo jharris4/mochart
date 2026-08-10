@@ -32,6 +32,7 @@ interface PlotFrontBackProps {
   categoryAxisTitleClipPathUniqueId: string;
   categoryAxisTickLabelClipPathUniqueId: string;
   valueAxisTitleClipPathUniqueIds: Record<string, string>;
+  seriesClipPathUniqueId: string;
   onFocus: (focus: InternalFocus) => void;
 }
 
@@ -96,7 +97,7 @@ export default class Plot extends Renderer<PlotProps> {
   sync() {
     const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, seriesLayoutInfo, plotLayoutInfo,
       chartData, focusData, axisData, stackData, categoryValueData, gradientIdMap, categoryAxisTitleClipPathUniqueId,
-      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
+      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, seriesClipPathUniqueId, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
     const { plot: plotConfig } = mochartConfig;
     const { categoryFocusDomainPercentages = [], seriesFocusDomainPercentages = [] } = focusData;
     const { value: valueAxisData } = axisData;
@@ -126,7 +127,7 @@ export default class Plot extends Renderer<PlotProps> {
 
     this.seriesContainer.set(SeriesContainer, { mochartConfig, seriesLayoutInfo, seriesData: chartData.seriesData,
       valueAxisData, stackData, focusData, onFocus, onSeriesShapeClick, categoryValueData,
-      gradientIdMap, shapeRef, a11yProps });
+      gradientIdMap, shapeRef, a11yProps, seriesClipPathUniqueId });
 
     this.front.set(PlotFrontBack, frontBackProps(true));
 
