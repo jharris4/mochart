@@ -201,11 +201,24 @@ documents every field — hover the type in your editor.
 
 ## Constants
 
-`AUTO` (`'auto'`), `NONE` (`null`), the category axis types `TYPE_STRING` /
-`TYPE_NUMBER` / `TYPE_DATE`, the scales `SCALE_ORDINAL` / `SCALE_LINEAR`,
-and the [`chart.type`](/reference/chart#chart.type) values
-`CHART_TYPE_XY` (`'xy'`) / `CHART_TYPE_PIE` (`'pie'`) — exported so configs
-built in code can avoid string literals.
+Every enumerated config value is exported so configs built in code can avoid
+string literals: `AUTO` (`'auto'`), `NONE` (`null`), `CONFIG_VERSION`, the
+category axis types `TYPE_STRING` / `TYPE_NUMBER` / `TYPE_DATE`, the scales
+`SCALE_ORDINAL` / `SCALE_LINEAR`, the
+[`chart.type`](/reference/chart#chart.type) values `CHART_TYPE_XY` /
+`CHART_TYPE_PIE`, and the `ALIGN_*`, `VERTICAL_ALIGN_*`, `ANCHOR_*`,
+`POSITION_*`, `SIDE_*`, `TITLE_SIDE_*`, `MISSING_VALUES_*`, `RENDERER_*`,
+`CURVE_TYPE_*`, `CAP_TYPE_*`, `LABEL_POSITION_*`, `COLOR_*`,
+`COLOR_INTERPOLATION_*`, `MARKER_SHAPE_*`, `MARKER_SIZE_SCALE_*` and
+`PIE_LABEL_TYPE_*` families.
+
+The union types those constants form are exported too — `Align`,
+`VerticalAlign`, `Anchor`, `Position`, `AxisSide`, `ThresholdTitleSide`,
+`MissingValues`, `Scale`, `DataType`, `ChartType`, `RendererType`,
+`CurveType`, `CapType`, `LabelPosition`, `ColorMode`, `ColorInterpolation`,
+`MarkerShape`, `MarkerSizeScale`, `PieLabelType`, `PieTooltipLabelType`,
+`Auto` — so a wrapper can name one in its own signature rather than reaching
+for `SeriesConfig['renderer']`.
 
 ## Styling hooks
 
