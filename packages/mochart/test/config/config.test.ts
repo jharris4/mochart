@@ -290,6 +290,29 @@ describe('ignored entries and sole-id defaults', () => {
     }
   });
 
+  // CONFIG-3: validateReferences ran over the *unfiltered* raw list, so a disabled entry's
+  // dangling reference still invalidated the whole config and blanked the chart
+  it('does not cross-reference-validate an ignored entry', () => {
+    const mochartConfig = enhance({ ...base,
+      series: [{ property: 'v', axis: 'main' }, { property: 'w', ignore: true, axis: 'nope' }],
+      valueAxes: [{ id: 'main' }]
+    });
+    expect(mochartConfig.validation.errors).toEqual([]);
+    expect(mochartConfig.validation.valid).toBe(true);
+    expect(mochartConfig.series.map(seriesConfig => seriesConfig.property)).toEqual(['v']);
+  });
+
+  it('still reports a real dangling reference at its raw index', () => {
+    const mochartConfig = enhance({ ...base,
+      series: [{ property: 'v', ignore: true, axis: 'main' }, { property: 'w', axis: 'nope' }],
+      valueAxes: [{ id: 'main' }]
+    });
+    // index 1 is where the offending entry sits in the user's own array, ignored entry included
+    expect(mochartConfig.validation.errors).toEqual([
+      'series[1] - axis - should equal the id property of one of the valueAxes: "nope"'
+    ]);
+  });
+
   it('an ignored second stack does not block the sole-stack default', () => {
     const mochartConfig = enhance({ ...base,
       series: [{ property: 'v' }, { property: 'w' }],
