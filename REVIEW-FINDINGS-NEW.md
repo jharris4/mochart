@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**152 findings: 1 critical, 31 high, 69 medium, 51 low.** (145 from the Opus pass,
-5 from the SOL pass, 2 found while implementing.)
+**153 findings: 1 critical, 31 high, 69 medium, 52 low.** (145 from the Opus pass,
+5 from the SOL pass, 3 found while implementing.)
 
-**Status: 30 fixed (3 partial), 5 needing an answer, 122 open.** ANIM-1's axis-bounds follow-up is
+**Status: 30 fixed (3 partial), 5 needing an answer, 123 open.** ANIM-1's axis-bounds follow-up is
 now **implemented** — see its entry for what landed and where the build revised the design.
 ANIM-2's collapsed-domain follow-up remains **decided and awaiting implementation**.
 
@@ -55,7 +55,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [2](#2-core--animation-and-layout) | Core — animation & layout | **1** | 1 | 2 | 3 | 7 |
 | [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 3 | 4 | 4 | 11 |
 | [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 3 | 12 |
-| [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 2 | 9 |
+| [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 3 | 10 |
 | [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 5 | 7 | 13 |
 | [7](#7-accessibility) | Accessibility | – | 2 | 5 | 5 | 12 |
 | [8](#8-framework-bindings-export-and-editor) | Bindings, export & editor | – | 2 | 6 | 4 | 12 |
@@ -64,7 +64,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 3 | 8 | 5 | 16 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 6 | 4 | 13 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **31** | **69** | **51** | **152** |
+| | **Total** | **1** | **31** | **69** | **52** | **153** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -1270,6 +1270,27 @@ to tolerate unknown keys (a live-preview config editor, say) has no way to disco
 `validateConfig(config, defaults, false)` short of reading the `.d.ts`.
 
 **Fix:** add the parameter to the `reference/api.md` signature block and one line to the guide bullet.
+
+### CONFIG-10 — axis-bounds validation lives in `mochartConfig.ts`, away from the axis validators
+**Low · Inconsistency · [validation/mochartConfig.ts:547,565,585](packages/mochart/src/config/validation/mochartConfig.ts#L547)**
+
+*Found while implementing ANIM-1 part 1, not by either review pass.*
+
+The `min <= max` check added there put three axis-specific helpers — `validateAxisBounds`,
+`checkAxisBounds` and `boundValue` — in the whole-config validator, while every other axis
+validator sits in [`axisConfig.ts`](packages/mochart/src/config/validation/axisConfig.ts). The
+placement is defensible on one reading: the check is cross-property, and `mochartConfig.ts` is
+where the other cross-property checks (`validateReferences`, `validateFollowSeries`) live. But
+those span *sections*, whereas this one never looks outside a single axis, so the fault line it
+sits on is not the one that put it there.
+
+`boundValue` is also the seventh copy of the coerce-a-Date-to-a-number idea catalogued in
+[DATA-7](#data-7--six-near-copies-of-coerce-a-date-to-a-comparable-number), and the one most
+likely to drift from the parsing the axis itself does.
+
+**Fix:** move the three into `axisConfig.ts` and call them from the section validator, or make the
+cross-property hook per-section so an axis validates its own bounds. Either way `boundValue`
+should come from whatever DATA-7 settles on rather than being a seventh variant.
 
 ---
 
