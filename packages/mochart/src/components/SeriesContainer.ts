@@ -3,6 +3,7 @@ import { Renderer, svgEl } from '../render';
 import { getSeriesConfigsOrderedByFocus } from '../data/FocusData';
 import { mochartCssClasses } from '../utils/ChartDom';
 import { accessibilityActive } from '../utils/utils';
+import { getClipPathReference } from '../utils/svgUtils';
 import { NONE } from '../config/core/constants';
 
 import SeriesBackground from './SeriesBackground';
@@ -16,6 +17,7 @@ import type { LayoutInfo } from '../types/layout';
 interface SeriesContainerProps {
   mochartConfig: EnhancedMochartConfig;
   seriesLayoutInfo: LayoutInfo;
+  seriesClipPathUniqueId: string;
   seriesData: SeriesData;
   valueAxisData: ValueAxisData;
   stackData: StackData;
@@ -108,7 +110,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
   }
 
   sync() {
-    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
+    const { mochartConfig, seriesLayoutInfo, seriesData, valueAxisData, stackData, focusData, categoryValueData, gradientIdMap, onFocus, onSeriesShapeClick, shapeRef, a11yProps, seriesClipPathUniqueId } = this.props;
 
     const { categoryAxis: categoryAxisConfig, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
 
@@ -143,6 +145,8 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
     }
 
     this.root.set({ className: mochartCssClasses['seriesContainer'],
+      // an explicit axis min/max is a hard bound, so anything past it must not paint over the chrome
+      clipPath: getClipPathReference(seriesClipPathUniqueId),
       onKeyDown: interactiveIds.length > 0 ? this.seriesKeyDown : null,
       onFocusIn: interactiveIds.length > 0 ? this.seriesFocusIn : null });
     this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
