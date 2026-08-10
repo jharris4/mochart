@@ -38,7 +38,8 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 30 fixed (3 partial), 7 needing an answer, 120 open.**
+**Status: 30 fixed (3 partial), 6 needing an answer, 120 open.** ANIM-1's follow-up is
+decided and awaiting implementation (see its entry); two minor sub-questions remain there.
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -206,7 +207,7 @@ the six call sites. Behaviour unchanged.
 # 2. Core — animation and layout
 
 ### ANIM-1 — an `Infinity` phase duration wedges the chart in a permanent rAF loop
-**Critical · Bug · [DomainAnimationData.ts:75](packages/mochart/src/animation/DomainAnimationData.ts#L75)** **[verified]** — **Fixed**, with an open question
+**Critical · Bug · [DomainAnimationData.ts:75](packages/mochart/src/animation/DomainAnimationData.ts#L75)** **[verified]** — **Fixed**; axis-bounds follow-up decided, not yet implemented
 
 `getPositiveDomainDeltaPercentage` returns `domainDeltaExtent / (domainDeltaExtent + domainExtent)`
 with no guard on the denominator. When a value axis has a *negative* extent — an explicit
@@ -247,20 +248,59 @@ core suite passes (1350 tests), typecheck and lint clean.
 One correction to the finding: `valueAxes: [{ max: 0 }]` with all-positive data does **not** hang
 — only the `min` case reproduces. The `max` case is kept as a second test regardless.
 
-> **QUESTION (needs an answer):** the `min`/`max` cross-check is left undone deliberately. The
-> hang is fixed at the maths layer, so this is now pure input hardening with a behavioural
-> trade-off: because `strict` defaults to `true`, a *warning* invalidates the config just as an
-> *error* does (see [CONFIG-9](#config-9--validateconfigs-strict-parameter-is-undocumented)), so
-> either choice turns a chart that renders today into a config-error state. An inverted domain is
-> also not obviously meaningless — `{min: 0}` on data that is currently all-negative is a
-> reasonable way to pin the axis at zero and let the data grow into it. **Which do you want:**
-> (a) reject `min >= max` as a validation error, (b) emit a warning only, (c) **[recommended]**
-> leave it accepted and document that an explicit bound past the data inverts the domain, or
-> (d) clamp the offending bound at build time and warn?
->
-> *Recommendation: (c).* The hang is fixed and an inverted domain now renders and animates
-> predictably, so nothing is unsafe any more — and (a) and (b) are the same thing in default
-> strict mode, both turning charts that render today into a config-error state.
+#### Follow-up: axis bounds — **decided, not yet implemented**
+
+The `min`/`max` cross-check was left out of the fix above and then discussed. The original
+question offered "leave it accepted, an inverted domain is useful" — **that was wrong**, and the
+investigation behind the decision is worth keeping:
+
+- `min` is a **hard override**, not a clamp: [AxisDomainData.ts:38](packages/mochart/src/data/AxisDomainData.ts#L38)
+  assigns it unconditionally. `softMin`/`softMax` are the bounds that never clip — their own
+  docs say so. So `min: 0` on all-negative data does *not* pin the axis at zero; it throws the
+  `-5` bar **170px above the top of a 255px plot**, and there is no clip path on the series area,
+  so it paints over the axis and title.
+- `softMax: 0` + `base: 0` is what actually produces "axis reaches zero, bars hang from it,
+  nothing clipped" — measured, both bars land inside the plot. `min`/`max` have no role in it.
+- `min: 100, max: 0` renders a *correct* descending axis today, so there is a real capability
+  hiding behind the accident.
+- But ordering is the wrong fault line: `min: 0, max: 10` — properly ordered — with a value of
+  `50` escapes **1020px** above the plot in exactly the same way. The defect is an explicit bound
+  with data outside it, not the bound order.
+
+**Decided fix, in three parts:**
+
+1. **Enforce `min <= max`** on every axis as a validation error.
+2. **Add `axis.reversed`** (boolean, all axes) as the supported way to invert an axis.
+3. **Clip values outside `min`/`max`** where those bounds are set, on all axes.
+
+Four notes for whoever implements it:
+
+- **Order matters.** `reversed` must land *before* `min > max` is rejected, or the capability is
+  removed before its replacement exists.
+- **`reversed`, not `inverted`.** [`plot.inverted`](/reference/plot#plot.inverted) already means
+  "swap which screen axis the category runs along"; two `inverted`s would be a lasting trap.
+  `reversed` also matches Highcharts, Chart.js and Vega.
+- **Implement `reversed` by flipping the *range*, not the domain** — d3's own approach. It keeps
+  the domain ascending, so base lines, thresholds, tick generation, stacking and the animation
+  delta pipeline all keep working untouched. Flipping the domain would reintroduce the negative
+  extent this finding is about.
+- **Clip, don't drop.** A bar spanning base 0 → 50 on a `max: 10` axis must still show its 0→10
+  portion; a vanished bar is indistinguishable from missing data, which is the same class of
+  silent wrongness in a new place. Note markers and value labels *legitimately* overhang the plot
+  (core says so at [Chart.ts](packages/mochart/src/components/Chart.ts): "no in-bounds gate:
+  markers/labels can overflow the plot rect"), so a blanket clip on the series group would start
+  chopping them — it wants to clip the shape layer, or clip with an allowance.
+
+Parts 2 and 3 are new work rather than ANIM-1 repairs, so they will land as their own commits.
+The committed `Math.max(domainExtent, 0)` clamp stays either way: once `min <= max` is enforced a
+negative extent becomes unreachable, and the clamp becomes belt-and-braces rather than the thing
+holding the rAF loop closed.
+
+> **Two sub-questions still open:** (a) `min <= max` as written permits `min === max`, i.e. a
+> deliberately collapsed domain where every value maps to one pixel — allowed on purpose, or
+> should it be `min < max`? (b) once out-of-range data is clipped it becomes *silently*
+> misleading (the chart looks fine and is wrong) — worth a `console.warn`, or leave it silent?
+> A validation warning is not an option: `strict` defaults to true, so it would blank the chart.
 
 ### ANIM-2 — a zero-span domain makes every update flash to zero, then to full height
 **High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Partially fixed**, with an open question
