@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 held to thresholds (96.29% statements, 88.61% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 29 fixed, 4 open.**
+**33 findings: 30 fixed, 3 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 4 remaining are all Low.
+Nothing High or Medium is open — the 3 remaining are all Low.
 
 ---
 
@@ -805,11 +805,17 @@ nothing says so.
 link. Left alone because movalid is a standalone validator with no page on that
 site — the right URL is a judgement call.
 
-### D5. No `repository.directory` on any publishable package — **Open**
+### D5. No `repository.directory` on any publishable package — **Fixed**
 
-**Low.** All nine publishable packages point `repository.url` at the monorepo
+**Low.** All nine publishable packages pointed `repository.url` at the monorepo
 root without `"directory": "packages/<name>"`, so npm's "Repository" link and
-provenance land on the repo root rather than the package.
+provenance landed on the repo root rather than the package.
+
+**Fix:** the field added to all nine, each verified to resolve to a real package
+directory. Purely additive metadata — nothing reads it at build or runtime.
+
+Worth doing before publishing rather than after: the field only has an effect
+once the packages are on npm, and correcting it later means a republish.
 
 ---
 

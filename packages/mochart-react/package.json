@@ -17,7 +17,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jharris4/mochart.git"
+    "url": "https://github.com/jharris4/mochart.git",
+    "directory": "packages/mochart-react"
   },
   "homepage": "https://mochart.org",
   "publishConfig": {
