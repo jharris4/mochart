@@ -15,10 +15,20 @@ describe('svgColor', () => {
     expect(validate('currentColor')).toBe(true);
   });
 
-  it('rejects malformed hex and named/hsl colors', () => {
+  // CONFIG-1: an svg color goes straight to a dom attribute, so the browser is the authority
+  it('accepts every css color form, including ones d3-color predates', () => {
+    for (const value of ['red', 'rebeccapurple', 'transparent', '#ff000080', 'rgb(255 0 0)',
+      'rgb(100%,0%,0%)', 'hsl(200,50%,50%)', 'hsl(200 50% 50%)', 'oklch(0.7 0.1 200)',
+      'lab(50% 40 59.5)', 'color(display-p3 1 0 0)', 'var(--brand)']) {
+      expect(validate(value), value).toBe(true);
+    }
+  });
+
+  it('rejects malformed colors', () => {
     expect(validate('#WWW')).toBe(false);
-    expect(validate('red')).toBe(false);
     expect(validate('not-a-color')).toBe(false);
+    expect(validate('')).toBe(false);
+    expect(validate(42)).toBe(false);
   });
 });
 
@@ -36,9 +46,34 @@ describe('cssColor', () => {
     expect(validate('none')).toBe(false);
   });
 
+  it('accepts named, hsl and modern-space colors', () => {
+    for (const value of ['red', 'hsl(200,50%,50%)', 'oklch(0.7 0.1 200)', 'var(--brand)']) {
+      expect(validate(value), value).toBe(true);
+    }
+  });
+
   it('rejects malformed colors', () => {
     expect(validate('#WWW')).toBe(false);
     expect(validate('not-a-color')).toBe(false);
+  });
+});
+
+// CONFIG-1: the ramp bounds are handed to d3 scale ranges, so they must stay parseable by
+// d3-color — wider than the old regex, but still no keywords or css-only forms
+describe('color (series color-scale bounds)', () => {
+  const validate = configValidators.color();
+
+  it('accepts anything d3-color can interpolate', () => {
+    for (const value of ['red', 'rebeccapurple', '#f00', '#ff000080', 'rgb(1,2,3)',
+      'rgba(0,0,0,0.3)', 'hsl(200,50%,50%)', 'transparent']) {
+      expect(validate(value), value).toBe(true);
+    }
+  });
+
+  it('rejects keywords and css forms d3-color cannot resolve to a value', () => {
+    for (const value of ['currentColor', 'none', 'var(--brand)', 'oklch(0.7 0.1 200)', 'not-a-color', '']) {
+      expect(validate(value), value).toBe(false);
+    }
   });
 });
 

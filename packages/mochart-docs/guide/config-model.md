@@ -86,6 +86,13 @@ accepts `'currentColor'` to follow the host page's CSS `color` (how chart
 chrome themes itself — see [Theming and dark mode](/guide/theming)), and `'none'`
 to switch that half of the style off.
 
+Style colors are written straight to the DOM, so any CSS color the browser
+understands works — named (`red`), hex 3/4/6/8, `rgb()`/`hsl()` in either
+syntax, `oklch()`, `var(--brand)`. The exception is the series color-scale
+bounds (`colorScale.min`, `colorScale.max`, `colorScale.missing`,
+`colorScale.base.*`) and `colorPalette` entries: mochart interpolates those
+itself, so they must be concrete colors — no keywords, no `var()`.
+
 Reference pages link to nested members with dotted anchors, so
 [`shapeStyle.normal.fillColor`](/reference/series#series.shapeStyle.normal.fillColor)
 is addressable in its own right.
