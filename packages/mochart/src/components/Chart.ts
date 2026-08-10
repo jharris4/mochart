@@ -82,6 +82,7 @@ interface ChartUniqueIds {
   categoryAxisTickLabelClipPathUniqueId: string;
   valueAxisTitleClipPathUniqueIds: Record<string, string>;
   seriesClipPathUniqueId: string;
+  clipIndicatorPatternUniqueId: string;
   seriesColorGradientUniqueIds: Record<string, string>;
   gradientIdMap: Record<string, string>;
   linearGradientIdMap: Record<string, string>;
@@ -119,6 +120,7 @@ const categoryAxisTitleClipPathIdPrefix = 'categoryaxistitle__clippath__';
 const categoryAxisTickLabelClipPathIdPrefix = 'categoryaxisticklabel__clippath__';
 const valueAxisTitleClipPathIdPrefix = 'valueaxistitle__clippath__';
 const seriesClipPathIdPrefix = 'series__clippath__';
+const clipIndicatorPatternIdPrefix = 'clipindicator__pattern__';
 const linearGradientIdPrefix = 'linear__gradient__';
 const radialGradientIdPrefix = 'radial__gradient__';
 const seriesColorGradientIdPrefix = 'seriescolor__gradient__';
@@ -450,6 +452,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const categoryAxisTitleClipPathUniqueId = categoryAxisTitleClipPathIdPrefix + uniqueId;
     const categoryAxisTickLabelClipPathUniqueId = categoryAxisTickLabelClipPathIdPrefix + uniqueId;
     const seriesClipPathUniqueId = seriesClipPathIdPrefix + uniqueId;
+    const clipIndicatorPatternUniqueId = clipIndicatorPatternIdPrefix + uniqueId;
     const valueAxisTitleClipPathUniqueIds: Record<string, string> = Object.create(null);
     for (const { id } of valueAxisConfigs) {
       valueAxisTitleClipPathUniqueIds[id] = valueAxisTitleClipPathIdPrefix + uniqueId + '__' + id;
@@ -470,7 +473,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const uniqueIds = {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId,
       categoryAxisTitleClipPathUniqueId, categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds,
-      seriesClipPathUniqueId, seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
+      seriesClipPathUniqueId, clipIndicatorPatternUniqueId,
+      seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
     };
     return { uniqueIds };
   }
@@ -1120,7 +1124,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const {
       svgUniqueId, tooltipClipPathUniqueId, titleClipPathUniqueId, legendClipPathUniqueId, categoryAxisTitleClipPathUniqueId,
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, seriesClipPathUniqueId,
-      seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
+      clipIndicatorPatternUniqueId, seriesColorGradientUniqueIds, gradientIdMap, linearGradientIdMap, radialGradientIdMap
     } = uniqueIds!;
     const {
       chartContentLayoutInfo, titleLayoutInfo, titlePrefixLayoutInfo, titleTextLayoutInfo, titleTextRawLayoutInfo, titleSuffixLayoutInfo,
@@ -1252,6 +1256,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           categoryAxisTickLabelClipPathUniqueId,
           seriesClipPathUniqueId,
           clippedEdges: getClippedEdges(mochartConfig, chartData!),
+          clipIndicatorPatternUniqueId,
           valueAxisTitleClipPathUniqueIds,
           tooltipClipPathUniqueId });
       }

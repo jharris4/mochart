@@ -43,6 +43,7 @@ const sectionInterfaceMap: Record<string, string> = {
   animation: 'AnimationConfig',
   chart: 'ChartConfig',
   colorPalette: 'ColorPaletteConfig',
+  clipIndicator: 'ClipIndicatorConfig',
   crosshair: 'CrosshairConfig',
   categoryAxis: 'CategoryAxisConfig',
   legend: 'LegendConfig',

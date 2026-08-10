@@ -8,6 +8,7 @@ import accessibilityValidators from './accessibilityConfig';
 import animationValidators from './animationConfig';
 import chartValidators from './chartConfig';
 import colorPaletteValidators from './colorPaletteConfig';
+import clipIndicatorValidators from './clipIndicatorConfig';
 import crosshairValidators from './crosshairConfig';
 import categoryAxisValidators from './categoryAxisConfig';
 import legendValidators from './legendConfig';
@@ -105,6 +106,10 @@ export const configWithoutAllValidators: Record<string, ConfigSectionValidator> 
   colorPalette: {
     validator: objectValidator,
     validators: () => colorPaletteValidators()
+  },
+  clipIndicator: {
+    validator: objectValidator,
+    validators: () => clipIndicatorValidators()
   },
   crosshair: {
     validator: objectValidator,

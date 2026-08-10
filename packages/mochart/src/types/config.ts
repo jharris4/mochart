@@ -365,48 +365,83 @@ export interface PlotConfig {
    */
   clipOverflow: MarginPadding;
   /**
-   * Whether to mark the plot edges that have data hidden behind them, which
-   * happens when an axis min or max excludes some of the values.
-   *
-   * @default true
-   */
-  showClipIndicator: boolean;
-  /**
-   * The depth (in pixels) of the clip indicator band (use "auto" to size it
-   * from the indicator font size plus clipIndicatorPadding on both sides).
-   *
-   * @default "auto"
-   */
-  clipIndicatorSize: number | Auto;
-  /**
-   * The space (in pixels) between the clip indicator label and the edges of its
-   * band, which also determines the band depth when clipIndicatorSize is
-   * "auto".
-   *
-   * @default 2
-   */
-  clipIndicatorPadding: number;
-  /**
-   * The styles to apply to the clip indicator band (strokeColor, strokeOpacity,
-   * strokeWidth, fillColor, fillOpacity (use null for none)).
-   *
-   * @default { strokeColor: null, strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.15 }
-   */
-  clipIndicatorStyle: Style;
-  /**
-   * Whether the clip indicator should be shown in front (true) or behind
-   * (false) the series shapes.
-   *
-   * @default true
-   */
-  clipIndicatorFront: boolean;
-  /**
    * The styles to apply to the plot background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
    * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
    */
   backgroundStyle: Style;
+}
+
+export interface ClipIndicatorHatchConfig {
+  spacing: number;
+  width: number;
+}
+
+export interface ClipIndicatorConfig {
+  /**
+   * Whether to mark the plot edges that have data hidden behind them, which
+   * happens when an axis min or max excludes some of the values.
+   *
+   * @default true
+   */
+  visible: boolean;
+  /**
+   * The depth (in pixels) of the clip indicator band (use "auto" to size it
+   * from the label plus padding on both sides).
+   *
+   * @default "auto"
+   */
+  size: number | Auto;
+  /**
+   * The space (in pixels) between the clip indicator label and the edges of its
+   * band, which also determines the band depth when size is "auto".
+   *
+   * @default 2
+   */
+  padding: number;
+  /**
+   * The text shown in the clip indicator band, and the band's accessible name
+   * (use null for no label; the band is still shown).
+   *
+   * @default "Clipped"
+   */
+  label: string | null;
+  /**
+   * The styles to apply to the clip indicator label (strokeColor,
+   * strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none)).
+   *
+   * @default { strokeColor: null, strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.7 }
+   */
+  textStyle: Style;
+  /**
+   * The styles to apply to the clip indicator band, whose fillColor draws the
+   * hatch when one is set (strokeColor, strokeOpacity, strokeWidth, fillColor,
+   * fillOpacity (use null for none)).
+   *
+   * Default:
+   * - `{ strokeColor: "currentColor", strokeOpacity: 0.4, strokeWidth: 1,
+   *   strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.4 }` —
+   *   when hatch is set
+   * - `{ strokeColor: null, strokeOpacity: 0, strokeWidth: null,
+   *   strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.15 }` —
+   *   when hatch is null
+   */
+  style: Style;
+  /**
+   * The diagonal hatch filling the clip indicator band (use null for a flat
+   * fill instead).
+   *
+   * @default { spacing: 6, width: 2 }
+   */
+  hatch: ClipIndicatorHatchConfig | null;
+  /**
+   * Whether the clip indicator should be shown in front (true) or behind
+   * (false) the series shapes.
+   *
+   * @default true
+   */
+  showInFront: boolean;
 }
 
 export interface PieConfig {
@@ -3075,6 +3110,7 @@ export interface MochartConfig {
   animation: AnimationConfig;
   chart: ChartConfig;
   colorPalette: ColorPaletteConfig;
+  clipIndicator: ClipIndicatorConfig;
   crosshair: CrosshairConfig;
   categoryAxis: CategoryAxisConfig;
   legend: LegendConfig;
@@ -3126,6 +3162,7 @@ export interface MochartInputConfig {
   animation?: DeepPartial<AnimationConfig>;
   chart?: DeepPartial<ChartConfig>;
   colorPalette?: DeepPartial<ColorPaletteConfig>;
+  clipIndicator?: DeepPartial<ClipIndicatorConfig>;
   crosshair?: DeepPartial<CrosshairConfig>;
   categoryAxis?: DeepPartial<CategoryAxisConfig>;
   legend?: DeepPartial<LegendConfig>;
