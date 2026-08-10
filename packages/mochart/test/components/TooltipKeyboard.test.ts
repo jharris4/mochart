@@ -260,6 +260,272 @@ describe('tooltip row keyboard semantics', () => {
     expect(tooltipRows(container).map(row => row.getAttribute('tabindex'))).toEqual(['0', '-1']);
   });
 
+  it('moves back with ArrowUp and ArrowLeft, and to the last row with End', () => {
+    const container = mountChart(makeConfig({ showControls: true }));
+    openTooltip(container);
+
+    const rows = tooltipRows(container);
+    rows[0].focus();
+
+    key(rows[0], 'End');
+    expect(document.activeElement).toBe(rows[1]);
+
+    key(rows[1], 'ArrowUp');
+    expect(document.activeElement).toBe(rows[0]);
+
+    // clamped at the first row
+    key(rows[0], 'ArrowLeft');
+    expect(document.activeElement).toBe(rows[0]);
+  });
+
+  it('ignores keys that do not move, and keydowns from outside a row', () => {
+    const container = mountChart(makeConfig({ showControls: true }));
+    openTooltip(container);
+
+    const rows = tooltipRows(container);
+    rows[1].focus();
+
+    key(rows[1], 'a');
+    expect(document.activeElement).toBe(rows[1]);
+
+    // the handler sits on the row container, so it also sees keys from the gaps between rows
+    key(rows[1].parentElement!, 'Home');
+    expect(document.activeElement).toBe(rows[1]);
+  });
+
+  it('keeps the roving tab stop when the same row takes focus again', () => {
+    const container = mountChart(makeConfig({ showControls: true }));
+    openTooltip(container);
+
+    const rows = tooltipRows(container);
+    rows[1].focus();
+    expect(tooltipRows(container).map(row => row.getAttribute('tabindex'))).toEqual(['-1', '0']);
+
+    // focus landing anywhere but a row leaves the stop where it is
+    rows[1].parentElement!.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    expect(tooltipRows(container).map(row => row.getAttribute('tabindex'))).toEqual(['-1', '0']);
+  });
+
+  it('falls back to a control button when filtering unmounts the last row', () => {
+    const container = mountChart(makeConfig({ showControls: true, hideFiltered: true }, {
+      series: [{ id: 'S0', property: 'sales' }]
+    }));
+    openTooltip(container);
+
+    const only = tooltipRows(container)[0];
+    only.focus();
+    key(only, 'Enter');
+
+    expect(tooltipRows(container).length).toBe(0);
+    expect((document.activeElement as HTMLElement).tagName).toBe('BUTTON');
+  });
+
+  it('gives the category row the tab stop and Space when it holds focus', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ showControls: true }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+    modeButton(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    tooltipRows(container)[1].focus();
+    expect(tooltipRows(container).map(row => row.getAttribute('tabindex'))).toEqual(['-1', '0', '-1']);
+
+    tooltipRows(container)[0].focus();
+    expect(tooltipRows(container).map(row => row.getAttribute('tabindex'))).toEqual(['0', '-1', '-1']);
+
+    key(tooltipRows(container)[0], ' ');
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1);
+
+    const before = focuses.length;
+    key(tooltipRows(container)[0], 'a');
+    expect(focuses.length).toBe(before);
+  });
+
+  it('switches the mode back to filter on a second click', () => {
+    const container = mountChart(makeConfig({ showControls: true }));
+    openTooltip(container);
+
+    modeButton(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(modeButton(container).textContent).toBe('Focus');
+
+    modeButton(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(modeButton(container).textContent).toBe('Filter');
+    expect(tooltipRows(container).map(row => row.getAttribute('data-row-key'))).toEqual(['series-S0', 'series-S1']);
+  });
+});
+
+describe('tooltip row pointer focus', () => {
+  const categoryLine = (container: Element) => container.querySelector('.mochart-tooltip .mochart-tooltip-category-line')!;
+  const seriesLine = (container: Element, seriesId: string) =>
+    container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-' + seriesId + '"]')!;
+
+  it('focuses the category from hover when focusCategoryOnMouseOver is set without the controls', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ focusCategoryOnMouseOver: true }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+
+    categoryLine(container).dispatchEvent(new MouseEvent('mouseenter'));
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
+    categoryLine(container).dispatchEvent(new MouseEvent('mouseleave'));
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1);
+  });
+
+  it('focuses the category from hover in filter mode with the controls shown', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ showControls: true, focusCategoryOnMouseOver: true }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+
+    categoryLine(container).dispatchEvent(new MouseEvent('mouseenter'));
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(0);
+    categoryLine(container).dispatchEvent(new MouseEvent('mouseleave'));
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1);
+
+    // focus mode hands the category row over to click-to-focus, so hover stops acting
+    modeButton(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const before = focuses.length;
+    categoryLine(container).dispatchEvent(new MouseEvent('mouseenter'));
+    categoryLine(container).dispatchEvent(new MouseEvent('mouseleave'));
+    expect(focuses.length).toBe(before);
+  });
+
+  it('leaves the category alone on hover when the config is off', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ showControls: true }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+
+    const before = focuses.length;
+    categoryLine(container).dispatchEvent(new MouseEvent('mouseenter'));
+    categoryLine(container).dispatchEvent(new MouseEvent('mouseleave'));
+    expect(focuses.length).toBe(before);
+  });
+
+  it('focuses the category on click through focusCategoryOnClick without the controls', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ focusCategoryOnClick: true }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+
+    // opening the tooltip focused category 0, so the click toggles it back off
+    categoryLine(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedCategoryIndex).toBe(-1);
+  });
+
+  it('leaves the category alone on click in filter mode', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ showControls: true }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+
+    const before = focuses.length;
+    categoryLine(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses.length).toBe(before);
+  });
+
+  it('does not highlight a filtered series on hover', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ showControls: true }), {
+      filteredSeriesIds: { S0: true }, onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+
+    const before = focuses.length;
+    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('mouseenter'));
+    expect(focuses.length).toBe(before);
+  });
+
+  it('leaves the series alone on hover when no focus config is set', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ filterSeriesOnClick: true }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+
+    const before = focuses.length;
+    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('mouseenter'));
+    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('mouseleave'));
+    expect(focuses.length).toBe(before);
+  });
+
+  it('moves the focus to another series while one is already focused', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({ showControls: true }), {
+      onFocus: focus => { focuses.push(focus); }
+    });
+    openTooltip(container);
+    modeButton(container).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    // the focus-mode click stops propagation, so the tooltip stays open
+    seriesLine(container, 'S0').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S0');
+
+    seriesLine(container, 'S1').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S1');
+  });
+});
+
+describe('tooltip rows a series can opt out of', () => {
+  it('omits a series with showInTooltip off', () => {
+    const container = mountChart(makeConfig({ showControls: true }, {
+      series: [
+        { id: 'S0', property: 'sales' },
+        { id: 'S1', property: 'costs', showInTooltip: false }
+      ]
+    }));
+    openTooltip(container);
+    expect(tooltipRows(container).map(row => row.getAttribute('data-row-key'))).toEqual(['series-S0']);
+  });
+
+  // the direction-split idiom (waterfall, candlestick, OHLC): a missing side
+  // means "not this series' direction", so the row is left out rather than
+  // rendered as "value – N/A"
+  it('omits a ranged row whose category is missing one side', () => {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    handles.push(createDefaultChart(container, {
+      config: {
+        version: '1.0.0',
+        animation: { animate: false },
+        tooltip: { showControls: true },
+        categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+        series: [
+          { id: 'S0', property: 'sales' },
+          { id: 'S1', property: 'open', rangeProperty: 'close', renderer: 'bar',
+            missingValues: 'connect', partialRangeIsMissing: true }
+        ]
+      } as unknown as MochartInputConfig,
+      data: [
+        { month: 'Jan', sales: 10, open: 5 },
+        { month: 'Feb', sales: 20, open: 8, close: 12 },
+        { month: 'Mar', sales: 30, open: 9, close: 15 }
+      ],
+      width: WIDTH, height: HEIGHT
+    } as DefaultChartProps));
+    openTooltip(container);
+
+    expect(tooltipRows(container).map(row => row.getAttribute('data-row-key'))).toEqual(['series-S0']);
+  });
+
+  it('renders a tooltip with no series rows at all', () => {
+    const container = mountChart(makeConfig({ showControls: true }, {
+      series: [
+        { id: 'S0', property: 'sales', showInTooltip: false },
+        { id: 'S1', property: 'costs', showInTooltip: false }
+      ]
+    }));
+    openTooltip(container);
+    expect(tooltipRows(container).length).toBe(0);
+    expect(container.querySelector('.mochart-tooltip-category-line')).not.toBeNull();
+  });
+
   it('closes on Escape anywhere inside and returns focus to the plot tab stop', () => {
     const container = mountChart(makeConfig({ showControls: true }));
     openTooltip(container);
