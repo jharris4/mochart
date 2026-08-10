@@ -111,6 +111,23 @@ describe('chart mouse events', () => {
   });
 });
 
+describe('background clicks', () => {
+  // every Background is rendered without an onClick prop, so its own handler is
+  // inert and the click reaches the chart root by bubbling
+  it('reach the chart click callback by bubbling', () => {
+    const clicks: ChartEventPayload[] = [];
+    const container = mountChart(makeConfig(), { onChartClick: payload => { clicks.push(payload); } });
+    const background = container.querySelector('.mochart-plot-background')!;
+    expect(background).not.toBeNull();
+
+    mouse(container.querySelector('[data-mochart-version]')!, 'mouseenter', 100, 100);
+    mouse(background, 'click', 100, 100);
+
+    expect(clicks.length).toBe(1);
+    expect(clicks[0].categoryIndex).toBe(0);
+  });
+});
+
 describe('title layout variants', () => {
   it('renders a centered title with prefix and suffix', () => {
     const container = mountChart(makeConfig({
