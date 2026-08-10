@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 27 fixed (3 partial), 6 needing an answer, 123 open.**
+**Status: 27 fixed (3 partial), 7 needing an answer, 123 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -2483,7 +2483,7 @@ silent. All nine library dists — every one of which was stale on this checkout
 Lint and deadcode clean.
 
 ### TOOL-2 — no release pipeline, no CHANGELOG, and no version tooling for 9 public packages
-**High · Missing feature · [.github/workflows/](.github/workflows/) (only `ci.yml`)** — **Open**
+**High · Missing feature · [.github/workflows/](.github/workflows/) (only `ci.yml`)** — **Open**, needs an answer
 
 Nine packages carry `publishConfig: {access: "public"}` and `prepack` build hooks, all pinned at
 `1.0.0` with cross-package `^1.0.0` ranges. There is no publish workflow, no
@@ -2496,6 +2496,26 @@ publishing `@mochart/react@1.0.1` against a `@mochart/core@1.0.1` that was never
 then `npm publish --workspaces --provenance`; adopt Changesets for coordinated bumps and generated
 CHANGELOGs; add an `npm pack --dry-run` tarball-contents check so `files` regressions fail before a
 release.
+
+**Needs an answer — not fixed.** Confirmed as described. This is the one finding in the High tier
+that is a *policy* decision rather than a defect: a release pipeline encodes how you want to cut
+versions, and picking Changesets (or not) shapes every future PR, so guessing costs more than
+asking. Two details worth having before you choose: the packages already carry `prepack` build
+hooks, so tarball freshness is handled once a workflow exists; and cross-package ranges are
+`^1.0.0`, which means a coordinated bump is the only correct shape — a lone `@mochart/react`
+publish against an unpublished `@mochart/core` is exactly the failure the finding names.
+
+> **QUESTION (needs an answer):** **Which shape do you want?** (a) **[recommended]** Changesets —
+> contributors add a changeset per PR, a release PR accumulates bumps and CHANGELOGs, merging it
+> publishes; handles the coordinated `^1.0.0` bumps for free; (b) a tag-triggered
+> `release.yml` running the CI gate then `npm publish --workspaces --provenance`, with versions
+> bumped by hand — much less machinery, but nothing generates a CHANGELOG or keeps the nine
+> packages in step; (c) manual publishing as today, plus only the `npm pack --dry-run`
+> tarball-contents check in CI so `files` regressions are caught even without a pipeline.
+>
+> *Recommendation: (a), and (c) regardless of which you pick.* The pack check is independently
+> worth having and costs one CI step. If you want (a), say so and I will wire up Changesets,
+> `release.yml` with `--provenance`, and the pack check together.
 
 ### TOOL-3 — no dependency audit anywhere, and 9 known vulnerabilities are present
 **High · Tooling gap · [ci.yml:20-33](.github/workflows/ci.yml#L20); no `dependabot.yml`, no `renovate.json`** — **Partially fixed**, with an open question
