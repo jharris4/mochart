@@ -1,0 +1,27 @@
+version: 2
+
+updates:
+  # One grouped PR a week rather than a PR per package: the workspaces share
+  # most of their toolchain, so ungrouped updates would open dozens at once.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+      production-dependencies:
+        dependency-type: production
+        update-types: [minor, patch]
+    # Majors land as their own PR — d3, Angular and the framework peers all
+    # need the demos checked by hand.
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

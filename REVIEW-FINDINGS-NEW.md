@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 26 fixed (2 partial), 5 needing an answer, 124 open.**
+**Status: 27 fixed (3 partial), 6 needing an answer, 123 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -2498,7 +2498,7 @@ CHANGELOGs; add an `npm pack --dry-run` tarball-contents check so `files` regres
 release.
 
 ### TOOL-3 — no dependency audit anywhere, and 9 known vulnerabilities are present
-**High · Tooling gap · [ci.yml:20-33](.github/workflows/ci.yml#L20); no `dependabot.yml`, no `renovate.json`** — **Open**
+**High · Tooling gap · [ci.yml:20-33](.github/workflows/ci.yml#L20); no `dependabot.yml`, no `renovate.json`** — **Partially fixed**, with an open question
 
 CI runs lint/deadcode/typecheck/test/e2e/build but never `npm audit`. `npm audit` reports **9
 vulnerabilities (3 moderate, 6 high)** today: `react-router 7.12.0–7.18.1` (high, CSRF bypass —
@@ -2507,6 +2507,32 @@ a direct dependency of `@mochart/demo-react`, so it ships in the deployed Pages/
 
 **Fix:** add `npm audit --audit-level=high` to the `build-test` job (or a scheduled job so a new
 advisory doesn't block unrelated PRs), and add `.github/dependabot.yml` with a weekly grouped npm check.
+
+**Partially fixed automatically — the rest needs an answer.**
+
+*Fixed:* the tooling gap. `.github/dependabot.yml` runs a weekly grouped npm check (dev and
+production grouped separately, majors excluded so d3/Angular/framework-peer bumps land as their
+own reviewable PR) plus a github-actions check. `.github/workflows/audit.yml` runs
+`npm audit --audit-level=high` weekly and on demand, with `npm ci --ignore-scripts` since an audit
+needs the tree resolved, not built.
+
+Deliberately **scheduled rather than added to `build-test`**: `npm audit --audit-level=high`
+exits 1 on this checkout right now, so wiring it into CI would have turned every open PR red
+overnight for advisories none of them introduced. The finding offers both placements; this is the
+one that does not break the build while you are away.
+
+> **QUESTION (needs an answer):** the 9 live advisories are untouched. `npm audit fix` claims to
+> resolve them, but it rewrites `package-lock.json`, and `react-router` is a direct dependency of
+> the deployed `@mochart/demo-react` — so it wants a real build-and-click, not an unattended
+> command. **Which do you want:** (a) **[recommended]** run `npm audit fix`, then
+> `npm run build:pages` and click through the React gallery before committing the lockfile;
+> (b) pin the three advisory roots (`react-router`, `undici`, `postcss`) explicitly and bump them
+> deliberately; or (c) leave them and let the new weekly audit job report until Dependabot's first
+> grouped PR arrives?
+>
+> *Recommendation: (a).* All three are patch/minor moves inside the declared ranges, and the
+> weekly job is only useful once the baseline is green — an audit that always fails is an audit
+> nobody reads.
 
 ### TOOL-4 — `npm run deadcode` filters out knip's dependency and duplicate-export checks
 **Medium · Tooling gap · [package.json:41](package.json#L41) — `knip --include exports,types,files`** — **Open**
