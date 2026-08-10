@@ -11,7 +11,9 @@ import AxisThresholdContainer from './AxisThresholdContainer';
 import SeriesContainer from './SeriesContainer';
 import type { SeriesShapeA11yProps } from './SeriesBackground';
 import Crosshair from './Crosshair';
+import ClipIndicator from './ClipIndicator';
 import type { EnhancedMochartConfig } from '../types/enhanced';
+import type { ClippedEdges } from '../types/data';
 import type { InternalFocus } from '../types/chart';
 import type { AxisData, ChartData, CategoryAxisData, ValueAxisData, StackData } from '../types/data';
 import type { FocusData } from '../types/animation';
@@ -33,6 +35,7 @@ interface PlotFrontBackProps {
   categoryAxisTickLabelClipPathUniqueId: string;
   valueAxisTitleClipPathUniqueIds: Record<string, string>;
   seriesClipPathUniqueId: string;
+  clippedEdges: ClippedEdges;
   onFocus: (focus: InternalFocus) => void;
 }
 
@@ -86,8 +89,10 @@ export default class Plot extends Renderer<PlotProps> {
   root = svgEl('g');
   background = this.slot(this.root);
   back = this.slot(this.root);
+  clipIndicatorBack = this.slot(this.root);
   seriesContainer = this.slot(this.root);
   front = this.slot(this.root);
+  clipIndicatorFront = this.slot(this.root);
   crosshair = this.slot(this.root);
 
   create() {
@@ -97,7 +102,7 @@ export default class Plot extends Renderer<PlotProps> {
   sync() {
     const { mochartConfig, categoryAxisLayoutInfo, valueAxisLayoutInfos, seriesLayoutInfo, plotLayoutInfo,
       chartData, focusData, axisData, stackData, categoryValueData, gradientIdMap, categoryAxisTitleClipPathUniqueId,
-      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, seriesClipPathUniqueId, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
+      categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, tooltipClipPathUniqueId, seriesClipPathUniqueId, clippedEdges, onFocus, onSeriesShapeClick, shapeRef, a11yProps } = this.props;
     const { plot: plotConfig } = mochartConfig;
     const { categoryFocusDomainPercentages = [], seriesFocusDomainPercentages = [] } = focusData;
     const { value: valueAxisData } = axisData;
@@ -130,6 +135,11 @@ export default class Plot extends Renderer<PlotProps> {
       gradientIdMap, shapeRef, a11yProps, seriesClipPathUniqueId });
 
     this.front.set(PlotFrontBack, frontBackProps(true));
+
+    // one slot each side of the series container; only the chosen one is populated
+    const clipIndicatorProps = { mochartConfig, seriesLayoutInfo, clippedEdges };
+    this.clipIndicatorFront.set(mochartConfig.plot.clipIndicatorFront ? ClipIndicator : null, clipIndicatorProps);
+    this.clipIndicatorBack.set(mochartConfig.plot.clipIndicatorFront ? null : ClipIndicator, clipIndicatorProps);
 
     this.crosshair.set(Crosshair, { mochartConfig, seriesLayoutInfo,
       categoryPercentages: categoryFocusDomainPercentages, seriesPercentages: seriesFocusDomainPercentages,

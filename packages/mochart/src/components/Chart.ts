@@ -27,6 +27,7 @@ import TitleClip from './TitleClip';
 import AxisTitleClip from './AxisTitleClip';
 import CategoryAxisTickLabelClip from './CategoryAxisTickLabelClip';
 import SeriesClip from './SeriesClip';
+import { getClippedEdges } from '../data/ClipData';
 import SeriesColorGradient from './SeriesColorGradient';
 import LinearGradient from './LinearGradient';
 import RadialGradient from './RadialGradient';
@@ -1250,6 +1251,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           categoryAxisTitleClipPathUniqueId,
           categoryAxisTickLabelClipPathUniqueId,
           seriesClipPathUniqueId,
+          clippedEdges: getClippedEdges(mochartConfig, chartData!),
           valueAxisTitleClipPathUniqueIds,
           tooltipClipPathUniqueId });
       }

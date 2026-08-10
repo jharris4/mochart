@@ -1802,6 +1802,46 @@ table thead td { border-bottom-width: 2px; }
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.backgroundStyle.strokeWidth">backgroundStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
 </td>
 </tr>
+<tr id="plot.clipIndicatorFront">
+<td><a href="#plot.clipIndicatorFront">clipIndicatorFront</a></td><td>whether the clip indicator should be shown in front (true) or behind (false) the series shapes</td><td>should be a boolean</td><td><div>true</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorPadding">
+<td><a href="#plot.clipIndicatorPadding">clipIndicatorPadding</a></td><td>the space (in pixels) between the clip indicator label and the edges of its band, which also determines the band depth when clipIndicatorSize is "auto"</td><td>should be a number >= to 0</td><td><div>2</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorSize">
+<td><a href="#plot.clipIndicatorSize">clipIndicatorSize</a></td><td>the depth (in pixels) of the clip indicator band (use "auto" to size it from the indicator font size plus clipIndicatorPadding on both sides)</td><td>should be a number >= to 0 or be equal to "auto"</td><td><div>"auto"</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorStyle">
+<td><a href="#plot.clipIndicatorStyle">clipIndicatorStyle</a></td><td>the styles to apply to the clip indicator band (strokeColor, strokeOpacity, strokeWidth, fillColor, fillOpacity (use null for none))</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }</td><td><div>{ strokeColor: null, strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 0.15 }</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorStyle.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipIndicatorStyle.fillColor">clipIndicatorStyle.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>"currentColor"</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorStyle.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipIndicatorStyle.fillOpacity">clipIndicatorStyle.fillOpacity</a></td><td>the opacity (0 - 1) of the fill, or null to leave the svg fill-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>0.15</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorStyle.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipIndicatorStyle.strokeColor">clipIndicatorStyle.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorStyle.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipIndicatorStyle.strokeDashArray">clipIndicatorStyle.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorStyle.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipIndicatorStyle.strokeOpacity">clipIndicatorStyle.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke, or null to leave the svg stroke-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>0</div>
+</td>
+</tr>
+<tr id="plot.clipIndicatorStyle.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.clipIndicatorStyle.strokeWidth">clipIndicatorStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
+</td>
+</tr>
 <tr id="plot.clipOverflow">
 <td><a href="#plot.clipOverflow">clipOverflow</a></td><td>how far (in pixels) the series may overflow each side of the plot before being clipped; the sides are screen sides, so with inverted set the value axis runs left/right</td><td>should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 }</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
 </td>
@@ -1864,6 +1904,10 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="plot.padding.top">
 <td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#plot.padding.top">padding.top</a></td><td>the space (in pixels) along the top edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="plot.showClipIndicator">
+<td><a href="#plot.showClipIndicator">showClipIndicator</a></td><td>whether to mark the plot edges that have data hidden behind them, which happens when an axis min or max excludes some of the values</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
 </table>
