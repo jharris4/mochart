@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -100,9 +100,10 @@ function toggleConfigAnimationSlow() {
 }
 
 function applyConfig() {
-  const newConfig = parseConfig(configText.value);
-  if (newConfig !== null) {
-    props.onConfigChange(newConfig);
+  const { config, error } = parseConfigFromText(configText.value);
+  errorMessage.value = error;
+  if (config !== null) {
+    props.onConfigChange(config);
   }
 }
 

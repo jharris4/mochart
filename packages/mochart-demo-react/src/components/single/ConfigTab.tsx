@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -105,9 +105,10 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
   };
 
   const applyConfig = () => {
-    const parsed = parseConfig(state.configText);
-    if (parsed !== null) {
-      onConfigChange(parsed);
+    const { config, error } = parseConfigFromText(state.configText);
+    setErrorMessage(error);
+    if (config !== null) {
+      onConfigChange(config);
     }
   };
 

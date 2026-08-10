@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -223,9 +223,10 @@ export class ConfigTab implements OnInit, OnChanges {
   };
 
   applyConfig = (): void => {
-    const newConfig = parseConfig(this.configText());
-    if (newConfig !== null) {
-      this.onConfigChange(newConfig);
+    const { config, error } = parseConfigFromText(this.configText());
+    this.errorMessage.set(error);
+    if (config !== null) {
+      this.onConfigChange(config);
     }
   };
 

@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -104,9 +104,10 @@ export class ConfigTab extends LightElement {
   };
 
   private applyConfig = (): void => {
-    const newConfig = parseConfig(this.configText);
-    if (newConfig !== null) {
-      this.onConfigChange(newConfig);
+    const { config, error } = parseConfigFromText(this.configText);
+    this.errorMessage = error;
+    if (config !== null) {
+      this.onConfigChange(config);
     }
   };
 

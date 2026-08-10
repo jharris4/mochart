@@ -1,4 +1,4 @@
-import { buildMochartDemoConfig, copyDemoConfig, createJsonEditorContent, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfig, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, createJsonEditorContent, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -120,10 +120,12 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   }
 
   function applyConfig(): void {
-    const newConfig = parseConfig(getConfigText());
-    if (newConfig !== null) {
-      onConfigChange(newConfig);
+    const { config, error } = parseConfigFromText(getConfigText());
+    errorMessage = error;
+    if (config !== null) {
+      onConfigChange(config);
     }
+    sync();
   }
 
   const resetButton = buttonWithTooltip({
