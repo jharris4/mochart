@@ -1,22 +1,4 @@
-# mochart repo review findings — merged, 9 August 2026
-
-**Sources.** This file merges two independent review passes of the same tree:
-`OPUS-findings-2026-08-09.md` (145 findings, reproduced verbatim below) and
-`SOL-findings-2026-08-09.md` (8 findings). Five SOL findings are folded into the
-sections below with continued section ids and are tagged **[from SOL review]**.
-Three were skipped as duplicates of a finding the Opus pass already recorded:
-
-| Skipped SOL finding | Covered by |
-|---|---|
-| A callback-only title is inaccessible by keyboard | [A11Y-2](#a11y-2--ontitleclick-is-a-mouse-only-control) |
-| `ChartFactoryContext` documents values the runtime does not provide | [API-9](#api-9--state-factory-context-members-arrive-inconsistently-the-readme-implies-otherwise) (amended with SOL's two extra facts) |
-| Contributor command documentation omits CI-critical scripts | [TOOL-7](#tool-7--lint-and-deadcode-gate-every-pr-but-are-documented-nowhere) |
-
-Each finding carries a **Status** marker on its metadata line — **Open** until
-fixed, then **Fixed** with its commit hash, matching the convention in
-`REVIEW-FINDINGS.md`.
-
----
+# mochart repo analysis — 9 August 2026
 
 Analysis of the `mochart` monorepo on branch `review` (51 commits ahead of `main`,
 working tree clean). Twelve parallel audits covering the core library's data
@@ -35,10 +17,7 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
-5 from the SOL pass.)
-
-**Status: 1 fixed, 0 needing an answer, 149 open.**
+**145 findings: 1 critical, 30 high, 67 medium, 47 low.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -51,35 +30,28 @@ or direct source read during assembly, over and above the auditing agent's own w
 |---|---|---|---|---|---|---|
 | [1](#1-core--data-pipeline) | Core — data pipeline | – | 2 | 2 | 2 | 6 |
 | [2](#2-core--animation-and-layout) | Core — animation & layout | **1** | 1 | 2 | 3 | 7 |
-| [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 3 | 4 | 4 | 11 |
-| [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 3 | 12 |
+| [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 2 | 4 | 4 | 10 |
+| [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 2 | 11 |
 | [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 2 | 9 |
-| [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 5 | 7 | 13 |
+| [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 5 | 6 | 12 |
 | [7](#7-accessibility) | Accessibility | – | 2 | 5 | 5 | 12 |
 | [8](#8-framework-bindings-export-and-editor) | Bindings, export & editor | – | 2 | 6 | 4 | 12 |
-| [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
+| [9](#9-documentation) | Documentation | – | 3 | 6 | 3 | 12 |
 | [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 7 | 22 |
-| [11](#11-tests-and-coverage) | Tests & coverage | – | 3 | 8 | 4 | 15 |
+| [11](#11-tests-and-coverage) | Tests & coverage | – | 3 | 7 | 4 | 14 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 6 | 4 | 13 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **31** | **69** | **49** | **150** |
+| | **Total** | **1** | **30** | **67** | **47** | **145** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
-
-The five findings carried in from the SOL pass are
-[COMP-11](#comp-11--pointer-payloads-use-the-wrong-coordinate-frame-and-break-when-css-scaled),
-[HELP-12](#help-12--two-valid-large-pie-values-overflow-the-total-and-collapse-every-slice),
-[API-13](#api-13--the-advanced-public-input-types-are-non-nullable-and-the-controller-casts-around-it),
-[DOC-13](#doc-13--filtering-every-series-does-not-activate-the-documented-no-series-state) and
-[TEST-15](#test-15--the-claimed-three-engine-browser-support-is-only-ever-tested-in-chromium).
 
 ---
 
 # 1. Core — data pipeline
 
 ### DATA-1 — `null` in the data collapses the value axis to a single point
-**High · Bug · [DomainData.ts:38](packages/mochart/src/data/DomainData.ts#L38)** **[verified]** — **Open**
+**High · Bug · [DomainData.ts:38](packages/mochart/src/data/DomainData.ts#L38)** **[verified]**
 
 The missing-value guard is `value !== undefined && !Number.isNaN(value)`. `Number.isNaN(null)`
 is `false`, so `null` reaches the comparisons — where `min === null` doubles as the
@@ -105,7 +77,7 @@ and the equivalent `Number.isFinite` check on the numeric form (Dates included) 
 `getCategoryDomainForValues` at [:17](packages/mochart/src/data/DomainData.ts#L17).
 
 ### DATA-2 — one non-finite value wipes out the later series in a stack
-**High · Bug · [SeriesData.ts:247-276](packages/mochart/src/data/SeriesData.ts#L247)** — **Open**
+**High · Bug · [SeriesData.ts:247-276](packages/mochart/src/data/SeriesData.ts#L247)**
 
 `setStackSingleSeriesValues` treats only `undefined` as missing. `NaN >= 0` is `false`,
 so a `NaN` falls into the negative branch and is *added* into `negativeStackValues[i]`,
@@ -122,7 +94,7 @@ instead — coercing non-finite to `undefined` in `getSeriesValuesForProperty`
 ([:124](packages/mochart/src/data/SeriesData.ts#L124)) — resolves DATA-1 and DATA-2 together.
 
 ### DATA-3 — a controlled `focusedCategoryIndex` below `-1` defocuses everything
-**Medium · Bug · [FocusData.ts:37-40](packages/mochart/src/data/FocusData.ts#L37)** — **Open**
+**Medium · Bug · [FocusData.ts:37-40](packages/mochart/src/data/FocusData.ts#L37)**
 
 The guard clamps only the upper bound, and `isFocused` treats *only* `-1` as unfocused.
 `getFocusData(config, chartData, -2, …)` on a two-category chart returns
@@ -134,7 +106,7 @@ already-fixed B9, which hardened only the id paths.
 **Fix:** normalize once — `Number.isInteger(i) && i >= 0 && i < categoryValues.length ? i : -1`.
 
 ### DATA-4 — date category axes never preserve `axisData` identity
-**Medium · Bug · [AxisData.ts:33-45](packages/mochart/src/data/AxisData.ts#L33)** — **Open**
+**Medium · Bug · [AxisData.ts:33-45](packages/mochart/src/data/AxisData.ts#L33)**
 
 `scaleMutator` keeps the old scale when `areArraysAndEqual(oldScale.domain(), newScale.domain())`,
 but that helper compares with `!==`. A d3 time scale rebuilds its domain `Date` objects
@@ -151,7 +123,7 @@ runs on every animated frame.
 **Fix:** compare scale domains by value (`+a[i] === +b[i]`, handling `Date`).
 
 ### DATA-5 — `groupSeriesCounts`/`stackSeriesCounts` are computed everywhere, read nowhere
-**Low · Inconsistency · [SeriesData.ts:26-27](packages/mochart/src/data/SeriesData.ts#L26)** — **Open**
+**Low · Inconsistency · [SeriesData.ts:26-27](packages/mochart/src/data/SeriesData.ts#L26)**
 
 Both are written, copied through `getSeriesDataWithSeriesCounts`, re-derived per animation
 frame, and re-exported into every per-category tooltip value object — with no consumer.
@@ -164,7 +136,7 @@ leaves its slot empty rather than widening the survivors — which is exactly wh
 a filtered slot, or delete both fields from the five places that produce them.
 
 ### DATA-6 — `getSeriesContainerFilteredSeriesCounts` counts *unfiltered* series
-**Low · Inconsistency · [SeriesData.ts:460-474](packages/mochart/src/data/SeriesData.ts#L460)** — **Open**
+**Low · Inconsistency · [SeriesData.ts:460-474](packages/mochart/src/data/SeriesData.ts#L460)**
 
 It increments when `filteredSeriesFlags[id] === false` — i.e. it returns the number still
 shown. After the suppress→filter rename, "filtered" means legend-toggled-off, so the name
@@ -180,7 +152,7 @@ the six call sites. Behaviour unchanged.
 # 2. Core — animation and layout
 
 ### ANIM-1 — an `Infinity` phase duration wedges the chart in a permanent rAF loop
-**Critical · Bug · [DomainAnimationData.ts:75](packages/mochart/src/animation/DomainAnimationData.ts#L75)** **[verified]** — **Fixed**, with an open question
+**Critical · Bug · [DomainAnimationData.ts:75](packages/mochart/src/animation/DomainAnimationData.ts#L75)** **[verified]**
 
 `getPositiveDomainDeltaPercentage` returns `domainDeltaExtent / (domainDeltaExtent + domainExtent)`
 with no guard on the denominator. When a value axis has a *negative* extent — an explicit
@@ -208,32 +180,8 @@ so a non-finite or negative duration is treated as instant. Separately,
 [valueAxisConfig.ts:27,31](packages/mochart/src/config/validation/valueAxisConfig.ts#L27)
 accepts any `min`/`max` with **no `min < max` cross-check** — it should reject or warn. **[verified]**
 
-**Fixed automatically.** `getPositiveDomainDeltaPercentage` now clamps the denominator with
-`Math.max(domainExtent, 0)`, which is provably enough on its own: `domainDeltaExtent` is `> 0`
-inside that branch, so the ratio lands in `(0, 1]` and no separate result clamp is needed. A
-`safeDuration()` helper in `ChartTweens` maps any non-finite or negative duration to `0`
-(instant) and is applied to all four phase durations — the three in `buildDataTween` plus the
-focus tween, which computes its duration the same way. Regression test in
-`test/animation/InvertedDomainPacing.test.ts` drives real frames on a fake clock and asserts the
-animation settles and leaves no pending frame request; it fails on the unpatched source. Full
-core suite passes (1350 tests), typecheck and lint clean.
-
-One correction to the finding: `valueAxes: [{ max: 0 }]` with all-positive data does **not** hang
-— only the `min` case reproduces. The `max` case is kept as a second test regardless.
-
-> **QUESTION (needs an answer):** the `min`/`max` cross-check is left undone deliberately. The
-> hang is fixed at the maths layer, so this is now pure input hardening with a behavioural
-> trade-off: because `strict` defaults to `true`, a *warning* invalidates the config just as an
-> *error* does (see [CONFIG-9](#config-9--validateconfigs-strict-parameter-is-undocumented)), so
-> either choice turns a chart that renders today into a config-error state. An inverted domain is
-> also not obviously meaningless — `{min: 0}` on data that is currently all-negative is a
-> reasonable way to pin the axis at zero and let the data grow into it. **Which do you want:**
-> (a) reject `min >= max` as a validation error, (b) emit a warning only, (c) leave it accepted
-> and document that an explicit bound past the data inverts the domain, or (d) clamp the
-> offending bound at build time and warn?
-
 ### ANIM-2 — a zero-span domain makes every update flash to zero, then to full height
-**High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Open**
+**High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)**
 
 When all values on an axis are equal the domain collapses (`[7, 7]`). d3 renders that at
 the range midpoint, but the expansion/contraction phases interpolate to and from a
@@ -256,7 +204,7 @@ the scale or the animation deltas. At minimum use `getSafeDomainExtent`
 exactly this case) in `createValueDeltaData` and as the denominator above.
 
 ### LAYOUT-1 — negative `width`/`height` reach background rects on small or heavily spaced charts
-**Medium · Bug · [PlotLayout.ts:91](packages/mochart/src/layout/PlotLayout.ts#L91), [SpacingLayoutInfo.ts:47-53](packages/mochart/src/layout/SpacingLayoutInfo.ts#L47), [LegendLayout.ts:113-121](packages/mochart/src/layout/LegendLayout.ts#L113)** — **Open**
+**Medium · Bug · [PlotLayout.ts:91](packages/mochart/src/layout/PlotLayout.ts#L91), [SpacingLayoutInfo.ts:47-53](packages/mochart/src/layout/SpacingLayoutInfo.ts#L47), [LegendLayout.ts:113-121](packages/mochart/src/layout/LegendLayout.ts#L113)**
 
 `getPlotHeight` returns `innerHeight - titleHeight - legendHeight` unclamped;
 `createSpacingLayoutInfo` guards only on `width > 0`, never height; `getLegendLayoutInfo`
@@ -274,7 +222,7 @@ backgrounds silently disappear, and strict SVG→PNG rasterisers reject the docu
 `createSpacingLayoutInfo`; clamp `itemWidth`/`textWidth` in the legend layout.
 
 ### ANIM-3 — a structural config change replays the full mount animation, undocumented
-**Medium · Doc gap · [AnimatedDataSource.ts:112-114](packages/mochart/src/chart/AnimatedDataSource.ts#L112), [staged-animation.md:51](packages/mochart-docs/guide/staged-animation.md#L51)** — **Open**
+**Medium · Doc gap · [AnimatedDataSource.ts:112-114](packages/mochart/src/chart/AnimatedDataSource.ts#L112), [staged-animation.md:51](packages/mochart-docs/guide/staged-animation.md#L51)**
 
 `hasConfigStructureChange` routes to `start()`, which discards `chartData` and rebuilds with
 `initialAnimation = true`. The chart collapses to the axis base and regrows at
@@ -292,7 +240,7 @@ category-axis property/type/scale) on `initialDuration` and in `staged-animation
 flash is unintended, carry the current `chartData` into `start()` for the structural path.
 
 ### LAYOUT-2 — `keepInside` lets an oversized tooltip escape past the left/top edge
-**Low · Bug · [TooltipLayout.ts:50-63](packages/mochart/src/layout/TooltipLayout.ts#L50)** — **Open**
+**Low · Bug · [TooltipLayout.ts:50-63](packages/mochart/src/layout/TooltipLayout.ts#L50)**
 
 The `x < bx` / `y < by` clamps run *before* the max-edge clamps, so when the tooltip is larger
 than the bounding rect the max-edge clamp wins and pushes it out the opposite side:
@@ -302,7 +250,7 @@ than the bounding rect the max-edge clamp wins and pushes it out the opposite si
 **Fix:** clamp both ways with min last — `x = Math.max(bx, Math.min(x, bx + bwidth - width))`.
 
 ### ANIM-4 — dead store in `setKeyedSeriesDomainForDelta`
-**Low · Bug · [ChartAnimation.ts:231-235](packages/mochart/src/animation/ChartAnimation.ts#L231)** — **Open**
+**Low · Bug · [ChartAnimation.ts:231-235](packages/mochart/src/animation/ChartAnimation.ts#L231)**
 
 The `if (domainDelta[valueKey].deltaPercentage < deltaPercentage)` branch assigns
 `seriesDomainObject[valueKey]`, then line 235 unconditionally overwrites it. Harmless today
@@ -312,7 +260,7 @@ does not do.
 **Fix:** delete lines 231-233, or make 235 the `else` branch.
 
 ### ANIM-5 — shared delta constants are mutated in place
-**Low · Bug · [SeriesAnimationData.ts:843-844](packages/mochart/src/animation/SeriesAnimationData.ts#L843)** — **Open**
+**Low · Bug · [SeriesAnimationData.ts:843-844](packages/mochart/src/animation/SeriesAnimationData.ts#L843)**
 
 `getSeriesValuesDeltas` returns the module-level `emptyValueDelta` singleton for a zero delta;
 the caller then writes `deltaCopied = false` onto it, stamping a constant shared by every chart
@@ -328,7 +276,7 @@ the invariant is already understood to matter.
 # 3. Core — components, renderer and interaction
 
 ### COMP-1 — pointer enter/leave *toggles* the tooltip instead of opening/closing it
-**High · Bug · [Chart.ts:804](packages/mochart/src/components/Chart.ts#L804), [Chart.ts:849](packages/mochart/src/components/Chart.ts#L849), via [toggleTooltip:750](packages/mochart/src/components/Chart.ts#L750)** — **Open**
+**High · Bug · [Chart.ts:804](packages/mochart/src/components/Chart.ts#L804), [Chart.ts:849](packages/mochart/src/components/Chart.ts#L849), via [toggleTooltip:750](packages/mochart/src/components/Chart.ts#L750)**
 
 With `tooltip.followPointer: true`, both the enter and the leave handler call `toggleTooltip`,
 which *flips* `tooltipVisible` rather than setting it. Any other path that changes it inverts
@@ -342,7 +290,7 @@ the pairing:
 so enter always opens and leave always closes, leaving `onChartClick` as the only true toggle.
 
 ### COMP-2 — `onSeriesLayoutBoundsChange` fires from inside `derive()`, before props commit
-**High · Bug · [Chart.ts:392](packages/mochart/src/components/Chart.ts#L392) → [:727](packages/mochart/src/components/Chart.ts#L727)** **[verified]** — **Open**
+**High · Bug · [Chart.ts:392](packages/mochart/src/components/Chart.ts#L392) → [:727](packages/mochart/src/components/Chart.ts#L727)** **[verified]**
 
 `applyLayoutInfo` invokes the host callback while `Renderer.update()` is still in `derive` —
 [renderer.ts:116](packages/mochart/src/render/renderer.ts#L116) calls `derive`, and
@@ -367,7 +315,7 @@ components' post-`setState` field writes — it just wasn't fixed here.
 (`enqueue`, or the existing `measure` path) reading the committed `this.props`.
 
 ### COMP-3 — tooltip prev/next buttons leave the `aria-live` announcer stale
-**Medium · Bug (a11y) · [Chart.ts:742](packages/mochart/src/components/Chart.ts#L742), used by [TooltipControls.ts:54](packages/mochart/src/components/TooltipControls.ts#L54)** — **Open**
+**Medium · Bug (a11y) · [Chart.ts:742](packages/mochart/src/components/Chart.ts#L742), used by [TooltipControls.ts:54](packages/mochart/src/components/TooltipControls.ts#L54)**
 
 `announceTooltipCategory` is called only from `onPlotKeyDown`. `updateTooltipCategoryIndex` —
 the path the tooltip's Previous/Next buttons use — never touches the `role="status"` region,
@@ -380,7 +328,7 @@ the visible tooltip.
 `updateTooltipCategoryIndex`, and drop the now-redundant explicit calls in `onPlotKeyDown`.
 
 ### COMP-4 — `isMouseWithinChart` latches on when the pointer handlers are detached
-**Medium · Bug · [Chart.ts:348](packages/mochart/src/components/Chart.ts#L348), gated at [:1044](packages/mochart/src/components/Chart.ts#L1044)** — **Open**
+**Medium · Bug · [Chart.ts:348](packages/mochart/src/components/Chart.ts#L348), gated at [:1044](packages/mochart/src/components/Chart.ts#L1044)**
 
 `chartEventHandler` is swapped for `{}` whenever `loading` turns on or the chart loses data.
 If the pointer is inside at that moment the real `mouseleave` is never observed and the flag
@@ -393,7 +341,7 @@ period. The host's enter/leave callbacks stay inverted until the pointer leaves 
 map, and in the no-size / no-config early returns.
 
 ### COMP-5 — leaving a *filtered* tooltip row clears the focused series
-**Medium · Bug · [TooltipContent.ts:378](packages/mochart/src/components/TooltipContent.ts#L378)** — **Open**
+**Medium · Bug · [TooltipContent.ts:378](packages/mochart/src/components/TooltipContent.ts#L378)**
 
 `onSeriesMouseEnter` correctly skips filtered series ([:373](packages/mochart/src/components/TooltipContent.ts#L373)),
 but `onSeriesMouseLeave` has no matching guard and unconditionally emits `onFocus({ seriesId: null })`.
@@ -406,7 +354,7 @@ guard ([Legend.ts:266](packages/mochart/src/components/Legend.ts#L266)).
 emit the clearing `onFocus` on leave/blur if it was.
 
 ### COMP-6 — Legend drops keyboard focus to `<body>` when its focused item disappears
-**Medium · Bug (a11y) · [Legend.ts:176-220](packages/mochart/src/components/Legend.ts#L176)** — **Open**
+**Medium · Bug (a11y) · [Legend.ts:176-220](packages/mochart/src/components/Legend.ts#L176)**
 
 `SeriesContainer` and `PieSeriesContainer` both snapshot `document.activeElement` before
 `sync(...)` and re-focus the inheriting node afterwards. `Legend` computes `effectiveRovingId`
@@ -419,7 +367,7 @@ that drops `S1` → `document.activeElement` becomes `BODY`. Fires on any dynami
 nearest-following-neighbour fallback too.
 
 ### COMP-7 — negative `width`/`height` on the legend icon when `iconBorderSize` exceeds `iconSize`
-**Low · Bug · [SeriesColorIcon.ts:193](packages/mochart/src/components/SeriesColorIcon.ts#L193)** — **Open**
+**Low · Bug · [SeriesColorIcon.ts:193](packages/mochart/src/components/SeriesColorIcon.ts#L193)**
 
 Both validate as `numberMin(0)` independently, so `shapeSize = iconSize - iconBorderSize` can
 go negative and is written straight to the rect: `legend: { iconSize: 4, iconBorderSize: 10,
@@ -430,7 +378,7 @@ the element, so the icon vanishes with no diagnostic.
 cross-field validation warning.
 
 ### COMP-8 — thresholds on an ordinal category axis render nothing, silently
-**Low · Inconsistency · [AxisThresholdLine.ts:63](packages/mochart/src/components/AxisThresholdLine.ts#L63)** — **Open**
+**Low · Inconsistency · [AxisThresholdLine.ts:63](packages/mochart/src/components/AxisThresholdLine.ts#L63)**
 
 The render gate is `scale === SCALE_LINEAR`, and `Scale` is only `'ordinal' | 'linear'` — so
 every threshold on an ordinal axis (the default for string categories) is dropped. The config
@@ -443,7 +391,7 @@ emitted but empty, so it reads as a rendering failure rather than an unsupported
 does), or emit a validation warning and document the restriction.
 
 ### COMP-9 — `TooltipSeriesLine` leaks a child `Slot` on every `rightAlignValues` flip
-**Low · Bug (teardown) · [TooltipContent.ts:171](packages/mochart/src/components/TooltipContent.ts#L171), [:190](packages/mochart/src/components/TooltipContent.ts#L190)** — **Open**
+**Low · Bug (teardown) · [TooltipContent.ts:171](packages/mochart/src/components/TooltipContent.ts#L171), [:190](packages/mochart/src/components/TooltipContent.ts#L190)**
 
 The icon `Slot` is created inside the `ElSlot` `init` callback, so each `'aligned' ↔ 'plain'`
 key change registers a new region on the renderer while the old one — still holding a mounted
@@ -455,7 +403,7 @@ but never destroys the child renderer. Unbounded growth for a host that lets use
 before reassigning.
 
 ### COMP-10 — `liveRegionNode` retains a detached node after the body is torn down
-**Low · Bug · [Chart.ts:1181](packages/mochart/src/components/Chart.ts#L1181)** **[verified]** — **Open**
+**Low · Bug · [Chart.ts:1181](packages/mochart/src/components/Chart.ts#L1181)** **[verified]**
 
 `this.liveRegionNode` is assigned only inside `syncBody`. The error and no-size branches of
 `sync()` call `this.body.set(null)`, destroying `ChartBody` without clearing the field — so
@@ -465,36 +413,12 @@ calls write into nothing.
 **Fix:** set `this.liveRegionNode = null` alongside `this.body.set(null)` in the three
 early-return branches of `sync()`.
 
-### COMP-11 — pointer payloads use the wrong coordinate frame and break when CSS-scaled
-**High · Bug · [Chart.ts:363](packages/mochart/src/components/Chart.ts#L363), [:775](packages/mochart/src/components/Chart.ts#L775)** **[from SOL review]** — **Open**
-
-Two defects in one expression. `ChartEventPayload.chartX`/`chartY` are documented at
-[types/chart.ts:5](packages/mochart/src/types/chart.ts#L5) as coordinates relative to the *chart
-container*, but the handler subtracts the origin of the **series-background** rect
-([SeriesBackground.ts:31](packages/mochart/src/components/SeriesBackground.ts#L31)) — so every
-payload is plot-relative, off by the whole left/top axis gutter. Separately, those values come from
-`getBoundingClientRect()`, which reports **CSS** pixels, and are then divided by the *logical* plot
-extents at [:775](packages/mochart/src/components/Chart.ts#L775) to derive
-`categoryPercentage`/`valuePercentage` and the nearest category. Any CSS scaling of the container —
-`transform: scale()`, a `width: 100%` SVG, a zoomed page — makes both the fractions and the selected
-category wrong.
-
-[ChartInteraction.test.ts:56](packages/mochart/test/components/ChartInteraction.test.ts#L56) stubs
-*every* bounding rect to the full chart at 1:1, which collapses the two frames onto each other and
-then asserts the plot-relative values as correct — so the suite pins the bug in place rather than
-catching it.
-
-**Fix:** convert client coordinates into SVG user coordinates using the rect's own scale factor,
-keep the plot-local values for the category/value maths, and add the plot offset back when
-populating `chartX`/`chartY`. Retest with a non-zero plot offset (axes on both sides) and a scaled
-bounding rect.
-
 ---
 
 # 4. Core — chart-type helpers
 
 ### HELP-1 — volume-pane fractions at their documented range ends emit an invalid config
-**High · Bug · [Candlestick.ts:191](packages/mochart/src/data/Candlestick.ts#L191)** **[verified]** — **Open**
+**High · Bug · [Candlestick.ts:191](packages/mochart/src/data/Candlestick.ts#L191)** **[verified]**
 
 `buildVolumeValueAxisConfigs` divides by `1 - heightFraction - gapFraction` and by
 `heightFraction` with no guard, so in-contract option values produce negative or degenerate
@@ -517,7 +441,7 @@ contract `binValues` and `createHeatmap` already use. Tighten the JSDoc and
 [recipes/candlestick.md:93](packages/mochart-docs/recipes/candlestick.md#L93) to state it.
 
 ### HELP-2 — duplicate labels in waterfall / candlestick / OHLC produce data the validator rejects
-**High · Bug · [Waterfall.ts:109](packages/mochart/src/data/Waterfall.ts#L109), [Candlestick.ts:231](packages/mochart/src/data/Candlestick.ts#L231), [Ohlc.ts:103](packages/mochart/src/data/Ohlc.ts#L103)** — **Open**
+**High · Bug · [Waterfall.ts:109](packages/mochart/src/data/Waterfall.ts#L109), [Candlestick.ts:231](packages/mochart/src/data/Candlestick.ts#L231), [Ohlc.ts:103](packages/mochart/src/data/Ohlc.ts#L103)**
 
 All three write `label` straight into the ordinal category column with no uniqueness check.
 `getDataErrors` rejects duplicate category values, and `DefaultChartInput.validateDataProvider`
@@ -536,7 +460,7 @@ already throws for exactly this class on `columnLabels` (B16); its siblings neve
 `computeCandlesticks` (covering candlestick and OHLC), and over the generated `binLabel` values.
 
 ### HELP-3 — `computeCandlesticks` accepts NaN and missing OHLC fields silently
-**High · Bug · [Candlestick.ts:160](packages/mochart/src/data/Candlestick.ts#L160)** — **Open**
+**High · Bug · [Candlestick.ts:160](packages/mochart/src/data/Candlestick.ts#L160)**
 
 `open/high/low/close` are copied through unchecked; `direction = close < open ? 'down' : 'up'`.
 
@@ -554,7 +478,7 @@ neither test file has a non-finite case.
 candle so `missingValues` skips the slot cleanly rather than half-drawing it.
 
 ### HELP-4 — `createHeatmap` silently paints one colour for a reversed or collapsed `domain`
-**Medium · Bug · [Heatmap.ts:107](packages/mochart/src/data/Heatmap.ts#L107), [:146](packages/mochart/src/data/Heatmap.ts#L146)** — **Open**
+**Medium · Bug · [Heatmap.ts:107](packages/mochart/src/data/Heatmap.ts#L107), [:146](packages/mochart/src/data/Heatmap.ts#L146)**
 
 Neither `createHeatmapColorScale` nor `createHeatmap` checks `domain[1] >= domain[0]`. With a
 reversed domain, `extent > 0` is false so every value maps to the ramp midpoint and
@@ -565,7 +489,7 @@ data. `binValues` throws on exactly this, so the two helpers disagree on the sam
 matching `binValues`' wording. A genuinely collapsed `[v, v]` domain can stay legal.
 
 ### HELP-5 — `cellPadding` at or above its documented maximum makes the heatmap invisible
-**Medium · Bug · [Heatmap.ts:141](packages/mochart/src/data/Heatmap.ts#L141), [:158](packages/mochart/src/data/Heatmap.ts#L158)** — **Open**
+**Medium · Bug · [Heatmap.ts:141](packages/mochart/src/data/Heatmap.ts#L141), [:158](packages/mochart/src/data/Heatmap.ts#L158)**
 
 Documented as "The fraction (0 - 0.5)…" but never range-checked:
 
@@ -576,7 +500,7 @@ Documented as "The fraction (0 - 0.5)…" but never range-checked:
 **Fix:** throw unless `cellPadding ∈ [0, 0.5)`, and correct the JSDoc/recipe to the half-open range.
 
 ### HELP-6 — `cumulative` + `normalize: 'density'` produces a curve topping out at `1 / binWidth`
-**Medium · Bug · [Histogram.ts:136-148](packages/mochart/src/data/Histogram.ts#L136)** — **Open**
+**Medium · Bug · [Histogram.ts:136-148](packages/mochart/src/data/Histogram.ts#L136)**
 
 The cumulative pass accumulates whatever `normalize` produced. For `'probability'` that is the
 CDF (correct, and the only combination tested). For `'density'` it sums densities instead of
@@ -594,7 +518,7 @@ meaningless. Matplotlib's `hist(density=True, cumulative=True)` normalizes the l
 in the JSDoc, and add the missing test case.
 
 ### HELP-7 — doji candles (open === close) draw no body at all
-**Medium · Missing feature · [Candlestick.ts:342-368](packages/mochart/src/data/Candlestick.ts#L342)** — **Open**
+**Medium · Missing feature · [Candlestick.ts:342-368](packages/mochart/src/data/Candlestick.ts#L342)**
 
 `bodyConfigs` never sets `barMinExtent` (default 0), and the bar renderer's default normal-state
 `strokeWidth` is also 0 — so when `open === close` the body's `property` and `rangeProperty`
@@ -609,7 +533,7 @@ meaningful pattern; it currently reads as a missing candle.
 `bodyConfigs` entries; document it next to `bodyWidthFraction`.
 
 ### HELP-8 — `createWaterfall` makes the caller hand-mirror a `base` it already knows
-**Medium · Missing feature · [Waterfall.ts:35-43](packages/mochart/src/data/Waterfall.ts#L35), [:156](packages/mochart/src/data/Waterfall.ts#L156)** — **Open**
+**Medium · Missing feature · [Waterfall.ts:35-43](packages/mochart/src/data/Waterfall.ts#L35), [:156](packages/mochart/src/data/Waterfall.ts#L156)**
 
 `createWaterfall` returns `{ steps, data, categoryAxis, series }` only. Its own JSDoc and
 [recipes/waterfall.md:36](packages/mochart-docs/recipes/waterfall.md#L36) instruct the reader to
@@ -623,7 +547,7 @@ returned fragment". Also reconcile the JSDoc (advises it unconditionally) with t
 (advises it only when `base !== 0`).
 
 ### HELP-9 — the heatmap `missingColor` option is entirely undocumented
-**Medium · Doc gap · [Heatmap.ts:59-65](packages/mochart/src/data/Heatmap.ts#L59) vs [recipes/heatmap.md:46](packages/mochart-docs/recipes/heatmap.md#L46)** — **Open**
+**Medium · Doc gap · [Heatmap.ts:59-65](packages/mochart/src/data/Heatmap.ts#L59) vs [recipes/heatmap.md:46](packages/mochart-docs/recipes/heatmap.md#L46)**
 
 `missingColor` turns missing cells from grid gaps into full bands painted with the row series'
 `colorScale.missing`. The string appears nowhere in `packages/mochart-docs` — not the recipe,
@@ -634,7 +558,7 @@ not `reference/api.md`, not the example. The recipe presents the gap as the sole
 clearly off the ramp" guidance already in the JSDoc) and add it to `reference/api.md`.
 
 ### HELP-10 — sibling helpers disagree on the value-axis fragment's name and shape
-**Low · Inconsistency · [Heatmap.ts:83](packages/mochart/src/data/Heatmap.ts#L83) vs [Candlestick.ts:130](packages/mochart/src/data/Candlestick.ts#L130)** — **Open**
+**Low · Inconsistency · [Heatmap.ts:83](packages/mochart/src/data/Heatmap.ts#L83) vs [Candlestick.ts:130](packages/mochart/src/data/Candlestick.ts#L130)**
 
 `HeatmapData` exposes `valueAxisConfig: Partial<ValueAxisConfig>` (singular);
 `CandlestickData`/`OhlcData` expose `valueAxes?: Partial<ValueAxisConfig>[]` (array). Two names
@@ -646,7 +570,7 @@ handles one- and two-axis cases identically); keep `valueAxisConfig` as a deprec
 one release.
 
 ### HELP-11 — `reference/api.md` overstates the helper type surface
-**Low · Doc inconsistency · [reference/api.md:154](packages/mochart-docs/reference/api.md#L154), [:190](packages/mochart-docs/reference/api.md#L190)** — **Open**
+**Low · Doc inconsistency · [reference/api.md:154](packages/mochart-docs/reference/api.md#L154), [:190](packages/mochart-docs/reference/api.md#L190)**
 
 Two slips: the return-shape comments for `createCandlestick`/`createOhlc` omit the optional
 `valueAxes` the `volume` option adds (which the prose three lines below describes); and "every
@@ -658,24 +582,6 @@ TS host cannot type a wrapper prop that forwards them.
 
 **Fix:** add `valueAxes?` to the two comments; export `ColorInterpolation`, `PieLabelType` and
 `PieTooltipLabelType` from `src/index.ts` (see [API-3](#api-3--21-config-union-types-are-named-in-the-public-types-but-cannot-be-imported)).
-
-### HELP-12 — two valid large pie values overflow the total and collapse every slice
-**Low · Bug · [Pie.ts:64](packages/mochart/src/data/Pie.ts#L64), [PieData.ts:26](packages/mochart/src/data/PieData.ts#L26)** **[from SOL review]** — **Open**
-
-Both pie-normalisation paths — the public `computePieFractions` helper and the duplicate inside
-`PieData` that feeds rendered slices and tooltips — sum finite positive values straight into an
-accumulator with no overflow guard. Two `Number.MAX_VALUE` values total to `Infinity`, so every
-`value / total` evaluates to `0`: fractions `[0, 0]`, zero-angle slices, a blank pie and no error.
-Reproduced through the built public helper.
-
-The existing coverage at [Pie.test.ts:15](packages/mochart/test/data/Pie.test.ts#L15) rejects
-negative and non-finite *inputs*, so the case that survives is exactly the one where every input is
-individually valid.
-
-**Fix:** scale by the maximum before ratioing — divide each value by `max` and sum in that space —
-and define what the returned `total` means once the mathematical sum exceeds `Number.MAX_VALUE`.
-Keep the two paths in step, or better, have `PieData` call the public helper instead of
-re-implementing it.
 
 ---
 
@@ -690,7 +596,7 @@ naming conventions are clean (no `*Percent` config props, no "paint", no "suppre
 axis" anywhere in `packages/mochart/src`). The findings below are what survived that sweep.
 
 ### CONFIG-1 — `validators.color()` rejects most valid CSS/SVG colours
-**High · Bug · [movalid/validators.ts:130-179](packages/movalid/src/validators.ts#L130); message authored at [validation/validators.ts:18](packages/mochart/src/config/validation/validators.ts#L18)** **[verified]** — **Open**
+**High · Bug · [movalid/validators.ts:130-179](packages/movalid/src/validators.ts#L130); message authored at [validation/validators.ts:18](packages/mochart/src/config/validation/validators.ts#L18)** **[verified]**
 
 The colour predicate is a three-regex whitelist: `#rgb`, `#rrggbb`, `rgb(a,b,c)`, `rgba(a,b,c,d)`.
 Everything else is rejected — while the message says `should be a valid svg color`, which `red`
@@ -716,7 +622,7 @@ intended, change the message to name the accepted forms and document them in
 [guide/config-model.md](packages/mochart-docs/guide/config-model.md).
 
 ### CONFIG-2 — `valueAxisDefaults` is silently ignored when no `valueAxes` entry is declared
-**High · Bug · [core/mochartConfig.ts:168,173,176](packages/mochart/src/config/core/mochartConfig.ts#L168)** — **Open**
+**High · Bug · [core/mochartConfig.ts:168,173,176](packages/mochart/src/config/core/mochartConfig.ts#L168)**
 
 `valueAxes` is the one list section with an implicit entry (`singleDefaultIfEmpty`). When the
 user declares no `valueAxes`, `applyDefaults` installs the default list verbatim via
@@ -743,7 +649,7 @@ the other list sections, whose defaults list is empty when nothing is declared. 
 sparkline workaround.
 
 ### CONFIG-3 — `ignore: true` entries are still cross-reference-validated
-**High · Bug · [validation/mochartConfig.ts:474](packages/mochart/src/config/validation/mochartConfig.ts#L474)** **[verified]** — **Open**
+**High · Bug · [validation/mochartConfig.ts:474](packages/mochart/src/config/validation/mochartConfig.ts#L474)** **[verified]**
 
 `validateReferences` runs over `configWithoutDefaults[targetSectionKey]` — the *unfiltered* raw
 list — so entries carrying `ignore: true` (documented as "treat it as though it were not
@@ -765,7 +671,7 @@ validation on the same entry *is* correctly skipped, which shows the intent.
 the other three validators use.
 
 ### CONFIG-4 — `tooltip.backgroundStyle.strokeDashArray` type-checks but invalidates the config
-**Medium · Inconsistency · [types/config.ts:1235](packages/mochart/src/types/config.ts#L1235) vs [validation/tooltipConfig.ts:27](packages/mochart/src/config/validation/tooltipConfig.ts#L27)** **[verified]** — **Open**
+**Medium · Inconsistency · [types/config.ts:1235](packages/mochart/src/types/config.ts#L1235) vs [validation/tooltipConfig.ts:27](packages/mochart/src/config/validation/tooltipConfig.ts#L27)** **[verified]**
 
 This is the **only** key in the whole config that the TS types declare and the other three
 surfaces do not. Defaults, validation and docs deliberately model the tooltip box as a
@@ -780,7 +686,7 @@ tooltip: { backgroundStyle: { strokeDashArray: '5, 5' } }   // compiles
 `strokeDashArray` to `cssStyle()` instead would be wrong: the tooltip border is a CSS `border`.
 
 ### CONFIG-5 — six places where the types and the runtime contract disagree
-**Medium · Inconsistency** — **Open**
+**Medium · Inconsistency**
 
 | key | types say | runtime accepts | effect |
 |---|---|---|---|
@@ -797,7 +703,7 @@ already gets this right); make `filteredValueCharacter: string | null`; make `st
 Add a types-vs-model check to `checkKeyIntegrity` so all six cannot recur.
 
 ### CONFIG-6 — the documented migration path is never wired into any entry point
-**Medium · Doc gap · [helper/index.ts:6-11](packages/mochart/src/config/helper/index.ts#L6), [DefaultChartInput.ts:69](packages/mochart/src/chart/DefaultChartInput.ts#L69)** — **Open**
+**Medium · Doc gap · [helper/index.ts:6-11](packages/mochart/src/config/helper/index.ts#L6), [DefaultChartInput.ts:69](packages/mochart/src/chart/DefaultChartInput.ts#L69)**
 
 The docs tell users to store `version` "so `migrateConfig` can upgrade them if the format
 changes", and describe `createDefaultChart` as one that "validates and defaults the raw config
@@ -813,7 +719,7 @@ instead of migrating — exactly the scenario the docs promise is handled.
 `migrateConfig` first.
 
 ### CONFIG-7 — array-element shapes have no documentation in the config reference
-**Medium · Doc gap · [configReferenceModel.ts:660-675](packages/mochart/scripts/configReferenceModel.ts#L660), [renderSection.ts:75](packages/mochart-docs/.vitepress/lib/renderSection.ts#L75)** — **Open**
+**Medium · Doc gap · [configReferenceModel.ts:660-675](packages/mochart/scripts/configReferenceModel.ts#L660), [renderSection.ts:75](packages/mochart-docs/.vitepress/lib/renderSection.ts#L75)**
 
 Both walk `validator.nestedValues` only, never `itemValidator`. `checkLevelIntegrity` therefore
 protects nested *objects* but exempts array-element shapes — so `ThresholdConfig`'s eleven
@@ -829,7 +735,7 @@ to cover them. Drive the "every property is optional except…" sentence off `mi
 rather than a hard-coded pair of section ids.
 
 ### CONFIG-8 — `ignore` works on five list sections but is typed, validated and documented on one
-**Low · Inconsistency · [core/mochartConfig.ts:138](packages/mochart/src/config/core/mochartConfig.ts#L138)** **[verified]** — **Open**
+**Low · Inconsistency · [core/mochartConfig.ts:138](packages/mochart/src/config/core/mochartConfig.ts#L138)** **[verified]**
 
 `applyDefaults` runs `filterConfigs` (`config.ignore !== true`) over *every* array section —
 `valueAxes`, `seriesGroups`, `seriesStacks`, `linearGradients`, `radialGradients` as well as
@@ -843,7 +749,7 @@ properties" warning.
 docs), or restrict `filterConfig` to the `series` section.
 
 ### CONFIG-9 — `validateConfig`'s `strict` parameter is undocumented
-**Low · Doc gap · [validation/mochartConfig.ts:196](packages/mochart/src/config/validation/mochartConfig.ts#L196) vs [reference/api.md:113](packages/mochart-docs/reference/api.md#L113)** — **Open**
+**Low · Doc gap · [validation/mochartConfig.ts:196](packages/mochart/src/config/validation/mochartConfig.ts#L196) vs [reference/api.md:113](packages/mochart-docs/reference/api.md#L113)**
 
 Both exported validators take a third `strict = true` argument that flips whether warnings
 invalidate the config. The reference shows only the two-argument form.
@@ -859,7 +765,7 @@ to tolerate unknown keys (a live-preview config editor, say) has no way to disco
 # 6. Core — public API, types and utils
 
 ### API-1 — 21 config union types are named in the public types but cannot be imported
-**High · Missing feature · [types/config.ts:1](packages/mochart/src/types/config.ts#L1)** — **Open**
+**High · Missing feature · [types/config.ts:1](packages/mochart/src/types/config.ts#L1)**
 
 `types/config.ts` imports `Auto, Align, AxisSide, MissingValues, VerticalAlign, Anchor, Position,
 Scale, DataType, RendererType, ThresholdTitleSide, CurveType, CapType, LabelPosition, ColorMode,
@@ -879,7 +785,7 @@ nor is `CONFIG_VERSION` — every demo config hardcodes `version: '1.0.0'`.
 literal constants and `CONFIG_VERSION`.
 
 ### API-2 — ~55 layout/animation/data internals ship as public types
-**Medium · Inconsistency · [types/index.ts:1](packages/mochart/src/types/index.ts#L1)** — **Open**
+**Medium · Inconsistency · [types/index.ts:1](packages/mochart/src/types/index.ts#L1)**
 
 `export type * from './layout'` publishes all 14 layout types; the explicit animation list
 publishes 31 tween internals (`CompleteNumericArrayDelta`, `OuterChangeCounts`,
@@ -896,7 +802,7 @@ now a published type-surface break.
 consumers actually need.
 
 ### API-3 — crosshair elements get unnamespaced CSS classes
-**Medium · Bug · [ChartDom.ts:69](packages/mochart/src/utils/ChartDom.ts#L69)** — **Open**
+**Medium · Bug · [ChartDom.ts:69](packages/mochart/src/utils/ChartDom.ts#L69)**
 
 `crosshairCategoryLines: 'crosshair-category-lines'`, `crosshairSeriesLines`, `crosshairLine` —
 the only three of ~90 entries without the `mochart-` prefix. `Crosshair.ts` writes them straight
@@ -908,7 +814,7 @@ The e2e suite already has to qualify them
 regenerate goldens.
 
 ### API-4 — `mochartCssClasses` values are not all class names, contradicting the API reference
-**Medium · Doc gap · [reference/api.md:212](packages/mochart-docs/reference/api.md#L212)** — **Open**
+**Medium · Doc gap · [reference/api.md:212](packages/mochart-docs/reference/api.md#L212)**
 
 api.md says the map gives "the CSS class the renderer puts on it … useful for targeted CSS
 overrides and DOM queries". In fact 16 entries are a base class *plus an id prefix* in one string:
@@ -920,7 +826,7 @@ around this with `.split(' ')[0]`, and so does the shipped `@mochart/export`.
 into `{ base, prefix }` entries so no value is a compound string.
 
 ### API-5 — the core README omits all seven chart-shape helpers and the pie chart type
-**Medium · Doc gap · [packages/mochart/README.md:12](packages/mochart/README.md#L12)** — **Open**
+**Medium · Doc gap · [packages/mochart/README.md:12](packages/mochart/README.md#L12)**
 
 The npm landing page never mentions `createHistogram`, `createWaterfall`, `createHeatmap`,
 `createCandlestick`, `createOhlc`, `createPie`, `createSparklineConfig` or the five lower-level
@@ -933,7 +839,7 @@ supported chart type. READMEs are the one documentation surface with no CI ratch
 **Fix:** add a "Chart helpers" section mirroring `api.md:142-200`, and add pie/donut to Features.
 
 ### API-6 — `MochartConfig` omits `version`, which the built config carries at runtime
-**Medium · Inconsistency · [types/config.ts:3009](packages/mochart/src/types/config.ts#L3009)** — **Open**
+**Medium · Inconsistency · [types/config.ts:3009](packages/mochart/src/types/config.ts#L3009)**
 
 `MochartInputConfig.version?: string` exists but `MochartConfig` has no `version`. `applyDefaults`
 spreads the input config, so `enhanceConfig({version:'1.0.0', …}).version === '1.0.0'` at runtime
@@ -943,7 +849,7 @@ what the editor and demo "config JSON" tabs do — loses the version in typed co
 **Fix:** add `version?: string` to `MochartConfig` with the same JSDoc.
 
 ### API-7 — text truncation splits surrogate pairs, emitting lone surrogates
-**Low · Bug · [TextTruncation.ts:127](packages/mochart/src/utils/TextTruncation.ts#L127)** — **Open**
+**Low · Bug · [TextTruncation.ts:127](packages/mochart/src/utils/TextTruncation.ts#L127)**
 
 `truncateSVGText` slices with `substr` and narrows one UTF-16 code unit at a time, so astral
 characters get cut in half. Probed with a stubbed `getComputedTextLength`: `"😀😀😀😀😀"` at 65px
@@ -955,7 +861,7 @@ titles and legend items.
 arithmetic, or back off one more unit while the last code unit is a high surrogate.
 
 ### API-8 — `cssStyleColor` silently drops the configured opacity for `currentColor`
-**Low · Bug · [utils/style.ts:35](packages/mochart/src/utils/style.ts#L35)** — **Open**
+**Low · Bug · [utils/style.ts:35](packages/mochart/src/utils/style.ts#L35)**
 
 When `styleOpacity` is a number and `color(styleColor)` returns `null` — exactly what d3 does for
 the `currentColor` keyword `cssColorValidator` explicitly accepts — the function returns
@@ -967,7 +873,7 @@ no separate opacity attribute to fall back on.
 with a non-null opacity, or reject the combination in `cssStyleKeyMap` so it is a validation error.
 
 ### API-9 — state-factory context members arrive inconsistently; the README implies otherwise
-**Low · Doc gap · [packages/mochart/README.md:238](packages/mochart/README.md#L238)** — **Open**
+**Low · Doc gap · [packages/mochart/README.md:238](packages/mochart/README.md#L238)**
 
 README says all six factories are "each called with a context object
 (`{ width, height, mochartConfig, dataProvider, error, hasData }`)". Actually:
@@ -977,31 +883,12 @@ path; `getNoSeriesComponent` → `{width, height}` only; `getErrorComponent` →
 shapes. `hasData` reaches *only* `getLoadingComponent`; `error` only `getErrorComponent`. A
 consumer writing `getNoDataComponent: ({ hasData }) => …` gets `undefined` with no warning.
 
-Two further members are documented as one thing and delivered as another (from the SOL pass; the
-public JSDoc lives at [types/chart.ts:64](packages/mochart/src/types/chart.ts#L64)):
-
-- **`width`/`height` change meaning per state.** They are documented as the chart dimensions, and
-  the early states get them — [Chart.ts:995](packages/mochart/src/components/Chart.ts#L995) — but
-  the no-series factory at [:1234](packages/mochart/src/components/Chart.ts#L1234) and the in-chart
-  loading, error and no-data content at [:1266](packages/mochart/src/components/Chart.ts#L1266)
-  receive **plot-area** dimensions instead. A factory sizing its placeholder to the numbers it is
-  handed gets a different box depending on which state invoked it.
-- **`mochartConfig` is not null when validation fails.** The doc says it is; the config-error
-  factory is passed the *invalid* config
-  ([Chart.ts:995](packages/mochart/src/components/Chart.ts#L995)) — which is arguably the more
-  useful value, since it is what the factory would want to report on, but it is the opposite of
-  what is written. [chart-states.md:70](packages/mochart-docs/guide/chart-states.md#L70) repeats
-  the same ambiguous contract.
-
 **Fix:** replace the flat list with a per-factory table, and mirror it in the JSDoc in
 [types/chart.ts:64](packages/mochart/src/types/chart.ts#L64) (which feeds the generated
-`/reference/props#factoryContext`) and in `chart-states.md`. Document `width`/`height` as
-state-dependent slot dimensions and `mochartConfig` as the config as supplied, valid or not — or,
-for a cleaner API, expose unambiguous `chartWidth`/`chartHeight`/`plotBounds` fields and deprecate
-the overloaded pair.
+`/reference/props#factoryContext`).
 
 ### API-10 — `ChartEventPayload.categoryPercentage`/`valuePercentage` violate the `Fraction` convention
-**Low · Inconsistency · [types/chart.ts:16-20](packages/mochart/src/types/chart.ts#L16)** **[verified]** — **Open**
+**Low · Inconsistency · [types/chart.ts:16-20](packages/mochart/src/types/chart.ts#L16)** **[verified]**
 
 Both fields are documented — in the JSDoc, the shipped `.d.ts`, and the generated
 `/reference/callbacks` page — as "as a **0–1 fraction** of the plot", yet carry a `Percentage`
@@ -1014,7 +901,7 @@ left in the documented public API; the rest are internal `deltaPercentage` field
 deliberate exception where the convention is stated.
 
 ### API-11 — `apiReferenceModel.ts` calls `InternalFocus` internal, but it is an explicit public export
-**Low · Doc inconsistency · [apiReferenceModel.ts:82](packages/mochart/scripts/apiReferenceModel.ts#L82)** — **Open**
+**Low · Doc inconsistency · [apiReferenceModel.ts:82](packages/mochart/scripts/apiReferenceModel.ts#L82)**
 
 `internalInterfaces` excludes it with the reason "never crosses the public boundary". It is
 exported by name from [index.ts:15](packages/mochart/src/index.ts#L15) and documented in
@@ -1024,7 +911,7 @@ so the check cannot catch a genuinely leaked type later.
 **Fix:** give it a group in `pageSources`, or correct the reason string.
 
 ### API-12 — `generate-docs` writes its output before reporting integrity errors
-**Low · Bug · [generator.ts:179](packages/mochart/scripts/generator.ts#L179)** — **Open**
+**Low · Bug · [generator.ts:179](packages/mochart/scripts/generator.ts#L179)**
 
 `generateDocs` writes `config-reference.json`, `mochart-docs.html` and `api-reference.json` and
 only afterwards checks `integrityErrors` to set the exit code — so a failing run leaves
@@ -1035,32 +922,12 @@ the docs site's props/callbacks pages consume.
 **Fix:** collect both models first, bail before writing when `integrityErrors.length > 0`, and add
 the third artifact to both README mentions.
 
-### API-13 — the advanced public input types are non-nullable and the controller casts around it
-**Low · Inconsistency · [ChartDataSource.ts:8](packages/mochart/src/chart/ChartDataSource.ts#L8), [Chart.ts:43](packages/mochart/src/components/Chart.ts#L43), [ChartController.ts:110](packages/mochart/src/chart/ChartController.ts#L110)** **[from SOL review]** — **Open**
-
-`ManagedChartProps` correctly allows a null `config` and `dataProvider` while the chart is loading,
-but the two types advertised alongside it as public extension contracts — `ChartDataSourceInput`
-and the renderer's `ChartProps` — require both. `ChartController` bridges the gap with unsafe
-casts, which its own comment at [:110](packages/mochart/src/chart/ChartController.ts#L110)
-documents, forwarding values that are genuinely null at runtime through types declaring they cannot
-be. [reference/api.md:220](packages/mochart-docs/reference/api.md#L220) presents both as supported
-advanced surfaces, so a host implementing `ChartDataSource` against the published types gets a
-contract the library itself does not honour.
-
-`REVIEW-FINDINGS.md` is internally inconsistent about this one: it reports zero open findings at
-[:14](REVIEW-FINDINGS.md#L14) while recording this same issue as an open follow-up at
-[:216](REVIEW-FINDINGS.md#L216).
-
-**Fix:** widen the types at the actual control-flow boundary — nullable until the first successful
-load, non-null after — and delete the casts; or stop presenting `ChartDataSourceInput` as a
-supported public extension contract. Either way, correct the `REVIEW-FINDINGS.md` summary.
-
 ---
 
 # 7. Accessibility
 
 ### A11Y-1 — a linked title stays focusable inside an `aria-hidden` decorative chart
-**High · Bug · WCAG 4.1.2 (axe `aria-hidden-focus`) · [Title.ts:159-162](packages/mochart/src/components/Title.ts#L159), [Chart.ts:1051](packages/mochart/src/components/Chart.ts#L1051)** — **Open**
+**High · Bug · WCAG 4.1.2 (axe `aria-hidden-focus`) · [Title.ts:159-162](packages/mochart/src/components/Title.ts#L159), [Chart.ts:1051](packages/mochart/src/components/Chart.ts#L1051)**
 
 `accessibility.hidden: true` puts `aria-hidden="true"` on the root and removes every
 mochart-authored tab stop — except the SVG `<a href>` that `title.link` renders. It gets no
@@ -1078,7 +945,7 @@ test to assert against natively focusable selectors (`a[href], button, [tabindex
 and soften the "every keyboard tab stop is removed" claim to name what the library controls.
 
 ### A11Y-2 — `onTitleClick` is a mouse-only control
-**High · Bug · WCAG 2.1.1 (Level A) · [Title.ts:155](packages/mochart/src/components/Title.ts#L155), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** **[verified]** — **Open**
+**High · Bug · WCAG 2.1.1 (Level A) · [Title.ts:155](packages/mochart/src/components/Title.ts#L155), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** **[verified]**
 
 The title `<g>` gets `onClick: this.chartTitleClick` unconditionally, with no `tabindex`, no
 `role`, no key handler — and it is not gated by the `accessibility` section at all. `onTitleClick`
@@ -1091,7 +958,7 @@ title affordance.
 the same treatment [Series.ts:357](packages/mochart/src/components/Series.ts#L357) already applies.
 
 ### A11Y-3 — keyboard focus is dropped to `<body>` when the plot or tooltip tab stops are torn down
-**Medium · Bug · WCAG 2.4.3 · [Chart.ts:1192-1257](packages/mochart/src/components/Chart.ts#L1192), [:731](packages/mochart/src/components/Chart.ts#L731)** — **Open**
+**Medium · Bug · WCAG 2.4.3 · [Chart.ts:1192-1257](packages/mochart/src/components/Chart.ts#L1192), [:731](packages/mochart/src/components/Chart.ts#L731)**
 
 [Chart.ts:1198](packages/mochart/src/components/Chart.ts#L1198) documents that the plot tab stop
 is deliberately kept during *loading* so focus is not dumped to `<body>` — but the same teardown
@@ -1105,7 +972,7 @@ loses their place.
 replacing it and re-focus a surviving stop; have `closeTooltip` do what `escapeTooltip` does.
 
 ### A11Y-4 — export stamps `role="img"` on charts that carry no accessible name
-**Medium · Bug + doc inconsistency · WCAG 1.1.1 · [export/index.ts:182-189](packages/mochart-export/src/index.ts#L182)** **[verified]** — **Open**
+**Medium · Bug + doc inconsistency · WCAG 1.1.1 · [export/index.ts:182-189](packages/mochart-export/src/index.ts#L182)** **[verified]**
 
 `cloneChartSvg` sets `role="img"` unconditionally, but `aria-label` is only written when
 `accessibilityActive(...)` ([Chart.ts:1176](packages/mochart/src/components/Chart.ts#L1176)). So
@@ -1118,7 +985,7 @@ default configuration.
 `aria-hidden="true"` (or accept an `ariaLabel` export option). Correct the guide's Exports paragraph.
 
 ### A11Y-5 — `accessibility.enabled: true` removes more text from the a11y tree than it adds
-**Medium · Bug · WCAG 1.3.1 / 1.1.1 · [Plot.ts:65-66](packages/mochart/src/components/Plot.ts#L65), [Series.ts:360](packages/mochart/src/components/Series.ts#L360)** — **Open**
+**Medium · Bug · WCAG 1.3.1 / 1.1.1 · [Plot.ts:65-66](packages/mochart/src/components/Plot.ts#L65), [Series.ts:360](packages/mochart/src/components/Series.ts#L360)**
 
 `PlotFrontBack` (which owns `AxisContainer` → all tick labels and axis titles) and every
 non-interactive series `<g>` (which owns `SeriesLabels`, the visible data-value labels) are
@@ -1134,7 +1001,7 @@ for `SeriesLabels` when visible. Failing that, say so explicitly in
 [guide/accessibility.md](packages/mochart-docs/guide/accessibility.md).
 
 ### A11Y-6 — default encoding is colour-only, on a palette that is not CVD-checked
-**Medium · Bug + doc gap · WCAG 1.4.1 (Level A) · [colorPaletteConfig.ts:1](packages/mochart/src/config/defaults/colorPaletteConfig.ts#L1), [seriesConfig.ts:237](packages/mochart/src/config/defaults/seriesConfig.ts#L237)** — **Open**
+**Medium · Bug + doc gap · WCAG 1.4.1 (Level A) · [colorPaletteConfig.ts:1](packages/mochart/src/config/defaults/colorPaletteConfig.ts#L1), [seriesConfig.ts:237](packages/mochart/src/config/defaults/seriesConfig.ts#L237)**
 
 The default palette is d3 `category10` + the `category20` tail, which is not CVD-safe
 (`#2ca02c`/`#d62728` and `#1f77b4`/`#9467bd` collapse under deuteranopia/protanopia).
@@ -1150,7 +1017,7 @@ pointing at `series.markerShape`, `series.shapeStyle.*.strokeDashArray` and `ser
 redundant encodings, and state the contrast expectation against the plot background.
 
 ### A11Y-7 — no 24 × 24 minimum for any interactive target
-**Medium · Missing feature · WCAG 2.5.8 (AA, new in 2.2) · [legendConfig.ts:24](packages/mochart/src/config/defaults/legendConfig.ts#L24), [TooltipControls.ts:22](packages/mochart/src/components/TooltipControls.ts#L22), [TooltipContent.ts:85](packages/mochart/src/components/TooltipContent.ts#L85)** — **Open**
+**Medium · Missing feature · WCAG 2.5.8 (AA, new in 2.2) · [legendConfig.ts:24](packages/mochart/src/config/defaults/legendConfig.ts#L24), [TooltipControls.ts:22](packages/mochart/src/components/TooltipControls.ts#L22), [TooltipContent.ts:85](packages/mochart/src/components/TooltipContent.ts#L85)**
 
 Nothing enforces a minimum hit area. Legend items are ≈22 px tall at a 16 px host font; tooltip
 control buttons ≈22 px tall; interactive tooltip rows have `padding: 2`. All are laid out adjacent
@@ -1162,7 +1029,7 @@ which filters the wrong series.
 (default 24) applied to the interactive box rather than the text.
 
 ### A11Y-8 — arrow-key convention differs between the plot rect and every other roving group
-**Low · Inconsistency · [Chart.ts:948-970](packages/mochart/src/components/Chart.ts#L948) vs [SeriesContainer.ts:85](packages/mochart/src/components/SeriesContainer.ts#L85), [Legend.ts:104](packages/mochart/src/components/Legend.ts#L104), [TooltipContent.ts:281](packages/mochart/src/components/TooltipContent.ts#L281)** — **Open**
+**Low · Inconsistency · [Chart.ts:948-970](packages/mochart/src/components/Chart.ts#L948) vs [SeriesContainer.ts:85](packages/mochart/src/components/SeriesContainer.ts#L85), [Legend.ts:104](packages/mochart/src/components/Legend.ts#L104), [TooltipContent.ts:281](packages/mochart/src/components/TooltipContent.ts#L281)**
 
 All five groups use the same key set, but the plot rect's arrows step **categories** while arrows
 on a series, slice, legend item or tooltip row move **between siblings** — and both live in the
@@ -1176,7 +1043,7 @@ the Enter/Space/Escape forwarding already there) and move sibling navigation to 
 opening the tooltip on Enter-over-a-series. At minimum, document the dual action.
 
 ### A11Y-9 — the live region has no explicit `aria-live` and no de-duplication or throttle
-**Low · Bug · WCAG 4.1.3 · [Chart.ts:1178-1181](packages/mochart/src/components/Chart.ts#L1178), [:888](packages/mochart/src/components/Chart.ts#L888)** — **Open**
+**Low · Bug · WCAG 4.1.3 · [Chart.ts:1178-1181](packages/mochart/src/components/Chart.ts#L1178), [:888](packages/mochart/src/components/Chart.ts#L888)**
 
 The announcer is `<div role="status">` with no `aria-live`, no `aria-atomic`, and
 `announceTooltipCategory` replaces `textContent` on every arrow keypress with no comparison against
@@ -1189,7 +1056,7 @@ deliberately does not announce, so the spam is keyboard-repeat only.)
 and debounce so a held arrow key announces only the settled category.
 
 ### A11Y-10 — `outline: none` leaves programmatically restored focus with no indicator
-**Low · Bug · WCAG 2.4.7 · [css/mochart.css:81-88](packages/mochart/css/mochart.css#L81)** — **Open**
+**Low · Bug · WCAG 2.4.7 · [css/mochart.css:81-88](packages/mochart/css/mochart.css#L81)**
 
 `.mochart-chart.mochart-accessible :focus { outline: none }` strips the indicator from every
 descendant and `:focus-visible` restores it — correct for keyboard-driven focus, but the library
@@ -1204,7 +1071,7 @@ is otherwise sound: `currentColor` survives the dark theme, and forced-colors fo
 `:focus-visible`-independent styling on the three elements it focuses programmatically.
 
 ### A11Y-11 — no forced-colors / Windows High Contrast handling
-**Low · Missing feature · [css/mochart.css](packages/mochart/css/mochart.css)** — **Open**
+**Low · Missing feature · [css/mochart.css](packages/mochart/css/mochart.css)**
 
 There is no `@media (forced-colors: active)` block anywhere in the repo. Chart chrome is
 `currentColor` and follows the forced text colour, but series fills/strokes are SVG presentation
@@ -1217,7 +1084,7 @@ hover tints become invisible.
 series colours do in that mode.
 
 ### A11Y-12 — series and tooltip roving groups lack the group semantics the legend has
-**Low · Inconsistency · [SeriesContainer.ts:145](packages/mochart/src/components/SeriesContainer.ts#L145), [PieSeriesContainer.ts:164](packages/mochart/src/components/PieSeriesContainer.ts#L164), [TooltipContent.ts:570](packages/mochart/src/components/TooltipContent.ts#L570) vs [Legend.ts:183](packages/mochart/src/components/Legend.ts#L183)** — **Open**
+**Low · Inconsistency · [SeriesContainer.ts:145](packages/mochart/src/components/SeriesContainer.ts#L145), [PieSeriesContainer.ts:164](packages/mochart/src/components/PieSeriesContainer.ts#L164), [TooltipContent.ts:570](packages/mochart/src/components/TooltipContent.ts#L570) vs [Legend.ts:183](packages/mochart/src/components/Legend.ts#L183)**
 
 The legend's roving container gets `role="group"` + `aria-label` from `accessibility.legendLabel`;
 the identical containers for cartesian series, pie slices and tooltip rows get only a class and key
@@ -1238,7 +1105,7 @@ auto-resize, dispose-on-unmount, SSR guards, and `@mochart/core` as peer + dev (
 dep). Every asymmetry below is in typing, placeholder lifecycle, or docs.
 
 ### BIND-1 — Vue's `refresh()` is unreachable from the component's public type
-**High · Bug · [mochart-vue/src/Chart.ts:23](packages/mochart-vue/src/Chart.ts#L23), [DefaultChart.ts:24](packages/mochart-vue/src/DefaultChart.ts#L24)** — **Open**
+**High · Bug · [mochart-vue/src/Chart.ts:23](packages/mochart-vue/src/Chart.ts#L23), [DefaultChart.ts:24](packages/mochart-vue/src/DefaultChart.ts#L24)**
 
 `setup()` calls `expose({ refresh })`, but Vue's `SetupContext.expose` does not feed the
 component's instance type. Compiling against the built `dist`:
@@ -1258,7 +1125,7 @@ where the escape hatch needs an `as any`.
 add a `tsc`/`expect-type` assertion so it cannot regress.
 
 ### BIND-2 — the generated reference publishes a private helper as the type of all ten Angular outputs
-**High · Bug (docs generator) · [bindingReferenceModel.ts:299-302](packages/mochart-docs/scripts/bindingReferenceModel.ts#L299)** — **Open**
+**High · Bug (docs generator) · [bindingReferenceModel.ts:299-302](packages/mochart-docs/scripts/bindingReferenceModel.ts#L299)**
 
 Angular outputs carry no type annotation, so the generator falls back to the initializer text.
 The initializers are `this.chartOutput<T>()`
@@ -1282,7 +1149,7 @@ annotate the outputs in `base-chart.ts`, which makes `declaredType` non-`unknown
 generator change.
 
 ### BIND-3 — every published package resolves to raw source under the `development` condition
-**Medium · Bug (packaging) · [mochart-react/package.json:33](packages/mochart-react/package.json#L33) and the six siblings** **[verified]** — **Open**
+**Medium · Bug (packaging) · [mochart-react/package.json:33](packages/mochart-react/package.json#L33) and the six siblings** **[verified]**
 
 Each `exports["."]` lists `"development": "./src/index.ts"` **first**, and `files` ships `src`, so
 untranspiled source is in the published tarball and wins whenever the `development` condition is
@@ -1302,7 +1169,7 @@ monorepo's tsx scripts, not for consumers. `@mochart/core` has the same shape.
 `svelte` for `@mochart/svelte`). If it must stay, put `types` first and document it in each README.
 
 ### BIND-4 — Angular placeholders keep stale inputs when core omits a context key
-**Medium · Bug · [mochart-angular/src/placeholders.ts:56-60](packages/mochart-angular/src/placeholders.ts#L56)** — **Open**
+**Medium · Bug · [mochart-angular/src/placeholders.ts:56-60](packages/mochart-angular/src/placeholders.ts#L56)**
 
 `renderSlot` iterates `Object.keys(context)` and calls `setInput` only for keys present, so a key
 dropped by a later call retains its previous value. Core calls one slot with different key sets —
@@ -1315,7 +1182,7 @@ and Svelte all reset (Svelte explicitly deletes absent keys).
 `PlaceholderProps` key and absent from `context`.
 
 ### BIND-5 — placeholder instances leak when the placeholder prop is removed (Vue, Svelte, Lit, Angular)
-**Medium · Bug · [vue/placeholders.ts:61](packages/mochart-vue/src/placeholders.ts#L61), [lit:57](packages/mochart-lit/src/placeholders.ts#L57), [svelte:77](packages/mochart-svelte/src/placeholders.svelte.ts#L77), [angular:86](packages/mochart-angular/src/placeholders.ts#L86)** — **Open**
+**Medium · Bug · [vue/placeholders.ts:61](packages/mochart-vue/src/placeholders.ts#L61), [lit:57](packages/mochart-lit/src/placeholders.ts#L57), [svelte:77](packages/mochart-svelte/src/placeholders.svelte.ts#L77), [angular:86](packages/mochart-angular/src/placeholders.ts#L86)**
 
 `transform()` deletes the prop key and installs a factory only when the component is truthy. There
 is no `else` branch, so a slot whose prop was removed keeps its mounted instance alive in a
@@ -1328,7 +1195,7 @@ subscriptions still running. React handles this correctly at
 the slot from the map.
 
 ### BIND-6 — the React guide claims placeholder-context parity that only Svelte has
-**Medium · Doc inconsistency · [guide/frameworks/react.md:128](packages/mochart-docs/guide/frameworks/react.md#L128)** — **Open**
+**Medium · Doc inconsistency · [guide/frameworks/react.md:128](packages/mochart-docs/guide/frameworks/react.md#L128)**
 
 "Placeholder components render through portals … so they inherit the app's context providers …
 **as in the other bindings**." Portals are React-only. Vue passes `vnode.appContext` — **app-level**
@@ -1341,7 +1208,7 @@ that `inject()`s a component-provided value and gets `undefined`.
 guide pages.
 
 ### BIND-7 — exports lose web fonts, and nothing says so
-**Medium · Doc gap · [export/index.ts:20-22](packages/mochart-export/src/index.ts#L20), [export README](packages/mochart-export/README.md#L5)** — **Open**
+**Medium · Doc gap · [export/index.ts:20-22](packages/mochart-export/src/index.ts#L20), [export README](packages/mochart-export/README.md#L5)**
 
 `inlineComputedStyles` inlines `font-family`/`font-size`/`font-weight`/`font-style` as *names*. No
 `@font-face` rule or font data is embedded. Core sets no `fontFamily` default, so chart text
@@ -1355,7 +1222,7 @@ untrue for typography.
 injects a `<style>` with base64 `@font-face` rules into the clone before serialization.
 
 ### BIND-8 — `@mochart/editor`'s config model is a build-time snapshot of a peer-ranged core
-**Medium · Inconsistency · [editor/mochartSupport.ts:3-5](packages/mochart-editor/src/mochartSupport.ts#L3), [package.json:31](packages/mochart-editor/package.json#L31)** — **Open**
+**Medium · Inconsistency · [editor/mochartSupport.ts:3-5](packages/mochart-editor/src/mochartSupport.ts#L3), [package.json:31](packages/mochart-editor/package.json#L31)**
 
 Diagnostics come from the **live** peer core, but completions and hover come from
 `mochartConfigModel.generated.ts`, baked in at build time. The peer range is `^1.0.0`. Inside the
@@ -1368,7 +1235,7 @@ diagnostic, no hover. (Unknown/newer `version` values are handled acceptably.)
 warn once at `createMochartConfigSupport()` when `getVersionString()` disagrees.
 
 ### BIND-9 — both Vue `refresh()` examples throw `ref is not defined`
-**Low · Doc gap · [mochart-vue/README.md:105](packages/mochart-vue/README.md#L105), [guide/frameworks/vue.md:116](packages/mochart-docs/guide/frameworks/vue.md#L116)** — **Open**
+**Low · Doc gap · [mochart-vue/README.md:105](packages/mochart-vue/README.md#L105), [guide/frameworks/vue.md:116](packages/mochart-docs/guide/frameworks/vue.md#L116)**
 
 The `<script setup>` snippets use `const chart = ref(null);` with no `import { ref } from 'vue'`.
 `ref` is not auto-imported in a plain Vue project, so copy-pasting the only documented `refresh()`
@@ -1377,7 +1244,7 @@ example throws at runtime. `vue.md:98` has the same gap.
 **Fix:** add the import to both snippets.
 
 ### BIND-10 — `dataTestId` is documented in every guide page and no README
-**Low · Doc gap · all five binding READMEs** — **Open**
+**Low · Doc gap · all five binding READMEs**
 
 All five bindings expose `dataTestId`; it appears in all five
 `guide/frameworks/*.md` pages and the generated framework-props reference, and in **zero** package
@@ -1388,7 +1255,7 @@ The Angular README also drops the guide's "Explicit `width`/`height` inputs win 
 **Fix:** add the one-sentence paragraph from each guide to the matching README.
 
 ### BIND-11 — `@mochart/angular` pins its peer to Angular 22 despite building partial-Ivy
-**Low · Inconsistency · [mochart-angular/package.json:43](packages/mochart-angular/package.json#L43)** — **Open**
+**Low · Inconsistency · [mochart-angular/package.json:43](packages/mochart-angular/package.json#L43)**
 
 `"@angular/core": "^22.0.0"` while `tsconfig.build.json` sets `"compilationMode": "partial"` — the
 mode whose whole purpose is forward compatibility via the linker. The day Angular 23 ships, every
@@ -1398,7 +1265,7 @@ peer range in the set (React `>=18`, Vue `^3.3.0`, Svelte `^5.0.0`, lit-html `^3
 **Fix:** widen to `">=22.0.0"`.
 
 ### BIND-12 — assorted example and type-export nits
-**Low · Doc gap** — **Open**
+**Low · Doc gap**
 
 (a) The React and Angular quick-starts use TS fences with an unannotated `const config = {…}`;
 `categoryAxis.type`/`scale` and `seriesDefaults.renderer` are literal unions that widen to `string`,
@@ -1424,7 +1291,7 @@ CONTRIBUTING resolves, all 37 CI-validated `examples/*.ts` pass `validateConfig`
 the quickstart works end to end, and there are no vocabulary violations anywhere.
 
 ### DOC-1 — `series.valueLabel` is documented as "use null for none"; `null` is the default and yields the title
-**High · Doc inconsistency · [docs/seriesConfig.ts:87](packages/mochart/src/config/docs/seriesConfig.ts#L87) → [types/config.ts:2515](packages/mochart/src/types/config.ts#L2515) → the generated reference page and [recipes/tooltip-formatting.md:26](packages/mochart-docs/recipes/tooltip-formatting.md#L26)** — **Open**
+**High · Doc inconsistency · [docs/seriesConfig.ts:87](packages/mochart/src/config/docs/seriesConfig.ts#L87) → [types/config.ts:2515](packages/mochart/src/types/config.ts#L2515) → the generated reference page and [recipes/tooltip-formatting.md:26](packages/mochart-docs/recipes/tooltip-formatting.md#L26)**
 
 The description reads "the label to show before a series value in the tooltip (use null for none)"
 with `@default null` directly beneath it. `getSeriesLabel`
@@ -1439,7 +1306,7 @@ visible on a single page.
 "null = none" — only the series one is wrong.
 
 ### DOC-2 — `color-by-value.md` says `min`/`max` are "ignored" with a `base.value`; they are a validation error
-**High · Doc inconsistency · [recipes/color-by-value.md:63](packages/mochart-docs/recipes/color-by-value.md#L63) vs [validation/seriesConfig.ts:144](packages/mochart/src/config/validation/seriesConfig.ts#L144)** — **Open**
+**High · Doc inconsistency · [recipes/color-by-value.md:63](packages/mochart-docs/recipes/color-by-value.md#L63) vs [validation/seriesConfig.ts:144](packages/mochart/src/config/validation/seriesConfig.ts#L144)**
 
 The doc says "With `base.value` set, `min`/`max` are ignored". The validator attaches
 `validators.equal(NONE)` to both under that condition:
@@ -1456,7 +1323,7 @@ place; the chart renders its config-error state.
 `base` colors take over. Leaving them set is a validation error."
 
 ### DOC-3 — the "null is a real value" rule is illustrated with a style state, where `null` is rejected
-**High · Doc inconsistency · [guide/config-model.md:105-107](packages/mochart-docs/guide/config-model.md#L105)** **[verified]** — **Open**
+**High · Doc inconsistency · [guide/config-model.md:105-107](packages/mochart-docs/guide/config-model.md#L105)** **[verified]**
 
 The bullet reads "**`null` is a real value, not a hole.** `{ strokeColor: null }` overrides a
 non-null default and leaves the SVG attribute unset so CSS can supply it" — true for a plain
@@ -1478,7 +1345,7 @@ opacities are never null".
 be concrete (use `'none'` to switch a half off).
 
 ### DOC-4 — `theming.md` names the colour-scale bounds `colorMin`/`colorMax`
-**Medium · Doc inconsistency · [guide/theming.md:98](packages/mochart-docs/guide/theming.md#L98)** — **Open**
+**Medium · Doc inconsistency · [guide/theming.md:98](packages/mochart-docs/guide/theming.md#L98)**
 
 "The one place it is rejected is the series color-scale bounds (`colorMin` / `colorMax` and
 friends)". The config properties are `colorScale.min`, `colorScale.max`, and
@@ -1491,7 +1358,7 @@ same stale names sit in the code comment at
 [validation/validators.ts:16](packages/mochart/src/config/validation/validators.ts#L16).
 
 ### DOC-5 — "Bar fills default to half opacity" — the default is `0.8`
-**Medium · Doc inconsistency · [recipes/color-by-value.md:35](packages/mochart-docs/recipes/color-by-value.md#L35) and [examples/colorByValue.ts:18](packages/mochart-docs/examples/colorByValue.ts#L18)** — **Open**
+**Medium · Doc inconsistency · [recipes/color-by-value.md:35](packages/mochart-docs/recipes/color-by-value.md#L35) and [examples/colorByValue.ts:18](packages/mochart-docs/examples/colorByValue.ts#L18)**
 
 Both `shapeStyle.normal.fillOpacity` and `strokeOpacity` default to `0.8` for `bar` (0.9 line/none,
 0.8 area). Nothing defaults to 0.5. It is the stated justification for the example overriding both
@@ -1502,7 +1369,7 @@ validates configs, not comments.
 **Fix:** "Bar fills and strokes default to `0.8` opacity…" in both places.
 
 ### DOC-6 — the object-sections list in the config guide is missing `accessibility` and `pie`
-**Medium · Doc gap · [guide/config-model.md:31](packages/mochart-docs/guide/config-model.md#L31)** — **Open**
+**Medium · Doc gap · [guide/config-model.md:31](packages/mochart-docs/guide/config-model.md#L31)**
 
 The guide enumerates 9 of the 11 object sections the enhancer emits. The authoritative set
 (verified by `checkSectionCoverage.ts`) also contains `accessibility` and `pie`. The list-sections
@@ -1512,7 +1379,7 @@ omitted sections are first-class with dedicated pages.
 **Fix:** add both to the bullet.
 
 ### DOC-7 — pie keyboard activation is described as "a click at the slice's center"
-**Medium · Doc inconsistency · [guide/accessibility.md:81](packages/mochart-docs/guide/accessibility.md#L81) vs [PieSeries.ts:116](packages/mochart/src/components/PieSeries.ts#L116)** — **Open**
+**Medium · Doc inconsistency · [guide/accessibility.md:81](packages/mochart-docs/guide/accessibility.md#L81) vs [PieSeries.ts:116](packages/mochart/src/components/PieSeries.ts#L116)**
 
 Enter/Space calls `this.state.onSeriesClick()` directly. The code comment explicitly *rejects*
 positional synthesis: "a synthesized click's coordinates can land outside the chart rect on an
@@ -1524,7 +1391,7 @@ a reader reasonably reads this one as equally precise and looks for coordinates 
 `onSliceClick`), with no synthesized pointer position."
 
 ### DOC-8 — contributor docs omit the generated API/props/framework-props pipeline and its CI ratchets
-**Medium · Doc gap · [CONTRIBUTING.md:26-81](CONTRIBUTING.md#L26), [:140](CONTRIBUTING.md#L140); [mochart-docs/README.md:6](packages/mochart-docs/README.md#L6)** — **Open**
+**Medium · Doc gap · [CONTRIBUTING.md:26-81](CONTRIBUTING.md#L26), [:140](CONTRIBUTING.md#L140); [mochart-docs/README.md:6](packages/mochart-docs/README.md#L6)**
 
 A second generator pipeline exists alongside the config one: `apiReferenceModel.ts` reads the prop
 interfaces in `types/chart.ts` into `generated/api-reference.json`, and `generateBindings.ts` reads
@@ -1543,7 +1410,7 @@ error whose remedy is documented nowhere — while the config side has a careful
 API-coverage and section-coverage rows to the guardrail table; widen the docs README.
 
 ### DOC-9 — `documentation-plan.md` describes the pre-delivery state in the present tense
-**Medium · Doc inconsistency · [docs/documentation-plan.md:3](docs/documentation-plan.md#L3) vs [:27-47](docs/documentation-plan.md#L27)** — **Open**
+**Medium · Doc inconsistency · [docs/documentation-plan.md:3](docs/documentation-plan.md#L3) vs [:27-47](docs/documentation-plan.md#L27)**
 
 Line 3 says "Status: delivered (August 2026) — every non-optional item is checked off" (true).
 Lines 27-47 then assert, unqualified: "**No docs site.**", "**The config reference is a dead
@@ -1558,7 +1425,7 @@ gaps in the past tense; note that `version` later became optional; add the deliv
 API/props/framework-props generator work as a Phase 2 bullet.
 
 ### DOC-10 — the movalid README's validator and chain lists are each missing one member
-**Low · Doc gap · [movalid/README.md:48](packages/movalid/README.md#L48), [:64](packages/movalid/README.md#L64)** — **Open**
+**Low · Doc gap · [movalid/README.md:48](packages/movalid/README.md#L48), [:64](packages/movalid/README.md#L64)**
 
 Enumerated against the real export: the "Objects" bullet omits `partialObjectWithShape` — the one
 `@mochart/core` actually uses for nested config objects — and the chainable-extension list omits
@@ -1569,7 +1436,7 @@ inventories, so the two missing members are precisely the ones a reader meets fi
 **Fix:** add both.
 
 ### DOC-11 — `date-axis.md` says an area fills to "the value axis base", which is unset by default
-**Low · Doc inconsistency · [recipes/date-axis.md:26](packages/mochart-docs/recipes/date-axis.md#L26)** — **Open**
+**Low · Doc inconsistency · [recipes/date-axis.md:26](packages/mochart-docs/recipes/date-axis.md#L26)**
 
 `valueAxes.base` defaults to `null` for an unstacked axis — which the date-axis example is — and
 `SeriesPositions` then falls back to `valueAxisScale.range()[0]`, the axis's lower edge. On an axis
@@ -1580,7 +1447,7 @@ reaches the bottom of the plot.
 otherwise to the bottom of the axis."
 
 ### DOC-12 — two small factual slips in the recipes
-**Low · Doc inconsistency · [recipes/bar-caps.md:32](packages/mochart-docs/recipes/bar-caps.md#L32); [candlestick.md:36](packages/mochart-docs/recipes/candlestick.md#L36), [ohlc.md:40](packages/mochart-docs/recipes/ohlc.md#L40), [waterfall.md:31](packages/mochart-docs/recipes/waterfall.md#L31)** — **Open**
+**Low · Doc inconsistency · [recipes/bar-caps.md:32](packages/mochart-docs/recipes/bar-caps.md#L32); [candlestick.md:36](packages/mochart-docs/recipes/candlestick.md#L36), [ohlc.md:40](packages/mochart-docs/recipes/ohlc.md#L40), [waterfall.md:31](packages/mochart-docs/recipes/waterfall.md#L31)**
 
 (a) "The **Capped Bars** demo in the gallery" — the demo is titled `"Capped"`.
 (b) "The default direction colors are **aqua**/red" — the up/increase colour is `#1baf7a`
@@ -1597,25 +1464,6 @@ comments, or shift the hue toward the name.
 [CONFIG-9](#config-9--validateconfigs-strict-parameter-is-undocumented),
 [BIND-10](#bind-10--datatestid-is-documented-in-every-guide-page-and-no-readme).)*
 
-### DOC-13 — filtering every series does not activate the documented no-series state
-**Medium · Doc gap · [chart-states.md:60](packages/mochart-docs/guide/chart-states.md#L60) vs [Chart.ts:1234](packages/mochart/src/components/Chart.ts#L1234)** **[from SOL review]** — **Open**
-
-`chart-states.md` tells readers that turning every series off through the legend produces the
-no-series placeholder. The runtime gate is `mochartConfig.series.length === 0` and nothing else:
-legend filtering sets `filteredSeriesFlags` and re-derives the data, but leaves the configured
-series list intact — so filtering everything yields an empty plot with axes still drawn and no
-message at all.
-
-Neither state is exercised by a test — see
-[TEST-3](#test-3--the-no-data-and-no-series-chart-states-are-never-rendered) — so nothing holds the
-guide and the gate together.
-
-**Fix:** decide which one is true. Either extend the gate to "no series *visible*" — the count
-returned by `getSeriesContainerFilteredSeriesCounts`
-([DATA-6](#data-6--getseriescontainerfilteredseriescounts-counts-unfiltered-series)) is already
-computed and is exactly this number — or drop the claim from the guide. Add the all-filtered case
-to the empty-states test TEST-3 proposes.
-
 ---
 
 # 10. Demo applications
@@ -1628,7 +1476,7 @@ or orphans, all `demoText` keys are consumed, and menu dismissal/disclosure ARIA
 complete and consistent. The divergences below are the whole set.
 
 ### DEMO-1 — `build:pages` never rebuilds `@mochart/editor`, so the site can ship a stale editor
-**High · Bug · [scripts/build-pages.mjs:24](scripts/build-pages.mjs#L24)** **[verified]** — **Open**
+**High · Bug · [scripts/build-pages.mjs:24](scripts/build-pages.mjs#L24)** **[verified]**
 
 `libDirs` lists eight packages; `mochart-editor` is missing, yet it uses the same
 `development`→`src` / `default`→`dist` export conditions and is a dependency of all six galleries.
@@ -1640,7 +1488,7 @@ so this bites only locally and only intermittently — the worst failure mode.
 **Fix:** add `'mochart-editor'` to `libDirs`.
 
 ### DEMO-2 — applying a structurally invalid config produces a blank chart with no message
-**High · Bug · [vanilla ConfigTab.ts:122](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L122) and the five ports** — **Open**
+**High · Bug · [vanilla ConfigTab.ts:122](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L122) and the five ports**
 
 `applyConfig()` calls `parseConfig(getConfigText())`, which only checks JSON *syntax*. Downstream,
 `getConfigDataError` returns `false` for an invalid config and `EditableChart` sets
@@ -1654,7 +1502,7 @@ that fails silently.
 validity branch) and set `errorMessage` when invalid; apply in all six ports.
 
 ### DEMO-3 — showing the 2nd chart duplicates 22 DOM ids
-**High · Bug · [vanilla EditableChart.ts:682](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L682) and ~15 more sites, all six ports** — **Open**
+**High · Bug · [vanilla EditableChart.ts:682](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L682) and ~15 more sites, all six ports**
 
 `ChartTab` mounts one `EditableChart` per chart, and every instance renders the full control strip
 with fixed ids (`edit-mode`, `edit-reset-categories`, `edit-apply-series`, `edit-play-slices`, …).
@@ -1666,7 +1514,7 @@ resolve to the first chart only, and AT sees two identically-identified control 
 already does), or drop the ids where nothing consumes them.
 
 ### DEMO-4 — all six deployed galleries ship `<html>` with no `lang`
-**High · Bug · WCAG 3.1.1 (Level A) · [vanilla index.html:2](packages/mochart-demo-vanilla/index.html#L2) and the five siblings** **[verified]** — **Open**
+**High · Bug · WCAG 3.1.1 (Level A) · [vanilla index.html:2](packages/mochart-demo-vanilla/index.html#L2) and the five siblings** **[verified]**
 
 Confirmed across all seven demo packages: the six *deployed* galleries emit a bare `<html>`, while
 the non-deployed `demo-basic` harness and `mochart-benchmark` both use `<html lang="en">` and the
@@ -1677,7 +1525,7 @@ ships an `accessibility` config section.
 **Fix:** `<html lang="en">` in all six.
 
 ### DEMO-5 — vanilla: the "2nd Chart" button never appears or disappears on resize
-**High · Bug · [vanilla ChartTab.ts:118](packages/mochart-demo-vanilla/src/components/single/ChartTab.ts#L118)** — **Open**
+**High · Bug · [vanilla ChartTab.ts:118](packages/mochart-demo-vanilla/src/components/single/ChartTab.ts#L118)**
 
 `showChartCountControls` is computed only inside the *creation* loop; the update loop omits it,
 `EditableChartUpdate` has no such field, and the component captures it as a `const`. Open a demo
@@ -1689,7 +1537,7 @@ framework ports recompute it every render.
 make the button's presence part of `sync()`.
 
 ### DEMO-6 — Config tab's Invert/Slow state and Reference links go stale after any edit
-**Medium · Bug · [vanilla ConfigTab.ts:280](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L280), [:186](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L186), all six ports** — **Open**
+**Medium · Bug · [vanilla ConfigTab.ts:280](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L280), [:186](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L186), all six ports**
 
 The Invert/Slow pressed states and `getReferenceSectionIds(...)` both read `demoConfig`, refreshed
 only by `setConfig` or a successful `applyConfigToggle` — never by `onTextChange` and never by
@@ -1702,7 +1550,7 @@ never adds its Reference link.
 reusing `toggleConfigFromText`'s parse-and-build path with a no-op transform.
 
 ### DEMO-7 — vanilla leaks a theme subscription and the whole gallery DOM on every visit
-**Medium · Bug · [vanilla ModeSwitcher.ts:154](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L154)** — **Open**
+**Medium · Bug · [vanilla ModeSwitcher.ts:154](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L154)**
 
 `themeToggleButton()` returns `themeToggle().el` and discards the `theme.onChange` unsubscribe. Its
 only caller is the gallery header, and `mountApp`'s `clearView()` has no `gallery` branch while
@@ -1715,7 +1563,7 @@ unsubscribing component instead.
 `gallery` branch to `clearView()`.
 
 ### DEMO-8 — vanilla `chartHost` can mount a chart after it has been destroyed
-**Medium · Bug · [vanilla chartHost.ts:56](packages/mochart-demo-vanilla/src/components/misc/chartHost.ts#L56)** — **Open**
+**Medium · Bug · [vanilla chartHost.ts:56](packages/mochart-demo-vanilla/src/components/misc/chartHost.ts#L56)**
 
 The mount is deferred with `queueMicrotask(() => { chart = create(...) })` and `destroy()` only
 destroys `chart` if already set. A destroy in the same tick leaves `chart === null`, then the
@@ -1726,7 +1574,7 @@ alive for the page's lifetime. The binding this file explicitly mirrors guards e
 **Fix:** track a `destroyed` flag (or cancel the queued mount) and bail inside the microtask.
 
 ### DEMO-9 — tab strips carry no tab semantics, and Multi renders a dead tab button
-**Medium · Bug (a11y) · [vanilla DemoSingle.ts:115](packages/mochart-demo-vanilla/src/components/single/DemoSingle.ts#L115), [DemoMulti.ts:37](packages/mochart-demo-vanilla/src/components/multi/DemoMulti.ts#L37), all six ports** — **Open**
+**Medium · Bug (a11y) · [vanilla DemoSingle.ts:115](packages/mochart-demo-vanilla/src/components/single/DemoSingle.ts#L115), [DemoMulti.ts:37](packages/mochart-demo-vanilla/src/components/multi/DemoMulti.ts#L37), all six ports**
 
 The Chart/Config/Data strip is `<ul><li><button class="demo-tab active">` with no
 `role="tablist"`/`role="tab"`, no `aria-selected`, no `aria-controls`, no `aria-current` —
@@ -1739,7 +1587,7 @@ on the container; render Multi's single tab as non-interactive; expose the pendi
 `aria-describedby` or visually-hidden text.
 
 ### DEMO-10 — 115 `role="toolbar"` containers, none with an accessible name
-**Medium · Bug (a11y) · [vanilla ModeSwitcher.ts:30](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L30) and 114 more sites** — **Open**
+**Medium · Bug (a11y) · [vanilla ModeSwitcher.ts:30](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L30) and 114 more sites**
 
 Every control strip declares `role="toolbar"` and none is labelled. The mode switcher's visible
 `Mode:` label is never wired via `aria-labelledby`, and `demo.css` `display:none`s it at ≤900px.
@@ -1751,7 +1599,7 @@ marked with `aria-current` only on phones, so at desktop widths the active segme
 `aria-current="page"` on the current mode at all widths.
 
 ### DEMO-11 — route error copy is hardcoded in all six demos, and React's is unstyled
-**Medium · Bug · 18 sites across the six demos** — **Open**
+**Medium · Bug · 18 sites across the six demos**
 
 `"No route found matching …"`, `"No demo found for id: …"` and `"Bad random id: …"` are literal
 strings in all six — the only user-facing copy in the whole demo suite not sourced from `demoText`.
@@ -1763,7 +1611,7 @@ own two sibling messages.
 the same markup as its siblings.
 
 ### DEMO-12 — framework-agnostic helpers are duplicated verbatim in all six demos
-**Medium · Inconsistency · [vanilla RandomContent.ts:72](packages/mochart-demo-vanilla/src/components/random/RandomContent.ts#L72) and ~10 more** — **Open**
+**Medium · Inconsistency · [vanilla RandomContent.ts:72](packages/mochart-demo-vanilla/src/components/random/RandomContent.ts#L72) and ~10 more**
 
 Pure, framework-free logic exists once per demo instead of once in `@mochart/demo-common`:
 `getData` (~20 lines × 6), `getSeriesValuesText` (~25 lines, byte-identical × 6),
@@ -1778,7 +1626,7 @@ six times.
 **Fix:** move each into `packages/mochart-demo-common/src` and import it.
 
 ### DEMO-13 — "Link copied" is never announced
-**Medium · Bug (a11y) · [react ExportShareMenu.tsx:109](packages/mochart-demo-react/src/components/misc/ExportShareMenu.tsx#L109) and the five ports** — **Open**
+**Medium · Bug (a11y) · [react ExportShareMenu.tsx:109](packages/mochart-demo-react/src/components/misc/ExportShareMenu.tsx#L109) and the five ports**
 
 The Share item swaps its visible label to `demoText.shareButton.tooltipCopied`, but the button's
 `aria-label` is pinned to `demoText.shareButton.aria` ("Copy Share Link"). An `aria-label` overrides
@@ -1789,7 +1637,7 @@ that the link reached the clipboard is invisible to screen-reader users, in all 
 label, and wrap the swap in `role="status"`.
 
 ### DEMO-14 — core has no inverse of `applyDefaults`, so the demos re-implement it
-**Medium · Missing feature · [demo-common/mochartDemoConfig.ts:94](packages/mochart-demo-common/src/mochartDemoConfig.ts#L94)** — **Open**
+**Medium · Missing feature · [demo-common/mochartDemoConfig.ts:94](packages/mochart-demo-common/src/mochartDemoConfig.ts#L94)**
 
 `withoutDefaults` (~45 lines) plus a hand-rolled deep-equal and `removeSectionDefaults` reconstruct
 "config minus its defaults" from `sectionKeyAllMap` and `getDefaults`. Core exports `applyDefaults`
@@ -1803,7 +1651,7 @@ editor has to rediscover both the algorithm and the mutation footgun.
 `buildMochartConfig`) from `@mochart/core`, and have `buildMochartDemoConfig` call it.
 
 ### DEMO-15 — `@mochart/demo-common`'s README documents 10 of its 23 modules
-**Medium · Doc gap · [demo-common/README.md:23](packages/mochart-demo-common/README.md#L23)** — **Open**
+**Medium · Doc gap · [demo-common/README.md:23](packages/mochart-demo-common/README.md#L23)**
 
 Undocumented: `demoText`, `theme`, `viewport`, `menu`, `gallery`, `shareState`, `pieDemo`,
 `sparklines`, `chartTypeGenerators`, `docsLinks`, `errorDataProvider`, `jsonEditorContent` — plus
@@ -1814,7 +1662,7 @@ not mention it.
 **Fix:** extend the table to every module in `src/`, plus rows for the CSS exports and the script.
 
 ### DEMO-16 — docs claim the test demos are "intentionally invalid"; they are not
-**Low · Doc gap · [demo-data/README.md:28](packages/mochart-demo-data/README.md#L28)** — **Open**
+**Low · Doc gap · [demo-data/README.md:28](packages/mochart-demo-data/README.md#L28)**
 
 The 21 `testDemos` entries are ordinary valid configs, and the gallery describes them correctly as
 "Feature-coverage demos exercising less common config options". The stale claim also drives a
@@ -1825,7 +1673,7 @@ where test demos are only mounted and never checked for a rendered series. `READ
 **Fix:** correct the wording, complete the `Demo` shape example, and tighten `demos.spec.ts`.
 
 ### DEMO-17 — the series editor cannot show or edit error-bar values
-**Low · Missing feature · [vanilla EditableChart.ts:565](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L565), all six ports** — **Open**
+**Low · Missing feature · [vanilla EditableChart.ts:565](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L565), all six ports**
 
 `getSeriesValuesText`/`applySeriesChanges` handle `property`, `rangeProperty`, `markerProperty`,
 `labelProperty` and `colorProperty` only. `errorLowProperty`/`errorHighProperty` are absent, though
@@ -1837,7 +1685,7 @@ be inspected or edited from Single mode, and the demo cannot demonstrate the fea
 demo-common per DEMO-12).
 
 ### DEMO-18 — ~100 markup sites carry class names no stylesheet or script uses
-**Low · Inconsistency · [vanilla ChartsControls.ts:120](packages/mochart-demo-vanilla/src/components/multi/ChartsControls.ts#L120)** — **Open**
+**Low · Inconsistency · [vanilla ChartsControls.ts:120](packages/mochart-demo-vanilla/src/components/multi/ChartsControls.ts#L120)**
 
 `demo-form-row` (54 sites), `mochart-menu-item-label` (24), `button-with-tooltip` (6),
 `demo-menu-up` (6), `mochart-demo-notes-item` (6) and `mochart-demo-notes-trigger` (6) appear in the
@@ -1849,7 +1697,7 @@ nothing happen.
 **Fix:** delete them from the markup, or add the rules they imply.
 
 ### DEMO-19 — Lit's `ExportShareMenu` defaults `idPrefix` to `'edit'`
-**Low · Bug · [lit export-share-menu.ts:33](packages/mochart-demo-lit/src/components/misc/export-share-menu.ts#L33)** — **Open**
+**Low · Bug · [lit export-share-menu.ts:33](packages/mochart-demo-lit/src/components/misc/export-share-menu.ts#L33)**
 
 Every other port makes it required (Angular uses `@Input({ required: true })`). A Lit caller that
 omits it silently mints a second `#edit-export-share` in the document instead of failing. All three
@@ -1858,7 +1706,7 @@ current call sites pass it, so this is latent.
 **Fix:** drop the default and make it required.
 
 ### DEMO-20 — port-level divergences with no behavioural difference today
-**Low · Inconsistency** — **Open**
+**Low · Inconsistency**
 
 Several same-named symbols mean different things per port: Vue's `sliceControlsDisabled` omits the
 `error` term the other five fold in (and re-adds `error ||` at each of its five call sites);
@@ -1877,7 +1725,7 @@ the sixth.
 encapsulate it so callers cannot get it wrong.
 
 ### DEMO-21 — Playwright's dev server takes the port `vite.config` reserves for preview
-**Low · Inconsistency · [demo-basic/playwright.config.ts:17](packages/mochart-demo-basic/playwright.config.ts#L17) vs [vite.config.ts:5](packages/mochart-demo-basic/vite.config.ts#L5)** — **Open**
+**Low · Inconsistency · [demo-basic/playwright.config.ts:17](packages/mochart-demo-basic/playwright.config.ts#L17) vs [vite.config.ts:5](packages/mochart-demo-basic/vite.config.ts#L5)**
 
 `command: 'npm run dev -- --port 4173 --strictPort'` while `vite.config.ts` assigns
 `server: 5173` / `preview: 4173`, with a comment saying each gallery pins its own port so they can
@@ -1889,7 +1737,7 @@ same time, and `--strictPort` turns the clash into a hard failure.
 or move the dev server to 5173 and point `baseURL` there.
 
 ### DEMO-22 — deployed demos request a favicon that does not exist
-**Low · Bug · [vanilla index.html:3](packages/mochart-demo-vanilla/index.html#L3) and the five siblings** — **Open**
+**Low · Bug · [vanilla index.html:3](packages/mochart-demo-vanilla/index.html#L3) and the five siblings**
 
 None of the six gallery `index.html` files declares `<link rel="icon">`, so the browser falls back
 to `/favicon.ico` at the *site* root. `demo-basic` and `mochart-benchmark` both set `href="data:,"`
@@ -1916,7 +1764,7 @@ Least-covered core files by branches: `LinearGradient.ts`/`RadialGradient.ts` 50
 `Chart.ts` **64/74**.
 
 ### TEST-1 — PNG export success paths have never been executed
-**High · Test gap · [export/index.ts:336](packages/mochart-export/src/index.ts#L336), [:355](packages/mochart-export/src/index.ts#L355), [:388](packages/mochart-export/src/index.ts#L388)** — **Open**
+**High · Test gap · [export/index.ts:336](packages/mochart-export/src/index.ts#L336), [:355](packages/mochart-export/src/index.ts#L355), [:388](packages/mochart-export/src/index.ts#L388)**
 
 `exportPNG` and `exportChartsPNG` are tested only for their *failure* paths. Coverage confirms the
 `.then(blob => { saveBlob(...); return true; })` callbacks never run, and **`getStitchedSize` is
@@ -1932,7 +1780,7 @@ export at 1×1 and every test would still pass. The e2e suite covers single-char
 `getStitchedSize`. Add the single-chart equivalent.
 
 ### TEST-2 — no binding test asserts that any interaction callback reaches the chart
-**High · Test gap · all five binding test files** — **Open**
+**High · Test gap · all five binding test files**
 
 Grepping the five for `onFocus|onChartClick|onSeriesClick|onSliceClick|onSeriesFilter|onTitleClick|
 onSeriesLayoutBoundsChange` returns **0 hits in all five**. Angular has one indirect case that fires
@@ -1948,7 +1796,7 @@ dispatch the triggering DOM event, assert each spy was called. For Angular/Vue, 
 emitter/event names so a new row cannot be added without a case.
 
 ### TEST-3 — the "No Data" and "No Series" chart states are never rendered
-**High · Test gap · [Chart.ts:162](packages/mochart/src/components/Chart.ts#L162), [:1234](packages/mochart/src/components/Chart.ts#L1234), [:1281](packages/mochart/src/components/Chart.ts#L1281)** — **Open**
+**High · Test gap · [Chart.ts:162](packages/mochart/src/components/Chart.ts#L162), [:1234](packages/mochart/src/components/Chart.ts#L1234), [:1281](packages/mochart/src/components/Chart.ts#L1281)**
 
 Coverage shows `getNoDataComponent`, `getNoSeriesComponent`, the whole `series.length === 0` overlay
 block and the `categoryCount === 0` branch all uncovered. **Five of the six `ChartFactories` props
@@ -1964,7 +1812,7 @@ the plot with nothing failing.
 factory returning a marker node and assert it replaces the default.
 
 ### TEST-4 — `migrateConfig` never runs its only behaviour
-**Medium · Test gap · [migration/mochartConfig.ts:7-10](packages/mochart/src/config/migration/mochartConfig.ts#L7)** — **Open**
+**Medium · Test gap · [migration/mochartConfig.ts:7-10](packages/mochart/src/config/migration/mochartConfig.ts#L7)**
 
 71.4% statements — the lowest of any real file in core — and the uncovered line is the
 version-omitted normalization. Both existing tests pass a config that *has* a `version`, so the one
@@ -1976,7 +1824,7 @@ flow into future migration steps as `version: undefined` and every migration wou
 does-not-mutate case and a `migrateConfig(null)` non-throw case.
 
 ### TEST-5 — the title link and `onTitleClick` are entirely untested
-**Medium · Test gap · [Title.ts:55](packages/mochart/src/components/Title.ts#L55), [:159](packages/mochart/src/components/Title.ts#L159), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** — **Open**
+**Medium · Test gap · [Title.ts:55](packages/mochart/src/components/Title.ts#L55), [:159](packages/mochart/src/components/Title.ts#L159), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)**
 
 `Title.chartTitleClick`'s body, the `<a>` wrapper for `titleConfig.link`, and `Chart.onTitleClick`
 are all uncovered; `onTitleClick` has **0** references in the core tests and `linkDisabled` is never
@@ -1989,7 +1837,7 @@ title navigate away from the host page. (This is also the untested surface behin
 `defaultPrevented` true/false) and an `onTitleClick` spy test.
 
 ### TEST-6 — the golden oracle renders every chart with zero-width text
-**Medium · Weak test · [golden.test.ts:70](packages/mochart/test/golden/golden.test.ts#L70), [svgShims.ts:9](packages/mochart/test/components/svgShims.ts#L9)** — **Open**
+**Medium · Weak test · [golden.test.ts:70](packages/mochart/test/golden/golden.test.ts#L70), [svgShims.ts:9](packages/mochart/test/components/svgShims.ts#L9)**
 
 The oracle compares normalized `innerHTML` against 421 checked-in `.html` files, so it does catch
 structure, attributes and text exactly. But every golden runs with `getComputedTextLength` → `0`
@@ -2011,7 +1859,7 @@ each end in `…` and are shorter than the source. Alternatively add a second `t
 stage rendered under proportional metrics.
 
 ### TEST-7 — group- and stack-wide focus propagation is uncovered
-**Medium · Test gap · [FocusData.ts:197-209](packages/mochart/src/data/FocusData.ts#L197)** — **Open**
+**Medium · Test gap · [FocusData.ts:197-209](packages/mochart/src/data/FocusData.ts#L197)**
 
 When the focused series belongs to a `seriesGroup` or `seriesStack`, `getFocusData` marks every
 sibling as focused. Lines 199-201 (group) and 205-207 (stack) never execute — no test focuses a
@@ -2024,7 +1872,7 @@ single segment would highlight and no golden or unit test would see it. It sits 
 `seriesFocusPercentages` is at the focused level for both stack-mates and defocused for the other stack.
 
 ### TEST-8 — 72 of 349 documented config properties are never set in any test or demo
-**Medium · Test gap** — **Open**
+**Medium · Test gap**
 
 Cross-referencing every leaf property in `types/config.ts` against all of `packages/mochart/test/**`
 *and* every JSON in `packages/mochart-demo-data/src` leaves 72 properties that are only ever their
@@ -2048,7 +1896,7 @@ title-bottom + legend-top combination) and an addition to `ChartAria.test.ts` as
 a11y overrides appear. Treat the rest as a backlog; the enumeration is reproducible from `types/config.ts`.
 
 ### TEST-9 — nothing tests the published build; every test and the e2e suite run against `src`
-**Medium · Tooling gap · [demo-basic/playwright.config.ts:18](packages/mochart-demo-basic/playwright.config.ts#L18)** — **Open**
+**Medium · Tooling gap · [demo-basic/playwright.config.ts:18](packages/mochart-demo-basic/playwright.config.ts#L18)**
 
 Playwright's `webServer` starts the Vite **dev** server, which resolves the `development` condition
 → `packages/*/src`. All vitest suites likewise import source. The only thing that ever touches
@@ -2061,7 +1909,7 @@ A broken published bundle passes CI.
 (which also resolves [DEMO-21](#demo-21--playwrights-dev-server-takes-the-port-viteconfig-reserves-for-preview)).
 
 ### TEST-10 — pie percentages in the screen-reader announcement are never produced
-**Medium · Test gap · [TooltipFormat.ts:209-214](packages/mochart/src/utils/TooltipFormat.ts#L209)** — **Open**
+**Medium · Test gap · [TooltipFormat.ts:209-214](packages/mochart/src/utils/TooltipFormat.ts#L209)**
 
 In `getTooltipAnnouncement`, the whole `chart.type === 'pie' && pieLabelTypeUsesPercent(...)` block
 is uncovered. The *visual* pie tooltip is tested and `getPieTooltipPercentFormat` is unit-tested in
@@ -2075,7 +1923,7 @@ click and assert the announced percentages renormalize as `PieRender.test.ts` al
 the visible rows.
 
 ### TEST-11 — coverage is measured and gated in one of the nine published packages
-**Low · Test gap · [mochart/vitest.config.ts:14](packages/mochart/vitest.config.ts#L14) is the only `coverage` block** — **Open**
+**Low · Test gap · [mochart/vitest.config.ts:14](packages/mochart/vitest.config.ts#L14) is the only `coverage` block**
 
 Measured for the packages with no coverage config at all: `@mochart/export` 30 tests, **88.08%
 stmts / 77.77% branches / 80.65% funcs**; `@mochart/editor` 25 tests, **85.84% stmts / 71.25%
@@ -2090,7 +1938,7 @@ statements and 13 on branches with no floor.
 `npm test` across all workspaces, so no workflow change is needed.
 
 ### TEST-12 — B12's fix has no direct assertion, and the golden suite normalizes away the artifact
-**Low · Weak test · [render/dom.ts:87](packages/mochart/src/render/dom.ts#L87); [render.test.ts:307](packages/mochart/test/render/render.test.ts#L307); [golden.test.ts:455](packages/mochart/test/golden/golden.test.ts#L455)** — **Open**
+**Low · Weak test · [render/dom.ts:87](packages/mochart/src/render/dom.ts#L87); [render.test.ts:307](packages/mochart/test/render/render.test.ts#L307); [golden.test.ts:455](packages/mochart/test/golden/golden.test.ts#L455)**
 
 The `removeAttribute('style')` branch fires only when `!newValue`. The nearest test clears with
 `{height: null}` — truthy — so it never reaches the branch and never asserts `hasAttribute('style')`.
@@ -2105,7 +1953,7 @@ expect(div.hasAttribute('style')).toBe(false);` and the string-form equivalent, 
 re-comment `stripEmptyStyles`.
 
 ### TEST-13 — mid-animation assertions that can silently not run
-**Low · Weak test · [FollowerAnimation.test.ts:165-183](packages/mochart/test/components/FollowerAnimation.test.ts#L165)** — **Open**
+**Low · Weak test · [FollowerAnimation.test.ts:165-183](packages/mochart/test/components/FollowerAnimation.test.ts#L165)**
 
 Both wick-glue loops guard their assertion on a DOM query: the filtering loop `break`s the first
 frame `barRects(container, 'up')` is empty, and the restore loop only asserts `if (… .length > 0)`.
@@ -2117,7 +1965,7 @@ that the bug never affected.
 **Fix:** count the assertions and add `expect(checked).toBeGreaterThanOrEqual(2)` after each loop.
 
 ### TEST-14 — e2e covers one minimal harness; the shipped gallery, editor, share menu and mobile layout have none
-**Low · Test gap · [demo-basic/e2e/](packages/mochart-demo-basic/e2e/) (5 files, 429 lines)** — **Open**
+**Low · Test gap · [demo-basic/e2e/](packages/mochart-demo-basic/e2e/) (5 files, 429 lines)**
 
 The suite runs against `demo-basic`, a single-chart harness. Not covered anywhere: the deployed
 `@mochart/demo-vanilla` gallery (0 test files, no `test` script), the `@mochart/editor` JSON tabs in
@@ -2131,30 +1979,12 @@ encode/decode and the phone-fold DOM reparenting are exactly the logic jsdom can
 assert the restored mode and config), `editor.spec.ts`, and `mobile.spec.ts` (at 390px, assert the
 control strip collapses and each control appears exactly once in the DOM).
 
-### TEST-15 — the claimed three-engine browser support is only ever tested in Chromium
-**Medium · Test gap · [packages/mochart/README.md:252](packages/mochart/README.md#L252), [demo-basic/playwright.config.ts:13](packages/mochart-demo-basic/playwright.config.ts#L13), [ci.yml:33](.github/workflows/ci.yml#L33)** **[from SOL review]** — **Open**
-
-The core README states a support policy covering Chrome/Edge, Firefox and Safari. The Playwright
-config declares exactly one project, `Desktop Chrome`, and CI runs
-`npx playwright install --with-deps chromium` — so two of the three named engines have never
-executed a line of this library in CI. The exposure is not theoretical: SVG text measurement
-(`getComputedTextLength`, and with it the whole truncation and tick-fitting path), focus and
-keyboard behaviour on SVG elements, and `canvas.toBlob`/`XMLSerializer` in `@mochart/export` are
-precisely where Gecko and WebKit diverge from Blink.
-
-Distinct from [TEST-14](#test-14--e2e-covers-one-minimal-harness-the-shipped-gallery-editor-share-menu-and-mobile-layout-have-none),
-which is about *what* the single Chromium project covers; this is about *which engines* run at all.
-
-**Fix:** add `firefox` and `webkit` projects and install all three browsers in CI, scoped to a smoke
-subset — one render, one tooltip/crosshair interaction, one keyboard traversal, one SVG export and
-one PNG export. Failing that, narrow the README's stated support to what is actually verified.
-
 ---
 
 # 12. Build, tooling, packaging and CI
 
 ### TOOL-1 — only `build:pages` guards against a stale library `dist`
-**High · Bug · [scripts/build-pages.mjs:18-51](scripts/build-pages.mjs#L18), [package.json:31](package.json#L31)** — **Open**
+**High · Bug · [scripts/build-pages.mjs:18-51](scripts/build-pages.mjs#L18), [package.json:31](package.json#L31)**
 
 `build-pages.mjs` carries a hand-rolled mtime staleness check that reruns `build:libs`, because (its
 own comment) demo builds resolve the `default` condition → `dist`, "so a dist left over from before
@@ -2174,7 +2004,7 @@ root `build` and on each demo/docs package's `build`, or replace the mtime heuri
 orchestration (turbo/nx/wireit) so `dist` freshness is a dependency-graph fact.
 
 ### TOOL-2 — no release pipeline, no CHANGELOG, and no version tooling for 9 public packages
-**High · Missing feature · [.github/workflows/](.github/workflows/) (only `ci.yml`)** — **Open**
+**High · Missing feature · [.github/workflows/](.github/workflows/) (only `ci.yml`)**
 
 Nine packages carry `publishConfig: {access: "public"}` and `prepack` build hooks, all pinned at
 `1.0.0` with cross-package `^1.0.0` ranges. There is no publish workflow, no
@@ -2189,7 +2019,7 @@ CHANGELOGs; add an `npm pack --dry-run` tarball-contents check so `files` regres
 release.
 
 ### TOOL-3 — no dependency audit anywhere, and 9 known vulnerabilities are present
-**High · Tooling gap · [ci.yml:20-33](.github/workflows/ci.yml#L20); no `dependabot.yml`, no `renovate.json`** — **Open**
+**High · Tooling gap · [ci.yml:20-33](.github/workflows/ci.yml#L20); no `dependabot.yml`, no `renovate.json`**
 
 CI runs lint/deadcode/typecheck/test/e2e/build but never `npm audit`. `npm audit` reports **9
 vulnerabilities (3 moderate, 6 high)** today: `react-router 7.12.0–7.18.1` (high, CSRF bypass —
@@ -2200,7 +2030,7 @@ a direct dependency of `@mochart/demo-react`, so it ships in the deployed Pages/
 advisory doesn't block unrelated PRs), and add `.github/dependabot.yml` with a weekly grouped npm check.
 
 ### TOOL-4 — `npm run deadcode` filters out knip's dependency and duplicate-export checks
-**Medium · Tooling gap · [package.json:41](package.json#L41) — `knip --include exports,types,files`** — **Open**
+**Medium · Tooling gap · [package.json:41](package.json#L41) — `knip --include exports,types,files`**
 
 The filter discards `dependencies`, `unlisted`, `binaries`, `unresolved`, `duplicates`,
 `classMembers` and `enumMembers`. CI runs the filtered command, so it is green while an unfiltered
@@ -2214,7 +2044,7 @@ to consumers of a public package.
 hits; at minimum add `dependencies,unlisted,duplicates` to the include list.
 
 ### TOOL-5 — `@mochart/core` inlines its runtime dependencies but still declares them; nothing declares `sideEffects`
-**Medium · Inconsistency · [mochart/vite.config.ts:3-5](packages/mochart/vite.config.ts#L3), [mochart/package.json:44](packages/mochart/package.json#L44)** **[verified]** — **Open**
+**Medium · Inconsistency · [mochart/vite.config.ts:3-5](packages/mochart/vite.config.ts#L3), [mochart/package.json:44](packages/mochart/package.json#L44)** **[verified]**
 
 The library build bundles everything: `dist/mochart.js` (500 KB) contains zero external `import`
 statements, with d3 and movalid source inlined. Yet `package.json` lists 7 `d3-*` packages plus
@@ -2229,7 +2059,7 @@ dependencies) or move them to `devDependencies` and drop them from the published
 `"sideEffects": ["*.css"]` (or `false` for the JS-only packages) to every published package.
 
 ### TOOL-6 — the documented IIFE build is shipped but unreachable through `exports`
-**Medium · Bug · [mochart/package.json:34-40](packages/mochart/package.json#L34); documented at [getting-started.md:131](packages/mochart-docs/guide/getting-started.md#L131)** — **Open**
+**Medium · Bug · [mochart/package.json:34-40](packages/mochart/package.json#L34); documented at [getting-started.md:131](packages/mochart-docs/guide/getting-started.md#L131)**
 
 The docs state "an IIFE bundle for script tags, `dist/mochart.iife.js`, exposing the global
 `mochart`". The file is built and included via `files`, but `exports` defines only `"."` and
@@ -2247,7 +2077,7 @@ it only because it uses a relative path inside the repo.
 `"./package.json": "./package.json"`) to the map.
 
 ### TOOL-7 — `lint` and `deadcode` gate every PR but are documented nowhere
-**Medium · Doc gap · [CONTRIBUTING.md:12](CONTRIBUTING.md#L12), [:150](CONTRIBUTING.md#L150); [README.md:78](README.md#L78)** — **Open**
+**Medium · Doc gap · [CONTRIBUTING.md:12](CONTRIBUTING.md#L12), [:150](CONTRIBUTING.md#L150); [README.md:78](README.md#L78)**
 
 CI runs `lint`, `deadcode` and `typecheck` before anything else. CONTRIBUTING's Getting-started
 block lists `npm test`, `npm run typecheck` and `npm run test:e2e` but not lint or deadcode; its
@@ -2260,7 +2090,7 @@ letter pushes and gets a CI failure from a check no document mentioned.
 and sync the README Scripts block with `package.json`.
 
 ### TOOL-8 — no `engines` field on any package, and CI tests exactly one Node version
-**Medium · Missing feature · all 21 `package.json` files; [ci.yml:12](.github/workflows/ci.yml#L12)** — **Open**
+**Medium · Missing feature · all 21 `package.json` files; [ci.yml:12](.github/workflows/ci.yml#L12)**
 
 No package declares a supported Node range, there is no `.nvmrc`, and CI hardcodes a single Node 22
 runner with no matrix (local development here is on Node 26.5.0). Consumers get no install-time
@@ -2272,7 +2102,7 @@ particular has a narrow supported range.
 the root, add `.nvmrc`, and give `build-test` a `strategy.matrix.node-version: [22, 24]`.
 
 ### TOOL-9 — no SECURITY.md, issue/PR templates, `.editorconfig`, CODEOWNERS, or `bugs` field
-**Medium · Missing feature · [.github/](.github/) contains only `workflows/`** — **Open**
+**Medium · Missing feature · [.github/](.github/) contains only `workflows/`**
 
 Verified absent: `SECURITY.md`, `CODE_OF_CONDUCT.md`, `.editorconfig`, `.nvmrc`,
 `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS`,
@@ -2286,7 +2116,7 @@ reporting), a PR template mirroring the CONTRIBUTING checklist,
 `.editorconfig` matching the repo's 2-space style.
 
 ### TOOL-10 — `prebuild` writes into a tracked source file on every install
-**Low · Inconsistency · [mochart/package.json:54](packages/mochart/package.json#L54) → [stampVersion.ts:18](packages/mochart/scripts/stampVersion.ts#L18); target [src/version.ts](packages/mochart/src/version.ts) is git-tracked** — **Open**
+**Low · Inconsistency · [mochart/package.json:54](packages/mochart/package.json#L54) → [stampVersion.ts:18](packages/mochart/scripts/stampVersion.ts#L18); target [src/version.ts](packages/mochart/src/version.ts) is git-tracked**
 
 `stampVersion.ts` rewrites the tracked `src/version.ts` whenever it differs from `package.json`. It
 runs as `prebuild`, which runs under `prepack` **and** under the root `prepare` → `build:libs`
@@ -2298,7 +2128,7 @@ file's freshness the way `jsdocSync.test.ts` gates the generated JSDoc.
 a test that fails when the tracked file is out of sync (mirroring the `jsdocSync` pattern).
 
 ### TOOL-11 — CI hygiene: duplicated site build, uncached browsers, discarded failure traces
-**Low · Tooling gap · [ci.yml:26-42](.github/workflows/ci.yml#L26)** — **Open**
+**Low · Tooling gap · [ci.yml:26-42](.github/workflows/ci.yml#L26)**
 
 (1) `npm run build:pages` runs **twice** with different `PAGES_BASE` values — 2 VitePress builds
 plus 12 demo Vite builds on every PR, even when neither deploy variable is set.
@@ -2313,7 +2143,7 @@ cache `~/.cache/ms-playwright` keyed on the `@playwright/test` version; add an `
 artifact upload.
 
 ### TOOL-12 — ESLint's type-aware rules are silently off for two workspaces and all `*.config.ts`
-**Low · Tooling gap · [eslint.config.mjs:56-62](eslint.config.mjs#L56)** — **Open**
+**Low · Tooling gap · [eslint.config.mjs:56-62](eslint.config.mjs#L56)**
 
 The type-aware block (`no-floating-promises`, `no-misused-promises`, `await-thenable`,
 `unbound-method`) carries `ignores: ['**/*.config.ts', 'packages/mochart-docs/**',
@@ -2327,7 +2157,7 @@ includes their scripts (widening `include` may be enough) so `projectService: tr
 then remove them from the ignore list.
 
 ### TOOL-13 — minor manifest and config drift
-**Low · Inconsistency** — **Open**
+**Low · Inconsistency**
 
 - `svelte-check` is `^4.7.3` in `mochart-demo-svelte` but `^4.1.4` in `mochart-svelte`; `vue` is
   `^3.5.40` in `mochart-vue`/`mochart-demo-vue` but `^3.5.13` in `mochart-docs`. Both floating
@@ -2349,10 +2179,10 @@ add the intentional pair to `knip.json`'s ignores with a comment.
 ### VAL-1 — `color()` rejects most valid CSS/SVG colours
 **High** — see [CONFIG-1](#config-1--validatorscolor-rejects-most-valid-csssvg-colours), which is
 the same defect seen from the mochart side. Fix belongs here, in
-[validators.ts:130-179](packages/movalid/src/validators.ts#L130). — **Open**
+[validators.ts:130-179](packages/movalid/src/validators.ts#L130).
 
 ### VAL-2 — `conditional()` returns a validator missing three methods its own type declares
-**Medium · Bug · [validators.ts:763](packages/movalid/src/validators.ts#L763) vs the `Validator` interface at [:33](packages/movalid/src/validators.ts#L33)** — **Open**
+**Medium · Bug · [validators.ts:763](packages/movalid/src/validators.ts#L763) vs the `Validator` interface at [:33](packages/movalid/src/validators.ts#L33)**
 
 `Validator` declares `orEqual`, `orOneOf` and `or` as **required** members, but `conditional()`
 calls `addExtensions` with `extensions = false`, so none is attached:
@@ -2369,7 +2199,7 @@ system is actively lying about the API.
 'orOneOf' | 'or'>` — so the compiler rejects the call, or attach the three extensions.
 
 ### VAL-3 — the `numeric` family accepts single-element arrays
-**Medium · Bug · [validators.ts:123](packages/movalid/src/validators.ts#L123)** **[verified]** — **Open**
+**Medium · Bug · [validators.ts:123](packages/movalid/src/validators.ts#L123)** **[verified]**
 
 `v => !isNaN(parseFloat(v)) && isFinite(v)` uses the *global* `isFinite`, which coerces:
 
@@ -2387,7 +2217,7 @@ scalar is expected gets no error, and the value flows into `>=`/`<=` comparisons
 `v => (typeof v === 'string' || typeof v === 'number') && Number.isFinite(Number(v))`.
 
 ### VAL-4 — `regexp()` is stateful when handed a global-flagged regex
-**Medium · Bug · [validators.ts:259](packages/movalid/src/validators.ts#L259)** **[verified]** — **Open**
+**Medium · Bug · [validators.ts:259](packages/movalid/src/validators.ts#L259)** **[verified]**
 
 `(regex: RegExp) => v => regex.test(v)` closes over the caller's `RegExp`. With a `/g` (or `/y`)
 flag, `test` advances `lastIndex`, so the same validator alternates results on identical input:
@@ -2403,7 +2233,7 @@ different answer each call for identical input is essentially undebuggable from 
 construction: `new RegExp(regex.source, regex.flags.replace(/[gy]/g, ''))`.
 
 ### VAL-5 — `instanceOf`'s error message inlines the entire class source
-**Medium · Bug · [validators.ts:211](packages/movalid/src/validators.ts#L211)** **[verified]** — **Open**
+**Medium · Bug · [validators.ts:211](packages/movalid/src/validators.ts#L211)** **[verified]**
 
 `message: (type) => "should be an instanceof " + type` string-coerces the constructor:
 
@@ -2418,7 +2248,7 @@ class body ends up in a user-facing string.
 **Fix:** `"should be an instanceof " + (type.name || 'the given class')`.
 
 ### VAL-6 — `equal()` renders functions and symbols as "undefined"
-**Low · Bug · [validators.ts:94](packages/movalid/src/validators.ts#L94)** — **Open**
+**Low · Bug · [validators.ts:94](packages/movalid/src/validators.ts#L94)**
 
 `printAny` falls through to `JSON.stringify`, which returns `undefined` for functions and
 drops symbols: `equal(fn).errorMessage` → `"should be equal to undefined"`. Misleading rather than
