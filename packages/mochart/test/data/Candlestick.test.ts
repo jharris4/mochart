@@ -234,4 +234,27 @@ describe('createCandlestick', () => {
       { label: 'Mon', open: 2, high: 4, low: 1, close: 1.5 }
     ])).toThrow(/createCandlestick: labels must be unique, duplicates: Mon/);
   });
+
+  // HELP-3: one bad tick used to blank a whole chart, or half-draw the candle, silently
+  it.each([
+    ['a NaN high', { label: 'Mon', open: 2, high: NaN, low: 1.5, close: 1.8 }],
+    ['a NaN close', { label: 'Mon', open: 5, high: 6, low: 4, close: NaN }],
+    ['an infinite low', { label: 'Mon', open: 2, high: 3, low: -Infinity, close: 2.5 }]
+  ])('throws for %s', (_label, item) => {
+    expect(() => createCandlestick([item])).toThrow(/createCandlestick: Mon has a missing or non-finite/);
+  });
+
+  it('throws when a value is absent entirely', () => {
+    const item = { label: 'Mon', open: 3, low: 2, close: 3.5 } as unknown as Parameters<typeof createCandlestick>[0][number];
+    expect(() => createCandlestick([item])).toThrow(/createCandlestick: Mon has a missing or non-finite high/);
+  });
+
+  it('throws when high is below low', () => {
+    expect(() => createCandlestick([{ label: 'Mon', open: 2, high: 1, low: 3, close: 2.5 }]))
+      .toThrow(/createCandlestick: Mon has high 1 below low 3/);
+  });
+
+  it('still accepts a flat candle where every value is equal', () => {
+    expect(() => createCandlestick([{ label: 'Mon', open: 2, high: 2, low: 2, close: 2 }])).not.toThrow();
+  });
 });

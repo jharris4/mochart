@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 9 fixed (2 partial), 3 needing an answer, 141 open.**
+**Status: 10 fixed (2 partial), 3 needing an answer, 140 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -667,7 +667,7 @@ find in the first place. Four regression tests, one per helper. Full core suite 
 tests), typecheck, lint and deadcode clean.
 
 ### HELP-3 — `computeCandlesticks` accepts NaN and missing OHLC fields silently
-**High · Bug · [Candlestick.ts:160](packages/mochart/src/data/Candlestick.ts#L160)** — **Open**
+**High · Bug · [Candlestick.ts:160](packages/mochart/src/data/Candlestick.ts#L160)** — **Fixed**
 
 `open/high/low/close` are copied through unchecked; `direction = close < open ? 'down' : 'up'`.
 
@@ -683,6 +683,15 @@ neither test file has a non-finite case.
 **Fix:** throw when any of the four is missing or non-finite (naming the label), and on
 `high < low`. If silent tolerance is preferred, emit `undefined` for *every* column of that
 candle so `missingValues` skips the slot cleanly rather than half-drawing it.
+
+**Fixed automatically.** Took the throwing option: `checkCandleValues` runs per candle inside
+`computeCandlesticks`, so `createOhlc` inherits it, and the message names the label and the
+offending key. The silent-tolerance alternative was rejected because two of the three symptoms
+are *wrong output*, not missing output — a NaN close renders a **green** candle with
+`change: NaN`, and a missing `high` renders a wickless candle that looks like real flat data.
+Neither is something a caller can notice, so failing loudly is the only option that surfaces bad
+input. `high < low` is covered too; an all-equal (flat) candle stays legal. Six regression tests.
+Full core suite passes (1389 tests), typecheck and lint clean across all workspaces.
 
 ### HELP-4 — `createHeatmap` silently paints one colour for a reversed or collapsed `domain`
 **Medium · Bug · [Heatmap.ts:107](packages/mochart/src/data/Heatmap.ts#L107), [:146](packages/mochart/src/data/Heatmap.ts#L146)** — **Open**
