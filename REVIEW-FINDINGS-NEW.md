@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 16 fixed (2 partial), 4 needing an answer, 134 open.**
+**Status: 17 fixed (2 partial), 4 needing an answer, 133 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1454,7 +1454,7 @@ auto-resize, dispose-on-unmount, SSR guards, and `@mochart/core` as peer + dev (
 dep). Every asymmetry below is in typing, placeholder lifecycle, or docs.
 
 ### BIND-1 — Vue's `refresh()` is unreachable from the component's public type
-**High · Bug · [mochart-vue/src/Chart.ts:23](packages/mochart-vue/src/Chart.ts#L23), [DefaultChart.ts:24](packages/mochart-vue/src/DefaultChart.ts#L24)** — **Open**
+**High · Bug · [mochart-vue/src/Chart.ts:23](packages/mochart-vue/src/Chart.ts#L23), [DefaultChart.ts:24](packages/mochart-vue/src/DefaultChart.ts#L24)** — **Fixed**
 
 `setup()` calls `expose({ refresh })`, but Vue's `SetupContext.expose` does not feed the
 component's instance type. Compiling against the built `dist`:
@@ -1472,6 +1472,14 @@ where the escape hatch needs an `as any`.
 **Fix:** cast the exports so the exposed surface lands in the instance type —
 `export default Chart as typeof Chart & { new (...args: any[]): ChartRef }` — in both files, and
 add a `tsc`/`expect-type` assertion so it cannot regress.
+
+**Fixed automatically.** Applied as recommended in both `Chart.ts` and `DefaultChart.ts`, using
+`never[]` rather than `any[]` for the constructor args so the package's strict lint stays clean —
+the parameter type is never read, only the return. The regression guard is a test typed the way a
+TS host actually writes it, `ref<InstanceType<typeof DefaultChart> | null>(null)`, which is the
+form that had no `refresh` at all; the existing test used an explicit `ref<ChartRef | null>`, so
+it could never have caught this. `npm run typecheck` fails on the unpatched source. Vue tests
+pass (11), typecheck, build and lint clean.
 
 ### BIND-2 — the generated reference publishes a private helper as the type of all ten Angular outputs
 **High · Bug (docs generator) · [bindingReferenceModel.ts:299-302](packages/mochart-docs/scripts/bindingReferenceModel.ts#L299)** — **Open**
