@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 18 fixed (2 partial), 4 needing an answer, 132 open.**
+**Status: 21 fixed (2 partial), 4 needing an answer, 129 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1659,7 +1659,7 @@ CONTRIBUTING resolves, all 37 CI-validated `examples/*.ts` pass `validateConfig`
 the quickstart works end to end, and there are no vocabulary violations anywhere.
 
 ### DOC-1 — `series.valueLabel` is documented as "use null for none"; `null` is the default and yields the title
-**High · Doc inconsistency · [docs/seriesConfig.ts:87](packages/mochart/src/config/docs/seriesConfig.ts#L87) → [types/config.ts:2515](packages/mochart/src/types/config.ts#L2515) → the generated reference page and [recipes/tooltip-formatting.md:26](packages/mochart-docs/recipes/tooltip-formatting.md#L26)** — **Open**
+**High · Doc inconsistency · [docs/seriesConfig.ts:87](packages/mochart/src/config/docs/seriesConfig.ts#L87) → [types/config.ts:2515](packages/mochart/src/types/config.ts#L2515) → the generated reference page and [recipes/tooltip-formatting.md:26](packages/mochart-docs/recipes/tooltip-formatting.md#L26)** — **Fixed**
 
 The description reads "the label to show before a series value in the tooltip (use null for none)"
 with `@default null` directly beneath it. `getSeriesLabel`
@@ -1673,8 +1673,12 @@ visible on a single page.
 `useTitleForValueLabel: false` for no label". Note `categoryAxis.valueLabel` genuinely *does* mean
 "null = none" — only the series one is wrong.
 
+**Fixed automatically.** Applied as recommended, regenerated through both `generate-jsdoc` and
+`generate-docs` so the `.d.ts`, the reference page and the recipe all agree.
+`categoryAxis.valueLabel` is left alone — it really does mean "null = none".
+
 ### DOC-2 — `color-by-value.md` says `min`/`max` are "ignored" with a `base.value`; they are a validation error
-**High · Doc inconsistency · [recipes/color-by-value.md:63](packages/mochart-docs/recipes/color-by-value.md#L63) vs [validation/seriesConfig.ts:144](packages/mochart/src/config/validation/seriesConfig.ts#L144)** — **Open**
+**High · Doc inconsistency · [recipes/color-by-value.md:63](packages/mochart-docs/recipes/color-by-value.md#L63) vs [validation/seriesConfig.ts:144](packages/mochart/src/config/validation/seriesConfig.ts#L144)** — **Fixed**
 
 The doc says "With `base.value` set, `min`/`max` are ignored". The validator attaches
 `validators.equal(NONE)` to both under that condition:
@@ -1690,8 +1694,12 @@ place; the chart renders its config-error state.
 **Fix:** "With `base.value` set, `min`/`max` must be `null` (their conditional default) — the four
 `base` colors take over. Leaving them set is a validation error."
 
+**Fixed automatically.** Applied as recommended, with one addition: the recipe now names the
+migration case its old wording invited — a single-ramp series gaining a diverging base has to drop
+`min`/`max`, which is exactly when a reader would have trusted "ignored".
+
 ### DOC-3 — the "null is a real value" rule is illustrated with a style state, where `null` is rejected
-**High · Doc inconsistency · [guide/config-model.md:105-107](packages/mochart-docs/guide/config-model.md#L105)** **[verified]** — **Open**
+**High · Doc inconsistency · [guide/config-model.md:105-107](packages/mochart-docs/guide/config-model.md#L105)** **[verified]** — **Fixed**
 
 The bullet reads "**`null` is a real value, not a hole.** `{ strokeColor: null }` overrides a
 non-null default and leaves the SVG attribute unset so CSS can supply it" — true for a plain
@@ -1711,6 +1719,10 @@ opacities are never null".
 **Fix:** scope the bullet — `null` is accepted on plain styles and, inside
 `normal`/`focused`/`defocused`, only on `strokeWidth`/`strokeDashArray`; colours and opacities must
 be concrete (use `'none'` to switch a half off).
+
+**Fixed automatically.** Applied as recommended: the bullet keeps the plain-style rule and gains
+a second paragraph scoping it inside a style state, with the reason (a state always writes its
+colour and opacity attributes) and the `'none'` alternative.
 
 ### DOC-4 — `theming.md` names the colour-scale bounds `colorMin`/`colorMax`
 **Medium · Doc inconsistency · [guide/theming.md:98](packages/mochart-docs/guide/theming.md#L98)** — **Open**
