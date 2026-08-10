@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**153 findings: 1 critical, 31 high, 69 medium, 52 low.** (145 from the Opus pass,
-5 from the SOL pass, 3 found while implementing.)
+**154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
+5 from the SOL pass, 4 found while implementing.)
 
-**Status: 30 fixed (3 partial), 5 needing an answer, 123 open.** ANIM-1's axis-bounds follow-up is
+**Status: 30 fixed (3 partial), 5 needing an answer, 124 open.** ANIM-1's axis-bounds follow-up is
 now **implemented** — see its entry for what landed and where the build revised the design.
 ANIM-2's collapsed-domain follow-up remains **decided and awaiting implementation**.
 
@@ -52,7 +52,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | § | Section | C | H | M | L | Total |
 |---|---|---|---|---|---|---|
 | [1](#1-core--data-pipeline) | Core — data pipeline | – | 2 | 2 | 3 | 7 |
-| [2](#2-core--animation-and-layout) | Core — animation & layout | **1** | 1 | 2 | 3 | 7 |
+| [2](#2-core--animation-and-layout) | Core — animation & layout | **1** | 1 | 3 | 3 | 8 |
 | [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 3 | 4 | 4 | 11 |
 | [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 3 | 12 |
 | [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 3 | 10 |
@@ -64,7 +64,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 3 | 8 | 5 | 16 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 6 | 4 | 13 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **31** | **69** | **52** | **153** |
+| | **Total** | **1** | **31** | **70** | **52** | **154** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -621,6 +621,58 @@ anyway — but the surrounding `adjust*` functions carry explicit "never mutated
 the invariant is already understood to matter.
 
 **Fix:** return a fresh object for the zero case, or `Object.freeze` the three constants.
+
+### ANIM-6 — a value outside an explicit axis bound stretches the animation past its configured maximum
+**Medium · Bug · [SeriesAnimationData.ts:763](packages/mochart/src/animation/SeriesAnimationData.ts#L763), [ChartTweens.ts:417](packages/mochart/src/animation/ChartTweens.ts#L417)** — **Open** **[verified]**
+
+*Found while writing the axis-bounds recipe, not by either review pass.*
+
+Phase durations are `configuredDuration * deltaPercentage`, and the weight is not clamped:
+
+```ts
+const deltaPercentage = valueAxisExtent > 0 ? getMaxAbsoluteValue(deltas) / valueAxisExtent : 0;
+```
+
+The numerator is a delta in **data units**; the denominator is the **visible** axis extent. An
+explicit `min`/`max` decouples the two, so any value outside the bounds pushes the ratio above 1
+and multiplies the duration. Measured, driving real frames on a fake clock, with
+`initialDuration` at its `1000` default:
+
+| Config | Settles in |
+|---|---|
+| spike `1408`, axis `0..200` (the [recipe](packages/mochart-docs/recipes/axis-bounds.md) example) | **7056ms** |
+| spike `150` (in range), axis `0..200` | 768ms |
+| spike `1408`, axis `auto` | 976ms |
+| spike `14080`, axis `0..200` | **>48000ms**, still running at the 3000-frame cap |
+
+It scales linearly with how far out of range the value is, with no ceiling; `safeDuration`
+([ChartTweens.ts:376](packages/mochart/src/animation/ChartTweens.ts#L376)) only rejects
+non-finite and negative values.
+
+**Is it a bug?** Scaling duration by how far things move is plainly the design — the open question
+is whether that scaling may exceed the configured value. Two things say no: the property is
+documented as *"the **maximum** duration for the initial animation"*
+([animationConfig.ts:4](packages/mochart/src/config/docs/animationConfig.ts#L4)), and past the
+axis extent the extra time animates a mark that is behind the clip edge the whole way, so it buys
+no visible motion. Left open rather than fixed, since the ratio also feeds relative pacing.
+
+Predates the clipping work — `git log -L` shows the line unchanged since the `groupAxis` rename.
+It used to be self-concealing: the out-of-range mark was drawn, overflowing the plot, so it really
+did travel that far on screen. Now it is clipped, and the extra seconds are spent off-screen.
+
+**Fix:** clamp `deltaPercentage` to `1` in `getSeriesValuesDeltas`. No visible mark travels more
+than one axis extent, so `1` is the true ceiling rather than a guard. Clamping at the source also
+corrects the relative-pacing signal read at
+[ChartAnimation.ts:118](packages/mochart/src/animation/ChartAnimation.ts#L118), where `7.04`
+currently claims to be seven times more significant than a full-plot move; clamping only the
+duration at `ChartTweens.ts:417` is smaller but leaves that. Wants a regression test beside
+`InvertedDomainPacing.test.ts`.
+
+**Adjacent, and probably its own fix:** the category-axis twin at
+[CategoryAnimationData.ts:517](packages/mochart/src/animation/CategoryAnimationData.ts#L517)
+divides by `categoryAxisDomain[1]` — the domain's upper *bound*, not its extent. On a domain of
+`[1000, 1010]` the denominator is `1010` instead of `10`, collapsing the weight to near zero so
+category motion finishes almost instantly. Same units mistake, opposite direction, also unclamped.
 
 ---
 
