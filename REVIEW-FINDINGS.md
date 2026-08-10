@@ -9,13 +9,13 @@ tests + all workspaces), `npm run typecheck`, `npm run lint`, and
 held to thresholds (96.29% statements, 88.61% branches). Nothing here came from a failing check — the
 findings came from reading the source and probing the public API.
 
-**33 findings: 30 fixed, 3 open.**
+**33 findings: 30 fixed, 1 closed as won't-fix, 2 open.**
 
 **Fixed** items are committed on this branch, one commit each, and each records
 what the fix was and why that shape was chosen over the alternatives.
 **Open** items are the ones still needing a decision.
 
-Nothing High or Medium is open — the 3 remaining are all Low.
+Nothing High or Medium is open — the 2 remaining are all Low.
 
 ---
 
@@ -798,12 +798,22 @@ the component classes. Defensible given Angular's decorator inputs, but it
 leaves TypeScript hosts of that one binding without a named prop surface, and
 nothing says so.
 
-### D4. `@mochart/movalid` has no `homepage` — **Open**
+### D4. `@mochart/movalid` has no `homepage` — **Closed, won't fix**
 
 **Low.** Every other publishable package sets
-`"homepage": "https://mochart.org"`; movalid does not, so npm shows no project
-link. Left alone because movalid is a standalone validator with no page on that
-site — the right URL is a judgement call.
+`"homepage": "https://mochart.org"`; movalid does not, so npm shows no Homepage
+link.
+
+**Deliberately left as is.** movalid is a standalone validator library that
+mochart happens to use, and mochart.org has no movalid content at all — so
+pointing there would send someone after validator docs to a charting site,
+which is worse than no link. Pointing at the repo subdirectory would be
+accurate but now duplicates D5's `repository.directory`, which already resolves
+npm's Repository link to `packages/movalid`, where the README is the
+documentation.
+
+Recorded rather than left silent so it is not re-raised as an oversight: the
+inconsistency with the other eight packages is intentional.
 
 ### D5. No `repository.directory` on any publishable package — **Fixed**
 
