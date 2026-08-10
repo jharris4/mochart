@@ -38,8 +38,9 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 30 fixed (3 partial), 6 needing an answer, 120 open.** ANIM-1's follow-up is
-decided and awaiting implementation (see its entry); two minor sub-questions remain there.
+**Status: 30 fixed (3 partial), 5 needing an answer, 120 open.** ANIM-1 and ANIM-2 both have
+follow-ups that are **decided and awaiting implementation** — see their entries; one minor
+sub-question remains under ANIM-1.
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -296,14 +297,22 @@ The committed `Math.max(domainExtent, 0)` clamp stays either way: once `min <= m
 negative extent becomes unreachable, and the clamp becomes belt-and-braces rather than the thing
 holding the rAF loop closed.
 
-> **Two sub-questions still open:** (a) `min <= max` as written permits `min === max`, i.e. a
-> deliberately collapsed domain where every value maps to one pixel — allowed on purpose, or
-> should it be `min < max`? (b) once out-of-range data is clipped it becomes *silently*
+**`min === max` is deliberately legal** — the rule is `min <= max`, not `min < max`. Rejecting it
+would mean the *same domain* is fine when `auto` derives it from flat data and a config error when
+written down: measured, `{min: 5, max: 5}` with data `5, 5` renders byte-identically to `auto`
+with the same data. It is also how computed configs land on flat data
+(`min: Math.min(...values), max: Math.max(...values)`, or a date picker set to one day), which is
+exactly when the config is *correct* — erroring there would blank a chart in production on the day
+the data happened to be flat. How a collapsed domain **draws** is handled in
+[ANIM-2](#anim-2--a-zero-span-domain-makes-every-update-flash-to-zero-then-to-full-height), which
+covers the `auto` route too.
+
+> **One sub-question still open:** once out-of-range data is clipped it becomes *silently*
 > misleading (the chart looks fine and is wrong) — worth a `console.warn`, or leave it silent?
 > A validation warning is not an option: `strict` defaults to true, so it would blank the chart.
 
 ### ANIM-2 — a zero-span domain makes every update flash to zero, then to full height
-**High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Partially fixed**, with an open question
+**High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Partially fixed**; collapsed-domain drawing decided, not yet implemented
 
 When all values on an axis are equal the domain collapses (`[7, 7]`). d3 renders that at
 the range midpoint, but the expansion/contraction phases interpolate to and from a
@@ -344,19 +353,30 @@ value axis defaults its `base` to 0 — so the extent is never actually 0 there.
 kept as tests and pass both before and after. A genuinely collapsed domain needs a renderer that
 does not anchor to a base.
 
-> **QUESTION (needs an answer):** the visual flash is left unfixed. Its cause is that a collapsed
-> domain is rendered by d3 at the *range midpoint*, while the expansion/contraction phases
-> interpolate to and from a non-degenerate domain where those same values sit at an *extreme* —
-> hence `h=81 → h=0 → h=161 → h=81`. Closing that gap means widening a zero-extent domain before
-> it reaches the scale, which **changes where an all-equal chart draws its bars when nothing is
-> animating at all**, and will churn the golden snapshots. That is a visual-design call, not a
-> bug fix. **Which do you want:** (a) widen a zero-extent domain to `[v - 0.5, v + 0.5]` (or
-> `[0, 1]` for v = 0) everywhere, accepting that an all-equal line chart then draws mid-plot for
-> a different reason and all-equal bars change height; (b) keep the static rendering as it is and
-> instead force the animation phases to hold the degenerate domain, so no expansion runs and the
-> update cross-fades in place; (c) leave it, and document that all-equal data animates oddly?
-> *Recommendation: (b).* It is the smaller change, preserves every current golden snapshot, and
-> keeps a visual-design decision out of a bug fix.
+#### Follow-up: collapsed-domain drawing — **decided, not yet implemented**
+
+**Decided: widen a zero-extent domain once, before it reaches the scale.** This is where a
+collapsed domain gets handled for *every* route into it, not just the animation one — flat data
+under `auto`, a single data point, and the explicitly legal `{min: 5, max: 5}` from
+[ANIM-1](#anim-1--an-infinity-phase-duration-wedges-the-chart-in-a-permanent-raf-loop) all arrive
+at the same place. Today all three render one tick reading `5.000000` with every value crushed
+onto the midline, and animate through `h=81 → h=0 → h=161 → h=81`.
+
+Widening was previously argued against here in favour of the smaller fix (hold the degenerate
+domain through the animation phases). That reasoning does not survive the wider view: the smaller
+fix addresses the flash only, and leaves the static rendering degenerate for all three routes.
+
+Notes for whoever implements it:
+
+- Widen to `[v - 0.5, v + 0.5]`, or `[0, 1]` when `v` is 0 — the shape `getSafeDomainExtent`
+  already assumes.
+- Do it **once, at the domain boundary**, so the scale, the ticks and the animation deltas all
+  see a non-degenerate domain and none of them needs its own special case.
+- It **changes where an all-equal chart draws** when nothing is animating, so the golden
+  snapshots will churn. That is the intended outcome here, not a regression — but it is the
+  reason this is its own commit with the snapshots regenerated deliberately.
+- An explicit `{min: 5, max: 5}` must still *report* 5 as its bound; the widening is a rendering
+  concern and must not leak back into anything that reads the configured value.
 
 ### LAYOUT-1 — negative `width`/`height` reach background rects on small or heavily spaced charts
 **Medium · Bug · [PlotLayout.ts:91](packages/mochart/src/layout/PlotLayout.ts#L91), [SpacingLayoutInfo.ts:47-53](packages/mochart/src/layout/SpacingLayoutInfo.ts#L47), [LegendLayout.ts:113-121](packages/mochart/src/layout/LegendLayout.ts#L113)** — **Open**
