@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 2 fixed, 0 needing an answer, 148 open.**
+**Status: 3 fixed, 0 needing an answer, 147 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -115,7 +115,7 @@ narrower per-function fix was taken over the finding's alternative of coercing a
 separately at its own three sites. Full core suite passes (1355 tests), typecheck and lint clean.
 
 ### DATA-2 — one non-finite value wipes out the later series in a stack
-**High · Bug · [SeriesData.ts:247-276](packages/mochart/src/data/SeriesData.ts#L247)** — **Open**
+**High · Bug · [SeriesData.ts:247-276](packages/mochart/src/data/SeriesData.ts#L247)** — **Fixed**
 
 `setStackSingleSeriesValues` treats only `undefined` as missing. `NaN >= 0` is `false`,
 so a `NaN` falls into the negative branch and is *added* into `negativeStackValues[i]`,
@@ -130,6 +130,22 @@ of `-6`). Same class as the already-fixed B17 waterfall NaN poisoning, but in co
 **Fix:** treat non-finite as missing in all three functions. Fixing the read boundary
 instead — coercing non-finite to `undefined` in `getSeriesValuesForProperty`
 ([:124](packages/mochart/src/data/SeriesData.ts#L124)) — resolves DATA-1 and DATA-2 together.
+
+**Fixed automatically.** A single `isStackableValue()` type guard (`value !== undefined &&
+Number.isFinite(value)`) now gates all three functions, so a non-finite value takes exactly the
+path `undefined` already took: `setStackSingleSeriesValues` emits `undefined` for the slot and
+carries the positive accumulator into `prior`, `getStackPriorValues` reads the positive
+accumulator, and `incrementStackValues` skips it. Regression tests in
+`test/data/StackNonFinite.test.ts`; two of the four fail on the unpatched source. The strongest
+of them asserts a NaN row is now byte-identical to the same row with the property simply absent.
+Full core suite passes (1359 tests), typecheck and lint clean.
+
+Two corrections to the finding. First, its worked example says the axis domain "loses the real
+minimum of `-6`" — for those rows the real minimum is `-4` (no category sums two negatives), and
+what actually went wrong is that series `c`'s valid `-2` became NaN and rendered nothing. Second,
+`Infinity` never poisoned the negative accumulator, because `Infinity >= 0` sends it down the
+*positive* branch; it corrupted the axis domain instead, which DATA-1's fix already contains.
+The infinity case is kept as a test regardless.
 
 ### DATA-3 — a controlled `focusedCategoryIndex` below `-1` defocuses everything
 **Medium · Bug · [FocusData.ts:37-40](packages/mochart/src/data/FocusData.ts#L37)** — **Open**

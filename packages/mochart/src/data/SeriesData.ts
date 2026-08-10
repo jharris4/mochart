@@ -244,6 +244,12 @@ function setStackSeriesValues(seriesConfigs: EnhancedSeriesConfig[], seriesStack
   }
 }
 
+// A non-finite value cannot be accumulated: adding one poisons the running total for every later
+// series in the stack, so treat it as missing exactly the way `undefined` already is.
+function isStackableValue(value: number | undefined): value is number {
+  return value !== undefined && Number.isFinite(value);
+}
+
 function setStackSingleSeriesValues(valueObject: SeriesValueObject, positiveStackValues: number[], negativeStackValues: number[], values: NumericValues): void {
   const count = values.length;
   let priorValues: NumericValues = [];
@@ -251,7 +257,7 @@ function setStackSingleSeriesValues(valueObject: SeriesValueObject, positiveStac
   let value: number | undefined, tempValue: number | undefined;
   for (let i=0; i<count; i++) {
     value = values[i];
-    if (value === undefined) {
+    if (!isStackableValue(value)) {
       priorValues.push(positiveStackValues[i]);
       stackValues.push(undefined);
     }
@@ -281,7 +287,7 @@ function getStackPriorValues(positiveStackValues: number[], negativeStackValues:
   const count = values.length;
   for (let i = 0; i < count; i++) {
     value = values[i];
-    if (value === undefined || value >= 0) {
+    if (!isStackableValue(value) || value >= 0) {
       priorValues.push(positiveStackValues[i]);
     }
     else {
@@ -295,7 +301,7 @@ function incrementStackValues(positiveStackValues: number[], negativeStackValues
   const count = values.length;
   for (let i=0; i<count; i++) {
     const value = values[i];
-    if (value !== undefined) {
+    if (isStackableValue(value)) {
       if (value > 0) {
         positiveStackValues[i]+= value;
       }
