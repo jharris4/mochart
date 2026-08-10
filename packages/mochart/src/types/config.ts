@@ -357,6 +357,14 @@ export interface PlotConfig {
    */
   padding: MarginPadding;
   /**
+   * How far (in pixels) the series may overflow each side of the plot before
+   * being clipped; the sides are screen sides, so with inverted set the value
+   * axis runs left/right.
+   *
+   * @default { top: 0, right: 0, bottom: 0, left: 0 }
+   */
+  clipOverflow: MarginPadding;
+  /**
    * The styles to apply to the plot background (strokeColor, strokeOpacity,
    * strokeWidth, fillColor, fillOpacity (use null for none)).
    *
