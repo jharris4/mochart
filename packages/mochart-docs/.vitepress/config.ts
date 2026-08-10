@@ -119,6 +119,7 @@ function guideSidebar() {
         { text: 'Grouped series', link: '/recipes/grouped-series' },
         { text: 'Dual value axes', link: '/recipes/dual-axes' },
         { text: 'Date axis', link: '/recipes/date-axis' },
+        { text: 'Axis bounds', link: '/recipes/axis-bounds' },
         { text: 'Horizontal charts', link: '/recipes/horizontal-bars' },
         { text: 'Positive and negative', link: '/recipes/positive-negative' },
         { text: 'Thresholds and ranges', link: '/recipes/thresholds-ranges' },
