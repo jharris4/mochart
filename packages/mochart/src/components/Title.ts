@@ -159,7 +159,9 @@ export default class Title extends Renderer<TitleProps, TitleState> {
       if (link) {
         const onLinkClick = linkDisabled ? onClickDisabled : null;
         wrapperEl = this.wrapper.set('a', () => svgEl('a'))!;
-        wrapperEl.set({ href: link, onClick: onLinkClick, transform: titleSpacingTransform });
+        // an svg <a href> is natively focusable, so a decorative chart has to opt it out by hand
+        wrapperEl.set({ href: link, onClick: onLinkClick, transform: titleSpacingTransform,
+          tabindex: mochartConfig.accessibility.hidden ? '-1' : null });
       }
       else {
         wrapperEl = this.wrapper.set('g', () => svgEl('g'))!;

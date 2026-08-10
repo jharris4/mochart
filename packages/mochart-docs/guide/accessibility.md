@@ -183,8 +183,11 @@ labels) exposed to screen readers. For a chart that is *purely decorative* —
 say a sparkline repeating a value already shown as text — set
 [`accessibility.hidden`](/reference/accessibility#accessibility.hidden) to
 `true` instead. The chart's container is marked `aria-hidden` so assistive
-tech skips it entirely, and every keyboard tab stop is removed with it, so
-keyboard users cannot land on content screen readers cannot see. Only do
+tech skips it entirely, and every tab stop the chart itself renders — series,
+slices, the plot, tooltip controls, legend items, and a linked title — is
+removed with it, so keyboard users cannot land on content screen readers
+cannot see. Content you inject through the
+[state factories](/guide/chart-states) is yours to make non-focusable. Only do
 this when the surrounding page already conveys what the chart shows.
 
 ## Exports

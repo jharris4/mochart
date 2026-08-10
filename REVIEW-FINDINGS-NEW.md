@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 14 fixed (2 partial), 4 needing an answer, 136 open.**
+**Status: 15 fixed (2 partial), 4 needing an answer, 135 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1253,7 +1253,7 @@ supported public extension contract. Either way, correct the `REVIEW-FINDINGS.md
 # 7. Accessibility
 
 ### A11Y-1 — a linked title stays focusable inside an `aria-hidden` decorative chart
-**High · Bug · WCAG 4.1.2 (axe `aria-hidden-focus`) · [Title.ts:159-162](packages/mochart/src/components/Title.ts#L159), [Chart.ts:1051](packages/mochart/src/components/Chart.ts#L1051)** — **Open**
+**High · Bug · WCAG 4.1.2 (axe `aria-hidden-focus`) · [Title.ts:159-162](packages/mochart/src/components/Title.ts#L159), [Chart.ts:1051](packages/mochart/src/components/Chart.ts#L1051)** — **Fixed**
 
 `accessibility.hidden: true` puts `aria-hidden="true"` on the root and removes every
 mochart-authored tab stop — except the SVG `<a href>` that `title.link` renders. It gets no
@@ -1269,6 +1269,15 @@ asserts `querySelectorAll('[tabindex]').length === 0`, which passes because the 
 [TooltipControls.ts:122](packages/mochart/src/components/TooltipControls.ts#L122)). Change the
 test to assert against natively focusable selectors (`a[href], button, [tabindex]:not([tabindex="-1"])`),
 and soften the "every keyboard tab stop is removed" claim to name what the library controls.
+
+**Fixed automatically.** All three parts. The title anchor takes `tabindex="-1"` when
+`accessibility.hidden`; the decorative-chart tests now assert against a natively-focusable
+selector list, with `:not([tabindex="-1"])` applied to *every* member — `a[href]` alone still
+matches an anchor that has been opted out, which is the same blind spot in a different place; and
+`guide/accessibility.md` now says "every tab stop the chart itself renders", enumerates them, and
+points out that content injected through the state factories is the host's to make non-focusable.
+Two new tests, one of which fails on the unpatched source. Full core suite passes (1402 tests),
+typecheck and lint clean.
 
 ### A11Y-2 — `onTitleClick` is a mouse-only control
 **High · Bug · WCAG 2.1.1 (Level A) · [Title.ts:155](packages/mochart/src/components/Title.ts#L155), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** **[verified]** — **Open**
