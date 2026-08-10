@@ -353,7 +353,7 @@ function buildFocusTween(
     startCallback = () => {}
   }: FocusTweenOptions & { updateCallback: FocusUpdateCallback }): Tween {
   const focusDuration = mochartConfig.animation.focusDuration;
-  const duration = focusAnimationData.deltaPercentage * focusDuration;
+  const duration = safeDuration(focusAnimationData.deltaPercentage * focusDuration);
   // delay the start of the focus tween by a few milliseconds to allow it to be canceled if another tween is built
   // immediately after, like when we mouseover the series, and then mouseout but immediately mouseover a series marker
   const delay = 5;
@@ -370,6 +370,11 @@ function buildFocusTween(
     completeCallback();
   });
   return focusTween;
+}
+
+// a non-finite or negative duration would never reach percentage 1, wedging the rAF loop forever
+function safeDuration(duration: number): number {
+  return Number.isFinite(duration) && duration > 0 ? duration : 0;
 }
 
 function buildDataTween(
@@ -390,7 +395,7 @@ function buildDataTween(
       onStart: () => { updateCallback(axisExpansionData.start, dataTweenExpandStart); },
       onUpdate: (percentage) => { updateCallback(getChartDataForAxisDelta(mochartConfig, chartAnimationData, true, percentage), dataTweenExpandUpdate); },
       onComplete: () => { updateCallback(axisExpansionData.final, dataTweenExpandComplete); },
-      duration: mochartConfig.animation.expansionDuration * axisExpansionData.deltaPercentage
+      duration: safeDuration(mochartConfig.animation.expansionDuration * axisExpansionData.deltaPercentage)
     });
   }
   else {
@@ -409,7 +414,7 @@ function buildDataTween(
       onStart: () => { updateCallback(valueChangeData.start, dataTweenValueStart); startValueChangeCallback(valueChangeData.start); },
       onUpdate: (percentage) => { updateCallback(getChartDataForValueDelta(mochartConfig, chartAnimationData, percentage), dataTweenValueUpdate, percentage); },
       onComplete: () => { updateCallback(valueChangeData.final, dataTweenValueComplete); completeValueChangeCallback(valueChangeData.final); },
-      duration: (chartAnimationData.initialAnimation ? mochartConfig.animation.initialDuration : mochartConfig.animation.valueChangeDuration) * valueChangeData.deltaPercentage
+      duration: safeDuration((chartAnimationData.initialAnimation ? mochartConfig.animation.initialDuration : mochartConfig.animation.valueChangeDuration) * valueChangeData.deltaPercentage)
     });
   }
   else {
@@ -431,7 +436,7 @@ function buildDataTween(
       onStart: () => { updateCallback(axisContractionData.start, dataTweenContractStart); },
       onUpdate: (percentage) => { updateCallback(getChartDataForAxisDelta(mochartConfig, chartAnimationData, false, percentage), dataTweenContractUpdate); },
       onComplete: () => { updateCallback(axisContractionData.final, dataTweenContractComplete); },
-      duration: mochartConfig.animation.contractionDuration * axisContractionData.deltaPercentage
+      duration: safeDuration(mochartConfig.animation.contractionDuration * axisContractionData.deltaPercentage)
     });
   }
   else {
