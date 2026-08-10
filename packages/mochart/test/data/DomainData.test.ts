@@ -44,6 +44,12 @@ describe('getCategoryDomainForValues', () => {
   it('returns the null domain when every value is NaN', () => {
     expect(getCategoryDomainForValues([NaN, NaN])).toEqual([null, null]);
   });
+
+  // DATA-1: an infinite category value is as unusable as NaN for placing a band or a tick
+  it('skips infinities the way it skips NaN', () => {
+    expect(getCategoryDomainForValues([Infinity, 3, 1])).toEqual([1, 3]);
+    expect(getCategoryDomainForValues([-Infinity, 3, 1])).toEqual([1, 3]);
+  });
 });
 
 describe('getDomainForValues', () => {
@@ -73,6 +79,28 @@ describe('getDomainForValues', () => {
 
   it('returns the null domain when every value is NaN or undefined', () => {
     expect(getDomainForValues([NaN, undefined, NaN])).toEqual([null, null]);
+  });
+
+  // DATA-1: null is the standard JSON/API missing marker and compares as 0, so it used to
+  // re-arm the `min === null` sentinel and discard every minimum seen so far.
+  it('skips null the way it skips undefined', () => {
+    const withNulls = [5, null, 20] as unknown as (number | undefined)[];
+    expect(getDomainForValues(withNulls)).toEqual([5, 20]);
+  });
+
+  it('does not break the null-pair invariant on a trailing null', () => {
+    const trailingNull = [10, null] as unknown as (number | undefined)[];
+    expect(getDomainForValues(trailingNull)).toEqual([10, 10]);
+  });
+
+  it('returns the null domain when every value is null', () => {
+    const allNull = [null, null] as unknown as (number | undefined)[];
+    expect(getDomainForValues(allNull)).toEqual([null, null]);
+  });
+
+  it('excludes infinities rather than letting them become the bounds', () => {
+    expect(getDomainForValues([10, Infinity])).toEqual([10, 10]);
+    expect(getDomainForValues([-Infinity, 10, Infinity])).toEqual([10, 10]);
   });
 });
 
