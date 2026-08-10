@@ -16,6 +16,7 @@
   "scripts": {
     "gen": "tsx --conditions=development ../mochart/scripts/generator.ts && tsx --conditions=development scripts/generateBindings.ts",
     "dev": "npm run gen && vitepress dev --port 5181",
+    "prebuild": "node ../../scripts/ensure-libs-fresh.mjs",
     "build": "npm run gen && vitepress build",
     "preview": "vitepress preview",
     "test": "npm run gen && tsx --conditions=development scripts/checkExamples.ts && tsx --conditions=development scripts/checkApiCoverage.ts && tsx --conditions=development scripts/checkSectionCoverage.ts",
