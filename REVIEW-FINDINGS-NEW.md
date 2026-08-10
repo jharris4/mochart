@@ -287,10 +287,8 @@ Four notes for whoever implements it:
   extent this finding is about.
 - **Clip, don't drop.** A bar spanning base 0 → 50 on a `max: 10` axis must still show its 0→10
   portion; a vanished bar is indistinguishable from missing data, which is the same class of
-  silent wrongness in a new place. Note markers and value labels *legitimately* overhang the plot
-  (core says so at [Chart.ts](packages/mochart/src/components/Chart.ts): "no in-bounds gate:
-  markers/labels can overflow the plot rect"), so a blanket clip on the series group would start
-  chopping them — it wants to clip the shape layer, or clip with an allowance.
+  silent wrongness in a new place. What gets clipped, and how edge marks survive it, is settled
+  under "Clip scope" below.
 
 Parts 2 and 3 are new work rather than ANIM-1 repairs, so they will land as their own commits.
 The committed `Math.max(domainExtent, 0)` clamp stays either way: once `min <= max` is enforced a
@@ -315,6 +313,35 @@ it indistinguishable from missing data, which is the same silent wrongness in a 
 this library already treats that distinction as load-bearing (`missingValues`,
 `showMissingValues`, `colorScale.missing`). There is **no way to switch clipping off**: unclipped
 overflow painting over the axes is the bug, not a mode.
+
+**Clip scope: everything, with a derived allowance.** The clip covers the whole series group —
+shapes, markers, labels, error bars — not just the geometry layer. An out-of-range *marker* is as
+wrong as an out-of-range bar, so exempting the marker layer would leave the worst case unfixed.
+
+That needs an allowance, because of a fact easy to miss: **margins are only applied to an end
+whose bound is `AUTO`** ([AxisDomainData.ts:59](packages/mochart/src/data/AxisDomainData.ts#L59)).
+Measured — `{min: 0, max: 10}` with `marginFraction: 0.1` gives the domain `[0, 10]`, unchanged;
+the same margin on an auto end gives `[0, 11]`. So on an explicitly-bounded axis, data sitting
+*exactly* on the bound sits exactly on the plot edge with no inset. Measured on a 255px plot: a
+`markerSize: 10` circle at the axis max is centred at `y=0` and spans `-5.6 … 5.6`; at the axis
+min it is centred at `y=255` and spans `249.4 … 260.6`. A plain clip would slice those in half in
+charts where **nothing is out of range at all** — a line pinned to `min: 0` with a zero value is
+the everyday case.
+
+The allowance is therefore **derived, not configured**: inflate the clip rect by the largest
+`markerSize` in the chart. It self-adjusts, needs no new config, and is `0` when the chart has no
+markers, so a bar chart still clips exactly at the bound. `minMarginFraction` was considered and
+rejected for this: besides being inert on explicit bounds, a margin *changes the domain* while an
+allowance does not — reusing one property for both would mean "sometimes this moves your data,
+sometimes it doesn't, depending on whether the other end is auto".
+
+Two loose ends for implementation, deliberately not pre-decided here: whether this is **one**
+inflated clip over the whole group (simplest — shapes may then poke past the bound by the marker
+radius) or **two** clips (exact for shapes, inflated for markers/labels); and how **label** extent
+factors in, since unlike `markerSize` it is only known after text measurement.
+
+For scale: an unclipped mark does not escape onto the page — the outermost `<svg>` clips to its
+own viewport, so today's overflow is confined to painting over the chart's own title and axes.
 
 **Clipping is a viewport operation, not a data one.** A clipped mark still reports its true value
 in the tooltip, in its value label, and in the aria-live announcement. This is the single most
