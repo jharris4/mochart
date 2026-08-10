@@ -140,6 +140,14 @@ export interface CategoryValues {
   numeric: number[];
 }
 
+/** Which plot edges have data hidden behind them, one flag per screen edge (see data/ClipData.ts). */
+export interface ClippedEdges {
+  top: boolean;
+  right: boolean;
+  bottom: boolean;
+  left: boolean;
+}
+
 export interface CategoryData {
   axisDomain: CategoryAxisDomain;
   values: CategoryValues;

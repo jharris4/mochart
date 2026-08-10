@@ -440,7 +440,7 @@ function getValueAxisDomain(valueAxisConfig: EnhancedValueAxisConfig, seriesDoma
   return getAxisDomain(valueAxisConfig, () => calculateValueAxisDomain(valueAxisConfig, seriesDomainObjects)) as NullableDomain;
 }
 
-function calculateValueAxisDomain(valueAxisConfig: EnhancedValueAxisConfig, seriesDomainObjects: SeriesDomainObjects): NullableDomain {
+export function calculateValueAxisDomain(valueAxisConfig: EnhancedValueAxisConfig, seriesDomainObjects: SeriesDomainObjects): NullableDomain {
   const axisDomain: NullableDomain = [null, null];
   const seriesConfigs = valueAxisConfig.seriesConfigs!;
   for (const seriesConfig of seriesConfigs) {
