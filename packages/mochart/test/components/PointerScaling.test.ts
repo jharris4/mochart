@@ -1,0 +1,115 @@
+/**
+ * COMP-11 (CSS-scaling half): pointer coordinates come from `getBoundingClientRect()`, which
+ * reports **CSS** pixels, and were then divided by the *logical* plot extents to derive
+ * `categoryPercentage`/`valuePercentage` and the nearest category. Any CSS scaling of the chart
+ * — `transform: scale()`, a `width: 100%` SVG, page zoom — therefore produced fractions outside
+ * 0–1 and selected the wrong category.
+ *
+ * Here the chart is mounted at its logical size but its plot rect reports half that in CSS
+ * pixels, i.e. the page has scaled it by 0.5.
+ */
+import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { installSvgMeasurementShims } from './svgShims';
+import { createDefaultChart } from '../../src/createChart';
+import type { ChartHandle } from '../../src/createChart';
+import type { ChartEventPayload, DefaultChartProps } from '../../src/types/chart';
+import type { MochartInputConfig } from '../../src/types/config';
+
+const WIDTH = 800;
+const HEIGHT = 600;
+
+const rows = [
+  { month: 'Jan', sales: 10 },
+  { month: 'Feb', sales: 20 },
+  { month: 'Mar', sales: 30 }
+];
+
+const config = {
+  version: '1.0.0',
+  animation: { animate: false },
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+  series: [{ property: 'sales' }]
+} as unknown as MochartInputConfig;
+
+let handles: ChartHandle<DefaultChartProps>[] = [];
+
+/** Report every element's client rect at `scale` of its logical size, anchored at the origin. */
+function mockRectsAtScale(scale: number) {
+  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+    const width = WIDTH * scale;
+    const height = HEIGHT * scale;
+    return {
+      x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})
+    } as DOMRect;
+  });
+}
+
+function mountChart(onChartMouseMove: (payload: ChartEventPayload) => void) {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const handle = createDefaultChart(container, {
+    config, data: rows, width: WIDTH, height: HEIGHT, onChartMouseMove,
+    tooltip: undefined
+  } as unknown as DefaultChartProps);
+  handles.push(handle);
+  return container;
+}
+
+function move(root: Element, clientX: number, clientY: number) {
+  root.dispatchEvent(new MouseEvent('mousemove', { clientX, clientY, bubbles: true }));
+}
+
+beforeAll(() => {
+  installSvgMeasurementShims();
+});
+
+afterEach(() => {
+  for (const handle of handles) {
+    handle.destroy();
+  }
+  handles = [];
+  vi.restoreAllMocks();
+  document.body.innerHTML = '';
+});
+
+describe('pointer payloads under CSS scaling', () => {
+  it('reports the same fractions and category at 1x and at 0.5x', () => {
+    const unscaled: ChartEventPayload[] = [];
+    mockRectsAtScale(1);
+    let container = mountChart(payload => { unscaled.push(payload); });
+    let root = container.querySelector('[data-mochart-version]')!;
+    move(root, 10, 10);
+    move(root, WIDTH * 0.75, HEIGHT * 0.5);
+
+    const scaled: ChartEventPayload[] = [];
+    mockRectsAtScale(0.5);
+    container = mountChart(payload => { scaled.push(payload); });
+    root = container.querySelector('[data-mochart-version]')!;
+    // the same *visual* points, in the CSS pixels the page actually delivers
+    move(root, 5, 5);
+    move(root, WIDTH * 0.75 * 0.5, HEIGHT * 0.5 * 0.5);
+
+    const last = (list: ChartEventPayload[]) => list[list.length - 1];
+    expect(scaled.length).toBe(unscaled.length);
+    expect(last(scaled).categoryIndex).toBe(last(unscaled).categoryIndex);
+    expect(last(scaled).categoryPercentage).toBeCloseTo(last(unscaled).categoryPercentage, 6);
+    expect(last(scaled).valuePercentage).toBeCloseTo(last(unscaled).valuePercentage, 6);
+  });
+
+  it('keeps percentages inside 0-1 when the chart is scaled down', () => {
+    const payloads: ChartEventPayload[] = [];
+    mockRectsAtScale(0.5);
+    const container = mountChart(payload => { payloads.push(payload); });
+    const root = container.querySelector('[data-mochart-version]')!;
+
+    // bottom-right of the visually scaled chart
+    move(root, 10, 10);
+    move(root, WIDTH * 0.5 - 2, HEIGHT * 0.5 - 2);
+
+    const last = payloads[payloads.length - 1];
+    expect(last.categoryPercentage).toBeLessThanOrEqual(1);
+    expect(last.valuePercentage).toBeLessThanOrEqual(1);
+    // the far right of the plot must still resolve to the last category
+    expect(last.categoryIndex).toBe(rows.length - 1);
+  });
+});

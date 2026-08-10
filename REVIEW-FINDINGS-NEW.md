@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 6 fixed (1 partial), 2 needing an answer, 144 open.**
+**Status: 7 fixed (2 partial), 3 needing an answer, 143 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -546,7 +546,7 @@ calls write into nothing.
 early-return branches of `sync()`.
 
 ### COMP-11 — pointer payloads use the wrong coordinate frame and break when CSS-scaled
-**High · Bug · [Chart.ts:363](packages/mochart/src/components/Chart.ts#L363), [:775](packages/mochart/src/components/Chart.ts#L775)** **[from SOL review]** — **Open**
+**High · Bug · [Chart.ts:363](packages/mochart/src/components/Chart.ts#L363), [:775](packages/mochart/src/components/Chart.ts#L775)** **[from SOL review]** — **Partially fixed**, with an open question
 
 Two defects in one expression. `ChartEventPayload.chartX`/`chartY` are documented at
 [types/chart.ts:5](packages/mochart/src/types/chart.ts#L5) as coordinates relative to the *chart
@@ -568,6 +568,31 @@ catching it.
 keep the plot-local values for the category/value maths, and add the plot offset back when
 populating `chartX`/`chartY`. Retest with a non-zero plot offset (axes on both sides) and a scaled
 bounding rect.
+
+**Partially fixed automatically — the rest needs an answer.**
+
+*Fixed:* the CSS-scaling defect. A new `toPlotLocalPoint(clientX, clientY)` divides out the
+rect's own scale (`seriesLayoutInfo.width / plotRect.width`) before returning plot-local SVG user
+units, and does the in-bounds test against the logical extents. Both call sites use it —
+`processChartEvent` and `onSeriesShapeClick`, which had the same raw subtraction. Both cartesian
+and pie route `shapeRef` to `SeriesBackground`, whose rect is drawn straight from
+`seriesLayoutInfo`, so the scale factor is right in both chart types. Regression tests in
+`test/components/PointerScaling.test.ts` mount at 1× and at 0.5× and assert identical fractions
+and category index; both fail on the unpatched source. Full core suite passes (1371 tests).
+
+> **QUESTION (needs an answer):** the coordinate *frame* is left as it is. `chartX`/`chartY` are
+> documented as chart-container-relative and are in fact plot-relative, so the two ways to close
+> the gap are not equivalent: adding the plot offset **changes the numbers every existing host
+> receives** on `onChartClick`/`onChartMouseEnter`/`onChartMouseMove`/`onChartMouseLeave`, silently
+> and with no type change to flag it. There is also a reason to prefer the current values —
+> `categoryPosition`/`valuePosition` in the same payload are explicitly documented as *plot*
+> pixels, so today all four position fields share one origin. **Which do you want:** (a) add the
+> plot offset so `chartX`/`chartY` match their documentation, accepting the silent break; (b)
+> correct the JSDoc to say plot-relative, keeping all four fields consistent; or (c) add separate
+> `containerX`/`containerY` fields and leave `chartX`/`chartY` alone? Note
+> `ChartInteraction.test.ts:56` stubs every rect to the full chart at 1:1, which collapses the two
+> frames onto each other — whichever option you pick, that fixture needs a non-zero plot offset
+> before it can tell them apart.
 
 ---
 

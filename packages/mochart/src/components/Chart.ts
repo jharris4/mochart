@@ -372,15 +372,32 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     else {
       position = event;
     }
-    const chartRect = this.chartRectRef!.getBoundingClientRect();
-    const chartX = position.clientX - chartRect.left;
-    const chartY = position.clientY - chartRect.top;
-    if (chartX > 0 && chartY > 0 && chartX < chartRect.width && chartY < chartRect.height) {
-      mouseInCallback(chartX, chartY);
+    const { x, y, withinPlot } = this.toPlotLocalPoint(position.clientX, position.clientY);
+    if (withinPlot) {
+      mouseInCallback(x, y);
     }
     else if (mouseOutCallback) {
-      mouseOutCallback(chartX, chartY);
+      mouseOutCallback(x, y);
     }
+  }
+
+  /**
+   * Convert client coordinates to plot-local SVG user units.
+   *
+   * `getBoundingClientRect()` reports CSS pixels while `seriesLayoutInfo` is in logical SVG
+   * units, so any CSS scaling of the chart — `transform: scale()`, a `width: 100%` SVG, page
+   * zoom — has to be divided back out before the result is compared against plot extents.
+   */
+  toPlotLocalPoint(clientX: number, clientY: number): { x: number; y: number; withinPlot: boolean } {
+    const plotRect = this.chartRectRef!.getBoundingClientRect();
+    const seriesLayoutInfo = this.state.layoutInfo?.seriesLayoutInfo ?? null;
+    const width = seriesLayoutInfo !== null ? seriesLayoutInfo.width : plotRect.width;
+    const height = seriesLayoutInfo !== null ? seriesLayoutInfo.height : plotRect.height;
+    const scaleX = plotRect.width > 0 ? width / plotRect.width : 1;
+    const scaleY = plotRect.height > 0 ? height / plotRect.height : 1;
+    const x = (clientX - plotRect.left) * scaleX;
+    const y = (clientY - plotRect.top) * scaleY;
+    return { x, y, withinPlot: x > 0 && y > 0 && x < width && y < height };
   }
 
   /**
@@ -890,8 +907,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       // keyboard activation has no pointer position to resolve a nearest category from
       let nearestCategoryIndex = -1;
       if (clientX !== undefined && clientY !== undefined) {
-        const chartRect = this.chartRectRef!.getBoundingClientRect();
-        ({ categoryIndex: nearestCategoryIndex } = this.getChartEventPayload(clientX - chartRect.left, clientY - chartRect.top));
+        const { x, y } = this.toPlotLocalPoint(clientX, clientY);
+        ({ categoryIndex: nearestCategoryIndex } = this.getChartEventPayload(x, y));
       }
       onSeriesClick({ seriesId, categoryIndex, nearestCategoryIndex });
     }
