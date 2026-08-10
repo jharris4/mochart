@@ -127,6 +127,26 @@ describe('series shape hover focus', () => {
     expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: -1 });
   });
 
+  // markers carry the same per-category handlers as bars
+  it('focuses a category from a marker, and clicks it', () => {
+    const focuses: ChartFocus[] = [];
+    const clicks: string[] = [];
+    const container = mountChart(
+      { id: 'sales', renderer: 'line', markerShape: 'circle', focusCategoryOnMouseOver: true, focusCategoryOnClick: true },
+      { onFocus: focus => focuses.push(focus), onSeriesClick: payload => clicks.push(payload.seriesId) });
+    const marker = container.querySelector('.mochart-series-marker-1')!;
+    expect(marker).not.toBeNull();
+
+    mouse(marker, 'mouseenter');
+    expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: 1 });
+
+    mouse(marker, 'mouseleave');
+    expect(focuses[focuses.length - 1]).toMatchObject({ focusedCategoryIndex: -1 });
+
+    mouse(marker, 'click');
+    expect(clicks).toEqual(['sales']);
+  });
+
   // only line/area series have a whole-series shape; bars carry per-category handlers
   it('focuses the series from a line series path', () => {
     const focuses: ChartFocus[] = [];
