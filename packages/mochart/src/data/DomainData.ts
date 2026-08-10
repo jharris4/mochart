@@ -14,7 +14,7 @@ export function getCategoryDomainForValues<T extends DomainValue>(values: readon
   const valueCount = values.length;
   for (let i=0; i<valueCount; i++) {
     value = values[i];
-    if (Number.isNaN(numericValue(value))) { // NaN (e.g. an Invalid Date) would seed min/max and stick
+    if (!Number.isFinite(numericValue(value))) { // NaN (e.g. an Invalid Date), Infinity or null would seed min/max and stick
       continue;
     }
     if (min === null || numericValue(value) < numericValue(min)) {
@@ -35,7 +35,10 @@ export function getDomainForValues(values: readonly (number | undefined)[] | nul
     const valueCount = values.length;
     for (let i=0; i<valueCount; i++) {
       value = values[i];
-      if (value !== undefined && !Number.isNaN(value)) {
+      // null is the standard JSON missing marker and is not excluded by the declared type at
+      // runtime; it compares as 0 and would re-arm the `min === null` sentinel, discarding the
+      // minimum seen so far. Infinity would stick as a bound.
+      if (typeof value === 'number' && Number.isFinite(value)) {
         if (min === null || value < min) {
           min = value;
         }

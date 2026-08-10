@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 1 fixed, 0 needing an answer, 149 open.**
+**Status: 2 fixed, 0 needing an answer, 148 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -79,7 +79,7 @@ The five findings carried in from the SOL pass are
 # 1. Core — data pipeline
 
 ### DATA-1 — `null` in the data collapses the value axis to a single point
-**High · Bug · [DomainData.ts:38](packages/mochart/src/data/DomainData.ts#L38)** **[verified]** — **Open**
+**High · Bug · [DomainData.ts:38](packages/mochart/src/data/DomainData.ts#L38)** **[verified]** — **Fixed**
 
 The missing-value guard is `value !== undefined && !Number.isNaN(value)`. `Number.isNaN(null)`
 is `false`, so `null` reaches the comparisons — where `min === null` doubles as the
@@ -103,6 +103,16 @@ one tick and every point stacked on it, with no error.
 **Fix:** use `typeof value === 'number' && Number.isFinite(value)` in `getDomainForValues`,
 and the equivalent `Number.isFinite` check on the numeric form (Dates included) in
 `getCategoryDomainForValues` at [:17](packages/mochart/src/data/DomainData.ts#L17).
+
+**Fixed automatically.** Applied exactly as recommended: `getDomainForValues` now guards with
+`typeof value === 'number' && Number.isFinite(value)`, and `getCategoryDomainForValues` guards
+with `!Number.isFinite(numericValue(value))` (which covers Invalid Date, ±Infinity and a stray
+null on top of the NaN it already handled). Five new cases in `test/data/DomainData.test.ts`
+cover null in the middle, a trailing null, all-null, and infinities on both helpers. The
+narrower per-function fix was taken over the finding's alternative of coercing at the
+`getSeriesValuesForProperty` read boundary: that boundary also feeds tooltips, labels and
+`missingValues` handling, so it changes far more than the domain maths. DATA-2 is fixed
+separately at its own three sites. Full core suite passes (1355 tests), typecheck and lint clean.
 
 ### DATA-2 — one non-finite value wipes out the later series in a stack
 **High · Bug · [SeriesData.ts:247-276](packages/mochart/src/data/SeriesData.ts#L247)** — **Open**
