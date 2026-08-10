@@ -163,6 +163,7 @@ export function computeCandlesticks(items: readonly CandlestickItem[]): Candlest
   checkUniqueLabels('createCandlestick', 'labels', items.map((item) => item.label));
   return items.map((item) => {
     const { label, open, high, low, close, volume } = item;
+    checkCandleValues(label, { open, high, low, close });
     return {
       label, open, high, low, close,
       ...(volume !== undefined ? { volume } : {}),
@@ -170,6 +171,19 @@ export function computeCandlesticks(items: readonly CandlestickItem[]): Candlest
       direction: close < open ? 'down' as const : 'up' as const
     };
   });
+}
+
+// one bad tick would otherwise reach getDataErrors, which blanks the entire chart
+function checkCandleValues(label: string, values: Record<string, number | undefined>): void {
+  for (const key of ['open', 'high', 'low', 'close']) {
+    const value = values[key];
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      throw new Error(`createCandlestick: ${label} has a missing or non-finite ${key}: ${String(value)}`);
+    }
+  }
+  if (values['high']! < values['low']!) {
+    throw new Error(`createCandlestick: ${label} has high ${values['high']} below low ${values['low']}`);
+  }
 }
 
 /** Resolves the shared candlestick/OHLC `volume` option; null when disabled. */
