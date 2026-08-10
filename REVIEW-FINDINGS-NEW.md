@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 13 fixed (2 partial), 4 needing an answer, 137 open.**
+**Status: 14 fixed (2 partial), 4 needing an answer, 136 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -1040,7 +1040,7 @@ to tolerate unknown keys (a live-preview config editor, say) has no way to disco
 # 6. Core — public API, types and utils
 
 ### API-1 — 21 config union types are named in the public types but cannot be imported
-**High · Missing feature · [types/config.ts:1](packages/mochart/src/types/config.ts#L1)** — **Open**
+**High · Missing feature · [types/config.ts:1](packages/mochart/src/types/config.ts#L1)** — **Fixed**
 
 `types/config.ts` imports `Auto, Align, AxisSide, MissingValues, VerticalAlign, Anchor, Position,
 Scale, DataType, RendererType, ThresholdTitleSide, CurveType, CapType, LabelPosition, ColorMode,
@@ -1058,6 +1058,18 @@ nor is `CONFIG_VERSION` — every demo config hardcodes `version: '1.0.0'`.
 
 **Fix:** `export type { … } from '../config/core/constants'` in `src/index.ts`, plus the remaining
 literal constants and `CONFIG_VERSION`.
+
+**Fixed automatically.** Applied as recommended: `src/index.ts` now re-exports all 21 union types
+plus `CONFIG_VERSION` and the ~50 remaining value constants (`ALIGN_*`, `VERTICAL_ALIGN_*`,
+`ANCHOR_*`, `POSITION_*`, `SIDE_*`, `TITLE_SIDE_*`, `MISSING_VALUES_*`, `RENDERER_*`,
+`CURVE_TYPE_*`, `CAP_TYPE_*`, `LABEL_POSITION_*`, `COLOR_*`, `COLOR_INTERPOLATION_*`,
+`MARKER_SHAPE_*`, `MARKER_SIZE_SCALE_*`, `PIE_LABEL_TYPE_*`). `reference/api.md`'s Constants
+section is rewritten to list both families. The new `test/config/publicTypes.test.ts` pins the
+surface from both directions: the union types are named in a host-style signature so that
+`npm run typecheck` fails if any export is dropped, and the constants are checked by name and
+value at runtime. `HELP-11`'s request for `ColorInterpolation`, `PieLabelType` and
+`PieTooltipLabelType` is satisfied by the same change. Full core suite passes (1400 tests),
+typecheck, lint and deadcode clean.
 
 ### API-2 — ~55 layout/animation/data internals ship as public types
 **Medium · Inconsistency · [types/index.ts:1](packages/mochart/src/types/index.ts#L1)** — **Open**
