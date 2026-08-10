@@ -75,12 +75,18 @@ export function getDomainExtents<T extends DomainValue>(domains: Record<string, 
   return mapMap(domains, x => getDomainExtent(x));
 }
 
-// Collapsed domains fall back to the value's magnitude (1 when null or 0) so delta weights stay positive.
+// Collapsed domains fall back to the value's magnitude (1 when null or 0) so delta weights stay
+// positive. An explicit axis min above the data (or max below it) inverts the domain, so the
+// magnitude of the span is taken for the same reason.
 export function getSafeDomainExtent(domain: NullableDomain): number {
   if (domain[0] !== domain[1]) {
-    return getDomainExtent(domain);
+    return Math.abs(getDomainExtent(domain));
   }
   return domain[0] === null || domain[0] === 0 ? 1 : Math.abs(domain[0]);
+}
+
+export function getSafeDomainExtents(domains: Record<string, NullableDomain>): Record<string, number> {
+  return mapMap(domains, x => getSafeDomainExtent(x));
 }
 
 export function getMaxDomain<T extends DomainValue>(domain: NullableDomain<T>, otherDomain: NullableDomain<T>): NullableDomain<T> {
