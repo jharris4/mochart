@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**151 findings: 1 critical, 31 high, 69 medium, 50 low.** (145 from the Opus pass,
-5 from the SOL pass, 1 found while implementing.)
+**152 findings: 1 critical, 31 high, 69 medium, 51 low.** (145 from the Opus pass,
+5 from the SOL pass, 2 found while implementing.)
 
-**Status: 30 fixed (3 partial), 5 needing an answer, 121 open.** ANIM-1 and ANIM-2 both have
+**Status: 30 fixed (3 partial), 5 needing an answer, 122 open.** ANIM-1 and ANIM-2 both have
 follow-ups that are **decided and awaiting implementation** — see their entries. ANIM-1's part 3
 carries a full design for clipping and the `plot.clipIndicator*` config.
 
@@ -61,10 +61,10 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [8](#8-framework-bindings-export-and-editor) | Bindings, export & editor | – | 2 | 6 | 4 | 12 |
 | [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
 | [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 7 | 22 |
-| [11](#11-tests-and-coverage) | Tests & coverage | – | 3 | 8 | 4 | 15 |
+| [11](#11-tests-and-coverage) | Tests & coverage | – | 3 | 8 | 5 | 16 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 6 | 4 | 13 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **31** | **69** | **50** | **151** |
+| | **Total** | **1** | **31** | **69** | **51** | **152** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -2689,6 +2689,43 @@ which is about *what* the single Chromium project covers; this is about *which e
 **Fix:** add `firefox` and `webkit` projects and install all three browsers in CI, scoped to a smoke
 subset — one render, one tooltip/crosshair interaction, one keyboard traversal, one SVG export and
 one PNG export. Failing that, narrow the README's stated support to what is actually verified.
+
+### TEST-16 — the golden "randomize" transform rewrites row geometry as if it were data
+**Low · Test gap · [golden.test.ts:176](packages/mochart/test/golden/golden.test.ts#L176)**
+
+*Found while implementing ANIM-1 part 3, not by either review pass.*
+
+`transformValues` — the deterministic stand-in for the demo app's randomize button — maps over
+`seriesConfig.property` and rewrites every one as `value * 0.6 + 7 + rowIndex`. For the range-based
+chart helpers that property is **structural**, not a measurement. A heatmap row is:
+
+```json
+{ "column": "Jan",
+  "row0": 6.97,        // band top    (series property)   <- rewritten
+  "row0Start": 6.03,   // band bottom (rangeProperty)     <- left alone
+  "row0Value": 65 }    // the actual datum (colorProperty) <- left alone
+```
+
+So the transform moves each band's *top* to ~11 against an axis pinned `max: 7`, leaves the
+*bottom* at 6.03 — stretching a 0.94-tall row into a ~5-tall smear — and, because `rowIndex` is the
+**data** row index, gives Jan +7 and Dec +18 so rows that were parallel fan out. The same applies
+to waterfall, candlestick and OHLC, whose `property` is likewise a band edge.
+
+Harmless while invisible. It stopped being invisible with the clip indicator: five `heatmap`
+snapshots now render a clip band, which reads as "this chart is broken" to whoever looks next. The
+indicator is correct — that data really is outside the pinned axis — but the state is one the app
+cannot produce. `heatmap--static.html`, on real data, has no band, and the demo's own randomize
+path re-runs `createHeatmap`, which recomputes `min`/`max` from the row count so the axis stays in
+step.
+
+The deeper cost is that the "updated" and animated snapshots for four chart types pin states that
+can never occur, so golden coverage there is weaker than its file count suggests.
+
+**Fix:** use each demo's declared generator. `demos.json` already carries a `generator` field for
+exactly these types (`histogram`, `waterfall`, `heatmap`, `candlestick`, `candlestick-hollow`,
+`ohlc`) and `@mochart/demo-common`'s `generateDemoDataProvider` re-runs the core helper on random
+inputs — which is what the demo actually does, so the snapshots would pin reachable states.
+Failing that, transform `rangeProperty` alongside `property` so bands at least stay coherent.
 
 ---
 
