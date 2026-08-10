@@ -91,7 +91,8 @@ lifts the candles into the upper plot, and a hidden `volume` axis pinned at
 [`maxMarginFraction`](/reference/valueAxes#valueAxes.maxMarginFraction)
 confines the bars to the bottom band (margins above 1 are allowed for
 exactly this banding). Tune the split with `volume: { heightFraction,
-gapFraction }` (defaults 0.2 and 0.05), relabel the tooltip rows with
+gapFraction }` (defaults 0.2 and 0.05; both are fractions below 1 and must
+sum to less than 1, or the call throws), relabel the tooltip rows with
 `valueLabel` (default "Volume"), or set `visible: true` on the volume axis
 fragment to show its scale. The volume bars follow their direction series —
 toggling or focusing Up takes its volume bars along — and stay out of the
