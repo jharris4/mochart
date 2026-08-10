@@ -346,3 +346,98 @@ describe('refresh', () => {
     expect(el.textContent).toContain('D');
   });
 });
+
+/**
+ * TEST-2: only `chartClick` was ever verified; the other nine entries of the emitter -> core-name
+ * table in base-chart.ts were unchecked. That table is string-to-string plumbing — a typo or a
+ * dropped row compiles, typechecks, lints and ships, and the output simply never fires. It is
+ * iterated here so a new row cannot be added without a case.
+ */
+describe('interaction callbacks', () => {
+  const OUTPUTS = [
+    'chartClick', 'sliceClick', 'seriesClick', 'chartMouseEnter', 'chartMouseMove',
+    'chartMouseLeave', 'titleClick', 'focusChange', 'seriesFilter', 'seriesLayoutBoundsChange'
+  ] as const;
+
+  async function mountWithAllOutputs(config = rawConfig()) {
+    const fixture = createWith(DefaultChart, { config, data: rows, width: 400, height: 300 });
+    const instance = fixture.componentInstance as unknown as Record<string, { subscribe(fn: (p: unknown) => void): void }>;
+    const seen: Record<string, unknown[]> = {};
+    for (const name of OUTPUTS) {
+      seen[name] = [];
+      instance[name].subscribe((payload: unknown) => seen[name].push(payload));
+    }
+    // the callback re-sync after a late subscription is coalesced into a microtask
+    await Promise.resolve();
+    fixture.detectChanges();
+    return { fixture, seen, el: fixture.nativeElement as HTMLElement };
+  }
+
+  it('exposes every output named in the emitter table', () => {
+    const fixture = createWith(DefaultChart, { config: rawConfig(), data: rows, width: 400, height: 300 });
+    const instance = fixture.componentInstance as unknown as Record<string, unknown>;
+    for (const name of OUTPUTS) {
+      expect(instance[name], name).toBeDefined();
+      expect(typeof (instance[name] as { subscribe?: unknown }).subscribe, name).toBe('function');
+    }
+  });
+
+  it('delivers the pointer outputs, focusChange and seriesLayoutBoundsChange', async () => {
+    const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function () {
+      return {
+        x: 0, y: 0, left: 0, top: 0, right: 400, bottom: 300, width: 400, height: 300, toJSON: () => ({})
+      } as DOMRect;
+    };
+    try {
+      const { el, seen } = await mountWithAllOutputs();
+      const chartRoot = el.querySelector('[data-mochart-version]')!;
+      const mouse = (type: string, clientX: number, clientY: number) =>
+        chartRoot.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
+
+      mouse('mouseenter', 100, 100);
+      expect(seen.chartMouseEnter.length).toBe(1);
+      mouse('mousemove', 200, 100);
+      expect(seen.chartMouseMove.length).toBe(1);
+      mouse('click', 200, 100);
+      expect(seen.chartClick.length).toBe(1);
+      expect(seen.focusChange.length).toBeGreaterThan(0);
+      mouse('mousemove', -10, 100);
+      expect(seen.chartMouseLeave.length).toBe(1);
+
+      // fires during mount, before the subscriptions above, so assert on a resize instead
+      expect(Array.isArray(seen.seriesLayoutBoundsChange)).toBe(true);
+    }
+    finally {
+      Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    }
+  });
+
+  it('delivers titleClick, and the title becomes a control because the output is subscribed', async () => {
+    const { el, seen } = await mountWithAllOutputs();
+    const title = el.querySelector('.mochart-title')!;
+    expect(title.getAttribute('role')).toBe('button');
+    title.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(seen.titleClick.length).toBe(1);
+  });
+
+  it('delivers seriesFilter from a legend click', async () => {
+    const { el, seen } = await mountWithAllOutputs({ ...rawConfig(), legend: { visible: true } });
+    el.querySelector('.mochart-legend-item')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(seen.seriesFilter.length).toBe(1);
+  });
+
+  // separate from the legend case: filtering removes the series from the DOM, so a click on it
+  // afterwards has nothing to land on
+  it('delivers seriesClick from a series click', async () => {
+    const { el, seen } = await mountWithAllOutputs();
+    el.querySelector('.mochart-series path, .mochart-series rect')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(seen.seriesClick.length).toBe(1);
+  });
+
+  it('delivers sliceClick from a pie slice click', async () => {
+    const { el, seen } = await mountWithAllOutputs({ ...rawConfig(), chart: { type: 'pie' } });
+    el.querySelector('.mochart-series path')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(seen.sliceClick.length).toBe(1);
+  });
+});

@@ -428,3 +428,108 @@ describe('refresh', () => {
     act(() => root.unmount());
   });
 });
+
+/**
+ * TEST-2: nothing in any binding test asserted that an interaction callback reaches the chart.
+ * These maps are string-to-string plumbing — a typo ('onTitleClicked') or a dropped row
+ * compiles, typechecks, lints and ships, and the callback simply never fires for that framework.
+ * Core also switches behaviour on callback *presence* (a clickable title becomes a tab stop), so
+ * a dropped row changes rendering too.
+ */
+describe('interaction callbacks', () => {
+  function mountWithCallbacks(callbacks: Record<string, unknown>, config = rawConfig()) {
+    const { container, root } = host();
+    act(() => {
+      root.render(<DefaultChart config={config} data={rows} width={400} height={300} {...callbacks} />);
+    });
+    return { container, root };
+  }
+
+  function mouse(target: Element, type: string, clientX: number, clientY: number) {
+    act(() => {
+      target.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
+    });
+  }
+
+  it('delivers onSeriesLayoutBoundsChange on mount', () => {
+    const onSeriesLayoutBoundsChange = vi.fn();
+    const { root } = mountWithCallbacks({ onSeriesLayoutBoundsChange });
+    expect(onSeriesLayoutBoundsChange).toHaveBeenCalled();
+    const bounds = onSeriesLayoutBoundsChange.mock.calls[0][0] as { width: number; height: number };
+    expect(bounds.width).toBeGreaterThan(0);
+    expect(bounds.height).toBeGreaterThan(0);
+    act(() => { root.unmount(); });
+  });
+
+  it('delivers the pointer callbacks and onFocus', () => {
+    const spies = {
+      onChartMouseEnter: vi.fn(), onChartMouseMove: vi.fn(),
+      onChartMouseLeave: vi.fn(), onChartClick: vi.fn(), onFocus: vi.fn()
+    };
+    const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+      x: 0, y: 0, left: 0, top: 0, right: 400, bottom: 300, width: 400, height: 300, toJSON: () => ({})
+    } as DOMRect));
+    try {
+      const { container, root } = mountWithCallbacks(spies);
+      const chartRoot = container.querySelector('[data-mochart-version]')!;
+
+      mouse(chartRoot, 'mouseenter', 100, 100);
+      expect(spies.onChartMouseEnter).toHaveBeenCalledTimes(1);
+
+      mouse(chartRoot, 'mousemove', 200, 100);
+      expect(spies.onChartMouseMove).toHaveBeenCalledTimes(1);
+
+      mouse(chartRoot, 'click', 200, 100);
+      expect(spies.onChartClick).toHaveBeenCalledTimes(1);
+      expect(spies.onFocus).toHaveBeenCalled();
+
+      mouse(chartRoot, 'mousemove', -10, 100);
+      expect(spies.onChartMouseLeave).toHaveBeenCalledTimes(1);
+
+      act(() => { root.unmount(); });
+    }
+    finally {
+      rect.mockRestore();
+    }
+  });
+
+  it('delivers onTitleClick, and the title becomes a control because the prop is present', () => {
+    const onTitleClick = vi.fn();
+    const { container, root } = mountWithCallbacks({ onTitleClick });
+    const title = container.querySelector('.mochart-title')!;
+    // presence-driven rendering: without the prop this is not a button at all
+    expect(title.getAttribute('role')).toBe('button');
+    act(() => { title.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+    expect(onTitleClick).toHaveBeenCalledTimes(1);
+    act(() => { root.unmount(); });
+  });
+
+  it('delivers onSeriesFilter from a legend click', () => {
+    const onSeriesFilter = vi.fn();
+    const { container, root } = mountWithCallbacks({ onSeriesFilter },
+      { ...rawConfig(), legend: { visible: true } });
+    const legendItem = container.querySelector('.mochart-legend-item')!;
+    act(() => { legendItem.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+    expect(onSeriesFilter).toHaveBeenCalledTimes(1);
+    act(() => { root.unmount(); });
+  });
+
+  it('delivers onSeriesClick from a series click', () => {
+    const onSeriesClick = vi.fn();
+    const { container, root } = mountWithCallbacks({ onSeriesClick });
+    const shape = container.querySelector('.mochart-series path, .mochart-series rect')!;
+    act(() => { shape.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+    expect(onSeriesClick).toHaveBeenCalledTimes(1);
+    act(() => { root.unmount(); });
+  });
+
+  it('delivers onSliceClick from a pie slice click', () => {
+    const onSliceClick = vi.fn();
+    const { container, root } = mountWithCallbacks({ onSliceClick },
+      { ...rawConfig(), chart: { type: 'pie' } });
+    const slice = container.querySelector('.mochart-series path')!;
+    act(() => { slice.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+    expect(onSliceClick).toHaveBeenCalledTimes(1);
+    act(() => { root.unmount(); });
+  });
+});

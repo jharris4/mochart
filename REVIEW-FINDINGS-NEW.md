@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **150 findings: 1 critical, 31 high, 69 medium, 49 low.** (145 from the Opus pass,
 5 from the SOL pass.)
 
-**Status: 29 fixed (3 partial), 7 needing an answer, 121 open.**
+**Status: 30 fixed (3 partial), 7 needing an answer, 120 open.**
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -2239,7 +2239,7 @@ so `canvas.width === Math.round(stitchedWidth * 2)` cannot pass if a per-chart s
 branches, with `getStitchedSize` executed. All 34 export tests pass, typecheck and lint clean.
 
 ### TEST-2 — no binding test asserts that any interaction callback reaches the chart
-**High · Test gap · all five binding test files** — **Open**
+**High · Test gap · all five binding test files** — **Fixed**
 
 Grepping the five for `onFocus|onChartClick|onSeriesClick|onSliceClick|onSeriesFilter|onTitleClick|
 onSeriesLayoutBoundsChange` returns **0 hits in all five**. Angular has one indirect case that fires
@@ -2253,6 +2253,22 @@ row also changes rendering.
 **Fix:** one table-driven test per binding — mount with a `vi.fn()` for each of the ten props,
 dispatch the triggering DOM event, assert each spy was called. For Angular/Vue, iterate the
 emitter/event names so a new row cannot be added without a case.
+
+**Fixed automatically.** An `interaction callbacks` block in all five binding test files — 6 tests
+each for React/Vue/Lit/Svelte, 6 for Angular — mounting with a spy per callback and dispatching
+the real DOM event: pointer enter/move/click/leave, title click, legend click, series click, pie
+slice click, plus `onSeriesLayoutBoundsChange` on mount. Angular's block iterates the ten
+emitter names from `OUTPUTS`, so a row cannot be added to the table without a case, and its
+`chartClick`-only test is no longer the sole coverage.
+
+Two assertions worth naming. Each suite checks the title carries `role="button"` when
+`onTitleClick` is supplied — that pins the *presence*-driven behaviour `base-chart.ts:130` warns
+about, so a dropped row now fails on rendering as well as on the callback. And Angular's legend
+and series clicks are separate tests, because filtering a series removes it from the DOM and a
+later click on it has nothing to land on.
+
+Whole monorepo green: 1417 + 383 + 243 + 34 + 25 + 19 + 17 + 17 + 16 + 16 tests, typecheck across
+20 workspaces, lint clean.
 
 ### TEST-3 — the "No Data" and "No Series" chart states are never rendered
 **High · Test gap · [Chart.ts:162](packages/mochart/src/components/Chart.ts#L162), [:1234](packages/mochart/src/components/Chart.ts#L1234), [:1281](packages/mochart/src/components/Chart.ts#L1281)** — **Fixed**

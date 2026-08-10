@@ -317,3 +317,104 @@ describe('refresh', () => {
     void unmount(component);
   });
 });
+
+/**
+ * TEST-2: nothing in any binding test asserted that an interaction callback reaches the chart.
+ * These maps are string-to-string plumbing — a typo or a dropped row compiles, typechecks, lints
+ * and ships, and the callback simply never fires for that framework. Core also switches
+ * behaviour on callback *presence* (a clickable title becomes a tab stop), so a dropped row
+ * changes rendering too.
+ */
+describe('interaction callbacks', () => {
+  async function mountCallbacks(callbacks: Record<string, unknown>, config = rawConfig()) {
+    const el = target();
+    const instance = mount(DefaultChart, {
+      target: el, props: { config, data: rows, width: 400, height: 300, ...callbacks } as any
+    });
+    flushSync();
+    return { el, dispose: () => { void unmount(instance); } };
+  }
+
+  function mouse(target: Element, type: string, clientX: number, clientY: number) {
+    target.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
+  }
+
+  it('delivers onSeriesLayoutBoundsChange on mount', async () => {
+    const onSeriesLayoutBoundsChange = vi.fn();
+    const { el, dispose } = await mountCallbacks({ onSeriesLayoutBoundsChange });
+    expect(onSeriesLayoutBoundsChange).toHaveBeenCalled();
+    const bounds = onSeriesLayoutBoundsChange.mock.calls[0][0] as { width: number; height: number };
+    expect(bounds.width).toBeGreaterThan(0);
+    expect(bounds.height).toBeGreaterThan(0);
+    dispose();
+    el.remove();
+  });
+
+  it('delivers the pointer callbacks and onFocus', async () => {
+    const spies = {
+      onChartMouseEnter: vi.fn(), onChartMouseMove: vi.fn(),
+      onChartMouseLeave: vi.fn(), onChartClick: vi.fn(), onFocus: vi.fn()
+    };
+    const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+      x: 0, y: 0, left: 0, top: 0, right: 400, bottom: 300, width: 400, height: 300, toJSON: () => ({})
+    } as DOMRect));
+    try {
+      const { el, dispose } = await mountCallbacks(spies);
+      const chartRoot = el.querySelector('[data-mochart-version]')!;
+
+      mouse(chartRoot, 'mouseenter', 100, 100);
+      expect(spies.onChartMouseEnter).toHaveBeenCalledTimes(1);
+      mouse(chartRoot, 'mousemove', 200, 100);
+      expect(spies.onChartMouseMove).toHaveBeenCalledTimes(1);
+      mouse(chartRoot, 'click', 200, 100);
+      expect(spies.onChartClick).toHaveBeenCalledTimes(1);
+      expect(spies.onFocus).toHaveBeenCalled();
+      mouse(chartRoot, 'mousemove', -10, 100);
+      expect(spies.onChartMouseLeave).toHaveBeenCalledTimes(1);
+
+      dispose();
+      el.remove();
+    }
+    finally {
+      rect.mockRestore();
+    }
+  });
+
+  it('delivers onTitleClick, and the title becomes a control because the prop is present', async () => {
+    const onTitleClick = vi.fn();
+    const { el, dispose } = await mountCallbacks({ onTitleClick });
+    const title = el.querySelector('.mochart-title')!;
+    expect(title.getAttribute('role')).toBe('button');
+    title.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(onTitleClick).toHaveBeenCalledTimes(1);
+    dispose();
+    el.remove();
+  });
+
+  it('delivers onSeriesFilter from a legend click', async () => {
+    const onSeriesFilter = vi.fn();
+    const { el, dispose } = await mountCallbacks({ onSeriesFilter }, { ...rawConfig(), legend: { visible: true } });
+    el.querySelector('.mochart-legend-item')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(onSeriesFilter).toHaveBeenCalledTimes(1);
+    dispose();
+    el.remove();
+  });
+
+  it('delivers onSeriesClick from a series click', async () => {
+    const onSeriesClick = vi.fn();
+    const { el, dispose } = await mountCallbacks({ onSeriesClick });
+    el.querySelector('.mochart-series path, .mochart-series rect')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(onSeriesClick).toHaveBeenCalledTimes(1);
+    dispose();
+    el.remove();
+  });
+
+  it('delivers onSliceClick from a pie slice click', async () => {
+    const onSliceClick = vi.fn();
+    const { el, dispose } = await mountCallbacks({ onSliceClick }, { ...rawConfig(), chart: { type: 'pie' } });
+    el.querySelector('.mochart-series path')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(onSliceClick).toHaveBeenCalledTimes(1);
+    dispose();
+    el.remove();
+  });
+});
