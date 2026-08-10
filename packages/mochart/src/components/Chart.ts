@@ -747,17 +747,22 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipLayoutInfo });
   }
 
-  toggleTooltip({ categoryIndex, categoryPercentage, valuePercentage: seriesPercentage }: Pick<ChartEventPayload, 'categoryIndex' | 'categoryPercentage' | 'valuePercentage'>): void {
+  /**
+   * Open or close the tooltip explicitly. Only the click path is a real toggle: pointer enter
+   * must always open and pointer leave must always close, or any other path that changes
+   * `tooltipVisible` in between (a click-to-close, a keyboard open) inverts the pairing.
+   */
+  setTooltipOpen(open: boolean, { categoryIndex, categoryPercentage, valuePercentage: seriesPercentage }: Pick<ChartEventPayload, 'categoryIndex' | 'categoryPercentage' | 'valuePercentage'>): void {
     const { mochartConfig, onFocus, chartData } = this.props;
     const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
     if (tooltipConfig.visible || crosshairConfig.visible) {
       let { tooltipVisible, tooltipCategoryIndex, tooltipSeriesPercentage, tooltipCategoryPercentage, tooltipLayoutInfo, tooltipBounds, tooltipValueObject } = this.state;
-      tooltipSeriesPercentage = tooltipVisible ? null : seriesPercentage;
-      tooltipCategoryPercentage = tooltipVisible ? null : categoryPercentage;
+      tooltipSeriesPercentage = open ? seriesPercentage : null;
+      tooltipCategoryPercentage = open ? categoryPercentage : null;
       tooltipLayoutInfo = getTooltipLayoutInfo(mochartConfig, null);
       tooltipBounds = null;
-      tooltipVisible = !tooltipVisible;
-      tooltipCategoryIndex = tooltipVisible ? categoryIndex : -1;
+      tooltipVisible = open;
+      tooltipCategoryIndex = open ? categoryIndex : -1;
       if (tooltipVisible) {
         this.lastTooltipCategoryIndex = tooltipCategoryIndex;
       }
@@ -806,7 +811,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseEnter?.(eventPayload);
     if (mochartConfig.tooltip.followPointer) {
-      this.toggleTooltip(eventPayload);
+      this.setTooltipOpen(true, eventPayload);
     }
   }
 
@@ -817,7 +822,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     if (mochartConfig.tooltip.followPointer) {
       const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
       const { valuePercentage: seriesPercentage, categoryPercentage, categoryIndex } = eventPayload;
-      // same applyFocus gate as toggleTooltip: enter, move and leave must
+      // same applyFocus gate as setTooltipOpen: enter, move and leave must
       // agree on whether pointer interactions may change the focused category
       if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
         onFocus?.({ categoryIndex });
@@ -851,7 +856,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseLeave?.(eventPayload);
     if (mochartConfig.tooltip.followPointer) {
-      this.toggleTooltip(eventPayload);
+      this.setTooltipOpen(false, eventPayload);
     }
   }
 
@@ -860,7 +865,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartClick?.(eventPayload);
     if (!mochartConfig.tooltip.followPointer) {
-      this.toggleTooltip(eventPayload);
+      this.setTooltipOpen(!this.state.tooltipVisible, eventPayload);
     }
   }
 
@@ -894,13 +899,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
   }
 
-  /** toggle via the pointer-click path, with the position synthesized from the category */
-  toggleTooltipAtCategory(categoryIndex: number): void {
+  /** open/close via the pointer-click path, with the position synthesized from the category */
+  setTooltipOpenAtCategory(open: boolean, categoryIndex: number): void {
     const { axisData, layoutInfo } = this.state;
     const positions = axisData!.category!.valueData.positions;
     const { categoryExtent } = layoutInfo!.seriesLayoutInfo;
     const categoryPercentage = categoryExtent > 0 ? (positions[categoryIndex] ?? 0) / categoryExtent : 0;
-    this.toggleTooltip({ categoryIndex, categoryPercentage, valuePercentage: 0.5 });
+    this.setTooltipOpen(open, { categoryIndex, categoryPercentage, valuePercentage: 0.5 });
   }
 
   /** step the open tooltip to a category, moving the focus like the pointer would */
@@ -934,7 +939,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const rememberedIndex = Math.min(this.lastTooltipCategoryIndex, categoryCount - 1);
     if (key === 'Enter' || key === ' ') {
       event.preventDefault();
-      this.toggleTooltipAtCategory(tooltipVisible ? tooltipCategoryIndex : rememberedIndex);
+      this.setTooltipOpenAtCategory(!tooltipVisible, tooltipVisible ? tooltipCategoryIndex : rememberedIndex);
       if (!tooltipVisible) {
         this.announceTooltipCategory(rememberedIndex);
       }
@@ -942,7 +947,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     else if (key === 'Escape') {
       if (tooltipVisible) {
         event.preventDefault();
-        this.toggleTooltipAtCategory(tooltipCategoryIndex);
+        this.setTooltipOpenAtCategory(false, tooltipCategoryIndex);
       }
     }
     else if (key === 'ArrowRight' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowUp' || key === 'Home' || key === 'End') {
@@ -954,7 +959,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       event.preventDefault();
       if (!tooltipVisible) {
         const index = key === 'Home' ? 0 : key === 'End' ? categoryCount - 1 : rememberedIndex;
-        this.toggleTooltipAtCategory(index);
+        this.setTooltipOpenAtCategory(true, index);
         this.announceTooltipCategory(index);
       }
       else {

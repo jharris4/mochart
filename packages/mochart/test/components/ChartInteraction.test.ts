@@ -262,6 +262,43 @@ describe('tooltip', () => {
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
   });
 
+  // COMP-1: enter and leave used to call a *toggle*, so any other path that changed
+  // tooltipVisible in between inverted the pairing for the rest of the session.
+  it('keeps enter opening and leave closing after the tooltip is closed by a click', () => {
+    const container = mountChart(makeConfig({ tooltip: { followPointer: true, closeOnClick: true } }));
+    const root = chartRoot(container);
+
+    mouse(root, 'mouseenter', 100, 100);
+    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+
+    container.querySelector('.mochart-tooltip-content')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+
+    // the leave that follows must stay a close, not re-open a pinned tooltip
+    mouse(root, 'mousemove', -10, 100);
+    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+
+    // and the next enter must still open
+    mouse(root, 'mouseenter', 100, 100);
+    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+  });
+
+  it('keeps enter opening after the tooltip is opened from the keyboard', () => {
+    const container = mountChart(makeConfig({ tooltip: { followPointer: true } }));
+    const root = chartRoot(container);
+    const plot = container.querySelector('.mochart-series-background rect')!;
+
+    plot.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+
+    // mouseenter must not close the tooltip the keyboard just opened
+    mouse(root, 'mouseenter', 100, 100);
+    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+
+    mouse(root, 'mousemove', -10, 100);
+    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+  });
+
   it('steps between categories with the tooltip controls', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart(makeConfig({ tooltip: { showControls: true } }), {
