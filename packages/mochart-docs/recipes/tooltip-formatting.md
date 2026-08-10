@@ -22,8 +22,9 @@ import * as tooltipFormat from '../examples/tooltipFormat'
   the formatted value (`$41.2k` above).
 - The label before the value defaults to the series title (via
   [`useTitleForValueLabel`](/reference/series#series.useTitleForValueLabel));
-  set [`valueLabel`](/reference/series#series.valueLabel) to
-  override it, or `null` for none.
+  set [`valueLabel`](/reference/series#series.valueLabel) to override it, or
+  `useTitleForValueLabel: false` for no label at all — `valueLabel: null` is
+  the default and falls back to the title.
 - Chart-wide behavior lives in [`tooltip`](/reference/tooltip):
   [`rightAlignValues`](/reference/tooltip#tooltip.rightAlignValues) lines
   the values up in a column,

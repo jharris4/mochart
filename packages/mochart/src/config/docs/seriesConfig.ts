@@ -84,7 +84,7 @@ export default function getDescriptions() {
     capOnlyStackOuter: 'whether to only show the cap on bars in the series when they are an outer series of a stack',
     errorBarCapSize: 'the full width (in pixels) of the horizontal caps drawn at the ends of the series error bars (use 0 to hide the caps)',
     errorBarStyle: styleStates('the style of the series error bars', lineMembers, 'errorBar', true),
-    valueLabel: 'the label to show before a series value in the tooltip (use null for none)',
+    valueLabel: 'the label to show before a series value in the tooltip (null falls back to useTitleForValueLabel, it does not mean no label)',
     valueFormat: 'the d3 format string to be applied to the series value when displayed in the tooltip (use null for none, use "auto" to derive from data ("auto" will use the value axis tick label format if it is set))',
     valuePrefix: 'the text to prefix series values with when showing them in the tooltip (use null for none)',
     valueSuffix: 'the text to append series values with when showing them in the tooltip (use null for none)',

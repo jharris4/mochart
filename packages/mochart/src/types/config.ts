@@ -2512,7 +2512,8 @@ export interface SeriesConfig {
    */
   errorBarStyle: StrokeStyleStates<SeriesColor>;
   /**
-   * The label to show before a series value in the tooltip (use null for none).
+   * The label to show before a series value in the tooltip (null falls back to
+   * useTitleForValueLabel, it does not mean no label).
    *
    * @default null
    */
