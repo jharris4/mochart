@@ -128,6 +128,40 @@ describe('background clicks', () => {
   });
 });
 
+describe('value axis hover focus', () => {
+  // the handlers sit on the axis's inner transform group, not its root
+  function axisInner(container: Element): Element {
+    const inner = container.querySelector('.mochart-value-axis > g');
+    expect(inner).not.toBeNull();
+    return inner!;
+  }
+
+  it('focuses and unfocuses the axis, which focusOnMouseOver enables by default', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig(), { onFocus: focus => { focuses.push(focus); } });
+
+    mouse(axisInner(container), 'mouseenter', 40, 300);
+    expect(focuses[focuses.length - 1]).toMatchObject({ focusedValueAxisId: 'VA0' });
+
+    mouse(axisInner(container), 'mouseleave', 40, 300);
+    expect(focuses[focuses.length - 1]).toMatchObject({ focusedValueAxisId: null });
+  });
+
+  it('reports no axis focus when focusOnMouseOver is turned off', () => {
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(
+      makeConfig({ valueAxes: [{ focusOnMouseOver: false }] }),
+      { onFocus: focus => { focuses.push(focus); } });
+
+    mouse(axisInner(container), 'mouseenter', 40, 300);
+    mouse(axisInner(container), 'mouseleave', 40, 300);
+    mouse(axisInner(container), 'click', 40, 300);
+
+    // the chart still tracks the pointer for category focus; only the axis id stays null
+    expect(focuses.every(focus => focus.focusedValueAxisId === null)).toBe(true);
+  });
+});
+
 describe('title layout variants', () => {
   it('renders a centered title with prefix and suffix', () => {
     const container = mountChart(makeConfig({
