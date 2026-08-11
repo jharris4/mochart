@@ -11,7 +11,7 @@ and series filtering out of the box.
 
 ## Features
 
-- **Renderers**: `bar`, `line`, and `area` series, mixable in one chart
+- **Renderers**: `bar`, `line`, and `area` series, mixable in one chart, plus pie and donut charts
 - **Scales**: ordinal and linear category axes over string, number, and date values (via d3-scale)
 - **Animation**: [staged transitions](#staged-animation) — axis expansion,
   value change (with category and series transitions), axis contraction — and
@@ -171,6 +171,21 @@ defaults ever disagree on a section's keys.
 - `migrateConfig(config)` — migrate configs from older versions
 - `enhanceConfig(config)` — validate/default/normalize into a `mochartConfig`
 - `getDataErrors(mochartConfig, dataProvider)` — validate data against a config
+
+### Chart helpers
+
+Each returns config fragments and rows to spread into your own config, so the
+chart stays an ordinary xy or pie chart rather than a special mode.
+
+- `createHistogram(values, options)` — bins values into a histogram; `binValues` returns just the bins
+- `createWaterfall(steps, options)` — a running total with rise/fall/total bars; `computeWaterfallSteps` returns just the steps
+- `createHeatmap(rows, options)` — a coloured grid; `createHeatmapColorScale` builds the matching colour ramp
+- `createCandlestick(rows, options)` — open/high/low/close candles; `computeCandlesticks` returns just the derived values
+- `createOhlc(rows, options)` — the same data drawn as open/close ticks on a high/low bar
+- `createPie(slices, options)` — a pie or donut; `computePieFractions` returns just the slice shares
+- `createSparklineConfig(options)` — a chart config stripped down to the line itself
+
+See the [chart helpers reference](../mochart-docs/reference/api.md) for the full options.
 
 ## Data providers
 
