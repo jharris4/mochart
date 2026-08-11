@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 53 fixed, 2 needing an answer, 106 open.** TOOL-2 is deferred to release time by
+**Status: 54 fixed, 2 needing an answer, 105 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1738,7 +1738,7 @@ around this with `.split(' ')[0]`, and so does the shipped `@mochart/export`.
 into `{ base, prefix }` entries so no value is a compound string.
 
 ### API-5 — the core README omits all seven chart-shape helpers and the pie chart type
-**Medium · Doc gap · [packages/mochart/README.md:12](packages/mochart/README.md#L12)** — **Open**
+**Medium · Doc gap · [packages/mochart/README.md:12](packages/mochart/README.md#L12)** — **Fixed**
 
 The npm landing page never mentions `createHistogram`, `createWaterfall`, `createHeatmap`,
 `createCandlestick`, `createOhlc`, `createPie`, `createSparklineConfig` or the five lower-level
@@ -1748,7 +1748,18 @@ supported chart type. READMEs are the one documentation surface with no CI ratch
 ([checkApiCoverage.ts:57](packages/mochart-docs/scripts/checkApiCoverage.ts#L57) scans only
 `index.md`, `guide/`, `reference/`, `recipes/`).
 
-**Fix:** add a "Chart helpers" section mirroring `api.md:142-200`, and add pie/donut to Features.
+**Fixed.** A "Chart helpers" section in the core README now names all twelve exports — the seven
+factories and the five companions — with one line each and a pointer to the full reference. The
+Features list also mentions pie and donut, which it did not.
+
+One correction: pie was not entirely absent. The README already covered `chart.type: 'pie'`,
+`onSliceClick` and pie accessibility; what was missing was pie as a chart *type* in the feature list
+and any mention of `createPie`.
+
+No check covers README content — the docs coverage check reads only the docs site's own pages — so
+this stayed green while twelve public exports went unmentioned. Making the README part of that check
+would then demand a mention of every export, which is probably not wanted; a narrower assertion that
+the seven factory names appear would be the cheap version if this recurs.
 
 ### API-6 — `MochartConfig` omits `version`, which the built config carries at runtime
 **Medium · Inconsistency · [types/config.ts:3009](packages/mochart/src/types/config.ts#L3009)** — **Fixed**
