@@ -39,18 +39,20 @@ export function getSpacingInnerBounds(bounds: SpacingBoundsInput, margin?: Margi
   return {
     x: x + getSpacingLeft(margin, padding),
     y: y + getSpacingTop(margin, padding),
-    width: getSpacingInnerWidth(bounds, margin, padding),
-    height: getSpacingInnerHeight(bounds, margin, padding)
+    // margin and padding can exceed the box on a small chart; these become rect attributes
+    width: Math.max(0, getSpacingInnerWidth(bounds, margin, padding)),
+    height: Math.max(0, getSpacingInnerHeight(bounds, margin, padding))
   }
 }
 
 export function createSpacingLayoutInfo(bounds: SpacingBoundsInput, margin: MarginPadding = emptyMarginPadding, padding: MarginPadding = emptyMarginPadding, inner = true): SpacingLayoutInfo {
-  const { width } = bounds;
-  const marginBounds = inner ? width > 0 ? getSpacingInnerBounds(bounds, margin) : bounds : getSpacingOuterBounds(bounds, padding);
-  const paddingBounds = inner ? width > 0 ? getSpacingInnerBounds(bounds, margin, padding) : bounds : bounds;
+  const { width, height } = bounds;
+  const spacious = width > 0 && height > 0;
+  const marginBounds = inner ? spacious ? getSpacingInnerBounds(bounds, margin) : bounds : getSpacingOuterBounds(bounds, padding);
+  const paddingBounds = inner ? spacious ? getSpacingInnerBounds(bounds, margin, padding) : bounds : bounds;
   bounds = inner ? bounds : getSpacingOuterBounds(bounds, margin, padding);
-  const marginRelativeBounds = width > 0 ? getRelativeBounds(bounds, marginBounds) : bounds;
-  const paddingRelativeBounds = width > 0 ? getRelativeBounds(bounds, paddingBounds) : bounds;
+  const marginRelativeBounds = spacious ? getRelativeBounds(bounds, marginBounds) : bounds;
+  const paddingRelativeBounds = spacious ? getRelativeBounds(bounds, paddingBounds) : bounds;
   return {
     ...bounds,
     marginBounds,
