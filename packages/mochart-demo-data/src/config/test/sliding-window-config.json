@@ -3,6 +3,9 @@
   "title": {
     "text": "Sliding Window"
   },
+  "animation": {
+    "categoryDomainChange": "auto"
+  },
   "categoryAxis": {
     "property": "date",
     "type": "date",

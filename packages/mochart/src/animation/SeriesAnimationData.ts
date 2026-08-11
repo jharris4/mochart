@@ -136,7 +136,7 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
   }
 
   // a combined-domain category axis (e.g. a sliding window) finishes this phase on its new domain; start holds the old
-  if (shouldCombineDomainChange(mochartConfig.animation.domainChange, prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
+  if (shouldCombineDomainChange(mochartConfig.animation.categoryDomainChange, prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
     endCategoryData = getCategoryDataWithRenderAxisDomain(endCategoryData, newChartData.categoryData.renderAxisDomain);
     finalCategoryData = getCategoryDataWithRenderAxisDomain(finalCategoryData, newChartData.categoryData.renderAxisDomain);
   }
@@ -157,7 +157,7 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
   const startSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, startValues, startFilteredValues);
 
   // combined-domain axes finish this phase on their new domains; union axes hold the old until contraction
-  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.domainChange, mochartConfig.valueAxes, prevSeriesData.raw.renderAxisDomains, prevSeriesData.filtered.renderAxisDomains,
+  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.valueDomainChange, mochartConfig.valueAxes, prevSeriesData.raw.renderAxisDomains, prevSeriesData.filtered.renderAxisDomains,
     newChartData.seriesData.raw.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains);
   const endRawRenderAxisDomains = withAxisDomainsForIds(prevSeriesData.raw.renderAxisDomains, newChartData.seriesData.raw.renderAxisDomains, combinedAxisIds);
   const endFilteredRenderAxisDomains = withAxisDomainsForIds(prevSeriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains, combinedAxisIds);

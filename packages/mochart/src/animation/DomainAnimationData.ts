@@ -305,7 +305,7 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
   else {
     startCategoryAxisDomain = copyDomain(prevChartData.categoryData.renderAxisDomain);
     // a combined-domain category axis (e.g. a sliding window) sits out the union; its domain moves during the value phase
-    if (shouldCombineDomainChange(mochartConfig.animation.domainChange, prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
+    if (shouldCombineDomainChange(mochartConfig.animation.categoryDomainChange, prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
       endCategoryAxisDomain = copyDomain(startCategoryAxisDomain);
     }
     else {
@@ -342,7 +342,7 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
   setAllBaseAxisDomainsForChanges(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
 
   // combined-domain axes sit out both union phases: their domain moves during the value phase instead
-  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.domainChange, valueAxisConfigs, startRawValueAxisDomains, startFilteredValueAxisDomains, endRawValueAxisDomains, endFilteredValueAxisDomains);
+  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.valueDomainChange, valueAxisConfigs, startRawValueAxisDomains, startFilteredValueAxisDomains, endRawValueAxisDomains, endFilteredValueAxisDomains);
   resetAxisDomainsForIds(endRawValueAxisDomains, startRawValueAxisDomains, combinedAxisIds);
   resetAxisDomainsForIds(endFilteredValueAxisDomains, startFilteredValueAxisDomains, combinedAxisIds);
 

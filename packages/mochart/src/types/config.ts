@@ -248,21 +248,37 @@ export interface AnimationConfig {
    */
   animate: boolean;
   /**
-   * How axis domain changes animate relative to value changes: staged,
+   * How value axis domain changes animate relative to value changes: staged,
    * combined, or auto.
    *
-   * `'staged'` always plays the union phases: axes expand to cover both the old
-   * and new domains, values tween, then axes contract. `'combined'`
-   * interpolates every changed axis domain together with the value changes in a
-   * single phase. `'auto'` (the default) combines only when a domain translates
-   * — the old and new domains barely overlap, as with a sliding time window or
-   * flat data changing level — and stages everything else. Combined domain
-   * changes are paced by `valueChangeDuration`; `expansionDuration` and
+   * `'staged'` always plays the union phases: value axes expand to cover both
+   * the old and new domains, values tween, then axes contract. `'combined'`
+   * interpolates every changed value axis domain together with the value
+   * changes in a single phase. `'auto'` (the default) combines only when a
+   * domain translates — the old and new domains barely overlap, as with flat
+   * data changing level — and stages everything else. Combined domain changes
+   * are paced by `valueChangeDuration`; `expansionDuration` and
    * `contractionDuration` do not apply to them.
    *
    * @default "auto"
    */
-  domainChange: DomainChange;
+  valueDomainChange: DomainChange;
+  /**
+   * How category axis domain changes animate relative to value changes: staged,
+   * combined, or auto.
+   *
+   * The category axis counterpart of `valueDomainChange`, with the same modes.
+   * The default is `'staged'` rather than `'auto'`: a category domain change
+   * usually also changes the category set (a sliding time window), and the
+   * staged union — zoom out over both windows, tween, zoom in — shows where the
+   * data moved, where a combined slide draws entering and leaving points
+   * connected mid-flight. Set `'auto'` to slide barely-overlapping windows
+   * during the value phase instead, or `'combined'` to merge every category
+   * domain change into it.
+   *
+   * @default "staged"
+   */
+  categoryDomainChange: DomainChange;
   /**
    * The maximum duration for the initial animation when chart data is first
    * loaded.
