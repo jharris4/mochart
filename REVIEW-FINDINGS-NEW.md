@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 38 fixed, 1 needing an answer, 120 open.** TOOL-2 is deferred to release time by
+**Status: 39 fixed, 1 needing an answer, 119 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -881,7 +881,7 @@ Test enters and leaves a switched-off row and asserts no focus callback is sent 
 the unpatched source.
 
 ### COMP-6 — Legend drops keyboard focus to `<body>` when its focused item disappears
-**Medium · Bug (a11y) · [Legend.ts:176-220](packages/mochart/src/components/Legend.ts#L176)** — **Open**
+**Medium · Bug (a11y) · [Legend.ts:176-220](packages/mochart/src/components/Legend.ts#L176)** — **Fixed**
 
 `SeriesContainer` and `PieSeriesContainer` both snapshot `document.activeElement` before
 `sync(...)` and re-focus the inheriting node afterwards. `Legend` computes `effectiveRovingId`
@@ -890,8 +890,18 @@ nearest-neighbour inheritance. Focus item `S1` in a 3-series legend, then update
 that drops `S1` → `document.activeElement` becomes `BODY`. Fires on any dynamic series list or
 `showInLegend` toggle.
 
-**Fix:** copy the `SeriesContainer` pattern into `Legend.sync`; consider adopting its
-nearest-following-neighbour fallback too.
+**Fixed.** Copied wholesale from `SeriesContainer`, which already solved this: the tab stop passes
+to the next item in config order (falling back to the last), and focus is captured before the item
+list is rebuilt and restored afterwards — to the same node if it survived, otherwise to whichever
+item inherited the tab stop.
+
+Not merged with [A11Y-3](#a11y-3--keyboard-focus-is-dropped-to-body-when-the-plot-or-tooltip-tab-stops-are-torn-down),
+which looks like the same bug. It is the same family but a different fix: that one lives in
+`Chart.ts`, and there is often no surviving element to move focus to, so it needs a decision this
+one does not.
+
+Test focuses the middle legend item, removes it from the legend, and asserts focus and the tab stop
+land on the next item rather than on the page body; it fails on the unpatched source.
 
 ### COMP-7 — negative `width`/`height` on the legend icon when `iconBorderSize` exceeds `iconSize`
 **Low · Bug · [SeriesColorIcon.ts:193](packages/mochart/src/components/SeriesColorIcon.ts#L193)** — **Open**

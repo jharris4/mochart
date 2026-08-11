@@ -174,9 +174,20 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
         .filter(seriesConfig => seriesConfig.showInLegend && itemIsInteractive(seriesConfig))
         .map(seriesConfig => seriesConfig.id);
       const { rovingSeriesId } = this.state;
-      // the remembered roving item keeps the tab stop while it exists; otherwise the first item takes it
-      const effectiveRovingId = rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1
-        ? rovingSeriesId : interactiveIds[0] ?? null;
+      // the remembered roving item keeps the tab stop while it exists; when it is gone its nearest
+      // following config-order neighbour inherits it, else the last item; with no memory, the first
+      let effectiveRovingId: string | null;
+      if (rovingSeriesId !== null && interactiveIds.indexOf(rovingSeriesId) !== -1) {
+        effectiveRovingId = rovingSeriesId;
+      }
+      else if (rovingSeriesId !== null && interactiveIds.length > 0) {
+        const removedIndex = seriesConfigIndicesById[rovingSeriesId] ?? -1;
+        effectiveRovingId = interactiveIds.find(id => seriesConfigIndicesById[id] > removedIndex) ??
+          interactiveIds[interactiveIds.length - 1];
+      }
+      else {
+        effectiveRovingId = interactiveIds[0] ?? null;
+      }
       const anyInteractive = interactiveIds.length > 0;
 
       this.setPresent(true);
@@ -217,7 +228,27 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
           });
         }
       });
+      const activeElement = document.activeElement;
+      const focusedItem = activeElement !== null && this.root.node.contains(activeElement) &&
+        activeElement.getAttribute('data-series-id') !== null ? activeElement as SVGElement : null;
+
       this.items.sync(items);
+
+      if (focusedItem !== null && document.activeElement !== focusedItem) {
+        if (focusedItem.isConnected) {
+          focusedItem.focus();
+        }
+        else if (effectiveRovingId !== null) {
+          // the focused item is gone: keep keyboard focus in the legend, on the item that
+          // inherited the tab stop, rather than dropping it to the page body
+          for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
+            if (node.getAttribute('data-series-id') === effectiveRovingId) {
+              node.focus();
+              break;
+            }
+          }
+        }
+      }
     }
     else {
       this.setPresent(false);
