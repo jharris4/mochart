@@ -4,7 +4,8 @@ import { DOMAIN_CHANGES } from '../core/constants';
 export default function getValidators() {
   return {
     animate: validators.boolean(),
-    domainChange: validators.oneOf(DOMAIN_CHANGES),
+    valueDomainChange: validators.oneOf(DOMAIN_CHANGES),
+    categoryDomainChange: validators.oneOf(DOMAIN_CHANGES),
     initialDuration: validators.numberMin(0),
     expansionDuration: validators.numberMin(0),
     valueChangeDuration: validators.numberMin(0),

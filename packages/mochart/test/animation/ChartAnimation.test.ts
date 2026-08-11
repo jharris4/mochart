@@ -199,8 +199,10 @@ describe('translating linear category axis (sliding date window)', () => {
   const T0 = Date.UTC(2026, 0, 1);
   const day = (index: number) => new Date(T0 + index * DAY);
 
+  // categoryDomainChange defaults to 'staged'; these suites pin the opt-in slide behavior
   const dateLinearConfig = makeConfig({
     categoryAxis: { property: 'c', type: 'date', scale: 'linear' },
+    animation: { categoryDomainChange: 'auto' },
     series: [{ property: 'a', renderer: 'bar' }]
   });
   const windowRows = (firstDay: number) => [0, 1, 2, 3, 4].map(offset => ({ c: day(firstDay + offset), a: 5 }));
@@ -276,6 +278,7 @@ describe('translating linear category axis (sliding date window)', () => {
   it('slides an explicit-bounds pan with unchanged data', () => {
     const boundsConfig = (from: number, to: number) => makeConfig({
       categoryAxis: { property: 'c', type: 'date', scale: 'linear', min: +day(from), max: +day(to) },
+      animation: { categoryDomainChange: 'auto' },
       series: [{ property: 'a', renderer: 'bar' }]
     });
     const rows = windowRows(0);
@@ -291,13 +294,13 @@ describe('translating linear category axis (sliding date window)', () => {
   });
 });
 
-// animation.domainChange: 'staged' forces the union phases everywhere, 'combined' merges every
-// domain change into the value phase; 'auto' (the default, covered by the suites above) combines
-// only translations
-describe('animation.domainChange modes', () => {
-  const configFor = (domainChange: 'staged' | 'combined') => makeConfig({
+// animation.valueDomainChange: 'staged' forces the union phases everywhere, 'combined' merges
+// every value-axis domain change into the value phase; 'auto' (the default, covered by the suites
+// above) combines only translations
+describe('animation.valueDomainChange modes', () => {
+  const configFor = (valueDomainChange: 'staged' | 'combined') => makeConfig({
     categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
-    animation: { domainChange },
+    animation: { valueDomainChange },
     series: [{ property: 'a', renderer: 'bar' }]
   });
   const dataFor = (cfg: EnhancedMochartConfig, rows: Record<string, number>[]) =>
@@ -343,6 +346,38 @@ describe('animation.domainChange modes', () => {
     expect(cad.axisContractionData.deltaPercentage).toBe(0);
     expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBeGreaterThan(0);
     expectValuesInsideDomain(cfg, cad);
+  });
+});
+
+// categoryDomainChange defaults to 'staged' — a window slide zooms out over the union unless the
+// config opts into 'auto'/'combined' — and the two axis kinds mix modes independently
+describe('animation.categoryDomainChange', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const T0 = Date.UTC(2026, 0, 1);
+  const day = (index: number) => new Date(T0 + index * DAY);
+  const windowRows = (firstDay: number, values: number[]) => values.map((a, offset) => ({ c: day(firstDay + offset), a }));
+  const configWith = (animation: Record<string, string>) => makeConfig({
+    categoryAxis: { property: 'c', type: 'date', scale: 'linear' },
+    animation,
+    series: [{ property: 'a', renderer: 'bar' }]
+  });
+  const dataFor = (cfg: EnhancedMochartConfig, rows: { c: Date; a: number }[]) =>
+    getChartData(cfg, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+
+  it('stages a window slide by default', () => {
+    const cfg = configWith({});
+    const cad = getChartAnimationData(cfg, dataFor(cfg, windowRows(0, [5, 5, 5, 5, 5])), dataFor(cfg, windowRows(3, [5, 5, 5, 5, 5])));
+    expect(cad.valueChangeData.deltas.domain.category.deltaPercentage).toBe(0);
+    expect(cad.axisExpansionData.deltaPercentage).toBeGreaterThan(0);
+  });
+
+  it('mixes modes per axis kind: combined values, staged categories', () => {
+    const cfg = configWith({ valueDomainChange: 'combined', categoryDomainChange: 'staged' });
+    // the window slides while the value range grows: the category unions, the value axis merges
+    const cad = getChartAnimationData(cfg, dataFor(cfg, windowRows(0, [5, 6, 5, 6, 5])), dataFor(cfg, windowRows(3, [5, 9, 5, 9, 5])));
+    expect(cad.valueChangeData.deltas.domain.category.deltaPercentage).toBe(0);
+    expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBeGreaterThan(0);
+    expect(cad.axisExpansionData.deltaPercentage).toBeGreaterThan(0);
   });
 });
 

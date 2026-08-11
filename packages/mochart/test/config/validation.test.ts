@@ -748,22 +748,24 @@ describe('dash array validation', () => {
   });
 });
 
-// animation.domainChange is a closed enum: staged | combined | auto (the default)
-describe('animation.domainChange validation', () => {
-  const withDomainChange = (domainChange: unknown) => ({
+// valueDomainChange/categoryDomainChange are closed enums: staged | combined | auto
+describe('animation domain change validation', () => {
+  const withAnimation = (animation: unknown) => ({
     version: V,
     categoryAxis: { property: 'p' },
     series: [{ property: 'a' }],
-    animation: { domainChange }
+    animation
   });
 
-  it('accepts each mode', () => {
-    for (const domainChange of ['auto', 'combined', 'staged']) {
-      expect(errorsFor(withDomainChange(domainChange))).toEqual([]);
+  it('accepts each mode on both properties', () => {
+    for (const mode of ['auto', 'combined', 'staged']) {
+      expect(errorsFor(withAnimation({ valueDomainChange: mode }))).toEqual([]);
+      expect(errorsFor(withAnimation({ categoryDomainChange: mode }))).toEqual([]);
     }
   });
 
-  it('rejects an unknown mode', () => {
-    expect(errorsFor(withDomainChange('sideways')).some(error => error.includes('domainChange'))).toBe(true);
+  it('rejects an unknown mode on either property', () => {
+    expect(errorsFor(withAnimation({ valueDomainChange: 'sideways' })).some(error => error.includes('valueDomainChange'))).toBe(true);
+    expect(errorsFor(withAnimation({ categoryDomainChange: 'sideways' })).some(error => error.includes('categoryDomainChange'))).toBe(true);
   });
 });
