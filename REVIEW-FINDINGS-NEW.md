@@ -912,7 +912,7 @@ buttons and the arrow keys.
 Test opens the tooltip with the keyboard, clicks the next button, and asserts the live region moves
 from the first category to the second; it fails on the unpatched source.
 
-### COMP-4 — `isMouseWithinChart` latches on when the pointer handlers are detached
+### COMP-4 — no coherent rule for pointer and keyboard interaction while loading
 **Medium · Bug · [Chart.ts:348](packages/mochart/src/components/Chart.ts#L348), gated at [:1044](packages/mochart/src/components/Chart.ts#L1044)** — **Open**
 
 `chartEventHandler` is swapped for `{}` whenever `loading` turns on or the chart loses data.
@@ -924,6 +924,64 @@ period. The host's enter/leave callbacks stay inverted until the pointer leaves 
 
 **Fix:** reset `this.isMouseWithinChart = false` on the branch that installs the empty handler
 map, and in the no-size / no-config early returns.
+
+**Discussed, and the scope widened. The one-line reset above is not the fix.**
+
+The stuck flag is a symptom of dropping the pointer handlers during loading, and asking why they
+are dropped turned up no recorded reason and a set of ad-hoc rules that disagree with each other.
+
+**What the states actually do.** `hasChartDataContent` gates the whole plot — axes, series and
+tooltip. So there are really only two situations:
+
+| State | Plot / series / tooltip | Legend & title | Pointer handlers | Plot keyboard |
+|---|---|---|---|---|
+| Normal | rendered | rendered | attached | active |
+| **Loading** (data present) | **rendered** | rendered | **dropped** | blocked except Escape |
+| No data / 0 categories | not rendered | rendered | dropped | n/a |
+| Error | not rendered | rendered | dropped | n/a |
+| Config error / no size | nothing rendered | — | — | — |
+
+Loading is the only state that draws a working chart and then disables parts of it. In the no-data
+and error states the interactive parts do not exist, so there is nothing to decide. That also
+narrows the keyboard gap: during loading the plot is gated but series, slices, legend and title are
+not, so Enter on a series still fires its click callback.
+
+**The strategy.** Two things a caller can be given: something keyed to a **series or axis id**,
+which comes from the config and survives a data change intact; or something keyed to a **category
+position**, which may point at nothing once the new data lands. Loading means the data on screen is
+about to be replaced, so:
+
+> While loading, the chart reports but does not commit. Anything keyed to a stable id keeps
+> working, anything keyed to a category position is suppressed, and whatever is already open can
+> still be dismissed.
+
+| Surface | Keyed to | While loading | Today |
+|---|---|---|---|
+| Legend filter / focus | series id | keep | keep |
+| Tooltip row filter / focus | series id | keep | keep |
+| Axis hover focus | axis id | keep | **dropped** |
+| Pointer enter / move / leave | transient report | keep | **dropped** |
+| Plot click | category position | suppress | suppress |
+| Plot arrows / Enter | category position | suppress | suppress |
+| Series / slice Enter | payload carries a category index | suppress | **fires** |
+| Opening a tooltip, including via `followPointer` | opens at a category | suppress | **opens on hover** |
+| Dismissing a tooltip (Escape, close button) | — | keep | keep |
+| Tooltip prev/next buttons | category position | keep — operating something already open | keep |
+| Title click | nothing | keep | keep |
+
+The existing plot-keyboard rule is already an instance of this: arrows and Enter move or open at a
+category and are blocked, Escape dismisses and is allowed. The prev/next buttons are the one
+deliberate exception — they move a category position, but on a tooltip that is already open, and
+the index is clamped to range.
+
+**Changes this implies.** Keep the three motion handlers while loading and drop only the click
+handler; guard the `followPointer` open in `onChartMouseEnter`; gate series and slice keyboard
+activation on loading the way the plot already is; and still clear `isMouseWithinChart` on the
+no-chart-data branch, which has no motion handlers to pair the flag for it. Worth a short section
+in the chart-states guide so the rule is documented rather than re-derived.
+
+Left at Medium: reaching it needs a load in flight and a user interacting during it, but the
+series-activation half does let a host act on a category that is about to disappear.
 
 ### COMP-5 — leaving a *filtered* tooltip row clears the focused series
 **Medium · Bug · [TooltipContent.ts:378](packages/mochart/src/components/TooltipContent.ts#L378)** — **Fixed**
