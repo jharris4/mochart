@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 39 fixed, 1 needing an answer, 119 open.** TOOL-2 is deferred to release time by
+**Status: 40 fixed, 1 needing an answer, 118 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1091,15 +1091,30 @@ input. `high < low` is covered too; an all-equal (flat) candle stays legal. Six 
 Full core suite passes (1389 tests), typecheck and lint clean across all workspaces.
 
 ### HELP-4 — `createHeatmap` silently paints one colour for a reversed or collapsed `domain`
-**Medium · Bug · [Heatmap.ts:107](packages/mochart/src/data/Heatmap.ts#L107), [:146](packages/mochart/src/data/Heatmap.ts#L146)** — **Open**
+**Medium · Bug · [Heatmap.ts:107](packages/mochart/src/data/Heatmap.ts#L107), [:146](packages/mochart/src/data/Heatmap.ts#L146)** — **Fixed**
 
 Neither `createHeatmapColorScale` nor `createHeatmap` checks `domain[1] >= domain[0]`. With a
 reversed domain, `extent > 0` is false so every value maps to the ramp midpoint and
 `clampValue` returns `0` for every cell — a uniform slab of mid-blue that looks like real flat
 data. `binValues` throws on exactly this, so the two helpers disagree on the same option name.
 
-**Fix:** throw `createHeatmap: invalid domain [min, max]` when `!(domain[1] >= domain[0])`,
-matching `binValues`' wording. A genuinely collapsed `[v, v]` domain can stay legal.
+**Fixed.** `createHeatmapColorScale` now throws on a backwards domain, matching the wording and
+placement of the same guard in `binValues`. `createHeatmap` inherits it, since a domain it derives
+itself is never backwards.
+
+The guard belongs in the heatmap helper rather than in the core colour code: core spans each
+series' own extent and is behaving correctly — the bad input is a heatmap option.
+
+Two notes on the finding. It says the clamp returns `0`; that is only true for a domain like
+`[10, 0]`, and the general symptom is the ramp midpoint. A `NaN` domain end took the same silent
+path and is now covered by the same guard.
+
+A flat domain is left alone deliberately — every cell really does have the same value there, and
+that behaviour is already tested. Reversing the ramp has its own way to be asked for: swap
+`colorMin` and `colorMax`.
+
+Tests cover the backwards domain, a `NaN` end, and that a flat domain still lands on the midpoint;
+the first two fail on the unpatched source.
 
 ### HELP-5 — `cellPadding` at or above its documented maximum makes the heatmap invisible
 **Medium · Bug · [Heatmap.ts:141](packages/mochart/src/data/Heatmap.ts#L141), [:158](packages/mochart/src/data/Heatmap.ts#L158)** — **Open**
