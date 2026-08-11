@@ -1,6 +1,15 @@
 {
   "testDemos": [
     {
+      "id": "same-values",
+      "title": "Same Values",
+      "description": "A chart with the same values across all categories.",
+      "notes": "All categories have the same series value, so the series domain extent is zero.",
+      "config": "same-values-config.json",
+      "data": "same-values-data.json",
+      "random": "positive-random.json"
+    },
+    {
       "id": "tick-prune",
       "title": "Long Tick Label Pruning",
       "description": "A date axis with long formatted tick labels, pruned as space runs out instead of overlapping.",
