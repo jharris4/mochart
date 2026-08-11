@@ -26,7 +26,6 @@ export const invalidConfig = {
 } as MochartInputConfig;
 
 // An empty series list is valid config — it renders the no-series state.
-// Filtering every series out via the legend shows the same state.
 export const noSeriesConfig: MochartInputConfig = {
   version: '1.0.0',
   categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },

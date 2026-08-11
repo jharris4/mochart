@@ -57,8 +57,11 @@ message, while the validation errors themselves come from
 
 <LiveChart :config="states.config" :data="states.noData" :height="180" :demo-link="false" />
 
-**No series** — no series are configured (filtering every series out via the
-legend lands a populated chart in the same state):
+**No series** — no series are configured. Filtering every series out from the
+legend does *not* produce this state: filtering hides series but leaves the
+configured list intact.
+
+
 
 <LiveChart :config="states.noSeriesConfig" :data="states.data" :height="180" :demo-link="false" />
 

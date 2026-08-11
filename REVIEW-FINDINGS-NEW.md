@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 51 fixed, 1 needing an answer, 108 open.** TOOL-2 is deferred to release time by
+**Status: 52 fixed, 2 needing an answer, 107 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -2496,7 +2496,7 @@ comments, or shift the hue toward the name.
 [BIND-10](#bind-10--datatestid-is-documented-in-every-guide-page-and-no-readme).)*
 
 ### DOC-13 — filtering every series does not activate the documented no-series state
-**Medium · Doc gap · [chart-states.md:60](packages/mochart-docs/guide/chart-states.md#L60) vs [Chart.ts:1234](packages/mochart/src/components/Chart.ts#L1234)** **[from SOL review]** — **Open**
+**Medium · Doc gap · [chart-states.md:60](packages/mochart-docs/guide/chart-states.md#L60) vs [Chart.ts:1234](packages/mochart/src/components/Chart.ts#L1234)** **[from SOL review]** — **Fixed** (docs); behaviour question open
 
 `chart-states.md` tells readers that turning every series off through the legend produces the
 no-series placeholder. The runtime gate is `mochartConfig.series.length === 0` and nothing else:
@@ -2508,22 +2508,19 @@ Neither state is exercised by a test — see
 [TEST-3](#test-3--the-no-data-and-no-series-chart-states-are-never-rendered) — so nothing holds the
 guide and the gate together.
 
-**Fix:** decide which one is true. Either extend the gate to "no series *visible*" — the count
-returned by `getSeriesContainerFilteredSeriesCounts`
-([DATA-6](#data-6--getseriescontainerfilteredseriescounts-counts-unfiltered-series)) is already
-computed and is exactly this number — or drop the claim from the guide. Add the all-filtered case
-to the empty-states test TEST-3 proposes.
+**Fixed in the docs; the behaviour question is left open deliberately.** The guide and the example
+both claimed that filtering every series from the legend lands the chart in the no-series state. It
+does not: the state is gated on the *configured* series list being empty, and filtering only builds
+a set of hidden ids, leaving the configured list untouched. Both copies now say so plainly.
 
----
+The state itself is not unreachable — an empty `series` list with data present renders it, which is
+exactly what the live example beside the text does. Only the legend route was fiction.
 
-# 10. Demo applications
-
-Six galleries are meant to be feature-equivalent ports. Parity is **good** — every mode, tab,
-showcase, editor control, unused-property filter, export/share menu, dark-mode toggle, pie panel,
-chart-type generator, random generator and mobile overflow menu is present in all six, all six are
-built by CI and deployed, no demo reaches past core's public API, `demos.json` has no missing files
-or orphans, all `demoText` keys are consumed, and menu dismissal/disclosure ARIA/focus-return is
-complete and consistent. The divergences below are the whole set.
+**Still open as a question:** whether filtering every series *should* show the no-series
+placeholder. That means changing the gate from "no series configured" to "no series visible", which
+is a visible behaviour change for every chart with a legend and interacts with
+[DATA-6](#data-6--getseriescontainerfilteredseriescounts-counts-unfiltered-series). Raised rather
+than decided here.
 
 ### DEMO-1 — `build:pages` never rebuilds `@mochart/editor`, so the site can ship a stale editor
 **High · Bug · [scripts/build-pages.mjs:24](scripts/build-pages.mjs#L24)** **[verified]** — **Fixed**
