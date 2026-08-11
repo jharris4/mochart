@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 45 fixed, 1 needing an answer, 114 open.** TOOL-2 is deferred to release time by
+**Status: 46 fixed, 1 needing an answer, 113 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1340,15 +1340,27 @@ returned fragment". Also reconcile the JSDoc (advises it unconditionally) with t
 (advises it only when `base !== 0`).
 
 ### HELP-9 — the heatmap `missingColor` option is entirely undocumented
-**Medium · Doc gap · [Heatmap.ts:59-65](packages/mochart/src/data/Heatmap.ts#L59) vs [recipes/heatmap.md:46](packages/mochart-docs/recipes/heatmap.md#L46)** — **Open**
+**Medium · Doc gap · [Heatmap.ts:59-65](packages/mochart/src/data/Heatmap.ts#L59) vs [recipes/heatmap.md:46](packages/mochart-docs/recipes/heatmap.md#L46)** — **Fixed**
 
 `missingColor` turns missing cells from grid gaps into full bands painted with the row series'
 `colorScale.missing`. The string appears nowhere in `packages/mochart-docs` — not the recipe,
 not `reference/api.md`, not the example. The recipe presents the gap as the sole behaviour. The
 "no data ≠ low value" distinction — the whole reason the option exists — is invisible to readers.
 
-**Fix:** extend the missing-cells bullet with `missingColor` (including the "pick a colour
-clearly off the ramp" guidance already in the JSDoc) and add it to `reference/api.md`.
+**Fixed.** The heatmap recipe's missing-cells bullet now covers `missingColor` alongside the gap
+behaviour, carrying over the guidance already in the source: pick a colour clearly off the ramp so a
+missing cell reads as "no data" rather than as a value. The same bullet also picked up the
+`cellPadding` upper bound from [HELP-5](#help-5--cellpadding-at-or-above-its-documented-maximum-makes-the-heatmap-invisible).
+
+Two corrections to the finding. The source JSDoc needed no change — it was already the fullest
+description of the option, and it feeds the shipped type declarations. And `reference/api.md` does
+not enumerate helper options at all: `cellPadding`, `columnLabels` and `domain` are absent from it
+too, so adding `missingColor` there alone would have been inconsistent rather than a fix.
+
+Worth knowing for the next one of these: no existing check would have caught it. The docs coverage
+check ratchets *exported names* and the members of nine named prop interfaces; helper option types
+are not in that list, so an undocumented helper option passes. Closing that properly means adding
+the helper option interfaces to the check, which is a larger piece of work than this finding.
 
 ### HELP-10 — sibling helpers disagree on the value-axis fragment's name and shape
 **Low · Inconsistency · [Heatmap.ts:83](packages/mochart/src/data/Heatmap.ts#L83) vs [Candlestick.ts:130](packages/mochart/src/data/Candlestick.ts#L130)** — **Open**

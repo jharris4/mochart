@@ -45,10 +45,13 @@ import * as heatmap from '../examples/heatmap'
   formats it as usual.
 - `null`/`undefined` cells leave a gap in the grid:
   [`missingValues: 'connect'`](/reference/series#series.missingValues) skips
-  them without disturbing their neighbours. `cellPadding` sets the gap
-  between cells (0 for a contiguous grid), and `columnLabels` names the
-  columns (defaults to 1-based numbers). They become the category values, so
-  pass one per column and keep them unique — `createHeatmap` throws otherwise.
+  them without disturbing their neighbours. Pass `missingColor` instead to draw
+  them as a full band in that colour — pick one clearly off the ramp, so a
+  missing cell reads as "no data" rather than as a value. `cellPadding` sets the
+  gap between cells (0 for a contiguous grid, and it must be below 0.5), and
+  `columnLabels` names the columns (defaults to 1-based numbers). They become
+  the category values, so pass one per column and keep them unique —
+  `createHeatmap` throws otherwise.
 - The returned `colorScale` maps any value to its hex color and `domain`
   is the scaled extent — the pieces you need to render a color-ramp legend
   next to the chart. `createHeatmapColorScale(domain, options)` builds the
