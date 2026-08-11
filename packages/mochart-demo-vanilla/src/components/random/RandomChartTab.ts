@@ -123,7 +123,6 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   // Share captures the generator config, the reuse toggle and the interval; the
   // step comes from the /random/:demoId/:randomId path already in the URL.
   const menu = exportShareMenu({
-    idPrefix: 'random',
     exportPng: () => { void exportPNG(chartSizer, getChartExportOptions()); },
     exportSvg: () => { exportSVG(chartSizer, getChartExportOptions()); },
     getShareState: (): ShareState => ({ mode: 'random', randomConfig, applyReuse, interval: rate })

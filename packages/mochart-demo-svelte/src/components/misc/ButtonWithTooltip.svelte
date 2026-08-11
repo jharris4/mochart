@@ -12,7 +12,7 @@
   // text in the strips above 900px, where these buttons are icon-only by
   // design. `.btn-menu-label` is `display: none` everywhere except in a menu.
   interface Props {
-    id: string;
+    id?: string;
     tooltipText?: string;
     tooltipPlacement?: string;
     disabled?: boolean;
@@ -26,7 +26,7 @@
   }
 
   let {
-    id,
+    id = undefined,
     tooltipText,
     // Destructured only to keep it OUT of `...rest`: no port implements
     // tooltip placement (it predates the bootstrap removal and is accepted for

@@ -19,7 +19,6 @@ import { useMenu } from './useMenu';
 // through anything stacked below it). What stays here is what the composable
 // does not know about: the items, the copied-link feedback, and `disabled`.
 interface Props {
-  idPrefix: string;
   exportPng: () => void;
   exportSvg: () => void;
   /** Omit to hide the Share item (e.g. a chart whose state isn't shareable). */
@@ -47,8 +46,7 @@ let revertTimer: ReturnType<typeof setTimeout> | null = null;
 // Opens upward (the controls row sits at the bottom of the pane) and
 // right-aligned (the trigger is the last control in the row).
 const { open, close, setTrigger, setPanel, triggerProps, panelProps, isPositioned } = useMenu({
-  placement: { side: 'top', align: 'end', gap: 4 },
-  triggerId: props.idPrefix + '-export-share'
+  placement: { side: 'top', align: 'end', gap: 4 }
 });
 
 // A disabled trigger fires no click, so the menu cannot be opened — but one

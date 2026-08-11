@@ -632,7 +632,7 @@ export class EditableChart extends LightElement {
     }
     return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
-        { id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: this.chartCount === 2, tooltipText: this.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow, tooltipPlacement: 'right', onClick: this.onChartCountToggle, ariaLabel: demoText.editableChart.secondChart.aria },
+        { label: demoText.editableChart.secondChart.label, pressed: this.chartCount === 2, tooltipText: this.chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow, tooltipPlacement: 'right', onClick: this.onChartCountToggle, ariaLabel: demoText.editableChart.secondChart.aria },
         icon({ size: 'lg', fixedWidth: true, name: this.chartCount === 2 ? 'window-maximize' : 'window-restore' })
       )}
     </div>`;
@@ -641,7 +641,7 @@ export class EditableChart extends LightElement {
   private renderModeToggle(): unknown {
     return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
-        { id: 'edit-mode', label: this.selectionMode === 'category' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories, tooltipText: this.selectionMode === 'category' ? demoText.editableChart.editMode.tooltipToSeries : demoText.editableChart.editMode.tooltipToCategories, tooltipPlacement: 'right', onClick: this.onModeToggle, ariaLabel: demoText.editableChart.editMode.aria },
+        { label: this.selectionMode === 'category' ? demoText.editableChart.editMode.labelToSeries : demoText.editableChart.editMode.labelToCategories, tooltipText: this.selectionMode === 'category' ? demoText.editableChart.editMode.tooltipToSeries : demoText.editableChart.editMode.tooltipToCategories, tooltipPlacement: 'right', onClick: this.onModeToggle, ariaLabel: demoText.editableChart.editMode.aria },
         icon({ size: 'lg', fixedWidth: true, name: this.selectionMode === 'category' ? 'bullseye' : 'sliders' })
       )}
     </div>`;
@@ -692,7 +692,7 @@ export class EditableChart extends LightElement {
       ${menuItems === null ? nothing : html`<overflow-menu .text=${demoText.overflowMenu.chart}
         .placement=${chartPlacement} .getAnchor=${this.getMenuAnchor}
         .disabled=${error} .active=${this.isActive} .items=${menuItems}></overflow-menu>`}
-      <export-share-menu .idPrefix=${'edit'} .disabled=${error} .active=${this.isActive}
+      <export-share-menu .disabled=${error} .active=${this.isActive}
         .exportPng=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { void exportPNG(container, getChartExportOptions()); } }}
         .exportSvg=${() => { const container = this.querySelector('.editable-chart-content'); if (container) { exportSVG(container, getChartExportOptions()); } }}
         .getShareState=${this.showShareButton ? () => ({ mode: 'single', config: this.mochartDemoConfig.config, data: this.data }) : undefined}></export-share-menu>
@@ -703,7 +703,7 @@ export class EditableChart extends LightElement {
 
   private renderResetSliceButton(disabled: boolean): unknown {
     return buttonWithTooltip(
-      { id: 'edit-reset-slice', disabled, label: demoText.editableChart.resetSlice.label, tooltipText: demoText.editableChart.resetSlice.tooltip, tooltipPlacement: 'right', onClick: this.resetSliceChanges, ariaLabel: demoText.editableChart.resetSlice.aria },
+      { disabled, label: demoText.editableChart.resetSlice.label, tooltipText: demoText.editableChart.resetSlice.tooltip, tooltipPlacement: 'right', onClick: this.resetSliceChanges, ariaLabel: demoText.editableChart.resetSlice.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
     );
   }
@@ -711,11 +711,11 @@ export class EditableChart extends LightElement {
   private renderSliceSequenceGroup(error: boolean): unknown {
     return html`<div class="demo-btn-group">
       ${buttonWithTooltip(
-        { id: 'edit-play-slices', disabled: error || this.sequencePlaying || this.slices.length < 2, menuLabel: demoText.editableChart.playSliceSequence.menuLabel, tooltipText: demoText.editableChart.playSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.startSliceSequence, ariaLabel: demoText.editableChart.playSliceSequence.aria },
+        { disabled: error || this.sequencePlaying || this.slices.length < 2, menuLabel: demoText.editableChart.playSliceSequence.menuLabel, tooltipText: demoText.editableChart.playSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.startSliceSequence, ariaLabel: demoText.editableChart.playSliceSequence.aria },
         icon({ size: 'lg', fixedWidth: true, name: 'play' })
       )}
       ${buttonWithTooltip(
-        { id: 'edit-stop-slices', disabled: error || !this.sequencePlaying, menuLabel: demoText.editableChart.stopSliceSequence.menuLabel, tooltipText: demoText.editableChart.stopSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.stopSequence, ariaLabel: demoText.editableChart.stopSliceSequence.aria },
+        { disabled: error || !this.sequencePlaying, menuLabel: demoText.editableChart.stopSliceSequence.menuLabel, tooltipText: demoText.editableChart.stopSliceSequence.tooltip, tooltipPlacement: 'right', onClick: this.stopSequence, ariaLabel: demoText.editableChart.stopSliceSequence.aria },
         icon({ size: 'lg', fixedWidth: true, name: 'stop' })
       )}
     </div>`;
@@ -723,62 +723,62 @@ export class EditableChart extends LightElement {
 
   private renderResetCategoriesButton(error: boolean): unknown {
     return buttonWithTooltip(
-      { id: 'edit-reset-categories', disabled: error || this.sequencePlaying, label: demoText.editableChart.resetCategories.label, tooltipText: demoText.editableChart.resetCategories.tooltip, tooltipPlacement: 'right', onClick: this.resetCategories, ariaLabel: demoText.editableChart.resetCategories.aria },
+      { disabled: error || this.sequencePlaying, label: demoText.editableChart.resetCategories.label, tooltipText: demoText.editableChart.resetCategories.tooltip, tooltipPlacement: 'right', onClick: this.resetCategories, ariaLabel: demoText.editableChart.resetCategories.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
     );
   }
 
   private renderReverseCategoriesButton(error: boolean): unknown {
     return buttonWithTooltip(
-      { id: 'edit-reverse-categories', disabled: error || this.sequencePlaying, label: demoText.editableChart.reverseCategories.label, tooltipText: demoText.editableChart.reverseCategories.tooltip, tooltipPlacement: 'right', onClick: this.reverseCategories, ariaLabel: demoText.editableChart.reverseCategories.aria },
+      { disabled: error || this.sequencePlaying, label: demoText.editableChart.reverseCategories.label, tooltipText: demoText.editableChart.reverseCategories.tooltip, tooltipPlacement: 'right', onClick: this.reverseCategories, ariaLabel: demoText.editableChart.reverseCategories.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'right-left' })
     );
   }
 
   private renderAddCategoriesButton(error: boolean, disableAdd: boolean): unknown {
     return buttonWithTooltip(
-      { id: 'edit-add-categories', disabled: error || this.sequencePlaying || disableAdd, label: demoText.editableChart.addCategories.label, tooltipText: demoText.editableChart.addCategories.tooltip, tooltipPlacement: 'right', onClick: this.addCategories, ariaLabel: demoText.editableChart.addCategories.aria },
+      { disabled: error || this.sequencePlaying || disableAdd, label: demoText.editableChart.addCategories.label, tooltipText: demoText.editableChart.addCategories.tooltip, tooltipPlacement: 'right', onClick: this.addCategories, ariaLabel: demoText.editableChart.addCategories.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'plus' })
     );
   }
 
   private renderRemoveCategoriesButton(error: boolean, disableRemove: boolean): unknown {
     return buttonWithTooltip(
-      { id: 'edit-remove-categories', disabled: error || this.sequencePlaying || disableRemove, label: demoText.editableChart.removeCategories.label, tooltipText: demoText.editableChart.removeCategories.tooltip, tooltipPlacement: 'right', onClick: this.removeCategories, ariaLabel: demoText.editableChart.removeCategories.aria },
+      { disabled: error || this.sequencePlaying || disableRemove, label: demoText.editableChart.removeCategories.label, tooltipText: demoText.editableChart.removeCategories.tooltip, tooltipPlacement: 'right', onClick: this.removeCategories, ariaLabel: demoText.editableChart.removeCategories.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'minus' })
     );
   }
 
   private renderSequenceGroupButtons(error: boolean, disableAdd: boolean, disableRemove: boolean): unknown {
     return html`${buttonWithTooltip(
-      { id: 'edit-play-add', disabled: error || this.sequencePlaying || disableAdd, menuLabel: demoText.editableChart.playAddCategories.menuLabel, tooltipText: demoText.editableChart.playAddCategories.tooltip, tooltipPlacement: 'right', onClick: this.startAddSequence, ariaLabel: demoText.editableChart.playAddCategories.aria },
+      { disabled: error || this.sequencePlaying || disableAdd, menuLabel: demoText.editableChart.playAddCategories.menuLabel, tooltipText: demoText.editableChart.playAddCategories.tooltip, tooltipPlacement: 'right', onClick: this.startAddSequence, ariaLabel: demoText.editableChart.playAddCategories.aria },
       html`${icon({ size: 'lg', name: 'play' })}<span style="padding-right: 2px;"></span>${icon({ size: 'lg', name: 'plus' })}`
     )}${buttonWithTooltip(
-      { id: 'edit-play-remove', disabled: error || this.sequencePlaying || disableRemove, menuLabel: demoText.editableChart.playRemoveCategories.menuLabel, tooltipText: demoText.editableChart.playRemoveCategories.tooltip, tooltipPlacement: 'right', onClick: this.startRemoveSequence, ariaLabel: demoText.editableChart.playRemoveCategories.aria },
+      { disabled: error || this.sequencePlaying || disableRemove, menuLabel: demoText.editableChart.playRemoveCategories.menuLabel, tooltipText: demoText.editableChart.playRemoveCategories.tooltip, tooltipPlacement: 'right', onClick: this.startRemoveSequence, ariaLabel: demoText.editableChart.playRemoveCategories.aria },
       html`${icon({ size: 'lg', name: 'play' })}<span style="padding-right: 2px;"></span>${icon({ size: 'lg', name: 'minus' })}`
     )}${buttonWithTooltip(
-      { id: 'edit-stop', disabled: error || !this.sequencePlaying, menuLabel: demoText.editableChart.stopSequence.menuLabel, tooltipText: demoText.editableChart.stopSequence.tooltip, tooltipPlacement: 'right', onClick: this.stopSequence, ariaLabel: demoText.editableChart.stopSequence.aria },
+      { disabled: error || !this.sequencePlaying, menuLabel: demoText.editableChart.stopSequence.menuLabel, tooltipText: demoText.editableChart.stopSequence.tooltip, tooltipPlacement: 'right', onClick: this.stopSequence, ariaLabel: demoText.editableChart.stopSequence.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'stop' })
     )}`;
   }
 
   private renderSelectAllButton(error: boolean): unknown {
     return buttonWithTooltip(
-      { id: 'edit-select-all', disabled: error || this.sequencePlaying, label: demoText.editableChart.selectAllCategories.label, tooltipText: demoText.editableChart.selectAllCategories.tooltip, tooltipPlacement: 'right', onClick: this.selectAllCategories, ariaLabel: demoText.editableChart.selectAllCategories.aria },
+      { disabled: error || this.sequencePlaying, label: demoText.editableChart.selectAllCategories.label, tooltipText: demoText.editableChart.selectAllCategories.tooltip, tooltipPlacement: 'right', onClick: this.selectAllCategories, ariaLabel: demoText.editableChart.selectAllCategories.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'check-double' })
     );
   }
 
   private renderResetSeriesButton(disabled: boolean): unknown {
     return buttonWithTooltip(
-      { id: 'edit-reset-series', disabled, label: demoText.editableChart.resetSeries.label, tooltipText: demoText.editableChart.resetSeries.tooltip, tooltipPlacement: 'right', onClick: this.resetSeriesChanges, ariaLabel: demoText.editableChart.resetSeries.aria },
+      { disabled, label: demoText.editableChart.resetSeries.label, tooltipText: demoText.editableChart.resetSeries.tooltip, tooltipPlacement: 'right', onClick: this.resetSeriesChanges, ariaLabel: demoText.editableChart.resetSeries.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })
     );
   }
 
   private renderApplySeriesButton(disabled: boolean): unknown {
     return buttonWithTooltip(
-      { id: 'edit-apply-series', disabled, label: demoText.editableChart.applySeries.label, tooltipText: demoText.editableChart.applySeries.tooltip, tooltipPlacement: 'right', onClick: this.applySeriesChanges, ariaLabel: demoText.editableChart.applySeries.aria },
+      { disabled, label: demoText.editableChart.applySeries.label, tooltipText: demoText.editableChart.applySeries.tooltip, tooltipPlacement: 'right', onClick: this.applySeriesChanges, ariaLabel: demoText.editableChart.applySeries.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'check' })
     );
   }
@@ -850,7 +850,7 @@ export class EditableChart extends LightElement {
             <div class="demo-toolbar" role="toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-category-decrease', disabled: error || categoryOrderControlsDisabled || isFirstCategory, tooltipText: demoText.editableChart.decreaseCategoryOrder.tooltip, tooltipPlacement: 'right', onClick: this.decreaseCategoryOrder, ariaLabel: demoText.editableChart.decreaseCategoryOrder.aria },
+                  { disabled: error || categoryOrderControlsDisabled || isFirstCategory, tooltipText: demoText.editableChart.decreaseCategoryOrder.tooltip, tooltipPlacement: 'right', onClick: this.decreaseCategoryOrder, ariaLabel: demoText.editableChart.decreaseCategoryOrder.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-left' })
                 )}
               </div>
@@ -863,7 +863,7 @@ export class EditableChart extends LightElement {
             <div class="demo-toolbar" role="toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-category-increase', disabled: error || categoryOrderControlsDisabled || isLastCategory, tooltipText: demoText.editableChart.increaseCategoryOrder.tooltip, tooltipPlacement: 'right', onClick: this.increaseCategoryOrder, ariaLabel: demoText.editableChart.increaseCategoryOrder.aria },
+                  { disabled: error || categoryOrderControlsDisabled || isLastCategory, tooltipText: demoText.editableChart.increaseCategoryOrder.tooltip, tooltipPlacement: 'right', onClick: this.increaseCategoryOrder, ariaLabel: demoText.editableChart.increaseCategoryOrder.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'arrow-right' })
                 )}
               </div>
@@ -873,7 +873,7 @@ export class EditableChart extends LightElement {
             <div class="demo-toolbar" role="toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-previous-series', disabled: error || seriesControlsDisabled || !hasPrevSeries, tooltipText: demoText.editableChart.previousSeries.tooltip, tooltipPlacement: 'right', onClick: this.prevSeries, ariaLabel: demoText.editableChart.previousSeries.aria },
+                  { disabled: error || seriesControlsDisabled || !hasPrevSeries, tooltipText: demoText.editableChart.previousSeries.tooltip, tooltipPlacement: 'right', onClick: this.prevSeries, ariaLabel: demoText.editableChart.previousSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-down' })
                 )}
               </div>
@@ -886,7 +886,7 @@ export class EditableChart extends LightElement {
             <div class="demo-toolbar" role="toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-next-series', disabled: error || seriesControlsDisabled || !hasNextSeries, tooltipText: demoText.editableChart.nextSeries.tooltip, tooltipPlacement: 'right', onClick: this.nextSeries, ariaLabel: demoText.editableChart.nextSeries.aria },
+                  { disabled: error || seriesControlsDisabled || !hasNextSeries, tooltipText: demoText.editableChart.nextSeries.tooltip, tooltipPlacement: 'right', onClick: this.nextSeries, ariaLabel: demoText.editableChart.nextSeries.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-up' })
                 )}
               </div>
@@ -930,7 +930,7 @@ export class EditableChart extends LightElement {
             <div class="demo-toolbar" role="toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-previous-slice', disabled: sliceControlsDisabled || this.sliceIndex === 0, tooltipText: demoText.editableChart.previousSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex - 1), ariaLabel: demoText.editableChart.previousSlice.aria },
+                  { disabled: sliceControlsDisabled || this.sliceIndex === 0, tooltipText: demoText.editableChart.previousSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex - 1), ariaLabel: demoText.editableChart.previousSlice.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-left' })
                 )}
               </div>
@@ -945,14 +945,14 @@ export class EditableChart extends LightElement {
             <div class="demo-toolbar" role="toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
-                  { id: 'edit-next-slice', disabled: sliceControlsDisabled || this.sliceIndex >= this.slices.length - 1, tooltipText: demoText.editableChart.nextSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex + 1), ariaLabel: demoText.editableChart.nextSlice.aria },
+                  { disabled: sliceControlsDisabled || this.sliceIndex >= this.slices.length - 1, tooltipText: demoText.editableChart.nextSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex + 1), ariaLabel: demoText.editableChart.nextSlice.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'chevron-right' })
                 )}
               </div>
               <div class="demo-btn-group">
                 ${folded ? nothing : this.renderResetSliceButton(sliceControlsDisabled)}
                 ${buttonWithTooltip(
-                  { id: 'edit-apply-slice', disabled: sliceControlsDisabled, label: demoText.editableChart.applySlice.label, tooltipText: demoText.editableChart.applySlice.tooltip, tooltipPlacement: 'right', onClick: this.applySliceChanges, ariaLabel: demoText.editableChart.applySlice.aria },
+                  { disabled: sliceControlsDisabled, label: demoText.editableChart.applySlice.label, tooltipText: demoText.editableChart.applySlice.tooltip, tooltipPlacement: 'right', onClick: this.applySliceChanges, ariaLabel: demoText.editableChart.applySlice.aria },
                   icon({ size: 'lg', fixedWidth: true, name: 'check' })
                 )}
               </div>

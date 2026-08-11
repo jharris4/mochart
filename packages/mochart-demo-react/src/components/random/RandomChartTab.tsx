@@ -156,7 +156,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
     </div>
   );
   const exportShareMenu = (
-    <ExportShareMenu idPrefix="random" active={active !== false} exportPng={onExportPng} exportSvg={onExportSvg} getShareState={getShareState} />
+    <ExportShareMenu active={active !== false} exportPng={onExportPng} exportSvg={onExportSvg} getShareState={getShareState} />
   );
 
   return (

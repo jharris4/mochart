@@ -105,11 +105,11 @@ const defaultRate = 2000;
                     <div class="demo-menu-divider"></div>
                     <ng-container [ngTemplateOutlet]="rateField" />
                   </app-overflow-menu>
-                  <app-export-share-menu idPrefix="random" [active]="active" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
+                  <app-export-share-menu [active]="active" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
                 </div>
               } @else {
                 <div class="demo-btn-group"><ng-container [ngTemplateOutlet]="reuseButton" /></div>
-                <app-export-share-menu idPrefix="random" [active]="active" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
+                <app-export-share-menu [active]="active" [exportPng]="onExportPng" [exportSvg]="onExportSvg" [getShareState]="getShareState" />
               }
             </div>
           </div>

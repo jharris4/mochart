@@ -33,7 +33,7 @@ export interface MenuOptions {
    * the row's true right edge.
    */
   getAnchor?: () => HTMLElement | null;
-  /** Trigger id, when the markup needs a well-known one (`#edit-export-share`). */
+  /** Explicit trigger id; omit and a unique one is minted. */
   triggerId?: string;
 }
 

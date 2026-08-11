@@ -15,7 +15,6 @@ import { el, icon } from './dom';
 // through anything stacked below it). What stays here is what the controller
 // does not know about: the items, the copied-link feedback, and `disabled`.
 export interface ExportShareMenuProps {
-  idPrefix: string;
   exportPng: () => void;
   exportSvg: () => void;
   /** Omit to hide the Share item (e.g. a chart whose state isn't shareable). */
@@ -39,7 +38,7 @@ export interface ExportShareMenuHandle {
 const copiedFeedbackMs = 1500;
 
 export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHandle {
-  const { idPrefix, exportPng, exportSvg, getShareState } = props;
+  const { exportPng, exportSvg, getShareState } = props;
 
   let copied = false;
   let revertTimer: ReturnType<typeof setTimeout> | null = null;
@@ -48,7 +47,6 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
   // disclosure ARIA itself (and strips `aria-haspopup`, which promised a
   // keyboard menu this markup never implemented).
   const trigger = el('button', {
-    id: idPrefix + '-export-share',
     className: 'demo-btn demo-btn-secondary demo-menu-trigger',
     attrs: {
       type: 'button',

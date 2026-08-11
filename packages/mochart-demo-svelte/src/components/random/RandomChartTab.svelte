@@ -158,7 +158,7 @@
 {/snippet}
 
 {#snippet exportMenu()}
-  <ExportShareMenu idPrefix="random" active={active !== false} exportPng={onExportPng} exportSvg={onExportSvg} {getShareState} />
+  <ExportShareMenu active={active !== false} exportPng={onExportPng} exportSvg={onExportSvg} {getShareState} />
 {/snippet}
 
 <!-- The phone fold keeps the dice pair (Back / Randomize) inline — stepping by

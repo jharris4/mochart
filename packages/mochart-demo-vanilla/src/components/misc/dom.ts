@@ -188,7 +188,7 @@ export function icon(name: string, options: IconOptions = {}): HTMLSpanElement {
 // ---------------------------------------------------------------------------
 
 export interface ButtonOptions {
-  id: string;
+  id?: string;
   tooltipText?: string;
   disabled?: boolean;
   onClick: () => void;

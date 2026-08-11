@@ -18,7 +18,6 @@ import { useMenu } from './useMenu';
 // through anything stacked below it. What stays here is what the hook does not
 // know about: the items, the copied-link feedback, and `disabled`.
 interface Props {
-  idPrefix: string;
   exportPng: () => void;
   exportSvg: () => void;
   /** Omit to hide the Share item (e.g. a chart whose state isn't shareable). */
@@ -34,16 +33,13 @@ interface Props {
 
 const copiedFeedbackMs = 1500;
 
-export default function ExportShareMenu({ idPrefix, exportPng, exportSvg, getShareState, disabled = false, active = true }: Props) {
+export default function ExportShareMenu({ exportPng, exportSvg, getShareState, disabled = false, active = true }: Props) {
   const [copied, setCopied] = useState(false);
   const revertTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Opens upward (the controls row sits at the bottom of the pane) and
   // right-aligned (the trigger is the last control in the row).
-  const menu = useMenu({
-    placement: { side: 'top', align: 'end', gap: 4 },
-    triggerId: idPrefix + '-export-share'
-  });
+  const menu = useMenu({ placement: { side: 'top', align: 'end', gap: 4 } });
   const { close } = menu;
 
   // A disabled trigger fires no click, so the menu cannot be opened — but one
