@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 30 fixed (2 partial), 5 needing an answer, 124 open.** ANIM-1's and ANIM-2's follow-ups
+**Status: 30 fixed (1 partial), 4 needing an answer, 124 open.** ANIM-1's and ANIM-2's follow-ups
 are both **implemented** — see their entries for what landed and where the build revised each
 design. Every remaining High finding is waiting on an answer.
 
@@ -880,7 +880,7 @@ calls write into nothing.
 early-return branches of `sync()`.
 
 ### COMP-11 — pointer payloads use the wrong coordinate frame and break when CSS-scaled
-**High · Bug · [Chart.ts:363](packages/mochart/src/components/Chart.ts#L363), [:775](packages/mochart/src/components/Chart.ts#L775)** **[from SOL review]** — **Partially fixed**, with an open question
+**High · Bug · [Chart.ts:363](packages/mochart/src/components/Chart.ts#L363), [:775](packages/mochart/src/components/Chart.ts#L775)** **[from SOL review]** — **Fixed**
 
 Two defects in one expression. `ChartEventPayload.chartX`/`chartY` are documented at
 [types/chart.ts:5](packages/mochart/src/types/chart.ts#L5) as coordinates relative to the *chart
@@ -914,23 +914,20 @@ and pie route `shapeRef` to `SeriesBackground`, whose rect is drawn straight fro
 `test/components/PointerScaling.test.ts` mount at 1× and at 0.5× and assert identical fractions
 and category index; both fail on the unpatched source. Full core suite passes (1371 tests).
 
-> **QUESTION (needs an answer):** the coordinate *frame* is left as it is. `chartX`/`chartY` are
-> documented as chart-container-relative and are in fact plot-relative, so the two ways to close
-> the gap are not equivalent: adding the plot offset **changes the numbers every existing host
-> receives** on `onChartClick`/`onChartMouseEnter`/`onChartMouseMove`/`onChartMouseLeave`, silently
-> and with no type change to flag it. There is also a reason to prefer the current values —
-> `categoryPosition`/`valuePosition` in the same payload are explicitly documented as *plot*
-> pixels, so today all four position fields share one origin. **Which do you want:** (a) add the
-> plot offset so `chartX`/`chartY` match their documentation, accepting the silent break; (b)
-> correct the JSDoc to say plot-relative, keeping all four fields consistent; or (c) add separate
-> `containerX`/`containerY` fields and leave `chartX`/`chartY` alone?
->
-> *Recommendation: (b).* It is the only option with no silent behaviour change for existing
-> hosts, and it leaves all four position fields sharing one origin. Note
-> `ChartInteraction.test.ts:56` stubs every rect to the full chart at 1:1, which collapses the two
-> frames onto each other — whichever option you pick, that fixture needs a non-zero plot offset
-> before it can tell them apart.
+**Frame: answered — keep the values, correct the documentation.** `chartX`/`chartY` stay
+plot-relative and the JSDoc at [types/chart.ts:5](packages/mochart/src/types/chart.ts#L5) now says
+so. Adding the plot offset would have matched the old wording but changed the numbers every
+existing host receives on `onChartClick`/`onChartMouseEnter`/`onChartMouseMove`/`onChartMouseLeave`
+silently, with no type change to flag it; and `categoryPosition`/`valuePosition` in the same
+payload are documented as *plot* pixels, so all four position fields now share one origin.
 
+**The fixture that hid this is fixed too.** `ChartInteraction.test.ts` stubbed *every* bounding
+rect to the full chart, collapsing the container and plot frames onto each other — so it asserted
+plot-relative values while proving nothing about which frame they were in. The stub now reports
+the series-background rect's own geometry, keeping the plot offset real, and a new test asserts
+`chartX`/`chartY` and `categoryPosition`/`valuePosition` all read as plot-local. One existing
+inverted-plot test had been passing coordinates outside the real plot; it now derives them from
+the plot bounds. 57 tests pass in that file, 1545 in the core suite.
 ---
 
 # 4. Core — chart-type helpers
