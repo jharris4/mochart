@@ -49,6 +49,15 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({ valid: true, errors: [], warnings: [] });
   });
 
+  it('carries a supplied version through to the built config, and adds none otherwise', () => {
+    // the built type now declares `version`, so a host reading it back gets the same optionality
+    // the runtime has: present when the input supplied one, absent when it did not
+    const series = [{ property: 'sales' }];
+    const categoryAxis = { property: 'month' };
+    expect(enhance({ version: VERSION_STRING, categoryAxis, series }).version).toBe(VERSION_STRING);
+    expect(enhance({ categoryAxis, series }).version).toBeUndefined();
+  });
+
   it('rejects an unknown version', () => {
     const mochartConfig = enhance({
       version: '0.9.0',
