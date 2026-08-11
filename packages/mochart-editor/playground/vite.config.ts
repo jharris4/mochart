@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
+import { depSourcemaps } from '../../../scripts/dep-sourcemaps';
 
 export default defineConfig({
   root: fileURLToPath(new URL('.', import.meta.url)),
+  plugins: [depSourcemaps()],
   resolve: {
     alias: [
       {

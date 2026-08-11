@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import angular from '@analogjs/vite-plugin-angular';
+import { depSourcemaps } from '../../scripts/dep-sourcemaps';
 
 export default defineConfig({
   // Each demo gallery pins its own port so they can run side by side.
@@ -17,5 +18,5 @@ export default defineConfig({
   },
   // The angular plugin compiles with AOT against tsconfig.app.json (its
   // default); tsconfig.json stays noEmit for the ngc typecheck script.
-  plugins: [angular()]
+  plugins: [angular(), depSourcemaps()]
 });

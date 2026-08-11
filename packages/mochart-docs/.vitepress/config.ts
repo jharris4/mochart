@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress';
 import { loadConfigReference } from './lib/model';
 import { loadApiReference } from './lib/apiModel';
+import { depSourcemaps } from '../../../scripts/dep-sourcemaps';
 
 // The deployed site nests the demo galleries next to the docs (see
 // scripts/build-pages.mjs), so demo links resolve only on the assembled site,
@@ -58,7 +59,7 @@ export default defineConfig({
   description: 'Animated interactive SVG charting library with zero framework dependencies',
   srcExclude: ['README.md'],
   markdown: { config: demoLinkTargets },
-  vite: { build: { sourcemap: true } },
+  vite: { build: { sourcemap: true }, plugins: [depSourcemaps()] },
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/getting-started', activeMatch: '^/(guide|recipes)/' },
