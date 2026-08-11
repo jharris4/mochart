@@ -88,6 +88,15 @@ describe('createHeatmap', () => {
     expect(() => createHeatmap(rows(), { columnLabels: ['a', 'b', 'a'] })).toThrow(/must be unique, duplicates: a/);
   });
 
+  it('rejects a cellPadding that leaves no cell to draw', () => {
+    // at 0.5 the gap eats the whole cell in both directions, so nothing renders at all; the
+    // arithmetic cannot be salvaged, so the value is refused rather than quietly clamped
+    expect(() => createHeatmap(rows(), { cellPadding: 0.5 })).toThrow(/cellPadding must be at least 0 and below 0.5/);
+    expect(() => createHeatmap(rows(), { cellPadding: 0.7 })).toThrow(/cellPadding/);
+    expect(() => createHeatmap(rows(), { cellPadding: -0.1 })).toThrow(/cellPadding/);
+    expect(() => createHeatmap(rows(), { cellPadding: 0.49 })).not.toThrow();
+  });
+
   it('titles one bar series per row', () => {
     const { series: seriesConfigs } = createHeatmap(rows());
     expect(seriesConfigs.map((seriesConfig) => seriesConfig.title)).toEqual(['North', 'South', 'West']);

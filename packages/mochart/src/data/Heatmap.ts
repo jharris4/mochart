@@ -51,7 +51,7 @@ export interface CreateHeatmapOptions extends CreateHeatmapColorScaleOptions {
    */
   domain?: [number, number];
   /**
-   * The fraction (0 - 0.5) of a cell trimmed from each side as the gap
+   * The fraction (0 to under 0.5) of a cell trimmed from each side as the gap
    * between neighbouring cells (use 0 for a contiguous grid).
    *
    * @default 0.03
@@ -143,6 +143,9 @@ export function createHeatmapColorScale(domain: [number, number], options: Creat
  */
 export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatmapOptions = {}): HeatmapData {
   const cellPadding = options.cellPadding ?? DEFAULT_CELL_PADDING;
+  if (!(cellPadding >= 0 && cellPadding < 0.5)) {
+    throw new Error(`createHeatmap: cellPadding must be at least 0 and below 0.5, got ${cellPadding}`);
+  }
   const rowCount = rows.length;
   const columnCount = rows.reduce((count, row) => Math.max(count, row.values.length), 0);
   checkColumnLabels(options.columnLabels, columnCount);
