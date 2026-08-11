@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 46 fixed, 1 needing an answer, 113 open.** TOOL-2 is deferred to release time by
+**Status: 47 fixed, 1 needing an answer, 112 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1535,7 +1535,7 @@ tests in `test/config/config.test.ts`, alongside the existing ignored-entry bloc
 passes (1398 tests), typecheck and lint clean.
 
 ### CONFIG-4 — `tooltip.backgroundStyle.strokeDashArray` type-checks but invalidates the config
-**Medium · Inconsistency · [types/config.ts:1235](packages/mochart/src/types/config.ts#L1235) vs [validation/tooltipConfig.ts:27](packages/mochart/src/config/validation/tooltipConfig.ts#L27)** **[verified]** — **Open**
+**Medium · Inconsistency · [types/config.ts:1235](packages/mochart/src/types/config.ts#L1235) vs [validation/tooltipConfig.ts:27](packages/mochart/src/config/validation/tooltipConfig.ts#L27)** **[verified]** — **Fixed**
 
 This is the **only** key in the whole config that the TS types declare and the other three
 surfaces do not. Defaults, validation and docs deliberately model the tooltip box as a
@@ -1546,8 +1546,23 @@ tooltip: { backgroundStyle: { strokeDashArray: '5, 5' } }   // compiles
 → valid: false, 'tooltip - backgroundStyle - had 1 invalid properties: strokeDashArray'
 ```
 
-**Fix:** give it its own type — `export type CssStyle = Omit<Style, 'strokeDashArray'>`. Adding
-`strokeDashArray` to `cssStyle()` instead would be wrong: the tooltip border is a CSS `border`.
+**Fixed by narrowing the type, not by widening the validator.** The tooltip renders its background
+as a css border and never reads `strokeDashArray`, so allowing the key would have added one with no
+effect. A new `CssStyle` — `Style` without `strokeDashArray` — now types
+`TooltipConfig.backgroundStyle`, matching the five-key validator it is checked against.
+
+Checked that this is the only place: `cssStyle()` has exactly one caller, and the other five
+`backgroundStyle` fields use the full `style()` validator, so they keep `Style`.
+
+One correction to the mechanism described above. The shape validator itself allows extra keys; the
+rejection comes from the unknown-key walk, which reports a *warning*. It only becomes
+`valid: false` because validation is strict by default — so the config was invalid in the default
+configuration, but not in every configuration.
+
+Two tests in `publicTypes.test.ts`, which is typechecked rather than only run: one writing the five
+accepted keys, one with `@ts-expect-error` on `strokeDashArray`. On the unpatched types that
+directive goes unused and the typecheck fails, so the test pins the narrowing rather than merely
+passing.
 
 ### CONFIG-5 — six places where the types and the runtime contract disagree
 **Medium · Inconsistency** — **Open**
