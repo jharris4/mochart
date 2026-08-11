@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 33 fixed, 1 needing an answer, 124 open.** TOOL-2 is deferred to release time by
+**Status: 33 fixed, 1 needing an answer, 125 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -63,9 +63,9 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
 | [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 7 | 22 |
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 5 | 17 |
-| [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 7 | 5 | 15 |
+| [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 7 | 6 | 16 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **32** | **71** | **53** | **157** |
+| | **Total** | **1** | **32** | **71** | **54** | **158** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -3293,6 +3293,33 @@ core resolves rather than at the plugin ordering.
 
 Low rather than Medium because the other five galleries map correctly, so the library can be
 debugged from any of them; this costs a developer the Angular-specific path only.
+
+### TOOL-16 — `@mochart/svelte` is the one published package that ships no sourcemaps
+**Low · Tooling gap · [mochart-svelte/package.json](packages/mochart-svelte/package.json)** **[verified]** — **Open**
+
+`svelte-package -i src -o dist` emits no `.js.map`, and its CLI has no option to ask for one
+(`-i`, `-o`, `-p`, `-t`, `-w`, `--tsconfig` — nothing for maps). So this is a tool limitation, not
+a misconfiguration. Every sibling ships maps with full `sourcesContent`:
+
+| Package | `.js.map` | sources |
+|---|---|---|
+| @mochart/core | 2 | 522 |
+| @mochart/vue | 8 | 8 |
+| @mochart/angular · @mochart/react | 7 each | 7 each |
+| @mochart/lit | 5 | 5 |
+| **@mochart/svelte** | **0** | — |
+
+Narrower than it sounds. Only four files are generated — `index.js`, `host.js`, `types.js`,
+`placeholders.svelte.js` — and the three `.svelte` components are copied through unchanged, so most
+of the package already *is* its source. `files` ships `src`, and the `development` export condition
+resolves to `./src/index.ts`, so a consumer who wants real sources has a supported route.
+
+**Fix:** the honest options are to document the `development` condition as the way to debug this
+package, or to post-process `svelte-package`'s output to attach maps, or to build the four
+generated files with a tool that emits them. Given three of the seven output files need no mapping
+at all, documenting is probably the right trade — but it should be a decision rather than an
+omission.
+
 
 
 ---
