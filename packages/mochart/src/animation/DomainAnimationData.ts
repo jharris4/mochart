@@ -54,6 +54,112 @@ export const emptyAxisDeltaData = {
  *
  **/
 
+/**
+ * A domain change is a translation when the old and new domains barely overlap: the union is far
+ * taller than either endpoint, so the expand-to-union/contract animation would be mostly invented
+ * motion ("the pump"). A translating axis skips the union and instead interpolates its render
+ * domain directly during the value phase.
+ */
+export const TRANSLATION_UNION_RATIO = 1.5;
+
+export function isDomainTranslation(fromDomain: NullableDomain, toDomain: NullableDomain): boolean {
+  if (fromDomain[0] === null || fromDomain[1] === null || toDomain[0] === null || toDomain[1] === null) {
+    return false;
+  }
+  const fromExtent = +fromDomain[1] - +fromDomain[0];
+  const toExtent = +toDomain[1] - +toDomain[0];
+  const maxExtent = Math.max(fromExtent, toExtent);
+  if (maxExtent <= 0) { // collapsed/inverted domains stay on the existing machinery
+    return false;
+  }
+  const unionExtent = Math.max(+fromDomain[1], +toDomain[1]) - Math.min(+fromDomain[0], +toDomain[0]);
+  return unionExtent > TRANSLATION_UNION_RATIO * maxExtent;
+}
+
+/** Classified once per axis on the domains its scale displays, so raw and filtered never diverge. */
+export function getTranslatingAxisIds(valueAxisConfigs: EnhancedValueAxisConfig[], fromRawDomains: AxisDomains, fromFilteredDomains: AxisDomains, toRawDomains: AxisDomains, toFilteredDomains: AxisDomains): string[] {
+  const axisIds: string[] = [];
+  for (const valueAxisConfig of valueAxisConfigs) {
+    const axisId = valueAxisConfig.id;
+    const fromDomain = valueAxisConfig.adjustForFiltering ? fromFilteredDomains[axisId] : fromRawDomains[axisId];
+    const toDomain = valueAxisConfig.adjustForFiltering ? toFilteredDomains[axisId] : toRawDomains[axisId];
+    if (isDomainTranslation(fromDomain, toDomain)) {
+      axisIds.push(axisId);
+    }
+  }
+  return axisIds;
+}
+
+function resetAxisDomainsForIds(targetDomains: AxisDomains, sourceDomains: AxisDomains, axisIds: string[]): void {
+  for (const axisId of axisIds) {
+    targetDomains[axisId] = copyDomain(sourceDomains[axisId]);
+  }
+}
+
+export function withAxisDomainsForIds(baseDomains: AxisDomains, overrideDomains: AxisDomains, axisIds: string[]): AxisDomains {
+  if (axisIds.length === 0) {
+    return baseDomains;
+  }
+  const domains: AxisDomains = Object.assign(Object.create(null), baseDomains);
+  for (const axisId of axisIds) {
+    domains[axisId] = overrideDomains[axisId];
+  }
+  return domains;
+}
+
+function resetSeriesDomainsForAxes(targetDomains: SeriesDomainObjects, sourceDomains: SeriesDomainObjects, seriesConfigs: EnhancedSeriesConfig[], axisIds: string[]): void {
+  if (axisIds.length === 0) {
+    return;
+  }
+  for (const seriesConfig of seriesConfigs) {
+    if (axisIds.indexOf(seriesConfig.axis!) !== -1) {
+      targetDomains[seriesConfig.id] = copySeriesDomain(sourceDomains[seriesConfig.id]);
+    }
+  }
+}
+
+export function withSeriesDomainsForAxes(baseDomains: SeriesDomainObjects, overrideDomains: SeriesDomainObjects, seriesConfigs: EnhancedSeriesConfig[], axisIds: string[]): SeriesDomainObjects {
+  if (axisIds.length === 0) {
+    return baseDomains;
+  }
+  const domains: SeriesDomainObjects = Object.assign(Object.create(null), baseDomains);
+  for (const seriesConfig of seriesConfigs) {
+    if (axisIds.indexOf(seriesConfig.axis!) !== -1) {
+      domains[seriesConfig.id] = overrideDomains[seriesConfig.id];
+    }
+  }
+  return domains;
+}
+
+/**
+ * Signed per-axis domain deltas for the value phase. The percentage uses the center shift over
+ * the same extent basis as the value deltas, so a value and its translating domain share pacing
+ * exactly — a single flat value stays pinned to the midline through every frame.
+ */
+export function getTranslationAxisDomainDeltas(fromDomains: AxisDomains, toDomains: AxisDomains, fromValueAxisDomainExtents: Record<string, number>): DomainDeltaMap {
+  let deltaPercentage = 0;
+  const deltas: Record<string, DomainDelta> = Object.create(null);
+  for (const axisId of Object.keys(fromDomains)) {
+    const fromDomain = fromDomains[axisId];
+    const toDomain = toDomains[axisId];
+    let delta: NumericDomain | null = null;
+    let axisDeltaPercentage = 0;
+    if (fromDomain[0] !== null && fromDomain[1] !== null && toDomain[0] !== null && toDomain[1] !== null) {
+      const minDelta = +toDomain[0] - +fromDomain[0];
+      const maxDelta = +toDomain[1] - +fromDomain[1];
+      const centerShift = Math.abs(minDelta + maxDelta) / 2;
+      if (centerShift !== 0) {
+        delta = [minDelta, maxDelta];
+        const extent = fromValueAxisDomainExtents[axisId];
+        axisDeltaPercentage = extent > 0 ? centerShift / extent : 0;
+      }
+    }
+    deltas[axisId] = { deltaPercentage: axisDeltaPercentage, delta };
+    deltaPercentage = Math.max(deltaPercentage, axisDeltaPercentage);
+  }
+  return deltaPercentage === 0 ? emptyValueAxisDomainDelta : { deltaPercentage, deltas };
+}
+
 function getPositiveDomainDelta(fromDomain: NullableDomain, toDomain: NullableDomain): NumericDomain {
   const domainDelta: NumericDomain = [0,0];
   const fromMin = fromDomain[0]!;
@@ -190,6 +296,11 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
   setAllBaseAxisDomainsForChanges(startRawValueAxisDomains, endRawValueAxisDomains);
   setAllBaseAxisDomainsForChanges(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
 
+  // translating axes sit out both union phases: their domain moves during the value phase instead
+  const translatingAxisIds = getTranslatingAxisIds(valueAxisConfigs, startRawValueAxisDomains, startFilteredValueAxisDomains, endRawValueAxisDomains, endFilteredValueAxisDomains);
+  resetAxisDomainsForIds(endRawValueAxisDomains, startRawValueAxisDomains, translatingAxisIds);
+  resetAxisDomainsForIds(endFilteredValueAxisDomains, startFilteredValueAxisDomains, translatingAxisIds);
+
   const rawValueAxisExtents = getDomainExtents(startRawValueAxisDomains);
   const filteredValueAxisExtents = getDomainExtents(startFilteredValueAxisDomains);
   const rawValueAxisDomainDeltas = getValueAxisDomainDeltas(startRawValueAxisDomains, endRawValueAxisDomains, rawValueAxisExtents);
@@ -197,14 +308,18 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
 
   if (rawValueAxisDomainDeltas.deltaPercentage !== 0) {
     endRawValueAxisDomains = getMaxAxisDomains(startRawValueAxisDomains, endRawValueAxisDomains);
-    finalRawValueAxisDomains = getMaxAxisDomains(prevChartData.seriesData.raw.renderAxisDomains, newChartData.seriesData.raw.renderAxisDomains);
+    finalRawValueAxisDomains = withAxisDomainsForIds(
+      getMaxAxisDomains(prevChartData.seriesData.raw.renderAxisDomains, newChartData.seriesData.raw.renderAxisDomains),
+      prevChartData.seriesData.raw.renderAxisDomains, translatingAxisIds);
   }
   else {
     endRawValueAxisDomains = startRawValueAxisDomains;
   }
   if (filteredValueAxisDomainDeltas.deltaPercentage !== 0) {
     endFilteredValueAxisDomains = getMaxAxisDomains(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
-    finalFilteredValueAxisDomains = getMaxAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains);
+    finalFilteredValueAxisDomains = withAxisDomainsForIds(
+      getMaxAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains),
+      prevChartData.seriesData.filtered.renderAxisDomains, translatingAxisIds);
     finalValueAxisBases = getValueAxisBases(valueAxisConfigs, finalRawValueAxisDomains, finalFilteredValueAxisDomains);
   }
   else {
@@ -221,19 +336,27 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
   setAllBaseSeriesDomainsForChanges(startRawSeriesDomains, endRawSeriesDomains);
   setAllBaseSeriesDomainsForChanges(startFilteredSeriesDomains, endFilteredSeriesDomains);
 
+  // series on translating axes sit out the union with their axis
+  resetSeriesDomainsForAxes(endRawSeriesDomains, startRawSeriesDomains, seriesConfigs, translatingAxisIds);
+  resetSeriesDomainsForAxes(endFilteredSeriesDomains, startFilteredSeriesDomains, seriesConfigs, translatingAxisIds);
+
   const rawSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, startRawSeriesDomains, endRawSeriesDomains, rawValueAxisExtents);
   const filteredSeriesDomainDeltas = getSeriesDomainDeltas(seriesConfigs, startFilteredSeriesDomains, endFilteredSeriesDomains, filteredValueAxisExtents);
 
   if (rawSeriesDomainDeltas.deltaPercentage !== 0) {
     endRawSeriesDomains = getMaxSeriesDomains(startRawSeriesDomains, endRawSeriesDomains);
-    finalRawSeriesDomains = getMaxSeriesDomains(prevChartData.seriesData.raw.domains, newChartData.seriesData.raw.domains)
+    finalRawSeriesDomains = withSeriesDomainsForAxes(
+      getMaxSeriesDomains(prevChartData.seriesData.raw.domains, newChartData.seriesData.raw.domains),
+      prevChartData.seriesData.raw.domains, seriesConfigs, translatingAxisIds);
   }
   else {
     endRawSeriesDomains = startRawSeriesDomains;
   }
   if (filteredSeriesDomainDeltas.deltaPercentage !== 0) {
     endFilteredSeriesDomains = getMaxSeriesDomains(startFilteredSeriesDomains, endFilteredSeriesDomains);
-    finalFilteredSeriesDomains = getMaxSeriesDomains(prevChartData.seriesData.filtered.domains, newChartData.seriesData.filtered.domains)
+    finalFilteredSeriesDomains = withSeriesDomainsForAxes(
+      getMaxSeriesDomains(prevChartData.seriesData.filtered.domains, newChartData.seriesData.filtered.domains),
+      prevChartData.seriesData.filtered.domains, seriesConfigs, translatingAxisIds);
   }
   else {
     endFilteredSeriesDomains = startFilteredSeriesDomains;
@@ -500,7 +623,7 @@ function setCategoryValueDeltaFactor(deltaObject: CompleteNumericArrayDelta | nu
   }
 }
 
-function setAxisDeltaFactors(axisDeltaObjectHolder: DomainDeltaMap, deltaPercentage: number): void {
+export function setAxisDeltaFactors(axisDeltaObjectHolder: DomainDeltaMap, deltaPercentage: number): void {
   if (axisDeltaObjectHolder.deltas !== null) {
     const axisDeltaObjects = axisDeltaObjectHolder.deltas;
     const axisIds = Object.keys(axisDeltaObjects);
