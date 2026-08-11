@@ -31,9 +31,19 @@ function isScaleFunction(value: unknown): value is AxisScale {
   return typeof value === 'function' && 'domain' in value && 'range' in value;
 }
 
-function scaleMutator(oldValue: unknown, newValue: unknown): unknown {
+// a date scale's domain() hands back fresh Date objects, so identity comparison never matches
+function areDomainsEqual(oldDomain: unknown, newDomain: unknown): boolean {
+  if (!Array.isArray(oldDomain) || !Array.isArray(newDomain) || oldDomain.length !== newDomain.length) {
+    return false;
+  }
+  return oldDomain.every((value, i) => value instanceof Date && newDomain[i] instanceof Date
+    ? value.getTime() === (newDomain[i] as Date).getTime()
+    : value === newDomain[i]);
+}
+
+export function scaleMutator(oldValue: unknown, newValue: unknown): unknown {
   if (isScaleFunction(oldValue) && isScaleFunction(newValue)) {
-    if (areArraysAndEqual(oldValue.domain(), newValue.domain()) && areArraysAndEqual(oldValue.range(), newValue.range())) {
+    if (areDomainsEqual(oldValue.domain(), newValue.domain()) && areArraysAndEqual(oldValue.range(), newValue.range())) {
       return oldValue;
     }
     else {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { scaleTime, scaleLinear } from 'd3-scale';
-import { getCategorySpacingInfo, getCategoryAxisTickData } from '../../src/data/AxisData';
+import { getCategorySpacingInfo, getCategoryAxisTickData, scaleMutator } from '../../src/data/AxisData';
 import { makeConfig } from './fixtures';
 import type { CategoryAxisConfig } from '../../src/types/config';
 import type { AxisScale, CategoryAxisDomain } from '../../src/types/data';
@@ -73,5 +73,37 @@ describe('getCategoryAxisTickData', () => {
     const axisScale = scaleLinear().domain([5, 5]).range([0, 200]) as unknown as AxisScale;
     const ticks = getCategoryAxisTickData(config.categoryAxis, layout, axisScale, [5, 5] as CategoryAxisDomain, [5], [100]);
     expect(ticks).toHaveLength(1);
+  });
+});
+
+// scaleMutator keeps the previous scale when nothing about it changed, which is what lets the
+// chart skip re-measuring axis text. Date scales hand back new Date objects every call, so an
+// identity comparison of the domain never matched and date charts re-measured on every frame.
+describe('scaleMutator', () => {
+  const dateScale = (from: string, to: string) =>
+    scaleTime().domain([new Date(from), new Date(to)]).range([0, 100]);
+
+  it('keeps the old date scale when the domain is unchanged', () => {
+    const oldScale = dateScale('2020-01-01', '2020-06-01');
+    const newScale = dateScale('2020-01-01', '2020-06-01');
+    expect(scaleMutator(oldScale, newScale)).toBe(oldScale);
+  });
+
+  it('takes the new date scale when the domain really changed', () => {
+    const oldScale = dateScale('2020-01-01', '2020-06-01');
+    const newScale = dateScale('2020-01-01', '2020-07-01');
+    expect(scaleMutator(oldScale, newScale)).toBe(newScale);
+  });
+
+  it('takes the new scale when only the range changed', () => {
+    const oldScale = dateScale('2020-01-01', '2020-06-01');
+    const newScale = dateScale('2020-01-01', '2020-06-01').range([0, 200]);
+    expect(scaleMutator(oldScale, newScale)).toBe(newScale);
+  });
+
+  it('still keeps a numeric scale with an unchanged domain', () => {
+    const oldScale = scaleLinear().domain([0, 10]).range([0, 100]);
+    const newScale = scaleLinear().domain([0, 10]).range([0, 100]);
+    expect(scaleMutator(oldScale, newScale)).toBe(oldScale);
   });
 });
