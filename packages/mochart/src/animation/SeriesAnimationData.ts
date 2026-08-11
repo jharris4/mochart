@@ -16,6 +16,9 @@ import {
   hasCategoryChanges, hasNumericValueOffsets, getNumericValuesWithoutOffsets,
   getMergedNumericValues, createCategoryOrderDeltaData, setCategoryOrderDeltaFactors, getNumericValueOffsets } from './CategoryAnimationData';
 
+import { getMaxAxisDomains, getTranslatingAxisIds, getTranslationAxisDomainDeltas, setAxisDeltaFactors,
+  withAxisDomainsForIds, withSeriesDomainsForAxes } from './DomainAnimationData';
+
 import { keyPlain, positionKeys, positionOrComputedKeys, positionOrComputedOrExtraKeys, extraAndCopyKeys } from '../data/constants';
 
 import { NONE } from '../config/core/constants';
@@ -147,9 +150,21 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
 
   const startSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, startValues, startFilteredValues);
 
-  const endSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, endValues, endFilteredValues);
-  let finalSeriesData = getSeriesDataWithRenderAxisDomains(newChartData.seriesData, prevSeriesData.raw.renderAxisDomains, prevSeriesData.filtered.renderAxisDomains);
-  finalSeriesData = getSeriesDataWithDomains(finalSeriesData, prevSeriesData.raw.domains, prevSeriesData.filtered.domains);
+  // translating axes finish this phase on their new domains; union axes hold the old until contraction
+  const translatingAxisIds = getTranslatingAxisIds(mochartConfig.valueAxes, prevSeriesData.raw.renderAxisDomains, prevSeriesData.filtered.renderAxisDomains,
+    newChartData.seriesData.raw.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains);
+  const endRawRenderAxisDomains = withAxisDomainsForIds(prevSeriesData.raw.renderAxisDomains, newChartData.seriesData.raw.renderAxisDomains, translatingAxisIds);
+  const endFilteredRenderAxisDomains = withAxisDomainsForIds(prevSeriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains, translatingAxisIds);
+  const endRawSeriesDomains = withSeriesDomainsForAxes(prevSeriesData.raw.domains, newChartData.seriesData.raw.domains, mochartConfig.series, translatingAxisIds);
+  const endFilteredSeriesDomains = withSeriesDomainsForAxes(prevSeriesData.filtered.domains, newChartData.seriesData.filtered.domains, mochartConfig.series, translatingAxisIds);
+
+  let endSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, endValues, endFilteredValues);
+  let finalSeriesData = getSeriesDataWithRenderAxisDomains(newChartData.seriesData, endRawRenderAxisDomains, endFilteredRenderAxisDomains);
+  finalSeriesData = getSeriesDataWithDomains(finalSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
+  if (translatingAxisIds.length > 0) {
+    endSeriesData = getSeriesDataWithRenderAxisDomains(endSeriesData, endRawRenderAxisDomains, endFilteredRenderAxisDomains);
+    endSeriesData = getSeriesDataWithDomains(endSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
+  }
 
   setAllBaseValuesForOuterChanges(mochartConfig.animation, mochartConfig.series, startSeriesData, endSeriesData,
     prevSeriesData, newChartData.seriesData, categoryDeltaData.outerCounts);
@@ -531,9 +546,11 @@ function setBaseValuesForOuterChange(targetValues: NumericValues | null, sourceV
 }
 
 function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, rawValueAxisDomains: AxisDomains, filteredValueAxisDomains: AxisDomains, rawSeriesDomains: SeriesDomainObjects, ordinalCategoryOrderOffets: number[] | null): ValueChangeData {
-  // a collapsed or inverted domain would weight every value delta at 0, skipping the animation
-  const rawValueAxisExtents = getSafeDomainExtents(rawValueAxisDomains);
-  const filteredValueAxisExtents = getSafeDomainExtents(filteredValueAxisDomains);
+  // extents over the union of the phase endpoints, so a value and its translating domain share the
+  // same pacing basis (for union axes start covers end, so this matches the start extent exactly);
+  // a collapsed or inverted domain would weight every value delta at 0, hence the safe extents
+  const rawValueAxisExtents = getSafeDomainExtents(getMaxAxisDomains(rawValueAxisDomains, endChartData.seriesData.raw.renderAxisDomains));
+  const filteredValueAxisExtents = getSafeDomainExtents(getMaxAxisDomains(filteredValueAxisDomains, endChartData.seriesData.filtered.renderAxisDomains));
   const valueDeltaData = createRawValueDeltaData(mochartConfig, startChartData.seriesData.raw.values,
     endChartData.seriesData.raw.values, rawValueAxisExtents, rawSeriesDomains);
   const filteredValueDeltaData = createFilteredValueDeltaData(mochartConfig,
@@ -542,10 +559,19 @@ function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartDa
 
   const categoryOrderDeltaData = createCategoryOrderDeltaData(mochartConfig, startChartData, endChartData, ordinalCategoryOrderOffets);
 
-  const deltaPercentage = Math.max(valueDeltaData.deltaPercentage, filteredValueDeltaData.deltaPercentage, categoryOrderDeltaData.deltaPercentage);
+  // non-zero only for translating axes: the value phase moves their render domains directly
+  const rawDomainDeltaData = getTranslationAxisDomainDeltas(startChartData.seriesData.raw.renderAxisDomains,
+    endChartData.seriesData.raw.renderAxisDomains, rawValueAxisExtents);
+  const filteredDomainDeltaData = getTranslationAxisDomainDeltas(startChartData.seriesData.filtered.renderAxisDomains,
+    endChartData.seriesData.filtered.renderAxisDomains, filteredValueAxisExtents);
+
+  const deltaPercentage = Math.max(valueDeltaData.deltaPercentage, filteredValueDeltaData.deltaPercentage, categoryOrderDeltaData.deltaPercentage,
+    rawDomainDeltaData.deltaPercentage, filteredDomainDeltaData.deltaPercentage);
   setValueDeltaFactors(valueDeltaData, deltaPercentage);
   setValueDeltaFactors(filteredValueDeltaData, deltaPercentage);
   setCategoryOrderDeltaFactors(categoryOrderDeltaData, deltaPercentage);
+  setAxisDeltaFactors(rawDomainDeltaData, deltaPercentage);
+  setAxisDeltaFactors(filteredDomainDeltaData, deltaPercentage);
 
   return {
     start: startChartData,
@@ -553,7 +579,8 @@ function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartDa
     deltas: {
       categoryOrder: categoryOrderDeltaData,
       raw: valueDeltaData,
-      filtered: filteredValueDeltaData
+      filtered: filteredValueDeltaData,
+      domain: { raw: rawDomainDeltaData, filtered: filteredDomainDeltaData }
     },
     end: endChartData,
     final: finalChartData

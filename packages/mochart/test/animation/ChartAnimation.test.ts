@@ -6,6 +6,7 @@ import {
   getEndChartData
 } from '../../src/animation/ChartAnimationData';
 import { getChartDataForValueDelta, getChartDataForAxisDelta } from '../../src/animation/ChartAnimation';
+import { isDomainTranslation, TRANSLATION_UNION_RATIO } from '../../src/animation/DomainAnimationData';
 import { oldIndexForNewIndex, newIndexForOldIndex, newIndexForMergedIndex } from '../../src/animation/CategoryAnimationData';
 import { makeConfig, ArrayOfObjectsDataProvider } from '../data/fixtures';
 
@@ -94,6 +95,99 @@ describe('getChartDataForAxisDelta (category added)', () => {
     // the animation moves the render domain only; the semantic domain switches with the chart data
     expect(getChartDataForAxisDelta(config, cad, true, 0).categoryData.renderAxisDomain).toEqual([0, 1]);
     expect(getChartDataForAxisDelta(config, cad, true, 1).categoryData.renderAxisDomain).toEqual([0, 2]);
+  });
+});
+
+// ANIM: a domain that translates (old and new barely overlap) skips the expand-to-union/contract
+// phases and interpolates its render domain during the value phase, so a flat value holds its
+// pixel position while only the tick labels move ("the pump" fix)
+describe('isDomainTranslation', () => {
+  it('classifies barely-overlapping domains as a translation', () => {
+    expect(isDomainTranslation([2.85, 3.15], [4.75, 5.25])).toBe(true);
+    expect(isDomainTranslation([0, 10], [30, 40])).toBe(true);
+  });
+
+  it('keeps ordinary growth and shrinkage on the union path', () => {
+    expect(isDomainTranslation([0, 100], [0, 50])).toBe(false);
+    expect(isDomainTranslation([0, 10], [0, 40])).toBe(false);
+    expect(isDomainTranslation([0, 10], [5, 15])).toBe(false); // union 15 = 1.5 × 10, at the threshold
+  });
+
+  it('leaves null and collapsed domains to the existing machinery', () => {
+    expect(isDomainTranslation([null, null], [4, 5])).toBe(false);
+    expect(isDomainTranslation([3, 3], [5, 5])).toBe(false);
+    expect(TRANSLATION_UNION_RATIO).toBe(1.5);
+  });
+});
+
+describe('translating value axis (flat data, all values equal)', () => {
+  const axisId = config.valueAxes[0].id;
+  const cad = getChartAnimationData(
+    config,
+    chartDataFor([{ c: 0, a: 3 }, { c: 1, a: 3 }]),
+    chartDataFor([{ c: 0, a: 5 }, { c: 1, a: 5 }])
+  );
+
+  it('skips the expansion and contraction phases', () => {
+    expect(cad.axisExpansionData.deltaPercentage).toBe(0);
+    expect(cad.axisContractionData.deltaPercentage).toBe(0);
+  });
+
+  it('carries a domain delta into the value phase', () => {
+    expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBeGreaterThan(0);
+  });
+
+  it('ends the value phase on the new render domain', () => {
+    const endDomain = cad.valueChangeData.end.seriesData.raw.renderAxisDomains[axisId];
+    expect(endDomain).toEqual(cad.valueChangeData.final.seriesData.raw.renderAxisDomains[axisId]);
+    expect(+endDomain[0]!).toBeLessThan(5);
+    expect(+endDomain[1]!).toBeGreaterThan(5);
+  });
+
+  it('keeps a flat value pinned to the domain midpoint on every frame', () => {
+    for (const percentage of [0, 0.2, 0.4, 0.6, 0.8, 1]) {
+      const chartData = getChartDataForValueDelta(config, cad, percentage);
+      const value = plain(chartData)![0]!;
+      const [lo, hi] = chartData.seriesData.raw.renderAxisDomains[axisId] as [number, number];
+      expect((value - lo) / (hi - lo)).toBeCloseTo(0.5, 10);
+    }
+  });
+
+  it('moves the domain strictly between its endpoints mid-frame', () => {
+    const [lo] = getChartDataForValueDelta(config, cad, 0.5).seriesData.raw.renderAxisDomains[axisId] as [number, number];
+    const [startLo] = cad.valueChangeData.start.seriesData.raw.renderAxisDomains[axisId] as [number, number];
+    const [endLo] = cad.valueChangeData.end.seriesData.raw.renderAxisDomains[axisId] as [number, number];
+    expect(lo).toBeGreaterThan(startLo);
+    expect(lo).toBeLessThan(endLo);
+  });
+});
+
+describe('non-translating updates keep the existing phases', () => {
+  it('an overlapping shrink still contracts after the value change', () => {
+    const cad = getChartAnimationData(
+      config,
+      chartDataFor([{ c: 0, a: 0 }, { c: 1, a: 100 }]),
+      chartDataFor([{ c: 0, a: 0 }, { c: 1, a: 50 }])
+    );
+    expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBe(0);
+    expect(cad.axisExpansionData.deltaPercentage).toBe(0);
+    expect(cad.axisContractionData.deltaPercentage).toBeGreaterThan(0);
+  });
+
+  it('an overlapping growth still expands before the value change', () => {
+    const cad = getChartAnimationData(
+      config,
+      chartDataFor([{ c: 0, a: 0 }, { c: 1, a: 10 }]),
+      chartDataFor([{ c: 0, a: 0 }, { c: 1, a: 40 }])
+    );
+    expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBe(0);
+    expect(cad.axisExpansionData.deltaPercentage).toBeGreaterThan(0);
+  });
+
+  it('the initial empty-to-data animation carries no domain delta', () => {
+    const cad = getChartAnimationData(config, null, chartDataFor([{ c: 0, a: 5 }]));
+    expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBe(0);
+    expect(cad.valueChangeData.deltas.domain.filtered.deltaPercentage).toBe(0);
   });
 });
 

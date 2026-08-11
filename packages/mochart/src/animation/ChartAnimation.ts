@@ -1,8 +1,8 @@
-import { getChartDataWithData, getChartDataWithCategoryData, getChartDataWithValues, getChartDataWithSeriesDomains, getChartDataWithRenderAxisDomains } from '../data/ChartData';
+import { getChartDataWithData, getChartDataWithCategoryData, getChartDataWithValues, getChartDataWithSeriesDomains, getChartDataWithRenderAxisDomains, getChartDataWithSeriesData } from '../data/ChartData';
 
 import { getCategoryDataWithNumericValues } from '../data/CategoryData';
 
-import { getSeriesDataWithSeriesValues } from '../data/SeriesData';
+import { getSeriesDataWithSeriesValues, getSeriesDataWithRenderAxisDomains } from '../data/SeriesData';
 
 import { domainKeys, positionOrComputedKeys, extraAndCopyKeys } from '../data/constants';
 
@@ -255,14 +255,26 @@ export function getChartDataForValueDelta(
     enhanceValueObjects(rawValues);
     enhanceValueObjects(filteredValues);
 
+    let chartData: AnimationChartData;
     if (valueDeltaData.deltas.categoryOrder.deltaPercentage !== 0) {
-      return getChartDataWithData(valueDeltaData.start,
+      chartData = getChartDataWithData(valueDeltaData.start,
         getCategoryDataWithNumericValues(valueDeltaData.start.categoryData, getCategoryNumericValuesForDelta(valueDeltaData.deltas.categoryOrder, deltaPercentage, percentage)),
         getSeriesDataWithSeriesValues(valueDeltaData.start.seriesData, rawValues as unknown as DataSeriesValueObjects, filteredValues as unknown as DataSeriesValueObjects));
     }
     else {
-      return getChartDataWithValues(valueDeltaData.start, rawValues as unknown as DataSeriesValueObjects, filteredValues as unknown as DataSeriesValueObjects);
+      chartData = getChartDataWithValues(valueDeltaData.start, rawValues as unknown as DataSeriesValueObjects, filteredValues as unknown as DataSeriesValueObjects);
     }
+    // translating axes: the render domain moves with the values instead of via the union phases
+    const domainDeltas = valueDeltaData.deltas.domain;
+    if (domainDeltas.raw.deltaPercentage !== 0 || domainDeltas.filtered.deltaPercentage !== 0) {
+      const rawRenderAxisDomains = getAxisDomainsForDeltas(valueDeltaData.start.seriesData.raw.renderAxisDomains,
+        valueDeltaData.end.seriesData.raw.renderAxisDomains, domainDeltas.raw, deltaPercentage, percentage);
+      const filteredRenderAxisDomains = getAxisDomainsForDeltas(valueDeltaData.start.seriesData.filtered.renderAxisDomains,
+        valueDeltaData.end.seriesData.filtered.renderAxisDomains, domainDeltas.filtered, deltaPercentage, percentage);
+      chartData = getChartDataWithSeriesData(chartData,
+        getSeriesDataWithRenderAxisDomains(chartData.seriesData, rawRenderAxisDomains, filteredRenderAxisDomains));
+    }
+    return chartData;
   }
 }
 
