@@ -8,7 +8,7 @@
 // Usage: node scripts/ensure-libs-fresh.mjs  — run as a prebuild by every entry point that
 // bundles against dist. Importable as ensureLibsFresh() for scripts that need it inline.
 import { execSync } from 'node:child_process';
-import { readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -42,7 +42,9 @@ function distMtime(pkgDir) {
 export function staleLibs() {
   return libDirs.filter((dir) => {
     const pkgDir = join(rootDir, 'packages', dir);
-    const srcMtime = Math.max(newestMtime(join(pkgDir, 'src')), newestMtime(join(pkgDir, 'package.json')));
+    const buildConfig = join(pkgDir, 'tsconfig.build.json');
+    const srcMtime = Math.max(newestMtime(join(pkgDir, 'src')), newestMtime(join(pkgDir, 'package.json')),
+      existsSync(buildConfig) ? newestMtime(buildConfig) : 0);
     return srcMtime > distMtime(pkgDir);
   });
 }
