@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 48 fixed, 1 needing an answer, 111 open.** TOOL-2 is deferred to release time by
+**Status: 49 fixed, 1 needing an answer, 110 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -2370,7 +2370,7 @@ The stale comment in the validator itself named the same wrong properties and ha
 too, since that is where the next person looks to find out why the check is strict.
 
 ### DOC-5 — "Bar fills default to half opacity" — the default is `0.8`
-**Medium · Doc inconsistency · [recipes/color-by-value.md:35](packages/mochart-docs/recipes/color-by-value.md#L35) and [examples/colorByValue.ts:18](packages/mochart-docs/examples/colorByValue.ts#L18)** — **Open**
+**Medium · Doc inconsistency · [recipes/color-by-value.md:35](packages/mochart-docs/recipes/color-by-value.md#L35) and [examples/colorByValue.ts:18](packages/mochart-docs/examples/colorByValue.ts#L18)** — **Fixed**
 
 Both `shapeStyle.normal.fillOpacity` and `strokeOpacity` default to `0.8` for `bar` (0.9 line/none,
 0.8 area). Nothing defaults to 0.5. It is the stated justification for the example overriding both
@@ -2378,7 +2378,13 @@ to `1`, and a reader computing expected colours from "half opacity" gets the wro
 duplicate wording in the example file is why the CI example check can't catch it — the check
 validates configs, not comments.
 
-**Fix:** "Bar fills and strokes default to `0.8` opacity…" in both places.
+**Fixed.** Bars default to `0.8` for both fill and stroke opacity, not half. Corrected in the recipe
+and in the example's own comment, which the recipe embeds — so both copies said it.
+
+The example's override to full opacity is still right; only the reason given for it was wrong.
+
+Nothing would have caught this: the example checker validates the config object, never the
+comments.
 
 ### DOC-6 — the object-sections list in the config guide is missing `accessibility` and `pie`
 **Medium · Doc gap · [guide/config-model.md:31](packages/mochart-docs/guide/config-model.md#L31)** — **Open**
