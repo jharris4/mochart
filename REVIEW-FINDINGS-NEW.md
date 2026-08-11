@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 34 fixed, 1 needing an answer, 124 open.** TOOL-2 is deferred to release time by
+**Status: 35 fixed, 1 needing an answer, 123 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -177,7 +177,7 @@ Regression test covers all three bad inputs and asserts the array keeps exactly 
 fails three ways on the unpatched source.
 
 ### DATA-4 — date category axes never preserve `axisData` identity
-**Medium · Bug · [AxisData.ts:33-45](packages/mochart/src/data/AxisData.ts#L33)** — **Open**
+**Medium · Bug · [AxisData.ts:33-45](packages/mochart/src/data/AxisData.ts#L33)** — **Fixed**
 
 `scaleMutator` keeps the old scale when `areArraysAndEqual(oldScale.domain(), newScale.domain())`,
 but that helper compares with `!==`. A d3 time scale rebuilds its domain `Date` objects
@@ -191,7 +191,19 @@ gates a full DOM text remeasure on `oldAxisData !== axisData`, so for every
 `type: 'date'` + `scale: 'linear'` chart that optimization is dead and the remeasure
 runs on every animated frame.
 
-**Fix:** compare scale domains by value (`+a[i] === +b[i]`, handling `Date`).
+**Fixed.** `scaleMutator` now compares domains with a date-aware check local to `AxisData.ts`
+rather than the shared `areArraysAndEqual`. A date scale rebuilds its `Date` objects on every
+`domain()` call, so the identity comparison never matched and the axis scale was replaced on every
+frame — which also defeated the `oldAxisData !== axisData` check that skips re-measuring axis text
+([Chart.ts:728](packages/mochart/src/components/Chart.ts#L728)).
+
+Two corrections to the finding. The neighbouring function it cites as already documenting this no
+longer exists. And its suggested fix — coercing with `+` inside `areArraysAndEqual` — would break
+that helper's other caller in `Series.ts`, because two equal string arrays would coerce to `NaN`
+and compare unequal. The comparison is therefore local, and `areArraysAndEqual` is untouched.
+
+Tests cover an unchanged date domain (keeps the old scale), a changed one, a changed range, and a
+numeric scale; the first fails on the unpatched source.
 
 ### DATA-5 — `groupSeriesCounts`/`stackSeriesCounts` are computed everywhere, read nowhere
 **Low · Inconsistency · [SeriesData.ts:26-27](packages/mochart/src/data/SeriesData.ts#L26)** — **Open**
