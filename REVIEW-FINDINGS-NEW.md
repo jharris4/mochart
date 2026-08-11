@@ -2554,6 +2554,17 @@ placeholder. That means changing the gate from "no series configured" to "no ser
 is a visible behaviour change for every chart with a legend and interacts with
 [DATA-6](#data-6--getseriescontainerfilteredseriescounts-counts-unfiltered-series). Raised rather
 than decided here.
+---
+
+# 10. Demo applications
+
+Six galleries are meant to be feature-equivalent ports. Parity is **good** — every mode, tab,
+showcase, editor control, unused-property filter, export/share menu, dark-mode toggle, pie panel,
+chart-type generator, random generator and mobile overflow menu is present in all six, all six are
+built by CI and deployed, no demo reaches past core's public API, `demos.json` has no missing files
+or orphans, all `demoText` keys are consumed, and menu dismissal/disclosure ARIA/focus-return is
+complete and consistent. The divergences below are the whole set.
+
 
 ### DEMO-1 — `build:pages` never rebuilds `@mochart/editor`, so the site can ship a stale editor
 **High · Bug · [scripts/build-pages.mjs:24](scripts/build-pages.mjs#L24)** **[verified]** — **Fixed**
