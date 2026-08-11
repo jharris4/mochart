@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 49 fixed, 1 needing an answer, 110 open.** TOOL-2 is deferred to release time by
+**Status: 50 fixed, 1 needing an answer, 109 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -2387,14 +2387,22 @@ Nothing would have caught this: the example checker validates the config object,
 comments.
 
 ### DOC-6 — the object-sections list in the config guide is missing `accessibility` and `pie`
-**Medium · Doc gap · [guide/config-model.md:31](packages/mochart-docs/guide/config-model.md#L31)** — **Open**
+**Medium · Doc gap · [guide/config-model.md:31](packages/mochart-docs/guide/config-model.md#L31)** — **Fixed**
 
 The guide enumerates 9 of the 11 object sections the enhancer emits. The authoritative set
 (verified by `checkSectionCoverage.ts`) also contains `accessibility` and `pie`. The list-sections
 bullet immediately below *is* complete, so the object list reads as exhaustive too — and both
 omitted sections are first-class with dedicated pages.
 
-**Fix:** add both to the bullet.
+**Fixed.** The list now names all twelve object sections. It was missing three, not two — the
+finding predates `clipIndicator`, which was added while working through
+[ANIM-1](#anim-1--an-infinity-phase-duration-wedges-the-chart-in-a-permanent-raf-loop). Verified by
+comparing the guide against the section registry rather than by eye.
+
+The list-sections bullet beside it was already complete, six of six.
+
+Worth noting the asymmetry this exposes: a missing section in the registry is caught by a CI check,
+but a missing section in the prose beside it is not. That is why this one drifted.
 
 ### DOC-7 — pie keyboard activation is described as "a click at the slice's center"
 **Medium · Doc inconsistency · [guide/accessibility.md:81](packages/mochart-docs/guide/accessibility.md#L81) vs [PieSeries.ts:116](packages/mochart/src/components/PieSeries.ts#L116)** — **Open**
