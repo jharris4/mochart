@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 32 fixed, 1 needing an answer, 122 open.** TOOL-2 is deferred to release time by
+**Status: 32 fixed, 1 needing an answer, 123 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -62,10 +62,10 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [8](#8-framework-bindings-export-and-editor) | Bindings, export & editor | – | 2 | 6 | 4 | 12 |
 | [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
 | [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 7 | 22 |
-| [11](#11-tests-and-coverage) | Tests & coverage | – | 3 | 8 | 5 | 16 |
+| [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 5 | 17 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 6 | 4 | 13 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **31** | **70** | **52** | **154** |
+| | **Total** | **1** | **32** | **70** | **52** | **155** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -2893,6 +2893,58 @@ exactly these types (`histogram`, `waterfall`, `heatmap`, `candlestick`, `candle
 `ohlc`) and `@mochart/demo-common`'s `generateDemoDataProvider` re-runs the core helper on random
 inputs — which is what the demo actually does, so the snapshots would pin reachable states.
 Failing that, transform `rangeProperty` alongside `property` so bands at least stay coherent.
+
+### TEST-17 — no test toggles a visibility flag on a mounted chart, and the gap hides a crash
+**High · Test gap · [TextMeasurement.ts:380](packages/mochart/src/utils/TextMeasurement.ts#L380), [LegendLayout.ts:53](packages/mochart/src/layout/LegendLayout.ts#L53)** **[verified]** — **Open**
+
+*Found by asking whether hiding and showing chart parts is covered; it is not.*
+
+**The gap.** ~25 config flags hide or show part of the chart (`visible` on the chart, legend,
+crosshair, tooltip and each axis; the `show*` family on axes, series, legend and tooltip). Nothing
+in the suite flips one on an *already-mounted* chart:
+
+- `ConfigUpdateSmoke.test.ts` — whose oracle is exactly right for this ("after A → B settles, the
+  retained DOM must match a fresh mount of B") — contains **zero** occurrences of `visible`.
+- The golden suite's config transitions change `title.text`, a series title, `renderer`, `animate`
+  on/off, and remove a series ([golden.test.ts:435](packages/mochart/test/golden/golden.test.ts#L435)).
+  None touch a visibility flag.
+- Every other use of `visible: false` in the suite is a *static mount* that asserts the part is
+  absent. Absence is checked; the transition into presence is not.
+
+This matters more than an ordinary gap because the hidden parts are the **text-measuring** ones.
+Measurement happens post-commit against real DOM, so a part that was hidden has no measurement to
+carry into the frame where it becomes visible.
+
+**The crash it hides.** Mount with `legend: { visible: false }`, then update to `visible: true`:
+
+```
+TypeError: legendItemTextRawBounds is not iterable
+  at getLegendHeight   src/layout/LegendLayout.ts:53
+  at Chart.derive      src/components/Chart.ts:635
+  at ChartController.update
+```
+
+`getLegendItemTextRawBounds` (and `getLegendItemTextBounds` beside it) returns the `emptyBounds`
+**object** when the legend is hidden and an **array** when it is visible. Layout guards the
+iteration on `legendConfig.visible` — but on the transition the config already says visible while
+the measurement still in state is the object from the hidden frame. The type declaration at
+[layout.ts:132](packages/mochart/src/types/layout.ts#L132) states the invariant the bug breaks:
+*"the layout code only iterates these behind a `legendConfig.visible` check"*. That check is on the
+config; the data is a frame behind it.
+
+Reachable from every binding — a changed config prop goes through `ChartController.update`, which
+is the frame in the trace above.
+
+**Scope, measured.** Ten other transitions were probed the same way and all converge to a fresh
+mount: chart title, category axis, value axis, tick marks, grid lines, `showInLegend`, tooltip,
+crosshair, series labels, axis line, base line, an axis title appearing, and legend icon shapes.
+So the defect is specific to the two legend measurement functions, not systemic — but nothing
+would have caught it, or would catch the next one.
+
+**Fix:** return an empty *array* from both legend measurement functions so the hidden shape matches
+the visible one, and drop the now-redundant union from their return types. Then add visibility
+transitions to `ConfigUpdateSmoke`, which already has the right oracle — at minimum one scenario per
+text-measuring part (chart title, legend, category axis, each value axis) in both directions.
 
 ---
 
