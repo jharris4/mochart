@@ -30,7 +30,8 @@ Sections come in two shapes:
 
 - **Object sections** configure a single thing: `title`,
   `categoryAxis`, `legend`, `tooltip`, `crosshair`,
-  `animation`, `chart`, `plot`, `colorPalette`.
+  `animation`, `chart`, `plot`, `colorPalette`, `accessibility`, `pie`,
+  `clipIndicator`.
 - **List sections** configure a collection and take an array of config
   objects: `series`, `valueAxes`, `seriesGroups`,
   `seriesStacks`, `linearGradients`, `radialGradients`.
