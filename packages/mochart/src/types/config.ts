@@ -3145,6 +3145,8 @@ export interface DetailedConfigValidation extends ConfigValidation {
 /** The fully built config returned by buildMochartConfig (all defaults applied). */
 export interface MochartConfig {
   id?: unknown;
+  /** Carried through from the input config when it supplied one; defaults never add it. */
+  version?: string;
   accessibility: AccessibilityConfig;
   animation: AnimationConfig;
   chart: ChartConfig;

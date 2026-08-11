@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 52 fixed, 2 needing an answer, 107 open.** TOOL-2 is deferred to release time by
+**Status: 53 fixed, 2 needing an answer, 106 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1751,14 +1751,26 @@ supported chart type. READMEs are the one documentation surface with no CI ratch
 **Fix:** add a "Chart helpers" section mirroring `api.md:142-200`, and add pie/donut to Features.
 
 ### API-6 — `MochartConfig` omits `version`, which the built config carries at runtime
-**Medium · Inconsistency · [types/config.ts:3009](packages/mochart/src/types/config.ts#L3009)** — **Open**
+**Medium · Inconsistency · [types/config.ts:3009](packages/mochart/src/types/config.ts#L3009)** — **Fixed**
 
 `MochartInputConfig.version?: string` exists but `MochartConfig` has no `version`. `applyDefaults`
 spreads the input config, so `enhanceConfig({version:'1.0.0', …}).version === '1.0.0'` at runtime
 while TypeScript says the property does not exist. Round-tripping an enhanced config back out —
 what the editor and demo "config JSON" tabs do — loses the version in typed code or needs a cast.
 
-**Fix:** add `version?: string` to `MochartConfig` with the same JSDoc.
+**Fixed.** `MochartConfig` now declares `version?: string`. Adding an optional property is purely
+additive — no existing object literal stops compiling, and nothing has to start supplying it.
+
+One correction to the finding: the built config does **not** always carry a version. Defaults never
+add one, and `enhanceConfig` does not migrate, so it is present only when the input supplied it. The
+optional type says exactly that, which is why optional is right here rather than required.
+
+Test asserts both halves — a supplied version comes back, an omitted one stays undefined — so the
+type and the runtime cannot drift apart.
+
+Deliberately not done: making `enhanceConfig` migrate so the version is always present. That is a
+behaviour change and belongs with
+[CONFIG-6](#config-6--the-documented-migration-path-is-never-wired-into-any-entry-point).
 
 ### API-7 — text truncation splits surrogate pairs, emitting lone surrogates
 **Low · Bug · [TextTruncation.ts:127](packages/mochart/src/utils/TextTruncation.ts#L127)** — **Open**
