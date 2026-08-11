@@ -59,3 +59,29 @@ describe('value deltas on a degenerate value-axis domain', () => {
     expect(percentage).toBeLessThanOrEqual(1);
   });
 });
+
+// The weight is how far values move as a fraction of the axis height, and it paces the animation.
+// A value ending outside an explicit min/max is clipped, so it cannot move more than one axis
+// height on screen; an uncapped weight multiplied the configured duration by that overshoot.
+describe('values outside an explicit axis range', () => {
+  it('caps the weight at one axis extent', () => {
+    const percentage = deltaPercentageFor({ min: 0, max: 200 },
+      [{ c: 0, v: 10 }, { c: 1, v: 12 }],
+      [{ c: 0, v: 10 }, { c: 1, v: 1408 }]);
+    expect(percentage).toBe(1);
+  });
+
+  it('caps it however far outside the value lands', () => {
+    const percentage = deltaPercentageFor({ min: 0, max: 200 },
+      [{ c: 0, v: 10 }, { c: 1, v: 12 }],
+      [{ c: 0, v: 10 }, { c: 1, v: 14080 }]);
+    expect(percentage).toBe(1);
+  });
+
+  it('leaves a move inside the range proportional', () => {
+    const percentage = deltaPercentageFor({ min: 0, max: 200 },
+      [{ c: 0, v: 10 }, { c: 1, v: 10 }],
+      [{ c: 0, v: 10 }, { c: 1, v: 60 }]);
+    expect(percentage).toBeCloseTo(0.25);
+  });
+});
