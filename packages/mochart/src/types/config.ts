@@ -284,7 +284,8 @@ export interface AnimationConfig {
    * loaded.
    *
    * Duration (in milliseconds) of the first render animation when the chart
-   * mounts with data.
+   * mounts with data, and of the replay after a structural config change
+   * rebuilds the chart.
    *
    * @default 1000
    */

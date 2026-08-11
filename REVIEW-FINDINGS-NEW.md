@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 41 fixed, 1 needing an answer, 118 open.** TOOL-2 is deferred to release time by
+**Status: 42 fixed, 1 needing an answer, 117 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -653,7 +653,7 @@ Three of its four cases fail on the unpatched source. Golden snapshots unaffecte
 unchanged.
 
 ### ANIM-3 — a structural config change replays the full mount animation, undocumented
-**Medium · Doc gap · [AnimatedDataSource.ts:112-114](packages/mochart/src/chart/AnimatedDataSource.ts#L112), [staged-animation.md:51](packages/mochart-docs/guide/staged-animation.md#L51)** — **Open**
+**Medium · Doc gap · [AnimatedDataSource.ts:112-114](packages/mochart/src/chart/AnimatedDataSource.ts#L112), [staged-animation.md:51](packages/mochart-docs/guide/staged-animation.md#L51)** — **Fixed** (documented)
 
 `hasConfigStructureChange` routes to `start()`, which discards `chartData` and rebuilds with
 `initialAnimation = true`. The chart collapses to the axis base and regrows at
@@ -666,9 +666,22 @@ via `update({ config })` — first frame after the update has every segment 1-2 
 plot floor, taking 96 frames (~1.6 s) to settle. Any host with a live config editor — the six
 shipped demos, for one — flashes the whole chart to zero on an edit that only removed a series.
 
-**Fix:** document which edits count as structural (series/axis/stack set, ids, chart type,
-category-axis property/type/scale) on `initialDuration` and in `staged-animation.md`. If the
-flash is unintended, carry the current `chartData` into `start()` for the structural path.
+**Fixed as a documentation gap — the behaviour is deliberately unchanged.** Rebuilding is correct
+for edits that change what the chart is: the transition path assumes the old data still matches the
+new config, which is false for a chart-type or category-property change. What was missing was any
+mention of it.
+
+Three places now say so: a new "Structural config changes rebuild the chart" section in the staged
+animation guide listing every edit that qualifies, the `initialDuration` description (it also paces
+the replay after a rebuild, not just mount), and the `update` doc comment on the chart handle, which
+had claimed config changes animate through the staged phases with no exception.
+
+The guide also states two things that were previously easy to get wrong: config edits are applied
+instantly rather than animated — the phases animate *data* changes — and switching a series off by
+clicking the legend is filtering, not a config edit, so it does not rebuild.
+
+One entry in that list does not belong there and is worth changing rather than documenting:
+[ANIM-7](#anim-7--showinlegend-rebuilds-the-whole-chart-and-replays-its-opening-animation).
 
 ### LAYOUT-2 — `keepInside` lets an oversized tooltip escape past the left/top edge
 **Low · Bug · [TooltipLayout.ts:50-63](packages/mochart/src/layout/TooltipLayout.ts#L50)** — **Open**
