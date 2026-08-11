@@ -581,6 +581,28 @@ describe('tooltip', () => {
     expect(focuses[focuses.length - 1].focusedSeriesId).toBeNull();
   });
 
+  it('does not touch focus when the pointer crosses a switched-off tooltip row', () => {
+    // entering a filtered row correctly applies no focus, but leaving it used to clear focus
+    // anyway, wiping a selection made elsewhere and sending the host a needless callback
+    const focuses: ChartFocus[] = [];
+    const container = mountChart(makeConfig({
+      series: [{ property: 'sales' }, { property: 'costs' }],
+      tooltip: { focusSeriesOnMouseOver: true }
+    }), {
+      onFocus: focus => { focuses.push(focus); },
+      filteredSeriesIds: { S1: true }
+    });
+    const root = chartRoot(container);
+    mouse(root, 'mouseenter', 100, 100);
+    mouse(root, 'click', 100, 100);
+
+    const filteredRow = container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S1"]')!;
+    const before = focuses.length;
+    filteredRow.dispatchEvent(new MouseEvent('mouseenter', {}));
+    filteredRow.dispatchEvent(new MouseEvent('mouseleave', {}));
+    expect(focuses.length).toBe(before);
+  });
+
   it('closes when the tooltip content is clicked unless closeOnClick is off', () => {
     const container = mountChart(makeConfig());
     const root = chartRoot(container);

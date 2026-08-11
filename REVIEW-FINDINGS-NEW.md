@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 37 fixed, 1 needing an answer, 121 open.** TOOL-2 is deferred to release time by
+**Status: 38 fixed, 1 needing an answer, 120 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -858,7 +858,7 @@ period. The host's enter/leave callbacks stay inverted until the pointer leaves 
 map, and in the no-size / no-config early returns.
 
 ### COMP-5 — leaving a *filtered* tooltip row clears the focused series
-**Medium · Bug · [TooltipContent.ts:378](packages/mochart/src/components/TooltipContent.ts#L378)** — **Open**
+**Medium · Bug · [TooltipContent.ts:378](packages/mochart/src/components/TooltipContent.ts#L378)** — **Fixed**
 
 `onSeriesMouseEnter` correctly skips filtered series ([:373](packages/mochart/src/components/TooltipContent.ts#L373)),
 but `onSeriesMouseLeave` has no matching guard and unconditionally emits `onFocus({ seriesId: null })`.
@@ -867,8 +867,18 @@ The same handlers are wired to `focusin`/`focusout`, so keyboard traversal hits 
 nothing (correct) but leave drops `S0`'s focus. The legend gets this right via its `hoverActive`
 guard ([Legend.ts:266](packages/mochart/src/components/Legend.ts#L266)).
 
-**Fix:** mirror `LegendItem.hoverActive` — record on enter whether focus was applied, and only
-emit the clearing `onFocus` on leave/blur if it was.
+**Fixed.** The leave now only clears focus when the matching enter actually applied it, using the
+same `hoverActive` flag the legend already uses — including for the reason its comment gives: the
+filtered flag can change mid-hover, so re-checking it on the way out would be wrong.
+
+The finding overstates the symptom. In its own example the focus had already been cleared a moment
+earlier by the previous row's own leave, so nothing extra was lost. The real cost is narrower but
+still real: focus set some other way — a click, a plot interaction, or set by the host — was wiped
+when the pointer merely crossed a switched-off row, and the host received a needless callback each
+time, since nothing compares the new focus against the old.
+
+Test enters and leaves a switched-off row and asserts no focus callback is sent at all; it fails on
+the unpatched source.
 
 ### COMP-6 — Legend drops keyboard focus to `<body>` when its focused item disappears
 **Medium · Bug (a11y) · [Legend.ts:176-220](packages/mochart/src/components/Legend.ts#L176)** — **Open**
