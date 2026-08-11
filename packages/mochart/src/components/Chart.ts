@@ -776,6 +776,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const tooltipValueObject = getCategorySeriesValueObject(chartData!, tooltipCategoryIndex);
     const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.props, { ...this.state, tooltipCategoryIndex });
     this.setState({ tooltipCategoryIndex, tooltipValueObject, tooltipLayoutInfo });
+    // announce here so the tooltip's own prev/next buttons read out, not just the keyboard
+    this.announceTooltipCategory(tooltipCategoryIndex);
   }
 
   /** Open or close explicitly: enter must always open and leave always close, or the pairing inverts. */
@@ -996,7 +998,6 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           key === 'Home' ? 0 : categoryCount - 1;
         if (nextIndex !== tooltipCategoryIndex) {
           this.stepTooltipCategoryIndex(nextIndex);
-          this.announceTooltipCategory(nextIndex);
         }
       }
     }

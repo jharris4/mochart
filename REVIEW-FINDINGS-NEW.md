@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 36 fixed, 1 needing an answer, 122 open.** TOOL-2 is deferred to release time by
+**Status: 37 fixed, 1 needing an answer, 121 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -820,7 +820,7 @@ source. The reentrancy test is the classic responsive-container pattern — the 
 Full core suite passes (1369 tests), typecheck and lint clean.
 
 ### COMP-3 — tooltip prev/next buttons leave the `aria-live` announcer stale
-**Medium · Bug (a11y) · [Chart.ts:742](packages/mochart/src/components/Chart.ts#L742), used by [TooltipControls.ts:54](packages/mochart/src/components/TooltipControls.ts#L54)** — **Open**
+**Medium · Bug (a11y) · [Chart.ts:742](packages/mochart/src/components/Chart.ts#L742), used by [TooltipControls.ts:54](packages/mochart/src/components/TooltipControls.ts#L54)** — **Fixed**
 
 `announceTooltipCategory` is called only from `onPlotKeyDown`. `updateTooltipCategoryIndex` —
 the path the tooltip's Previous/Next buttons use — never touches the `role="status"` region,
@@ -829,8 +829,20 @@ ArrowRight (live = `"Feb: …"`), then click **Previous category**: the tooltip 
 the live region still reads `"Feb: Series S0: 20.00"` — the last announcement now contradicts
 the visible tooltip.
 
-**Fix:** call `this.announceTooltipCategory(tooltipCategoryIndex)` inside
-`updateTooltipCategoryIndex`, and drop the now-redundant explicit calls in `onPlotKeyDown`.
+**Fixed.** `updateTooltipCategoryIndex` now announces the category it moves to, so the tooltip's own
+prev/next buttons read out rather than only the keyboard arrows.
+
+One correction to the fix suggested above: only *one* of the three existing announce calls became
+redundant. The other two sit on the tooltip-open path, which goes through `setTooltipOpen` rather
+than this method, and removing them would have silenced the announcement when the tooltip first
+opens. Only the arrow-key call was removed.
+
+Checked that this cannot cause repeated announcements while the pointer moves: the follow-pointer
+path writes state directly rather than calling this method, so the only callers are the step
+buttons and the arrow keys.
+
+Test opens the tooltip with the keyboard, clicks the next button, and asserts the live region moves
+from the first category to the second; it fails on the unpatched source.
 
 ### COMP-4 — `isMouseWithinChart` latches on when the pointer handlers are detached
 **Medium · Bug · [Chart.ts:348](packages/mochart/src/components/Chart.ts#L348), gated at [:1044](packages/mochart/src/components/Chart.ts#L1044)** — **Open**
