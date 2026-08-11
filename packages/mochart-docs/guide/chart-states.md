@@ -67,6 +67,32 @@ been laid out (this chart is told `width: 0` while its box stays visible):
 
 <LiveChart :config="states.config" :data="states.data" :chart-props="{ width: 0 }" :height="180" :demo-link="false" />
 
+## Interaction while loading
+
+Loading is the only state that draws a working chart and then holds part of it
+back — with no data or an error there is no plot to interact with in the first
+place. The rule is that **the chart reports but does not commit**:
+
+- Anything keyed to a **series or axis id** keeps working, because ids come from
+  the config and survive a data change. Legend filtering, tooltip-row filtering,
+  and axis hover focus all stay live.
+- Anything keyed to a **category position** is suppressed, because it may name
+  something that no longer exists once the new data lands. Plot clicks, the
+  plot's arrow keys, and series or slice activation are all ignored, and no new
+  tooltip opens — including the one `tooltip.followPointer` would otherwise open
+  on hover.
+- Whatever is **already open** can still be dismissed. A tooltip opened before
+  the load stays put, and Escape and its close button keep working.
+
+Pointer movement is still reported throughout, so `onChartMouseEnter`,
+`onChartMouseMove` and `onChartMouseLeave` keep firing and stay correctly paired.
+
+The tooltip's previous/next buttons are the one deliberate exception: they move a
+category position, but only within a tooltip that is already open.
+
+One practical detail: the loading message is a real element sized to its own
+content, so the pointer does not reach the chart underneath it.
+
 ## Customizing what renders
 
 Each state has a factory prop that returns a DOM node (or string). The
