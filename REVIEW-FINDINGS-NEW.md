@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 35 fixed, 1 needing an answer, 123 open.** TOOL-2 is deferred to release time by
+**Status: 36 fixed, 1 needing an answer, 122 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -623,7 +623,7 @@ Notes for whoever implements it:
   concern and must not leak back into anything that reads the configured value.
 
 ### LAYOUT-1 — negative `width`/`height` reach background rects on small or heavily spaced charts
-**Medium · Bug · [PlotLayout.ts:91](packages/mochart/src/layout/PlotLayout.ts#L91), [SpacingLayoutInfo.ts:47-53](packages/mochart/src/layout/SpacingLayoutInfo.ts#L47), [LegendLayout.ts:113-121](packages/mochart/src/layout/LegendLayout.ts#L113)** — **Open**
+**Medium · Bug · [PlotLayout.ts:91](packages/mochart/src/layout/PlotLayout.ts#L91), [SpacingLayoutInfo.ts:47-53](packages/mochart/src/layout/SpacingLayoutInfo.ts#L47), [LegendLayout.ts:113-121](packages/mochart/src/layout/LegendLayout.ts#L113)** — **Fixed**
 
 `getPlotHeight` returns `innerHeight - titleHeight - legendHeight` unclamped;
 `createSpacingLayoutInfo` guards only on `width > 0`, never height; `getLegendLayoutInfo`
@@ -637,8 +637,20 @@ fixed only the top-level gate in `Chart.sync`, so any positive-but-small size st
 Negative `width`/`height` is an SVG error value: browsers drop the element, so host-styled
 backgrounds silently disappear, and strict SVG→PNG rasterisers reject the document.
 
-**Fix:** `Math.max(0, …)` in `getPlotHeight`; mirror the `width > 0` guard for height in
-`createSpacingLayoutInfo`; clamp `itemWidth`/`textWidth` in the legend layout.
+**Fixed.** Clamped at the layout sources rather than at each drawing site, so the clip rects fed by
+the same layout info are covered too: `getPlotHeight`, the legend item widths, and — the one the
+finding missed — the inner bounds in `getSpacingInnerBounds`, which is where the chart-level
+background got its negative height. `createSpacingLayoutInfo` also now guards on height as well as
+width.
+
+All three cases named above were reproduced first and all three now emit no negative rect. Note the
+plot *contents* were already safe (the series extents are clamped to 1 elsewhere), so the visible
+symptom was a missing background rather than a broken chart.
+
+New test `test/layout/NegativeBounds.test.ts` renders the three cases and asserts no rect has a
+negative width or height, plus one normal chart to show the clamps do not disturb ordinary layout.
+Three of its four cases fail on the unpatched source. Golden snapshots unaffected — 130 pass
+unchanged.
 
 ### ANIM-3 — a structural config change replays the full mount animation, undocumented
 **Medium · Doc gap · [AnimatedDataSource.ts:112-114](packages/mochart/src/chart/AnimatedDataSource.ts#L112), [staged-animation.md:51](packages/mochart-docs/guide/staged-animation.md#L51)** — **Open**

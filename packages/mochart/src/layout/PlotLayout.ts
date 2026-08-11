@@ -89,7 +89,8 @@ export function getAxisSize(axisConfig: AxisConfigBase, rotatedTickBounds: Size,
 }
 
 export function getPlotHeight(innerHeight: number, titleHeight: number, legendHeight: number): number {
-  return innerHeight - titleHeight - legendHeight;
+  // title and legend can exceed a small chart; a negative height reaches background and clip rects
+  return Math.max(0, innerHeight - titleHeight - legendHeight);
 }
 
 export function setExtraAxisInfo(axisLayoutInfo: AxisLayoutInfo, axisConfig: AxisConfigBase, axisTickInfo: AxisTickInfo, tickBounds: TextBounds, rotatedTickBounds: Bounds, titleBounds: TextBounds, thresholdTitleBounds: Record<number, TextBounds>, vertical: boolean, inverted: boolean): void {

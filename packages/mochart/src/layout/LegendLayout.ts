@@ -110,7 +110,7 @@ export function getLegendLayoutInfo(mochartConfig: EnhancedMochartConfig, chartT
     let maxX = x;
     let textWidth: number, itemWidth: number, itemRawWidth: number;
     for (const itemTextBounds of legendItemTextRawBounds) {
-      textWidth = Math.min(itemTextBounds.width, itemTextMaxWidth);
+      textWidth = Math.max(0, Math.min(itemTextBounds.width, itemTextMaxWidth));
       itemWidth = textWidth + iconWidth + itemSpacingWidth;
       itemRawWidth = itemTextBounds.width + iconWidth + itemSpacingWidth;
       if (x !== legendMinSpacingX && (x + itemWidth) > legendMaxSpacingX) {
