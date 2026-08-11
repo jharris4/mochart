@@ -38,9 +38,9 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 30 fixed (1 partial), 4 needing an answer, 124 open.** ANIM-1's and ANIM-2's follow-ups
-are both **implemented** — see their entries for what landed and where the build revised each
-design. Every remaining High finding is waiting on an answer.
+**Status: 30 fixed, 3 needing an answer, 124 open.** Nothing is partially fixed any more. ANIM-1's
+and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
+build revised each design. The two remaining High findings are waiting on an answer.
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -2944,7 +2944,7 @@ publish against an unpublished `@mochart/core` is exactly the failure the findin
 > `release.yml` with `--provenance`, and the pack check together.
 
 ### TOOL-3 — no dependency audit anywhere, and 9 known vulnerabilities are present
-**High · Tooling gap · [ci.yml:20-33](.github/workflows/ci.yml#L20); no `dependabot.yml`, no `renovate.json`** — **Partially fixed**, with an open question
+**High · Tooling gap · [ci.yml:20-33](.github/workflows/ci.yml#L20); no `dependabot.yml`, no `renovate.json`** — **Fixed**
 
 CI runs lint/deadcode/typecheck/test/e2e/build but never `npm audit`. `npm audit` reports **9
 vulnerabilities (3 moderate, 6 high)** today: `react-router 7.12.0–7.18.1` (high, CSRF bypass —
@@ -2967,18 +2967,36 @@ exits 1 on this checkout right now, so wiring it into CI would have turned every
 overnight for advisories none of them introduced. The finding offers both placements; this is the
 one that does not break the build while you are away.
 
-> **QUESTION (needs an answer):** the 9 live advisories are untouched. `npm audit fix` claims to
-> resolve them, but it rewrites `package-lock.json`, and `react-router` is a direct dependency of
-> the deployed `@mochart/demo-react` — so it wants a real build-and-click, not an unattended
-> command. **Which do you want:** (a) **[recommended]** run `npm audit fix`, then
-> `npm run build:pages` and click through the React gallery before committing the lockfile;
-> (b) pin the three advisory roots (`react-router`, `undici`, `postcss`) explicitly and bump them
-> deliberately; or (c) leave them and let the new weekly audit job report until Dependabot's first
-> grouped PR arrives?
->
-> *Recommendation: (a).* All three are patch/minor moves inside the declared ranges, and the
-> weekly job is only useful once the baseline is green — an audit that always fails is an audit
-> nobody reads.
+**Advisories: answered — fixed what ships, scoped the job to match.** `npm audit fix` took the
+count from **9 to 3** with six patch bumps inside the declared ranges, so only `package-lock.json`
+changed: `brace-expansion` 2.1.2→2.1.4, `fast-uri` 3.1.3→3.1.5, `nanoid` 3.3.16→3.3.18, `postcss`
+8.5.19→8.5.26, `react-router` 7.18.1→7.18.2, `undici` 7.28.0→7.29.0. `npm audit --omit=dev` is now
+clean: **nothing that ships has a live advisory.**
+
+`react-router` is a direct dependency of the deployed React gallery, so it was verified in a real
+browser rather than by building: clicking a gallery card navigated to `/react/single/stacked`, the
+chart drew 78 bars, browser-back restored the gallery, and no console or page errors were raised.
+The gallery navigates programmatically rather than through links, so that click exercises the
+router path the bump touches.
+
+**The three left are one chain with no fix: `vitepress` → its bundled `vite 5` → `esbuild`.**
+VitePress has no CVE of its own, and 1.6.4 *is* the latest stable (2.0 is `alpha.19`). The CVEs are
+dev-server attacks — a website reaching the dev server, path traversal in optimized-deps `.map`
+handling — and three of the five are Windows-only. None reach built output. The root Vite (8.1.5)
+is already outside the advisory range; only VitePress's private copy is affected.
+
+Forcing a patched esbuild into that copy was tried three ways — a nested
+`vitepress → vite → esbuild` override, a global `esbuild` override, and a `--package-lock-only`
+re-resolve — and **none moved the nested copies**; `vitepress/node_modules/esbuild` stayed at
+0.21.5. Overrides do work here (the existing `react` one resolves with no nested copies), so npm is
+holding those subtrees. The only route left is regenerating the lockfile from scratch, which churns
+every dependency, and Vite 5.4.21 declares `esbuild ^0.21.3`, so a jump to 0.28 would likely break
+the docs build anyway.
+
+`audit.yml` therefore gates on `npm audit --omit=dev --audit-level=high`, which passes, and runs the
+full audit after it with `|| true` so the dev-only advisories stay visible without turning the job
+red. An audit that always fails is an audit nobody reads. Dependabot will offer the VitePress bump
+once 2.0 is stable.
 
 ### TOOL-4 — `npm run deadcode` filters out knip's dependency and duplicate-export checks
 **Medium · Tooling gap · [package.json:41](package.json#L41) — `knip --include exports,types,files`** — **Open**
