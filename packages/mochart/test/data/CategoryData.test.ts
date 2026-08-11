@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getCategoryData,
   getCategoryDataFromValues,
-  getCategoryDataWithAxisDomain,
+  getCategoryDataWithRenderAxisDomain,
   getCategoryDataWithNumericValues,
   getNumericCategoryValues,
   getCategoryValueObject
@@ -82,13 +82,14 @@ describe('getCategoryDataFromValues', () => {
   });
 });
 
-describe('getCategoryDataWithAxisDomain / getCategoryDataWithNumericValues', () => {
-  it('replaces the axis domain immutably', () => {
+describe('getCategoryDataWithRenderAxisDomain / getCategoryDataWithNumericValues', () => {
+  it('replaces the render axis domain immutably, leaving the semantic domain alone', () => {
     const config = ordinalConfig();
     const categoryData = getCategoryDataFromValues(config.categoryAxis, ['a', 'b'], ['a', 'b']);
-    const updated = getCategoryDataWithAxisDomain(categoryData, [1, 5]);
+    const updated = getCategoryDataWithRenderAxisDomain(categoryData, [1, 5]);
     expect(updated).not.toBe(categoryData);
-    expect(updated.axisDomain).toEqual([1, 5]);
+    expect(updated.renderAxisDomain).toEqual([1, 5]);
+    expect(updated.axisDomain).toBe(categoryData.axisDomain);
     expect(updated.values).toBe(categoryData.values);
   });
 

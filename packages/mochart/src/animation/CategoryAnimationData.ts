@@ -539,7 +539,7 @@ export function createCategoryOrderDeltaData(
     return {
       start: startChartData.categoryData.values.numeric,
       deltas: ordinalCategoryOrderOffets,
-      deltaPercentage: getMaxAbsoluteValue(ordinalCategoryOrderOffets) / Number(endChartData.categoryData.axisDomain[1]),
+      deltaPercentage: getMaxAbsoluteValue(ordinalCategoryOrderOffets) / Number(endChartData.categoryData.renderAxisDomain[1]),
       end: endChartData.categoryData.values.numeric
     };
   }

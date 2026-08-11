@@ -442,7 +442,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     const { category, series } = tooltipValueObject;
     const { raw, filtered, filteredFlags } = series;
-    const { axisDomains } = raw;
+    // render domains: tickFormat precision needs a real extent, which a collapsed domain lacks
+    const { renderAxisDomains } = raw;
 
     // Percent tooltip values are derived from the slice shares, normalized the
     // same way the slices and their labels are (see getPieSliceFractions), so
@@ -504,7 +505,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       });
     }
 
-    const valueFormats = getSeriesFormats(seriesConfigs, valueAxisConfigs, axisDomains);
+    const valueFormats = getSeriesFormats(seriesConfigs, valueAxisConfigs, renderAxisDomains);
     let lastSeriesLineIndex = -1;
     for (const seriesConfig of seriesConfigs) {
       if (!seriesConfig.showInTooltip) {

@@ -1,4 +1,4 @@
-import { getChartDataWithData, getChartDataWithCategoryData, getChartDataWithValues, getChartDataWithSeriesDomains, getChartDataWithAxisDomains } from '../data/ChartData';
+import { getChartDataWithData, getChartDataWithCategoryData, getChartDataWithValues, getChartDataWithSeriesDomains, getChartDataWithRenderAxisDomains } from '../data/ChartData';
 
 import { getCategoryDataWithNumericValues } from '../data/CategoryData';
 
@@ -63,18 +63,18 @@ export function getChartDataForAxisDelta(
   }
   else {
     const deltaPercentage = axisDeltaData.deltaPercentage * percentage;
-    const categoryAxisDomain = getCategoryAxisDomainForDelta(mochartConfig.categoryAxis, axisDeltaData.start.categoryData.axisDomain as AxisDomain, axisDeltaData.end.categoryData.axisDomain as AxisDomain,
+    const categoryAxisDomain = getCategoryAxisDomainForDelta(mochartConfig.categoryAxis, axisDeltaData.start.categoryData.renderAxisDomain as AxisDomain, axisDeltaData.end.categoryData.renderAxisDomain as AxisDomain,
       axisDeltaData.deltas.domain.axis.category, deltaPercentage, percentage);
-    const rawValueAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.raw.axisDomains, axisDeltaData.end.seriesData.raw.axisDomains,
+    const rawValueAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.raw.renderAxisDomains, axisDeltaData.end.seriesData.raw.renderAxisDomains,
       axisDeltaData.deltas.domain.axis.value.raw, deltaPercentage, percentage);
-    const filteredValueAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.filtered.axisDomains, axisDeltaData.end.seriesData.filtered.axisDomains,
+    const filteredValueAxisDomains = getAxisDomainsForDeltas(axisDeltaData.start.seriesData.filtered.renderAxisDomains, axisDeltaData.end.seriesData.filtered.renderAxisDomains,
       axisDeltaData.deltas.domain.axis.value.filtered, deltaPercentage, percentage);
     const numericCategoryValues = getNumericCategoryValuesForDelta(axisDeltaData, deltaPercentage, percentage);
     const rawSeriesDomains = getSeriesDomainsForDeltas(axisDeltaData.start.seriesData.raw.domains, axisDeltaData.end.seriesData.raw.domains,
       axisDeltaData.deltas.domain.series.raw, deltaPercentage, percentage);
     const filteredSeriesDomains = getSeriesDomainsForDeltas(axisDeltaData.start.seriesData.filtered.domains, axisDeltaData.end.seriesData.filtered.domains,
       axisDeltaData.deltas.domain.series.filtered, deltaPercentage, percentage);
-    let chartData: AnimationChartData = getChartDataWithAxisDomains(axisDeltaData.start, categoryAxisDomain, rawValueAxisDomains, filteredValueAxisDomains);
+    let chartData: AnimationChartData = getChartDataWithRenderAxisDomains(axisDeltaData.start, categoryAxisDomain, rawValueAxisDomains, filteredValueAxisDomains);
     chartData = getChartDataWithSeriesDomains(chartData, rawSeriesDomains, filteredSeriesDomains);
     if (numericCategoryValues !== null) {
       chartData = getChartDataWithCategoryData(chartData, getCategoryDataWithNumericValues(chartData.categoryData, numericCategoryValues));

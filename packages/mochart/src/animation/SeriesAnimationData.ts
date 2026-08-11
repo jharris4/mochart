@@ -1,10 +1,10 @@
 import { getChartDataWithSeriesData, getChartDataWithData } from '../data/ChartData';
 
-import { getCategoryDataWithAxisDomain, getCategoryDataFromValues, getCategoryDataWithNumericValues } from '../data/CategoryData';
+import { getCategoryDataWithRenderAxisDomain, getCategoryDataFromValues, getCategoryDataWithNumericValues } from '../data/CategoryData';
 
 import { getSafeDomainExtent, getSafeDomainExtents } from '../data/DomainData';
 
-import { getSeriesContainerFilteredSeriesCounts, getSeriesDataWithAxisDomains, getSeriesDataWithSeriesValues,
+import { getSeriesContainerFilteredSeriesCounts, getSeriesDataWithRenderAxisDomains, getSeriesDataWithSeriesValues,
   getSeriesDataWithDomains, setMinMax } from '../data/SeriesData';
 
 import { createArrayFilledWithUndefined, createArrayWithValueIfNotUndefined, copyArrayWithValueIfNotUndefined,
@@ -73,8 +73,8 @@ export function getInitialValueChangeData(mochartConfig: EnhancedMochartConfig, 
 
   const startChartData = getChartDataWithSeriesData(newChartData, getSeriesDataWithSeriesValues(newChartData.seriesData, initialValues, initialFilteredValues));
 
-  return createValueDeltaData(mochartConfig, startChartData, newChartData, newChartData, newChartData.seriesData.raw.axisDomains,
-    newChartData.seriesData.filtered.axisDomains, newChartData.seriesData.raw.domains, null);
+  return createValueDeltaData(mochartConfig, startChartData, newChartData, newChartData, newChartData.seriesData.raw.renderAxisDomains,
+    newChartData.seriesData.filtered.renderAxisDomains, newChartData.seriesData.raw.domains, null);
 }
 
 export function getFilterDeltaData(mochartConfig: EnhancedMochartConfig, oldSeriesData: SeriesData, newSeriesData: SeriesData) {
@@ -120,13 +120,13 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
   if (hasCategoryChanges(categoryDeltaData)) {
     const mergedNumericValues = getMergedNumericValues(mochartConfig.categoryAxis, startCategoryData.values.numeric, categoryDeltaData);
     let mergedCategoryData = getCategoryDataFromValues(mochartConfig.categoryAxis, categoryDeltaData.values.merged, categoryDeltaData.values.displayMerged);
-    mergedCategoryData = getCategoryDataWithAxisDomain(mergedCategoryData, prevChartData.categoryData.axisDomain);
+    mergedCategoryData = getCategoryDataWithRenderAxisDomain(mergedCategoryData, prevChartData.categoryData.renderAxisDomain);
     startCategoryData = mergedCategoryData;
     if (mergedNumericValues !== null) {
       startCategoryData = getCategoryDataWithNumericValues(mergedCategoryData, mergedNumericValues);
     }
     endCategoryData = mergedCategoryData;
-    finalCategoryData = getCategoryDataWithAxisDomain(newChartData.categoryData, endCategoryData.axisDomain);
+    finalCategoryData = getCategoryDataWithRenderAxisDomain(newChartData.categoryData, endCategoryData.renderAxisDomain);
   }
   else if (hasNumericValueOffsets(mochartConfig.categoryAxis, startCategoryData)) {
     endCategoryData = getCategoryDataWithNumericValues(startCategoryData, getNumericValuesWithoutOffsets(startCategoryData));
@@ -148,7 +148,7 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
   const startSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, startValues, startFilteredValues);
 
   const endSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, endValues, endFilteredValues);
-  let finalSeriesData = getSeriesDataWithAxisDomains(newChartData.seriesData, prevSeriesData.raw.axisDomains, prevSeriesData.filtered.axisDomains);
+  let finalSeriesData = getSeriesDataWithRenderAxisDomains(newChartData.seriesData, prevSeriesData.raw.renderAxisDomains, prevSeriesData.filtered.renderAxisDomains);
   finalSeriesData = getSeriesDataWithDomains(finalSeriesData, prevSeriesData.raw.domains, prevSeriesData.filtered.domains);
 
   setAllBaseValuesForOuterChanges(mochartConfig.animation, mochartConfig.series, startSeriesData, endSeriesData,
@@ -160,7 +160,7 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
 
   return createValueDeltaData(mochartConfig, getChartDataWithData(prevChartData, startCategoryData, startSeriesData),
     getChartDataWithData(prevChartData, endCategoryData, endSeriesData),
-    getChartDataWithData(newChartData, finalCategoryData, finalSeriesData), startSeriesData.raw.axisDomains, startSeriesData.filtered.axisDomains, startSeriesData.raw.domains, categoryOrderOffsets);
+    getChartDataWithData(newChartData, finalCategoryData, finalSeriesData), startSeriesData.raw.renderAxisDomains, startSeriesData.filtered.renderAxisDomains, startSeriesData.raw.domains, categoryOrderOffsets);
 }
 
 export function enhanceValueObjects(valueObjects: SeriesValueObjects): void {

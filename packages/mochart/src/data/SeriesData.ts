@@ -1,5 +1,5 @@
 import { nullDomain, getDomainForValues, mergeDomain } from './DomainData';
-import { getAxisDomain } from './AxisDomainData';
+import { getAxisDomain, getRenderAxisDomain } from './AxisDomainData';
 import { NONE } from '../config/core/constants';
 
 import { keyPlain, valueKeys, positionKeys, extraKeys, extraCopyKeys, positionOrComputedOrExtraKeys } from './constants';
@@ -21,7 +21,8 @@ export function getSeriesData(mochartConfig: EnhancedMochartConfig, dataProvider
   const seriesFilteredFlags = getSeriesFilteredFlags(seriesConfigs, filteredSeriesMap);
   const filteredSeriesBundle = getFilteredSeriesBundle(valueAxisConfigs, seriesConfigs, seriesStackConfigs, rawCategoryValues, rawSeriesBundle, seriesFilteredFlags);
 
-  const axisBases = getValueAxisBases(valueAxisConfigs, rawSeriesBundle.data.axisDomains, filteredSeriesBundle.data.axisDomains);
+  // bases derive from the render domains: a semantic (collapsed) min would draw zero-height bars
+  const axisBases = getValueAxisBases(valueAxisConfigs, rawSeriesBundle.data.renderAxisDomains, filteredSeriesBundle.data.renderAxisDomains);
   const axisSeriesCounts = getSeriesContainerFilteredSeriesCounts(valueAxisConfigs, seriesFilteredFlags);
   const stackSeriesCounts = getSeriesContainerFilteredSeriesCounts(seriesStackConfigs, seriesFilteredFlags);
   const groupSeriesCounts = getSeriesContainerFilteredSeriesCounts(seriesGroupConfigs, seriesFilteredFlags);
@@ -37,9 +38,9 @@ export function getSeriesData(mochartConfig: EnhancedMochartConfig, dataProvider
   };
 }
 
-export function getSeriesDataWithAxisDomains(seriesData: SeriesData, rawAxisDomains: SeriesDataSet['axisDomains'], filteredDomains: SeriesDataSet['axisDomains']): SeriesData {
-  const raw = Object.assign({}, seriesData.raw, { axisDomains: rawAxisDomains });
-  const filtered = Object.assign({}, seriesData.filtered, { axisDomains: filteredDomains });
+export function getSeriesDataWithRenderAxisDomains(seriesData: SeriesData, rawRenderAxisDomains: SeriesDataSet['renderAxisDomains'], filteredRenderAxisDomains: SeriesDataSet['renderAxisDomains']): SeriesData {
+  const raw = Object.assign({}, seriesData.raw, { renderAxisDomains: rawRenderAxisDomains });
+  const filtered = Object.assign({}, seriesData.filtered, { renderAxisDomains: filteredRenderAxisDomains });
   return Object.assign({}, seriesData, { raw, filtered });
 }
 
@@ -89,6 +90,7 @@ function getRawSeriesBundle(valueAxisConfigs: EnhancedValueAxisConfig[], seriesC
   return {
     data: {
       axisDomains,
+      renderAxisDomains: getRenderValueAxisDomains(valueAxisConfigs, axisDomains),
       domains: domainObjects,
       values: valueObjects
     }
@@ -108,6 +110,7 @@ function getFilteredSeriesBundle(valueAxisConfigs: EnhancedValueAxisConfig[], se
   return {
     data: {
       axisDomains,
+      renderAxisDomains: getRenderValueAxisDomains(valueAxisConfigs, axisDomains),
       domains: domainObjects,
       values: valueObjects
     }
@@ -436,6 +439,11 @@ function getValueAxisDomains(valueAxisConfigs: EnhancedValueAxisConfig[], series
                     valueAxisConfig => getValueAxisDomain(valueAxisConfig, seriesDomainObjects));
 }
 
+function getRenderValueAxisDomains(valueAxisConfigs: EnhancedValueAxisConfig[], axisDomains: Record<string, NullableDomain>): Record<string, NullableDomain> {
+  return arrayToMap(valueAxisConfigs, idAccessor,
+                    valueAxisConfig => getRenderAxisDomain(valueAxisConfig, axisDomains[valueAxisConfig.id]) as NullableDomain);
+}
+
 function getValueAxisDomain(valueAxisConfig: EnhancedValueAxisConfig, seriesDomainObjects: SeriesDomainObjects): NullableDomain {
   return getAxisDomain(valueAxisConfig, () => calculateValueAxisDomain(valueAxisConfig, seriesDomainObjects)) as NullableDomain;
 }
@@ -506,11 +514,13 @@ export function getSeriesValueObjects(seriesData: SeriesData, categoryIndex: num
     filteredFlags,
     raw:  {
       axisDomains: raw.axisDomains,
+      renderAxisDomains: raw.renderAxisDomains,
       domains: raw.domains,
       values: mapMap(raw.values, seriesValueObject => getCategorySeriesValueObject(seriesValueObject, categoryIndex))
     },
     filtered: {
       axisDomains: filtered.axisDomains,
+      renderAxisDomains: filtered.renderAxisDomains,
       domains: filtered.domains,
       values: mapMap(filtered.values, seriesValueObject => getCategorySeriesValueObject(seriesValueObject, categoryIndex))
     }

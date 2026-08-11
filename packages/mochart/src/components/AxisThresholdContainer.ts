@@ -34,10 +34,10 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
     const { plot: plotConfig, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs } = mochartConfig;
     const { inverted } = plotConfig;
     const { categoryData, seriesData } = chartData;
-    const categoryAxisDomain = categoryData.axisDomain;
+    const categoryAxisDomain = categoryData.renderAxisDomain;
     const { axisSeriesCounts } = seriesData;
-    const valueAxisRawDomains = seriesData.raw.axisDomains;
-    const valueAxisFilteredDomains = seriesData.filtered.axisDomains;
+    const valueAxisRawDomains = seriesData.raw.renderAxisDomains;
+    const valueAxisFilteredDomains = seriesData.filtered.renderAxisDomains;
 
     this.root.set({ className: mochartCssClasses['axisThresholdContainer'] });
 

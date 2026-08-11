@@ -33,6 +33,8 @@ export type SeriesDomainObjects = Record<string, SeriesDomainObject>;
 
 export interface SeriesDataSet {
   axisDomains: AxisDomains;
+  /** The domains scales/ticks use: axisDomains, widened where collapsed (see getRenderAxisDomain). */
+  renderAxisDomains: AxisDomains;
   domains: SeriesDomainObjects;
   values: SeriesValueObjects;
   /** Added by animation transitions while aligning old and new category values. */
@@ -150,6 +152,8 @@ export interface ClippedEdges {
 
 export interface CategoryData {
   axisDomain: CategoryAxisDomain;
+  /** The domain the scale/ticks use: axisDomain, widened where collapsed (see getRenderAxisDomain). */
+  renderAxisDomain: CategoryAxisDomain;
   values: CategoryValues;
 }
 

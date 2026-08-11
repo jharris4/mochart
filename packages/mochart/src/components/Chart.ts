@@ -621,7 +621,10 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
         const categoryAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.categoryData !== chartData.categoryData;
         const valueAxisChanged = chartData === null || prevProps.chartData === null || prevProps.chartData.seriesData.raw.axisDomains !== chartData.seriesData.raw.axisDomains ||
-          prevProps.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains;
+          prevProps.chartData.seriesData.filtered.axisDomains !== chartData.seriesData.filtered.axisDomains ||
+          // animation frames substitute only the render domains, so they must trip this too
+          prevProps.chartData.seriesData.raw.renderAxisDomains !== chartData.seriesData.raw.renderAxisDomains ||
+          prevProps.chartData.seriesData.filtered.renderAxisDomains !== chartData.seriesData.filtered.renderAxisDomains;
         // TODO - what about if seriesData.axisSeriesCounts changes? how should that be handled?
         // layout reads chartData only through seriesData.axisSeriesCounts (ChartDataForLayout),
         // so value-tween frames that keep that identity can keep the current layout
