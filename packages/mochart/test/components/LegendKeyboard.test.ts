@@ -110,6 +110,24 @@ describe('legend keyboard semantics', () => {
     expect(legendItems(container)[0].getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('moves focus to a neighbour when the focused legend item disappears', () => {
+    // the focused item's node is unmounted when its series leaves the legend; without this the
+    // browser drops keyboard focus to the page body and the user loses their place entirely
+    const container = mountChart(makeConfig());
+    const handle = handles[handles.length - 1];
+    legendItems(container)[1].focus();
+
+    const withoutS1 = makeConfig();
+    (withoutS1 as unknown as { series: Record<string, unknown>[] }).series[1].showInLegend = false;
+    handle.update({ config: withoutS1, data: rows, width: 800, height: 600 } as DefaultChartProps);
+
+    const remaining = legendItems(container);
+    expect(remaining.map(item => item.getAttribute('data-series-id'))).toEqual(['S0', 'S2']);
+    // the next item in config order inherits focus and the tab stop
+    expect(document.activeElement).toBe(remaining[1]);
+    expect(remaining[1].getAttribute('tabindex')).toBe('0');
+  });
+
   it('moves focus and the roving tab stop with arrow keys', () => {
     const container = mountChart(makeConfig());
     const items = legendItems(container);
