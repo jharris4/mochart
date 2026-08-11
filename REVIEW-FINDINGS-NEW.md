@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 42 fixed, 1 needing an answer, 117 open.** TOOL-2 is deferred to release time by
+**Status: 43 fixed, 1 needing an answer, 116 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -716,7 +716,7 @@ the invariant is already understood to matter.
 **Fix:** return a fresh object for the zero case, or `Object.freeze` the three constants.
 
 ### ANIM-6 — a value outside an explicit axis bound stretches the animation past its configured maximum
-**Medium · Bug · [SeriesAnimationData.ts:763](packages/mochart/src/animation/SeriesAnimationData.ts#L763), [ChartTweens.ts:417](packages/mochart/src/animation/ChartTweens.ts#L417)** — **Open** **[verified]**
+**Medium · Bug · [SeriesAnimationData.ts:763](packages/mochart/src/animation/SeriesAnimationData.ts#L763), [ChartTweens.ts:417](packages/mochart/src/animation/ChartTweens.ts#L417)** — **Fixed** **[verified]**
 
 *Found while writing the axis-bounds recipe, not by either review pass.*
 
@@ -753,19 +753,38 @@ Predates the clipping work — `git log -L` shows the line unchanged since the `
 It used to be self-concealing: the out-of-range mark was drawn, overflowing the plot, so it really
 did travel that far on screen. Now it is clipped, and the extra seconds are spent off-screen.
 
-**Fix:** clamp `deltaPercentage` to `1` in `getSeriesValuesDeltas`. No visible mark travels more
-than one axis extent, so `1` is the true ceiling rather than a guard. Clamping at the source also
-corrects the relative-pacing signal read at
-[ChartAnimation.ts:118](packages/mochart/src/animation/ChartAnimation.ts#L118), where `7.04`
-currently claims to be seven times more significant than a full-plot move; clamping only the
-duration at `ChartTweens.ts:417` is smaller but leaves that. Wants a regression test beside
-`InvertedDomainPacing.test.ts`.
+**Fixed: the weight is capped at 1 where it is calculated.**
 
-**Adjacent, and probably its own fix:** the category-axis twin at
-[CategoryAnimationData.ts:517](packages/mochart/src/animation/CategoryAnimationData.ts#L517)
-divides by `categoryAxisDomain[1]` — the domain's upper *bound*, not its extent. On a domain of
-`[1000, 1010]` the denominator is `1010` instead of `10`, collapsing the weight to near zero so
-category motion finishes almost instantly. Same units mistake, opposite direction, also unclamped.
+The weight answers "how far does this move", so that bigger moves get more time — and what matters
+is how far it moves *on screen*. A value ending outside an explicit `min`/`max` is clipped: the mark
+travels to the edge of the plot and stops, however large the number gets. So it can never move more
+than one axis extent, and a weight above 1 was claiming movement that does not happen.
+
+That also settles where to cap it. Capping at the source rather than at the duration does flatten
+the staggering between marks whose weights both exceed 1 — but those marks genuinely do travel the
+same visible distance, so finishing together is correct.
+
+A config property to choose between capped and uncapped was considered and rejected: the duration is
+documented as a *maximum*, so a switch to disable that would make a contract violation into an
+option, and no caller wants a 48-second animation. If out-of-range values should ever get *extra*
+time deliberately, that is a differently-shaped property, not a capped/uncapped switch.
+
+**Measured, with `initialDuration` at its 1000 default:**
+
+| Config | Before | After |
+|---|---|---|
+| spike `1408`, axis `0..200` | 7056ms | **1024ms** |
+| spike `14080`, axis `0..200` | >48000ms | **1024ms** |
+| spike `150` (in range) | 768ms | 768ms |
+| spike `1408`, axis `auto` | 976ms | 976ms |
+
+Three golden snapshots moved, all mid-animation frames — one heatmap and two gauge filter frames.
+No settled, initial or static snapshot changed, so every chart still ends in exactly the same place;
+only the pacing to get there changed, which is the point.
+
+The earlier note that the account of this finding was unconfirmed is resolved: the path is
+`AxisDomainData` → the axis extent as the divisor → the value delta as the numerator → the multiplier
+at `ChartTweens.ts:417`, and the arithmetic matches all four rows above.
 
 ### ANIM-7 — `showInLegend` rebuilds the whole chart and replays its opening animation
 **High · Bug · [mochartConfig.ts:360](packages/mochart/src/config/core/mochartConfig.ts#L360)** **[verified]** — **Open**

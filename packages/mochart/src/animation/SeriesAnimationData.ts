@@ -798,7 +798,9 @@ function setRawSeriesValueDeltas(valueDeltaObject: ValueDeltaObject, startValueO
 
 function getSeriesValuesDeltas(startValues: NumericValues, endValues: NumericValues, valueAxisExtent: number): NumericValuesDelta {
   const deltas = getArrayDeltas(startValues as number[], endValues);
-  const deltaPercentage = valueAxisExtent > 0 ? getMaxAbsoluteValue(deltas) / valueAxisExtent : 0;
+  // capped at 1: a value ending outside the axis is clipped, so it cannot move further than one
+  // axis extent on screen, and the weight is what paces the animation
+  const deltaPercentage = valueAxisExtent > 0 ? Math.min(getMaxAbsoluteValue(deltas) / valueAxisExtent, 1) : 0;
   return deltaPercentage === 0 ? emptyValueDelta : {
     deltaPercentage,
     deltas
