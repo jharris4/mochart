@@ -10,8 +10,9 @@ export interface ChartHandle<TProps extends object = ManagedChartProps> {
    * a config, data, or provider change is only seen when a new reference is
    * passed — mutating the previous object in place is not detected (use
    * `refresh` for that). Config and data changes animate through the staged
-   * animation phases when animation is enabled; width/height changes
-   * re-layout the chart instantly.
+   * animation phases when animation is enabled, except structural config
+   * changes, which rebuild the chart and replay its initial animation;
+   * width/height changes re-layout the chart instantly.
    */
   update(nextProps: Partial<TProps>): void;
   /**

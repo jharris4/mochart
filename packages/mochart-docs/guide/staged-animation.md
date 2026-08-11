@@ -110,6 +110,48 @@ The stack therefore stays contiguous for the whole animation — no gaps or
 overlaps between segments — even while series are being added to or removed
 from the stack. Try it in the [stacked bars recipe](/recipes/stacked-bars).
 
+## Structural config changes rebuild the chart
+
+The phases above animate *data* changes. Config edits are not animated: change a
+title, a colour, or a renderer and the chart simply redraws with the new
+settings. Some edits change what the chart *is*, and those structural changes
+cannot be applied to the existing chart at all — it is rebuilt and plays its
+opening animation again, paced by
+[`initialDuration`](/reference/animation#animation.initialDuration).
+
+An edit counts as structural when it changes any of:
+
+- the config's validity or its `id`
+- [`chart.type`](/reference/chart#chart.type)
+- the category axis
+  [`property`](/reference/categoryAxis#categoryAxis.property),
+  [`type`](/reference/categoryAxis#categoryAxis.type),
+  [`scale`](/reference/categoryAxis#categoryAxis.scale) or
+  [`dateUTC`](/reference/categoryAxis#categoryAxis.dateUTC)
+- the number or ids of value axes, series stacks or series groups, or which
+  axis a stack belongs to
+- the number of series, or for any series its `id`,
+  [`property`](/reference/series#series.property),
+  [`rangeProperty`](/reference/series#series.rangeProperty),
+  [`errorLowProperty`](/reference/series#series.errorLowProperty),
+  [`errorHighProperty`](/reference/series#series.errorHighProperty),
+  [`markerProperty`](/reference/series#series.markerProperty),
+  [`colorProperty`](/reference/series#series.colorProperty),
+  [`labelProperty`](/reference/series#series.labelProperty),
+  [`axis`](/reference/series#series.axis),
+  [`stack`](/reference/series#series.stack),
+  [`group`](/reference/series#series.group) or
+  [`showInLegend`](/reference/series#series.showInLegend)
+
+Everything else — titles, colours, renderers, axis bounds, tooltip and legend
+settings — is applied to the existing chart instantly, without a rebuild.
+
+Note this is about editing the config. Switching a series off by clicking the
+legend is filtering, not a config change, and it animates like a data change.
+
+`hasConfigStructureChange` is exported if you need to know in advance whether an
+edit you are about to apply will rebuild.
+
 ## Tuning
 
 Nearly all knobs live in [`animation`](/reference/animation):
@@ -119,7 +161,7 @@ Nearly all knobs live in [`animation`](/reference/animation):
 | [`animate`](/reference/animation#animation.animate) | master switch — `false` applies every update instantly |
 | [`valueDomainChange`](/reference/animation#animation.valueDomainChange) | staged vs combined value-axis domain changes (see [Combining phases](#combining-phases)) |
 | [`categoryDomainChange`](/reference/animation#animation.categoryDomainChange) | staged vs combined category-axis domain changes |
-| [`initialDuration`](/reference/animation#animation.initialDuration) | the first render when the chart mounts |
+| [`initialDuration`](/reference/animation#animation.initialDuration) | the first render when the chart mounts or after a structural config change |
 | [`expansionDuration`](/reference/animation#animation.expansionDuration) | the axis expansion phase |
 | [`valueChangeDuration`](/reference/animation#animation.valueChangeDuration) | the value change phase (incl. category/series transitions and combined domain changes) |
 | [`contractionDuration`](/reference/animation#animation.contractionDuration) | the axis contraction phase |
