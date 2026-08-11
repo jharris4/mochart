@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 33 fixed, 1 needing an answer, 122 open.** TOOL-2 is deferred to release time by
+**Status: 33 fixed, 1 needing an answer, 124 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -63,9 +63,9 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
 | [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 7 | 22 |
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 5 | 17 |
-| [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 6 | 4 | 13 |
+| [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 7 | 5 | 15 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **32** | **70** | **52** | **155** |
+| | **Total** | **1** | **32** | **71** | **53** | **157** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -3243,6 +3243,57 @@ then remove them from the ignore list.
 **Fix:** align the two ranges (or adopt `syncpack`/npm `overrides` for shared tool versions), add a
 `lint` script to the editor, correct the workspace count, and either collapse the three aliases or
 add the intentional pair to `knip.json`'s ignores with a comment.
+
+### TOOL-14 — every docs-site sourcemap maps nothing but vitepress internals
+**Medium · Bug · [.vitepress/config.ts:62](packages/mochart-docs/.vitepress/config.ts#L62)** **[verified]** — **Open**
+
+The docs config asks for sourcemaps — `vite: { build: { sourcemap: true }, plugins: [depSourcemaps()] }`
+— and the build honours the request in form only. Measured on an assembled `site/`:
+
+- **123** of 123 JS chunks carry a `sourceMappingURL`, and **all 123** targets exist.
+- **All 123** of those maps contain exactly one source:
+  `node_modules/vitepress/dist/client/app/index.js`.
+
+So no docs page, no `LiveChart` component, no `examples/*.ts`, and no mochart source is mapped.
+Stepping into anything on the deployed docs site lands in compiled output, which is the state the
+config was changed to prevent. The other five galleries map their sources correctly from the same
+`depSourcemaps` plugin, so the plugin itself works — something in the VitePress build is discarding
+or replacing the upstream maps.
+
+Note VitePress bundles its own Vite 5 while the repo runs Vite 8
+([TOOL-3](#tool-3--no-dependency-audit-anywhere-and-9-known-vulnerabilities-are-present) covers the
+security side of that split, and `scripts/dep-sourcemaps.ts` is deliberately structurally typed
+because of it). A plugin written against one major running inside the other is the first thing to
+rule out.
+
+**Fix:** determine whether `depSourcemaps` is reached at all under VitePress's Vite, and whether
+VitePress's own client build strips maps. If the plugin is the problem, register it through
+VitePress's own Vite instance rather than the repo's.
+
+### TOOL-15 — the Angular gallery bundles the library without mapping any of it
+**Low · Bug · [mochart-demo-angular/vite.config.ts:10](packages/mochart-demo-angular/vite.config.ts#L10)** **[verified]** — **Open**
+
+`build: { sourcemap: true }` and `depSourcemaps()` are set the same way as in the other galleries,
+but the emitted maps cover only the demo's own files. Unique sources across each built gallery's
+maps:
+
+| Gallery | Unique sources | mochart core mapped |
+|---|---|---|
+| lit | 367 | ~202 files |
+| react | 363 | ~200 files |
+| vanilla | 345 | ~196 files |
+| **angular** | **96** | **none** |
+
+The core is in that bundle — the gallery renders charts — so debugging the library from the Angular
+demo lands in compiled output. The symptom is confirmed; the cause is not. The candidates are
+`@analogjs/vite-plugin-angular` not preserving upstream maps through its AOT transform, or
+`depSourcemaps` not reaching core under that plugin. Note this config also aliases
+`@mochart/angular` to source, so the binding *is* mapped while core is not, which points at how
+core resolves rather than at the plugin ordering.
+
+Low rather than Medium because the other five galleries map correctly, so the library can be
+debugged from any of them; this costs a developer the Angular-specific path only.
+
 
 ---
 
