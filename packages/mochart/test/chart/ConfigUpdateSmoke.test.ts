@@ -62,6 +62,8 @@ function config(options: {
   seriesGroups?: Array<Record<string, unknown>>;
   chart?: Record<string, unknown>;
   plot?: Record<string, unknown>;
+  legend?: Record<string, unknown>;
+  title?: Record<string, unknown>;
   animate?: boolean;
 } = {}): MochartInputConfig {
   const animate = options.animate ?? false;
@@ -81,7 +83,9 @@ function config(options: {
     ...(options.seriesStacks === undefined ? {} : { seriesStacks: options.seriesStacks }),
     ...(options.seriesGroups === undefined ? {} : { seriesGroups: options.seriesGroups }),
     ...(options.chart === undefined ? {} : { chart: options.chart }),
-    ...(options.plot === undefined ? {} : { plot: options.plot })
+    ...(options.plot === undefined ? {} : { plot: options.plot }),
+    ...(options.legend === undefined ? {} : { legend: options.legend }),
+    ...(options.title === undefined ? {} : { title: options.title })
   } as MochartInputConfig;
 }
 
@@ -260,6 +264,40 @@ const dataErrorEndpoint = () => endpoint(config({
   state: 'dataError'
 });
 
+// TEST-17: parts that measure text must survive being turned on after mounting hidden — a hidden
+// part has no measurement to carry into the frame where it becomes visible
+const legendHiddenEndpoint = () => endpoint(config({ legend: { visible: false } }), {
+  categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false
+});
+
+const legendVisibleEndpoint = () => endpoint(config({ legend: { visible: true } }), {
+  categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false
+});
+
+const titleHiddenEndpoint = () => endpoint(config({ title: { text: null } }), {
+  categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false
+});
+
+const titleVisibleEndpoint = () => endpoint(config({ title: { text: 'Smoke Title' } }), {
+  categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false
+});
+
+const categoryAxisHiddenEndpoint = () => endpoint(config({
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Months', visible: false }
+}), { seriesIds: ['primary'], valueAxisIds: ['value'], pie: false });
+
+const categoryAxisVisibleEndpoint = () => endpoint(config({
+  categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', title: 'Months', visible: true }
+}), { categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false });
+
+const valueAxisHiddenEndpoint = () => endpoint(config({
+  valueAxes: [{ id: 'value', title: 'Sales', visible: false }]
+}), { categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], pie: false });
+
+const valueAxisVisibleEndpoint = () => endpoint(config({
+  valueAxes: [{ id: 'value', title: 'Sales', visible: true }]
+}), { categoryLabels: ['Jan', 'Feb', 'Mar'], seriesIds: ['primary'], valueAxisIds: ['value'], pie: false });
+
 const scenarios: TransitionScenario[] = [
   { name: 'categoryAxis.property', a: monthEndpoint(), b: weekEndpoint(), structural: true },
   { name: 'series.property', a: salesEndpoint(), b: costsEndpoint(), structural: true },
@@ -276,7 +314,11 @@ const scenarios: TransitionScenario[] = [
   { name: 'value axis add/remove and reassignment', a: twoSeriesEndpoint(), b: multiAxisEndpoint(), structural: true },
   { name: 'plot.inverted', a: monthEndpoint(), b: invertedEndpoint(), structural: false },
   { name: 'config validity', a: monthEndpoint(), b: configErrorEndpoint(), structural: true },
-  { name: 'data validity from series.property', a: monthEndpoint(), b: dataErrorEndpoint(), structural: true }
+  { name: 'data validity from series.property', a: monthEndpoint(), b: dataErrorEndpoint(), structural: true },
+  { name: 'legend.visible', a: legendHiddenEndpoint(), b: legendVisibleEndpoint(), structural: false },
+  { name: 'title.text null/set', a: titleHiddenEndpoint(), b: titleVisibleEndpoint(), structural: false },
+  { name: 'categoryAxis.visible', a: categoryAxisHiddenEndpoint(), b: categoryAxisVisibleEndpoint(), structural: false },
+  { name: 'valueAxes.visible', a: valueAxisHiddenEndpoint(), b: valueAxisVisibleEndpoint(), structural: false }
 ];
 
 beforeAll(async () => {

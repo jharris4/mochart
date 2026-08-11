@@ -129,11 +129,7 @@ export interface ChartTextBoundsData {
   valueAxisTitleBounds: Record<string, TextBounds>;
   valueAxisThresholdTitleBounds: Record<string, Record<number, TextBounds>>;
   legendBounds: TextBounds;
-  /**
-   * Arrays when the legend is visible; TextMeasurement returns a single empty
-   * bounds object when it is hidden, but the layout code only iterates these
-   * behind a legendConfig.visible check.
-   */
+  /** One entry per legend series, measured or not, so layout can index them by position. */
   legendItemTextBounds: TextBounds[];
   legendItemTextRawBounds: TextBounds[];
   legendItemMaxTextBounds: TextBounds;

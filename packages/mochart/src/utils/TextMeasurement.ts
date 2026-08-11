@@ -13,6 +13,8 @@ type DomAccessor = (id?: string) => Element | ArrayLike<SVGGraphicsElement> | nu
 
 const emptyBounds = { width: 0, height: 0, empty: true };
 const defaultBounds = { width: 20, height: 20, default: true };
+// not `default`, which would make hasDefault retry a legend that can never be measured
+const unmeasuredBounds = { width: 0, height: 0 };
 
 export function getChartTextBoundsData(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): ChartTextBoundsData {
   const titleTextBounds = getTitleTextBounds(mochartConfig, domAccessors);
@@ -108,13 +110,8 @@ function getAllBounds<T>(domAccessors: ChartDomAccessors | null | undefined, get
   }
 }
 
-function getMaxBounds(allBounds: TextBounds | TextBounds[]): TextBounds {
+function getMaxBounds(allBounds: TextBounds[]): TextBounds {
   const maxBounds: TextBounds = { width: 0, height: 0 };
-  // when the legend is hidden this receives emptyBounds (not an array); the old
-  // babel transform-for-of-as-array plugin made for-of silently skip non-arrays
-  if (!Array.isArray(allBounds)) {
-    return maxBounds;
-  }
   for (const bounds of allBounds) {
     if (bounds.default) {
       maxBounds.default = true;
@@ -369,16 +366,18 @@ function getLegendSeriesConfigs(mochartConfig: EnhancedMochartConfig) {
   return mochartConfig.series.filter(seriesConfig => seriesConfig.showInLegend);
 }
 
-export function getLegendItemTextBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds | TextBounds[] {
-  let legendItemTextBounds: TextBounds | TextBounds[] = emptyBounds;
+export function getLegendItemTextBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds[] {
+  // one entry per legend series either way: layout reads this a frame after the legend turns visible
+  let legendItemTextBounds: TextBounds[] = getLegendSeriesConfigs(mochartConfig).map(() => unmeasuredBounds);
   if (mochartConfig.legend.visible) {
     legendItemTextBounds = getSvgAllBoundsWithFontSize(domAccessors, 'getLegendItemTextDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig));
   }
   return legendItemTextBounds;
 }
 
-export function getLegendItemTextRawBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds | TextBounds[] {
-  let legendItemTextBounds: TextBounds | TextBounds[] = emptyBounds;
+export function getLegendItemTextRawBounds(mochartConfig: EnhancedMochartConfig, domAccessors?: ChartDomAccessors | null): TextBounds[] {
+  // one entry per legend series either way: layout reads this a frame after the legend turns visible
+  let legendItemTextBounds: TextBounds[] = getLegendSeriesConfigs(mochartConfig).map(() => unmeasuredBounds);
   if (mochartConfig.legend.visible) {
     legendItemTextBounds = getSvgAllBounds(domAccessors, 'getLegendItemTextRawDomElements', defaultBounds, getLegendSeriesConfigs(mochartConfig));
   }
