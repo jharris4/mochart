@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 54 fixed, 2 needing an answer, 105 open.** TOOL-2 is deferred to release time by
+**Status: 55 fixed, 2 needing an answer, 104 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -2464,7 +2464,7 @@ error whose remedy is documented nowhere — while the config side has a careful
 API-coverage and section-coverage rows to the guardrail table; widen the docs README.
 
 ### DOC-9 — `documentation-plan.md` describes the pre-delivery state in the present tense
-**Medium · Doc inconsistency · [docs/documentation-plan.md:3](docs/documentation-plan.md#L3) vs [:27-47](docs/documentation-plan.md#L27)** — **Open**
+**Medium · Doc inconsistency · [docs/documentation-plan.md:3](docs/documentation-plan.md#L3) vs [:27-47](docs/documentation-plan.md#L27)** — **Fixed**
 
 Line 3 says "Status: delivered (August 2026) — every non-optional item is checked off" (true).
 Lines 27-47 then assert, unqualified: "**No docs site.**", "**The config reference is a dead
@@ -2474,9 +2474,19 @@ directly contradicted by a checked item further down the same file. Separately, 
 now optional and the quick starts deliberately omit it. This is the named plan of record; anyone
 opening it reads five flat statements that the work does not exist.
 
-**Fix:** retitle "Where we are today" → "Where we were (pre-plan snapshot, July 2026)" and put the
-gaps in the past tense; note that `version` later became optional; add the delivered-but-unlisted
-API/props/framework-props generator work as a Phase 2 bullet.
+**Fixed.** The snapshot section is retitled "Where we were (the pre-plan snapshot, July 2026)" and
+its gap list is in the past tense, so it no longer reads as a list of things still missing when the
+status line two paragraphs above says the plan is delivered.
+
+The `version` claim is tensed too: strict validation *required* a version at the time. It does not
+now — the field is optional, and an omitted one is read as the current format.
+
+Kept as a living document rather than frozen: its history shows it edited after delivery, so
+retitling the snapshot is right where declaring the whole file historical would not be.
+
+The finding's third suggestion — adding the generator work as a new phase item — belongs to
+[DOC-8](#doc-8--contributor-docs-omit-the-generated-apipropsframework-props-pipeline-and-the-docs-checks),
+not to a tense fix.
 
 ### DOC-10 — the movalid README's validator and chain lists are each missing one member
 **Low · Doc gap · [movalid/README.md:48](packages/movalid/README.md#L48), [:64](packages/movalid/README.md#L64)** — **Open**
