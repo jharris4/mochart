@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 40 fixed, 1 needing an answer, 118 open.** TOOL-2 is deferred to release time by
+**Status: 41 fixed, 1 needing an answer, 117 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1117,7 +1117,7 @@ Tests cover the backwards domain, a `NaN` end, and that a flat domain still land
 the first two fail on the unpatched source.
 
 ### HELP-5 — `cellPadding` at or above its documented maximum makes the heatmap invisible
-**Medium · Bug · [Heatmap.ts:141](packages/mochart/src/data/Heatmap.ts#L141), [:158](packages/mochart/src/data/Heatmap.ts#L158)** — **Open**
+**Medium · Bug · [Heatmap.ts:141](packages/mochart/src/data/Heatmap.ts#L141), [:158](packages/mochart/src/data/Heatmap.ts#L158)** — **Fixed**
 
 Documented as "The fraction (0 - 0.5)…" but never range-checked:
 
@@ -1125,7 +1125,18 @@ Documented as "The fraction (0 - 0.5)…" but never range-checked:
 - `0.6` → `categoryPaddingFraction.inner: 1.2` → validation error → config-error component.
 - `-0.1` → inverted bands (rows overlap their neighbours) plus two validation errors.
 
-**Fix:** throw unless `cellPadding ∈ [0, 0.5)`, and correct the JSDoc/recipe to the half-open range.
+**Fixed.** Both the behaviour and the documented range were wrong, and the documentation was the
+larger error. `createHeatmap` now throws unless `cellPadding` is at least 0 and below 0.5, worded
+like the same guard `createCandlestick` uses for its own fractions, and the JSDoc says "0 to under
+0.5" instead of "0 - 0.5".
+
+Rejecting is the honest fix rather than clamping. At exactly 0.5 the gap consumes the whole cell in
+both directions — the row bands collapse to zero height and the column slots to zero width — so
+there is no drawing to salvage. Clamping would silently change what the caller asked for; the
+sibling helper already sets the precedent of refusing.
+
+Tests cover 0.5, 0.7 and a negative value throwing, and 0.49 still working; they fail on the
+unpatched source. The recipe needed no correction — it mentions the option but states no range.
 
 ### HELP-6 — `cumulative` + `normalize: 'density'` produces a curve topping out at `1 / binWidth`
 **Medium · Bug · [Histogram.ts:136-148](packages/mochart/src/data/Histogram.ts#L136)** — **Open**
