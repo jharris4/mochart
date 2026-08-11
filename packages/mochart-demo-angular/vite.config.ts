@@ -6,6 +6,7 @@ export default defineConfig({
   // Each demo gallery pins its own port so they can run side by side.
   server: { port: 5180 },
   preview: { port: 4180 },
+  build: { sourcemap: true },
   resolve: {
     alias: {
       // Compile the binding from source together with the app: its published
