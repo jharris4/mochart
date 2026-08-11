@@ -136,6 +136,22 @@ describe('binValues', () => {
       expect(bins[i].value).toBeGreaterThanOrEqual(bins[i - 1].value);
     }
   });
+
+  it('ends a cumulative density curve at 1, not at 1 / bin width', () => {
+    // density divides by the bin width, so summing those values topped out at 1/width; a
+    // cumulative density has to integrate, which is what makes it a probability curve
+    const bins = binValues([1, 2, 3, 4], { binWidth: 2, cumulative: true, normalize: 'density' });
+    expect(bins[bins.length - 1].value).toBeCloseTo(1);
+    for (let i = 1; i < bins.length; i++) {
+      expect(bins[i].value).toBeGreaterThanOrEqual(bins[i - 1].value);
+    }
+  });
+
+  it('matches the cumulative probability curve bin for bin', () => {
+    const density = binValues([1, 2, 3, 4, 9], { binWidth: 2, cumulative: true, normalize: 'density' });
+    const probability = binValues([1, 2, 3, 4, 9], { binWidth: 2, cumulative: true, normalize: 'probability' });
+    expect(density.map(bin => bin.value)).toEqual(probability.map(bin => bin.value));
+  });
 });
 
 describe('createHistogram', () => {

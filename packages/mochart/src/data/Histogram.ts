@@ -48,7 +48,7 @@ export interface BinValuesOptions {
    * @default 'count'
    */
   normalize?: 'count' | 'probability' | 'density';
-  /** Whether each bin's `value` accumulates the values of the bins before it. */
+  /** Whether each bin's `value` accumulates the bins before it; with 'density' it integrates, so the curve still ends at 1. */
   cumulative?: boolean;
 }
 
@@ -144,7 +144,8 @@ export function binValues(values: readonly number[], options: BinValuesOptions =
     } else if (normalize === 'density' && total > 0) {
       value = bin.count / (total * (bin.end - bin.start));
     }
-    runningValue += value;
+    // cumulative density integrates rather than sums, so the curve ends at 1 like a probability
+    runningValue += normalize === 'density' ? value * (bin.end - bin.start) : value;
     bin.value = options.cumulative === true ? runningValue : value;
   }
   return bins;
