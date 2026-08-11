@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 32 fixed, 1 needing an answer, 123 open.** TOOL-2 is deferred to release time by
+**Status: 33 fixed, 1 needing an answer, 122 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -2895,7 +2895,7 @@ inputs — which is what the demo actually does, so the snapshots would pin reac
 Failing that, transform `rangeProperty` alongside `property` so bands at least stay coherent.
 
 ### TEST-17 — no test toggles a visibility flag on a mounted chart, and the gap hides a crash
-**High · Test gap · [TextMeasurement.ts:380](packages/mochart/src/utils/TextMeasurement.ts#L380), [LegendLayout.ts:53](packages/mochart/src/layout/LegendLayout.ts#L53)** **[verified]** — **Open**
+**High · Test gap · [TextMeasurement.ts:380](packages/mochart/src/utils/TextMeasurement.ts#L380), [LegendLayout.ts:53](packages/mochart/src/layout/LegendLayout.ts#L53)** **[verified]** — **Fixed**
 
 *Found by asking whether hiding and showing chart parts is covered; it is not.*
 
@@ -2941,10 +2941,34 @@ crosshair, series labels, axis line, base line, an axis title appearing, and leg
 So the defect is specific to the two legend measurement functions, not systemic — but nothing
 would have caught it, or would catch the next one.
 
-**Fix:** return an empty *array* from both legend measurement functions so the hidden shape matches
-the visible one, and drop the now-redundant union from their return types. Then add visibility
-transitions to `ConfigUpdateSmoke`, which already has the right oracle — at minimum one scenario per
-text-measuring part (chart title, legend, category axis, each value axis) in both directions.
+**Fixed.** `getLegendItemTextBounds` and `getLegendItemTextRawBounds` returned the `emptyBounds`
+*object* when the legend was hidden and an array when it was visible, so layout iterated a
+non-array on the frame the legend turned visible. Both now return `TextBounds[]` with **one entry
+per legend series either way**, measured or not — which is the invariant `getAllBounds` already
+maintains for the visible case, since it pads to the series list it is given.
+
+That single change fixes both the `not iterable` throw and the
+`Cannot destructure property 'paddingRelativeBounds'` crash sitting behind it: `LegendLayout`
+builds one layout entry per measured item while `Legend.sync` renders one per `showInLegend`
+series, so an array of the wrong length made the renderer index past the end. Keeping the length
+right at the source means `LegendLayout` needs no change at all.
+
+The unmeasured filler is deliberately **not** flagged `default`: `hasDefault` "keeps retrying
+bounds that could not be measured yet"
+([Chart.ts:733](packages/mochart/src/components/Chart.ts#L733)), so a legend that can never be
+measured while hidden would retry every frame.
+
+`getMaxBounds` loses the guard that tolerated the non-array shape.
+
+**Tests.** Four visibility scenarios added to `ConfigUpdateSmoke` — `legend.visible`,
+`title.text` null/set, `categoryAxis.visible`, `valueAxes.visible` — each run in **both**
+directions by the existing `directions()` helper, against the convergence oracle. The legend
+scenario fails on the unpatched source with the original `TypeError` and passes with the fix.
+
+One correction to the probe that found this: the original sweep reported "chart title" as
+converging, but it used `title.visible`, which is not a config property — both sides rendered a
+config error and compared equal. The title is hidden with `text: null`, and that transition does
+converge; the scenario added here uses the real property.
 
 ---
 
