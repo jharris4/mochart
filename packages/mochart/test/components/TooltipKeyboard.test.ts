@@ -63,6 +63,10 @@ function openTooltip(container: Element): void {
 }
 
 /** interactive rows of the visible tooltip copy, in DOM order */
+function liveText(container: Element): string {
+  return container.querySelector('[role="status"]')?.textContent ?? '';
+}
+
 function tooltipRows(container: Element): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip [data-row-key]'));
 }
@@ -542,6 +546,23 @@ describe('tooltip rows a series can opt out of', () => {
 });
 
 describe('tooltip control buttons', () => {
+  it('announces the category the step buttons move to', () => {
+    // the buttons went through a path that updated the tooltip but never the live region, so a
+    // screen reader kept reading whichever category the tooltip was opened on
+    const container = mountChart(makeConfig({ showControls: true }));
+    const rect = container.querySelector<SVGElement>('.mochart-series-background rect')!;
+    key(rect, 'Enter');
+    const opened = liveText(container);
+    expect(opened).toContain('Jan');
+
+    const next = Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip button'))
+      .find(button => button.textContent === '›')!;
+    next.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(liveText(container)).toContain('Feb');
+    expect(liveText(container)).not.toBe(opened);
+  });
+
   it('labels the step buttons and disables them at the ends via aria-disabled', () => {
     const container = mountChart(makeConfig({ showControls: true }));
     openTooltip(container);
