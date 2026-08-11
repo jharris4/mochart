@@ -35,10 +35,10 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
+**159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 41 fixed, 1 needing an answer, 117 open.** TOOL-2 is deferred to release time by
+**Status: 41 fixed, 1 needing an answer, 118 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -53,7 +53,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | § | Section | C | H | M | L | Total |
 |---|---|---|---|---|---|---|
 | [1](#1-core--data-pipeline) | Core — data pipeline | – | 2 | 2 | 3 | 7 |
-| [2](#2-core--animation-and-layout) | Core — animation & layout | **1** | 1 | 3 | 3 | 8 |
+| [2](#2-core--animation-and-layout) | Core — animation & layout | **1** | 2 | 3 | 3 | 9 |
 | [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 3 | 4 | 4 | 11 |
 | [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 3 | 12 |
 | [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 3 | 10 |
@@ -65,7 +65,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 5 | 17 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 7 | 6 | 16 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **32** | **71** | **54** | **158** |
+| | **Total** | **1** | **33** | **71** | **54** | **159** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -753,6 +753,42 @@ duration at `ChartTweens.ts:417` is smaller but leaves that. Wants a regression 
 divides by `categoryAxisDomain[1]` — the domain's upper *bound*, not its extent. On a domain of
 `[1000, 1010]` the denominator is `1010` instead of `10`, collapsing the weight to near zero so
 category motion finishes almost instantly. Same units mistake, opposite direction, also unclamped.
+
+### ANIM-7 — `showInLegend` rebuilds the whole chart and replays its opening animation
+**High · Bug · [mochartConfig.ts:360](packages/mochart/src/config/core/mochartConfig.ts#L360)** **[verified]** — **Open**
+
+`hasConfigStructureChange` treats a change to any series' `showInLegend` as structural, so the
+chart is torn down and rebuilt, replaying the opening animation
+([AnimatedDataSource.ts:108](packages/mochart/src/chart/AnimatedDataSource.ts#L108)). Every other
+entry in that list changes what the chart *is* — the chart type, the category property, the series
+set, which axis a series uses. This one only changes whether a series appears in the legend.
+
+Outside the config files the flag has exactly three readers: which items the legend renders
+([Legend.ts:174,206](packages/mochart/src/components/Legend.ts#L174)), which series get measured
+for the legend ([TextMeasurement.ts:366](packages/mochart/src/utils/TextMeasurement.ts#L366)), and
+one clamp comment in the legend layout. It touches no colours, no series rendering, no data. There
+is no structural reason for the rebuild.
+
+**Why it is currently necessary.** The legend's measured text sizes are an **array with one entry
+per legend series, matched by position**, and it is always one frame behind because measuring
+happens after drawing. A rebuild resets everything, so today the array is never out of step. Make
+the flag non-structural and it goes out of step exactly when the flag flips: the stored array
+describes the old set of legend items while the legend draws the new set. That is the same
+mismatch behind the crash in
+[TEST-17](#test-17--no-test-toggles-a-visibility-flag-on-a-mounted-chart-and-the-gap-hides-a-crash),
+where an array of the wrong length made the renderer index past its end.
+
+**Fix: stop matching by position.** Key the legend's measured sizes by series id rather than index.
+A stale set is then harmless — it simply has no entry for a series that just joined, which falls
+back to unmeasured for one frame and corrects on the next, exactly as first render already does.
+Then remove `showInLegend` from the structural list. Roughly five files: the two legend measuring
+functions in `TextMeasurement.ts`, their two fields in `types/layout.ts`, the two loops in
+`LegendLayout.ts`, the item build in `Legend.ts`, and the one-line list change. No public API
+change, and the rendered output should be identical, so golden snapshots should not move.
+
+Worth a `ConfigUpdateSmoke` scenario toggling `showInLegend` with `structural: false`, which is
+where the wrong-length array would show up.
+
 
 ---
 
