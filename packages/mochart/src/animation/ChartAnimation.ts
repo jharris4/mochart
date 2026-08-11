@@ -264,7 +264,7 @@ export function getChartDataForValueDelta(
     else {
       chartData = getChartDataWithValues(valueDeltaData.start, rawValues as unknown as DataSeriesValueObjects, filteredValues as unknown as DataSeriesValueObjects);
     }
-    // translating axes: the render domain moves with the values instead of via the union phases
+    // combined-domain axes: the render domain moves with the values instead of via the union phases
     const domainDeltas = valueDeltaData.deltas.domain;
     if (domainDeltas.raw.deltaPercentage !== 0 || domainDeltas.filtered.deltaPercentage !== 0) {
       const rawRenderAxisDomains = getAxisDomainsForDeltas(valueDeltaData.start.seriesData.raw.renderAxisDomains,
@@ -274,7 +274,7 @@ export function getChartDataForValueDelta(
       chartData = getChartDataWithSeriesData(chartData,
         getSeriesDataWithRenderAxisDomains(chartData.seriesData, rawRenderAxisDomains, filteredRenderAxisDomains));
     }
-    // a translating category axis (sliding window) slides its render domain with the values too
+    // a combined-domain category axis (e.g. a sliding window) slides its render domain with the values too
     if (domainDeltas.category.deltaPercentage !== 0) {
       const categoryRenderAxisDomain = getCategoryAxisDomainForDelta(mochartConfig.categoryAxis,
         valueDeltaData.start.categoryData.renderAxisDomain as AxisDomain, valueDeltaData.end.categoryData.renderAxisDomain as AxisDomain,

@@ -747,3 +747,23 @@ describe('dash array validation', () => {
     expect(invalid.some(error => error.includes('strokeWidth'))).toBe(true);
   });
 });
+
+// animation.domainChange is a closed enum: staged | combined | auto (the default)
+describe('animation.domainChange validation', () => {
+  const withDomainChange = (domainChange: unknown) => ({
+    version: V,
+    categoryAxis: { property: 'p' },
+    series: [{ property: 'a' }],
+    animation: { domainChange }
+  });
+
+  it('accepts each mode', () => {
+    for (const domainChange of ['auto', 'combined', 'staged']) {
+      expect(errorsFor(withDomainChange(domainChange))).toEqual([]);
+    }
+  });
+
+  it('rejects an unknown mode', () => {
+    expect(errorsFor(withDomainChange('sideways')).some(error => error.includes('domainChange'))).toBe(true);
+  });
+});

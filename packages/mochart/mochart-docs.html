@@ -143,6 +143,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#animation.contractionDuration">contractionDuration</a></td><td>the maximum duration for the axis contraction animation phase when new data is removed from the chart<br/><br/>Duration (in milliseconds) of the axis contraction phase, which plays last when the settled data needs smaller axis domains.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
 </tr>
+<tr id="animation.domainChange">
+<td><a href="#animation.domainChange">domainChange</a></td><td>how axis domain changes animate relative to value changes: staged, combined, or auto<br/><br/>`'staged'` always plays the union phases: axes expand to cover both the old and new domains, values tween, then axes contract. `'combined'` interpolates every changed axis domain together with the value changes in a single phase. `'auto'` (the default) combines only when a domain translates — the old and new domains barely overlap, as with a sliding time window or flat data changing level — and stages everything else. Combined domain changes are paced by `valueChangeDuration`; `expansionDuration` and `contractionDuration` do not apply to them.</td><td>should be one of [ "auto", "combined", "staged" ]</td><td><div>"auto"</div>
+</td>
+</tr>
 <tr id="animation.expansionDuration">
 <td><a href="#animation.expansionDuration">expansionDuration</a></td><td>the maximum duration for the axis expansion animation phase when new data is added to the chart<br/><br/>Duration (in milliseconds) of the axis expansion phase, which plays first when an update needs larger axis domains (new categories or larger values) so incoming data has room to land.</td><td>should be a number >= to 0</td><td><div>1000</div>
 </td>
