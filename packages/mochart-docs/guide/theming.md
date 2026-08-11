@@ -95,10 +95,11 @@ series: [{
 }]
 ```
 
-The one place it is rejected is the series color-scale bounds
-(`colorMin` / `colorMax` and friends): those are interpolated by d3 scales,
-which need concrete colors, so validation turns a keyword away rather than
-letting it produce `NaN` colors.
+The places it is rejected are the series color-scale bounds
+(`colorScale.min`, `colorScale.max`, `colorScale.missing` and
+`colorScale.base.*`), `colorPalette` entries, and gradient stop colors: those
+are interpolated by d3 scales, which need concrete colors, so validation turns a
+keyword away rather than letting it produce `NaN` colors.
 
 ## Exports
 
