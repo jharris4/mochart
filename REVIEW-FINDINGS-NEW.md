@@ -38,9 +38,9 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 30 fixed (3 partial), 5 needing an answer, 124 open.** ANIM-1's axis-bounds follow-up is
-now **implemented** — see its entry for what landed and where the build revised the design.
-ANIM-2's collapsed-domain follow-up remains **decided and awaiting implementation**.
+**Status: 30 fixed (2 partial), 5 needing an answer, 124 open.** ANIM-1's and ANIM-2's follow-ups
+are both **implemented** — see their entries for what landed and where the build revised each
+design. Every remaining High finding is waiting on an answer.
 
 Findings marked **[verified]** were independently re-confirmed with a runnable probe
 or direct source read during assembly, over and above the auditing agent's own work.
@@ -472,7 +472,7 @@ indicator, clipped data is no longer silent, and a console warning would add noi
 information.
 
 ### ANIM-2 — a zero-span domain makes every update flash to zero, then to full height
-**High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Partially fixed**; collapsed-domain drawing decided, not yet implemented
+**High · Bug · [DomainAnimationData.ts:72-80](packages/mochart/src/animation/DomainAnimationData.ts#L72), [SeriesAnimationData.ts:534](packages/mochart/src/animation/SeriesAnimationData.ts#L534)** — **Fixed**
 
 When all values on an axis are equal the domain collapses (`[7, 7]`). d3 renders that at
 the range midpoint, but the expansion/contraction phases interpolate to and from a
@@ -529,7 +529,48 @@ widening the domain at its source, which is the decision recorded below.
 The commit message on `2bceea43` carries the same wrong claim about `base`; this entry is the
 correction of record.
 
-#### Follow-up: collapsed-domain drawing — **decided, not yet implemented**
+#### Follow-up: collapsed-domain drawing — **implemented**
+
+Landed in six commits (`acac2c13`..`8ee531ed`), and in two halves rather than the one the decision
+below anticipated.
+
+**Rendering: a separate render domain, widened proportionally.** `getRenderAxisDomain`
+([AxisDomainData.ts](packages/mochart/src/data/AxisDomainData.ts)) returns a widened copy for a
+collapsed domain, carried alongside the semantic one as `renderAxisDomain`. Scales and ticks read
+the widened copy; anything that reads the domain as the configured bound — the axis base, clip
+detection — keeps the semantic one, so an explicit `min: 5, max: 5` still renders ticks at 5.
+The widening is `±5%` of the value put through d3's `.nice()`, not the fixed `±0.5` the decision
+called for: a fixed span makes tick labels identical at large magnitudes, since a span of 1
+against a value of 1,000,000 differs only in the seventh digit. Zero widens upward to `[0, 1]`.
+Date axes widen by the finest unit their tick format implies, defaulting to one day.
+
+**Animation: the union is now optional.** The flash was not caused by the collapsed domain at all
+— it came from the animation expanding to the *union* of the old and new domains, moving the
+values, then contracting. For a domain that translates rather than grows, the union dwarfs both
+ends, so the two rescaling phases dominate. New config `animation.valueDomainChange` and
+`animation.categoryDomainChange` (`staged` / `combined` / `auto`) choose between the union phases
+and interpolating the domain together with the values in one phase. Value axes default to `auto`,
+which combines only when a domain translates; category axes default to `staged`, because a
+category domain change usually also changes the category set and the union shows where the data
+moved.
+
+**Measured after, as bar height in pixels on an 800×600 chart:**
+
+| Case | Before | After |
+|---|---|---|
+| single value 3 → 5 | 278 → 96 → 456 → 278 | 278 throughout |
+| single value 10 → 40 | 278 → 10 → 545 → 278 | 278 throughout |
+| flat 10,10,10 → 40,40,40 | 278 → 10 → 545 → 278 | 278 throughout |
+| flat 10,10,10 → 10,11,10 | 278 → 26 → 537 → 26 | 278 → 232 → 180 → 26 |
+| all-zero tick label | `NaN` | `0.0` … `1.0` |
+| frames in the initial animation | 2 (never played) | 33 |
+
+Where the before and after frames are identical the mark now holds still, which is the honest
+rendering: a single value always sits at the domain midpoint, so it has nowhere to go and only the
+tick labels can carry the change. Where the data genuinely changes shape the mark moves
+monotonically instead of collapsing and ballooning first.
+
+The original decision, kept for the reasoning behind it:
 
 **Decided: widen a zero-extent domain once, before it reaches the scale.** This is where a
 collapsed domain gets handled for *every* route into it, not just the animation one — flat data
