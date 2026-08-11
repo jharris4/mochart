@@ -115,7 +115,7 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
     const { categoryAxis: categoryAxisConfig, seriesIndicesById: seriesConfigIndicesById, colorPalette: colorPaletteConfig } = mochartConfig;
 
     const { raw, filtered } = seriesData;
-    const { domains: rawDomains, axisDomains: rawValueAxisDomains } = raw;
+    const { domains: rawDomains, renderAxisDomains: rawValueAxisDomains } = raw;
     const { values: filteredValues } = filtered;
 
     const orderedSeriesConfigs = getSeriesConfigsOrderedByFocus(mochartConfig, focusData);

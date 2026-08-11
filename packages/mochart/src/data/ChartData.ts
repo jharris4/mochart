@@ -1,5 +1,5 @@
-import { getCategoryData, getCategoryDataWithAxisDomain, getCategoryValueObject } from './CategoryData';
-import { getSeriesData, getSeriesDataWithAxisDomains, getSeriesDataWithDomains, getSeriesDataWithSeriesValues, getSeriesValueObjects } from './SeriesData';
+import { getCategoryData, getCategoryDataWithRenderAxisDomain, getCategoryValueObject } from './CategoryData';
+import { getSeriesData, getSeriesDataWithRenderAxisDomains, getSeriesDataWithDomains, getSeriesDataWithSeriesValues, getSeriesValueObjects } from './SeriesData';
 import type { EnhancedMochartConfig } from '../types/enhanced';
 import type { AxisDomains, ChartData, DataProvider, CategoryAxisDomain, CategoryData, SeriesData, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
 
@@ -31,9 +31,9 @@ export function getChartDataWithData(chartData: ChartData, categoryData: Categor
   return Object.assign({}, chartData, { categoryData, seriesData });
 }
 
-export function getChartDataWithAxisDomains(chartData: ChartData, categoryAxisDomain: CategoryAxisDomain, rawValueAxisDomains: AxisDomains, filteredValueAxisDomains: AxisDomains): ChartData {
-  return getChartDataWithData(chartData, getCategoryDataWithAxisDomain(chartData.categoryData, categoryAxisDomain),
-    getSeriesDataWithAxisDomains(chartData.seriesData, rawValueAxisDomains, filteredValueAxisDomains));
+export function getChartDataWithRenderAxisDomains(chartData: ChartData, categoryRenderAxisDomain: CategoryAxisDomain, rawRenderAxisDomains: AxisDomains, filteredRenderAxisDomains: AxisDomains): ChartData {
+  return getChartDataWithData(chartData, getCategoryDataWithRenderAxisDomain(chartData.categoryData, categoryRenderAxisDomain),
+    getSeriesDataWithRenderAxisDomains(chartData.seriesData, rawRenderAxisDomains, filteredRenderAxisDomains));
 }
 
 export function getChartDataWithSeriesDomains(chartData: ChartData, rawSeriesDomains: SeriesDomainObjects, filteredSeriesDomains: SeriesDomainObjects): ChartData {

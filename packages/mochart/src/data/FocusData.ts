@@ -237,13 +237,13 @@ export function getSeriesConfigsOrderedByFocus(mochartConfig: EnhancedMochartCon
 function getCategoryFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, categoryData: CategoryData, focusedCategoryIndex: number): number[] {
   let categoryPercentages: number[] = [];
   if (isFocused(focusedCategoryIndex)) {
-    const { axisDomain, values } = categoryData;
+    const { renderAxisDomain, values } = categoryData;
     const { numeric } = values;
     const value = numeric[focusedCategoryIndex];
-    const min = axisDomain[0];
-    const max = axisDomain[1];
+    const min = renderAxisDomain[0];
+    const max = renderAxisDomain[1];
     if (min !== null && max !== null && value >= +min && value <= +max) {
-      const { categoryRange } = getCategorySpacingInfo(mochartConfig.categoryAxis, axisDomain, 1);
+      const { categoryRange } = getCategorySpacingInfo(mochartConfig.categoryAxis, renderAxisDomain, 1);
       const minPercentage = categoryRange[0];
       const maxPercentage = categoryRange[1];
       const extentPercentage = maxPercentage - minPercentage;
@@ -264,7 +264,7 @@ function getValueAxisFocusDomainPercentages(mochartConfig: EnhancedMochartConfig
     const valueAxisConfig = mochartConfig.valueAxesById[focusedValueAxisId];
     const { raw, filtered } = seriesData;
     const { id } = valueAxisConfig;
-    const axisDomains = valueAxisConfig.adjustForFiltering ? filtered.axisDomains : raw.axisDomains;
+    const axisDomains = valueAxisConfig.adjustForFiltering ? filtered.renderAxisDomains : raw.renderAxisDomains;
     const axisDomain = axisDomains[id];
     if (axisDomain[0] !== null && axisDomain[1] !== null) {
       const completeDomain: [number, number] = [axisDomain[0], axisDomain[1]];
@@ -292,7 +292,7 @@ function getSeriesFocusDomainPercentages(mochartConfig: EnhancedMochartConfig, s
       const { id } = seriesConfig;
       const axis = seriesConfig.axis!;
       const valueAxisConfig = seriesConfig.valueAxisConfig!;
-      const axisDomains = valueAxisConfig.adjustForFiltering ? filtered.axisDomains : raw.axisDomains;
+      const axisDomains = valueAxisConfig.adjustForFiltering ? filtered.renderAxisDomains : raw.renderAxisDomains;
       const axisDomain = axisDomains[axis] as [number, number];
       const axisBase = axisBases[axis];
 

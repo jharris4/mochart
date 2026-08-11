@@ -90,9 +90,10 @@ describe('getChartDataForAxisDelta (category added)', () => {
     chartDataFor([{ c: 0, a: 10 }, { c: 1, a: 20 }, { c: 2, a: 30 }])
   );
 
-  it('expands the ordinal category domain from the start to the end span', () => {
-    expect(getChartDataForAxisDelta(config, cad, true, 0).categoryData.axisDomain).toEqual([0, 1]);
-    expect(getChartDataForAxisDelta(config, cad, true, 1).categoryData.axisDomain).toEqual([0, 2]);
+  it('expands the ordinal category render domain from the start to the end span', () => {
+    // the animation moves the render domain only; the semantic domain switches with the chart data
+    expect(getChartDataForAxisDelta(config, cad, true, 0).categoryData.renderAxisDomain).toEqual([0, 1]);
+    expect(getChartDataForAxisDelta(config, cad, true, 1).categoryData.renderAxisDomain).toEqual([0, 2]);
   });
 });
 

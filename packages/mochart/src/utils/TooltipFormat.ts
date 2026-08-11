@@ -221,7 +221,7 @@ export function getTooltipAnnouncement(mochartConfig: EnhancedMochartConfig, too
   }
 
   const rows: string[] = [];
-  const valueFormats = getSeriesFormats(seriesConfigs, valueAxisConfigs, raw.axisDomains);
+  const valueFormats = getSeriesFormats(seriesConfigs, valueAxisConfigs, raw.renderAxisDomains);
   for (const seriesConfig of seriesConfigs) {
     if (!seriesConfig.showInTooltip) {
       continue;

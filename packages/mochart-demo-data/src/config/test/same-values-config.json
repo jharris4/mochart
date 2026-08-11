@@ -13,5 +13,8 @@
       "markerShape": "circle",
       "property": "value"
     }
-  ]
+  ],
+  "legend": {
+    "visible": true
+  }
 }

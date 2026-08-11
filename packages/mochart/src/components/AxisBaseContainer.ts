@@ -31,8 +31,8 @@ export default class AxisBaseContainer extends Renderer<AxisBaseContainerProps> 
     const { plot: plotConfig, valueAxes: valueAxisConfigs } = mochartConfig;
     const { valueAxisFocusPercentages, seriesFocusPercentages } = focusData;
     const { filtered, raw } = seriesData;
-    const { axisDomains: filteredDomains } = filtered;
-    const { axisDomains: rawDomains } = raw;
+    const { renderAxisDomains: filteredDomains } = filtered;
+    const { renderAxisDomains: rawDomains } = raw;
 
     this.root.set({ className: mochartCssClasses['axisBaseContainer'] });
 

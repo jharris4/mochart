@@ -1,10 +1,10 @@
 import { getDomainExtents, getMaxDomain, copyDomain } from '../data/DomainData';
 
-import { getCategoryDataWithAxisDomain, getCategoryDataWithNumericValues } from '../data/CategoryData';
+import { getCategoryDataWithRenderAxisDomain, getCategoryDataWithNumericValues } from '../data/CategoryData';
 
-import { getChartDataWithData, getChartDataWithAxisDomains, getChartDataWithSeriesData } from '../data/ChartData';
+import { getChartDataWithData, getChartDataWithRenderAxisDomains, getChartDataWithSeriesData } from '../data/ChartData';
 
-import { getSeriesDataWithAxisDomains, getSeriesDataWithAxisBases, getSeriesDataWithDomains, getValueAxisBases } from '../data/SeriesData';
+import { getSeriesDataWithRenderAxisDomains, getSeriesDataWithAxisBases, getSeriesDataWithDomains, getValueAxisBases } from '../data/SeriesData';
 
 import { domainKeys } from '../data/constants';
 
@@ -132,12 +132,14 @@ function copySeriesDomain(seriesDomainObject: SeriesDomainObject): SeriesDomainO
  *
  **/
 
+// the animation interpolates render domains only — the drawn geometry; the semantic domains ride
+// along unchanged from whichever chart data a frame was built on (clip detection reads those)
 export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartConfig, prevChartData: ChartData, newChartData: ChartData, categoryDeltaData: CategoryDeltaData): AxisDeltaData {
   let finalChartData = prevChartData;
   let endChartData = prevChartData;
   let finalCategoryData = prevChartData.categoryData;
   let endCategoryData = prevChartData.categoryData;
-  let finalCategoryAxisDomain = prevChartData.categoryData.axisDomain;
+  let finalCategoryAxisDomain = prevChartData.categoryData.renderAxisDomain;
 
   let categoryValueDeltaData: CompleteNumericArrayDelta | null = null;
 
@@ -147,17 +149,17 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
 
   if (categoryAxisConfig.scale === SCALE_ORDINAL) {
     if (hasCategoryAdditions(categoryDeltaData)) {
-      startCategoryAxisDomain = prevChartData.categoryData.axisDomain;
+      startCategoryAxisDomain = prevChartData.categoryData.renderAxisDomain;
       endCategoryAxisDomain = [0, (categoryDeltaData.indices.old.length + categoryDeltaData.indices.added.length) - 1];
     }
     else {
-      startCategoryAxisDomain = prevChartData.categoryData.axisDomain;
-      endCategoryAxisDomain = prevChartData.categoryData.axisDomain;
+      startCategoryAxisDomain = prevChartData.categoryData.renderAxisDomain;
+      endCategoryAxisDomain = prevChartData.categoryData.renderAxisDomain;
     }
   }
   else {
-    startCategoryAxisDomain = copyDomain(prevChartData.categoryData.axisDomain);
-    endCategoryAxisDomain = getMaxDomain(prevChartData.categoryData.axisDomain, newChartData.categoryData.axisDomain);
+    startCategoryAxisDomain = copyDomain(prevChartData.categoryData.renderAxisDomain);
+    endCategoryAxisDomain = getMaxDomain(prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain);
     setBaseDomainForChanges(startCategoryAxisDomain, endCategoryAxisDomain);
   }
 
@@ -166,8 +168,8 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
     finalCategoryAxisDomain = endCategoryAxisDomain;
     categoryValueDeltaData = getExpansionCategoryValueDeltaData(categoryAxisConfig, categoryDeltaData, prevChartData, newChartData, endCategoryAxisDomain);
 
-    endCategoryData = getCategoryDataWithAxisDomain(prevChartData.categoryData, endCategoryAxisDomain);
-    finalCategoryData = getCategoryDataWithAxisDomain(prevChartData.categoryData, finalCategoryAxisDomain);
+    endCategoryData = getCategoryDataWithRenderAxisDomain(prevChartData.categoryData, endCategoryAxisDomain);
+    finalCategoryData = getCategoryDataWithRenderAxisDomain(prevChartData.categoryData, finalCategoryAxisDomain);
 
     if (categoryValueDeltaData !== null) {
       endCategoryData = getCategoryDataWithNumericValues(endCategoryData, categoryValueDeltaData.end);
@@ -177,14 +179,14 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
 
   let finalSeriesData = prevChartData.seriesData;
   let endSeriesData = prevChartData.seriesData;
-  let finalRawValueAxisDomains = prevChartData.seriesData.raw.axisDomains;
-  let finalFilteredValueAxisDomains = prevChartData.seriesData.filtered.axisDomains;
+  let finalRawValueAxisDomains = prevChartData.seriesData.raw.renderAxisDomains;
+  let finalFilteredValueAxisDomains = prevChartData.seriesData.filtered.renderAxisDomains;
   let finalValueAxisBases = prevChartData.seriesData.axisBases;
 
-  const startRawValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.raw.axisDomains);
-  const startFilteredValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.filtered.axisDomains);
-  let endRawValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.raw.axisDomains);
-  let endFilteredValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.filtered.axisDomains);
+  const startRawValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.raw.renderAxisDomains);
+  const startFilteredValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains);
+  let endRawValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.raw.renderAxisDomains);
+  let endFilteredValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.filtered.renderAxisDomains);
   setAllBaseAxisDomainsForChanges(startRawValueAxisDomains, endRawValueAxisDomains);
   setAllBaseAxisDomainsForChanges(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
 
@@ -195,14 +197,14 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
 
   if (rawValueAxisDomainDeltas.deltaPercentage !== 0) {
     endRawValueAxisDomains = getMaxAxisDomains(startRawValueAxisDomains, endRawValueAxisDomains);
-    finalRawValueAxisDomains = getMaxAxisDomains(prevChartData.seriesData.raw.axisDomains, newChartData.seriesData.raw.axisDomains);
+    finalRawValueAxisDomains = getMaxAxisDomains(prevChartData.seriesData.raw.renderAxisDomains, newChartData.seriesData.raw.renderAxisDomains);
   }
   else {
     endRawValueAxisDomains = startRawValueAxisDomains;
   }
   if (filteredValueAxisDomainDeltas.deltaPercentage !== 0) {
     endFilteredValueAxisDomains = getMaxAxisDomains(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
-    finalFilteredValueAxisDomains = getMaxAxisDomains(prevChartData.seriesData.filtered.axisDomains, newChartData.seriesData.filtered.axisDomains);
+    finalFilteredValueAxisDomains = getMaxAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains);
     finalValueAxisBases = getValueAxisBases(valueAxisConfigs, finalRawValueAxisDomains, finalFilteredValueAxisDomains);
   }
   else {
@@ -239,9 +241,9 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
 
   if (rawValueAxisDomainDeltas.deltaPercentage !== 0 || filteredValueAxisDomainDeltas.deltaPercentage !== 0 ||
       rawSeriesDomainDeltas.deltaPercentage !== 0 || filteredSeriesDomainDeltas.deltaPercentage !== 0) {
-    endSeriesData = getSeriesDataWithAxisDomains(endSeriesData, endRawValueAxisDomains, endFilteredValueAxisDomains);
+    endSeriesData = getSeriesDataWithRenderAxisDomains(endSeriesData, endRawValueAxisDomains, endFilteredValueAxisDomains);
     endSeriesData = getSeriesDataWithDomains(endSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
-    finalSeriesData = getSeriesDataWithAxisDomains(finalSeriesData, finalRawValueAxisDomains, finalFilteredValueAxisDomains);
+    finalSeriesData = getSeriesDataWithRenderAxisDomains(finalSeriesData, finalRawValueAxisDomains, finalFilteredValueAxisDomains);
     finalSeriesData = getSeriesDataWithAxisBases(finalSeriesData, finalValueAxisBases);
     finalSeriesData = getSeriesDataWithDomains(finalSeriesData, finalRawSeriesDomains, finalFilteredSeriesDomains);
   }
@@ -252,7 +254,7 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
     endChartData = getChartDataWithData(prevChartData, endCategoryData, endSeriesData);
   }
 
-  let startChartData = getChartDataWithAxisDomains(prevChartData, startCategoryAxisDomain, startRawValueAxisDomains, startFilteredValueAxisDomains);
+  let startChartData = getChartDataWithRenderAxisDomains(prevChartData, startCategoryAxisDomain, startRawValueAxisDomains, startFilteredValueAxisDomains);
   startChartData = getChartDataWithSeriesData(startChartData, getSeriesDataWithDomains(startChartData.seriesData, startRawSeriesDomains, startFilteredSeriesDomains));
 
   adjustFilteredAxisDomainDeltas(valueAxisConfigs, rawValueAxisDomainDeltas, filteredValueAxisDomainDeltas);
@@ -270,8 +272,8 @@ export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartC
 
   let categoryValueDeltaData: CompleteNumericArrayDelta | null = null;
 
-  const startCategoryAxisDomain = copyDomain(prevChartData.categoryData.axisDomain);
-  const endCategoryAxisDomain = copyDomain(newChartData.categoryData.axisDomain);
+  const startCategoryAxisDomain = copyDomain(prevChartData.categoryData.renderAxisDomain);
+  const endCategoryAxisDomain = copyDomain(newChartData.categoryData.renderAxisDomain);
   setBaseDomainForChanges(startCategoryAxisDomain, endCategoryAxisDomain);
 
   const { categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, series: seriesConfigs } = mochartConfig;
@@ -280,17 +282,17 @@ export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartC
   if (categoryAxisDomainDelta.deltaPercentage !== 0) {
     categoryValueDeltaData = getContractionCategoryValueDeltaData(categoryAxisConfig, categoryDeltaData, prevChartData, newChartData, startCategoryAxisDomain);
 
-    startCategoryData = getCategoryDataWithAxisDomain(startCategoryData, startCategoryAxisDomain);
-    endCategoryData = getCategoryDataWithAxisDomain(endCategoryData, endCategoryAxisDomain);
+    startCategoryData = getCategoryDataWithRenderAxisDomain(startCategoryData, startCategoryAxisDomain);
+    endCategoryData = getCategoryDataWithRenderAxisDomain(endCategoryData, endCategoryAxisDomain);
   }
 
   let startSeriesData = newChartData.seriesData;
   let endSeriesData = newChartData.seriesData;
 
-  const startRawValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.raw.axisDomains);
-  const startFilteredValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.filtered.axisDomains);
-  const endRawValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.raw.axisDomains);
-  const endFilteredValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.filtered.axisDomains);
+  const startRawValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.raw.renderAxisDomains);
+  const startFilteredValueAxisDomains = copyValueAxisDomains(prevChartData.seriesData.filtered.renderAxisDomains);
+  const endRawValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.raw.renderAxisDomains);
+  const endFilteredValueAxisDomains = copyValueAxisDomains(newChartData.seriesData.filtered.renderAxisDomains);
   setAllBaseAxisDomainsForChanges(startRawValueAxisDomains, endRawValueAxisDomains);
   setAllBaseAxisDomainsForChanges(startFilteredValueAxisDomains, endFilteredValueAxisDomains);
 
@@ -311,9 +313,9 @@ export function getTransitionAxisContractionData(mochartConfig: EnhancedMochartC
 
   if (rawValueAxisDomainDeltas.deltaPercentage !== 0 || filteredValueAxisDomainDeltas.deltaPercentage !== 0 ||
     rawSeriesDomainDeltas.deltaPercentage !== 0 || filteredSeriesDomainDeltas.deltaPercentage !== 0) {
-    startSeriesData = getSeriesDataWithAxisDomains(startSeriesData, startRawValueAxisDomains, startFilteredValueAxisDomains);
+    startSeriesData = getSeriesDataWithRenderAxisDomains(startSeriesData, startRawValueAxisDomains, startFilteredValueAxisDomains);
     startSeriesData = getSeriesDataWithDomains(startSeriesData, startRawSeriesDomains, startFilteredSeriesDomains);
-    endSeriesData = getSeriesDataWithAxisDomains(endSeriesData, endRawValueAxisDomains, endFilteredValueAxisDomains);
+    endSeriesData = getSeriesDataWithRenderAxisDomains(endSeriesData, endRawValueAxisDomains, endFilteredValueAxisDomains);
     endSeriesData = getSeriesDataWithDomains(endSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
   }
 

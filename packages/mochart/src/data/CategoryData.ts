@@ -1,5 +1,5 @@
 import { getCategoryDomainForValues } from './DomainData';
-import { getAxisDomain } from './AxisDomainData';
+import { getAxisDomain, getRenderAxisDomain } from './AxisDomainData';
 import { NONE, TYPE_DATE, SCALE_ORDINAL } from '../config/core/constants';
 import type { CategoryAxisConfig } from '../types/config';
 import type {
@@ -28,15 +28,18 @@ export function getCategoryDataFromValues(
 ): CategoryData {
   const categoryValues = getCategoryValues(categoryAxisConfig, rawCategoryValues, displayCategoryValues, numericCategoryValueOffsets);
   const axisDomain = getCategoryAxisDomain(categoryAxisConfig, categoryValues.parsed);
+  // an ordinal domain is index-based and already handled when collapsed, so it is never widened
+  const renderAxisDomain = categoryAxisConfig.scale === SCALE_ORDINAL ? axisDomain : getRenderAxisDomain(categoryAxisConfig, axisDomain);
 
   return {
     axisDomain,
+    renderAxisDomain,
     values: categoryValues
   };
 }
 
-export function getCategoryDataWithAxisDomain(categoryData: CategoryData, axisDomain: CategoryAxisDomain): CategoryData {
-  return Object.assign({}, categoryData, { axisDomain });
+export function getCategoryDataWithRenderAxisDomain(categoryData: CategoryData, renderAxisDomain: CategoryAxisDomain): CategoryData {
+  return Object.assign({}, categoryData, { renderAxisDomain });
 }
 
 export function getCategoryDataWithNumericValues(categoryData: CategoryData, numericValues: number[]): CategoryData {

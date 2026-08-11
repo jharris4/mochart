@@ -148,4 +148,10 @@ describe('both axes at once', () => {
     });
     expect(result).toEqual(['right', 'top']);
   });
+
+  // clip detection reads the semantic domain: only the scale's render domain widens, so a value
+  // past a collapsed explicit bound is flagged even though the widened scale can still place it
+  it('flags a value outside a collapsed explicit value bound as clipped', () => {
+    expect(clipped({ valueAxes: [{ min: 5, max: 5 }] }, [{ c: 0, v: 5 }, { c: 1, v: 5.4 }])).toEqual(['top']);
+  });
 });

@@ -3,6 +3,7 @@ import { format } from 'd3-format';
 import { timeFormat, utcFormat } from 'd3-time-format';
 
 import { getWithMutations } from '../utils/WithMutations';
+import { isExplicitCollapsedDomain } from './AxisDomainData';
 import { areArraysAndEqual, arrayToMap, idAccessor } from '../utils/utils';
 import { AUTO, NONE, SCALE_ORDINAL, SCALE_LINEAR, TYPE_DATE, TYPE_NUMBER, ANCHOR_START, ANCHOR_END, ANCHOR_MIDDLE } from '../config/core/constants';
 import type { AxisConfigBase, CategoryAxisConfig, PlotConfig } from '../types/config';
@@ -62,10 +63,12 @@ function getCategoryAxisData(categoryAxisConfig: CategoryAxisConfig, axisLayoutI
   let categoryAxisData: CategoryAxisData | null = null;
   if (chartData) {
     const { categoryData } = chartData;
-    const spacingInfo = getCategorySpacingInfo(categoryAxisConfig, categoryData.axisDomain, axisLayoutInfo.categoryExtent);
-    const axisScale = getCategoryAxisScale(categoryAxisConfig, categoryData.axisDomain, spacingInfo);
+    const spacingInfo = getCategorySpacingInfo(categoryAxisConfig, categoryData.renderAxisDomain, axisLayoutInfo.categoryExtent);
+    const axisScale = getCategoryAxisScale(categoryAxisConfig, categoryData.renderAxisDomain, spacingInfo);
     const positions = getCategoryValuePositions(categoryAxisConfig, axisScale, categoryData.values);
-    const axisTickData = getCategoryAxisTickData(categoryAxisConfig, axisLayoutInfo, axisScale, categoryData.axisDomain, categoryData.values.parsed, positions);
+    // explicit min === max: the single tick belongs at the configured value, not at the widened render bounds
+    const tickDomain = isExplicitCollapsedDomain(categoryAxisConfig, categoryData.axisDomain) ? categoryData.axisDomain : categoryData.renderAxisDomain;
+    const axisTickData = getCategoryAxisTickData(categoryAxisConfig, axisLayoutInfo, axisScale, tickDomain, categoryData.values.parsed, positions);
     const maxTickLabelLength = getMaxTickLabelLength(categoryAxisConfig, categoryData.values.parsed, axisTickData, spacingInfo);
 
     categoryAxisData = {
@@ -80,8 +83,8 @@ function getValueAxisData(plotConfig: PlotConfig, valueAxisConfigs: EnhancedValu
   if (chartData) {
     const vertical = !plotConfig.inverted;
     const { seriesData } = chartData;
-    const axisScales = getValueAxisScales(valueAxisConfigs, seriesData.raw.axisDomains, seriesData.filtered.axisDomains, axisLayoutInfoArray, vertical);
-    const axisTickData = getValueAxisTickData(valueAxisConfigs, axisLayoutInfoArray, seriesData.raw.axisDomains, seriesData.filtered.axisDomains, seriesData.axisSeriesCounts, axisScales, vertical);
+    const axisScales = getValueAxisScales(valueAxisConfigs, seriesData.raw.renderAxisDomains, seriesData.filtered.renderAxisDomains, axisLayoutInfoArray, vertical);
+    const axisTickData = getValueAxisTickData(valueAxisConfigs, axisLayoutInfoArray, seriesData, axisScales, vertical);
 
     valueAxisData = {
       axisScales, axisTickData
@@ -191,10 +194,10 @@ export function getCategoryAxisTickData(axisConfig: CategoryAxisConfig, axisLayo
         scaleTicks = [0];
       }
       else {
-        const axisMin = axisScale.domain()[0];
-        const axisMax = axisScale.domain()[1];
-        // value compare: d3 time scales return fresh Date objects from domain()
-        if (+axisMin !== +axisMax) {
+        const axisMin = axisDomain[0];
+        const axisMax = axisDomain[1];
+        // tickDomain, not the scale: an explicit collapsed domain draws one tick at its value
+        if (axisMin !== null && axisMax !== null && +axisMin !== +axisMax) {
           scaleTicks = [axisMin, axisMax];
         }
         else {
@@ -304,14 +307,18 @@ function getMaxTickLabelLength(_categoryAxisConfig: CategoryAxisConfig, category
   return categoryValues.length / axisTickData.reduce((count, tick) => count + (tick.hidden ? 0 : 1), 0) * spacingInfo.categoryValueExtent;
 }
 
-function getValueAxisTickData(axisConfigArray: EnhancedValueAxisConfig[], axisLayoutInfoArray: ChartLayoutInfo['valueAxisLayoutInfos'], rawAxisDomainArray: Record<string, NullableDomain>, filteredAxisDomainArray: Record<string, NullableDomain>, filteredSeriesCountArray: Record<string, number>, axisScaleArray: Record<string, AxisScale>, vertical: boolean): Record<string, AxisTick[]> {
+function getValueAxisTickData(axisConfigArray: EnhancedValueAxisConfig[], axisLayoutInfoArray: ChartLayoutInfo['valueAxisLayoutInfos'], seriesData: ChartData['seriesData'], axisScaleArray: Record<string, AxisScale>, vertical: boolean): Record<string, AxisTick[]> {
   return arrayToMap(axisConfigArray, idAccessor, axisConfig => {
     const axisId = axisConfig.id;
-    return getValueAxisTickDataObject(axisConfig, axisLayoutInfoArray[axisId], rawAxisDomainArray[axisId], filteredAxisDomainArray[axisId], filteredSeriesCountArray[axisId], axisScaleArray[axisId], vertical);
+    // explicit min === max: the single tick belongs at the configured value, not at the widened render bounds
+    const explicitCollapsed = isExplicitCollapsedDomain(axisConfig, seriesData.raw.axisDomains[axisId]);
+    const rawDomain = explicitCollapsed ? seriesData.raw.axisDomains[axisId] : seriesData.raw.renderAxisDomains[axisId];
+    const filteredDomain = explicitCollapsed ? seriesData.filtered.axisDomains[axisId] : seriesData.filtered.renderAxisDomains[axisId];
+    return getValueAxisTickDataObject(axisConfig, axisLayoutInfoArray[axisId], rawDomain, filteredDomain, seriesData.raw.renderAxisDomains[axisId], seriesData.axisSeriesCounts[axisId], axisScaleArray[axisId], vertical);
   });
 }
 
-function getValueAxisTickDataObject(axisConfig: EnhancedValueAxisConfig, axisLayoutInfo: AxisLayoutInfo, rawValueAxisDomain: NullableDomain, filteredValueAxisDomain: NullableDomain, filteredSeriesCount: number, axisScale: AxisScale, vertical: boolean): AxisTick[] {
+function getValueAxisTickDataObject(axisConfig: EnhancedValueAxisConfig, axisLayoutInfo: AxisLayoutInfo, rawValueAxisDomain: NullableDomain, filteredValueAxisDomain: NullableDomain, rawRenderValueAxisDomain: NullableDomain, filteredSeriesCount: number, axisScale: AxisScale, vertical: boolean): AxisTick[] {
   let ticks: AxisTick[] = [];
   if (axisConfig.ticks !== NONE) {
     if (axisConfig.visibleWhenAllFiltered || filteredSeriesCount > 0) {
@@ -358,7 +365,8 @@ function getValueAxisTickDataObject(axisConfig: EnhancedValueAxisConfig, axisLay
         scaleTicks = axisScale.ticks(tickCount);
       }
     }
-    const formatAxisScale = adjustTickLabelsForFiltering ? axisScale : getValueAxisScaleForDomain(axisConfig, axisLayoutInfo, rawValueAxisDomain, vertical);
+    // always the render domain: a collapsed domain gives tickFormat a zero step and garbage precision
+    const formatAxisScale = adjustTickLabelsForFiltering ? axisScale : getValueAxisScaleForDomain(axisConfig, axisLayoutInfo, rawRenderValueAxisDomain, vertical);
     const tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, formatAxisScale, scaleTicks.length);
     const { preTicks, postTicks } = getLinearAxisExtraTicks(tickBoundsValueAxisDomain, axisScale, scaleTicks);
     const tickInterval = scaleTicks.length > tickCount ? 2 : 1
