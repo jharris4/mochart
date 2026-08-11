@@ -25,7 +25,8 @@
       "notes": "Shift every date forward by several days (more than half the window) in the Data tab and the category domain change classifies as a translation: the window slides during the value phase — marks enter and leave through the plot edges — instead of expanding to the union of the old and new date ranges and contracting afterwards.",
       "config": "sliding-window-config.json",
       "data": "sliding-window-data.json",
-      "random": "positive-random.json"
+      "random": "positive-random.json",
+      "goldenCategoryShift": 5
     },
     {
       "id": "tick-prune",
