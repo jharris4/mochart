@@ -7,6 +7,8 @@ phases, so only one kind of change is in motion at a time.
 
 <script setup>
 import * as animation from '../examples/animation'
+import * as valueDomain from '../examples/animation-value-domain'
+import * as categoryDomain from '../examples/animation-category-domain'
 </script>
 
 Watch the phases — the alternate dataset adds categories *and* raises the
@@ -32,6 +34,73 @@ Phases that a given update doesn't need are skipped, and each phase's
 duration scales with the size of its change, so small updates stay snappy
 while large ones use the full configured duration.
 
+## Combining phases
+
+Staging has a cost: when an update changes both a domain and the values, the
+phases play back to back, and for some updates the expand-to-union round trip
+is mostly invented motion. The clearest case is flat data changing level —
+say every value moving from 3 to 5. The single mark sits at the midline
+before *and* after, so the staged animation expands the axis, moves the
+value, and contracts again only to land on a pixel-identical frame; nothing
+changed but the tick labels. Two properties control when the chart instead
+interpolates a changed domain *together* with the values, in one phase:
+
+- [`valueDomainChange`](/reference/animation#animation.valueDomainChange) for
+  the value axes, default `'auto'`
+- [`categoryDomainChange`](/reference/animation#animation.categoryDomainChange)
+  for the category axis, default `'staged'`
+
+Each takes the same three modes:
+
+| Mode | Behavior |
+| --- | --- |
+| `'staged'` | always play the union phases: expand over both domains, tween values, contract |
+| `'combined'` | interpolate every changed domain of that axis kind together with the value changes |
+| `'auto'` | combine only *translations* — the old and new domains barely overlap, as with flat data changing level or a window sliding more than half its width — and stage everything else |
+
+Combined domain changes are paced by `valueChangeDuration`;
+`expansionDuration` and `contractionDuration` do not apply to them. The two
+properties are independent, so a chart can combine its value-axis changes
+while keeping category changes staged.
+
+### Value axes
+
+The same update under both modes — the maximum jumps well past the old
+domain. Staged, the axis expands first (every bar shrinks in place), then the
+values move. Combined, the domain grows with the values in one motion: the
+bar that defines the new maximum rides the top of the plot while the tick
+labels restate what it's worth:
+
+<LiveChart :config="valueDomain.config" :data="valueDomain.data" :alt-data="valueDomain.altData" />
+
+<LiveChart :config="valueDomain.combinedConfig" :data="valueDomain.data" :alt-data="valueDomain.altData" />
+
+The `'auto'` default sits between the two: overlapping changes like this one
+stage, but a *translation* — flat data changing level, where the staged round
+trip communicates nothing — interpolates directly, holding the marks still
+while the tick labels slide.
+
+### The category axis
+
+A sliding date window is the category-axis translation: the window moves
+forward by more than half its width. The `'staged'` default zooms out over
+both windows, tweens, and zooms back in — extra motion, but the wide view
+shows where the data went. With `'auto'`, the window slides continuously
+during the value phase: entering points come in through one plot edge while
+leaving points exit the other, at their true dates throughout:
+
+<LiveChart :config="categoryDomain.config" :data="categoryDomain.data" :alt-data="categoryDomain.altData" />
+
+<LiveChart :config="categoryDomain.slideConfig" :data="categoryDomain.data" :alt-data="categoryDomain.altData" />
+
+The defaults differ deliberately. A value-domain translation animates cleanly
+— nothing moves but the ticks — so `'auto'` is the value-axis default. A
+category-domain change usually also changes the *category set*, and the
+sliding presentation draws entering and leaving points connected mid-flight
+(a line series bridges the gap between the leaving and entering runs), so the
+category axis defaults to the calmer `'staged'` and the slide is one config
+line away.
+
 ## Gapless stacked animation
 
 Stacked series animate as a single unit: throughout a transition, each
@@ -48,9 +117,11 @@ Nearly all knobs live in [`animation`](/reference/animation):
 | Property | Controls |
 | --- | --- |
 | [`animate`](/reference/animation#animation.animate) | master switch — `false` applies every update instantly |
+| [`valueDomainChange`](/reference/animation#animation.valueDomainChange) | staged vs combined value-axis domain changes (see [Combining phases](#combining-phases)) |
+| [`categoryDomainChange`](/reference/animation#animation.categoryDomainChange) | staged vs combined category-axis domain changes |
 | [`initialDuration`](/reference/animation#animation.initialDuration) | the first render when the chart mounts |
 | [`expansionDuration`](/reference/animation#animation.expansionDuration) | the axis expansion phase |
-| [`valueChangeDuration`](/reference/animation#animation.valueChangeDuration) | the value change phase (incl. category/series transitions) |
+| [`valueChangeDuration`](/reference/animation#animation.valueChangeDuration) | the value change phase (incl. category/series transitions and combined domain changes) |
 | [`contractionDuration`](/reference/animation#animation.contractionDuration) | the axis contraction phase |
 | [`focusDuration`](/reference/animation#animation.focusDuration) | hover/click focus emphasis transitions |
 
