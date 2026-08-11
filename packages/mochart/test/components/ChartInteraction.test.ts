@@ -49,6 +49,15 @@ function chartRoot(container: Element): Element {
   return root!;
 }
 
+/** The plot's own bounds, which sit inside the chart by the axis gutters. */
+function plotBounds(container: Element): { x: number; y: number; width: number; height: number } {
+  const rect = container.querySelector('.mochart-series-background rect')!;
+  return {
+    x: Number(rect.getAttribute('x')), y: Number(rect.getAttribute('y')),
+    width: Number(rect.getAttribute('width')), height: Number(rect.getAttribute('height'))
+  };
+}
+
 function mouse(target: Element, type: string, clientX: number, clientY: number): void {
   target.dispatchEvent(new MouseEvent(type, { clientX, clientY, bubbles: true }));
 }
@@ -58,6 +67,14 @@ beforeAll(() => {
   // jsdom reports zero-size rects; report the mounted chart size instead so
   // the chart's pointer hit-testing (clientX/Y relative to the plot rect) works
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+    // the plot rect keeps its own offset, so container and plot coordinates stay distinguishable
+    if (this.tagName === 'rect' && this.parentElement?.getAttribute('class') === 'mochart-series-background') {
+      const x = Number(this.getAttribute('x')), y = Number(this.getAttribute('y'));
+      const width = Number(this.getAttribute('width')), height = Number(this.getAttribute('height'));
+      return {
+        x, y, left: x, top: y, right: x + width, bottom: y + height, width, height, toJSON: () => ({})
+      } as DOMRect;
+    }
     return {
       x: 0, y: 0, left: 0, top: 0, right: WIDTH, bottom: HEIGHT,
       width: WIDTH, height: HEIGHT, toJSON: () => ({})
@@ -108,6 +125,23 @@ describe('chart mouse events', () => {
     mouse(root, 'mousemove', 790, 100);
     expect(moves[moves.length - 1].categoryIndex).toBe(rows.length - 1);
     expect(rightClicks.length).toBe(0);
+  });
+
+  it('reports chartX and chartY relative to the plot, not to the chart container', () => {
+    const clicks: ChartEventPayload[] = [];
+    const container = mountChart(makeConfig(), { onChartClick: payload => { clicks.push(payload); } });
+    const root = chartRoot(container);
+    const plot = plotBounds(container);
+    // the axis gutter puts the plot origin away from the container origin, so the two frames differ
+    expect(plot.x).toBeGreaterThan(0);
+
+    mouse(root, 'mouseenter', plot.x + 30, plot.y + 20);
+    mouse(root, 'click', plot.x + 30, plot.y + 20);
+    expect(clicks[0].chartX).toBeCloseTo(30);
+    expect(clicks[0].chartY).toBeCloseTo(20);
+    // the other two position fields share that origin
+    expect(clicks[0].categoryPosition).toBeCloseTo(30);
+    expect(clicks[0].valuePosition).toBeCloseTo(20);
   });
 });
 
@@ -679,11 +713,13 @@ describe('tooltip', () => {
     const root = chartRoot(container);
 
     // in an inverted plot the category position follows chartY
-    mouse(root, 'mouseenter', 400, 10);
-    mouse(root, 'mousemove', 400, 590);
+    const plot = plotBounds(container);
+    const midX = plot.x + plot.width / 2;
+    mouse(root, 'mouseenter', midX, plot.y + 1);
+    mouse(root, 'mousemove', midX, plot.y + plot.height - 1);
     expect(moves[moves.length - 1].categoryIndex).toBe(rows.length - 1);
 
-    mouse(root, 'click', 400, 10);
+    mouse(root, 'click', midX, plot.y + 1);
     const line = container.querySelector('.crosshair-line');
     expect(line).not.toBeNull();
     // horizontal category line: spans x, constant y

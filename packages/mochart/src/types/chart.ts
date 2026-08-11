@@ -4,9 +4,9 @@ import type { DataProvider, DataRow } from './data';
 
 /** Pointer event details reported by the plot-area callbacks. */
 export interface ChartEventPayload {
-  /** Pointer x relative to the chart container, in pixels. */
+  /** Pointer x relative to the plot area, in plot pixels. */
   chartX: number;
-  /** Pointer y relative to the chart container, in pixels. */
+  /** Pointer y relative to the plot area, in plot pixels. */
   chartY: number;
   /** Pointer position along the category axis, in plot pixels. */
   categoryPosition: number;
