@@ -16,7 +16,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { MochartInputConfig, DataProvider } from '../../src';
 
-interface Demo { id: string; config: string; data: string }
+interface Demo { id: string; config: string; data: string; goldenCategoryShift?: number }
 /** Rows are decoded from arbitrary demo JSON, so values are intentionally loose. */
 type Row = Record<string, any>;
 
@@ -187,6 +187,25 @@ function transformValues(mochartConfig: EnhancedMochartConfig, rows: Row[]): Row
   });
 }
 
+/** Window slide for demos declaring goldenCategoryShift: days on date axes, value units on numeric. */
+function shiftCategories(mochartConfig: EnhancedMochartConfig, rows: Row[], shift: number): Row[] {
+  const categoryProperty = getCategoryProperty(mochartConfig);
+  if (!categoryProperty) {
+    return rows;
+  }
+  return rows.map((row) => {
+    const value = row[categoryProperty];
+    const next = { ...row };
+    if (typeof value === 'number') {
+      next[categoryProperty] = value + shift;
+    }
+    else if (typeof value === 'string' && !Number.isNaN(Date.parse(value))) {
+      next[categoryProperty] = new Date(Date.parse(value) + shift * 24 * 3600 * 1000).toISOString();
+    }
+    return next;
+  });
+}
+
 /** Deterministic version of the demo app's "add category" button. */
 function addCategoryRow(mochartConfig: EnhancedMochartConfig, rows: Row[]): Row[] {
   const categoryProperty = getCategoryProperty(mochartConfig);
@@ -295,6 +314,34 @@ describe.each(allDemos)('demo: $id', (demo) => {
     chart.destroy();
     expect(container.innerHTML).toBe('');
   });
+
+  // opt-in via goldenCategoryShift: a window slide big enough to classify as a
+  // translation, so the mid-tween frame captures the domain mid-slide
+  if (demo.goldenCategoryShift !== undefined) {
+    it('slides the category window deterministically', async () => {
+      const mochartConfig = buildMochartConfig(demo.config);
+      const originalRows = loadJson(dataPaths[demo.data]);
+      const container = createContainer();
+
+      const chart = mochart.createChart(container, {
+        mochartConfig,
+        dataProvider: makeProvider(mochartConfig, originalRows),
+        width: WIDTH,
+        height: HEIGHT
+      });
+      runFrames();
+
+      const shiftedRows = shiftCategories(mochartConfig, originalRows, demo.goldenCategoryShift!);
+      chart.update({ dataProvider: makeProvider(mochartConfig, shiftedRows) });
+      advanceFrames(3);
+      await expectSnapshot(container, demo.id, 'slide-mid-tween');
+      runFrames();
+      await expectSnapshot(container, demo.id, 'slide-settled');
+
+      chart.destroy();
+      expect(container.innerHTML).toBe('');
+    });
+  }
 });
 
 // ---------------------------------------------------------------------------

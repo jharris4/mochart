@@ -240,6 +240,39 @@ describe('translating linear category axis (sliding date window)', () => {
     expect(grown.axisExpansionData.deltaPercentage).toBeGreaterThan(0);
   });
 
+  const rowsFor = (firstDay: number, values: number[]) => values.map((a, offset) => ({ c: day(firstDay + offset), a }));
+
+  it('slides the category axis while the value axis expands via the staged path', () => {
+    // flat 5s -> [5..8]: the value domains overlap, so the value axis keeps the union phases
+    const mixed = getChartAnimationData(dateLinearConfig, dataFor(rowsFor(0, [5, 5, 5, 5, 5])), dataFor(rowsFor(3, [5, 6, 7, 8, 5])));
+    expect(mixed.valueChangeData.deltas.domain.category.deltaPercentage).toBeGreaterThan(0);
+    expect(mixed.valueChangeData.deltas.domain.raw.deltaPercentage).toBe(0);
+    expect(mixed.axisExpansionData.deltaPercentage).toBeGreaterThan(0);
+    // the category window holds still while the value axis expands
+    expect(mixed.axisExpansionData.start!.categoryData.renderAxisDomain)
+      .toEqual(mixed.axisExpansionData.end!.categoryData.renderAxisDomain);
+    expect(+mixed.axisExpansionData.end!.categoryData.renderAxisDomain[0]!).toBe(+day(0));
+  });
+
+  it('slides both axes at once when the window and the value range shift together', () => {
+    const axisId = dateLinearConfig.valueAxes[0].id;
+    const both = getChartAnimationData(dateLinearConfig, dataFor(rowsFor(0, [5, 6, 5, 6, 5])), dataFor(rowsFor(3, [50, 60, 50, 60, 50])));
+    expect(both.axisExpansionData.deltaPercentage).toBe(0);
+    expect(both.axisContractionData.deltaPercentage).toBe(0);
+    expect(both.valueChangeData.deltas.domain.category.deltaPercentage).toBeGreaterThan(0);
+    expect(both.valueChangeData.deltas.domain.raw.deltaPercentage).toBeGreaterThan(0);
+
+    // sample early: the value deltas dominate the phase pacing, so the smaller
+    // category shift moves at the global rate and completes well before p = 1
+    const frame = getChartDataForValueDelta(dateLinearConfig, both, 0.25);
+    const windowStart = +frame.categoryData.renderAxisDomain[0]!;
+    expect(windowStart).toBeGreaterThan(+day(0));
+    expect(windowStart).toBeLessThan(+day(3));
+    const valueLo = frame.seriesData.raw.renderAxisDomains[axisId][0] as number;
+    expect(valueLo).toBeGreaterThan(5);
+    expect(valueLo).toBeLessThan(50);
+  });
+
   it('slides an explicit-bounds pan with unchanged data', () => {
     const boundsConfig = (from: number, to: number) => makeConfig({
       categoryAxis: { property: 'c', type: 'date', scale: 'linear', min: +day(from), max: +day(to) },

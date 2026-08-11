@@ -134,6 +134,12 @@ export interface DemoManifestEntry {
    * per-property generator (see demo-common's chartTypeGenerators).
    */
   generator?: string;
+  /**
+   * Golden-harness only: shift every category by this amount (days on date
+   * axes, value units on numeric ones) and snapshot the resulting window
+   * slide mid-tween and settled. Demo apps ignore it.
+   */
+  goldenCategoryShift?: number;
 }
 
 /** A single demo entry assembled from its config/data/random JSON. */
