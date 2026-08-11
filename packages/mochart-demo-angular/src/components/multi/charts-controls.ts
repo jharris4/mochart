@@ -60,7 +60,7 @@ const defaultRate = 2000;
         </div>
         <div class="demo-field">
           <div class="demo-toolbar" role="toolbar">
-            <app-export-share-menu idPrefix="multi" [exportPng]="exportPng" [exportSvg]="exportSvg" [getShareState]="getShareState" />
+            <app-export-share-menu [exportPng]="exportPng" [exportSvg]="exportSvg" [getShareState]="getShareState" />
           </div>
         </div>
       </form>

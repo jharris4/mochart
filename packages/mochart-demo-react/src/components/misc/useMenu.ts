@@ -28,7 +28,7 @@ export interface UseMenuOptions {
    * the row's true right edge.
    */
   anchorRef?: RefObject<HTMLElement | null>;
-  /** Trigger id, when the markup needs a well-known one (`#edit-export-share`). */
+  /** Trigger id override; omit and the hook mints a unique one per instance. */
   triggerId?: string;
 }
 

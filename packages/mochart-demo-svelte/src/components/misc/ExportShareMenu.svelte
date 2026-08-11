@@ -19,7 +19,6 @@
   // clicks through anything stacked below it). What stays here is what the
   // class does not know about: the items, the copied-link feedback, `disabled`.
   interface Props {
-    idPrefix: string;
     exportPng: () => void;
     exportSvg: () => void;
     /** Omit to hide the Share item (e.g. a chart whose state isn't shareable). */
@@ -33,7 +32,7 @@
     active?: boolean;
   }
 
-  let { idPrefix, exportPng, exportSvg, getShareState = undefined, disabled = false, active = true }: Props = $props();
+  let { exportPng, exportSvg, getShareState = undefined, disabled = false, active = true }: Props = $props();
 
   const copiedFeedbackMs = 1500;
 
@@ -42,11 +41,7 @@
 
   // Opens upward (the controls row sits at the bottom of the pane) and
   // right-aligned (the trigger is the last control in the row).
-  // svelte-ignore state_referenced_locally -- idPrefix is fixed per mount
-  const menu = new Menu({
-    placement: { side: 'top', align: 'end', gap: 4 },
-    triggerId: idPrefix + '-export-share'
-  });
+  const menu = new Menu({ placement: { side: 'top', align: 'end', gap: 4 } });
 
   // A disabled trigger fires no click, so the menu cannot be opened — but one
   // already open when its trigger is disabled would be stranded.

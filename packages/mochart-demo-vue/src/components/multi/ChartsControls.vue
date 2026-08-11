@@ -113,7 +113,7 @@ function rateChanged(event: Event) {
       </div>
       <div class="demo-field">
         <div class="demo-toolbar" role="toolbar">
-          <ExportShareMenu id-prefix="multi" :export-png="props.exportPng" :export-svg="props.exportSvg" :get-share-state="props.getShareState" />
+          <ExportShareMenu :export-png="props.exportPng" :export-svg="props.exportSvg" :get-share-state="props.getShareState" />
         </div>
       </div>
     </form>

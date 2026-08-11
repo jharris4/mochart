@@ -464,7 +464,7 @@ function MultiMochartControls({ playing, initialRows, initialCols, initialRate, 
         </div>
         <div className="demo-field">
           <div className="demo-toolbar" role="toolbar">
-            <ExportShareMenu idPrefix="multi" exportPng={exportPng} exportSvg={exportSvg} getShareState={getShareState} />
+            <ExportShareMenu exportPng={exportPng} exportSvg={exportSvg} getShareState={getShareState} />
           </div>
         </div>
       </form>

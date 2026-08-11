@@ -120,7 +120,7 @@ export class ChartsControls extends LightElement {
         </div>
         <div class="demo-field">
           <div class="demo-toolbar" role="toolbar">
-            <export-share-menu .idPrefix=${'multi'} .exportPng=${this.exportPng} .exportSvg=${this.exportSvg} .getShareState=${this.getShareState}></export-share-menu>
+            <export-share-menu .exportPng=${this.exportPng} .exportSvg=${this.exportSvg} .getShareState=${this.getShareState}></export-share-menu>
           </div>
         </div>
       </form>

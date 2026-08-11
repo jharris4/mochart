@@ -124,7 +124,7 @@ export class RandomChartTab extends LightElement {
   }
 
   private renderExportShareMenu(): unknown {
-    return html`<export-share-menu .idPrefix=${'random'} .active=${this.active}
+    return html`<export-share-menu .active=${this.active}
       .exportPng=${() => { const container = this.querySelector('.random-chart-sizer'); if (container) { void exportPNG(container, getChartExportOptions()); } }}
       .exportSvg=${() => { const container = this.querySelector('.random-chart-sizer'); if (container) { exportSVG(container, getChartExportOptions()); } }}
       .getShareState=${this.getShareState}></export-share-menu>`;

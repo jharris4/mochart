@@ -32,7 +32,7 @@ const copiedFeedbackMs = 1500;
   styles: [':host { display: contents; }'],
   template: `
     <div class="demo-btn-group demo-menu-up mochart-export-share-menu">
-      <button [id]="idPrefix + '-export-share'" type="button" #trigger
+      <button type="button" #trigger
               class="demo-btn demo-btn-secondary demo-menu-trigger"
               [disabled]="disabled"
               [attr.title]="text.trigger.tooltip" [attr.aria-label]="text.trigger.aria"
@@ -64,7 +64,6 @@ export class ExportShareMenu implements OnInit, OnChanges, OnDestroy {
   readonly exportText = demoText.exportButtons;
   readonly shareText = demoText.shareButton;
 
-  @Input({ required: true }) idPrefix!: string;
   @Input({ required: true }) exportPng!: () => void;
   @Input({ required: true }) exportSvg!: () => void;
   /** Omit to hide the Share item (e.g. a chart whose state isn't shareable). */
@@ -90,6 +89,7 @@ export class ExportShareMenu implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     // Opens upward (the controls row sits at the bottom of the pane) and
     // right-aligned (the trigger is the last control in the row).
+    // The trigger has no id, so the controller mints a unique one.
     this.controller = createMenuController({
       trigger: this.triggerElement.nativeElement,
       panel: this.panelElement.nativeElement,

@@ -131,7 +131,7 @@
     </div>
     <div class="demo-field">
       <div class="demo-toolbar" role="toolbar">
-        <ExportShareMenu idPrefix="multi" {exportPng} {exportSvg} {getShareState} />
+        <ExportShareMenu {exportPng} {exportSvg} {getShareState} />
       </div>
     </div>
   </form>

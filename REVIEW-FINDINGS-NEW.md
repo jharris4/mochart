@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 30 fixed, 3 needing an answer, 124 open.** Nothing is partially fixed any more. ANIM-1's
+**Status: 32 fixed, 2 needing an answer, 122 open.** Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
 
@@ -2259,7 +2259,7 @@ the fix is three lines per port. `parseConfig` is no longer exported from `@moch
 deadcode and demo-common's 243 tests all pass, and demo-vanilla builds.
 
 ### DEMO-3 — showing the 2nd chart duplicates 22 DOM ids
-**High · Bug · [vanilla EditableChart.ts:682](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L682) and ~15 more sites, all six ports** — **Open**, needs an answer
+**High · Bug · [vanilla EditableChart.ts:682](packages/mochart-demo-vanilla/src/components/single/EditableChart.ts#L682) and ~15 more sites, all six ports** — **Fixed**
 
 `ChartTab` mounts one `EditableChart` per chart, and every instance renders the full control strip
 with fixed ids (`edit-mode`, `edit-reset-categories`, `edit-apply-series`, `edit-play-slices`, …).
@@ -2284,17 +2284,34 @@ The reason this is not applied automatically: it is ~130 mechanical edits across
 id syntax all differs (object literals, JSX, Angular static attributes, Lit template literals),
 and the two options leave the demos in materially different states.
 
-> **QUESTION (needs an answer):** **Which do you want?** (a) **[recommended]** drop the ~22
-> unconsumed `edit-*` ids and thread a per-instance `idPrefix` into `ExportShareMenu` only —
-> smallest diff, removes the duplication rather than renaming it, and fixes the one real ARIA
-> break; (b) thread a per-instance `idPrefix` through every control, keeping all ids and making
-> them unique — preserves them for your own debugging and future e2e selectors, at ~130 edits;
-> (c) as (b), but only in the vanilla port for now, since it is the deployed gallery.
->
-> *Recommendation: (a).* An id that nothing references is not carrying its weight, and the
-> invalid-HTML problem goes away entirely rather than being renamed around. If you want stable
-> hooks for e2e later, `data-testid` is the better instrument — it does not have to be unique and
-> does not collide with ARIA wiring.
+**Answered: dropped, across all six ports.** All 22 `edit-*` ids removed from every port (132 in
+total) — deleted rather than renamed, so the duplication is gone rather than made unique. The
+button `id` prop became optional in each port, guarded so an undefined id renders no attribute
+(`ifDefined`/`?? nothing` in Lit, `[attr.id]="id ?? null"` in Angular, omitted natively by React,
+Vue and Svelte).
+
+**The ARIA defect fixed itself.** `ExportShareMenu`'s `idPrefix` prop existed only to build
+`idPrefix + '-export-share'`, so it was removed along with its three call sites per port. Every
+port's menu helper already mints a unique trigger id when none is supplied — demo-common's
+`ensureId`, React's `useId()`, Svelte's `Menu` class — so two charts now get distinct ids with no
+threading. This also removes Lit's `idPrefix` default, which is
+[DEMO-19](#demo-19--lits-exportsharemenu-defaults-idprefix-to-edit).
+
+**Verified in Chromium on the built site**, all six galleries, opening a single-chart demo and
+clicking the 2nd Chart toggle:
+
+| Port | Duplicate ids, 1 chart | Duplicate ids, 2 charts | `aria-controls` resolving | Page errors |
+|---|---|---|---|---|
+| vanilla | 0 | **0** (was 22) | 6/6 | none |
+| react | 0 | **0** | 3/3 | none |
+| vue | 0 | **0** | 3/3 | none |
+| svelte | 0 | **0** | 3/3 | none |
+| lit | 0 | **0** | 3/3 | none |
+| angular | 0 | **0** | 3/3 | none |
+
+The other id namespaces in these ports (`config-*`, `data-*`, `transition-*`, `step-*`,
+`sparkline-*`) sit outside the per-chart component and never duplicated — the zero counts above
+confirm it. Full gate green including 79 e2e tests.
 
 ### DEMO-4 — all six deployed galleries ship `<html>` with no `lang`
 **High · Bug · WCAG 3.1.1 (Level A) · [vanilla index.html:2](packages/mochart-demo-vanilla/index.html#L2) and the five siblings** **[verified]** — **Fixed**
@@ -2492,13 +2509,18 @@ nothing happen.
 **Fix:** delete them from the markup, or add the rules they imply.
 
 ### DEMO-19 — Lit's `ExportShareMenu` defaults `idPrefix` to `'edit'`
-**Low · Bug · [lit export-share-menu.ts:33](packages/mochart-demo-lit/src/components/misc/export-share-menu.ts#L33)** — **Open**
+**Low · Bug · [lit export-share-menu.ts:33](packages/mochart-demo-lit/src/components/misc/export-share-menu.ts#L33)** — **Fixed**
 
 Every other port makes it required (Angular uses `@Input({ required: true })`). A Lit caller that
 omits it silently mints a second `#edit-export-share` in the document instead of failing. All three
 current call sites pass it, so this is latent.
 
 **Fix:** drop the default and make it required.
+
+**Fixed as a consequence of [DEMO-3](#demo-3--showing-the-2nd-chart-duplicates-22-dom-ids).** The
+whole `idPrefix` property was removed rather than made required — it existed only to build a
+trigger id that every port's menu helper now mints uniquely — so there is no default left to fall
+back to.
 
 ### DEMO-20 — port-level divergences with no behavioural difference today
 **Low · Inconsistency** — **Open**

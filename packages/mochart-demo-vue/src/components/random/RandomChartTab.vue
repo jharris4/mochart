@@ -185,11 +185,11 @@ const RateField = () => h('div', { class: 'demo-field demo-menu-keep-open' }, [
                 <div class="demo-menu-divider"></div>
                 <RateField />
               </OverflowMenu>
-              <ExportShareMenu id-prefix="random" :active="props.active" :export-png="onExportPng" :export-svg="onExportSvg" :get-share-state="getRandomShareState" />
+              <ExportShareMenu :active="props.active" :export-png="onExportPng" :export-svg="onExportSvg" :get-share-state="getRandomShareState" />
             </div>
             <template v-else>
               <div class="demo-btn-group"><ReuseButton /></div>
-              <ExportShareMenu id-prefix="random" :active="props.active" :export-png="onExportPng" :export-svg="onExportSvg" :get-share-state="getRandomShareState" />
+              <ExportShareMenu :active="props.active" :export-png="onExportPng" :export-svg="onExportSvg" :get-share-state="getRandomShareState" />
             </template>
           </div>
         </div>

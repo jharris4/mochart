@@ -35,7 +35,9 @@ export function icon({ name, size, fixedWidth, flip, style }: IconProps): Templa
 }
 
 interface ButtonWithTooltipProps {
-  id: string;
+  // Optional: only buttons that exist once per page carry one (a per-chart
+  // control would mint duplicate ids on the second chart).
+  id?: string;
   tooltipText?: string;
   tooltipPlacement?: string;
   disabled?: boolean;
@@ -64,7 +66,7 @@ export function buttonWithTooltip(
   children: unknown
 ): TemplateResult {
   return html`<span class="button-with-tooltip">
-    <button id=${id} type="button" class=${`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')} ?disabled=${disabled}
+    <button id=${id ?? nothing} type="button" class=${`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')} ?disabled=${disabled}
             title=${tooltipText ?? nothing} aria-label=${ariaLabel ?? nothing}
             aria-pressed=${pressed === undefined ? nothing : String(pressed)} @click=${() => onClick()}>
       ${children}${menuLabel ? html`<span class="btn-menu-label">${menuLabel}</span>` : nothing}${label ? html`<span class="btn-label">${label}</span>` : nothing}

@@ -110,7 +110,6 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
   });
 
   const menu = exportShareMenu({
-    idPrefix: 'multi',
     exportPng: props.exportPng,
     exportSvg: props.exportSvg,
     getShareState: props.getShareState

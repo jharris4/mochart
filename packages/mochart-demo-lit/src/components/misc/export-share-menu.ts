@@ -30,7 +30,6 @@ const copiedFeedbackMs = 1500;
  */
 @customElement('export-share-menu')
 export class ExportShareMenu extends LightElement {
-  @property({ attribute: false }) idPrefix = 'edit';
   @property({ attribute: false }) exportPng: () => void = () => { /* no-op */ };
   @property({ attribute: false }) exportSvg: () => void = () => { /* no-op */ };
   /** Omit to hide the Share item (e.g. a chart whose state isn't shareable). */
@@ -113,8 +112,9 @@ export class ExportShareMenu extends LightElement {
   };
 
   override render(): unknown {
+    // The trigger carries no id: the controller mints a unique one, so two charts stay distinct.
     return html`<div class="demo-btn-group demo-menu-up mochart-export-share-menu">
-      <button id=${this.idPrefix + '-export-share'} type="button"
+      <button type="button"
               class="demo-btn demo-btn-secondary demo-menu-trigger"
               ?disabled=${this.disabled}
               title=${demoText.exportShareMenu.trigger.tooltip} aria-label=${demoText.exportShareMenu.trigger.aria}

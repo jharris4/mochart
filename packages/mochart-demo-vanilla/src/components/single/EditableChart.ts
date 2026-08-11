@@ -676,13 +676,13 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // Common controls shared by both panels; moved into whichever panel is
   // visible (the framework demos render them per-branch instead).
   const chartCountButton = buttonWithTooltip({
-    id: 'edit-chart-count', label: demoText.editableChart.secondChart.label, pressed: chartCount === 2, ariaLabel: demoText.editableChart.secondChart.aria,
+    label: demoText.editableChart.secondChart.label, pressed: chartCount === 2, ariaLabel: demoText.editableChart.secondChart.aria,
     tooltipText: chartCount === 2 ? demoText.editableChart.secondChart.tooltipHide : demoText.editableChart.secondChart.tooltipShow,
     onClick: onChartCountToggle,
     content: [icon(chartCount === 2 ? 'window-maximize' : 'window-restore', { size: 'lg', fixedWidth: true })]
   });
   const modeButton = buttonWithTooltip({
-    id: 'edit-mode', label: demoText.editableChart.editMode.labelToSeries, ariaLabel: demoText.editableChart.editMode.aria,
+    label: demoText.editableChart.editMode.labelToSeries, ariaLabel: demoText.editableChart.editMode.aria,
     tooltipText: demoText.editableChart.editMode.tooltipToSeries,
     onClick: onModeToggle,
     content: [icon('bullseye', { size: 'lg', fixedWidth: true })]
@@ -691,7 +691,6 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // category/series input). Share is only offered on the chart flagged for it
   // (the first, when two are shown).
   const exportShareMenuHandle = exportShareMenu({
-    idPrefix: 'edit',
     exportPng: () => { void exportPNG(chartContentElement, getChartExportOptions()); },
     exportSvg: () => { exportSVG(chartContentElement, getChartExportOptions()); },
     getShareState: props.showShareButton
@@ -724,25 +723,25 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Category-mode panel
   const resetCategoriesButton = buttonWithTooltip({
-    id: 'edit-reset-categories', label: demoText.editableChart.resetCategories.label, ariaLabel: demoText.editableChart.resetCategories.aria,
+    label: demoText.editableChart.resetCategories.label, ariaLabel: demoText.editableChart.resetCategories.aria,
     tooltipText: demoText.editableChart.resetCategories.tooltip,
     onClick: resetCategories,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const reverseCategoriesButton = buttonWithTooltip({
-    id: 'edit-reverse-categories', label: demoText.editableChart.reverseCategories.label, ariaLabel: demoText.editableChart.reverseCategories.aria,
+    label: demoText.editableChart.reverseCategories.label, ariaLabel: demoText.editableChart.reverseCategories.aria,
     tooltipText: demoText.editableChart.reverseCategories.tooltip,
     onClick: reverseCategories,
     content: [icon('right-left', { size: 'lg', fixedWidth: true })]
   });
   const addCategoriesButton = buttonWithTooltip({
-    id: 'edit-add-categories', label: demoText.editableChart.addCategories.label, ariaLabel: demoText.editableChart.addCategories.aria,
+    label: demoText.editableChart.addCategories.label, ariaLabel: demoText.editableChart.addCategories.aria,
     tooltipText: demoText.editableChart.addCategories.tooltip,
     onClick: addCategories,
     content: [icon('plus', { size: 'lg', fixedWidth: true })]
   });
   const removeCategoriesButton = buttonWithTooltip({
-    id: 'edit-remove-categories', label: demoText.editableChart.removeCategories.label, ariaLabel: demoText.editableChart.removeCategories.aria,
+    label: demoText.editableChart.removeCategories.label, ariaLabel: demoText.editableChart.removeCategories.aria,
     tooltipText: demoText.editableChart.removeCategories.tooltip,
     onClick: removeCategories,
     content: [icon('minus', { size: 'lg', fixedWidth: true })]
@@ -751,28 +750,28 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // carry `menuLabel` for the fold — without it they read as a column of bare
   // glyphs once they are inside the overflow panel.
   const playAddButton = buttonWithTooltip({
-    id: 'edit-play-add', ariaLabel: demoText.editableChart.playAddCategories.aria,
+    ariaLabel: demoText.editableChart.playAddCategories.aria,
     menuLabel: demoText.editableChart.playAddCategories.menuLabel,
     tooltipText: demoText.editableChart.playAddCategories.tooltip,
     onClick: startAddSequence,
     content: [icon('play', { size: 'lg' }), el('span', { style: 'padding-right: 2px;' }), icon('plus', { size: 'lg' })]
   });
   const playRemoveButton = buttonWithTooltip({
-    id: 'edit-play-remove', ariaLabel: demoText.editableChart.playRemoveCategories.aria,
+    ariaLabel: demoText.editableChart.playRemoveCategories.aria,
     menuLabel: demoText.editableChart.playRemoveCategories.menuLabel,
     tooltipText: demoText.editableChart.playRemoveCategories.tooltip,
     onClick: startRemoveSequence,
     content: [icon('play', { size: 'lg' }), el('span', { style: 'padding-right: 2px;' }), icon('minus', { size: 'lg' })]
   });
   const stopButton = buttonWithTooltip({
-    id: 'edit-stop', ariaLabel: demoText.editableChart.stopSequence.aria,
+    ariaLabel: demoText.editableChart.stopSequence.aria,
     menuLabel: demoText.editableChart.stopSequence.menuLabel,
     tooltipText: demoText.editableChart.stopSequence.tooltip,
     onClick: stopSequence,
     content: [icon('stop', { size: 'lg', fixedWidth: true })]
   });
   const selectAllButton = buttonWithTooltip({
-    id: 'edit-select-all', label: demoText.editableChart.selectAllCategories.label, ariaLabel: demoText.editableChart.selectAllCategories.aria,
+    label: demoText.editableChart.selectAllCategories.label, ariaLabel: demoText.editableChart.selectAllCategories.aria,
     tooltipText: demoText.editableChart.selectAllCategories.tooltip,
     onClick: selectAllCategories,
     content: [icon('check-double', { size: 'lg', fixedWidth: true })]
@@ -809,37 +808,37 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Series-mode panel
   const categoryDecreaseButton = buttonWithTooltip({
-    id: 'edit-category-decrease', ariaLabel: demoText.editableChart.decreaseCategoryOrder.aria,
+    ariaLabel: demoText.editableChart.decreaseCategoryOrder.aria,
     tooltipText: demoText.editableChart.decreaseCategoryOrder.tooltip,
     onClick: decreaseCategoryOrder,
     content: [icon('arrow-left', { size: 'lg', fixedWidth: true })]
   });
   const categoryIncreaseButton = buttonWithTooltip({
-    id: 'edit-category-increase', ariaLabel: demoText.editableChart.increaseCategoryOrder.aria,
+    ariaLabel: demoText.editableChart.increaseCategoryOrder.aria,
     tooltipText: demoText.editableChart.increaseCategoryOrder.tooltip,
     onClick: increaseCategoryOrder,
     content: [icon('arrow-right', { size: 'lg', fixedWidth: true })]
   });
   const previousSeriesButton = buttonWithTooltip({
-    id: 'edit-previous-series', ariaLabel: demoText.editableChart.previousSeries.aria,
+    ariaLabel: demoText.editableChart.previousSeries.aria,
     tooltipText: demoText.editableChart.previousSeries.tooltip,
     onClick: prevSeries,
     content: [icon('chevron-down', { size: 'lg', fixedWidth: true })]
   });
   const nextSeriesButton = buttonWithTooltip({
-    id: 'edit-next-series', ariaLabel: demoText.editableChart.nextSeries.aria,
+    ariaLabel: demoText.editableChart.nextSeries.aria,
     tooltipText: demoText.editableChart.nextSeries.tooltip,
     onClick: nextSeries,
     content: [icon('chevron-up', { size: 'lg', fixedWidth: true })]
   });
   const resetSeriesButton = buttonWithTooltip({
-    id: 'edit-reset-series', label: demoText.editableChart.resetSeries.label, ariaLabel: demoText.editableChart.resetSeries.aria,
+    label: demoText.editableChart.resetSeries.label, ariaLabel: demoText.editableChart.resetSeries.aria,
     tooltipText: demoText.editableChart.resetSeries.tooltip,
     onClick: resetSeriesChanges,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const applySeriesButton = buttonWithTooltip({
-    id: 'edit-apply-series', label: demoText.editableChart.applySeries.label, ariaLabel: demoText.editableChart.applySeries.aria,
+    label: demoText.editableChart.applySeries.label, ariaLabel: demoText.editableChart.applySeries.aria,
     tooltipText: demoText.editableChart.applySeries.tooltip,
     onClick: applySeriesChanges,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
@@ -931,25 +930,25 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // click a slice (or step prev/next) to select it, edit its value, or play
   // the filter/restore sequence.
   const previousSliceButton = buttonWithTooltip({
-    id: 'edit-previous-slice', ariaLabel: demoText.editableChart.previousSlice.aria,
+    ariaLabel: demoText.editableChart.previousSlice.aria,
     tooltipText: demoText.editableChart.previousSlice.tooltip,
     onClick: () => selectSlice(sliceIndex - 1),
     content: [icon('chevron-left', { size: 'lg', fixedWidth: true })]
   });
   const nextSliceButton = buttonWithTooltip({
-    id: 'edit-next-slice', ariaLabel: demoText.editableChart.nextSlice.aria,
+    ariaLabel: demoText.editableChart.nextSlice.aria,
     tooltipText: demoText.editableChart.nextSlice.tooltip,
     onClick: () => selectSlice(sliceIndex + 1),
     content: [icon('chevron-right', { size: 'lg', fixedWidth: true })]
   });
   const resetSliceButton = buttonWithTooltip({
-    id: 'edit-reset-slice', label: demoText.editableChart.resetSlice.label, ariaLabel: demoText.editableChart.resetSlice.aria,
+    label: demoText.editableChart.resetSlice.label, ariaLabel: demoText.editableChart.resetSlice.aria,
     tooltipText: demoText.editableChart.resetSlice.tooltip,
     onClick: resetSliceChanges,
     content: [icon('arrow-rotate-left', { size: 'lg', fixedWidth: true })]
   });
   const applySliceButton = buttonWithTooltip({
-    id: 'edit-apply-slice', label: demoText.editableChart.applySlice.label, ariaLabel: demoText.editableChart.applySlice.aria,
+    label: demoText.editableChart.applySlice.label, ariaLabel: demoText.editableChart.applySlice.aria,
     tooltipText: demoText.editableChart.applySlice.tooltip,
     onClick: applySliceChanges,
     content: [icon('check', { size: 'lg', fixedWidth: true })]
@@ -958,14 +957,14 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // buttons — they carry `menuLabel` for the fold, which renders only inside a
   // menu and so leaves the desktop strip untouched.
   const playSliceButton = buttonWithTooltip({
-    id: 'edit-play-slices', ariaLabel: demoText.editableChart.playSliceSequence.aria,
+    ariaLabel: demoText.editableChart.playSliceSequence.aria,
     menuLabel: demoText.editableChart.playSliceSequence.menuLabel,
     tooltipText: demoText.editableChart.playSliceSequence.tooltip,
     onClick: startSliceSequence,
     content: [icon('play', { size: 'lg', fixedWidth: true })]
   });
   const stopSliceButton = buttonWithTooltip({
-    id: 'edit-stop-slices', ariaLabel: demoText.editableChart.stopSliceSequence.aria,
+    ariaLabel: demoText.editableChart.stopSliceSequence.aria,
     menuLabel: demoText.editableChart.stopSliceSequence.menuLabel,
     tooltipText: demoText.editableChart.stopSliceSequence.tooltip,
     onClick: stopSequence,
