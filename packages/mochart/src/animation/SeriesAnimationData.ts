@@ -16,8 +16,8 @@ import {
   hasCategoryChanges, hasNumericValueOffsets, getNumericValuesWithoutOffsets,
   getMergedNumericValues, createCategoryOrderDeltaData, setCategoryOrderDeltaFactors, getNumericValueOffsets } from './CategoryAnimationData';
 
-import { getMaxAxisDomains, getTranslatingAxisIds, getTranslationAxisDomainDeltas, getTranslationCategoryDomainDelta,
-  isDomainTranslation, setAxisDeltaFactors, setDeltaFactor, withAxisDomainsForIds, withSeriesDomainsForAxes } from './DomainAnimationData';
+import { getMaxAxisDomains, getCombinedDomainAxisIds, getCombinedAxisDomainDeltas, getCombinedCategoryDomainDelta,
+  shouldCombineDomainChange, setAxisDeltaFactors, setDeltaFactor, withAxisDomainsForIds, withSeriesDomainsForAxes } from './DomainAnimationData';
 
 import { keyPlain, positionKeys, positionOrComputedKeys, positionOrComputedOrExtraKeys, extraAndCopyKeys } from '../data/constants';
 
@@ -135,8 +135,8 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
     endCategoryData = getCategoryDataWithNumericValues(startCategoryData, getNumericValuesWithoutOffsets(startCategoryData));
   }
 
-  // a translating category axis (sliding window) finishes this phase on its new domain; start holds the old
-  if (isDomainTranslation(prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
+  // a combined-domain category axis (e.g. a sliding window) finishes this phase on its new domain; start holds the old
+  if (shouldCombineDomainChange(mochartConfig.animation.domainChange, prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
     endCategoryData = getCategoryDataWithRenderAxisDomain(endCategoryData, newChartData.categoryData.renderAxisDomain);
     finalCategoryData = getCategoryDataWithRenderAxisDomain(finalCategoryData, newChartData.categoryData.renderAxisDomain);
   }
@@ -156,18 +156,18 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
 
   const startSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, startValues, startFilteredValues);
 
-  // translating axes finish this phase on their new domains; union axes hold the old until contraction
-  const translatingAxisIds = getTranslatingAxisIds(mochartConfig.valueAxes, prevSeriesData.raw.renderAxisDomains, prevSeriesData.filtered.renderAxisDomains,
+  // combined-domain axes finish this phase on their new domains; union axes hold the old until contraction
+  const combinedAxisIds = getCombinedDomainAxisIds(mochartConfig.animation.domainChange, mochartConfig.valueAxes, prevSeriesData.raw.renderAxisDomains, prevSeriesData.filtered.renderAxisDomains,
     newChartData.seriesData.raw.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains);
-  const endRawRenderAxisDomains = withAxisDomainsForIds(prevSeriesData.raw.renderAxisDomains, newChartData.seriesData.raw.renderAxisDomains, translatingAxisIds);
-  const endFilteredRenderAxisDomains = withAxisDomainsForIds(prevSeriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains, translatingAxisIds);
-  const endRawSeriesDomains = withSeriesDomainsForAxes(prevSeriesData.raw.domains, newChartData.seriesData.raw.domains, mochartConfig.series, translatingAxisIds);
-  const endFilteredSeriesDomains = withSeriesDomainsForAxes(prevSeriesData.filtered.domains, newChartData.seriesData.filtered.domains, mochartConfig.series, translatingAxisIds);
+  const endRawRenderAxisDomains = withAxisDomainsForIds(prevSeriesData.raw.renderAxisDomains, newChartData.seriesData.raw.renderAxisDomains, combinedAxisIds);
+  const endFilteredRenderAxisDomains = withAxisDomainsForIds(prevSeriesData.filtered.renderAxisDomains, newChartData.seriesData.filtered.renderAxisDomains, combinedAxisIds);
+  const endRawSeriesDomains = withSeriesDomainsForAxes(prevSeriesData.raw.domains, newChartData.seriesData.raw.domains, mochartConfig.series, combinedAxisIds);
+  const endFilteredSeriesDomains = withSeriesDomainsForAxes(prevSeriesData.filtered.domains, newChartData.seriesData.filtered.domains, mochartConfig.series, combinedAxisIds);
 
   let endSeriesData = getSeriesDataWithSeriesValues(prevSeriesData, endValues, endFilteredValues);
   let finalSeriesData = getSeriesDataWithRenderAxisDomains(newChartData.seriesData, endRawRenderAxisDomains, endFilteredRenderAxisDomains);
   finalSeriesData = getSeriesDataWithDomains(finalSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
-  if (translatingAxisIds.length > 0) {
+  if (combinedAxisIds.length > 0) {
     endSeriesData = getSeriesDataWithRenderAxisDomains(endSeriesData, endRawRenderAxisDomains, endFilteredRenderAxisDomains);
     endSeriesData = getSeriesDataWithDomains(endSeriesData, endRawSeriesDomains, endFilteredSeriesDomains);
   }
@@ -552,7 +552,7 @@ function setBaseValuesForOuterChange(targetValues: NumericValues | null, sourceV
 }
 
 function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartData: ChartData, endChartData: ChartData, finalChartData: ChartData, rawValueAxisDomains: AxisDomains, filteredValueAxisDomains: AxisDomains, rawSeriesDomains: SeriesDomainObjects, ordinalCategoryOrderOffets: number[] | null): ValueChangeData {
-  // extents over the union of the phase endpoints, so a value and its translating domain share the
+  // extents over the union of the phase endpoints, so a value and its combined domain share the
   // same pacing basis (for union axes start covers end, so this matches the start extent exactly);
   // a collapsed or inverted domain would weight every value delta at 0, hence the safe extents
   const rawValueAxisExtents = getSafeDomainExtents(getMaxAxisDomains(rawValueAxisDomains, endChartData.seriesData.raw.renderAxisDomains));
@@ -565,14 +565,14 @@ function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartDa
 
   const categoryOrderDeltaData = createCategoryOrderDeltaData(mochartConfig, startChartData, endChartData, ordinalCategoryOrderOffets);
 
-  // non-zero only for translating axes: the value phase moves their render domains directly
-  const rawDomainDeltaData = getTranslationAxisDomainDeltas(startChartData.seriesData.raw.renderAxisDomains,
+  // non-zero only for combined-domain axes: the value phase moves their render domains directly
+  const rawDomainDeltaData = getCombinedAxisDomainDeltas(startChartData.seriesData.raw.renderAxisDomains,
     endChartData.seriesData.raw.renderAxisDomains, rawValueAxisExtents);
-  const filteredDomainDeltaData = getTranslationAxisDomainDeltas(startChartData.seriesData.filtered.renderAxisDomains,
+  const filteredDomainDeltaData = getCombinedAxisDomainDeltas(startChartData.seriesData.filtered.renderAxisDomains,
     endChartData.seriesData.filtered.renderAxisDomains, filteredValueAxisExtents);
   const categoryDomainExtent = getSafeDomainExtent(getMaxDomain(startChartData.categoryData.renderAxisDomain,
     endChartData.categoryData.renderAxisDomain) as NullableDomain);
-  const categoryDomainDeltaData = getTranslationCategoryDomainDelta(startChartData.categoryData.renderAxisDomain,
+  const categoryDomainDeltaData = getCombinedCategoryDomainDelta(startChartData.categoryData.renderAxisDomain,
     endChartData.categoryData.renderAxisDomain, categoryDomainExtent);
 
   const deltaPercentage = Math.max(valueDeltaData.deltaPercentage, filteredValueDeltaData.deltaPercentage, categoryOrderDeltaData.deltaPercentage,

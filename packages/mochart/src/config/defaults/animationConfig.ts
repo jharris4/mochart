@@ -1,6 +1,9 @@
+import { AUTO } from '../core/constants';
+
 export default function getDefaults() {
   return {
     animate: true,
+    domainChange: AUTO,
     initialDuration: 1000,
     expansionDuration: 1000,
     valueChangeDuration: 1000,

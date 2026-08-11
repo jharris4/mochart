@@ -291,6 +291,61 @@ describe('translating linear category axis (sliding date window)', () => {
   });
 });
 
+// animation.domainChange: 'staged' forces the union phases everywhere, 'combined' merges every
+// domain change into the value phase; 'auto' (the default, covered by the suites above) combines
+// only translations
+describe('animation.domainChange modes', () => {
+  const configFor = (domainChange: 'staged' | 'combined') => makeConfig({
+    categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
+    animation: { domainChange },
+    series: [{ property: 'a', renderer: 'bar' }]
+  });
+  const dataFor = (cfg: EnhancedMochartConfig, rows: Record<string, number>[]) =>
+    getChartData(cfg, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+
+  // the containment guarantee: no value ever leaves the interpolated domain mid-frame
+  function expectValuesInsideDomain(cfg: EnhancedMochartConfig, cad: ReturnType<typeof getChartAnimationData>): void {
+    const axisId = cfg.valueAxes[0].id;
+    const id = cfg.series[0].id;
+    for (const percentage of [0.1, 0.3, 0.5, 0.7, 0.9]) {
+      const frame = getChartDataForValueDelta(cfg, cad, percentage);
+      const [lo, hi] = frame.seriesData.raw.renderAxisDomains[axisId] as [number, number];
+      for (const value of frame.seriesData.raw.values[id].plain!) {
+        if (value !== undefined) {
+          expect(value).toBeGreaterThanOrEqual(lo - 1e-9);
+          expect(value).toBeLessThanOrEqual(hi + 1e-9);
+        }
+      }
+    }
+  }
+
+  it("'staged' forces the union phases back onto a translation", () => {
+    const cfg = configFor('staged');
+    const cad = getChartAnimationData(cfg, dataFor(cfg, [{ c: 0, a: 3 }, { c: 1, a: 3 }]), dataFor(cfg, [{ c: 0, a: 5 }, { c: 1, a: 5 }]));
+    expect(cad.axisExpansionData.deltaPercentage).toBeGreaterThan(0);
+    expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBe(0);
+    expect(cad.valueChangeData.deltas.domain.category.deltaPercentage).toBe(0);
+  });
+
+  it("'combined' merges the phases for an overlapping growth", () => {
+    const cfg = configFor('combined');
+    const cad = getChartAnimationData(cfg, dataFor(cfg, [{ c: 0, a: 0 }, { c: 1, a: 10 }]), dataFor(cfg, [{ c: 0, a: 0 }, { c: 1, a: 40 }]));
+    expect(cad.axisExpansionData.deltaPercentage).toBe(0);
+    expect(cad.axisContractionData.deltaPercentage).toBe(0);
+    expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBeGreaterThan(0);
+    expectValuesInsideDomain(cfg, cad);
+  });
+
+  it("'combined' merges the phases for an overlapping shrink", () => {
+    const cfg = configFor('combined');
+    const cad = getChartAnimationData(cfg, dataFor(cfg, [{ c: 0, a: 0 }, { c: 1, a: 100 }]), dataFor(cfg, [{ c: 0, a: 0 }, { c: 1, a: 50 }]));
+    expect(cad.axisExpansionData.deltaPercentage).toBe(0);
+    expect(cad.axisContractionData.deltaPercentage).toBe(0);
+    expect(cad.valueChangeData.deltas.domain.raw.deltaPercentage).toBeGreaterThan(0);
+    expectValuesInsideDomain(cfg, cad);
+  });
+});
+
 describe('getStartChartData / getEndChartData', () => {
   it('exposes the value-change transition endpoints', () => {
     const cad = getChartAnimationData(
