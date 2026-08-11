@@ -78,8 +78,9 @@ way hovering it does.
 Pie and donut slices work the same way when they are interactive (the series
 has [`focusOnClick`](/reference/series#series.focusOnClick) or the chart has
 an `onSliceClick` callback): one tab stop, arrow keys moving between slices
-in config order, and <kbd>Enter</kbd>/<kbd>Space</kbd> acting as a click at
-the slice's center.
+in config order, and <kbd>Enter</kbd>/<kbd>Space</kbd> doing what clicking the
+slice does — the focus toggle and `onSliceClick` — with no pointer position
+invented for it.
 
 Cartesian series follow the same pattern when clicking them does something
 (the series has [`focusOnClick`](/reference/series#series.focusOnClick) or

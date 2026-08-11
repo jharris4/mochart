@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 50 fixed, 1 needing an answer, 109 open.** TOOL-2 is deferred to release time by
+**Status: 51 fixed, 1 needing an answer, 108 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -2405,7 +2405,7 @@ Worth noting the asymmetry this exposes: a missing section in the registry is ca
 but a missing section in the prose beside it is not. That is why this one drifted.
 
 ### DOC-7 — pie keyboard activation is described as "a click at the slice's center"
-**Medium · Doc inconsistency · [guide/accessibility.md:81](packages/mochart-docs/guide/accessibility.md#L81) vs [PieSeries.ts:116](packages/mochart/src/components/PieSeries.ts#L116)** — **Open**
+**Medium · Doc inconsistency · [guide/accessibility.md:81](packages/mochart-docs/guide/accessibility.md#L81) vs [PieSeries.ts:116](packages/mochart/src/components/PieSeries.ts#L116)** — **Fixed**
 
 Enter/Space calls `this.state.onSeriesClick()` directly. The code comment explicitly *rejects*
 positional synthesis: "a synthesized click's coordinates can land outside the chart rect on an
@@ -2413,8 +2413,13 @@ exploded edge slice and get swallowed there". `ChartSliceClickPayload` carries o
 there are no coordinates to place at a centre. The neighbouring cartesian sentence *is* precise, so
 a reader reasonably reads this one as equally precise and looks for coordinates that never arrive.
 
-**Fix:** "…Enter/Space performing the same slice click a pointer click does (focus toggle plus
-`onSliceClick`), with no synthesized pointer position."
+**Fixed in the docs, because the code is deliberately right.** Keyboard activation calls the slice's
+click handler directly and invents no pointer position — and the comment beside it explains why: a
+synthesized click on an exploded edge slice can land outside the chart rect and be swallowed.
+
+The guide now says Enter and Space do what clicking the slice does, the focus toggle and
+`onSliceClick`, with no pointer position invented for it. The payload has no coordinates either, so
+the old wording promised something a host could never observe.
 
 ### DOC-8 — contributor docs omit the generated API/props/framework-props pipeline and its CI ratchets
 **Medium · Doc gap · [CONTRIBUTING.md:26-81](CONTRIBUTING.md#L26), [:140](CONTRIBUTING.md#L140); [mochart-docs/README.md:6](packages/mochart-docs/README.md#L6)** — **Open**
