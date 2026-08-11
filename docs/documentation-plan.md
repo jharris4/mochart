@@ -6,7 +6,7 @@ plan for bringing mochart's documentation from "good READMEs + a raw HTML
 config dump" to a real docs site with a generated reference, guides, IDE
 hover docs, and demo integration.
 
-## Where we are today
+## Where we were (the pre-plan snapshot, July 2026)
 
 **Assets worth building on**
 
@@ -24,25 +24,25 @@ hover docs, and demo integration.
   (`demoText`).
 - Build-free static HTML examples in `packages/mochart/example/`.
 
-**Gaps**
+**Gaps at the time**
 
-1. **No docs site.** The deployed landing page is a bare list of demo links;
-   everything else lives only in READMEs on GitHub.
-2. **The config reference is a dead end.** `generator.ts` emits one unstyled
-   HTML table file (`mochart-docs.html`) that is not deployed, has no
+1. **No docs site.** The deployed landing page was a bare list of demo links;
+   everything else lived only in READMEs on GitHub.
+2. **The config reference is a dead end.** `generator.ts` emitted one unstyled
+   HTML table file (`mochart-docs.html`) that was not deployed, with no
    navigation/search, no type-level formatting, no examples, and no links to
-   the demos. The underlying descriptions are terse one-liners written for
+   the demos. The underlying descriptions were terse one-liners written for
    table cells.
-3. **No IDE hover docs.** The shipped `.d.ts` types have almost no JSDoc
+3. **No IDE hover docs.** The shipped `.d.ts` types had almost no JSDoc
    (~13 doc comments across hundreds of config properties), so none of the
-   `config/docs/` descriptions reach the editor — the place most users will
+   `config/docs/` descriptions reached the editor — the place most users will
    actually look for "what does `capExpand` do?".
-4. **Demos demonstrate but don't teach.** You can edit config/data JSON, but
-   nothing explains what you're looking at, links a config property to its
-   docs, or lets you share a tweaked chart.
-5. **No task-oriented guides.** There is no "how do I make a stacked bar
+4. **Demos demonstrate but don't teach.** You could edit config/data JSON, but
+   nothing explained what you were looking at, linked a config property to its
+   docs, or let you share a tweaked chart.
+5. **No task-oriented guides.** There was no "how do I make a stacked bar
    chart / dual axis / date axis / horizontal chart / gradient fill" content;
-   users must reverse-engineer demo configs.
+   users had to reverse-engineer demo configs.
 6. **No API (function/class) reference** beyond README prose — `ChartHandle`,
    data providers, `enhanceConfig`, render primitives, etc.
 
@@ -105,7 +105,8 @@ generated artifact instead of each re-walking the config modules.
       `createDefaultChart` over example modules from `examples/`; every
       example is validated in CI with `validateConfig`/`getDataErrors`
       (`npm test -w @mochart/docs`). This immediately caught that strict
-      validation requires `version` — every README quick start was broken;
+      validation required `version` at the time — every README quick start was
+      broken;
       all fixed, along with pre-rename `npm install mochart-*` commands and
       stale `1.0.3` versions in the static HTML examples.
 - [x] API reference page (`reference/api`): the entry points, `ChartHandle`,
