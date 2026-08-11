@@ -1,6 +1,6 @@
 import { getChartDataWithData, getChartDataWithCategoryData, getChartDataWithValues, getChartDataWithSeriesDomains, getChartDataWithRenderAxisDomains, getChartDataWithSeriesData } from '../data/ChartData';
 
-import { getCategoryDataWithNumericValues } from '../data/CategoryData';
+import { getCategoryDataWithNumericValues, getCategoryDataWithRenderAxisDomain } from '../data/CategoryData';
 
 import { getSeriesDataWithSeriesValues, getSeriesDataWithRenderAxisDomains } from '../data/SeriesData';
 
@@ -236,7 +236,7 @@ function setKeyedSeriesDomainForDelta(
 }
 
 export function getChartDataForValueDelta(
-  _mochartConfig: EnhancedMochartConfig,
+  mochartConfig: EnhancedMochartConfig,
   chartAnimationData: ChartAnimationData,
   percentage: number
 ): AnimationChartData {
@@ -273,6 +273,14 @@ export function getChartDataForValueDelta(
         valueDeltaData.end.seriesData.filtered.renderAxisDomains, domainDeltas.filtered, deltaPercentage, percentage);
       chartData = getChartDataWithSeriesData(chartData,
         getSeriesDataWithRenderAxisDomains(chartData.seriesData, rawRenderAxisDomains, filteredRenderAxisDomains));
+    }
+    // a translating category axis (sliding window) slides its render domain with the values too
+    if (domainDeltas.category.deltaPercentage !== 0) {
+      const categoryRenderAxisDomain = getCategoryAxisDomainForDelta(mochartConfig.categoryAxis,
+        valueDeltaData.start.categoryData.renderAxisDomain as AxisDomain, valueDeltaData.end.categoryData.renderAxisDomain as AxisDomain,
+        domainDeltas.category, deltaPercentage, percentage);
+      chartData = getChartDataWithCategoryData(chartData,
+        getCategoryDataWithRenderAxisDomain(chartData.categoryData, categoryRenderAxisDomain));
     }
     return chartData;
   }

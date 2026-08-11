@@ -19,6 +19,15 @@
       "random": "positive-random.json"
     },
     {
+      "id": "sliding-window",
+      "title": "Sliding Window",
+      "description": "Daily values on a linear date axis, for sliding the whole window forward in time.",
+      "notes": "Shift every date forward by several days (more than half the window) in the Data tab and the category domain change classifies as a translation: the window slides during the value phase — marks enter and leave through the plot edges — instead of expanding to the union of the old and new date ranges and contracting afterwards.",
+      "config": "sliding-window-config.json",
+      "data": "sliding-window-data.json",
+      "random": "positive-random.json"
+    },
+    {
       "id": "tick-prune",
       "title": "Long Tick Label Pruning",
       "description": "A date axis with long formatted tick labels, pruned as space runs out instead of overlapping.",

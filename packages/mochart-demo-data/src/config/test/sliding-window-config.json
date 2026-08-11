@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "title": {
+    "text": "Sliding Window"
+  },
+  "categoryAxis": {
+    "property": "date",
+    "type": "date",
+    "scale": "linear",
+    "dateUTC": true,
+    "tickLabelFormat": "%b %d"
+  },
+  "series": [
+    {
+      "renderer": "line",
+      "title": "Value",
+      "markerShape": "circle",
+      "property": "value"
+    }
+  ],
+  "legend": {
+    "visible": true
+  }
+}

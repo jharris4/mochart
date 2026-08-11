@@ -150,7 +150,7 @@ export interface ValueChangeData {
     raw: SeriesValueDeltaMap;
     filtered: SeriesValueDeltaMap;
     /** Translating axes interpolate their render domain during this phase (see isDomainTranslation). */
-    domain: { raw: DomainDeltaMap; filtered: DomainDeltaMap };
+    domain: { category: DomainDelta; raw: DomainDeltaMap; filtered: DomainDeltaMap };
   };
   end: AnimationChartData;
   final: AnimationChartData;
