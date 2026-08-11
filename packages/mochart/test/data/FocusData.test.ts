@@ -52,6 +52,16 @@ describe('getFocusData', () => {
     expect(fd.categoryFocusDomainPercentages).toEqual([]);
   });
 
+  it.each([-2, 1.5, NaN])('treats %s as unfocused, not as a slot', (index) => {
+    // these used to pass the upper-bound-only guard and write a non-index key onto the
+    // percentages array, dimming every category while focusing none
+    const { config, chartData } = makeChart();
+    const fd = getFocusData(config, chartData, index, null, null);
+    expect(fd.focusedCategoryIndex).toBe(-1);
+    expect(fd.categoryFocusPercentages).toEqual([null, null, null]);
+    expect(Object.keys(fd.categoryFocusPercentages)).toEqual(['0', '1', '2']);
+  });
+
   it('marks the focused category at +1 and the rest at -1', () => {
     const { config, chartData } = makeChart();
     const fd = getFocusData(config, chartData, 1, null, null);

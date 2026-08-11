@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 33 fixed, 1 needing an answer, 125 open.** TOOL-2 is deferred to release time by
+**Status: 34 fixed, 1 needing an answer, 124 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -151,7 +151,7 @@ what actually went wrong is that series `c`'s valid `-2` became NaN and rendered
 The infinity case is kept as a test regardless.
 
 ### DATA-3 — a controlled `focusedCategoryIndex` below `-1` defocuses everything
-**Medium · Bug · [FocusData.ts:37-40](packages/mochart/src/data/FocusData.ts#L37)** — **Open**
+**Medium · Bug · [FocusData.ts:37-40](packages/mochart/src/data/FocusData.ts#L37)** — **Fixed**
 
 The guard clamps only the upper bound, and `isFocused` treats *only* `-1` as unfocused.
 `getFocusData(config, chartData, -2, …)` on a two-category chart returns
@@ -161,6 +161,20 @@ and `NaN` behave the same. The guard's own comment claims the opposite. Adjacent
 already-fixed B9, which hardened only the id paths.
 
 **Fix:** normalize once — `Number.isInteger(i) && i >= 0 && i < categoryValues.length ? i : -1`.
+
+**Fixed.** The guard now rejects any index that is not a real slot, rather than only those past the
+end. Reproduced first, on a two-category chart, as `categoryFocusPercentages` values and own keys:
+
+| index | before | after |
+|---|---|---|
+| `-2` | `[-1,-1]` keys `0,1,-2` | `[null,null]` keys `0,1` |
+| `1.5` | `[-1,-1]` keys `0,1,1.5` | `[null,null]` keys `0,1` |
+| `NaN` | `[-1,-1]` keys `0,1,NaN` | `[null,null]` keys `0,1` |
+| `-1`, `2` | already unfocused | unchanged |
+| `0` | `[1,-1]` | unchanged |
+
+Regression test covers all three bad inputs and asserts the array keeps exactly its index keys; it
+fails three ways on the unpatched source.
 
 ### DATA-4 — date category axes never preserve `axisData` identity
 **Medium · Bug · [AxisData.ts:33-45](packages/mochart/src/data/AxisData.ts#L33)** — **Open**
