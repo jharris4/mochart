@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 44 fixed, 1 needing an answer, 115 open.** TOOL-2 is deferred to release time by
+**Status: 45 fixed, 1 needing an answer, 114 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -913,7 +913,7 @@ Test opens the tooltip with the keyboard, clicks the next button, and asserts th
 from the first category to the second; it fails on the unpatched source.
 
 ### COMP-4 — no coherent rule for pointer and keyboard interaction while loading
-**Medium · Bug · [Chart.ts:348](packages/mochart/src/components/Chart.ts#L348), gated at [:1044](packages/mochart/src/components/Chart.ts#L1044)** — **Open**
+**Medium · Bug · [Chart.ts:348](packages/mochart/src/components/Chart.ts#L348), gated at [:1044](packages/mochart/src/components/Chart.ts#L1044)** — **Fixed**
 
 `chartEventHandler` is swapped for `{}` whenever `loading` turns on or the chart loses data.
 If the pointer is inside at that moment the real `mouseleave` is never observed and the flag
@@ -974,14 +974,29 @@ category and are blocked, Escape dismisses and is allowed. The prev/next buttons
 deliberate exception — they move a category position, but on a tooltip that is already open, and
 the index is clamped to range.
 
-**Changes this implies.** Keep the three motion handlers while loading and drop only the click
-handler; guard the `followPointer` open in `onChartMouseEnter`; gate series and slice keyboard
-activation on loading the way the plot already is; and still clear `isMouseWithinChart` on the
-no-chart-data branch, which has no motion handlers to pair the flag for it. Worth a short section
-in the chart-states guide so the rule is documented rather than re-derived.
+**Fixed, to the strategy above.** Four changes, all in `Chart.ts`:
 
-Left at Medium: reaching it needs a load in flight and a user interacting during it, but the
-series-activation half does let a host act on a category that is about to disappear.
+- the three motion handlers stay attached while loading; only the click handler is dropped
+- the `followPointer` tooltip open is guarded on loading, so hovering no longer opens one
+- `onSeriesShapeClick` is guarded on loading — it is the single method both pointer and keyboard
+  activation route through, so one guard covers both without threading a flag into the components
+- `isMouseWithinChart` is cleared on the no-chart-data branch, which has no motion handlers to keep
+  it honest
+
+The stuck flag then fixes itself: with the motion handlers attached, a pointer that leaves during a
+load is still seen, so the flag stays accurate instead of latching on.
+
+**One row of the table above was wrong.** Axis hover focus was never dropped during loading — those
+handlers live on the axis component, not the chart root, so the chart-root handler map never
+governed them. Confirmed by test: that case passes on the unpatched source.
+
+New `test/components/LoadingInteraction.test.ts` covers all three parts of the rule: motion still
+reported and paired, a pointer leaving mid-load still seen, clicks and series activation ignored, no
+follow-pointer tooltip opened, and axis focus still working. Three of its six fail on the unpatched
+source.
+
+Documented in the chart-states guide under "Interaction while loading", including the tooltip
+step-button exception and the fact that the loading message itself takes the pointer.
 
 ### COMP-5 — leaving a *filtered* tooltip row clears the focused series
 **Medium · Bug · [TooltipContent.ts:378](packages/mochart/src/components/TooltipContent.ts#L378)** — **Fixed**

@@ -839,7 +839,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { mochartConfig, onChartMouseEnter } = this.props;
     const eventPayload = this.getChartEventPayload(chartX, chartY);
     onChartMouseEnter?.(eventPayload);
-    if (mochartConfig.tooltip.followPointer) {
+    if (mochartConfig.tooltip.followPointer && !this.isLoading()) {
       this.setTooltipOpen(true, eventPayload);
     }
   }
@@ -901,7 +901,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   // no in-bounds gate: markers/labels can overflow the plot rect
   onSeriesShapeClick = (seriesId: string, categoryIndex: number, event: Event): void => {
     const { onSeriesClick } = this.props;
-    if (onSeriesClick) {
+    // covers pointer and keyboard activation alike, both of which route through here
+    if (onSeriesClick && !this.isLoading()) {
       const { clientX, clientY } = event as MouseEvent;
       // keyboard activation has no pointer position to resolve a nearest category from
       let nearestCategoryIndex = -1;
@@ -1074,7 +1075,15 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     }
 
     const hasChartDataContent = this.hasChartDataContent(error);
-    const chartEventHandler = (hasChartDataContent && !loading) ? this.chartEventHandler : {};
+    // loading reports but does not commit: pointer tracking and hover feedback continue, clicks do
+    // not, because a click names a category that may not exist once the new data lands
+    const { onClick: chartClickHandler, ...chartMotionHandlers } = this.chartEventHandler;
+    if (!hasChartDataContent) {
+      this.isMouseWithinChart = false;
+    }
+    const chartEventHandler = !hasChartDataContent ? {}
+      : loading ? chartMotionHandlers
+      : { ...chartMotionHandlers, onClick: chartClickHandler };
 
     this.setPresent(true);
     const rootClassName = accessibilityActive(mochartConfig.accessibility)
