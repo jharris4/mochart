@@ -44,6 +44,12 @@ export interface StrokeStyle<C = string, S = never> {
 }
 
 /**
+ * A style applied through css rather than svg attributes, so it has no
+ * strokeDashArray: the tooltip renders its background as a css border.
+ */
+export type CssStyle = Omit<Style, 'strokeDashArray'>;
+
+/**
  * A full style: a stroke plus a fill, for shapes that have an interior
  * (backgrounds, bars, markers, text).
  */
@@ -1344,7 +1350,7 @@ export interface TooltipConfig extends SeriesIconConfig {
    *
    * @default { strokeColor: "rgba(0,0,0,0.3)", strokeOpacity: null, strokeWidth: 2, fillColor: "rgba(255,255,255,0.9)", fillOpacity: null }
    */
-  backgroundStyle: Style;
+  backgroundStyle: CssStyle;
   /**
    * The radius (in pixels) of the corners of the tooltip.
    *

@@ -9,6 +9,7 @@
 import { describe, it, expect } from 'vitest';
 import * as mochart from '../../src';
 import type {
+  CssStyle, MochartInputConfig,
   Auto, Align, VerticalAlign, Anchor, Position, MissingValues, AxisSide, ThresholdTitleSide,
   ChartType, PieLabelType, PieTooltipLabelType, Scale, DataType, RendererType, CurveType,
   CapType, LabelPosition, ColorMode, ColorInterpolation, MarkerShape, MarkerSizeScale
@@ -67,5 +68,37 @@ describe('public config type surface', () => {
       expect(name in exported, `${name} is not exported`).toBe(true);
       expect(exported[name], name).toBe(value);
     }
+  });
+});
+
+/**
+ * CONFIG-5/CONFIG-4: the tooltip background is rendered as a css border, so its style has no
+ * strokeDashArray. The type used to allow the key while validation rejected it as unknown, which
+ * with strict validation turned a type-checking config into an invalid one.
+ */
+describe('tooltip background style', () => {
+  it('accepts the five keys the validator accepts', () => {
+    const config: MochartInputConfig = {
+      version: '1.0.0',
+      categoryAxis: { property: 'c' },
+      series: [{ property: 'v' }],
+      tooltip: {
+        backgroundStyle: {
+          strokeColor: '#000000', strokeOpacity: 1, strokeWidth: 1,
+          fillColor: '#ffffff', fillOpacity: 1
+        }
+      }
+    } as unknown as MochartInputConfig;
+    expect(config.tooltip).toBeDefined();
+  });
+
+  it('rejects strokeDashArray at typecheck time', () => {
+    const style: CssStyle = {
+      strokeColor: null, strokeOpacity: null, strokeWidth: null,
+      fillColor: null, fillOpacity: null,
+      // @ts-expect-error the tooltip background has no dash array; validation rejects it too
+      strokeDashArray: '4 2'
+    };
+    expect(style).toBeDefined();
   });
 });
