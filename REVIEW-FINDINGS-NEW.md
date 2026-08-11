@@ -38,7 +38,8 @@ cases that pass did not reach, and those are flagged as such.
 **154 findings: 1 critical, 31 high, 70 medium, 52 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 32 fixed, 2 needing an answer, 122 open.** Nothing is partially fixed any more. ANIM-1's
+**Status: 32 fixed, 1 needing an answer, 122 open.** TOOL-2 is deferred to release time by
+decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
 
@@ -2931,7 +2932,7 @@ silent. All nine library dists — every one of which was stale on this checkout
 Lint and deadcode clean.
 
 ### TOOL-2 — no release pipeline, no CHANGELOG, and no version tooling for 9 public packages
-**High · Missing feature · [.github/workflows/](.github/workflows/) (only `ci.yml`)** — **Open**, needs an answer
+**High · Missing feature · [.github/workflows/](.github/workflows/) (only `ci.yml`)** — **Open**, deferred to release time
 
 Nine packages carry `publishConfig: {access: "public"}` and `prepack` build hooks, all pinned at
 `1.0.0` with cross-package `^1.0.0` ranges. There is no publish workflow, no
@@ -2964,6 +2965,10 @@ publish against an unpublished `@mochart/core` is exactly the failure the findin
 > *Recommendation: (a), and (c) regardless of which you pick.* The pack check is independently
 > worth having and costs one CI step. If you want (a), say so and I will wire up Changesets,
 > `release.yml` with `--provenance`, and the pack check together.
+
+**Deferred by decision.** The shape will be chosen at release time, so this is *not* waiting on
+an answer — the question above is kept for whoever picks it up. The `npm pack --dry-run` tarball
+check was offered separately and deferred with it.
 
 ### TOOL-3 — no dependency audit anywhere, and 9 known vulnerabilities are present
 **High · Tooling gap · [ci.yml:20-33](.github/workflows/ci.yml#L20); no `dependabot.yml`, no `renovate.json`** — **Fixed**
