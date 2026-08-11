@@ -199,4 +199,18 @@ describe('createHeatmapColorScale', () => {
     expect(scale(15)).toBe('#ffffff');
     expect(scale(5)).toBe(toHex('rgb(128, 128, 128)'));
   });
+
+  it('rejects a backwards domain instead of painting every cell one colour', () => {
+    // a backwards domain used to make the extent negative, so every value landed on the ramp
+    // midpoint and the whole heatmap came out a single colour with no warning. Reversing the
+    // ramp already has its own way to be asked for: swap colorMin and colorMax.
+    expect(() => createHeatmapColorScale([10, 0])).toThrow(/invalid domain \[10, 0\]/);
+    expect(() => createHeatmapColorScale([Number.NaN, 10])).toThrow(/invalid domain/);
+  });
+
+  it('still puts a flat domain at the ramp midpoint', () => {
+    // deliberate: every cell really does have the same value
+    const scale = createHeatmapColorScale([7, 7], { colorMin: '#000000', colorMax: '#ffffff', colorInterpolation: 'rgb' });
+    expect(scale(7)).toBe(toHex('rgb(128, 128, 128)'));
+  });
 });

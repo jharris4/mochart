@@ -110,6 +110,9 @@ export function createHeatmapColorScale(domain: [number, number], options: Creat
   const colorMax = options.colorMax ?? DEFAULT_COLOR_MAX;
   const interpolate = INTERPOLATORS[options.colorInterpolation ?? DEFAULT_COLOR_INTERPOLATION](colorMin, colorMax);
   const [min, max] = domain;
+  if (!(max >= min)) {
+    throw new Error(`createHeatmapColorScale: invalid domain [${min}, ${max}]`);
+  }
   const extent = max - min;
   return (value: number) => {
     // A collapsed domain (all cells equal) sits every cell at the ramp midpoint.
