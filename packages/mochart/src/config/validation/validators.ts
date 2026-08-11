@@ -26,9 +26,10 @@ const renderableColor: CustomValidator = value =>
 
 // 'currentColor' is accepted here and only here: an svg color is written
 // straight to a dom attribute, so the browser resolves it against the host
-// page's css color. The bare color() used for the series color scale bounds
-// (colorMin/colorMax/colorBase*) must stay strict - those values are handed to
-// d3 scale ranges and a keyword would interpolate to NaN.
+// page's css color. The bare color() used for the color scale bounds
+// (colorScale.min/max/missing/base.*), palette entries and gradient stops must
+// stay strict - those values are handed to d3 scale ranges and a keyword would
+// interpolate to NaN.
 const svgColorValidator = validators.custom(renderableColor).orOneOf(['none', COLOR_CURRENT]).withCustomName('svgColor').withMessage('should be a valid svg color (or "none" / "currentColor")');
 
 // The tooltip's colors become css declarations, where 'none' is not a color at all: it would be dropped

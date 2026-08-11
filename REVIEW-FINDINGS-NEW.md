@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 47 fixed, 1 needing an answer, 112 open.** TOOL-2 is deferred to release time by
+**Status: 48 fixed, 1 needing an answer, 111 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -2350,7 +2350,7 @@ a second paragraph scoping it inside a style state, with the reason (a state alw
 colour and opacity attributes) and the `'none'` alternative.
 
 ### DOC-4 — `theming.md` names the colour-scale bounds `colorMin`/`colorMax`
-**Medium · Doc inconsistency · [guide/theming.md:98](packages/mochart-docs/guide/theming.md#L98)** — **Open**
+**Medium · Doc inconsistency · [guide/theming.md:98](packages/mochart-docs/guide/theming.md#L98)** — **Fixed**
 
 "The one place it is rejected is the series color-scale bounds (`colorMin` / `colorMax` and
 friends)". The config properties are `colorScale.min`, `colorScale.max`, and
@@ -2358,9 +2358,16 @@ friends)". The config properties are `colorScale.min`, `colorScale.max`, and
 `CreateHeatmapOptions` fields — a different API. Every other page uses the `colorScale.*` names.
 A reader greps their config for `colorMin`, finds nothing, and concludes it doesn't apply.
 
-**Fix:** rename to `` `colorScale.min` / `colorScale.max` and the `colorScale.base` colors ``. The
-same stale names sit in the code comment at
-[validation/validators.ts:16](packages/mochart/src/config/validation/validators.ts#L16).
+**Fixed.** The theming guide now names the real properties — `colorScale.min`, `colorScale.max`,
+`colorScale.missing` and `colorScale.base.*`. `colorMin`/`colorMax` exist, but on the heatmap
+helper's options, which is a different API; the sibling config guide already used the right names.
+
+The finding missed a second error in the same sentence: "the one place" is wrong. The strict colour
+check applies equally to `colorPalette` entries and to gradient stop colours, so the guide now lists
+all three.
+
+The stale comment in the validator itself named the same wrong properties and has been corrected
+too, since that is where the next person looks to find out why the check is strict.
 
 ### DOC-5 — "Bar fills default to half opacity" — the default is `0.8`
 **Medium · Doc inconsistency · [recipes/color-by-value.md:35](packages/mochart-docs/recipes/color-by-value.md#L35) and [examples/colorByValue.ts:18](packages/mochart-docs/examples/colorByValue.ts#L18)** — **Open**
