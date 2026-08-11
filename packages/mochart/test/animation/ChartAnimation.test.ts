@@ -191,6 +191,73 @@ describe('non-translating updates keep the existing phases', () => {
   });
 });
 
+// ANIM-2 (category axis): a linear category domain that translates — a sliding window — skips the
+// union phases and slides its render domain during the value phase; entering/leaving categories
+// ride the moving window at their true values
+describe('translating linear category axis (sliding date window)', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const T0 = Date.UTC(2026, 0, 1);
+  const day = (index: number) => new Date(T0 + index * DAY);
+
+  const dateLinearConfig = makeConfig({
+    categoryAxis: { property: 'c', type: 'date', scale: 'linear' },
+    series: [{ property: 'a', renderer: 'bar' }]
+  });
+  const windowRows = (firstDay: number) => [0, 1, 2, 3, 4].map(offset => ({ c: day(firstDay + offset), a: 5 }));
+  const dataFor = (rows: { c: Date; a: number }[]) =>
+    getChartData(dateLinearConfig, new ArrayOfObjectsDataProvider(rows, 'c'), {});
+
+  // window d0..d4 -> d3..d7: union spans 7 days against 4-day endpoints, over the 1.5x threshold
+  const cad = getChartAnimationData(dateLinearConfig, dataFor(windowRows(0)), dataFor(windowRows(3)));
+
+  it('skips the expansion and contraction phases', () => {
+    expect(cad.axisExpansionData.deltaPercentage).toBe(0);
+    expect(cad.axisContractionData.deltaPercentage).toBe(0);
+  });
+
+  it('carries a category domain delta into the value phase', () => {
+    expect(cad.valueChangeData.deltas.domain.category.deltaPercentage).toBeGreaterThan(0);
+  });
+
+  it('starts the value phase on the old window and ends it on the new one', () => {
+    expect(+cad.valueChangeData.start.categoryData.renderAxisDomain[0]!).toBe(+day(0));
+    expect(+cad.valueChangeData.end.categoryData.renderAxisDomain[0]!).toBe(+day(3));
+    expect(+cad.valueChangeData.final.categoryData.renderAxisDomain[1]!).toBe(+day(7));
+  });
+
+  it('renders the merged category set against a mid-slide window', () => {
+    const frame = getChartDataForValueDelta(dateLinearConfig, cad, 0.5);
+    expect(frame.categoryData.values.parsed.length).toBe(8); // d0..d7 merged
+    const windowStart = +frame.categoryData.renderAxisDomain[0]!;
+    expect(windowStart).toBeGreaterThan(+day(0));
+    expect(windowStart).toBeLessThan(+day(3));
+  });
+
+  it('keeps an overlapping window growth on the staged path', () => {
+    const grown = getChartAnimationData(dateLinearConfig, dataFor(windowRows(0)),
+      dataFor([...windowRows(0), { c: day(5), a: 5 }]));
+    expect(grown.valueChangeData.deltas.domain.category.deltaPercentage).toBe(0);
+    expect(grown.axisExpansionData.deltaPercentage).toBeGreaterThan(0);
+  });
+
+  it('slides an explicit-bounds pan with unchanged data', () => {
+    const boundsConfig = (from: number, to: number) => makeConfig({
+      categoryAxis: { property: 'c', type: 'date', scale: 'linear', min: +day(from), max: +day(to) },
+      series: [{ property: 'a', renderer: 'bar' }]
+    });
+    const rows = windowRows(0);
+    const oldData = getChartData(boundsConfig(0, 2), new ArrayOfObjectsDataProvider(rows, 'c'), {});
+    const newData = getChartData(boundsConfig(5, 7), new ArrayOfObjectsDataProvider(rows, 'c'), {});
+    const panned = getChartAnimationData(boundsConfig(5, 7), oldData, newData);
+    expect(panned.axisExpansionData.deltaPercentage).toBe(0);
+    expect(panned.valueChangeData.deltas.domain.category.deltaPercentage).toBeGreaterThan(0);
+    expect(+panned.valueChangeData.end.categoryData.renderAxisDomain[0]!).toBe(+day(5));
+    const frame = getChartDataForValueDelta(boundsConfig(5, 7), panned, 0.5);
+    expect(+frame.categoryData.renderAxisDomain[0]!).toBeGreaterThan(+day(0));
+    expect(+frame.categoryData.renderAxisDomain[0]!).toBeLessThan(+day(5));
+  });
+});
+
 describe('getStartChartData / getEndChartData', () => {
   it('exposes the value-change transition endpoints', () => {
     const cad = getChartAnimationData(

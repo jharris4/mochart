@@ -2,7 +2,7 @@ import { getChartDataWithSeriesData, getChartDataWithData } from '../data/ChartD
 
 import { getCategoryDataWithRenderAxisDomain, getCategoryDataFromValues, getCategoryDataWithNumericValues } from '../data/CategoryData';
 
-import { getSafeDomainExtent, getSafeDomainExtents } from '../data/DomainData';
+import { getMaxDomain, getSafeDomainExtent, getSafeDomainExtents } from '../data/DomainData';
 
 import { getSeriesContainerFilteredSeriesCounts, getSeriesDataWithRenderAxisDomains, getSeriesDataWithSeriesValues,
   getSeriesDataWithDomains, setMinMax } from '../data/SeriesData';
@@ -16,8 +16,8 @@ import {
   hasCategoryChanges, hasNumericValueOffsets, getNumericValuesWithoutOffsets,
   getMergedNumericValues, createCategoryOrderDeltaData, setCategoryOrderDeltaFactors, getNumericValueOffsets } from './CategoryAnimationData';
 
-import { getMaxAxisDomains, getTranslatingAxisIds, getTranslationAxisDomainDeltas, setAxisDeltaFactors,
-  withAxisDomainsForIds, withSeriesDomainsForAxes } from './DomainAnimationData';
+import { getMaxAxisDomains, getTranslatingAxisIds, getTranslationAxisDomainDeltas, getTranslationCategoryDomainDelta,
+  isDomainTranslation, setAxisDeltaFactors, setDeltaFactor, withAxisDomainsForIds, withSeriesDomainsForAxes } from './DomainAnimationData';
 
 import { keyPlain, positionKeys, positionOrComputedKeys, positionOrComputedOrExtraKeys, extraAndCopyKeys } from '../data/constants';
 
@@ -27,7 +27,7 @@ import { mapMap } from '../utils/utils';
 import type { AnimationConfig } from '../types/config';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedSeriesStackConfig } from '../types/enhanced';
 import type {
-  AxisDomains, ChartData, NumericValues, SeriesData, SeriesDataSet, SeriesDomainObject,
+  AxisDomains, ChartData, NullableDomain, NumericValues, SeriesData, SeriesDataSet, SeriesDomainObject,
   SeriesDomainObjects, SeriesValueObject, SeriesValueObjects
 } from '../types/data';
 import type {
@@ -133,6 +133,12 @@ export function getTransitionValueChangeData(mochartConfig: EnhancedMochartConfi
   }
   else if (hasNumericValueOffsets(mochartConfig.categoryAxis, startCategoryData)) {
     endCategoryData = getCategoryDataWithNumericValues(startCategoryData, getNumericValuesWithoutOffsets(startCategoryData));
+  }
+
+  // a translating category axis (sliding window) finishes this phase on its new domain; start holds the old
+  if (isDomainTranslation(prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
+    endCategoryData = getCategoryDataWithRenderAxisDomain(endCategoryData, newChartData.categoryData.renderAxisDomain);
+    finalCategoryData = getCategoryDataWithRenderAxisDomain(finalCategoryData, newChartData.categoryData.renderAxisDomain);
   }
 
   categoryOrderOffsets = getNumericValueOffsets(mochartConfig.categoryAxis, startCategoryData);
@@ -564,14 +570,19 @@ function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartDa
     endChartData.seriesData.raw.renderAxisDomains, rawValueAxisExtents);
   const filteredDomainDeltaData = getTranslationAxisDomainDeltas(startChartData.seriesData.filtered.renderAxisDomains,
     endChartData.seriesData.filtered.renderAxisDomains, filteredValueAxisExtents);
+  const categoryDomainExtent = getSafeDomainExtent(getMaxDomain(startChartData.categoryData.renderAxisDomain,
+    endChartData.categoryData.renderAxisDomain) as NullableDomain);
+  const categoryDomainDeltaData = getTranslationCategoryDomainDelta(startChartData.categoryData.renderAxisDomain,
+    endChartData.categoryData.renderAxisDomain, categoryDomainExtent);
 
   const deltaPercentage = Math.max(valueDeltaData.deltaPercentage, filteredValueDeltaData.deltaPercentage, categoryOrderDeltaData.deltaPercentage,
-    rawDomainDeltaData.deltaPercentage, filteredDomainDeltaData.deltaPercentage);
+    rawDomainDeltaData.deltaPercentage, filteredDomainDeltaData.deltaPercentage, categoryDomainDeltaData.deltaPercentage);
   setValueDeltaFactors(valueDeltaData, deltaPercentage);
   setValueDeltaFactors(filteredValueDeltaData, deltaPercentage);
   setCategoryOrderDeltaFactors(categoryOrderDeltaData, deltaPercentage);
   setAxisDeltaFactors(rawDomainDeltaData, deltaPercentage);
   setAxisDeltaFactors(filteredDomainDeltaData, deltaPercentage);
+  setDeltaFactor(categoryDomainDeltaData, deltaPercentage);
 
   return {
     start: startChartData,
@@ -580,7 +591,7 @@ function createValueDeltaData(mochartConfig: EnhancedMochartConfig, startChartDa
       categoryOrder: categoryOrderDeltaData,
       raw: valueDeltaData,
       filtered: filteredValueDeltaData,
-      domain: { raw: rawDomainDeltaData, filtered: filteredDomainDeltaData }
+      domain: { category: categoryDomainDeltaData, raw: rawDomainDeltaData, filtered: filteredDomainDeltaData }
     },
     end: endChartData,
     final: finalChartData

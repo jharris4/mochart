@@ -13,7 +13,7 @@ import { hasCategoryAdditions, getExpansionCategoryValueDeltaData, getContractio
 import { mapMap } from '../utils/utils';
 
 import { SCALE_ORDINAL } from '../config/core/constants';
-import type { AxisDomains, ChartData, CategoryAxisDomain, NullableDomain, SeriesDomainObject, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
+import type { AxisDomains, ChartData, CategoryAxisDomain, DomainValue, NullableDomain, SeriesDomainObject, SeriesDomainObjects, SeriesValueObjects } from '../types/data';
 import type { EnhancedMochartConfig, EnhancedSeriesConfig, EnhancedValueAxisConfig } from '../types/enhanced';
 import type {
   AxisDeltaData, CompleteNumericArrayDelta, DomainDelta, DomainDeltaMap, CategoryDeltaData,
@@ -62,7 +62,7 @@ export const emptyAxisDeltaData = {
  */
 export const TRANSLATION_UNION_RATIO = 1.5;
 
-export function isDomainTranslation(fromDomain: NullableDomain, toDomain: NullableDomain): boolean {
+export function isDomainTranslation(fromDomain: NullableDomain<DomainValue>, toDomain: NullableDomain<DomainValue>): boolean {
   if (fromDomain[0] === null || fromDomain[1] === null || toDomain[0] === null || toDomain[1] === null) {
     return false;
   }
@@ -158,6 +158,20 @@ export function getTranslationAxisDomainDeltas(fromDomains: AxisDomains, toDomai
     deltaPercentage = Math.max(deltaPercentage, axisDeltaPercentage);
   }
   return deltaPercentage === 0 ? emptyValueAxisDomainDelta : { deltaPercentage, deltas };
+}
+
+/** Single-domain sibling of getTranslationAxisDomainDeltas for the category axis (dates coerce via +). */
+export function getTranslationCategoryDomainDelta(fromDomain: CategoryAxisDomain, toDomain: CategoryAxisDomain, fromDomainExtent: number): DomainDelta {
+  if (fromDomain[0] === null || fromDomain[1] === null || toDomain[0] === null || toDomain[1] === null) {
+    return emptyCategoryAxisDomainDelta;
+  }
+  const minDelta = +toDomain[0] - +fromDomain[0];
+  const maxDelta = +toDomain[1] - +fromDomain[1];
+  const centerShift = Math.abs(minDelta + maxDelta) / 2;
+  if (centerShift === 0 || fromDomainExtent <= 0) {
+    return emptyCategoryAxisDomainDelta;
+  }
+  return { deltaPercentage: centerShift / fromDomainExtent, delta: [minDelta, maxDelta] };
 }
 
 function getPositiveDomainDelta(fromDomain: NullableDomain, toDomain: NullableDomain): NumericDomain {
@@ -265,7 +279,13 @@ export function getTransitionAxisExpansionData(mochartConfig: EnhancedMochartCon
   }
   else {
     startCategoryAxisDomain = copyDomain(prevChartData.categoryData.renderAxisDomain);
-    endCategoryAxisDomain = getMaxDomain(prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain);
+    // a translating category axis (sliding window) sits out the union; its domain moves during the value phase
+    if (isDomainTranslation(prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain)) {
+      endCategoryAxisDomain = copyDomain(startCategoryAxisDomain);
+    }
+    else {
+      endCategoryAxisDomain = getMaxDomain(prevChartData.categoryData.renderAxisDomain, newChartData.categoryData.renderAxisDomain);
+    }
     setBaseDomainForChanges(startCategoryAxisDomain, endCategoryAxisDomain);
   }
 
@@ -608,7 +628,7 @@ function createAxisDeltaData(startChartData: ChartData, endChartData: ChartData,
   };
 }
 
-function setDeltaFactor(deltaObject: { deltaPercentage: number; deltaFactor?: number }, deltaPercentage: number): void {
+export function setDeltaFactor(deltaObject: { deltaPercentage: number; deltaFactor?: number }, deltaPercentage: number): void {
   if (deltaObject.deltaPercentage === 0) {
     deltaObject.deltaFactor = 0;
   }
