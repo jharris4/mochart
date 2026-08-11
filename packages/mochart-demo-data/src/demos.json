@@ -10,6 +10,15 @@
       "random": "positive-random.json"
     },
     {
+      "id": "one-value",
+      "title": "One Value",
+      "description": "A chart with the one value for a single category.",
+      "notes": "There is only one category with one series value, so the series domain extent is zero.",
+      "config": "one-value-config.json",
+      "data": "one-value-data.json",
+      "random": "positive-random.json"
+    },
+    {
       "id": "tick-prune",
       "title": "Long Tick Label Pruning",
       "description": "A date axis with long formatted tick labels, pruned as space runs out instead of overlapping.",
