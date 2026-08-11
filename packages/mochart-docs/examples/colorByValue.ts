@@ -15,7 +15,7 @@ export const config: MochartInputConfig = {
       property: 'revenue',
       title: 'Revenue (shaded by margin %)',
       renderer: 'bar',
-      // Bar fills default to half opacity; full opacity keeps the ramp true.
+      // Bar fills and strokes default to 0.8 opacity; full opacity keeps the ramp true.
       shapeStyle: { normal: { strokeOpacity: 1, fillOpacity: 1 } },
       colorProperty: 'margin',
       colorScale: { interpolation: 'lab', min: '#cde2fb', max: '#0d366b' }

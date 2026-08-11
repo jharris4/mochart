@@ -32,7 +32,7 @@ import * as colorByValueBase from '../examples/colorByValueBase'
 - Per-row color applies to `bar` series (including floating bars via
   [`rangeProperty`](/reference/series#series.rangeProperty)) —
   line and area shapes and markers keep their single series color.
-- Bar fills default to half opacity, which dilutes the ramp against the
+- Bar fills and strokes default to `0.8` opacity, which dilutes the ramp against the
   background; the example sets
   [`shapeStyle.normal`](/reference/series#series.shapeStyle.normal)'s
   two opacities to `1` so the colors read true.
