@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 43 fixed, 1 needing an answer, 116 open.** TOOL-2 is deferred to release time by
+**Status: 44 fixed, 1 needing an answer, 115 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1265,7 +1265,7 @@ Tests cover 0.5, 0.7 and a negative value throwing, and 0.49 still working; they
 unpatched source. The recipe needed no correction — it mentions the option but states no range.
 
 ### HELP-6 — `cumulative` + `normalize: 'density'` produces a curve topping out at `1 / binWidth`
-**Medium · Bug · [Histogram.ts:136-148](packages/mochart/src/data/Histogram.ts#L136)** — **Open**
+**Medium · Bug · [Histogram.ts:136-148](packages/mochart/src/data/Histogram.ts#L136)** — **Fixed**
 
 The cumulative pass accumulates whatever `normalize` produced. For `'probability'` that is the
 CDF (correct, and the only combination tested). For `'density'` it sums densities instead of
@@ -1279,8 +1279,21 @@ cumulative + density     → 0.1 0.2 0.3 0.4 0.5   (should also end at 1)
 The JSDoc promises density "integrates to 1"; neither it nor the recipe says the combination is
 meaningless. Matplotlib's `hist(density=True, cumulative=True)` normalizes the last bin to 1.
 
-**Fix:** when `cumulative` is set, accumulate `count / total` regardless of `normalize`, note it
-in the JSDoc, and add the missing test case.
+**Fixed.** A cumulative density now integrates — each bin contributes `value × bin width` — instead
+of summing values that had already been divided by the bin width. The curve ends at 1, as a
+cumulative probability should, rather than at `1 / bin width`.
+
+Multiplying by each bin's own width rather than a single shared width costs nothing today, since
+bins are equal, and keeps the result correct if unequal bins are ever added.
+
+Tests assert the curve ends at 1, stays monotonic, and matches the cumulative *probability* curve
+bin for bin — that last one is the real statement of what a cumulative density is. Two of the three
+fail on the unpatched source. Goldens unaffected: the histogram demo uses the default `count` and
+no `cumulative`.
+
+**Left alone deliberately:** the default series title still reads "Density" for a cumulative
+density, where "Cumulative probability" would be more accurate. That is a visible label change
+rather than a maths fix, so it is raised separately rather than folded in here.
 
 ### HELP-7 — doji candles (open === close) draw no body at all
 **Medium · Missing feature · [Candlestick.ts:342-368](packages/mochart/src/data/Candlestick.ts#L342)** — **Open**
