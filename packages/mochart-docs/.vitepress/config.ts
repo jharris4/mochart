@@ -58,6 +58,7 @@ export default defineConfig({
   description: 'Animated interactive SVG charting library with zero framework dependencies',
   srcExclude: ['README.md'],
   markdown: { config: demoLinkTargets },
+  vite: { build: { sourcemap: true } },
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/getting-started', activeMatch: '^/(guide|recipes)/' },
