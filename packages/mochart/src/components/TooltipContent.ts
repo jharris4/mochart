@@ -371,17 +371,19 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
     const shouldFocus = showControls ? mode === MODE_FILTER : focusSeriesOnMouseOver;
     // a filtered series has nothing visible to highlight, like the legend
     if (shouldFocus && tooltipValueObject.series.filteredFlags[seriesId] !== true) {
+      this.hoverActive = true;
       onFocus({ seriesId });
     }
   }
 
+  // leave mirrors the enter that actually fired: the filtered flag can flip mid-hover, so it
+  // cannot gate the leave, and clearing unconditionally wipes focus set elsewhere
+  hoverActive = false;
+
   onSeriesMouseLeave = (_event: Event) => {
-    const { mochartConfig, onFocus } = this.props;
-    const { mode } = this.state;
-    const { tooltip: tooltipConfig } = mochartConfig;
-    const { showControls, focusSeriesOnMouseOver } = tooltipConfig;
-    const shouldFocus = showControls ? mode === MODE_FILTER : focusSeriesOnMouseOver;
-    if (shouldFocus) {
+    const { onFocus } = this.props;
+    if (this.hoverActive) {
+      this.hoverActive = false;
       onFocus({ seriesId: null });
     }
   }
