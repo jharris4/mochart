@@ -23,7 +23,7 @@ export function getSeriesData(mochartConfig: EnhancedMochartConfig, dataProvider
 
   // bases derive from the render domains: a semantic (collapsed) min would draw zero-height bars
   const axisBases = getValueAxisBases(valueAxisConfigs, rawSeriesBundle.data.renderAxisDomains, filteredSeriesBundle.data.renderAxisDomains);
-  const axisSeriesCounts = getSeriesContainerFilteredSeriesCounts(valueAxisConfigs, seriesFilteredFlags);
+  const axisSeriesCounts = getSeriesContainerVisibleSeriesCounts(valueAxisConfigs, seriesFilteredFlags);
 
   return {
     axisBases,
@@ -464,12 +464,12 @@ export function getValueAxisBases(valueAxisConfigs: EnhancedValueAxisConfig[], r
         valueAxisConfig.adjustForFiltering ? filteredValueAxisDomains[valueAxisConfig.id][0] : rawValueAxisDomains[valueAxisConfig.id][0])
 }
 
-export function getSeriesContainerFilteredSeriesCounts(seriesContainerConfigs: SeriesContainerConfig[], filteredSeriesFlags: Record<string, boolean>): Record<string, number> {
+export function getSeriesContainerVisibleSeriesCounts(seriesContainerConfigs: SeriesContainerConfig[], filteredSeriesFlags: Record<string, boolean>): Record<string, number> {
   return arrayToMap(seriesContainerConfigs, idAccessor, seriesContainerConfig =>
-    getSeriesContainerFilteredSeriesCount(seriesContainerConfig, filteredSeriesFlags))
+    getSeriesContainerVisibleSeriesCount(seriesContainerConfig, filteredSeriesFlags))
 }
 
-function getSeriesContainerFilteredSeriesCount(seriesContainerConfig: SeriesContainerConfig, filteredSeriesFlags: Record<string, boolean>): number {
+function getSeriesContainerVisibleSeriesCount(seriesContainerConfig: SeriesContainerConfig, filteredSeriesFlags: Record<string, boolean>): number {
   let seriesCount = 0;
   const seriesConfigs = seriesContainerConfig.seriesConfigs!;
   for (const seriesConfig of seriesConfigs) {

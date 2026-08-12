@@ -231,7 +231,7 @@ should be chosen rather than arrive as a side effect of this finding. It is a sm
 [SeriesPositions.ts:68](packages/mochart/src/utils/SeriesPositions.ts#L68) if you want it.
 
 ### DATA-6 — `getSeriesContainerFilteredSeriesCounts` counts *unfiltered* series
-**Low · Inconsistency · [SeriesData.ts:460-474](packages/mochart/src/data/SeriesData.ts#L460)** — **Open**
+**Low · Inconsistency · [SeriesData.ts:460-474](packages/mochart/src/data/SeriesData.ts#L460)** — **Fixed**
 
 It increments when `filteredSeriesFlags[id] === false` — i.e. it returns the number still
 shown. After the suppress→filter rename, "filtered" means legend-toggled-off, so the name
@@ -241,6 +241,16 @@ a contradiction.
 
 **Fix:** rename to `getSeriesContainerVisibleSeriesCounts` / `visibleSeriesCount` across
 the six call sites. Behaviour unchanged.
+
+**Fixed as recommended.** `getSeriesContainerFilteredSeriesCounts` →
+`getSeriesContainerVisibleSeriesCounts` (and its private singular helper), the `filteredSeriesCount`
+parameter threaded into `getValueAxisTickDataObject` → `visibleSeriesCount`, and PlotLayout's
+`valueAxisFilteredSeriesCounts` locals → `valueAxisVisibleSeriesCounts`. `AxisData.ts` now reads
+`if (axisConfig.visibleWhenAllFiltered || visibleSeriesCount > 0)`, which says what it does.
+
+The `filteredSeriesFlags` parameter keeps its name: that map really is the filtered flags, and the
+count is derived by testing `=== false`. Behaviour unchanged, no test changes; 1594 tests, typecheck
+and lint pass.
 
 ### DATA-7 — six near-copies of "coerce a Date to a comparable number"
 **Low · Inconsistency · [DomainData.ts:6](packages/mochart/src/data/DomainData.ts#L6), [AxisDomainData.ts:80](packages/mochart/src/data/AxisDomainData.ts#L80), [CategoryValue.ts:6](packages/mochart/src/data/CategoryValue.ts#L6), [CategoryData.ts:111](packages/mochart/src/data/CategoryData.ts#L111), [DataValidator.ts:28](packages/mochart/src/data/DataValidator.ts#L28)**

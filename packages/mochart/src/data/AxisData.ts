@@ -328,10 +328,10 @@ function getValueAxisTickData(axisConfigArray: EnhancedValueAxisConfig[], axisLa
   });
 }
 
-function getValueAxisTickDataObject(axisConfig: EnhancedValueAxisConfig, axisLayoutInfo: AxisLayoutInfo, rawValueAxisDomain: NullableDomain, filteredValueAxisDomain: NullableDomain, rawRenderValueAxisDomain: NullableDomain, filteredSeriesCount: number, axisScale: AxisScale, vertical: boolean): AxisTick[] {
+function getValueAxisTickDataObject(axisConfig: EnhancedValueAxisConfig, axisLayoutInfo: AxisLayoutInfo, rawValueAxisDomain: NullableDomain, filteredValueAxisDomain: NullableDomain, rawRenderValueAxisDomain: NullableDomain, visibleSeriesCount: number, axisScale: AxisScale, vertical: boolean): AxisTick[] {
   let ticks: AxisTick[] = [];
   if (axisConfig.ticks !== NONE) {
-    if (axisConfig.visibleWhenAllFiltered || filteredSeriesCount > 0) {
+    if (axisConfig.visibleWhenAllFiltered || visibleSeriesCount > 0) {
       const tickLabelFormatter = getLinearScaleTickLabelFormatter(axisConfig, axisScale, axisConfig.ticks.length);
       const [rangeStart, rangeEnd] = axisScale.range();
       const rangeMin = Math.min(rangeStart, rangeEnd);
@@ -348,7 +348,7 @@ function getValueAxisTickDataObject(axisConfig: EnhancedValueAxisConfig, axisLay
     }
     return ticks;
   }
-  if (axisConfig.visibleWhenAllFiltered || filteredSeriesCount > 0) {
+  if (axisConfig.visibleWhenAllFiltered || visibleSeriesCount > 0) {
     let tickCount = axisConfig.tickCount;
     let scaleTicks: AxisValue[];
     const adjustForFiltering = axisConfig.adjustForFiltering;
