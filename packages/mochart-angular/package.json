@@ -40,7 +40,7 @@
     "dist"
   ],
   "peerDependencies": {
-    "@angular/core": "^22.0.0",
+    "@angular/core": ">=22.0.0",
     "@mochart/core": "^1.0.0"
   },
   "devDependencies": {

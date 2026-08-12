@@ -16,6 +16,9 @@ axis contraction, and gapless stacked transitions — no extra wiring needed.
 npm install @mochart/angular @mochart/core @angular/core
 ```
 
+Angular 22 or newer. The package ships partial-Ivy output, so newer Angular
+versions link it with their own compiler and need no release here.
+
 ## The optional stylesheet
 
 If your app uses a global CSS reset (Tailwind's preflight, a
