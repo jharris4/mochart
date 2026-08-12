@@ -4541,7 +4541,7 @@ tests still pass — so the non-zero exit comes from the gate, not the suite. Th
 two new devDependencies.
 
 ### TEST-12 — B12's fix has no direct assertion, and the golden suite normalizes away the artifact
-**Low · Weak test · [render/dom.ts:87](packages/mochart/src/render/dom.ts#L87); [render.test.ts:307](packages/mochart/test/render/render.test.ts#L307); [golden.test.ts:455](packages/mochart/test/golden/golden.test.ts#L455)** — **Open**
+**Low · Weak test · [render/dom.ts:87](packages/mochart/src/render/dom.ts#L87); [render.test.ts:307](packages/mochart/test/render/render.test.ts#L307); [golden.test.ts:455](packages/mochart/test/golden/golden.test.ts#L455)** — **Fixed**
 
 The `removeAttribute('style')` branch fires only when `!newValue`. The nearest test clears with
 `{height: null}` — truthy — so it never reaches the branch and never asserts `hasAttribute('style')`.
@@ -4554,6 +4554,27 @@ entirely indirect, and one assertion has been pre-neutralized against it.
 **Fix:** extend the style test with `setProperty(div, 'style', {height: 5}, null, false);
 expect(div.hasAttribute('style')).toBe(false);` and the string-form equivalent, then drop or
 re-comment `stripEmptyStyles`.
+
+**Fixed on both halves.** `render.test.ts` gains a direct test of the `removeAttribute('style')` branch —
+object-to-null and the string form — plus a clarifying assertion on the existing case that `{height: null}` is
+truthy, so it empties the declaration while the attribute stays. That is why the old test never reached the
+branch.
+
+And `golden.test.ts`'s `stripEmptyStyles` is gone rather than re-commented. Its comment claimed "the goldens keep
+the artifact", which is stale: zero snapshots contain `style=""`. Since neither the static nor the animated path
+leaves one behind any more, the two sides of that equality can be compared as-is — the normalization was
+absorbing exactly the regression B12's fix exists to prevent.
+
+Verified to bite by removing the branch itself, not something adjacent: the new test then fails alone
+(`1 failed | 33 passed`), and the golden suite's 130 tests pass with the normalization dropped. A first attempt
+at the bite proof patched the generic `removeAttribute` instead and broke three unrelated tests — worth noting,
+because it shows the new test is specific to this branch rather than to attribute removal in general.
+
+`dom.ts` is untouched afterwards.
+
+Note this finding's agent was interrupted by a server error partway through, having written the `render.test.ts`
+half and restored the source it had patched; the `stripEmptyStyles` half and both bite proofs were completed
+by hand.
 
 ### TEST-13 — mid-animation assertions that can silently not run
 **Low · Weak test · [FollowerAnimation.test.ts:165-183](packages/mochart/test/components/FollowerAnimation.test.ts#L165)** — **Open**
