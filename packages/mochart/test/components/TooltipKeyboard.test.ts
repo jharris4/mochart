@@ -362,6 +362,37 @@ describe('tooltip row keyboard semantics', () => {
     expect(modeButton(container).textContent).toBe('Filter');
     expect(tooltipRows(container).map(row => row.getAttribute('data-row-key'))).toEqual(['series-S0', 'series-S1']);
   });
+
+  // A11Y-12: the roving rows had only key handlers, so they announced as bare buttons
+  // where the legend's identical container announces "Legend, group"
+  it('groups the roving rows like the legend, named from the accessibility config', () => {
+    const container = mountChart(makeConfig({ showControls: true }));
+    openTooltip(container);
+
+    const group = container.querySelector(getDescendantCssSelector('tooltip', 'tooltipLines'))!;
+    expect(group.getAttribute('role')).toBe('group');
+    expect(group.getAttribute('aria-label')).toBe('Tooltip values');
+    expect(tooltipRows(container)[0].closest('[role="group"]')).toBe(group);
+
+    // the hidden sizer copy has no interactive rows, so it must not announce a second group
+    expect(container.querySelector(getDescendantCssSelector('tooltipSizer', 'tooltipLines'))!
+      .getAttribute('role')).toBeNull();
+
+    const named = mountChart(makeConfig({ showControls: true }, { accessibility: { tooltipLabel: 'Werte' } }));
+    openTooltip(named);
+    expect(named.querySelector(getDescendantCssSelector('tooltip', 'tooltipLines'))!
+      .getAttribute('aria-label')).toBe('Werte');
+  });
+
+  it('leaves the tooltip rows ungrouped when they are not tab stops', () => {
+    for (const container of [mountChart(makeConfig()),
+      mountChart(makeConfig({ showControls: true }, { accessibility: { enabled: false } }))]) {
+      openTooltip(container);
+      const lines = container.querySelector(getDescendantCssSelector('tooltip', 'tooltipLines'))!;
+      expect(lines.getAttribute('role')).toBeNull();
+      expect(lines.getAttribute('aria-label')).toBeNull();
+    }
+  });
 });
 
 describe('tooltip row pointer focus', () => {

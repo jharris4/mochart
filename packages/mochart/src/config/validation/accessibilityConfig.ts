@@ -8,7 +8,9 @@ export default function getValidators() {
     chartLabel: validators.string(),
     chartRoleDescription: validators.string(),
     plotLabel: validators.string(),
+    seriesLabel: validators.string(),
     legendLabel: validators.string(),
+    tooltipLabel: validators.string(),
     tooltipPreviousLabel: validators.string(),
     tooltipNextLabel: validators.string()
   };

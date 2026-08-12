@@ -117,6 +117,14 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#accessibility.respectReducedMotion">respectReducedMotion</a></td><td>whether to respect the user’s reduced-motion system preference<br/><br/>When `true` and the user’s system requests reduced motion (the `prefers-reduced-motion: reduce` accessibility setting, for users sensitive to movement), the chart behaves as if `animation.animate` were `false`: config, data, and focus changes apply instantly. The preference is watched live, so changing the system setting takes effect without re-creating the chart. Set to `false` to animate regardless of the preference. Independent of `enabled`.</td><td>should be a boolean</td><td><div>true</div>
 </td>
 </tr>
+<tr id="accessibility.seriesLabel">
+<td><a href="#accessibility.seriesLabel">seriesLabel</a></td><td>the screen-reader label for the group of keyboard-reachable series or pie slices<br/><br/>The accessible name of the group that contains the keyboard-reachable series — cartesian series or pie slices, whichever the chart draws. Like the legend group, it is present only while the series are roving tab stops, which is when clicking a series does something (`series.focusOnClick`, or an `onSeriesClick`/`onSliceClick` callback). Replace to localize it.</td><td>should be a string</td><td><div>"Chart series"</div>
+</td>
+</tr>
+<tr id="accessibility.tooltipLabel">
+<td><a href="#accessibility.tooltipLabel">tooltipLabel</a></td><td>the screen-reader label for the group of keyboard-reachable tooltip rows<br/><br/>The accessible name of the group that contains an open tooltip’s keyboard-reachable rows. Present only while the rows are roving tab stops, which is when clicking a row does something (the tooltip controls’ current mode, or `tooltip.focusCategoryOnClick` / `focusSeriesOnClick` / `filterSeriesOnClick`). Replace to localize it.</td><td>should be a string</td><td><div>"Tooltip values"</div>
+</td>
+</tr>
 <tr id="accessibility.tooltipNextLabel">
 <td><a href="#accessibility.tooltipNextLabel">tooltipNextLabel</a></td><td>the label for the tooltip controls’ next-category button (aria-label and hover title)<br/><br/>The accessible name and hover title of the › button shown when `tooltip.showControls` is on; the button itself shows only the glyph. Replace to localize it.</td><td>should be a string</td><td><div>"Next category"</div>
 </td>

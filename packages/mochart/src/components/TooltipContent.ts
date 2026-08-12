@@ -578,8 +578,11 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       (rovingLine!.props as { tabStop: boolean }).tabStop = true;
     }
 
+    // the roving rows are one group, named like the legend's (html: kebab-case aria attribute)
     const anyInteractiveRows = interactiveRowKeys.length > 0;
     this.linesContainer.set({ className: mochartCssClasses['tooltipLines'], style: { clear: 'both' },
+      role: anyInteractiveRows ? 'group' : null,
+      'aria-label': anyInteractiveRows ? mochartConfig.accessibility.tooltipLabel : null,
       onKeyDown: anyInteractiveRows ? this.linesKeyDown : null,
       onFocusIn: anyInteractiveRows ? this.linesFocusIn : null });
 

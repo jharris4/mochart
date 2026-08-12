@@ -144,11 +144,16 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
       effectiveRovingId = interactiveIds[0] ?? null;
     }
 
+    // the roving series are one group, named like the legend's
+    const anyInteractive = interactiveIds.length > 0;
+
     this.root.set({ className: mochartCssClasses['seriesContainer'],
       // an explicit axis min/max is a hard bound, so anything past it must not paint over the chrome
       clipPath: getClipPathReference(seriesClipPathUniqueId),
-      onKeyDown: interactiveIds.length > 0 ? this.seriesKeyDown : null,
-      onFocusIn: interactiveIds.length > 0 ? this.seriesFocusIn : null });
+      role: anyInteractive ? 'group' : null,
+      ariaLabel: anyInteractive ? mochartConfig.accessibility.seriesLabel : null,
+      onKeyDown: anyInteractive ? this.seriesKeyDown : null,
+      onFocusIn: anyInteractive ? this.seriesFocusIn : null });
     this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
 
     // reordering below moves the focused series' node, which drops DOM focus

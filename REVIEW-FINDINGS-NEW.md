@@ -2590,7 +2590,7 @@ Docs site builds clean. Not verifiable in this environment beyond the CSS itself
 needs a real Windows High Contrast session, so the rules are written from the spec rather than observed.
 
 ### A11Y-12 — series and tooltip roving groups lack the group semantics the legend has
-**Low · Inconsistency · [SeriesContainer.ts:145](packages/mochart/src/components/SeriesContainer.ts#L145), [PieSeriesContainer.ts:164](packages/mochart/src/components/PieSeriesContainer.ts#L164), [TooltipContent.ts:570](packages/mochart/src/components/TooltipContent.ts#L570) vs [Legend.ts:183](packages/mochart/src/components/Legend.ts#L183)** — **Open**
+**Low · Inconsistency · [SeriesContainer.ts:145](packages/mochart/src/components/SeriesContainer.ts#L145), [PieSeriesContainer.ts:164](packages/mochart/src/components/PieSeriesContainer.ts#L164), [TooltipContent.ts:570](packages/mochart/src/components/TooltipContent.ts#L570) vs [Legend.ts:183](packages/mochart/src/components/Legend.ts#L183)** — **Fixed**
 
 The legend's roving container gets `role="group"` + `aria-label` from `accessibility.legendLabel`;
 the identical containers for cartesian series, pie slices and tooltip rows get only a class and key
@@ -2599,6 +2599,48 @@ handlers, and there is no config key to name them. Tab into a pie's slices and t
 
 **Fix:** add `role="group"` + `aria-label` to the three containers and matching config keys
 (`seriesLabel`, `tooltipLabel`) to the accessibility defaults/validation/docs.
+
+**Fixed by copying the legend's treatment exactly.** `role="group"` plus an `aria-label` now sit on the
+roving containers for cartesian series (`SeriesContainer`), pie slices (`PieSeriesContainer`) and tooltip
+rows (`TooltipContent`) — on the *same element that carries the roving `onKeyDown`/`onFocusIn` handlers*, and
+gated on the *same* predicate those handlers use. So the group exists exactly when the items inside it are
+roving tab stops and disappears with them: accessibility off, nothing clickable, every series filtered out,
+or the hidden tooltip sizer copy. Nothing else was added — no `aria-labelledby`, no `aria-activedescendant`,
+no per-item change — so no item gains a second name and nothing double-announces.
+
+Two new config keys, `accessibility.seriesLabel` ("Chart series") and `tooltipLabel` ("Tooltip values"),
+with the generated JSDoc and reference regenerated. One key covers cartesian series and pie slices because
+slices *are* series in this model, which is what the finding's two-key proposal assumes.
+
+The tooltip's label is written as the kebab-case `'aria-label'`: `setProperty` only kebab-cases camelCase
+names on SVG, so `ariaLabel` on an html div would emit a literal `ariaLabel` attribute — the same trap
+[A11Y-9](#a11y-9--the-live-region-has-no-explicit-aria-live-and-no-de-duplication-or-throttle) hit with the
+live region.
+
+One scope call: the series group also encloses the plot-area rect, which is a child of the same container,
+so it announces as a "Chart series" group around the "Chart values" button rather than duplicating it.
+Isolating it needs a new wrapper `g` around the series list — restructured markup and large golden churn —
+for a worse match to the legend model, so the flat form stayed.
+
+No golden moved: no golden config makes a series or slice interactive and none opens a tooltip, so the gated
+attributes never render there. Confirmed by running `test/golden` without `-u` and checking no snapshot file
+was touched.
+
+Six tests, two per container, asserting the role, the default label, that the roving item's
+`closest('[role="group"]')` is that container, and a config-supplied label — plus that the hidden sizer copy
+gets no second group. Removing the three role/label lines fails exactly those three positive tests. 109
+files / 1634 tests pass, typecheck and lint clean, and the docs package's own suite is green since the new
+keys flow into its generated reference.
+
+Bookkeeping: this finding's paragraph in `guide/accessibility.md` was committed early, inside
+[A11Y-4](#a11y-4--export-stamps-roleimg-on-charts-that-carry-no-accessible-name)'s commit `f7a0a3b4`,
+because that commit staged the whole file while this work was still in flight. The content is correct and
+intact; only its commit is wrong.
+
+Noted, not fixed: `mochart-export` strips accessibility attributes only from elements carrying `[tabindex]`,
+so these `role="group"` labels survive into an exported SVG, as the legend's already did. Harmless — the
+export root is `role="img"`, whose subtree AT ignores — but the sanitizer's selector would need `[role]` to
+be thorough.
 
 ---
 

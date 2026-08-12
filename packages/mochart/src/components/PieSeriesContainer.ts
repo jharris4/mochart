@@ -161,9 +161,14 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
       effectiveRovingId = interactiveIds[0] ?? null;
     }
 
+    // the roving slices are one group, named like the legend's
+    const anyInteractive = interactiveIds.length > 0;
+
     this.root.set({ className: mochartCssClasses['seriesContainer'],
-      onKeyDown: interactiveIds.length > 0 ? this.sliceKeyDown : null,
-      onFocusIn: interactiveIds.length > 0 ? this.sliceFocusIn : null });
+      role: anyInteractive ? 'group' : null,
+      ariaLabel: anyInteractive ? mochartConfig.accessibility.seriesLabel : null,
+      onKeyDown: anyInteractive ? this.sliceKeyDown : null,
+      onFocusIn: anyInteractive ? this.sliceFocusIn : null });
     this.background.set(SeriesBackground, { seriesLayoutInfo, shapeRef, a11yProps });
 
     // reordering below moves the focused slice's node, which drops DOM focus

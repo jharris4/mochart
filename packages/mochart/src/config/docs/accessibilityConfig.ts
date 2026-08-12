@@ -6,7 +6,9 @@ export default function getDescriptions() {
     chartLabel: 'the screen-reader name for the chart when the title has no text',
     chartRoleDescription: 'the role description screen readers announce for the chart',
     plotLabel: 'the screen-reader label for the keyboard-focusable plot area',
+    seriesLabel: 'the screen-reader label for the group of keyboard-reachable series or pie slices',
     legendLabel: 'the screen-reader label for the legend',
+    tooltipLabel: 'the screen-reader label for the group of keyboard-reachable tooltip rows',
     tooltipPreviousLabel: 'the label for the tooltip controls’ previous-category button (aria-label and hover title)',
     tooltipNextLabel: 'the label for the tooltip controls’ next-category button (aria-label and hover title)'
   };
@@ -20,7 +22,9 @@ export function getDetails() {
     chartLabel: 'The accessible name of the chart svg when `title.text` is unset; a set title always wins. Replace to localize the announced name.',
     chartRoleDescription: 'Announced by screen readers in place of the generic "group" role, e.g. "Monthly sales, chart". Replace to localize it, as required for `aria-roledescription` values.',
     plotLabel: 'The accessible name of the plot-area tab stop that keyboard users activate to open and step the tooltip. Replace to localize it.',
+    seriesLabel: 'The accessible name of the group that contains the keyboard-reachable series — cartesian series or pie slices, whichever the chart draws. Like the legend group, it is present only while the series are roving tab stops, which is when clicking a series does something (`series.focusOnClick`, or an `onSeriesClick`/`onSliceClick` callback). Replace to localize it.',
     legendLabel: 'The accessible name of the legend group that contains the keyboard-reachable legend items. Replace to localize it.',
+    tooltipLabel: 'The accessible name of the group that contains an open tooltip’s keyboard-reachable rows. Present only while the rows are roving tab stops, which is when clicking a row does something (the tooltip controls’ current mode, or `tooltip.focusCategoryOnClick` / `focusSeriesOnClick` / `filterSeriesOnClick`). Replace to localize it.',
     tooltipPreviousLabel: 'The accessible name and hover title of the ‹ button shown when `tooltip.showControls` is on; the button itself shows only the glyph. Replace to localize it.',
     tooltipNextLabel: 'The accessible name and hover title of the › button shown when `tooltip.showControls` is on; the button itself shows only the glyph. Replace to localize it.'
   };
