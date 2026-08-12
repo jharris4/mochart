@@ -38,10 +38,12 @@ cases that pass did not reach, and those are flagged as such.
 **170 findings: 1 critical, 34 high, 74 medium, 61 low.** (145 from the Opus pass,
 5 from the SOL pass, 20 found while implementing.)
 
-**Status: 148 fixed, 22 open** (8 medium, 12 low, and 2 high).
-Six of the open findings are blocked on a decision rather than on work — **COMP-8**, **BIND-3**, **TOOL-2**,
-**VAL-1**, **API-13** and **DEMO-23** — and each has its question, options and a recommendation written up in
-`REVIEW-QUESTIONS.md`. The other 16 are unstarted work.
+**Status: 157 fixed, 13 open** (2 high, 4 medium, 7 low).
+
+Six of the open findings are blocked on a decision rather than on work — **COMP-8**,
+**API-13**, **BIND-3**, **DEMO-23**, **TOOL-2** and **VAL-1** — and each has its question, options and a
+recommendation written up in `REVIEW-QUESTIONS.md`. The other seven are unstarted work: **A11Y-6**,
+**DEMO-14**, **DEMO-17**, **DEMO-20**, **TEST-9**, **TEST-16** and **TEST-19**.
 
 BIND-3 is the one finding deliberately left open with work committed against it: its safe half — `types`
 before `development` in nine export maps, plus README documentation — has landed, while the consumer exposure
@@ -69,16 +71,17 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 3 | 10 |
 | [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 6 | 7 | 14 |
 | [7](#7-accessibility) | Accessibility | – | 2 | 5 | 5 | 12 |
-| [8](#8-framework-bindings-export-and-editor) | Bindings, export & editor | – | 2 | 6 | 4 | 12 |
-| [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
-| [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 7 | 22 |
-| [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 6 | 18 |
-| [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 7 | 6 | 16 |
-| [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **33** | **72** | **55** | **161** |
+| [8](#8-framework-bindings-export-and-editor) | Framework bindings, export & editor | – | 2 | 7 | 4 | 13 |
+| [9](#9-documentation) | Documentation | – | 3 | 7 | 4 | 14 |
+| [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 8 | 23 |
+| [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 9 | 21 |
+| [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 8 | 6 | 17 |
+| [13](#13-movalid) | movalid | – | 1 | 4 | 2 | 7 |
+| | **Total** | **1** | **34** | **74** | **61** | **170** |
 
-`§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
-counted twice. Several other findings are cross-linked between sections for the same reason.
+Every finding is counted once, in the section it is written in. `§13`'s `VAL-1` and `§5`'s `CONFIG-1`
+are one defect seen from two vantage points, cross-linked rather than duplicated; several other
+findings are cross-linked between sections for the same reason.
 
 The five findings carried in from the SOL pass are
 [COMP-11](#comp-11--pointer-payloads-use-the-wrong-coordinate-frame-and-break-when-css-scaled),
