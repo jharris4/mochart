@@ -3492,7 +3492,7 @@ The `message` view has the same missing `clearView()` branch but owns no subscri
 its element, so it is not a leak and was left alone.
 
 ### DEMO-8 — vanilla `chartHost` can mount a chart after it has been destroyed
-**Medium · Bug · [vanilla chartHost.ts:56](packages/mochart-demo-vanilla/src/components/misc/chartHost.ts#L56)** — **Open**
+**Medium · Bug · [vanilla chartHost.ts:56](packages/mochart-demo-vanilla/src/components/misc/chartHost.ts#L56)** — **Fixed**
 
 The mount is deferred with `queueMicrotask(() => { chart = create(...) })` and `destroy()` only
 destroys `chart` if already set. A destroy in the same tick leaves `chart === null`, then the
@@ -3501,6 +3501,36 @@ alive for the page's lifetime. The binding this file explicitly mirrors guards e
 ([lit directives.ts:88](packages/mochart-lit/src/directives.ts#L88)).
 
 **Fix:** track a `destroyed` flag (or cancel the queued mount) and bail inside the microtask.
+
+**Fixed with a destroyed flag.** `chartHost` sets it in `destroy()` and the deferred mount microtask bails
+on it, so a host destroyed before its queued mount runs never builds a chart. Nothing else needed changing:
+`update()` after destroy already no-ops because `chart` stays `null`, and `destroy()` was already
+idempotent.
+
+Reproduced twice in Chromium against the real dev server, importing the demo's own modules so nothing was
+stubbed:
+
+* **Component level** — `demoSparkline()` mounts six hosts synchronously while it is being constructed, so
+  six mount microtasks are queued by the time the handle is returned. Construct, append, `destroy()` in one
+  task: each `destroy()` ran with `chart === null`, then the microtasks built six charts into the destroyed
+  view.
+* **App level** — `navigate('/sparkline'); navigate('/demos')` in one task, which the router permits because
+  `navigate()` calls its listeners synchronously. `clearView()` destroyed all six hosts, `replaceChildren()`
+  detached the subtree, and the flush then mounted six charts into it — invisible, but holding core
+  listeners, `ResizeObserver`s and animation state for the page's life.
+
+Counted svg elements, same script either side of the fix: case 1 went from 6 stray charts in the destroyed
+view to 0; case 2 from 6 to 0, with the control view still at 6 both times. The normal deferred mount is
+untouched — a regression pass over `/single`, `/multi`, `/random`, `/sparkline`, `/rotation` and
+`/transition` gives the expected 1, 4, 1, 6, 55 and 1 charts with no page errors. Workspace typecheck, lint
+and build clean.
+
+The finding's framing understates the reach: because `observeSize()` also reports on a microtask, hosts
+created from a size report queue their mount inside the same flush, so a destroy landing anywhere in that
+flush hits the window — not only "a destroy in the same tick" as a mount call. No pure user gesture reaches
+it today (clicks, resizes and popstates each land in their own task, and the four route-level destroys all
+precede their mounts), but two synchronous `navigate()` calls or a construct-then-drop do, and both are
+things the code permits.
 
 ### DEMO-9 — tab strips carry no tab semantics, and Multi renders a dead tab button
 **Medium · Bug (a11y) · [vanilla DemoSingle.ts:115](packages/mochart-demo-vanilla/src/components/single/DemoSingle.ts#L115), [DemoMulti.ts:37](packages/mochart-demo-vanilla/src/components/multi/DemoMulti.ts#L37), all six ports** — **Fixed**
