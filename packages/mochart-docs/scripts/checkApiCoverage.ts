@@ -50,7 +50,10 @@ const propInterfaces = [
 ];
 
 // name → why it needs no documentation.
-const undocumented: Record<string, string> = {};
+const undocumented: Record<string, string> = {
+  // conventional and read by tooling rather than imported, so there is nothing for a page to say
+  '@mochart/core/package.json': 'manifest subpath, exported so tooling can read it; not a documented API'
+};
 
 const docsGlobs = ['guide', 'reference', 'recipes'];
 
