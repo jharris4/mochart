@@ -25,10 +25,6 @@
 
   let { demoObject, active = false }: Props = $props();
 
-  function clampGrid(value: number): number {
-    return Math.min(4, Math.max(1, Math.round(value)));
-  }
-
   let intervalId: ReturnType<typeof setInterval> | null = null;
   let gridElement = $state<HTMLDivElement | null>(null);
 
@@ -37,8 +33,8 @@
   const sharedState = consumeShareState('multi');
   const shared = sharedState && sharedState.mode === 'multi' ? sharedState : null;
 
-  const initialChartRows = shared ? clampGrid(shared.rows) : defaultChartRows;
-  const initialChartCols = shared ? clampGrid(shared.cols) : defaultChartCols;
+  const initialChartRows = shared ? shared.rows : defaultChartRows;
+  const initialChartCols = shared ? shared.cols : defaultChartCols;
   const initialRate = shared ? shared.interval : defaultRate;
 
   let playing = $state(false);

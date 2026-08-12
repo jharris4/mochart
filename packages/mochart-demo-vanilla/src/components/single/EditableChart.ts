@@ -2,7 +2,7 @@ import { hasConfigStructureChange, NONE, ArrayOfObjectsDataProvider } from '@moc
 import type { DataProvider } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
+import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText, isPhoneViewport, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
@@ -560,33 +560,6 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     }
   }
 
-  function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentCategoryIndex: number, currentSeriesIndex: number): string {
-    const dataObject = currentFilteredData[currentCategoryIndex];
-    const { series: seriesConfigs } = mochartConfig;
-    if (seriesConfigs.length > 0) {
-      const seriesConfig = seriesConfigs[currentSeriesIndex];
-      const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-      const seriesValuesTextObject: Record<string, unknown> = {};
-      seriesValuesTextObject['p'] = dataObject[property!];
-      if (rangeProperty !== NONE) {
-        seriesValuesTextObject['r'] = dataObject[rangeProperty];
-      }
-      if (markerProperty !== NONE) {
-        seriesValuesTextObject['m'] = dataObject[markerProperty];
-      }
-      if (labelProperty !== NONE) {
-        seriesValuesTextObject['l'] = dataObject[labelProperty];
-      }
-      if (colorProperty !== NONE) {
-        seriesValuesTextObject['c'] = dataObject[colorProperty];
-      }
-      return JSON.stringify(seriesValuesTextObject);
-    }
-    else {
-      return '';
-    }
-  }
-
   function applySeriesChanges(): void {
     const filteredDataObject = filteredData[categoryIndex];
     const { mochartConfig } = mochartDemoConfig;
@@ -707,9 +680,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // the menus pinned to the right of whichever panel is visible.
   const overflowMenuHandle = overflowMenu({
     text: demoText.overflowMenu.chart,
-    // Opens upward over the chart (the strip is at the bottom of the pane) and
-    // right-aligned.
-    placement: { side: 'top', align: 'end', gap: 4 },
+    placement: controlsMenuPlacement,
     // Measured against the whole trailing group, not the trigger: the
     // export/share trigger sits to the ⋯'s right, so aligning to the ⋯ alone
     // would stop the panel ~50px short of the row's end — and on a 390px phone

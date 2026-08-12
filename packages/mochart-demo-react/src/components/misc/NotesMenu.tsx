@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import Icon from './Icon';
 
-import { demoText } from '@mochart/demo-common';
+import { demoText, notesMenuPlacement } from '@mochart/demo-common';
 
 import { useMenu } from './useMenu';
 
@@ -23,13 +23,7 @@ interface Props {
 }
 
 export default function NotesMenu({ title, notes }: Props) {
-  // Downward from the navigation row, left-aligned, clamped so a 340px panel
-  // opened from a right-hand trigger stays on screen. The width must match
-  // `.demo-menu-notes` in demo.css — a closed panel measures 0, so the clamp
-  // has to be told the width the stylesheet will give it.
-  const menu = useMenu({
-    placement: { side: 'bottom', align: 'start', gap: 6, width: 340, viewportMargin: 32 }
-  });
+  const menu = useMenu({ placement: notesMenuPlacement });
   const { close } = menu;
 
   // Close whenever the demo changes under us (history navigation).

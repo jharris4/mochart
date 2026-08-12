@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
 
-  import { buildShareUrl, demoText } from '@mochart/demo-common';
+  import { controlsMenuPlacement, createShareLinkCopier, demoText } from '@mochart/demo-common';
   import type { ShareState } from '@mochart/demo-common';
 
   import Icon from './Icon.svelte';
@@ -17,7 +17,7 @@
   // including the reason any of it is hand-rolled (the controls strips clip an
   // absolutely-positioned dropdown, and the chart's interaction rect eats
   // clicks through anything stacked below it). What stays here is what the
-  // class does not know about: the items, the copied-link feedback, `disabled`.
+  // class does not know about: the items, their copied label, `disabled`.
   interface Props {
     exportPng: () => void;
     exportSvg: () => void;
@@ -34,14 +34,10 @@
 
   let { exportPng, exportSvg, getShareState = undefined, disabled = false, active = true }: Props = $props();
 
-  const copiedFeedbackMs = 1500;
-
   let copied = $state(false);
-  let revertTimer: ReturnType<typeof setTimeout> | null = null;
+  const shareLinkCopier = createShareLinkCopier(nextCopied => { copied = nextCopied; });
 
-  // Opens upward (the controls row sits at the bottom of the pane) and
-  // right-aligned (the trigger is the last control in the row).
-  const menu = new Menu({ placement: { side: 'top', align: 'end', gap: 4 } });
+  const menu = new Menu({ placement: controlsMenuPlacement });
 
   // A disabled trigger fires no click, so the menu cannot be opened — but one
   // already open when its trigger is disabled would be stranded.
@@ -51,11 +47,7 @@
     }
   });
 
-  onDestroy(() => {
-    if (revertTimer !== null) {
-      clearTimeout(revertTimer);
-    }
-  });
+  onDestroy(() => shareLinkCopier.dispose());
 
   function runAndClose(action: () => void) {
     action();
@@ -66,18 +58,7 @@
     if (!getShareState) {
       return;
     }
-    const url = buildShareUrl(getShareState());
-    navigator.clipboard.writeText(url).then(() => {
-      copied = true;
-      if (revertTimer !== null) {
-        clearTimeout(revertTimer);
-      }
-      revertTimer = setTimeout(() => { copied = false; revertTimer = null; }, copiedFeedbackMs);
-    }, () => {
-      // Clipboard access can be unavailable (e.g. insecure context); let the
-      // user copy the link manually instead of failing silently.
-      window.prompt(demoText.shareButton.tooltip, url);
-    });
+    shareLinkCopier.copy(getShareState());
     menu.close();
   }
 </script>

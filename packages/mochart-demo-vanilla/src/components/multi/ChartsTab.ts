@@ -27,10 +27,6 @@ const defaultChartRows = 2;
 const defaultChartCols = 2;
 const defaultRate = 2000;
 
-function clampGrid(value: number): number {
-  return Math.min(4, Math.max(1, Math.round(value)));
-}
-
 export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   let demoObject = props.demoObject;
   let active = props.active ?? false;
@@ -41,8 +37,8 @@ export function chartsTab(props: ChartsTabProps): ChartsTabHandle {
   const shared = consumeShareState('multi');
   const sharedMulti = shared && shared.mode === 'multi' ? shared : null;
 
-  let chartRows = sharedMulti ? clampGrid(sharedMulti.rows) : defaultChartRows;
-  let chartCols = sharedMulti ? clampGrid(sharedMulti.cols) : defaultChartCols;
+  let chartRows = sharedMulti ? sharedMulti.rows : defaultChartRows;
+  let chartCols = sharedMulti ? sharedMulti.cols : defaultChartCols;
   let rate = sharedMulti ? sharedMulti.interval : defaultRate;
   let mochartDemoConfig = buildMochartDemoConfig(demoObject.config);
   let data = demoObject.data;

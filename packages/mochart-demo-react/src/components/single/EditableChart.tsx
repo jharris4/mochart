@@ -6,7 +6,7 @@ import type { DataProvider } from '@mochart/core';
 import { Chart } from '@mochart/react';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText } from '@mochart/demo-common';
 
 import type { PieSliceInfo } from '@mochart/demo-common';
 
@@ -66,33 +66,6 @@ interface EditableState {
   slices: PieSliceInfo[];
   sliceIndex: number;
   sliceValueText: string;
-}
-
-function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, filteredData: Row[], categoryIndex: number, seriesIndex: number): string {
-  const dataObject = filteredData[categoryIndex];
-  const { series: seriesConfigs } = mochartConfig;
-  if (seriesConfigs.length > 0) {
-    const seriesConfig = seriesConfigs[seriesIndex];
-    const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-    const seriesValuesTextObject: Record<string, unknown> = {};
-    seriesValuesTextObject['p'] = dataObject[property!];
-    if (rangeProperty !== NONE) {
-      seriesValuesTextObject['r'] = dataObject[rangeProperty];
-    }
-    if (markerProperty !== NONE) {
-      seriesValuesTextObject['m'] = dataObject[markerProperty];
-    }
-    if (labelProperty !== NONE) {
-      seriesValuesTextObject['l'] = dataObject[labelProperty];
-    }
-    if (colorProperty !== NONE) {
-      seriesValuesTextObject['c'] = dataObject[colorProperty];
-    }
-    return JSON.stringify(seriesValuesTextObject);
-  }
-  else {
-    return "";
-  }
 }
 
 function getSliceValueText(slices: PieSliceInfo[], sliceIndex: number, rows: Row[]): string {
@@ -800,8 +773,7 @@ export default function EditableChart(props: Props) {
   const controlsMenu = (overflowChildren: React.ReactNode) => (
     <span className="chart-controls-menu" ref={menuSpanRef}>
       {overflowChildren !== null ? (
-        <OverflowMenu text={demoText.overflowMenu.chart}
-          placement={{ side: 'top', align: 'end', gap: 4 }}
+        <OverflowMenu text={demoText.overflowMenu.chart} placement={controlsMenuPlacement}
           anchorRef={menuSpanRef} disabled={error} active={props.isActive !== false}>
           {overflowChildren}
         </OverflowMenu>

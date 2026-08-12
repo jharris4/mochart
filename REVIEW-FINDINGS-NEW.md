@@ -3952,7 +3952,7 @@ own two sibling messages.
 the same markup as its siblings.
 
 ### DEMO-12 — framework-agnostic helpers are duplicated verbatim in all six demos
-**Medium · Inconsistency · [vanilla RandomContent.ts:72](packages/mochart-demo-vanilla/src/components/random/RandomContent.ts#L72) and ~10 more** — **Open**
+**Medium · Inconsistency · [vanilla RandomContent.ts:72](packages/mochart-demo-vanilla/src/components/random/RandomContent.ts#L72) and ~10 more** — **Fixed**
 
 Pure, framework-free logic exists once per demo instead of once in `@mochart/demo-common`:
 `getData` (~20 lines × 6), `getSeriesValuesText` (~25 lines, byte-identical × 6),
@@ -3965,6 +3965,49 @@ hardcodes `340` to match `.demo-menu-notes` in `demo.css` — one stylesheet-cou
 six times.
 
 **Fix:** move each into `packages/mochart-demo-common/src` and import it.
+
+**Fixed: eight helpers moved into `@mochart/demo-common`, four deliberately left duplicated, net −574 lines
+across the six ports against +205 in demo-common.**
+
+Moved: `getSeriesValuesText` (to `dataEditing`), `getRandomDataRows` (to `chartTypeGenerators`),
+`createShareLinkCopier` with its clipboard-write / `window.prompt` fallback / revert timer (to `shareState`), the
+three menu placement literals and the `isMenuDismissingClick` rule with its keep-open class (to `menu`),
+`demoModeIcons` (to `gallery`), and `getRotationGrid` with its minimum column width (to `rotationConfigs`) —
+which let three re-export shim files be deleted outright. `clampGrid` did better than move: it folded *into*
+`decodeShareState`'s multi branch beside the existing `clampInterval`/`normalizeStep`, so the ports clamp nothing
+at all now.
+
+Four things stayed duplicated, each for a reason:
+
+* **`canFold`** is one boolean OR over props whose *shape differs per port* — lit tests `tabs !== null`, Angular
+  takes a `hasTabs` boolean because `<ng-content>` cannot be interrogated, Vue derives it. A shared helper would
+  rename `||` while every caller still computed all three inputs.
+* **`onPanelClick`** itself: the *rule* moved, the handler did not, because each port binds events differently.
+  Each is one line now.
+* **The `demo-menu-keep-open` class in markup** — class-name literals in ports are
+  [DEMO-18](#demo-18--100-markup-sites-carry-class-names-no-stylesheet-or-script-uses)'s subject, not this one.
+* **The rotation cell-position arithmetic**, which is per-port template expression; only the geometry moved.
+
+Dead weight the change exposed was cleaned up too: `buildShareUrl`, `RotationGrid`, `CategoryValue` and
+`DemoTabPanelAttrs` came out of the barrel (the last two surfaced as `deadcode` failures once the ports stopped
+importing them), `CategoryValue` came out of all six ports' `types.ts` mirrors, and the now-stale "the copied-link
+feedback stays here" comment was corrected in all six `ExportShareMenu`s.
+
+Verified beyond the gates: whole-repo typecheck, lint and `deadcode` clean; demo-common at 16 files / 274 tests
+(was 14 / 260, with 14 new covering the grid clamp, the dismiss rule, the placements, and the copier's three
+paths); all six ports built; **vanilla and react driven in Chromium** with 22 assertions each, identical across
+both — rotation cell geometry checked against `getRotationGrid` and the measured container, the notes panel's
+placement and Escape dismissal, a real clipboard `#share=` copy with the "Link copied" swap *and its revert*, the
+multi grid stepper, and the phone fold — then a seven-route sweep with no console errors, plus demo-basic's 79
+e2e tests.
+
+Three larger duplications were found and left, since they are outside what this finding names: the ~25-line
+provider-state routine around `getRandomDataRows` (react already factors it as `computeProviderState`),
+`applySeriesChanges`, and `getSliceValueText`. And `getDebugSiteRootUrl` is duplicated six times but every copy
+lives in `main/`, outside `src/`.
+
+One correction: `getSeriesValuesText` is byte-identical in five ports, not six — Angular's is a private method, so
+its call sites needed rewriting too.
 
 ### DEMO-13 — "Link copied" is never announced
 **Medium · Bug (a11y) · [react ExportShareMenu.tsx:109](packages/mochart-demo-react/src/components/misc/ExportShareMenu.tsx#L109) and the five ports** — **Open**

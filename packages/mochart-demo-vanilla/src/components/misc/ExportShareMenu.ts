@@ -1,4 +1,4 @@
-import { buildShareUrl, createMenuController, demoText } from '@mochart/demo-common';
+import { controlsMenuPlacement, createMenuController, createShareLinkCopier, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { el, icon } from './dom';
@@ -13,7 +13,7 @@ import { el, icon } from './dom';
 // the reason any of it is hand-rolled (the controls strips clip an
 // absolutely-positioned dropdown, and the chart's interaction rect eats clicks
 // through anything stacked below it). What stays here is what the controller
-// does not know about: the items, the copied-link feedback, and `disabled`.
+// does not know about: the items, their copied label, and `disabled`.
 export interface ExportShareMenuProps {
   exportPng: () => void;
   exportSvg: () => void;
@@ -35,13 +35,14 @@ export interface ExportShareMenuHandle {
   destroy(): void;
 }
 
-const copiedFeedbackMs = 1500;
-
 export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHandle {
   const { exportPng, exportSvg, getShareState } = props;
 
   let copied = false;
-  let revertTimer: ReturnType<typeof setTimeout> | null = null;
+  const shareLinkCopier = createShareLinkCopier(nextCopied => {
+    copied = nextCopied;
+    renderShare();
+  });
 
   // No `aria-haspopup`/`aria-expanded` here: the controller wires the
   // disclosure ARIA itself (and strips `aria-haspopup`, which promised a
@@ -93,13 +94,11 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
 
   const root = el('div', { className: 'demo-btn-group demo-menu-up mochart-export-share-menu' }, [trigger, menu]);
 
-  // Opens upward (the controls row sits at the bottom of the pane) and
-  // right-aligned (the trigger is the last control in the row). The controller
-  // binds the trigger's click to `toggle()` itself.
+  // The controller binds the trigger's click to `toggle()` itself.
   const controller = createMenuController({
     trigger,
     panel: menu,
-    placement: { side: 'top', align: 'end', gap: 4 }
+    placement: controlsMenuPlacement
   });
 
   function renderShare(): void {
@@ -121,23 +120,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     if (!getShareState) {
       return;
     }
-    const url = buildShareUrl(getShareState());
-    navigator.clipboard.writeText(url).then(() => {
-      copied = true;
-      renderShare();
-      if (revertTimer !== null) {
-        clearTimeout(revertTimer);
-      }
-      revertTimer = setTimeout(() => {
-        copied = false;
-        renderShare();
-        revertTimer = null;
-      }, copiedFeedbackMs);
-    }, () => {
-      // Clipboard access can be unavailable (e.g. insecure context); let the
-      // user copy the link manually instead of failing silently.
-      window.prompt(demoText.shareButton.tooltip, url);
-    });
+    shareLinkCopier.copy(getShareState());
     controller.close();
   }
 
@@ -158,10 +141,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     },
     destroy() {
       controller.destroy();
-      if (revertTimer !== null) {
-        clearTimeout(revertTimer);
-        revertTimer = null;
-      }
+      shareLinkCopier.dispose();
     }
   };
 }

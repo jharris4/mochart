@@ -168,6 +168,3 @@ export function useMenu(options: UseMenuOptions = {}): MenuState {
     isPositioned: open && panelStyle !== undefined
   };
 }
-
-/** `.demo-menu-keep-open` — see OverflowMenu; shared so callers can mark fields. */
-export const menuKeepOpenClassName = 'demo-menu-keep-open';

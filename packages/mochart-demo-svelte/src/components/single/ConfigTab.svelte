@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
   import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -216,7 +216,7 @@
              thing. Anchored to the full-width footer — the trigger sits
              mid-row, left of an error span that comes and goes. -->
         <OverflowMenu text={demoText.overflowMenu.editor}
-                      placement={{ side: 'top', align: 'end', gap: 4 }}
+                      placement={controlsMenuPlacement}
                       getAnchor={() => footerElement}
                       active={active !== false}>
           <div class="demo-btn-group">{@render resetButton()}{@render defaultsButton()}{@render invertedButton()}{@render slowButton()}{@render formatButton()}</div>

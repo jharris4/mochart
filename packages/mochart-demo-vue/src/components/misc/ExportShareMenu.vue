@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue';
 
-import { buildShareUrl, demoText } from '@mochart/demo-common';
+import { controlsMenuPlacement, createShareLinkCopier, demoText } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import Icon from './Icon.vue';
@@ -17,7 +17,7 @@ import { useMenu } from './useMenu';
 // including the reason any of it is hand-rolled (the controls strips clip an
 // absolutely-positioned dropdown, and the chart's interaction rect eats clicks
 // through anything stacked below it). What stays here is what the composable
-// does not know about: the items, the copied-link feedback, and `disabled`.
+// does not know about: the items, their copied label, and `disabled`.
 interface Props {
   exportPng: () => void;
   exportSvg: () => void;
@@ -38,15 +38,11 @@ const props = withDefaults(defineProps<Props>(), {
   active: true
 });
 
-const copiedFeedbackMs = 1500;
-
 const copied = ref(false);
-let revertTimer: ReturnType<typeof setTimeout> | null = null;
+const shareLinkCopier = createShareLinkCopier(nextCopied => { copied.value = nextCopied; });
 
-// Opens upward (the controls row sits at the bottom of the pane) and
-// right-aligned (the trigger is the last control in the row).
 const { open, close, setTrigger, setPanel, triggerProps, panelProps, isPositioned } = useMenu({
-  placement: { side: 'top', align: 'end', gap: 4 }
+  placement: controlsMenuPlacement
 });
 
 // A disabled trigger fires no click, so the menu cannot be opened — but one
@@ -57,11 +53,7 @@ watch(() => [props.disabled, props.active], () => {
   }
 });
 
-onBeforeUnmount(() => {
-  if (revertTimer !== null) {
-    clearTimeout(revertTimer);
-  }
-});
+onBeforeUnmount(() => shareLinkCopier.dispose());
 
 function runAndClose(action: () => void) {
   action();
@@ -72,18 +64,7 @@ function onShare() {
   if (!props.getShareState) {
     return;
   }
-  const url = buildShareUrl(props.getShareState());
-  navigator.clipboard.writeText(url).then(() => {
-    copied.value = true;
-    if (revertTimer !== null) {
-      clearTimeout(revertTimer);
-    }
-    revertTimer = setTimeout(() => { copied.value = false; revertTimer = null; }, copiedFeedbackMs);
-  }, () => {
-    // Clipboard access can be unavailable (e.g. insecure context); let the
-    // user copy the link manually instead of failing silently.
-    window.prompt(demoText.shareButton.tooltip, url);
-  });
+  shareLinkCopier.copy(props.getShareState());
   close();
 }
 </script>

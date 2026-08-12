@@ -6,7 +6,7 @@ import { chart } from '@mochart/lit';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import { controlsMenuPlacement, demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -20,7 +20,6 @@ import type { DemoDataProvider, RandomConfigWithValid } from '../../types';
 const defaultRate = 2000;
 
 /** The strip sits at the bottom of the pane, so its menu opens upward. */
-const randomPlacement = { side: 'top', align: 'end', gap: 4 } as const;
 
 const panelAttrs = getDemoTabPanelAttrs('chart');
 
@@ -171,7 +170,7 @@ export class RandomChartTab extends LightElement {
                     <!-- Anchored to the whole strip: \`align: 'end'\` pins the
                          panel's right edge to the anchor's, and the export
                          trigger sits to the ⋯'s right. -->
-                    <overflow-menu .text=${demoText.overflowMenu.random} .placement=${randomPlacement}
+                    <overflow-menu .text=${demoText.overflowMenu.random} .placement=${controlsMenuPlacement}
                       .getAnchor=${this.getControlsAnchor} .active=${this.active}
                       .items=${() => html`<div class="demo-btn-group">${this.renderPlayButton()}${this.renderStopButton()}</div>
                         <div class="demo-menu-divider"></div>

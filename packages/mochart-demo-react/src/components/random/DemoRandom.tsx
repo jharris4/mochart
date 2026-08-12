@@ -1,9 +1,8 @@
 import { useState, useRef } from 'react';
 
-import { NONE, getDataErrors } from '@mochart/core';
-import type { MochartConfig } from '@mochart/core';
+import { getDataErrors } from '@mochart/core';
 
-import { buildMochartDemoConfig, consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, consumeShareState, createErrorDataProvider, demoText, generateDemoDataProvider, getRandomDataRows, neutralizeRandomReuse, restoreSharedRandomConfig } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import RandomMochartChartTab from './RandomChartTab';
@@ -14,7 +13,7 @@ import ErrorTab from '../misc/ErrorTab';
 import TopBar from '../misc/TopBar';
 
 import type {
-  DemoData, DemoTabProps, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider, CategoryValue
+  DemoData, DemoTabProps, MochartDemoConfig, RandomConfigWithValid, DemoDataProvider
 } from '../../types';
 
 const eventKeyChart = 1;
@@ -105,27 +104,6 @@ interface ContentState {
   applyReuse: boolean;
 }
 
-function getData(mochartConfig: MochartConfig, categoryValues: CategoryValue[], seriesValues: Record<string, (number | undefined)[]>): Record<string, any>[] {
-  const { categoryAxis: categoryAxisConfig } = mochartConfig;
-  const categoryProperty = categoryAxisConfig.property ?? '';
-  const data: Record<string, any>[] = categoryValues.map(g => ({ [categoryProperty]: g }));
-  const categoryCount = categoryValues.length;
-  if (categoryAxisConfig.displayProperty !== NONE) {
-    const displayProperty = categoryAxisConfig.displayProperty;
-    for (let i = 0; i < categoryCount; i++) {
-      data[i][displayProperty] = categoryValues[i];
-    }
-  }
-  const seriesProperties = Object.keys(seriesValues);
-  for (const seriesProperty of seriesProperties) {
-    const seriesPropertyValues = seriesValues[seriesProperty];
-    for (let i = 0; i < categoryCount; i++) {
-      data[i][seriesProperty] = seriesPropertyValues[i];
-    }
-  }
-  return data;
-}
-
 function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: number, randomConfig: RandomConfigWithValid, applyReuse: boolean, generator: string | undefined): Pick<ContentState, 'dataProvider' | 'data' | 'randomConfig'> {
   const { mochartConfig } = mochartDemoConfig;
   if (randomConfig.valid) {
@@ -134,7 +112,7 @@ function computeProviderState(mochartDemoConfig: MochartDemoConfig, randomId: nu
     const generatorConfig = applyReuse ? randomConfig : neutralizeRandomReuse(randomConfig);
     const dataProvider = generateDemoDataProvider(generator, mochartConfig, generatorConfig, randomId);
     const { categoryValues = [], seriesValues = {} } = dataProvider;
-    const data = getData(mochartConfig, categoryValues, seriesValues);
+    const data = getRandomDataRows(mochartConfig, categoryValues, seriesValues);
     const dataErrors = getDataErrors(mochartConfig, dataProvider);
     if (dataErrors.length > 0) {
       console.error('data errors: ', dataErrors);

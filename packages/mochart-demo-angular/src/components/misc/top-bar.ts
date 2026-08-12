@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { demoText } from '@mochart/demo-common';
+import { demoText, navMenuPlacement } from '@mochart/demo-common';
 
 import { BackToDemosButton, ModeSwitcher, SiteRootButton, ThemeToggleButton } from './mode-switcher';
 import { NotesMenu } from './notes-menu';
@@ -109,7 +109,7 @@ export class TopBar {
 
   readonly overflowText = demoText.overflowMenu.nav;
   readonly modeSectionLabel = demoText.modeSwitcher.menuSectionLabel;
-  readonly navPlacement = { side: 'bottom', align: 'end', gap: 6 } as const;
+  readonly navPlacement = navMenuPlacement;
 
   private readonly phone = phoneViewport();
 

@@ -5,7 +5,7 @@
 import React from 'react';
 import Icon from './Icon';
 
-import { demoText, getAvailableDemoModes, initTheme } from '@mochart/demo-common';
+import { demoModeIcons, demoText, getAvailableDemoModes, initTheme } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { usePhoneViewport } from './usePhoneViewport';
@@ -14,12 +14,6 @@ import type { OnModeChanged, OnBackToDemos } from '../../types';
 
 // One controller for the whole app; every view's toggle button shares it.
 const theme = initTheme();
-
-const modeIcons: Record<SwitchableDemoMode, string> = {
-  single: 'pen-to-square',
-  multi: 'window-restore',
-  random: 'shuffle'
-};
 
 interface ModeSwitcherProps {
   demoMode: SwitchableDemoMode;
@@ -51,7 +45,7 @@ export function ModeSwitcher({ demoMode, onModeChanged }: ModeSwitcherProps) {
               disabled={current && !isPhone} title={title}
               aria-current={current ? 'page' : undefined}
               onClick={() => { if (!current) { onModeChanged(mode); } }}>
-              <Icon size="lg" fixedWidth={true} name={modeIcons[mode]} /><span className="btn-label">{label}</span>
+              <Icon size="lg" fixedWidth={true} name={demoModeIcons[mode]} /><span className="btn-label">{label}</span>
             </button>
           );
         })}

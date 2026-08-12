@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -15,7 +15,6 @@ import '../misc/overflow-menu';
 import type { DemoConfig, MochartDemoConfig } from '../../types';
 
 /** The footer sits at the bottom of the pane, so its menu opens upward. */
-const editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
 
 const panelAttrs = getDemoTabPanelAttrs('config');
 
@@ -183,7 +182,7 @@ export class ConfigTab extends LightElement {
                    the wrong thing. Anchored to the full-width footer — the
                    trigger sits mid-row, left of an error span that comes and
                    goes. -->
-              <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${editorPlacement}
+              <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${controlsMenuPlacement}
                 .getAnchor=${this.getFooterAnchor} .active=${this.active}
                 .items=${() => html`<div class="demo-btn-group">${resetButton}${defaultsButton}${invertedButton}${slowButton}${formatButton}</div>
                   ${links === nothing ? nothing : html`<div class="demo-menu-divider"></div>${links}`}`}></overflow-menu>`

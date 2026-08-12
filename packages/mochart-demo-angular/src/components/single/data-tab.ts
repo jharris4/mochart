@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, controlsMenuPlacement, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { JsonEditorContent } from '../misc/json-editor-content';
@@ -78,7 +78,7 @@ export class DataTab implements OnInit, OnChanges {
   @ViewChild('footer', { static: true }) footerElement!: ElementRef<HTMLDivElement>;
   readonly phone = phoneViewport();
   readonly overflowText = demoText.overflowMenu.editor;
-  readonly editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+  readonly editorPlacement = controlsMenuPlacement;
   readonly getFooterAnchor = (): HTMLElement => this.footerElement.nativeElement;
   @Input({ required: true }) config!: DemoConfig;
   @Input({ required: true }) data!: DataRow[];

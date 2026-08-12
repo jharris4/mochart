@@ -1,7 +1,7 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 
-import { demoText, getAvailableDemoModes } from '@mochart/demo-common';
+import { demoModeIcons, demoText, getAvailableDemoModes } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { icon } from './templates';
@@ -12,12 +12,6 @@ import { icon } from './templates';
 // stay plain lit-html template functions (see templates.ts).
 // Labels sit in a `.btn-label` span so demo.css can take them out of the
 // layout on a narrow viewport, leaving the icons.
-
-const modeIcons: Record<SwitchableDemoMode, string> = {
-  single: 'pen-to-square',
-  multi: 'window-restore',
-  random: 'shuffle'
-};
 
 export interface ModeSwitcherProps {
   demoMode: SwitchableDemoMode;
@@ -49,7 +43,7 @@ export function modeSwitcher({ demoMode, isPhone, onModeChanged }: ModeSwitcherP
         const { label, title } = demoText.modeSwitcher.modes[mode];
         return html`<button type="button" class=${'demo-btn demo-btn-' + (current ? 'primary' : 'secondary') + (current && isPhone ? ' active' : '')}
             title=${title} ?disabled=${current && !isPhone} aria-current=${current ? 'page' : nothing}
-            @click=${() => { if (!current) { onModeChanged(mode); } }}>${icon({ name: modeIcons[mode], size: 'lg', fixedWidth: true })}<span class="btn-label">${label}</span></button>`;
+            @click=${() => { if (!current) { onModeChanged(mode); } }}>${icon({ name: demoModeIcons[mode], size: 'lg', fixedWidth: true })}<span class="btn-label">${label}</span></button>`;
       })}
     </div>
   </div>`;

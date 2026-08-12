@@ -5,7 +5,7 @@ import type { DataProvider } from '@mochart/core';
 
 import demoData from '@mochart/demo-data';
 
-import { buildChartTypeDemoSnapshots, chartTypeGenerators, generateChartTypeDataProvider, generateDemoDataProvider } from '../src/chartTypeGenerators';
+import { buildChartTypeDemoSnapshots, chartTypeGenerators, generateChartTypeDataProvider, generateDemoDataProvider, getRandomDataRows } from '../src/chartTypeGenerators';
 
 import type { DemoDataProvider, DemoRandomConfig } from '../src/types';
 
@@ -298,5 +298,35 @@ describe('generateDemoDataProvider', () => {
 
   it('exposes the generator ids', () => {
     expect(chartTypeGenerators).toEqual(['histogram', 'waterfall', 'heatmap', 'candlestick', 'candlestick-hollow', 'ohlc', 'error-bars', 'pie', 'donut', 'gauge']);
+  });
+});
+
+// DEMO-12: the pivot from a generated provider's parallel arrays to data-tab
+// rows was written once per port.
+describe('getRandomDataRows', () => {
+  const seriesValues = { sales: [10, 20], cost: [3, undefined] };
+
+  function mochartConfig(categoryAxis: Record<string, unknown>) {
+    return enhanceConfig({
+      version: '1.0.0',
+      categoryAxis: { property: 'month', type: 'string', scale: 'ordinal', ...categoryAxis },
+      series: [{ property: 'sales' }, { property: 'cost' }]
+    } as never);
+  }
+
+  it('writes one row per category, keyed by the config properties', () => {
+    expect(getRandomDataRows(mochartConfig({}), ['Jan', 'Feb'], seriesValues)).toEqual([
+      { month: 'Jan', sales: 10, cost: 3 },
+      { month: 'Feb', sales: 20, cost: undefined }
+    ]);
+  });
+
+  it('adds the display column only when the axis names one', () => {
+    const rows = getRandomDataRows(mochartConfig({ displayProperty: 'monthLabel' }), ['Jan'], { sales: [10] });
+    expect(rows).toEqual([{ month: 'Jan', monthLabel: 'Jan', sales: 10 }]);
+  });
+
+  it('is empty for an empty category set', () => {
+    expect(getRandomDataRows(mochartConfig({}), [], seriesValues)).toEqual([]);
   });
 });

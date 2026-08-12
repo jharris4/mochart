@@ -7,10 +7,12 @@
 //   random — the (possibly edited) generator config, the reuse toggle and interval
 // The payload is JSON, deflate-compressed (the data/config is very repetitive,
 // so this shrinks links a lot) and base64url-encoded. Every gallery uses the
-// same helpers: buildShareUrl from its share menu, consumeShareState once while
-// mounting the matching view.
+// same helpers: createShareLinkCopier from its share menu, consumeShareState
+// once while mounting the matching view.
 
 import { deflateSync, inflateSync } from 'fflate';
+
+import { demoText } from './demoText';
 
 import type { DataRow, DemoConfig, DemoRandomConfig } from './types';
 
@@ -78,6 +80,11 @@ function normalizeStep(value: number): number {
   return Math.max(0, Math.round(value));
 }
 
+// Hand-edited links bypass the multi grid's 1–4 steppers too.
+function clampGrid(value: number): number {
+  return Math.min(4, Math.max(1, Math.round(value)));
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -106,7 +113,7 @@ export function decodeShareState(encoded: string): ShareState | null {
         if (!isFiniteNumber(rows) || !isFiniteNumber(cols) || !isFiniteNumber(step) || !isFiniteNumber(interval)) {
           return null;
         }
-        return { mode: 'multi', rows, cols, step: normalizeStep(step), interval: clampInterval(interval) };
+        return { mode: 'multi', rows: clampGrid(rows), cols: clampGrid(cols), step: normalizeStep(step), interval: clampInterval(interval) };
       }
       case 'random': {
         const { randomConfig, applyReuse, interval } = parsed;
@@ -188,4 +195,50 @@ export function consumeShareState(expectedMode?: ShareState['mode']): ShareState
 export function consumeSingleShareState(): SingleShareState | null {
   const state = consumeShareState('single');
   return state !== null && state.mode === 'single' ? state : null;
+}
+
+/** How long the Share item shows its "Link copied" confirmation. */
+const copiedFeedbackMs = 1500;
+
+export interface ShareLinkCopier {
+  /** Build and copy the link, then report copied true and, shortly after, false. */
+  copy(state: ShareState): void;
+  /** Cancel a pending revert, on teardown. */
+  dispose(): void;
+}
+
+/**
+ * Everything the Share item does apart from rendering: build the link, put it on
+ * the clipboard, and drive the confirmation flag through `onCopiedChange` so the
+ * caller only has to poke its own reactivity.
+ *
+ * Clipboard access can be unavailable (an insecure context, say), so the failure
+ * path offers the link in a prompt rather than failing silently.
+ */
+export function createShareLinkCopier(onCopiedChange: (copied: boolean) => void): ShareLinkCopier {
+  let revertTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function clearRevert(): void {
+    if (revertTimer !== null) {
+      clearTimeout(revertTimer);
+      revertTimer = null;
+    }
+  }
+
+  return {
+    copy(state: ShareState) {
+      const url = buildShareUrl(state);
+      navigator.clipboard.writeText(url).then(() => {
+        onCopiedChange(true);
+        clearRevert();
+        revertTimer = setTimeout(() => {
+          revertTimer = null;
+          onCopiedChange(false);
+        }, copiedFeedbackMs);
+      }, () => {
+        window.prompt(demoText.shareButton.tooltip, url);
+      });
+    },
+    dispose: clearRevert
+  };
 }

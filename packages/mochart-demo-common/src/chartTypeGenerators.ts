@@ -21,7 +21,7 @@
 
 import seedrandom from 'seedrandom';
 
-import { createHistogram, createWaterfall, createHeatmap, createCandlestick, createOhlc, createPie } from '@mochart/core';
+import { NONE, createHistogram, createWaterfall, createHeatmap, createCandlestick, createOhlc, createPie } from '@mochart/core';
 import type { CandlestickItem, MochartConfig, PieItem } from '@mochart/core';
 
 import { generateChartDataProvider } from './randomGenerator';
@@ -810,4 +810,35 @@ export function generateDemoDataProvider(
     return generateChartTypeDataProvider(generator, mochartConfig, random, randomId);
   }
   return generateChartDataProvider(mochartConfig, random as RandomConfig, randomId);
+}
+
+/**
+ * The random mode's data-tab rows for a generated provider: the provider hands
+ * back parallel category/series value arrays, and the JSON view needs them
+ * pivoted into one row per category, keyed by the config's own property names.
+ * `NONE` on the display property means the category value is its own label, so
+ * there is no second column to write.
+ */
+export function getRandomDataRows(
+  mochartConfig: MochartConfig,
+  categoryValues: CategoryValue[],
+  seriesValues: Record<string, (number | undefined)[]>
+): DataRow[] {
+  const { categoryAxis: categoryAxisConfig } = mochartConfig;
+  const categoryProperty = categoryAxisConfig.property ?? '';
+  const rows: DataRow[] = categoryValues.map(categoryValue => ({ [categoryProperty]: categoryValue }));
+  const categoryCount = categoryValues.length;
+  if (categoryAxisConfig.displayProperty !== NONE) {
+    const displayProperty = categoryAxisConfig.displayProperty;
+    for (let i = 0; i < categoryCount; i++) {
+      rows[i][displayProperty] = categoryValues[i];
+    }
+  }
+  for (const seriesProperty of Object.keys(seriesValues)) {
+    const seriesPropertyValues = seriesValues[seriesProperty];
+    for (let i = 0; i < categoryCount; i++) {
+      rows[i][seriesProperty] = seriesPropertyValues[i];
+    }
+  }
+  return rows;
 }

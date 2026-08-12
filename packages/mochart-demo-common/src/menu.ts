@@ -62,6 +62,59 @@ export interface MenuPlacement {
   viewportMargin?: number;
 }
 
+// The demo shell has exactly three menu placements; named here so the numbers live once.
+
+/**
+ * The navigation row's overflow trigger: below the bar, right-aligned because
+ * the trigger is the last thing in the row.
+ */
+export const navMenuPlacement: MenuPlacement = { side: 'bottom', align: 'end', gap: 6 };
+
+/**
+ * Every menu hanging off a controls strip — the export/share dropdown and the
+ * chart/editor/random overflow triggers. Opens upward because the strip sits at
+ * the bottom of its pane, right-aligned because the trigger ends the row.
+ */
+export const controlsMenuPlacement: MenuPlacement = { side: 'top', align: 'end', gap: 4 };
+
+/**
+ * The "about this demo" popover: downward from the navigation row and
+ * left-aligned with its trigger, clamped so a full-width panel opened from a
+ * right-hand trigger stays on screen.
+ *
+ * `width` duplicates `.demo-menu-notes`'s `width: min(340px, calc(100vw - 32px))`
+ * in demo.css — a `display: none` panel measures 0, so the left-edge clamp has
+ * to be told the width the stylesheet will give it. Keep the two in step.
+ */
+export const notesMenuPlacement: MenuPlacement = { side: 'bottom', align: 'start', gap: 6, width: 340, viewportMargin: 32 };
+
+/**
+ * Marks a subtree inside a menu panel whose clicks must NOT dismiss it — a
+ * stepper beside a number input, say, where closing after every press would
+ * make the control unusable.
+ */
+export const menuKeepOpenClassName = 'demo-menu-keep-open';
+
+/**
+ * Whether a click that landed inside a menu panel should close the menu. Only
+ * activating a button or a link counts, and never one inside a
+ * `.demo-menu-keep-open` subtree.
+ *
+ * `panel` is optional, for ports that delegate from the panel element itself: it
+ * rejects an actionable ancestor found outside the panel.
+ */
+export function isMenuDismissingClick(target: EventTarget | null, panel?: HTMLElement | null): boolean {
+  const element = target instanceof Element ? target : null;
+  const actionable = element === null ? null : element.closest('button, a');
+  if (actionable === null) {
+    return false;
+  }
+  if (panel !== undefined && panel !== null && !panel.contains(actionable)) {
+    return false;
+  }
+  return actionable.closest('.' + menuKeepOpenClassName) === null;
+}
+
 /**
  * Only the two edges the placement anchors from are set; the other two are left
  * `undefined` so the caller can skip writing them and let CSS keep `auto`.

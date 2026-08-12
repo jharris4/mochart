@@ -24,10 +24,6 @@ const defaultChartCols = 2;
 
 const defaultRate = 2000;
 
-function clampGrid(value: number): number {
-  return Math.min(4, Math.max(1, Math.round(value)));
-}
-
 const props = withDefaults(defineProps<Props>(), {
   active: false
 });
@@ -39,8 +35,8 @@ const sharedState = consumeShareState('multi');
 const shared = sharedState && sharedState.mode === 'multi' ? sharedState : null;
 
 const initialDataCount = props.demoObject.data.length;
-const initialRows = shared ? clampGrid(shared.rows) : defaultChartRows;
-const initialCols = shared ? clampGrid(shared.cols) : defaultChartCols;
+const initialRows = shared ? shared.rows : defaultChartRows;
+const initialCols = shared ? shared.cols : defaultChartCols;
 const initialRate = shared ? shared.interval : defaultRate;
 
 const playing = ref(false);

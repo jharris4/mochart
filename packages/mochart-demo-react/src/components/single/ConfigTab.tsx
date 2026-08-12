@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, controlsMenuPlacement, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -206,8 +206,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
                   "more chart controls" would tell a screen-reader user the
                   wrong thing. Anchored to the full-width footer — the trigger
                   sits mid-row, left of an error span that comes and goes. */}
-              <OverflowMenu text={demoText.overflowMenu.editor}
-                placement={{ side: 'top', align: 'end', gap: 4 }}
+              <OverflowMenu text={demoText.overflowMenu.editor} placement={controlsMenuPlacement}
                 anchorRef={footerRef} active={active !== false}>
                 <div className="demo-btn-group">{resetButton}{defaultsButton}{invertedButton}{slowButton}{formatButton}</div>
                 {hasDocsLinks ? <><MenuDivider />{docsLinks}</> : null}

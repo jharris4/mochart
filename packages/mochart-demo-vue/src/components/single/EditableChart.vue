@@ -6,7 +6,7 @@ import type { DataProvider } from '@mochart/core';
 import { Chart } from '@mochart/vue';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { applyPieSliceValue, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, demoText } from '@mochart/demo-common';
+import { applyPieSliceValue, controlsMenuPlacement, createErrorDataProvider, getChartExportOptions, getCategoryIndexTitle, getPieSequenceSteps, getPieSlices, getSeriesIndexTitle, getSeriesValuesText, demoText } from '@mochart/demo-common';
 import type { PieSliceInfo, ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -531,33 +531,6 @@ function nextSeries() {
   }
 }
 
-function getSeriesValuesText({ mochartConfig }: MochartDemoConfig, currentFilteredData: Row[], currentCategoryIndex: number, currentSeriesIndex: number): string {
-  const dataObject = currentFilteredData[currentCategoryIndex];
-  const { series: seriesConfigs } = mochartConfig;
-  if (seriesConfigs.length > 0) {
-    const seriesConfig = seriesConfigs[currentSeriesIndex];
-    const { property, rangeProperty, markerProperty, labelProperty, colorProperty } = seriesConfig;
-    const seriesValuesTextObject: Record<string, unknown> = {};
-    seriesValuesTextObject['p'] = dataObject[property!];
-    if (rangeProperty !== NONE) {
-      seriesValuesTextObject['r'] = dataObject[rangeProperty];
-    }
-    if (markerProperty !== NONE) {
-      seriesValuesTextObject['m'] = dataObject[markerProperty];
-    }
-    if (labelProperty !== NONE) {
-      seriesValuesTextObject['l'] = dataObject[labelProperty];
-    }
-    if (colorProperty !== NONE) {
-      seriesValuesTextObject['c'] = dataObject[colorProperty];
-    }
-    return JSON.stringify(seriesValuesTextObject);
-  }
-  else {
-    return "";
-  }
-}
-
 function applySeriesChanges() {
   const filteredDataObject = filteredData[categoryIndex.value];
   const { mochartConfig } = props.mochartDemoConfig;
@@ -874,7 +847,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
           </span>
           <span class="chart-controls-menu" ref="menuSpanElement">
             <OverflowMenu v-if="foldSlice" :text="demoText.overflowMenu.chart"
-                          :placement="{ side: 'top', align: 'end', gap: 4 }"
+                          :placement="controlsMenuPlacement"
                           :get-anchor="getMenuAnchor"
                           :disabled="error" :active="props.isActive">
               <div class="demo-btn-group"><ResetSliceButton /></div>
@@ -930,7 +903,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
           </span>
           <span class="chart-controls-menu" ref="menuSpanElement">
             <OverflowMenu v-if="foldCategory" :text="demoText.overflowMenu.chart"
-                          :placement="{ side: 'top', align: 'end', gap: 4 }"
+                          :placement="controlsMenuPlacement"
                           :get-anchor="getMenuAnchor"
                           :disabled="error" :active="props.isActive">
               <div class="demo-btn-group"><ResetCategoriesButton /><ReverseCategoriesButton /><SelectAllButton /></div>
@@ -1022,7 +995,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
           </span>
           <span class="chart-controls-menu" ref="menuSpanElement">
             <OverflowMenu v-if="foldSeries" :text="demoText.overflowMenu.chart"
-                          :placement="{ side: 'top', align: 'end', gap: 4 }"
+                          :placement="controlsMenuPlacement"
                           :get-anchor="getMenuAnchor"
                           :disabled="error" :active="props.isActive">
               <div class="demo-btn-group"><ResetSeriesButton /></div>

@@ -1,6 +1,6 @@
 export type {
   DataRow, Demo, DemoConfig, DemoData,
-  CategoryValue, FilteredSeriesIds, FocusData, TransitionConfig,
+  FilteredSeriesIds, FocusData, TransitionConfig,
   ChartDataProviderLike, DemoDataProvider,
   RandomConfigWithValid, MochartDemoConfig
 } from './types';
@@ -12,7 +12,7 @@ export { collectUsedDataProperties } from './unusedDataProperties';
 export {
   formatData, formatDataView,
   getJsonError, getCategoryProperty, parseFullData, applyDataEdit, getConfigDataError,
-  getCategoryIndexTitle, getSeriesIndexTitle
+  getCategoryIndexTitle, getSeriesIndexTitle, getSeriesValuesText
 } from './dataEditing';
 export type { ParsedFullData } from './dataEditing';
 
@@ -22,7 +22,7 @@ export {
 } from './configEditing';
 export type { DemoConfigView } from './configEditing';
 
-export { generateDemoDataProvider } from './chartTypeGenerators';
+export { generateDemoDataProvider, getRandomDataRows } from './chartTypeGenerators';
 
 export { createErrorDataProvider } from './errorDataProvider';
 
@@ -41,7 +41,7 @@ export { getDataProvidersForDataCount } from './multiCharts';
 export { getPieSlices, applyPieSliceValue, getPieStepCycle, getPieStepFilteredIds, applyReportedSeriesFilter, getPieSequenceSteps } from './pieDemo';
 export type { PieSliceInfo } from './pieDemo';
 
-export { rotationData, rotationConfigs } from './rotationConfigs';
+export { rotationData, rotationConfigs, getRotationGrid } from './rotationConfigs';
 
 export { inlineSparklineMetrics, tableSparklineMetrics } from './sparklines';
 export type { SparklineMetric } from './sparklines';
@@ -51,9 +51,9 @@ export { demoText } from './demoText';
 export {
   demoTabId, demoTabPanelId, demoTabPendingId, getDemoTabPanelAttrs, nextDemoTabIndex
 } from './tabs';
-export type { DemoTab, DemoTabName, DemoTabPanelAttrs } from './tabs';
+export type { DemoTab, DemoTabName } from './tabs';
 
-export { getGallerySections } from './gallery';
+export { getGallerySections, demoModeIcons } from './gallery';
 export type { GalleryItem, GallerySection, SwitchableDemoMode, ShowcaseMode } from './gallery';
 
 export {
@@ -61,11 +61,18 @@ export {
   isPhoneViewport, watchPhoneViewport, isDemoModeAvailable, getAvailableDemoModes
 } from './viewport';
 
-export { getMenuPosition, watchMenuDismiss, createMenuController, menuZIndex } from './menu';
+export {
+  getMenuPosition, watchMenuDismiss, createMenuController, menuZIndex,
+  isMenuDismissingClick,
+  navMenuPlacement, controlsMenuPlacement, notesMenuPlacement
+} from './menu';
 export type { MenuPlacement, MenuController } from './menu';
 
-export { encodeShareState, buildShareUrl, consumeShareState, consumeSingleShareState, shareHashPrefix } from './shareState';
-export type { ShareState, MultiShareState } from './shareState';
+export {
+  encodeShareState, consumeShareState, consumeSingleShareState, shareHashPrefix,
+  createShareLinkCopier
+} from './shareState';
+export type { ShareState, MultiShareState, ShareLinkCopier } from './shareState';
 
 export { getReferenceSectionIds, getReferenceSectionUrl } from './docsLinks';
 

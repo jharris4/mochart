@@ -1,7 +1,7 @@
 import { html, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import { demoText } from '@mochart/demo-common';
+import { demoText, navMenuPlacement } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from './LightElement';
@@ -86,7 +86,7 @@ export class TopBar extends LightElement {
           : nothing}
       </div>
       ${folded
-        ? html`<overflow-menu .text=${demoText.overflowMenu.nav} .placement=${navPlacement} .items=${this.renderMenuItems}></overflow-menu>`
+        ? html`<overflow-menu .text=${demoText.overflowMenu.nav} .placement=${navMenuPlacement} .items=${this.renderMenuItems}></overflow-menu>`
         : this.modes !== undefined
           // The trailing slot is the one place the two historical shapes
           // differ: with a mode switcher it is a second nav group holding the
@@ -101,8 +101,6 @@ export class TopBar extends LightElement {
     </div>`;
   }
 }
-
-const navPlacement = { side: 'bottom', align: 'end', gap: 6 } as const;
 
 declare global {
   interface HTMLElementTagNameMap {

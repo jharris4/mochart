@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 
 import { copyDemoConfig, demoConfigFromText, isConfigSectionActive, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
 import { restoreHiddenDataProperties } from '../src/unusedDataProperties';
-import { applyDataEdit, formatData, getConfigDataError, stringifyWithSpacedCommas } from '../src/dataEditing';
+import { applyDataEdit, formatData, getConfigDataError, getSeriesValuesText, stringifyWithSpacedCommas } from '../src/dataEditing';
+import buildMochartDemoConfig from '../src/mochartDemoConfig';
 import { applyTransitionConfigEdit } from '../src/transition';
 import { demoText } from '../src/demoText';
 import type { DemoConfig, MochartDemoConfig } from '../src/types';
@@ -279,5 +280,30 @@ describe('applyTransitionConfigEdit error copy', () => {
       data: [{ month: 'Jan' }]
     });
     expect(applyTransitionConfigEdit(validConfig)).toEqual({ ok: false, errorMessage: demoText.errors.transitionDataArrays });
+  });
+});
+
+// DEMO-12: every port carried its own byte-identical copy of this.
+describe('getSeriesValuesText', () => {
+  const rows = [{ month: 'Jan', sales: 10, high: 12, label: 'ten', tint: '#333' }];
+  const config = (series: Record<string, unknown>) => ({
+    version: '1.0.0',
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales', ...series }]
+  }) as unknown as DemoConfig;
+  const text = (series: Record<string, unknown>) => getSeriesValuesText(buildMochartDemoConfig(config(series)), rows, 0, 0);
+
+  it('carries only the position value when the series declares nothing optional', () => {
+    expect(JSON.parse(text({}))).toEqual({ p: 10 });
+  });
+
+  it('adds a key per optional property the series declares', () => {
+    expect(JSON.parse(text({ rangeProperty: 'high', labelProperty: 'label', colorProperty: 'tint' })))
+      .toEqual({ p: 10, r: 12, l: 'ten', c: '#333' });
+  });
+
+  it('is empty for a config with no series', () => {
+    const noSeries = { version: '1.0.0', categoryAxis: { property: 'month' }, series: [] } as unknown as DemoConfig;
+    expect(getSeriesValuesText(buildMochartDemoConfig(noSeries), rows, 0, 0)).toBe('');
   });
 });
