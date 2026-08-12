@@ -1,6 +1,6 @@
 import { autocompletion, pickedCompletion, type Completion, type CompletionContext } from '@codemirror/autocomplete';
 import { hoverTooltip, type EditorView } from '@codemirror/view';
-import { getDefaults, validateConfigDetailed } from '@mochart/core';
+import { getDefaults, getVersionString, validateConfigDetailed } from '@mochart/core';
 import type { Diagnostic } from '@codemirror/lint';
 import model from './mochartConfigModel.generated.js';
 import type { EditorPropertyModel, EditorSectionModel, EditorValueModel } from './model.js';
@@ -291,6 +291,27 @@ function semanticDiagnostics(view: import('@codemirror/view').EditorView): Diagn
   }
 }
 
+let warnedModelSkew = false;
+
+// A patch release cannot add or remove config properties, so only major.minor can stale the model.
+function configSurfaceVersion(version: string) {
+  const [major = '', minor = ''] = version.split('.');
+  return major + '.' + minor;
+}
+
+// Completions come from the build-time model; diagnostics come from the installed core.
+function warnOnModelSkew(modelVersion: string, coreVersion: string) {
+  if (warnedModelSkew) return;
+  if (configSurfaceVersion(modelVersion) === configSurfaceVersion(coreVersion)) return;
+  warnedModelSkew = true;
+  console.warn(
+    `@mochart/editor: completions and hover come from a config model generated from @mochart/core ${modelVersion}, ` +
+    `but the installed @mochart/core is ${coreVersion}. Config properties added or removed since ${modelVersion} ` +
+    'have no completions and no hover text; validation diagnostics still come from the installed core. ' +
+    'Install the @mochart/editor release built against this core version.'
+  );
+}
+
 /**
  * Internal behavior-test seam. This module is not a package export, so these
  * implementation details do not become part of @mochart/editor's public API.
@@ -298,11 +319,16 @@ function semanticDiagnostics(view: import('@codemirror/view').EditorView): Diagn
 export const mochartSupportTesting = {
   completionSource,
   hoverSource,
-  semanticDiagnostics
+  semanticDiagnostics,
+  warnOnModelSkew,
+  resetModelSkewWarning() {
+    warnedModelSkew = false;
+  }
 };
 
 /** Add MochartConfig completions, hover documentation, and validation. */
 export function createMochartConfigSupport() {
+  warnOnModelSkew(model.coreVersion, getVersionString());
   return defineSupport('mochart-config', {
     extensions: [
       autocompletion({ override: [completionSource] }),
