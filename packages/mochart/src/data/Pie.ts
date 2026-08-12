@@ -1,5 +1,6 @@
 import type { PieTooltipLabelType } from '../config/core/constants';
 import type { ChartConfig, DeepPartial, CategoryAxisConfig, PieConfig, SeriesConfig } from '../types/config';
+import { computeSliceFractions } from './PieData';
 
 export interface PieItem {
   /** The slice title, e.g. shown in the legend and tooltip. */
@@ -41,7 +42,7 @@ export interface CreatePieOptions {
 }
 
 export interface PieData {
-  /** The sum of the (clamped) slice values. */
+  /** The sum of the (clamped) slice values; `Infinity` if that sum overflows a double. */
   total: number;
   /** Each slice's fraction of the total, in item order (all 0 when total is 0). */
   fractions: number[];
@@ -64,12 +65,11 @@ const DEFAULT_DONUT_INNER_RADIUS_FRACTION = 0.6;
 /**
  * Sums the slice values (clamping negative and non-finite values to 0) and
  * returns each slice's fraction of the total. A total of 0 yields all-zero
- * fractions.
+ * fractions; a total that overflows a double is reported as `Infinity` with
+ * the fractions still correct (see `computeSliceFractions`).
  */
 export function computePieFractions(values: readonly number[]): { total: number; fractions: number[] } {
-  const clamped = values.map((value) => (Number.isFinite(value) && value > 0 ? value : 0));
-  const total = clamped.reduce((sum, value) => sum + value, 0);
-  const fractions = clamped.map((value) => (total > 0 ? value / total : 0));
+  const { total, fractions } = computeSliceFractions(values);
   return { total, fractions };
 }
 
@@ -81,13 +81,13 @@ export function computePieFractions(values: readonly number[]): { total: number;
  * without an explicit color take the palette color for their series index.
  */
 export function createPie(items: readonly PieItem[], options: CreatePieOptions = {}): PieData {
-  const { total, fractions } = computePieFractions(items.map((item) => item.value));
+  const { total, values, fractions } = computeSliceFractions(items.map((item) => item.value));
 
   const row: Record<string, number | string> = {
     [CATEGORY_PROPERTY]: options.categoryValue ?? DEFAULT_CATEGORY_VALUE
   };
-  items.forEach((item, i) => {
-    row['slice' + i] = Number.isFinite(item.value) && item.value > 0 ? item.value : 0;
+  values.forEach((value, i) => {
+    row['slice' + i] = value;
   });
 
   const chart: Partial<ChartConfig> = { type: 'pie' };
