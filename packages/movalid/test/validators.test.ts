@@ -446,6 +446,22 @@ describe("validators", () => {
         expect(baseValidators.numeric()([])).toBe(false);
       });
 
+      it("should not allow single-element arrays that coerce to a number", () => {
+        expect(baseValidators.numeric()([5])).toBe(false);
+      });
+
+      it("should not allow objects", () => {
+        expect(baseValidators.numeric()({})).toBe(false);
+      });
+
+      it("should not allow an empty string", () => {
+        expect(baseValidators.numeric()("")).toBe(false);
+      });
+
+      it("should not allow a whitespace only string", () => {
+        expect(baseValidators.numeric()("   ")).toBe(false);
+      });
+
       it("should not allow NaN", () => {
         expect(baseValidators.numeric()(NaN)).toBe(false);
       });
@@ -876,6 +892,10 @@ describe("validators", () => {
       it("should allow numbers equal to the argument", () => {
         expect(baseValidators.numericMin(4)("4")).toBe(true);
       });
+
+      it("should not allow single-element arrays that coerce to a number", () => {
+        expect(baseValidators.numericMin(0)([5])).toBe(false);
+      });
     });
 
     describe("numeric max", () => {
@@ -893,6 +913,10 @@ describe("validators", () => {
 
       it("should allow numbers equal to the argument", () => {
         expect(baseValidators.numericMax(4)("4")).toBe(true);
+      });
+
+      it("should not allow single-element arrays that coerce to a number", () => {
+        expect(baseValidators.numericMax(100)([5])).toBe(false);
       });
     });
 
@@ -923,6 +947,10 @@ describe("validators", () => {
 
       it("should allow numbers equal to both arguments", () => {
         expect(baseValidators.numericMinMax(2, 2)("2")).toBe(true);
+      });
+
+      it("should not allow single-element arrays that coerce to a number", () => {
+        expect(baseValidators.numericMinMax(0, 100)([5])).toBe(false);
       });
     });
 
