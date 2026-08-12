@@ -45,6 +45,13 @@ export const colorPaletteDescriptions: DescriptionMap = {
   fillColors: 'the colors to use for fills, taken by series or category index and wrapping around when there are more series than colors'
 };
 
+/** The `GradientStop` members, shared by the linear and radial gradient sections. */
+export const gradientStopDescriptions: DescriptionMap = {
+  offset: 'the position of the stop, as a fraction (0 - 1) of the length of the gradient',
+  color: 'the color of the stop',
+  opacity: 'the opacity (0 - 1) of the stop'
+};
+
 /** The style-state (`StyleState` / `StrokeStyleState`) members: a style state always writes its color and opacity attributes, so those are never null; width and dash array stay nullable. */
 export const styleStateDescriptions: DescriptionMap = {
   strokeColor: 'the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page\'s css color',
@@ -77,4 +84,9 @@ export function spacing(description: string): NestedDescription {
 /** A property holding a `ColorPalette`. */
 export function colorPalette(description: string): NestedDescription {
   return { description, properties: colorPaletteDescriptions };
+}
+
+/** A property holding a list of `GradientStop` entries; the members describe one stop. */
+export function gradientStops(description: string): NestedDescription {
+  return { description, properties: gradientStopDescriptions };
 }

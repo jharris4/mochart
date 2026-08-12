@@ -1,3 +1,5 @@
+import { gradientStops } from './shared';
+
 export default function getDescriptions() {
   return {
     id: 'the unique identifier for the gradient so that it can be referenced for use',
@@ -8,6 +10,6 @@ export default function getDescriptions() {
     fy: 'the fy property of the svg radial gradient',
     r: 'the r property of the svg radial gradient',
     rotation: 'the rotation property (in degrees) of the svg radial gradient',
-    stops: 'the list of svg gradient stops, with offset, color and opacity properties'
+    stops: gradientStops('the list of svg gradient stops, each placing a color at a position along the gradient (at least one stop must be given)')
   };
 }

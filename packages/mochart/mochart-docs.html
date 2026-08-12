@@ -935,7 +935,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.property">
-<td><a href="#categoryAxis.property">property</a></td><td>the property to retrieve from the data provider for the category values<br/><br/>The chart reads this property from each entry of the data provider to get the category value. It is required — the only category axis property without a default.</td><td>should be a defined value</td><td><div></div>
+<td><a href="#categoryAxis.property">property</a></td><td>the property to retrieve from the data provider for the category values<br/><br/>The chart reads this property from each entry of the data provider to get the category value. It is required — the only category axis property without a default.</td><td>should be a defined value</td><td><div>required</div>
 </td>
 </tr>
 <tr id="categoryAxis.reversed">
@@ -989,6 +989,246 @@ table thead td { border-bottom-width: 2px; }
 </tr>
 <tr id="categoryAxis.thresholds">
 <td><a href="#categoryAxis.thresholds">thresholds</a></td><td>the threshold lines to draw on the axis, each an object drawing a reference line across the plot at an axis value (the array replaces the default wholesale)</td><td>should be an array with elements that should be an object with exact properties { value: should be an iso date string or epoch number, front: should be a boolean or be equal to undefined, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } or be equal to undefined, title: should be a string or be one of [ null, undefined ], titleSide: should be one of [ "low", "high" ] or be equal to undefined, titleSnapToValue: should be a boolean or be equal to undefined, titleMargin: should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 } or be equal to undefined, titlePadding: should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 } or be equal to undefined, titleTextStyle: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } } or be equal to undefined, titleBackgroundStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } or be equal to undefined }</td><td><div>[]</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.front">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.front">thresholds[].front</a></td><td>whether the line is drawn in front of (true) or behind (false) the series shapes</td><td>should be a boolean or be equal to undefined</td><td><div>true</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style">thresholds[].style</a></td><td>the style of the threshold line</td><td>should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } or be equal to undefined</td><td><div>{ normal: { … }, focused: { … }, defocused: { … } }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.defocused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.defocused">thresholds[].style.defocused</a></td><td>the style of the threshold line, while the axis is defocused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }</td><td><div>{ strokeColor: "same", strokeOpacity: 0.325, strokeWidth: "same", strokeDashArray: "same" }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.defocused.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.defocused.strokeColor">thresholds[].style.defocused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.defocused.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.defocused.strokeDashArray">thresholds[].style.defocused.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke, or "same" to use the value of the normal state</td><td>should be a valid dash array or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.defocused.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.defocused.strokeOpacity">thresholds[].style.defocused.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.defocused.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.defocused.strokeWidth">thresholds[].style.defocused.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset, or "same" to use the value of the normal state</td><td>should be a number >= to 0 or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.focused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.focused">thresholds[].style.focused</a></td><td>the style of the threshold line, while the axis is focused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }</td><td><div>{ strokeColor: "same", strokeOpacity: 0.65, strokeWidth: "same", strokeDashArray: "same" }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.focused.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.focused.strokeColor">thresholds[].style.focused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.focused.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.focused.strokeDashArray">thresholds[].style.focused.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke, or "same" to use the value of the normal state</td><td>should be a valid dash array or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.focused.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.focused.strokeOpacity">thresholds[].style.focused.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.focused.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.focused.strokeWidth">thresholds[].style.focused.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset, or "same" to use the value of the normal state</td><td>should be a number >= to 0 or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.normal">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.normal">thresholds[].style.normal</a></td><td>the style of the threshold line, while the axis is neither focused nor defocused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }</td><td><div>{ strokeColor: "currentColor", strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: null }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.normal.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.normal.strokeColor">thresholds[].style.normal.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.normal.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.normal.strokeDashArray">thresholds[].style.normal.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.normal.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.normal.strokeOpacity">thresholds[].style.normal.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.style.normal.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.style.normal.strokeWidth">thresholds[].style.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>1</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.title">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.title">thresholds[].title</a></td><td>the title text shown beside the line (use null for none)</td><td>should be a string or be one of [ null, undefined ]</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleBackgroundStyle">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleBackgroundStyle">thresholds[].titleBackgroundStyle</a></td><td>the styles to apply to the threshold title background</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } or be equal to undefined</td><td><div>{ strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleBackgroundStyle.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleBackgroundStyle.fillColor">thresholds[].titleBackgroundStyle.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleBackgroundStyle.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleBackgroundStyle.fillOpacity">thresholds[].titleBackgroundStyle.fillOpacity</a></td><td>the opacity (0 - 1) of the fill, or null to leave the svg fill-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleBackgroundStyle.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleBackgroundStyle.strokeColor">thresholds[].titleBackgroundStyle.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>"currentColor"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleBackgroundStyle.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleBackgroundStyle.strokeDashArray">thresholds[].titleBackgroundStyle.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleBackgroundStyle.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleBackgroundStyle.strokeOpacity">thresholds[].titleBackgroundStyle.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke, or null to leave the svg stroke-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleBackgroundStyle.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleBackgroundStyle.strokeWidth">thresholds[].titleBackgroundStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleMargin">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleMargin">thresholds[].titleMargin</a></td><td>the margin (in pixels) of the threshold title, relative to its orientation</td><td>should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 } or be equal to undefined</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleMargin.bottom">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleMargin.bottom">thresholds[].titleMargin.bottom</a></td><td>the space (in pixels) along the bottom edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleMargin.left">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleMargin.left">thresholds[].titleMargin.left</a></td><td>the space (in pixels) along the left edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleMargin.right">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleMargin.right">thresholds[].titleMargin.right</a></td><td>the space (in pixels) along the right edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleMargin.top">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleMargin.top">thresholds[].titleMargin.top</a></td><td>the space (in pixels) along the top edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titlePadding">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titlePadding">thresholds[].titlePadding</a></td><td>the padding (in pixels) of the threshold title, relative to its orientation</td><td>should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 } or be equal to undefined</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titlePadding.bottom">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titlePadding.bottom">thresholds[].titlePadding.bottom</a></td><td>the space (in pixels) along the bottom edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titlePadding.left">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titlePadding.left">thresholds[].titlePadding.left</a></td><td>the space (in pixels) along the left edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titlePadding.right">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titlePadding.right">thresholds[].titlePadding.right</a></td><td>the space (in pixels) along the right edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titlePadding.top">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titlePadding.top">thresholds[].titlePadding.top</a></td><td>the space (in pixels) along the top edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleSide">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleSide">thresholds[].titleSide</a></td><td>which value side of the line the title sits on ("low" for smaller values, "high" for larger)</td><td>should be one of [ "low", "high" ] or be equal to undefined</td><td><div>"high"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleSnapToValue">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleSnapToValue">thresholds[].titleSnapToValue</a></td><td>whether the title flips to the other side when it has no room</td><td>should be a boolean or be equal to undefined</td><td><div>true</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle">thresholds[].titleTextStyle</a></td><td>the style of the threshold title text</td><td>should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } } or be equal to undefined</td><td><div>{ normal: { … }, focused: { … }, defocused: { … } }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.defocused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.defocused">thresholds[].titleTextStyle.defocused</a></td><td>the style of the threshold title text, while the axis is defocused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }</td><td><div>{ strokeColor: "same", strokeOpacity: 1, strokeWidth: null, strokeDashArray: "same", fillColor: "same", fillOpacity: 1 }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.defocused.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.defocused.fillColor">thresholds[].titleTextStyle.defocused.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.defocused.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.defocused.fillOpacity">thresholds[].titleTextStyle.defocused.fillOpacity</a></td><td>the opacity (0 - 1) of the fill</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.defocused.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.defocused.strokeColor">thresholds[].titleTextStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.defocused.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.defocused.strokeDashArray">thresholds[].titleTextStyle.defocused.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke, or "same" to use the value of the normal state</td><td>should be a valid dash array or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.defocused.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.defocused.strokeOpacity">thresholds[].titleTextStyle.defocused.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.defocused.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.defocused.strokeWidth">thresholds[].titleTextStyle.defocused.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset, or "same" to use the value of the normal state</td><td>should be a number >= to 0 or be one of [ null, "same" ]</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.focused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.focused">thresholds[].titleTextStyle.focused</a></td><td>the style of the threshold title text, while the axis is focused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }</td><td><div>{ strokeColor: "same", strokeOpacity: 1, strokeWidth: null, strokeDashArray: "same", fillColor: "same", fillOpacity: 1 }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.focused.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.focused.fillColor">thresholds[].titleTextStyle.focused.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.focused.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.focused.fillOpacity">thresholds[].titleTextStyle.focused.fillOpacity</a></td><td>the opacity (0 - 1) of the fill</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.focused.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.focused.strokeColor">thresholds[].titleTextStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.focused.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.focused.strokeDashArray">thresholds[].titleTextStyle.focused.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke, or "same" to use the value of the normal state</td><td>should be a valid dash array or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.focused.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.focused.strokeOpacity">thresholds[].titleTextStyle.focused.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.focused.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.focused.strokeWidth">thresholds[].titleTextStyle.focused.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset, or "same" to use the value of the normal state</td><td>should be a number >= to 0 or be one of [ null, "same" ]</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.normal">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.normal">thresholds[].titleTextStyle.normal</a></td><td>the style of the threshold title text, while the axis is neither focused nor defocused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }</td><td><div>{ strokeColor: "none", strokeOpacity: 1, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 1 }</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.normal.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.normal.fillColor">thresholds[].titleTextStyle.normal.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.normal.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.normal.fillOpacity">thresholds[].titleTextStyle.normal.fillOpacity</a></td><td>the opacity (0 - 1) of the fill</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.normal.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.normal.strokeColor">thresholds[].titleTextStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.normal.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.normal.strokeDashArray">thresholds[].titleTextStyle.normal.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.normal.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.normal.strokeOpacity">thresholds[].titleTextStyle.normal.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.titleTextStyle.normal.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.titleTextStyle.normal.strokeWidth">thresholds[].titleTextStyle.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="categoryAxis.thresholds.value">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#categoryAxis.thresholds.value">thresholds[].value</a></td><td>the axis value to draw the threshold line at (on a date category axis, a millisecond timestamp or ISO date string); thresholds never extend the axis domain, and a value outside it is not drawn</td><td>should be an iso date string or epoch number</td><td><div>required</div>
 </td>
 </tr>
 <tr id="categoryAxis.tickCount">
@@ -1713,7 +1953,19 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="linearGradients.stops">
-<td><a href="#linearGradients.stops">stops</a></td><td>the list of svg gradient stops, with offset, color and opacity properties</td><td>should be a non-empty array with elements that should be an object with exact properties { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }</td><td><div></div>
+<td><a href="#linearGradients.stops">stops</a></td><td>the list of svg gradient stops, each placing a color at a position along the gradient (at least one stop must be given)</td><td>should be a non-empty array with elements that should be an object with exact properties { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }</td><td><div>required</div>
+</td>
+</tr>
+<tr id="linearGradients.stops.color">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#linearGradients.stops.color">stops[].color</a></td><td>the color of the stop</td><td>should be a valid color</td><td><div>required</div>
+</td>
+</tr>
+<tr id="linearGradients.stops.offset">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#linearGradients.stops.offset">stops[].offset</a></td><td>the position of the stop, as a fraction (0 - 1) of the length of the gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>required</div>
+</td>
+</tr>
+<tr id="linearGradients.stops.opacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#linearGradients.stops.opacity">stops[].opacity</a></td><td>the opacity (0 - 1) of the stop</td><td>should be a number >= to 0 and <= 1</td><td><div>required</div>
 </td>
 </tr>
 <tr id="linearGradients.x1">
@@ -2033,7 +2285,19 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="radialGradients.stops">
-<td><a href="#radialGradients.stops">stops</a></td><td>the list of svg gradient stops, with offset, color and opacity properties</td><td>should be a non-empty array with elements that should be an object with exact properties { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }</td><td><div></div>
+<td><a href="#radialGradients.stops">stops</a></td><td>the list of svg gradient stops, each placing a color at a position along the gradient (at least one stop must be given)</td><td>should be a non-empty array with elements that should be an object with exact properties { offset: should be a number >= to 0 and <= 1, color: should be a valid color, opacity: should be a number >= to 0 and <= 1 }</td><td><div>required</div>
+</td>
+</tr>
+<tr id="radialGradients.stops.color">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#radialGradients.stops.color">stops[].color</a></td><td>the color of the stop</td><td>should be a valid color</td><td><div>required</div>
+</td>
+</tr>
+<tr id="radialGradients.stops.offset">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#radialGradients.stops.offset">stops[].offset</a></td><td>the position of the stop, as a fraction (0 - 1) of the length of the gradient</td><td>should be a number >= to 0 and <= 1</td><td><div>required</div>
+</td>
+</tr>
+<tr id="radialGradients.stops.opacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#radialGradients.stops.opacity">stops[].opacity</a></td><td>the opacity (0 - 1) of the stop</td><td>should be a number >= to 0 and <= 1</td><td><div>required</div>
 </td>
 </tr>
 </table>
@@ -2496,6 +2760,246 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#valueAxes.thresholds">thresholds</a></td><td>the threshold lines to draw on the axis, each an object drawing a reference line across the plot at an axis value (the array replaces the default wholesale)</td><td>should be an array with elements that should be an object with exact properties { value: should be an iso date string or epoch number, front: should be a boolean or be equal to undefined, style: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } or be equal to undefined, title: should be a string or be one of [ null, undefined ], titleSide: should be one of [ "low", "high" ] or be equal to undefined, titleSnapToValue: should be a boolean or be equal to undefined, titleMargin: should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 } or be equal to undefined, titlePadding: should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 } or be equal to undefined, titleTextStyle: should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } } or be equal to undefined, titleBackgroundStyle: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } or be equal to undefined }</td><td><div>[]</div>
 </td>
 </tr>
+<tr id="valueAxes.thresholds.front">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.front">thresholds[].front</a></td><td>whether the line is drawn in front of (true) or behind (false) the series shapes</td><td>should be a boolean or be equal to undefined</td><td><div>true</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style">thresholds[].style</a></td><td>the style of the threshold line</td><td>should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] } } or be equal to undefined</td><td><div>{ normal: { … }, focused: { … }, defocused: { … } }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.defocused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.defocused">thresholds[].style.defocused</a></td><td>the style of the threshold line, while the axis is defocused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }</td><td><div>{ strokeColor: "same", strokeOpacity: 0.325, strokeWidth: "same", strokeDashArray: "same" }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.defocused.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.defocused.strokeColor">thresholds[].style.defocused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.defocused.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.defocused.strokeDashArray">thresholds[].style.defocused.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke, or "same" to use the value of the normal state</td><td>should be a valid dash array or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.defocused.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.defocused.strokeOpacity">thresholds[].style.defocused.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>0.325</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.defocused.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.defocused.strokeWidth">thresholds[].style.defocused.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset, or "same" to use the value of the normal state</td><td>should be a number >= to 0 or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.focused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.focused">thresholds[].style.focused</a></td><td>the style of the threshold line, while the axis is focused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ] }</td><td><div>{ strokeColor: "same", strokeOpacity: 0.65, strokeWidth: "same", strokeDashArray: "same" }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.focused.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.focused.strokeColor">thresholds[].style.focused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.focused.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.focused.strokeDashArray">thresholds[].style.focused.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke, or "same" to use the value of the normal state</td><td>should be a valid dash array or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.focused.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.focused.strokeOpacity">thresholds[].style.focused.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.focused.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.focused.strokeWidth">thresholds[].style.focused.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset, or "same" to use the value of the normal state</td><td>should be a number >= to 0 or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.normal">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.normal">thresholds[].style.normal</a></td><td>the style of the threshold line, while the axis is neither focused nor defocused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null }</td><td><div>{ strokeColor: "currentColor", strokeOpacity: 0.65, strokeWidth: 1, strokeDashArray: null }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.normal.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.normal.strokeColor">thresholds[].style.normal.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.normal.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.normal.strokeDashArray">thresholds[].style.normal.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.normal.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.normal.strokeOpacity">thresholds[].style.normal.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>0.65</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.style.normal.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.style.normal.strokeWidth">thresholds[].style.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>1</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.title">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.title">thresholds[].title</a></td><td>the title text shown beside the line (use null for none)</td><td>should be a string or be one of [ null, undefined ]</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleBackgroundStyle">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleBackgroundStyle">thresholds[].titleBackgroundStyle</a></td><td>the styles to apply to the threshold title background</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, strokeOpacity: should be a number >= to 0 and <= 1 or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to null, fillOpacity: should be a number >= to 0 and <= 1 or be equal to null, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null } or be equal to undefined</td><td><div>{ strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleBackgroundStyle.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleBackgroundStyle.fillColor">thresholds[].titleBackgroundStyle.fillColor</a></td><td>the color of the fill: use null to leave the svg fill attribute unset so that css can supply it, "none" to switch the fill off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleBackgroundStyle.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleBackgroundStyle.fillOpacity">thresholds[].titleBackgroundStyle.fillOpacity</a></td><td>the opacity (0 - 1) of the fill, or null to leave the svg fill-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleBackgroundStyle.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleBackgroundStyle.strokeColor">thresholds[].titleBackgroundStyle.strokeColor</a></td><td>the color of the stroke (outline): use null to leave the svg stroke attribute unset so that css can supply it, "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to null</td><td><div>"currentColor"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleBackgroundStyle.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleBackgroundStyle.strokeDashArray">thresholds[].titleBackgroundStyle.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleBackgroundStyle.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleBackgroundStyle.strokeOpacity">thresholds[].titleBackgroundStyle.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke, or null to leave the svg stroke-opacity attribute unset</td><td>should be a number >= to 0 and <= 1 or be equal to null</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleBackgroundStyle.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleBackgroundStyle.strokeWidth">thresholds[].titleBackgroundStyle.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleMargin">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleMargin">thresholds[].titleMargin</a></td><td>the margin (in pixels) of the threshold title, relative to its orientation</td><td>should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 } or be equal to undefined</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleMargin.bottom">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleMargin.bottom">thresholds[].titleMargin.bottom</a></td><td>the space (in pixels) along the bottom edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleMargin.left">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleMargin.left">thresholds[].titleMargin.left</a></td><td>the space (in pixels) along the left edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleMargin.right">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleMargin.right">thresholds[].titleMargin.right</a></td><td>the space (in pixels) along the right edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleMargin.top">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleMargin.top">thresholds[].titleMargin.top</a></td><td>the space (in pixels) along the top edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titlePadding">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titlePadding">thresholds[].titlePadding</a></td><td>the padding (in pixels) of the threshold title, relative to its orientation</td><td>should be an object with any of the properties { top: should be a number >= to 0, right: should be a number >= to 0, bottom: should be a number >= to 0, left: should be a number >= to 0 } or be equal to undefined</td><td><div>{ top: 0, right: 0, bottom: 0, left: 0 }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titlePadding.bottom">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titlePadding.bottom">thresholds[].titlePadding.bottom</a></td><td>the space (in pixels) along the bottom edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titlePadding.left">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titlePadding.left">thresholds[].titlePadding.left</a></td><td>the space (in pixels) along the left edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titlePadding.right">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titlePadding.right">thresholds[].titlePadding.right</a></td><td>the space (in pixels) along the right edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titlePadding.top">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titlePadding.top">thresholds[].titlePadding.top</a></td><td>the space (in pixels) along the top edge</td><td>should be a number >= to 0</td><td><div>0</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleSide">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleSide">thresholds[].titleSide</a></td><td>which value side of the line the title sits on ("low" for smaller values, "high" for larger)</td><td>should be one of [ "low", "high" ] or be equal to undefined</td><td><div>"high"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleSnapToValue">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleSnapToValue">thresholds[].titleSnapToValue</a></td><td>whether the title flips to the other side when it has no room</td><td>should be a boolean or be equal to undefined</td><td><div>true</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle">thresholds[].titleTextStyle</a></td><td>the style of the threshold title text</td><td>should be an object with any of the properties { normal: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }, focused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }, defocused: should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 } } or be equal to undefined</td><td><div>{ normal: { … }, focused: { … }, defocused: { … } }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.defocused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.defocused">thresholds[].titleTextStyle.defocused</a></td><td>the style of the threshold title text, while the axis is defocused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }</td><td><div>{ strokeColor: "same", strokeOpacity: 1, strokeWidth: null, strokeDashArray: "same", fillColor: "same", fillOpacity: 1 }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.defocused.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.defocused.fillColor">thresholds[].titleTextStyle.defocused.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.defocused.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.defocused.fillOpacity">thresholds[].titleTextStyle.defocused.fillOpacity</a></td><td>the opacity (0 - 1) of the fill</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.defocused.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.defocused.strokeColor">thresholds[].titleTextStyle.defocused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.defocused.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.defocused.strokeDashArray">thresholds[].titleTextStyle.defocused.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke, or "same" to use the value of the normal state</td><td>should be a valid dash array or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.defocused.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.defocused.strokeOpacity">thresholds[].titleTextStyle.defocused.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.defocused.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.defocused.strokeWidth">thresholds[].titleTextStyle.defocused.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset, or "same" to use the value of the normal state</td><td>should be a number >= to 0 or be one of [ null, "same" ]</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.focused">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.focused">thresholds[].titleTextStyle.focused</a></td><td>the style of the threshold title text, while the axis is focused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be one of [ null, "same" ], strokeDashArray: should be a valid dash array or be one of [ null, "same" ], fillColor: should be a valid svg color (or "none" / "currentColor") or be equal to "same", fillOpacity: should be a number >= to 0 and <= 1 }</td><td><div>{ strokeColor: "same", strokeOpacity: 1, strokeWidth: null, strokeDashArray: "same", fillColor: "same", fillOpacity: 1 }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.focused.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.focused.fillColor">thresholds[].titleTextStyle.focused.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.focused.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.focused.fillOpacity">thresholds[].titleTextStyle.focused.fillOpacity</a></td><td>the opacity (0 - 1) of the fill</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.focused.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.focused.strokeColor">thresholds[].titleTextStyle.focused.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color, or "same" to use the color of the normal state</td><td>should be a valid svg color (or "none" / "currentColor") or be equal to "same"</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.focused.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.focused.strokeDashArray">thresholds[].titleTextStyle.focused.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke, or "same" to use the value of the normal state</td><td>should be a valid dash array or be one of [ null, "same" ]</td><td><div>"same"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.focused.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.focused.strokeOpacity">thresholds[].titleTextStyle.focused.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.focused.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.focused.strokeWidth">thresholds[].titleTextStyle.focused.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset, or "same" to use the value of the normal state</td><td>should be a number >= to 0 or be one of [ null, "same" ]</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.normal">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.normal">thresholds[].titleTextStyle.normal</a></td><td>the style of the threshold title text, while the axis is neither focused nor defocused</td><td>should be an object with any of the properties { strokeColor: should be a valid svg color (or "none" / "currentColor"), strokeOpacity: should be a number >= to 0 and <= 1, strokeWidth: should be a number >= to 0 or be equal to null, strokeDashArray: should be a valid dash array or be equal to null, fillColor: should be a valid svg color (or "none" / "currentColor"), fillOpacity: should be a number >= to 0 and <= 1 }</td><td><div>{ strokeColor: "none", strokeOpacity: 1, strokeWidth: null, strokeDashArray: null, fillColor: "currentColor", fillOpacity: 1 }</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.normal.fillColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.normal.fillColor">thresholds[].titleTextStyle.normal.fillColor</a></td><td>the color of the fill: use "none" to switch the fill off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"currentColor"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.normal.fillOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.normal.fillOpacity">thresholds[].titleTextStyle.normal.fillOpacity</a></td><td>the opacity (0 - 1) of the fill</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.normal.strokeColor">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.normal.strokeColor">thresholds[].titleTextStyle.normal.strokeColor</a></td><td>the color of the stroke (outline): use "none" to switch the stroke off, or "currentColor" to follow the host page's css color</td><td>should be a valid svg color (or "none" / "currentColor")</td><td><div>"none"</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.normal.strokeDashArray">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.normal.strokeDashArray">thresholds[].titleTextStyle.normal.strokeDashArray</a></td><td>the dash array pattern of the stroke (e.g. "5, 5"), or null for a solid stroke</td><td>should be a valid dash array or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.normal.strokeOpacity">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.normal.strokeOpacity">thresholds[].titleTextStyle.normal.strokeOpacity</a></td><td>the opacity (0 - 1) of the stroke</td><td>should be a number >= to 0 and <= 1</td><td><div>1</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.titleTextStyle.normal.strokeWidth">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.titleTextStyle.normal.strokeWidth">thresholds[].titleTextStyle.normal.strokeWidth</a></td><td>the width (in pixels) of the stroke, or null to leave the svg stroke-width attribute unset</td><td>should be a number >= to 0 or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.thresholds.value">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.thresholds.value">thresholds[].value</a></td><td>the axis value to draw the threshold line at (on a date category axis, a millisecond timestamp or ISO date string); thresholds never extend the axis domain, and a value outside it is not drawn</td><td>should be an iso date string or epoch number</td><td><div>required</div>
+</td>
+</tr>
 <tr id="valueAxes.tickCount">
 <td><a href="#valueAxes.tickCount">tickCount</a></td><td>the number of ticks to show along the length of the axis (use "auto" to derive the tick count from the data)</td><td>should be an integer and >= to 0 or be equal to "auto"</td><td><div>"auto"</div>
 </td>
@@ -2737,7 +3241,15 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="valueAxes.ticks">
-<td><a href="#valueAxes.ticks">ticks</a></td><td>the explicit ticks to show on the axis in place of the generated ones, each { value, label } placing label text at an axis value (label falls back to the formatted value, use null for none)<br/><br/>Replaces the automatic tick generation entirely: tick counts, intervals and domain-edge ticks are ignored. Useful for naming fixed positions, e.g. heatmap row bands or threshold levels. Ticks outside the current axis domain are hidden.</td><td>should be an array with elements that should be an object with exact properties { value: should be a number, label: should be a string or be equal to undefined } or be equal to null</td><td><div>null</div>
+<td><a href="#valueAxes.ticks">ticks</a></td><td>the explicit ticks to show on the axis in place of the generated ones, each placing label text at an axis value (use null for none)<br/><br/>Replaces the automatic tick generation entirely: tick counts, intervals and domain-edge ticks are ignored. Useful for naming fixed positions, e.g. heatmap row bands or threshold levels. Ticks outside the current axis domain are hidden.</td><td>should be an array with elements that should be an object with exact properties { value: should be a number, label: should be a string or be equal to undefined } or be equal to null</td><td><div>null</div>
+</td>
+</tr>
+<tr id="valueAxes.ticks.label">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.ticks.label">ticks[].label</a></td><td>the text of the tick label (leave it out to format the value with tickLabelFormat)</td><td>should be a string or be equal to undefined</td><td><div></div>
+</td>
+</tr>
+<tr id="valueAxes.ticks.value">
+<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#valueAxes.ticks.value">ticks[].value</a></td><td>the axis value to place the tick at</td><td>should be a number</td><td><div>required</div>
 </td>
 </tr>
 <tr id="valueAxes.title">
@@ -3470,7 +3982,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="series.property">
-<td><a href="#series.property">property</a></td><td>the property to retrieve from the data provider for the series values<br/><br/>The chart reads this property from each category of the data provider to get the series value — it is the only series property without a default, so every series must set it. Use `getDataErrors` to check a dataset against the configured properties.</td><td>should be a defined value</td><td><div></div>
+<td><a href="#series.property">property</a></td><td>the property to retrieve from the data provider for the series values<br/><br/>The chart reads this property from each category of the data provider to get the series value — it is the only series property without a default, so every series must set it. Use `getDataErrors` to check a dataset against the configured properties.</td><td>should be a defined value</td><td><div>required</div>
 </td>
 </tr>
 <tr id="series.rangeProperty">

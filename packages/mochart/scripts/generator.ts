@@ -71,6 +71,9 @@ function renderDefaultValue(value: DefaultValue): string {
 }
 
 function renderPropertyDefault(property: PropertyDoc): string {
+  if (property.required) {
+    return '<div>required</div>\n';
+  }
   if (property.conditionalDefaults) {
     return property.conditionalDefaults.map(conditional =>
       '<div>' + renderDefaultValue(conditional.value) + ' (' + conditional.condition + ')' + '</div>\n'
@@ -123,20 +126,23 @@ function renderTopLevel(topLevel: TopLevelKeyDoc[]): string {
 }
 
 // a member's anchor extends its parent's, matching the docs site
-function renderPropertyRows(sectionId: string, property: PropertyDoc, parentPath: string[]): string {
+function renderPropertyRows(sectionId: string, property: PropertyDoc, parentPath: string[], parentLabels: string[] = []): string {
   const path = [...parentPath, property.key];
+  const labels = [...parentLabels, property.key];
+  // members of an array element are labelled `stops[].offset`, while the id keeps the plain dotted path
+  const childLabels = [...parentLabels, property.key + (property.itemShape === true ? '[]' : '')];
   const keyId = sectionId + '.' + path.join('.');
   const indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(parentPath.length);
   let out = '<tr id="' + keyId + '">\n';
   out += tags('td', [
-    indent + '<a href="#' + keyId + '">' + path.join('.') + '</a>',
+    indent + '<a href="#' + keyId + '">' + labels.join('.') + '</a>',
     renderDescription(property),
     renderRules(property.rules),
     renderPropertyDefault(property)
   ]);
   out += '</tr>\n';
   for (const nested of property.properties ?? []) {
-    out += renderPropertyRows(sectionId, nested, path);
+    out += renderPropertyRows(sectionId, nested, path, childLabels);
   }
   return out;
 }

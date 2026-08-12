@@ -1478,25 +1478,68 @@ export interface TooltipConfig extends SeriesIconConfig {
  * back to the documented defaults.
  */
 export interface ThresholdConfig {
-  /** The axis value to draw the threshold line at; on a date category axis, an iso date string or millisecond timestamp. Thresholds never extend the axis domain, and a value outside it is not drawn. */
+  /**
+   * The axis value to draw the threshold line at (on a date category axis, a
+   * millisecond timestamp or ISO date string); thresholds never extend the axis
+   * domain, and a value outside it is not drawn.
+   */
   value: number | string;
-  /** Whether the line is drawn in front of (true) or behind (false) the series shapes. Defaults to true. */
+  /**
+   * Whether the line is drawn in front of (true) or behind (false) the series
+   * shapes.
+   *
+   * @default true
+   */
   front?: boolean;
-  /** The style of the threshold line per focus state ('same' inherits the normal state). */
+  /**
+   * The style of the threshold line.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
   style?: DeepPartial<StrokeStyleStates>;
-  /** The title text shown beside the line (null for none). Defaults to null. */
+  /**
+   * The title text shown beside the line (use null for none).
+   *
+   * @default null
+   */
   title?: string | null;
-  /** Which value side of the line the title sits on: 'low' (smaller values) or 'high'. Defaults to 'high'. */
+  /**
+   * Which value side of the line the title sits on ("low" for smaller values,
+   * "high" for larger).
+   *
+   * @default "high"
+   */
   titleSide?: ThresholdTitleSide;
-  /** Whether the title flips to the other side when it has no room. Defaults to true. */
+  /**
+   * Whether the title flips to the other side when it has no room.
+   *
+   * @default true
+   */
   titleSnapToValue?: boolean;
-  /** The margin (in pixels) around the title, relative to its orientation. */
+  /**
+   * The margin (in pixels) of the threshold title, relative to its orientation.
+   *
+   * @default { top: 0, right: 0, bottom: 0, left: 0 }
+   */
   titleMargin?: MarginPadding;
-  /** The padding (in pixels) around the title, relative to its orientation. */
+  /**
+   * The padding (in pixels) of the threshold title, relative to its
+   * orientation.
+   *
+   * @default { top: 0, right: 0, bottom: 0, left: 0 }
+   */
   titlePadding?: MarginPadding;
-  /** The style of the title text per focus state. */
+  /**
+   * The style of the threshold title text.
+   *
+   * @default { normal: { … }, focused: { … }, defocused: { … } }
+   */
   titleTextStyle?: DeepPartial<StyleStates>;
-  /** The style of the title background. */
+  /**
+   * The styles to apply to the threshold title background.
+   *
+   * @default { strokeColor: "currentColor", strokeOpacity: 0, strokeWidth: null, strokeDashArray: null, fillColor: null, fillOpacity: 0 }
+   */
   titleBackgroundStyle?: Partial<Style>;
 }
 
@@ -2138,7 +2181,10 @@ export interface CategoryAxisConfig extends AxisConfigBase {
 export interface ValueAxisTick {
   /** The axis value to place the tick at. */
   value: number;
-  /** The tick label text; when omitted the value is formatted with `tickLabelFormat`. */
+  /**
+   * The text of the tick label (leave it out to format the value with
+   * tickLabelFormat).
+   */
   label?: string;
 }
 
@@ -2271,8 +2317,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
   scale: Scale;
   /**
    * The explicit ticks to show on the axis in place of the generated ones, each
-   * { value, label } placing label text at an axis value (label falls back to
-   * the formatted value, use null for none).
+   * placing label text at an axis value (use null for none).
    *
    * Replaces the automatic tick generation entirely: tick counts, intervals and
    * domain-edge ticks are ignored. Useful for naming fixed positions, e.g.
@@ -3071,8 +3116,14 @@ export interface SeriesGroupConfig {
 }
 
 export interface GradientStop {
+  /**
+   * The position of the stop, as a fraction (0 - 1) of the length of the
+   * gradient.
+   */
   offset: number;
+  /** The color of the stop. */
   color: string;
+  /** The opacity (0 - 1) of the stop. */
   opacity: number;
 }
 
@@ -3122,7 +3173,10 @@ export interface LinearGradientConfig {
    * @default 0
    */
   rotation: number;
-  /** The list of svg gradient stops, with offset, color and opacity properties. */
+  /**
+   * The list of svg gradient stops, each placing a color at a position along
+   * the gradient (at least one stop must be given).
+   */
   stops?: GradientStop[];
 }
 
@@ -3178,7 +3232,10 @@ export interface RadialGradientConfig {
    * @default 0
    */
   rotation: number;
-  /** The list of svg gradient stops, with offset, color and opacity properties. */
+  /**
+   * The list of svg gradient stops, each placing a color at a position along
+   * the gradient (at least one stop must be given).
+   */
   stops?: GradientStop[];
 }
 
