@@ -2536,7 +2536,7 @@ Asserted in `TooltipKeyboard.test.ts`'s existing `hideFiltered` restore test. Co
 pass, typecheck and lint clean.
 
 ### A11Y-11 — no forced-colors / Windows High Contrast handling
-**Low · Missing feature · [css/mochart.css](packages/mochart/css/mochart.css)** — **Open**
+**Low · Missing feature · [css/mochart.css](packages/mochart/css/mochart.css)** — **Fixed**
 
 There is no `@media (forced-colors: active)` block anywhere in the repo. Chart chrome is
 `currentColor` and follows the forced text colour, but series fills/strokes are SVG presentation
@@ -2547,6 +2547,28 @@ hover tints become invisible.
 **Fix:** add a `@media (forced-colors: active)` block restoring the tooltip control affordances
 (`forced-color-adjust`, `border-color: ButtonBorder`, a `Highlight` focus ring) and document what
 series colours do in that mode.
+
+**Fixed with a `@media (forced-colors: active)` block plus the documentation the finding asks for.**
+
+The block restores the tooltip control buttons, which are the only chrome that sets its look inline:
+`forced-color-adjust: none` so the system palette reaches them, `ButtonFace`/`ButtonText`/`ButtonBorder`
+for the base, `GrayText` at the `aria-disabled` ends, and `Highlight`/`HighlightText` fills replacing the
+hover and active tints — those are `color-mix` over `currentColor`, which forced colours flatten to
+invisible. The focus ring switches to `Highlight`, covering both the `:focus-visible` rule and the
+restored-focus rule added for
+[A11Y-10](#a11y-10--outline-none-leaves-programmatically-restored-focus-with-no-indicator).
+
+**Series fills and strokes are deliberately left alone**, and the guide now says so rather than leaving
+it to be discovered: they are SVG presentation attributes from the configured palette, and forcing them
+to the system palette would collapse every series to one colour, which is worse than keeping hues the
+mode never asked about. `guide/accessibility.md` gains a *Forced colors and High Contrast* section
+stating what the stylesheet does, what series colours do, and that a chart needing to stay readable there
+should carry a non-colour encoding (`markerShape` per series, or `strokeDashArray` on lines) — advice
+that applies to colour-vision deficiency generally, which is also
+[A11Y-6](#a11y-6--default-encoding-is-colour-only-on-a-palette-that-is-not-cvd-checked)'s territory.
+
+Docs site builds clean. Not verifiable in this environment beyond the CSS itself: forced-colors mode
+needs a real Windows High Contrast session, so the rules are written from the spec rather than observed.
 
 ### A11Y-12 — series and tooltip roving groups lack the group semantics the legend has
 **Low · Inconsistency · [SeriesContainer.ts:145](packages/mochart/src/components/SeriesContainer.ts#L145), [PieSeriesContainer.ts:164](packages/mochart/src/components/PieSeriesContainer.ts#L164), [TooltipContent.ts:570](packages/mochart/src/components/TooltipContent.ts#L570) vs [Legend.ts:183](packages/mochart/src/components/Legend.ts#L183)** — **Open**
