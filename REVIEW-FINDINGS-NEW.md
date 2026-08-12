@@ -5128,7 +5128,7 @@ Wording note: the dead-code row describes the gate as it stands after
 it names the dependency check too.
 
 ### TOOL-8 — no `engines` field on any package, and CI tests exactly one Node version
-**Medium · Missing feature · all 21 `package.json` files; [ci.yml:12](.github/workflows/ci.yml#L12)** — **Open**
+**Medium · Missing feature · all 21 `package.json` files; [ci.yml:12](.github/workflows/ci.yml#L12)** — **Fixed**
 
 No package declares a supported Node range, there is no `.nvmrc`, and CI hardcodes a single Node 22
 runner with no matrix (local development here is on Node 26.5.0). Consumers get no install-time
@@ -5138,6 +5138,36 @@ particular has a narrow supported range.
 
 **Fix:** add `"engines": {"node": ">=20.19"}` (or the real floor) to the 9 published packages and
 the root, add `.nvmrc`, and give `build-test` a `strategy.matrix.node-version: [22, 24]`.
+
+**Fixed, with the floor established by measurement rather than the finding's guess.** `engines.node` is declared
+on the root manifest and on all nine published packages, `.nvmrc` pins contributors to 24, `audit.yml` now reads
+that file instead of carrying a second literal, and `ci.yml`'s `build-test` runs the whole pipeline on a Node 22
+and 24 matrix with `fail-fast: false`, so a Node-specific break is attributable to a leg.
+
+**The finding's `">=20.19"` is not the real floor and is not even a possible one.** The `@angular/*` 22 toolchain
+declares `^22.22.3 || ^24.15.0 || >=26.0.0`, and scanning all 343 installed packages that declare
+`engines.node`: Node 20.19.0 leaves 10 incompatible, 22.12.0 leaves 26, 22.22.2 still leaves 9, and **22.22.3
+leaves zero**. So the floor is exactly 22.22.3, and both matrix legs satisfy it. It was then exercised rather
+than asserted: Node 22.22.3 was downloaded and `npm run typecheck` and core's suite (109 files / 1661 tests) both
+run clean on it, with no snapshot churn.
+
+**"Give `build-test` a matrix" is also not a one-line change**, which is the more useful correction. The job
+uploads three named artifacts and artifact names are workflow-global, so an unguarded matrix collides on all
+three and `upload-artifact@v4` fails on a duplicate name — a naive matrix would have broken both deploys. Hence a
+`matrix.site` flag confining the site builds and uploads to one leg, and a per-leg trace artifact name. Proved by
+a matrix expander that evaluates every step condition per leg across all four deploy-flag scenarios: as written,
+each artifact is uploaded by exactly one leg (exit 0); with the guards stripped, all three are uploaded twice
+(exit 1).
+
+The `engines` declaration was proved to bite too: a scratch package with `">=99.0.0"` under
+`--engine-strict` fails with `npm error notsup … Actual v26.5.0`, while `">=22.22.3"` exits 0.
+
+Repo lint and typecheck clean; the lockfile is resynced for the ten new `engines` blocks.
+
+Two things left deliberately: the matrix does **not** cover the Node 26 in use locally — `.nvmrc` closes that gap
+from the other side by pinning contributors to a CI-tested version, and adding `'26'` to the list is a one-word
+change if testing it is preferred to pinning away from it. And `CONTRIBUTING.md` still has no Node prerequisite
+line pointing at `.nvmrc`.
 
 ### TOOL-9 — no SECURITY.md, issue/PR templates, `.editorconfig`, CODEOWNERS, or `bugs` field
 **Medium · Missing feature · [.github/](.github/) contains only `workflows/`** — **Open**

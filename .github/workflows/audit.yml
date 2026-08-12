@@ -18,7 +18,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # The contributor pin; CI's matrix covers the supported range instead.
+          node-version-file: .nvmrc
           cache: npm
       # --ignore-scripts: an audit needs the tree resolved, not the packages built
       - run: npm ci --ignore-scripts

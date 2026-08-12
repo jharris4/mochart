@@ -25,6 +25,9 @@
     "access": "public"
   },
   "type": "module",
+  "engines": {
+    "node": ">=22.22.3"
+  },
   "sideEffects": [
     "*.css"
   ],
