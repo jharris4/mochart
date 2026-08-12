@@ -11,6 +11,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getIdCssClass, getCssSelector, getDescendantCssSelector, getCssClassMatchSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -48,7 +49,7 @@ function mountChart(config: MochartInputConfig, callbacks: Partial<DefaultChartP
 }
 
 function chartRoot(container: Element): Element {
-  return container.querySelector('[data-mochart-version]')!;
+  return container.querySelector(getChartRootCssSelector())!;
 }
 
 function mouse(target: Element, type: string, clientX: number, clientY: number): void {
@@ -59,7 +60,7 @@ function openTooltip(container: Element): void {
   const root = chartRoot(container);
   mouse(root, 'mouseenter', 100, 100);
   mouse(root, 'click', 100, 100);
-  expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+  expect(container.querySelector(getCssSelector('tooltip'))).not.toBeNull();
 }
 
 /** interactive rows of the visible tooltip copy, in DOM order */
@@ -68,7 +69,7 @@ function liveText(container: Element): string {
 }
 
 function tooltipRows(container: Element): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip [data-row-key]'));
+  return Array.from(container.querySelectorAll<HTMLElement>(getCssSelector('tooltip') + ' [data-row-key]'));
 }
 
 function key(target: Element, keyValue: string): void {
@@ -76,7 +77,7 @@ function key(target: Element, keyValue: string): void {
 }
 
 function modeButton(container: Element): HTMLElement {
-  return Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip button'))
+  return Array.from(container.querySelectorAll<HTMLElement>(getCssSelector('tooltip') + ' button'))
     .find(button => button.textContent === 'Filter' || button.textContent === 'Focus')!;
 }
 
@@ -120,7 +121,7 @@ describe('tooltip row keyboard semantics', () => {
     expect(seriesRows.map(row => row.getAttribute('tabindex'))).toEqual(['0', '-1']);
 
     // the hidden sizer copy must not carry tab stops
-    expect(container.querySelectorAll('.mochart-tooltip-sizer [tabindex], .mochart-tooltip-sizer [data-row-key]').length).toBe(0);
+    expect(container.querySelectorAll(getCssSelector('tooltipSizer') + ' [tabindex], ' + getCssSelector('tooltipSizer') + ' [data-row-key]').length).toBe(0);
   });
 
   it('has no row semantics when clicking does nothing, or with accessibility disabled', () => {
@@ -131,13 +132,13 @@ describe('tooltip row keyboard semantics', () => {
     const disabled = mountChart(makeConfig({ showControls: true }, { accessibility: { enabled: false } }));
     openTooltip(disabled);
     expect(tooltipRows(disabled).length).toBe(0);
-    expect(disabled.querySelectorAll('.mochart-tooltip [tabindex], .mochart-tooltip [role="button"]').length).toBe(0);
+    expect(disabled.querySelectorAll(getCssSelector('tooltip') + ' [tabindex], ' + getCssSelector('tooltip') + ' [role="button"]').length).toBe(0);
   });
 
   it('takes the control buttons out of the tab order on a decorative-hidden chart', () => {
     const container = mountChart(makeConfig({ showControls: true }, { accessibility: { hidden: true } }));
     openTooltip(container);
-    const buttons = Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip button'));
+    const buttons = Array.from(container.querySelectorAll<HTMLElement>(getCssSelector('tooltip') + ' button'));
     expect(buttons.length).toBeGreaterThan(0);
     for (const button of buttons) {
       expect(button.getAttribute('tabindex')).toBe('-1');
@@ -154,13 +155,13 @@ describe('tooltip row keyboard semantics', () => {
     const container = mountChart(makeConfig({ showControls: true }));
     openTooltip(container);
 
-    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(2);
     key(tooltipRows(container)[0], 'Enter');
-    expect(container.querySelectorAll('.mochart-series').length).toBe(1);
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(1);
     expect(tooltipRows(container)[0].getAttribute('aria-pressed')).toBe('false');
 
     key(tooltipRows(container)[0], ' ');
-    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(2);
     expect(tooltipRows(container)[0].getAttribute('aria-pressed')).toBe('true');
   });
 
@@ -173,6 +174,9 @@ describe('tooltip row keyboard semantics', () => {
     key(first, 'Enter');
     expect(document.activeElement).not.toBe(document.body);
     expect((document.activeElement as HTMLElement).getAttribute('data-row-key')).toBe('series-S1');
+    // A11Y-10: the same restore is reachable by clicking the row, where :focus-visible never
+    // matches, so the moved focus is marked for the stylesheet to ring
+    expect((document.activeElement as HTMLElement).hasAttribute('data-mochart-focus-restored')).toBe(true);
   });
 
   it('adds the category row and focuses on Enter in focus mode', () => {
@@ -204,7 +208,7 @@ describe('tooltip row keyboard semantics', () => {
     });
     openTooltip(container);
 
-    const rowS0 = container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S0"]')!;
+    const rowS0 = container.querySelector(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', 'S0')))!;
     rowS0.dispatchEvent(new MouseEvent('mouseenter'));
     expect(focuses[focuses.length - 1].focusedSeriesId).toBe('S0');
     rowS0.dispatchEvent(new MouseEvent('mouseleave'));
@@ -232,10 +236,10 @@ describe('tooltip row keyboard semantics', () => {
     expect(tooltipRows(container).map(row => row.getAttribute('data-row-key'))).toEqual(['series-S0']);
 
     // and clicking it does not filter the series out of the chart
-    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
-    container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S1"]')!
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(2);
+    container.querySelector(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', 'S1')))!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(2);
 
     // focus mode does not filter, so both rows act again
     openTooltip(container); // the no-op click above bubbled to closeOnClick
@@ -360,9 +364,10 @@ describe('tooltip row keyboard semantics', () => {
 });
 
 describe('tooltip row pointer focus', () => {
-  const categoryLine = (container: Element) => container.querySelector('.mochart-tooltip .mochart-tooltip-category-line')!;
+  const categoryLine = (container: Element) => container.querySelector(getDescendantCssSelector('tooltip', 'tooltipCategoryLine'))!;
   const seriesLine = (container: Element, seriesId: string) =>
-    container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-' + seriesId + '"]')!;
+    container.querySelector(getCssSelector('tooltip') + ' '
+      + getCssClassMatchSelector(getIdCssClass('tooltipSeriesLine', seriesId)))!;
 
   it('focuses the category from hover when focusCategoryOnMouseOver is set without the controls', () => {
     const focuses: ChartFocus[] = [];
@@ -527,7 +532,7 @@ describe('tooltip rows a series can opt out of', () => {
     }));
     openTooltip(container);
     expect(tooltipRows(container).length).toBe(0);
-    expect(container.querySelector('.mochart-tooltip-category-line')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('tooltipCategoryLine'))).not.toBeNull();
   });
 
   it('closes on Escape anywhere inside and returns focus to the plot tab stop', () => {
@@ -538,8 +543,8 @@ describe('tooltip rows a series can opt out of', () => {
     first.focus();
     key(first, 'Escape');
 
-    expect(container.querySelector('.mochart-tooltip')).toBeNull();
-    const plotRect = container.querySelector('.mochart-series-background rect[tabindex]');
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
+    const plotRect = container.querySelector(getCssSelector('seriesBackground') + ' rect[tabindex]');
     expect(plotRect).not.toBeNull();
     expect(document.activeElement).toBe(plotRect);
   });
@@ -550,12 +555,12 @@ describe('tooltip control buttons', () => {
     // the buttons went through a path that updated the tooltip but never the live region, so a
     // screen reader kept reading whichever category the tooltip was opened on
     const container = mountChart(makeConfig({ showControls: true }));
-    const rect = container.querySelector<SVGElement>('.mochart-series-background rect')!;
+    const rect = container.querySelector<SVGElement>(getCssSelector('seriesBackground') + ' rect')!;
     key(rect, 'Enter');
     const opened = liveText(container);
     expect(opened).toContain('Jan');
 
-    const next = Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip button'))
+    const next = Array.from(container.querySelectorAll<HTMLElement>(getCssSelector('tooltip') + ' button'))
       .find(button => button.textContent === '›')!;
     next.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     // the live region coalesces a burst, so this step lands after the settle window (A11Y-9)
@@ -569,7 +574,7 @@ describe('tooltip control buttons', () => {
     const container = mountChart(makeConfig({ showControls: true }));
     openTooltip(container);
 
-    const buttons = () => Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip button'));
+    const buttons = () => Array.from(container.querySelectorAll<HTMLElement>(getCssSelector('tooltip') + ' button'));
     const prev = () => buttons().find(button => button.textContent === '‹')!;
     const next = () => buttons().find(button => button.textContent === '›')!;
 
@@ -595,7 +600,7 @@ describe('tooltip control buttons', () => {
     ));
     openTooltip(container);
 
-    const buttons = Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip button'));
+    const buttons = Array.from(container.querySelectorAll<HTMLElement>(getCssSelector('tooltip') + ' button'));
     expect(buttons.some(button => button.getAttribute('aria-label') === 'Vorherige Kategorie')).toBe(true);
     expect(buttons.some(button => button.getAttribute('aria-label') === 'Nächste Kategorie')).toBe(true);
     const mode = buttons.find(button => button.textContent === 'Filtern')!;

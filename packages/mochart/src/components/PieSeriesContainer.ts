@@ -5,7 +5,7 @@ import { getPieSliceAngles, sweepPieSliceAngles } from '../data/PieData';
 import type { PieSliceAngles } from '../data/PieData';
 import { getRadialLayoutInfo } from '../layout/RadialLayout';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { accessibilityActive } from '../utils/utils';
+import { accessibilityActive, focusRestored } from '../utils/utils';
 
 import SeriesBackground from './SeriesBackground';
 import type { SeriesShapeA11yProps } from './SeriesBackground';
@@ -187,14 +187,14 @@ export default class PieSeriesContainer extends Renderer<PieSeriesContainerProps
 
     if (focusedSlice !== null && document.activeElement !== focusedSlice) {
       if (focusedSlice.isConnected) {
-        focusedSlice.focus();
+        focusRestored(focusedSlice);
       }
       else if (effectiveRovingId !== null) {
         // the focused slice was filtered out: keep keyboard focus in the pie,
         // on the slice that inherited the tab stop
         for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
           if (node.getAttribute('data-series-id') === effectiveRovingId) {
-            node.focus();
+            focusRestored(node);
             break;
           }
         }

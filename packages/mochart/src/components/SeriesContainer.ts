@@ -2,7 +2,7 @@ import { Renderer, svgEl } from '../render';
 
 import { getSeriesConfigsOrderedByFocus } from '../data/FocusData';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { accessibilityActive } from '../utils/utils';
+import { accessibilityActive, focusRestored } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
 import { NONE } from '../config/core/constants';
 
@@ -176,14 +176,14 @@ export default class SeriesContainer extends Renderer<SeriesContainerProps, Seri
 
     if (focusedSeries !== null && document.activeElement !== focusedSeries) {
       if (focusedSeries.isConnected) {
-        focusedSeries.focus();
+        focusRestored(focusedSeries);
       }
       else if (effectiveRovingId !== null) {
         // the focused series was filtered out: keep keyboard focus in the plot,
         // on the series that inherited the tab stop
         for (const node of this.root.node.querySelectorAll<SVGElement>('g[data-series-id]')) {
           if (node.getAttribute('data-series-id') === effectiveRovingId) {
-            node.focus();
+            focusRestored(node);
             break;
           }
         }

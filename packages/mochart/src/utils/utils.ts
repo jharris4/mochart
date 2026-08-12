@@ -25,6 +25,19 @@ export function onClickDisabled(e: Event): void {
   e.preventDefault();
 }
 
+/** Marks focus the library moved itself, which pointer paths reach too - :focus-visible never
+ * matches there, so the stylesheet has nothing to ring without this. Cleared on blur. */
+export const focusRestoredAttribute = 'data-mochart-focus-restored';
+
+export function focusRestored(node: SVGElement | HTMLElement | null | undefined): void {
+  if (node === null || node === undefined) {
+    return;
+  }
+  node.setAttribute(focusRestoredAttribute, '');
+  node.addEventListener('blur', () => node.removeAttribute(focusRestoredAttribute), { once: true });
+  node.focus();
+}
+
 export function translate(x: number, y: number): string {
   return 'translate(' + x + ',' + y + ')';
 }
