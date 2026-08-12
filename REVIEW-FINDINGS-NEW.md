@@ -3190,7 +3190,7 @@ same time, and `--strictPort` turns the clash into a hard failure.
 or move the dev server to 5173 and point `baseURL` there.
 
 ### DEMO-22 — deployed demos request a favicon that does not exist
-**Low · Bug · [vanilla index.html:3](packages/mochart-demo-vanilla/index.html#L3) and the five siblings** — **Open**
+**Low · Bug · [vanilla index.html:3](packages/mochart-demo-vanilla/index.html#L3) and the five siblings** — **Fixed**
 
 None of the six gallery `index.html` files declares `<link rel="icon">`, so the browser falls back
 to `/favicon.ico` at the *site* root. `demo-basic` and `mochart-benchmark` both set `href="data:,"`
@@ -3198,6 +3198,24 @@ to suppress exactly this. A 404 on every demo page load, and the browser's defau
 the docs site's.
 
 **Fix:** add the docs site's favicon link (or `href="data:,"`) to all six.
+
+**Fixed by supplying an icon rather than dropping the request.** All six deployed galleries
+(vanilla, react, svelte, vue, lit, angular) now carry a `rel="icon"` link in their `index.html`, and
+the docs site — which is the deployed site root and was 404ing on `/favicon.ico` the same way, just
+without an explicit link — carries the same icon via VitePress `head`.
+
+The icon is an inline `data:image/svg+xml` URI, not a file: a data URI needs no asset pipeline and is
+immune to the per-demo base path (`/vanilla/`, `/react/`, …), which a relative href would have to
+track. It is new artwork — a rounded square in the demos' accent colour with three bars — because the
+finding's premise that the docs site had a favicon to borrow turned out to be wrong: the repo
+contained no `.ico` or `.svg` icon asset anywhere, and the only pre-existing `rel="icon"` declarations
+were `demo-basic`'s and the benchmark's `href="data:,"`. Swap it for a real mark whenever you have one;
+it is one line per file.
+
+Verified by building each gallery and confirming exactly one `rel="icon"` survives into
+`dist/index.html` (Vite and the Angular/analog HTML pipeline both pass the data URI through verbatim),
+then serving the vanilla build in headless Chromium: the icon decodes at 16x16 and no request matching
+`favicon` is made any more. The docs build emits it into every page's `<head>`.
 
 ---
 
