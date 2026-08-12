@@ -2396,7 +2396,7 @@ the Enter/Space/Escape forwarding already there) and move sibling navigation to 
 opening the tooltip on Enter-over-a-series. At minimum, document the dual action.
 
 ### A11Y-9 — the live region has no explicit `aria-live` and no de-duplication or throttle
-**Low · Bug · WCAG 4.1.3 · [Chart.ts:1178-1181](packages/mochart/src/components/Chart.ts#L1178), [:888](packages/mochart/src/components/Chart.ts#L888)** — **Open**
+**Low · Bug · WCAG 4.1.3 · [Chart.ts:1178-1181](packages/mochart/src/components/Chart.ts#L1178), [:888](packages/mochart/src/components/Chart.ts#L888)** — **Fixed**
 
 The announcer is `<div role="status">` with no `aria-live`, no `aria-atomic`, and
 `announceTooltipCategory` replaces `textContent` on every arrow keypress with no comparison against
@@ -2407,6 +2407,26 @@ deliberately does not announce, so the spam is keyboard-repeat only.)
 
 **Fix:** add `aria-live="polite"` and `aria-atomic="true"` explicitly, skip the write when unchanged,
 and debounce so a held arrow key announces only the settled category.
+
+**Fixed, with one deliberate change to what the finding proposed.** The announcer div now carries
+`aria-live="polite"` and `aria-atomic="true"` explicitly alongside `role="status"` (spelled as
+attribute strings, not camelCase props — the live region is html, where `El.set` writes camelCase
+names verbatim instead of kebab-casing them as it does on svg). `announceTooltipCategory` skips the
+write when the string is unchanged, so a step to a category whose formatted values match no longer
+churns the region.
+
+The deviation is the coalescing. The finding asks for a plain debounce so a held key "announces only
+the settled category", but that delays *every* keypress, including the single deliberate step that is
+the common case — a sluggish screen reader for the sake of the repeat case. What landed instead speaks
+the first step immediately and coalesces the rest, so a held arrow key produces two announcements (the
+first and the settled one) instead of one per category passed through. The timer is cleared on
+teardown and whenever the body is destroyed, and a `null` index still silences the region
+synchronously.
+
+Four keyboard tests exercise the announcer; two of them stepped categories synchronously, which is
+indistinguishable from a key repeat, so they now await the settle window — the change in expectation is
+the behaviour change, not a workaround. All 451 golden snapshots moved by exactly one line, the two new
+attributes on the live-region div. 107 files / 1621 tests pass, typecheck and lint clean.
 
 ### A11Y-10 — `outline: none` leaves programmatically restored focus with no indicator
 **Low · Bug · WCAG 2.4.7 · [css/mochart.css:81-88](packages/mochart/css/mochart.css#L81)** — **Open**

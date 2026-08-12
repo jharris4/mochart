@@ -49,6 +49,10 @@ function tooltipText(container: Element): string {
   return container.querySelector('.mochart-tooltip')?.textContent ?? '';
 }
 
+// A11Y-9: the live region speaks the first step at once and coalesces a burst, so a step taken
+// inside the settle window only lands after it.
+const settleAnnouncement = () => new Promise(resolve => setTimeout(resolve, 200));
+
 function liveText(container: Element): string {
   return container.querySelector('[role="status"]')?.textContent ?? '';
 }
@@ -168,7 +172,7 @@ describe('plot keyboard semantics', () => {
     expect(rect.getAttribute('aria-expanded')).toBe('true');
   });
 
-  it('announces the tooltip values while navigating with the keyboard', () => {
+  it('announces the tooltip values while navigating with the keyboard', async () => {
     const container = mountChart(makeConfig());
     const rect = plotRect(container);
     expect(container.querySelector('[role="status"]')).not.toBeNull();
@@ -178,13 +182,16 @@ describe('plot keyboard semantics', () => {
     expect(liveText(container)).toBe('Jan: Series S0: 10.00, Series S1: 5.00');
 
     key(rect, 'ArrowRight');
+    await settleAnnouncement();
     expect(liveText(container)).toBe('Feb: Series S0: 20.00, Series S1: 8.00');
 
     key(rect, 'End');
+    await settleAnnouncement();
     expect(liveText(container)).toBe('Mar: Series S0: 15.00, Series S1: 6.00');
 
     // clamped at the last category: nothing new to announce
     key(rect, 'ArrowRight');
+    await settleAnnouncement();
     expect(liveText(container)).toBe('Mar: Series S0: 15.00, Series S1: 6.00');
 
     key(rect, 'Escape');
