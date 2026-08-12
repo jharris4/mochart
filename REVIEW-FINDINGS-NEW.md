@@ -35,14 +35,13 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**165 findings: 1 critical, 33 high, 74 medium, 57 low.** (145 from the Opus pass,
-5 from the SOL pass, 15 found while implementing.)
+**167 findings: 1 critical, 33 high, 74 medium, 59 low.** (145 from the Opus pass,
+5 from the SOL pass, 17 found while implementing.)
 
-**Status: 123 fixed, 42 open** (24 medium, 16 low, and 2 high).
-Four of the open findings are blocked on a decision rather than on work — **COMP-8**, **BIND-3**, **TOOL-2**
-and **VAL-1** — and each has its question, options and a recommendation written up in `REVIEW-QUESTIONS.md`.
-The other 38 are unstarted work, spread across tests (10), demos (8), bindings (5), tooling (5), the public
-API (4), accessibility (4), config (1) and documentation (1).
+**Status: 128 fixed, 39 open** (20 medium, 17 low, and 2 high).
+Five of the open findings are blocked on a decision rather than on work — **COMP-8**, **BIND-3**, **TOOL-2**,
+**VAL-1** and **API-13** — and each has its question, options and a recommendation written up in `REVIEW-QUESTIONS.md`.
+The other 34 are unstarted work.
 
 BIND-3 is the one finding deliberately left open with work committed against it: its safe half — `types`
 before `development` in nine export maps, plus README documentation — has landed, while the consumer exposure
@@ -3494,6 +3493,24 @@ is a visible behaviour change for every chart with a legend and interacts with
 than decided here.
 ---
 
+### DOC-14 — `generateBindings` writes its model before reporting integrity errors
+**Low · Bug (docs generator) · [generateBindings.ts](packages/mochart-docs/scripts/generateBindings.ts)** — **Open**
+
+*Found while implementing [DOC-8](#doc-8--contributor-docs-omit-the-generated-apipropsframework-props-pipeline-and-its-ci-ratchets), not by either review pass.*
+
+The same defect [API-12](#api-12--generate-docs-writes-its-output-before-reporting-integrity-errors) fixed in
+`generator.ts`, still present in its sibling: `generateBindings.ts` writes
+`mochart-docs/generated/binding-reference.json` and only afterwards reports its integrity errors, so a failing
+run leaves a model on disk that its own checks rejected. `generator.ts` now builds both models, reports, and
+returns before writing anything; this script should do the same.
+
+Lower impact than API-12's was, because `binding-reference.json` is gitignored — the stale artifact cannot be
+committed. It can still be picked up by the next docs build, which is exactly the confusion API-12 removed.
+
+**Fix:** build the model, report the errors, return early when there are any, then write — mirroring
+`generateDocs`.
+
+
 # 10. Demo applications
 
 Six galleries are meant to be feature-equivalent ports. Parity is **good** — every mode, tab,
@@ -4705,6 +4722,24 @@ Neither is a defect today; both are the same drift risk TEST-18 removed from the
 **Fix:** give the e2e directory a local selector helper over `mochartCssClasses` (no public API change),
 have `Chart.ts` import `mochartVersionAttribute`, and add the lint rule TEST-18 suggested — ban a
 `'mochart-'` string literal under `test/` and `e2e/` — so neither pocket can grow back.
+
+### TEST-20 — the API coverage ratchet omits `ChartSeriesClickPayload`
+**Low · Test gap · [checkApiCoverage.ts](packages/mochart-docs/scripts/checkApiCoverage.ts)** — **Open**
+
+*Found while implementing [DOC-8](#doc-8--contributor-docs-omit-the-generated-apipropsframework-props-pipeline-and-its-ci-ratchets), not by either review pass.*
+
+`checkApiCoverage.ts`'s `propInterfaces` list is what makes the ratchet walk a payload interface's members, and
+`ChartSeriesClickPayload` is missing from it — so that payload's members are documented by the generator but not
+guarded by the check. A member could be added to it, or lose its description, without the gate noticing.
+
+`ChartSeriesClickPayload` is the payload for `onSeriesClick`, added late (see
+[the onSeriesClick work](#api-10--charteventpayloadcategorypercentagevaluepercentage-violate-the-fraction-convention)),
+which is presumably why it was never added to the list.
+
+**Fix:** add it to `propInterfaces`, and check whether the list can be derived from the generator's own
+`pageSources` groups instead of being maintained in parallel — a hand-maintained mirror of a generated list is
+the same drift this ratchet exists to prevent.
+
 
 # 12. Build, tooling, packaging and CI
 
