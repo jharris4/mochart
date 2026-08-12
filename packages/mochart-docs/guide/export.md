@@ -5,7 +5,9 @@ companion package downloads a rendered chart as a standalone SVG or PNG
 file. The export captures everything inside the chart svg — title, plot,
 axes, and legend, in their current state — with the chart's computed styles
 inlined, so the image renders the same outside your page's stylesheets. The
-crosshair is stripped, and the HTML tooltip is never included.
+crosshair is stripped, and the HTML tooltip is never included. Colors, sizes,
+and geometry travel with the file; fonts are the exception, and
+[Web fonts](#web-fonts) explains what to do about that.
 
 <script setup>
 import * as basic from '../examples/basic'
@@ -45,7 +47,8 @@ exportSVG(element, {
   filename: 'my-chart',      // exact filename (no extension); overrides the title
   filenamePrefix: 'acme-',   // prefix for the title-derived filename
   transparent: true,         // keep the background transparent
-  backgroundColor: '#f5f5f5' // background when not transparent (defaults to the page background behind the chart)
+  backgroundColor: '#f5f5f5',  // background when not transparent (defaults to the page background behind the chart)
+  fontFaceCss: '@font-face{…}' // font data to embed in the file (see Web fonts)
 });
 
 await exportPNG(element, {
@@ -69,6 +72,57 @@ nearest ancestor with a non-transparent background, white when there is none),
 so a chart on a dark page exports dark-on-dark instead of light-on-white. Pass
 an explicit `backgroundColor` to override, or export `transparent` and let the
 destination supply the background.
+
+### Web fonts
+
+The chart sets no font of its own, so its text uses whatever font your page
+gives it, and the export inlines `font-family` as a *name* — no font data goes
+into the file. A font installed on the machine still resolves by name; a web
+font the page loaded over the network does not. For a PNG, the rasterizer
+loads the svg as an image, and an svg loaded as an image cannot fetch anything
+external, so the text falls back to the renderer's default font. For an SVG
+file the same applies later, on whatever machine opens it: the named font
+resolves only if that machine has it installed.
+
+The result is more than a different typeface. Text is measured on screen with
+the live font and written into the markup as coordinates, so the labels keep
+the positions, alignment, and truncation that were computed for a font the
+file no longer has.
+
+Three ways to handle it:
+
+1. **Render the chart in a font every machine has.** Give the chart text a
+   system font stack in your own CSS:
+
+   ```css
+   .mochart-chart text { font-family: ui-sans-serif, system-ui, Arial, sans-serif; }
+   ```
+
+   Screen and export then agree, and there is nothing to pass to the export.
+2. **Accept the substitution**, if the chart's typeface does not matter.
+3. **Embed the font** by passing `@font-face` rules as `fontFaceCss`:
+
+   ```js
+   await exportPNG(element, {
+     fontFaceCss: "@font-face { font-family: 'Inter'; src: url(data:font/woff2;base64,d09GMgAB…) format('woff2'); }"
+   });
+   ```
+
+The string is injected verbatim into one `<style>` element in the exported
+file — a stitched grid gets a single one that covers every tile. Producing it
+is the host's part of the job:
+
+- The `src` must be **base64 data**, not a url. A url is an external fetch,
+  which is what an image-loaded svg cannot do.
+- The `font-family` name must match the family the chart text renders with,
+  because that name is what the export inlines.
+- Fetching and encoding the font file is yours to do. Only you know which file
+  and weights to use, whether the font's license permits shipping it inside an
+  exported image, and whether the font server allows reading the bytes with
+  `fetch` — a third-party font CDN often does not, so a self-hosted font is
+  simplest.
+- One full woff2 weight adds tens to hundreds of kilobytes to every exported
+  file. Subset it to the glyphs the chart uses.
 
 ## Multiple charts in one image
 

@@ -3054,7 +3054,7 @@ prop now tears the instance down in all five, which React always did.
 Docs site builds clean, no dead links.
 
 ### BIND-7 — exports lose web fonts, and nothing says so
-**Medium · Doc gap · [export/index.ts:20-22](packages/mochart-export/src/index.ts#L20), [export README](packages/mochart-export/README.md#L5)** — **Open**
+**Medium · Doc gap · [export/index.ts:20-22](packages/mochart-export/src/index.ts#L20), [export README](packages/mochart-export/README.md#L5)** — **Fixed**
 
 `inlineComputedStyles` inlines `font-family`/`font-size`/`font-weight`/`font-style` as *names*. No
 `@font-face` rule or font data is embedded. Core sets no `fontFamily` default, so chart text
@@ -3066,6 +3066,40 @@ untrue for typography.
 
 **Fix:** document the limitation, and offer a `fontFaceCss?: string` (or `embedFonts`) option that
 injects a `<style>` with base64 `@font-face` rules into the clone before serialization.
+
+**Fixed by documenting the limitation *and* adding the seam that makes the documented workaround reachable — not
+by embedding fonts.**
+
+Automatic embedding was rejected deliberately: it would make export network-dependent and async on a path that is
+currently pure DOM work, inflate every file substantially, fail unpredictably on font CDNs that disallow reading
+the bytes, and — the deciding part — silently place a licensed font binary inside a file the user redistributes.
+That is not a call an export helper should make for the host.
+
+But documentation alone was not enough, because the workaround was unreachable: a host can post-process the
+string from `getChartSvgText`, while `exportSVG`/`exportPNG` had no seam at all — injecting a `<style>` meant
+reimplementing the clone, the background rect, the rasterization and the download. So `ExportSvgOptions` gains
+`fontFaceCss?: string`, injected verbatim once per output document. About ten lines, no network, no encoding, no
+CORS in our code, and zero effect unless passed. It is injected per *document* rather than inside
+`cloneChartSvg` on purpose: a base64 font in the clone would repeat per tile in a stitched grid and multiply the
+file size by the chart count. A test pins that.
+
+An automatic path was checked and rejected on evidence: copying the page's own `@font-face` rules out of
+`document.styleSheets` throws on cross-origin sheets, and even when readable the `src` is an external URL an
+image-loaded SVG cannot fetch. It buys nothing.
+
+Two ways the finding understates the problem, both now in the docs. **It is not only a typeface swap**: core
+measures text with the live font and writes the result into the markup as coordinates, so positions, alignment
+and truncation stay tuned to a font the file no longer has — labels can sit wrong or truncate wrong, not merely
+look different. And **the dividing line is not "web font"** but installed-on-the-rendering-machine versus
+loaded-by-the-page, which is exactly why an export looks right to the author who has the font installed and wrong
+to everyone else. The README pointer is also misplaced: the "renders the same outside the page's stylesheets"
+promise lives in `guide/export.md` and the `inlineComputedStyles` comment, both now qualified.
+
+41 tests (was 35), coverage up on both statements and branches, and the four injection tests fail when
+`makeFontFaceStyle` is stubbed to return null. Default output is byte-identical — a test asserts no `<style>`
+appears without the option, which also keeps A11Y-4's assertion honest.
+
+Filed separately from this work: [BIND-13](#bind-13--the-single-chart-export-markup-is-not-well-formed-xml).
 
 ### BIND-8 — `@mochart/editor`'s config model is a build-time snapshot of a peer-ranged core
 **Medium · Inconsistency · [editor/mochartSupport.ts:3-5](packages/mochart-editor/src/mochartSupport.ts#L3), [package.json:31](packages/mochart-editor/package.json#L31)** — **Open**
