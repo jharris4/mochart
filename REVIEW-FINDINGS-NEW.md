@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **162 findings: 1 critical, 33 high, 72 medium, 56 low.** (145 from the Opus pass,
 5 from the SOL pass, 12 found while implementing.)
 
-**Status: 106 fixed, 57 open** (33 medium, 22 low, and 2 high that are waiting on an answer).
+**Status: 107 fixed, 56 open** (33 medium, 21 low, and 2 high that are waiting on an answer).
 Three of the open findings are blocked on a decision rather than on work — TOOL-2, VAL-1 and
 COMP-8 — and each has its question written up in `REVIEW-QUESTIONS.md`. TOOL-2 is deferred to
 release time by decision rather than waiting on an answer. Nothing is partially fixed. ANIM-1's
@@ -4787,7 +4787,7 @@ The finding's line reference is off by a few: the fallthrough is inside `printAn
 ---
 
 ### VAL-7 — `printAny` throws on a `bigint` argument
-**Low · Bug · [validators.ts:79-93](packages/movalid/src/validators.ts#L79)** — **Open**
+**Low · Bug · [validators.ts:79-93](packages/movalid/src/validators.ts#L79)** — **Fixed**
 
 *Found while implementing [VAL-6](#val-6--equals-error-message-prints-undefined-for-a-function-or-symbol-argument), not by either review pass.*
 
@@ -4803,6 +4803,16 @@ path, which is the worst place to throw.
 
 **Fix:** add a `typeof value === 'bigint'` branch returning `String(value) + 'n'` (the literal form, so
 the message is unambiguous against a same-digit number) alongside the function and symbol branches.
+
+**Fixed as recommended.** A `typeof value === 'bigint'` branch returns `String(value) + 'n'`, so
+`validators.equal(1n).errorMessage` reads `should be equal to 1n` instead of throwing
+`TypeError: Do not know how to serialize a BigInt`. The `n` suffix is deliberate: without it the message
+for `1n` and for `1` would be identical, which is the kind of ambiguity that makes an error message
+useless.
+
+One test in the `equal` block. Confirmed to bite: removing the branch fails it with the original
+TypeError, i.e. the crash is on the message path exactly as filed. movalid 405 tests, typecheck and lint
+clean.
 
 ## Suggested order of attack
 

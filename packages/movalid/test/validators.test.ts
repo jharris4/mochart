@@ -1193,6 +1193,10 @@ describe("validators", () => {
         expect(baseValidators.equal(Symbol("aSymbol")).errorMessage).toBe("should be equal to Symbol(aSymbol)");
       });
 
+      it("should print a bigint argument in its error message", () => {
+        expect(baseValidators.equal(BigInt(1)).errorMessage).toBe("should be equal to 1n");
+      });
+
       it("should print function and symbol members of an object argument", () => {
         const object = { fn: function aFunction() {}, sym: Symbol("aSymbol") };
         expect(baseValidators.equal(object).errorMessage).toBe(
