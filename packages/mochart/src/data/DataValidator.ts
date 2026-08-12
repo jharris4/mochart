@@ -1,5 +1,5 @@
 import validators from '@mochart/movalid';
-import { isDataProviderValid } from './ChartData';
+import { isDataProviderValid, getMissingDataProviderMembers } from './ChartData';
 import { getCategoryValueKey } from './CategoryValue';
 import { NONE, TYPE_DATE, TYPE_NUMBER, SCALE_LINEAR, RENDERER_LINE, RENDERER_AREA } from '../config/core/constants';
 import type { MochartConfig } from '../types/config';
@@ -41,6 +41,7 @@ function getOutOfOrderValues(isDate: boolean, categoryValues: readonly CategoryV
   return outOfOrder;
 }
 
+/** Series properties are the numeric half of getSeriesValue's contract; categoryAxis.displayProperty is checked against the axis type instead. */
 function checkProperty(dataErrors: string[], dataProvider: DataProvider, categoryValues: readonly CategoryValue[], property: string): void {
   const numberValidator = validators.number().orEqual(undefined);
   if (categoryValues.some((g, i) => !numberValidator(dataProvider.getSeriesValue(g, i, property)))) {
@@ -50,7 +51,16 @@ function checkProperty(dataErrors: string[], dataProvider: DataProvider, categor
 
 export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataProvider | null | undefined): string[] {
   const dataErrors: string[] = [];
-  if (mochartConfig.validation.valid && dataProvider != null && isDataProviderValid(dataProvider)) {
+  if (!mochartConfig.validation.valid || dataProvider == null) {
+    return dataErrors;
+  }
+  const missingMembers = getMissingDataProviderMembers(dataProvider);
+  if (missingMembers.length > 0) {
+    // reported here rather than left to throw later inside getChartData
+    dataErrors.push('data provider must implement: ' + missingMembers.join(', '));
+    return dataErrors;
+  }
+  if (isDataProviderValid(dataProvider)) {
     const { categoryAxis: categoryAxisConfig, series: seriesConfigs } = mochartConfig;
 
     if (dataProvider.getCategoryProperty !== undefined) {
@@ -85,7 +95,10 @@ export function getDataErrors(mochartConfig: MochartConfig, dataProvider: DataPr
       validator = validators.string();
     }
     if(categoryValues.some((_g, i) => !validator(getCategoryValue(i)))) {
-      dataErrors.push((categoryAxisConfig.displayProperty !== NONE ? 'display ' : '') + 'category values must all match the specified type');
+      // the display case names its property: getSeriesValue serves it too, and its values are typed like category values, not like series values
+      dataErrors.push(categoryAxisConfig.displayProperty !== NONE
+        ? 'display category values must all match the specified type for property: ' + categoryAxisConfig.displayProperty
+        : 'category values must all match the specified type');
     }
     if (dataErrors.length === 0) { // duplicate matching needs all the values to be primitives...
       const duplicates = getDuplicates(categoryValues);

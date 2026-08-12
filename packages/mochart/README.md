@@ -199,7 +199,15 @@ Two dataset shapes are supported out of the box:
 
 `createDefaultChart` wraps its `data` array in an `ArrayOfObjectsDataProvider`
 automatically; `createChart` accepts any object implementing the
-`DataProvider` interface.
+`DataProvider` interface. Two members are required — `getCategoryValues()` for
+every category value at once, and `getSeriesValue(categoryValue, categoryIndex,
+property)` for one property's value for one category. The chart reads
+`categoryAxis.displayProperty` through the same accessor, so it returns
+`unknown`: series properties must yield a number or `undefined`, a display
+property a string, number, or `Date`. `getCategoryProperty`, `getError`,
+`getLoading`, and `refresh` are optional. See the
+[data providers guide](../mochart-docs/guide/data-providers.md) for the full
+contract.
 
 ## Interaction callbacks
 

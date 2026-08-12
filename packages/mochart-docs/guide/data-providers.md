@@ -35,6 +35,65 @@ all-`undefined` category column — is reported through the provider's
 `getError()`, and the chart renders that message as its error state
 instead of silently indexing every row under the same key.
 
+## The provider interface
+
+A provider is a read-only lookup over one dataset. Two members are required,
+four are optional:
+
+```ts
+interface DataProvider<TCategoryValue> {
+  // required
+  getCategoryValues(): readonly TCategoryValue[];
+  getSeriesValue(categoryValue: TCategoryValue, categoryIndex: number, property: string): unknown;
+  // optional
+  getCategoryProperty?(): string;
+  getError?(): unknown;
+  getLoading?(): boolean;
+  refresh?(): void;
+}
+```
+
+- `getCategoryValues()` returns every category value at once, in display
+  order. The chart's category count comes from this array's length, and every
+  other read is indexed against it.
+- `getSeriesValue(categoryValue, categoryIndex, property)` returns one
+  property's value for one category. Both coordinates are passed because the
+  two dataset shapes key differently: `ArrayOfObjectsDataProvider` looks the
+  row up by category value and ignores the index,
+  `ObjectOfArraysDataProvider` indexes the column and ignores the value. Use
+  whichever your store is keyed on.
+
+`getSeriesValue` is the interface's *only* property accessor, so it serves two
+kinds of value and returns `unknown`:
+
+| Called for | Must return |
+| --- | --- |
+| any series value property — see [which properties are read](#which-properties-are-read) | a number, or `undefined` for a missing value |
+| `categoryAxis.displayProperty` | a string, number, or `Date` matching `categoryAxis.type`, like a raw category value |
+
+Returning the stored cell satisfies both: a provider does not need to know
+which config property asked. `getDataErrors` checks each group against its own
+rule, so a number returned for a display property is reported as
+`display category values must all match the specified type for property: …`,
+not as a series-value problem.
+
+The optional four are independent — implement only the ones you want:
+
+- `getCategoryProperty()` reports which property the category values come
+  from, and `getDataErrors` then flags a mismatch with
+  [`categoryAxis.property`](/reference/categoryAxis#categoryAxis.property).
+  Both built-ins implement it.
+- `getError()` returning anything but `null`/`undefined` puts the chart in its
+  error state — `''` and `0` count as errors.
+- `getLoading()` returning `true` puts the chart in its loading state.
+- `refresh()` is called by the chart handle's
+  [`refresh()`](#when-the-data-changes) before it re-reads.
+
+A provider missing one of the two required members is treated as invalid:
+`isDataProviderValid` returns false, `getDataErrors` reports
+`data provider must implement: …`, and the chart renders no data rather than
+failing mid-read.
+
 ## When the data changes
 
 The chart pulls values through the provider when it (re)computes its chart
@@ -77,6 +136,9 @@ The config decides which properties the chart pulls from the provider:
   [`tooltipProperty`](/reference/series#series.tooltipProperty),
   [`errorLowProperty`](/reference/series#series.errorLowProperty), and
   [`errorHighProperty`](/reference/series#series.errorHighProperty).
+
+All of them, display property included, arrive through the single
+[`getSeriesValue`](#the-provider-interface) accessor.
 
 Series values must be numeric or `undefined` — how missing values render is
 controlled per series with

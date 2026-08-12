@@ -35,6 +35,31 @@ describe('getDataErrors', () => {
     expect(getDataErrors(stringConfig(), null)).toEqual([]);
   });
 
+  // Regression: a provider missing an accessor used to pass validation and throw inside getChartData
+  it('names the required members a provider does not implement', () => {
+    const config = stringConfig();
+    const noSeriesValue = { getCategoryValues: () => ['Jan'] } as unknown as DataProvider;
+    expect(getDataErrors(config, noSeriesValue)).toEqual(['data provider must implement: getSeriesValue']);
+    const stateOnly = { getLoading: () => false } as unknown as DataProvider;
+    expect(getDataErrors(config, stateOnly)).toEqual(['data provider must implement: getCategoryValues, getSeriesValue']);
+  });
+
+  // the one accessor serves both jobs, with a different type expected of each
+  it('accepts string display values from the same accessor that must return numbers for series properties', () => {
+    const config = makeConfig({
+      categoryAxis: { property: 'id', displayProperty: 'label', type: 'string', scale: 'ordinal' },
+      series: [{ property: 'y' }]
+    });
+    const labels: Record<number, string> = { 1: 'Jan', 2: 'Feb' };
+    const values: Record<number, number> = { 1: 5, 2: 6 };
+    const provider = {
+      getCategoryValues: () => [1, 2],
+      getSeriesValue: (categoryValue: number, _categoryIndex: number, property: string) =>
+        property === 'label' ? labels[categoryValue] : values[categoryValue]
+    } as unknown as DataProvider;
+    expect(getDataErrors(config, provider)).toEqual([]);
+  });
+
   it('flags non-numeric series values', () => {
     const config = stringConfig();
     const provider = new ArrayOfObjectsDataProvider(
@@ -244,7 +269,9 @@ describe('getDataErrors', () => {
       ],
       'id'
     );
-    expect(getDataErrors(config, provider)).toEqual(['display category values must all match the specified type']);
+    expect(getDataErrors(config, provider)).toEqual([
+      'display category values must all match the specified type for property: label'
+    ]);
   });
 
   it('accepts valid display property values', () => {

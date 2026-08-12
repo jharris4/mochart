@@ -68,6 +68,7 @@ function getRawCategoryValues(_categoryAxisConfig: CategoryAxisConfig, dataProvi
   return dataProvider.getCategoryValues();
 }
 
+/** The provider's one property accessor also serves categoryAxis.displayProperty; getDataErrors checks these against the axis type, not the numeric series validator. */
 function getDisplayCategoryValues(rawCategoryValues: readonly CategoryValue[], dataProvider: DataProvider, categoryDisplayProperty: string): CategoryValue[] {
   const displayCategoryValues: CategoryValue[] = [];
   const categoryCount = rawCategoryValues.length;
