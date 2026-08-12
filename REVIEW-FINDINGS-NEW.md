@@ -3568,7 +3568,7 @@ step list, or the first real migration — and inventing one to satisfy coverage
 trade. 107 files / 1614 tests pass, coverage above the gate at 97.47% statements / 90.98% branches.
 
 ### TEST-5 — the title link and `onTitleClick` are entirely untested
-**Medium · Test gap · [Title.ts:55](packages/mochart/src/components/Title.ts#L55), [:159](packages/mochart/src/components/Title.ts#L159), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** — **Open**
+**Medium · Test gap · [Title.ts:55](packages/mochart/src/components/Title.ts#L55), [:159](packages/mochart/src/components/Title.ts#L159), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** — **Fixed**
 
 `Title.chartTitleClick`'s body, the `<a>` wrapper for `titleConfig.link`, and `Chart.onTitleClick`
 are all uncovered; `onTitleClick` has **0** references in the core tests and `linkDisabled` is never
@@ -3579,6 +3579,22 @@ title navigate away from the host page. (This is also the untested surface behin
 
 **Fix:** in `ChartInteraction.test.ts` add link/`linkDisabled` assertions (`href` present;
 `defaultPrevented` true/false) and an `onTitleClick` spy test.
+
+**Fixed with seven tests, no source change.** `test/components/ChartInteraction.test.ts` gains a
+`title link` block and an `onTitleClick` block covering what had no test at all: the `<a>` wrapper
+carrying the `href`, every title section (prefix, text, suffix) sitting *inside* that one anchor rather
+than only the middle one, an unlinked title having no anchor, a linked title navigating by default,
+`linkDisabled` calling `preventDefault` while keeping the `href`, `onTitleClick` still firing from a
+`linkDisabled` title, the callback firing once per click from both the group and the text, and the
+`cursor: pointer` affordance appearing only when the callback is present.
+
+Both load-bearing behaviours were verified to bite. Replacing the `linkDisabled ? onClickDisabled :
+null` handler with `null` fails "suppresses navigation but keeps the href when linkDisabled is set";
+forcing `interactive` to `false` fails "fires once per pointer click on the title". `git diff` on
+`packages/mochart/src` is empty afterwards.
+
+Selectors are built from `mochartCssClasses`, not literals. 65 tests in that file pass, typecheck and
+lint clean.
 
 ### TEST-6 — the golden oracle renders every chart with zero-width text
 **Medium · Weak test · [golden.test.ts:70](packages/mochart/test/golden/golden.test.ts#L70), [svgShims.ts:9](packages/mochart/test/components/svgShims.ts#L9)** — **Open**
