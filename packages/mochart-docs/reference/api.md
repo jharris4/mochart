@@ -259,10 +259,10 @@ document.querySelectorAll('.' + shared);   // every series
 document.querySelector('.' + prefix + 'S0');  // the series with id S0
 ```
 
-So `'.' + mochartCssClasses.series` is not a valid selector — split first. 17
-of the 95 entries are this shape. `chartError` is an 18th value containing a
-space, but of a different kind: `'mochart-chart mochart-chart-error'` is two
-complete classes rather than a base and a prefix.
+So `'.' + mochartCssClasses.series` is not a valid selector — split first.
+Treat any value containing a space this way. The one exception to the
+base-plus-prefix reading is `chartError`, whose two tokens are both complete
+classes: `'mochart-chart mochart-chart-error'`.
 
 `getVersionString()` returns the library's version.
 

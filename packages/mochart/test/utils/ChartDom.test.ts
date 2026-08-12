@@ -1,5 +1,5 @@
 /**
- * API-4: `mochartCssClasses` is documented as "the CSS class the renderer puts on it", but 17 of
+ * API-4: `mochartCssClasses` is documented as "the CSS class the renderer puts on it", but some of
  * its values are two space-separated tokens — a shared class plus a prefix the id is appended to —
  * so `'.' + value` is not a selector. The convention is deliberate and the docs now describe it;
  * this pins the shape so a new entry cannot quietly break the description.
