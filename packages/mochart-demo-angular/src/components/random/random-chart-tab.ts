@@ -67,7 +67,7 @@ const defaultRate = 2000;
                        [mochartConfig]="mochartConfig" [dataProvider]="dataProvider" />
       </div>
       <div class="random-controls" #controls>
-        <form class="demo-form-row">
+        <form>
           <div class="demo-field">
             <div class="demo-toolbar">
               <div class="demo-btn-group">

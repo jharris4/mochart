@@ -282,7 +282,8 @@ export function buttonWithTooltip(options: ButtonOptions): ButtonHandle {
   }
 
   return {
-    el: el('span', { className: 'button-with-tooltip' }, [button]),
+    // Unstyled wrapper: it keeps the button one flex item wherever it is folded.
+    el: el('span', {}, [button]),
     setDisabled(disabled: boolean) {
       button.disabled = disabled;
     },

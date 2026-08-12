@@ -68,7 +68,7 @@
            {mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
   </div>
   <div class="transition-controls">
-    <form class="demo-form-row">
+    <form>
       <div class="demo-field">
         <div class="demo-toolbar">
           <div class="demo-btn-group">

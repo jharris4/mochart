@@ -880,7 +880,7 @@
              value, or play the filter/restore sequence. -->
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="demo-form-row">
+            <form>
               {#if !foldSlice}
                 <!-- Kept on desktop even when empty — the empty field's gap is
                      part of the unfolded layout. -->
@@ -927,7 +927,7 @@
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="demo-form-row">
+            <form>
               <input type="text" class="demo-input" disabled={sliceControlsDisabled} bind:value={sliceValueText} />
             </form>
           </span>
@@ -940,7 +940,7 @@
              edits, then the sequence transport, then the shared controls). -->
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="demo-form-row">
+            <form>
               <div class="demo-field">
                 <div class="demo-toolbar">
                   {#if !foldCategory}{@render commonControls()}{/if}
@@ -956,7 +956,7 @@
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="demo-form-row">
+            <form>
               <input type="text" class="demo-input" disabled={error || sequencePlaying} bind:value={categoryValuesText} />
             </form>
           </span>
@@ -973,7 +973,7 @@
              the phone tier and keep carrying the accessible name). -->
         <div class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="demo-form-row">
+            <form>
               {#if !foldSeries}
                 <div class="demo-field">
                   <div class="demo-toolbar">
@@ -1040,7 +1040,7 @@
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="demo-form-row">
+            <form>
               <input type="text" class="demo-input" disabled={error || seriesControlsDisabled} bind:value={seriesValuesText} />
               {#if foldSeries}{@render applySeriesButton()}{/if}
             </form>

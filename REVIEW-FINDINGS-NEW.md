@@ -4520,7 +4520,7 @@ be inspected or edited from Single mode, and the demo cannot demonstrate the fea
 demo-common per DEMO-12).
 
 ### DEMO-18 — ~100 markup sites carry class names no stylesheet or script uses
-**Low · Inconsistency · [vanilla ChartsControls.ts:120](packages/mochart-demo-vanilla/src/components/multi/ChartsControls.ts#L120)** — **Open**
+**Low · Inconsistency · [vanilla ChartsControls.ts:120](packages/mochart-demo-vanilla/src/components/multi/ChartsControls.ts#L120)** — **Fixed**
 
 `demo-form-row` (54 sites), `mochart-menu-item-label` (24), `button-with-tooltip` (6),
 `demo-menu-up` (6), `mochart-demo-notes-item` (6) and `mochart-demo-notes-trigger` (6) appear in the
@@ -4530,6 +4530,76 @@ styling hooks — the next person restyling a control strip will target `.demo-f
 nothing happen.
 
 **Fix:** delete them from the markup, or add the rules they imply.
+
+Four of the six deleted; **two of them were not dead** and are kept.
+
+| name | occurrences found | verdict |
+|---|---|---|
+| `demo-form-row` | 54 markup + 1 prose comment | deleted |
+| `mochart-menu-item-label` | 24 markup | deleted |
+| `button-with-tooltip` (as a class) | 6 markup + 1 prose comment | deleted |
+| `demo-menu-up` | 6 markup | deleted |
+| `mochart-demo-notes-item` | 6 markup + **1 live selector** | **kept** |
+| `mochart-demo-notes-trigger` | 6 markup + **2 live selectors** | **kept** |
+
+`mochart-demo-notes-item` and `mochart-demo-notes-trigger` are selectors in
+`scripts/screenshots/capture.mjs`, the repo's own screenshot-regression harness, and
+the trigger is additionally a `@query` in lit's `notes-menu.ts`. Deleting them would
+have silently broken the notes-panel shots. The finding's sweep evidently covered
+`.css` and `querySelector` but not `scripts/` or lit's decorator-based queries.
+Its counts for the other four are right, and its `demo-form-row` diagnosis is
+correct: `demo.css:775-790` lays the rows out via the bare `form` selector plus
+`form .demo-field`.
+
+The two that looked like they might want a rule instead both turned out to have
+nothing to say. `demo-menu-up`: the drop-up is already achieved twice over —
+`controlsMenuPlacement` in `demo-common/src/menu.ts` is `{ side: 'top' }`, which
+`getMenuPosition`/`positionPanel` turn into an inline `bottom`, and the caret is
+`.demo-menu-trigger::after` whose `border-bottom` points up unconditionally with a
+comment saying so. There is no down-variant for an "up" modifier to distinguish
+itself from. `button-with-tooltip`: nothing positions a tooltip — every port's
+`ButtonWithTooltip` uses the native `title` attribute and explicitly discards
+`tooltipPlacement`, so there is no popper to anchor; the one place the wrapper's
+layout mattered was solved in `OverflowMenu.ts` by wrapping folded loose buttons in a
+cached `.demo-btn-group`.
+
+Only the class was removed in those two cases, not the `<span>`: it is a real flex
+item in `.demo-btn-group`, and vanilla's share-label span has its `textContent`
+rewritten on the copied-state toggle. Each of the six now-classless wrappers carries
+a one-line note so the next reader does not delete it, and the two prose comments
+that named removed classes were rewritten to describe the thing instead.
+
+Coverage of the search: every `.css` file in the repo, every Playwright selector under
+`demo-basic/e2e/` (zero hits), every Vue and Svelte `<style>` block (the demos have
+none), all 32 Angular `styles`/`styleUrls` (all literally
+`:host { display: contents; }`), and every Lit `static styles` (none in the demos).
+
+Verified: zero occurrences repo-wide for all four removed names; repo-wide lint clean;
+all six demo packages typecheck including `ngc`, `vue-tsc` and `svelte-check`;
+`@mochart/demo-common` 16 files / 277 tests pass. Screenshots pixel-compared with the
+repo's own `compare.mjs`: the harness set is 8 identical / 0 different, and a targeted
+set driving the export/share dropdown open gave 5 of 7 byte-identical including all
+three open export menus, with the two differences being the running animation (16px,
+maxDelta 2, also differing between two consecutive *after* runs) and subpixel AA
+(1px, maxDelta 1). Vue was smoke-captured separately to confirm the HTML comment added
+inside its `<template>` does not disturb the `inheritAttrs: false` /
+`v-bind="$attrs"` fallthrough.
+
+Two things noted, not filed, since the queue is closed:
+
+- **The screenshot harness is currently broken independently of this change.** Its
+  export-menu shots look for `#edit-export-share`, `#edit-mode` and
+  `#edit-chart-count`, ids that DEMO-3's fix renamed. Pre-existing and unrelated to
+  this finding, but `scripts/screenshots/capture.mjs` needs updating before those
+  shots work again.
+- **The demos run two class namespaces with no stated rule** — `demo-*` for controls
+  and `mochart-demo-*` for the shell (~30 classes), both deliberate and fully styled.
+  The problem is the few that take the bare `mochart-` prefix with no `demo-` segment,
+  landing directly in the library's own constant namespace: `mochart-export-share-menu`
+  (styled, live), `mochart-pending-badge`, and — until this change —
+  `mochart-menu-item-label`. Someone grepping `mochart-` to audit the public class
+  surface gets demo shell classes mixed in with the library's, and a future core
+  constant could collide outright. None of the three removed names is a core constant.
 
 ### DEMO-19 — Lit's `ExportShareMenu` defaults `idPrefix` to `'edit'`
 **Low · Bug · [lit export-share-menu.ts:33](packages/mochart-demo-lit/src/components/misc/export-share-menu.ts#L33)** — **Fixed**

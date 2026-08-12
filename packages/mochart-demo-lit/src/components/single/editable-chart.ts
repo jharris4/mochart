@@ -761,7 +761,7 @@ export class EditableChart extends LightElement {
     const folded = this.foldCategory;
     return html`<div class="chart-controls-container">
       <div class="chart-controls-buttons">
-        <form class="demo-form-row">
+        <form>
           <div class="demo-field">
             <div class="demo-toolbar">
               ${folded ? nothing : html`${this.renderChartCountControls()}${this.renderModeToggle()}`}
@@ -775,7 +775,7 @@ export class EditableChart extends LightElement {
         </form>
       </div>
       <span class="chart-controls-input">
-        <form class="demo-form-row">
+        <form>
           <input type="text" class="demo-input" ?disabled=${error || this.sequencePlaying} .value=${this.categoryValuesText}
                  @input=${(event: Event) => { this.categoryValuesText = (event.currentTarget as HTMLInputElement).value; }} />
         </form>
@@ -809,7 +809,7 @@ export class EditableChart extends LightElement {
     const folded = this.foldSeries;
     return html`<div class="chart-controls-container">
       <div class="chart-controls-buttons">
-        <form class="demo-form-row">
+        <form>
           ${folded ? nothing : html`<div class="demo-field">
             <div class="demo-toolbar">
               ${this.renderChartCountControls()}
@@ -868,7 +868,7 @@ export class EditableChart extends LightElement {
         </form>
       </div>
       <span class="chart-controls-input">
-        <form class="demo-form-row">
+        <form>
           <input type="text" class="demo-input" ?disabled=${error || seriesControlsDisabled} .value=${this.seriesValuesText}
                  @input=${(event: Event) => { this.seriesValuesText = (event.currentTarget as HTMLInputElement).value; }} />
           ${folded ? this.renderApplySeriesButton(error || seriesControlsDisabled) : nothing}
@@ -890,7 +890,7 @@ export class EditableChart extends LightElement {
     const folded = this.foldSlice;
     return html`<div class="chart-controls-container">
       <div class="chart-controls-buttons">
-        <form class="demo-form-row">
+        <form>
           ${folded ? nothing : html`<div class="demo-field">
             <div class="demo-toolbar">
               ${this.renderChartCountControls()}
@@ -932,7 +932,7 @@ export class EditableChart extends LightElement {
         </form>
       </div>
       <span class="chart-controls-input">
-        <form class="demo-form-row">
+        <form>
           <input type="text" class="demo-input" ?disabled=${sliceControlsDisabled} .value=${this.sliceValueText}
                  @input=${(event: Event) => { this.sliceValueText = (event.currentTarget as HTMLInputElement).value; }} />
         </form>

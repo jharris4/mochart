@@ -799,7 +799,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
              toggle as the tail. -->
         <div v-if="pieMode" class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="demo-form-row">
+            <form>
               <!-- Kept on desktop even when empty — the empty field's gap is
                    part of the unfolded layout. -->
               <div v-if="!foldSlice" class="demo-field">
@@ -841,7 +841,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="demo-form-row">
+            <form>
               <input type="text" class="demo-input" :disabled="error || sliceControlsDisabled" v-model="sliceValueText" />
             </form>
           </span>
@@ -869,7 +869,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
              edits, then the sequence transport, then the shared controls). -->
         <div v-else-if="selectionMode === 'category'" class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="demo-form-row">
+            <form>
               <div class="demo-field">
                 <div class="demo-toolbar">
                   <template v-if="!foldCategory">
@@ -897,7 +897,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="demo-form-row">
+            <form>
               <input type="text" class="demo-input" :disabled="error || sequencePlaying" v-model="categoryValuesText" />
             </form>
           </span>
@@ -928,7 +928,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
              the phone tier and keep carrying the accessible name). -->
         <div v-else class="chart-controls-container">
           <div class="chart-controls-buttons">
-            <form class="demo-form-row">
+            <form>
               <div v-if="!foldSeries" class="demo-field">
                 <div class="demo-toolbar">
                   <ChartCountControl />
@@ -988,7 +988,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
             </form>
           </div>
           <span class="chart-controls-input">
-            <form class="demo-form-row">
+            <form>
               <input type="text" class="demo-input" :disabled="error || seriesControlsDisabled" v-model="seriesValuesText" />
               <ApplySeriesButton v-if="foldSeries" />
             </form>

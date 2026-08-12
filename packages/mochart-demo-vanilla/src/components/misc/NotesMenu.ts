@@ -106,7 +106,7 @@ export function notesMenu(props: NotesMenuProps): NotesMenuHandle {
     }
   }, [
     icon('circle-info', { fixedWidth: true }), ' ',
-    el('span', { className: 'mochart-menu-item-label', text: demoText.demoNotes.trigger.aria }),
+    el('span', { text: demoText.demoNotes.trigger.aria }),
     disclosureIcon
   ]);
 

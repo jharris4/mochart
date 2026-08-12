@@ -171,7 +171,7 @@
            {mochartConfig} {dataProvider} />
   </div>
   <div class="random-controls" bind:this={controlsElement}>
-    <form class="demo-form-row">
+    <form>
       <div class="demo-field">
         <div class="demo-toolbar">
           <div class="demo-btn-group">

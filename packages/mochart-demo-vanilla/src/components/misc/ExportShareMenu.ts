@@ -62,7 +62,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     attrs: { type: 'button', 'aria-label': demoText.exportButtons.png.aria }
   }, [
     icon('file-image', { fixedWidth: true }), ' ',
-    el('span', { className: 'mochart-menu-item-label', text: demoText.exportButtons.png.label })
+    el('span', { text: demoText.exportButtons.png.label })
   ]);
   pngItem.addEventListener('click', () => runAndClose(exportPng));
 
@@ -71,7 +71,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     attrs: { type: 'button', 'aria-label': demoText.exportButtons.svg.aria }
   }, [
     icon('file-code', { fixedWidth: true }), ' ',
-    el('span', { className: 'mochart-menu-item-label', text: demoText.exportButtons.svg.label })
+    el('span', { text: demoText.exportButtons.svg.label })
   ]);
   svgItem.addEventListener('click', () => runAndClose(exportSvg));
 
@@ -83,7 +83,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
   let shareLabelSpan: HTMLSpanElement | null = null;
   if (getShareState) {
     shareIconEl = icon('link', { fixedWidth: true });
-    shareLabelSpan = el('span', { className: 'mochart-menu-item-label', text: demoText.shareButton.label });
+    shareLabelSpan = el('span', { text: demoText.shareButton.label });
     shareItem = el('button', {
       className: 'demo-menu-item',
       attrs: { type: 'button', 'aria-label': demoText.shareButton.aria }
@@ -92,7 +92,7 @@ export function exportShareMenu(props: ExportShareMenuProps): ExportShareMenuHan
     menu.append(el('div', { className: 'demo-menu-divider' }), shareItem);
   }
 
-  const root = el('div', { className: 'demo-btn-group demo-menu-up mochart-export-share-menu' }, [trigger, menu]);
+  const root = el('div', { className: 'demo-btn-group mochart-export-share-menu' }, [trigger, menu]);
 
   // The controller binds the trigger's click to `toggle()` itself.
   const controller = createMenuController({

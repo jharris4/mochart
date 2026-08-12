@@ -63,7 +63,7 @@
   }
 </script>
 
-<div class="demo-btn-group demo-menu-up mochart-export-share-menu">
+<div class="demo-btn-group mochart-export-share-menu">
   <button type="button" bind:this={menu.trigger} {...menu.triggerProps}
           class={'demo-btn demo-btn-secondary demo-menu-trigger' + (menu.open ? ' active' : '')}
           {disabled}
@@ -74,17 +74,17 @@
        class={'demo-menu' + (menu.isPositioned ? ' open' : '')}>
     <button type="button" class="demo-menu-item" onclick={() => runAndClose(exportPng)}
             aria-label={demoText.exportButtons.png.aria}>
-      <Icon fixedWidth={true} name="file-image" /> <span class="mochart-menu-item-label">{demoText.exportButtons.png.label}</span>
+      <Icon fixedWidth={true} name="file-image" /> <span>{demoText.exportButtons.png.label}</span>
     </button>
     <button type="button" class="demo-menu-item" onclick={() => runAndClose(exportSvg)}
             aria-label={demoText.exportButtons.svg.aria}>
-      <Icon fixedWidth={true} name="file-code" /> <span class="mochart-menu-item-label">{demoText.exportButtons.svg.label}</span>
+      <Icon fixedWidth={true} name="file-code" /> <span>{demoText.exportButtons.svg.label}</span>
     </button>
     {#if getShareState}
       <div class="demo-menu-divider"></div>
       <button type="button" class="demo-menu-item" onclick={onShare}
               aria-label={demoText.shareButton.aria}>
-        <Icon fixedWidth={true} name={copied ? 'check' : 'link'} /> <span class="mochart-menu-item-label">{copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
+        <Icon fixedWidth={true} name={copied ? 'check' : 'link'} /> <span>{copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
       </button>
     {/if}
   </div>

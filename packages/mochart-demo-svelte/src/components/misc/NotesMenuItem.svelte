@@ -35,7 +35,7 @@
             title={demoText.demoNotes.trigger.tooltip}
             aria-expanded={expanded} aria-controls={disclosureId}
             onclick={() => { expanded = !expanded; }}>
-      <Icon fixedWidth={true} name="circle-info" /> <span class="mochart-menu-item-label">{demoText.demoNotes.trigger.aria}</span>
+      <Icon fixedWidth={true} name="circle-info" /> <span>{demoText.demoNotes.trigger.aria}</span>
       <!-- `margin-left: auto` on the icon itself, matching the vanilla port's
            markup pixel for pixel. -->
       <Icon fixedWidth={true} name={expanded ? 'chevron-up' : 'chevron-down'} style="margin-left: auto;" />

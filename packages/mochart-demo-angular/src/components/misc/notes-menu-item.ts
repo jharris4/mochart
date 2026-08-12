@@ -26,7 +26,7 @@ let disclosureIdCounter = 0;
               [attr.title]="text.trigger.tooltip"
               [attr.aria-expanded]="expanded()" [attr.aria-controls]="disclosureId"
               (click)="expanded.set(!expanded())">
-        <app-icon [fixedWidth]="true" name="circle-info" /> <span class="mochart-menu-item-label">{{ text.trigger.aria }}</span>
+        <app-icon [fixedWidth]="true" name="circle-info" /> <span>{{ text.trigger.aria }}</span>
         <app-icon [fixedWidth]="true" [name]="expanded() ? 'chevron-up' : 'chevron-down'" iconStyle="margin-left: auto;" />
       </button>
       <div class="demo-field" [id]="disclosureId" [hidden]="!expanded()">

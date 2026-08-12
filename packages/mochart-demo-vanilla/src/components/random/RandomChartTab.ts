@@ -177,7 +177,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   const trailingToolbar = el('div', { className: 'demo-toolbar' }, trailingToolbarItems);
 
   const controls = el('div', { className: 'random-controls' }, [
-    el('form', { className: 'demo-form-row' }, [
+    el('form', {}, [
       el('div', { className: 'demo-field' }, [transportToolbar, trailingToolbar])
     ])
   ]);

@@ -27,7 +27,7 @@ import { el, icon, withPreservedFocus } from './dom';
 // Callers that fold LOOSE buttons (rather than one of the strip's existing
 // groups) give them a menu-side home: a cached `.demo-btn-group`. A group,
 // because that is the class `.demo-menu-overflow` restyles into a full-width
-// column — a loose `span.button-with-tooltip` dropped straight into the panel
+// column — a loose button wrapper span dropped straight into the panel
 // would lay out inline. Cached, because a wrapper minted per call is never
 // identical to the last one and would defeat `setItems`' bail-out exactly the
 // way a freshly created divider would (see the divider cache below).

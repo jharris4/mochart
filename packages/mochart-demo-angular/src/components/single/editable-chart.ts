@@ -174,7 +174,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                  2nd-chart toggle as the tail. -->
             <div class="chart-controls-container">
               <div class="chart-controls-buttons">
-                <form class="demo-form-row">
+                <form>
                   @if (!foldSlice()) {
                     <!-- Kept on desktop even when empty — the empty field's
                          gap is part of the unfolded layout. -->
@@ -222,7 +222,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                 </form>
               </div>
               <span class="chart-controls-input">
-                <form class="demo-form-row">
+                <form>
                   <input type="text" class="demo-input" [disabled]="sliceControlsDisabled"
                          [value]="sliceValueText()" (input)="onSliceValueInput($event)" />
                 </form>
@@ -253,7 +253,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                  shared controls). -->
             <div class="chart-controls-container">
               <div class="chart-controls-buttons">
-                <form class="demo-form-row">
+                <form>
                   <div class="demo-field">
                     <div class="demo-toolbar">
                       @if (!foldCategory()) {
@@ -280,7 +280,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                 </form>
               </div>
               <span class="chart-controls-input">
-                <form class="demo-form-row">
+                <form>
                   <input type="text" class="demo-input" [disabled]="error || sequencePlaying()"
                          [value]="categoryValuesText()" (input)="onCategoryValuesInput($event)" />
                 </form>
@@ -325,7 +325,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                  second row at 320px. -->
             <div class="chart-controls-container">
               <div class="chart-controls-buttons">
-                <form class="demo-form-row">
+                <form>
                   @if (!foldSeries()) {
                     <div class="demo-field">
                       <div class="demo-toolbar">
@@ -389,7 +389,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                 </form>
               </div>
               <span class="chart-controls-input">
-                <form class="demo-form-row">
+                <form>
                   <input type="text" class="demo-input" [disabled]="error || seriesControlsDisabled"
                          [value]="seriesValuesText()" (input)="onSeriesValuesInput($event)" />
                   @if (foldSeries()) {

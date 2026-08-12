@@ -70,7 +70,7 @@ function onShare() {
 </script>
 
 <template>
-  <div class="demo-btn-group demo-menu-up mochart-export-share-menu">
+  <div class="demo-btn-group mochart-export-share-menu">
     <button :ref="setTrigger" type="button" v-bind="triggerProps"
             :class="'demo-btn demo-btn-secondary demo-menu-trigger' + (open ? ' active' : '')"
             :disabled="props.disabled"
@@ -80,15 +80,15 @@ function onShare() {
     <div :ref="setPanel" v-bind="panelProps"
          :class="'demo-menu' + (isPositioned ? ' open' : '')">
       <button type="button" class="demo-menu-item" :aria-label="demoText.exportButtons.png.aria" @click="runAndClose(props.exportPng)">
-        <Icon :fixed-width="true" name="file-image" /> <span class="mochart-menu-item-label">{{ demoText.exportButtons.png.label }}</span>
+        <Icon :fixed-width="true" name="file-image" /> <span>{{ demoText.exportButtons.png.label }}</span>
       </button>
       <button type="button" class="demo-menu-item" :aria-label="demoText.exportButtons.svg.aria" @click="runAndClose(props.exportSvg)">
-        <Icon :fixed-width="true" name="file-code" /> <span class="mochart-menu-item-label">{{ demoText.exportButtons.svg.label }}</span>
+        <Icon :fixed-width="true" name="file-code" /> <span>{{ demoText.exportButtons.svg.label }}</span>
       </button>
       <template v-if="props.getShareState">
         <div class="demo-menu-divider"></div>
         <button type="button" class="demo-menu-item" :aria-label="demoText.shareButton.aria" @click="onShare">
-          <Icon :fixed-width="true" :name="copied ? 'check' : 'link'" /> <span class="mochart-menu-item-label">{{ copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label }}</span>
+          <Icon :fixed-width="true" :name="copied ? 'check' : 'link'" /> <span>{{ copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label }}</span>
         </button>
       </template>
     </div>

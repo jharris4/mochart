@@ -46,7 +46,7 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
           mochartConfig={mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />
       </div>
       <div className="transition-controls">
-        <form className="demo-form-row">
+        <form>
           <div className="demo-field">
             <div className="demo-toolbar">
               <div className="demo-btn-group">

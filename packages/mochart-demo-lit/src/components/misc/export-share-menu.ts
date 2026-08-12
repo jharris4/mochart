@@ -92,7 +92,7 @@ export class ExportShareMenu extends LightElement {
 
   override render(): unknown {
     // The trigger carries no id: the controller mints a unique one, so two charts stay distinct.
-    return html`<div class="demo-btn-group demo-menu-up mochart-export-share-menu">
+    return html`<div class="demo-btn-group mochart-export-share-menu">
       <button type="button"
               class="demo-btn demo-btn-secondary demo-menu-trigger"
               ?disabled=${this.disabled}
@@ -103,17 +103,17 @@ export class ExportShareMenu extends LightElement {
       <div class="demo-menu">
         <button type="button" class="demo-menu-item" @click=${() => this.runAndClose(this.exportPng)}
                 aria-label=${demoText.exportButtons.png.aria}>
-          ${icon({ fixedWidth: true, name: 'file-image' })} <span class="mochart-menu-item-label">${demoText.exportButtons.png.label}</span>
+          ${icon({ fixedWidth: true, name: 'file-image' })} <span>${demoText.exportButtons.png.label}</span>
         </button>
         <button type="button" class="demo-menu-item" @click=${() => this.runAndClose(this.exportSvg)}
                 aria-label=${demoText.exportButtons.svg.aria}>
-          ${icon({ fixedWidth: true, name: 'file-code' })} <span class="mochart-menu-item-label">${demoText.exportButtons.svg.label}</span>
+          ${icon({ fixedWidth: true, name: 'file-code' })} <span>${demoText.exportButtons.svg.label}</span>
         </button>
         ${this.getShareState ? html`
           <div class="demo-menu-divider"></div>
           <button type="button" class="demo-menu-item" @click=${this.onShare}
                   aria-label=${demoText.shareButton.aria}>
-            ${icon({ fixedWidth: true, name: this.copied ? 'check' : 'link' })} <span class="mochart-menu-item-label">${this.copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
+            ${icon({ fixedWidth: true, name: this.copied ? 'check' : 'link' })} <span>${this.copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
           </button>` : nothing}
       </div>
     </div>`;

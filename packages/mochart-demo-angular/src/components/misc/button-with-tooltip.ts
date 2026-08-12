@@ -20,7 +20,8 @@ import { Component, Input } from '@angular/core';
   // A static `id` attribute binds to the input below AND lands on the host, so null the host copy and leave the id on the real button.
   host: { '[attr.id]': 'null' },
   template: `
-    <span class="button-with-tooltip">
+    <!-- Unstyled wrapper: it keeps the button one flex item wherever it is folded. -->
+    <span>
       <button [attr.id]="id ?? null" type="button" [class]="'demo-btn demo-btn-' + color + (pressed ? ' active' : '')"
               [disabled]="disabled" [attr.title]="tooltipText ?? null"
               [attr.aria-pressed]="pressed === undefined ? null : pressed"
