@@ -3219,7 +3219,7 @@ the sixth.
 encapsulate it so callers cannot get it wrong.
 
 ### DEMO-21 — Playwright's dev server takes the port `vite.config` reserves for preview
-**Low · Inconsistency · [demo-basic/playwright.config.ts:17](packages/mochart-demo-basic/playwright.config.ts#L17) vs [vite.config.ts:5](packages/mochart-demo-basic/vite.config.ts#L5)** — **Open**
+**Low · Inconsistency · [demo-basic/playwright.config.ts:17](packages/mochart-demo-basic/playwright.config.ts#L17) vs [vite.config.ts:5](packages/mochart-demo-basic/vite.config.ts#L5)** — **Fixed**
 
 `command: 'npm run dev -- --port 4173 --strictPort'` while `vite.config.ts` assigns
 `server: 5173` / `preview: 4173`, with a comment saying each gallery pins its own port so they can
@@ -3229,6 +3229,27 @@ same time, and `--strictPort` turns the clash into a hard failure.
 **Fix:** run the e2e suite against `npm run preview` (which already owns 4173) — which also fixes
 [TEST-9](#test-9--nothing-tests-the-published-build-every-test-and-the-e2e-suite-run-against-src) —
 or move the dev server to 5173 and point `baseURL` there.
+
+**Fixed by moving e2e onto the dev server's own port.** `playwright.config.ts` now runs
+`npm run dev -- --strictPort` and points `url`/`baseURL` at `5173`, the port `vite.config.ts` already
+pins for the dev server, leaving `4173` to `preview` alone. `--strictPort` is kept so a clash fails
+loudly rather than silently bumping the port out from under `baseURL`. The port for the server itself
+now lives in one place, `vite.config.ts`. `ci.yml` needed no change — it invokes `npm run test:e2e`
+with no port arguments.
+
+The finding's preferred fix — repointing e2e at `npm run preview` — was deliberately not taken,
+because it would quietly implement
+[TEST-9](#test-9--nothing-tests-the-published-build-every-test-and-the-e2e-suite-run-against-src) as a
+side effect and add a build to every e2e run. TEST-9's own fix proposes a CI-only project on
+`build && preview`, which layers on top of this cleanly and should be decided on its own terms.
+
+Verified by running the suite: 79 tests pass across the four spec files in 21.4s, with nothing
+listening on `5173` before the run, so Playwright started its own server rather than reusing a stray
+one. `npm run preview -w @mochart/demo-basic` and `npm run test:e2e` can now run at the same time.
+Workspace lint and typecheck clean.
+
+Also noted: `packages/mochart-demo-basic/README.md:46` already documented the dev server as
+`http://localhost:5173`, so the old config contradicted its own README; no README edit was needed.
 
 ### DEMO-22 — deployed demos request a favicon that does not exist
 **Low · Bug · [vanilla index.html:3](packages/mochart-demo-vanilla/index.html#L3) and the five siblings** — **Fixed**

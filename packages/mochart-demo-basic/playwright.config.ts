@@ -7,15 +7,16 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: 'http://localhost:5173',
     trace: 'on-first-retry'
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } }
   ],
   webServer: {
-    command: 'npm run dev -- --port 4173 --strictPort',
-    url: 'http://localhost:4173',
+    // Dev server on vite.config's pinned 5173; --strictPort so a clash fails loudly.
+    command: 'npm run dev -- --strictPort',
+    url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI
   }
 });
