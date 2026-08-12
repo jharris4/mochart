@@ -98,26 +98,24 @@ data.push({ month: 'Mar', revenue: 30 });
 
 The same rule applies to `config` on `DefaultChart` and to
 `mochartConfig`/`dataProvider` on `Chart`. For hosts that do mutate data in
-place, `bind:this` exposes `refresh()`, which re-reads the current
-config/data, re-indexing the built-in providers:
+place, `bind:this` exposes a `ChartRef` handle with `refresh()`, which re-reads
+the current config/data, re-indexing the built-in providers:
 
 ```svelte
-<script>
-  let chart;
+<script lang="ts">
+  import type { DataRow } from '@mochart/core';
+  import type { ChartRef } from '@mochart/svelte';
 
-  function addRow(row) {
+  let chart: ChartRef | undefined = $state();
+
+  function addRow(row: DataRow) {
     data.push(row);
-    chart.refresh();
+    chart?.refresh();
   }
 </script>
 
 <DefaultChart bind:this={chart} {config} {data} />
 ```
-
-In TypeScript that handle's type is `ChartRef`, exported from the package —
-`let chart: ChartRef | undefined = $state()` in a `lang="ts"` script, and the
-prop type to use where the handle is passed on to another component. Both
-components expose the same handle.
 
 ## Props
 
