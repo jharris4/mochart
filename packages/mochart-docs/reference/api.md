@@ -246,6 +246,24 @@ for targeted CSS overrides and DOM queries. The `@mochart/export` package
 uses these to serialize rendered charts to SVG/PNG — see
 [Exporting images](/guide/export).
 
+**Not every value is a single class name.** Parts that exist once per series,
+axis or category carry two space-separated tokens: the class shared by all of
+them, then a prefix to which the id is appended.
+
+```js
+mochartCssClasses.series      // 'mochart-series mochart-series-'
+mochartCssClasses.seriesBar   // 'mochart-series-bar mochart-series-bar-'
+
+const [shared, prefix] = mochartCssClasses.series.split(' ');
+document.querySelectorAll('.' + shared);   // every series
+document.querySelector('.' + prefix + 'S0');  // the series with id S0
+```
+
+So `'.' + mochartCssClasses.series` is not a valid selector — split first. 17
+of the 95 entries are this shape. `chartError` is an 18th value containing a
+space, but of a different kind: `'mochart-chart mochart-chart-error'` is two
+complete classes rather than a base and a prefix.
+
 `getVersionString()` returns the library's version.
 
 ## Advanced exports
