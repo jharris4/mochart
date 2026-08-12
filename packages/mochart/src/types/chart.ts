@@ -13,9 +13,9 @@ export interface ChartEventPayload {
   /** Pointer position along the value axis, in plot pixels. */
   valuePosition: number;
   /** Pointer position along the category axis as a 0–1 fraction of the plot. */
-  categoryPercentage: number;
+  categoryFraction: number;
   /** Pointer position along the value axis as a 0–1 fraction of the plot. */
-  valuePercentage: number;
+  valueFraction: number;
   /** Index of the category nearest the pointer, -1 when none. */
   categoryIndex: number;
 }
