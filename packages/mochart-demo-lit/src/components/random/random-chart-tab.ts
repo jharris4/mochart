@@ -151,7 +151,7 @@ export class RandomChartTab extends LightElement {
       <div class="random-controls">
         <form class="demo-form-row">
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { id: 'randomize-back', disabled: this.playing, label: demoText.randomChartTab.back.label, tooltipText: demoText.randomChartTab.back.tooltip, tooltipPlacement: 'top-start', onClick: this.onRandomizeBack, ariaLabel: demoText.randomChartTab.back.aria },
@@ -165,7 +165,7 @@ export class RandomChartTab extends LightElement {
               </div>
               ${folded ? nothing : this.renderRateField()}
             </div>
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               ${folded
                 ? html`<div class="demo-btn-group">
                     <!-- Anchored to the whole strip: \`align: 'end'\` pins the

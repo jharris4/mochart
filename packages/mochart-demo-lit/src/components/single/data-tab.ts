@@ -126,7 +126,7 @@ export class DataTab extends LightElement {
         <json-editor-content .value=${this.dataText} .ariaLabelText=${demoText.dataTab.editorAria} .onChange=${this.onTextChange}></json-editor-content>
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           ${folded
             ? html`${applyButton}
               <overflow-menu .text=${demoText.overflowMenu.editor} .placement=${editorPlacement}

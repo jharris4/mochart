@@ -179,13 +179,13 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                     <!-- Kept on desktop even when empty — the empty field's
                          gap is part of the unfolded layout. -->
                     <div class="demo-field">
-                      <div class="demo-toolbar" role="toolbar">
+                      <div class="demo-toolbar">
                         <ng-container [ngTemplateOutlet]="chartCountControl" />
                       </div>
                     </div>
                   }
                   <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
+                    <div class="demo-toolbar">
                       <div class="demo-btn-group">
                         <app-button-with-tooltip [disabled]="sliceControlsDisabled || sliceIndex() === 0" [tooltipText]="text.previousSlice.tooltip" tooltipPlacement="right"
                                                  [onClick]="prevSlice" [aria-label]="text.previousSlice.aria">
@@ -198,7 +198,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                     <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" [title]="sliceLabelTitle">{{ sliceLabelText }}@if (slices().length > 0) {<span class="demo-index-value">{{ sliceIndex() }}</span>}</span>
                   </div>
                   <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
+                    <div class="demo-toolbar">
                       <div class="demo-btn-group">
                         <app-button-with-tooltip [disabled]="sliceControlsDisabled || sliceIndex() >= slices().length - 1" [tooltipText]="text.nextSlice.tooltip" tooltipPlacement="right"
                                                  [onClick]="nextSlice" [aria-label]="text.nextSlice.aria">
@@ -255,7 +255,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
               <div class="chart-controls-buttons">
                 <form class="demo-form-row">
                   <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
+                    <div class="demo-toolbar">
                       @if (!foldCategory()) {
                         <ng-container [ngTemplateOutlet]="chartCountControl" />
                         <ng-container [ngTemplateOutlet]="modeControl" />
@@ -328,14 +328,14 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                 <form class="demo-form-row">
                   @if (!foldSeries()) {
                     <div class="demo-field">
-                      <div class="demo-toolbar" role="toolbar">
+                      <div class="demo-toolbar">
                         <ng-container [ngTemplateOutlet]="chartCountControl" />
                         <ng-container [ngTemplateOutlet]="modeControl" />
                       </div>
                     </div>
                   }
                   <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
+                    <div class="demo-toolbar">
                       <div class="demo-btn-group">
                         <app-button-with-tooltip [disabled]="error || categoryOrderControlsDisabled || isFirstCategory" [tooltipText]="text.decreaseCategoryOrder.tooltip" tooltipPlacement="right"
                                                  [onClick]="decreaseCategoryOrder" [aria-label]="text.decreaseCategoryOrder.aria">
@@ -348,7 +348,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                     <span class="demo-label" [style.margin-left]="indexLabelMargin()" [style.margin-right]="indexLabelMargin()" [title]="categoryIndexTitle"><span class="demo-label-prefix">{{ text.categoryIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ text.categoryIndexPrefixCompact }}</span><span class="demo-index-value">{{ categoryIndex() }}</span></span>
                   </div>
                   <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
+                    <div class="demo-toolbar">
                       <div class="demo-btn-group">
                         <app-button-with-tooltip [disabled]="error || categoryOrderControlsDisabled || isLastCategory" [tooltipText]="text.increaseCategoryOrder.tooltip" tooltipPlacement="right"
                                                  [onClick]="increaseCategoryOrder" [aria-label]="text.increaseCategoryOrder.aria">
@@ -358,7 +358,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                     </div>
                   </div>
                   <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
+                    <div class="demo-toolbar">
                       <div class="demo-btn-group">
                         <app-button-with-tooltip [disabled]="error || seriesControlsDisabled || !hasPrevSeries" [tooltipText]="text.previousSeries.tooltip" tooltipPlacement="right"
                                                  [onClick]="prevSeries" [aria-label]="text.previousSeries.aria">
@@ -371,7 +371,7 @@ const selectACategoryText = demoText.editableChart.selectACategoryText;
                     <span class="demo-label" [style.margin-left]="indexLabelMargin()" [style.margin-right]="indexLabelMargin()" [title]="seriesIndexTitle"><span class="demo-label-prefix">{{ text.seriesIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ text.seriesIndexPrefixCompact }}</span><span class="demo-index-value">{{ seriesIndex() }}</span></span>
                   </div>
                   <div class="demo-field">
-                    <div class="demo-toolbar" role="toolbar">
+                    <div class="demo-toolbar">
                       <div class="demo-btn-group">
                         <app-button-with-tooltip [disabled]="error || seriesControlsDisabled || !hasNextSeries" [tooltipText]="text.nextSeries.tooltip" tooltipPlacement="right"
                                                  [onClick]="nextSeries" [aria-label]="text.nextSeries.aria">

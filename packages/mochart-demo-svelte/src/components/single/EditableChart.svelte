@@ -912,13 +912,13 @@
                 <!-- Kept on desktop even when empty — the empty field's gap is
                      part of the unfolded layout. -->
                 <div class="demo-field">
-                  <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-toolbar">
                     {@render chartCountControl()}
                   </div>
                 </div>
               {/if}
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip disabled={sliceControlsDisabled || sliceIndex === 0}
                                        tooltipText={demoText.editableChart.previousSlice.tooltip} tooltipPlacement="right"
@@ -932,7 +932,7 @@
                 <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" title={slices.length > 0 ? slices[sliceIndex].title : undefined}>{#if slices.length > 0}{demoText.editableChart.sliceIndexPrefix}<span class="demo-index-value">{sliceIndex}</span>{:else}{demoText.editableChart.selectASliceText}{/if}</span>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip disabled={sliceControlsDisabled || sliceIndex >= slices.length - 1}
                                        tooltipText={demoText.editableChart.nextSlice.tooltip} tooltipPlacement="right"
@@ -969,7 +969,7 @@
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   {#if !foldCategory}{@render commonControls()}{/if}
                   <div class="demo-btn-group">
                     {#if foldCategory}
@@ -1003,13 +1003,13 @@
             <form class="demo-form-row">
               {#if !foldSeries}
                 <div class="demo-field">
-                  <div class="demo-toolbar" role="toolbar">
+                  <div class="demo-toolbar">
                     {@render commonControls()}
                   </div>
                 </div>
               {/if}
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip disabled={error || categoryOrderControlsDisabled || isFirstCategory}
                                        tooltipText={demoText.editableChart.decreaseCategoryOrder.tooltip} tooltipPlacement="right"
@@ -1023,7 +1023,7 @@
                 <span class="demo-label" style={`margin-left: ${indexLabelMargin}px; margin-right: ${indexLabelMargin}px;`} title={getCategoryIndexTitle(mochartDemoConfig, filteredData, categoryIndex)}><span class="demo-label-prefix">{demoText.editableChart.categoryIndexPrefix}</span><span class="demo-label-prefix-compact" aria-hidden="true">{demoText.editableChart.categoryIndexPrefixCompact}</span><span class="demo-index-value">{categoryIndex}</span></span>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip disabled={error || categoryOrderControlsDisabled || isLastCategory}
                                        tooltipText={demoText.editableChart.increaseCategoryOrder.tooltip} tooltipPlacement="right"
@@ -1034,7 +1034,7 @@
                 </div>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip disabled={error || seriesControlsDisabled || !hasPrevSeries}
                                        tooltipText={demoText.editableChart.previousSeries.tooltip} tooltipPlacement="right"
@@ -1048,7 +1048,7 @@
                 <span class="demo-label" style={`margin-left: ${indexLabelMargin}px; margin-right: ${indexLabelMargin}px;`} title={getSeriesIndexTitle(mochartDemoConfig, seriesIndex)}><span class="demo-label-prefix">{demoText.editableChart.seriesIndexPrefix}</span><span class="demo-label-prefix-compact" aria-hidden="true">{demoText.editableChart.seriesIndexPrefixCompact}</span><span class="demo-index-value">{seriesIndex}</span></span>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip disabled={error || seriesControlsDisabled || !hasNextSeries}
                                        tooltipText={demoText.editableChart.nextSeries.tooltip} tooltipPlacement="right"

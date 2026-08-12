@@ -28,7 +28,7 @@ const defaultRate = 2000;
                  [attr.aria-label]="text.gridColsAria" (input)="colsChanged($event)" />
         </div>
         <div class="demo-field">
-          <div class="demo-toolbar" role="toolbar">
+          <div class="demo-toolbar">
             <div class="demo-btn-group">
               <app-button-with-tooltip id="step-back" [disabled]="playing" [tooltipText]="text.stepBackward.tooltip" tooltipPlacement="top-start"
                                        [onClick]="onStepBackwardClick" [aria-label]="text.stepBackward.aria">
@@ -59,7 +59,7 @@ const defaultRate = 2000;
                  [attr.aria-label]="text.intervalAria" (input)="rateChanged($event)" />
         </div>
         <div class="demo-field">
-          <div class="demo-toolbar" role="toolbar">
+          <div class="demo-toolbar">
             <app-export-share-menu [exportPng]="exportPng" [exportSvg]="exportSvg" [getShareState]="getShareState" />
           </div>
         </div>

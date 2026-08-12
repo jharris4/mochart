@@ -198,7 +198,7 @@ export default function MochartConfigTab({ active, config = null, onConfigChange
           onChange={onTextChange} />
       </div>
       <div className="mochart-demo-tab-footer" ref={footerRef}>
-        <div className="demo-toolbar" role="toolbar">
+        <div className="demo-toolbar">
           {isPhone ? (
             <>
               {applyButton}

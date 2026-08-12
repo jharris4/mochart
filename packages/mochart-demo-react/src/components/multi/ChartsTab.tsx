@@ -432,7 +432,7 @@ function MultiMochartControls({ playing, initialRows, initialCols, initialRate, 
             onChange={colsChanged} aria-label={demoText.multiChartsTab.gridColsAria} />
         </div>
         <div className="demo-field">
-          <div className="demo-toolbar" role="toolbar">
+          <div className="demo-toolbar">
             <div className="demo-btn-group">
               <ButtonWithTooltip id="step-back" disabled={playing} tooltipText={demoText.multiChartsTab.stepBackward.tooltip} tooltipPlacement="top-start"
                 onClick={onStepBackwardClick} aria-label={demoText.multiChartsTab.stepBackward.aria}>
@@ -463,7 +463,7 @@ function MultiMochartControls({ playing, initialRows, initialCols, initialRate, 
             onChange={rateChanged} aria-label={demoText.multiChartsTab.intervalAria} />
         </div>
         <div className="demo-field">
-          <div className="demo-toolbar" role="toolbar">
+          <div className="demo-toolbar">
             <ExportShareMenu exportPng={exportPng} exportSvg={exportSvg} getShareState={getShareState} />
           </div>
         </div>

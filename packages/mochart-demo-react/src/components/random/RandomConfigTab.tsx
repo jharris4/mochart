@@ -58,7 +58,7 @@ export default function RandomMochartConfigTab({ active, randomConfig, generator
           onChange={(text: string) => { setConfigText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer">
-        <div className="demo-toolbar" role="toolbar">
+        <div className="demo-toolbar">
           <ButtonWithTooltip id="config-reset" label={demoText.randomConfigTab.reset.label} tooltipText={demoText.randomConfigTab.reset.tooltip} tooltipPlacement="top-start"
             onClick={onReset} aria-label={demoText.randomConfigTab.reset.aria}>
             <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

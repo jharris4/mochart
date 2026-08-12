@@ -169,7 +169,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
       <div className="random-controls" ref={controlsRef}>
         <form className="demo-form-row">
           <div className="demo-field">
-            <div className="demo-toolbar" role="toolbar">
+            <div className="demo-toolbar">
               <div className="demo-btn-group">
                 {backButton}
                 {nextButton}
@@ -177,7 +177,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
               </div>
               {isPhone ? null : rateField}
             </div>
-            <div className="demo-toolbar" role="toolbar">
+            <div className="demo-toolbar">
               {isPhone ? (
                 <div className="demo-btn-group">
                   {/* Anchored to the whole strip: `align: 'end'` pins the

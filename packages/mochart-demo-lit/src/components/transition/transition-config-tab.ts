@@ -63,7 +63,7 @@ export class TransitionConfigTab extends LightElement {
         <json-editor-content .value=${this.configText} .ariaLabelText=${demoText.transitionConfigTab.editorAria} .onChange=${this.onTextChange}></json-editor-content>
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           ${buttonWithTooltip(
             { id: 'config-reset', label: demoText.transitionConfigTab.reset.label, tooltipText: demoText.transitionConfigTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: () => this.onReset(), ariaLabel: demoText.transitionConfigTab.reset.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })

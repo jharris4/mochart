@@ -89,7 +89,7 @@ export class ChartsControls extends LightElement {
           <input id="grid-cols" ?disabled=${this.playing} type="number" min="1" max="4" class="demo-input" .value=${'' + this.colsText} aria-label=${demoText.multiChartsTab.gridColsAria} @input=${this.colsChanged} />
         </div>
         <div class="demo-field">
-          <div class="demo-toolbar" role="toolbar">
+          <div class="demo-toolbar">
             <div class="demo-btn-group">
               ${buttonWithTooltip(
                 { id: 'step-back', disabled: this.playing, tooltipText: demoText.multiChartsTab.stepBackward.tooltip, tooltipPlacement: 'top-start', onClick: this.onStepBackwardClick, ariaLabel: demoText.multiChartsTab.stepBackward.aria },
@@ -119,7 +119,7 @@ export class ChartsControls extends LightElement {
           <input id="multi-rate" ?disabled=${this.playing} type="number" min="5" max="60000" step="100" class="demo-input" .value=${'' + this.rateText} aria-label=${demoText.multiChartsTab.intervalAria} @input=${this.rateChanged} />
         </div>
         <div class="demo-field">
-          <div class="demo-toolbar" role="toolbar">
+          <div class="demo-toolbar">
             <export-share-menu .exportPng=${this.exportPng} .exportSvg=${this.exportSvg} .getShareState=${this.getShareState}></export-share-menu>
           </div>
         </div>

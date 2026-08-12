@@ -68,7 +68,7 @@ export class RandomConfigTab extends LightElement {
           .formatOnSet=${true} .onChange=${this.onTextChange}></json-editor-content>
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           ${buttonWithTooltip(
             { id: 'config-reset', label: demoText.randomConfigTab.reset.label, tooltipText: demoText.randomConfigTab.reset.tooltip, tooltipPlacement: 'top-start', onClick: () => this.onReset(), ariaLabel: demoText.randomConfigTab.reset.aria },
             icon({ size: 'lg', fixedWidth: true, name: 'arrow-rotate-left' })

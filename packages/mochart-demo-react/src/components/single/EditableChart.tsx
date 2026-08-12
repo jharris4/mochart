@@ -869,13 +869,13 @@ export default function EditableChart(props: Props) {
               // Kept on desktop even when empty — the empty field's gap is
               // part of the unfolded layout.
               <div className="demo-field">
-                <div className="demo-toolbar" role="toolbar">
+                <div className="demo-toolbar">
                   {chartCountControlContent}
                 </div>
               </div>
             )}
             <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
+              <div className="demo-toolbar">
                 <div className="demo-btn-group">
                   <ButtonWithTooltip disabled={sliceControlsDisabled || sliceIndex === 0}
                     tooltipText={demoText.editableChart.previousSlice.tooltip} tooltipPlacement="right"
@@ -893,7 +893,7 @@ export default function EditableChart(props: Props) {
               </span>
             </div>
             <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
+              <div className="demo-toolbar">
                 <div className="demo-btn-group">
                   <ButtonWithTooltip disabled={sliceControlsDisabled || sliceIndex >= slices.length - 1}
                     tooltipText={demoText.editableChart.nextSlice.tooltip} tooltipPlacement="right"
@@ -999,7 +999,7 @@ export default function EditableChart(props: Props) {
         <div className="chart-controls-buttons">
           <form className="demo-form-row">
             <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
+              <div className="demo-toolbar">
                 {foldCategory ? null : commonControlContent}
                 <div className="demo-btn-group">
                   {foldCategory
@@ -1072,13 +1072,13 @@ export default function EditableChart(props: Props) {
           <form className="demo-form-row">
             {foldSeries ? null : (
               <div className="demo-field">
-                <div className="demo-toolbar" role="toolbar">
+                <div className="demo-toolbar">
                   {commonControlContent}
                 </div>
               </div>
             )}
             <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
+              <div className="demo-toolbar">
                 <div className="demo-btn-group">
                   <ButtonWithTooltip disabled={error || categoryOrderControlsDisabled || isFirstCategory}
                     tooltipText={demoText.editableChart.decreaseCategoryOrder.tooltip} tooltipPlacement="right"
@@ -1096,7 +1096,7 @@ export default function EditableChart(props: Props) {
               </span>
             </div>
             <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
+              <div className="demo-toolbar">
                 <div className="demo-btn-group">
                   <ButtonWithTooltip disabled={error || categoryOrderControlsDisabled || isLastCategory}
                     tooltipText={demoText.editableChart.increaseCategoryOrder.tooltip} tooltipPlacement="right"
@@ -1107,7 +1107,7 @@ export default function EditableChart(props: Props) {
               </div>
             </div>
             <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
+              <div className="demo-toolbar">
                 <div className="demo-btn-group">
                   <ButtonWithTooltip disabled={error || seriesControlsDisabled || !hasPrevSeries}
                     tooltipText={demoText.editableChart.previousSeries.tooltip} tooltipPlacement="right"
@@ -1125,7 +1125,7 @@ export default function EditableChart(props: Props) {
               </span>
             </div>
             <div className="demo-field">
-              <div className="demo-toolbar" role="toolbar">
+              <div className="demo-toolbar">
                 <div className="demo-btn-group">
                   <ButtonWithTooltip disabled={error || seriesControlsDisabled || !hasNextSeries}
                     tooltipText={demoText.editableChart.nextSeries.tooltip} tooltipPlacement="right"

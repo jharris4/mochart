@@ -81,7 +81,7 @@ function rateChanged(event: Event) {
                :aria-label="demoText.multiChartsTab.gridColsAria" @input="colsChanged" />
       </div>
       <div class="demo-field">
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           <div class="demo-btn-group">
             <ButtonWithTooltip id="step-back" :disabled="props.playing" :tooltip-text="demoText.multiChartsTab.stepBackward.tooltip" tooltip-placement="top-start"
                                :on-click="props.onStepBackwardClick" :aria-label="demoText.multiChartsTab.stepBackward.aria">
@@ -112,7 +112,7 @@ function rateChanged(event: Event) {
                :aria-label="demoText.multiChartsTab.intervalAria" @input="rateChanged" />
       </div>
       <div class="demo-field">
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           <ExportShareMenu :export-png="props.exportPng" :export-svg="props.exportSvg" :get-share-state="props.getShareState" />
         </div>
       </div>

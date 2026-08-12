@@ -69,7 +69,7 @@ const defaultRate = 2000;
       <div class="random-controls" #controls>
         <form class="demo-form-row">
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               <div class="demo-btn-group">
                 <app-button-with-tooltip id="randomize-back" [disabled]="playing()" [label]="text.back.label"
                                          [tooltipText]="text.back.tooltip" tooltipPlacement="top-start"
@@ -90,7 +90,7 @@ const defaultRate = 2000;
                 <ng-container [ngTemplateOutlet]="rateField" />
               }
             </div>
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               @if (phone()) {
                 <!-- Anchored to the whole strip: \`align: 'end'\` pins the
                      panel's right edge to the anchor's, and the export trigger

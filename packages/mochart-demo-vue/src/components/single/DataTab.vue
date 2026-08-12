@@ -134,7 +134,7 @@ const panelAttrs = getDemoTabPanelAttrs('data');
       <JsonEditorContent :value="dataText" :ariaLabel="demoText.dataTab.editorAria" :on-change="onTextChange" />
     </div>
     <div class="mochart-demo-tab-footer" ref="footerElement">
-      <div class="demo-toolbar" role="toolbar">
+      <div class="demo-toolbar">
         <template v-if="isPhone">
           <ApplyButton />
           <OverflowMenu :text="demoText.overflowMenu.editor"

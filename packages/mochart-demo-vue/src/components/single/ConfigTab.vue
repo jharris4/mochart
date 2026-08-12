@@ -187,7 +187,7 @@ const panelAttrs = getDemoTabPanelAttrs('config');
                          :format-on-set="true" :mochart-support="true" :on-change="onTextChange" />
     </div>
     <div class="mochart-demo-tab-footer" ref="footerElement">
-      <div class="demo-toolbar" role="toolbar">
+      <div class="demo-toolbar">
         <template v-if="isPhone">
           <ApplyButton />
           <!-- `.editor`, not `.chart`: what folds here edits the JSON, and

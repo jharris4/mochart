@@ -47,7 +47,7 @@ import type { DemoConfig, DataRow } from '../../types';
         <app-json-editor-content [value]="dataText()" [ariaLabel]="text.editorAria" [onChange]="onTextChange" />
       </div>
       <div class="mochart-demo-tab-footer" #footer>
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           @if (phone()) {
             <ng-container [ngTemplateOutlet]="applyButton" />
             <app-overflow-menu [text]="overflowText" [placement]="editorPlacement" [getAnchor]="getFooterAnchor" [active]="active">

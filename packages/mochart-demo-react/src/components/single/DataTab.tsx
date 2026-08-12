@@ -128,7 +128,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
           onChange={(text: string) => { setDataText(text); setErrorMessage(null); }} />
       </div>
       <div className="mochart-demo-tab-footer" ref={footerRef}>
-        <div className="demo-toolbar" role="toolbar">
+        <div className="demo-toolbar">
           {isPhone ? (
             <>
               {applyButton}

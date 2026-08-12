@@ -789,7 +789,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     playAddButton.el, playRemoveButton.el, stopButton.el, selectAllButton.el
   ];
   const categoryButtonGroup = el('div', { className: 'demo-btn-group' }, categoryButtons);
-  const categoryToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [categoryButtonGroup]);
+  const categoryToolbar = el('div', { className: 'demo-toolbar' }, [categoryButtonGroup]);
 
   // Menu-side homes for the loose buttons the fold takes out of the strip —
   // cached `.demo-btn-group`s; OverflowMenu.ts's header says why that shape.
@@ -885,24 +885,24 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   const seriesActionGroup = el('div', { className: 'demo-btn-group' }, seriesActionButtons);
   const seriesForm = el('form', { className: 'demo-form-row' }, [
     el('div', { className: 'demo-field' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+      el('div', { className: 'demo-toolbar' }, [
         el('div', { className: 'demo-btn-group' }, [categoryDecreaseButton.el])
       ])
     ]),
     el('div', { className: 'demo-field' }, [categoryIndexLabel]),
     el('div', { className: 'demo-field' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+      el('div', { className: 'demo-toolbar' }, [
         el('div', { className: 'demo-btn-group' }, [categoryIncreaseButton.el])
       ])
     ]),
     el('div', { className: 'demo-field' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+      el('div', { className: 'demo-toolbar' }, [
         el('div', { className: 'demo-btn-group' }, [previousSeriesButton.el])
       ])
     ]),
     el('div', { className: 'demo-field' }, [seriesIndexLabel]),
     el('div', { className: 'demo-field' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+      el('div', { className: 'demo-toolbar' }, [
         el('div', { className: 'demo-btn-group' }, [nextSeriesButton.el]),
         seriesActionGroup
       ])
@@ -910,7 +910,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   ]);
   // Menu-side home for Reset (a cached `.demo-btn-group` — see OverflowMenu.ts).
   const menuSeriesActionGroup = el('div', { className: 'demo-btn-group' });
-  const seriesCommonToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
+  const seriesCommonToolbar = el('div', { className: 'demo-toolbar' });
   // Emptied by the fold (commonControls move into the menu), and an empty flex
   // item still spends one of `.demo-form-row`'s 10px column gaps — which the
   // tightest strip of the three cannot spare. placeControls hides it for the
@@ -980,7 +980,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
     sync();
   });
 
-  const sliceCommonToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
+  const sliceCommonToolbar = el('div', { className: 'demo-toolbar' });
   // Same split as the series panel: Reset folds out of the action group, and
   // the whole play/stop group folds out of the toolbar (moving the group itself
   // rather than emptying it, so no empty flex item is left spending a gap).
@@ -989,7 +989,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   const sliceActionGroup = el('div', { className: 'demo-btn-group' }, sliceActionButtons);
   const sliceSequenceGroup = el('div', { className: 'demo-btn-group' }, [playSliceButton.el, stopSliceButton.el]);
   const sliceToolbarGroups = [sliceStepGroup, sliceActionGroup, sliceSequenceGroup];
-  const sliceToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, sliceToolbarGroups);
+  const sliceToolbar = el('div', { className: 'demo-toolbar' }, sliceToolbarGroups);
   const menuSliceActionGroup = el('div', { className: 'demo-btn-group' });
   // The slice menu's optional tail. Built once, and empty rather than
   // `[divider, null]` when there is no second-chart button: `setItems` drops
@@ -1002,7 +1002,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   const sliceForm = el('form', { className: 'demo-form-row' }, [
     sliceCommonField,
     el('div', { className: 'demo-field' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+      el('div', { className: 'demo-toolbar' }, [
         el('div', { className: 'demo-btn-group' }, [previousSliceButton.el])
       ])
     ]),
