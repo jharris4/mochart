@@ -220,14 +220,14 @@ function buildWaterfallSnapshot(): ChartTypeDemoSnapshot {
   const items = WATERFALL_STEP_POOL
     .filter(step => (step.dropWeight ?? 0) <= 1)
     .map(step => (step.total === true ? { label: step.label, total: true } : { label: step.label, value: step.value! }));
-  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = createWaterfall(items);
+  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs, valueAxes: valueAxisConfigs } = createWaterfall(items);
   return {
     id: 'waterfall',
     config: {
       version: '1.0.0',
       title: { text: 'Income Statement (fictional, $k)' },
       categoryAxis: categoryAxisConfig,
-      valueAxes: [{ title: '$ thousands' }],
+      valueAxes: [{ ...valueAxisConfigs[0], title: '$ thousands' }],
       series: seriesConfigs
     },
     data

@@ -112,6 +112,13 @@ describe('createWaterfall', () => {
     }
   });
 
+  // the axis base is what pins the zero line to the axis floor: without it the axis pads below
+  // zero, so a waterfall's bars float above the bottom of the plot
+  it('returns the value axis base so callers do not have to write it', () => {
+    expect(createWaterfall([{ label: 'A', value: 1 }]).valueAxes).toEqual([{ base: 0 }]);
+    expect(createWaterfall([{ label: 'A', value: 1 }], { base: 50 }).valueAxes).toEqual([{ base: 50 }]);
+  });
+
   it('honours custom titles, colors and base', () => {
     const { steps, series: seriesConfigs } = createWaterfall([{ label: 'A', value: 1 }], {
       base: 50,

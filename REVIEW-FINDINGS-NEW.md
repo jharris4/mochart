@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 56 fixed, 2 needing an answer, 103 open.** TOOL-2 is deferred to release time by
+**Status: 57 fixed, 2 needing an answer, 102 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1347,7 +1347,7 @@ generated demo configs were regenerated; no golden snapshot moved, because no de
 2px — the floor is inert until a real doji appears.
 
 ### HELP-8 — `createWaterfall` makes the caller hand-mirror a `base` it already knows
-**Medium · Missing feature · [Waterfall.ts:35-43](packages/mochart/src/data/Waterfall.ts#L35), [:156](packages/mochart/src/data/Waterfall.ts#L156)** — **Open**
+**Medium · Missing feature · [Waterfall.ts:35-43](packages/mochart/src/data/Waterfall.ts#L35), [:156](packages/mochart/src/data/Waterfall.ts#L156)** — **Fixed**
 
 `createWaterfall` returns `{ steps, data, categoryAxis, series }` only. Its own JSDoc and
 [recipes/waterfall.md:36](packages/mochart-docs/recipes/waterfall.md#L36) instruct the reader to
@@ -1356,9 +1356,31 @@ stackless axis, so bars grow from and animate to the domain minimum instead of t
 base — silently, with subtly wrong enter/leave animation and label placement. `createHeatmap`
 already returns a `valueAxisConfig` fragment; `createCandlestick`/`createOhlc` return `valueAxes`.
 
-**Fix:** return `valueAxisConfig: { base }`, document it, and change the recipe to "spread the
-returned fragment". Also reconcile the JSDoc (advises it unconditionally) with the recipe
-(advises it only when `base !== 0`).
+**Fixed.** `createWaterfall` now returns `valueAxes: [{ base }]`, so a caller spreads it like the
+other fragments instead of knowing to write the base by hand. Named `valueAxes` to match the real
+config key — which is also what `createCandlestick` and `createOhlc` return. `createHeatmap` returns
+`valueAxisConfig` for the same thing, and unifying that is
+[HELP-10](#help-10--sibling-helpers-disagree-on-the-value-axis-fragments-name).
+
+Additive, so nothing breaks.
+
+**What it actually fixes is not what the finding says.** Waterfall bars are floating — they carry
+both ends — so they never grew from the axis floor and the chart did not look broken. The real
+effect shows in the axis: a margin is only added to an end when that end is not the base, so with no
+base configured the axis padded *below zero*. The waterfall demo's zero line floated about 22px above
+the bottom of the plot, with an unlabelled tick beneath it that had to be hidden as a collision.
+With the base returned and used, the axis runs exactly 0 to 740, the zero line sits on the floor, and
+the redundant tick is gone — 9 ticks instead of 10.
+
+Both call sites were writing `valueAxes` by hand and neither set the base, which is the gap in
+miniature. Both now spread the fragment and merge their own title over it.
+
+The recipe's "when it's not 0" is corrected: the default is `null`, never `0`, so the base always
+needed setting — the condition made it sound optional.
+
+Seven waterfall snapshots moved, all showing the axis change above. Note for next time: changing a
+helper's return type means rebuilding the library's type declarations, or the docs package
+typechecks against a stale copy and fails.
 
 ### HELP-9 — the heatmap `missingColor` option is entirely undocumented
 **Medium · Doc gap · [Heatmap.ts:59-65](packages/mochart/src/data/Heatmap.ts#L59) vs [recipes/heatmap.md:46](packages/mochart-docs/recipes/heatmap.md#L46)** — **Fixed**
