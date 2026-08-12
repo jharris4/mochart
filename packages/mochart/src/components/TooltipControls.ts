@@ -21,7 +21,6 @@ export const MODE_FILTER = 'filter';
 
 const buttonWidth = 35;
 
-const containerStyle = { flex: '0 0 auto', width: buttonWidth };
 const modeContainerStyle = { flex: '1 1 auto', minWidth: 0 };
 
 // currentColor keeps the buttons legible on any host theme; hover/active tints live in mochart.css
@@ -101,6 +100,12 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
     const { mochartConfig, categoryCount, tooltipCategoryIndex, minWidth, mode } = this.props;
     const { tooltip: tooltipConfig, accessibility: accessibilityConfig } = mochartConfig;
     if (tooltipConfig.showControls) {
+      // the buttons are click targets whenever they are shown, so they take the target floor in
+      // both directions: the height a native button centres its glyph in, the width off the ends'
+      // fixed containers (the mode button's width is the tooltip's, always well past the floor)
+      const { targetMinSize } = accessibilityConfig;
+      const targetStyle = targetMinSize > 0 ? { minHeight: targetMinSize } : {};
+      const containerStyle = { flex: '0 0 auto', width: Math.max(buttonWidth, targetMinSize) };
       const controlsStyle: Record<string, string | number> = {
         display: 'flex',
         gap: 3,
@@ -120,14 +125,14 @@ export default class TooltipControls extends Renderer<TooltipControlsProps> {
       this.prevContainer.set({ style: containerStyle });
       // native buttons are tab stops by default; a decorative-hidden chart must not have any
       const buttonTabindex = accessibilityConfig.hidden ? '-1' : null;
-      this.prevButton.set({ type: 'button', style: prevDisabled ? disabledButtonStyle : buttonStyle,
+      this.prevButton.set({ type: 'button', style: { ...(prevDisabled ? disabledButtonStyle : buttonStyle), ...targetStyle },
         title: accessibilityConfig.tooltipPreviousLabel, 'aria-label': accessibilityConfig.tooltipPreviousLabel,
         'aria-disabled': prevDisabled ? 'true' : null, tabindex: buttonTabindex, onClick: this.onCategoryPrevClick });
       this.modeContainer.set({ style: modeContainerStyle });
-      this.modeButton.set({ type: 'button', style: buttonStyle, tabindex: buttonTabindex, onClick: this.onTooltipModeClick });
+      this.modeButton.set({ type: 'button', style: { ...buttonStyle, ...targetStyle }, tabindex: buttonTabindex, onClick: this.onTooltipModeClick });
       this.modeText.set(mode === MODE_FILTER ? tooltipConfig.filterModeText : tooltipConfig.focusModeText);
       this.nextContainer.set({ style: containerStyle });
-      this.nextButton.set({ type: 'button', style: nextDisabled ? disabledButtonStyle : buttonStyle,
+      this.nextButton.set({ type: 'button', style: { ...(nextDisabled ? disabledButtonStyle : buttonStyle), ...targetStyle },
         title: accessibilityConfig.tooltipNextLabel, 'aria-label': accessibilityConfig.tooltipNextLabel,
         'aria-disabled': nextDisabled ? 'true' : null, tabindex: buttonTabindex, onClick: this.onCategoryNextClick });
     }

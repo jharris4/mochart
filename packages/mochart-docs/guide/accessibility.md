@@ -165,6 +165,38 @@ replaces the plot area with a message all hand focus to another element from a
 pointer or data path. Those get the same outline, so focus is never invisible
 after the chart moves it.
 
+## Click targets
+
+The chart lays its own clickable chrome out to a minimum of 24 by 24 pixels —
+the [WCAG 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)
+floor, which the same chrome misses at ordinary font sizes: a legend item is
+about 22px tall at a 16px host font, and items sit a pixel apart, so a mis-hit
+filters the series next to the one you aimed at. Three things take the floor:
+
+| Target | How the floor applies |
+| --- | --- |
+| legend item boxes | the item box grows in both directions; the swatch and label stay centered in it |
+| the tooltip controls' ‹ / › / mode buttons | a minimum height, and the arrow ends widen to match |
+| interactive tooltip rows | a minimum height; the extra space lands under the row text |
+
+A target takes the floor only while clicking it does something — the legend's
+[`filterOnClick`](/reference/legend#legend.filterOnClick) /
+[`focusOnClick`](/reference/legend#legend.focusOnClick), the tooltip's
+[`showControls`](/reference/tooltip#tooltip.showControls) and its click config
+— so a legend nothing responds to stays compact. Change the floor with
+[`accessibility.targetMinSize`](/reference/accessibility#accessibility.targetMinSize):
+raise it (`44` is the common touch recommendation) or set `0` to lay every
+target out at its content size. It is deliberately not gated by `enabled` or
+`hidden`, because clicking and tapping work whatever those are set to.
+
+Series shapes — bars, markers, pie slices — are left at the size their data
+gives them. Padding a marker's hit area would change which value the pointer
+lands on, which is worse than a small target and is why 2.5.8 exempts a
+presentation that is essential; the plot area is one large target for the
+tooltip in any case, and the keyboard reaches every category without aiming.
+The same goes for anything you inject through the
+[state factories](/guide/chart-states): its target sizes are yours.
+
 ## Forced colors and High Contrast
 
 In forced-colors modes (Windows High Contrast among them) the stylesheet

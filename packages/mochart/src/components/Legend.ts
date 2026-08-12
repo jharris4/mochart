@@ -3,7 +3,7 @@ import type { RendererItem } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { layoutInfoExtentChanged } from '../layout/LayoutInfo';
-import { resolveLegendIconSize } from '../layout/LegendLayout';
+import { resolveLegendIconSize, legendItemClickable } from '../layout/LegendLayout';
 import { prepareTruncation, getTruncatedText, updateTruncation } from '../utils/TextTruncation';
 import { accessibilityActive, translate, translateObject, centerTextY } from '../utils/utils';
 import { getClipPathReference } from '../utils/svgUtils';
@@ -168,8 +168,9 @@ export default class Legend extends Renderer<LegendProps, LegendState> {
 
       const accessibility = accessibilityActive(mochartConfig.accessibility);
       const { legendLabel } = mochartConfig.accessibility;
+      // keyboard reach needs both: the click has to do something, and accessibility has to be on
       const itemIsInteractive = (seriesConfig: EnhancedSeriesConfig): boolean =>
-        accessibility && ((legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick);
+        accessibility && legendItemClickable(legendConfig, seriesConfig);
       const interactiveIds = seriesConfigs
         .filter(seriesConfig => seriesConfig.showInLegend && itemIsInteractive(seriesConfig))
         .map(seriesConfig => seriesConfig.id);

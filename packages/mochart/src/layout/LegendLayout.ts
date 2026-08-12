@@ -3,10 +3,23 @@ import { getLegendItemBoundsList } from '../utils/TextMeasurement';
 import { createSpacingLayoutInfo, getSpacingLeft, getSpacingWidth, getSpacingTop, getSpacingHeight } from './SpacingLayoutInfo';
 import type { Bounds, TextBounds } from '../types/geometry';
 import type { LegendConfig } from '../types/config';
-import type { EnhancedMochartConfig } from '../types/enhanced';
+import type { EnhancedMochartConfig, EnhancedSeriesConfig } from '../types/enhanced';
 import type { ChartTextBoundsData, LayoutInfo, LegendLayoutResult, SpacingLayoutInfo } from '../types/layout';
 
 const fallbackLegendIconSize = 14;
+
+/** clicking the item filters or focuses its series, which is what makes the item a click target */
+export function legendItemClickable(legendConfig: LegendConfig, seriesConfig: EnhancedSeriesConfig): boolean {
+  return (legendConfig.filterOnClick && seriesConfig.filterable) || legendConfig.focusOnClick;
+}
+
+// accessibility.targetMinSize is the floor for the item boxes, and only while clicking one does
+// something; a legend nothing responds to is not a target and stays at its content size
+function getLegendItemMinSize(mochartConfig: EnhancedMochartConfig): number {
+  const { legend: legendConfig, series: seriesConfigs, accessibility: accessibilityConfig } = mochartConfig;
+  const clickable = seriesConfigs.some(seriesConfig => seriesConfig.showInLegend && legendItemClickable(legendConfig, seriesConfig));
+  return clickable ? accessibilityConfig.targetMinSize : 0;
+}
 
 // 'auto' tracks the label's font size (like the tooltip's 1em icon), falling back to the measured em box
 export function resolveLegendIconSize(legendConfig: LegendConfig, legendTextBounds: TextBounds): number {
@@ -33,6 +46,11 @@ export function getLegendHeight(mochartConfig: EnhancedMochartConfig, chartTextB
     const itemSpacingWidth = getSpacingWidth(itemMargin, itemPadding);
     const itemSpacingHeight = getSpacingHeight(itemMargin, itemPadding);
 
+    // the click target is the item box inside the margin, so its floor carries the margin over
+    const itemMinSize = getLegendItemMinSize(mochartConfig);
+    const itemMinWidth = itemMinSize + getSpacingWidth(itemMargin);
+    const itemMinHeight = itemMinSize + getSpacingHeight(itemMargin);
+
     const iconWidth = iconSize + iconSpacerSize;
     const iconHeight = iconSize;
 
@@ -46,7 +64,7 @@ export function getLegendHeight(mochartConfig: EnhancedMochartConfig, chartTextB
     const itemTextMaxWidth = legendMaxWidth - legendSpacingWidth - itemSpacingWidth - iconWidth;
     const itemTextHeight = legendItemMaxTextBounds.height;
 
-    const itemHeight = Math.max(iconHeight, itemTextHeight) + itemSpacingHeight;
+    const itemHeight = Math.max(Math.max(iconHeight, itemTextHeight) + itemSpacingHeight, itemMinHeight);
 
     let x = legendMinSpacingX;
     let y = legendSpacingTop;
@@ -54,7 +72,7 @@ export function getLegendHeight(mochartConfig: EnhancedMochartConfig, chartTextB
     let textWidth: number, itemWidth: number;
     for (const itemTextBounds of legendItemTextRawBounds) {
       textWidth = Math.min(itemTextBounds.width, itemTextMaxWidth);
-      itemWidth = textWidth + iconWidth + itemSpacingWidth;
+      itemWidth = Math.max(textWidth + iconWidth + itemSpacingWidth, itemMinWidth);
       if (x !== legendMinSpacingX && (x + itemWidth) > legendMaxSpacingX) {
         x = legendMinSpacingX;
         y += itemHeight;
@@ -89,6 +107,11 @@ export function getLegendLayoutInfo(mochartConfig: EnhancedMochartConfig, chartT
     const itemSpacingWidth = getSpacingWidth(itemMargin, itemPadding);
     const itemSpacingHeight = getSpacingHeight(itemMargin, itemPadding);
 
+    // the click target is the item box inside the margin, so its floor carries the margin over
+    const itemMinSize = getLegendItemMinSize(mochartConfig);
+    const itemMinWidth = itemMinSize + getSpacingWidth(itemMargin);
+    const itemMinHeight = itemMinSize + getSpacingHeight(itemMargin);
+
     const iconWidth = iconSize + iconSpacerSize;
     const iconHeight = iconSize;
 
@@ -104,7 +127,7 @@ export function getLegendLayoutInfo(mochartConfig: EnhancedMochartConfig, chartT
     const itemTextWidth = legendItemMaxTextBounds.width;
     const itemTextHeight = legendItemMaxTextBounds.height;
 
-    const itemHeight = Math.max(iconHeight, itemTextHeight) + itemSpacingHeight;
+    const itemHeight = Math.max(Math.max(iconHeight, itemTextHeight) + itemSpacingHeight, itemMinHeight);
 
     const legendItemLayoutInfos: SpacingLayoutInfo[] = [];
     const legendItemRawLayoutInfos: SpacingLayoutInfo[] = [];
@@ -114,8 +137,8 @@ export function getLegendLayoutInfo(mochartConfig: EnhancedMochartConfig, chartT
     let textWidth: number, itemWidth: number, itemRawWidth: number;
     for (const itemTextBounds of legendItemTextRawBounds) {
       textWidth = Math.max(0, Math.min(itemTextBounds.width, itemTextMaxWidth));
-      itemWidth = textWidth + iconWidth + itemSpacingWidth;
-      itemRawWidth = itemTextBounds.width + iconWidth + itemSpacingWidth;
+      itemWidth = Math.max(textWidth + iconWidth + itemSpacingWidth, itemMinWidth);
+      itemRawWidth = Math.max(itemTextBounds.width + iconWidth + itemSpacingWidth, itemMinWidth);
       if (x !== legendMinSpacingX && (x + itemWidth) > legendMaxSpacingX) {
         x = legendMinSpacingX;
         y+= itemHeight;
