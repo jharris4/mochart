@@ -4921,7 +4921,7 @@ typechecks clean. The lockfile was resynced with `npm install --package-lock-onl
 insertions, 6 deletions, marking the ten hoisted d3 packages (including `internmap`) as dev.
 
 ### TOOL-6 — the documented IIFE build is shipped but unreachable through `exports`
-**Medium · Bug · [mochart/package.json:34-40](packages/mochart/package.json#L34); documented at [getting-started.md:131](packages/mochart-docs/guide/getting-started.md#L131)** — **Open**
+**Medium · Bug · [mochart/package.json:34-40](packages/mochart/package.json#L34); documented at [getting-started.md:131](packages/mochart-docs/guide/getting-started.md#L131)** — **Fixed**
 
 The docs state "an IIFE bundle for script tags, `dist/mochart.iife.js`, exposing the global
 `mochart`". The file is built and included via `files`, but `exports` defines only `"."` and
@@ -4937,6 +4937,32 @@ it only because it uses a relative path inside the repo.
 
 **Fix:** add `"./mochart.iife.js": "./dist/mochart.iife.js"` (and, if wanted,
 `"./package.json": "./package.json"`) to the map.
+
+**Fixed by exporting the two missing subpaths.** `packages/mochart/package.json`'s `exports` map gains
+`"./mochart.iife.js": "./dist/mochart.iife.js"` and `"./package.json": "./package.json"`.
+
+The public name is `./mochart.iife.js` rather than `./dist/mochart.iife.js`, keeping `dist/` an implementation
+detail and staying parallel to the existing `./mochart.css` entry, which likewise hides `css/`.
+`./package.json` matters separately: tooling that reads a dependency's manifest was blocked too.
+
+Verified by resolution rather than inspection — all four specifiers now resolve where before two failed with
+`ERR_PACKAGE_PATH_NOT_EXPORTED`:
+
+```
+OK  @mochart/core             -> packages/mochart/dist/mochart.js
+OK  @mochart/core/mochart.css -> packages/mochart/css/mochart.css
+OK  @mochart/core/mochart.iife.js -> packages/mochart/dist/mochart.iife.js
+OK  @mochart/core/package.json    -> packages/mochart/package.json
+```
+
+`guide/getting-started.md` named the on-disk path `dist/mochart.iife.js`; it now names the exported specifier,
+so the documented and the resolvable name agree. Docs site builds clean. No lockfile change — `exports` is not a
+dependency field.
+
+Two refinements to the finding: its cited range starts one line late (`exports` opens at :33, and 34-40 is the
+body), and the blast radius is slightly wider than "a raw CDN URL that bypasses `exports`" — the map also blocked
+`import.meta.resolve` inside this repo, so the repo's own tooling could not locate the artifact by specifier
+either.
 
 ### TOOL-7 — `lint` and `deadcode` gate every PR but are documented nowhere
 **Medium · Doc gap · [CONTRIBUTING.md:12](CONTRIBUTING.md#L12), [:150](CONTRIBUTING.md#L150); [README.md:78](README.md#L78)** — **Fixed**
