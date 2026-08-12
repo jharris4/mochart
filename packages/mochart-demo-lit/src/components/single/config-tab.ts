@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -16,6 +16,8 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
 
 /** The footer sits at the bottom of the pane, so its menu opens upward. */
 const editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+
+const panelAttrs = getDemoTabPanelAttrs('config');
 
 @customElement('config-tab')
 export class ConfigTab extends LightElement {
@@ -166,7 +168,8 @@ export class ConfigTab extends LightElement {
       icon({ size: 'lg', fixedWidth: true, name: 'check' })
     );
     const links = docsLinks(this.demoConfig.configWithoutDefaults);
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
+    return html`<div id=${panelAttrs.id} role=${panelAttrs.role} aria-labelledby=${panelAttrs['aria-labelledby']}
+        class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
         <json-editor-content .value=${this.configText} .ariaLabelText=${demoText.configTab.editorAria}
           .formatOnSet=${true} .mochartSupport=${true} .onChange=${this.onTextChange}></json-editor-content>

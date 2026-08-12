@@ -26,7 +26,7 @@ export function randomDataTab(props: RandomDataTabProps): RandomDataTabHandle {
 
   const container = tabContainer('demo-layout-col data', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [dataEditor.el])
-  ]);
+  ], 'data');
 
   return {
     el: container,

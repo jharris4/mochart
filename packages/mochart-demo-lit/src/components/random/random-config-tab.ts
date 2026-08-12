@@ -6,9 +6,11 @@ import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, icon } from '../misc/templates';
 import '../misc/json-editor-content';
 
-import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, getDemoTabPanelAttrs, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
+
+const panelAttrs = getDemoTabPanelAttrs('config');
 
 @customElement('random-config-tab')
 export class RandomConfigTab extends LightElement {
@@ -59,7 +61,8 @@ export class RandomConfigTab extends LightElement {
   override render(): unknown {
     const jsonError = this.jsonError;
     const footerError = jsonError ?? this.errorMessage;
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
+    return html`<div id=${panelAttrs.id} role=${panelAttrs.role} aria-labelledby=${panelAttrs['aria-labelledby']}
+        class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
         <json-editor-content .value=${this.configText} .ariaLabelText=${demoText.randomConfigTab.editorAria}
           .formatOnSet=${true} .onChange=${this.onTextChange}></json-editor-content>

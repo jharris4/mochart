@@ -1,6 +1,7 @@
 import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
+import { demoTabs } from '../misc/DemoTabs';
 import { el, errorTab } from '../misc/dom';
 import type { ErrorTabHandle } from '../misc/dom';
 import { topBar } from '../misc/TopBar';
@@ -110,26 +111,20 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
   // tabs header
   // ---------------------------------------------------------------------
 
-  const pendingBadge = el('span', { className: 'mochart-pending-badge', attrs: { 'aria-hidden': 'true' } });
-
-  function navItem(text: string, key: number): { li: HTMLLIElement; button: HTMLButtonElement } {
-    const button = el('button', {
-      className: 'demo-tab' + (activeKey === key ? ' active' : ''),
-      attrs: { type: 'button' },
-      text
-    });
-    button.addEventListener('click', () => handleSelect(key));
-    return { li: el('li', { className: 'demo-tab-item' }, [button]), button };
-  }
-
-  const chartNav = navItem(demoText.tabs.chart, eventKeyChart);
-  const configNav = navItem(demoText.tabs.config, eventKeyConfig);
-  const dataNav = navItem(demoText.tabs.data, eventKeyData);
+  const tabs = demoTabs({
+    tabs: [
+      { name: 'chart', key: eventKeyChart, label: demoText.tabs.chart },
+      { name: 'config', key: eventKeyConfig, label: demoText.tabs.config },
+      { name: 'data', key: eventKeyData, label: demoText.tabs.data }
+    ],
+    activeKey,
+    onSelect: handleSelect
+  });
 
   const bar = topBar({
     siteRootUrl: props.siteRootUrl,
     onBackToDemos,
-    tabs: [chartNav.li, configNav.li, dataNav.li],
+    tabs: tabs.el,
     notes: demoData.demoObjectMap[initialDemoId],
     modes: { demoMode: 'single', onModeChanged }
   });
@@ -173,19 +168,7 @@ export function demoSingle(props: DemoSingleProps): DemoSingleHandle {
   // Applied config/data edits are held until the Chart tab is shown; badge the
   // Chart tab so it's visible that something is waiting there.
   function sync(): void {
-    const hasPendingChanges = activeKey !== eventKeyChart && (pendingConfig !== null || pendingData !== null);
-    chartNav.button.classList.toggle('active', activeKey === eventKeyChart);
-    configNav.button.classList.toggle('active', activeKey === eventKeyConfig);
-    dataNav.button.classList.toggle('active', activeKey === eventKeyData);
-    chartNav.button.title = hasPendingChanges ? demoText.tabs.chartPendingTitle : '';
-    if (hasPendingChanges) {
-      if (pendingBadge.parentElement === null) {
-        chartNav.button.append(pendingBadge);
-      }
-    }
-    else {
-      pendingBadge.remove();
-    }
+    tabs.sync(activeKey, pendingConfig !== null || pendingData !== null);
 
     chartBoundary.setActive(activeKey === eventKeyChart);
     configBoundary.setActive(activeKey === eventKeyConfig);

@@ -148,7 +148,7 @@ export function dataTab(props: DataTabProps): DataTabHandle {
   const container = tabContainer('demo-layout-col data', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [dataEditor.el]),
     footer
-  ]);
+  ], 'data');
 
   /**
    * Where every footer control lives right now. Reparenting, never

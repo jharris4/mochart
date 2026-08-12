@@ -5,7 +5,7 @@ import { Chart } from '@mochart/vue';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { getChartExportOptions, demoText } from '@mochart/demo-common';
+import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -140,10 +140,12 @@ const RateField = () => h('div', { class: 'demo-field demo-menu-keep-open' }, [
     onInput: rateChanged
   })
 ]);
+
+const panelAttrs = getDemoTabPanelAttrs('chart');
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')" :inert="!props.active">
+  <div v-bind="panelAttrs" :class="'mochart-demo-tab-container demo-layout-col chart' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="random-chart-sizer" ref="chartSizerElement">
       <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
              :mochart-config="props.mochartConfig" :data-provider="props.dataProvider" />

@@ -184,7 +184,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     ])
   ]);
 
-  const container = tabContainer('demo-layout-col chart', active, [chartSizer, controls]);
+  const container = tabContainer('demo-layout-col chart', active, [chartSizer, controls], 'chart');
 
   /**
    * Where every control of the strip lives right now. Reparenting, never

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, watch } from 'vue';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -124,10 +124,12 @@ const ApplyButton = () => h(ButtonWithTooltip, {
   tooltipText: demoText.dataTab.apply.tooltip, tooltipPlacement: 'top-start',
   onClick: applyData, 'aria-label': demoText.dataTab.apply.aria
 }, iconChild('check'));
+
+const panelAttrs = getDemoTabPanelAttrs('data');
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')" :inert="!props.active">
+  <div v-bind="panelAttrs" :class="'mochart-demo-tab-container demo-layout-col data' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
       <JsonEditorContent :value="dataText" :ariaLabel="demoText.dataTab.editorAria" :on-change="onTextChange" />
     </div>

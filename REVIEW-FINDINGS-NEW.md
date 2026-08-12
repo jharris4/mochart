@@ -3410,7 +3410,7 @@ alive for the page's lifetime. The binding this file explicitly mirrors guards e
 **Fix:** track a `destroyed` flag (or cancel the queued mount) and bail inside the microtask.
 
 ### DEMO-9 — tab strips carry no tab semantics, and Multi renders a dead tab button
-**Medium · Bug (a11y) · [vanilla DemoSingle.ts:115](packages/mochart-demo-vanilla/src/components/single/DemoSingle.ts#L115), [DemoMulti.ts:37](packages/mochart-demo-vanilla/src/components/multi/DemoMulti.ts#L37), all six ports** — **Open**
+**Medium · Bug (a11y) · [vanilla DemoSingle.ts:115](packages/mochart-demo-vanilla/src/components/single/DemoSingle.ts#L115), [DemoMulti.ts:37](packages/mochart-demo-vanilla/src/components/multi/DemoMulti.ts#L37), all six ports** — **Fixed**
 
 The Chart/Config/Data strip is `<ul><li><button class="demo-tab active">` with no
 `role="tablist"`/`role="tab"`, no `aria-selected`, no `aria-controls`, no `aria-current` —
@@ -3421,6 +3421,54 @@ in a `title`, so that signal is inaudible too.
 **Fix:** add `role="tablist"`/`role="tab"` + `aria-selected` + `aria-controls` and `role="tabpanel"`
 on the container; render Multi's single tab as non-interactive; expose the pending state via
 `aria-describedby` or visually-hidden text.
+
+**Fixed in demo-common, wired into all six ports, and verified in a browser.**
+
+`demo-common/src/tabs.ts` (new) holds the framework-free part: the `DemoTab` descriptor types,
+`demoTabId`/`demoTabPanelId`/`demoTabPendingId`, `getDemoTabPanelAttrs(name)` returning
+`{ id, role: 'tabpanel', 'aria-labelledby' }` spreadable in every template dialect, and
+`nextDemoTabIndex(key, activeIndex, count)` — the horizontal-tablist key contract (Left/Right wrapping,
+Home/End, `null` for keys the strip must not swallow). One new copy string, `demoText.tabs.listAria`, names
+the tablist, which has no visible label. Seven tests in `demo-common/test/tabs.test.ts`.
+
+Each port gained one tab-strip component owning the `role="tablist"` list, `role="presentation"` on the
+items, and per tab `role="tab"` + `id` + `aria-selected` + `aria-controls` + roving `tabindex` + click and
+keydown. `TopBar` stopped wrapping the projected tabs in its own list, the four views with a strip (single,
+multi, transition, random) pass descriptors instead of markup, and the eight panes carry the panel attrs.
+
+Three judgement calls worth recording:
+
+* **Multi's dead tab button is now a caption, not a one-tab tablist** — a `span`, no roles. A tab you
+  cannot activate is the same dead control in ARIA clothing, and with a single pane there is nothing to
+  navigate. Its pane therefore carries no `tabpanel` role, since there is no tablist for it to belong to.
+* **The keyboard is the full APG pattern, not a partial one**: automatic activation (arrowing selects,
+  which is what a click always did, and every pane stays mounted so it costs nothing), roving `tabindex`
+  so the strip is a single Tab stop, Home/End, wrapping, and `preventDefault` only for keys the strip owns.
+  No `tabindex="0"` on the panels — they all contain focusable controls, so that would only add a
+  redundant stop.
+* `aria-selected`, not the `aria-current` the finding suggests: `aria-current` is not a tab state.
+  `aria-current` belongs to [DEMO-10](#demo-10--115-roletoolbar-containers-none-with-an-accessible-name)'s
+  mode switcher, untouched here.
+
+The pending badge is now audible too: a hidden note holds the explanation and the Chart tab points
+`aria-describedby` at it while the badge shows.
+
+Browser-verified with Chromium against the built **vanilla** and **angular** (zoneless, the riskier) demos:
+the tablist and its `aria-label`, three tabs with `aria-selected`, `aria-controls` resolving to three
+`tabpanel`s whose `aria-labelledby` resolves back, inactive ones `inert`; `ArrowRight` three times walks
+Chart → Config → Data and wraps, `ArrowLeft` wraps the other way, Home/End jump, one `Tab` leaves the strip
+entirely, `ArrowDown` does nothing, `Enter` still activates; the pending state exposes
+`role: tab, selected: false, description: "Applied changes are waiting…"` in the accessibility tree; and
+Multi's strip contributes zero tab nodes and zero focus stops.
+
+The finding located the strip in Single and Multi; the same strip is also in Random and Transition, so
+those are fixed too — otherwise the ports would disagree with themselves. Whole-repo typecheck and lint
+clean, demo-common 254 tests pass, all six ports build.
+
+Two things deliberately left: `.demo-tab { cursor: pointer }` still applies to Multi's caption span (fixing
+it needs `css/demo.css`), and the ErrorTab fallback pane does not reproduce the panel id, so `aria-controls`
+dangles in that state only — threading a tab name through it is roughly seven call sites in six ports for a
+boundary that already announces itself with `role="alert"`.
 
 ### DEMO-10 — 115 `role="toolbar"` containers, none with an accessible name
 **Medium · Bug (a11y) · [vanilla ModeSwitcher.ts:30](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L30) and 114 more sites** — **Open**

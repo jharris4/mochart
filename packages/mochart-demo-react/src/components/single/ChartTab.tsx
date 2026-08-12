@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 
 import { hasConfigStructureChange } from '@mochart/core';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
 import { useElementSize } from '../misc/useElementSize';
 import EditableChart from './EditableChart';
@@ -175,7 +175,7 @@ export default function MochartChartTab({ config = null, data = null, dataError 
   }
 
   return (
-    <div ref={elementRef} className={"mochart-demo-tab-container demo-layout-row chart" + (active ? " active" : "")} inert={!active}>
+    <div {...getDemoTabPanelAttrs('chart')} ref={elementRef} className={"mochart-demo-tab-container demo-layout-row chart" + (active ? " active" : "")} inert={!active}>
       <div className="editable-charts-sizer">
         <div className="editable-charts">
           {charts}

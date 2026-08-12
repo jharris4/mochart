@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, demoText, formatTransitionConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -53,10 +53,12 @@ const jsonError = computed(() => {
   }
 });
 const footerError = computed(() => jsonError.value ?? errorMessage.value);
+
+const panelAttrs = getDemoTabPanelAttrs('config');
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')" :inert="!props.active">
+  <div v-bind="panelAttrs" :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
       <JsonEditorContent :value="configText" :ariaLabel="demoText.transitionConfigTab.editorAria" :on-change="onTextChange" />
     </div>

@@ -19,7 +19,9 @@ export const demoText = {
     data: 'Data',
     randomConfig: 'Random Config',
     transitionConfig: 'Transition Config',
-    chartPendingTitle: 'Applied changes are waiting — switch here to see them'
+    chartPendingTitle: 'Applied changes are waiting — switch here to see them',
+    // Accessible name of the strip itself (a tablist), which has no visible label.
+    listAria: 'Demo views'
   },
   errors: {
     errorOccurred: 'An Error Occurred',

@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { JsonEditorContent } from '../misc/json-editor-content';
@@ -41,7 +41,8 @@ import type { DemoConfig, DataRow } from '../../types';
 
     <!-- Same fold as the config footer — Apply and the \`role="alert"\` error
          stay inline, the rest goes to the \`⋯\`; the reasons live on ConfigTab. -->
-    <div [class]="'mochart-demo-tab-container demo-layout-col data' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
+    <div [id]="panelAttrs.id" [attr.role]="panelAttrs.role" [attr.aria-labelledby]="panelAttrs['aria-labelledby']"
+         [class]="'mochart-demo-tab-container demo-layout-col data' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
         <app-json-editor-content [value]="dataText()" [ariaLabel]="text.editorAria" [onChange]="onTextChange" />
       </div>
@@ -69,6 +70,8 @@ import type { DemoConfig, DataRow } from '../../types';
   `
 })
 export class DataTab implements OnInit, OnChanges {
+  readonly panelAttrs = getDemoTabPanelAttrs('data');
+
   @Input() active = false;
 
   // The phone fold (see the comment above the pane in the template).

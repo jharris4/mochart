@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
   import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -202,7 +202,7 @@
   <DocsLinks config={demoConfig.configWithoutDefaults} />
 {/snippet}
 
-<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
+<div {...getDemoTabPanelAttrs('config')} class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
     <JsonEditorContent value={configText} ariaLabel={demoText.configTab.editorAria} formatOnSet={true} mochartSupport={true}
                        bind:this={editor} onChange={onTextChange} />

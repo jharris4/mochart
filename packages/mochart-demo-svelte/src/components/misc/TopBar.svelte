@@ -33,7 +33,7 @@
     /** Undefined in a standalone build, where there is no docs site to go back to. */
     siteRootUrl?: string;
     onBackToDemos: () => void;
-    /** The `<li class="demo-tab-item">` elements of the view's tab strip. */
+    /** The view's tab strip (`DemoTabs`/`StaticDemoTabs`), if the view has one. */
     tabs?: Snippet;
     /** The demo the ⓘ popover describes. The standalone pages describe none. */
     notes?: { title: string; notes?: string };
@@ -55,7 +55,7 @@
        class and the trigger that justifies it render together or not at all. -->
   <div class="mochart-demo-tabs-container demo-has-overflow">
     <div class="mochart-demo-nav-group">
-      {#if tabs !== undefined}<ul class="demo-tabs">{@render tabs()}</ul>{/if}
+      {#if tabs !== undefined}{@render tabs()}{/if}
     </div>
     <OverflowMenu text={demoText.overflowMenu.nav} placement={{ side: 'bottom', align: 'end', gap: 6 }}>
       <!-- The menu's contents, in the order a thumb should meet them: what
@@ -87,7 +87,7 @@
     <div class="mochart-demo-nav-group">
       <SiteRootButton {siteRootUrl} />
       <BackToDemosButton {onBackToDemos} />
-      {#if tabs !== undefined}<ul class="demo-tabs">{@render tabs()}</ul>{/if}
+      {#if tabs !== undefined}{@render tabs()}{/if}
       {#if notes !== undefined && notes.notes !== undefined}
         <NotesMenu title={notes.title} notes={notes.notes} />
       {/if}

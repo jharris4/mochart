@@ -8,6 +8,7 @@ import TopBar from '../misc/TopBar.vue';
 import ChartTab from './ChartTab.vue';
 import ConfigTab from './ConfigTab.vue';
 import DataTab from './DataTab.vue';
+import DemoTabs from '../misc/DemoTabs.vue';
 import ErrorTab from '../misc/ErrorTab.vue';
 
 import type { DemoData, DemoConfig, DataRow } from '../../types';
@@ -123,25 +124,12 @@ const chartDataError = computed(() => viewingDataError.value || getConfigDataErr
             :notes="props.demoData.demoObjectMap[props.initialDemoId]"
             :modes="{ demoMode: 'single', onModeChanged: props.onModeChanged }">
       <template #tabs>
-        <li class="demo-tab-item">
-          <button type="button" :class="'demo-tab' + (activeKey === eventKeyChart ? ' active' : '')"
-                  :title="hasPendingChanges ? demoText.tabs.chartPendingTitle : undefined"
-                  @click="handleSelect(eventKeyChart)">
-            {{ demoText.tabs.chart }}<span v-if="hasPendingChanges" class="mochart-pending-badge" aria-hidden="true"></span>
-          </button>
-        </li>
-        <li class="demo-tab-item">
-          <button type="button" :class="'demo-tab' + (activeKey === eventKeyConfig ? ' active' : '')"
-                  @click="handleSelect(eventKeyConfig)">
-            {{ demoText.tabs.config }}
-          </button>
-        </li>
-        <li class="demo-tab-item">
-          <button type="button" :class="'demo-tab' + (activeKey === eventKeyData ? ' active' : '')"
-                  @click="handleSelect(eventKeyData)">
-            {{ demoText.tabs.data }}
-          </button>
-        </li>
+        <DemoTabs :active-key="activeKey" :on-select="handleSelect"
+                  :tabs="[
+                    { name: 'chart', key: eventKeyChart, label: demoText.tabs.chart, pending: hasPendingChanges },
+                    { name: 'config', key: eventKeyConfig, label: demoText.tabs.config },
+                    { name: 'data', key: eventKeyData, label: demoText.tabs.data }
+                  ]" />
       </template>
     </TopBar>
     <div class="mochart-demo-content-pane">

@@ -3,7 +3,7 @@ import type { AfterViewInit, OnChanges, OnDestroy, OnInit, SimpleChanges } from 
 
 import { hasConfigStructureChange } from '@mochart/core';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
 import { EditableChart } from './editable-chart';
 import { createElementSize } from '../misc/element-size';
@@ -19,7 +19,8 @@ const defaultChartCount = 1;
   imports: [EditableChart],
   styles: [':host { display: contents; }'],
   template: `
-    <div #container [class]="'mochart-demo-tab-container demo-layout-row chart' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
+    <div #container [id]="panelAttrs.id" [attr.role]="panelAttrs.role" [attr.aria-labelledby]="panelAttrs['aria-labelledby']"
+         [class]="'mochart-demo-tab-container demo-layout-row chart' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="editable-charts-sizer">
         <div class="editable-charts">
           @if (mochartDemoConfig() && width() > 0) {
@@ -37,6 +38,8 @@ const defaultChartCount = 1;
   `
 })
 export class ChartTab implements OnInit, OnChanges, AfterViewInit, OnDestroy {
+  readonly panelAttrs = getDemoTabPanelAttrs('chart');
+
   @Input() config: DemoConfig | null = null;
   @Input() data: DataRow[] | null = null;
   @Input() dataError: string | boolean | null = false;

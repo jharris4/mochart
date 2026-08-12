@@ -5,7 +5,7 @@
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
 
-  import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+  import { demoText, formatRandomConfig, getDemoTabPanelAttrs, validateRandomConfig } from '@mochart/demo-common';
 
   import type { RandomConfigWithValid } from '../../types';
 
@@ -68,7 +68,7 @@
   const footerError = $derived(jsonError ?? errorMessage);
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
+<div {...getDemoTabPanelAttrs('config')} class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
     <JsonEditorContent value={configText} ariaLabel={demoText.randomConfigTab.editorAria} formatOnSet={true} onChange={onTextChange} />
   </div>

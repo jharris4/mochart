@@ -5,7 +5,7 @@ import type { PropertyValues } from 'lit';
 
 import { hasConfigStructureChange } from '@mochart/core';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { ElementSizeController } from '../misc/ElementSizeController';
@@ -16,6 +16,8 @@ import type { DemoConfig, DataRow, MochartDemoConfig, FocusData, FilteredSeriesI
 const minChartWidthForSecondChart = 480;
 const scrollWidthOffset = 20;
 const defaultChartCount = 1;
+
+const panelAttrs = getDemoTabPanelAttrs('chart');
 
 @customElement('chart-tab')
 export class ChartTab extends LightElement {
@@ -118,7 +120,8 @@ export class ChartTab extends LightElement {
     const adjustedChartCount = Math.min(this.chartCount, allowedChartCount);
     const chartWidth = Math.floor((width - scrollWidthOffset) / adjustedChartCount);
     const chartIndices = Array.from({ length: adjustedChartCount }, (_unused, index) => index + 1);
-    return html`<div ${ref(this.size.attach)} class=${'mochart-demo-tab-container demo-layout-row chart' + (this.active ? ' active' : '')} ?inert=${!this.active}>
+    return html`<div ${ref(this.size.attach)} id=${panelAttrs.id} role=${panelAttrs.role} aria-labelledby=${panelAttrs['aria-labelledby']}
+        class=${'mochart-demo-tab-container demo-layout-row chart' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="editable-charts-sizer">
         <div class="editable-charts">
           ${this.mochartDemoConfig && width > 0

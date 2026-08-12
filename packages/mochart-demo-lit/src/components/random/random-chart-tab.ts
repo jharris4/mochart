@@ -6,7 +6,7 @@ import { chart } from '@mochart/lit';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { getChartExportOptions, demoText } from '@mochart/demo-common';
+import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -21,6 +21,8 @@ const defaultRate = 2000;
 
 /** The strip sits at the bottom of the pane, so its menu opens upward. */
 const randomPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+
+const panelAttrs = getDemoTabPanelAttrs('chart');
 
 @customElement('random-chart-tab')
 export class RandomChartTab extends LightElement {
@@ -137,7 +139,8 @@ export class RandomChartTab extends LightElement {
     // by hand is the mode's primary interaction — and demotes the automation
     // transport (Play / Stop) with the Reuse toggle and the interval field.
     const folded = this.viewport.isPhone;
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')} ?inert=${!this.active}>
+    return html`<div id=${panelAttrs.id} role=${panelAttrs.role} aria-labelledby=${panelAttrs['aria-labelledby']}
+        class=${'mochart-demo-tab-container demo-layout-col chart' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="random-chart-sizer">
         ${chart({
           style: 'flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;',
