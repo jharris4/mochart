@@ -10,26 +10,13 @@ import { mochartCssClasses } from '../../src/utils/ChartDom';
 /** The one value holding two complete classes rather than a base and a prefix. */
 const COMPOUND_EXCEPTION = 'chartError';
 
-/** Missing the library prefix; tracked as API-3, which is a breaking rename. */
-const UNPREFIXED = ['crosshairCategoryLines', 'crosshairSeriesLines', 'crosshairLine'];
-
 describe('mochartCssClasses', () => {
   it('gives every token the library prefix', () => {
     for (const [key, value] of Object.entries(mochartCssClasses)) {
-      if (UNPREFIXED.includes(key)) {
-        continue;
-      }
       for (const token of value.split(' ')) {
         expect(token, key).toMatch(/^mochart-/);
       }
     }
-  });
-
-  it('has exactly the three known unprefixed entries, and no more', () => {
-    const unprefixed = Object.entries(mochartCssClasses)
-      .filter(([, value]) => value.split(' ').some(token => !token.startsWith('mochart-')))
-      .map(([key]) => key);
-    expect(unprefixed).toEqual(UNPREFIXED);
   });
 
   it('makes every two-token value a shared class plus its own id prefix', () => {

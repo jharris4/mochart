@@ -7,11 +7,16 @@
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
+import { mochartCssClasses } from '../../src/utils/ChartDom';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartEventPayload, ChartFocus, ChartSeriesClickPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 
 const VERSION = '1.0.0';
+const crosshairLine = '.' + mochartCssClasses['crosshairLine'];
+const crosshairCategoryLines = '.' + mochartCssClasses['crosshairCategoryLines'];
+const crosshairSeriesLines = '.' + mochartCssClasses['crosshairSeriesLines'];
+const crosshair = '.' + mochartCssClasses['crosshair'];
 const WIDTH = 800;
 const HEIGHT = 600;
 
@@ -270,13 +275,13 @@ describe('tooltip', () => {
     const root = chartRoot(container);
 
     // the crosshair root group is always mounted; its lines appear on toggle
-    expect(container.querySelectorAll('.crosshair-line').length).toBe(0);
+    expect(container.querySelectorAll(crosshairLine).length).toBe(0);
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
-    expect(container.querySelectorAll('.crosshair-line').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll(crosshairLine).length).toBeGreaterThan(0);
 
     mouse(root, 'click', 100, 100);
-    expect(container.querySelectorAll('.crosshair-line').length).toBe(0);
+    expect(container.querySelectorAll(crosshairLine).length).toBe(0);
   });
 
   it('opens on hover and closes on leave when followPointer is enabled', () => {
@@ -742,7 +747,7 @@ describe('tooltip', () => {
     expect(moves[moves.length - 1].categoryIndex).toBe(rows.length - 1);
 
     mouse(root, 'click', midX, plot.y + 1);
-    const line = container.querySelector('.crosshair-line');
+    const line = container.querySelector(crosshairLine);
     expect(line).not.toBeNull();
     // horizontal category line: spans x, constant y
     expect(line!.getAttribute('y1')).toBe(line!.getAttribute('y2'));
@@ -759,7 +764,7 @@ describe('tooltip', () => {
 
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
-    const seriesLines = () => container.querySelectorAll('.crosshair-series-lines .crosshair-line');
+    const seriesLines = () => container.querySelectorAll(`${crosshairSeriesLines} ${crosshairLine}`);
     expect(seriesLines().length).toBe(0);
 
     const line = container.querySelector('.mochart-tooltip [class*="mochart-tooltip-series-line-S0"]')!;
@@ -775,7 +780,7 @@ describe('tooltip', () => {
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
     expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
-    expect(container.querySelectorAll('.crosshair-category-lines .crosshair-line').length).toBe(0);
+    expect(container.querySelectorAll(`${crosshairCategoryLines} ${crosshairLine}`).length).toBe(0);
   });
 
   it('renders an axis focus range for the focused category', () => {
@@ -812,7 +817,7 @@ describe('tooltip', () => {
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
     expect(container.querySelector('.mochart-tooltip')).toBeNull();
-    expect(container.querySelector('.mochart-crosshair')).toBeNull();
+    expect(container.querySelector(crosshair)).toBeNull();
   });
 });
 
