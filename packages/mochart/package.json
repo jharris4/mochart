@@ -36,7 +36,9 @@
       "development": "./src/index.ts",
       "default": "./dist/mochart.js"
     },
-    "./mochart.css": "./css/mochart.css"
+    "./mochart.css": "./css/mochart.css",
+    "./mochart.iife.js": "./dist/mochart.iife.js",
+    "./package.json": "./package.json"
   },
   "files": [
     "src",
