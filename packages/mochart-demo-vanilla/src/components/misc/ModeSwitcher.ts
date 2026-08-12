@@ -147,15 +147,6 @@ export function themeToggle(): ThemeToggleHandle {
   return { el: button, destroy: unsubscribe };
 }
 
-/**
- * Element-only form, for the one caller that cannot use the handle: the gallery
- * header, whose own component returns `{ el }` and has no teardown at all to
- * hang an unsubscribe on. Every other caller should take `themeToggle()`.
- */
-export function themeToggleButton(): HTMLElement {
-  return themeToggle().el;
-}
-
 export function backToDemosButton(onBackToDemos: () => void): HTMLElement {
   const button = el('button', {
     className: 'demo-btn demo-btn-secondary mochart-demo-back-button',

@@ -3447,7 +3447,7 @@ mid-keystroke parse failure and the parses-but-does-not-build case. demo-common 
 typecheck and lint clean.
 
 ### DEMO-7 — vanilla leaks a theme subscription and the whole gallery DOM on every visit
-**Medium · Bug · [vanilla ModeSwitcher.ts:154](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L154)** — **Open**
+**Medium · Bug · [vanilla ModeSwitcher.ts:154](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L154)** — **Fixed**
 
 `themeToggleButton()` returns `themeToggle().el` and discards the `theme.onChange` unsubscribe. Its
 only caller is the gallery header, and `mountApp`'s `clearView()` has no `gallery` branch while
@@ -3458,6 +3458,38 @@ unsubscribing component instead.
 
 **Fix:** give `galleryPage` a `destroy()` that calls the theme toggle handle's `destroy`, and add a
 `gallery` branch to `clearView()`.
+
+**Fixed, and measured.** `GalleryPage` now takes the `themeToggle()` handle rather than the element-only
+form and exposes `destroy()`, which drops the toggle's theme subscription; `App.clearView()` calls it in the
+same branch as single/multi/random. The module-level `theme` controller kept a listener set for the tab's
+lifetime, so every `showGallery()` added one permanent listener whose closure held the detached button and,
+through its parent chain, the entire discarded gallery DOM.
+
+`themeToggleButton()` is deleted rather than kept: it existed only for the gallery, "the one caller that
+cannot use the handle", which now can. Leaving it would be a live trap for the next caller, and nothing else
+imported it. The finding's wording implied keeping it, so this is a deliberate departure.
+
+Measured in Chromium over the built gallery, 20 gallery ⇄ demo round trips, with
+`HeapProfiler.collectGarbage` then `Performance.getMetrics` and a direct count of retained toggle buttons
+via `Runtime.queryObjects`:
+
+| | after one gallery | after 20 round trips |
+|---|---|---|
+| before | 805 nodes, 143 listeners, 1 toggle | **15,427 nodes, 2,663 listeners, 21 toggles** |
+| after | 805 nodes, 143 listeners, 1 toggle | **807 nodes, 143 listeners, 1 toggle** |
+
+21 retained toggles for 20 trips is exactly one leaked gallery per visit, and growth is now flat — identical
+at 20 and 60 trips. Worth recording for the next person who measures this: `Runtime.queryObjects` returns an
+array that itself pins every object it found, so an unreleased handle from the first sample makes the fixed
+build look like it still retains a view; releasing both remote objects before collecting again is what
+produces the flat 807.
+
+Functionally checked on the same build: the revisited gallery's toggle still flips the theme and repaints its
+own label, a theme change made inside a demo shows up in the gallery built afterwards, and exactly one toggle
+exists at a time. Workspace typecheck and lint clean.
+
+The `message` view has the same missing `clearView()` branch but owns no subscriptions and nothing retains
+its element, so it is not a leak and was left alone.
 
 ### DEMO-8 — vanilla `chartHost` can mount a chart after it has been destroyed
 **Medium · Bug · [vanilla chartHost.ts:56](packages/mochart-demo-vanilla/src/components/misc/chartHost.ts#L56)** — **Open**
