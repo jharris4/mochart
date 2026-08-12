@@ -53,16 +53,19 @@ export default tseslint.config(
   // find bugs rather than describe the type system.
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.mts'],
-    // These belong to no tsconfig (build configs and standalone scripts), so
-    // the project service cannot type them. They still get the syntactic rules.
-    ignores: [
-      '**/*.config.ts',
-      'packages/mochart-docs/**',
-      'packages/mochart-demo-common/scripts/**'
-    ],
+    // The 18 vite/vitest/playwright configs sit outside their own package's
+    // tsconfig `include`, so the project service cannot type them. They still
+    // get the syntactic rules, and a dropped await in a build config fails the
+    // build loudly rather than silently.
+    ignores: ['**/*.config.ts'],
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        // The docs' two `reference/` route loaders are the only other files no
+        // tsconfig claims; an inferred default project types them. The option
+        // caps at 8 files, which is why the configs above can't use it too.
+        projectService: {
+          allowDefaultProject: ['packages/mochart-docs/reference/*.ts']
+        },
         tsconfigRootDir: import.meta.dirname
       }
     },
