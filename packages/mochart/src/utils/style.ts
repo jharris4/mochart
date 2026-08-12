@@ -27,6 +27,8 @@ const styleAttributeOrder: [keyof Style, keyof StyleAttributes][] = [
  * A style color as one css color, for the html parts of the chart that have no
  * separate opacity attribute. A null opacity returns the color exactly as
  * configured, so keywords like `currentColor`, which d3 cannot parse, still work.
+ * A keyword with an opacity goes through `color-mix`, which the browser resolves
+ * after `currentColor` does.
  */
 export function cssStyleColor(styleColor: string | null | undefined, styleOpacity: number | null | undefined): string | null {
   if (styleColor === null || styleColor === undefined || styleOpacity === null || styleOpacity === undefined) {
@@ -34,10 +36,15 @@ export function cssStyleColor(styleColor: string | null | undefined, styleOpacit
   }
   const parsed = color(styleColor);
   if (parsed === null) {
-    return styleColor;
+    return styleOpacity >= 1 ? styleColor : `color-mix(in srgb, ${styleColor} ${cssPercent(styleOpacity)}%, transparent)`;
   }
   parsed.opacity *= styleOpacity;
   return parsed.toString();
+}
+
+// trimmed, because 0.9 * 100 is 90.00000000000001
+function cssPercent(fraction: number): number {
+  return Number((fraction * 100).toFixed(4));
 }
 
 /** A `null` is passed through rather than dropped: it means "remove the attribute". Members absent from the style stay absent. */
