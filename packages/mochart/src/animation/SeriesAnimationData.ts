@@ -4,7 +4,7 @@ import { getCategoryDataWithRenderAxisDomain, getCategoryDataFromValues, getCate
 
 import { getMaxDomain, getSafeDomainExtent, getSafeDomainExtents } from '../data/DomainData';
 
-import { getSeriesContainerFilteredSeriesCounts, getSeriesDataWithRenderAxisDomains, getSeriesDataWithSeriesValues,
+import { getSeriesContainerVisibleSeriesCounts, getSeriesDataWithRenderAxisDomains, getSeriesDataWithSeriesValues,
   getSeriesDataWithDomains, setMinMax } from '../data/SeriesData';
 
 import { createArrayFilledWithUndefined, createArrayWithValueIfNotUndefined, copyArrayWithValueIfNotUndefined,
@@ -86,7 +86,7 @@ export function getFilterDeltaData(mochartConfig: EnhancedMochartConfig, oldSeri
   if (!areMapsEqual(oldSeriesData.filteredFlags, newSeriesData.filteredFlags)) {
     const filteredFlags = getFilteredFlagsFromValues(oldSeriesData, newSeriesData);
     filtersChanged = true;
-    axisSeriesCounts = getSeriesContainerFilteredSeriesCounts(mochartConfig.valueAxes, filteredFlags);
+    axisSeriesCounts = getSeriesContainerVisibleSeriesCounts(mochartConfig.valueAxes, filteredFlags);
   }
   return {
     filtersChanged,

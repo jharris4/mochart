@@ -38,7 +38,7 @@ export function getValueAxisSizes(axisConfigs: EnhancedValueAxisConfig[], axisDa
   });
 }
 
-export function createValueAxisLayoutInfos(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, _chartData: ChartDataForLayout | null, valueAxisRotatedTickBounds: Record<string, Bounds>, axisTickInfos: AxisTickInfos, categoryY: number, valueY: number, categoryInnerExtent: number, valueInnerExtent: number, categoryAxesOffset: BeforeAfter, valueAxesOffset: BeforeAfter, valueAxisSizes: Record<string, number>, _valueAxisFilteredSeriesCounts: Record<string, number>, valueAxesCollapsedAfter: number): Record<string, AxisLayoutInfo> {
+export function createValueAxisLayoutInfos(mochartConfig: EnhancedMochartConfig, chartTextBoundsData: ChartTextBoundsData, _chartData: ChartDataForLayout | null, valueAxisRotatedTickBounds: Record<string, Bounds>, axisTickInfos: AxisTickInfos, categoryY: number, valueY: number, categoryInnerExtent: number, valueInnerExtent: number, categoryAxesOffset: BeforeAfter, valueAxesOffset: BeforeAfter, valueAxisSizes: Record<string, number>, _valueAxisVisibleSeriesCounts: Record<string, number>, valueAxesCollapsedAfter: number): Record<string, AxisLayoutInfo> {
   const { plot: plotConfig, valueAxes: valueAxisConfigs } = mochartConfig;
   const { valueAxisTitleBounds, valueAxisTickBounds, valueAxisThresholdTitleBounds } = chartTextBoundsData;
   const { valueAxisTickInfos } = axisTickInfos;
