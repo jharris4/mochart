@@ -309,6 +309,28 @@ mount, static update, mid-tween, and settled states) and compare serialized
 SVG against checked-in snapshots — they are the primary regression oracle for
 renderer changes.
 
+## The `development` export condition
+
+The `exports` map has a `development` entry pointing at this package's
+TypeScript sources, alongside the `default` entry pointing at the built
+`dist/`. It exists for this repository's own dev servers and `tsx` scripts,
+which run the library from source — scripts need `tsx --conditions=development`
+or they read a stale `dist/`.
+
+Bundlers that enable the `development` condition resolve it as well. Vite does:
+its default `resolve.conditions` are `['module', 'browser',
+'development|production']`, so `vite dev` (and Vite's SSR dev pipeline) load
+`src/` out of `node_modules`, while `vite build` matches `production` and loads
+`dist/`. If loading unbuilt source is a problem for your dev server, list the
+conditions explicitly and leave `development` out:
+
+```js
+// vite.config.ts
+export default defineConfig({
+  resolve: { conditions: ['module', 'browser', 'production'] }
+});
+```
+
 ## License
 
 MIT
