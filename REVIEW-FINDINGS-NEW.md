@@ -3296,7 +3296,7 @@ model change.
 ---
 
 ### BIND-13 — the single-chart export markup is not well-formed XML
-**Medium · Bug · [Chart.ts:1316](packages/mochart/src/components/Chart.ts#L1316), [export/index.ts](packages/mochart-export/src/index.ts)** — **Open**
+**Medium · Bug · [Chart.ts:1316](packages/mochart/src/components/Chart.ts#L1316), [export/index.ts](packages/mochart-export/src/index.ts)** — **Fixed**
 
 *Found while implementing [BIND-7](#bind-7--exports-lose-web-fonts-and-nothing-says-so), not by either review pass.*
 
@@ -3322,6 +3322,48 @@ reject a duplicate attribute regardless, which is the case the export is for —
 **Fix:** drop the `xmlns` attribute from the live chart svg — the DOM already carries the namespace, so it is
 redundant there — or `removeAttribute('xmlns')` on the clone in `cloneChartSvg`. Then assert a successful XML
 parse of the single-chart export, which the current tests do only for the stitched output.
+
+Fixed clone-side: `cloneChartSvg` now removes the `xmlns` the live chart root
+carries, so the serializer's own declaration is the only one in the output.
+Before the fix, parsing single-chart `getChartSvgText` output as `image/svg+xml`
+gave `1:189: duplicate attribute: xmlns.`; after it, both the single and stitched
+paths parse clean with exactly one declaration each. New test
+`getChartSvgText > serializes as valid xml with a single namespace declaration`;
+the stitched test now asserts the parse-error text so failures quote it, and its
+expected count moves 3 → 1 (the tiles were carrying redundant literal
+declarations too, which the finding did not mention). Bite proof: commenting out
+the one `removeAttribute` line fails both tests. 42 tests pass, coverage above all
+four thresholds.
+
+**The clone-side arm is the right one, not merely the available one.** HTML
+fragment serialization — `svg.outerHTML`, DevTools copy, and the golden snapshot
+oracle — does not synthesize namespace declarations; it only emits attributes that
+are present. Core's literal `xmlns` is what makes such a copy usable as a
+standalone `.svg`. Dropping it in core would fix the XMLSerializer path and
+degrade every HTML-serialization consumer. The duplication is specific to
+re-serializing the element as an XML document *root*, which is exactly what the
+export does, so the export is where it belongs. The core-side arm should be
+closed, not filed.
+
+**The finding understates the severity.** Playwright against all three engines
+shows none of them dedupes and all three reject: Chromium and WebKit
+`Attribute xmlns redefined`, Firefox `duplicate attribute`, and
+`<img src="data:image/svg+xml,…">` fires `onerror` in all three while the
+single-declaration version loads. So single-chart `exportPNG` was failing with
+`mochart-export: failed to rasterize the chart svg` in every real browser, and a
+downloaded single-chart `.svg` would not open — the same failure mode as the
+original stitched-PNG bug, invisible to the suite because jsdom never loads
+images.
+
+**B1's premise was wrong when written.** Core has set `xmlns` since a2e370e6
+(2026-07-16), the only commit ever to touch that string in `Chart.ts`; the export
+package arrived two days later in 2f56a5e2. The attribute did not appear after
+B1 — "the single-chart path never sets `xmlns`" was never true.
+
+Unrelated observation while measuring: this package's coverage flakes run to run
+(functions 96.87 then 93.75, against a 93 floor), most likely the
+`setTimeout(() => URL.revokeObjectURL(url), 1000)` in `saveBlob` racing process
+exit.
 
 # 9. Documentation
 
