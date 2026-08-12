@@ -65,13 +65,14 @@
     "predev": "npm run generate",
     "dev": "vite --config playground/vite.config.ts",
     "build:playground": "npm run generate && vite build --config playground/vite.config.ts",
-    "test": "npm run generate && vitest run",
+    "test": "npm run generate && vitest run --coverage",
     "typecheck": "npm run generate && tsc --noEmit",
     "lint": "eslint .",
     "prepack": "npm run build"
   },
   "devDependencies": {
     "@mochart/core": "^1.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "tsx": "^4.20.6"
   }
 }

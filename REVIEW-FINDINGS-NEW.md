@@ -4340,7 +4340,7 @@ gate to false fails all four. `git diff` on `packages/mochart/src` is empty afte
 Selectors are built from `mochartCssClasses`. Typecheck and lint clean.
 
 ### TEST-11 — coverage is measured and gated in one of the nine published packages
-**Low · Test gap · [mochart/vitest.config.ts:14](packages/mochart/vitest.config.ts#L14) is the only `coverage` block** — **Open**
+**Low · Test gap · [mochart/vitest.config.ts:14](packages/mochart/vitest.config.ts#L14) is the only `coverage` block** — **Fixed**
 
 Measured for the packages with no coverage config at all: `@mochart/export` 30 tests, **88.08%
 stmts / 77.77% branches / 80.65% funcs**; `@mochart/editor` 25 tests, **85.84% stmts / 71.25%
@@ -4353,6 +4353,38 @@ statements and 13 on branches with no floor.
 **Fix:** add a `coverage` block with thresholds a whisker under today's numbers to `mochart-export`
 (88/77/80/88) and `mochart-editor` (85/71/88/90), matching core's pattern. CI already runs
 `npm test` across all workspaces, so no workflow change is needed.
+
+**Fixed, and the finding's own fix would have gated nothing.** A `thresholds` block is only evaluated when
+coverage actually runs, and neither package's `test` script enabled it — export's was `vitest run`, editor's
+`npm run generate && vitest run`. Demonstrated: with a thresholds block but no `--coverage`, forcing
+`statements=99` on export still exits 0 and never measures; with `--coverage` the same threshold errors. So the
+script change was mandatory, and it is what makes CI's `npm test --workspaces --if-present` gate anything.
+
+Both packages now carry a coverage block matching core's shape — `provider: 'v8'`, `include: ['src/**']`,
+`reporter: ['text', 'html']` — and pass `--coverage` in their `test` script, with `@vitest/coverage-v8` declared
+as a devDependency as core does. Neither needs an `exclude`: export has one `src/index.ts`, and editor's
+`model.ts`/`types.ts` are type-only, so they emit nothing and never appear in the report.
+
+**The finding's export thresholds were stale and would have lowered the bar.** It cites 30 tests at
+88.08/77.77/80.65, measured before
+[TEST-1](#test-1--png-export-success-paths-have-never-been-executed) landed. Actual now: 35 tests at 95.38%
+statements / 84.7% branches / 93.54% functions / 95.26% lines. Its proposed 88/77/80/88 floor would have sat
+7–13 points *below* reality — the opposite of the "whisker under" pattern it was copying. Thresholds set from
+measurement instead:
+
+| | statements | branches | functions | lines |
+|---|---|---|---|---|
+| export actual / threshold | 95.38 / **94** | 84.7 / **84** | 93.54 / **93** | 95.26 / **95** |
+| editor actual / threshold | 85.84 / **85** | 71.25 / **71** | 88.15 / **88** | 90.6 / **90** |
+
+Editor's numbers matched the finding exactly. Its `src/support.ts` is the weak spot at 12.5% statements and 0%
+branches, which these thresholds record rather than hide.
+
+Verified through the real npm scripts, not a vitest invocation: `npm test -w @mochart/export` (35 tests) and
+`npm test -w @mochart/editor` (25 tests) both run coverage and exit 0, and raising export's statements
+threshold to 97 fails with `Coverage for statements (94.87%) does not meet global threshold (97%)` while all 35
+tests still pass — so the non-zero exit comes from the gate, not the suite. The lockfile is resynced with the
+two new devDependencies.
 
 ### TEST-12 — B12's fix has no direct assertion, and the golden suite normalizes away the artifact
 **Low · Weak test · [render/dom.ts:87](packages/mochart/src/render/dom.ts#L87); [render.test.ts:307](packages/mochart/test/render/render.test.ts#L307); [golden.test.ts:455](packages/mochart/test/golden/golden.test.ts#L455)** — **Open**

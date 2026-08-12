@@ -44,12 +44,13 @@
     "@mochart/core": "^1.0.0"
   },
   "devDependencies": {
-    "@mochart/core": "^1.0.0"
+    "@mochart/core": "^1.0.0",
+    "@vitest/coverage-v8": "^4.1.10"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepack": "npm run build",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   }
