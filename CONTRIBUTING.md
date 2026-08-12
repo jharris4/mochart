@@ -1,10 +1,12 @@
 # Contributing to mochart
 
 This guide covers how the repo fits together for people changing mochart
-itself — especially the config metadata pipeline, whose sources feed
-validation, the generated documentation, and IDE hovers all at once. For
-using the library, start at the [documentation site](packages/mochart-docs/README.md)
-or the [core README](packages/mochart/README.md).
+itself — especially the two generated-documentation pipelines: the config
+metadata one, whose sources feed validation, the reference pages, and IDE
+hovers all at once, and the props one, read straight from the chart type
+declarations. For using the library, start at the
+[documentation site](packages/mochart-docs/README.md) or the
+[core README](packages/mochart/README.md).
 
 ## Getting started
 
@@ -55,7 +57,12 @@ can never drift from the code:
 - `scripts/configReferenceModel.ts` assembles the structured model;
   `scripts/generator.ts` (`npm run generate-docs -w @mochart/core`) renders
   `mochart-docs.html` and emits `generated/config-reference.json`. It **exits
-  non-zero when the three sources disagree** on a section's keys.
+  non-zero when the three sources disagree** on a section's keys — at every
+  level of nesting, and inside the shape of an array's elements, whose
+  defaults come from the `itemDefaults` the section descriptor declares. The
+  same script emits the API model described
+  [below](#the-props-callbacks-and-framework-props-pipeline), and writes
+  nothing at all when either model fails its checks.
 - `scripts/generateJsdoc.ts` (`npm run generate-jsdoc -w @mochart/core`)
   rewrites the JSDoc on the config interfaces in `src/types/config.ts` from
   the same model. `test/config/jsdocSync.test.ts` fails whenever the file is
@@ -96,6 +103,94 @@ few generated-docs consumers (each is a simple list):
   section id sets (enforced by the docs `scripts/checkSectionCoverage.ts`
   check in its test script).
 
+## The props, callbacks, and framework-props pipeline
+
+Chart props, callbacks, and callback payloads are generated too, from a
+different single source: the **JSDoc on the exported interfaces in
+`packages/mochart/src/types/chart.ts`**. Unlike the config JSDoc, these
+comments are hand-written — they are what ships in the `.d.ts` and what editors
+show on hover, so the hovers and the reference pages cannot disagree.
+
+- `packages/mochart/scripts/apiReferenceModel.ts` reads those interfaces into
+  `generated/api-reference.json`. Its `pageSources` list declares the pages
+  (`/reference/props`, `/reference/callbacks`) and their groups, one group per
+  interface, and carries each group's lead prose.
+- `packages/mochart/scripts/generator.ts` builds the config model and the API
+  model and writes **either both or neither**, so a run that fails its checks
+  leaves the previous artifacts in place rather than half-regenerated ones.
+- `packages/mochart-docs/scripts/generateBindings.ts` reads the five binding
+  packages' prop declarations — the `types.ts` prop interfaces, Angular's
+  `@Input`/`@Output` members, and Vue's runtime prop objects in `props.ts` —
+  together with `api-reference.json`, into
+  `packages/mochart-docs/generated/binding-reference.json`, the model behind
+  `/reference/framework-props`. Each binding prop's description is inherited
+  from the core prop it maps to, so the prose has one home; a binding prop
+  needs its own JSDoc only when it has no core counterpart — the container
+  props a binding owns itself, such as `className`, `class`, `style`,
+  `dataTestId`, and Lit's `chartRef`.
+- All three models render through one dynamic route,
+  `packages/mochart-docs/reference/[section].md`.
+
+All three JSON models are gitignored build artifacts (the standalone
+`mochart-docs.html` render is not — it is tracked, so regenerating it can show
+up as a diff). `npm run gen -w @mochart/docs` rebuilds all three, and the docs
+`dev`, `build`, and `test` scripts each run it first — so these generators gate
+the docs build *and* root `npm test`.
+
+### What fails the generators
+
+Besides the config key parity above, each of these is reported as an integrity
+error naming the interface, prop, or package at fault:
+
+- an interface exported from `types/chart.ts` that no page group covers — add
+  a group to `pageSources`, or an entry to `internalInterfaces` with the
+  reason it needs no page (and delete the `internalInterfaces` entry when the
+  interface goes away);
+- a member of a documented interface with no JSDoc description;
+- a binding prop that neither maps to a core prop nor documents itself;
+- a core prop with no counterpart in one of the bindings, unless that
+  binding's `expectedMissing` gives a reason — and a stale `expectedMissing`
+  entry, for a prop the binding has now or that core no longer has, fails the
+  same way;
+- Vue's `props.ts` and `types.ts` declaring different prop keys.
+
+`packages/mochart-docs/scripts/checkApiCoverage.ts` is the backstop the
+generators cannot be — it catches a member quietly moving to an interface
+nothing documents. It requires that every public export of `@mochart/core`,
+`@mochart/export`, and `@mochart/editor` (resolved through the TypeScript
+checker, so no export syntax hides one) is named on some guide, reference, or
+recipe page; that every `ChartHandle` method appears as a call, `` `method( ``,
+so a rename breaks the check; that every prop-interface member reached the
+api-reference model; and that the non-JS surface — the optional stylesheet
+subpath exports and the script-tag IIFE artifact — is mentioned as well.
+Exports declared under `src/types/` are exempt: that surface is the generated
+config reference and the shipped `.d.ts`. A name that should stay
+undocumented goes in the script's `undocumented` map with a reason.
+
+### Adding a chart prop, callback, or payload field, end to end
+
+1. Add the member to its interface in `packages/mochart/src/types/chart.ts`
+   **with a JSDoc description** — the generator fails without one, and that
+   comment is the only place the description is written.
+2. A new payload or props interface also needs a group in `pageSources`
+   (`packages/mochart/scripts/apiReferenceModel.ts`), with the title, page,
+   and description the reference should show — or an `internalInterfaces`
+   entry saying why it is not documented.
+3. Implement the behavior in core.
+4. Give all five bindings a counterpart, or a reason not to. The mapper
+   recognizes the same name, an Angular output that drops the `on` prefix
+   (`onChartClick` → `chartClick`, or `onFocus` → `focusChange` where the bare
+   name would shadow a DOM event), and a state factory turned placeholder
+   prop (`getLoadingComponent` → `loadingComponent`, or `loadingTemplate` in
+   Lit). Anything else has to be listed in that binding's `expectedMissing`
+   in `packages/mochart-docs/scripts/bindingReferenceModel.ts`, with the
+   reason. Vue declares its props twice, in `src/props.ts` and `src/types.ts`,
+   and both must carry the key.
+5. A new public export or `ChartHandle` method also needs a mention on a docs
+   page — a prop or callback does not, since its reference page is generated.
+6. Run `npm run gen -w @mochart/docs`, then `npm test -w @mochart/docs` for
+   the coverage checks and `npm test -w @mochart/core` for the rest.
+
 ## Golden snapshot tests
 
 `packages/mochart/test/golden/` renders **every demo config** from
@@ -135,8 +230,10 @@ Points worth knowing when contributing:
 - Example configs in `examples/` power the live charts and are validated in
   CI with the library's own `validateConfig`/`getDataErrors`
   (`npm test -w @mochart/docs`) — a broken example fails the build.
-- The config reference pages and their "Used in" links are generated; edit
-  the config sources (above), not the pages.
+- The config reference pages and their "Used in" links are generated, as are
+  the props, callbacks, and framework-props pages; edit the sources (above),
+  not the pages. `reference/api.md` is the one reference page still written by
+  hand.
 - VitePress fails the build on dead internal links. Links into the demo
   galleries (`/vanilla/…`) resolve only on the assembled site and are
   exempted in `.vitepress/config.ts`; demo deep links need a trailing slash
@@ -160,8 +257,13 @@ repository variables — see `.github/workflows/ci.yml`.
 | ESLint rules | `eslint .` → `npm run lint` |
 | Unused exports, files and dependencies | `knip` → `npm run deadcode` |
 | Types, per workspace | `tsc` / `svelte-check` / `vue-tsc` / `ngc` → `npm run typecheck` |
-| Config sources key parity | generator exits 1 → docs build → `build:pages` |
+| Config sources key parity | generator exits 1 → `npm run gen` → root `npm test`, `build:pages` |
+| API model integrity: page groups and prop JSDoc | generator exits 1 → `npm run gen` → root `npm test`, `build:pages` |
+| Framework binding props against core props | `generateBindings.ts` exits 1 → `npm run gen` → root `npm test`, `build:pages` |
+| Public API mentioned in a docs page | `checkApiCoverage.ts` → root `npm test` |
+| Usage-index section registries | `checkSectionCoverage.ts` → root `npm test` |
 | Generated JSDoc freshness | `test/config/jsdocSync.test.ts` → root `npm test` |
+| Stamped `src/version.ts` freshness | `stampVersion.ts --check` on core `prebuild` → `npm ci`; `test/config/versionSync.test.ts` → root `npm test` |
 | Docs example validity | `checkExamples.ts` → root `npm test` |
 | Golden rendering snapshots | core vitest → root `npm test` |
 | Dead docs links | VitePress build → `build:pages` |
@@ -189,3 +291,8 @@ equal `CONFIG_VERSION` (`src/config/core/constants.ts`), and omitting it means
 "the current format". If a change to the config format bumps it, add a
 migration step to `src/config/migration/` so `migrateConfig` upgrades older
 configs, and update the version in the demo configs and docs examples.
+
+The package version is a separate thing: `scripts/stampVersion.ts` copies it
+from `package.json` into the tracked `src/version.ts`. The core build only
+*checks* that copy, so an install never dirties a tracked file — after bumping
+`package.json`, run `npm run stamp-version -w @mochart/core`.

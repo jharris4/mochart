@@ -3276,7 +3276,7 @@ The guide now says Enter and Space do what clicking the slice does, the focus to
 the old wording promised something a host could never observe.
 
 ### DOC-8 — contributor docs omit the generated API/props/framework-props pipeline and its CI ratchets
-**Medium · Doc gap · [CONTRIBUTING.md:26-81](CONTRIBUTING.md#L26), [:140](CONTRIBUTING.md#L140); [mochart-docs/README.md:6](packages/mochart-docs/README.md#L6)** — **Open**
+**Medium · Doc gap · [CONTRIBUTING.md:26-81](CONTRIBUTING.md#L26), [:140](CONTRIBUTING.md#L140); [mochart-docs/README.md:6](packages/mochart-docs/README.md#L6)** — **Fixed**
 
 A second generator pipeline exists alongside the config one: `apiReferenceModel.ts` reads the prop
 interfaces in `types/chart.ts` into `generated/api-reference.json`, and `generateBindings.ts` reads
@@ -3293,6 +3293,40 @@ error whose remedy is documented nowhere — while the config side has a careful
 
 **Fix:** add an "Adding a chart prop or payload" section mirroring the config checklist; add
 API-coverage and section-coverage rows to the guardrail table; widen the docs README.
+
+**Fixed by extending the existing structure rather than starting a parallel one.** `CONTRIBUTING.md` gains a
+section on the props/callbacks/framework-props pipeline — `apiReferenceModel.ts` → `generated/api-reference.json`
+with pages declared in `pageSources`, `generateBindings.ts` → `binding-reference.json` from each binding's
+`types.ts` interfaces, Angular decorators and Vue `props.ts`, description inheritance from the core prop, and the
+single dynamic `reference/[section].md` route all three render through. It records that the three JSON models are
+gitignored while `mochart-docs.html` is tracked, and that `npm run gen` gates both the docs build and root
+`npm test`.
+
+A "What fails the generators" subsection lists the five integrity errors with their remedies, and a checklist
+walks adding a chart prop end to end, including the binding renamings the mapper recognises
+(`onChartClick` → `chartClick`, `getLoadingComponent` → `loadingComponent`/`loadingTemplate`) and Vue's double
+declaration. Five rows were added to the existing guardrail table, and the config-parity row's "where" was
+corrected — it fires in root `npm test`, not only in `build:pages`. The config bullet now says parity is checked
+at every nesting level and inside array-element shapes, cross-linking
+[CONFIG-7](#config-7--array-element-shapes-have-no-documentation-in-the-config-reference).
+`packages/mochart-docs/README.md` describes all three generated families and what its own `npm test` actually
+checks.
+
+TOOL-7's lint and deadcode text was deliberately left alone — rows were added to its table rather than a second
+one being started.
+
+Every documented command was run: `gen`, `generate-docs`, `stamp-version --check`, the docs package's tests
+(41 examples, 230 exports, 18 sections), core's 109 files / 1651 tests, and a `gen` + `vitepress build`. All exit
+0.
+
+Corrections to the finding: the guardrail table had nine rows, not six (though it was indeed missing API and
+section coverage); `documentation-plan.md:114` describes `reference/api.md`, which **is** still hand-written, so
+that citation is not wrong — the generated pages are props/callbacks/framework-props, a different item; and
+`generateBindings.ts` lives in `mochart-docs/scripts/`, not beside `apiReferenceModel.ts`.
+
+Two source defects surfaced while mapping the pipeline and are filed separately rather than folded in:
+[DOC-14](#doc-14--generatebindings-writes-its-model-before-reporting-integrity-errors) and
+[TEST-20](#test-20--the-api-coverage-ratchet-omits-chartseriesclickpayload).
 
 ### DOC-9 — `documentation-plan.md` describes the pre-delivery state in the present tense
 **Medium · Doc inconsistency · [docs/documentation-plan.md:3](docs/documentation-plan.md#L3) vs [:27-47](docs/documentation-plan.md#L27)** — **Fixed**
