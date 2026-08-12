@@ -206,7 +206,7 @@ Tests cover an unchanged date domain (keeps the old scale), a changed one, a cha
 numeric scale; the first fails on the unpatched source.
 
 ### DATA-5 — `groupSeriesCounts`/`stackSeriesCounts` are computed everywhere, read nowhere
-**Low · Inconsistency · [SeriesData.ts:26-27](packages/mochart/src/data/SeriesData.ts#L26)** — **Open**
+**Low · Inconsistency · [SeriesData.ts:26-27](packages/mochart/src/data/SeriesData.ts#L26)** — **Fixed**
 
 Both are written, copied through `getSeriesDataWithSeriesCounts`, re-derived per animation
 frame, and re-exported into every per-category tooltip value object — with no consumer.
@@ -217,6 +217,18 @@ leaves its slot empty rather than widening the survivors — which is exactly wh
 
 **Fix:** decide one way — consume them in `getSeriesPositionData` so grouped bars reclaim
 a filtered slot, or delete both fields from the five places that produce them.
+
+**Fixed by deletion.** Neither field had a consumer, so both are gone from the five places that
+produced them: the `SeriesData` type, `getSeriesData`, `getSeriesDataWithSeriesCounts` (which now
+takes only the axis counts), `getSeriesValueObjects`, and `getFilterDeltaData`. `axisSeriesCounts`,
+the one that is read, is untouched. No behaviour change and no test changes; core's 1594 tests,
+typecheck and lint pass.
+
+The finding's other option — making `getSeriesPositionData` divide a group's slot by its *filtered*
+length, so surviving bars widen when one is toggled off — is deliberately not taken here. That is a
+visible change to how grouped bars respond to the legend rather than a dead-code cleanup, and it
+should be chosen rather than arrive as a side effect of this finding. It is a small change at
+[SeriesPositions.ts:68](packages/mochart/src/utils/SeriesPositions.ts#L68) if you want it.
 
 ### DATA-6 — `getSeriesContainerFilteredSeriesCounts` counts *unfiltered* series
 **Low · Inconsistency · [SeriesData.ts:460-474](packages/mochart/src/data/SeriesData.ts#L460)** — **Open**

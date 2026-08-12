@@ -83,20 +83,14 @@ export function getInitialValueChangeData(mochartConfig: EnhancedMochartConfig, 
 export function getFilterDeltaData(mochartConfig: EnhancedMochartConfig, oldSeriesData: SeriesData, newSeriesData: SeriesData) {
   let filtersChanged = false;
   let axisSeriesCounts = oldSeriesData.axisSeriesCounts;
-  let stackSeriesCounts = oldSeriesData.stackSeriesCounts;
-  let groupSeriesCounts = oldSeriesData.groupSeriesCounts;
   if (!areMapsEqual(oldSeriesData.filteredFlags, newSeriesData.filteredFlags)) {
     const filteredFlags = getFilteredFlagsFromValues(oldSeriesData, newSeriesData);
     filtersChanged = true;
     axisSeriesCounts = getSeriesContainerFilteredSeriesCounts(mochartConfig.valueAxes, filteredFlags);
-    stackSeriesCounts = getSeriesContainerFilteredSeriesCounts(mochartConfig.seriesStacks, filteredFlags);
-    groupSeriesCounts = getSeriesContainerFilteredSeriesCounts(mochartConfig.seriesGroups, filteredFlags);
   }
   return {
     filtersChanged,
-    axisSeriesCounts,
-    stackSeriesCounts,
-    groupSeriesCounts
+    axisSeriesCounts
   }
 }
 
