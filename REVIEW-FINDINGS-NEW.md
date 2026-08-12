@@ -2129,7 +2129,7 @@ left in the documented public API; the rest are internal `deltaPercentage` field
 deliberate exception where the convention is stated.
 
 ### API-11 — `apiReferenceModel.ts` calls `InternalFocus` internal, but it is an explicit public export
-**Low · Doc inconsistency · [apiReferenceModel.ts:82](packages/mochart/scripts/apiReferenceModel.ts#L82)** — **Open**
+**Low · Doc inconsistency · [apiReferenceModel.ts:82](packages/mochart/scripts/apiReferenceModel.ts#L82)** — **Fixed**
 
 `internalInterfaces` excludes it with the reason "never crosses the public boundary". It is
 exported by name from [index.ts:15](packages/mochart/src/index.ts#L15) and documented in
@@ -2137,6 +2137,22 @@ exported by name from [index.ts:15](packages/mochart/src/index.ts#L15) and docum
 so the check cannot catch a genuinely leaked type later.
 
 **Fix:** give it a group in `pageSources`, or correct the reason string.
+
+**Fixed by correcting the reason string.** `InternalFocus` is exported by name from
+[index.ts:15](packages/mochart/src/index.ts#L15) and described in `reference/api.md`'s advanced
+building-blocks section, so "never crosses the public boundary" was false and the invariant gating the
+generator's integrity check said something untrue. The entry now reads "neither a prop nor a callback;
+exported for hosts embedding the data sources and described in reference/api.md", and the map's own
+comment says these interfaces are absent from the *generated props/callbacks pages* rather than absent
+from the public API.
+
+The finding's other option — giving it a group in `pageSources` — was not taken: `InternalFocus` is
+neither a prop nor a callback, so it has no honest home on either generated page, and forcing one there
+would make the pages describe something they are not about. `reference/api.md` already documents it in
+prose, which is the right place for a type that only matters to hosts embedding the data sources.
+
+The generator produces byte-identical output (the reason strings are never emitted, only used to
+whitelist), so no generated artifact changed. Typecheck, lint and the config suites pass.
 
 ### API-12 — `generate-docs` writes its output before reporting integrity errors
 **Low · Bug · [generator.ts:179](packages/mochart/scripts/generator.ts#L179)** — **Open**

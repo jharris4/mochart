@@ -76,10 +76,10 @@ interface PageSource {
 }
 
 // Interfaces in src/types/chart.ts that are deliberately absent from the
-// reference pages, with the reason they need no page.
+// generated props/callbacks pages, with the reason they need no group there.
 const internalInterfaces: Record<string, string> = {
   ChartDomAccessors: 'test/measurement seam; documented by the shipped .d.ts only',
-  InternalFocus: 'internal focus update shape, never crosses the public boundary'
+  InternalFocus: 'neither a prop nor a callback; exported for hosts embedding the data sources and described in reference/api.md'
 };
 
 const pageSources: PageSource[] = [
