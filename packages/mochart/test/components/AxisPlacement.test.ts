@@ -9,6 +9,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -42,7 +43,7 @@ const categoryAxis = (extra: Record<string, unknown>) => ({
 });
 
 function tickLabels(container: Element): string[] {
-  return [...container.querySelectorAll('.mochart-axis-tick-label')].map(el => el.textContent ?? '');
+  return [...container.querySelectorAll(getCssSelector('axisTickLabel'))].map(el => el.textContent ?? '');
 }
 
 beforeAll(() => {
@@ -72,7 +73,7 @@ describe('axis side and collapse', () => {
           valueAxes: [{ side }],
           plot: { inverted }
         });
-        expect(container.querySelector('.mochart-category-axis')).not.toBeNull();
+        expect(container.querySelector(getCssSelector('categoryAxis'))).not.toBeNull();
         expect(tickLabels(container).length).toBeGreaterThan(0);
       });
     }
@@ -82,35 +83,35 @@ describe('axis side and collapse', () => {
   it('collapses an end-side axis', () => {
     const collapsed = mount({ ...categoryAxis({ side: 'end', collapsed: true }) });
     const normal = mount({ ...categoryAxis({ side: 'end', collapsed: false }) });
-    expect(collapsed.querySelector('.mochart-category-axis')).not.toBeNull();
+    expect(collapsed.querySelector(getCssSelector('categoryAxis'))).not.toBeNull();
     expect(collapsed.innerHTML).not.toBe(normal.innerHTML);
   });
 
   it('collapses a start-side axis', () => {
     expect(mount({ ...categoryAxis({ side: 'start', collapsed: true }) })
-      .querySelector('.mochart-category-axis')).not.toBeNull();
+      .querySelector(getCssSelector('categoryAxis'))).not.toBeNull();
   });
 });
 
 describe('axis visibility and chrome', () => {
   it('renders no category axis when it is hidden', () => {
     expect(mount({ ...categoryAxis({ visible: false }) })
-      .querySelector('.mochart-category-axis')).toBeNull();
+      .querySelector(getCssSelector('categoryAxis'))).toBeNull();
   });
 
   it('renders no value axis when it is hidden', () => {
     expect(mount({ valueAxes: [{ visible: false }] })
-      .querySelector('.mochart-value-axis')).toBeNull();
+      .querySelector(getCssSelector('valueAxis'))).toBeNull();
   });
 
   it('omits tick marks when showTickMarks is off', () => {
     expect(mount({ ...categoryAxis({ showTickMarks: false }) })
-      .querySelector('.mochart-category-axis .mochart-axis-tick-mark')).toBeNull();
+      .querySelector(getDescendantCssSelector('categoryAxis', 'axisTickMark'))).toBeNull();
   });
 
   it('omits the axis line when showAxisLine is off', () => {
     expect(mount({ ...categoryAxis({ showAxisLine: false }) })
-      .querySelector('.mochart-category-axis .mochart-axis-line')).toBeNull();
+      .querySelector(getDescendantCssSelector('categoryAxis', 'axisLine'))).toBeNull();
   });
 
   it('drops a value axis whose series are all filtered when visibleWhenAllFiltered is off', () => {
@@ -126,7 +127,7 @@ describe('axis visibility and chrome', () => {
       } as unknown as MochartInputConfig,
       data: rows, width: WIDTH, height: HEIGHT, filteredSeriesIds: { sales: true }
     } as DefaultChartProps));
-    expect(container.querySelector('.mochart-value-axis')).toBeNull();
+    expect(container.querySelector(getCssSelector('valueAxis'))).toBeNull();
   });
 });
 
@@ -155,7 +156,7 @@ describe('tick label anchoring and rotation', () => {
       it(`rotates ${side}-side tick labels by ${tickLabelRotation}`, () => {
         const container = mount({ ...categoryAxis({ tickLabelRotation, side }) });
         // the rotation lands on the text inside the label group, which is translated
-        const text = container.querySelector('.mochart-category-axis .mochart-axis-tick-label text');
+        const text = container.querySelector(getDescendantCssSelector('categoryAxis', 'axisTickLabel') + ' text');
         expect(text!.getAttribute('transform') ?? '').toContain('rotate');
       });
     }
@@ -165,7 +166,7 @@ describe('tick label anchoring and rotation', () => {
 describe('explicit axis sizing', () => {
   it('uses an explicit tickLabelSize instead of measuring', () => {
     expect(mount({ ...categoryAxis({ tickLabelSize: 40 }) })
-      .querySelector('.mochart-category-axis')).not.toBeNull();
+      .querySelector(getCssSelector('categoryAxis'))).not.toBeNull();
   });
 
   it('uses an explicit titleSize instead of measuring', () => {
@@ -175,12 +176,12 @@ describe('explicit axis sizing', () => {
 
   it('extends the focus range over the title when focusRangeApplyToTitle is set', () => {
     const container = mount({ ...categoryAxis({ title: 'Month', focusRangeApplyToTitle: true }) });
-    expect(container.querySelector('.mochart-axis-focus-range')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('axisFocusRange'))).not.toBeNull();
   });
 
   it('appends a tick label suffix', () => {
     const container = mount({ valueAxes: [{ tickLabelSuffix: '%' }] });
-    const valueLabels = [...container.querySelectorAll('.mochart-value-axis .mochart-axis-tick-label')]
+    const valueLabels = [...container.querySelectorAll(getDescendantCssSelector('valueAxis', 'axisTickLabel'))]
       .map(el => el.textContent ?? '');
     expect(valueLabels.length).toBeGreaterThan(0);
     expect(valueLabels.every(label => label.endsWith('%'))).toBe(true);

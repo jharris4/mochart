@@ -10,6 +10,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const rows = [
   { month: 'Jan', sales: 10, costs: 5 },
@@ -40,13 +41,13 @@ function mountChart(config: MochartInputConfig): Element {
 }
 
 function plotRect(container: Element): SVGElement {
-  const rect = container.querySelector<SVGElement>('.mochart-series-background rect');
+  const rect = container.querySelector<SVGElement>(getCssSelector('seriesBackground') + ' rect');
   expect(rect).not.toBeNull();
   return rect!;
 }
 
 function tooltipText(container: Element): string {
-  return container.querySelector('.mochart-tooltip')?.textContent ?? '';
+  return container.querySelector(getCssSelector('tooltip'))?.textContent ?? '';
 }
 
 // A11Y-9: the live region speaks the first step at once and coalesces a burst, so a step taken

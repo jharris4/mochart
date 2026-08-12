@@ -11,6 +11,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getDescendantCssSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -53,7 +54,7 @@ function mountChart(config: MochartInputConfig, data: readonly unknown[]): Eleme
 }
 
 function tickLabels(container: Element): string[] {
-  const labels = container.querySelectorAll('.mochart-category-axis .mochart-axis-tick-labels text');
+  const labels = container.querySelectorAll(getDescendantCssSelector('categoryAxis', 'axisTickLabels') + ' text');
   return Array.from(labels).map(label => label.textContent ?? '');
 }
 
@@ -167,14 +168,14 @@ describe('number category axes', () => {
     const container = mountChart(makeConfig({
       property: 'level', type: 'number', scale: 'linear'
     }), [numberRows[0]]);
-    expect(container.querySelector('[data-mochart-version]')).not.toBeNull();
+    expect(container.querySelector(getChartRootCssSelector())).not.toBeNull();
   });
 
   it('renders a linear axis for a single data row with an explicit wider domain', () => {
     const container = mountChart(makeConfig({
       property: 'level', type: 'number', scale: 'linear', min: -10, max: 10
     }), [numberRows[0]]);
-    expect(container.querySelector('[data-mochart-version]')).not.toBeNull();
+    expect(container.querySelector(getChartRootCssSelector())).not.toBeNull();
   });
 
   it('renders rotated (non-parallel) tick labels on a linear axis', () => {

@@ -14,6 +14,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartEventPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -77,14 +78,14 @@ describe('pointer payloads under CSS scaling', () => {
     const unscaled: ChartEventPayload[] = [];
     mockRectsAtScale(1);
     let container = mountChart(payload => { unscaled.push(payload); });
-    let root = container.querySelector('[data-mochart-version]')!;
+    let root = container.querySelector(getChartRootCssSelector())!;
     move(root, 10, 10);
     move(root, WIDTH * 0.75, HEIGHT * 0.5);
 
     const scaled: ChartEventPayload[] = [];
     mockRectsAtScale(0.5);
     container = mountChart(payload => { scaled.push(payload); });
-    root = container.querySelector('[data-mochart-version]')!;
+    root = container.querySelector(getChartRootCssSelector())!;
     // the same *visual* points, in the CSS pixels the page actually delivers
     move(root, 5, 5);
     move(root, WIDTH * 0.75 * 0.5, HEIGHT * 0.5 * 0.5);
@@ -100,7 +101,7 @@ describe('pointer payloads under CSS scaling', () => {
     const payloads: ChartEventPayload[] = [];
     mockRectsAtScale(0.5);
     const container = mountChart(payload => { payloads.push(payload); });
-    const root = container.querySelector('[data-mochart-version]')!;
+    const root = container.querySelector(getChartRootCssSelector())!;
 
     // bottom-right of the visually scaled chart
     move(root, 10, 10);

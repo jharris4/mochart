@@ -11,6 +11,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartSliceClickPayload, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getDescendantCssSelector } from '../../src/utils/ChartDom';
 
 const rows = [{ category: 'total', s0: 30, s1: 50, s2: 20 }];
 
@@ -41,7 +42,7 @@ function mountChart(config: MochartInputConfig, onSliceClick?: (payload: ChartSl
 function slices(container: Element): SVGElement[] {
   // config order: the legend also carries data-series-id, so scope to the slice groups
   return ['S0', 'S1', 'S2']
-    .map(id => container.querySelector<SVGElement>('.mochart-series-container g[data-series-id="' + id + '"]'))
+    .map(id => container.querySelector<SVGElement>(getCssSelector('seriesContainer') + ' g[data-series-id="' + id + '"]'))
     .filter((node): node is SVGElement => node !== null);
 }
 
@@ -94,7 +95,7 @@ describe('pie slice keyboard semantics', () => {
   it('keeps non-interactive slices hidden and unfocusable', () => {
     const container = mountChart(makeConfig());
     expect(slices(container).length).toBe(0);
-    const sliceGroups = container.querySelectorAll('.mochart-series-container .mochart-series');
+    const sliceGroups = container.querySelectorAll(getDescendantCssSelector('seriesContainer', 'series'));
     expect(sliceGroups.length).toBe(3);
     for (const group of sliceGroups) {
       expect(group.getAttribute('aria-hidden')).toBe('true');
@@ -105,7 +106,7 @@ describe('pie slice keyboard semantics', () => {
   it('has no keyboard semantics when chart accessibility is disabled', () => {
     const container = mountChart(makeConfig({ chart: { type: 'pie' }, accessibility: { enabled: false } }), () => {});
     expect(slices(container).length).toBe(0);
-    const sliceGroups = container.querySelectorAll('.mochart-series-container .mochart-series');
+    const sliceGroups = container.querySelectorAll(getDescendantCssSelector('seriesContainer', 'series'));
     expect(sliceGroups.length).toBe(3);
     for (const group of sliceGroups) {
       expect(group.getAttribute('aria-hidden')).toBeNull();
@@ -151,11 +152,11 @@ describe('pie slice keyboard semantics', () => {
   it('toggles the tooltip with Enter and Space regardless of slice geometry', () => {
     const container = mountChart(makeConfig(), () => {});
     const items = slices(container);
-    const rect = container.querySelector<SVGElement>('.mochart-series-background rect')!;
+    const rect = container.querySelector<SVGElement>(getCssSelector('seriesBackground') + ' rect')!;
 
     key(items[0], 'Enter');
     expect(rect.getAttribute('aria-expanded')).toBe('true');
-    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('tooltip'))).not.toBeNull();
     // keyboard activation announces like the plot rect does
     expect(container.querySelector('[role="status"]')?.textContent ?? '').not.toBe('');
 
@@ -168,14 +169,14 @@ describe('pie slice keyboard semantics', () => {
   it('closes the tooltip with Escape from a slice', () => {
     const container = mountChart(makeConfig(), () => {});
     const items = slices(container);
-    const rect = container.querySelector<SVGElement>('.mochart-series-background rect')!;
+    const rect = container.querySelector<SVGElement>(getCssSelector('seriesBackground') + ' rect')!;
 
     key(items[0], 'Enter');
     expect(rect.getAttribute('aria-expanded')).toBe('true');
 
     key(items[0], 'Escape');
     expect(rect.getAttribute('aria-expanded')).toBe('false');
-    expect(container.querySelector('.mochart-tooltip')?.textContent ?? '').toBe('');
+    expect(container.querySelector(getCssSelector('tooltip'))?.textContent ?? '').toBe('');
   });
 
   // Regression: filtering out the focused slice detached its node, and the

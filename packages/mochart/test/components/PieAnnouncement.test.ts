@@ -8,7 +8,7 @@ import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
 import { createPie } from '../../src/data/Pie';
-import { mochartCssClasses } from '../../src/utils/ChartDom';
+import { getCssClass, getCssSelector, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
@@ -25,9 +25,7 @@ const ITEMS: PieItem[] = [
 ];
 
 // base class plus id prefix: the series-* and legend-item-* classes carry both
-const [, SERIES_ID_PREFIX] = mochartCssClasses['series'].split(' ');
-const [, LEGEND_ITEM_ID_PREFIX] = mochartCssClasses['legendItem'].split(' ');
-const PLOT_RECT_SELECTOR = '.' + mochartCssClasses['seriesBackground'] + ' rect';
+const PLOT_RECT_SELECTOR = getCssSelector('seriesBackground') + ' rect';
 const LIVE_REGION_SELECTOR = '[role="status"]';
 
 function pieConfigAndData(options: CreatePieOptions, configOverrides: Record<string, unknown> = {}): { config: MochartInputConfig; data: readonly DataRow[] } {
@@ -64,12 +62,12 @@ function liveText(container: Element): string {
 }
 
 function tooltipRows(container: Element): string[] {
-  return Array.from(container.querySelectorAll('.' + mochartCssClasses['tooltip'] + ' [class*="' + mochartCssClasses['tooltipSeriesLine'].split(' ')[0] + '"]'))
+  return Array.from(container.querySelectorAll(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getCssClass('tooltipSeriesLine'))))
     .map(line => line.textContent ?? '');
 }
 
 function filterSeries(container: Element, seriesId: string): void {
-  container.querySelector('.' + LEGEND_ITEM_ID_PREFIX + seriesId)!
+  container.querySelector(getIdCssSelector('legendItem', seriesId))!
     .dispatchEvent(new MouseEvent('click', { bubbles: true }));
 }
 
@@ -120,7 +118,7 @@ describe('pie tooltip announcement', () => {
     const { config, data } = pieConfigAndData({ tooltipValues: 'percent' }, { tooltip: { hideFiltered: true } });
     const container = mountChart(config, data);
     filterSeries(container, 'slice0');
-    expect(container.querySelectorAll('.' + SERIES_ID_PREFIX + 'slice0')).toHaveLength(0);
+    expect(container.querySelectorAll(getIdCssSelector('series', 'slice0'))).toHaveLength(0);
 
     key(plotRect(container), 'Enter');
     // Safari 20 and Firefox 18 now split the whole circle, as PieRender asserts for the visible rows

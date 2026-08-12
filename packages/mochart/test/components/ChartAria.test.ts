@@ -11,6 +11,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssClass, getCssSelector } from '../../src/utils/ChartDom';
 
 const rows = [
   { month: 'Jan', sales: 10, costs: 5 },
@@ -74,12 +75,12 @@ describe('chart aria semantics', () => {
 
   it('hides the decorative geometry from assistive tech', () => {
     const container = mountChart(makeConfig());
-    for (const selector of ['.mochart-plot-back', '.mochart-plot-front', '.mochart-crosshair']) {
+    for (const selector of [getCssSelector('plotBack'), getCssSelector('plotFront'), getCssSelector('crosshair')]) {
       const el = container.querySelector(selector);
       expect(el, selector).not.toBeNull();
       expect(el!.getAttribute('aria-hidden'), selector).toBe('true');
     }
-    const seriesGroups = container.querySelectorAll('.mochart-series');
+    const seriesGroups = container.querySelectorAll(getCssSelector('series'));
     expect(seriesGroups.length).toBe(2);
     for (const group of seriesGroups) {
       expect(group.getAttribute('aria-hidden')).toBe('true');
@@ -88,7 +89,7 @@ describe('chart aria semantics', () => {
 
   it('keeps the interactive stops outside the hidden regions', () => {
     const container = mountChart(makeConfig());
-    const plotRect = container.querySelector('.mochart-series-background rect')!;
+    const plotRect = container.querySelector(getCssSelector('seriesBackground') + ' rect')!;
     expect(plotRect.getAttribute('tabindex')).toBe('0');
     expect(plotRect.closest('[aria-hidden="true"]')).toBeNull();
 
@@ -98,7 +99,7 @@ describe('chart aria semantics', () => {
 
   it('hides pie slices from assistive tech', () => {
     const container = mountChart(makeConfig({ chart: { type: 'pie' } }));
-    const slices = container.querySelectorAll('.mochart-series');
+    const slices = container.querySelectorAll(getCssSelector('series'));
     expect(slices.length).toBe(2);
     for (const slice of slices) {
       expect(slice.getAttribute('aria-hidden')).toBe('true');
@@ -108,10 +109,10 @@ describe('chart aria semantics', () => {
 
   it('tags the chart root with the accessible state class only when enabled', () => {
     const onContainer = mountChart(makeConfig());
-    expect(onContainer.querySelector('.mochart-chart')!.classList.contains('mochart-accessible')).toBe(true);
+    expect(onContainer.querySelector(getCssSelector('chart'))!.classList.contains(getCssClass('accessible'))).toBe(true);
 
     const offContainer = mountChart(makeConfig({ accessibility: { enabled: false } }));
-    expect(offContainer.querySelector('.mochart-chart')!.classList.contains('mochart-accessible')).toBe(false);
+    expect(offContainer.querySelector(getCssSelector('chart'))!.classList.contains(getCssClass('accessible'))).toBe(false);
   });
 
   it('renders without any aria semantics when chart accessibility is disabled', () => {
@@ -125,7 +126,7 @@ describe('chart aria semantics', () => {
 
   it('renders a pie without any aria semantics when chart accessibility is disabled', () => {
     const container = mountChart(makeConfig({ chart: { type: 'pie' }, accessibility: { enabled: false } }));
-    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(2);
     expect(container.querySelectorAll('[aria-hidden], [role], [tabindex], [aria-label]').length).toBe(0);
   });
 });
@@ -138,7 +139,7 @@ describe('clickable title', () => {
     const container = mountChart(
       makeConfig({ title: { text: 'Monthly sales', prefix: 'Q1' } }),
       { onTitleClick: () => { clicks.push(1); } });
-    const title = container.querySelector('.mochart-title')!;
+    const title = container.querySelector(getCssSelector('title'))!;
     expect(title.getAttribute('tabindex')).toBe('0');
     expect(title.getAttribute('role')).toBe('button');
     expect(title.getAttribute('aria-label')).toBe('Q1 Monthly sales');
@@ -153,7 +154,7 @@ describe('clickable title', () => {
 
   it('leaves a title with no click handler inert', () => {
     const container = mountChart(makeConfig({ title: { text: 'Monthly sales' } }));
-    const title = container.querySelector('.mochart-title')!;
+    const title = container.querySelector(getCssSelector('title'))!;
     expect(title.getAttribute('tabindex')).toBeNull();
     expect(title.getAttribute('role')).toBeNull();
   });
@@ -162,16 +163,16 @@ describe('clickable title', () => {
     const container = mountChart(
       makeConfig({ title: { text: 'Monthly sales', link: 'https://example.com' } }),
       { onTitleClick: () => {} });
-    const title = container.querySelector('.mochart-title')!;
+    const title = container.querySelector(getCssSelector('title'))!;
     expect(title.getAttribute('role')).toBeNull();
-    expect(container.querySelector('.mochart-title a')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('title') + ' a')).not.toBeNull();
   });
 
   it('adds no tab stop when accessibility is off', () => {
     const container = mountChart(
       makeConfig({ title: { text: 'Monthly sales' }, accessibility: { enabled: false } }),
       { onTitleClick: () => {} });
-    expect(container.querySelector('.mochart-title')!.getAttribute('tabindex')).toBeNull();
+    expect(container.querySelector(getCssSelector('title'))!.getAttribute('tabindex')).toBeNull();
   });
 });
 
@@ -183,9 +184,9 @@ describe('decorative-hidden charts', () => {
 
   it('hides the chart root from assistive tech and removes every tab stop it controls', () => {
     const container = mountChart(makeConfig({ title: { text: 'Monthly sales' }, accessibility: { hidden: true } }));
-    const root = container.querySelector('.mochart-chart')!;
+    const root = container.querySelector(getCssSelector('chart'))!;
     expect(root.getAttribute('aria-hidden')).toBe('true');
-    expect(root.classList.contains('mochart-accessible')).toBe(false);
+    expect(root.classList.contains(getCssClass('accessible'))).toBe(false);
     const svg = container.querySelector('svg')!;
     expect(svg.getAttribute('role')).toBeNull();
     expect(svg.getAttribute('aria-label')).toBeNull();
@@ -198,7 +199,7 @@ describe('decorative-hidden charts', () => {
       title: { text: 'Monthly sales', link: 'https://example.com' },
       accessibility: { hidden: true }
     }));
-    const anchor = container.querySelector('.mochart-title a')!;
+    const anchor = container.querySelector(getCssSelector('title') + ' a')!;
     expect(anchor.getAttribute('href')).toBe('https://example.com');
     expect(anchor.getAttribute('tabindex')).toBe('-1');
     expect(container.querySelectorAll(FOCUSABLE).length).toBe(0);
@@ -206,19 +207,19 @@ describe('decorative-hidden charts', () => {
 
   it('leaves a linked title focusable on an ordinary chart', () => {
     const container = mountChart(makeConfig({ title: { text: 'Monthly sales', link: 'https://example.com' } }));
-    expect(container.querySelector('.mochart-title a')!.getAttribute('tabindex')).toBeNull();
+    expect(container.querySelector(getCssSelector('title') + ' a')!.getAttribute('tabindex')).toBeNull();
   });
 
   it('hides a pie chart and its slice tab stops', () => {
     const container = mountChart(makeConfig({ chart: { type: 'pie' }, accessibility: { hidden: true } }));
-    expect(container.querySelector('.mochart-chart')!.getAttribute('aria-hidden')).toBe('true');
-    expect(container.querySelectorAll('.mochart-series').length).toBe(2);
+    expect(container.querySelector(getCssSelector('chart'))!.getAttribute('aria-hidden')).toBe('true');
+    expect(container.querySelectorAll(getCssSelector('series')).length).toBe(2);
     expect(container.querySelectorAll(FOCUSABLE + ', [role="button"]').length).toBe(0);
   });
 
   it('keeps the chart exposed and announced by default', () => {
     const container = mountChart(makeConfig());
-    expect(container.querySelector('.mochart-chart')!.getAttribute('aria-hidden')).toBeNull();
+    expect(container.querySelector(getCssSelector('chart'))!.getAttribute('aria-hidden')).toBeNull();
     expect(container.querySelector('[role="status"]')).not.toBeNull();
   });
 });

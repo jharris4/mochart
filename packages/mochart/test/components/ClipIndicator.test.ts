@@ -14,6 +14,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 400;
 const HEIGHT = 300;
@@ -49,7 +50,7 @@ interface BandInfo {
 }
 
 function bands(container: Element): BandInfo[] {
-  return [...container.querySelectorAll('.mochart-clip-indicator > g')].map((group) => {
+  return [...container.querySelectorAll(getCssSelector('clipIndicator') + ' > g')].map((group) => {
     const d = group.querySelector('path')!.getAttribute('d') ?? '';
     const points = [...d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map(([, px, py]) => [Number(px), Number(py)] as [number, number]);
     const xs = points.map(([px]) => px);
@@ -72,7 +73,7 @@ function byEdge(container: Element): Record<string, BandInfo | undefined> {
 }
 
 function plotRect(container: Element) {
-  const rect = container.querySelector('.mochart-series-background rect')!;
+  const rect = container.querySelector(getCssSelector('seriesBackground') + ' rect')!;
   return {
     x: Number(rect.getAttribute('x')), y: Number(rect.getAttribute('y')),
     width: Number(rect.getAttribute('width')), height: Number(rect.getAttribute('height'))
@@ -97,11 +98,11 @@ describe('band presence', () => {
   });
 
   it('draws nothing when the data fits', () => {
-    expect(mount(makeConfig(), contained).querySelector('.mochart-clip-indicator')).toBeNull();
+    expect(mount(makeConfig(), contained).querySelector(getCssSelector('clipIndicator'))).toBeNull();
   });
 
   it('draws nothing when the indicator is turned off', () => {
-    expect(mount(makeConfig({ clipIndicator: { visible: false } })).querySelector('.mochart-clip-indicator')).toBeNull();
+    expect(mount(makeConfig({ clipIndicator: { visible: false } })).querySelector(getCssSelector('clipIndicator'))).toBeNull();
   });
 
   it('draws one band per clipped edge', () => {
@@ -151,26 +152,26 @@ describe('band geometry', () => {
 
 describe('band presentation', () => {
   it('is a pointer target, so the <title> can show on hover', () => {
-    expect(mount().querySelector('.mochart-clip-indicator')!.getAttribute('pointer-events')).toBeNull();
+    expect(mount().querySelector(getCssSelector('clipIndicator'))!.getAttribute('pointer-events')).toBeNull();
   });
 
   it('exempts the label, so it shows no I-beam and takes no selection', () => {
     // the pointer falls through to the band behind, which still triggers the <title>
-    expect(mount().querySelector('.mochart-clip-indicator > g text')!.getAttribute('pointer-events')).toBe('none');
-    expect(mount().querySelector('.mochart-clip-indicator > g path')!.getAttribute('pointer-events')).toBeNull();
+    expect(mount().querySelector(getCssSelector('clipIndicator') + ' > g text')!.getAttribute('pointer-events')).toBe('none');
+    expect(mount().querySelector(getCssSelector('clipIndicator') + ' > g path')!.getAttribute('pointer-events')).toBeNull();
   });
 
   it('fills the band with a hatch pattern rather than a flat tint', () => {
     const container = mount();
-    const pattern = container.querySelector('.mochart-clip-indicator pattern')!;
-    const shape = container.querySelector('.mochart-clip-indicator > g path')!;
+    const pattern = container.querySelector(getCssSelector('clipIndicator') + ' pattern')!;
+    const shape = container.querySelector(getCssSelector('clipIndicator') + ' > g path')!;
     expect(shape.getAttribute('fill')).toBe(`url(#${pattern.getAttribute('id')})`);
     expect(pattern.getAttribute('patternTransform')).toBe('rotate(45)');
     expect(pattern.querySelector('line')!.getAttribute('stroke')).toBe('currentColor');
   });
 
   it('strokes the band with a currentColor border by default', () => {
-    const shape = mount().querySelector('.mochart-clip-indicator > g path')!;
+    const shape = mount().querySelector(getCssSelector('clipIndicator') + ' > g path')!;
     expect(shape.getAttribute('stroke')).toBe('currentColor');
     expect(shape.getAttribute('stroke-opacity')).toBe('0.4');
     expect(shape.getAttribute('stroke-width')).toBe('1');
@@ -180,33 +181,33 @@ describe('band presentation', () => {
     const container = mount(makeConfig({
       clipIndicator: { style: { fillColor: '#ff0000', fillOpacity: 0.5, strokeColor: '#0000ff' } }
     }));
-    expect(container.querySelector('.mochart-clip-indicator pattern line')!.getAttribute('stroke')).toBe('#ff0000');
-    const shape = container.querySelector('.mochart-clip-indicator > g path')!;
+    expect(container.querySelector(getCssSelector('clipIndicator') + ' pattern line')!.getAttribute('stroke')).toBe('#ff0000');
+    const shape = container.querySelector(getCssSelector('clipIndicator') + ' > g path')!;
     expect(shape.getAttribute('fill-opacity')).toBe('0.5');
     expect(shape.getAttribute('stroke')).toBe('#0000ff');
   });
 
   it('takes the hatch geometry from the config', () => {
     const pattern = mount(makeConfig({ clipIndicator: { hatch: { spacing: 10, width: 3 } } }))
-      .querySelector('.mochart-clip-indicator pattern')!;
+      .querySelector(getCssSelector('clipIndicator') + ' pattern')!;
     expect(pattern.getAttribute('width')).toBe('10');
     expect(pattern.getAttribute('height')).toBe('10');
     expect(pattern.querySelector('line')!.getAttribute('stroke-width')).toBe('3');
   });
 
   it('gives each chart its own pattern id', () => {
-    const idOf = (container: Element) => container.querySelector('.mochart-clip-indicator pattern')!.getAttribute('id');
+    const idOf = (container: Element) => container.querySelector(getCssSelector('clipIndicator') + ' pattern')!.getAttribute('id');
     expect(idOf(mount())).not.toBe(idOf(mount()));
   });
 
   it('sits in front of the series by default, and behind when asked', () => {
     const inFront = mount();
-    expect(inFront.querySelector('.mochart-series-container')!
-      .compareDocumentPosition(inFront.querySelector('.mochart-clip-indicator')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(inFront.querySelector(getCssSelector('seriesContainer'))!
+      .compareDocumentPosition(inFront.querySelector(getCssSelector('clipIndicator'))!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const behind = mount(makeConfig({ clipIndicator: { showInFront: false } }));
-    expect(behind.querySelector('.mochart-series-container')!
-      .compareDocumentPosition(behind.querySelector('.mochart-clip-indicator')!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(behind.querySelector(getCssSelector('seriesContainer'))!
+      .compareDocumentPosition(behind.querySelector(getCssSelector('clipIndicator'))!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 });
 
@@ -215,20 +216,20 @@ describe('hatch off', () => {
 
   it('fills the band flat, with no pattern element left behind', () => {
     const container = mount(noHatch());
-    expect(container.querySelector('.mochart-clip-indicator pattern')).toBeNull();
-    expect(container.querySelector('.mochart-clip-indicator > g path')!.getAttribute('fill')).toBe('currentColor');
+    expect(container.querySelector(getCssSelector('clipIndicator') + ' pattern')).toBeNull();
+    expect(container.querySelector(getCssSelector('clipIndicator') + ' > g path')!.getAttribute('fill')).toBe('currentColor');
   });
 
   it('drops to the lighter unstroked style, so the flat band is not a slab', () => {
     // the style default is conditional on the hatch: a solid fill at the hatched weight reads far heavier
-    const shape = mount(noHatch()).querySelector('.mochart-clip-indicator > g path')!;
+    const shape = mount(noHatch()).querySelector(getCssSelector('clipIndicator') + ' > g path')!;
     expect(shape.getAttribute('fill-opacity')).toBe('0.15');
     expect(shape.getAttribute('stroke')).toBeNull();
   });
 
   it('still honours an explicit style', () => {
     const shape = mount(makeConfig({ clipIndicator: { hatch: null, style: { fillColor: '#ff0000', fillOpacity: 0.6 } } }))
-      .querySelector('.mochart-clip-indicator > g path')!;
+      .querySelector(getCssSelector('clipIndicator') + ' > g path')!;
     expect(shape.getAttribute('fill')).toBe('#ff0000');
     expect(shape.getAttribute('fill-opacity')).toBe('0.6');
   });
@@ -236,7 +237,7 @@ describe('hatch off', () => {
 
 describe('degenerate hatches', () => {
   const shapeOf = (hatch: unknown) => mount(makeConfig({ clipIndicator: { hatch } }))
-    .querySelector('.mochart-clip-indicator > g path')!;
+    .querySelector(getCssSelector('clipIndicator') + ' > g path')!;
 
   it('collapses to a flat fill when the lines are as thick as the gaps', () => {
     // a closed-up hatch is a solid fill, and drawn as a pattern it would seam along the 45deg tile edge
@@ -290,7 +291,7 @@ describe('label', () => {
 
   it('takes its text style from the config', () => {
     const text = mount(makeConfig({ clipIndicator: { textStyle: { fillColor: '#00ff00', fillOpacity: 0.9 } } }))
-      .querySelector('.mochart-clip-indicator > g text')!;
+      .querySelector(getCssSelector('clipIndicator') + ' > g text')!;
     expect(text.getAttribute('fill')).toBe('#00ff00');
     expect(text.getAttribute('fill-opacity')).toBe('0.9');
   });
@@ -298,19 +299,19 @@ describe('label', () => {
 
 describe('accessible name', () => {
   it('renders an svg <title> mirroring the label', () => {
-    const title = mount().querySelector('.mochart-clip-indicator > title');
+    const title = mount().querySelector(getCssSelector('clipIndicator') + ' > title');
     expect(title).not.toBeNull();
     expect(title!.textContent).toBe('Clipped');
   });
 
   it('tracks a custom label', () => {
     expect(mount(makeConfig({ clipIndicator: { label: 'Off the chart' } }))
-      .querySelector('.mochart-clip-indicator > title')!.textContent).toBe('Off the chart');
+      .querySelector(getCssSelector('clipIndicator') + ' > title')!.textContent).toBe('Off the chart');
   });
 
   it('is dropped along with the label', () => {
     expect(mount(makeConfig({ clipIndicator: { label: null } }))
-      .querySelector('.mochart-clip-indicator > title')).toBeNull();
+      .querySelector(getCssSelector('clipIndicator') + ' > title')).toBeNull();
   });
 });
 
@@ -352,7 +353,7 @@ describe('mitred corners', () => {
   it('drops the indicator when no band has room', () => {
     // opposing bands are capped at half the extent they share, so a huge size leaves nothing over
     const container = mount(fourEdges({ size: 10000 }), dateRows);
-    expect(container.querySelector('.mochart-clip-indicator')).toBeNull();
+    expect(container.querySelector(getCssSelector('clipIndicator'))).toBeNull();
   });
 });
 
@@ -364,12 +365,12 @@ describe('updates', () => {
       config: makeConfig(), data: contained, width: WIDTH, height: HEIGHT
     } as DefaultChartProps);
     handles.push(handle);
-    expect(container.querySelector('.mochart-clip-indicator')).toBeNull();
+    expect(container.querySelector(getCssSelector('clipIndicator'))).toBeNull();
 
     handle.update({ config: makeConfig(), data: overflowing, width: WIDTH, height: HEIGHT } as DefaultChartProps);
     expect(bands(container).map((band) => band.edge)).toEqual(['top']);
 
     handle.update({ config: makeConfig(), data: contained, width: WIDTH, height: HEIGHT } as DefaultChartProps);
-    expect(container.querySelector('.mochart-clip-indicator')).toBeNull();
+    expect(container.querySelector(getCssSelector('clipIndicator'))).toBeNull();
   });
 });

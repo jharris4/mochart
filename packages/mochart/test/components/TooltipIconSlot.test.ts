@@ -7,14 +7,14 @@
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
 import { createDefaultChart } from '../../src/createChart';
-import { mochartCssClasses } from '../../src/utils/ChartDom';
 import SeriesColorIcon from '../../src/components/SeriesColorIcon';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
-const tooltipSelector = '.' + mochartCssClasses['tooltip'];
-const lineIconSelector = '.' + mochartCssClasses['tooltipLineIcon'];
+const tooltipSelector = getCssSelector('tooltip');
+const lineIconSelector = getCssSelector('tooltipLineIcon');
 
 const rows = [
   { month: 'Jan', sales: 10 },
@@ -56,7 +56,7 @@ function mountChart(rightAlignValues: boolean): { container: Element; handle: Ch
 }
 
 function openTooltip(container: Element): void {
-  const root = container.querySelector('[data-mochart-version]')!;
+  const root = container.querySelector(getChartRootCssSelector())!;
   root.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true, clientX: 100, clientY: 100 }));
   root.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 100, clientY: 100 }));
 }

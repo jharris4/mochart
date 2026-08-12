@@ -13,6 +13,7 @@ import { createCandlestick } from '../../src/data/Candlestick';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -46,7 +47,7 @@ function mountVolumeCandlestick(): Element {
 interface BarRect { y: number; height: number }
 
 function barRects(container: Element, seriesId: string): BarRect[] {
-  const paths = container.querySelectorAll(`.mochart-series-${seriesId} path[class*="mochart-series-bar"]`);
+  const paths = container.querySelectorAll(getIdCssSelector('series', seriesId) + ' path' + getCssClassMatchSelector(getCssClass('seriesBar')));
   return Array.from(paths).map((path) => {
     const d = path.getAttribute('d') ?? '';
     const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)v(-?[\d.]+)/.exec(d);

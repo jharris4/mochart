@@ -6,6 +6,7 @@
  * sync focus across several charts). Undefined leaves the chart uncontrolled.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { getIdCssClass, getCssSelector } from '../../src/utils/ChartDom';
 
 const FRAME_MS = 16;
 
@@ -84,22 +85,22 @@ function normalizedHtml(container: Element): string {
 }
 
 function seriesIds(container: Element): string[] {
-  return Array.from(container.querySelectorAll('.mochart-series'))
-    .map(el => Array.from(el.classList).find(c => c.startsWith('mochart-series-'))!);
+  return Array.from(container.querySelectorAll(getCssSelector('series')))
+    .map(el => Array.from(el.classList).find(c => c.startsWith(getIdCssClass('series', '')))!);
 }
 
 describe('controlled filteredSeriesIds', () => {
   it('filters and restores series through the prop alone', () => {
     const { chart, container } = mountChart();
-    expect(seriesIds(container)).toEqual(['mochart-series-sales', 'mochart-series-costs']);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales'), getIdCssClass('series', 'costs')]);
 
     chart.update({ filteredSeriesIds: { costs: true } });
     runFrames();
-    expect(seriesIds(container)).toEqual(['mochart-series-sales']);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
 
     chart.update({ filteredSeriesIds: {} });
     runFrames();
-    expect(seriesIds(container)).toEqual(['mochart-series-sales', 'mochart-series-costs']);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales'), getIdCssClass('series', 'costs')]);
   });
 
   // Regression: the map was read as "present" rather than "true", so a host
@@ -109,11 +110,11 @@ describe('controlled filteredSeriesIds', () => {
 
     chart.update({ filteredSeriesIds: { sales: false, costs: false } });
     runFrames();
-    expect(seriesIds(container)).toEqual(['mochart-series-sales', 'mochart-series-costs']);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales'), getIdCssClass('series', 'costs')]);
 
     chart.update({ filteredSeriesIds: { sales: false, costs: true } });
     runFrames();
-    expect(seriesIds(container)).toEqual(['mochart-series-sales']);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
   });
 });
 
@@ -156,7 +157,7 @@ describe('synchronous host re-entrancy', () => {
 
     host.chart.update({ filteredSeriesIds: { costs: true } });
     runFrames();
-    expect(seriesIds(container)).toEqual(['mochart-series-sales']);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
 
     // structural change (new category property) while a series is filtered:
     // the reset must be reported exactly once, to a host that re-enters
@@ -168,7 +169,7 @@ describe('synchronous host re-entrancy', () => {
     runFrames();
 
     expect(reported).toEqual([{}]);
-    expect(seriesIds(container)).toEqual(['mochart-series-sales', 'mochart-series-costs']);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales'), getIdCssClass('series', 'costs')]);
   });
 });
 
@@ -225,7 +226,7 @@ describe('controlled focus props', () => {
       focusedValueAxisId: 'alsoUnknown'
     });
     runFrames();
-    expect(seriesIds(container)).toEqual(['mochart-series-sales']);
+    expect(seriesIds(container)).toEqual([getIdCssClass('series', 'sales')]);
   });
 
   it('mirrors one chart\'s reported focus into another chart', () => {

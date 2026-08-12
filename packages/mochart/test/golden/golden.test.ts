@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { MochartInputConfig, DataProvider } from '../../src';
+import { getCssSelector, getIdCssSelector, mochartVersionAttribute } from '../../src/utils/ChartDom';
 
 interface Demo { id: string; config: string; data: string; goldenCategoryShift?: number }
 /** Rows are decoded from arbitrary demo JSON, so values are intentionally loose. */
@@ -134,7 +135,7 @@ const uniqueIdPattern = new RegExp('(' + UNIQUE_ID_PREFIXES.join('|') + ')(\\d+)
 function normalizeHtml(html: string) {
   return html
     .replace(uniqueIdPattern, '$1N')
-    .replace(/ data-mochart-version="[^"]*"/g, '')
+    .replace(new RegExp(' ' + mochartVersionAttribute + '="[^"]*"', 'g'), '')
     .replace(/<!--[^>]*-->/g, '')
     .replace(/></g, '>\n<');
 }
@@ -361,7 +362,7 @@ const FILTERING_DEMO_IDS = ['pie', 'donut', 'gauge', 'grouped'];
 const filteringDemos = allDemos.filter((demo) => FILTERING_DEMO_IDS.includes(demo.id));
 
 function clickFirstLegendItem(container: HTMLElement) {
-  const legendItem = container.querySelector('.mochart-legend-item');
+  const legendItem = container.querySelector(getCssSelector('legendItem'));
   expect(legendItem).not.toBeNull();
   legendItem!.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 }
@@ -386,7 +387,7 @@ describe.each(filteringDemos)('filtering: $id', (demo) => {
 
     // step to the removal of the filtered series' element, keeping the DOM
     // of the last frame it was still present
-    const seriesSelector = '.' + 'mochart-series-' + mochartConfig.series[0].id;
+    const seriesSelector = getIdCssSelector('series', mochartConfig.series[0].id);
     expect(container.querySelector(seriesSelector)).not.toBeNull();
     let lastPresentHtml = container.innerHTML;
     for (let frame = 0; frame < MAX_FRAMES && vi.getTimerCount() > 0; frame++) {

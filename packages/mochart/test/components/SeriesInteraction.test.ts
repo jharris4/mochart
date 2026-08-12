@@ -9,6 +9,7 @@ import { createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssSelector, getIdCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -38,7 +39,7 @@ function mountChart(seriesOverrides: Record<string, unknown>, callbacks: Partial
 }
 
 function bar(container: Element, index: number): Element {
-  const shape = container.querySelector('.mochart-series-bar-' + index);
+  const shape = container.querySelector(getIdCssSelector('seriesBar', index));
   expect(shape, 'bar ' + index).not.toBeNull();
   return shape!;
 }
@@ -79,7 +80,7 @@ describe('series shape hover focus', () => {
   it('reports no focus from a line series path either', () => {
     const focuses: ChartFocus[] = [];
     const container = mountChart({ renderer: 'line' }, { onFocus: focus => focuses.push(focus) });
-    const line = container.querySelector('.mochart-series-line')!;
+    const line = container.querySelector(getCssSelector('seriesLine'))!;
 
     mouse(line, 'mouseenter');
     mouse(line, 'mouseleave');
@@ -134,7 +135,7 @@ describe('series shape hover focus', () => {
     const container = mountChart(
       { id: 'sales', renderer: 'line', markerShape: 'circle', focusCategoryOnMouseOver: true, focusCategoryOnClick: true },
       { onFocus: focus => focuses.push(focus), onSeriesClick: payload => clicks.push(payload.seriesId) });
-    const marker = container.querySelector('.mochart-series-marker-1')!;
+    const marker = container.querySelector(getIdCssSelector('seriesMarker', '1'))!;
     expect(marker).not.toBeNull();
 
     mouse(marker, 'mouseenter');
@@ -154,7 +155,7 @@ describe('series shape hover focus', () => {
     const container = mountChart(
       { id: 'sales', labelProperty: 'sales', focusCategoryOnMouseOver: true, focusCategoryOnClick: true },
       { onFocus: focus => focuses.push(focus), onSeriesClick: payload => clicks.push(payload.seriesId) });
-    const label = container.querySelector('.mochart-series-label-2')!;
+    const label = container.querySelector(getIdCssSelector('seriesLabel', '2'))!;
     expect(label).not.toBeNull();
 
     mouse(label, 'mouseenter');
@@ -173,7 +174,7 @@ describe('series shape hover focus', () => {
     const container = mountChart(
       { id: 'sales', renderer: 'line', focusOnMouseOver: true },
       { onFocus: focus => focuses.push(focus) });
-    const line = container.querySelector('.mochart-series-line')!;
+    const line = container.querySelector(getCssSelector('seriesLine'))!;
     expect(line).not.toBeNull();
 
     mouse(line, 'mouseenter');

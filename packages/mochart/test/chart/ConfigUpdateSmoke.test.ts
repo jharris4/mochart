@@ -9,6 +9,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { installSvgMeasurementShims } from '../components/svgShims';
 import type { ChartHandle, DefaultChartProps, MochartInputConfig } from '../../src';
+import { getIdCssClass, getCssSelector, getDescendantCssSelector, mochartVersionAttribute } from '../../src/utils/ChartDom';
 
 const WIDTH = 640;
 const HEIGHT = 420;
@@ -410,7 +411,7 @@ function chartSignature(container: Element): string {
       return '';
     }
     const attributes = Array.from(node.attributes)
-      .filter(attribute => attribute.name !== 'data-mochart-version' && !(attribute.name === 'style' && attribute.value === ''))
+      .filter(attribute => attribute.name !== mochartVersionAttribute && !(attribute.name === 'style' && attribute.value === ''))
       .map(attribute => `${attribute.name}=${JSON.stringify(attribute.value.replace(uniqueIdPattern, '$1N'))}`)
       .sort()
       .join(' ');
@@ -434,34 +435,34 @@ function expectEndpoint(container: Element, endpointValue: Endpoint): void {
   const { expected } = endpointValue;
   const state = expected.state ?? 'chart';
   if (state === 'configError') {
-    expect(container.querySelector('.mochart-chart-error')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('chartError'))).not.toBeNull();
     expect(container.textContent).toContain('Mochart Config Error');
     return;
   }
   if (state === 'dataError') {
-    expect(container.querySelector('.mochart-no-data')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('noData'))).not.toBeNull();
     expect(container.textContent).toContain('Invalid Data');
     return;
   }
   expect(container.querySelector('svg')).not.toBeNull();
-  expect(container.querySelector('.mochart-no-data')).toBeNull();
-  expect(container.querySelector('.mochart-loading')).toBeNull();
+  expect(container.querySelector(getCssSelector('noData'))).toBeNull();
+  expect(container.querySelector(getCssSelector('loading'))).toBeNull();
 
   if (expected.categoryLabels) {
-    const labels = Array.from(container.querySelectorAll('.mochart-category-axis .mochart-axis-tick-labels text'))
+    const labels = Array.from(container.querySelectorAll(getDescendantCssSelector('categoryAxis', 'axisTickLabels') + ' text'))
       .map(label => label.textContent ?? '');
     for (const label of expected.categoryLabels) {
       expect(labels).toContain(label);
     }
   }
   if (expected.seriesIds) {
-    expect(idsFor(container, '.mochart-series', 'mochart-series-')).toEqual(expected.seriesIds);
+    expect(idsFor(container, getCssSelector('series'), getIdCssClass('series', ''))).toEqual(expected.seriesIds);
   }
   if (expected.valueAxisIds) {
-    expect(idsFor(container, '.mochart-value-axis', 'mochart-value-axis-')).toEqual(expected.valueAxisIds);
+    expect(idsFor(container, getCssSelector('valueAxis'), getIdCssClass('valueAxis', ''))).toEqual(expected.valueAxisIds);
   }
   if (expected.pie !== undefined) {
-    expect(container.querySelector('.mochart-series-slice') !== null).toBe(expected.pie);
+    expect(container.querySelector(getCssSelector('seriesSlice')) !== null).toBe(expected.pie);
   }
 }
 

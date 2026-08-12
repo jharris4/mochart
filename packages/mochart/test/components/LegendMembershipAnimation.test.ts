@@ -8,12 +8,11 @@
  * library import and frames are driven manually.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
-import { mochartCssClasses } from '../../src/utils/ChartDom';
+import { getCssClass, getIdCssClass } from '../../src/utils/ChartDom';
 
-// these two entries are a base class plus an id-prefixed class, not a single name
-const seriesIdClass = (seriesId: string) => mochartCssClasses['series'].split(' ')[1] + seriesId;
-const seriesBarClass = mochartCssClasses['seriesBar'].split(' ')[0];
-const legendItemClass = mochartCssClasses['legendItem'].split(' ')[0];
+const seriesIdClass = (seriesId: string) => getIdCssClass('series', seriesId);
+const seriesBarClass = getCssClass('seriesBar');
+const legendItemClass = getCssClass('legendItem');
 
 const WIDTH = 800;
 const HEIGHT = 600;

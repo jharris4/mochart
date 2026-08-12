@@ -8,6 +8,7 @@ import { installSvgMeasurementShims } from './svgShims';
 import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssClass, getIdCssClass, getCssSelector, getCssClassMatchSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -82,7 +83,7 @@ function mouse(target: Element, type: string, clientX: number, clientY: number):
 }
 
 function chartRoot(container: Element): Element {
-  const root = container.querySelector('[data-mochart-version]');
+  const root = container.querySelector(getChartRootCssSelector());
   expect(root).not.toBeNull();
   return root!;
 }
@@ -102,7 +103,7 @@ describe('animated chart interactions', () => {
     const frames = runFrames();
     expect(frames).toBeGreaterThan(0);
     expect(vi.getTimerCount()).toBe(0);
-    expect(container.querySelectorAll('[class*="mochart-series"]').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll(getCssClassMatchSelector(getCssClass('series'))).length).toBeGreaterThan(0);
   });
 
   it('animates focus when the tooltip opens and settles', () => {
@@ -112,17 +113,17 @@ describe('animated chart interactions', () => {
 
     mouse(root, 'mouseenter', 100, 100);
     mouse(root, 'click', 100, 100);
-    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('tooltip'))).not.toBeNull();
     // the focus tween queued frames; run them to completion
     const frames = runFrames();
     expect(frames).toBeGreaterThan(0);
     expect(vi.getTimerCount()).toBe(0);
-    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('tooltip'))).not.toBeNull();
 
     // closing animates focus back out
     mouse(root, 'click', 100, 100);
     runFrames();
-    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
     expect(vi.getTimerCount()).toBe(0);
   });
 
@@ -137,7 +138,7 @@ describe('animated chart interactions', () => {
     mouse(root, 'mousemove', 790, 100);
     runFrames();
     expect(vi.getTimerCount()).toBe(0);
-    expect(container.querySelector('.mochart-tooltip')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('tooltip'))).not.toBeNull();
   });
 
   it('animates a data update and settles on the new values', () => {
@@ -165,7 +166,7 @@ describe('animated chart interactions', () => {
     }), {}, rows.map(row => ({ ...row, costs: row.sales / 2 })));
     runFrames();
 
-    const item = container.querySelector('[class*="mochart-legend-item-S1"]')!;
+    const item = container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'S1')))!;
     item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     const frames = runFrames();
     expect(frames).toBeGreaterThan(0);
@@ -181,7 +182,7 @@ describe('animated chart interactions', () => {
     const config = () => makeConfig({ series: [{ property: 'sales' }, { property: 'costs' }] });
     const data = rows.map(row => ({ ...row, costs: row.sales / 2 }));
     const lineOpacity = (container: Element, seriesId: string) =>
-      container.querySelector(`[class*="mochart-series-${seriesId}"] .mochart-series-line`)!.getAttribute('stroke-opacity');
+      container.querySelector(getCssClassMatchSelector(getIdCssClass('series', seriesId)) + ' ' + getCssSelector('seriesLine'))!.getAttribute('stroke-opacity');
 
     // reference: the same controlled focus applied after the chart settled
     const reference = mountChart(config(), {}, data);

@@ -13,6 +13,7 @@ import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import type { DataRow } from '../../src/types/data';
+import { getCssClass, getIdCssClass, getIdCssSelector, getCssClassMatchSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -39,7 +40,7 @@ function mountChart(config: MochartInputConfig, data: DataRow[] = rows): Element
 interface BarRect { x: number; y: number; width: number; height: number }
 
 function barRects(container: Element, seriesId: string): BarRect[] {
-  const paths = container.querySelectorAll(`.mochart-series-${seriesId} path[class*="mochart-series-bar"]`);
+  const paths = container.querySelectorAll(getIdCssSelector('series', seriesId) + ' path' + getCssClassMatchSelector(getCssClass('seriesBar')));
   return Array.from(paths).map((path) => {
     const d = path.getAttribute('d') ?? '';
     const match = /^M(-?[\d.]+),(-?[\d.]+)h(-?[\d.]+)v(-?[\d.]+)/.exec(d);
@@ -62,7 +63,7 @@ function whiskers(container: Element, seriesId: string): Whisker[] {
 }
 
 function errorBarPaths(container: Element, seriesId: string): string[] {
-  const paths = container.querySelectorAll(`.mochart-series-${seriesId} path[class*="mochart-series-error-bar-"]`);
+  const paths = container.querySelectorAll(getIdCssSelector('series', seriesId) + ' path' + getCssClassMatchSelector(getIdCssClass('seriesErrorBar', '')));
   return Array.from(paths).map((path) => path.getAttribute('d') ?? '');
 }
 
@@ -183,7 +184,7 @@ describe('error bars on line series', () => {
     const container = mountChart(makeConfig([
       { id: 'V', property: 'value', renderer: 'line', errorLowProperty: 'low', errorHighProperty: 'high' }
     ]));
-    const markerTransforms = Array.from(container.querySelectorAll('.mochart-series-V path[class*="mochart-series-marker-"]'))
+    const markerTransforms = Array.from(container.querySelectorAll(getIdCssSelector('series', 'V') + ' path' + getCssClassMatchSelector(getIdCssClass('seriesMarker', ''))))
       .map((marker) => /translate\((-?[\d.]+)/.exec(marker.getAttribute('transform') ?? '')![1])
       .map(Number);
     const valueWhiskers = whiskers(container, 'V');

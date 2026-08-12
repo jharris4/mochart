@@ -6,6 +6,7 @@
  * helper's grids with missing cells hit this.
  */
 import { describe, it, beforeAll, afterEach, expect, vi } from 'vitest';
+import { getCssSelector } from '../../src/utils/ChartDom';
 
 const FRAME_MS = 16;
 
@@ -117,7 +118,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     runFrames();
 
     expect(container.innerHTML).not.toContain('NaN');
-    const fills = Array.from(container.querySelectorAll('.mochart-series-bar')).map((path) => path.getAttribute('fill'));
+    const fills = Array.from(container.querySelectorAll(getCssSelector('seriesBar'))).map((path) => path.getAttribute('fill'));
     expect(fills).toHaveLength(3);
     expect(fills[0]).toBe('rgb(0, 0, 0)');
     expect(fills[2]).toBe('rgb(255, 255, 255)');
@@ -155,7 +156,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     });
     runFrames();
 
-    const fills = Array.from(container.querySelectorAll('.mochart-series-bar')).map((path) => path.getAttribute('fill'));
+    const fills = Array.from(container.querySelectorAll(getCssSelector('seriesBar'))).map((path) => path.getAttribute('fill'));
     expect(fills[1]).toBe('#ff00ff');
 
     chart.destroy();
@@ -190,7 +191,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     });
     runFrames();
 
-    const fills = Array.from(container.querySelectorAll('.mochart-series-bar')).map((path) => path.getAttribute('fill'));
+    const fills = Array.from(container.querySelectorAll(getCssSelector('seriesBar'))).map((path) => path.getAttribute('fill'));
     expect(fills[1]).toBe('#336699');
 
     chart.destroy();
@@ -225,7 +226,7 @@ describe('missingValues connect bar series with a colorProperty', () => {
     runFrames();
 
     expect(container.innerHTML).not.toContain('NaN');
-    const fills = Array.from(container.querySelectorAll('.mochart-series-bar')).map((path) => path.getAttribute('fill'));
+    const fills = Array.from(container.querySelectorAll(getCssSelector('seriesBar'))).map((path) => path.getAttribute('fill'));
     expect(fills).toHaveLength(2);
     // with no color values at all, every bar shows the missing color
     expect(fills[0]).toBe('#cccccc');

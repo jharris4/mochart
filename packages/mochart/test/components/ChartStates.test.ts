@@ -13,6 +13,7 @@ import { enhanceConfig } from '../../src/config/helper';
 import { ArrayOfObjectsDataProvider } from '../../src/data/DataProvider';
 import type { ChartFactoryContext, DefaultChartProps, ManagedChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
+import { getCssClass, getCssSelector } from '../../src/utils/ChartDom';
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -41,10 +42,12 @@ function mountChart(extra: Partial<DefaultChartProps>): Element {
   return container;
 }
 
+const stateClassPattern = new RegExp('(' + [getCssClass('loading'), getCssClass('noData')].join('|') + ')');
+
 function stateClasses(container: Element): string[] {
   return [...container.querySelectorAll('[class]')]
     .map(el => el.getAttribute('class')!)
-    .filter(c => /mochart-(loading|no-data)/.test(c));
+    .filter(c => stateClassPattern.test(c));
 }
 
 beforeAll(() => {
@@ -69,32 +72,32 @@ describe('chart state arbitration', () => {
   it('renders a normal chart with neither error nor loading', () => {
     const container = mountChart({});
     expect(stateClasses(container)).toEqual([]);
-    expect(container.querySelector('path, rect.mochart-series-bar, svg')).not.toBeNull();
+    expect(container.querySelector('path, rect' + getCssSelector('seriesBar') + ', svg')).not.toBeNull();
   });
 
   it('shows the loading overlay while loading', () => {
     const container = mountChart({ loading: true });
-    expect(stateClasses(container)).toEqual(['mochart-loading']);
+    expect(stateClasses(container)).toEqual([getCssClass('loading')]);
     expect(container.textContent).toContain('Loading...');
   });
 
   it('shows the error content in the no-data slot for an error', () => {
     const container = mountChart({ error: 'boom' });
-    expect(stateClasses(container)).toEqual(['mochart-no-data']);
+    expect(stateClasses(container)).toEqual([getCssClass('noData')]);
     expect(container.textContent).toContain('boom');
   });
 
   it('lets the error state win when error and loading are both set', () => {
     const container = mountChart({ error: 'boom', loading: true });
-    expect(stateClasses(container)).toEqual(['mochart-no-data']);
+    expect(stateClasses(container)).toEqual([getCssClass('noData')]);
     expect(container.textContent).toContain('boom');
     expect(container.textContent).not.toContain('Loading...');
   });
 
   it('treats explicitly provided falsy errors as the error state', () => {
-    expect(stateClasses(mountChart({ error: '' }))).toEqual(['mochart-no-data']);
+    expect(stateClasses(mountChart({ error: '' }))).toEqual([getCssClass('noData')]);
     const zeroError = mountChart({ error: 0 });
-    expect(stateClasses(zeroError)).toEqual(['mochart-no-data']);
+    expect(stateClasses(zeroError)).toEqual([getCssClass('noData')]);
     expect(zeroError.textContent).toContain('0');
   });
 
@@ -146,7 +149,7 @@ describe('the provider handed to the state factories', () => {
 describe('the chart root position', () => {
   function rootStyle(style?: unknown): CSSStyleDeclaration {
     const container = mountChart(style === undefined ? {} : { style } as Partial<DefaultChartProps>);
-    return (container.querySelector('.mochart-chart') as HTMLElement).style;
+    return (container.querySelector(getCssSelector('chart')) as HTMLElement).style;
   }
 
   it('is relative by default', () => {
@@ -204,7 +207,7 @@ describe('a mochartConfig arriving after mount', () => {
 
   const enhanced = () => enhanceConfig(config);
   const provider = () => new ArrayOfObjectsDataProvider(rows, 'month');
-  const seriesCount = (container: Element) => container.querySelectorAll('.mochart-series').length;
+  const seriesCount = (container: Element) => container.querySelectorAll(getCssSelector('series')).length;
 
   it('renders the series once the config and provider arrive', () => {
     const { container, handle } = mountManaged({ loading: true });

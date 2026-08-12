@@ -10,6 +10,7 @@ import type { ChartHandle } from '../../src/createChart';
 import type { ChartFocus, DefaultChartProps } from '../../src/types/chart';
 import type { DeepPartial, MochartInputConfig, PieConfig } from '../../src/types/config';
 import type { PieItem, CreatePieOptions } from '../../src/data/Pie';
+import { getCssClass, getIdCssClass, getCssSelector, getCssClassMatchSelector, getChartRootCssSelector } from '../../src/utils/ChartDom';
 
 const VERSION = '1.0.0';
 const WIDTH = 800;
@@ -84,7 +85,7 @@ function runFrames(maxFrames = MAX_FRAMES): number {
 }
 
 function slicePaths(container: Element): Element[] {
-  return Array.from(container.querySelectorAll('.mochart-series-slice'));
+  return Array.from(container.querySelectorAll(getCssSelector('seriesSlice')));
 }
 
 function mouse(target: Element, type: string, clientX: number, clientY: number): void {
@@ -104,19 +105,19 @@ describe('pie chart rendering', () => {
   it('mounts a radial plot with one slice path per series and no axes or crosshair', () => {
     const { config, data } = pieChartProps(ITEMS);
     const { container } = mountChart(config, data);
-    expect(container.querySelector('.mochart-radial-plot')).not.toBeNull();
+    expect(container.querySelector(getCssSelector('radialPlot'))).not.toBeNull();
     expect(slicePaths(container)).toHaveLength(3);
-    expect(container.querySelectorAll('.mochart-series')).toHaveLength(3);
-    expect(container.querySelector('.mochart-crosshair')).toBeNull();
-    expect(container.querySelector('.mochart-axis-line')).toBeNull();
-    expect(container.querySelector('.mochart-legend')).not.toBeNull();
+    expect(container.querySelectorAll(getCssSelector('series'))).toHaveLength(3);
+    expect(container.querySelector(getCssSelector('crosshair'))).toBeNull();
+    expect(container.querySelector(getCssSelector('axisLine'))).toBeNull();
+    expect(container.querySelector(getCssSelector('legend'))).not.toBeNull();
   });
 
   it('sets the pointer cursor on a slice series root only when configured', () => {
     const { config, data } = pieChartProps(ITEMS);
     (config.series as Array<Record<string, unknown>>)[0]!.showPointer = true;
     const { container } = mountChart(config, data);
-    const roots = container.querySelectorAll('.mochart-series');
+    const roots = container.querySelectorAll(getCssSelector('series'));
     expect(roots).toHaveLength(3);
     expect(roots[0]!.getAttribute('cursor')).toBe('pointer');
     expect(roots[1]!.getAttribute('cursor')).toBeNull();
@@ -142,7 +143,7 @@ describe('pie chart rendering', () => {
       pie: { showLabels: true, labelType: 'percent', labelMinFraction: 0.05 } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
-    const labels = Array.from(container.querySelectorAll('.mochart-series-slice-label'));
+    const labels = Array.from(container.querySelectorAll(getCssSelector('seriesSliceLabel')));
     expect(labels).toHaveLength(1);
     expect(labels[0]!.textContent).toBe('98%');
   });
@@ -165,7 +166,7 @@ describe('pie chart rendering', () => {
     const { config, data } = pieChartProps(ITEMS);
     const { container } = mountChart(config, data);
     expect(slicePaths(container)).toHaveLength(3);
-    const legendItem = container.querySelector('[class*="mochart-legend-item-slice0"]');
+    const legendItem = container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'slice0')));
     expect(legendItem).not.toBeNull();
     legendItem!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     runFrames();
@@ -178,25 +179,25 @@ describe('pie chart rendering', () => {
   it('opens a tooltip on click with one row per slice', () => {
     const { config, data } = pieChartProps(ITEMS);
     const { container } = mountChart(config, data);
-    const root = container.querySelector('[data-mochart-version]')!;
-    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+    const root = container.querySelector(getChartRootCssSelector())!;
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
     mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
     mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
-    const tooltip = container.querySelector('.mochart-tooltip');
+    const tooltip = container.querySelector(getCssSelector('tooltip'));
     expect(tooltip).not.toBeNull();
-    expect(tooltip!.querySelectorAll('[class*="mochart-tooltip-series-line"]')).toHaveLength(3);
+    expect(tooltip!.querySelectorAll(getCssClassMatchSelector(getCssClass('tooltipSeriesLine')))).toHaveLength(3);
     mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
-    expect(container.querySelector('.mochart-tooltip')).toBeNull();
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
   });
 
   describe('tooltip values (pieConfig.tooltipValues)', () => {
     function tooltipRows(items: PieItem[], options: CreatePieOptions, extraProps: Partial<DefaultChartProps> = {}): string[] {
       const { config, data } = pieChartProps(items, options);
       const { container } = mountChart(config, data, extraProps);
-      const root = container.querySelector('[data-mochart-version]')!;
+      const root = container.querySelector(getChartRootCssSelector())!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
       mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
-      return Array.from(container.querySelectorAll('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+      return Array.from(container.querySelectorAll(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getCssClass('tooltipSeriesLine'))))
         .map(line => line.textContent ?? '');
     }
 
@@ -226,10 +227,10 @@ describe('pie chart rendering', () => {
       const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
         { tooltip: { adjustForFiltering: false } });
       const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
-      const root = container.querySelector('[data-mochart-version]')!;
+      const root = container.querySelector(getChartRootCssSelector())!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
       mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
-      const rows = Array.from(container.querySelectorAll('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+      const rows = Array.from(container.querySelectorAll(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getCssClass('tooltipSeriesLine'))))
         .map(line => line.textContent ?? '');
       expect(rows).toEqual(['Chrome: 62.0%', 'Safari: 20.0%', 'Firefox: 18.0%']);
     });
@@ -238,10 +239,10 @@ describe('pie chart rendering', () => {
       const { config, data } = pieChartProps(ITEMS, { tooltipValues: 'percent' },
         { tooltip: { filteredValueText: '--' } });
       const { container } = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
-      const root = container.querySelector('[data-mochart-version]')!;
+      const root = container.querySelector(getChartRootCssSelector())!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
       mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
-      const rows = Array.from(container.querySelectorAll('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+      const rows = Array.from(container.querySelectorAll(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getCssClass('tooltipSeriesLine'))))
         .map(line => line.textContent ?? '');
       expect(rows[0]).toBe('Chrome: --');
     });
@@ -251,10 +252,10 @@ describe('pie chart rendering', () => {
       // merged, not replaced: the helper's fragment carries tooltipValues
       (config as { pie: DeepPartial<PieConfig> }).pie = { ...config.pie, tooltipPercentFormat: '.0%' };
       const { container } = mountChart(config, data);
-      const root = container.querySelector('[data-mochart-version]')!;
+      const root = container.querySelector(getChartRootCssSelector())!;
       mouse(root, 'mousemove', WIDTH / 2, HEIGHT / 2);
       mouse(root, 'click', WIDTH / 2, HEIGHT / 2);
-      const rows = Array.from(container.querySelectorAll('.mochart-tooltip [class*="mochart-tooltip-series-line"]'))
+      const rows = Array.from(container.querySelectorAll(getCssSelector('tooltip') + ' ' + getCssClassMatchSelector(getCssClass('tooltipSeriesLine'))))
         .map(line => line.textContent ?? '');
       expect(rows[0]).toBe('Chrome: 62% (62.0)');
     });
@@ -264,7 +265,7 @@ describe('pie chart rendering', () => {
         pie: { showLabels: true, labelType: 'titlePercent' } as Partial<PieConfig>
       });
       const { container } = mountChart(config, data);
-      const labels = Array.from(container.querySelectorAll('.mochart-series-slice-label')).map(label => label.textContent);
+      const labels = Array.from(container.querySelectorAll(getCssSelector('seriesSliceLabel'))).map(label => label.textContent);
       expect(labels).toEqual(['Chrome: 62%', 'Safari: 20%', 'Firefox: 18%']);
     });
   });
@@ -272,20 +273,20 @@ describe('pie chart rendering', () => {
   it('leaves the single category value out of the tooltip unless showCategory is set', () => {
     const hidden = pieChartProps(ITEMS, { categoryValue: 'all' });
     const hiddenChart = mountChart(hidden.config, hidden.data);
-    const hiddenRoot = hiddenChart.container.querySelector('[data-mochart-version]')!;
+    const hiddenRoot = hiddenChart.container.querySelector(getChartRootCssSelector())!;
     mouse(hiddenRoot, 'mousemove', WIDTH / 2, HEIGHT / 2);
     mouse(hiddenRoot, 'click', WIDTH / 2, HEIGHT / 2);
-    const hiddenTooltip = hiddenChart.container.querySelector('.mochart-tooltip')!;
-    expect(hiddenTooltip.querySelector('.mochart-tooltip-category-line')).toBeNull();
+    const hiddenTooltip = hiddenChart.container.querySelector(getCssSelector('tooltip'))!;
+    expect(hiddenTooltip.querySelector(getCssSelector('tooltipCategoryLine'))).toBeNull();
     expect(hiddenTooltip.textContent).not.toContain('all');
 
     const shown = pieChartProps(ITEMS, { categoryValue: 'all' }, { tooltip: { showCategory: true } });
     const shownChart = mountChart(shown.config, shown.data);
-    const shownRoot = shownChart.container.querySelector('[data-mochart-version]')!;
+    const shownRoot = shownChart.container.querySelector(getChartRootCssSelector())!;
     mouse(shownRoot, 'mousemove', WIDTH / 2, HEIGHT / 2);
     mouse(shownRoot, 'click', WIDTH / 2, HEIGHT / 2);
-    const shownTooltip = shownChart.container.querySelector('.mochart-tooltip')!;
-    expect(shownTooltip.querySelector('.mochart-tooltip-category-line')!.textContent).toBe('all');
+    const shownTooltip = shownChart.container.querySelector(getCssSelector('tooltip'))!;
+    expect(shownTooltip.querySelector(getCssSelector('tooltipCategoryLine'))!.textContent).toBe('all');
   });
 
   it('renders a partial span for gauge configs', () => {
@@ -307,11 +308,11 @@ describe('pie chart rendering', () => {
     const plain = mountChart(config, data);
     const focused = mountChart(config, data, { focusedSeriesId: 'slice0' });
     const transformOf = (container: Element) =>
-      container.querySelector('[class*="mochart-series-slice0"]')!.getAttribute('transform');
+      container.querySelector(getCssClassMatchSelector(getIdCssClass('series', 'slice0')))!.getAttribute('transform');
     expect(transformOf(focused.container)).not.toBe(transformOf(plain.container));
     // unfocused slices keep the centered transform
     const otherTransform = (container: Element) =>
-      container.querySelector('[class*="mochart-series-slice1"]')!.getAttribute('transform');
+      container.querySelector(getCssClassMatchSelector(getIdCssClass('series', 'slice1')))!.getAttribute('transform');
     expect(otherTransform(focused.container)).toBe(otherTransform(plain.container));
   });
 
@@ -320,11 +321,11 @@ describe('pie chart rendering', () => {
       pie: { innerRadiusFraction: 0.6, centerLabel: 'Total', showCenterTotal: true, centerTotalFormat: ',.0f' } as Partial<PieConfig>
     });
     const { container } = mountChart(config, data);
-    expect(container.querySelector('.mochart-pie-center-label')!.textContent).toBe('Total');
-    expect(container.querySelector('.mochart-pie-center-total')!.textContent).toBe('100');
+    expect(container.querySelector(getCssSelector('pieCenterLabel'))!.textContent).toBe('Total');
+    expect(container.querySelector(getCssSelector('pieCenterTotal'))!.textContent).toBe('100');
 
     const filtered = mountChart(config, data, { filteredSeriesIds: { slice0: true } });
-    expect(filtered.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('38');
+    expect(filtered.container.querySelector(getCssSelector('pieCenterTotal'))!.textContent).toBe('38');
   });
 
   it('keeps percent labels on the full total when adjustLabelsForFiltering is off', () => {
@@ -334,11 +335,11 @@ describe('pie chart rendering', () => {
     const filtered = { filteredSeriesIds: { slice2: true } };
 
     const adjusted = mountChart(labelConfig(true).config, labelConfig(true).data, filtered);
-    const adjustedLabels = Array.from(adjusted.container.querySelectorAll('.mochart-series-slice-label')).map((label) => label.textContent);
+    const adjustedLabels = Array.from(adjusted.container.querySelectorAll(getCssSelector('seriesSliceLabel'))).map((label) => label.textContent);
     expect(adjustedLabels).toEqual(['76%', '24%']); // renormalized against 62 + 20
 
     const unadjusted = mountChart(labelConfig(false).config, labelConfig(false).data, filtered);
-    const unadjustedLabels = Array.from(unadjusted.container.querySelectorAll('.mochart-series-slice-label')).map((label) => label.textContent);
+    const unadjustedLabels = Array.from(unadjusted.container.querySelectorAll(getCssSelector('seriesSliceLabel'))).map((label) => label.textContent);
     expect(unadjustedLabels).toEqual(['62%', '20%']); // shares of the full total
   });
 
@@ -349,10 +350,10 @@ describe('pie chart rendering', () => {
     const filtered = { filteredSeriesIds: { slice0: true } };
 
     const adjusted = mountChart(totalConfig(true).config, totalConfig(true).data, filtered);
-    expect(adjusted.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('38');
+    expect(adjusted.container.querySelector(getCssSelector('pieCenterTotal'))!.textContent).toBe('38');
 
     const unadjusted = mountChart(totalConfig(false).config, totalConfig(false).data, filtered);
-    expect(unadjusted.container.querySelector('.mochart-pie-center-total')!.textContent).toBe('100');
+    expect(unadjusted.container.querySelector(getCssSelector('pieCenterTotal'))!.textContent).toBe('100');
   });
 
   it('sweeps in on the initial animation, revealing labels only once settled', () => {
@@ -372,10 +373,10 @@ describe('pie chart rendering', () => {
     }
     expect(slicePaths(container).length).toBeGreaterThan(0);
     const midSweepD = slicePaths(container).map((path) => path.getAttribute('d'));
-    expect(container.querySelectorAll('.mochart-series-slice-label')).toHaveLength(0);
+    expect(container.querySelectorAll(getCssSelector('seriesSliceLabel'))).toHaveLength(0);
 
     runFrames();
-    expect(container.querySelectorAll('.mochart-series-slice-label')).toHaveLength(3);
+    expect(container.querySelectorAll(getCssSelector('seriesSliceLabel'))).toHaveLength(3);
     const settledD = slicePaths(container).map((path) => path.getAttribute('d'));
     expect(settledD).not.toEqual(midSweepD);
   });
@@ -411,7 +412,7 @@ describe('pie chart rendering', () => {
 
 describe('pie slice hover focus', () => {
   function slice(container: Element, index: number): Element {
-    const slices = container.querySelectorAll('.mochart-series-slice');
+    const slices = container.querySelectorAll(getCssSelector('seriesSlice'));
     expect(slices.length).toBeGreaterThan(index);
     return slices[index];
   }
