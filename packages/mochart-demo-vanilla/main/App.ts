@@ -7,6 +7,7 @@ import { getPath, navigate, onNavigate } from './router';
 
 import { el } from '../src/components/misc/dom';
 import { galleryPage } from '../src/components/gallery/GalleryPage';
+import type { GalleryPageHandle } from '../src/components/gallery/GalleryPage';
 import { demoSingle } from '../src/components/single/DemoSingle';
 import type { DemoSingleHandle } from '../src/components/single/DemoSingle';
 import { demoMulti } from '../src/components/multi/DemoMulti';
@@ -71,7 +72,7 @@ function resolveRoute(path: string): Route {
 type View =
   | { kind: 'none' }
   | { kind: 'message'; el: HTMLElement }
-  | { kind: 'gallery'; el: HTMLElement }
+  | { kind: 'gallery'; handle: GalleryPageHandle }
   | { kind: 'single'; handle: DemoSingleHandle }
   | { kind: 'multi'; handle: DemoMultiHandle }
   | { kind: 'random'; handle: DemoRandomHandle }
@@ -96,7 +97,7 @@ export function mountApp(root: HTMLElement): void {
   let view: View = { kind: 'none' };
 
   function clearView(): void {
-    if (view.kind === 'single' || view.kind === 'multi' || view.kind === 'random') {
+    if (view.kind === 'gallery' || view.kind === 'single' || view.kind === 'multi' || view.kind === 'random') {
       view.handle.destroy();
     }
     else if (view.kind === 'transition' || view.kind === 'rotation' || view.kind === 'sparkline') {
@@ -127,7 +128,7 @@ export function mountApp(root: HTMLElement): void {
       onOpenPage: mode => navigate(`/${mode}`)
     });
     root.append(gallery.el);
-    view = { kind: 'gallery', el: gallery.el };
+    view = { kind: 'gallery', handle: gallery };
   }
 
   function onBackToDemos(): void {
