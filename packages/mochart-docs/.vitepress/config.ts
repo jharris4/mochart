@@ -58,6 +58,8 @@ export default defineConfig({
   title: 'mochart',
   description: 'Animated interactive SVG charting library with zero framework dependencies',
   srcExclude: ['README.md'],
+  // inline SVG favicon, the same mark the demo galleries use: the site ships no /favicon.ico
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%233e63dd'/%3E%3Crect x='3' y='9' width='2.5' height='4' fill='%23fff'/%3E%3Crect x='6.75' y='6' width='2.5' height='7' fill='%23fff'/%3E%3Crect x='10.5' y='3' width='2.5' height='10' fill='%23fff'/%3E%3C/svg%3E" }]],
   markdown: { config: demoLinkTargets },
   vite: { build: { sourcemap: true }, plugins: [depSourcemaps()] },
   themeConfig: {
