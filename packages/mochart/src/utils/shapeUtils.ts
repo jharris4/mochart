@@ -14,6 +14,12 @@ const shapeToSymbolIndexMap: Record<MarkerShape, (typeof symbols)[number]> = {
   wye: symbols[6]
 };
 
-export function getSymbolGenerator(size: number, shape: MarkerShape) {
+// spelled out locally: d3-shape's types are repo-local ambients, so they cannot be referenced from the emitted .d.ts
+interface SymbolGenerator {
+  (): string | null;
+  size(value: number): SymbolGenerator;
+}
+
+export function getSymbolGenerator(size: number, shape: MarkerShape): SymbolGenerator {
   return symbol().size(size * size).type(shapeToSymbolIndexMap[shape]);
 }
