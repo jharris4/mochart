@@ -5546,7 +5546,7 @@ because under `bash -e` an inlined failure would still exit 0 and silently emit 
 `Linux-playwright-`; the assignment form aborts.
 
 ### TOOL-12 — ESLint's type-aware rules are silently off for two workspaces and all `*.config.ts`
-**Low · Tooling gap · [eslint.config.mjs:56-62](eslint.config.mjs#L56)** — **Open**
+**Low · Tooling gap · [eslint.config.mjs:56-62](eslint.config.mjs#L56)** — **Fixed**
 
 The type-aware block (`no-floating-promises`, `no-misused-promises`, `await-thenable`,
 `unbound-method`) carries `ignores: ['**/*.config.ts', 'packages/mochart-docs/**',
@@ -5558,6 +5558,19 @@ disabled across the entire docs package — which contains the `checkExamples`/`
 **Fix:** give `packages/mochart-docs` and `packages/mochart-demo-common/scripts` a tsconfig that
 includes their scripts (widening `include` may be enough) so `projectService: true` can type them,
 then remove them from the ignore list.
+
+Fixed by cutting the type-aware block's `ignores` from three entries to one, so
+`no-floating-promises` and the rest now cover all of `packages/mochart-docs`
+(including the three docs-build gate scripts) and
+`packages/mochart-demo-common/scripts`. The two genuinely unclaimed files under
+`packages/mochart-docs/reference/` are handled with
+`projectService: { allowDefaultProject: [...] }` rather than an ignore, so they
+are still type-checked. `**/*.config.ts` stays ignored — those files are not in
+any tsconfig's `include` — with a corrected comment saying so.
+
+Proof the rules now bite: `eslint --stdin --stdin-filename <path>` with
+`async function boom(): Promise<void> {} boom();` errors on all 8 probed paths
+under the new config and exits 0 under the old one.
 
 ### TOOL-13 — minor manifest and config drift
 **Low · Inconsistency** — **Fixed**
