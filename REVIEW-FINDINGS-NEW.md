@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 59 fixed, 2 needing an answer, 100 open.** TOOL-2 is deferred to release time by
+**Status: 60 fixed, 2 needing an answer, 99 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1806,16 +1806,25 @@ The e2e suite already has to qualify them
 regenerate goldens.
 
 ### API-4 — `mochartCssClasses` values are not all class names, contradicting the API reference
-**Medium · Doc gap · [reference/api.md:212](packages/mochart-docs/reference/api.md#L212)** — **Open**
+**Medium · Doc gap · [reference/api.md:212](packages/mochart-docs/reference/api.md#L212)** — **Fixed**
 
 api.md says the map gives "the CSS class the renderer puts on it … useful for targeted CSS
-overrides and DOM queries". In fact 16 entries are a base class *plus an id prefix* in one string:
-`series: 'mochart-series mochart-series-'`. So `'.' + mochartCssClasses.series` yields the
-selector `.mochart-series mochart-series-`, which silently matches nothing. Core itself works
-around this with `.split(' ')[0]`, and so does the shipped `@mochart/export`.
+overrides and DOM queries". In fact 17 of the 95 entries are a base class *plus an id prefix* in
+one string: `series: 'mochart-series mochart-series-'`. So `'.' + mochartCssClasses.series` yields
+the selector `.mochart-series mochart-series-`, which silently matches nothing. Core itself works
+around this with `.split(' ')[0]`.
 
-**Fix:** document the two-part convention explicitly with a composition example, or split the map
-into `{ base, prefix }` entries so no value is a compound string.
+(The finding also credited `@mochart/export` with splitting. It does call `split`, but only on
+`chart`, `crosshair` and `titleTextRaw` — all single-token values — so those are no-ops. Every
+real workaround is in core: `ChartDom.ts:117,129,141` and `AxisTickLabels.ts:229`.)
+
+**Fixed:** documented the convention in api.md rather than reshaping the map, since the compound
+values are what the renderer writes to `class` and splitting the published map would break every
+caller. The "Styling hooks" section now shows `split(' ')` for a selector and `+ id` for the
+per-item class, and names `chartError` (`'mochart-chart mochart-chart-error'`) as the one value
+that is two complete classes instead. `test/utils/ChartDom.test.ts` pins the shape so a new entry
+cannot contradict the description; it also asserts every token carries the `mochart-` prefix, with
+the three crosshair classes from **API-3** listed as the known exceptions.
 
 ### API-5 — the core README omits all seven chart-shape helpers and the pie chart type
 **Medium · Doc gap · [packages/mochart/README.md:12](packages/mochart/README.md#L12)** — **Fixed**
