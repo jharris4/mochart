@@ -35,13 +35,13 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**167 findings: 1 critical, 33 high, 74 medium, 59 low.** (145 from the Opus pass,
+**169 findings: 1 critical, 33 high, 74 medium, 60 low.** (145 from the Opus pass,
 5 from the SOL pass, 17 found while implementing.)
 
-**Status: 128 fixed, 39 open** (20 medium, 17 low, and 2 high).
+**Status: 138 fixed, 31 open** (14 medium, 15 low, and 2 high).
 Five of the open findings are blocked on a decision rather than on work — **COMP-8**, **BIND-3**, **TOOL-2**,
 **VAL-1** and **API-13** — and each has its question, options and a recommendation written up in `REVIEW-QUESTIONS.md`.
-The other 34 are unstarted work.
+The other 26 are unstarted work.
 
 BIND-3 is the one finding deliberately left open with work committed against it: its safe half — `types`
 before `development` in nine export maps, plus README documentation — has landed, while the consumer exposure
