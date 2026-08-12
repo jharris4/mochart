@@ -1,6 +1,6 @@
 import { scaleLinear } from 'd3-scale';
 
-import { getDomainExtent } from './DomainData';
+import { getDomainExtent, numericValue } from './DomainData';
 import { AUTO, NONE, TYPE_DATE } from '../config/core/constants';
 import type { AxisConfigBase } from '../types/config';
 import type { DataType } from '../config/core/constants';
@@ -24,7 +24,7 @@ export function getAxisDomain(axisConfig: AxisDomainConfig, axisDomainCalculator
 export function isExplicitCollapsedDomain(axisConfig: AxisDomainConfig, axisDomain: CategoryAxisDomain): boolean {
   const [min, max] = axisDomain;
   return axisConfig.min !== AUTO && axisConfig.max !== AUTO &&
-    min !== null && max !== null && comparableValue(min) === comparableValue(max);
+    min !== null && max !== null && numericValue(min) === numericValue(max);
 }
 
 /**
@@ -34,10 +34,10 @@ export function isExplicitCollapsedDomain(axisConfig: AxisDomainConfig, axisDoma
  */
 export function getRenderAxisDomain(axisConfig: AxisDomainConfig, axisDomain: CategoryAxisDomain): CategoryAxisDomain {
   const [min, max] = axisDomain;
-  if (min === null || max === null || comparableValue(min) !== comparableValue(max)) {
+  if (min === null || max === null || numericValue(min) !== numericValue(max)) {
     return axisDomain;
   }
-  const value = comparableValue(min);
+  const value = numericValue(min);
   if (axisConfig.type === TYPE_DATE) {
     const half = getDateHalfWidth(axisConfig);
     return [new Date(value - half), new Date(value + half)];
@@ -99,7 +99,7 @@ function getAxisDomainWithMinAndMax(axisConfig: AxisDomainConfig, axisDomainCalc
     axisDomain = axisDomainCalculator();
     if (min === AUTO) {
       const { softMin } = axisConfig;
-      if (softMin !== NONE && (axisDomain[0] === null || comparableValue(axisDomain[0]) > comparableValue(valueCreator(softMin)))) {
+      if (softMin !== NONE && (axisDomain[0] === null || numericValue(axisDomain[0]) > numericValue(valueCreator(softMin)))) {
         axisDomain[0] = valueCreator(softMin);
       }
     }
@@ -108,7 +108,7 @@ function getAxisDomainWithMinAndMax(axisConfig: AxisDomainConfig, axisDomainCalc
     }
     if (max === AUTO) {
       const { softMax } = axisConfig;
-      if (softMax !== NONE && (axisDomain[1] === null || comparableValue(axisDomain[1]) < comparableValue(valueCreator(softMax)))) {
+      if (softMax !== NONE && (axisDomain[1] === null || numericValue(axisDomain[1]) < numericValue(valueCreator(softMax)))) {
         axisDomain[1] = valueCreator(softMax);
       }
     }
@@ -146,16 +146,12 @@ function adjustAxisDomainForOffsets(axisConfig: AxisDomainConfig, axisDomain: Ca
   }
 }
 
-function comparableValue(value: DomainValue): number {
-  return value instanceof Date ? value.getTime() : value;
-}
-
 function getAxisValueCreator(axisConfig: AxisDomainConfig): (value: number) => DomainValue {
   return axisConfig.type === TYPE_DATE ? (value: number) => new Date(value) : (value: number) => value;
 }
 
 function adjustAxisValue(axisConfig: AxisDomainConfig, value: DomainValue, adjustment: number): DomainValue {
   return axisConfig.type === TYPE_DATE
-    ? new Date(comparableValue(value) + adjustment)
-    : comparableValue(value) + adjustment;
+    ? new Date(numericValue(value) + adjustment)
+    : numericValue(value) + adjustment;
 }

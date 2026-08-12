@@ -253,7 +253,7 @@ count is derived by testing `=== false`. Behaviour unchanged, no test changes; 1
 and lint pass.
 
 ### DATA-7 — six near-copies of "coerce a Date to a comparable number"
-**Low · Inconsistency · [DomainData.ts:6](packages/mochart/src/data/DomainData.ts#L6), [AxisDomainData.ts:80](packages/mochart/src/data/AxisDomainData.ts#L80), [CategoryValue.ts:6](packages/mochart/src/data/CategoryValue.ts#L6), [CategoryData.ts:111](packages/mochart/src/data/CategoryData.ts#L111), [DataValidator.ts:28](packages/mochart/src/data/DataValidator.ts#L28)**
+**Low · Inconsistency · [DomainData.ts:6](packages/mochart/src/data/DomainData.ts#L6), [AxisDomainData.ts:80](packages/mochart/src/data/AxisDomainData.ts#L80), [CategoryValue.ts:6](packages/mochart/src/data/CategoryValue.ts#L6), [CategoryData.ts:111](packages/mochart/src/data/CategoryData.ts#L111), [DataValidator.ts:28](packages/mochart/src/data/DataValidator.ts#L28)** — **Fixed**
 
 *Found while implementing ANIM-1 part 1, not by either review pass.*
 
@@ -283,6 +283,23 @@ imports nothing from the data layer (verified — zero imports), so a single sha
 either live in `src/utils/` or the config copy would stay separate. The config-side one is best
 placed in `config/validation/validators.ts`, beside the existing non-validator predicates, where
 the coming `softMin`/`softMax`, threshold-value and `ticks[].value` checks can reuse it.
+
+**Fixed for the identical pair; the four near-variants are left alone deliberately.**
+`AxisDomainData.comparableValue` is gone and its seven call sites now use `numericValue`, exported
+from `DomainData` — which `AxisDomainData` already imported from, so no new import edge and no
+`src/utils/` hop was needed. Six copies are now four. Behaviour unchanged; 1594 tests, typecheck and
+lint pass.
+
+The other four are *not* collapsed, because they are not the same function:
+
+* `CategoryValue.getCategoryValueKey` returns a `string` lookup key, not a comparable number.
+* `CategoryData.ts:111` casts to `Date` and would *throw* on a stray string; `numericValue` would
+  instead return that string typed as a `number`. Substituting the shared helper here trades a loud
+  failure for a silent one, so the cast stays.
+* `DataValidator.ts:28` deliberately parses date *strings*, which the shared helper does not.
+* `validation/mochartConfig.boundValue` returns `number | null` and sits in `src/config/`, which
+  imports nothing from `src/data/` (still true). Its home, when `softMin`/`softMax`, threshold and
+  `ticks[].value` checks want it, is `config/validation/validators.ts` as the finding suggests.
 
 ---
 
