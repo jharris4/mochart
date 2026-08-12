@@ -13,9 +13,6 @@ export interface ConditionalRule {
   suffix?: string;
 }
 
-// Note: validators created via `conditional` only carry the message extensions
-// (withMessage/appendMessage/prependMessage) and withCustomName at runtime,
-// not orEqual/orOneOf/or.
 export interface Validator {
   (v?: any): boolean;
   validatorName: string;
@@ -616,69 +613,65 @@ const validatorMessageExtensions: Record<string, (messageValidatorFunction: Vali
 
 const validatorMessageExtensionKeys = Object.keys(validatorMessageExtensions);
 
-function addExtensions(validatorFunction: Validator, messageExtensions = true, extensions = true): void {
-  if (messageExtensions) {
-    validatorMessageExtensionKeys.forEach(messageExtensionKey => {
-      (validatorFunction as any)[messageExtensionKey] = (message: string): Validator => {
-        const messageValidatorFunction = ((v?: any) => validatorFunction(v)) as Validator;
-        messageValidatorFunction.validatorName = validatorFunction.validatorName;
-        messageValidatorFunction.extensionNames = validatorFunction.extensionNames;
-        messageValidatorFunction.customName = validatorFunction.customName;
-        messageValidatorFunction.allowedValues = validatorFunction.allowedValues;
-        messageValidatorFunction.isEnum = validatorFunction.isEnum;
-        messageValidatorFunction.nestedValues = validatorFunction.nestedValues;
-        messageValidatorFunction.itemValidator = validatorFunction.itemValidator;
-        messageValidatorFunction.alternativeValidators = validatorFunction.alternativeValidators;
-        messageValidatorFunction.rangeValues = validatorFunction.rangeValues;
-        messageValidatorFunction.errorMessage = validatorFunction.errorMessage;
-        messageValidatorFunction.errorMessages = validatorFunction.errorMessages;
-        validatorMessageExtensions[messageExtensionKey](messageValidatorFunction, message);
-        messageValidatorFunction.getErrorMessage = v => appendValue(messageValidatorFunction.errorMessage, v);
-        addExtensions(messageValidatorFunction, messageExtensions, extensions);
-        return messageValidatorFunction;
-      };
-    });
-  }
-  if (extensions) {
-    validatorExtensionKeys.forEach(extensionKey => {
-      (validatorFunction as any)[extensionKey] = (...args: any[]): Validator => {
-        const extensionFunction = ((v?: any) =>
-          validatorFunction(v) || validatorExtensionDefinitions[extensionKey].validator(...args)(v)) as Validator;
-        extensionFunction.validatorName = validatorFunction.validatorName;
-        if (validatorFunction.extensionNames === null) {
-          extensionFunction.extensionNames = [extensionKey];
-        } else {
-          extensionFunction.extensionNames = validatorFunction.extensionNames.concat(extensionKey);
-        }
-        extensionFunction.customName = validatorFunction.customName;
-        extensionFunction.allowedValues = validatorFunction.allowedValues;
-        extensionFunction.isEnum = false;
-        extensionFunction.nestedValues = validatorFunction.nestedValues;
-        extensionFunction.itemValidator = validatorFunction.itemValidator;
-        extensionFunction.alternativeValidators = extensionKey === "or"
-          ? (validatorFunction.alternativeValidators ?? [validatorFunction]).concat(args[0])
-          : validatorFunction.alternativeValidators;
-        extensionFunction.rangeValues = validatorFunction.rangeValues;
-        if (validatorExtensionArgsToAllowedValues[extensionKey] !== undefined) {
-          const extensionAllowedValues = validatorExtensionArgsToAllowedValues[extensionKey](...args);
-          extensionFunction.isEnum = validatorFunction.isEnum && validatorExtensionArgsToIsEnum[extensionKey](...args);
-          if (extensionAllowedValues !== null) {
-            if (typeValidators.array(validatorFunction.allowedValues)) {
-              extensionFunction.allowedValues = validatorFunction.allowedValues!.concat(extensionAllowedValues);
-            } else {
-              extensionFunction.allowedValues = extensionAllowedValues;
-            }
+function addExtensions(validatorFunction: Validator): void {
+  validatorMessageExtensionKeys.forEach(messageExtensionKey => {
+    (validatorFunction as any)[messageExtensionKey] = (message: string): Validator => {
+      const messageValidatorFunction = ((v?: any) => validatorFunction(v)) as Validator;
+      messageValidatorFunction.validatorName = validatorFunction.validatorName;
+      messageValidatorFunction.extensionNames = validatorFunction.extensionNames;
+      messageValidatorFunction.customName = validatorFunction.customName;
+      messageValidatorFunction.allowedValues = validatorFunction.allowedValues;
+      messageValidatorFunction.isEnum = validatorFunction.isEnum;
+      messageValidatorFunction.nestedValues = validatorFunction.nestedValues;
+      messageValidatorFunction.itemValidator = validatorFunction.itemValidator;
+      messageValidatorFunction.alternativeValidators = validatorFunction.alternativeValidators;
+      messageValidatorFunction.rangeValues = validatorFunction.rangeValues;
+      messageValidatorFunction.errorMessage = validatorFunction.errorMessage;
+      messageValidatorFunction.errorMessages = validatorFunction.errorMessages;
+      validatorMessageExtensions[messageExtensionKey](messageValidatorFunction, message);
+      messageValidatorFunction.getErrorMessage = v => appendValue(messageValidatorFunction.errorMessage, v);
+      addExtensions(messageValidatorFunction);
+      return messageValidatorFunction;
+    };
+  });
+  validatorExtensionKeys.forEach(extensionKey => {
+    (validatorFunction as any)[extensionKey] = (...args: any[]): Validator => {
+      const extensionFunction = ((v?: any) =>
+        validatorFunction(v) || validatorExtensionDefinitions[extensionKey].validator(...args)(v)) as Validator;
+      extensionFunction.validatorName = validatorFunction.validatorName;
+      if (validatorFunction.extensionNames === null) {
+        extensionFunction.extensionNames = [extensionKey];
+      } else {
+        extensionFunction.extensionNames = validatorFunction.extensionNames.concat(extensionKey);
+      }
+      extensionFunction.customName = validatorFunction.customName;
+      extensionFunction.allowedValues = validatorFunction.allowedValues;
+      extensionFunction.isEnum = false;
+      extensionFunction.nestedValues = validatorFunction.nestedValues;
+      extensionFunction.itemValidator = validatorFunction.itemValidator;
+      extensionFunction.alternativeValidators = extensionKey === "or"
+        ? (validatorFunction.alternativeValidators ?? [validatorFunction]).concat(args[0])
+        : validatorFunction.alternativeValidators;
+      extensionFunction.rangeValues = validatorFunction.rangeValues;
+      if (validatorExtensionArgsToAllowedValues[extensionKey] !== undefined) {
+        const extensionAllowedValues = validatorExtensionArgsToAllowedValues[extensionKey](...args);
+        extensionFunction.isEnum = validatorFunction.isEnum && validatorExtensionArgsToIsEnum[extensionKey](...args);
+        if (extensionAllowedValues !== null) {
+          if (typeValidators.array(validatorFunction.allowedValues)) {
+            extensionFunction.allowedValues = validatorFunction.allowedValues!.concat(extensionAllowedValues);
+          } else {
+            extensionFunction.allowedValues = extensionAllowedValues;
           }
         }
-        extensionFunction.errorMessage =
-          validatorFunction.errorMessage + validatorExtensionDefinitions[extensionKey].message(...args);
-        extensionFunction.errorMessages = [extensionFunction.errorMessage];
-        extensionFunction.getErrorMessage = v => appendValue(extensionFunction.errorMessage, v);
-        addExtensions(extensionFunction, messageExtensions, extensions);
-        return extensionFunction;
-      };
-    });
-  }
+      }
+      extensionFunction.errorMessage =
+        validatorFunction.errorMessage + validatorExtensionDefinitions[extensionKey].message(...args);
+      extensionFunction.errorMessages = [extensionFunction.errorMessage];
+      extensionFunction.getErrorMessage = v => appendValue(extensionFunction.errorMessage, v);
+      addExtensions(extensionFunction);
+      return extensionFunction;
+    };
+  });
 
   validatorFunction.withCustomName = (customName: string): Validator => {
     const customNameFunction = ((v?: any) => validatorFunction(v)) as Validator;
@@ -694,7 +687,7 @@ function addExtensions(validatorFunction: Validator, messageExtensions = true, e
     customNameFunction.errorMessage = validatorFunction.errorMessage;
     customNameFunction.errorMessages = validatorFunction.errorMessages;
     customNameFunction.getErrorMessage = v => appendValue(customNameFunction.errorMessage, v);
-    addExtensions(customNameFunction, messageExtensions, extensions);
+    addExtensions(customNameFunction);
     return customNameFunction;
   };
 }
@@ -760,7 +753,7 @@ validators.conditional = (rules: ConditionalRule[], object: any): Validator => {
     ? appendSuffix(matchedRule.validator.errorMessage, matchedRule.suffix)
     : (validatorFunction.errorMessages.join(" or ") || "no conditional rule matched");
   validatorFunction.getErrorMessage = v => appendValue(validatorFunction.errorMessage, v);
-  addExtensions(validatorFunction, true, false);
+  addExtensions(validatorFunction);
   return validatorFunction;
 };
 
