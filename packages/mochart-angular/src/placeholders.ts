@@ -18,6 +18,7 @@ interface PlaceholderSlot {
   ref: ComponentRef<unknown> | null;
   refComponent: PlaceholderComponent | null;
   inputNames: Set<string>;
+  appliedKeys: Set<keyof PlaceholderProps>;
   factory: (context: PlaceholderProps) => Node;
 }
 
@@ -51,11 +52,21 @@ export function createPlaceholderAdapter(environmentInjector: EnvironmentInjecto
       // Only chart-context keys the component actually declares as inputs are
       // applied (setInput throws on unknown inputs).
       slot.inputNames = new Set((reflectComponentType(slot.component)?.inputs ?? []).map((input) => input.templateName));
+      // a fresh instance holds no applied inputs, so nothing needs clearing
+      slot.appliedKeys.clear();
       applicationRef.attachView(slot.ref.hostView);
     }
+    // chart states pass different key sets, so a key this call omits is cleared rather than left stale
+    for (const key of slot.appliedKeys) {
+      if (!(key in context)) {
+        slot.ref.setInput(key, undefined);
+      }
+    }
+    slot.appliedKeys.clear();
     for (const key of Object.keys(context) as (keyof PlaceholderProps)[]) {
       if (slot.inputNames.has(key)) {
         slot.ref.setInput(key, context[key]);
+        slot.appliedKeys.add(key);
       }
     }
     slot.ref.changeDetectorRef.detectChanges();
@@ -74,6 +85,7 @@ export function createPlaceholderAdapter(environmentInjector: EnvironmentInjecto
         ref: null,
         refComponent: null,
         inputNames: new Set(),
+        appliedKeys: new Set(),
         factory: (context: PlaceholderProps) => renderSlot(slots.get(propName)!, context)
       };
       slots.set(propName, slot);
