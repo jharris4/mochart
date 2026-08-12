@@ -1715,6 +1715,38 @@ describe("validators", () => {
       const validator = baseValidators.conditional(rules, object);
       expect(validator.errorMessage).toIsEqual("should be equal to 123");
     });
+
+    it("should carry the orEqual, orOneOf and or extensions like every other validator", () => {
+      const rules: ConditionalRule[] = [
+        {
+          condition: ({ type }) => type === "string",
+          suffix: "when type is string",
+          validator: baseValidators.string()
+        }
+      ];
+      const object = { type: "string" };
+      expect(baseValidators.conditional(rules, object).orEqual(undefined)(undefined)).toIsEqual(true);
+      expect(baseValidators.conditional(rules, object).orEqual(undefined)("a")).toIsEqual(true);
+      expect(baseValidators.conditional(rules, object).orEqual(undefined)(1)).toIsEqual(false);
+      expect(baseValidators.conditional(rules, object).orOneOf([1, 2])(2)).toIsEqual(true);
+      expect(baseValidators.conditional(rules, object).or(baseValidators.number())(1)).toIsEqual(true);
+      expect(baseValidators.conditional(rules, object).withMessage("nope").orEqual(undefined)(undefined)).toIsEqual(true);
+    });
+
+    it("should append the extension message to the message of the validator for the matched rule", () => {
+      const rules: ConditionalRule[] = [
+        {
+          condition: ({ type }) => type === "string",
+          suffix: "when type is string",
+          validator: baseValidators.string()
+        }
+      ];
+      const validator = baseValidators.conditional(rules, { type: "string" }).orEqual(undefined);
+      expect(validator.validatorName).toIsEqual("conditional");
+      expect(validator.extensionNames).toIsEqual(["orEqual"]);
+      expect(validator.errorMessage).toIsEqual("should be a string when type is string or be equal to undefined");
+      expect(validator.errorMessages).toIsEqual([validator.errorMessage]);
+    });
   });
 
   describe("messages", () => {

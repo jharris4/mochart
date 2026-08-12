@@ -4001,7 +4001,7 @@ is unchanged.
 > in the package that already depends on d3.
 
 ### VAL-2 — `conditional()` returns a validator missing three methods its own type declares
-**Medium · Bug · [validators.ts:763](packages/movalid/src/validators.ts#L763) vs the `Validator` interface at [:33](packages/movalid/src/validators.ts#L33)** — **Open**
+**Medium · Bug · [validators.ts:763](packages/movalid/src/validators.ts#L763) vs the `Validator` interface at [:33](packages/movalid/src/validators.ts#L33)** — **Fixed**
 
 `Validator` declares `orEqual`, `orOneOf` and `or` as **required** members, but `conditional()`
 calls `addExtensions` with `extensions = false`, so none is attached:
@@ -4016,6 +4016,29 @@ system is actively lying about the API.
 
 **Fix:** split the return type — a named `ConditionalValidator = Omit<Validator, 'orEqual' |
 'orOneOf' | 'or'>` — so the compiler rejects the call, or attach the three extensions.
+
+**Fixed by attaching the extensions, not by splitting the type.** `validators.conditional` now calls
+`addExtensions(validatorFunction)` instead of `addExtensions(validatorFunction, true, false)`, so
+`orEqual`, `orOneOf` and `or` exist at runtime exactly as the `Validator` interface declares.
+`addExtensions`'s `messageExtensions`/`extensions` parameters are gone with their four recursive
+call sites, because no path can now ask for a partial validator, and the stale source comment above
+`interface Validator` documenting the gap is deleted. That also makes the README's "Every validator
+can be extended" true, which it was not.
+
+The finding's first option — a narrower `ConditionalValidator = Omit<Validator, 'orEqual' | 'orOneOf'
+| 'or'>` — was prototyped and rejected because it is not a movalid-only change: it produces 10 errors
+in `@mochart/core`, at `config/validation/seriesConfig.ts` lines 140-175 and
+`config/validation/mochartConfig.ts:124,159`, where the category-axis and series validator maps stop
+being assignable to `Record<string, Validator>`. Making the compiler reject `.orEqual` on a conditional
+would mean widening core's validator map types too, which is a larger change than the finding
+describes and not obviously the right shape.
+
+Behaviour is additive: nothing in the repo called these methods on a conditional. An extended
+conditional keeps `validatorName: 'conditional'`, gains the extension name, and appends the extension
+text to the matched rule's message. Two tests in the existing `conditional validator` block cover all
+three methods plus `withMessage(...).orEqual(...)` chaining and the composed message; both fail without
+the fix with `c.orEqual is not a function`. movalid 385 tests, core 1612 tests, repo-wide typecheck,
+lint and deadcode all pass.
 
 ### VAL-3 — the `numeric` family accepts single-element arrays
 **Medium · Bug · [validators.ts:123](packages/movalid/src/validators.ts#L123)** **[verified]** — **Open**
