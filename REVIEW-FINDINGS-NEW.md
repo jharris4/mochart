@@ -4349,7 +4349,7 @@ items re-flow to one per row instead. Its suggested new component test was not t
 itself was fixed, which is what the finding's title asks for.
 
 ### TEST-7 — group- and stack-wide focus propagation is uncovered
-**Medium · Test gap · [FocusData.ts:197-209](packages/mochart/src/data/FocusData.ts#L197)** — **Open**
+**Medium · Test gap · [FocusData.ts:197-209](packages/mochart/src/data/FocusData.ts#L197)** — **Fixed**
 
 When the focused series belongs to a `seriesGroup` or `seriesStack`, `getFocusData` marks every
 sibling as focused. Lines 199-201 (group) and 205-207 (stack) never execute — no test focuses a
@@ -4360,6 +4360,38 @@ single segment would highlight and no golden or unit test would see it. It sits 
 
 **Fix:** in `FocusData.test.ts`, build two stacks of two series, focus one member, and assert
 `seriesFocusPercentages` is at the focused level for both stack-mates and defocused for the other stack.
+
+**Fixed with four tests and no source change — but the finding misplaces the behaviour and prescribes an
+assertion that is false today.**
+
+The group/stack propagation at the cited lines is not in `getFocusData`; it is in
+`getSeriesConfigsOrderedByFocus` ([FocusData.ts:198-208](packages/mochart/src/data/FocusData.ts#L198)), and it
+only populates the local map that partitions the returned series order. It controls **paint order, not styling**.
+`getFocusData` propagates `followSeries` and nothing else.
+
+So the prescribed fix — assert `seriesFocusPercentages` is at the focused level for both stack-mates — asserts
+behaviour the library does not have. Probed: focusing one member of a two-series stack yields
+`{a1: 1, a2: -1, b1: -1, b2: -1}`. Writing that assertion would have required changing the source, so what landed
+pins the real contract instead, with a fourth test making the ordering-only nature explicit. The finding's stated
+regression risk ("only the single segment would highlight") is in fact the shipped behaviour; what those lines
+actually guard is z-order — a focused stack or group no longer being lifted above the other series as a unit, so
+an overlapping series could paint between its members.
+
+One fixture, four bar series divided two ways like the `stacked-grouped` demo, with a parameter that drops one
+division so each branch runs alone. Tests: the whole stack of the focused series rises, the whole group rises,
+both rise together when the series is in each (only the series sharing neither stays down), and the mates are
+still styled as *defocused* — unlike `followSeries`.
+
+Each bites. Disabling the group branch fails two tests, disabling the stack branch fails the other two, with
+concrete orderings in each message. The negative test was proved by the reverse: *adding* stack propagation into
+the percentage loop makes it fail with `{p:1, q:-1, r:1, s:-1}`. `FocusData.ts` is untouched afterwards.
+
+22 → 26 tests in that file; 109 files / 1651 tests pass with coverage above the thresholds; typecheck and lint
+clean. The coverage claim itself was right: both `if` bodies were dead in tests before.
+
+One adjacent gap left untested: the `else if (isFocused(focusedValueAxisId))` branch above means group/stack
+propagation is skipped entirely while a value axis is focused. Confirmed by probe (`['q','r','s','p']` under axis
+focus), but pinning it is a separate case from the two this finding names.
 
 ### TEST-8 — 72 of 349 documented config properties are never set in any test or demo
 **Medium · Test gap** — **Open**
