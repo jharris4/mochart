@@ -35,7 +35,7 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**161 findings: 1 critical, 33 high, 71 medium, 56 low.** (145 from the Opus pass,
+**161 findings: 1 critical, 33 high, 72 medium, 55 low.** (145 from the Opus pass,
 5 from the SOL pass, 11 found while implementing.)
 
 **Status: 61 fixed, 2 needing an answer, 100 open.** TOOL-2 is deferred to release time by
@@ -57,7 +57,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 3 | 4 | 4 | 11 |
 | [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 3 | 12 |
 | [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 3 | 10 |
-| [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 5 | 8 | 14 |
+| [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 6 | 7 | 14 |
 | [7](#7-accessibility) | Accessibility | – | 2 | 5 | 5 | 12 |
 | [8](#8-framework-bindings-export-and-editor) | Bindings, export & editor | – | 2 | 6 | 4 | 12 |
 | [9](#9-documentation) | Documentation | – | 3 | 7 | 3 | 13 |
@@ -65,7 +65,7 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 6 | 18 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 7 | 6 | 16 |
 | [13](#13-movalid) | movalid | – | – | 4 | 1 | 5 |
-| | **Total** | **1** | **33** | **71** | **56** | **161** |
+| | **Total** | **1** | **33** | **72** | **55** | **161** |
 
 `§13`'s `VAL-1` is a cross-reference to `CONFIG-1` (one defect, two vantage points) and is not
 counted twice. Several other findings are cross-linked between sections for the same reason.
@@ -1991,26 +1991,41 @@ contract the library itself does not honour.
 load, non-null after — and delete the casts; or stop presenting `ChartDataSourceInput` as a
 supported public extension contract. Either way, correct the `REVIEW-FINDINGS.md` summary.
 
-### API-14 — `getSeriesValue` also serves the category display property, and its doc comment hides that
-**Low · Doc gap · [types/data.ts:183](packages/mochart/src/types/data.ts#L183)** — **Open**
+### API-14 — the `DataProvider` contract needs revisiting; `getSeriesValue` serves two unrelated jobs
+**Medium · Inconsistency · [types/data.ts:183](packages/mochart/src/types/data.ts#L183)** — **Open**
 
-The `DataProvider` method is documented as "The value of `seriesProperty` for the given category
-(numeric or undefined for series values)". Core also calls it to read `categoryAxis.displayProperty`
-at [CategoryData.ts:75](packages/mochart/src/data/CategoryData.ts#L75), casting the result to
+`DataProvider` is the one interface hosts implement themselves, so its shape is the part of the
+public API that most needs to be self-explanatory. It currently is not.
+
+`getSeriesValue` is documented as "The value of `seriesProperty` for the given category (numeric or
+undefined for series values)". Core also calls it to read `categoryAxis.displayProperty` at
+[CategoryData.ts:75](packages/mochart/src/data/CategoryData.ts#L75), casting the result to
 `CategoryValue`, and [DataValidator.ts:72](packages/mochart/src/data/DataValidator.ts#L72) validates
 that call with `string`/`number` — or `dateAny` on a date axis — rather than the numeric validator
 it uses for series properties. Anyone implementing a provider from the comment alone would return a
 number for a display property and get a data error they cannot explain.
 
-This is also why `TSeriesValue` defaults to `unknown` rather than `NumericValue`: with the narrower
-default, core's own cast at `CategoryData.ts:75` would be unsound against the type the package
-publishes.
+That overload is also why `TSeriesValue` defaults to `unknown` rather than `NumericValue`: with the
+narrower default, core's own cast at `CategoryData.ts:75` would be unsound against the type the
+package publishes. The weakest type on the interface exists to paper over the ambiguity.
 
-**Fix:** the method should probably not be responsible for display values at all. A separate
-`getCategoryDisplayValues()` would give each concern its own signature, let `getSeriesValue` mean
-only what its name says, and allow `TSeriesValue` to default to `NumericValue`. Failing that, at
-minimum document both callers and the value each expects. Note the split is a breaking change to
-the provider contract, including both built-in providers.
+**Fix:** revisit the interface as a whole rather than patching the one method. Points to settle:
+
+- Split display values out — a `getCategoryDisplayValues()` would give each concern its own
+  signature, let `getSeriesValue` mean only what its name says, and allow `TSeriesValue` to default
+  to `NumericValue`.
+- Decide whether the two type parameters earn their place once the return type is honest.
+- Reconsider the per-category, per-property call shape: every series property is read one category
+  at a time ([SeriesData.ts:131](packages/mochart/src/data/SeriesData.ts#L131)), while category
+  values arrive as a whole array. A column accessor would match how the data is actually consumed.
+- Settle which of the four optional members (`getCategoryProperty`, `getError`, `getLoading`,
+  `refresh`) are part of the contract versus conveniences. Nothing checks a provider's shape:
+  [isDataProviderValid](packages/mochart/src/data/ChartData.ts#L6) only tests that the reference is
+  non-null and that `getError()` returns null or undefined, so an object missing
+  `getCategoryValues` entirely passes it and fails later inside `getChartData`.
+
+Any of these is a breaking change to the provider contract, including both built-in providers and
+the demo helpers, so they are worth deciding together rather than one at a time.
 
 ---
 
