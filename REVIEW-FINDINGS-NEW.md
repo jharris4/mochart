@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 57 fixed, 2 needing an answer, 102 open.** TOOL-2 is deferred to release time by
+**Status: 58 fixed, 2 needing an answer, 101 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1406,16 +1406,26 @@ are not in that list, so an undocumented helper option passes. Closing that prop
 the helper option interfaces to the check, which is a larger piece of work than this finding.
 
 ### HELP-10 — sibling helpers disagree on the value-axis fragment's name and shape
-**Low · Inconsistency · [Heatmap.ts:83](packages/mochart/src/data/Heatmap.ts#L83) vs [Candlestick.ts:130](packages/mochart/src/data/Candlestick.ts#L130)** — **Open**
+**Low · Inconsistency · [Heatmap.ts:83](packages/mochart/src/data/Heatmap.ts#L83) vs [Candlestick.ts:130](packages/mochart/src/data/Candlestick.ts#L130)** — **Fixed**
 
 `HeatmapData` exposes `valueAxisConfig: Partial<ValueAxisConfig>` (singular);
 `CandlestickData`/`OhlcData` expose `valueAxes?: Partial<ValueAxisConfig>[]` (array). Two names
 and two shapes for the same concept across four sibling helpers.
 [reference/api.md:153](packages/mochart-docs/reference/api.md#L153) lists both without comment.
 
-**Fix:** settle on the array form `valueAxes` everywhere (it is the config key's own name and
-handles one- and two-axis cases identically); keep `valueAxisConfig` as a deprecated alias for
-one release.
+**Fixed.** `createHeatmap` now returns `valueAxes: [valueAxisConfig]` — the same key the real config
+uses, and the same key `createCandlestick`, `createOhlc` and (since
+[HELP-8](#help-8--createwaterfall-makes-the-caller-hand-mirror-a-base-it-already-knows))
+`createWaterfall` return. Contents unchanged; only the name and the wrapping array.
+
+All four helpers now hand back the value axis under one key, so a caller spreads the same shape
+whichever they use.
+
+Breaking for anyone destructuring `valueAxisConfig`, and it breaks at runtime rather than at
+compile time — the property is simply gone. Taken now on the basis that the API is not final.
+
+Call sites updated: the docs example (its wrapping array is now redundant), the demo generator, and
+two test files. No golden snapshot moved — the value is identical, only the key changed.
 
 ### HELP-11 — `reference/api.md` overstates the helper type surface
 **Low · Doc inconsistency · [reference/api.md:154](packages/mochart-docs/reference/api.md#L154), [:190](packages/mochart-docs/reference/api.md#L190)** — **Open**

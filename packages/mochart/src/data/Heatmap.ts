@@ -80,8 +80,8 @@ export interface HeatmapData {
   data: Record<string, number | string | undefined>[];
   /** Fragment to spread into the chart config's `categoryAxis`. */
   categoryAxis: Partial<CategoryAxisConfig>;
-  /** Fragment to spread into the chart config's (sole) value axis config. */
-  valueAxisConfig: Partial<ValueAxisConfig>;
+  /** Fragment to spread into the chart config's `valueAxes`. */
+  valueAxes: Partial<ValueAxisConfig>[];
   /** Fragments to spread into the chart config's `series`, one per row. */
   series: DeepPartial<SeriesConfig>[];
 }
@@ -228,7 +228,7 @@ export function createHeatmap(rows: readonly HeatmapRow[], options: CreateHeatma
     } as DeepPartial<SeriesConfig>;
   });
 
-  return { domain, colorScale, data, categoryAxis, valueAxisConfig, series: seriesConfigs };
+  return { domain, colorScale, data, categoryAxis, valueAxes: [valueAxisConfig], series: seriesConfigs };
 }
 
 // column values index the rows, so a short list padded with column numbers could collide
