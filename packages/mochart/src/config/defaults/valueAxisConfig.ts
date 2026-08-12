@@ -14,6 +14,7 @@ export default function getDefaults(config: DeepPartial<ValueAxisConfig> = {}, i
 
 export function getRegularDefaults() {
   return {
+    ignore: false,
     ...getAxisDefaults(),
 
     adjustForFiltering: false,

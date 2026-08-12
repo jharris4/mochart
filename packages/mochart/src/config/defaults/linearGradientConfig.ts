@@ -12,6 +12,7 @@ export default function getDefaults(config: DeepPartial<LinearGradientConfig> = 
 
 export function getRegularDefaults() {
   return {
+    ignore: false,
     x1: 0.0,
     x2: 1.0,
     y1: 0.0,

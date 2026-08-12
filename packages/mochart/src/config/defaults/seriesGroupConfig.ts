@@ -11,7 +11,9 @@ export default function getDefaults(config: DeepPartial<SeriesGroupConfig> = {},
 }
 
 export function getRegularDefaults() {
-  return {};
+  return {
+    ignore: false
+  };
 }
 
 export function getConditionalDefaults(configWithRegularDefaults: SeriesGroupConfig, index: number) {

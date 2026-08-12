@@ -4,6 +4,7 @@ export default function getDescriptions() {
   return {
     ...getAxisDescriptions(),
     id: 'the unique identifier for the value axis so it can be referenced by series that belong to it',
+    ignore: 'whether to ignore this value axis and treat it as though it were not specified',
     type: 'the type of the value axis, must be number',
     scale: 'the scale of the value axis, must be linear',
     order: 'the unique integer order of the value axis controlling its order of appearance',

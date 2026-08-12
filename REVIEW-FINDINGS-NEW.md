@@ -1842,7 +1842,7 @@ to cover them. Drive the "every property is optional except…" sentence off `mi
 rather than a hard-coded pair of section ids.
 
 ### CONFIG-8 — `ignore` works on five list sections but is typed, validated and documented on one
-**Low · Inconsistency · [core/mochartConfig.ts:138](packages/mochart/src/config/core/mochartConfig.ts#L138)** **[verified]** — **Open**
+**Low · Inconsistency · [core/mochartConfig.ts:138](packages/mochart/src/config/core/mochartConfig.ts#L138)** **[verified]** — **Fixed**
 
 `applyDefaults` runs `filterConfigs` (`config.ignore !== true`) over *every* array section —
 `valueAxes`, `seriesGroups`, `seriesStacks`, `linearGradients`, `radialGradients` as well as
@@ -1854,6 +1854,26 @@ properties" warning.
 
 **Fix:** either add `ignore` to the other five entry types (types + `validators.boolean()` +
 docs), or restrict `filterConfig` to the `series` section.
+
+**Fixed by making the declared surface match the runtime, not by narrowing the runtime.** `ignore` is
+now typed, validated, defaulted and documented on all five remaining list sections — `valueAxes`,
+`seriesGroups`, `seriesStacks`, `linearGradients`, `radialGradients` — alongside `series`: a member on
+each interface in `types/config.ts`, `validators.boolean()` in each validation module, `ignore: false`
+in each defaults module, and a description in each docs module, with the generated JSDoc and
+`mochart-docs.html` regenerated from those.
+
+The finding's other option — restricting `filterConfig` to `series` — would have deleted working
+behaviour. `applyDefaults` has always filtered every array section, and `ignore` on a value axis or a
+gradient is useful for the same reason it is useful on a series: keeping an entry in a stored config
+while disabling it. The defect was that the surface lied about it, not that the behaviour was wrong.
+
+Two tests in `test/config/core.test.ts` sweep all five sections: an ignored entry is dropped from the
+built config, and `ignore: false` no longer produces the spurious "had 1 invalid properties" warning.
+The second bites — removing the validator from one section brings the warning straight back. The
+warning assertion is scoped to `ignore` rather than overall validity, because a gradient entry needs
+more than an `id` to be valid and that is unrelated.
+
+Core's config and data suites pass (605 tests), typecheck and lint clean on the touched files.
 
 ### CONFIG-9 — `validateConfig`'s `strict` parameter is undocumented
 **Low · Doc gap · [validation/mochartConfig.ts:196](packages/mochart/src/config/validation/mochartConfig.ts#L196) vs [reference/api.md:113](packages/mochart-docs/reference/api.md#L113)** — **Fixed**

@@ -1,6 +1,7 @@
 export default function getDescriptions() {
   return {
     id: 'the unique identifier for the gradient so that it can be referenced for use',
+    ignore: 'whether to ignore this radial gradient and treat it as though it were not specified',
     cx: 'the cx property of the svg radial gradient',
     cy: 'the cy property of the svg radial gradient',
     fx: 'the fx property of the svg radial gradient',

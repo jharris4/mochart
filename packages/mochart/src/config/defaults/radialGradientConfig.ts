@@ -12,6 +12,7 @@ export default function getDefaults(config: DeepPartial<RadialGradientConfig> = 
 
 export function getRegularDefaults() {
   return {
+    ignore: false,
     cx: 0.5,
     cy: 0.5,
     fx: 0.5,

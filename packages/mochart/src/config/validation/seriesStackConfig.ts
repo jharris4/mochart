@@ -7,6 +7,7 @@ export default function getValidators() {
   return {
     axis: validators.string(),
     id: validators.string(),
+    ignore: validators.boolean(),
     outerCapSize: validators.numberMin(0),
     outerCapType: validators.oneOf(CAP_TYPES).orEqual(NONE),
     outerCapExpand: validators.boolean(),
