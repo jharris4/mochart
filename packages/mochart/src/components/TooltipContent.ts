@@ -6,7 +6,7 @@ import { getSeriesText } from '../utils/TooltipFormat';
 import type { PieTooltipValues } from '../utils/TooltipFormat';
 import { getSeriesFocusPercentage } from '../utils/SeriesFocus';
 import { mochartCssClasses } from '../utils/ChartDom';
-import { accessibilityActive } from '../utils/utils';
+import { accessibilityActive, focusRestored } from '../utils/utils';
 import { getPieSliceFractionMap } from '../data/PieData';
 import { getPieTooltipPercentFormat, pieLabelTypeUsesPercent } from '../data/PieLabel';
 import { NONE, CHART_TYPE_PIE } from '../config/core/constants';
@@ -320,7 +320,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
   private restoreRowFocus(activeElement: Element | null): void {
     if (activeElement !== null && activeElement !== document.body && !activeElement.isConnected) {
       const fallback = this.interactiveRowNodes()[0] ?? this.controlsContainer.node.querySelector('button');
-      fallback?.focus();
+      focusRestored(fallback);
     }
   }
 

@@ -90,3 +90,12 @@
 .mochart-chart.mochart-accessible .mochart-series-background rect:focus-visible {
   outline-offset: -2px;
 }
+
+/* Focus the library moved itself, from a pointer path: a legend click that filters the focused
+ * series, or a tooltip row that unmounts itself. :focus-visible does not match after a mouse
+ * interaction, so without this the ring is missing exactly when the user cannot see where focus
+ * went. The attribute is set only for those restores and cleared on blur. */
+.mochart-chart.mochart-accessible [data-mochart-focus-restored]:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}

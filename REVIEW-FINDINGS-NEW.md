@@ -2499,7 +2499,7 @@ the behaviour change, not a workaround. All 451 golden snapshots moved by exactl
 attributes on the live-region div. 107 files / 1621 tests pass, typecheck and lint clean.
 
 ### A11Y-10 — `outline: none` leaves programmatically restored focus with no indicator
-**Low · Bug · WCAG 2.4.7 · [css/mochart.css:81-88](packages/mochart/css/mochart.css#L81)** — **Open**
+**Low · Bug · WCAG 2.4.7 · [css/mochart.css:81-88](packages/mochart/css/mochart.css#L81)** — **Fixed**
 
 `.mochart-chart.mochart-accessible :focus { outline: none }` strips the indicator from every
 descendant and `:focus-visible` restores it — correct for keyboard-driven focus, but the library
@@ -2512,6 +2512,28 @@ is otherwise sound: `currentColor` survives the dark theme, and forced-colors fo
 
 **Fix:** scope the reset to the elements the library actually re-styles, or add
 `:focus-visible`-independent styling on the three elements it focuses programmatically.
+
+**Fixed by marking the focus the library moves itself.** A new `focusRestored(node)` in `utils/utils.ts`
+sets `data-mochart-focus-restored` on the node, clears it on blur, and then focuses it. `css/mochart.css`
+rings `[data-mochart-focus-restored]:focus` with the same 2px `currentColor` outline the
+`:focus-visible` rule uses, so a programmatic move is visible even when it came from a pointer path.
+
+Wired into exactly the restores the finding names — `TooltipContent.restoreRowFocus` (a row that filters
+itself away with `hideFiltered`) and the two `focusedSeries`/`focusedSlice` restores plus their
+inherited-tab-stop fallbacks in `SeriesContainer.sync` and `PieSeriesContainer.sync`. Arrow-key
+navigation is deliberately left alone: it is keyboard-driven, so `:focus-visible` already matches and
+marking it would put a ring on ordinary click-focus too.
+
+Taken over the finding's first option — scoping the `outline: none` reset — because that does not
+actually help: modern browsers gate their own default ring on `:focus-visible` as well, so removing our
+reset would still leave a pointer-driven restore unringed.
+
+An attribute rather than a class, deliberately: the renderer writes `className` wholesale from its prop
+map, so a class added outside that map can be wiped by the next sync, while an attribute it does not
+manage survives.
+
+Asserted in `TooltipKeyboard.test.ts`'s existing `hideFiltered` restore test. Core's 439 component tests
+pass, typecheck and lint clean.
 
 ### A11Y-11 — no forced-colors / Windows High Contrast handling
 **Low · Missing feature · [css/mochart.css](packages/mochart/css/mochart.css)** — **Open**
