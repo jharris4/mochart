@@ -82,8 +82,8 @@ const DEFAULT_TITLES: Record<WaterfallDirection, string> = {
   total: 'Total'
 };
 
-// Aqua/red/blue rather than the conventional green/red: green↔red is the
-// classic red-green-blindness collision, while this triple keeps every pair
+// Teal-green/red/blue rather than a pure green/red: green↔red is the classic
+// red-green-blindness collision, and shifting the green toward teal keeps every pair
 // distinguishable (and ≥3:1 against both light and dark chart surfaces).
 const DEFAULT_COLORS: Record<WaterfallDirection, string> = {
   increase: '#1baf7a',

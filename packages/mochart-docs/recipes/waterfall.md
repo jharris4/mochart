@@ -28,9 +28,9 @@ import * as waterfall from '../examples/waterfall'
   `partialRangeIsMissing` they would collapse to zero-height bars instead of
   skipping), so each slot shows one full-width bar while the legend still
   names the three directions.
-- The default direction colors are aqua/red/blue rather than the
-  conventional green/red: green↔red is the classic red-green-blindness
-  collision, while this triple keeps every pair distinguishable on light
+- The default direction colors are teal-green/red/blue rather than a pure
+  green/red: green↔red is the classic red-green-blindness collision, and
+  shifting the green toward teal keeps every pair distinguishable on light
   and dark surfaces. Override per direction with `colors`, and rename the
   series with `seriesTitles`.
 - `base` sets the value the running total starts from and total bars span

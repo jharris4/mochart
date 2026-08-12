@@ -37,9 +37,10 @@ import * as ohlc from '../examples/ohlc'
 - The category axis is ordinal, so non-trading days (weekends, holidays) simply
   don't exist on the axis instead of leaving gaps — note `Jun 05` sits next
   to `Jun 08` above.
-- The default direction colors are aqua/red rather than the conventional
-  green/red: green↔red is the classic red-green-blindness collision, while
-  this pair stays distinguishable on light and dark surfaces. Override per
+- The default direction colors are teal-green/red rather than a pure
+  green/red: green↔red is the classic red-green-blindness collision, and
+  shifting the green toward teal keeps the pair distinguishable on light and
+  dark surfaces. Override per
   direction with `colors`, rename the legend entries with `seriesTitles`,
   and tune the geometry with `lineWidthFraction` / `tickWidthFraction` /
   `tickExtent`.

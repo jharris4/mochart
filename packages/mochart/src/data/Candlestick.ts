@@ -141,10 +141,10 @@ export const DEFAULT_TITLES: Record<CandlestickDirection, string> = {
   down: 'Down'
 };
 
-// Aqua/red rather than the conventional green/red: green↔red is the classic
-// red-green-blindness collision, while this pair stays distinguishable (and
-// ≥3:1 against both light and dark chart surfaces). Matches the waterfall
-// helper's increase/decrease colors.
+// Teal-green/red rather than a pure green/red: green↔red is the classic
+// red-green-blindness collision, and shifting the green toward teal keeps the pair
+// distinguishable (and ≥3:1 against both light and dark chart surfaces). Matches the
+// waterfall helper's increase/decrease colors.
 export const DEFAULT_COLORS: Record<CandlestickDirection, string> = {
   up: '#1baf7a',
   down: '#e34948'
