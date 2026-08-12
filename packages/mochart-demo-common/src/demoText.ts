@@ -41,6 +41,12 @@ export const demoText = {
     transitionConfigObject: '"config" should be an object',
     transitionDataArrays: '"data" should be an array of arrays'
   },
+  // Rendered in place of a view when the URL resolves to nothing showable.
+  routeErrors: {
+    noRoute: (path: string) => `No route found matching ${path}`,
+    noDemo: (demoId: string) => `No demo found for id: ${demoId}`,
+    badRandomId: (randomId: string) => `Bad random id: ${randomId}`
+  },
   // The standalone demo gallery page (the landing route).
   gallery: {
     sections: {

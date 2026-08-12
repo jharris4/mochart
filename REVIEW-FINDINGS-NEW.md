@@ -4070,7 +4070,7 @@ Beyond the count, one more thing the finding got wrong: it frames the missing `a
 `Mode:` label as the fix, but that label is absent at the width where the switcher folds away.
 
 ### DEMO-11 — route error copy is hardcoded in all six demos, and React's is unstyled
-**Medium · Bug · 18 sites across the six demos** — **Open**
+**Medium · Bug · 18 sites across the six demos** — **Fixed**
 
 `"No route found matching …"`, `"No demo found for id: …"` and `"Bad random id: …"` are literal
 strings in all six — the only user-facing copy in the whole demo suite not sourced from `demoText`.
@@ -4080,6 +4080,29 @@ own two sibling messages.
 
 **Fix:** add a `demoText.routeErrors` group and consume it in all six; give React's `RouteNotFound`
 the same markup as its siblings.
+
+Fixed by adding a `routeErrors` group to `@mochart/demo-common`'s `demoText` —
+`noRoute(path)`, `noDemo(demoId)`, `badRandomId(randomId)` — and routing all 21
+copy sites through it, and by giving React's not-found element the class names its
+own two sibling messages already used
+(`.mochart-demo-message > .demo-alert.demo-alert-error[role=alert]`).
+
+No stylesheet change was needed: `demo.css` already carries all three classes and
+React's entry already imports it. React did not genuinely diverge in styling — it
+simply omitted the classes.
+
+Verified in the browser, not just by typecheck: Playwright drove all six ports
+against their dev servers with three bad routes each, 18/18 assertions passing.
+React, Vue and Angular now render byte-identical detail — same aria snapshot,
+same computed colour, background, border, padding, radius, and the same 292px
+width at the same x — so React's previously bare `<div>` matches the other ports
+pixel for pixel.
+
+Three corrections to the finding: there are 21 sites, not 18 (Angular 5, React 4,
+three each elsewhere); they all live in each demo package's `main/`, not `src/`;
+and React's copy was also *worded* differently
+(`No route found{pathname ? ' matching ' + pathname : ''}`), not merely unstyled —
+it now always reads like the other five.
 
 ### DEMO-12 — framework-agnostic helpers are duplicated verbatim in all six demos
 **Medium · Inconsistency · [vanilla RandomContent.ts:72](packages/mochart-demo-vanilla/src/components/random/RandomContent.ts#L72) and ~10 more** — **Fixed**
