@@ -1851,7 +1851,7 @@ properties" warning.
 docs), or restrict `filterConfig` to the `series` section.
 
 ### CONFIG-9 — `validateConfig`'s `strict` parameter is undocumented
-**Low · Doc gap · [validation/mochartConfig.ts:196](packages/mochart/src/config/validation/mochartConfig.ts#L196) vs [reference/api.md:113](packages/mochart-docs/reference/api.md#L113)** — **Open**
+**Low · Doc gap · [validation/mochartConfig.ts:196](packages/mochart/src/config/validation/mochartConfig.ts#L196) vs [reference/api.md:113](packages/mochart-docs/reference/api.md#L113)** — **Fixed**
 
 Both exported validators take a third `strict = true` argument that flips whether warnings
 invalidate the config. The reference shows only the two-argument form.
@@ -1861,6 +1861,15 @@ to tolerate unknown keys (a live-preview config editor, say) has no way to disco
 `validateConfig(config, defaults, false)` short of reading the `.d.ts`.
 
 **Fix:** add the parameter to the `reference/api.md` signature block and one line to the guide bullet.
+
+**Fixed in both places.** `reference/api.md`'s Config helpers block now shows the third argument on
+both `validateConfig` and `validateConfigDetailed`, with a paragraph saying `strict` defaults to
+`true`, that the chart entry points use that default, and that `false` keeps a config valid while
+still collecting its warnings — naming the live-preview editor case the finding identifies.
+`guide/config-model.md`'s unknown-properties bullet now says strict mode is the default and gives the
+call form for turning it off.
+
+Docs site builds clean.
 
 ### CONFIG-10 — axis-bounds validation lives in `mochartConfig.ts`, away from the axis validators
 **Low · Inconsistency · [validation/mochartConfig.ts:547,565,585](packages/mochart/src/config/validation/mochartConfig.ts#L547)**

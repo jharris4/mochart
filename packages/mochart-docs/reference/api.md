@@ -110,13 +110,18 @@ See [Data providers](/guide/data-providers) for which properties are read.
 ## Config helpers
 
 ```ts
-validateConfig(config, getDefaults(config))  // → { valid, errors, warnings }
-validateConfigDetailed(config, getDefaults(config))
+validateConfig(config, getDefaults(config), strict?)
+                                             // → { valid, errors, warnings }
+validateConfigDetailed(config, getDefaults(config), strict?)
                                              // → validation plus path-addressable diagnostics
 migrateConfig(config)                        // → config upgraded to the current format version
 enhanceConfig(config)                        // → MochartConfig (validated, defaults applied)
 getDataErrors(mochartConfig, dataProvider)   // → string[] of readable data problems
 ```
+
+`strict` defaults to `true`, which is what the chart entry points use: warnings — an unknown
+config property, for instance — make the config invalid. Pass `false` to keep a config valid
+while still collecting its warnings, which is what a live-preview editor wants.
 
 - `validateConfig` checks a raw config against the same validators that
   generate this reference, returning human-readable `errors` and `warnings`

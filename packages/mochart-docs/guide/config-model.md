@@ -175,7 +175,10 @@ Two things validation insists on:
   upgrading a stored config in place, without building a chart.
 - **Unknown properties** produce warnings, and a config with warnings is
   rejected in strict mode — typos surface immediately instead of being
-  silently ignored.
+  silently ignored. Strict mode is the default and is what the chart entry
+  points use; `validateConfig(config, getDefaults(config), false)` and the
+  same third argument on `validateConfigDetailed` collect the warnings
+  without invalidating the config.
 
 When a chart receives an invalid config it renders its
 [config error state](/guide/chart-states) instead of a broken chart.
