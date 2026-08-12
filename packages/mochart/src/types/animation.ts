@@ -1,6 +1,6 @@
 import type {
-  AxisDomains as DataAxisDomains, ChartData, CategoryData, CategoryValue,
-  NumericValues as DataNumericValues, SeriesData, SeriesDataSet,
+  AxisDomains as DataAxisDomains, ChartData, CategoryValue,
+  NumericValues as DataNumericValues,
   SeriesDomainObject as DataSeriesDomainObject, SeriesDomainObjects as DataSeriesDomainObjects,
   SeriesValueObject as DataSeriesValueObject, SeriesValueObjects as DataSeriesValueObjects
 } from './data';
@@ -59,9 +59,6 @@ export type SeriesDomainObject = DataSeriesDomainObject;
 export type SeriesDomainObjects = DataSeriesDomainObjects;
 export type AxisDomains = DataAxisDomains;
 
-export type AnimationCategoryData = CategoryData;
-export type AnimationSeriesDataSet = SeriesDataSet;
-export type AnimationSeriesData = SeriesData;
 export type AnimationChartData = ChartData;
 
 export interface DomainDelta {

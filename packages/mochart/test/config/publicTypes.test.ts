@@ -102,3 +102,133 @@ describe('tooltip background style', () => {
     expect(style).toBeDefined();
   });
 });
+
+/**
+ * API-2: `export type *` published the whole measure/layout pipeline, the tween delta types and
+ * the axis/scale/series-position internals as named public types. They are internal now —
+ * documented only by the shipped `.d.ts`, like types/enhanced.ts and the `internalInterfaces`
+ * entries in scripts/apiReferenceModel.ts — while the types a host has to name to implement
+ * `DataProvider` or `ChartDataSource` stay exported. Both halves are typecheck-time, not runtime.
+ */
+import type * as core from '../../src';
+
+// one line per file, so restoring a wildcard makes the directive unused and fails the typecheck
+// @ts-expect-error types/geometry.ts internals
+export type GeometryInternals = [core.TextBounds];
+// @ts-expect-error types/chart.ts internals
+export type ChartInternals = [core.ChartDomAccessors];
+// @ts-expect-error types/data.ts internals
+export type DataInternals = [core.StackData, core.AxisValue, core.TickLabel, core.TickLabelFormatter, core.AxisScale, core.AxisTick, core.CategorySpacingInfo, core.CategoryAxisData, core.SeriesPosition, core.SeriesPositionAccessor, core.SeriesPositionData, core.ValueAxisData, core.AxisData, core.ClippedEdges, core.CategoryValueObject];
+// @ts-expect-error types/animation.ts internals
+export type AnimationInternals = [core.ArrayFocusDeltaData, core.MapFocusDeltaData, core.FocusAnimationData, core.NumericDomain, core.DateDomain, core.AxisDomain, core.AnimationChartData, core.DomainDelta, core.DomainDeltaMap, core.SeriesDomainDelta, core.SeriesDomainDeltaMap, core.NumericValuesDelta, core.SeriesValueDelta, core.SeriesValueDeltaMap, core.NumericArrayDelta, core.CompleteNumericArrayDelta, core.AxisDeltaData, core.EmptyAxisDeltaData, core.AxisTransitionData, core.ValueChangeData, core.ChartAnimationData, core.CategoryMergedValuesData, core.CategoryMergedIndicesData, core.OuterChangeCounts, core.CategoryDeltaData];
+// @ts-expect-error types/layout.ts internals
+export type LayoutInternals = [core.SpacingBoundsInput, core.SpacingLayoutInfo, core.LayoutInfo, core.BeforeAfter, core.AxisTickInfo, core.AxisTickInfos, core.AxisLayoutInfo, core.CategoryAxisLayoutInfo, core.TitleLayoutResult, core.LegendLayoutResult, core.PlotLayoutResult, core.ChartLayoutInfo, core.ChartTextBoundsData, core.ChartDataForLayout];
+
+// the kept surface, named the way a host implementing the two extension points has to name it
+const rows: readonly core.DataRow[] = [{ month: 'Jan', sales: 10 }, { month: 'Feb', sales: 20 }];
+
+const provider: core.DataProvider<core.CategoryValue> = {
+  getCategoryValues: (): readonly core.CategoryValue[] => rows.map(row => row.month as string),
+  getSeriesValue: (_categoryValue: core.CategoryValue, categoryIndex: number, property: string): unknown =>
+    rows[categoryIndex]?.[property],
+  getCategoryProperty: (): string => 'month',
+  getError: (): unknown => null,
+  getLoading: (): boolean => false,
+  refresh: (): void => {}
+};
+
+function makeDomain(low: core.DomainValue, high: core.DomainValue): core.NullableDomain<number | Date> {
+  return [low, high];
+}
+
+function makeCategoryData(values: readonly core.CategoryValue[]): core.CategoryData {
+  const axisDomain: core.CategoryAxisDomain = makeDomain(0, values.length - 1);
+  const categoryValues: core.CategoryValues = {
+    raw: values, display: values, parsed: values, numeric: values.map((_value, index) => index)
+  };
+  return { axisDomain, renderAxisDomain: axisDomain, values: categoryValues };
+}
+
+function makeSeriesData(seriesId: string, plain: core.NumericValues): core.SeriesData {
+  const axisDomains: core.AxisDomains = { A0: [0, 100] };
+  const seriesDomain: core.SeriesDomainObject = { A0: [0, 100] };
+  const domains: core.SeriesDomainObjects = { [seriesId]: seriesDomain };
+  const seriesValues: core.SeriesValueObject = {
+    plain, range: null, errorLow: null, errorHigh: null, stack: null, prior: null,
+    marker: null, label: null, color: null, tooltip: null,
+    markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, tooltipCopyKey: null,
+    min: plain, max: plain
+  };
+  const values: core.SeriesValueObjects = { [seriesId]: seriesValues };
+  const raw: core.SeriesDataSet = { axisDomains, renderAxisDomains: axisDomains, domains, values };
+  return { axisBases: { A0: 0 }, axisSeriesCounts: { A0: 1 }, raw, filteredFlags: {}, filtered: raw };
+}
+
+// a host swapping the data pipeline implements this interface, so every type it names must be public
+class RecordingDataSource implements core.ChartDataSource {
+  readonly animated = false;
+
+  chartData: core.ChartData | null = null;
+
+  focusData: core.FocusData | null = null;
+
+  readonly initialAnimationPercentage: number | null = null;
+
+  start(input: core.ChartDataSourceInput): void {
+    const first: core.NumericValue = 10;
+    this.chartData = {
+      categoryData: makeCategoryData(input.dataProvider.getCategoryValues()),
+      seriesData: makeSeriesData('S0', [first, 20])
+    };
+    const categoryFocusPercentages: core.FocusPercentage[] = [null, null];
+    const axisFocusPercentages: core.FocusPercentageMap = { A0: null };
+    this.focusData = {
+      focusedCategoryIndex: input.focusedCategoryIndex,
+      focusedValueAxisId: input.focusedValueAxisId,
+      focusedSeriesId: input.focusedSeriesId,
+      categoryFocusPercentages,
+      valueAxisFocusPercentages: axisFocusPercentages,
+      seriesFocusPercentages: { S0: null }
+    };
+  }
+
+  update(_prevInput: core.ChartDataSourceInput, input: core.ChartDataSourceInput): void {
+    this.start(input);
+  }
+
+  remapFocus(focus: core.InternalFocus): core.InternalFocus {
+    return focus;
+  }
+
+  dispose(): void {}
+}
+
+describe('public extension-point type surface', () => {
+  it('exposes every type a DataProvider implementation names', () => {
+    expect(provider.getCategoryValues()).toEqual(['Jan', 'Feb']);
+    expect(provider.getSeriesValue('Feb', 1, 'sales')).toBe(20);
+  });
+
+  it('exposes every type a ChartDataSource implementation names', () => {
+    const source = new RecordingDataSource();
+    source.start({
+      mochartConfig: null as unknown as core.ChartDataSourceInput['mochartConfig'],
+      dataProvider: provider,
+      filteredSeriesIds: {},
+      focusedCategoryIndex: -1,
+      focusedValueAxisId: null,
+      focusedSeriesId: null
+    });
+    expect(source.chartData?.categoryData.values.raw).toEqual(['Jan', 'Feb']);
+    expect(source.chartData?.seriesData.raw.values.S0?.plain).toEqual([10, 20]);
+    expect(source.focusData?.categoryFocusPercentages).toHaveLength(2);
+  });
+
+  it('reports its bounds and spacing types by name', () => {
+    const size: core.Size = { width: 10, height: 20 };
+    const bounds: core.Bounds = { ...size, x: 0, y: 0 };
+    const marginPadding: core.MarginPadding = { top: 1, right: 1, bottom: 1, left: 1 };
+    const innerOuter: core.InnerOuter = { inner: 1, outer: 2 };
+    expect([bounds.width, marginPadding.top, innerOuter.inner]).toEqual([10, 1, 1]);
+  });
+});
