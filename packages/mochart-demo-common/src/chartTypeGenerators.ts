@@ -141,7 +141,7 @@ function histogramRows({ samples, value, reuse }: HistogramRandomConfig, randomI
 
 function buildHistogramSnapshot(): ChartTypeDemoSnapshot {
   const samples = normalSamples(280, 160, 40, seedrandom('histogram:baseline'));
-  const { data, categoryAxis: categoryAxisConfig, seriesConfig } = createHistogram(samples, {
+  const { data, categoryAxis, seriesConfig } = createHistogram(samples, {
     binWidth: HISTOGRAM_BIN_WIDTH,
     seriesTitle: HISTOGRAM_SERIES_TITLE
   });
@@ -150,7 +150,7 @@ function buildHistogramSnapshot(): ChartTypeDemoSnapshot {
     config: {
       version: '1.0.0',
       title: { text: 'Response Time Distribution' },
-      categoryAxis: { ...categoryAxisConfig, title: 'Response time (ms)' },
+      categoryAxis: { ...categoryAxis, title: 'Response time (ms)' },
       valueAxes: [{ min: 0 }],
       series: [seriesConfig]
     },
@@ -220,15 +220,15 @@ function buildWaterfallSnapshot(): ChartTypeDemoSnapshot {
   const items = WATERFALL_STEP_POOL
     .filter(step => (step.dropWeight ?? 0) <= 1)
     .map(step => (step.total === true ? { label: step.label, total: true } : { label: step.label, value: step.value! }));
-  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs, valueAxes: valueAxisConfigs } = createWaterfall(items);
+  const { data, categoryAxis, series, valueAxes } = createWaterfall(items);
   return {
     id: 'waterfall',
     config: {
       version: '1.0.0',
       title: { text: 'Income Statement (fictional, $k)' },
-      categoryAxis: categoryAxisConfig,
-      valueAxes: [{ ...valueAxisConfigs[0], title: '$ thousands' }],
-      series: seriesConfigs
+      categoryAxis,
+      valueAxes: [{ ...valueAxes[0], title: '$ thousands' }],
+      series
     },
     data
   };
@@ -322,15 +322,15 @@ function buildHeatmapSnapshot(): ChartTypeDemoSnapshot {
       return Math.round(profile.min + t * (profile.max - profile.min));
     })
   }));
-  const { data, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, series: seriesConfigs } = createHeatmap(rows, { columnLabels: HEATMAP_COLUMNS });
+  const { data, categoryAxis, valueAxes, series } = createHeatmap(rows, { columnLabels: HEATMAP_COLUMNS });
   return {
     id: 'heatmap',
     config: {
       version: '1.0.0',
       title: { text: 'Support Tickets by Weekday (fictional)' },
-      categoryAxis: categoryAxisConfig,
-      valueAxes: valueAxisConfigs,
-      series: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.0f' }))
+      categoryAxis,
+      valueAxes,
+      series: series.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.0f' }))
     },
     data
   };
@@ -431,18 +431,18 @@ function candlestickRows(random: WalkRandomConfig, randomId: number): DataRow[] 
 function buildCandlestickSnapshot(): ChartTypeDemoSnapshot {
   const baselineRng = seedrandom('candlestick:baseline');
   const items = withVolumes(candlestickItems(baselineRng, CANDLESTICK_DAYS.length), baselineRng);
-  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs, valueAxes: valueAxisConfigs } = createCandlestick(items, { volume: true });
+  const { data, categoryAxis, series, valueAxes } = createCandlestick(items, { volume: true });
   roundCandlestickChanges(data);
   return {
     id: 'candlestick',
     config: {
       version: '1.0.0',
       title: { text: 'Daily Share Price (fictional, $)' },
-      categoryAxis: categoryAxisConfig,
+      categoryAxis,
       // the helper's price/volume pane axes, with the demo's title on price
-      valueAxes: valueAxisConfigs!.map(axisConfig =>
+      valueAxes: valueAxes!.map(axisConfig =>
         axisConfig.id === 'price' ? { ...axisConfig, title: '$ per share' } : axisConfig),
-      series: seriesConfigs.map(seriesConfig =>
+      series: series.map(seriesConfig =>
         ({ ...seriesConfig, valueFormat: seriesConfig.id!.includes('Volume') ? ',.0f' : ',.2f' }))
     },
     data
@@ -461,16 +461,16 @@ function candlestickHollowRows(random: WalkRandomConfig, randomId: number): Data
 
 function buildCandlestickHollowSnapshot(): ChartTypeDemoSnapshot {
   const items = candlestickItems(seedrandom('candlestick-hollow:baseline'), CANDLESTICK_DAYS.length);
-  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = createCandlestick(items, { hollow: true });
+  const { data, categoryAxis, series } = createCandlestick(items, { hollow: true });
   roundCandlestickChanges(data);
   return {
     id: 'candlestick-hollow',
     config: {
       version: '1.0.0',
       title: { text: 'Daily Share Price (fictional, $)' },
-      categoryAxis: categoryAxisConfig,
+      categoryAxis,
       valueAxes: [{ title: '$ per share' }],
-      series: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
+      series: series.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
     },
     data
   };
@@ -488,16 +488,16 @@ function ohlcRows(random: WalkRandomConfig, randomId: number): DataRow[] {
 
 function buildOhlcSnapshot(): ChartTypeDemoSnapshot {
   const items = candlestickItems(seedrandom('ohlc:baseline'), CANDLESTICK_DAYS.length);
-  const { data, categoryAxis: categoryAxisConfig, series: seriesConfigs } = createOhlc(items);
+  const { data, categoryAxis, series } = createOhlc(items);
   roundCandlestickChanges(data);
   return {
     id: 'ohlc',
     config: {
       version: '1.0.0',
       title: { text: 'Daily Share Price (fictional, $)' },
-      categoryAxis: categoryAxisConfig,
+      categoryAxis,
       valueAxes: [{ title: '$ per share' }],
-      series: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
+      series: series.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.2f' }))
     },
     data
   };
