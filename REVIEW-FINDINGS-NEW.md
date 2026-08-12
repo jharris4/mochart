@@ -4747,7 +4747,7 @@ the finding: the `static{__name(this,"MyThing")}` form in its first example is e
 output, not raw source; the tests assert against the raw form.
 
 ### VAL-6 — `equal()` renders functions and symbols as "undefined"
-**Low · Bug · [validators.ts:94](packages/movalid/src/validators.ts#L94)** — **Open**
+**Low · Bug · [validators.ts:94](packages/movalid/src/validators.ts#L94)** — **Fixed**
 
 `printAny` falls through to `JSON.stringify`, which returns `undefined` for functions and
 drops symbols: `equal(fn).errorMessage` → `"should be equal to undefined"`. Misleading rather than
@@ -4757,6 +4757,32 @@ merely terse.
 `String(value)` (or the function's `name`).
 
 *(README gaps: see [DOC-10](#doc-10--the-movalid-readmes-validator-and-chain-lists-are-each-missing-one-member).)*
+
+**Fixed with two branches in `printAny`, before the `JSON.stringify` fallback.** A function prints as
+`function <name>` (or `an anonymous function`), and a symbol as `String(value)`, which is already the
+readable `Symbol(desc)` form. Because `printArray` and `printObject` recurse through `printAny`,
+function and symbol *members* of array and object arguments print too.
+
+The fix reaches further than the finding's title suggests: `printAny` is shared by `equal`, `notEqual`,
+`orEqual`'s "or be equal to" suffix, and `appendValue`, which builds the value suffix on every
+`getErrorMessage(v)`. All four were printing `undefined`.
+
+Deliberate deviation: the finding offered `String(value)` *or* the function's name, and functions take
+the name. `String(fn)` inlines the whole function source — minified or esbuild-transformed in a built
+consumer — which is exactly the defect
+[VAL-5](#val-5--instanceofs-message-inlines-the-whole-class-source) just removed from `instanceOf`. The
+wording and the `value.name ||` fallback mirror what landed there.
+
+Four tests in the existing `equal` block: a named function, an anonymous one, a symbol, and an object
+argument carrying both. All four fail without the branches, printing `undefined`. movalid 404 tests,
+typecheck and lint clean; core typecheck clean and its 1628 tests pass, with no golden churn — core never
+passes a function or symbol to a value-printing validator.
+
+One adjacent hole found here and filed separately rather than folded in:
+[VAL-7](#val-7--printany-throws-on-a-bigint-argument). Same fallthrough, worse failure mode.
+
+The finding's line reference is off by a few: the fallthrough is inside `printAny` at
+`validators.ts:79-93`; `:94` is `printArray`.
 
 ---
 
