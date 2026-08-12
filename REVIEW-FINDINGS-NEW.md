@@ -4083,7 +4083,7 @@ Selectors are built from `mochartCssClasses`, not literals. 65 tests in that fil
 lint clean.
 
 ### TEST-6 — the golden oracle renders every chart with zero-width text
-**Medium · Weak test · [golden.test.ts:70](packages/mochart/test/golden/golden.test.ts#L70), [svgShims.ts:9](packages/mochart/test/components/svgShims.ts#L9)** — **Open**
+**Medium · Weak test · [golden.test.ts:70](packages/mochart/test/golden/golden.test.ts#L70), [svgShims.ts:9](packages/mochart/test/components/svgShims.ts#L9)** — **Fixed**
 
 The oracle compares normalized `innerHTML` against 421 checked-in `.html` files, so it does catch
 structure, attributes and text exactly. But every golden runs with `getComputedTextLength` → `0`
@@ -4103,6 +4103,53 @@ green — and the demo named after the feature would still "pass".
 mounting `truncated-text-config.json` and asserting the title, category-axis title and a legend item
 each end in `…` and are shorter than the source. Alternatively add a second `truncated-text` golden
 stage rendered under proportional metrics.
+
+**Fixed by giving the oracle a real text-measurement stub, so every truncation, pruning and fitting path in
+the snapshots now means something.** `test/golden/textMetrics.ts` installs one synthetic proportional font
+across every entry point the chart actually reaches: `getComputedTextLength()` (the only call
+`TextTruncation.ts` makes), `getSubStringLength()`, `getBBox()` on `text`/`tspan`, and
+`getComputedStyle().fontSize` — which jsdom resolves to the keyword `medium`, so the library had been
+discarding it as NaN and sizing legend icons off a fallback.
+
+Width is the sum of per-character advances from a fixed table in fractions of the em (narrow `il.`, wide `MW`,
+full-width above U+2E80) times a 16px em; height is 1.2em. 16px is what `medium` resolves to in an unstyled
+document, i.e. the situation being simulated — not a number tuned to produce a desired amount of truncation.
+It is deterministic because it is a pure function of the string's code points plus two constants, overriding
+jsdom's style resolution rather than depending on it. Confirmed independently: two consecutive suite runs after
+regeneration leave the diff byte-identical at 451 files / 82,736 lines.
+
+All 451 snapshots moved, and the movement is the point:
+
+* **Truncation went from fake to real** — truncated strings 140 → 692. Before, the only truncation marker in
+  the entire suite was the hidden measurement sizer's own `W…`. Now 36 files carry genuinely truncated text:
+  417 `Ju…` date labels across candlestick/hollow/OHLC, waterfall's `Gross r…`, `truncated-text`'s `A fai...`,
+  and a value-axis title cut mid-sentence.
+* **Tick pruning became load-bearing** — hidden text elements 3814 → 5039. `tick-prune`, the demo named after
+  the feature, drops from 36 visible labels to 14, keeping every fifth date; previously all 27 rendered
+  because each "measured" 20px.
+* **Axis gutters follow measured labels in both directions** — `grouped`'s plot x 40 → 38 (numeric labels are
+  narrower than the old placeholder), `heatmap` 40 → 53 (weekday labels are wider), `waterfall` 70 → 77.
+
+Proof the oracle now measures, rather than just moves: in the rotated-ticks demo, where
+`tickLabelTruncationMaxFraction` is the binding threshold, setting it to 0.05 (25px) cuts every `2016-03-01`
+to `2…`, and 0.5 (300px) renders them in full with the only diff being the clip rect the flag adds. The
+threshold is being compared against a real measured width of about 85px and lands either side of it. The probe
+config was reverted.
+
+One deliberate boundary, recorded in the stub: box layout is still unmodelled, so `getBoundingClientRect`
+stays 0×0 and the legend *container* keeps its default-bounds marker with `hasDefault` still true — legend
+layout uses the per-item text bounds, which are measured now. Fabricating a box-layout engine out of
+`translate` transforms was more risk than fidelity.
+
+109 files / 1647 tests pass with coverage above the ratchet (97.66% statements, 91.42% branches), typecheck and
+lint clean.
+
+Corrections to the finding: there are 451 goldens, not 421; "zero ellipses" reads oddly because that demo's
+`truncationValue` is `...`, and the accurate statement is that the only marker anywhere was the sizer's own;
+`getSubStringLength` is never called by `src`; and two of the three paths it names still do not truncate for
+legitimate measured reasons — the demo title measures 641.4px in a 642px slot, so it genuinely fits, and legend
+items re-flow to one per row instead. Its suggested new component test was not the route taken; the oracle
+itself was fixed, which is what the finding's title asks for.
 
 ### TEST-7 — group- and stack-wide focus propagation is uncovered
 **Medium · Test gap · [FocusData.ts:197-209](packages/mochart/src/data/FocusData.ts#L197)** — **Open**
