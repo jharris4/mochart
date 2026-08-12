@@ -200,6 +200,57 @@ export function consumeSingleShareState(): SingleShareState | null {
 /** How long the Share item shows its "Link copied" confirmation. */
 const copiedFeedbackMs = 1500;
 
+// Visually hidden but still read by assistive tech (the clipped-1px-box idiom,
+// same as core's chart announcer). Inline, because demo.css is optional.
+const liveRegionStyle = 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap';
+
+/**
+ * The page's copy announcer. One region for the whole document, parked on
+ * `<body>` rather than rendered by the Share item, because pressing Share closes
+ * the menu: the item's "Link copied" label swap happens inside a `display: none`
+ * panel, and nothing in a hidden subtree is spoken. An `aria-live` on that label
+ * would be equally silent, so the confirmation needs a node that outlives the
+ * menu.
+ */
+let liveRegion: HTMLElement | null = null;
+let announceTimer: ReturnType<typeof setTimeout> | null = null;
+
+function getLiveRegion(): HTMLElement {
+  // parentNode: a test or a demo that wiped the body gets a fresh region.
+  if (liveRegion === null || liveRegion.parentNode === null) {
+    liveRegion = document.createElement('div');
+    // role="status" implies the other two; both are set anyway, as core's announcer does.
+    liveRegion.setAttribute('role', 'status');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.setAttribute('style', liveRegionStyle);
+    document.body.appendChild(liveRegion);
+  }
+  return liveRegion;
+}
+
+// Long enough for the empty region to be registered as a live region before the
+// text arrives, short enough that the confirmation still feels immediate.
+const announceDelayMs = 100;
+
+/**
+ * Speak a message through the region above. Emptying it first and writing on a
+ * later task is what makes a second copy in a row announce: screen readers drop
+ * a live-region write whose text matches what is already there, and a region
+ * created and filled in one task can be missed entirely.
+ */
+function announce(message: string): void {
+  const region = getLiveRegion();
+  region.textContent = '';
+  if (announceTimer !== null) {
+    clearTimeout(announceTimer);
+  }
+  announceTimer = setTimeout(() => {
+    announceTimer = null;
+    region.textContent = message;
+  }, announceDelayMs);
+}
+
 export interface ShareLinkCopier {
   /** Build and copy the link, then report copied true and, shortly after, false. */
   copy(state: ShareState): void;
@@ -209,8 +260,9 @@ export interface ShareLinkCopier {
 
 /**
  * Everything the Share item does apart from rendering: build the link, put it on
- * the clipboard, and drive the confirmation flag through `onCopiedChange` so the
- * caller only has to poke its own reactivity.
+ * the clipboard, announce the result to assistive tech, and drive the
+ * confirmation flag through `onCopiedChange` so the caller only has to poke its
+ * own reactivity.
  *
  * Clipboard access can be unavailable (an insecure context, say), so the failure
  * path offers the link in a prompt rather than failing silently.
@@ -230,6 +282,7 @@ export function createShareLinkCopier(onCopiedChange: (copied: boolean) => void)
       const url = buildShareUrl(state);
       navigator.clipboard.writeText(url).then(() => {
         onCopiedChange(true);
+        announce(demoText.shareButton.announcementCopied);
         clearRevert();
         revertTimer = setTimeout(() => {
           revertTimer = null;
