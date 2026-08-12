@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { createApp, defineComponent, h, markRaw, nextTick, reactive, ref } from 'vue';
+import { createApp, defineComponent, h, markRaw, nextTick, onUnmounted, reactive, ref } from 'vue';
 import type { App } from 'vue';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { Chart, DefaultChart } from '../src/index';
@@ -252,6 +252,44 @@ describe('removed placeholder components', () => {
     await nextTick();
     expect(el.textContent).not.toContain('Custom loading');
     expect(el.querySelector('.mochart-loading')).not.toBeNull();
+
+    app.unmount();
+    el.remove();
+  });
+
+  // BIND-5: clearing the prop left the mounted instance alive in its detached
+  // container, so its hooks, timers and watchers kept running.
+  it('unmounts the placeholder instance when the component is cleared', async () => {
+    let unmounted = 0;
+    const Loading = markRaw(
+      defineComponent({
+        name: 'Loading',
+        setup: () => {
+          onUnmounted(() => { unmounted += 1; });
+          return () => h('div', 'Custom loading');
+        }
+      })
+    );
+    const { el, app, state } = mountWith(Chart, {
+      mochartConfig: null,
+      dataProvider: null,
+      loading: true,
+      loadingComponent: Loading,
+      width: 400,
+      height: 300
+    });
+    expect(el.textContent).toContain('Custom loading');
+    expect(unmounted).toBe(0);
+
+    state.loadingComponent = undefined;
+    await nextTick();
+    expect(unmounted).toBe(1);
+
+    // the released slot is rebuilt when the prop comes back
+    state.loadingComponent = Loading;
+    await nextTick();
+    expect(el.textContent).toContain('Custom loading');
+    expect(unmounted).toBe(1);
 
     app.unmount();
     el.remove();

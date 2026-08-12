@@ -4,6 +4,7 @@ import '@angular/compiler';
 
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { Component, Input, PLATFORM_ID, provideZonelessChangeDetection } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
@@ -75,6 +76,18 @@ class Loading {
 class ConfigError {
   @Input() width?: number;
   @Input() height?: number;
+}
+
+// Stands in for whatever work a placeholder starts: counts its own destruction.
+@Component({
+  selector: 'test-tracked-loading',
+  template: '<div>Custom loading</div>'
+})
+class TrackedLoading implements OnDestroy {
+  static destroyed = 0;
+  ngOnDestroy(): void {
+    TrackedLoading.destroyed += 1;
+  }
 }
 
 describe('Chart', () => {
@@ -295,6 +308,36 @@ describe('removed placeholder components', () => {
     fixture.detectChanges();
     expect(el.textContent).not.toContain('Loading 400x300');
     expect(el.querySelector('.mochart-loading')).not.toBeNull();
+  });
+
+  // BIND-5: clearing the input left the created component alive in its detached
+  // container, so its ngOnDestroy, timers and subscriptions never ran.
+  it('destroys the placeholder component when the input is cleared', () => {
+    const before = TrackedLoading.destroyed;
+    const fixture = createWith(Chart, {
+      mochartConfig: null,
+      dataProvider: null,
+      loading: true,
+      loadingComponent: TrackedLoading,
+      width: 400,
+      height: 300
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Custom loading');
+    expect(TrackedLoading.destroyed).toBe(before);
+
+    fixture.componentRef.setInput('loadingComponent', undefined);
+    fixture.detectChanges();
+    expect(TrackedLoading.destroyed).toBe(before + 1);
+
+    // the released slot is rebuilt when the input comes back
+    fixture.componentRef.setInput('loadingComponent', TrackedLoading);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Custom loading');
+    expect(TrackedLoading.destroyed).toBe(before + 1);
+
+    fixture.destroy();
+    expect(TrackedLoading.destroyed).toBe(before + 2);
   });
 });
 

@@ -53,6 +53,16 @@ export function createPlaceholderAdapter(): PlaceholderAdapter {
     return slot;
   }
 
+  // Clears a slot's rendered template (disconnecting its directives) and forgets it.
+  function releaseSlot(propName: string): void {
+    const slot = slots.get(propName);
+    if (!slot) {
+      return;
+    }
+    render(nothing, slot.container);
+    slots.delete(propName);
+  }
+
   return {
     transform(props: Record<string, any>): Record<string, any> {
       const out = { ...props };
@@ -62,14 +72,17 @@ export function createPlaceholderAdapter(): PlaceholderAdapter {
         if (template) {
           out[FACTORY_PROP_NAMES[propName]] = getSlot(propName, template).factory;
         }
+        else {
+          // the chart falls back to its built-in placeholder, so nothing keeps this render alive
+          releaseSlot(propName);
+        }
       }
       return out;
     },
     destroy(): void {
-      for (const slot of slots.values()) {
-        render(nothing, slot.container);
+      for (const propName of [...slots.keys()]) {
+        releaseSlot(propName);
       }
-      slots.clear();
     }
   };
 }

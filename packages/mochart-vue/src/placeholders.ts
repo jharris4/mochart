@@ -57,6 +57,16 @@ export function createPlaceholderAdapter(appContext: AppContext | null = null): 
     return slot;
   }
 
+  // Unmounts a slot's instance and forgets it; a later prop gets a fresh slot.
+  function releaseSlot(propName: string): void {
+    const slot = slots.get(propName);
+    if (!slot) {
+      return;
+    }
+    render(null, slot.container);
+    slots.delete(propName);
+  }
+
   return {
     transform(props: Record<string, any>): Record<string, any> {
       const out = { ...props };
@@ -66,14 +76,17 @@ export function createPlaceholderAdapter(appContext: AppContext | null = null): 
         if (component) {
           out[FACTORY_PROP_NAMES[propName]] = getSlot(propName, component).factory;
         }
+        else {
+          // the chart falls back to its built-in placeholder, so nothing keeps this instance alive
+          releaseSlot(propName);
+        }
       }
       return out;
     },
     destroy(): void {
-      for (const slot of slots.values()) {
-        render(null, slot.container);
+      for (const propName of [...slots.keys()]) {
+        releaseSlot(propName);
       }
-      slots.clear();
     }
   };
 }

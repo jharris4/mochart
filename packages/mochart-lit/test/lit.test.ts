@@ -1,8 +1,25 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { html, nothing, render } from 'lit-html';
+import { AsyncDirective, directive } from 'lit-html/async-directive.js';
 import { enhanceConfig, ArrayOfObjectsDataProvider } from '@mochart/core';
 import { chart, defaultChart } from '../src/index';
 import type { ChartRef, PlaceholderProps } from '../src/index';
+
+/** Stands in for whatever work a placeholder template starts: counts its own disconnection. */
+class TrackDisconnect extends AsyncDirective {
+  private log: { disconnected: number } | null = null;
+  render(log: { disconnected: number }): unknown {
+    this.log = log;
+    return nothing;
+  }
+  protected override disconnected(): void {
+    if (this.log !== null) {
+      this.log.disconnected += 1;
+    }
+  }
+}
+
+const trackDisconnect = directive(TrackDisconnect);
 
 beforeAll(() => {
   // jsdom has no SVG layout engine; return zero sizes so the library takes its
@@ -242,6 +259,35 @@ describe('defaultChart', () => {
 
     render(template(false), el);
     expect(el.textContent).not.toContain('Loading');
+
+    render(nothing, el);
+    el.remove();
+  });
+});
+
+// BIND-5: clearing the prop left the rendered template alive in its detached
+// container, so its directives were never disconnected and kept their work running.
+describe('removed placeholder templates', () => {
+  it('clears the placeholder template when the prop is removed', async () => {
+    const log = { disconnected: 0 };
+    const loadingTemplate = () => html`<div>Custom loading ${trackDisconnect(log)}</div>`;
+    const el = mountPoint();
+    const template = (extra: Record<string, unknown>) =>
+      html`${chart({ mochartConfig: null, dataProvider: null, loading: true, width: 400, height: 300, ...extra })}`;
+
+    render(template({ loadingTemplate }), el);
+    await flushMount();
+    expect(el.textContent).toContain('Custom loading');
+    expect(log.disconnected).toBe(0);
+
+    render(template({}), el);
+    expect(el.textContent).not.toContain('Custom loading');
+    expect(log.disconnected).toBe(1);
+
+    // the released slot is rebuilt when the prop comes back
+    render(template({ loadingTemplate }), el);
+    expect(el.textContent).toContain('Custom loading');
+    expect(log.disconnected).toBe(1);
 
     render(nothing, el);
     el.remove();
