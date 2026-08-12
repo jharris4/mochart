@@ -322,14 +322,14 @@ function buildHeatmapSnapshot(): ChartTypeDemoSnapshot {
       return Math.round(profile.min + t * (profile.max - profile.min));
     })
   }));
-  const { data, categoryAxis: categoryAxisConfig, valueAxisConfig, series: seriesConfigs } = createHeatmap(rows, { columnLabels: HEATMAP_COLUMNS });
+  const { data, categoryAxis: categoryAxisConfig, valueAxes: valueAxisConfigs, series: seriesConfigs } = createHeatmap(rows, { columnLabels: HEATMAP_COLUMNS });
   return {
     id: 'heatmap',
     config: {
       version: '1.0.0',
       title: { text: 'Support Tickets by Weekday (fictional)' },
       categoryAxis: categoryAxisConfig,
-      valueAxes: [valueAxisConfig],
+      valueAxes: valueAxisConfigs,
       series: seriesConfigs.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.0f' }))
     },
     data

@@ -27,7 +27,7 @@ const toHex = (rgb: string): string => {
 
 describe('createHeatmap', () => {
   it('lays each row out as a one-unit band, first row on top', () => {
-    const { data, valueAxisConfig } = createHeatmap(rows(), { cellPadding: 0 });
+    const { data, valueAxes } = createHeatmap(rows(), { cellPadding: 0 });
     expect(data).toHaveLength(3);
     expect(data[0].column).toBe('1');
     expect(data[0].row0Start).toBe(2);
@@ -35,12 +35,12 @@ describe('createHeatmap', () => {
     expect(data[0].row0Value).toBe(0);
     expect(data[0].row2Start).toBe(0);
     expect(data[0].row2).toBe(1);
-    expect(valueAxisConfig).toMatchObject({ min: 0, max: 3 });
+    expect(valueAxes[0]).toMatchObject({ min: 0, max: 3 });
   });
 
   it('labels each row band center with an explicit axis tick', () => {
-    const { valueAxisConfig } = createHeatmap(rows());
-    expect(valueAxisConfig.ticks).toEqual([
+    const { valueAxes } = createHeatmap(rows());
+    expect(valueAxes[0].ticks).toEqual([
       { value: 2.5, label: 'North' },
       { value: 1.5, label: 'South' },
       { value: 0.5, label: 'West' }
@@ -172,7 +172,7 @@ describe('createHeatmap', () => {
     const mochartConfig = enhanceConfig({
       version: '1.0.0',
       categoryAxis: heatmap.categoryAxis,
-      valueAxes: [{ ...heatmap.valueAxisConfig, id: 'va' }],
+      valueAxes: [{ ...heatmap.valueAxes[0], id: 'va' }],
       series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'va' }))
     });
     expect(mochartConfig.validation.valid).toBe(true);

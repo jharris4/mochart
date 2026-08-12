@@ -57,7 +57,7 @@ describe('heatmap helper rendering', () => {
       version: '1.0.0',
       tooltip: { visible: false },
       categoryAxis: heatmap.categoryAxis,
-      valueAxes: [{ ...heatmap.valueAxisConfig, id: 'va' }],
+      valueAxes: [{ ...heatmap.valueAxes[0], id: 'va' }],
       series: heatmap.series.map((seriesConfig) => ({ ...seriesConfig, axis: 'va' }))
     });
     expect(mochartConfig.validation.valid).toBe(true);

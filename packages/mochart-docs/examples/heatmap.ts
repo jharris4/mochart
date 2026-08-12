@@ -23,7 +23,7 @@ export const config: MochartInputConfig = {
   version: '1.0.0',
   title: { text: 'Support Tickets by Weekday (fictional)' },
   categoryAxis: heatmap.categoryAxis,
-  valueAxes: [heatmap.valueAxisConfig],
+  valueAxes: heatmap.valueAxes,
   // valueFormat formats the tooltip's cell values (via tooltipProperty).
   series: heatmap.series.map(seriesConfig => ({ ...seriesConfig, valueFormat: ',.0f' }))
 };
