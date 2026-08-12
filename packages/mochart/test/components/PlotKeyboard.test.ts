@@ -11,6 +11,7 @@ import type { ChartHandle } from '../../src/createChart';
 import type { DefaultChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
+import { focusRestoredAttribute } from '../../src/utils/utils';
 
 const rows = [
   { month: 'Jan', sales: 10, costs: 5 },
@@ -240,6 +241,69 @@ describe('plot keyboard semantics', () => {
     key(rect, 'Escape');
     expect(rect.getAttribute('aria-expanded')).toBe('false');
     expect(tooltipText(container)).toBe('');
+  });
+
+  // A11Y-3: a refresh that drops the plot tab stop used to dump keyboard focus on <body>, so a
+  // polling chart lost the user's place. The message that replaced the plot takes the focus.
+  it('hands focus to the message when a refresh drops to zero categories', () => {
+    const container = mountChart(makeConfig());
+    const handle = handles[handles.length - 1];
+    const rect = plotRect(container);
+    rect.focus();
+    expect(document.activeElement).toBe(rect);
+
+    handle.update({ data: [] });
+    expect(rect.isConnected).toBe(false);
+    const message = container.querySelector<HTMLElement>(getCssSelector('noData'))!;
+    expect(message.getAttribute('tabindex')).toBe('-1');
+    expect(document.activeElement).toBe(message);
+    // the move comes from a data refresh, where :focus-visible never matches, so it is marked
+    expect(message.hasAttribute(focusRestoredAttribute)).toBe(true);
+  });
+
+  it('hands focus to the message when a refresh raises an error', () => {
+    const container = mountChart(makeConfig());
+    const handle = handles[handles.length - 1];
+    const rect = plotRect(container);
+    rect.focus();
+
+    handle.update({ error: 'boom' });
+    const message = container.querySelector<HTMLElement>(getCssSelector('noData'))!;
+    expect(message.textContent).toContain('boom');
+    expect(document.activeElement).toBe(message);
+  });
+
+  it('hands focus to the message when the refresh also unmounts the focused tooltip row', () => {
+    const container = mountChart(makeConfig({ tooltip: { showControls: true } }));
+    const handle = handles[handles.length - 1];
+    key(plotRect(container), 'Enter');
+    const row = container.querySelector<HTMLElement>(getCssSelector('tooltip') + ' [data-row-key]')!;
+    row.focus();
+    expect(document.activeElement).toBe(row);
+
+    handle.update({ data: [] });
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
+    expect(document.activeElement).toBe(container.querySelector(getCssSelector('noData')));
+  });
+
+  it('leaves focus alone when it was outside the chart', () => {
+    const container = mountChart(makeConfig());
+    const handle = handles[handles.length - 1];
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    outside.focus();
+
+    handle.update({ data: [] });
+    expect(container.querySelector(getCssSelector('noData'))).not.toBeNull();
+    expect(document.activeElement).toBe(outside);
+  });
+
+  it('leaves the message unfocusable with accessibility disabled', () => {
+    const container = mountChart(makeConfig({ accessibility: { enabled: false } }));
+    const handle = handles[handles.length - 1];
+
+    handle.update({ data: [] });
+    expect(container.querySelector(getCssSelector('noData'))!.getAttribute('tabindex')).toBeNull();
   });
 
   it('opens on arrows when closed and reopens at the last shown category', () => {

@@ -2459,7 +2459,7 @@ This also covers the SOL pass's "A callback-only title is inaccessible by keyboa
 skipped as a duplicate of this finding.
 
 ### A11Y-3 — keyboard focus is dropped to `<body>` when the plot or tooltip tab stops are torn down
-**Medium · Bug · WCAG 2.4.3 · [Chart.ts:1192-1257](packages/mochart/src/components/Chart.ts#L1192), [:731](packages/mochart/src/components/Chart.ts#L731)** — **Open**
+**Medium · Bug · WCAG 2.4.3 · [Chart.ts:1192-1257](packages/mochart/src/components/Chart.ts#L1192), [:731](packages/mochart/src/components/Chart.ts#L731)** — **Fixed**
 
 [Chart.ts:1198](packages/mochart/src/components/Chart.ts#L1198) documents that the plot tab stop
 is deliberately kept during *loading* so focus is not dumped to `<body>` — but the same teardown
@@ -2471,6 +2471,43 @@ loses their place.
 
 **Fix:** in `syncBody`, capture whether `document.activeElement` is inside the plot before
 replacing it and re-focus a surviving stop; have `closeTooltip` do what `escapeTooltip` does.
+
+**Fixed at one choke point rather than per close route.** `syncBody` captures the chart node holding focus
+before any slot can unmount it (`getFocusedChartNode`, scoped by containment to the chart root) and calls
+`restoreTornDownFocus` as its last statement. That fires only when the captured node is now disconnected *and*
+nothing inside the chart holds focus, so the existing restores in `SeriesContainer`, `Legend` and
+`TooltipContent.restoreRowFocus` still win. The move goes through `focusRestored`, so
+[A11Y-10](#a11y-10--outline-none-leaves-programmatically-restored-focus-with-no-indicator)'s ring applies.
+
+Target order: the plot tab stop where it survived, otherwise the no-data/error/loading message region, which
+now takes `tabindex="-1"` while accessibility is active — never a tab stop, but focusable, so focusing it
+reads the message out. A target had to be introduced because the finding's "re-focus a surviving stop" has no
+candidate in the state it describes: at zero categories or on an error the plot rect and the whole tooltip go
+together.
+
+Where focus lands now, per path: a refresh to zero categories or one raising an error → the message region,
+including when the same refresh also unmounts the focused tooltip row; `closeTooltip` (a click inside with
+`closeOnClick`) → the plot rect; a plot click or mouse-leave closing the tooltip → the plot rect; Escape
+inside the tooltip → the plot rect, now through the generic restore, with `escapeTooltip` and its bare
+`.focus()` deleted so `onEscape` and `onClose` share one route.
+
+Seven tests, and each guard was checked by removing it: dropping `restoreTornDownFocus` fails six
+(`activeElement === body` in each, including the pre-existing Escape test, which proves the generic path now
+carries what `escapeTooltip` used to); dropping the message `tabindex` fails the three message tests; making
+that `tabindex` unconditional fails the accessibility-disabled test; dropping the captured-node guard fails
+"leaves focus alone when it was outside the chart". One assertion was deliberately removed rather than kept:
+the `contains()` half of the capture is defensive only, since both jsdom and browsers reset `activeElement` to
+`body` when the focused node is removed, so no test could observe it and a non-biting assertion is worse than
+none.
+
+No golden moved — the only markup change is on the no-data/error overlay, which no snapshot covers, confirmed
+by the golden suite passing unchanged. 109 files / 1647 tests pass, typecheck and lint clean.
+
+Two things the finding got wrong, and one gap left: its Fix names only `closeTooltip`, but the pointer close is
+a separate route, so fixing that alone would have left the very scenario its own verification note reproduces
+still broken. And the `clearBody` paths — an invalid config, zero width or height, an error with no config —
+still leave focus on `<body>`, because they replace the whole body with factory content and there is nothing
+left in the chart to focus. Decorative charts (`accessibility.hidden`) deliberately get no focusable message.
 
 ### A11Y-4 — export stamps `role="img"` on charts that carry no accessible name
 **Medium · Bug + doc inconsistency · WCAG 1.1.1 · [export/index.ts:182-189](packages/mochart-export/src/index.ts#L182)** **[verified]** — **Fixed**

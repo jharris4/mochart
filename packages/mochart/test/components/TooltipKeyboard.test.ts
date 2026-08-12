@@ -580,6 +580,33 @@ describe('tooltip rows a series can opt out of', () => {
     expect(plotRect).not.toBeNull();
     expect(document.activeElement).toBe(plotRect);
   });
+
+  // A11Y-3: only Escape used to restore focus, so every other close left it on <body>
+  it('returns focus to the plot tab stop when a click inside closes the tooltip', () => {
+    const container = mountChart(makeConfig({ showControls: true }));
+    openTooltip(container);
+
+    tooltipRows(container)[0].focus();
+    // the category row does not act in filter mode, so the click reaches closeOnClick
+    container.querySelector(getDescendantCssSelector('tooltip', 'tooltipCategoryLine'))!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
+    const plotRect = container.querySelector(getCssSelector('seriesBackground') + ' rect[tabindex]')!;
+    expect(document.activeElement).toBe(plotRect);
+    expect(plotRect.hasAttribute(focusRestoredAttribute)).toBe(true);
+  });
+
+  it('returns focus to the plot tab stop when a click on the plot closes the tooltip', () => {
+    const container = mountChart(makeConfig({ showControls: true }));
+    openTooltip(container);
+
+    tooltipRows(container)[0].focus();
+    mouse(chartRoot(container), 'click', 100, 100);
+
+    expect(container.querySelector(getCssSelector('tooltip'))).toBeNull();
+    expect(document.activeElement).toBe(container.querySelector(getCssSelector('seriesBackground') + ' rect[tabindex]'));
+  });
 });
 
 describe('tooltip control buttons', () => {

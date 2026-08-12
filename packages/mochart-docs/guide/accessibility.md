@@ -63,8 +63,9 @@ config. Like legend items they form a single tab stop with a roving focus:
 arrows and <kbd>Home</kbd>/<kbd>End</kbd> move between rows,
 <kbd>Enter</kbd>/<kbd>Space</kbd> acts exactly like a click, and a
 keyboard-focused row highlights the same way a hovered one does.
-<kbd>Esc</kbd> anywhere inside the tooltip closes it and returns focus to
-the plot area.
+<kbd>Esc</kbd> anywhere inside the tooltip closes it, and closing it by any
+route — <kbd>Esc</kbd>, a click inside it, a click on the plot — returns
+focus to the plot area rather than dropping it.
 
 Legend items are keyboard-reachable whenever clicking them does something
 ([`legend.filterOnClick`](/reference/legend#legend.filterOnClick) or
@@ -99,6 +100,14 @@ A title with an `onTitleClick` callback is a tab stop with `role="button"`,
 named from the title text and activated by <kbd>Enter</kbd>/<kbd>Space</kbd>.
 A title with [`title.link`](/reference/title#title.link) is a link instead, so
 it is already keyboard-reachable and gets no second role.
+
+A refresh can take the tab stop you are on away: data with no categories, or
+an error, replaces the plot area and its tooltip with the
+[no-data or error message](/guide/chart-states). Keyboard focus moves to that
+message — where a screen reader reads it — instead of being dropped on the
+page body, so <kbd>Tab</kbd> carries on from the chart rather than from the
+top of the document. The message is not a tab stop of its own; when values
+come back, the plot area is the stop again.
 
 ## What screen readers hear
 
@@ -150,10 +159,11 @@ outlines on its native controls (the tooltip's buttons, a linked title)
 even with the stylesheet imported.
 
 A focus move the chart makes itself is also ringed, which `:focus-visible`
-alone would miss: filtering the focused series from the legend, or clicking a
-tooltip row that then unmounts itself, both hand focus to another element
-from a pointer interaction. Those get the same outline, so focus is never
-invisible after the chart moves it.
+alone would miss: filtering the focused series from the legend, clicking a
+tooltip row that then unmounts itself, closing the tooltip, and a refresh that
+replaces the plot area with a message all hand focus to another element from a
+pointer or data path. Those get the same outline, so focus is never invisible
+after the chart moves it.
 
 ## Forced colors and High Contrast
 
