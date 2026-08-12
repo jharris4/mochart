@@ -130,6 +130,48 @@ describe('truncateSVGText', () => {
     const out = truncateSVGText(el(50), 100, ELLIPSIS, { text: 'Hello', truncatedText: 'He', lastText: 'Hel' });
     expect(out).toEqual({ text: 'Hello', truncatedText: 'He', lastText: 'He' });
   });
+
+  // API-7: slicing by UTF-16 code unit cut astral characters in half and emitted a lone surrogate,
+  // which renders as U+FFFD. Every cut lands on a user-perceived character boundary instead.
+  describe('multi-code-unit characters', () => {
+    // a high surrogate not followed by a low one, or a low one not preceded by a high one
+    const loneSurrogate = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
+    const noLoneSurrogate = (text: string) => expect(text).not.toMatch(loneSurrogate);
+
+    it('never splits an emoji on the initial proportional guess', () => {
+      // five emoji, each two code units: the old code kept 2.5 of them
+      const out = truncateSVGText(el(130), 65, ELLIPSIS, { text: '😀😀😀😀😀' });
+      noLoneSurrogate(out.truncatedText!);
+      expect(Array.from(out.truncatedText!).every(unit => unit === '😀')).toBe(true);
+    });
+
+    it('never splits an emoji when shrinking by one', () => {
+      const out = truncateSVGText(el(150), 100, ELLIPSIS, { text: '😀😀😀', truncatedText: '😀😀', lastText: '😀😀😀' });
+      expect(out.truncatedText).toBe('😀');
+      noLoneSurrogate(out.truncatedText!);
+    });
+
+    it('never splits an emoji when growing by one', () => {
+      const out = truncateSVGText(el(50), 100, ELLIPSIS, { text: '😀😀😀', truncatedText: '😀', lastText: '' });
+      expect(out.truncatedText).toBe('😀😀');
+      noLoneSurrogate(out.truncatedText!);
+    });
+
+    // a flag is two regional-indicator code points, so this one needs grapheme segmentation
+    it('keeps a flag whole', () => {
+      // 7 characters ("🇺🇸", "🇺🇸", " ", f, l, a, g): floor((100/200)*7)-1 = 2
+      const out = truncateSVGText(el(200), 100, ELLIPSIS, { text: '🇺🇸🇺🇸 flag' });
+      expect(out.truncatedText).toBe('🇺🇸🇺🇸');
+      noLoneSurrogate(out.truncatedText!);
+    });
+
+    it('keeps a combining mark with its base character', () => {
+      const acuteE = 'e\u0301';
+      const out = truncateSVGText(el(120), 60, ELLIPSIS, { text: acuteE.repeat(3) });
+      // a whole number of base+mark pairs, so nothing is left holding a dangling accent
+      expect(out.truncatedText!.split(acuteE).join('')).toBe('');
+    });
+  });
 });
 
 describe('updateTruncation', () => {
