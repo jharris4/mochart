@@ -2496,9 +2496,10 @@ export interface SeriesConfig {
    * none).
    *
    * `bar` draws a rectangle per category value, `line` connects the values with
-   * a path, `area` fills between the value line and the value axis base, and
-   * `none` draws no shape. Different series in the same chart can use different
-   * renderers, e.g. bars with a line overlay.
+   * a path, `area` fills between the value line and the value axis `base` — or,
+   * when no base is set, the minimum end of the axis — and `none` draws no
+   * shape. Different series in the same chart can use different renderers, e.g.
+   * bars with a line overlay.
    *
    * @default "line"
    */
