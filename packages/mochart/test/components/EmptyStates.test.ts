@@ -7,9 +7,9 @@
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { installSvgMeasurementShims } from './svgShims';
-import { createDefaultChart } from '../../src/createChart';
+import { createChart, createDefaultChart } from '../../src/createChart';
 import type { ChartHandle } from '../../src/createChart';
-import type { ChartFactoryContext, DefaultChartProps } from '../../src/types/chart';
+import type { ChartFactoryContext, DefaultChartProps, ManagedChartProps } from '../../src/types/chart';
 import type { MochartInputConfig } from '../../src/types/config';
 import { getCssSelector } from '../../src/utils/ChartDom';
 
@@ -160,7 +160,144 @@ describe('ChartFactories overrides', () => {
       }
     }, makeConfig({ series: [{ property: 'sales', renderer: 'nope' }] }));
     expect(container.querySelector('.factory-marker')!.textContent).toBe('custom config error');
-    // API-9: documented as null when validation fails, actually the invalid config
+    // the config as supplied, so the factory can report on what failed
     expect(seen[0].mochartConfig).not.toBeNull();
+  });
+});
+
+/**
+ * API-9: the six members used to arrive per code path — hasData reached only the loading factory,
+ * mochartConfig skipped two call sites — so a factory reading one got undefined with no warning.
+ * Every factory now gets all six; only width/height differ, per the box the content fills.
+ */
+describe('the state factory context', () => {
+  const contextKeys = ['dataProvider', 'error', 'hasData', 'height', 'mochartConfig', 'width'];
+
+  function capture(seen: ChartFactoryContext[]) {
+    return (context: ChartFactoryContext) => {
+      seen.push(context);
+      return marker('captured')();
+    };
+  }
+
+  /** Content placed inside a laid-out chart is sized to the plot area, which axes make smaller. */
+  function expectPlotBox(context: ChartFactoryContext): void {
+    expect(context.width).toBeGreaterThan(0);
+    expect(context.width).toBeLessThan(WIDTH);
+    expect(context.height).toBeGreaterThan(0);
+    expect(context.height).toBeLessThan(HEIGHT);
+  }
+
+  function mountManaged(extra: Partial<ManagedChartProps>): void {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    handles.push(createChart(container, {
+      mochartConfig: null, dataProvider: null, width: WIDTH, height: HEIGHT, ...extra
+    } as unknown as ManagedChartProps) as unknown as ChartHandle<DefaultChartProps>);
+  }
+
+  it('reaches getNoSizeComponent whole, sized to the chart', () => {
+    const seen: ChartFactoryContext[] = [];
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    handles.push(createDefaultChart(container, {
+      config: makeConfig(), data: rows, width: 0, height: 0, getNoSizeComponent: capture(seen)
+    } as DefaultChartProps));
+
+    expect(Object.keys(seen[0]).sort()).toEqual(contextKeys);
+    expect(seen[0].width).toBe(0);
+    expect(seen[0].height).toBe(0);
+    expect(seen[0].mochartConfig).not.toBeNull();
+    expect(seen[0].dataProvider).not.toBeNull();
+    expect(seen[0].error).toBeUndefined();
+    expect(seen[0].hasData).toBe(true);
+  });
+
+  it('reaches getConfigErrorComponent whole, with the invalid config', () => {
+    const seen: ChartFactoryContext[] = [];
+    mountChart({ getConfigErrorComponent: capture(seen) }, makeConfig({ series: [{ property: 'sales', renderer: 'nope' }] }));
+
+    expect(Object.keys(seen[0]).sort()).toEqual(contextKeys);
+    expect(seen[0].width).toBe(WIDTH);
+    expect(seen[0].height).toBe(HEIGHT);
+    expect(seen[0].mochartConfig!.validation.valid).toBe(false);
+    expect(seen[0].dataProvider).not.toBeNull();
+    expect(seen[0].error).toBeUndefined();
+    // an invalid config commits no chart data
+    expect(seen[0].hasData).toBe(false);
+  });
+
+  it('reaches getNoSeriesComponent whole, sized to the plot area', () => {
+    const seen: ChartFactoryContext[] = [];
+    mountChart({ getNoSeriesComponent: capture(seen) }, makeConfig({ series: [] }));
+
+    expect(Object.keys(seen[0]).sort()).toEqual(contextKeys);
+    expectPlotBox(seen[0]);
+    expect(seen[0].mochartConfig).not.toBeNull();
+    expect(seen[0].dataProvider).not.toBeNull();
+    expect(seen[0].error).toBeUndefined();
+    expect(seen[0].hasData).toBe(true);
+  });
+
+  it('reaches getNoDataComponent whole, with hasData false', () => {
+    const seen: ChartFactoryContext[] = [];
+    mountChart({ getNoDataComponent: capture(seen) }, makeConfig(), []);
+
+    expect(Object.keys(seen[0]).sort()).toEqual(contextKeys);
+    expectPlotBox(seen[0]);
+    expect(seen[0].mochartConfig).not.toBeNull();
+    expect(seen[0].dataProvider).not.toBeNull();
+    expect(seen[0].error).toBeUndefined();
+    expect(seen[0].hasData).toBe(false);
+  });
+
+  it('reaches getLoadingComponent whole in the laid-out chart', () => {
+    const seen: ChartFactoryContext[] = [];
+    mountChart({ loading: true, getLoadingComponent: capture(seen) });
+
+    expect(Object.keys(seen[0]).sort()).toEqual(contextKeys);
+    expectPlotBox(seen[0]);
+    expect(seen[0].mochartConfig).not.toBeNull();
+    expect(seen[0].dataProvider).not.toBeNull();
+    expect(seen[0].error).toBeUndefined();
+    expect(seen[0].hasData).toBe(true);
+  });
+
+  it('reaches getErrorComponent whole in the laid-out chart', () => {
+    const seen: ChartFactoryContext[] = [];
+    mountChart({ error: 'boom', getErrorComponent: capture(seen) });
+
+    expect(Object.keys(seen[0]).sort()).toEqual(contextKeys);
+    expectPlotBox(seen[0]);
+    expect(seen[0].mochartConfig).not.toBeNull();
+    expect(seen[0].dataProvider).not.toBeNull();
+    expect(seen[0].error).toBe('boom');
+    expect(seen[0].hasData).toBe(true);
+  });
+
+  it('reaches getLoadingComponent whole before a config arrives, sized to the chart', () => {
+    const seen: ChartFactoryContext[] = [];
+    mountManaged({ loading: true, getLoadingComponent: capture(seen) });
+
+    expect(Object.keys(seen[0]).sort()).toEqual(contextKeys);
+    expect(seen[0].width).toBe(WIDTH);
+    expect(seen[0].height).toBe(HEIGHT);
+    expect(seen[0].mochartConfig).toBeNull();
+    expect(seen[0].dataProvider).toBeNull();
+    expect(seen[0].error).toBeUndefined();
+    expect(seen[0].hasData).toBe(false);
+  });
+
+  it('reaches getErrorComponent whole before a config arrives, sized to the chart', () => {
+    const seen: ChartFactoryContext[] = [];
+    mountManaged({ error: 'boom', getErrorComponent: capture(seen) });
+
+    expect(Object.keys(seen[0]).sort()).toEqual(contextKeys);
+    expect(seen[0].width).toBe(WIDTH);
+    expect(seen[0].height).toBe(HEIGHT);
+    expect(seen[0].mochartConfig).toBeNull();
+    expect(seen[0].dataProvider).toBeNull();
+    expect(seen[0].error).toBe('boom');
+    expect(seen[0].hasData).toBe(false);
   });
 });

@@ -151,7 +151,7 @@ function buildMessageDiv(width: number, height: number, message: string): Node {
   return el.node;
 }
 
-function getLoadingComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
+function getLoadingComponent({ width, height }: ChartFactoryContext): Node {
   return buildMessageDiv(width, height, 'Loading...');
 }
 
@@ -160,24 +160,24 @@ function isErrorActive(error: unknown): boolean {
   return error != null;
 }
 
-function getErrorComponent({ width = 0, height = 0, error }: ChartFactoryContext): Node {
+function getErrorComponent({ width, height, error }: ChartFactoryContext): Node {
   const errorMessage = isErrorActive(error) ? typeof error === 'object' ? JSON.stringify(error) : String(error) : 'Invalid Chart Config';
   return buildMessageDiv(width, height, errorMessage);
 }
 
-function getNoDataComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
+function getNoDataComponent({ width, height }: ChartFactoryContext): Node {
   return buildMessageDiv(width, height, 'No Data');
 }
 
-function getNoSizeComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
+function getNoSizeComponent({ width, height }: ChartFactoryContext): Node {
   return buildMessageDiv(width, height, 'No Size');
 }
 
-function getNoSeriesComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
+function getNoSeriesComponent({ width, height }: ChartFactoryContext): Node {
   return buildMessageDiv(width, height, 'No Series');
 }
 
-function getConfigErrorComponent({ width = 0, height = 0 }: ChartFactoryContext): Node {
+function getConfigErrorComponent({ width, height }: ChartFactoryContext): Node {
   return buildMessageDiv(width, height, 'Mochart Config Error');
 }
 
@@ -1099,16 +1099,17 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       getConfigErrorComponent: configErrorFactory = getConfigErrorComponent
     } = this.props;
     const style = withDefaultChartStyle(styleProp);
+    const error = propsError != null ? propsError : dataProvider && !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : undefined;
 
     // negative and non-finite sizes would reach the svg as invalid width/height
     const hasSize = width > 0 && height > 0;
     if (!hasSize || (mochartConfig && !mochartConfig.validation.valid)) {
       let errorComponent: FactoryContent = false;
       if (!hasSize) {
-        errorComponent = noSizeFactory({ mochartConfig, width, height });
+        errorComponent = noSizeFactory(this.factoryContext(width, height, error));
       }
       else if (mochartConfig) {
-        errorComponent = configErrorFactory({ mochartConfig, width, height });
+        errorComponent = configErrorFactory(this.factoryContext(width, height, error));
       }
       else {
         errorComponent = false;
@@ -1122,7 +1123,6 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
       return;
     }
 
-    const error = propsError != null ? propsError : dataProvider && !isDataProviderValid(dataProvider) ? dataProvider.getError?.() : undefined;
     const loading = this.isLoading();
 
     if (!mochartConfig) {
@@ -1131,14 +1131,14 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
         this.chartRef = null;
         this.root.set({ className: mochartCssClasses['chartError'], style, 'data-mochart-version': getVersionString() });
         this.clearBody();
-        this.setSimpleContent(errorFactory({ dataProvider, width, height, error }));
+        this.setSimpleContent(errorFactory(this.factoryContext(width, height, error)));
       }
       else if (loading) {
         this.setPresent(true);
         this.chartRef = null;
         this.root.set({ className: mochartCssClasses['loading'], style, 'data-mochart-version': getVersionString() });
         this.clearBody();
-        this.setSimpleContent(loadingFactory({ width, height }));
+        this.setSimpleContent(loadingFactory(this.factoryContext(width, height, error)));
       }
       else {
         this.chartRef = null;
@@ -1188,17 +1188,37 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     this._simpleNode = node;
   }
 
-  hasChartDataContent(error: unknown): boolean {
+  /** True when the committed dataset holds at least one category. */
+  private hasCategories(): boolean {
     const { chartData } = this.props;
-    const hasChartData = chartData !== null;
-    const categoryCount = hasChartData ? getChartDataCategoryCount(chartData) : 0;
-    return !isErrorActive(error) && hasChartData && categoryCount > 0;
+    return chartData !== null && getChartDataCategoryCount(chartData) > 0;
+  }
+
+  hasChartDataContent(error: unknown): boolean {
+    return !isErrorActive(error) && this.hasCategories();
+  }
+
+  /**
+   * The context every state factory receives — built here so all six always get all six members.
+   * width/height are the box the returned content fills: the whole chart before it is laid out,
+   * the plot area for content placed inside a laid-out chart.
+   */
+  private factoryContext(width: number, height: number, error: unknown): ChartFactoryContext {
+    const { mochartConfig, dataProvider } = this.props;
+    return {
+      width,
+      height,
+      mochartConfig: mochartConfig ?? null,
+      dataProvider: dataProvider ?? null,
+      error,
+      hasData: this.hasCategories()
+    };
   }
 
   /** Fill in the ChartBody's slots — called from ChartBody.sync with the body renderer. */
   syncBody(body: ChartBody): void {
     const {
-      mochartConfig, dataProvider, chartData, focusData, onFocus, onSeriesFilter, width, height,
+      mochartConfig, chartData, focusData, onFocus, onSeriesFilter, width, height,
       getErrorComponent: errorFactory = getErrorComponent,
       getLoadingComponent: loadingFactory = getLoadingComponent,
       getNoDataComponent: noDataFactory = getNoDataComponent,
@@ -1371,7 +1391,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
         const noSeriesEl = body.noSeriesSlot.set('div', () => htmlEl('div'));
         noSeriesEl!.set({ className: mochartCssClasses['noSeries'], style: noSeriesStyle });
-        setFactoryContent(noSeriesEl!, noSeriesFactory({ width, height }));
+        setFactoryContent(noSeriesEl!, noSeriesFactory(this.factoryContext(width, height, error)));
       }
       else {
         body.noSeriesSlot.set(null);
@@ -1403,13 +1423,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
       let noDataContent: FactoryContent = false;
       if (isErrorActive(error)) {
-        noDataContent = errorFactory({ mochartConfig, dataProvider, width, height, error });
+        noDataContent = errorFactory(this.factoryContext(width, height, error));
       }
       else if (!loading && hasChartData && categoryCount === 0) {
-        noDataContent = noDataFactory({ mochartConfig, dataProvider, width, height });
+        noDataContent = noDataFactory(this.factoryContext(width, height, error));
       }
       else {
-        noDataContent = loadingFactory({ mochartConfig, dataProvider, width, height, hasData: hasChartDataContent });
+        noDataContent = loadingFactory(this.factoryContext(width, height, error));
       }
 
       const noDataEl = body.noDataSlot.set('div', () => htmlEl('div'));
@@ -1438,7 +1458,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
       const loadingEl = body.loadingSlot.set('div', () => htmlEl('div'));
       loadingEl!.set({ className: mochartCssClasses['loading'], style: loadingStyle });
-      setFactoryContent(loadingEl!, loadingFactory({ mochartConfig, dataProvider, width, height, hasData: hasChartDataContent }));
+      setFactoryContent(loadingEl!, loadingFactory(this.factoryContext(width, height, error)));
     }
     else {
       body.loadingSlot.set(null);
