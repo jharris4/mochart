@@ -49,13 +49,19 @@ describe('config validation', () => {
     expect(mochartConfig.validation).toEqual({ valid: true, errors: [], warnings: [] });
   });
 
-  it('carries a supplied version through to the built config, and adds none otherwise', () => {
-    // the built type now declares `version`, so a host reading it back gets the same optionality
-    // the runtime has: present when the input supplied one, absent when it did not
+  it('migrates on the way in, so the built config always carries a version', () => {
+    // enhanceConfig is where a stored config enters, so it migrates first: a versionless config
+    // means "written for the current format" and comes back stamped with it
     const series = [{ property: 'sales' }];
     const categoryAxis = { property: 'month' };
     expect(enhance({ version: VERSION_STRING, categoryAxis, series }).version).toBe(VERSION_STRING);
-    expect(enhance({ categoryAxis, series }).version).toBeUndefined();
+    expect(enhance({ categoryAxis, series }).version).toBe(VERSION_STRING);
+  });
+
+  it('does not mutate the config it was given', () => {
+    const input = { categoryAxis: { property: 'month' }, series: [{ property: 'sales' }] };
+    enhance(input);
+    expect('version' in input).toBe(false);
   });
 
   it('rejects an unknown version', () => {
