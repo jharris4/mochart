@@ -1,6 +1,6 @@
 import demoData from '@mochart/demo-data';
 
-import { isPhoneViewport, phoneFallbackDemoMode, watchPhoneViewport } from '@mochart/demo-common';
+import { demoText, isPhoneViewport, phoneFallbackDemoMode, watchPhoneViewport } from '@mochart/demo-common';
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { getPath, navigate, onNavigate } from './router';
@@ -175,7 +175,7 @@ export function mountApp(root: HTMLElement): void {
       return;
     }
     if (route.notFound !== undefined) {
-      showMessage('No route found matching ' + route.notFound);
+      showMessage(demoText.routeErrors.noRoute(route.notFound));
       return;
     }
     if (route.gallery === true) {
@@ -189,7 +189,7 @@ export function mountApp(root: HTMLElement): void {
 
     const demoId = route.demoId!;
     if (demoObjectMap[demoId] === undefined) {
-      showMessage('No demo found for id: ' + demoId);
+      showMessage(demoText.routeErrors.noDemo(demoId));
       return;
     }
 
@@ -225,7 +225,7 @@ export function mountApp(root: HTMLElement): void {
       const randomId = Number(route.randomId);
       const isValidRandomId = randomId > Number.MIN_SAFE_INTEGER && randomId < Number.MAX_SAFE_INTEGER;
       if (!isValidRandomId) {
-        showMessage('Bad random id: ' + route.randomId);
+        showMessage(demoText.routeErrors.badRandomId(route.randomId!));
         return;
       }
       const incrementRandomId = () => {
