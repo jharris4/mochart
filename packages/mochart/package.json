@@ -29,8 +29,8 @@
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "development": "./src/index.ts",
       "types": "./dist/types/index.d.ts",
+      "development": "./src/index.ts",
       "default": "./dist/mochart.js"
     },
     "./mochart.css": "./css/mochart.css"
