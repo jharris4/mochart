@@ -2,7 +2,7 @@ import { color as parseColor } from 'd3-color';
 
 import validators from '@mochart/movalid';
 import type { CustomValidator, Validator } from '@mochart/movalid';
-import { NONE, MARGIN_KEYS, PADDING_KEYS, COLOR_CURRENT } from '../core/constants';
+import { NONE, TOP_RIGHT_BOTTOM_LEFT, COLOR_CURRENT } from '../core/constants';
 
 const dashArrayRegexp = /^(\d+)([,\s]\s*\d+)*$/;
 
@@ -69,8 +69,8 @@ const partialObjectWith = (keys: string[], valueValidator: Validator): Validator
   }
   return validators.partialObjectWithShape(shape, true);
 };
-const margin = () => partialObjectWith(MARGIN_KEYS, validators.numberMin(0));
-const padding = () => partialObjectWith(PADDING_KEYS, validators.numberMin(0));
+const margin = () => partialObjectWith(TOP_RIGHT_BOTTOM_LEFT, validators.numberMin(0));
+const padding = () => partialObjectWith(TOP_RIGHT_BOTTOM_LEFT, validators.numberMin(0));
 // Partial (a style is deep-merged over its default), and extra members pass so that an unknown member
 // is reported once by the unknown-key walk rather than as an error as well.
 const style = () => validators.partialObjectWithShape(styleKeyMap, true);

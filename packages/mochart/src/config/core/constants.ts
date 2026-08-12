@@ -8,10 +8,8 @@ export const RIGHT = 'right';
 export const BOTTOM = 'bottom';
 export const LEFT = 'left';
 
+// the four keys of both a margin and a padding
 export const TOP_RIGHT_BOTTOM_LEFT = [TOP, RIGHT, BOTTOM, LEFT];
-
-export const MARGIN_KEYS = TOP_RIGHT_BOTTOM_LEFT;
-export const PADDING_KEYS = TOP_RIGHT_BOTTOM_LEFT;
 
 export const ELLIPSIS = '\u2026'; // or '...' ?
 

@@ -1,4 +1,4 @@
-// Flat ESLint config for the whole monorepo — one config, 19 workspaces.
+// Flat ESLint config for the whole monorepo — one config, 20 workspaces.
 //
 // Scope, deliberately: this catches BUGS, not style. There are no formatting
 // rules (indent/quotes/semi/spacing) because the repo already has a consistent
@@ -43,7 +43,7 @@ export default tseslint.config(
 
   // Type-aware rules for plain TypeScript. `projectService` picks each
   // package's own tsconfig automatically, which is what makes one root config
-  // work across 19 workspaces with different compiler settings.
+  // work across 20 workspaces with different compiler settings.
   //
   // Note this does NOT extend `recommendedTypeChecked`: that set is dominated
   // by the `no-unsafe-*` family, which fires on every value flowing out of an

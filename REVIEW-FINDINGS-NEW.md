@@ -3922,7 +3922,7 @@ includes their scripts (widening `include` may be enough) so `projectService: tr
 then remove them from the ignore list.
 
 ### TOOL-13 — minor manifest and config drift
-**Low · Inconsistency** — **Open**
+**Low · Inconsistency** — **Fixed**
 
 - `svelte-check` is `^4.7.3` in `mochart-demo-svelte` but `^4.1.4` in `mochart-svelte`; `vue` is
   `^3.5.40` in `mochart-vue`/`mochart-demo-vue` but `^3.5.13` in `mochart-docs`. Both floating
@@ -3936,6 +3936,31 @@ then remove them from the ignore list.
 **Fix:** align the two ranges (or adopt `syncpack`/npm `overrides` for shared tool versions), add a
 `lint` script to the editor, correct the workspace count, and either collapse the three aliases or
 add the intentional pair to `knip.json`'s ignores with a comment.
+
+**Fixed, all four bullets.**
+
+* **Tool-version drift.** `mochart-svelte`'s `svelte-check` `^4.1.4` → `^4.7.3` and `mochart-docs`'
+  `vue` `^3.5.13` → `^3.5.40`, aligning each on what its sibling packages already declare and on the
+  single copy actually installed (`svelte-check@4.7.3`, `vue@3.5.40`, no nested copies). `mochart-vue`'s
+  `vue` **peer** range `^3.3.0` is deliberately wide and was left alone — that is a consumer range, not
+  tool drift. `syncpack`/`overrides` was the finding's alternative and is not worth a new dependency for
+  two ranges.
+* **Missing `lint` script** added to `@mochart/editor`, the only workspace without one. `eslint` is a
+  hoisted root devDependency, so nothing new was needed, and `npm run lint -w @mochart/editor` exits 0.
+* **`eslint.config.mjs`** says 20 workspaces in both places (`packages/*` holds exactly 20).
+* **The alias constants are collapsed.** `MARGIN_KEYS` and `PADDING_KEYS` are gone; the two use sites in
+  `config/validation/validators.ts` take `TOP_RIGHT_BOTTOM_LEFT` directly, which reads correctly there —
+  margin and padding share the same four keys, and that is the point. Preferred over the finding's other
+  option of a `knip.json` ignore, which would have suppressed nothing: the `deadcode` gate runs
+  `knip --include exports,types,files`, so the duplicate-export check that produced the hit is not
+  enabled at all.
+
+`package-lock.json` was refreshed with `npm install --package-lock-only` — **necessary**, not
+bookkeeping: `npm ci` fails outright when a manifest range no longer matches the range recorded in the
+lockfile, so widening the two ranges without it would have broken CI. The diff is exactly those two
+range strings; no dependency resolved differently.
+
+Repo-wide typecheck, lint and deadcode clean; core's suite passes.
 
 ### TOOL-14 — every docs-site sourcemap maps nothing but vitepress internals
 **Medium · Bug · [.vitepress/config.ts:62](packages/mochart-docs/.vitepress/config.ts#L62)** **[verified]** — **Open**
