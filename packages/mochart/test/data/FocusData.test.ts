@@ -166,6 +166,71 @@ describe('followSeries followers', () => {
   });
 });
 
+// Four bar series divisible two ways, as in the stacked-grouped demo: stacks SA
+// and SB, groups GA and GB, each holding two series and cutting across the other.
+// Dropping a division lets one propagation branch run on its own.
+function makeStackedGroupedChart(divisions: 'stacks' | 'groups' | 'both') {
+  const withStacks = divisions !== 'groups';
+  const withGroups = divisions !== 'stacks';
+  const member = (id: string, stack: string, group: string) => ({
+    id,
+    property: id,
+    ...(withStacks ? { stack } : {}),
+    ...(withGroups ? { group } : {})
+  });
+  const config = makeConfig({
+    categoryAxis: { property: 'c', type: 'number', scale: 'ordinal' },
+    seriesDefaults: { renderer: 'bar' },
+    series: [
+      member('p', 'SA', 'GA'),
+      member('q', 'SB', 'GA'),
+      member('r', 'SA', 'GB'),
+      member('s', 'SB', 'GB')
+    ],
+    ...(withStacks ? { seriesStacks: [{ id: 'SA' }, { id: 'SB' }] } : {}),
+    ...(withGroups ? { seriesGroups: [{ id: 'GA' }, { id: 'GB' }] } : {})
+  });
+  const provider = new ArrayOfObjectsDataProvider(
+    [{ c: 0, p: 1, q: 2, r: 3, s: 4 }, { c: 1, p: 5, q: 6, r: 7, s: 8 }],
+    'c'
+  );
+  return { config, chartData: getChartData(config, provider, {}) };
+}
+
+describe('seriesStack and seriesGroup focus ordering', () => {
+  it('raises the whole stack of the focused series', () => {
+    const { config, chartData } = makeStackedGroupedChart('stacks');
+    const fd = getFocusData(config, chartData, -1, null, 'p');
+    const ordered = getSeriesConfigsOrderedByFocus(config, fd).map(s => s.id);
+    // stack SA holds p and r, so r rises with p ahead of the whole of stack SB
+    expect(ordered).toEqual(['q', 's', 'r', 'p']);
+  });
+
+  it('raises the whole group of the focused series', () => {
+    const { config, chartData } = makeStackedGroupedChart('groups');
+    const fd = getFocusData(config, chartData, -1, null, 'p');
+    const ordered = getSeriesConfigsOrderedByFocus(config, fd).map(s => s.id);
+    // group GA holds p and q, so q rises with p ahead of the whole of group GB
+    expect(ordered).toEqual(['r', 's', 'q', 'p']);
+  });
+
+  it('raises both the group and the stack when the focused series is in each', () => {
+    const { config, chartData } = makeStackedGroupedChart('both');
+    const fd = getFocusData(config, chartData, -1, null, 'p');
+    const ordered = getSeriesConfigsOrderedByFocus(config, fd).map(s => s.id);
+    // group-mate q and stack-mate r both rise; only s, sharing neither, stays down
+    expect(ordered).toEqual(['s', 'q', 'r', 'p']);
+  });
+
+  it('still styles the stack- and group-mates as defocused', () => {
+    // unlike followSeries, group and stack membership only reorders: focusing one
+    // segment highlights that segment alone and dims the rest of its stack
+    const { config, chartData } = makeStackedGroupedChart('both');
+    const fd = getFocusData(config, chartData, -1, null, 'p');
+    expect(fd.seriesFocusPercentages).toEqual({ p: 1, q: -1, r: -1, s: -1 });
+  });
+});
+
 describe('getFocusDataWithDomainPercentages', () => {
   it('adds domain percentages to a focus-data object that lacks them', () => {
     const { config, chartData } = makeChart();
