@@ -101,6 +101,26 @@ describe('getChartSvgText', () => {
     expect(svgText).toContain('aria-hidden="true"');
   });
 
+  // A11Y-4: role="img" with no accessible name is a harder failure than the unroled svg it came
+  // from, and the chart writes aria-label only while accessibility is enabled and not hidden.
+  it('hides the export instead of roling it when the chart has no accessible name', () => {
+    for (const accessibility of [{ enabled: false }, { hidden: true }]) {
+      const unnamedContainer = document.createElement('div');
+      document.body.appendChild(unnamedContainer);
+      const unnamedChart = createDefaultChart(unnamedContainer, {
+        config: { ...rawConfig(), accessibility }, data: rows, width: 400, height: 300
+      });
+
+      const svgText = getChartSvgText(unnamedContainer)!;
+      expect(svgText, JSON.stringify(accessibility)).not.toContain('aria-label=');
+      expect(svgText, JSON.stringify(accessibility)).not.toContain('role="img"');
+      expect(svgText, JSON.stringify(accessibility)).toContain('aria-hidden="true"');
+
+      unnamedChart.destroy();
+      unnamedContainer.remove();
+    }
+  });
+
   it('omits the background rect when transparent', () => {
     const svgText = getChartSvgText(container, { transparent: true })!;
     expect(svgText).not.toMatch(/fill: rgb\(255, 255, 255\)/);

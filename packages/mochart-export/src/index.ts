@@ -185,7 +185,14 @@ function cloneChartSvg(svgElement: SVGSVGElement): SVGSVGElement {
       interactiveElement.removeAttribute(attribute);
     }
   }
-  svgCloneElement.setAttribute('role', 'img');
+  // role="img" only with a name to announce: an unnamed image is a harder failure than an unroled
+  // svg, and the chart writes aria-label only while accessibility is enabled and not hidden
+  if (svgCloneElement.hasAttribute('aria-label') || svgCloneElement.hasAttribute('aria-labelledby')) {
+    svgCloneElement.setAttribute('role', 'img');
+  }
+  else {
+    svgCloneElement.setAttribute('aria-hidden', 'true');
+  }
   return svgCloneElement;
 }
 
