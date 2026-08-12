@@ -2629,7 +2629,7 @@ The Angular README also drops the guide's "Explicit `width`/`height` inputs win 
 **Fix:** add the one-sentence paragraph from each guide to the matching README.
 
 ### BIND-11 — `@mochart/angular` pins its peer to Angular 22 despite building partial-Ivy
-**Low · Inconsistency · [mochart-angular/package.json:43](packages/mochart-angular/package.json#L43)** — **Open**
+**Low · Inconsistency · [mochart-angular/package.json:43](packages/mochart-angular/package.json#L43)** — **Fixed**
 
 `"@angular/core": "^22.0.0"` while `tsconfig.build.json` sets `"compilationMode": "partial"` — the
 mode whose whole purpose is forward compatibility via the linker. The day Angular 23 ships, every
@@ -2637,6 +2637,31 @@ consumer gets a peer conflict for a build that would have worked. It is also by 
 peer range in the set (React `>=18`, Vue `^3.3.0`, Svelte `^5.0.0`, lit-html `^3.0.0`).
 
 **Fix:** widen to `">=22.0.0"`.
+
+**Fixed by dropping the invented ceiling, keeping the tested floor.** `@angular/core` peer
+`^22.0.0` → `>=22.0.0`, matching the loosest-in-set convention `@mochart/react` already uses
+(`react: ">=18"`).
+
+The ceiling really was artificial, confirmed against the built output rather than assumed:
+`tsconfig.build.json` sets `compilationMode: "partial"`, and every declaration in `dist/*.js` is
+`ɵɵngDeclareComponent`/`ɵɵngDeclareDirective`/`ɵɵngDeclareFactory` with `minVersion: "14.0.0"` — no
+fully-compiled instructions anywhere. A consumer's own linker reads those, and it is forward
+compatible by design, so Angular 23 needs no release here. Nothing in the source constrains the upper
+bound either: the imports are all APIs present since 14.x, with no signal-based `input()`/`output()`
+and nothing on a removal path.
+
+The floor deliberately stays at 22 rather than dropping to 14 or 16: the emitted `.d.ts` uses the
+`ɵɵComponentDeclaration` shape with object-form input metadata, which only exists in `@angular/core`
+16+, and 22.0.7 is the only version the build, typecheck and tests actually exercise. Claiming a lower
+floor would be unverified.
+
+`package-lock.json` was refreshed lockfile-only, since it had the old range baked into the peer block
+and `npm ci` fails on that mismatch; exactly one line changed. Build passes and the output is still
+partial-Ivy, typecheck and lint clean, 17 tests pass, and no `EBADPEER` warning appears — the demo app
+is on 22.0.7 and the range only widened.
+
+Worth noting for future work: the build is plain `ngc -p tsconfig.build.json`; `ng-packagr` is not a
+dependency anywhere in the monorepo.
 
 ### BIND-12 — assorted example and type-export nits
 **Low · Doc gap** — **Open**
