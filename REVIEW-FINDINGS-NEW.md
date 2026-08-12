@@ -4380,7 +4380,7 @@ pass — nothing in the repo depended on `[5]` validating.
 Note the finding's line reference is stale: `numeric` is at `validators.ts:119-122`; `:123` is `integer`.
 
 ### VAL-4 — `regexp()` is stateful when handed a global-flagged regex
-**Medium · Bug · [validators.ts:259](packages/movalid/src/validators.ts#L259)** **[verified]** — **Open**
+**Medium · Bug · [validators.ts:259](packages/movalid/src/validators.ts#L259)** **[verified]** — **Fixed**
 
 `(regex: RegExp) => v => regex.test(v)` closes over the caller's `RegExp`. With a `/g` (or `/y`)
 flag, `test` advances `lastIndex`, so the same validator alternates results on identical input:
@@ -4394,6 +4394,25 @@ different answer each call for identical input is essentially undebuggable from 
 
 **Fix:** reset `regex.lastIndex = 0` before each test, or clone without the stateful flags at
 construction: `new RegExp(regex.source, regex.flags.replace(/[gy]/g, ''))`.
+
+**Fixed by cloning the regex and resetting `lastIndex` per test.** `regexp()` now builds one clone —
+`new RegExp(regex.source, regex.flags)` — and zeroes its `lastIndex` before each `.test`, so the
+validator is stateless across calls and never writes to an object the caller owns.
+
+The finding's two options are each half right, and taking either verbatim would have been wrong.
+Resetting `lastIndex` on the caller's own regex fixes the alternating result but still mutates their
+object, and silently rewrites a regex that arrived with a deliberate non-zero `lastIndex`. Cloning
+*with the flags stripped*, as suggested, changes matching semantics for `/y`: sticky anchors the match
+at `lastIndex`, so `regexp(/a/y)('ba')` must be `false`, and a flag-stripped clone returns `true`.
+Keeping every flag on the clone preserves both `y`'s intent and the `/i` that core's
+`numberFormatRegexp` relies on, while making `g` and `y` deterministic.
+
+Five tests in the existing `regexp` block: repeated calls with a global and with a sticky regex, sticky
+matching staying anchored, the caller's `lastIndex` left untouched, and a pre-set `lastIndex` ignored.
+Four fail against the old one-liner; the sticky-anchoring one passes either way and exists to pin the
+semantics against the flag-stripping alternative. movalid 397 tests, typecheck, lint and build clean;
+core's typecheck is clean and its validation suites pass — its three `regexp` call sites use neither
+`g` nor `y`, so the change is behaviour-neutral there.
 
 ### VAL-5 — `instanceOf`'s error message inlines the entire class source
 **Medium · Bug · [validators.ts:211](packages/movalid/src/validators.ts#L211)** **[verified]** — **Open**

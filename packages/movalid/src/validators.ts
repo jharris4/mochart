@@ -255,7 +255,14 @@ const argumentTypeValidatorDefinitions = {
     message: (min: number, max: number) => "should be an integer and >= to " + min + " and <= " + max
   },
   regexp: {
-    validator: (regex: RegExp) => v => regex.test(v),
+    // clone, and reset lastIndex per test: /g and /y regexes are stateful and would alternate results
+    validator: (regex: RegExp) => {
+      const testRegex = new RegExp(regex.source, regex.flags);
+      return v => {
+        testRegex.lastIndex = 0;
+        return testRegex.test(v);
+      };
+    },
     message: (regex: RegExp) => "should match regex " + regex
   },
   stringWithLength: {

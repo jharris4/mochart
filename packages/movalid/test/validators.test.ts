@@ -1052,6 +1052,32 @@ describe("validators", () => {
       it("should not allow strings that do not match the regex", () => {
         expect(baseValidators.regexp(/^[abc]+$/)("ababadcca")).toBe(false);
       });
+
+      it("should return the same result for repeated calls with a global regex", () => {
+        const validator = baseValidators.regexp(/a/g);
+        expect([validator("a"), validator("a"), validator("a")]).toEqual([true, true, true]);
+      });
+
+      it("should return the same result for repeated calls with a sticky regex", () => {
+        const validator = baseValidators.regexp(/a/y);
+        expect([validator("ab"), validator("ab"), validator("ab")]).toEqual([true, true, true]);
+      });
+
+      it("should keep sticky matching anchored at the start of the value", () => {
+        expect(baseValidators.regexp(/a/y)("ba")).toBe(false);
+      });
+
+      it("should not modify the lastIndex of the regex it was given", () => {
+        const regex = /a/g;
+        baseValidators.regexp(regex)("a");
+        expect(regex.lastIndex).toBe(0);
+      });
+
+      it("should ignore a lastIndex already set on the regex it was given", () => {
+        const regex = /a/g;
+        regex.lastIndex = 5;
+        expect(baseValidators.regexp(regex)("a")).toBe(true);
+      });
     });
 
     describe("string with length", () => {
