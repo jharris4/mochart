@@ -139,6 +139,30 @@ puts on its root element only while
 outlines on its native controls (the tooltip's buttons, a linked title)
 even with the stylesheet imported.
 
+A focus move the chart makes itself is also ringed, which `:focus-visible`
+alone would miss: filtering the focused series from the legend, or clicking a
+tooltip row that then unmounts itself, both hand focus to another element
+from a pointer interaction. Those get the same outline, so focus is never
+invisible after the chart moves it.
+
+## Forced colors and High Contrast
+
+In forced-colors modes (Windows High Contrast among them) the stylesheet
+restores the tooltip control buttons to the system palette — `ButtonFace`,
+`ButtonText`, `ButtonBorder`, `GrayText` at the disabled ends — and replaces
+their hover and active tints, which are `color-mix` over `currentColor` and
+flatten to nothing under forced colors, with `Highlight` fills. The focus
+ring switches to `Highlight`.
+
+Series fills and strokes are left as configured. They are SVG presentation
+attributes from the palette, and forcing them to the system palette would
+collapse every series to one color — worse than keeping hues the mode did not
+ask about. A chart that has to stay readable there should carry a non-color
+encoding as well: distinct
+[`markerShape`](/reference/series#series.markerShape) values per series, or
+`strokeDashArray` on lines. That advice applies to color-vision deficiency
+generally, not only to forced colors.
+
 ## Reduced motion
 
 When the user's system requests reduced motion, the chart applies every
