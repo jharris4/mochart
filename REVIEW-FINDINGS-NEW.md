@@ -2155,7 +2155,7 @@ The generator produces byte-identical output (the reason strings are never emitt
 whitelist), so no generated artifact changed. Typecheck, lint and the config suites pass.
 
 ### API-12 — `generate-docs` writes its output before reporting integrity errors
-**Low · Bug · [generator.ts:179](packages/mochart/scripts/generator.ts#L179)** — **Open**
+**Low · Bug · [generator.ts:179](packages/mochart/scripts/generator.ts#L179)** — **Fixed**
 
 `generateDocs` writes `config-reference.json`, `mochart-docs.html` and `api-reference.json` and
 only afterwards checks `integrityErrors` to set the exit code — so a failing run leaves
@@ -2165,6 +2165,20 @@ the docs site's props/callbacks pages consume.
 
 **Fix:** collect both models first, bail before writing when `integrityErrors.length > 0`, and add
 the third artifact to both README mentions.
+
+**Fixed as recommended.** `generateDocs` now builds both models, reports every integrity error, and
+returns early *before* writing anything, so a failing run leaves the previous
+`config-reference.json`, `mochart-docs.html` and `api-reference.json` in place instead of
+half-regenerated files the checks had just rejected.
+
+Verified both ways: on a clean tree the generator produces byte-identical output, and with an
+integrity error forced (removing an `internalInterfaces` entry, which trips the "exported but has no
+reference page group" check) the command exits non-zero and a sentinel appended to
+`mochart-docs.html` survives untouched — proof nothing was written.
+
+The README's two mentions now name all three artifacts, including
+`generated/api-reference.json`, which the docs site's props and callbacks pages consume and which was
+missing from both, and the prose says the command writes nothing when it fails.
 
 ### API-13 — the advanced public input types are non-nullable and the controller casts around it
 **Low · Inconsistency · [ChartDataSource.ts:8](packages/mochart/src/chart/ChartDataSource.ts#L8), [Chart.ts:43](packages/mochart/src/components/Chart.ts#L43), [ChartController.ts:110](packages/mochart/src/chart/ChartController.ts#L110)** **[from SOL review]** — **Open**

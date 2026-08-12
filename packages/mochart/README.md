@@ -161,8 +161,11 @@ schema: `npm run generate-docs -w @mochart/core` writes
 [mochart-docs.html](mochart-docs.html) plus
 `generated/config-reference.json`, the structured model that the
 [@mochart/docs](../mochart-docs/README.md) site renders into its config
-reference pages. The command fails if the descriptions, validators, and
-defaults ever disagree on a section's keys.
+reference pages, and `generated/api-reference.json`, the model behind that
+site's props and callbacks pages. The command fails if the descriptions,
+validators, and defaults ever disagree on a section's keys, or if a prop
+interface has no reference page group or an undocumented member — and it
+writes nothing at all when it fails.
 
 ### Config helpers
 
@@ -291,7 +294,7 @@ Build-free static HTML examples (script tag and ES module) live in
 npm run build -w @mochart/core          # bundle to dist/ with vite
 npm test -w @mochart/core               # vitest with v8 coverage (includes golden snapshot tests)
 npm run typecheck -w @mochart/core
-npm run generate-docs -w @mochart/core   # regenerate mochart-docs.html + generated/config-reference.json
+npm run generate-docs -w @mochart/core   # regenerate mochart-docs.html + generated/{config,api}-reference.json
 npm run generate-jsdoc -w @mochart/core  # regenerate the JSDoc on src/types/config.ts from the config docs
 ```
 
