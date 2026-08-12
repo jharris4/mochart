@@ -2051,7 +2051,7 @@ five fail without the fix. ASCII behaviour is byte-identical, so no golden snaps
 typecheck, `build:types` and lint all pass.
 
 ### API-8 — `cssStyleColor` silently drops the configured opacity for `currentColor`
-**Low · Bug · [utils/style.ts:35](packages/mochart/src/utils/style.ts#L35)** — **Open**
+**Low · Bug · [utils/style.ts:35](packages/mochart/src/utils/style.ts#L35)** — **Fixed**
 
 When `styleOpacity` is a number and `color(styleColor)` returns `null` — exactly what d3 does for
 the `currentColor` keyword `cssColorValidator` explicitly accepts — the function returns
@@ -2061,6 +2061,25 @@ no separate opacity attribute to fall back on.
 
 **Fix:** emit `color-mix(in srgb, <color> <opacity*100>%, transparent)` for an unparseable colour
 with a non-null opacity, or reject the combination in `cssStyleKeyMap` so it is a validation error.
+
+**Fixed with `color-mix`.** When `color(styleColor)` returns `null` — which is what d3 does for the
+`currentColor` keyword that `cssColorValidator` explicitly accepts — `cssStyleColor` now returns
+`color-mix(in srgb, <color> <opacity>%, transparent)` instead of the bare colour, so
+`tooltip.backgroundStyle.normal = { fillColor: 'currentColor', fillOpacity: 0.9 }` renders at the
+configured opacity. `color-mix` is resolved by the browser after `currentColor` is, which is exactly
+why it works where arithmetic cannot. An opacity of 1 returns the keyword untouched rather than
+wrapping it in a no-op.
+
+Taken over the finding's other option — rejecting the combination in `cssStyleKeyMap` — because
+`currentColor` with an opacity is a reasonable thing to configure, and the chrome defaults follow the
+host page's colour deliberately; making it a validation error would forbid a legitimate style.
+
+The percent is trimmed through `toFixed(4)`, since `0.9 * 100` is `90.00000000000001` in JS.
+
+Four assertions added in `test/utils/style.test.ts`, replacing the one that pinned the old
+pass-through. No golden snapshot moved: `cssStyleColor` feeds only the html tooltip's `background` and
+`borderColor`, and no golden config pairs a keyword colour with an opacity. 1614 tests, typecheck and
+lint pass.
 
 ### API-9 — state-factory context members arrive inconsistently; the README implies otherwise
 **Low · Doc gap · [packages/mochart/README.md:238](packages/mochart/README.md#L238)** — **Open**

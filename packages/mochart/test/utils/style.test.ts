@@ -24,8 +24,16 @@ describe('cssStyleColor', () => {
     expect(cssStyleColor('rgba(0,0,255,0.4)', 0.5)).toBe('rgba(0, 0, 255, 0.2)');
   });
 
-  it('passes a keyword color through, having no parsed form to composite into', () => {
-    expect(cssStyleColor('currentColor', 0.5)).toBe('currentColor');
+  // API-8: a keyword d3 cannot parse used to have its opacity silently dropped, so
+  // { fillColor: 'currentColor', fillOpacity: 0.9 } validated and then rendered opaque.
+  it('composites an opacity into a keyword color with color-mix', () => {
+    expect(cssStyleColor('currentColor', 0.5)).toBe('color-mix(in srgb, currentColor 50%, transparent)');
+    expect(cssStyleColor('currentColor', 0.9)).toBe('color-mix(in srgb, currentColor 90%, transparent)');
+    expect(cssStyleColor('currentColor', 0)).toBe('color-mix(in srgb, currentColor 0%, transparent)');
+  });
+
+  it('leaves a fully opaque keyword color alone rather than wrapping it', () => {
+    expect(cssStyleColor('currentColor', 1)).toBe('currentColor');
   });
 });
 
