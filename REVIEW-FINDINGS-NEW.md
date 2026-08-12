@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 55 fixed, 2 needing an answer, 104 open.** TOOL-2 is deferred to release time by
+**Status: 56 fixed, 2 needing an answer, 103 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1311,7 +1311,7 @@ density, where "Cumulative probability" would be more accurate. That is a visibl
 rather than a maths fix, so it is raised separately rather than folded in here.
 
 ### HELP-7 — doji candles (open === close) draw no body at all
-**Medium · Missing feature · [Candlestick.ts:342-368](packages/mochart/src/data/Candlestick.ts#L342)** — **Open**
+**Medium · Missing feature · [Candlestick.ts:342-368](packages/mochart/src/data/Candlestick.ts#L342)** — **Fixed**
 
 `bodyConfigs` never sets `barMinExtent` (default 0), and the bar renderer's default normal-state
 `strokeWidth` is also 0 — so when `open === close` the body's `property` and `rangeProperty`
@@ -1322,8 +1322,29 @@ the candle shows only its wick. `createOhlc` already solves exactly this with
 machinery exists and is simply not applied to candlestick bodies. A doji is a standard,
 meaningful pattern; it currently reads as a missing candle.
 
-**Fix:** add a `bodyMinExtent?: number` option (default 1) emitted as `barMinExtent` on both
-`bodyConfigs` entries; document it next to `bodyWidthFraction`.
+**Fixed: filled bodies get a 2px floor; hollow up bodies are left alone.**
+
+Three corrections to the finding along the way. The colour is not ambiguous — equal open and close is
+classified as *up*. Hollow **up** bodies already draw, because their 2px outline survives the
+collapse; it is the filled bodies that vanish, which is both bodies normally and the *down* body in
+hollow mode. And OHLC needs nothing: it already sets the same 2px floor on its open/close ticks, with
+a comment saying why.
+
+`barMinExtent` was the right instrument — it is per-series, and the body is its own series, so the
+floor lands on the bodies only and not on the wicks or the volume bars. A zero-length wick genuinely
+means no range above or below the body, so it should keep drawing nothing.
+
+**Why not apply it to every body uniformly.** The expansion is symmetric about the price, so a filled
+2px body draws a 2px line — but a hollow body carries a 2px stroke centred on each edge, so the same
+floor would draw roughly 4px, and would thicken hollow dojis that already render correctly today.
+Excluding them keeps every doji at about 2px and changes nothing that currently works.
+
+2px rather than 1px so the three places agree: the filled body, the hollow outline, and the OHLC
+tick.
+
+Tests pin which series get the floor and which do not, and both fail on the unpatched source. The
+generated demo configs were regenerated; no golden snapshot moved, because no demo has a body under
+2px — the floor is inert until a real doji appears.
 
 ### HELP-8 — `createWaterfall` makes the caller hand-mirror a `base` it already knows
 **Medium · Missing feature · [Waterfall.ts:35-43](packages/mochart/src/data/Waterfall.ts#L35), [:156](packages/mochart/src/data/Waterfall.ts#L156)** — **Open**
