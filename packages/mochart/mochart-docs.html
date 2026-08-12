@@ -883,7 +883,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.max">
-<td><a href="#categoryAxis.max">max</a></td><td>the forced maximum numeric value for the axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)</td><td><p>should be an iso date string or epoch number or be equal to "auto" when scale is linear and type is date</p>
+<td><a href="#categoryAxis.max">max</a></td><td>the forced maximum numeric value for the axis (use "auto" to compute from the values); must be >= min unless either is "auto" (set reversed to run the axis backwards)<br/><br/>The form the bound takes follows `type` on a linear axis: a number when `type` is `number`, and either a millisecond timestamp or an ISO date string (`"2020-01-01"`) when `type` is `date` — the two forms `thresholds[].value` takes. An ordinal axis places its categories in data order, so it accepts only `"auto"`.</td><td><p>should be an iso date string or epoch number or be equal to "auto" when scale is linear and type is date</p>
 <p>should be a number or be equal to "auto" when scale is linear and type is number</p>
 <p>should be equal to "auto" when scale is ordinal</p>
 </td><td><div>"auto"</div>
@@ -901,7 +901,7 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.min">
-<td><a href="#categoryAxis.min">min</a></td><td>the forced minimum numeric value for the axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)</td><td><p>should be an iso date string or epoch number or be equal to "auto" when scale is linear and type is date</p>
+<td><a href="#categoryAxis.min">min</a></td><td>the forced minimum numeric value for the axis (use "auto" to compute from the values); must be <= max unless either is "auto" (set reversed to run the axis backwards)<br/><br/>The form the bound takes follows `type` on a linear axis: a number when `type` is `number`, and either a millisecond timestamp or an ISO date string (`"2020-01-01"`) when `type` is `date` — the two forms `thresholds[].value` takes. An ordinal axis places its categories in data order, so it accepts only `"auto"`.</td><td><p>should be an iso date string or epoch number or be equal to "auto" when scale is linear and type is date</p>
 <p>should be a number or be equal to "auto" when scale is linear and type is number</p>
 <p>should be equal to "auto" when scale is ordinal</p>
 </td><td><div>"auto"</div>
@@ -974,14 +974,14 @@ table thead td { border-bottom-width: 2px; }
 </td>
 </tr>
 <tr id="categoryAxis.softMax">
-<td><a href="#categoryAxis.softMax">softMax</a></td><td>the forced maximum numeric value for the axis to be used if no data value is greater than this value (use null to disable)</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
+<td><a href="#categoryAxis.softMax">softMax</a></td><td>the forced maximum numeric value for the axis to be used if no data value is greater than this value (use null to disable)<br/><br/>Takes the same forms as `max` — a number, or a timestamp or ISO date string on a date axis — but only applies while no category value rises above it, so real data still expands the domain. An ordinal axis accepts only `null`.</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
 <p>should be a number or be equal to null when scale is linear and type is number</p>
 <p>should be equal to null when scale is ordinal</p>
 </td><td><div>null</div>
 </td>
 </tr>
 <tr id="categoryAxis.softMin">
-<td><a href="#categoryAxis.softMin">softMin</a></td><td>the forced minimum numeric value for the axis to be used if no data value is less than this value (use null to disable)</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
+<td><a href="#categoryAxis.softMin">softMin</a></td><td>the forced minimum numeric value for the axis to be used if no data value is less than this value (use null to disable)<br/><br/>Takes the same forms as `min` — a number, or a timestamp or ISO date string on a date axis — but only applies while no category value falls below it, so real data still expands the domain. An ordinal axis accepts only `null`.</td><td><p>should be an iso date string or epoch number or be equal to null when scale is linear and type is date</p>
 <p>should be a number or be equal to null when scale is linear and type is number</p>
 <p>should be equal to null when scale is ordinal</p>
 </td><td><div>null</div>

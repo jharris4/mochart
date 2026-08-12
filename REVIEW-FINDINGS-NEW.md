@@ -1823,7 +1823,7 @@ directive goes unused and the typecheck fails, so the test pins the narrowing ra
 passing.
 
 ### CONFIG-5 — six places where the types and the runtime contract disagree
-**Medium · Inconsistency** — **Open**
+**Medium · Inconsistency** — **Fixed**
 
 | key | types say | runtime accepts | effect |
 |---|---|---|---|
@@ -1838,6 +1838,56 @@ passing.
 `number | string | Auto` / `number | string | null` (matching `ThresholdConfig.value`, which
 already gets this right); make `filteredValueCharacter: string | null`; make `stops` required.
 Add a types-vs-model check to `checkKeyIntegrity` so all six cannot recur.
+
+Five of the six rows fixed by widening or narrowing the type to match the
+validators; the sixth was already correct.
+
+- `categoryAxis.min`/`max` → `number | string | Auto` and
+  `softMin`/`softMax` → `number | string | null`. The runtime was right: a linear
+  date axis takes a timestamp or an ISO string, exactly like `thresholds[].value`.
+  New docs details name both date forms and the ordinal `"auto"`-only rule.
+- `ValueAxisConfig.scale` → `'linear'` and `ValueAxisConfig.type` → `'number'`
+  (the latter was too wide by two values, `'string'` **and** `'date'`).
+- `TooltipConfig.filteredValueCharacter` → `string | null`, which the docs already
+  described.
+
+Rows 1–2 needed a structural step the finding missed: those four bounds live on the
+shared `AxisConfigBase`, not on `CategoryAxisConfig`, so widening the base alone
+would have made the *value* axis too wide. `ValueAxisConfig` now re-declares all
+four in the numeric-only form. Widening the base also made
+`getAxisValueCreator` in `data/AxisDomainData.ts` the only compile error in the
+package; it now takes `number | string`, and the emitted JS is unchanged.
+
+**Row 6, `LinearGradientConfig.stops`, was left alone deliberately.**
+`MochartInputConfig` wraps every section in `DeepPartial`, so `{ id: 'G' }`
+compiles whether or not `stops` is optional — the stated symptom cannot be fixed
+from the interface. And it should not be: `linearGradientDefaults` may supply the
+stops for every entry, so a required per-entry `stops` would be a *new* too-narrow
+type. Optional-in-the-type is also how the only other two no-default properties,
+`categoryAxis.property` and `series.property`, are declared, with the requirement
+carried by validation.
+
+New `test/config/typeContract.test.ts`, 13 tests, including the ratchet the finding
+asked for. `checkKeyIntegrity` could not go in `packages/mochart/scripts/`, so it is
+a test: it walks all 18 section interfaces with the TypeScript checker against that
+section's validators — category-axis conditionals evaluated under all five
+type/scale branches — and reports four classes of disagreement. Bite proof with the
+seven annotations reverted: the ratchet reports exactly 8 mismatches (the four
+bounds, `scale`, `type` twice, `filteredValueCharacter`) and `tsc` on the test file
+fails with 8 errors.
+
+Two mismatches remain that TypeScript cannot express, so the ratchet is
+deliberately silent on them: `filteredValueCharacter` accepts only a
+*one-character* string, and the category-axis bounds accept only `"auto"`/`null` on
+an ordinal scale. The optionality rule also needed two documented exceptions,
+`series.axis` and `seriesStacks.axis`, whose conditional default applies only when
+there is exactly one value axis.
+
+One correction: the cited `:2103` for `ValueAxisConfig.scale` is actually
+`CategoryAxisConfig.scale`, whose `Scale` type is correct and stays.
+
+Whole-package suite green: 111 files / 1683 tests, typecheck, lint,
+`generate-docs` and `generateJsdoc --check` all clean.
 
 ### CONFIG-6 — the documented migration path is never wired into any entry point
 **Medium · Doc gap · [helper/index.ts:6-11](packages/mochart/src/config/helper/index.ts#L6), [DefaultChartInput.ts:69](packages/mochart/src/chart/DefaultChartInput.ts#L69)** — **Fixed**

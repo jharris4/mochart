@@ -1455,7 +1455,7 @@ export interface TooltipConfig extends SeriesIconConfig {
    *
    * @default "-"
    */
-  filteredValueCharacter: string;
+  filteredValueCharacter: string | null;
   /**
    * The text to show for series that do not have defined values.
    *
@@ -1715,17 +1715,15 @@ export interface AxisConfigBase {
    * the values); must be >= min unless either is "auto" (set reversed to run
    * the axis backwards).
    *
-   * With `"auto"` the maximum is computed from the data (including stacking) on
-   * every update, and changes animate through the staged axis
-   * expansion/contraction phases. Set a number to pin the bound instead. Must
-   * be >= `min` unless either is `"auto"` (set
-   * [`reversed`](#valueAxes.reversed) to run the axis backwards). Values
-   * outside of the defined range are clipped rather than allowed to overflow
-   * the plot area of the chart.
+   * The form the bound takes follows `type` on a linear axis: a number when
+   * `type` is `number`, and either a millisecond timestamp or an ISO date
+   * string (`"2020-01-01"`) when `type` is `date` — the two forms
+   * `thresholds[].value` takes. An ordinal axis places its categories in data
+   * order, so it accepts only `"auto"`.
    *
    * @default "auto"
    */
-  max: number | Auto;
+  max: number | string | Auto;
   /**
    * The numeric offset to apply to the maximum value of the axis.
    *
@@ -1748,17 +1746,15 @@ export interface AxisConfigBase {
    * the values); must be <= max unless either is "auto" (set reversed to run
    * the axis backwards).
    *
-   * With `"auto"` the minimum is computed from the data (including stacking) on
-   * every update, and changes animate through the staged axis
-   * expansion/contraction phases. Set a number to pin the bound instead. Must
-   * be <= `max` unless either is `"auto"` (set
-   * [`reversed`](#valueAxes.reversed) to run the axis backwards). Values
-   * outside of the defined range are clipped rather than allowed to overflow
-   * the plot area of the chart.
+   * The form the bound takes follows `type` on a linear axis: a number when
+   * `type` is `number`, and either a millisecond timestamp or an ISO date
+   * string (`"2020-01-01"`) when `type` is `date` — the two forms
+   * `thresholds[].value` takes. An ordinal axis places its categories in data
+   * order, so it accepts only `"auto"`.
    *
    * @default "auto"
    */
-  min: number | Auto;
+  min: number | string | Auto;
   /**
    * The numeric offset to apply to the minimum value of the axis.
    *
@@ -1801,24 +1797,24 @@ export interface AxisConfigBase {
    * The forced minimum numeric value for the axis to be used if no data value
    * is less than this value (use null to disable).
    *
-   * A lower bound that only applies while no data value is below it — the axis
-   * covers at least this value, but real data smaller than it still expands the
-   * domain. Unlike `min`, it never clips data.
+   * Takes the same forms as `min` — a number, or a timestamp or ISO date string
+   * on a date axis — but only applies while no category value falls below it,
+   * so real data still expands the domain. An ordinal axis accepts only `null`.
    *
    * @default null
    */
-  softMin: number | null;
+  softMin: number | string | null;
   /**
    * The forced maximum numeric value for the axis to be used if no data value
    * is greater than this value (use null to disable).
    *
-   * An upper bound that only applies while no data value is above it — the axis
-   * covers at least this value, but real data larger than it still expands the
-   * domain. Unlike `max`, it never clips data.
+   * Takes the same forms as `max` — a number, or a timestamp or ISO date string
+   * on a date axis — but only applies while no category value rises above it,
+   * so real data still expands the domain. An ordinal axis accepts only `null`.
    *
    * @default null
    */
-  softMax: number | null;
+  softMax: number | string | null;
 
 
   /**
@@ -2283,6 +2279,61 @@ export interface ValueAxisConfig extends AxisConfigBase {
    * @default false
    */
   focusOnClick: boolean;
+  // the four bounds are numbers only here: the date-string form the base type allows is a category-axis form
+  /**
+   * The forced maximum numeric value for the axis (use "auto" to compute from
+   * the values); must be >= min unless either is "auto" (set reversed to run
+   * the axis backwards).
+   *
+   * With `"auto"` the maximum is computed from the data (including stacking) on
+   * every update, and changes animate through the staged axis
+   * expansion/contraction phases. Set a number to pin the bound instead. Must
+   * be >= `min` unless either is `"auto"` (set
+   * [`reversed`](#valueAxes.reversed) to run the axis backwards). Values
+   * outside of the defined range are clipped rather than allowed to overflow
+   * the plot area of the chart.
+   *
+   * @default "auto"
+   */
+  max: number | Auto;
+  /**
+   * The forced minimum numeric value for the axis (use "auto" to compute from
+   * the values); must be <= max unless either is "auto" (set reversed to run
+   * the axis backwards).
+   *
+   * With `"auto"` the minimum is computed from the data (including stacking) on
+   * every update, and changes animate through the staged axis
+   * expansion/contraction phases. Set a number to pin the bound instead. Must
+   * be <= `max` unless either is `"auto"` (set
+   * [`reversed`](#valueAxes.reversed) to run the axis backwards). Values
+   * outside of the defined range are clipped rather than allowed to overflow
+   * the plot area of the chart.
+   *
+   * @default "auto"
+   */
+  min: number | Auto;
+  /**
+   * The forced maximum numeric value for the axis to be used if no data value
+   * is greater than this value (use null to disable).
+   *
+   * An upper bound that only applies while no data value is above it — the axis
+   * covers at least this value, but real data larger than it still expands the
+   * domain. Unlike `max`, it never clips data.
+   *
+   * @default null
+   */
+  softMax: number | null;
+  /**
+   * The forced minimum numeric value for the axis to be used if no data value
+   * is less than this value (use null to disable).
+   *
+   * A lower bound that only applies while no data value is below it — the axis
+   * covers at least this value, but real data smaller than it still expands the
+   * domain. Unlike `min`, it never clips data.
+   *
+   * @default null
+   */
+  softMin: number | null;
   /**
    * The margin, as a fraction (0 or greater) of the domain of the axis, to use
    * at the maximum extent of the axis (only applied if max is "auto" and max
@@ -2314,7 +2365,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    *
    * @default "linear"
    */
-  scale: Scale;
+  scale: 'linear';
   /**
    * The explicit ticks to show on the axis in place of the generated ones, each
    * placing label text at an axis value (use null for none).
@@ -2332,7 +2383,7 @@ export interface ValueAxisConfig extends AxisConfigBase {
    *
    * @default "number"
    */
-  type: DataType;
+  type: 'number';
   /**
    * Whether to show the axis as focused when any series belonging to it is
    * focused.
