@@ -4736,7 +4736,7 @@ demo-common sources were already mapped. What was unmapped was precisely the pre
 the consequence it describes was real even though the measurement was not.
 
 ### TOOL-15 — the Angular gallery bundles the library without mapping any of it
-**Low · Bug · [mochart-demo-angular/vite.config.ts:10](packages/mochart-demo-angular/vite.config.ts#L10)** **[verified]** — **Open**
+**Low · Bug · [mochart-demo-angular/vite.config.ts:10](packages/mochart-demo-angular/vite.config.ts#L10)** **[verified]** — **Fixed**
 
 `build: { sourcemap: true }` and `depSourcemaps()` are set the same way as in the other galleries,
 but the emitted maps cover only the demo's own files. Unique sources across each built gallery's
@@ -4758,6 +4758,40 @@ core resolves rather than at the plugin ordering.
 
 Low rather than Medium because the other five galleries map correctly, so the library can be
 debugged from any of them; this costs a developer the Angular-specific path only.
+
+**Fixed, and neither cause the finding proposes is the real one.** `depSourcemaps()` does reach core — a
+probe in its `load` hook showed it returning maps for `packages/mochart/dist/mochart.js` and
+`mochart-export/dist/index.js`. The maps are destroyed afterwards by a *different* plugin inside
+`angular()`: `@analogjs/vite-plugin-angular-optimizer`, which is build-only and whose transform matches
+every `/\.[cm]?js$/` module, returning `{ code, map: { mappings: '' } }` — an empty map — for anything that
+is not an Angular `fesm20*` file. That also explains the clue the finding read as a resolution problem:
+`@mochart/angular` survives because it is aliased to `.ts` and never matches the optimizer's `.js` filter.
+
+Isolation runs on the Angular gallery, as unique mapped sources / core source files: baseline 98 / 0;
+optimizer removed 463 / 172; optimizer's non-`fesm` branch short-circuited 442 / 172; re-attaching the map
+after `transform` 98 / 0 — a dead link mid-chain cannot be revived, which is why the fix has to stop the
+wipe rather than repair it.
+
+`depSourcemaps` now records the ids whose maps it supplied and, in `configResolved`, wraps the optimizer's
+transform handler so those specific modules pass through untouched. Blast radius is exactly the dist files
+this plugin owns; everything else still goes through the optimizer. Where the plugin is absent — the five
+other galleries, the benchmark, the editor playground, the vite-5 docs site — the lookup returns undefined
+and the hook is a no-op, so no demo config needed editing.
+
+This does reach into another plugin's internals, so I added the guard that was missing: if the optimizer is
+present but no longer exposes `transform.handler`, it now warns rather than silently returning us to
+dist-only maps.
+
+Verified: Angular gallery unique mapped sources 98 → 431 and core source files 0 → 172, with emitted JS
+byte-identical (`cmp`-equal chunks) and only the map growing, 479 KB → 2.36 MB; a sample entry resolves to
+`chart/FocusController.ts` with its `sourcesContent`. The vanilla gallery is unchanged at 347 / 172 either
+way, the vite-5 docs site builds, and the Angular dev server still starts (the optimizer is
+`apply: 'build'`). `scripts` typecheck and repo lint clean.
+
+Still unmapped in that gallery: third-party `.js` deps that ship no map to attach (Angular `fesm2022`,
+rxjs, seedrandom, lodash.merge, fflate) lose even their identity mappings to the optimizer, which is why
+431 rather than an optimizer-free 463. Changing that means skipping the optimizer for all non-Angular
+files, which is upstream's call.
 
 ### TOOL-16 — `@mochart/svelte` is the one published package that ships no sourcemaps
 **Low · Tooling gap · [mochart-svelte/package.json](packages/mochart-svelte/package.json)** **[verified]** — **Open**
