@@ -2778,7 +2778,7 @@ wrap arithmetic must match).
 Typecheck, `eslint .`, the `@mochart/docs` gates and `vitepress build` all clean.
 
 ### A11Y-8 — arrow-key convention differs between the plot rect and every other roving group
-**Low · Inconsistency · [Chart.ts:948-970](packages/mochart/src/components/Chart.ts#L948) vs [SeriesContainer.ts:85](packages/mochart/src/components/SeriesContainer.ts#L85), [Legend.ts:104](packages/mochart/src/components/Legend.ts#L104), [TooltipContent.ts:281](packages/mochart/src/components/TooltipContent.ts#L281)** — **Open**
+**Low · Inconsistency · [Chart.ts:948-970](packages/mochart/src/components/Chart.ts#L948) vs [SeriesContainer.ts:85](packages/mochart/src/components/SeriesContainer.ts#L85), [Legend.ts:104](packages/mochart/src/components/Legend.ts#L104), [TooltipContent.ts:281](packages/mochart/src/components/TooltipContent.ts#L281)** — **Fixed**
 
 All five groups use the same key set, but the plot rect's arrows step **categories** while arrows
 on a series, slice, legend item or tooltip row move **between siblings** — and both live in the
@@ -2790,6 +2790,72 @@ no way to step categories without Tabbing back to the plot rect.
 **Fix:** pick one convention — forward `Arrow*` from a focused series to `onPlotKeyDown` (matching
 the Enter/Space/Escape forwarding already there) and move sibling navigation to Tab, or stop
 opening the tooltip on Enter-over-a-series. At minimum, document the dual action.
+
+Fixed by removing the cross-wire, not by changing any group's arrow keys.
+
+**The finding's framing is half right.** Four of the five groups agree, but the plot
+rect is not a fifth *roving group* — it is a single `role="button"` with
+`aria-expanded` and no siblings to move between. Its arrows are a data cursor on a
+disclosure widget, which the roving-tabindex convention does not govern and does not
+conflict with. Nothing was wrong with either convention in isolation; the defect was
+`SeriesContainer` forwarding a series' `Enter`/`Space` into `onPlotKeyDown`. With the
+forward reduced to `Escape` only, both conventions are correct and non-overlapping.
+
+**Arm (a) is self-defeating.** Putting every series on the Tab sequence is exactly
+what roving tabindex prevents, and it would leave the legend and tooltip rows roving —
+replacing one inconsistency with a worse one, against WAI-ARIA. The narrower variant
+(keep roving, forward ←/→ to the plot handler, use ↑/↓ for siblings) fails on four
+counts: the other three roving groups treat → and ↓ as the same "next", so it breaks
+them instead; with `plot.inverted` the category axis is vertical, so the mapping is
+wrong in half of all charts, and following `inverted` would make one keypress do
+different things in two charts that differ only in orientation; `Home`/`End` become
+double-bound; and the tooltip is chart-wide, so a user just announced as being on
+"Sales" would hear every series' values.
+
+**Arm (b) costs a screen-reader user nothing.** `plotA11yProps` is non-null exactly
+when `accessibility && (tooltip.visible || crosshair.visible)` — the same condition
+under which the forward did anything — so it was never the only route to the tooltip.
+The plot rect is also the immediately preceding tab stop (verified in the goldens:
+`mochart-series-background` precedes the series `g`s), so `Shift`+`Tab` reaches the
+values. Two stops, two jobs. And the announcement it removes was actively misleading:
+"you pressed the Sales button; here are Wednesday's values."
+
+**Pie slices deliberately keep `Enter` → tooltip.** A pie has one category, so nothing
+is invented — the tooltip a slice opens is the one covering that slice. The
+invented-category problem, and therefore the finding's symptoms, exist only in
+cartesian charts, and pie's plot-rect arrows are already inert. Keeping it also
+preserves the regression guard from 8a3d297c, where `Enter` used to synthesize a click
+at the slice bbox centre that the chart bounds gate swallowed on exploded edge slices.
+
+The two symptoms, measured on 3 categories × 2 series. Before: stepping the plot
+cursor to Mar, `Esc`, then `Enter` on Sales read `"Mar: Sales: 30.00, Costs: 12.00"`
+with `aria-expanded="true"` *and* fired `onSeriesClick`. After: `aria-expanded="false"`,
+live region empty, `onSeriesClick` fires once. The second symptom — → moving focus
+while the tooltip stays put — is unchanged and now asserted as a regression guard:
+arrows inside a composite move between its items, and "there is no way to step
+categories without Tabbing back to the plot rect" is correct, because that is what Tab
+is for.
+
+**No config surface added.** A knob choosing between keyboard conventions would ship
+the bug as an option, and nothing is released, so there is one right answer to pick.
+`generate-jsdoc`/`generate-docs` were deliberately not run — another agent has
+uncommitted `accessibilityConfig` work in flight and regenerating would have swept it in.
+
+Three tests, each with a bite proof: the activation test failed *before* the source fix
+(`expected 'true' to be 'false'` on `aria-expanded`); implementing arm (a) fails the
+arrow test plus the two pre-existing ones; removing the `Escape` forward fails the
+Escape test alone. No golden movement — zero goldens put `tabindex` on a series `g`, so
+no golden config makes a cartesian series interactive.
+
+Two residuals deliberately left, one finding at a time: `Escape` is *not* forwarded
+from legend items, so the guide now says "from the plot area, from a series or slice
+inside it, and from inside the tooltip" rather than "anywhere"; and an interactive
+series with `focusOnClick` is a toggle with no `aria-pressed`, unlike legend items and
+tooltip rows.
+
+One more correction: the docs already described arm (b)'s behaviour — the intended
+design was always (b), and the forwarding was an accident inherited from the era when
+keyboard activation synthesized a real mouse click.
 
 ### A11Y-9 — the live region has no explicit `aria-live` and no de-duplication or throttle
 **Low · Bug · WCAG 4.1.3 · [Chart.ts:1178-1181](packages/mochart/src/components/Chart.ts#L1178), [:888](packages/mochart/src/components/Chart.ts#L888)** — **Fixed**

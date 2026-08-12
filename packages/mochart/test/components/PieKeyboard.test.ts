@@ -149,6 +149,8 @@ describe('pie slice keyboard semantics', () => {
   // chart-level bounds gate swallowed it whenever the center fell outside the
   // series rect (exploded edge slices; jsdom's zero-size bboxes reproduce it) —
   // toggling the focus but leaving the tooltip out of sync.
+  // A11Y-8 deliberately keeps this for pie while dropping it for cartesian series: a pie
+  // has one category, so the tooltip Enter opens is the slice's own, not a remembered one.
   it('toggles the tooltip with Enter and Space regardless of slice geometry', () => {
     const container = mountChart(makeConfig(), () => {});
     const items = slices(container);

@@ -45,6 +45,16 @@ Reopening returns to the last category you were viewing. On single-category
 charts (a pie or donut), the arrow keys are inert and
 <kbd>Enter</kbd>/<kbd>Space</kbd> still toggles the tooltip.
 
+The plot area is the only tab stop whose arrow keys step categories. Every
+other one — legend items, tooltip rows, interactive series and pie slices — is
+a group of items sharing a single tab stop, where the arrow keys move *between
+the items* and <kbd>Tab</kbd> leaves the group, following the usual convention
+for composite widgets. So the same arrow key steps categories on the plot area
+and moves between siblings one <kbd>Tab</kbd> later, because those are two
+different widgets rather than two spellings of one. <kbd>Esc</kbd> is the only
+key that crosses between them: it closes an open tooltip from the plot area,
+from a series or slice inside it, and from inside the tooltip itself.
+
 With both the tooltip and the crosshair disabled, the chart has no keyboard
 or screen-reader route to its values — the remaining tab stops filter and
 focus series but never read numbers. If you disable both, provide the values
@@ -80,8 +90,9 @@ Pie and donut slices work the same way when they are interactive (the series
 has [`focusOnClick`](/reference/series#series.focusOnClick) or the chart has
 an `onSliceClick` callback): one tab stop, arrow keys moving between slices
 in config order, and <kbd>Enter</kbd>/<kbd>Space</kbd> doing what clicking the
-slice does — the focus toggle and `onSliceClick` — with no pointer position
-invented for it.
+slice does — the focus toggle, `onSliceClick`, and the tooltip — with no
+pointer position invented for it. A pie has a single category, so the tooltip
+a slice opens is the one covering that slice; there is nothing to choose.
 
 Cartesian series follow the same pattern when clicking them does something
 (the series has [`focusOnClick`](/reference/series#series.focusOnClick) or
@@ -95,6 +106,15 @@ stay pointer-only; their clicks belong to their leader. The
 doubles as a live keyboard demo: <kbd>Tab</kbd> to a series, press
 <kbd>Enter</kbd>, and its event log shows the whole-series `onSeriesClick`
 payload.
+
+Unlike a slice, activating a cartesian series does **not** open the tooltip.
+A cartesian series runs across every category, so there is no category the
+keyboard could open it at — a mouse click has a pointer position to read one
+from, and <kbd>Enter</kbd> does not. Read the values from the plot area
+instead: it is the tab stop immediately before the series, so
+<kbd>Shift</kbd>+<kbd>Tab</kbd> reaches it. <kbd>Esc</kbd> pressed on a series
+still closes an open tooltip, and leaves focus on the series rather than
+pulling it back to the plot area.
 
 A title with an `onTitleClick` callback is a tab stop with `role="button"`,
 named from the title text and activated by <kbd>Enter</kbd>/<kbd>Space</kbd>.
