@@ -4356,7 +4356,7 @@ Verified end to end, including the drift path in a scratchpad copy: with a bumpe
 exits 1 with the message, the write mode stamps it, and a re-run passes. `deadcode` clean.
 
 ### TOOL-11 — CI hygiene: duplicated site build, uncached browsers, discarded failure traces
-**Low · Tooling gap · [ci.yml:26-42](.github/workflows/ci.yml#L26)** — **Open**
+**Low · Tooling gap · [ci.yml:26-42](.github/workflows/ci.yml#L26)** — **Fixed**
 
 (1) `npm run build:pages` runs **twice** with different `PAGES_BASE` values — 2 VitePress builds
 plus 12 demo Vite builds on every PR, even when neither deploy variable is set.
@@ -4369,6 +4369,46 @@ debugging a CI-only failure are discarded when the runner terminates.
 **Fix:** gate the two `build:pages` invocations behind their `vars.ENABLE_*_DEPLOY` conditions;
 cache `~/.cache/ms-playwright` keyed on the `@playwright/test` version; add an `if: failure()`
 artifact upload.
+
+**All three parts fixed, with one deliberate departure on part 1.**
+
+**(1) Duplicated site build.** Two job-level env flags mirror the deploy jobs' `if:` expressions
+verbatim (`DEPLOY_PAGES`, `DEPLOY_CLOUDFLARE`), and each deploy-specific build *and its matching upload*
+is gated on the corresponding flag. Gating both builds and stopping there — what the finding asks for —
+would leave the VitePress build and all 12 demo Vite builds completely unexercised on a PR, because
+nothing else runs them: the docs package's `test` script runs its generators and coverage checks, not
+`vitepress build`. So a third `Build site` step with `PAGES_BASE: /` runs only when *neither* deploy flag
+is set, and uploads nothing. Net: a PR or non-main push now runs **one** site build instead of two; main
+with one variable set runs one; main with both set runs two, which is irreducible — the two hosts need
+different `base` values and `build-pages.mjs` wipes `site/` per run.
+
+The artifact path was traced rather than assumed: each deploy job's condition is exactly the flag that
+gated its build and upload, and the Pages upload runs before the Cloudflare build wipes `site/`. In the
+one-variable case the other artifact is absent but the job needing it is skipped by the same condition,
+so no path reaches a deploy without its artifact.
+
+**(2) Browser cache.** `actions/cache@v4` over `~/.cache/ms-playwright`, keyed
+`${{ runner.os }}-playwright-<resolved version>` where the version is read from
+`@playwright/test/package.json` *after* `npm ci` — the resolved version, not the `^` range, which is the
+exact invalidation boundary since browser revisions are pinned to the package version. No `restore-keys`,
+which would carry stale revisions into a re-saved, fattening cache. `--with-deps` still runs
+unconditionally: the apt packages are not in the cached path, and `playwright install` skips the download
+for revisions already present.
+
+**(3) Failure traces.** `if: failure() && steps.e2e.outcome == 'failure'` uploads
+`packages/mochart-demo-basic/test-results` as `playwright-traces` with a 7-day retention, scoped to the
+e2e step's own outcome so a lint or unit failure does not fire a "no files found" upload. **The finding is
+wrong about `playwright-report/`**: the config uses `reporter: 'list'` only, so no HTML report is ever
+produced and uploading that path could only warn. Adding an `html` reporter would mean editing
+`playwright.config.ts`, which is a separate decision.
+
+Validated statically, since Actions cannot run here: `yaml-lint` passes, the parsed step order is
+checkout → setup-node → npm ci → lint → deadcode → typecheck → test → playwright version → cache →
+playwright install → e2e → trace upload (on e2e failure) → the three conditional site builds with their
+uploads. The version step's `run` body was executed locally under `bash -e` and printed
+`version=1.61.1`. It is written as a `version="$(…)"` assignment rather than an inlined substitution
+because under `bash -e` an inlined failure would still exit 0 and silently emit the key
+`Linux-playwright-`; the assignment form aborts.
 
 ### TOOL-12 — ESLint's type-aware rules are silently off for two workspaces and all `*.config.ts`
 **Low · Tooling gap · [eslint.config.mjs:56-62](eslint.config.mjs#L56)** — **Open**
