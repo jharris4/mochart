@@ -312,6 +312,9 @@ const liveRegionStyle = {
   overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap'
 };
 
+// long enough to swallow a key repeat, short enough that a deliberate step still speaks promptly
+const announceSettleDelay = 150;
+
 export default class Chart extends Renderer<ChartProps, ChartState> {
   root = htmlEl('div');
   simpleContent = this.elSlot(this.root);
@@ -919,19 +922,67 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
   /** the visually-hidden aria-live node; keyboard navigation speaks the tooltip through it */
   liveRegionNode: Node | null = null;
+  private announceTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingAnnouncement: string | null = null;
+  private lastAnnouncement = '';
 
   /** the live region lives inside ChartBody, so the reference has to go when the body does */
   private clearBody(): void {
     this.body.set(null);
     this.liveRegionNode = null;
+    this.cancelAnnouncement();
+  }
+
+  private cancelAnnouncement(): void {
+    if (this.announceTimer !== null) {
+      clearTimeout(this.announceTimer);
+      this.announceTimer = null;
+    }
+  }
+
+  dispose(): void {
+    this.cancelAnnouncement();
   }
 
   /** announce a category's tooltip values to screen readers; null silences the region */
   announceTooltipCategory(categoryIndex: number | null): void {
     if (this.liveRegionNode !== null) {
       const { mochartConfig, chartData } = this.props;
-      this.liveRegionNode.textContent = categoryIndex === null ? '' :
+      const announcement = categoryIndex === null ? '' :
         getTooltipAnnouncement(mochartConfig, getCategorySeriesValueObject(chartData!, categoryIndex));
+      if (announcement === '') {
+        this.cancelAnnouncement();
+        this.writeAnnouncement(announcement);
+        return;
+      }
+      // a single step speaks at once; a held arrow key adds only the category it settles on,
+      // so the region never queues one announcement per category passed through
+      if (this.announceTimer === null) {
+        this.writeAnnouncement(announcement);
+      }
+      else {
+        clearTimeout(this.announceTimer);
+        this.pendingAnnouncement = announcement;
+      }
+      this.announceTimer = setTimeout(this.flushAnnouncement, announceSettleDelay);
+    }
+  }
+
+  private flushAnnouncement = (): void => {
+    this.announceTimer = null;
+    if (this.pendingAnnouncement !== null) {
+      const announcement = this.pendingAnnouncement;
+      this.pendingAnnouncement = null;
+      this.writeAnnouncement(announcement);
+    }
+  }
+
+  // an unchanged string is a no-op: several screen readers drop a repeated announcement anyway,
+  // and rewriting it churns the live region for nothing
+  private writeAnnouncement(announcement: string): void {
+    if (this.liveRegionNode !== null && announcement !== this.lastAnnouncement) {
+      this.lastAnnouncement = announcement;
+      this.liveRegionNode.textContent = announcement;
     }
   }
 
@@ -1231,7 +1282,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
 
     // the keyboard announcer: visually hidden, spoken via role="status"
     const liveRegion = accessibility ? body.liveRegionSlot.set('div', () => htmlEl('div')) : body.liveRegionSlot.set(null);
-    liveRegion?.set({ role: 'status', style: liveRegionStyle });
+    liveRegion?.set({ role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true', style: liveRegionStyle });
     this.liveRegionNode = liveRegion !== null ? liveRegion.node : null;
     body.clips.sync(clips);
     body.seriesColorGradients.sync(seriesColorGradients);

@@ -546,7 +546,7 @@ describe('tooltip rows a series can opt out of', () => {
 });
 
 describe('tooltip control buttons', () => {
-  it('announces the category the step buttons move to', () => {
+  it('announces the category the step buttons move to', async () => {
     // the buttons went through a path that updated the tooltip but never the live region, so a
     // screen reader kept reading whichever category the tooltip was opened on
     const container = mountChart(makeConfig({ showControls: true }));
@@ -558,6 +558,8 @@ describe('tooltip control buttons', () => {
     const next = Array.from(container.querySelectorAll<HTMLElement>('.mochart-tooltip button'))
       .find(button => button.textContent === '›')!;
     next.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    // the live region coalesces a burst, so this step lands after the settle window (A11Y-9)
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     expect(liveText(container)).toContain('Feb');
     expect(liveText(container)).not.toBe(opened);
