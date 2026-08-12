@@ -78,6 +78,9 @@ follows it:
 <Chart {mochartConfig} {dataProvider} style="width: 100%; height: 400px" />
 ```
 
+The optional `dataTestId` prop sets a `data-testid` attribute on the same
+container div, for test selectors.
+
 ## When the data changes
 
 Config and data changes are detected **by reference identity**: the chart

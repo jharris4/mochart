@@ -85,6 +85,9 @@ wrappers get (explicit `width`/`height` props still win over `style`):
 html`${chart({ mochartConfig, dataProvider, style: 'flex: 1 1 auto; min-width: 0;' })}`
 ```
 
+The optional `dataTestId` prop sets a `data-testid` attribute on the same
+container div, for test selectors.
+
 ## When the data changes
 
 Config and data changes are detected **by reference identity**: the chart
