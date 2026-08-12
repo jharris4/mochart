@@ -4095,6 +4095,29 @@ occurrences, which are an attribute rather than a CSS class.
 
 ---
 
+### TEST-19 — the e2e suite and `Chart.ts` still carry hard-coded `mochart-*` literals
+**Low · Maintainability · [e2e/](packages/mochart-demo-basic/e2e/), [Chart.ts:1102](packages/mochart/src/components/Chart.ts#L1102)** — **Open**
+
+*Found while implementing [TEST-18](#test-18--the-test-suites-select-by-hard-coded-css-class-literals), not by either review pass.*
+
+TEST-18 converted all 437 class literals in `packages/mochart/test` onto the new `ChartDom` selector
+helpers. Two pockets are left:
+
+- **`packages/mochart-demo-basic/e2e`** — 60 `mochart-*` occurrences. It is a separate package, so it
+  cannot import `getCssSelector` and friends without those becoming public API, which is
+  [API-2](#api-2--55-layoutanimationdata-internals-ship-as-public-types)'s question. The alternative is a
+  small local selector module in the e2e directory built on the already-public `mochartCssClasses`.
+- **`Chart.ts`** writes the string `'data-mochart-version'` inline at four sites
+  ([:1102](packages/mochart/src/components/Chart.ts#L1102), `:1116`, `:1123`, `:1149`) while
+  `ChartDom` now exports `mochartVersionAttribute` for exactly that name. `focusRestoredAttribute` in
+  `src/utils/utils.ts` is the precedent to follow.
+
+Neither is a defect today; both are the same drift risk TEST-18 removed from the core suite.
+
+**Fix:** give the e2e directory a local selector helper over `mochartCssClasses` (no public API change),
+have `Chart.ts` import `mochartVersionAttribute`, and add the lint rule TEST-18 suggested — ban a
+`'mochart-'` string literal under `test/` and `e2e/` — so neither pocket can grow back.
+
 # 12. Build, tooling, packaging and CI
 
 ### TOOL-1 — only `build:pages` guards against a stale library `dist`
