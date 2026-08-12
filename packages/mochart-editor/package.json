@@ -66,6 +66,7 @@
     "build:playground": "npm run generate && vite build --config playground/vite.config.ts",
     "test": "npm run generate && vitest run",
     "typecheck": "npm run generate && tsc --noEmit",
+    "lint": "eslint .",
     "prepack": "npm run build"
   },
   "devDependencies": {

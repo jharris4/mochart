@@ -50,7 +50,7 @@
     "@sveltejs/package": "^2.5.8",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "svelte": "^5.56.5",
-    "svelte-check": "^4.1.4",
+    "svelte-check": "^4.7.3",
     "typescript": "^6.0.3"
   },
   "scripts": {
