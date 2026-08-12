@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { test, expect, openDemo } from './helpers';
+import { test, expect, openDemo, smokeTag } from './helpers';
 import { mochartCssClasses } from '@mochart/core';
 
 const crosshairLineSelector = `.${mochartCssClasses['crosshair']} .${mochartCssClasses['crosshairLine']}`;
@@ -24,7 +24,9 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('.mochart-series-bar').first()).toBeAttached();
 });
 
-test('clicking the plot opens a tooltip and crosshair with one line per series', async ({ page }) => {
+test('clicking the plot opens a tooltip and crosshair with one line per series', {
+  tag: smokeTag
+}, async ({ page }) => {
   const crosshairLines = page.locator(crosshairLineSelector);
   await expect(crosshairLines).toHaveCount(0);
 
@@ -78,7 +80,9 @@ test('legend filtering is keyboard accessible', async ({ page }) => {
   await expect(firstLegendItem).toHaveAttribute('tabindex', '-1');
 });
 
-test('the tooltip and crosshair are keyboard accessible from the plot area', async ({ page }) => {
+test('the tooltip and crosshair are keyboard accessible from the plot area', {
+  tag: smokeTag
+}, async ({ page }) => {
   const plotRect = page.locator('.mochart-series-background rect');
   await expect(plotRect).toHaveAttribute('role', 'button');
   await expect(plotRect).toHaveAttribute('aria-expanded', 'false');

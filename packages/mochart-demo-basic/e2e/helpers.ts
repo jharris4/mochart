@@ -20,6 +20,13 @@ export const test = base.extend<{ page: Page }>({
 
 export { expect };
 
+/**
+ * Tag for the cross-engine smoke subset: tagged tests run on firefox and webkit
+ * as well as chromium (see the projects in playwright.config.ts). Keep it small
+ * — one render, one pointer interaction, one keyboard traversal, one export each.
+ */
+export const smokeTag = '@smoke';
+
 export async function openDemo(page: Page, id: string): Promise<void> {
   await page.goto('/#' + id);
   await expect(page.locator('#chart-host .mochart-chart')).toBeVisible();
