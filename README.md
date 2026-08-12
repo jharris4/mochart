@@ -71,11 +71,32 @@ npm run dev:basic   # dev server for the minimal harness (@mochart/demo-basic)
 npm run dev:docs    # dev server for the documentation site (@mochart/docs)
 npm run dev:editor  # dev playground for the JSON editor (@mochart/editor)
 npm run build       # build the demo gallery
-npm test            # run tests in every workspace that has them
-npm run typecheck   # typecheck every workspace that has a typecheck script
+npm run build:libs  # build every publishable library to its dist/
 ```
 
-Target a single package with `-w`, e.g. `npm test -w @mochart/core`.
+The gate CI runs on every pull request, in this order:
+
+```sh
+npm run lint        # eslint across the monorepo (npm run lint:fix to apply fixes)
+npm run deadcode    # knip: unused exports, files and dependencies
+npm run typecheck   # typecheck every workspace that has a typecheck script
+npm test            # run tests in every workspace that has them
+npm run test:e2e    # playwright against @mochart/demo-basic
+```
+
+And the rest:
+
+```sh
+npm run build:pages         # assemble the deployable site into site/
+npm run preview:pages       # build and serve site/ at the root base path
+npm run preview:pages:serve # serve an already-built site/ without rebuilding
+npm run screenshots         # capture the demo screenshots
+npm run screenshots:compare # compare a fresh capture against the committed set
+```
+
+Target a single package with `-w`, e.g. `npm test -w @mochart/core`. `lint` and
+`deadcode` exist only at the root; narrow them with `npx eslint <path>` and
+`npx knip --workspace packages/<name>`.
 
 ## Contributing
 
