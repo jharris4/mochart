@@ -4114,7 +4114,7 @@ reporting), a PR template mirroring the CONTRIBUTING checklist,
 `.editorconfig` matching the repo's 2-space style.
 
 ### TOOL-10 — `prebuild` writes into a tracked source file on every install
-**Low · Inconsistency · [mochart/package.json:54](packages/mochart/package.json#L54) → [stampVersion.ts:18](packages/mochart/scripts/stampVersion.ts#L18); target [src/version.ts](packages/mochart/src/version.ts) is git-tracked** — **Open**
+**Low · Inconsistency · [mochart/package.json:54](packages/mochart/package.json#L54) → [stampVersion.ts:18](packages/mochart/scripts/stampVersion.ts#L18); target [src/version.ts](packages/mochart/src/version.ts) is git-tracked** — **Fixed**
 
 `stampVersion.ts` rewrites the tracked `src/version.ts` whenever it differs from `package.json`. It
 runs as `prebuild`, which runs under `prepack` **and** under the root `prepare` → `build:libs`
@@ -4124,6 +4124,26 @@ file's freshness the way `jsdocSync.test.ts` gates the generated JSDoc.
 
 **Fix:** emit `version.ts` into the gitignored `generated/` directory, or add a `--check` mode plus
 a test that fails when the tracked file is out of sync (mirroring the `jsdocSync` pattern).
+
+**Fixed with `--check` plus the companion test.** `stampVersion.ts` takes a `--check` flag (mirroring
+`generateJsdoc.ts`'s convention) that never writes and exits 1 with the command to run when
+`src/version.ts` disagrees with `package.json`. `prebuild` now runs `--check`, so nothing on the
+install or build path mutates tracked source — root `prepare` → `build:libs` → core `prebuild`, and
+every plain `npm run build`, only verify. The write is still automatic where it matters: `prepack` is
+`npm run stamp-version && npm run build`, so a published tarball always carries the declared version.
+A manual bump is `npm run stamp-version -w @mochart/core`.
+
+The finding's other option — emitting into the gitignored `generated/` — was not taken because it
+would move a module `src/index.ts` and `src/components/Chart.ts` import, a larger change than the
+problem warrants.
+
+`test/config/versionSync.test.ts` pins the tracked file to `package.json` the way `jsdocSync.test.ts`
+pins the generated JSDoc. It is not redundant with `prebuild --check`: the check only runs on a build,
+so a version bump can be committed with the stamp missing and nothing notices until someone builds; the
+test makes it a normal test failure instead of a failed install.
+
+Verified end to end, including the drift path in a scratchpad copy: with a bumped manifest, `--check`
+exits 1 with the message, the write mode stamps it, and a re-run passes. `deadcode` clean.
 
 ### TOOL-11 — CI hygiene: duplicated site build, uncached browsers, discarded failure traces
 **Low · Tooling gap · [ci.yml:26-42](.github/workflows/ci.yml#L26)** — **Open**

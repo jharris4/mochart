@@ -51,15 +51,16 @@
     "@mochart/movalid": "^1.0.0"
   },
   "scripts": {
-    "prebuild": "tsx scripts/stampVersion.ts",
+    "prebuild": "tsx scripts/stampVersion.ts --check",
     "build": "vite build && npm run build:types",
     "build:types": "tsc -p tsconfig.build.json",
-    "prepack": "npm run build",
+    "prepack": "npm run stamp-version && npm run build",
     "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/tsconfig.json && tsc --noEmit -p scripts/tsconfig.json",
     "lint": "eslint .",
     "generate-docs": "tsx scripts/generator.ts",
-    "generate-jsdoc": "tsx scripts/generateJsdoc.ts"
+    "generate-jsdoc": "tsx scripts/generateJsdoc.ts",
+    "stamp-version": "tsx scripts/stampVersion.ts"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
