@@ -4928,7 +4928,7 @@ omission.
 ---
 
 ### TOOL-17 — the published `types` entry references `d3-shape` types a consumer cannot resolve
-**Medium · Bug (packaging) · [dist/types/utils/shapeUtils.d.ts:2](packages/mochart/src/utils/shapeUtils.ts), [src/types/d3.d.ts](packages/mochart/src/types/d3.d.ts)** — **Open**
+**Medium · Bug (packaging) · [dist/types/utils/shapeUtils.d.ts:2](packages/mochart/src/utils/shapeUtils.ts), [src/types/d3.d.ts](packages/mochart/src/types/d3.d.ts)** — **Fixed**
 
 *Found while investigating [TOOL-5](#tool-5--the-d3-dependencies-are-declared-but-never-resolved-from-the-published-bundle), not by either review pass.*
 
@@ -4955,6 +4955,20 @@ handled alongside it: moving `d3-*` out of `dependencies` would otherwise look l
 **Fix:** give `getSymbolGenerator` a locally-declared return type so nothing in the emitted `.d.ts`
 names `d3-shape` (smaller), or emit the ambient declarations into `dist/types` and point the `types`
 export at a barrel that includes them.
+
+**Fixed by declaring the type locally.** `getSymbolGenerator` now returns a small non-exported interface
+rather than d3's, so nothing in the emitted declarations names `d3-shape`. It needs two members, not one:
+`SeriesMarkers.ts:115` chains `symbolGenerator.size(...)()`, so a bare call signature fails to compile.
+
+Verified against the built artifact rather than the source: `dist/types/utils/shapeUtils.d.ts` now contains
+zero `d3-` references, as does `dist/types/` as a whole, and
+`tsc --noEmit --strict --ignoreConfig --moduleResolution bundler --module esnext` over both that file and
+the package entry `dist/types/index.d.ts` exits 0 — where before it reported
+`TS7016: Could not find a declaration file for module 'd3-shape'`. (`--ignoreConfig` is needed or TS 6
+refuses with `TS5112` because a tsconfig is present.)
+
+Taken over emitting the ambient declarations into `dist/types`, which would have meant a barrel and a
+changed `types` export target for one function's return value.
 
 # 13. movalid
 
