@@ -67,7 +67,7 @@ const panelAttrs = getDemoTabPanelAttrs('config');
       <JsonEditorContent :value="configText" :ariaLabel="demoText.randomConfigTab.editorAria" :format-on-set="true" :on-change="onTextChange" />
     </div>
     <div class="mochart-demo-tab-footer">
-      <div class="demo-toolbar" role="toolbar">
+      <div class="demo-toolbar">
         <ButtonWithTooltip id="config-reset" :label="demoText.randomConfigTab.reset.label" :tooltip-text="demoText.randomConfigTab.reset.tooltip" tooltip-placement="top-start"
                            :on-click="props.onReset" :aria-label="demoText.randomConfigTab.reset.aria">
           <Icon size="lg" :fixed-width="true" name="arrow-rotate-left" />

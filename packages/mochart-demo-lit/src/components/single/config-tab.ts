@@ -175,7 +175,7 @@ export class ConfigTab extends LightElement {
           .formatOnSet=${true} .mochartSupport=${true} .onChange=${this.onTextChange}></json-editor-content>
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           ${folded
             ? html`${applyButton}
               <!-- \`.editor\`, not \`.chart\`: what folds here edits the JSON,

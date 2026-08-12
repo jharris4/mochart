@@ -27,29 +27,37 @@ export interface ModeSwitcherHandle {
 }
 
 export function modeSwitcher(props: ModeSwitcherProps): ModeSwitcherHandle {
-  const toolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } });
+  // A named group, not a toolbar: the segments are three independently tabbable
+  // buttons with no arrow-key handling, and the name is what makes "Single" read
+  // as a mode rather than a verb.
+  const group = el('div', {
+    className: 'demo-toolbar',
+    attrs: { role: 'group', 'aria-label': demoText.modeSwitcher.groupAria }
+  });
 
   // Which modes exist depends on the width (Multi is out on a phone), so the
   // row is rebuilt when the viewport crosses the breakpoint rather than built
   // once at mount.
   //
-  // How the current mode is marked depends on the width as well, because on a
+  // How the current mode is marked VISUALLY depends on the width, because on a
   // phone this whole switcher is folded into the navigation row's overflow menu
   // and the segmented control's own idiom stops working there. In the strip the
   // current mode is a filled, disabled segment — plainly "you are here". As a
   // full-width menu row, `.demo-menu-overflow .demo-btn:disabled` greys it out
   // (and outranks the panel's selected tint), and a greyed row in a list of
   // destinations reads as unavailable rather than as current. So on a phone it
-  // is marked with the panel's own `.active` tint plus `aria-current`, and is
-  // simply inert when tapped.
+  // gets the panel's own `.active` tint instead, and is simply inert when tapped.
+  //
+  // `aria-current="page"` is unconditional: each mode is a route, and the
+  // disabled segment conveys "current" to sighted users at both widths.
   function render(isPhone: boolean): void {
-    toolbar.replaceChildren(...getAvailableDemoModes(isPhone).map(mode => {
+    group.replaceChildren(...getAvailableDemoModes(isPhone).map(mode => {
       const current = mode === props.demoMode;
       const { label, title } = demoText.modeSwitcher.modes[mode];
       const button = el('button', {
         className: 'demo-btn demo-btn-' + (current ? 'primary' : 'secondary')
           + (current && isPhone ? ' active' : ''),
-        attrs: { type: 'button', title, 'aria-current': current && isPhone ? 'true' : undefined }
+        attrs: { type: 'button', title, 'aria-current': current ? 'page' : undefined }
       }, [
         icon(modeIcons[mode], { size: 'lg', fixedWidth: true }),
         el('span', { className: 'btn-label', text: label })
@@ -70,7 +78,7 @@ export function modeSwitcher(props: ModeSwitcherProps): ModeSwitcherHandle {
   return {
     el: el('div', { className: 'mochart-demo-mode-switcher' }, [
       el('span', { className: 'demo-label', text: demoText.modeSwitcher.label }),
-      toolbar
+      group
     ]),
     destroy() {
       unwatchViewport();

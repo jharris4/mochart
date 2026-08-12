@@ -148,7 +148,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
     rateInput
   ]);
   const transportToolbarItems = [transportGroup, rateField];
-  const transportToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, transportToolbarItems);
+  const transportToolbar = el('div', { className: 'demo-toolbar' }, transportToolbarItems);
 
   const reuseGroup = el('div', { className: 'demo-btn-group' }, [reuseButton.el]);
   // Menu-side home for Play and Stop — a cached `.demo-btn-group`;
@@ -176,7 +176,7 @@ export function randomChartTab(props: RandomChartTabProps): RandomChartTabHandle
   });
   const menuGroup = el('div', { className: 'demo-btn-group' }, [overflowMenuHandle.el, menu.el]);
   const trailingToolbarItems = [reuseGroup, menuGroup];
-  const trailingToolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, trailingToolbarItems);
+  const trailingToolbar = el('div', { className: 'demo-toolbar' }, trailingToolbarItems);
 
   const controls = el('div', { className: 'random-controls' }, [
     el('form', { className: 'demo-form-row' }, [

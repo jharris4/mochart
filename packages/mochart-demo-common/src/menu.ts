@@ -275,7 +275,7 @@ function ensureId(element: HTMLElement, prefix: string): string {
  * No `role="menu"`, no `menuitem`, no `aria-haspopup` (which the ports used to
  * set, promising a keyboard menu with roving tabindex that the markup never
  * implemented). The promise would be unkeepable anyway: these panels hold a
- * link, a `role="toolbar"` group and a number input, none of which are valid
+ * link, a row of buttons and a number input, none of which are valid
  * `menuitem`s, and `aria-pressed` — which several of the toggles rely on — is
  * invalid on `role="menuitem"`. A disclosure describes what is actually there.
  */

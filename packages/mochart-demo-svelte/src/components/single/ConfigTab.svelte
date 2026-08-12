@@ -208,7 +208,7 @@
                        bind:this={editor} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer" bind:this={footerElement}>
-    <div class="demo-toolbar" role="toolbar">
+    <div class="demo-toolbar">
       {#if phone.isPhone}
         {@render applyButton()}
         <!-- `.editor`, not `.chart`: what folds here edits the JSON, and

@@ -73,7 +73,7 @@
     <JsonEditorContent value={configText} ariaLabel={demoText.randomConfigTab.editorAria} formatOnSet={true} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer">
-    <div class="demo-toolbar" role="toolbar">
+    <div class="demo-toolbar">
       <ButtonWithTooltip id="config-reset" label={demoText.randomConfigTab.reset.label} tooltipText={demoText.randomConfigTab.reset.tooltip} tooltipPlacement="top-start"
                          onClick={onReset} aria-label={demoText.randomConfigTab.reset.aria}>
         <Icon size="lg" fixedWidth={true} name="arrow-rotate-left" />

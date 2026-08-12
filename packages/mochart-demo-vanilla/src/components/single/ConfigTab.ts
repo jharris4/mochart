@@ -236,7 +236,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   // Apply stays beside the editor it applies, and the error span carries
   // `role="alert"` — a message that has to be read cannot live behind a tap.
   const foldedToolbarItems = [applyButton.el, overflowMenuHandle.el, footerError];
-  const toolbar = el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, toolbarItems);
+  const toolbar = el('div', { className: 'demo-toolbar' }, toolbarItems);
   const footerItems = [toolbar, docsLinks];
   const footer = el('div', { className: 'mochart-demo-tab-footer' }, footerItems);
 

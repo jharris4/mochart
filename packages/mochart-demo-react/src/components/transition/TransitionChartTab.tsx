@@ -48,7 +48,7 @@ export default function TransitionChartTab({ active, mochartConfig, dataProvider
       <div className="transition-controls">
         <form className="demo-form-row">
           <div className="demo-field">
-            <div className="demo-toolbar" role="toolbar">
+            <div className="demo-toolbar">
               <div className="demo-btn-group">
                 <ButtonWithTooltip id="transition-back" label={demoText.transitionChartTab.back.label} tooltipText={demoText.transitionChartTab.back.tooltip} tooltipPlacement="top-start"
                   onClick={onStepBack} aria-label={demoText.transitionChartTab.back.aria}>

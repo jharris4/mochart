@@ -3812,7 +3812,7 @@ dangles in that state only — threading a tab name through it is roughly seven 
 boundary that already announces itself with `role="alert"`.
 
 ### DEMO-10 — 115 `role="toolbar"` containers, none with an accessible name
-**Medium · Bug (a11y) · [vanilla ModeSwitcher.ts:30](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L30) and 114 more sites** — **Open**
+**Medium · Bug (a11y) · [vanilla ModeSwitcher.ts:30](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L30) and 114 more sites** — **Fixed**
 
 Every control strip declares `role="toolbar"` and none is labelled. The mode switcher's visible
 `Mode:` label is never wired via `aria-labelledby`, and `demo.css` `display:none`s it at ≤900px.
@@ -3822,6 +3822,40 @@ marked with `aria-current` only on phones, so at desktop widths the active segme
 
 **Fix:** give each toolbar an `aria-label` from a new `demoText` entry, and set
 `aria-current="page"` on the current mode at all widths.
+
+**Fixed by removing the role from 108 containers and naming the one that deserves it — not by naming all of
+them.** The finding's prescribed fix, an `aria-label` on each, would have entrenched a false contract on almost
+every site.
+
+There were **114** `role="toolbar"` containers (the 115th occurrence is the literal inside `demo-common`'s own
+doc comment), in exactly two kinds:
+
+* **108 layout strips, now with no role.** Every one is a `div.demo-toolbar` that exists to be a flex row: tab
+  footers, chart-control strips, the Multi transport and grid rows, the export/share wrapper. None has a keydown
+  handler — no arrow keys, no Home/End, no roving tabindex — so each button is its own tab stop, and about 30 of
+  them wrap a *single* button. `role="toolbar"` promises a single-tab-stop composite with arrow navigation, so on
+  these it was both a false claim and an extra unnamed node above already-named buttons. The `.demo-toolbar`
+  class stays; it is layout.
+* **6 mode switchers, now `role="group"` with a name.** This is the one container that is a real set: three
+  mutually exclusive route destinations whose labels are meaningless unnamed. `group` names the set without
+  promising keys the markup does not implement, and unlike `role="navigation"` it does not elevate three buttons
+  to page structure. The name is a new `demoText.modeSwitcher.groupAria` rather than `aria-labelledby` on the
+  visible `Mode:` caption, because that caption is `display:none` at ≤900px and the switcher moves into the phone
+  nav menu — a static label is the only name that survives both placements.
+
+`aria-current` is also corrected: it was `"true"` and phone-only; it is now `"page"` at both widths, which is the
+meaningful token since each mode is a real route.
+
+Verified in the accessibility tree, not by attribute inspection: Chromium `ariaSnapshot()` over the built vanilla
+demo shows zero `[role=toolbar]` against 12 `.demo-toolbar` elements, the top bar reading
+`group "Demo mode": button "Single" [disabled], button "Multi", button "Random"`, exactly one `aria-current`
+(`page :: Single`), and a config footer that is a flat list of named buttons with no wrapper node. A route sweep
+across single/multi/random/transition/rotation found 21 strips and no roles. React was built and driven the same
+way with an identical tree; the other four ports were confirmed by typecheck plus a line-for-line diff of their
+mode switchers. Whole-repo typecheck and lint clean, demo-common's 254 tests pass.
+
+Beyond the count, one more thing the finding got wrong: it frames the missing `aria-labelledby` on the visible
+`Mode:` label as the fix, but that label is absent at the width where the switcher folds away.
 
 ### DEMO-11 — route error copy is hardcoded in all six demos, and React's is unstyled
 **Medium · Bug · 18 sites across the six demos** — **Open**

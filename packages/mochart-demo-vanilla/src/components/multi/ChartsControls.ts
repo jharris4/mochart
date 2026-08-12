@@ -124,7 +124,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
         colsInput
       ]),
       el('div', { className: 'demo-field' }, [
-        el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+        el('div', { className: 'demo-toolbar' }, [
           el('div', { className: 'demo-btn-group' }, [
             stepBackButton.el, stepForwardButton.el, playBackwardButton.el, playForwardButton.el, stopButton.el
           ])
@@ -135,7 +135,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
         rateInput
       ]),
       el('div', { className: 'demo-field' }, [
-        el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [menu.el])
+        el('div', { className: 'demo-toolbar' }, [menu.el])
       ])
     ])
   ]);

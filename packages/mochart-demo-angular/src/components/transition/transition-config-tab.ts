@@ -20,7 +20,7 @@ import type { TransitionConfig } from '../../types';
         <app-json-editor-content [value]="configText()" [ariaLabel]="text.editorAria" [onChange]="onTextChange" />
       </div>
       <div class="mochart-demo-tab-footer">
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           <app-button-with-tooltip id="config-reset" [label]="text.reset.label" [tooltipText]="text.reset.tooltip" tooltipPlacement="top-start"
                                    [onClick]="onReset" [aria-label]="text.reset.aria">
             <app-icon size="lg" [fixedWidth]="true" name="arrow-rotate-left" />

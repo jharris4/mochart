@@ -80,7 +80,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
   const container = tabContainer('demo-layout-col config', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [configEditor.el]),
     el('div', { className: 'mochart-demo-tab-footer' }, [
-      el('div', { className: 'demo-toolbar', attrs: { role: 'toolbar' } }, [
+      el('div', { className: 'demo-toolbar' }, [
         resetButton.el, applyButton.el, footerError
       ])
     ])

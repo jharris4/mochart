@@ -793,7 +793,7 @@ export class EditableChart extends LightElement {
       <div class="chart-controls-buttons">
         <form class="demo-form-row">
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               ${folded ? nothing : html`${this.renderChartCountControls()}${this.renderModeToggle()}`}
               <div class="demo-btn-group">
                 ${folded
@@ -841,13 +841,13 @@ export class EditableChart extends LightElement {
       <div class="chart-controls-buttons">
         <form class="demo-form-row">
           ${folded ? nothing : html`<div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               ${this.renderChartCountControls()}
               ${this.renderModeToggle()}
             </div>
           </div>`}
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { disabled: error || categoryOrderControlsDisabled || isFirstCategory, tooltipText: demoText.editableChart.decreaseCategoryOrder.tooltip, tooltipPlacement: 'right', onClick: this.decreaseCategoryOrder, ariaLabel: demoText.editableChart.decreaseCategoryOrder.aria },
@@ -860,7 +860,7 @@ export class EditableChart extends LightElement {
             <span class="demo-label" style=${this.indexLabelStyle} title=${getCategoryIndexTitle(this.mochartDemoConfig, this.filteredData, this.categoryIndex)}><span class="demo-label-prefix">${demoText.editableChart.categoryIndexPrefix}</span><span class="demo-label-prefix-compact" aria-hidden="true">${demoText.editableChart.categoryIndexPrefixCompact}</span><span class="demo-index-value">${this.categoryIndex}</span></span>
           </div>
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { disabled: error || categoryOrderControlsDisabled || isLastCategory, tooltipText: demoText.editableChart.increaseCategoryOrder.tooltip, tooltipPlacement: 'right', onClick: this.increaseCategoryOrder, ariaLabel: demoText.editableChart.increaseCategoryOrder.aria },
@@ -870,7 +870,7 @@ export class EditableChart extends LightElement {
             </div>
           </div>
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { disabled: error || seriesControlsDisabled || !hasPrevSeries, tooltipText: demoText.editableChart.previousSeries.tooltip, tooltipPlacement: 'right', onClick: this.prevSeries, ariaLabel: demoText.editableChart.previousSeries.aria },
@@ -883,7 +883,7 @@ export class EditableChart extends LightElement {
             <span class="demo-label" style=${this.indexLabelStyle} title=${getSeriesIndexTitle(this.mochartDemoConfig, this.seriesIndex)}><span class="demo-label-prefix">${demoText.editableChart.seriesIndexPrefix}</span><span class="demo-label-prefix-compact" aria-hidden="true">${demoText.editableChart.seriesIndexPrefixCompact}</span><span class="demo-index-value">${this.seriesIndex}</span></span>
           </div>
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { disabled: error || seriesControlsDisabled || !hasNextSeries, tooltipText: demoText.editableChart.nextSeries.tooltip, tooltipPlacement: 'right', onClick: this.nextSeries, ariaLabel: demoText.editableChart.nextSeries.aria },
@@ -922,12 +922,12 @@ export class EditableChart extends LightElement {
       <div class="chart-controls-buttons">
         <form class="demo-form-row">
           ${folded ? nothing : html`<div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               ${this.renderChartCountControls()}
             </div>
           </div>`}
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { disabled: sliceControlsDisabled || this.sliceIndex === 0, tooltipText: demoText.editableChart.previousSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex - 1), ariaLabel: demoText.editableChart.previousSlice.aria },
@@ -942,7 +942,7 @@ export class EditableChart extends LightElement {
               : demoText.editableChart.selectASliceText}</span>
           </div>
           <div class="demo-field">
-            <div class="demo-toolbar" role="toolbar">
+            <div class="demo-toolbar">
               <div class="demo-btn-group">
                 ${buttonWithTooltip(
                   { disabled: sliceControlsDisabled || this.sliceIndex >= this.slices.length - 1, tooltipText: demoText.editableChart.nextSlice.tooltip, tooltipPlacement: 'right', onClick: () => this.selectSlice(this.sliceIndex + 1), ariaLabel: demoText.editableChart.nextSlice.aria },

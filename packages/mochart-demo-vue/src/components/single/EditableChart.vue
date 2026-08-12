@@ -830,12 +830,12 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
               <!-- Kept on desktop even when empty — the empty field's gap is
                    part of the unfolded layout. -->
               <div v-if="!foldSlice" class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <ChartCountControl />
                 </div>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip :disabled="error || sliceControlsDisabled || sliceIndex === 0" :tooltip-text="demoText.editableChart.previousSlice.tooltip" tooltip-placement="right"
                                        :on-click="() => selectSlice(sliceIndex - 1)" :aria-label="demoText.editableChart.previousSlice.aria">
@@ -848,7 +848,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
                 <span class="demo-label" style="margin-left: 5px; margin-right: 5px;" :title="slices.length > 0 ? slices[sliceIndex].title : undefined"><template v-if="slices.length > 0">{{ demoText.editableChart.sliceIndexPrefix }}<span class="demo-index-value">{{ sliceIndex }}</span></template><template v-else>{{ demoText.editableChart.selectASliceText }}</template></span>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip :disabled="error || sliceControlsDisabled || sliceIndex >= slices.length - 1" :tooltip-text="demoText.editableChart.nextSlice.tooltip" tooltip-placement="right"
                                        :on-click="() => selectSlice(sliceIndex + 1)" :aria-label="demoText.editableChart.nextSlice.aria">
@@ -898,7 +898,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <template v-if="!foldCategory">
                     <ChartCountControl />
                     <ModeControl />
@@ -957,13 +957,13 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
           <div class="chart-controls-buttons">
             <form class="demo-form-row">
               <div v-if="!foldSeries" class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <ChartCountControl />
                   <ModeControl />
                 </div>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip :disabled="error || categoryOrderControlsDisabled || isFirstCategory" :tooltip-text="demoText.editableChart.decreaseCategoryOrder.tooltip" tooltip-placement="right"
                                        :on-click="decreaseCategoryOrder" :aria-label="demoText.editableChart.decreaseCategoryOrder.aria">
@@ -976,7 +976,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
                 <span class="demo-label" :style="{ marginLeft: indexLabelMargin, marginRight: indexLabelMargin }" :title="getCategoryIndexTitle(mochartDemoConfig, filteredData, categoryIndex)"><span class="demo-label-prefix">{{ demoText.editableChart.categoryIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ demoText.editableChart.categoryIndexPrefixCompact }}</span><span class="demo-index-value">{{ categoryIndex }}</span></span>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip :disabled="error || categoryOrderControlsDisabled || isLastCategory" :tooltip-text="demoText.editableChart.increaseCategoryOrder.tooltip" tooltip-placement="right"
                                        :on-click="increaseCategoryOrder" :aria-label="demoText.editableChart.increaseCategoryOrder.aria">
@@ -986,7 +986,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
                 </div>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip :disabled="error || seriesControlsDisabled || !hasPrevSeries" :tooltip-text="demoText.editableChart.previousSeries.tooltip" tooltip-placement="right"
                                        :on-click="prevSeries" :aria-label="demoText.editableChart.previousSeries.aria">
@@ -999,7 +999,7 @@ const ApplySeriesButton = () => h(ButtonWithTooltip, {
                 <span class="demo-label" :style="{ marginLeft: indexLabelMargin, marginRight: indexLabelMargin }" :title="getSeriesIndexTitle(mochartDemoConfig, seriesIndex)"><span class="demo-label-prefix">{{ demoText.editableChart.seriesIndexPrefix }}</span><span class="demo-label-prefix-compact" aria-hidden="true">{{ demoText.editableChart.seriesIndexPrefixCompact }}</span><span class="demo-index-value">{{ seriesIndex }}</span></span>
               </div>
               <div class="demo-field">
-                <div class="demo-toolbar" role="toolbar">
+                <div class="demo-toolbar">
                   <div class="demo-btn-group">
                     <ButtonWithTooltip :disabled="error || seriesControlsDisabled || !hasNextSeries" :tooltip-text="demoText.editableChart.nextSeries.tooltip" tooltip-placement="right"
                                        :on-click="nextSeries" :aria-label="demoText.editableChart.nextSeries.aria">

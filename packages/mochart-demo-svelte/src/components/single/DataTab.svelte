@@ -152,7 +152,7 @@
     <JsonEditorContent value={dataText} ariaLabel={demoText.dataTab.editorAria} onChange={onTextChange} />
   </div>
   <div class="mochart-demo-tab-footer" bind:this={footerElement}>
-    <div class="demo-toolbar" role="toolbar">
+    <div class="demo-toolbar">
       {#if phone.isPhone}
         {@render applyButton()}
         <OverflowMenu text={demoText.overflowMenu.editor}

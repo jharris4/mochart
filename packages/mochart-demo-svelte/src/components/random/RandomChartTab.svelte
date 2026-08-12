@@ -173,7 +173,7 @@
   <div class="random-controls" bind:this={controlsElement}>
     <form class="demo-form-row">
       <div class="demo-field">
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           <div class="demo-btn-group">
             <ButtonWithTooltip id="randomize-back" disabled={playing} label={demoText.randomChartTab.back.label}
                                tooltipText={demoText.randomChartTab.back.tooltip} tooltipPlacement="top-start"
@@ -189,7 +189,7 @@
           </div>
           {#if !phone.isPhone}{@render rateField()}{/if}
         </div>
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           {#if phone.isPhone}
             <div class="demo-btn-group">
               <!-- Anchored to the whole strip: `align: 'end'` pins the panel's

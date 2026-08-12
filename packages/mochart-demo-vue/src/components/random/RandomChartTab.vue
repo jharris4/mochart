@@ -153,7 +153,7 @@ const panelAttrs = getDemoTabPanelAttrs('chart');
     <div class="random-controls" ref="controlsElement">
       <form class="demo-form-row">
         <div class="demo-field">
-          <div class="demo-toolbar" role="toolbar">
+          <div class="demo-toolbar">
             <div class="demo-btn-group">
               <ButtonWithTooltip id="randomize-back" :disabled="playing" :label="demoText.randomChartTab.back.label"
                                  :tooltip-text="demoText.randomChartTab.back.tooltip" tooltip-placement="top-start"
@@ -172,7 +172,7 @@ const panelAttrs = getDemoTabPanelAttrs('chart');
             </div>
             <RateField v-if="!isPhone" />
           </div>
-          <div class="demo-toolbar" role="toolbar">
+          <div class="demo-toolbar">
             <!-- Anchored to the whole strip: `align: 'end'` pins the panel's
                  right edge to the anchor's, and the export trigger sits to
                  the ⋯'s right. -->

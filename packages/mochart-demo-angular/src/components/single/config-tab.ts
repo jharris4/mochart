@@ -76,7 +76,7 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
                                  [mochartSupport]="true" [onChange]="onTextChange" />
       </div>
       <div class="mochart-demo-tab-footer" #footer>
-        <div class="demo-toolbar" role="toolbar">
+        <div class="demo-toolbar">
           @if (phone()) {
             <ng-container [ngTemplateOutlet]="applyButton" />
             <!-- \`.editor\`, not \`.chart\`: what folds here edits the JSON, and
