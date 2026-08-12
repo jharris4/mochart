@@ -54,9 +54,13 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}
-      # Skips the download when the cache hit; still installs the OS packages.
-      - run: npx playwright install --with-deps chromium
+          # The engine list is in the key: a cache saved for a narrower set would
+          # keep hitting and re-downloading the rest on every run.
+          key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}-chromium-firefox-webkit
+      # All three engines the core README claims support for; firefox and webkit
+      # run only the @smoke-tagged subset. --with-deps covers WebKit's extra
+      # system libraries, which the runner image does not ship.
+      - run: npx playwright install --with-deps chromium firefox webkit
       - id: e2e
         run: npm run test:e2e
       # trace: 'on-first-retry' writes traces under test-results; without this

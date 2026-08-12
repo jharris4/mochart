@@ -5081,7 +5081,7 @@ assert the restored mode and config), `editor.spec.ts`, and `mobile.spec.ts` (at
 control strip collapses and each control appears exactly once in the DOM).
 
 ### TEST-15 — the claimed three-engine browser support is only ever tested in Chromium
-**Medium · Test gap · [packages/mochart/README.md:252](packages/mochart/README.md#L252), [demo-basic/playwright.config.ts:13](packages/mochart-demo-basic/playwright.config.ts#L13), [ci.yml:33](.github/workflows/ci.yml#L33)** **[from SOL review]** — **Open**
+**Medium · Test gap · [packages/mochart/README.md:252](packages/mochart/README.md#L252), [demo-basic/playwright.config.ts:13](packages/mochart-demo-basic/playwright.config.ts#L13), [ci.yml:33](.github/workflows/ci.yml#L33)** **[from SOL review]** — **Fixed**
 
 The core README states a support policy covering Chrome/Edge, Firefox and Safari. The Playwright
 config declares exactly one project, `Desktop Chrome`, and CI runs
@@ -5097,6 +5097,52 @@ which is about *what* the single Chromium project covers; this is about *which e
 **Fix:** add `firefox` and `webkit` projects and install all three browsers in CI, scoped to a smoke
 subset — one render, one tooltip/crosshair interaction, one keyboard traversal, one SVG export and
 one PNG export. Failing that, narrow the README's stated support to what is actually verified.
+
+Fixed by adding `firefox` and `webkit` Playwright projects and installing all three
+engines in CI. The README was **not** narrowed — see below, its claim is now
+verified rather than merely asserted.
+
+Mechanism: Playwright tags plus per-project `grep`. The `firefox` and `webkit`
+projects carry `grep: /@smoke/`; `chromium` carries none, so it still runs all 79.
+Opting a test in is one field, `{ tag: smokeTag }`, with `smokeTag` exported from
+`e2e/helpers.ts` and documented there. A tag beats a dedicated `smoke.spec.ts`
+because the subset is then literally the same code Chromium runs and cannot drift,
+and importing the constant prevents a typo'd tag string. The five tagged tests are
+all pre-existing: the gallery render for `truncated-text` (picked over `stacked`
+because its labels truncate, so it drives `getComputedTextLength` and the
+tick-fitting path), the plot-click tooltip/crosshair test, the plot-area keyboard
+traversal test, and both export tests. No new selector logic and no new `mochart-*`
+literals.
+
+Results: the smoke subset is 15/15 across the three engines, and the default full
+run is 89/89 in 21.6s. Typecheck and `eslint .` clean.
+
+**No test failed on any engine.** Because five green tests are weak evidence for
+"these engines have never run this code", the `grep`s were removed temporarily and
+the *entire* suite run on both: **158/158 (79 × 2)**. So nothing was skipped and
+nothing was papered over.
+
+**The finding's risk assessment does not hold.** It calls the exposure "not
+theoretical" and names SVG text measurement, SVG focus/keyboard, and
+`canvas.toBlob`/`XMLSerializer` as the danger areas — those are exactly the ones
+that turned out fine. Its fallback arm, narrowing the README, would therefore have
+been wrong. The real payoff is a standing guard against future Blink-only
+regressions, not the failures it predicted.
+
+One divergence did surface, from probing the measurement APIs directly rather than
+from a failing test: **Gecko's `getBBox().width` is exactly
+`getComputedTextLength() + 4.00`**, constant across font sizes 8/12/24/48px and
+across strings, and not stroke-related (a `stroke: none; stroke-width: 0` clone
+measures the same). Chromium's delta is 0.00; WebKit's 0.00–0.02. Core mixes the two
+APIs across the truncation/layout boundary, so in Firefox they are permanently 4px
+out of step — benign in direction, since `getBBox` is the larger, so layout
+over-reserves rather than clips. Filed separately as TEST-21.
+
+One thing the finding omits: the CI cache key. `actions/cache` only saves on a miss,
+so the existing `…-playwright-${version}` key would have kept hitting a
+chromium-only cache and re-downloading Firefox and WebKit on every run forever. The
+key now ends `-chromium-firefox-webkit` so it invalidates when the engine set
+changes.
 
 ### TEST-16 — the golden "randomize" transform rewrites row geometry as if it were data
 **Low · Test gap · [golden.test.ts:176](packages/mochart/test/golden/golden.test.ts#L176)**
