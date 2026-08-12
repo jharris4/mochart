@@ -3422,9 +3422,10 @@ fails as nothing.
 Golden snapshots are excluded — they are rendered output, and the literals in them are the point.
 
 **Fix:** import `mochartCssClasses` and build named selector consts per file. Values with two
-space-separated tokens need `.split(' ')` first
+space-separated tokens need `.split(' ')` first. Although adding helpers to ChartDom.ts could be cleaner than having all the tests repeat that logic all over the place.
 (see [API-4](#api-4--mochartcssclasses-values-are-not-all-class-names-contradicting-the-api-reference)).
 A lint rule banning the `'.mochart-'` literal in `test/`/`e2e/` would keep it from coming back.
+
 
 ---
 
