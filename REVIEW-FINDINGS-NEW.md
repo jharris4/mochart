@@ -6127,7 +6127,7 @@ rxjs, seedrandom, lodash.merge, fflate) lose even their identity mappings to the
 files, which is upstream's call.
 
 ### TOOL-16 — `@mochart/svelte` is the one published package that ships no sourcemaps
-**Low · Tooling gap · [mochart-svelte/package.json](packages/mochart-svelte/package.json)** **[verified]** — **Open**
+**Low · Tooling gap · [mochart-svelte/package.json](packages/mochart-svelte/package.json)** **[verified]** — **Fixed**
 
 `svelte-package -i src -o dist` emits no `.js.map`, and its CLI has no option to ask for one
 (`-i`, `-o`, `-p`, `-t`, `-w`, `--tsconfig` — nothing for maps). So this is a tool limitation, not
@@ -6151,6 +6151,72 @@ package, or to post-process `svelte-package`'s output to attach maps, or to buil
 generated files with a tool that emits them. Given three of the seven output files need no mapping
 at all, documenting is probably the right trade — but it should be a decision rather than an
 omission.
+
+Fixed by shipping declaration maps; `.js.map` deliberately declined, with the
+reasoning below.
+
+`dist` now carries 4 `.d.ts.map` files (was 0) for the real TypeScript surface —
+`host`, `index`, `placeholders.svelte`, `types`. Their `sources` resolve on disk and
+`npm pack --dry-run` confirms the maps and every referenced `src/*.ts` ship in the
+tarball. Resolution was proven beyond path existence by decoding the VLQ mappings:
+`types.d.ts:8` (`export interface ChartRef {`) maps to `src/types.ts:12`, the exact
+declaration; `host.d.ts:2` → `src/host.ts:7`; `index.d.ts:1` → `src/index.ts:1`.
+
+**The finding's "Fix:" paragraph omits the actual fix.** It lists document /
+post-process / rebuild-with-another-tool and never mentions `declarationMap`.
+`@sveltejs/package` forces only `sourceMap` off; declaration maps are supported and
+none were emitted purely because `tsconfig.json` never asked. So this was half a
+config omission, not wholly a tool limitation, and the table's `.js.map`-only framing
+hid four maps that were available for free.
+
+**The three `.svelte` declaration maps had to be dropped.** Turning on
+`declarationMap` first emitted 7, but the component ones were unusable twice over.
+Their `sources` read `../src/Chart.svelte.ts`, a file that does not exist —
+svelte2tsx tries to strip that `.ts` but its guard joins a temp-dir-relative path
+against `rootDir`, lands outside the package, and never fires. And fixing the path
+would have made it worse: the mappings are in svelte2tsx's virtual TSX coordinate
+space, so most segments point past EOF of the real component (`Chart.svelte.d.ts`
+maps `declare const Chart` to line 33 of a 19-line file; 5 of `ChartHost.svelte`'s
+11 mapped lines point at lines 72–74 of a 64-line file). So
+`scripts/prune-component-maps.mjs` deletes any `.d.ts.map` whose `sources` do not
+resolve and strips the dangling `sourceMappingURL`. The criterion is
+unresolvable-sources rather than the filename, because a first pass on
+`*.svelte.d.ts.map` wrongly ate `placeholders.svelte.d.ts.map` — that one is a
+plain-TS runes module whose map is correct.
+
+Verified by diffing the new `dist` against a build with the original command: the
+only differences are the 4 added maps and their 4 comment lines; the 3 component
+`.d.ts` files are byte-identical.
+
+**`.js.map` declined, with the numbers.** Both barriers are real — `sourceMap: false`
+is passed as `existingOptions` to `parseJsonConfigFileContent`, where TS's `extend`
+lets the first argument win, and `transpile_ts` returns only `outputText`, discarding
+`sourceMapText`. Producing maps means reimplementing that private transpile step.
+What it buys: only 4 JS files exist, two with zero logic (`index.js` is 2 lines of
+re-exports, `types.js` is `export {};`). The other two total 151 lines, and
+`svelte-package` neither bundles nor minifies — diffing `src/host.ts` against
+`dist/host.js` shows the delta is stripped type annotations and a 4-space reindent,
+with identifiers and all comments intact. The three components, which are the actual
+public API, are published as `.svelte` files with nothing to map. So the cost is a
+build-time reimplementation of an undocumented third-party internal, coupling this
+package's build to options any patch release could change; the gain is type
+annotations and indentation on 151 lines of already-readable JS.
+
+The `development` export condition is documented in the README as the supported
+route for stepping through the real sources. No docs-site page was added: no
+markdown under `packages/mochart-docs/` mentions sourcemaps, debugging or the
+`development` condition for *any* binding — that story lives only in package
+READMEs (currently vue and angular) — so the README is the right place.
+
+Two further corrections: "the three `.svelte` components are copied through
+unchanged" is not quite right — `vitePreprocess({ script: true })` strips the TS from
+`<script lang="ts">` (`Chart.svelte` 697 B → 596 B), though the conclusion drawn from
+it holds. And `scripts/dep-sourcemaps.ts` needs nothing: it only pairs `.js` with
+`.map` and never looks at `.d.ts.map`. `scripts/ensure-libs-fresh.mjs` already stats
+`tsconfig.build.json` behind an `existsSync` guard, so the new one is picked up
+automatically.
+
+Build, typecheck (163 files, 0 errors), lint and 17/17 tests all clean.
 
 
 

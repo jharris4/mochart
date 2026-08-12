@@ -165,3 +165,21 @@ export default defineConfig({
   resolve: { conditions: ['module', 'browser', 'production'] }
 });
 ```
+
+## Sourcemaps and debugging
+
+`dist/` ships `.d.ts.map` files for the TypeScript modules, so go-to-definition
+on any published type lands on its declaration in `src/` (which `files`
+publishes alongside `dist/`).
+
+It ships no `.js.map`. `svelte-package` forces `sourceMap: false` on its
+TypeScript transpile and its CLI has no option to change that, so JavaScript
+maps cannot be produced by the tool that builds this package. Little is lost:
+the three components are published as `.svelte` files that are their own
+source, `index.js` and `types.js` are re-exports with no logic, and `host.js`
+and `placeholders.svelte.js` are the `.ts` sources with the type annotations
+stripped — unbundled, unminified, comments intact.
+
+The `development` export condition above is the supported route for stepping
+through the real TypeScript sources: enable it and the debugger runs `src/`
+directly, so no mapping is involved.

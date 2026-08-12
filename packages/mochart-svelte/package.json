@@ -61,7 +61,7 @@
     "typescript": "^6.0.3"
   },
   "scripts": {
-    "build": "svelte-package -i src -o dist",
+    "build": "svelte-package -i src -o dist --tsconfig ./tsconfig.build.json && node scripts/prune-component-maps.mjs",
     "prepack": "npm run build",
     "test": "vitest run",
     "typecheck": "svelte-check --tsconfig ./tsconfig.json",
