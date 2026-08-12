@@ -66,7 +66,7 @@ export default function ExportShareMenu({ exportPng, exportSvg, getShareState, d
   };
 
   return (
-    <div className="demo-btn-group demo-menu-up mochart-export-share-menu">
+    <div className="demo-btn-group mochart-export-share-menu">
       <button type="button" ref={menu.triggerRef} {...menu.triggerProps}
         className={'demo-btn demo-btn-secondary demo-menu-trigger' + (menu.open ? ' active' : '')}
         disabled={disabled}
@@ -77,18 +77,18 @@ export default function ExportShareMenu({ exportPng, exportSvg, getShareState, d
         className={'demo-menu' + (menu.isPositioned ? ' open' : '')}>
         <button type="button" className="demo-menu-item" onClick={() => runAndClose(exportPng)}
           aria-label={demoText.exportButtons.png.aria}>
-          <Icon fixedWidth={true} name="file-image" /> <span className="mochart-menu-item-label">{demoText.exportButtons.png.label}</span>
+          <Icon fixedWidth={true} name="file-image" /> <span>{demoText.exportButtons.png.label}</span>
         </button>
         <button type="button" className="demo-menu-item" onClick={() => runAndClose(exportSvg)}
           aria-label={demoText.exportButtons.svg.aria}>
-          <Icon fixedWidth={true} name="file-code" /> <span className="mochart-menu-item-label">{demoText.exportButtons.svg.label}</span>
+          <Icon fixedWidth={true} name="file-code" /> <span>{demoText.exportButtons.svg.label}</span>
         </button>
         {getShareState ? (
           <React.Fragment>
             <div className="demo-menu-divider" />
             <button type="button" className="demo-menu-item" onClick={onShare}
               aria-label={demoText.shareButton.aria}>
-              <Icon fixedWidth={true} name={copied ? 'check' : 'link'} /> <span className="mochart-menu-item-label">{copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
+              <Icon fixedWidth={true} name={copied ? 'check' : 'link'} /> <span>{copied ? demoText.shareButton.tooltipCopied : demoText.shareButton.label}</span>
             </button>
           </React.Fragment>
         ) : null}

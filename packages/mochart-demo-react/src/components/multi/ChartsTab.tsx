@@ -418,7 +418,7 @@ function MultiMochartControls({ playing, initialRows, initialCols, initialRate, 
 
   return (
     <div className="multi-controls">
-      <form className="demo-form-row">
+      <form>
         <div className="demo-field">
           <label className="demo-label" htmlFor="grid-rows">{demoText.multiChartsTab.gridLabel}</label>
           <input id="grid-rows" className="demo-input" disabled={playing} type="number" min={1} max={4} value={rowsText}

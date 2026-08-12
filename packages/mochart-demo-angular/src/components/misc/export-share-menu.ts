@@ -29,7 +29,7 @@ import { Icon } from './icon';
   imports: [Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div class="demo-btn-group demo-menu-up mochart-export-share-menu">
+    <div class="demo-btn-group mochart-export-share-menu">
       <button type="button" #trigger
               class="demo-btn demo-btn-secondary demo-menu-trigger"
               [disabled]="disabled"
@@ -40,17 +40,17 @@ import { Icon } from './icon';
       <div #panel class="demo-menu">
         <button type="button" class="demo-menu-item" (click)="runAndClose(exportPng)"
                 [attr.aria-label]="exportText.png.aria">
-          <app-icon [fixedWidth]="true" name="file-image" /> <span class="mochart-menu-item-label">{{ exportText.png.label }}</span>
+          <app-icon [fixedWidth]="true" name="file-image" /> <span>{{ exportText.png.label }}</span>
         </button>
         <button type="button" class="demo-menu-item" (click)="runAndClose(exportSvg)"
                 [attr.aria-label]="exportText.svg.aria">
-          <app-icon [fixedWidth]="true" name="file-code" /> <span class="mochart-menu-item-label">{{ exportText.svg.label }}</span>
+          <app-icon [fixedWidth]="true" name="file-code" /> <span>{{ exportText.svg.label }}</span>
         </button>
         @if (getShareState) {
           <div class="demo-menu-divider"></div>
           <button type="button" class="demo-menu-item" (click)="onShare()"
                   [attr.aria-label]="shareText.aria">
-            <app-icon [fixedWidth]="true" [name]="copied() ? 'check' : 'link'" /> <span class="mochart-menu-item-label">{{ copied() ? shareText.tooltipCopied : shareText.label }}</span>
+            <app-icon [fixedWidth]="true" [name]="copied() ? 'check' : 'link'" /> <span>{{ copied() ? shareText.tooltipCopied : shareText.label }}</span>
           </button>
         }
       </div>

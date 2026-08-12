@@ -836,7 +836,7 @@ export default function EditableChart(props: Props) {
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
-          <form className="demo-form-row">
+          <form>
             {foldSlice ? null : (
               // Kept on desktop even when empty — the empty field's gap is
               // part of the unfolded layout.
@@ -887,7 +887,7 @@ export default function EditableChart(props: Props) {
           </form>
         </div>
         <span className="chart-controls-input">
-          <form className="demo-form-row">
+          <form>
             <input type="text" className="demo-input" disabled={sliceControlsDisabled} value={sliceValueText} onChange={sliceValueChanged} />
           </form>
         </span>
@@ -969,7 +969,7 @@ export default function EditableChart(props: Props) {
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
-          <form className="demo-form-row">
+          <form>
             <div className="demo-field">
               <div className="demo-toolbar">
                 {foldCategory ? null : commonControlContent}
@@ -983,7 +983,7 @@ export default function EditableChart(props: Props) {
           </form>
         </div>
         <span className="chart-controls-input">
-          <form className="demo-form-row">
+          <form>
             <input type="text" className="demo-input" disabled={error || sequencePlaying} value={categoryValuesText} onChange={categoryValuesChanged} />
           </form>
         </span>
@@ -1041,7 +1041,7 @@ export default function EditableChart(props: Props) {
     controlContent = (
       <div className="chart-controls-container">
         <div className="chart-controls-buttons">
-          <form className="demo-form-row">
+          <form>
             {foldSeries ? null : (
               <div className="demo-field">
                 <div className="demo-toolbar">
@@ -1116,7 +1116,7 @@ export default function EditableChart(props: Props) {
           </form>
         </div>
         <span className="chart-controls-input">
-          <form className="demo-form-row">
+          <form>
             <input type="text" className="demo-input" disabled={error || seriesControlsDisabled} value={seriesValuesText} onChange={seriesValuesChanged} />
             {foldSeries ? applySeriesButton : null}
           </form>

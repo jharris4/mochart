@@ -65,7 +65,8 @@ export function buttonWithTooltip(
   { id, tooltipText, disabled = false, onClick, color = 'secondary', ariaLabel, label, menuLabel, pressed }: ButtonWithTooltipProps,
   children: unknown
 ): TemplateResult {
-  return html`<span class="button-with-tooltip">
+  // Unstyled wrapper: it keeps the button one flex item wherever it is folded.
+  return html`<span>
     <button id=${id ?? nothing} type="button" class=${`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')} ?disabled=${disabled}
             title=${tooltipText ?? nothing} aria-label=${ariaLabel ?? nothing}
             aria-pressed=${pressed === undefined ? nothing : String(pressed)} @click=${() => onClick()}>

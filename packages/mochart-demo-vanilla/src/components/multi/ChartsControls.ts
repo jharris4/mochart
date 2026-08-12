@@ -116,7 +116,7 @@ export function chartsControls(props: ChartsControlsProps): ChartsControlsHandle
   });
 
   const container = el('div', { className: 'multi-controls' }, [
-    el('form', { className: 'demo-form-row' }, [
+    el('form', {}, [
       el('div', { className: 'demo-field' }, [
         el('label', { className: 'demo-label', attrs: { for: 'grid-rows' }, text: demoText.multiChartsTab.gridLabel }),
         rowsInput,

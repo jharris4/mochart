@@ -44,7 +44,8 @@
   }: Props = $props();
 </script>
 
-<span class="button-with-tooltip">
+<!-- Unstyled wrapper: it keeps the button one flex item wherever it is folded. -->
+<span>
   <button {id} type="button" class={`demo-btn demo-btn-${color}` + (pressed ? ' active' : '')} {disabled} title={tooltipText}
           aria-pressed={pressed === undefined ? undefined : pressed} onclick={onClick} {...rest}>
     {@render children()}{#if menuLabel}<span class="btn-menu-label">{menuLabel}</span>{/if}{#if label}<span class="btn-label">{label}</span>{/if}

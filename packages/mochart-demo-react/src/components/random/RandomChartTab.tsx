@@ -167,7 +167,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
           mochartConfig={mochartConfig} dataProvider={dataProvider} />
       </div>
       <div className="random-controls" ref={controlsRef}>
-        <form className="demo-form-row">
+        <form>
           <div className="demo-field">
             <div className="demo-toolbar">
               <div className="demo-btn-group">

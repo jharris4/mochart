@@ -768,12 +768,12 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   const menuSequenceGroup = el('div', { className: 'demo-btn-group' });
   const categoryPanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [
-      el('form', { className: 'demo-form-row' }, [
+      el('form', {}, [
         el('div', { className: 'demo-field' }, [categoryToolbar])
       ])
     ]),
     el('span', { className: 'chart-controls-input' }, [
-      el('form', { className: 'demo-form-row' }, [categoryInput])
+      el('form', {}, [categoryInput])
     ])
   ]);
 
@@ -854,7 +854,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   // restores, so the desktop order has exactly one definition.
   const seriesActionButtons = [resetSeriesButton.el, applySeriesButton.el];
   const seriesActionGroup = el('div', { className: 'demo-btn-group' }, seriesActionButtons);
-  const seriesForm = el('form', { className: 'demo-form-row' }, [
+  const seriesForm = el('form', {}, [
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar' }, [
         el('div', { className: 'demo-btn-group' }, [categoryDecreaseButton.el])
@@ -883,7 +883,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   const menuSeriesActionGroup = el('div', { className: 'demo-btn-group' });
   const seriesCommonToolbar = el('div', { className: 'demo-toolbar' });
   // Emptied by the fold (commonControls move into the menu), and an empty flex
-  // item still spends one of `.demo-form-row`'s 10px column gaps — which the
+  // item still spends one of the form row's 10px column gaps — which the
   // tightest strip of the three cannot spare. placeControls hides it for the
   // duration of the fold.
   const seriesCommonField = el('div', { className: 'demo-field' }, [seriesCommonToolbar]);
@@ -891,7 +891,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
 
   // Named so the fold can move Apply in beside the input it applies — see the
   // series branch of placeControls.
-  const seriesInputForm = el('form', { className: 'demo-form-row' }, [seriesInput]);
+  const seriesInputForm = el('form', {}, [seriesInput]);
   const seriesPanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [seriesForm]),
     el('span', { className: 'chart-controls-input' }, [seriesInputForm])
@@ -970,7 +970,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   const sliceMenuTail = (): MenuItem[] => showChartCountControls ? [menuDivider, chartCountControl] : [];
   const menuCommonControls = (): MenuItem[] => showChartCountControls ? commonControls : [modeControl];
   const sliceCommonField = el('div', { className: 'demo-field' }, [sliceCommonToolbar]);
-  const sliceForm = el('form', { className: 'demo-form-row' }, [
+  const sliceForm = el('form', {}, [
     sliceCommonField,
     el('div', { className: 'demo-field' }, [
       el('div', { className: 'demo-toolbar' }, [
@@ -983,7 +983,7 @@ export function editableChart(props: EditableChartProps): EditableChartHandle {
   const slicePanel = el('div', { className: 'chart-controls-container' }, [
     el('div', { className: 'chart-controls-buttons' }, [sliceForm]),
     el('span', { className: 'chart-controls-input' }, [
-      el('form', { className: 'demo-form-row' }, [sliceInput])
+      el('form', {}, [sliceInput])
     ])
   ]);
 

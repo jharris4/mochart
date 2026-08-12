@@ -89,7 +89,7 @@
 </script>
 
 <div class="multi-controls">
-  <form class="demo-form-row">
+  <form>
     <div class="demo-field">
       <label class="demo-label" for="grid-rows">{demoText.multiChartsTab.gridLabel}</label>
       <input id="grid-rows" disabled={playing} type="number" min="1" max="4" class="demo-input" value={rowsText}
