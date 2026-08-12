@@ -50,22 +50,19 @@ const nullValueObject: SeriesValueObject = {
   markerCopyKey: null, labelCopyKey: null, colorCopyKey: null, tooltipCopyKey: null, min: null, max: null
 };
 
-const emptyValueDelta = {
-  deltaPercentage: 0,
-  deltas: null
-};
+// factories, not shared singletons: callers stamp deltaCopied and deltaFactor onto whatever
+// these hand back, so a shared object would be written through by every chart on the page
+function emptyValueDelta(): NumericValuesDelta {
+  return { deltaPercentage: 0, deltas: null };
+}
 
-const emptyCopiedValueDelta = {
-  deltaPercentage: 0,
-  deltaCopied: true,
-  deltas: null
-};
+function emptyCopiedValueDelta(): NumericValuesDelta {
+  return { deltaPercentage: 0, deltaCopied: true, deltas: null };
+}
 
-const emptyNotCopiedValueDelta = {
-  deltaPercentage: 0,
-  deltaCopied: false,
-  deltas: null
-};
+function emptyNotCopiedValueDelta(): NumericValuesDelta {
+  return { deltaPercentage: 0, deltaCopied: false, deltas: null };
+}
 
 
 export function getInitialValueChangeData(mochartConfig: EnhancedMochartConfig, newChartData: ChartData): ValueChangeData {
@@ -777,7 +774,7 @@ function setRawExtraSeriesValueDeltas(valueDeltaObject: ValueDeltaObject, startV
     setRawSeriesValueDeltas(valueDeltaObject, startValueObject, endValueObject, valueKey, domainExtent);
   }
   else {
-    valueDeltaObject[valueKey] = emptyValueDelta;
+    valueDeltaObject[valueKey] = emptyValueDelta();
   }
 }
 
@@ -786,7 +783,7 @@ function setRawSeriesValueDeltas(valueDeltaObject: ValueDeltaObject, startValueO
     valueDeltaObject[valueKey] = getSeriesValuesDeltas(startValueObject[valueKey]!, endValueObject[valueKey]!, valueAxisExtent);
   }
   else {
-    valueDeltaObject[valueKey] = emptyValueDelta;
+    valueDeltaObject[valueKey] = emptyValueDelta();
   }
 }
 
@@ -795,7 +792,7 @@ function getSeriesValuesDeltas(startValues: NumericValues, endValues: NumericVal
   // capped at 1: a value ending outside the axis is clipped, so it cannot move further than one
   // axis extent on screen, and the weight is what paces the animation
   const deltaPercentage = valueAxisExtent > 0 ? Math.min(getMaxAbsoluteValue(deltas) / valueAxisExtent, 1) : 0;
-  return deltaPercentage === 0 ? emptyValueDelta : {
+  return deltaPercentage === 0 ? emptyValueDelta() : {
     deltaPercentage,
     deltas
   };
@@ -861,7 +858,7 @@ function createFilteredValueDeltaDataObject(startFilteredValueObject: SeriesValu
 
 function setFilteredExtraSeriesValueDeltas(valueDeltaObject: ValueDeltaObject, startFilteredValueObject: SeriesValueObject, endFilteredValueObject: SeriesValueObject, startValueObject: SeriesValueObject, endValueObject: SeriesValueObject, rawValueDeltaObject: ValueDeltaObject, valueKey: ExtraKey, valueCopyKey: ExtraCopyKey, valueAxisExtent: number, seriesDomain: SeriesDomainObject, useSeriesDomain: boolean): void {
   if (startFilteredValueObject[valueCopyKey] !== null) {
-    valueDeltaObject[valueKey] = emptyCopiedValueDelta;
+    valueDeltaObject[valueKey] = emptyCopiedValueDelta();
   }
   else {
     let domainExtent = valueAxisExtent;
@@ -879,7 +876,7 @@ function setFilteredSeriesValueDeltas(valueDeltaObject: ValueDeltaObject, startF
     valueDeltaObject[valueKey].deltaCopied = false;
   }
   else {
-    valueDeltaObject[valueKey] = filteredIsNotCopy ? emptyNotCopiedValueDelta : Object.assign({}, emptyCopiedValueDelta , { deltaPercentage: rawValueDeltaObject[valueKey].deltaPercentage });
+    valueDeltaObject[valueKey] = filteredIsNotCopy ? emptyNotCopiedValueDelta() : Object.assign(emptyCopiedValueDelta(), { deltaPercentage: rawValueDeltaObject[valueKey].deltaPercentage });
   }
 }
 
