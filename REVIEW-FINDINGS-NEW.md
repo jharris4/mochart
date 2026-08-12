@@ -2116,7 +2116,7 @@ for a cleaner API, expose unambiguous `chartWidth`/`chartHeight`/`plotBounds` fi
 the overloaded pair.
 
 ### API-10 — `ChartEventPayload.categoryPercentage`/`valuePercentage` violate the `Fraction` convention
-**Low · Inconsistency · [types/chart.ts:16-20](packages/mochart/src/types/chart.ts#L16)** **[verified]** — **Open**
+**Low · Inconsistency · [types/chart.ts:16-20](packages/mochart/src/types/chart.ts#L16)** **[verified]** — **Fixed**
 
 Both fields are documented — in the JSDoc, the shipped `.d.ts`, and the generated
 `/reference/callbacks` page — as "as a **0–1 fraction** of the plot", yet carry a `Percentage`
@@ -2127,6 +2127,22 @@ left in the documented public API; the rest are internal `deltaPercentage` field
 
 **Fix:** rename to `categoryFraction`/`valueFraction` (pre-1.0, so a clean rename), or note the
 deliberate exception where the convention is stated.
+
+**Fixed by renaming.** `ChartEventPayload.categoryPercentage`/`valuePercentage` are now
+`categoryFraction`/`valueFraction`, matching the `Fraction` convention every other 0–1 ratio in the
+public surface follows. They were the last two `*Percent*` names in the documented API; the remaining
+ones are internal `deltaPercentage` fields in `types/animation.ts`, which are not public and keep their
+names.
+
+Renaming was taken over documenting an exception because the convention exists precisely so a reader
+never has to check whether a name means 0–1 or 0–100, and an exception in the payload four callbacks
+receive is the worst place to keep one. Nothing is released, so there is no migration to stage.
+
+The local variables in `Chart.ts` that feed the payload were renamed with it rather than left mapping
+`categoryFraction: categoryPercentage`, so the two names no longer coexist in one function.
+`PointerScaling.test.ts` follows. Nothing else referenced the fields — no doc page, no demo, no
+binding — and the docs site's props page is generated from this JSDoc, so it picks the new names up
+with no edit. 1614 tests, typecheck and lint pass.
 
 ### API-11 — `apiReferenceModel.ts` calls `InternalFocus` internal, but it is an explicit public export
 **Low · Doc inconsistency · [apiReferenceModel.ts:82](packages/mochart/scripts/apiReferenceModel.ts#L82)** — **Fixed**

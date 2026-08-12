@@ -781,13 +781,13 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
   }
 
   /** Open or close explicitly: enter must always open and leave always close, or the pairing inverts. */
-  setTooltipOpen(open: boolean, { categoryIndex, categoryPercentage, valuePercentage: seriesPercentage }: Pick<ChartEventPayload, 'categoryIndex' | 'categoryPercentage' | 'valuePercentage'>): void {
+  setTooltipOpen(open: boolean, { categoryIndex, categoryFraction, valueFraction: seriesPercentage }: Pick<ChartEventPayload, 'categoryIndex' | 'categoryFraction' | 'valueFraction'>): void {
     const { mochartConfig, onFocus, chartData } = this.props;
     const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
     if (tooltipConfig.visible || crosshairConfig.visible) {
       let { tooltipVisible, tooltipCategoryIndex, tooltipSeriesPercentage, tooltipCategoryPercentage, tooltipLayoutInfo, tooltipBounds, tooltipValueObject } = this.state;
       tooltipSeriesPercentage = open ? seriesPercentage : null;
-      tooltipCategoryPercentage = open ? categoryPercentage : null;
+      tooltipCategoryPercentage = open ? categoryFraction : null;
       tooltipLayoutInfo = getTooltipLayoutInfo(mochartConfig, null);
       tooltipBounds = null;
       tooltipVisible = open;
@@ -814,7 +814,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { plot: plotConfig } = mochartConfig;
 
     const categoryPosition = plotConfig.inverted ? chartY : chartX;
-    const categoryPercentage = categoryPosition / seriesLayoutInfo.categoryExtent;
+    const categoryFraction = categoryPosition / seriesLayoutInfo.categoryExtent;
     let categoryIndex = -1;
     let categoryDifference = Number.MAX_VALUE;
     const categoryCount = dataCategoryPositions.length;
@@ -831,7 +831,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const seriesPercentage = seriesPosition / seriesLayoutInfo.valueExtent;
 
     return {
-      chartX, chartY, categoryPosition, valuePosition: seriesPosition, categoryPercentage, valuePercentage: seriesPercentage, categoryIndex
+      chartX, chartY, categoryPosition, valuePosition: seriesPosition, categoryFraction, valueFraction: seriesPercentage, categoryIndex
     };
   }
 
@@ -850,7 +850,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     onChartMouseMove?.(eventPayload);
     if (mochartConfig.tooltip.followPointer) {
       const { tooltip: tooltipConfig, crosshair: crosshairConfig } = mochartConfig;
-      const { valuePercentage: seriesPercentage, categoryPercentage, categoryIndex } = eventPayload;
+      const { valueFraction: seriesPercentage, categoryFraction, categoryIndex } = eventPayload;
       // same applyFocus gate as setTooltipOpen: enter, move and leave must
       // agree on whether pointer interactions may change the focused category
       if ((tooltipConfig.visible && tooltipConfig.applyFocus) || (crosshairConfig.visible && crosshairConfig.applyFocus)) {
@@ -864,7 +864,7 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
           const tooltipValueObject = tooltipCategoryIndex !== this.state.tooltipCategoryIndex
             ? getCategorySeriesValueObject(chartData!, tooltipCategoryIndex)
             : this.state.tooltipValueObject;
-          const tooltipCategoryPercentage = categoryPercentage;
+          const tooltipCategoryPercentage = categoryFraction;
           const tooltipSeriesPercentage = seriesPercentage;
           const tooltipLayoutInfo = this.getTooltipLayoutInfo(this.props,
             { ...this.state, tooltipCategoryIndex, tooltipCategoryPercentage, tooltipSeriesPercentage });
@@ -940,8 +940,8 @@ export default class Chart extends Renderer<ChartProps, ChartState> {
     const { axisData, layoutInfo } = this.state;
     const positions = axisData!.category!.valueData.positions;
     const { categoryExtent } = layoutInfo!.seriesLayoutInfo;
-    const categoryPercentage = categoryExtent > 0 ? (positions[categoryIndex] ?? 0) / categoryExtent : 0;
-    this.setTooltipOpen(open, { categoryIndex, categoryPercentage, valuePercentage: 0.5 });
+    const categoryFraction = categoryExtent > 0 ? (positions[categoryIndex] ?? 0) / categoryExtent : 0;
+    this.setTooltipOpen(open, { categoryIndex, categoryFraction, valueFraction: 0.5 });
   }
 
   /** step the open tooltip to a category, moving the focus like the pointer would */

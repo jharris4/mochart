@@ -1,7 +1,7 @@
 /**
  * COMP-11 (CSS-scaling half): pointer coordinates come from `getBoundingClientRect()`, which
  * reports **CSS** pixels, and were then divided by the *logical* plot extents to derive
- * `categoryPercentage`/`valuePercentage` and the nearest category. Any CSS scaling of the chart
+ * `categoryFraction`/`valueFraction` and the nearest category. Any CSS scaling of the chart
  * — `transform: scale()`, a `width: 100%` SVG, page zoom — therefore produced fractions outside
  * 0–1 and selected the wrong category.
  *
@@ -92,8 +92,8 @@ describe('pointer payloads under CSS scaling', () => {
     const last = (list: ChartEventPayload[]) => list[list.length - 1];
     expect(scaled.length).toBe(unscaled.length);
     expect(last(scaled).categoryIndex).toBe(last(unscaled).categoryIndex);
-    expect(last(scaled).categoryPercentage).toBeCloseTo(last(unscaled).categoryPercentage, 6);
-    expect(last(scaled).valuePercentage).toBeCloseTo(last(unscaled).valuePercentage, 6);
+    expect(last(scaled).categoryFraction).toBeCloseTo(last(unscaled).categoryFraction, 6);
+    expect(last(scaled).valueFraction).toBeCloseTo(last(unscaled).valueFraction, 6);
   });
 
   it('keeps percentages inside 0-1 when the chart is scaled down', () => {
@@ -107,8 +107,8 @@ describe('pointer payloads under CSS scaling', () => {
     move(root, WIDTH * 0.5 - 2, HEIGHT * 0.5 - 2);
 
     const last = payloads[payloads.length - 1];
-    expect(last.categoryPercentage).toBeLessThanOrEqual(1);
-    expect(last.valuePercentage).toBeLessThanOrEqual(1);
+    expect(last.categoryFraction).toBeLessThanOrEqual(1);
+    expect(last.valueFraction).toBeLessThanOrEqual(1);
     // the far right of the plot must still resolve to the last category
     expect(last.categoryIndex).toBe(rows.length - 1);
   });
