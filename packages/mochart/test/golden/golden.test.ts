@@ -16,6 +16,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { MochartInputConfig, DataProvider } from '../../src';
 import { getCssSelector, getIdCssSelector, mochartVersionAttribute } from '../../src/utils/ChartDom';
+import { installTextMetrics } from './textMetrics';
 
 interface Demo { id: string; config: string; data: string; goldenCategoryShift?: number }
 /** Rows are decoded from arbitrary demo JSON, so values are intentionally loose. */
@@ -65,21 +66,10 @@ function loadJson(filePath: string): any {
 let mochart: typeof import('../../src');
 
 beforeAll(async () => {
-  // jsdom has no SVG layout engine; return zero sizes so the library takes its
-  // documented default-bounds fallbacks. Both renderer implementations see the
-  // same shims, so snapshots stay comparable.
-  // Cast: these text-measurement methods live on SVGTextContentElement in the
-  // DOM lib, not the SVGElement base prototype we shim here.
-  const svgProto = globalThis.SVGElement.prototype as any;
-  if (typeof svgProto.getComputedTextLength !== 'function') {
-    svgProto.getComputedTextLength = () => 0;
-  }
-  if (typeof svgProto.getSubStringLength !== 'function') {
-    svgProto.getSubStringLength = () => 0;
-  }
-  if (typeof svgProto.getBBox !== 'function') {
-    svgProto.getBBox = () => ({ x: 0, y: 0, width: 0, height: 0 });
-  }
+  // jsdom has no font or layout engine; install the deterministic synthetic
+  // font so the goldens capture real measured text (truncation, tick pruning,
+  // layout fitting) instead of the library's default-bounds fallbacks.
+  installTextMetrics();
   if (typeof globalThis.requestAnimationFrame !== 'function') {
     globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
       setTimeout(() => callback(performance.now()), FRAME_MS) as unknown as number;
