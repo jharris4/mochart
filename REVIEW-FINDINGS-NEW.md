@@ -4359,7 +4359,7 @@ range strings; no dependency resolved differently.
 Repo-wide typecheck, lint and deadcode clean; core's suite passes.
 
 ### TOOL-14 — every docs-site sourcemap maps nothing but vitepress internals
-**Medium · Bug · [.vitepress/config.ts:62](packages/mochart-docs/.vitepress/config.ts#L62)** **[verified]** — **Open**
+**Medium · Bug · [.vitepress/config.ts:62](packages/mochart-docs/.vitepress/config.ts#L62)** **[verified]** — **Fixed**
 
 The docs config asks for sourcemaps — `vite: { build: { sourcemap: true }, plugins: [depSourcemaps()] }`
 — and the build honours the request in form only. Measured on an assembled `site/`:
@@ -4383,6 +4383,38 @@ rule out.
 **Fix:** determine whether `depSourcemaps` is reached at all under VitePress's Vite, and whether
 VitePress's own client build strips maps. If the plugin is the problem, register it through
 VitePress's own Vite instance rather than the repo's.
+
+**Fixed in `scripts/dep-sourcemaps.ts` — and the finding's diagnosis was wrong.** The plugin *was*
+reached under VitePress's Vite; it fired on all 12 dist bundles in both the client and SSR passes. The
+real cause is rollup semantics: a map returned from `transform` is read as one link in the chain
+mapping back to *the code the plugin received* — the dist file — rather than as that file's own
+original map, so rollup resolves source index 0 to the dist bundle and drops the rest. Rolldown (Vite 8,
+what the galleries use) tolerates it; rollup (Vite 5, what VitePress bundles) does not. Returning the map
+from `load` makes it the module's `originalSourcemap`, which both majors handle.
+
+Measured on two full docs builds, comparing every emitted `.js.map`: unique sources went from **125 to
+386**. `packages/mochart/dist/mochart.js`, `mochart-export/dist/index.js` and `movalid/dist/validators.js`
+are gone from the maps, replaced by **172 `packages/mochart/src/**.ts` files** plus 86 d3 sources riding
+along in core's map. Spot-checked with `@jridgewell/trace-mapping`: in `assets/chunks/theme.*.js.map`,
+generated 4:56115 resolves to `chart/ChartController.ts:20`, `export class ChartController {`, against
+generated text `CO=class{constructor(e,t,r){…}`.
+
+It also fixed a Vite 8 defect nobody had filed: the `transform` path copied each dep map's own relative
+spellings verbatim, so shipped gallery maps say `../../../../../src/render/dom.ts`, which resolves to a
+`packages/src/…` path that does not exist. `load` rebases them.
+
+Cost, stated because it is a deployed artifact: sourcemap bytes go from 2.79 MB to 3.96 MB (+42%), since
+`sourcesContent` now carries the TypeScript sources instead of one dist bundle. Shipped JS is unchanged
+bar 360 bytes of minifier noise, and build time did not move.
+
+Two adjacent gaps left alone: `packages/mochart/vite.config.ts` does not use this plugin, so movalid code
+bundled into core still debugs as movalid's dist inside core's own map; and VitePress ships no maps for
+its own client.
+
+Corrections to the finding's numbers, for anyone rereading it: there were 69 `.js.map` files with 125
+sources before, not "123 maps with exactly one source" — the VitePress theme, Vue runtime and six
+demo-common sources were already mapped. What was unmapped was precisely the pre-built dist bundles, so
+the consequence it describes was real even though the measurement was not.
 
 ### TOOL-15 — the Angular gallery bundles the library without mapping any of it
 **Low · Bug · [mochart-demo-angular/vite.config.ts:10](packages/mochart-demo-angular/vite.config.ts#L10)** **[verified]** — **Open**
