@@ -3984,7 +3984,7 @@ red. An audit that always fails is an audit nobody reads. Dependabot will offer 
 once 2.0 is stable.
 
 ### TOOL-4 — `npm run deadcode` filters out knip's dependency and duplicate-export checks
-**Medium · Tooling gap · [package.json:41](package.json#L41) — `knip --include exports,types,files`** — **Open**
+**Medium · Tooling gap · [package.json:41](package.json#L41) — `knip --include exports,types,files`** — **Fixed**
 
 The filter discards `dependencies`, `unlisted`, `binaries`, `unresolved`, `duplicates`,
 `classMembers` and `enumMembers`. CI runs the filtered command, so it is green while an unfiltered
@@ -3996,6 +3996,30 @@ to consumers of a public package.
 
 **Fix:** change the script to plain `knip` and fix or explicitly `ignoreDependencies` the current
 hits; at minimum add `dependencies,unlisted,duplicates` to the include list.
+
+**Fixed by unfiltering the gate, and by removing the two hits it then found.** `deadcode` is now plain
+`knip` instead of `knip --include exports,types,files`, so the full default issue set gates every PR:
+unused and unlisted `dependencies`, missing `binaries`, `unresolved` imports, `duplicates`,
+`nsExports`/`nsTypes`, `namespaceMembers` and `enumMembers`. Preferred over adding three names to the
+include list because it is the stronger gate and needed no `ignoreDependencies` escape hatch.
+
+Unfiltering immediately failed on two real hits, now removed: `@codemirror/commands` and
+`@codemirror/search` were **runtime `dependencies` of the published `@mochart/editor`** and imported
+nowhere — exactly the "orphaned dependency shipped to consumers" case the finding says nothing would
+catch. Removing them is safe because `codemirror` still depends on both, so the installed graph is
+unchanged; the editor builds, typechecks and passes its 25 tests against the trimmed manifest, and the
+lockfile diff is those two lines only.
+
+No workflow change: `ci.yml` already runs the root `deadcode` script, so it picks this up as-is.
+
+Two of the finding's details did not survive contact. The duplicate-export hit it cites is stale —
+`TOP_RIGHT_BOTTOM_LEFT` is a single export now (collapsed under
+[TOOL-13](#tool-13--minor-manifest-and-config-drift)) and `knip --include duplicates` reports nothing.
+And `classMembers` is not a knip 6 issue type at all, so it was never among what the filter discarded.
+
+Two knip *configuration hints* remain (redundant `playground/*` entry patterns in `knip.json` for the
+editor). Hints do not affect the exit code and are outside this finding; clearing them would mean
+`--treat-config-hints-as-errors` or dropping those patterns.
 
 ### TOOL-5 — `@mochart/core` inlines its runtime dependencies but still declares them; nothing declares `sideEffects`
 **Medium · Inconsistency · [mochart/vite.config.ts:3-5](packages/mochart/vite.config.ts#L3), [mochart/package.json:44](packages/mochart/package.json#L44)** **[verified]** — **Open**
