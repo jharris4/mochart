@@ -175,12 +175,10 @@ function writeFileEnsuringDir(filename: string, contents: string) {
 }
 
 export default function generateDocs(htmlPath: string, jsonPath: string, apiJsonPath: string): boolean {
+  // both models are built before anything is written: a failing run must leave the
+  // previous artifacts in place rather than half-regenerated ones the checks rejected
   const { model, integrityErrors } = buildConfigReference();
-  writeFileEnsuringDir(jsonPath, JSON.stringify(model, null, 2) + '\n');
-  writeFileEnsuringDir(htmlPath, renderHtml(model));
-
   const api = buildApiReference();
-  writeFileEnsuringDir(apiJsonPath, JSON.stringify(api.model, null, 2) + '\n');
 
   let valid = true;
   if (integrityErrors.length > 0) {
@@ -197,6 +195,13 @@ export default function generateDocs(htmlPath: string, jsonPath: string, apiJson
     }
     valid = false;
   }
+  if (!valid) {
+    return false;
+  }
+
+  writeFileEnsuringDir(jsonPath, JSON.stringify(model, null, 2) + '\n');
+  writeFileEnsuringDir(htmlPath, renderHtml(model));
+  writeFileEnsuringDir(apiJsonPath, JSON.stringify(api.model, null, 2) + '\n');
   return valid;
 }
 
