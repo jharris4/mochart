@@ -169,8 +169,10 @@ Two things validation insists on:
 
 - **`version`**, when present, must equal the current config format version
   (`'1.0.0'`). Omitting it means "the current format". Include it in configs
-  you store or share — configs written against an older format can then be
-  upgraded with `migrateConfig(config)`.
+  you store or share: `enhanceConfig` migrates on the way in, so a config
+  written against an older format keeps working, but only if it says which
+  format it was written against. `migrateConfig(config)` is exported for
+  upgrading a stored config in place, without building a chart.
 - **Unknown properties** produce warnings, and a config with warnings is
   rejected in strict mode — typos surface immediately instead of being
   silently ignored.

@@ -38,7 +38,7 @@ cases that pass did not reach, and those are flagged as such.
 **159 findings: 1 critical, 33 high, 71 medium, 54 low.** (145 from the Opus pass,
 5 from the SOL pass, 4 found while implementing.)
 
-**Status: 58 fixed, 2 needing an answer, 101 open.** TOOL-2 is deferred to release time by
+**Status: 59 fixed, 2 needing an answer, 100 open.** TOOL-2 is deferred to release time by
 decision rather than waiting on an answer. Nothing is partially fixed any more. ANIM-1's
 and ANIM-2's follow-ups are both **implemented** — see their entries for what landed and where the
 build revised each design. The two remaining High findings are waiting on an answer.
@@ -1635,7 +1635,7 @@ already gets this right); make `filteredValueCharacter: string | null`; make `st
 Add a types-vs-model check to `checkKeyIntegrity` so all six cannot recur.
 
 ### CONFIG-6 — the documented migration path is never wired into any entry point
-**Medium · Doc gap · [helper/index.ts:6-11](packages/mochart/src/config/helper/index.ts#L6), [DefaultChartInput.ts:69](packages/mochart/src/chart/DefaultChartInput.ts#L69)** — **Open**
+**Medium · Doc gap · [helper/index.ts:6-11](packages/mochart/src/config/helper/index.ts#L6), [DefaultChartInput.ts:69](packages/mochart/src/chart/DefaultChartInput.ts#L69)** — **Fixed**
 
 The docs tell users to store `version` "so `migrateConfig` can upgrade them if the format
 changes", and describe `createDefaultChart` as one that "validates and defaults the raw config
@@ -1646,9 +1646,36 @@ Latent today (`CONFIG_VERSION` is the initial `'1.0.0'` and there are no steps),
 step is added, a stored `version: '1.0.0'` config passed to `createDefaultChart` fails validation
 instead of migrating — exactly the scenario the docs promise is handled.
 
-**Fix:** either call `migrateConfig` at the head of `enhanceConfig`, or state plainly in
-`guide/config-model.md` and `reference/api.md` that stored configs must be passed through
-`migrateConfig` first.
+**Fixed: migration now runs at the start of `enhanceConfig`.** That is the point where a stored
+config enters the chart, so an old config is brought current before defaults or validation see it.
+The demo path already did this by hand — `mochartDemoConfig` calls `migrateConfig` before the
+low-level three — which is why the gap never showed in practice.
+
+The lower-level `getDefaults` / `validateConfig` / `buildMochartConfig` deliberately do **not**
+migrate. The editor validates the text in the buffer to draw error squiggles, and migrating there
+would report errors about a document the author is not looking at.
+
+**Two arguments against wiring it in were wrong and are recorded here so they are not made again.**
+That it would re-run per render: `enhanceConfig` already computes every section's defaults, validates
+and rebuilds on every config change, so migration steps are trivial beside that, and they no-op once
+the config is current. That it would mutate a config the host still holds: it does not — every step
+returns a copy.
+
+The deciding argument is the one the version field exists for. If nothing reads the version, a host
+upgrading the library has no path for configs already saved, and the only remedy is knowing to call
+`migrateConfig` first — exactly the knowledge a host does not have.
+
+Migration is a no-op today (1.0.0 is the first format, so there are no steps), which makes this the
+cheapest possible moment to get the wiring right.
+
+**Type note.** `enhanceConfig` still declares the *current* format. A stored config read from JSON is
+untyped, so nothing complains; only a hand-written literal carrying a stale property errors, which is
+a typo and should. There is no type for an older format and there cannot be one without shipping
+every historical shape forever — a question for whoever adds the second format version.
+
+Tests: the migration suite gained the `undefined → current` branch it now depends on, plus
+non-mutation and non-object cases; `enhanceConfig` is asserted to stamp a versionless config and to
+leave the caller's object alone. Docs updated in the config-model guide and the API reference.
 
 ### CONFIG-7 — array-element shapes have no documentation in the config reference
 **Medium · Doc gap · [configReferenceModel.ts:660-675](packages/mochart/scripts/configReferenceModel.ts#L660), [renderSection.ts:75](packages/mochart-docs/.vitepress/lib/renderSection.ts#L75)** — **Open**
