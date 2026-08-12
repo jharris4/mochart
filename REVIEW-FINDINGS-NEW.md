@@ -3435,7 +3435,7 @@ thresholds are left where they are — ratcheting them is its own call, and a ti
 something to leave running unattended. Full core suite passes (1417 tests).
 
 ### TEST-4 — `migrateConfig` never runs its only behaviour
-**Medium · Test gap · [migration/mochartConfig.ts:7-10](packages/mochart/src/config/migration/mochartConfig.ts#L7)** — **Open**
+**Medium · Test gap · [migration/mochartConfig.ts:7-10](packages/mochart/src/config/migration/mochartConfig.ts#L7)** — **Fixed**
 
 71.4% statements — the lowest of any real file in core — and the uncovered line is the
 version-omitted normalization. Both existing tests pass a config that *has* a `version`, so the one
@@ -3445,6 +3445,25 @@ flow into future migration steps as `version: undefined` and every migration wou
 
 **Fix:** `expect(migrateConfig({foo: 1})).toEqual({foo: 1, version: CONFIG_VERSION})`, plus a
 does-not-mutate case and a `migrateConfig(null)` non-throw case.
+
+**Mostly already fixed; one real gap closed.** The finding is stale: the three cases its **Fix:**
+paragraph asks for — a versionless config being stamped, the copy-not-mutate guarantee, and a
+non-object passing through — were all added by CONFIG-6's commit (`0c664a58`), and the front door is
+pinned too, at `test/config/config.test.ts:52` and `:61`, which run a versionless config through the
+public `enhanceConfig`. The quoted 71.4% statement coverage no longer holds either; it is 85.71%
+statements / 100% branches.
+
+The one arm nothing reached was the guard's `typeof config === 'object'` returning false: the existing
+`null` case short-circuits on `config !== null`, so a primitive never got there. `migration.test.ts`
+now has `passes a primitive through untouched`. Without that condition in the source,
+`migrateConfig('a')` returns `{ "0": "a", version: "1.0.0" }` — a character-keyed object handed on to
+`getDefaults`/`validateConfig` — and the new test is the only one that fails.
+
+One statement remains uncovered and is left alone deliberately: the loop body
+`migratedConfig = migrationStep(migratedConfig)`, which is unreachable while `migrationSteps` is empty
+(no migration exists yet at `CONFIG_VERSION` 1.0.0). Covering it needs a source change — an injectable
+step list, or the first real migration — and inventing one to satisfy coverage would be the wrong
+trade. 107 files / 1614 tests pass, coverage above the gate at 97.47% statements / 90.98% branches.
 
 ### TEST-5 — the title link and `onTitleClick` are entirely untested
 **Medium · Test gap · [Title.ts:55](packages/mochart/src/components/Title.ts#L55), [:159](packages/mochart/src/components/Title.ts#L159), [Chart.ts:973](packages/mochart/src/components/Chart.ts#L973)** — **Open**

@@ -29,4 +29,10 @@ describe('migrateConfig', () => {
   it('passes a non-object through untouched', () => {
     expect(migrateConfig(null as unknown as Record<string, unknown>)).toBeNull();
   });
+
+  it('passes a primitive through untouched', () => {
+    // without the typeof guard a string would spread into a character-keyed object with a version
+    const config = 'a' as unknown as Record<string, unknown>;
+    expect(migrateConfig(config)).toBe(config);
+  });
 });
