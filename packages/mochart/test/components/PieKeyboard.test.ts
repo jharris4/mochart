@@ -212,4 +212,26 @@ describe('pie slice keyboard semantics', () => {
     key(items[0], 'ArrowRight');
     expect(document.activeElement).toBe(items[1]);
   });
+
+  // A11Y-12: Tab into a slice and the AT announced "Subscriptions, 30%, button" with no
+  // enclosing group, while the legend one Tab later announced "Legend, group"
+  it('groups the roving slices like the legend, named from the accessibility config', () => {
+    const container = mountChart(makeConfig(), () => {});
+    const group = container.querySelector(getCssSelector('seriesContainer'))!;
+    expect(group.getAttribute('role')).toBe('group');
+    expect(group.getAttribute('aria-label')).toBe('Chart series'); // slices are series
+    expect(slices(container)[0].closest('[role="group"]')).toBe(group);
+
+    const named = mountChart(makeConfig({ accessibility: { seriesLabel: 'Anteile' } }), () => {});
+    expect(named.querySelector(getCssSelector('seriesContainer'))!.getAttribute('aria-label')).toBe('Anteile');
+  });
+
+  it('leaves the slice container unroled when the slices are not tab stops', () => {
+    for (const container of [mountChart(makeConfig()),
+      mountChart(makeConfig({ accessibility: { enabled: false } }), () => {})]) {
+      const group = container.querySelector(getCssSelector('seriesContainer'))!;
+      expect(group.getAttribute('role')).toBeNull();
+      expect(group.getAttribute('aria-label')).toBeNull();
+    }
+  });
 });

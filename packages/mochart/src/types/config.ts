@@ -205,6 +205,19 @@ export interface AccessibilityConfig {
    */
   plotLabel: string;
   /**
+   * The screen-reader label for the group of keyboard-reachable series or pie
+   * slices.
+   *
+   * The accessible name of the group that contains the keyboard-reachable
+   * series — cartesian series or pie slices, whichever the chart draws. Like
+   * the legend group, it is present only while the series are roving tab stops,
+   * which is when clicking a series does something (`series.focusOnClick`, or
+   * an `onSeriesClick`/`onSliceClick` callback). Replace to localize it.
+   *
+   * @default "Chart series"
+   */
+  seriesLabel: string;
+  /**
    * The screen-reader label for the legend.
    *
    * The accessible name of the legend group that contains the
@@ -213,6 +226,18 @@ export interface AccessibilityConfig {
    * @default "Legend"
    */
   legendLabel: string;
+  /**
+   * The screen-reader label for the group of keyboard-reachable tooltip rows.
+   *
+   * The accessible name of the group that contains an open tooltip’s
+   * keyboard-reachable rows. Present only while the rows are roving tab stops,
+   * which is when clicking a row does something (the tooltip controls’ current
+   * mode, or `tooltip.focusCategoryOnClick` / `focusSeriesOnClick` /
+   * `filterSeriesOnClick`). Replace to localize it.
+   *
+   * @default "Tooltip values"
+   */
+  tooltipLabel: string;
   /**
    * The label for the tooltip controls’ previous-category button (aria-label
    * and hover title).

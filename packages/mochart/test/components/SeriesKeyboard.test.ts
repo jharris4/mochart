@@ -201,4 +201,27 @@ describe('cartesian series keyboard semantics', () => {
     key(items[0], 'ArrowRight');
     expect(document.activeElement).toBe(items[1]);
   });
+
+  // A11Y-12: the roving series had only key handlers, so a screen reader announced a
+  // bare button with no enclosing group where the legend one Tab later announces "Legend, group"
+  it('groups the roving series like the legend, named from the accessibility config', () => {
+    const container = mountChart(makeConfig(), () => {});
+    const group = container.querySelector(getCssSelector('seriesContainer'))!;
+    expect(group.getAttribute('role')).toBe('group');
+    expect(group.getAttribute('aria-label')).toBe('Chart series');
+    // the group is the one the roving items sit in, as in the legend
+    expect(seriesNodes(container)[0].closest('[role="group"]')).toBe(group);
+
+    const named = mountChart(makeConfig({ accessibility: { seriesLabel: 'Umsätze' } }), () => {});
+    expect(named.querySelector(getCssSelector('seriesContainer'))!.getAttribute('aria-label')).toBe('Umsätze');
+  });
+
+  it('leaves the series container unroled when the series are not tab stops', () => {
+    for (const container of [mountChart(makeConfig()),
+      mountChart(makeConfig({ accessibility: { enabled: false } }), () => {})]) {
+      const group = container.querySelector(getCssSelector('seriesContainer'))!;
+      expect(group.getAttribute('role')).toBeNull();
+      expect(group.getAttribute('aria-label')).toBeNull();
+    }
+  });
 });
