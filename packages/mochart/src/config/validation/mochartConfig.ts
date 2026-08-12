@@ -1,7 +1,7 @@
 import validators from './validators';
 import { getMessage, getPropertyMessage, getMessages, addWarningMessages, DEFAULT } from './messages';
 import type { LocatedValidationMessage } from './messages';
-import { NONE, AUTO, CONFIG_VERSION } from '../core/constants';
+import { NONE, CONFIG_VERSION } from '../core/constants';
 import { applyDefaults, configWithAll, filterConfig, filterConfigs, sectionKeyAllMap } from '../core/mochartConfig';
 
 import accessibilityValidators from './accessibilityConfig';
@@ -11,6 +11,7 @@ import colorPaletteValidators from './colorPaletteConfig';
 import clipIndicatorValidators from './clipIndicatorConfig';
 import crosshairValidators from './crosshairConfig';
 import categoryAxisValidators from './categoryAxisConfig';
+import { validateAxisBounds } from './axisConfig';
 import legendValidators from './legendConfig';
 import linearGradientValidators from './linearGradientConfig';
 import pieValidators from './pieConfig';
@@ -76,10 +77,6 @@ export function getCommonReferenceMessage(sourceSectionKey: string | string[], s
 
 export function getFollowSeriesMessage(): string {
   return 'should equal the id property of a series that does not itself set followSeries';
-}
-
-export function getAxisBoundsMessage(max: unknown): string {
-  return 'should not be above the max property of the same axis: ' + JSON.stringify(max);
 }
 
 export const configWithoutAllValidators: Record<string, ConfigSectionValidator> = {
@@ -536,64 +533,6 @@ function validateFollowSeries(config: ConfigRecord, configWithoutDefaults: Confi
     errors.push(getPropertyMessage('series', 'followSeries', message, reportIndex));
     errorDetails.push({ path: ['series', reportIndex, 'followSeries'], message });
   }
-}
-
-/**
- * An axis whose min is above its max would run backwards. `axis.reversed` is the supported way to
- * invert an axis, so an inverted domain is a mistake rather than a spelling of that intent.
- * `min === max` stays legal: `auto` already produces a collapsed domain from flat data, and it is
- * where computed bounds land when every value is the same.
- */
-function validateAxisBounds(config: ConfigRecord, configWithoutDefaults: ConfigRecord, errors: string[], errorDetails: LocatedValidationMessage[]): void {
-  checkAxisBounds(config['categoryAxis'], 'categoryAxis', undefined, errors, errorDetails);
-  const valueAxes = config['valueAxes'];
-  if (Array.isArray(valueAxes)) {
-    // built sections drop ignored/non-object raw entries, so report at the filtered raw index
-    const rawSections = Array.isArray(configWithoutDefaults['valueAxes']) ? configWithoutDefaults['valueAxes'] as unknown[] : [];
-    const rawIndices: number[] = [];
-    for (let i = 0; i < rawSections.length; i++) {
-      if (filterConfig(rawSections[i])) {
-        rawIndices.push(i);
-      }
-    }
-    for (let i = 0; i < valueAxes.length; i++) {
-      checkAxisBounds(valueAxes[i], 'valueAxes', rawIndices[i] ?? i, errors, errorDetails);
-    }
-  }
-}
-
-function checkAxisBounds(section: unknown, sectionKey: string, index: number | undefined, errors: string[], errorDetails: LocatedValidationMessage[]): void {
-  if (!isConfigRecord(section)) {
-    return;
-  }
-  const { min, max } = section;
-  // an AUTO end is computed from the data, so there is no authored pair to compare
-  if (min === AUTO || max === AUTO || min === undefined || max === undefined) {
-    return;
-  }
-  const minValue = boundValue(min);
-  const maxValue = boundValue(max);
-  if (minValue === null || maxValue === null || minValue <= maxValue) {
-    return;
-  }
-  const message = getAxisBoundsMessage(max);
-  errors.push(getPropertyMessage(sectionKey, 'min', message, index));
-  errorDetails.push({ path: index === undefined ? [sectionKey, 'min'] : [sectionKey, index, 'min'], message });
-}
-
-/** A bound is a number, or a date primitive on a linear date axis; anything else is another rule's error. */
-function boundValue(value: unknown): number | null {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : null;
-  }
-  if (value instanceof Date) {
-    return Number.isNaN(value.getTime()) ? null : value.getTime();
-  }
-  if (typeof value === 'string') {
-    const time = new Date(value).getTime();
-    return Number.isNaN(time) ? null : time;
-  }
-  return null;
 }
 
 function validateCommonReferences(config: ConfigRecord, configWithoutDefaults: ConfigRecord, _configDefaults: ConfigRecord, targetSectionKey: string, _targetAllKey: string | undefined, targetProperty: string, sourceSectionKey: string, sourceProperty: string, commonProperty: string, errors: string[], errorDetails: LocatedValidationMessage[]): void {

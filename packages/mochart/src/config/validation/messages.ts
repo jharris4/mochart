@@ -2,10 +2,10 @@ import validators from './validators';
 import { isPlainObject } from '../core/deepMerge';
 import type { Validator } from '@mochart/movalid';
 
-type ConfigObject = Record<string, unknown>;
+export type ConfigObject = Record<string, unknown>;
 type ValidatorMap = Record<string, Validator>;
 
-function isConfigObject(value: unknown): value is ConfigObject {
+export function isConfigObject(value: unknown): value is ConfigObject {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 

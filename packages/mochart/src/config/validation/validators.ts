@@ -105,4 +105,19 @@ const configValidators = Object.assign({}, validators, {
   cssColor
 });
 
+/** A bound is a number, or a date primitive on a linear date axis; anything else is another rule's error. */
+export function boundValue(value: unknown): number | null {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.getTime();
+  }
+  if (typeof value === 'string') {
+    const time = new Date(value).getTime();
+    return Number.isNaN(time) ? null : time;
+  }
+  return null;
+}
+
 export default configValidators;
