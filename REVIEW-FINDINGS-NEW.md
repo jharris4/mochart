@@ -5024,7 +5024,7 @@ have `Chart.ts` import `mochartVersionAttribute`, and add the lint rule TEST-18 
 `'mochart-'` string literal under `test/` and `e2e/` — so neither pocket can grow back.
 
 ### TEST-20 — the API coverage ratchet omits `ChartSeriesClickPayload`
-**Low · Test gap · [checkApiCoverage.ts](packages/mochart-docs/scripts/checkApiCoverage.ts)** — **Open**
+**Low · Test gap · [checkApiCoverage.ts](packages/mochart-docs/scripts/checkApiCoverage.ts)** — **Fixed**
 
 *Found while implementing [DOC-8](#doc-8--contributor-docs-omit-the-generated-apipropsframework-props-pipeline-and-its-ci-ratchets), not by either review pass.*
 
@@ -5039,6 +5039,40 @@ which is presumably why it was never added to the list.
 **Fix:** add it to `propInterfaces`, and check whether the list can be derived from the generator's own
 `pageSources` groups instead of being maintained in parallel — a hand-maintained mirror of a generated list is
 the same drift this ratchet exists to prevent.
+
+**Fixed by deriving the list rather than adding one entry to it — which is the half of this finding worth having.**
+`propInterfaces` is gone. The generated model already carries what the hand-list was mirroring: every group in
+`api-reference.json` has an `interfaceName`, so one pass over the model now yields both the group interface names
+and the documented member keys. Future payload interfaces enrol themselves.
+
+Established as safe rather than assumed: the two lists were *exactly* congruent beforehand — model groups minus the
+hand list was `['ChartSeriesClickPayload']` and the reverse was empty, so there was no legitimate divergence to
+preserve. And the derivation is not circular, because `apiReferenceModel.ts` already fails the generator when an
+exported interface in `types/chart.ts` has neither a page group nor an `internalInterfaces` reason: the model's
+group list is therefore guaranteed to be every exported prop/payload interface except the declared internals, which
+is precisely the set this check wants. The internals exemption moves to its single source rather than being lost,
+and a vacuity guard was added so a model declaring zero groups fails instead of passing an empty walk.
+
+**The finding's suggested bite does not exercise this check, and that matters.** Removing a member's JSDoc makes the
+*generator* fail, and because `generateDocs` writes nothing on a failed run
+([API-12](#api-12--generate-docs-writes-its-output-before-reporting-integrity-errors)), the on-disk model still
+contains the key and the coverage check passes — that path was already guarded, by the generator, and
+`npm test -w @mochart/docs` runs `gen` first so the gate as a whole always caught it. The mutation this check
+actually guards is a member present in a documented interface but *absent from the model*. Proved with a probe
+member and no regeneration: the fixed script reports it undocumented and exits 1, while the pre-fix script (run
+from `git show HEAD:`) reports `✓ all 232 …` and exits 0. Same probe, opposite verdicts. The clean count moved
+232 → 233, the new name being `nearestCategoryIndex`, the only member of that payload not shared with another
+documented interface.
+
+So one clause of the finding is wrong: a member *losing its description* was never the exposure — that is the
+generator's own integrity error. Only the added-or-renamed-member case was.
+
+`packages/mochart/src/types/chart.ts` was hashed before and after the probe and is byte-identical to HEAD; the
+probe lines were reverted by targeted edit rather than by overwriting a file other agents were touching.
+
+Left as a separate matter: the file header calls this ratchet "the backstop for a member quietly moving to an
+undocumented interface", which is aspirational either way — a member moved into `ChartDomAccessors` or
+`InternalFocus` still drops silently out of the walk, since those are deliberately not walked.
 
 
 # 12. Build, tooling, packaging and CI
