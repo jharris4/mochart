@@ -189,6 +189,9 @@ function makeBackgroundRect(width: number, height: number, backgroundColor: stri
  */
 function cloneChartSvg(svgElement: SVGSVGElement): SVGSVGElement {
   const svgCloneElement = svgElement.cloneNode(true) as SVGSVGElement;
+  // the clone is already in the svg namespace, so the serializer declares it; the live chart's
+  // literal xmlns attribute would be written a second time and make the markup invalid xml
+  svgCloneElement.removeAttribute('xmlns');
   inlineComputedStyles(svgCloneElement, svgElement);
   for (const crosshairElement of svgCloneElement.querySelectorAll('.' + crosshairClass)) {
     crosshairElement.parentNode?.removeChild(crosshairElement);

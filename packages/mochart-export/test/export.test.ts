@@ -83,6 +83,15 @@ describe('getChartSvgText', () => {
     expect(svgText).toMatch(/<rect[^>]*width="400"[^>]*height="300"[^>]*fill: rgb\(255, 255, 255\)/);
   });
 
+  // BIND-13: the live svg carries a literal xmlns attribute, and the serializer writes the
+  // declaration itself for a document root, so the clone keeping it emitted xmlns twice
+  it('serializes as valid xml with a single namespace declaration', () => {
+    const svgText = getChartSvgText(container)!;
+    const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+    expect(doc.querySelector('parsererror')?.textContent ?? null).toBeNull();
+    expect(svgText.match(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/g)!.length).toBe(1);
+  });
+
   it('strips the live keyboard semantics and exports a plain labeled image', () => {
     // the live chart has keyboard tab stops; the static export must not
     const liveSvg = findChartSvg(container)!;
@@ -368,9 +377,10 @@ describe('stitching several charts', () => {
     const svgText = getStitchedChartsSvgText([container, secondContainer], { cols: 2 })!;
     // a second xmlns declaration on the outer svg makes browsers and image
     // decoders reject the file, which silently broke png stitching
-    expect(svgText.match(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/g)!.length).toBe(3);
     const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
-    expect(doc.querySelector('parsererror')).toBeNull();
+    expect(doc.querySelector('parsererror')?.textContent ?? null).toBeNull();
+    // one declaration for the whole document: the tiles inherit it from the outer svg
+    expect(svgText.match(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/g)!.length).toBe(1);
   });
 
   it('tiles the charts into a grid sized to the largest chart', () => {
