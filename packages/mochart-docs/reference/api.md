@@ -159,8 +159,8 @@ yours. Each links to a recipe with a live example.
 createHistogram(values, options?)   // → { bins, data, categoryAxis, seriesConfig }
 createWaterfall(items, options?)    // → { steps, data, categoryAxis, series }
 createHeatmap(rows, options?)       // → { domain, colorScale, data, categoryAxis, valueAxisConfig, series }
-createCandlestick(items, options?)  // → { candles, data, categoryAxis, series }
-createOhlc(items, options?)         // → { candles, data, categoryAxis, series }
+createCandlestick(items, options?)  // → { candles, data, categoryAxis, series, valueAxes? }
+createOhlc(items, options?)         // → { candles, data, categoryAxis, series, valueAxes? }
 createPie(items, options?)          // → { total, fractions, data, chart, pie, categoryAxis, series }
 createSparklineConfig(config, options?)  // → config with the sparkline preset applied
 ```
@@ -205,7 +205,11 @@ exported as named types — histogram: `BinValuesOptions`, `HistogramBin`,
 `CreateCandlestickOptions`, `CandlestickVolumeOptions`, `CandlestickData`;
 OHLC: `CreateOhlcOptions`, `OhlcData`; pie: `PieItem`, `CreatePieOptions`,
 `PieData`; sparkline: `CreateSparklineConfigOptions`. The shipped `.d.ts`
-documents every field — hover the type in your editor.
+documents every field — hover the type in your editor. Option members typed as
+a config union — `CreatePieOptions.tooltipValues` (`PieTooltipLabelType`) and
+`CreateHeatmapColorScaleOptions.colorInterpolation` (`ColorInterpolation`) —
+are typed by the config unions listed under [Constants](#constants), so a
+wrapper prop that forwards one can be typed.
 
 ## Constants
 

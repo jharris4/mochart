@@ -1576,7 +1576,7 @@ Call sites updated: the docs example (its wrapping array is now redundant), the 
 two test files. No golden snapshot moved — the value is identical, only the key changed.
 
 ### HELP-11 — `reference/api.md` overstates the helper type surface
-**Low · Doc inconsistency · [reference/api.md:154](packages/mochart-docs/reference/api.md#L154), [:190](packages/mochart-docs/reference/api.md#L190)** — **Open**
+**Low · Doc inconsistency · [reference/api.md:154](packages/mochart-docs/reference/api.md#L154), [:190](packages/mochart-docs/reference/api.md#L190)** — **Fixed**
 
 Two slips: the return-shape comments for `createCandlestick`/`createOhlc` omit the optional
 `valueAxes` the `volume` option adds (which the prose three lines below describes); and "every
@@ -1588,6 +1588,22 @@ TS host cannot type a wrapper prop that forwards them.
 
 **Fix:** add `valueAxes?` to the two comments; export `ColorInterpolation`, `PieLabelType` and
 `PieTooltipLabelType` from `src/index.ts` (see [API-3](#api-3--21-config-union-types-are-named-in-the-public-types-but-cannot-be-imported)).
+
+**Fixed; half of it had already been resolved elsewhere.** The two return-shape comments now read
+`{ candles, data, categoryAxis, series, valueAxes? }`, matching what `createCandlestick` and
+`createOhlc` actually return once the `volume` option adds the pane
+([Candlestick.ts:413](packages/mochart/src/data/Candlestick.ts#L413)) and agreeing with the prose three
+lines below.
+
+The second slip is no longer true: `ColorInterpolation`, `PieLabelType` and `PieTooltipLabelType` are
+all exported from `src/index.ts` (lines 55-56), and the Constants section already lists them among the
+exported unions — that landed with
+[API-3](#api-3--21-config-union-types-are-named-in-the-public-types-but-cannot-be-imported). What was
+still missing was the connection: the helper-types paragraph claimed every option shape is exported
+without saying that the two union-typed members get their names from the constants list. That sentence
+now says so and links there, which is what a TS host forwarding one of those props needs to know.
+
+Docs site builds clean, no dead anchors.
 
 ### HELP-12 — two valid large pie values overflow the total and collapse every slice
 **Low · Bug · [Pie.ts:64](packages/mochart/src/data/Pie.ts#L64), [PieData.ts:26](packages/mochart/src/data/PieData.ts#L26)** **[from SOL review]** — **Open**
