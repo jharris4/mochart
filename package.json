@@ -35,7 +35,7 @@
     "build:libs": "npm run build -w @mochart/movalid && npm run build -w @mochart/core && npm run build -w @mochart/editor && npm run build -w @mochart/export && npm run build -w @mochart/react && npm run build -w @mochart/svelte && npm run build -w @mochart/vue && npm run build -w @mochart/lit && npm run build -w @mochart/angular",
     "prepare": "npm run build:libs",
     "test": "npm test --workspaces --if-present",
-    "test:e2e": "npm run test:e2e -w @mochart/demo-basic",
+    "test:e2e": "npm run test:e2e -w @mochart/demo-basic && npm run test:e2e -w @mochart/demo-vanilla",
     "screenshots": "node scripts/screenshots/capture.mjs",
     "screenshots:compare": "node scripts/screenshots/compare.mjs",
     "lint": "eslint .",

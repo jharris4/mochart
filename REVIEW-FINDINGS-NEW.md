@@ -5315,7 +5315,7 @@ One thing noticed and left: when the second test fails part-way it aborts before
 misleading `TypeError`. Cosmetic — it needs a failure to surface.
 
 ### TEST-14 — e2e covers one minimal harness; the shipped gallery, editor, share menu and mobile layout have none
-**Low · Test gap · [demo-basic/e2e/](packages/mochart-demo-basic/e2e/) (5 files, 429 lines)** — **Open**
+**Low · Test gap · [demo-basic/e2e/](packages/mochart-demo-basic/e2e/) (5 files, 429 lines)** — **Fixed**
 
 The suite runs against `demo-basic`, a single-chart harness. Not covered anywhere: the deployed
 `@mochart/demo-vanilla` gallery (0 test files, no `test` script), the `@mochart/editor` JSON tabs in
@@ -5328,6 +5328,83 @@ encode/decode and the phone-fold DOM reparenting are exactly the logic jsdom can
 `packages/mochart-demo-vanilla/e2e/` suite with `share.spec.ts` (copy the link, navigate to it,
 assert the restored mode and config), `editor.spec.ts`, and `mobile.spec.ts` (at 390px, assert the
 control strip collapses and each control appears exactly once in the DOM).
+
+Fixed with a new `packages/mochart-demo-vanilla/e2e/` suite — 12 tests across
+`share`, `editor`, `export` and `mobile` — plus a phone project. 12/12, stable under
+`--repeat-each=8 --workers=14` (96/96); demo-basic's 89 unchanged; lint, repo-wide
+typecheck and `deadcode` all exit 0.
+
+**Its own `playwright.config.ts`, not folded into demo-basic's.** The specs import
+`@mochart/demo-common` and `@mochart/demo-data` for the copy and class constants they
+build selectors from — this package's dependencies, which demo-basic declares
+neither of, so hosting them in its `testDir` would give it phantom workspace
+dependencies. The dev servers differ too (5179 vs 5173), so a merged config would
+need a `webServer` array plus per-project `baseURL` regardless: all the cost, none of
+the boundary.
+
+**Chromium only, deliberately, plus a phone project.** TEST-15 already runs the three
+README engines over library rendering, which is where engines diverge. This suite
+covers demo-app plumbing — clipboard, the compressed share payload, a lazy chunk, DOM
+reparenting — and one of those cannot run elsewhere at all: Playwright's
+`clipboard-read` grant is Chromium-only. A second engine matrix would triple the gate
+for coverage that already exists.
+
+**The finding's `devices['iPhone 13']` pin is wrong and was not used.** It stamps a
+WebKit user agent, which under Chromium is a lie and under WebKit would pin this
+suite's only mobile coverage to the one engine that cannot read the clipboard. The
+phone project is Chromium at 390×844 with `hasTouch` — the same viewport that
+descriptor carries, which is all the width-driven fold reads. It is a *project*, not
+a `setViewportSize`, so the page is **built** at that width and the fold's
+initial-mount path runs rather than its resize-watcher path.
+
+Two traps that would each have made a spec vacuous, both handled:
+`followShareLink` navigates via `about:blank` first, because the copied link differs
+from the copying page only by hash and Playwright's `goto` would treat that as a
+same-document navigation — nothing would reload and no state would be consumed. And
+the editor waits are web-first assertions on the editor's own `[data-validity]`
+attribute (`pending` → `valid`/`invalid`), which only settles once the lazy chunk has
+loaded *and* the linter has run; no fixed timeouts.
+
+The share round trip asserts mode (`aria-current="page"` on the switcher segment),
+config (the Invert toggle reads its pressed state off the config the view mounted
+with — no CodeMirror scraping, no geometry), and the post-load hash strip. Clipboard
+goes through `grantPermissions` + `navigator.clipboard.readText()`, so the real
+`writeText` path is under test rather than a stub, and no assertion touches the copied
+label, since that is DEMO-23's open question. A third test hand-moves a single payload
+onto `/multi/` and proves the mode tag rejects it — non-vacuous because the multi test
+shows a real 1×3 payload does restore.
+
+Bite proofs: perturbing `EditableChart.placeControls` to mirror instead of reparent
+failed `every folded chart control appears exactly once` with
+`Reset Categories … Expected: 1, Received: 2` *and* the fold test; perturbing
+`DemoSingle` to ignore `sharedState?.config` failed the round trip on
+`#config-inverted`'s `aria-pressed`. Both restored, `git diff` clean.
+
+Counts use attribute selectors rather than `getByRole`, deliberately: Playwright's
+role engine skips a11y-hidden elements, and a control inside a closed
+(`display: none`) panel is exactly what these counts must see.
+
+**Dropped, with reasons:** dark-mode restyling (visual — the screenshot gate owns it,
+and asserting computed colours would restate the theme logic), the random-mode share
+arm (a third `ShareState` shape through the same mechanism as the two covered), the
+gallery landing page, and pixel inspection of the stitched PNG. The stitched *SVG* is
+inspected — the downloaded file must contain 5 `<svg` (one outer plus one per tile) —
+so "stitched" is verified rather than just the filename.
+
+**A real flake surfaced and is handled honestly, not hidden.** Under heavy parallel
+load a press landing shortly after a view's first render is occasionally lost: the
+element is where Playwright measured it and the hit test resolves to it, but no
+`click` event arrives. Adding any instrumentation before the press made it
+unreproducible (96/96, twice), so it could not be attributed. `pressUntil` presses and
+asserts the resulting attribute, retrying via `expect().toPass()` — strict, no sleeps.
+Worth a separate look in the demo shell.
+
+One thing that could not be built from a constant: element ids such as
+`#config-inverted` and `#grid-rows` are hard-coded in the demo's own source with no
+exported constant, the same as demo-basic's `#export-svg`. Everything else comes from
+`mochartCssClasses`, `demoText` aria/title strings, or `demoTabPanelId`/`demoTabId`,
+with zero `mochart-*`/`demo-*` literals and nothing built on the six class names
+DEMO-18 removed.
 
 ### TEST-15 — the claimed three-engine browser support is only ever tested in Chromium
 **Medium · Test gap · [packages/mochart/README.md:252](packages/mochart/README.md#L252), [demo-basic/playwright.config.ts:13](packages/mochart-demo-basic/playwright.config.ts#L13), [ci.yml:33](.github/workflows/ci.yml#L33)** **[from SOL review]** — **Fixed**
