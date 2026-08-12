@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -40,8 +40,10 @@ export class ConfigTab extends LightElement {
     }
   }
 
+  // demoConfig tracks the text, so the Invert/Slow states and reference links follow unapplied edits.
   private onTextChange = (nextConfigText: string): void => {
     this.configText = nextConfigText;
+    this.demoConfig = demoConfigFromText(nextConfigText, this.demoConfig);
     this.errorMessage = null;
   };
 

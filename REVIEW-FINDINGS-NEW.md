@@ -3157,7 +3157,7 @@ indexed `for` (a `forEach` closure loses the `mochartDemoConfig !== null` narrow
 across 20 workspaces, lint, deadcode clean; demo-vanilla builds.
 
 ### DEMO-6 — Config tab's Invert/Slow state and Reference links go stale after any edit
-**Medium · Bug · [vanilla ConfigTab.ts:280](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L280), [:186](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L186), all six ports** — **Open**
+**Medium · Bug · [vanilla ConfigTab.ts:280](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L280), [:186](packages/mochart-demo-vanilla/src/components/single/ConfigTab.ts#L186), all six ports** — **Fixed**
 
 The Invert/Slow pressed states and `getReferenceSectionIds(...)` both read `demoConfig`, refreshed
 only by `setConfig` or a successful `applyConfigToggle` — never by `onTextChange` and never by
@@ -3168,6 +3168,26 @@ never adds its Reference link.
 
 **Fix:** rebuild `demoConfig` from the current text in the change handler (or at minimum on Apply),
 reusing `toggleConfigFromText`'s parse-and-build path with a no-op transform.
+
+**Fixed in demo-common, wired into all six ports.** A new `demoConfigFromText(configText,
+previousDemoConfig)` rebuilds the derived config view from the *current* editor text, so the
+Invert/Slow pressed states and the Reference links track an edit that has not been applied yet. Each
+port's text-change handler calls it — one line in vanilla, lit, svelte, vue and angular, and a small
+`onTextChange` in react, which had the handler inline in JSX. Verified all six.
+
+Text that does not parse, or that parses but fails to build, keeps the previous view: this runs on
+every keystroke, so mid-typing JSON must not blank the footer, and unlike `parseConfigFromText` it
+reports nothing.
+
+Demonstrated in a real browser, not just reasoned about. Chromium against the built vanilla gallery:
+open a demo, go to Config, type `"plot": { "inverted": true },` into the editor without pressing Apply,
+and the Invert button's `aria-pressed` goes `false` → `true`. Against a build with this change reverted,
+the same script leaves it `false` while the editor text changes — the exact staleness the finding
+describes. No page errors either way.
+
+Also covered as a unit: three cases in `test/configDataEditing.test.ts` for the tracked edit, the
+mid-keystroke parse failure and the parses-but-does-not-build case. demo-common 247 tests, whole-repo
+typecheck and lint clean.
 
 ### DEMO-7 — vanilla leaks a theme subscription and the whole gallery DOM on every visit
 **Medium · Bug · [vanilla ModeSwitcher.ts:154](packages/mochart-demo-vanilla/src/components/misc/ModeSwitcher.ts#L154)** — **Open**

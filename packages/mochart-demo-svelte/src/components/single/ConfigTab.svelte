@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
   import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -49,8 +49,10 @@
     });
   });
 
+  // demoConfig tracks the text, so the Invert/Slow states and reference links follow unapplied edits.
   function onTextChange(nextConfigText: string) {
     configText = nextConfigText;
+    demoConfig = demoConfigFromText(nextConfigText, demoConfig);
     errorMessage = null;
   }
 

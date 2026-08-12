@@ -1,4 +1,4 @@
-import { buildMochartDemoConfig, copyDemoConfig, createJsonEditorContent, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, createJsonEditorContent, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, getReferenceSectionUrl, isPhoneViewport, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, watchPhoneViewport } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -64,6 +64,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
 
   function onTextChange(): void {
     errorMessage = null;
+    demoConfig = demoConfigFromText(getConfigText(), demoConfig);
     sync();
   }
 

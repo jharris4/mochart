@@ -18,7 +18,7 @@ export type { ParsedFullData } from './dataEditing';
 
 export {
   slowAnimationConfig, formatMochartDemoConfig,
-  copyDemoConfig, parseConfigFromText, toggleConfigFromText, toggleConfigProperty, toggleConfigSection, isConfigSectionActive
+  copyDemoConfig, parseConfigFromText, toggleConfigFromText, demoConfigFromText, toggleConfigProperty, toggleConfigSection, isConfigSectionActive
 } from './configEditing';
 export type { DemoConfigView } from './configEditing';
 

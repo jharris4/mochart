@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { copyDemoConfig, isConfigSectionActive, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
+import { copyDemoConfig, demoConfigFromText, isConfigSectionActive, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '../src/configEditing';
 import { restoreHiddenDataProperties } from '../src/unusedDataProperties';
 import { applyDataEdit, formatData, getConfigDataError, stringifyWithSpacedCommas } from '../src/dataEditing';
 import { applyTransitionConfigEdit } from '../src/transition';
@@ -29,6 +29,37 @@ describe('toggleConfigSection across the clone boundary', () => {
     const off = toggleConfigSection(mochartDemoConfig, applied, 'animationConfig', slowAnimationConfig);
     expect(isConfigSectionActive(off, 'animationConfig', slowAnimationConfig)).toBe(false);
     expect(off.configWithoutDefaults.animation).toEqual(original);
+  });
+});
+
+// DEMO-6: the Invert/Slow pressed states and the Reference links read the built config, which only
+// existed for the last APPLIED text - so after any edit they described the previous config.
+describe('demoConfigFromText', () => {
+  const baseText = JSON.stringify({
+    categoryAxis: { property: 'month' },
+    series: [{ property: 'sales' }]
+  });
+  const view = (text: string) => demoConfigFromText(text, previous);
+  const previous = demoConfigFromText(baseText, {
+    configWithDefaults: {}, configWithoutDefaults: {}
+  } as unknown as MochartDemoConfig);
+
+  it('tracks an edit that has not been applied yet', () => {
+    const edited = JSON.stringify({
+      categoryAxis: { property: 'month' },
+      plot: { inverted: true },
+      series: [{ property: 'sales' }]
+    });
+    expect(isConfigSectionActive(previous, 'plot', { inverted: true })).toBe(false);
+    expect(isConfigSectionActive(view(edited), 'plot', { inverted: true })).toBe(true);
+  });
+
+  it('keeps the previous view while the text is mid-keystroke and does not parse', () => {
+    expect(view('{ "categoryAxis": { "property": "mon')).toBe(previous);
+  });
+
+  it('keeps the previous view when the text parses but does not build', () => {
+    expect(view(JSON.stringify({ series: [{ property: 'sales' }] }))).toBe(previous);
   });
 });
 

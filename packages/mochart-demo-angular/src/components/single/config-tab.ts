@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -155,8 +155,10 @@ export class ConfigTab implements OnInit, OnChanges {
     }
   }
 
+  // demoConfig tracks the text, so the Invert/Slow states and reference links follow unapplied edits.
   onTextChange = (nextConfigText: string): void => {
     this.configText.set(nextConfigText);
+    this.demoConfig.set(demoConfigFromText(nextConfigText, this.demoConfig()!));
     this.errorMessage.set(null);
   };
 
