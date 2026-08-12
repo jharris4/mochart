@@ -17,6 +17,11 @@ concurrency:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    # Mirrors the two deploy jobs' conditions so a site is only built for a
+    # deploy that will actually happen; otherwise one build verifies the site.
+    env:
+      DEPLOY_PAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_PAGES_DEPLOY == 'true' }}
+      DEPLOY_CLOUDFLARE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_CLOUDFLARE_DEPLOY == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,21 +35,50 @@ jobs:
       - run: npm run deadcode
       - run: npm run typecheck
       - run: npm test
+      # Browser binaries are tied to the resolved @playwright/test version, so
+      # keying on it invalidates the cache exactly when a bump needs new ones.
+      - id: playwright
+        run: |
+          version="$(node -p "require('@playwright/test/package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}
+      # Skips the download when the cache hit; still installs the OS packages.
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - id: e2e
+        run: npm run test:e2e
+      # trace: 'on-first-retry' writes traces under test-results; without this
+      # they die with the runner, which is the only place the failure happened.
+      - if: failure() && steps.e2e.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: packages/mochart-demo-basic/test-results
+          retention-days: 7
+      - name: Build site
+        if: env.DEPLOY_PAGES != 'true' && env.DEPLOY_CLOUDFLARE != 'true'
+        run: npm run build:pages
+        env:
+          PAGES_BASE: /
       - name: Build GitHub Pages site
+        if: env.DEPLOY_PAGES == 'true'
         run: npm run build:pages
         env:
           PAGES_BASE: /${{ github.event.repository.name }}/
-      - uses: actions/upload-pages-artifact@v3
+      - if: env.DEPLOY_PAGES == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: site
       # Cloudflare Pages serves from the domain root, so rebuild with base /.
       - name: Build Cloudflare Pages site
+        if: env.DEPLOY_CLOUDFLARE == 'true'
         run: npm run build:pages
         env:
           PAGES_BASE: /
-      - uses: actions/upload-artifact@v4
+      - if: env.DEPLOY_CLOUDFLARE == 'true'
+        uses: actions/upload-artifact@v4
         with:
           name: cloudflare-site
           path: site
