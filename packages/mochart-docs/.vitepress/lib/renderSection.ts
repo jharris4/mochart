@@ -40,12 +40,15 @@ function headingPrefix(depth: number): string {
   return '#'.repeat(Math.min(3 + depth, 6));
 }
 
-/** Render one property, then each member of the object it holds; a member's anchor extends its parent's. */
-function renderProperty(sectionId: string, property: PropertyDoc, usage: UsageIndex, parentPath: string[] = []): string {
+/** Render one property, then each member of the object — or of each array element — it holds; a member's anchor extends its parent's. */
+function renderProperty(sectionId: string, property: PropertyDoc, usage: UsageIndex, parentPath: string[] = [], parentLabels: string[] = []): string {
   const path = [...parentPath, property.key];
+  const labels = [...parentLabels, property.key];
+  // members of an array element are headed `stops[].offset`, while the anchor keeps the plain dotted path
+  const childLabels = [...parentLabels, property.key + (property.itemShape === true ? '[]' : '')];
   const anchor = sectionId + '.' + path.join('.');
   const lines: string[] = [];
-  lines.push(headingPrefix(parentPath.length) + ' ' + path.join('.') + ' {#' + anchor + '}');
+  lines.push(headingPrefix(parentPath.length) + ' ' + labels.join('.') + ' {#' + anchor + '}');
   lines.push('');
   lines.push(upperFirst(property.description) + '.');
   lines.push('');
@@ -53,7 +56,10 @@ function renderProperty(sectionId: string, property: PropertyDoc, usage: UsageIn
     lines.push(property.details);
     lines.push('');
   }
-  if (property.conditionalDefaults) {
+  if (property.required) {
+    lines.push('- **Required:** a value must be given (there is no default)');
+  }
+  else if (property.conditionalDefaults) {
     const [soleConditional] = property.conditionalDefaults;
     if (property.conditionalDefaults.length === 1 && soleConditional !== undefined) {
       lines.push('- **Default:** ' + renderDefaultValue(soleConditional.value) + ' — ' + soleConditional.condition);
@@ -75,9 +81,18 @@ function renderProperty(sectionId: string, property: PropertyDoc, usage: UsageIn
   }
   lines.push('');
   for (const nested of property.properties ?? []) {
-    lines.push(renderProperty(sectionId, nested, usage, path));
+    lines.push(renderProperty(sectionId, nested, usage, path, childLabels));
   }
   return lines.join('\n');
+}
+
+/** `a`, `a` and `b`, `a`, `b` and `c`. */
+function joinKeys(keys: string[]): string {
+  const quoted = keys.map(key => '`' + key + '`');
+  if (quoted.length < 2) {
+    return quoted.join('');
+  }
+  return quoted.slice(0, -1).join(', ') + ' and ' + quoted[quoted.length - 1];
 }
 
 function upperFirst(text: string): string {
@@ -103,14 +118,27 @@ export function renderSectionPage(section: SectionDoc, usage: UsageIndex): strin
     }
     lines.push('');
   }
+  const requiredKeys = section.requiredKeys ?? [];
   lines.push(
-    'Every property is optional' +
-    (section.id === 'series' || section.id === 'categoryAxis' ? ' except `property`' : '') +
-    ' and falls back to its default. Property anchors are stable: link to any entry as' +
+    (requiredKeys.length === 0
+      ? 'Every property is optional and falls back to its default.'
+      : 'Every property is optional and falls back to its default, except ' +
+        joinKeys(requiredKeys) + ', which must be given.') +
+    ' Property anchors are stable: link to any entry as' +
     ' `#' + section.id + '.propertyName`, and to a member of a nested property as' +
     ' `#' + section.id + '.propertyName.memberName`.'
   );
   lines.push('');
+  const itemProperty = section.properties.find(property => property.itemShape === true);
+  const itemMember = itemProperty?.properties?.[0];
+  if (itemProperty && itemMember) {
+    lines.push(
+      'A property holding a list of objects documents the members of one entry, headed' +
+      ' `' + itemProperty.key + '[].' + itemMember.key + '`. Their anchors leave the brackets out:' +
+      ' `#' + section.id + '.' + itemProperty.key + '.' + itemMember.key + '`.'
+    );
+    lines.push('');
+  }
   lines.push('## Properties');
   lines.push('');
   for (const property of section.properties) {

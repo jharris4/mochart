@@ -39,6 +39,7 @@ import getCrosshairDefaults from '../src/config/defaults/crosshairConfig';
 import getCrosshairValidators from '../src/config/validation/crosshairConfig';
 import * as crosshairDocs from '../src/config/docs/crosshairConfig';
 
+import { getThresholdEntryDefaults } from '../src/config/defaults/axisConfig';
 import { getRegularDefaults as getCategoryAxisRegularDefaults, getConditionalDefaults as getCategoryAxisConditionalDefaults } from '../src/config/defaults/categoryAxisConfig';
 import getCategoryAxisValidators from '../src/config/validation/categoryAxisConfig';
 import * as categoryAxisDocs from '../src/config/docs/categoryAxisConfig';
@@ -182,6 +183,10 @@ export interface PropertyDoc {
   reference?: EditorReferenceDoc;
   /** Members of a nested object property; their anchor ids extend the parent's. */
   properties?: PropertyDoc[];
+  /** True when `properties` documents the members of each array element rather than of an object value. */
+  itemShape?: boolean;
+  /** True when the property has no default and a value must be supplied. */
+  required?: boolean;
 }
 
 export type EditorValueType = 'any' | 'array' | 'boolean' | 'number' | 'object' | 'string';
@@ -214,6 +219,8 @@ export interface SectionDoc {
   uniqueKeys?: string[];
   /** 'object' for single sections, 'array' for config lists. */
   shape: 'object' | 'array';
+  /** Top-level properties a value must be supplied for, in the order they are documented. */
+  requiredKeys?: string[];
   properties: PropertyDoc[];
 }
 
@@ -251,6 +258,8 @@ interface SectionSource {
   conditionalDefaults?: ConditionalDefaults;
   validators: ValidatorMap;
   docs: DocsModule;
+  /** Defaults merged under each element of an array-valued property, keyed by that property. */
+  itemDefaults?: Record<string, Defaults>;
 }
 
 function getSectionSources(): SectionSource[] {
@@ -261,13 +270,13 @@ function getSectionSources(): SectionSource[] {
     { id: 'colorPalette', title: 'Color Palette Config', regularDefaults: getColorPaletteDefaults(), validators: getColorPaletteValidators(), docs: colorPaletteDocs },
     { id: 'clipIndicator', title: 'Clip Indicator Config', regularDefaults: getClipIndicatorRegularDefaults(), conditionalDefaults: getClipIndicatorConditionalDefaults({} as ClipIndicatorConfig), validators: getClipIndicatorValidators(), docs: clipIndicatorDocs },
     { id: 'crosshair', title: 'Crosshair Config', regularDefaults: getCrosshairDefaults(), validators: getCrosshairValidators(), docs: crosshairDocs },
-    { id: 'categoryAxis', title: 'Category Axis Config', regularDefaults: getCategoryAxisRegularDefaults(), conditionalDefaults: getCategoryAxisConditionalDefaults({} as CategoryAxisConfig, false, false), validators: getCategoryAxisValidators({}), docs: categoryAxisDocs },
+    { id: 'categoryAxis', title: 'Category Axis Config', regularDefaults: getCategoryAxisRegularDefaults(), conditionalDefaults: getCategoryAxisConditionalDefaults({} as CategoryAxisConfig, false, false), validators: getCategoryAxisValidators({}), docs: categoryAxisDocs, itemDefaults: { thresholds: getThresholdEntryDefaults() } },
     { id: 'legend', title: 'Legend Config', regularDefaults: getLegendRegularDefaults(), conditionalDefaults: getLegendConditionalDefaults({} as LegendConfig, 0), validators: getLegendValidators(), docs: legendDocs },
     { id: 'linearGradients', title: 'Linear Gradient Config', regularDefaults: getLinearGradientRegularDefaults(), conditionalDefaults: getLinearGradientConditionalDefaults({} as LinearGradientConfig, 0), validators: getLinearGradientValidators(), docs: linearGradientDocs },
     { id: 'pie', title: 'Pie Config', regularDefaults: getPieRegularDefaults(), conditionalDefaults: getPieConditionalDefaults({} as PieConfig), validators: getPieValidators(), docs: pieDocs },
     { id: 'plot', title: 'Plot Config', regularDefaults: getPlotDefaults(), validators: getPlotValidators(), docs: plotDocs },
     { id: 'radialGradients', title: 'Radial Gradient Config', regularDefaults: getRadialGradientRegularDefaults(), conditionalDefaults: getRadialGradientConditionalDefaults({} as RadialGradientConfig, 0), validators: getRadialGradientValidators(), docs: radialGradientDocs },
-    { id: 'valueAxes', title: 'Value Axis Config', regularDefaults: getValueAxisRegularDefaults(), conditionalDefaults: getValueAxisConditionalDefaults({} as ValueAxisConfig, 0, false, false), validators: getValueAxisValidators(), docs: valueAxisDocs },
+    { id: 'valueAxes', title: 'Value Axis Config', regularDefaults: getValueAxisRegularDefaults(), conditionalDefaults: getValueAxisConditionalDefaults({} as ValueAxisConfig, 0, false, false), validators: getValueAxisValidators(), docs: valueAxisDocs, itemDefaults: { thresholds: getThresholdEntryDefaults() } },
     { id: 'series', title: 'Series Config', regularDefaults: getSeriesRegularDefaults(), conditionalDefaults: getSeriesConditionalDefaults({} as SeriesConfig, 0, null, null, null, null), validators: getSeriesValidators({}), docs: seriesDocs },
     { id: 'seriesGroups', title: 'Series Group Config', regularDefaults: getSeriesGroupRegularDefaults(), conditionalDefaults: getSeriesGroupConditionalDefaults({} as SeriesGroupConfig, 0), validators: getSeriesGroupValidators(), docs: seriesGroupDocs },
     { id: 'seriesStacks', title: 'Series Stack Config', regularDefaults: getSeriesStackRegularDefaults(), conditionalDefaults: getSeriesStackConditionalDefaults({} as SeriesStackConfig, 0, null), validators: getSeriesStackValidators(), docs: seriesStackDocs },
@@ -276,22 +285,40 @@ function getSectionSources(): SectionSource[] {
   ];
 }
 
+/** Why a property has no default: a value must be supplied, or it is left unset and nothing fills it in. */
+type MissingDefault = 'required' | 'optional';
+
 // Properties that intentionally have no default. Keyed by path within the
-// section, so a nested member is named `parent.member`.
-const missingDefaultWhitelist: Record<string, Record<string, boolean>> = {
+// section, so a nested member is named `parent.member` and a member of an
+// array element `parent[].member`. The 'required' entries also drive the
+// reference pages, which name them as the properties a config must supply.
+const missingDefaultWhitelist: Record<string, Record<string, MissingDefault>> = {
   categoryAxis: {
-    property: true
+    property: 'required',
+    'thresholds[].value': 'required'
   },
   linearGradients: {
-    stops: true
+    stops: 'required',
+    'stops[].offset': 'required',
+    'stops[].color': 'required',
+    'stops[].opacity': 'required'
   },
   radialGradients: {
-    stops: true
+    stops: 'required',
+    'stops[].offset': 'required',
+    'stops[].color': 'required',
+    'stops[].opacity': 'required'
   },
   series: {
-    property: true,
+    property: 'required',
     // Left unset so each d3 curve applies its own tension/alpha.
-    'curve.param': true
+    'curve.param': 'optional'
+  },
+  valueAxes: {
+    'thresholds[].value': 'required',
+    'ticks[].value': 'required',
+    // A tick with no label falls back to the value formatted with tickLabelFormat.
+    'ticks[].label': 'optional'
   }
 };
 
@@ -308,7 +335,7 @@ const noChange = {
 };
 
 /** Compare a validator map against a companion source (defaults, descriptions), naming keys by their path within the section. */
-function getAddedRemoved(a: Record<string, unknown>, b: Record<string, unknown>, prefix: string, whitelist: Record<string, boolean> = {}) {
+function getAddedRemoved(a: Record<string, unknown>, b: Record<string, unknown>, prefix: string, whitelist: Record<string, MissingDefault> = {}) {
   const aKeys = Object.keys(a);
   const bKeys = Object.keys(b);
   if (arrayEqual([...aKeys].sort(), [...bKeys].sort())) {
@@ -317,7 +344,7 @@ function getAddedRemoved(a: Record<string, unknown>, b: Record<string, unknown>,
   const added: string[] = [];
   const removed: string[] = [];
   for (const aKey of aKeys) {
-    if (b[aKey] === undefined && whitelist[prefix + aKey] !== true) {
+    if (b[aKey] === undefined && whitelist[prefix + aKey] === undefined) {
       removed.push(prefix + aKey);
     }
   }
@@ -356,7 +383,9 @@ interface IntegrityLevel {
   checkDefaults: boolean;
   descriptions: Descriptions;
   details: Descriptions;
-  whitelist: Record<string, boolean>;
+  whitelist: Record<string, MissingDefault>;
+  /** Defaults merged under each element of an array-valued property at this level. */
+  itemDefaults?: Record<string, Defaults>;
 }
 
 function checkLevelIntegrity(level: IntegrityLevel, errors: string[]) {
@@ -399,6 +428,25 @@ function checkLevelIntegrity(level: IntegrityLevel, errors: string[]) {
       whitelist: level.whitelist
     }, errors);
   }
+
+  // an array element's shape is checked the same way, against the entry defaults the section declares for it
+  for (const key of Object.keys(validators)) {
+    const itemNested = validators[key]!.itemValidator?.nestedValues;
+    if (!itemNested) {
+      continue;
+    }
+    checkLevelIntegrity({
+      id,
+      prefix: prefix + key + '[].',
+      validators: itemNested,
+      regularDefaults: nestedDefaults(level.itemDefaults?.[key]),
+      conditionalDefaults: {},
+      checkDefaults: level.checkDefaults,
+      descriptions: nestedDescriptions(descriptions[key]),
+      details: nestedDescriptions(details[key]),
+      whitelist: level.whitelist
+    }, errors);
+  }
 }
 
 function checkKeyIntegrity(section: SectionSource, errors: string[]) {
@@ -411,7 +459,8 @@ function checkKeyIntegrity(section: SectionSource, errors: string[]) {
     checkDefaults: true,
     descriptions: section.docs.default(),
     details: section.docs.getDetails ? section.docs.getDetails() : {},
-    whitelist: missingDefaultWhitelist[section.id] ?? {}
+    whitelist: missingDefaultWhitelist[section.id] ?? {},
+    itemDefaults: section.itemDefaults
   }, errors);
 }
 
@@ -628,6 +677,8 @@ function getShapeDefaultText(validator: Validator): string {
 
 interface PropertySource {
   key: string;
+  /** Path within the section, `'thresholds[].value'` for a member of an array element. */
+  path: string;
   validator: Validator;
   description: DescriptionEntry | undefined;
   detail: DescriptionEntry | undefined;
@@ -637,6 +688,10 @@ interface PropertySource {
   sectionRules: string[] | undefined;
   /** Id reference constraint; top-level properties only. */
   reference?: SectionReference;
+  /** Defaults merged under each element of this property, when it holds an array of objects. */
+  itemDefaults?: Defaults;
+  /** The section's missing-default whitelist, which says which properties must be supplied. */
+  whitelist: Record<string, MissingDefault>;
 }
 
 /** Document one property and, when its validator describes a shape, each of its members in turn. */
@@ -648,6 +703,9 @@ function buildPropertyDoc(source: PropertySource): PropertyDoc {
     rules: getPropertyRules(validator, source.sectionRules),
     editor: buildEditorValue(validator)
   };
+  if (source.whitelist[source.path] === 'required') {
+    property.required = true;
+  }
   if (source.reference) {
     property.reference = editorReference(source.reference);
   }
@@ -662,20 +720,39 @@ function buildPropertyDoc(source: PropertySource): PropertyDoc {
     // a nested branch is a default for members, not for this property, which keeps its regular default
     property.default = formatDefaultValue(regularDefault);
   }
+  const memberDescriptions = nestedDescriptions(description);
+  const memberDetails = nestedDescriptions(detail);
   const nested = validator.nestedValues;
+  const itemNested = validator.itemValidator?.nestedValues;
   if (nested) {
     const nestedRegular = nestedDefaults(regularDefault);
     const nestedConditional = conditionalDefaultBranch(conditionalDefault);
-    const memberDescriptions = nestedDescriptions(description);
-    const memberDetails = nestedDescriptions(detail);
     property.properties = Object.keys(nested).sort().map(memberKey => buildPropertyDoc({
       key: memberKey,
+      path: source.path + '.' + memberKey,
       validator: nested[memberKey]!,
       description: memberDescriptions[memberKey],
       detail: memberDetails[memberKey],
       regularDefault: nestedRegular[memberKey],
       conditionalDefault: nestedConditional[memberKey],
-      sectionRules: undefined
+      sectionRules: undefined,
+      whitelist: source.whitelist
+    }));
+  }
+  else if (itemNested) {
+    // an array of objects: the members documented are each element's, and the defaults are the entry defaults
+    const entryDefaults = nestedDefaults(source.itemDefaults);
+    property.itemShape = true;
+    property.properties = Object.keys(itemNested).sort().map(memberKey => buildPropertyDoc({
+      key: memberKey,
+      path: source.path + '[].' + memberKey,
+      validator: itemNested[memberKey]!,
+      description: memberDescriptions[memberKey],
+      detail: memberDetails[memberKey],
+      regularDefault: entryDefaults[memberKey],
+      conditionalDefault: undefined,
+      sectionRules: undefined,
+      whitelist: source.whitelist
     }));
   }
   return property;
@@ -689,8 +766,11 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
   const sectionKeyRules = getSectionKeyRules(sectionValidator);
   const allKey = sectionKeyAllMap[source.id];
 
+  const whitelist = missingDefaultWhitelist[source.id] ?? {};
+
   const properties = Object.keys(source.validators).sort().map(key => buildPropertyDoc({
     key,
+    path: key,
     validator: source.validators[key],
     description: descriptions[key],
     detail: details[key],
@@ -699,7 +779,9 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
     sectionRules: sectionKeyRules[key],
     // A common reference is the more specific form: it points at the same
     // source collection but additionally constrains candidates by commonKey.
-    reference: sectionValidator.commonReferences?.[key] ?? sectionValidator.references?.[key]
+    reference: sectionValidator.commonReferences?.[key] ?? sectionValidator.references?.[key],
+    itemDefaults: source.itemDefaults?.[key],
+    whitelist
   }));
 
   const section: SectionDoc = {
@@ -709,6 +791,10 @@ function buildSectionDoc(source: SectionSource, sectionValidators: SectionValida
     shape: sectionValidator.validator.validatorName === 'arrayOf' ? 'array' : 'object',
     properties
   };
+  const requiredKeys = properties.filter(property => property.required).map(property => property.key);
+  if (requiredKeys.length > 0) {
+    section.requiredKeys = requiredKeys;
+  }
   if (allKey) {
     section.allKey = allKey;
     section.allDescription = sectionDescriptions[allKey];

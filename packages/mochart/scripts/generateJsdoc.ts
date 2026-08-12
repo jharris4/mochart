@@ -71,6 +71,8 @@ interface SharedInterfaceSource {
   propertyKey: string;
   /** The members this interface declares. Omit to take all of them; set it when the interface extends another. */
   members?: string[];
+  /** Set for an array-element shape, whose entry defaults are the same wherever the shape is used. */
+  includeDefaults?: boolean;
 }
 
 const sharedInterfaceSources: SharedInterfaceSource[] = [
@@ -82,7 +84,10 @@ const sharedInterfaceSources: SharedInterfaceSource[] = [
   { interfaceName: 'ColorPalette', sectionId: 'colorPalette', propertyKey: 'series.normal' },
   { interfaceName: 'SeriesCurve', sectionId: 'series', propertyKey: 'curve' },
   { interfaceName: 'SeriesColorScale', sectionId: 'series', propertyKey: 'colorScale' },
-  { interfaceName: 'SeriesColorScaleBase', sectionId: 'series', propertyKey: 'colorScale.base' }
+  { interfaceName: 'SeriesColorScaleBase', sectionId: 'series', propertyKey: 'colorScale.base' },
+  { interfaceName: 'ThresholdConfig', sectionId: 'valueAxes', propertyKey: 'thresholds', includeDefaults: true },
+  { interfaceName: 'ValueAxisTick', sectionId: 'valueAxes', propertyKey: 'ticks', includeDefaults: true },
+  { interfaceName: 'GradientStop', sectionId: 'linearGradients', propertyKey: 'stops', includeDefaults: true }
 ];
 
 /**
@@ -315,7 +320,7 @@ function buildInterfaceDocs(sections: SectionDoc[], warnings: string[]): Map<str
       if (shared.members !== undefined && !shared.members.includes(member.key)) {
         continue;
       }
-      memberDocs.set(member.key, toMemberDoc(member, false));
+      memberDocs.set(member.key, toMemberDoc(member, shared.includeDefaults === true));
     }
     for (const memberKey of shared.members ?? []) {
       if (!memberDocs.has(memberKey)) {

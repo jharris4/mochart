@@ -28,6 +28,10 @@ export interface PropertyDoc {
   conditionalDefaults?: ConditionalDefaultValue[];
   /** The members of a nested object property, documented the same way. */
   properties?: PropertyDoc[];
+  /** True when `properties` documents the members of each array element rather than of an object value. */
+  itemShape?: boolean;
+  /** True when the property has no default and a value must be supplied. */
+  required?: boolean;
 }
 
 export interface SectionDoc {
@@ -37,6 +41,8 @@ export interface SectionDoc {
   allKey?: string;
   allDescription?: string;
   shape: 'object' | 'array';
+  /** Top-level properties a value must be supplied for. */
+  requiredKeys?: string[];
   properties: PropertyDoc[];
 }
 

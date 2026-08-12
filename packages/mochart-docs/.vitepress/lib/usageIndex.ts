@@ -93,6 +93,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function collectPropertyKeys(config: Record<string, unknown>): Set<string> {
   const keys = new Set<string>();
   const addSectionKeys = (prefix: string, section: unknown) => {
+    // a list of objects (thresholds, gradient stops) keys its members off the property, matching their reference anchors
+    if (Array.isArray(section)) {
+      for (const entry of section) {
+        addSectionKeys(prefix, entry);
+      }
+      return;
+    }
     if (!isRecord(section)) {
       return;
     }
