@@ -9,6 +9,7 @@ import type { ShareState } from '@mochart/demo-common';
 import RandomMochartChartTab from './RandomChartTab';
 import RandomMochartConfigTab from './RandomConfigTab';
 import RandomMochartDataTab from './RandomDataTab';
+import DemoTabs from '../misc/DemoTabs';
 import ErrorTab from '../misc/ErrorTab';
 import TopBar from '../misc/TopBar';
 
@@ -69,23 +70,12 @@ export default function MochartDemoRandom(props: RandomDemoProps) {
         notes={demoData.demoObjectMap[initialDemoId]}
         modes={{ demoMode: 'random', onModeChanged }}
         tabs={
-          <>
-            <li className="demo-tab-item">
-              <button type="button" className={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")} onClick={() => { handleSelect(eventKeyChart); }}>
-                {demoText.tabs.chart}
-              </button>
-            </li>
-            <li className="demo-tab-item">
-              <button type="button" className={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
-                {demoText.tabs.randomConfig}
-              </button>
-            </li>
-            <li className="demo-tab-item">
-              <button type="button" className={"demo-tab" + (activeKey === eventKeyData ? " active" : "")} onClick={() => { handleSelect(eventKeyData); }}>
-                {demoText.tabs.data}
-              </button>
-            </li>
-          </>
+          <DemoTabs activeKey={activeKey} onSelect={handleSelect}
+            tabs={[
+              { name: 'chart', key: eventKeyChart, label: demoText.tabs.chart },
+              { name: 'config', key: eventKeyConfig, label: demoText.tabs.randomConfig },
+              { name: 'data', key: eventKeyData, label: demoText.tabs.data }
+            ]} />
         } />
       <div className="mochart-demo-content-pane">
         <RandomMochartDemoContent mochartDemoConfig={mochartDemoConfig} initialRandomConfig={randomConfig}

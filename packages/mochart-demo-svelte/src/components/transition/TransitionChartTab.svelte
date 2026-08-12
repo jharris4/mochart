@@ -4,7 +4,7 @@
   import { Chart } from '@mochart/svelte';
   import type { MochartConfig } from '@mochart/core';
 
-  import { demoText } from '@mochart/demo-common';
+  import { demoText, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
   import Icon from '../misc/Icon.svelte';
@@ -62,7 +62,7 @@
   }
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
+<div {...getDemoTabPanelAttrs('chart')} class={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
   <div class="transition-chart-sizer">
     <Chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
            {mochartConfig} dataProvider={dataProviders[dataProviderIndex]} />

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
+  import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 
   import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -147,7 +147,7 @@
   </ButtonWithTooltip>
 {/snippet}
 
-<div class={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")} inert={!active}>
+<div {...getDemoTabPanelAttrs('data')} class={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
     <JsonEditorContent value={dataText} ariaLabel={demoText.dataTab.editorAria} onChange={onTextChange} />
   </div>

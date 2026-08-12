@@ -243,7 +243,7 @@ export function configTab(props: ConfigTabProps): ConfigTabHandle {
   const container = tabContainer('demo-layout-col config', props.active, [
     el('div', { className: 'mochart-demo-tab-content' }, [configEditor.el]),
     footer
-  ]);
+  ], 'config');
 
   /**
    * Where every footer control lives right now. Reparenting, never

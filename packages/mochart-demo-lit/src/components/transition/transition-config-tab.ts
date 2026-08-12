@@ -2,13 +2,15 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, demoText, formatTransitionConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
 import { buttonWithTooltip, icon } from '../misc/templates';
 import '../misc/json-editor-content';
 
 import type { TransitionConfig } from '../../types';
+
+const panelAttrs = getDemoTabPanelAttrs('config');
 
 @customElement('transition-config-tab')
 export class TransitionConfigTab extends LightElement {
@@ -55,7 +57,8 @@ export class TransitionConfigTab extends LightElement {
   override render(): unknown {
     const jsonError = this.jsonError;
     const footerError = jsonError ?? this.errorMessage;
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
+    return html`<div id=${panelAttrs.id} role=${panelAttrs.role} aria-labelledby=${panelAttrs['aria-labelledby']}
+        class=${'mochart-demo-tab-container demo-layout-col config' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
         <json-editor-content .value=${this.configText} .ariaLabelText=${demoText.transitionConfigTab.editorAria} .onChange=${this.onTextChange}></json-editor-content>
       </div>

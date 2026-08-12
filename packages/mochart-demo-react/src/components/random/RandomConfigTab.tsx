@@ -4,7 +4,7 @@ import Icon from '../misc/Icon';
 import JsonEditorContent from '../misc/JsonEditorContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
 
-import { demoText, formatRandomConfig, validateRandomConfig } from '@mochart/demo-common';
+import { demoText, formatRandomConfig, getDemoTabPanelAttrs, validateRandomConfig } from '@mochart/demo-common';
 
 import type { RandomConfigWithValid } from '../../types';
 
@@ -52,7 +52,7 @@ export default function RandomMochartConfigTab({ active, randomConfig, generator
   const footerError = jsonError ?? errorMessage;
 
   return (
-    <div className={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
+    <div {...getDemoTabPanelAttrs('config')} className={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
       <div className="mochart-demo-tab-content">
         <JsonEditorContent value={configText} ariaLabel={demoText.randomConfigTab.editorAria} formatOnSet
           onChange={(text: string) => { setConfigText(text); setErrorMessage(null); }} />

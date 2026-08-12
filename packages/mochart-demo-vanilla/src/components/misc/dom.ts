@@ -3,7 +3,8 @@
 // factory functions returning DOM elements plus targeted update methods —
 // there is deliberately no vdom, reactivity, or template layer here.
 
-import { demoText } from '@mochart/demo-common';
+import { demoText, getDemoTabPanelAttrs } from '@mochart/demo-common';
+import type { DemoTabName } from '@mochart/demo-common';
 
 export type Child = Node | string | null | undefined;
 
@@ -92,9 +93,18 @@ export function tabContainer(
   // `undefined` reads as inactive, which is what the `props.active ? …` strings
   // this replaced already did for the panes whose prop is optional.
   active: boolean | undefined,
-  children: Child[] = []
+  children: Child[] = [],
+  // Omitted by the one pane its view does not tab between (multi's charts).
+  tabName?: DemoTabName
 ): HTMLDivElement {
-  const element = el('div', { className: 'mochart-demo-tab-container ' + className }, children);
+  const panelAttrs = tabName === undefined ? undefined : getDemoTabPanelAttrs(tabName);
+  const element = el('div', {
+    className: 'mochart-demo-tab-container ' + className,
+    id: panelAttrs?.id,
+    attrs: panelAttrs === undefined
+      ? undefined
+      : { role: panelAttrs.role, 'aria-labelledby': panelAttrs['aria-labelledby'] }
+  }, children);
   setActiveClass(element, active === true);
   return element;
 }

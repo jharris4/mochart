@@ -73,7 +73,7 @@ export function transitionChartTab(props: TransitionChartTabProps): TransitionCh
         ])
       ])
     ])
-  ]);
+  ], 'chart');
 
   return {
     el: container,

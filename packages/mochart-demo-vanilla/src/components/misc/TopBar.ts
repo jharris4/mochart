@@ -43,8 +43,8 @@ export interface TopBarProps {
   /** Undefined in a standalone build, where there is no docs site to go back to. */
   siteRootUrl?: string;
   onBackToDemos: () => void;
-  /** The `<li class="demo-tab-item">`s of the view's tab strip, if it has one. */
-  tabs?: readonly HTMLLIElement[];
+  /** The view's tab strip (`demoTabs`/`staticDemoTabs`), if it has one. */
+  tabs?: HTMLElement;
   /** The demo the ⓘ popover describes. The standalone pages describe none. */
   notes?: NotesMenuProps;
   /** Omitted by the pages that are not one of the three switchable modes. */
@@ -76,7 +76,7 @@ export function topBar(props: TopBarProps): TopBarHandle {
 
   const siteRoot = siteRootButton(props.siteRootUrl);
   const backButton = backToDemosButton(props.onBackToDemos);
-  const tabsEl = props.tabs === undefined ? null : el('ul', { className: 'demo-tabs' }, [...props.tabs]);
+  const tabsEl = props.tabs ?? null;
   const notesEl = notes === null ? null : notes.el;
 
   const navItems = present([siteRoot, backButton, tabsEl, notesEl]);

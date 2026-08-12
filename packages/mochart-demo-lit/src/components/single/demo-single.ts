@@ -1,4 +1,4 @@
-import { html, nothing } from 'lit';
+import { html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
@@ -6,12 +6,13 @@ import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/
 import type { SwitchableDemoMode } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
+import { demoTabs } from '../misc/demo-tabs';
+import '../misc/error-tab';
 import '../misc/top-bar';
 
 import './chart-tab';
 import './config-tab';
 import './data-tab';
-import '../misc/error-tab';
 
 import type { DemoData, DemoConfig, DataRow } from '../../types';
 
@@ -134,21 +135,20 @@ export class DemoSingle extends LightElement {
     return this.activeKey !== eventKeyChart && (this.pendingConfig !== null || this.pendingData !== null);
   }
 
-  private renderTab(eventKey: number, label: string): unknown {
-    const badge = eventKey === eventKeyChart && this.hasPendingChanges;
-    return html`<li class="demo-tab-item">
-      <button type="button" class=${'demo-tab' + (this.activeKey === eventKey ? ' active' : '')}
-              title=${badge ? demoText.tabs.chartPendingTitle : nothing}
-              @click=${() => this.handleSelect(eventKey)}>${label}${badge ? html`<span class="mochart-pending-badge" aria-hidden="true"></span>` : nothing}</button>
-    </li>`;
-  }
-
   override render(): unknown {
     return html`<div class="mochart-demo-container">
       <top-bar .siteRootUrl=${this.siteRootUrl} .onBackToDemos=${this.onBackToDemos}
                .notes=${this.demoData.demoObjectMap[this.initialDemoId]}
                .modes=${{ demoMode: 'single' as const, onModeChanged: this.onModeChanged }}
-               .tabs=${() => html`${this.renderTab(eventKeyChart, demoText.tabs.chart)}${this.renderTab(eventKeyConfig, demoText.tabs.config)}${this.renderTab(eventKeyData, demoText.tabs.data)}`}></top-bar>
+               .tabs=${() => demoTabs({
+                 activeKey: this.activeKey,
+                 onSelect: (key: number) => this.handleSelect(key),
+                 tabs: [
+                   { name: 'chart', key: eventKeyChart, label: demoText.tabs.chart, pending: this.hasPendingChanges },
+                   { name: 'config', key: eventKeyConfig, label: demoText.tabs.config },
+                   { name: 'data', key: eventKeyData, label: demoText.tabs.data }
+                 ]
+               })}></top-bar>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
           <error-tab .active=${this.activeKey === eventKeyChart} .content=${() =>

@@ -1,7 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
+import { applyTransitionConfigEdit, demoText, formatTransitionConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
 import { JsonEditorContent } from '../misc/json-editor-content';
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
@@ -14,7 +14,8 @@ import type { TransitionConfig } from '../../types';
   imports: [JsonEditorContent, ButtonWithTooltip, Icon],
   styles: [':host { display: contents; }'],
   template: `
-    <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
+    <div [id]="panelAttrs.id" [attr.role]="panelAttrs.role" [attr.aria-labelledby]="panelAttrs['aria-labelledby']"
+         [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
         <app-json-editor-content [value]="configText()" [ariaLabel]="text.editorAria" [onChange]="onTextChange" />
       </div>
@@ -38,6 +39,8 @@ import type { TransitionConfig } from '../../types';
   `
 })
 export class TransitionConfigTab implements OnInit, OnChanges {
+  readonly panelAttrs = getDemoTabPanelAttrs('config');
+
   @Input() active = false;
   @Input({ required: true }) transitionConfig!: TransitionConfig;
   @Input({ required: true }) onUpdate!: (config: TransitionConfig) => void;

@@ -29,7 +29,7 @@ export interface TopBarProps {
   /** Undefined in a standalone build, where there is no docs site to go back to. */
   siteRootUrl?: string;
   onBackToDemos: OnBackToDemos;
-  /** The `<li className="demo-tab-item">` elements of the view's tab strip. */
+  /** The view's tab strip (`DemoTabs`/`StaticDemoTabs`), if the view has one. */
   tabs?: ReactNode;
   /** The demo the ⓘ popover describes. The standalone pages describe none. */
   notes?: { title: string; notes?: string };
@@ -54,7 +54,7 @@ export default function TopBar({ siteRootUrl, onBackToDemos, tabs, notes, modes 
     return (
       <div className="mochart-demo-tabs-container demo-has-overflow">
         <div className="mochart-demo-nav-group">
-          {tabs !== undefined ? <ul className="demo-tabs">{tabs}</ul> : null}
+          {tabs}
         </div>
         <OverflowMenu text={demoText.overflowMenu.nav}
           placement={{ side: 'bottom', align: 'end', gap: 6 }}>
@@ -90,7 +90,7 @@ export default function TopBar({ siteRootUrl, onBackToDemos, tabs, notes, modes 
       <div className="mochart-demo-nav-group">
         <SiteRootButton siteRootUrl={siteRootUrl} />
         <BackToDemosButton onBackToDemos={onBackToDemos} />
-        {tabs !== undefined ? <ul className="demo-tabs">{tabs}</ul> : null}
+        {tabs}
         {hasNotes ? <NotesMenu title={notes.title} notes={notes.notes} /> : null}
       </div>
       {switcher !== null ? (

@@ -5,7 +5,7 @@ import { Chart } from '@mochart/react';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { getChartExportOptions, demoText } from '@mochart/demo-common';
+import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -160,7 +160,7 @@ export default function RandomMochartChartsTab({ active, mochartConfig, dataProv
   );
 
   return (
-    <div className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
+    <div {...getDemoTabPanelAttrs('chart')} className={"mochart-demo-tab-container demo-layout-col chart" + (active ? " active" : "")} inert={!active}>
       <div className="random-chart-sizer" ref={chartSizerRef}>
         {/* Chart self-measures when width/height are omitted. */}
         <Chart style={{ flex: '1 1 auto', minWidth: 0, minHeight: 0, overflow: 'hidden' }}

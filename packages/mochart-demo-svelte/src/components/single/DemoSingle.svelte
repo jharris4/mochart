@@ -5,6 +5,7 @@
   import ChartTab from './ChartTab.svelte';
   import ConfigTab from './ConfigTab.svelte';
   import DataTab from './DataTab.svelte';
+  import DemoTabs from '../misc/DemoTabs.svelte';
   import ErrorTab from '../misc/ErrorTab.svelte';
   import TopBar from '../misc/TopBar.svelte';
 
@@ -131,25 +132,12 @@
           notes={demoData.demoObjectMap[initialDemoId]}
           modes={{ demoMode: 'single', onModeChanged }}>
     {#snippet tabs()}
-      <li class="demo-tab-item">
-        <button type="button" class={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
-                title={hasPendingChanges ? demoText.tabs.chartPendingTitle : undefined}
-                onclick={() => handleSelect(eventKeyChart)}>
-          {demoText.tabs.chart}{#if hasPendingChanges}<span class="mochart-pending-badge" aria-hidden="true"></span>{/if}
-        </button>
-      </li>
-      <li class="demo-tab-item">
-        <button type="button" class={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")}
-                onclick={() => handleSelect(eventKeyConfig)}>
-          {demoText.tabs.config}
-        </button>
-      </li>
-      <li class="demo-tab-item">
-        <button type="button" class={"demo-tab" + (activeKey === eventKeyData ? " active" : "")}
-                onclick={() => handleSelect(eventKeyData)}>
-          {demoText.tabs.data}
-        </button>
-      </li>
+      <DemoTabs {activeKey} onSelect={handleSelect}
+                tabs={[
+                  { name: 'chart', key: eventKeyChart, label: demoText.tabs.chart, pending: hasPendingChanges },
+                  { name: 'config', key: eventKeyConfig, label: demoText.tabs.config },
+                  { name: 'data', key: eventKeyData, label: demoText.tabs.data }
+                ]} />
     {/snippet}
   </TopBar>
   <div class="mochart-demo-content-pane">

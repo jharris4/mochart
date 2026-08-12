@@ -3,7 +3,7 @@
 
   import { hasConfigStructureChange } from '@mochart/core';
 
-  import { buildMochartDemoConfig } from '@mochart/demo-common';
+  import { buildMochartDemoConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
   import EditableChart from './EditableChart.svelte';
 
@@ -122,7 +122,7 @@
   const chartWidth = $derived(Math.floor((width - scrollWidthOffset) / adjustedChartCount));
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-row chart" + (active ? " active" : "")} inert={!active} bind:clientWidth={width}>
+<div {...getDemoTabPanelAttrs('chart')} class={"mochart-demo-tab-container demo-layout-row chart" + (active ? " active" : "")} inert={!active} bind:clientWidth={width}>
   <div class="editable-charts-sizer">
     <div class="editable-charts">
       {#if mochartDemoConfig && width > 0}

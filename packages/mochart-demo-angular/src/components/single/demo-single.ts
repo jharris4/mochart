@@ -6,8 +6,11 @@ import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/
 import { ChartTab } from './chart-tab';
 import { ConfigTab } from './config-tab';
 import { DataTab } from './data-tab';
+import { DemoTabs } from '../misc/demo-tabs';
 import { ErrorTab } from '../misc/error-tab';
 import { TopBar } from '../misc/top-bar';
+
+import type { DemoTab } from '@mochart/demo-common';
 
 import type { DemoData, DemoConfig, DataRow, SwitchableDemoMode } from '../../types';
 
@@ -19,26 +22,14 @@ const eventKeyData = 3;
 
 @Component({
   selector: 'app-demo-single',
-  imports: [ChartTab, ConfigTab, DataTab, ErrorTab, TopBar],
+  imports: [ChartTab, ConfigTab, DataTab, DemoTabs, ErrorTab, TopBar],
   styles: [':host { display: contents; }'],
   template: `
     <div class="mochart-demo-container">
       <app-top-bar [siteRootUrl]="siteRootUrl" [onBackToDemos]="onBackToDemos" [hasTabs]="true"
                    [notes]="demoData.demoObjectMap[initialDemoId]"
                    [modes]="{ demoMode: 'single', onModeChanged }">
-        <li class="demo-tab-item">
-          <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyChart ? ' active' : '')"
-                  [attr.title]="hasPendingChanges ? text.chartPendingTitle : null"
-                  (click)="handleSelect(eventKeyChart)">{{ text.chart }}@if (hasPendingChanges) {<span class="mochart-pending-badge" aria-hidden="true"></span>}</button>
-        </li>
-        <li class="demo-tab-item">
-          <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyConfig ? ' active' : '')"
-                  (click)="handleSelect(eventKeyConfig)">{{ text.config }}</button>
-        </li>
-        <li class="demo-tab-item">
-          <button type="button" [class]="'demo-tab' + (activeKey() === eventKeyData ? ' active' : '')"
-                  (click)="handleSelect(eventKeyData)">{{ text.data }}</button>
-        </li>
+        <app-demo-tabs [tabs]="tabItems" [activeKey]="activeKey()" [onSelect]="handleSelect" />
       </app-top-bar>
       <div class="mochart-demo-content-pane">
         <div class="mochart-demo-content">
@@ -129,13 +120,21 @@ export class DemoSingle implements OnInit, OnChanges {
     }
   }
 
-  handleSelect(nextActiveKey: number): void {
+  get tabItems(): DemoTab[] {
+    return [
+      { name: 'chart', key: eventKeyChart, label: this.text.chart, pending: this.hasPendingChanges },
+      { name: 'config', key: eventKeyConfig, label: this.text.config },
+      { name: 'data', key: eventKeyData, label: this.text.data }
+    ];
+  }
+
+  handleSelect = (nextActiveKey: number): void => {
     const previousActiveKey = this.activeKey();
     this.activeKey.set(nextActiveKey);
     if (nextActiveKey === eventKeyChart && previousActiveKey !== eventKeyChart) {
       this.chartShown();
     }
-  }
+  };
 
   // When the routed demo changes (history navigation between two demos),
   // reload its config/data and promote them straight to the visible chart.

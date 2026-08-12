@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, shallowRef, watch } from 'vue';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent.vue';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip.vue';
@@ -176,10 +176,12 @@ const ApplyButton = () => h(ButtonWithTooltip, {
   tooltipText: demoText.configTab.apply.tooltip, tooltipPlacement: 'top-start',
   onClick: applyConfig, 'aria-label': demoText.configTab.apply.aria
 }, iconChild('check'));
+
+const panelAttrs = getDemoTabPanelAttrs('config');
 </script>
 
 <template>
-  <div :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')" :inert="!props.active">
+  <div v-bind="panelAttrs" :class="'mochart-demo-tab-container demo-layout-col config' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="mochart-demo-tab-content">
       <JsonEditorContent ref="editorComponent" :value="configText" :ariaLabel="demoText.configTab.editorAria"
                          :format-on-set="true" :mochart-support="true" :on-change="onTextChange" />

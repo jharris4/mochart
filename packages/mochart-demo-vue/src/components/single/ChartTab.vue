@@ -3,7 +3,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 
 import { hasConfigStructureChange } from '@mochart/core';
 
-import { buildMochartDemoConfig } from '@mochart/demo-common';
+import { buildMochartDemoConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
 import EditableChart from './EditableChart.vue';
 import { useElementSize } from '../misc/useElementSize';
@@ -116,10 +116,12 @@ function onChartCountToggle() {
 const allowedChartCount = computed(() => Math.floor(width.value / 2) > minChartWidthForSecondChart ? 2 : 1);
 const adjustedChartCount = computed(() => Math.min(chartCount.value, allowedChartCount.value));
 const chartWidth = computed(() => Math.floor((width.value - scrollWidthOffset) / adjustedChartCount.value));
+
+const panelAttrs = getDemoTabPanelAttrs('chart');
 </script>
 
 <template>
-  <div :ref="attachSizer" :class="'mochart-demo-tab-container demo-layout-row chart' + (props.active ? ' active' : '')" :inert="!props.active">
+  <div v-bind="panelAttrs" :ref="attachSizer" :class="'mochart-demo-tab-container demo-layout-row chart' + (props.active ? ' active' : '')" :inert="!props.active">
     <div class="editable-charts-sizer">
       <div class="editable-charts">
         <template v-if="mochartDemoConfig && width > 0">

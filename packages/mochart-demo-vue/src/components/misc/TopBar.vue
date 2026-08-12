@@ -60,7 +60,7 @@ const hasNotes = computed(() => props.notes !== undefined && props.notes.notes !
        class and the trigger that justifies it render together or not at all. -->
   <div v-if="folded" class="mochart-demo-tabs-container demo-has-overflow">
     <div class="mochart-demo-nav-group">
-      <ul v-if="hasTabs" class="demo-tabs"><slot name="tabs"></slot></ul>
+      <slot name="tabs"></slot>
     </div>
     <OverflowMenu :text="demoText.overflowMenu.nav" :placement="{ side: 'bottom', align: 'end', gap: 6 }">
       <!-- The menu's contents, in the order a thumb should meet them: what
@@ -89,7 +89,7 @@ const hasNotes = computed(() => props.notes !== undefined && props.notes.notes !
     <div class="mochart-demo-nav-group">
       <SiteRootButton :site-root-url="props.siteRootUrl" />
       <BackToDemosButton :on-back-to-demos="props.onBackToDemos" />
-      <ul v-if="hasTabs" class="demo-tabs"><slot name="tabs"></slot></ul>
+      <slot name="tabs"></slot>
       <NotesMenu v-if="props.notes !== undefined" :title="props.notes.title" :notes="props.notes.notes" />
     </div>
     <div v-if="props.modes !== undefined" class="mochart-demo-nav-group">

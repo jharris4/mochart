@@ -48,6 +48,11 @@ export type { SparklineMetric } from './sparklines';
 
 export { demoText } from './demoText';
 
+export {
+  demoTabId, demoTabPanelId, demoTabPendingId, getDemoTabPanelAttrs, nextDemoTabIndex
+} from './tabs';
+export type { DemoTab, DemoTabName, DemoTabPanelAttrs } from './tabs';
+
 export { getGallerySections } from './gallery';
 export type { GalleryItem, GallerySection, SwitchableDemoMode, ShowcaseMode } from './gallery';
 

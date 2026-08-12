@@ -2,7 +2,7 @@ import { html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { PropertyValues } from 'lit';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 import type { ParsedFullData } from '@mochart/demo-common';
 
 import { LightElement } from '../misc/LightElement';
@@ -15,6 +15,8 @@ import type { DemoConfig, DataRow } from '../../types';
 
 /** The footer sits at the bottom of the pane, so its menu opens upward. */
 const editorPlacement = { side: 'top', align: 'end', gap: 4 } as const;
+
+const panelAttrs = getDemoTabPanelAttrs('data');
 
 @customElement('data-tab')
 export class DataTab extends LightElement {
@@ -118,7 +120,8 @@ export class DataTab extends LightElement {
       { id: 'data-apply', label: demoText.dataTab.apply.label, disabled: jsonError !== null, tooltipText: demoText.dataTab.apply.tooltip, tooltipPlacement: 'top-start', onClick: this.applyData, ariaLabel: demoText.dataTab.apply.aria },
       icon({ size: 'lg', fixedWidth: true, name: 'check' })
     );
-    return html`<div class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')} ?inert=${!this.active}>
+    return html`<div id=${panelAttrs.id} role=${panelAttrs.role} aria-labelledby=${panelAttrs['aria-labelledby']}
+        class=${'mochart-demo-tab-container demo-layout-col data' + (this.active ? ' active' : '')} ?inert=${!this.active}>
       <div class="mochart-demo-tab-content">
         <json-editor-content .value=${this.dataText} .ariaLabelText=${demoText.dataTab.editorAria} .onChange=${this.onTextChange}></json-editor-content>
       </div>

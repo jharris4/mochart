@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Input, ViewChild, signal } from '@angular/core';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
-import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
+import { buildMochartDemoConfig, copyDemoConfig, demoConfigFromText, demoText, formatMochartDemoConfig, getDemoTabPanelAttrs, getReferenceSectionIds, isConfigSectionActive, parseConfigFromText, slowAnimationConfig, toggleConfigFromText, toggleConfigProperty, toggleConfigSection } from '@mochart/demo-common';
 
 import type { DemoConfigView } from '@mochart/demo-common';
 
@@ -69,7 +69,8 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
          \`role="alert"\` error span stays inline — a message that has to be read
          cannot live behind a tap. Everything else, including the reference
          links, goes to the \`⋯\` menu. -->
-    <div [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
+    <div [id]="panelAttrs.id" [attr.role]="panelAttrs.role" [attr.aria-labelledby]="panelAttrs['aria-labelledby']"
+         [class]="'mochart-demo-tab-container demo-layout-col config' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="mochart-demo-tab-content">
         <app-json-editor-content #editor [value]="configText()" [ariaLabel]="text.editorAria" [formatOnSet]="true"
                                  [mochartSupport]="true" [onChange]="onTextChange" />
@@ -115,6 +116,8 @@ import type { DemoConfig, MochartDemoConfig } from '../../types';
   `
 })
 export class ConfigTab implements OnInit, OnChanges {
+  readonly panelAttrs = getDemoTabPanelAttrs('config');
+
   @Input() active = false;
   @Input({ required: true }) config!: DemoConfig;
   @Input({ required: true }) onConfigChange!: (config: DemoConfig) => void;

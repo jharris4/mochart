@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
 
-  import { applyTransitionConfigEdit, demoText, formatTransitionConfig } from '@mochart/demo-common';
+  import { applyTransitionConfigEdit, demoText, formatTransitionConfig, getDemoTabPanelAttrs } from '@mochart/demo-common';
 
   import JsonEditorContent from '../misc/JsonEditorContent.svelte';
   import ButtonWithTooltip from '../misc/ButtonWithTooltip.svelte';
@@ -64,7 +64,7 @@
   const footerError = $derived(jsonError ?? errorMessage);
 </script>
 
-<div class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
+<div {...getDemoTabPanelAttrs('config')} class={"mochart-demo-tab-container demo-layout-col config" + (active ? " active" : "")} inert={!active}>
   <div class="mochart-demo-tab-content">
     <JsonEditorContent value={configText} ariaLabel={demoText.transitionConfigTab.editorAria} onChange={onTextChange} />
   </div>

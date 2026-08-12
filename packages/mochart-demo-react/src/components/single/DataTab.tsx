@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import Icon from '../misc/Icon';
 
-import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getJsonError, getCategoryProperty, parseFullData } from '@mochart/demo-common';
+import { applyDataEdit, buildMochartDemoConfig, collectUsedDataProperties, demoText, formatDataView, getCategoryProperty, getDemoTabPanelAttrs, getJsonError, parseFullData } from '@mochart/demo-common';
 
 import JsonEditorContent from '../misc/JsonEditorContent';
 import ButtonWithTooltip from '../misc/ButtonWithTooltip';
@@ -122,7 +122,7 @@ export default function MochartDataTab({ active, config = null, data = null, onD
   const errorSpan = footerError ? <span className="mochart-demo-footer-error" role="alert">{footerError}</span> : null;
 
   return (
-    <div className={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")} inert={!active}>
+    <div {...getDemoTabPanelAttrs('data')} className={"mochart-demo-tab-container demo-layout-col data" + (active ? " active" : "")} inert={!active}>
       <div className="mochart-demo-tab-content">
         <JsonEditorContent value={dataText} ariaLabel={demoText.dataTab.editorAria}
           onChange={(text: string) => { setDataText(text); setErrorMessage(null); }} />

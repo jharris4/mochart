@@ -6,7 +6,7 @@ import { Chart } from '@mochart/angular';
 import type { MochartConfig } from '@mochart/core';
 import { exportPNG, exportSVG } from '@mochart/export';
 
-import { getChartExportOptions, demoText } from '@mochart/demo-common';
+import { demoText, getChartExportOptions, getDemoTabPanelAttrs } from '@mochart/demo-common';
 import type { ShareState } from '@mochart/demo-common';
 
 import { ButtonWithTooltip } from '../misc/button-with-tooltip';
@@ -60,7 +60,8 @@ const defaultRate = 2000;
          stepping by hand is the mode's primary interaction — and demotes the
          automation transport (Play / Stop) with the Reuse toggle and the
          interval field. -->
-    <div [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
+    <div [id]="panelAttrs.id" [attr.role]="panelAttrs.role" [attr.aria-labelledby]="panelAttrs['aria-labelledby']"
+         [class]="'mochart-demo-tab-container demo-layout-col chart' + (active ? ' active' : '')" [attr.inert]="active ? null : ''">
       <div class="random-chart-sizer" #chartSizer>
         <mochart-chart style="flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden;"
                        [mochartConfig]="mochartConfig" [dataProvider]="dataProvider" />
@@ -119,6 +120,8 @@ const defaultRate = 2000;
   `
 })
 export class RandomChartTab implements OnInit, OnChanges, OnDestroy {
+  readonly panelAttrs = getDemoTabPanelAttrs('chart');
+
   readonly text = demoText.randomChartTab;
 
   @Input() active = false;

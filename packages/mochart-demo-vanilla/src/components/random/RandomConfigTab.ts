@@ -84,7 +84,7 @@ export function randomConfigTab(props: RandomConfigTabProps): RandomConfigTabHan
         resetButton.el, applyButton.el, footerError
       ])
     ])
-  ]);
+  ], 'config');
 
   function sync(): void {
     const currentJsonError = jsonError();

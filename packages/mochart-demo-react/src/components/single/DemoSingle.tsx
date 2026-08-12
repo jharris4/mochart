@@ -5,6 +5,7 @@ import { consumeSingleShareState, demoText, getConfigDataError } from '@mochart/
 import MochartChartTab from './ChartTab';
 import MochartDataTab from './DataTab';
 import MochartConfigTab from './ConfigTab';
+import DemoTabs from '../misc/DemoTabs';
 import ErrorTab from '../misc/ErrorTab';
 import TopBar from '../misc/TopBar';
 
@@ -38,25 +39,12 @@ export default function MochartDemoSingle({ demoData, initialDemoId, siteRootUrl
         notes={demoData.demoObjectMap[initialDemoId]}
         modes={{ demoMode: 'single', onModeChanged }}
         tabs={
-          <>
-            <li className="demo-tab-item">
-              <button type="button" className={"demo-tab" + (activeKey === eventKeyChart ? " active" : "")}
-                title={hasPending && activeKey !== eventKeyChart ? demoText.tabs.chartPendingTitle : undefined}
-                onClick={() => { handleSelect(eventKeyChart); }}>
-                {demoText.tabs.chart}{hasPending && activeKey !== eventKeyChart ? <span className="mochart-pending-badge" aria-hidden="true" /> : null}
-              </button>
-            </li>
-            <li className="demo-tab-item">
-              <button type="button" className={"demo-tab" + (activeKey === eventKeyConfig ? " active" : "")} onClick={() => { handleSelect(eventKeyConfig); }}>
-                {demoText.tabs.config}
-              </button>
-            </li>
-            <li className="demo-tab-item">
-              <button type="button" className={"demo-tab" + (activeKey === eventKeyData ? " active" : "")} onClick={() => { handleSelect(eventKeyData); }}>
-                {demoText.tabs.data}
-              </button>
-            </li>
-          </>
+          <DemoTabs activeKey={activeKey} onSelect={handleSelect}
+            tabs={[
+              { name: 'chart', key: eventKeyChart, label: demoText.tabs.chart, pending: hasPending },
+              { name: 'config', key: eventKeyConfig, label: demoText.tabs.config },
+              { name: 'data', key: eventKeyData, label: demoText.tabs.data }
+            ]} />
         } />
       <MochartDemoContent activeKey={activeKey} demoData={demoData} initialDemoId={initialDemoId}
         onPendingChanged={setHasPending} />

@@ -80,7 +80,7 @@ export class TopBar extends LightElement {
     return html`<div class=${'mochart-demo-tabs-container' + (folded ? ' demo-has-overflow' : '')}>
       <div class="mochart-demo-nav-group">
         ${folded ? nothing : html`${siteRootButton(this.siteRootUrl)}${backToDemosButton(this.onBackToDemos)}`}
-        ${this.tabs !== null ? html`<ul class="demo-tabs">${this.tabs()}</ul>` : nothing}
+        ${this.tabs !== null ? this.tabs() : nothing}
         ${!folded && this.hasNotes
           ? html`<notes-menu .demoTitle=${this.notes!.title} .notes=${this.notes!.notes}></notes-menu>`
           : nothing}

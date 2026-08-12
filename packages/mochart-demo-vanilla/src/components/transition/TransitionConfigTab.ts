@@ -80,7 +80,7 @@ export function transitionConfigTab(props: TransitionConfigTabProps): Transition
         resetButton.el, applyButton.el, footerError
       ])
     ])
-  ]);
+  ], 'config');
 
   function sync(): void {
     const currentJsonError = jsonError();
