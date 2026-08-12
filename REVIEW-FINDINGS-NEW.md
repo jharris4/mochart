@@ -2674,6 +2674,37 @@ monorepo's tsx scripts, not for consumers. `@mochart/core` has the same shape.
 (npm ≥ 9 replaces top-level fields at publish time) listing only `types` then `default` (plus
 `svelte` for `@mochart/svelte`). If it must stay, put `types` first and document it in each README.
 
+**Partly addressed, and left Open: the remaining half is a decision, written up in
+`REVIEW-QUESTIONS.md`.**
+
+What landed here, because it is right regardless of that decision: `types` now precedes `development` in
+all **nine** packages' `exports["."]` maps (the five bindings, core, movalid, export and editor — the
+finding undercounts at seven), so any tool setting both conditions resolves `dist/*.d.ts` instead of raw
+source; and each of those nine READMEs gained a `## The development export condition` section naming the
+hazard and the escape hatch (`resolve.conditions: ['module','browser','production']`), with the Svelte and
+Angular ones naming their specific failures — `<script lang="ts">` needing `vitePreprocess()`, and
+unprocessed Angular decorators. Vite never sets the `types` condition, so this cannot change any dev
+server's lookup, which was confirmed against a live server rather than assumed.
+
+**The finding's own fix does not work.** `publishConfig.exports` is a pnpm/Yarn feature that **npm
+ignores**; a packed tarball's manifest is byte-identical to the source manifest, `development` still
+present. This repo publishes with npm, so that route is inert.
+
+**And no exports-map edit can fix the consumer without breaking this repo**, because the two are
+indistinguishable to a resolver: Vite's default client conditions are
+`['module','browser','development|production']` and its server ones `['module','node',…]`, and the demos
+set no `resolve.conditions` — they reach `src` through those defaults, exactly as a consumer's `vite dev`
+would. Nesting under `node` sends the demos to `dist` and still leaks to consumer SSR dev; putting
+`browser` first sends both to `dist`; deleting the condition breaks the demo dev servers, every binding's
+vitest run (Vitest resolves through the server conditions, so the binding tests currently exercise `src`)
+and the `--conditions=development` tsx scripts.
+
+So the consumer exposure is documented, not removed. The real fix is renaming the condition to a private
+one no bundler enables by default, with explicit opt-in at every in-repo consumer — and that is the
+decision: it touches each demo's and the docs' `vite.config.ts`, the bindings' vitest configs, and two
+package.json script lines, and doing it partially would silently switch the demo dev servers and the
+binding suites onto a stale `dist`.
+
 ### BIND-4 — Angular placeholders keep stale inputs when core omits a context key
 **Medium · Bug · [mochart-angular/src/placeholders.ts:56-60](packages/mochart-angular/src/placeholders.ts#L56)** — **Open**
 
@@ -3044,7 +3075,7 @@ The finding's third suggestion — adding the generator work as a new phase item
 not to a tense fix.
 
 ### DOC-10 — the movalid README's validator and chain lists are each missing one member
-**Low · Doc gap · [movalid/README.md:48](packages/movalid/README.md#L48), [:64](packages/movalid/README.md#L64)** — **Open**
+**Low · Doc gap · [movalid/README.md:48](packages/movalid/README.md#L48), [:64](packages/movalid/README.md#L64)** — **Fixed**
 
 Enumerated against the real export: the "Objects" bullet omits `partialObjectWithShape` — the one
 `@mochart/core` actually uses for nested config objects — and the chainable-extension list omits
@@ -3053,6 +3084,34 @@ otherwise match the implementation exactly (45/45 validators present) and read a
 inventories, so the two missing members are precisely the ones a reader meets first.
 
 **Fix:** add both.
+
+**Fixed, and both lists were shorter than the finding says.** The validator inventory now covers all
+**49** (48 factories plus `conditional`), with `partialObjectWithShape` added to the Objects bullet — the
+finding's arithmetic of "45/45 present" is wrong, though the single omission it names is right. The
+chainable-extensions list now covers all **7**, with `withCustomName` added; it is the seventh extension,
+not "the 8th method", since `getErrorMessage` is not an extension and is already described in the intro.
+
+Verified mechanically rather than by eye: the module was imported and `Object.keys(validators)` diffed
+against the identifiers in the README section — zero README-only names, zero source-only names. Each
+member carries a source line. `partialObjectWithShape`'s gloss comes from running it: `{}` and `{a:1}`
+pass, `{a:'x'}` fails, and an unknown key fails unless `allowExtraProperties` is set.
+
+The section lead-in was also wrong and is rewritten: "extensions widen what passes and extend the error
+message" is false for the three message extensions and for `withCustomName`, so each bullet now states
+its own effect, and the lead-in notes that `conditional` is included (verified live, now that
+[VAL-2](#val-2--conditional-returns-a-validator-missing-three-methods-its-own-type-declares) attaches
+them) and that every extension returns a re-extendable validator.
+
+Checked against the five other movalid fixes that landed alongside this one: nothing in the README was
+made false by them. Its only quoted messages are in the Usage block, and those were executed and are
+byte-identical to the comments.
+
+One thing found and not fixed, because it is a third list rather than either of the two this finding
+names: the intro paragraph lists 6 of the `Validator` metadata fields where the interface carries 12,
+omitting `validatorName`, `customName`, `extensionNames`, `itemValidator`, `alternativeValidators` and
+`errorMessages` — and it reads as complete. `customName` in particular is consumed outside the package, at
+[configReferenceModel.ts:600](packages/mochart/scripts/configReferenceModel.ts#L600), which maps it to
+`editor.format`.
 
 ### DOC-11 — `date-axis.md` says an area fills to "the value axis base", which is unset by default
 **Low · Doc inconsistency · [recipes/date-axis.md:26](packages/mochart-docs/recipes/date-axis.md#L26)** — **Fixed**

@@ -44,7 +44,10 @@ All are called as `validators.name(...args)`:
   `arrayOf(validator, allowEmpty)`
 - **Objects** — `objectWith(properties, validator)`,
   `objectWithSome(properties, validator)`,
-  `objectWithShape({ prop: validator, … }, allowExtraProperties)`
+  `objectWithShape({ prop: validator, … }, allowExtraProperties)`,
+  `partialObjectWithShape({ prop: validator, … }, allowExtraProperties)` (only
+  the properties actually present have to pass, so it is the one to use for
+  optional config objects)
 - **Combinators** — `or([...validators])`, `and([...validators])`,
   `not(validator)`
 - **Conditional** — `validators.conditional(rules, object)` picks the first
@@ -63,12 +66,15 @@ shape returned by every factory), `Validators`, `CustomValidator`,
 
 ## Chainable extensions
 
-Every validator can be extended; extensions widen what passes and extend the
-error message:
+Every validator can be extended, `conditional` included. Each extension returns
+a new validator that can be extended in turn:
 
-- `.orEqual(value)` / `.orOneOf([...])` / `.or(otherValidator)`
+- `.orEqual(value)` / `.orOneOf([...])` / `.or(otherValidator)` — widen what
+  passes and extend the error message
 - `.withMessage(msg)` / `.appendMessage(msg)` / `.prependMessage(msg)` —
   override or decorate the error message without changing behavior
+- `.withCustomName(name)` — set the `customName` metadata field, leaving both
+  behavior and error message unchanged
 
 ```js
 const size = validators.numberMin(0).orEqual('auto').withMessage('should be a size');
