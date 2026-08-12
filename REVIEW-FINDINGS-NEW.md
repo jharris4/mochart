@@ -761,7 +761,7 @@ so the branch was doing the same work one line early and throwing it away.
 typecheck and lint pass.
 
 ### ANIM-5 — shared delta constants are mutated in place
-**Low · Bug · [SeriesAnimationData.ts:843-844](packages/mochart/src/animation/SeriesAnimationData.ts#L843)** — **Open**
+**Low · Bug · [SeriesAnimationData.ts:843-844](packages/mochart/src/animation/SeriesAnimationData.ts#L843)** — **Fixed**
 
 `getSeriesValuesDeltas` returns the module-level `emptyValueDelta` singleton for a zero delta;
 the caller then writes `deltaCopied = false` onto it, stamping a constant shared by every chart
@@ -771,6 +771,20 @@ anyway — but the surrounding `adjust*` functions carry explicit "never mutated
 the invariant is already understood to matter.
 
 **Fix:** return a fresh object for the zero case, or `Object.freeze` the three constants.
+
+**Fixed by returning fresh objects.** The three module-level constants are now factory functions —
+`emptyValueDelta()`, `emptyCopiedValueDelta()`, `emptyNotCopiedValueDelta()` — so no caller can ever
+write through to an object shared by every chart on the page. All five sites that handed one out are
+updated, including `getSeriesValuesDeltas`'s zero-delta return, which is the one the finding traced:
+`setFilteredSeriesValueDeltas` stamped `deltaCopied = false` onto it, and
+`setValueDeltaFactorForValues` stamped `deltaFactor` onto all three.
+
+`Object.freeze` was the finding's other suggestion and is the wrong one here: the writes are
+legitimate — the objects are meant to carry `deltaCopied`/`deltaFactor` — so freezing would throw in
+strict mode rather than fix anything. The allocation is once per key per series when delta data is
+built, not per frame, and the non-zero path on the same line already allocates.
+
+1597 tests, typecheck and lint pass.
 
 ### ANIM-6 — a value outside an explicit axis bound stretches the animation past its configured maximum
 **Medium · Bug · [SeriesAnimationData.ts:763](packages/mochart/src/animation/SeriesAnimationData.ts#L763), [ChartTweens.ts:417](packages/mochart/src/animation/ChartTweens.ts#L417)** — **Fixed** **[verified]**
