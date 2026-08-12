@@ -297,7 +297,11 @@ applications never need these:
   contracts are the types `ChartDataSource` (the interface both data
   sources implement), `ChartDataSourceInput` (the config + data provider +
   focus/filter snapshot a source consumes), and `InternalFocus` (a partial
-  focus update raised from inside the chart).
+  focus update raised from inside the chart). A source emits `ChartData` (the
+  parsed categories and per-series values, domains and stacks) and `FocusData`
+  (the focused category/series/axis plus the 0–1 focus percentages the
+  renderer interpolates); both are exported, along with the types their
+  members are declared with, so an implementation can name them.
 - `Renderer`, `El`, `TextEl`, `svgEl`, `htmlEl`, `textEl`, `shallowEqual` —
   the retained-mode rendering primitives.
 - `buildMochartConfig`, `applyDefaults`, `hasConfigStructureChange`,
@@ -306,3 +310,14 @@ applications never need these:
 
 The shipped `.d.ts` documents all of these — hover any import in your
 editor for details.
+
+### What is not exported
+
+The pipeline types between those building blocks are deliberately not
+exported: the measure/layout results, the staged-animation delta types, the
+axis scale/tick and series-position types, and the enhanced config views.
+They are the types the components' props are declared with, so the shipped
+`.d.ts` still describes them and editor hovers still show their shape — but
+they are not importable by name from `@mochart/core`, and they change
+without notice. Embed the components by passing them the values the chart
+controllers produce; do not annotate your own code with those types.

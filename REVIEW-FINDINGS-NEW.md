@@ -2123,7 +2123,7 @@ value at runtime. `HELP-11`'s request for `ColorInterpolation`, `PieLabelType` a
 typecheck, lint and deadcode clean.
 
 ### API-2 — ~55 layout/animation/data internals ship as public types
-**Medium · Inconsistency · [types/index.ts:1](packages/mochart/src/types/index.ts#L1)** — **Open**
+**Medium · Inconsistency · [types/index.ts:1](packages/mochart/src/types/index.ts#L1)** — **Fixed**
 
 `export type * from './layout'` publishes all 14 layout types; the explicit animation list
 publishes 31 tween internals (`CompleteNumericArrayDelta`, `OuterChangeCounts`,
@@ -2138,6 +2138,82 @@ now a published type-surface break.
 **Fix:** drop `export type * from './layout'` and the animation block (keep `FocusData`/
 `FocusPercentage` if `ChartDataSource` needs them); narrow `data.ts` to what `DataProvider`
 consumers actually need.
+
+Fixed by stopping the wildcard and enumerating. 59 names left the root export table
+(248 root exports, down from 307), and 3 of them turned out to be dead code and are
+gone from the codebase.
+
+**The wildcard finding, confirmed with a reason the finding did not state.**
+`src/types/index.ts` was five `export type *` lines plus one explicit 31-name list for
+`animation`. That list is not curation — `animation.ts` re-aliases six names that also
+exist in `data.ts`, so a sixth wildcard would have been a duplicate-export error. The
+list exists to dodge that collision. So **none of these were deliberate decisions.**
+`checkApiCoverage.ts` then exempts everything under `src/types/` from the docs-page
+requirement "because that surface is the generated config reference / the `.d.ts`" —
+an exemption written for `config.ts` that the wildcards silently extended to the whole
+layout and tween pipeline. `config.ts` keeps its wildcard (all 44 of its types are
+config-model types the generated reference covers); `geometry`, `data`, `chart` and
+`animation` are now explicit lists with a header comment naming the internal surface.
+
+The test for "kept" was reachability from a *published* signature — a prop, a callback
+payload, a documented extension point, or a binding's prop type — resolved with the
+TypeScript checker over the emitted `.d.ts`, not from names.
+
+**Kept:** `Bounds` (used by `onSeriesLayoutBoundsChange` and imported by name in all
+five bindings), `Size`/`MarginPadding`/`InnerOuter` (the declared types of ~10 config
+members), `DataProvider`/`CategoryValue`/`DataRow`, the 13 prop/callback/factory types
+in `chart.ts` that the generated `api-reference.json` reads, and the whole
+`ChartData`/`FocusData` chain — 15 names — because `ChartDataSource.chartData` and
+`.focusData` are documented in `reference/api.md`, so those shapes are already pinned
+contracts. Removing the member names buys no refactor freedom and costs a host
+implementing the interface the ability to write helper signatures.
+
+**Labelled internal:** all 14 of `layout.ts`, 28 of the 31 `animation.ts` names (every
+tween delta type), 15 `data.ts` types (`StackData`, `AxisData`, `AxisScale`,
+`AxisTick`, `SeriesPositionData`, `ClippedEdges`, …), `TextBounds`, and
+`ChartDomAccessors` — which already carried an `internalInterfaces` reason in
+`scripts/apiReferenceModel.ts`, so the barrel was contradicting its own label.
+
+**Deleted:** `AnimationCategoryData`, `AnimationSeriesDataSet`,
+`AnimationSeriesData` — pure aliases with no use anywhere in core, which knip flagged
+the moment the barrel stopped re-exporting them.
+
+**The leak is narrowed, not closed, and the finding's "Fix:" over-promises there.**
+`Chart`, `Legend`, `Crosshair` and `Tooltip` are documented advanced exports and their
+props are declared with these types. Walking the reachable `.d.ts` closure from
+`index.d.ts` (43 of 204 emitted files): **37 of the 59 left the published closure
+entirely**, including all 28 tween delta types — the exact block the finding named.
+**22 remain**, pulled in by five import lines in those four component `.d.ts` files.
+Closing them means unexporting the four components, which `reference/api.md`
+deliberately publishes — a bigger refactor than this finding justifies. They are now
+in the `EnhancedMochartConfig` category: declared, `.d.ts`-documented, not importable
+by name. A host embedding a component passes it the values the controllers produce; it
+can no longer annotate its own code with the pipeline types, which is the refactor
+freedom the finding was after. `reference/api.md` gained a **"What is not exported"**
+subsection stating that policy.
+
+Corrections to the finding: **"~55" is wrong on both sides** — 59 names were
+removable, and its arithmetic double-counted the animation block, which already held 3
+names that must stay (`FocusData`, `FocusPercentage`, `FocusPercentageMap`) and 3 that
+were dead, while missing `TextBounds`, `ChartDomAccessors` and 12 of the 15 `data.ts`
+internals. "None is documented in `reference/api.md`" is right but misleading:
+`ChartData` and `FocusData` were undocumented *by name* while being the declared types
+of two documented `ChartDataSource` members — a doc gap, not a case for removal, and
+now fixed. And both of its concrete suggestions would have broken that documented
+contract: "drop the animation block" and "narrow `data.ts` to what `DataProvider`
+consumers need" — `DataProvider` needs only `CategoryValue`; it is `ChartDataSource`
+that requires the 15-name `ChartData` chain.
+
+Ratchet: `test/config/publicTypes.test.ts` (API-1's typecheck-time surface test) gained
+an API-2 half — a real `DataProvider` and a real `ChartDataSource` whose signatures
+name all 28 kept types, so dropping one fails `typecheck`, plus one
+`@ts-expect-error` per source file listing that file's internals, so restoring a
+wildcard makes the directive unused and fails. Verified biting: a probe with a
+still-exported name produced `error TS2578: Unused '@ts-expect-error' directive`.
+
+Gates: repo-wide typecheck clean; `deadcode` clean after the three deletions;
+120 files / 1778 tests pass; docs gates green (41 examples, 233 exports, 18 sections);
+`build:types` clean with the export-table diff above.
 
 ### API-3 — crosshair elements get unnamespaced CSS classes
 **Medium · Bug · [ChartDom.ts:69](packages/mochart/src/utils/ChartDom.ts#L69)** — **Fixed**
