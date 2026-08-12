@@ -146,8 +146,11 @@ function adjustAxisDomainForOffsets(axisConfig: AxisDomainConfig, axisDomain: Ca
   }
 }
 
-function getAxisValueCreator(axisConfig: AxisDomainConfig): (value: number) => DomainValue {
-  return axisConfig.type === TYPE_DATE ? (value: number) => new Date(value) : (value: number) => value;
+// a linear date category axis takes its bounds as a timestamp or an ISO date string; only a date axis ever sees the string form
+type AxisBoundValue = number | string;
+
+function getAxisValueCreator(axisConfig: AxisDomainConfig): (value: AxisBoundValue) => DomainValue {
+  return axisConfig.type === TYPE_DATE ? (value: AxisBoundValue) => new Date(value) : (value: AxisBoundValue) => value as number;
 }
 
 function adjustAxisValue(axisConfig: AxisDomainConfig, value: DomainValue, adjustment: number): DomainValue {
