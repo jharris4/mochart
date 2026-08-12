@@ -21,6 +21,7 @@
     "access": "public"
   },
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/validators.js",
   "module": "./dist/validators.js",
   "types": "./dist/validators.d.ts",

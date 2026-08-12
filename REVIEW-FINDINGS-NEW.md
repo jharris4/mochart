@@ -4543,7 +4543,7 @@ editor). Hints do not affect the exit code and are outside this finding; clearin
 `--treat-config-hints-as-errors` or dropping those patterns.
 
 ### TOOL-5 — `@mochart/core` inlines its runtime dependencies but still declares them; nothing declares `sideEffects`
-**Medium · Inconsistency · [mochart/vite.config.ts:3-5](packages/mochart/vite.config.ts#L3), [mochart/package.json:44](packages/mochart/package.json#L44)** **[verified]** — **Open**
+**Medium · Inconsistency · [mochart/vite.config.ts:3-5](packages/mochart/vite.config.ts#L3), [mochart/package.json:44](packages/mochart/package.json#L44)** **[verified]** — **Fixed**
 
 The library build bundles everything: `dist/mochart.js` (500 KB) contains zero external `import`
 statements, with d3 and movalid source inlined. Yet `package.json` lists 7 `d3-*` packages plus
@@ -4556,6 +4556,38 @@ unused binding code.
 **Fix:** either externalize `d3-*`/`@mochart/movalid` in `vite.config.ts` (keeping them real
 dependencies) or move them to `devDependencies` and drop them from the published manifest. Add
 `"sideEffects": ["*.css"]` (or `false` for the JS-only packages) to every published package.
+
+**Fixed, but not the way the finding frames it, and one of its two targets must not move.**
+
+The seven `d3-*` packages moved from `dependencies` to `devDependencies`. That arm was chosen over
+externalizing them in Vite, which would have broken the documented self-contained artifacts — `dist/mochart.iife.js`
+exposing the global `mochart` has to carry its own d3. `d3-*` is imported only by `src/`, which reaches a
+consumer solely through the repo-internal `development` condition, so dev-only is the accurate declaration.
+Nothing outside `packages/mochart` imports d3, and the packages stay installed at the root, so no resolution
+in the repo changes.
+
+**`@mochart/movalid` cannot move and stays a real dependency.** The finding lumps it in with the d3 packages;
+it is not the same case. movalid's `Validator` type appears in core's *emitted declarations* —
+`--listFiles` from `dist/types/index.d.ts` pulls in `packages/movalid/dist/validators.d.ts` via
+`dist/types/config/validation/mochartConfig.d.ts` — so de-declaring it would break consumer type resolution
+in exactly the way the `shapeUtils` reference already did
+([TOOL-17](#tool-17--the-published-types-entry-references-d3-shape-types-a-consumer-cannot-resolve)).
+
+`sideEffects` added to all nine published manifests: `["*.css"]` for `@mochart/core` and `@mochart/editor`,
+the only two that ship a `css/` directory, since webpack drops a consumer's `import '@mochart/core/mochart.css'`
+from a package declaring `false`; `false` for the other seven, checked mechanically — none of their `src/`
+imports a stylesheet and none registers anything at module scope (no `customElements.define`, no
+`globalThis`/`window` assignment), so every export is pure.
+
+Worth tempering one claim: `sideEffects` does little for core's own bundle. The ES output is a single
+Rollup-produced module that Vite already marks pure internally, so the flag mainly helps consumers of the
+bindings and guarantees the CSS entry keeps working — not the "tree-shake the 500 KB bundle" the finding
+implies.
+
+Verified: core builds (526.43 kB) and the bundle is still fully inlined — a grep for bare-specifier
+`import`/`export ... from` in `dist/mochart.js` returns nothing. Repo lint passes; core's own src project
+typechecks clean. The lockfile was resynced with `npm install --package-lock-only --ignore-scripts`: 16
+insertions, 6 deletions, marking the ten hoisted d3 packages (including `internmap`) as dev.
 
 ### TOOL-6 — the documented IIFE build is shipped but unreachable through `exports`
 **Medium · Bug · [mochart/package.json:34-40](packages/mochart/package.json#L34); documented at [getting-started.md:131](packages/mochart-docs/guide/getting-started.md#L131)** — **Open**
