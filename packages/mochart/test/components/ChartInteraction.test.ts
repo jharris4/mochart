@@ -17,6 +17,10 @@ const crosshairLine = '.' + mochartCssClasses['crosshairLine'];
 const crosshairCategoryLines = '.' + mochartCssClasses['crosshairCategoryLines'];
 const crosshairSeriesLines = '.' + mochartCssClasses['crosshairSeriesLines'];
 const crosshair = '.' + mochartCssClasses['crosshair'];
+const titleGroup = '.' + mochartCssClasses['title'];
+const titleText = '.' + mochartCssClasses['titleText'];
+const titlePrefix = '.' + mochartCssClasses['titlePrefix'];
+const titleSuffix = '.' + mochartCssClasses['titleSuffix'];
 const WIDTH = 800;
 const HEIGHT = 600;
 
@@ -241,6 +245,82 @@ describe('title layout variants', () => {
     } as DefaultChartProps);
     handles.push(handle);
     expect(container.querySelector('[data-mochart-version]')).not.toBeNull();
+  });
+});
+
+// TEST-5: the title's <a> wrapper, the linkDisabled navigation guard and the
+// pointer path into onTitleClick had no test of their own.
+describe('title link', () => {
+  const linkConfig = (overrides: Record<string, unknown> = {}) => makeConfig({
+    title: { text: 'Sales Chart', prefix: 'Q1', suffix: '(units)', link: 'https://example.com/sales', ...overrides }
+  });
+
+  function anchor(container: Element): SVGAElement {
+    const element = container.querySelector<SVGAElement>(`${titleGroup} a`);
+    expect(element).not.toBeNull();
+    return element!;
+  }
+
+  it('wraps every title section in a real anchor carrying the href', () => {
+    const container = mountChart(linkConfig());
+    const link = anchor(container);
+    expect(link.getAttribute('href')).toBe('https://example.com/sales');
+    // the whole title, not just its middle section, is the click target
+    for (const selector of [titlePrefix, titleText, titleSuffix]) {
+      const section = container.querySelector(selector);
+      expect(section, selector).not.toBeNull();
+      expect(section!.closest('a'), selector).toBe(link);
+    }
+    expect(link.textContent).toContain('Sales Chart');
+  });
+
+  it('renders an unlinked title with no anchor around its text', () => {
+    const container = mountChart(makeConfig({ title: { text: 'Sales Chart' } }));
+    expect(container.querySelector(`${titleGroup} a`)).toBeNull();
+    expect(container.querySelector(titleText)!.closest('a')).toBeNull();
+  });
+
+  it('lets a linked title navigate by default', () => {
+    const container = mountChart(linkConfig());
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    anchor(container).dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('suppresses navigation but keeps the href when linkDisabled is set', () => {
+    const container = mountChart(linkConfig({ linkDisabled: true }));
+    const link = anchor(container);
+    expect(link.getAttribute('href')).toBe('https://example.com/sales');
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    link.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('still reports the click to onTitleClick from a linkDisabled title', () => {
+    const clicks: number[] = [];
+    const container = mountChart(linkConfig({ linkDisabled: true }), { onTitleClick: () => { clicks.push(1); } });
+    anchor(container).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(clicks.length).toBe(1);
+  });
+});
+
+describe('onTitleClick', () => {
+  it('fires once per pointer click on the title', () => {
+    const clicks: number[] = [];
+    const container = mountChart(makeConfig({ title: { text: 'Sales Chart' } }),
+      { onTitleClick: () => { clicks.push(1); } });
+    const title = container.querySelector(titleGroup)!;
+    expect(title.getAttribute('cursor')).toBe('pointer');
+
+    title.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(clicks.length).toBe(1);
+    container.querySelector(titleText)!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(clicks.length).toBe(2);
+  });
+
+  it('shows no pointer affordance on a title without the callback', () => {
+    const container = mountChart(makeConfig({ title: { text: 'Sales Chart' } }));
+    expect(container.querySelector(titleGroup)!.getAttribute('cursor')).toBeNull();
   });
 });
 
