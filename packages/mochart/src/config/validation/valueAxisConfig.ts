@@ -23,6 +23,7 @@ export default function getValidators() {
     focusOnClick: validators.boolean(),
 
     id: validators.string(),
+    ignore: validators.boolean(),
 
     max: validators.number().orEqual(AUTO),
     maxOffset: validators.number(),

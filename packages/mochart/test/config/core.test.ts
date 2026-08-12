@@ -30,6 +30,36 @@ describe('filterConfig / filterConfigs', () => {
   });
 });
 
+// CONFIG-8: applyDefaults filters every array section on `ignore`, but it used to be typed,
+// validated and documented on `series` alone - so ignoring a value axis worked at runtime while
+// the types rejected it, and `ignore: false` on the other sections warned as an unknown property.
+describe('ignore across every list section', () => {
+  const sections = ['valueAxes', 'seriesGroups', 'seriesStacks', 'linearGradients', 'radialGradients'] as const;
+  const withSection = (section: string, entries: Record<string, unknown>[]) => makeConfig({
+    categoryAxis: { property: 'month', type: 'string', scale: 'ordinal' },
+    series: [{ property: 'sales' }],
+    [section]: entries
+  }) as unknown as Record<string, unknown>;
+
+  it('drops an ignored entry from every list section', () => {
+    for (const section of sections) {
+      const built = withSection(section, [{ id: 'keep' }, { id: 'drop', ignore: true }]);
+      expect((built[section] as { id: string }[]).map(entry => entry.id), section).toEqual(['keep']);
+    }
+  });
+
+  // a gradient entry needs more than an id to be valid, so this asserts on the ignore warning
+  // specifically rather than on overall validity
+  it('treats ignore as a known property on every list section', () => {
+    for (const section of sections) {
+      const built = withSection(section, [{ id: 'a', ignore: false }]);
+      const { warnings } = built.validation as { warnings: string[] };
+      expect(warnings.filter(warning => warning.includes('ignore')), section).toEqual([]);
+      expect(warnings.filter(warning => warning.includes('invalid propert')), section).toEqual([]);
+    }
+  });
+});
+
 describe('applyDefaults', () => {
   it('returns an empty object for a non-object config', () => {
     expect(applyDefaults(null, {})).toEqual({});

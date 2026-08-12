@@ -3,6 +3,7 @@ import validators from './validators';
 export default function getValidators() {
   return {
     id: validators.string(),
+    ignore: validators.boolean(),
     x1: validators.numberMinMax(0, 1),
     x2: validators.numberMinMax(0, 1),
     y1: validators.numberMinMax(0, 1),

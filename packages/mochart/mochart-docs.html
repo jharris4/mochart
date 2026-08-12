@@ -1696,6 +1696,10 @@ table thead td { border-bottom-width: 2px; }
 </td><td><div>LG${index} (linear gradient index)</div>
 </td>
 </tr>
+<tr id="linearGradients.ignore">
+<td><a href="#linearGradients.ignore">ignore</a></td><td>whether to ignore this linear gradient and treat it as though it were not specified</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
 <tr id="linearGradients.rotation">
 <td><a href="#linearGradients.rotation">rotation</a></td><td>the rotation property (in degrees) of the svg linear gradient</td><td>should be a number >= to -360 and <= 360</td><td><div>0</div>
 </td>
@@ -2006,6 +2010,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#radialGradients.id">id</a></td><td>the unique identifier for the gradient so that it can be referenced for use</td><td><p>should be a string</p>
 <p>should be unique</p>
 </td><td><div>RG${index} (radial gradient index)</div>
+</td>
+</tr>
+<tr id="radialGradients.ignore">
+<td><a href="#radialGradients.ignore">ignore</a></td><td>whether to ignore this radial gradient and treat it as though it were not specified</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="radialGradients.r">
@@ -2368,6 +2376,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#valueAxes.id">id</a></td><td>the unique identifier for the value axis so it can be referenced by series that belong to it<br/><br/>Referenced by `series[].axis` (and `seriesStacks[].axis`) to assign series to this axis. With a single axis the ids can be omitted everywhere.</td><td><p>should be a string</p>
 <p>should be unique</p>
 </td><td><div>VA${index} (value axis index)</div>
+</td>
+</tr>
+<tr id="valueAxes.ignore">
+<td><a href="#valueAxes.ignore">ignore</a></td><td>whether to ignore this value axis and treat it as though it were not specified</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="valueAxes.marginInner">
@@ -3653,6 +3665,10 @@ table thead td { border-bottom-width: 2px; }
 </td><td><div>SG${index} (series group index)</div>
 </td>
 </tr>
+<tr id="seriesGroups.ignore">
+<td><a href="#seriesGroups.ignore">ignore</a></td><td>whether to ignore this series group and treat it as though it were not specified</td><td>should be a boolean</td><td><div>false</div>
+</td>
+</tr>
 </table>
 </div>
 <div id="seriesStacks">
@@ -3673,6 +3689,10 @@ table thead td { border-bottom-width: 2px; }
 <td><a href="#seriesStacks.id">id</a></td><td>the unique identifier for the series stack so it can be referenced by series that belong to it<br/><br/>Referenced by `series[].stack` to place series in this stack. Stacked series draw on top of one another and animate as a single gapless unit — each segment’s baseline follows the tweened top of the segment below it throughout a transition.</td><td><p>should be a string</p>
 <p>should be unique</p>
 </td><td><div>SS${index} (series stack index)</div>
+</td>
+</tr>
+<tr id="seriesStacks.ignore">
+<td><a href="#seriesStacks.ignore">ignore</a></td><td>whether to ignore this series stack and treat it as though it were not specified</td><td>should be a boolean</td><td><div>false</div>
 </td>
 </tr>
 <tr id="seriesStacks.outerCapExpand">

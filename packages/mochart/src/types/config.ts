@@ -2119,6 +2119,13 @@ export interface ValueAxisTick {
 
 export interface ValueAxisConfig extends AxisConfigBase {
   /**
+   * Whether to ignore this value axis and treat it as though it were not
+   * specified.
+   *
+   * @default false
+   */
+  ignore: boolean;
+  /**
    * The unique identifier for the value axis so it can be referenced by series
    * that belong to it.
    *
@@ -2968,6 +2975,13 @@ export interface SeriesConfig {
 
 export interface SeriesStackConfig {
   /**
+   * Whether to ignore this series stack and treat it as though it were not
+   * specified.
+   *
+   * @default false
+   */
+  ignore: boolean;
+  /**
    * The unique identifier for the series stack so it can be referenced by
    * series that belong to it.
    *
@@ -3015,6 +3029,13 @@ export interface SeriesStackConfig {
 
 export interface SeriesGroupConfig {
   /**
+   * Whether to ignore this series group and treat it as though it were not
+   * specified.
+   *
+   * @default false
+   */
+  ignore: boolean;
+  /**
    * The unique identifier for the series group so it can be referenced by
    * series that belong to it.
    *
@@ -3031,6 +3052,13 @@ export interface GradientStop {
 }
 
 export interface LinearGradientConfig {
+  /**
+   * Whether to ignore this linear gradient and treat it as though it were not
+   * specified.
+   *
+   * @default false
+   */
+  ignore: boolean;
   /**
    * The unique identifier for the gradient so that it can be referenced for
    * use.
@@ -3074,6 +3102,13 @@ export interface LinearGradientConfig {
 }
 
 export interface RadialGradientConfig {
+  /**
+   * Whether to ignore this radial gradient and treat it as though it were not
+   * specified.
+   *
+   * @default false
+   */
+  ignore: boolean;
   /**
    * The unique identifier for the gradient so that it can be referenced for
    * use.

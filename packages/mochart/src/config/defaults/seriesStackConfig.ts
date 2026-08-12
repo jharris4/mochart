@@ -14,6 +14,7 @@ export default function getDefaults(config: DeepPartial<SeriesStackConfig> = {},
 
 export function getRegularDefaults() {
   return {
+    ignore: false,
     outerCapSize: 5,
     outerCapType: NONE,
     outerCapExpand: true,
