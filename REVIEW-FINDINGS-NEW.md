@@ -35,15 +35,16 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**170 findings: 1 critical, 34 high, 74 medium, 61 low.** (145 from the Opus pass,
-5 from the SOL pass, 20 found while implementing.)
+**172 findings: 1 critical, 34 high, 76 medium, 61 low.** (145 from the Opus pass,
+5 from the SOL pass, 22 found while implementing.)
 
-**Status: 157 fixed, 13 open** (2 high, 4 medium, 7 low).
+**Status: 157 fixed, 15 open** (2 high, 6 medium, 7 low).
 
-Six of the open findings are blocked on a decision rather than on work — **COMP-8**,
-**API-13**, **BIND-3**, **DEMO-23**, **TOOL-2** and **VAL-1** — and each has its question, options and a
-recommendation written up in `REVIEW-QUESTIONS.md`. The other seven are unstarted work: **A11Y-6**,
-**DEMO-14**, **DEMO-17**, **DEMO-20**, **TEST-9**, **TEST-16** and **TEST-19**.
+Six of the open findings are blocked on a decision rather than on work — **COMP-8**, **API-13**,
+**BIND-3**, **DEMO-23**, **TOOL-2** and **VAL-1** — and each has its question, options and a
+recommendation written up in `REVIEW-QUESTIONS.md`. The other nine are unstarted work: **A11Y-6**,
+**CONFIG-11**, **DEMO-14**, **DEMO-17**, **DEMO-20**, **DEMO-24**, **TEST-9**, **TEST-16** and
+**TEST-19**.
 
 BIND-3 is the one finding deliberately left open with work committed against it: its safe half — `types`
 before `development` in nine export maps, plus README documentation — has landed, while the consumer exposure
@@ -68,16 +69,16 @@ or direct source read during assembly, over and above the auditing agent's own w
 | [2](#2-core--animation-and-layout) | Core — animation & layout | **1** | 2 | 3 | 3 | 9 |
 | [3](#3-core--components-renderer-and-interaction) | Core — components, renderer & interaction | – | 3 | 4 | 4 | 11 |
 | [4](#4-core--chart-type-helpers) | Core — chart-type helpers | – | 3 | 6 | 3 | 12 |
-| [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 4 | 3 | 10 |
+| [5](#5-core--config-system-and-validation) | Core — config system & validation | – | 3 | 5 | 3 | 11 |
 | [6](#6-core--public-api-types-and-utils) | Core — public API, types & utils | – | 1 | 6 | 7 | 14 |
 | [7](#7-accessibility) | Accessibility | – | 2 | 5 | 5 | 12 |
 | [8](#8-framework-bindings-export-and-editor) | Framework bindings, export & editor | – | 2 | 7 | 4 | 13 |
 | [9](#9-documentation) | Documentation | – | 3 | 7 | 4 | 14 |
-| [10](#10-demo-applications) | Demo applications | – | 5 | 10 | 8 | 23 |
+| [10](#10-demo-applications) | Demo applications | – | 5 | 11 | 8 | 24 |
 | [11](#11-tests-and-coverage) | Tests & coverage | – | 4 | 8 | 9 | 21 |
 | [12](#12-build-tooling-packaging-and-ci) | Build, tooling, packaging & CI | – | 3 | 8 | 6 | 17 |
 | [13](#13-movalid) | movalid | – | 1 | 4 | 2 | 7 |
-| | **Total** | **1** | **34** | **74** | **61** | **170** |
+| | **Total** | **1** | **34** | **76** | **61** | **172** |
 
 Every finding is counted once, in the section it is written in. `§13`'s `VAL-1` and `§5`'s `CONFIG-1`
 are one defect seen from two vantage points, cross-linked rather than duplicated; several other
@@ -2090,6 +2091,35 @@ the validator that imports it.
 Behaviour is identical: 263 config tests pass unchanged, typecheck, lint and deadcode clean.
 
 ---
+### CONFIG-11 — `tooltip.minWidth` is documented, defaulted and validated, but nothing reads it
+**Medium · Bug · [defaults/tooltipConfig.ts:29](packages/mochart/src/config/defaults/tooltipConfig.ts#L29), [validation/tooltipConfig.ts:22](packages/mochart/src/config/validation/tooltipConfig.ts#L22), [docs/tooltipConfig.ts:34](packages/mochart/src/config/docs/tooltipConfig.ts#L34)** — **Open**
+
+*Found while implementing [TEST-8](#test-8--72-of-349-documented-config-properties-are-never-set-in-any-test-or-demo), not by either review pass.*
+
+`tooltip.minWidth` has all three of the things a real config key has — a default of `120`, a
+`numberMin(0)` validator, and a docs description ("the minimum width (in pixels) for the tooltip") that
+puts it on the generated config reference page. No code reads it. Grepping `minWidth` across
+`packages/mochart/src` returns those three declarations plus five component sites, and every one of the
+five is a different, unrelated quantity: a runtime prop carrying the *measured* tooltip width, threaded
+`Tooltip.ts:100` (`minWidth: tooltipBounds ? tooltipBounds.width : null`) → `TooltipContent` →
+`TooltipControls`, where it pins the controls row and the last line to the width the hidden sizer
+measured. Nothing consults `tooltipConfig.minWidth` on the way.
+
+So the reference documents a knob, validation accepts values for it, and setting it does nothing. This is
+worse than an undocumented gap: a user who finds their tooltip too narrow will set it, see no change, and
+have no way to tell whether they mis-spelled the key or hit a bug — the strict validator's silence is
+positive confirmation that the key is real.
+
+The shared prop name is what hid it. `minWidth` reads as "the config key, threaded down", and it is
+not; a reviewer scanning for whether the key is used finds five hits and stops.
+
+**Fix:** decide whether the knob should exist. If it should, apply it where the measured width is
+resolved — `getTooltipLayoutInfo` in `layout/TooltipLayout.ts` already takes the measured `tooltipBounds`
+and the `EnhancedMochartConfig`, so it is the one place that has both — and rename the component prop
+(`measuredWidth`) so the two stop colliding. If it should not, delete the default, the validator and the
+docs description together; `TEST-8`'s ratchet does not cover unread keys, so nothing else will notice.
+Either way the *pair* of changes matters: leaving the name collision in place is what let this sit.
+
 
 # 6. Core — public API, types and utils
 
@@ -4932,6 +4962,38 @@ ones, which is why this is filed rather than folded into DEMO-13.
 
 Note the revert timer and its 1500ms are already shared in `createShareLinkCopier`, so whichever way this goes it
 stays a one-place change.
+### DEMO-24 — a click landing shortly after a view's first render is occasionally lost
+**Medium · Bug · [demo-vanilla e2e/helpers.ts:83](packages/mochart-demo-vanilla/e2e/helpers.ts#L83), demo shell (view mount path)** — **Open**
+
+*Found while implementing [TEST-14](#test-14--e2e-covers-one-minimal-harness-the-shipped-gallery-editor-share-menu-and-mobile-layout-have-none), not by either review pass.*
+
+Under parallel load, a press landing shortly after a view's first render sometimes produces no `click`
+event. Playwright's own diagnostics rule out the usual explanations: the element is at the coordinates it
+measured, the hit test resolves to that element (so nothing is overlaying it), and the press is
+dispatched — the handler simply never runs. Retrying the same press succeeds.
+
+That points at the demo shell's mount path rather than at the test: a listener attached, or a node
+replaced, in the window between the view becoming visible and it becoming interactive. It is invisible to
+a human, who cannot click that fast, and invisible to the old e2e suite, which drives a single
+long-lived harness rather than mounting views.
+
+**It could not be pinned down, and the reason matters.** Adding any instrumentation before the press —
+a probe listener, a log, an extra evaluate — made it unreproducible (96/96 twice). So the window is small
+enough that an extra round-trip closes it, which is consistent with a mount-order race and inconsistent
+with a logic bug. Anything more precise needs tracing inside the shell rather than from the page.
+
+The e2e suite does **not** paper over it with a sleep: `pressUntil` presses and then asserts the
+resulting attribute, retrying via `expect().toPass()`, so a genuinely broken control still fails. The
+cost is that the guard also hides this defect from the gate — the suite will stay green while it exists.
+
+**Fix:** find the window. Suspects, in order: a control whose handler is bound after first paint rather
+than before it; a view that renders once and is replaced (rather than updated) on its first state
+settle, discarding the listeners bound to the first copy; and the tab/mode switch path, where the panel
+is `display: none` until selected, so its first interactive frame and its first *visible* frame are not
+the same frame. Confirm with a mount-time counter on the shell side rather than page-side
+instrumentation, which is what perturbs it. When it is fixed, `pressUntil`'s retry should collapse to a
+plain `click` so the gate would catch a regression.
+
 
 # 11. Tests and coverage
 
