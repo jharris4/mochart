@@ -35,13 +35,13 @@ failing check** — they all come from reading the source and probing the public
 already fixed there is repeated here; several findings below are the *adjacent*
 cases that pass did not reach, and those are flagged as such.
 
-**169 findings: 1 critical, 33 high, 74 medium, 60 low.** (145 from the Opus pass,
-5 from the SOL pass, 17 found while implementing.)
+**170 findings: 1 critical, 34 high, 74 medium, 61 low.** (145 from the Opus pass,
+5 from the SOL pass, 20 found while implementing.)
 
-**Status: 138 fixed, 31 open** (14 medium, 15 low, and 2 high).
-Five of the open findings are blocked on a decision rather than on work — **COMP-8**, **BIND-3**, **TOOL-2**,
-**VAL-1** and **API-13** — and each has its question, options and a recommendation written up in `REVIEW-QUESTIONS.md`.
-The other 26 are unstarted work.
+**Status: 148 fixed, 22 open** (8 medium, 12 low, and 2 high).
+Six of the open findings are blocked on a decision rather than on work — **COMP-8**, **BIND-3**, **TOOL-2**,
+**VAL-1**, **API-13** and **DEMO-23** — and each has its question, options and a recommendation written up in
+`REVIEW-QUESTIONS.md`. The other 16 are unstarted work.
 
 BIND-3 is the one finding deliberately left open with work committed against it: its safe half — `types`
 before `development` in nine export maps, plus README documentation — has landed, while the consumer exposure
@@ -5145,7 +5145,7 @@ key now ends `-chromium-firefox-webkit` so it invalidates when the engine set
 changes.
 
 ### TEST-16 — the golden "randomize" transform rewrites row geometry as if it were data
-**Low · Test gap · [golden.test.ts:176](packages/mochart/test/golden/golden.test.ts#L176)**
+**Low · Test gap · [golden.test.ts:176](packages/mochart/test/golden/golden.test.ts#L176)** — **Open**
 
 *Found while implementing ANIM-1 part 3, not by either review pass.*
 
