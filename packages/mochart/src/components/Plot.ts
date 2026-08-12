@@ -1,7 +1,6 @@
 import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
-import { accessibilityActive } from '../utils/utils';
 
 import Background from './Background';
 import AxisGridContainer from './AxisGridContainer';
@@ -67,8 +66,8 @@ class PlotFrontBack extends Renderer<PlotFrontBackProps> {
       categoryAxisTickLabelClipPathUniqueId, valueAxisTitleClipPathUniqueIds, onFocus } = this.props;
     const { seriesData } = chartData;
 
-    this.root.set({ className: mochartCssClasses[front ? 'plotFront' : 'plotBack'],
-      ariaHidden: accessibilityActive(mochartConfig.accessibility) ? 'true' : null });
+    // not aria-hidden: the axis tick labels and titles under here are text a screen reader should read
+    this.root.set({ className: mochartCssClasses[front ? 'plotFront' : 'plotBack'] });
 
     this.gridContainer.set(AxisGridContainer, { front, mochartConfig, seriesLayoutInfo,
       seriesData, focusData, axisData });

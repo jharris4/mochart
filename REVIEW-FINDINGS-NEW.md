@@ -2750,7 +2750,7 @@ Covered by a test that exports both configurations and asserts no `aria-label`, 
 typecheck and lint clean, docs site builds.
 
 ### A11Y-5 — `accessibility.enabled: true` removes more text from the a11y tree than it adds
-**Medium · Bug · WCAG 1.3.1 / 1.1.1 · [Plot.ts:65-66](packages/mochart/src/components/Plot.ts#L65), [Series.ts:360](packages/mochart/src/components/Series.ts#L360)** — **Open**
+**Medium · Bug · WCAG 1.3.1 / 1.1.1 · [Plot.ts:65-66](packages/mochart/src/components/Plot.ts#L65), [Series.ts:360](packages/mochart/src/components/Series.ts#L360)** — **Fixed**
 
 `PlotFrontBack` (which owns `AxisContainer` → all tick labels and axis titles) and every
 non-interactive series `<g>` (which owns `SeriesLabels`, the visible data-value labels) are
@@ -2764,6 +2764,76 @@ This is the opposite direction from the known-open data-table item.
 `AxisThresholdContainer`, tick marks) and leave tick-label and axis-title `<text>` exposed; same
 for `SeriesLabels` when visible. Failing that, say so explicitly in
 [guide/accessibility.md](packages/mochart-docs/guide/accessibility.md).
+
+Fixed by hiding only what is unreadable and exposing the text, with the axes grouped so
+the exposed text is comprehensible rather than merely present.
+
+**Measured, and the finding's numbers need correcting.** Default two-series chart with a
+title: 19 `<text>` nodes before and after, 6 outside an `aria-hidden` subtree before,
+**16** after. But **6 was never 6 labels** — it was 3 strings each with a
+`visibility: hidden` measurement twin (`mochart-title-text-raw`,
+`mochart-legend-item-text-raw`). Real browsers drop `visibility: hidden` from the a11y
+tree, so the honest figure is **3 readable strings → 13** (title, 2 legend names, 2
+category ticks, 8 value ticks). The 3 still-hidden nodes are the ordinal width probe
+(`"W…"`) and the two overlap-suppressed end ticks. Two things the finding missed: those
+`-raw` twins carry no `aria-hidden` at all, a belt-and-braces gap in `Title.ts`/`Legend.ts`,
+and the width probe's `"W…"` was in the exposed set too.
+
+**Axes get a `role="group"` with a name.** Bare labels would put
+"Jan Feb 4 6 8 10 12 14 16 18 20 21" in the reading order with nothing saying which run
+is a category and which is a scale — maximising exposed nodes and minimising
+comprehension. Grouped it reads "Months, group, Jan, Feb … Revenue, group, 0, 5, 10 …":
+the name arrives before the run, and the group is a single object in object navigation
+so the whole scale is skippable in one move. The name is the axis `title` when set, else
+the new `accessibility.categoryAxisLabel` / `valueAxisLabel`.
+
+**No `role="text"`.** This codebase's existing mechanism for readable text is a bare
+`<text>` — the chart title and the non-interactive legend labels — with `aria-label` for
+naming; `ClipIndicator`'s comment states this, calling itself the only `<title>` in the
+library. Adding `role="text"` would be a second mechanism differing from the title, and
+it flattens subtrees rather than exposing them.
+
+**Truncation, two cases.** Axis *titles*: the group's `aria-label` carries the
+untruncated title and the ellipsised `<text>` becomes `aria-hidden` — one utterance,
+full string, no new mechanism. Tick *labels*: `aria-label` with the full string, set
+only when truncation actually bit, so untruncated charts gain nothing.
+
+**`SeriesLabels` stay hidden, contra the finding's "same for `SeriesLabels` when
+visible".** `label` is a first-class animated extra — `SeriesAnimationData.ts` computes
+label deltas — so mid-animation the label text is the *interpolated in-between value*,
+not the datum: exposing it publishes wrong numbers for the animation's duration, and
+labels enter and leave the DOM per frame as values cross `labelMinPositionFraction`,
+churning the virtual buffer. A data label also names neither its series nor its
+category, and on an interactive series it sits inside a `role="button"`. The tooltip
+live region already reads settled, attributed, per-series-formatted values. They are now
+*explicitly* hidden, where before they inherited it — and inside an interactive series
+were not hidden at all. Threshold annotations and the width probe are likewise kept
+hidden and documented: a threshold title read out of its spatial context says nothing.
+
+New `accessibility.categoryAxisLabel` / `valueAxisLabel` (defaults `'Category axis'` /
+`'Value axis'`, `validators.string()`), with docs descriptions and details, both
+generators re-run. `guide/accessibility.md` gains a "Reading the chart" section, the
+stale "axes, grid lines … is `aria-hidden`" sentence is replaced with the accurate rule
+(nameless geometry has no role and no text, so nothing is announced; text we do not want
+read is explicitly hidden), and both new keys appear in the localization example.
+`@mochart/export` needs no change — it strips `role`/`aria-label` only from `[tabindex]`
+elements, so the axis groups survive an export.
+
+Golden movement: 418 files, 8596 insertions / 8596 deletions — exactly balanced, so
+every change is a line rewrite, verified **per file**: stripping ` aria-hidden="true"`,
+` role="group"` and ` aria-label="…"` makes the removed and added line multisets
+identical in all 418 files, 0 exceptions. 836 removals of `aria-hidden` off
+`plot-back`/`plot-front`; 6295 additions, of which 4899 are on tick `<text>` that
+**all carry `visibility: hidden`** (none visible), plus 836 threshold containers, 392
+axis titles, 140 width probes and 28 series-label groups; ~955 `role="group"` +
+`aria-label` on axis groups; ~370 `aria-label` on ellipsised ticks.
+
+New `test/components/AxisAria.test.ts`, 13 tests, bite-proved by reverting in four
+batches, each failing exactly the tests that cover it; `ChartAria.test.ts`'s geometry
+test was retargeted from the plot halves to the crosshair and threshold container.
+
+Whole-repo gates green with this in: typecheck 0, `eslint .` 0, `deadcode` 0,
+120 files / 1778 tests, docs gates 41 examples / 233 exports / 18 sections.
 
 ### A11Y-6 — default encoding is colour-only, on a palette that is not CVD-checked
 **Medium · Bug + doc gap · WCAG 1.4.1 (Level A) · [colorPaletteConfig.ts:1](packages/mochart/src/config/defaults/colorPaletteConfig.ts#L1), [seriesConfig.ts:237](packages/mochart/src/config/defaults/seriesConfig.ts#L237)** — **Open**

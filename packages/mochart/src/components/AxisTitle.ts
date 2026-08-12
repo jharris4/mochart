@@ -22,6 +22,7 @@ interface AxisTitleProps {
   titleClipPathUniqueId: string;
   axisFocusPercentage: FocusPercentage;
   seriesFocusPercentage: FocusPercentage;
+  ariaHidden: boolean;
 }
 interface AxisTitleState { truncationData: TruncationDataValue }
 
@@ -86,7 +87,9 @@ export default class AxisTitle extends Renderer<AxisTitleProps, AxisTitleState> 
         getAxisFocusStyle(axisFocusPercentage, seriesFocusPercentage, useSeriesFocus, axisConfig.titleTextStyle));
 
       this.setPresent(true);
-      this.root.set({ className: mochartCssClasses['axisTitle'], clipPath });
+      // hidden when the sibling tick labels are grouped: this same string, untruncated, is that group's name
+      this.root.set({ className: mochartCssClasses['axisTitle'], clipPath,
+        ariaHidden: this.props.ariaHidden ? 'true' : null });
       this.background.set(Background, { config: axisConfig, configStyleKey: 'titleBackgroundStyle', classKey: 'axisTitleBackground', spacingRelative: false, spacingLayoutInfo: axisLayoutInfo.titleLayoutInfo });
       this.text.set({ transform: titleTextTransform, textAnchor: titleTextAnchor, dy: titleTextDY,
         stroke, strokeOpacity,

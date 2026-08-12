@@ -33,6 +33,7 @@ interface AxisTickLabelsProps {
   tickLabelClipPathUniqueId?: string;
   axisFocusPercentage: FocusPercentage;
   seriesFocusPercentage: FocusPercentage;
+  accessibility: boolean;
 }
 interface AxisTickLabelsState { truncationData: TruncationDataValue }
 type SizeLabelEl = El & { textHandle: El; valueHandle: TextEl };
@@ -113,7 +114,7 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
   }
 
   sync() {
-    const { axisConfig, axisLayoutInfo, axisTicks, tickLabelClipPathUniqueId, axisFocusPercentage, seriesFocusPercentage } = this.props;
+    const { axisConfig, axisLayoutInfo, axisTicks, tickLabelClipPathUniqueId, axisFocusPercentage, seriesFocusPercentage, accessibility } = this.props;
     const { truncationData } = this.state;
     const { vertical, tickLabelAnchor, tickTextX, tickTextY } = axisLayoutInfo;
     const { tickLabelRotation } = axisConfig;
@@ -166,8 +167,12 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
         }
         handle.root.set({ className: mochartCssClasses['axisTickLabel'] + i,
           transform: translate(tickX + tickTextX, tickY + tickTextY), clipPath });
+        // an overlap-suppressed label is not read, and an ellipsised one is read in full
+        const fullLabel = String(tick.label);
         handle.text.set({ style: tick.hidden ? hiddenTickTextStyle : tickTextStyle, dy: tickTextDY, transform: tickRotationTransform,
-          stroke, strokeOpacity, fill, fillOpacity, strokeWidth });
+          stroke, strokeOpacity, fill, fillOpacity, strokeWidth,
+          ariaHidden: accessibility && tick.hidden ? 'true' : null,
+          ariaLabel: accessibility && !tick.hidden && tickLabels[i] !== fullLabel ? fullLabel : null });
         handle.value.set(tickLabels[i]);
       }
     });
@@ -184,7 +189,9 @@ export default class AxisTickLabels extends Renderer<AxisTickLabelsProps, AxisTi
         return group;
       });
       const typedSizeLabel = sizeLabel as SizeLabelEl;
-      typedSizeLabel.set({ className: mochartCssClasses['axisSizeTickLabel'] });
+      // a width probe, not a label: its text is nonsense to read out
+      typedSizeLabel.set({ className: mochartCssClasses['axisSizeTickLabel'],
+        ariaHidden: accessibility ? 'true' : null });
       typedSizeLabel.textHandle.set({ style: hiddenStyle });
       typedSizeLabel.valueHandle.set('W' + truncationValue);
     }

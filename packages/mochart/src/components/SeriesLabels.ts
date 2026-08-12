@@ -65,6 +65,7 @@ interface SeriesLabelsProps {
   filteredValues: SeriesValueObject;
   inverted: boolean;
   focusData: FocusData;
+  accessibility: boolean;
   onCategoryEnter: (categoryIndex: number) => void;
   onCategoryLeave: (categoryIndex: number) => void;
   onCategoryClick: (categoryIndex: number, event: Event) => void;
@@ -80,7 +81,7 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
 
   sync() {
     const { colorPaletteConfig, seriesConfig, seriesIndex, rawValueAxisDomain, valueAxisScale, seriesPositionData,
-      filteredValues, inverted, focusData, onCategoryEnter, onCategoryLeave, onCategoryClick } = this.props;
+      filteredValues, inverted, focusData, accessibility, onCategoryEnter, onCategoryLeave, onCategoryClick } = this.props;
     if (seriesConfig.labelProperty !== NONE) {
       const { valueAxisConfig } = seriesConfig;
       const hasBase = valueAxisConfig.base !== NONE;
@@ -252,7 +253,9 @@ export default class SeriesLabels extends Renderer<SeriesLabelsProps> {
           }
         }
         this.setPresent(true);
-        this.root.set({ className: mochartCssClasses['seriesLabels'] });
+        // unattributed values, interpolated mid-animation: the tooltip live region reads the settled ones
+        this.root.set({ className: mochartCssClasses['seriesLabels'],
+          ariaHidden: accessibility ? 'true' : null });
         this.labels.sync(labels, labelAdapter);
         return;
       }

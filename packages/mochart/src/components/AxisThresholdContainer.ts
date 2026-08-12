@@ -2,6 +2,7 @@ import { Renderer, svgEl } from '../render';
 
 import { mochartCssClasses } from '../utils/ChartDom';
 import { getAggregateSeriesFocusPercentage } from '../utils/FocusValue';
+import { accessibilityActive } from '../utils/utils';
 
 import AxisThreshold from './AxisThreshold';
 import type { EnhancedMochartConfig, EnhancedValueAxisConfig } from '../types/enhanced';
@@ -39,7 +40,9 @@ export default class AxisThresholdContainer extends Renderer<AxisThresholdContai
     const valueAxisRawDomains = seriesData.raw.renderAxisDomains;
     const valueAxisFilteredDomains = seriesData.filtered.renderAxisDomains;
 
-    this.root.set({ className: mochartCssClasses['axisThresholdContainer'] });
+    // threshold titles annotate the geometry rather than name the data, so they stay out of the reading order
+    this.root.set({ className: mochartCssClasses['axisThresholdContainer'],
+      ariaHidden: accessibilityActive(mochartConfig.accessibility) ? 'true' : null });
 
     // The category axis renders ascending in both orientations; a value axis
     // ascends only when horizontal (inverted charts).

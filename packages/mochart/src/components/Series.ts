@@ -371,7 +371,8 @@ export default class Series extends Renderer<SeriesProps, SeriesState> {
         focusData, onCategoryEnter, onCategoryLeave, onCategoryClick });
       this.labels.set(SeriesLabels, { colorPaletteConfig, seriesConfig, valueAxisScale,
         rawValueAxisDomain, seriesPositionData, filteredValues, inverted,
-        focusData, onCategoryEnter, onCategoryLeave, onCategoryClick, seriesIndex });
+        focusData, onCategoryEnter, onCategoryLeave, onCategoryClick, seriesIndex,
+        accessibility: this.props.accessibility });
     }
     else {
       this.setPresent(false);

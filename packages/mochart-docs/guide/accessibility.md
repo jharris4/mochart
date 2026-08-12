@@ -135,9 +135,10 @@ The chart svg is announced as a chart (via `aria-roledescription`) and named
 from [`title.text`](/reference/title#title.text); an untitled chart falls
 back to
 [`accessibility.chartLabel`](/reference/accessibility#accessibility.chartLabel).
-Decorative geometry — axes, grid lines, series shapes, the crosshair — is
-`aria-hidden`, so a screen reader lands on the meaningful stops: the plot
-area button, the legend, and the tooltip.
+The geometry the chart draws — grid lines, axis lines, tick marks, bars,
+markers, paths, the crosshair — carries no text and no role, so there is
+nothing there for a screen reader to announce, and it lands on the meaningful
+stops instead: the plot area button, the legend, and the tooltip.
 
 Each set of roving tab stops is announced as a named group, so a screen
 reader says what you have entered before it reads the first item: the legend
@@ -156,6 +157,46 @@ formatting. Legend items — and tooltip series rows, when clicking them
 filters — expose their filtered state as a toggle-button `aria-pressed`
 (pressed means the series is shown), and interactive pie slices are named
 with their series title and current share.
+
+## Reading the chart
+
+A screen reader user who *reads* the chart rather than operating it gets its
+text as well as its tab stops. The chart title, the legend's series names and
+every axis tick label are text in the reading order.
+
+Tick labels are grouped so that a run of them arrives with the scale it
+belongs to: each axis is a `role="group"` named for the axis, so the reading
+is "Months, group, Jan, Feb" and "Revenue, group, 0, 5, 10, 15, 20" rather
+than eleven loose numbers with no owner. The name is the axis'
+[`title`](/reference/categoryAxis#categoryAxis.title) when it has one, and
+otherwise
+[`accessibility.categoryAxisLabel`](/reference/accessibility#accessibility.categoryAxisLabel)
+or
+[`accessibility.valueAxisLabel`](/reference/accessibility#accessibility.valueAxisLabel).
+The group is also one object in a screen reader's object navigation, so the
+whole scale can be skipped in a single move. Because the group carries the
+axis name, the drawn axis title is not read a second time — and the name is
+the untruncated title even when the drawn one is ellipsised. Give every axis
+a title when a chart has more than one value axis: untitled ones all read
+with the same default name.
+
+A tick label the chart had to ellipsise to fit keeps its full text for
+assistive tech through an `aria-label`, so "Really long value that should be…"
+still reads in full. A tick label the chart suppressed to stop labels
+overlapping is `aria-hidden`, as is the hidden width probe an ordinal axis
+measures truncation against.
+
+Three kinds of text stay out of the reading order deliberately:
+
+| Not read | Why |
+| --- | --- |
+| per-point data labels ([`series.labelProperty`](/reference/series#series.labelProperty)) | they are bare numbers that name neither their series nor their category, and mid-animation they are the interpolated in-between value rather than the datum. The tooltip's live region reads the settled values *with* their series and category names, which is the same information in a comprehensible order |
+| threshold annotations ([`valueAxes.thresholds`](/reference/valueAxes#valueAxes.thresholds)) | they label a line drawn across the plot, and read out of that spatial context they say nothing about the data |
+| the axis title, when its axis group is named from it | it would otherwise be announced twice in a row |
+
+If you need the individual values readable rather than navigable, put a data
+table or text summary beside the chart; that is also the answer when both the
+tooltip and the crosshair are disabled.
 
 ## The focus ring
 
@@ -256,6 +297,8 @@ const config = {
     chartRoleDescription: 'Diagramm',
     plotLabel: 'Diagrammwerte',    // the plot-area tab stop
     seriesLabel: 'Datenreihen',    // the interactive series / pie slices group
+    categoryAxisLabel: 'Kategorienachse', // an untitled category axis' tick-label group
+    valueAxisLabel: 'Werteachse',  // an untitled value axis' tick-label group
     legendLabel: 'Legende',        // the legend group
     tooltipLabel: 'Tooltip-Werte', // the tooltip rows group
     tooltipPreviousLabel: 'Vorherige Kategorie', // the tooltip controls' ‹ button
