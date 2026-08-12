@@ -2657,7 +2657,7 @@ pointing at `series.markerShape`, `series.shapeStyle.*.strokeDashArray` and `ser
 redundant encodings, and state the contrast expectation against the plot background.
 
 ### A11Y-7 — no 24 × 24 minimum for any interactive target
-**Medium · Missing feature · WCAG 2.5.8 (AA, new in 2.2) · [legendConfig.ts:24](packages/mochart/src/config/defaults/legendConfig.ts#L24), [TooltipControls.ts:22](packages/mochart/src/components/TooltipControls.ts#L22), [TooltipContent.ts:85](packages/mochart/src/components/TooltipContent.ts#L85)** — **Open**
+**Medium · Missing feature · WCAG 2.5.8 (AA, new in 2.2) · [legendConfig.ts:24](packages/mochart/src/config/defaults/legendConfig.ts#L24), [TooltipControls.ts:22](packages/mochart/src/components/TooltipControls.ts#L22), [TooltipContent.ts:85](packages/mochart/src/components/TooltipContent.ts#L85)** — **Fixed**
 
 Nothing enforces a minimum hit area. Legend items are ≈22 px tall at a 16 px host font; tooltip
 control buttons ≈22 px tall; interactive tooltip rows have `padding: 2`. All are laid out adjacent
@@ -2667,6 +2667,66 @@ which filters the wrong series.
 
 **Fix:** give the legend item background and the tooltip controls a configurable minimum extent
 (default 24) applied to the interactive box rather than the text.
+
+Fixed with a new `accessibility.targetMinSize` (number, default 24, `numberMin(0)`),
+applied to the interactive *box* rather than the text, after splitting the chart's
+click targets into three classes and treating them differently:
+
+1. **Chrome the library sizes itself — guaranteed.** Legend item boxes, the tooltip
+   controls' buttons, and interactive tooltip rows. Nothing about the data
+   constrains their size, they sit adjacent (1px legend margins, 3px control gap,
+   rows touching), and a mis-hit toggles the *neighbouring* series. These get a real
+   floor, on by default.
+2. **Series shapes — deliberately untouched, and documented as such.** Bars,
+   markers, pie slices. Their size *is* the data; padding a marker's hit area on a
+   dense series changes which value the pointer lands on, which is worse than a
+   small target and is exactly what 2.5.8's "essential presentation" exception
+   covers. The plot rect is already one large target for the tooltip, and the
+   keyboard reaches every category without aiming.
+3. **Host content — the host's job**, said so in the guide.
+
+Defaulted, not hard-enforced: the accessible value is the default, but a compact
+embedded chart is a legitimate design the host owns, and a host wanting the 44px
+touch recommendation needs the knob upward too. The floor applies **only while
+clicking the target does something** — a legend nothing responds to stays at its
+content size — and is **not** gated by `enabled`/`hidden`, because it is a
+pointer/touch concern rather than an assistive-tech one (same precedent as
+`respectReducedMotion`). Named `targetMinSize`, not `MinExtent`: `barMinExtent`
+means "along one direction" and this applies in both.
+
+Two deliberate extensions past the finding's Fix: interactive tooltip rows (cited in
+the finding's own header but omitted from its Fix — same harm, same knob, and
+leaving them out would make the guarantee false), and the floor keyed to a
+**mode-independent** predicate so the controls' Filter/Focus toggle cannot resize
+the tooltip and the hidden sizer copy measures what the shown copy renders.
+
+The geometry change is not silent: legend item boxes go 22px → 24px at ordinary
+font metrics, so the plot loses 2px per legend row. Documented in the reference and
+in a new "Click targets" guide section, with `0` to opt out.
+
+395 of 451 goldens moved (the 56 legend-less ones did not). The diff was verified
+mechanically: added and removed lines are identical modulo numbers except **7
+lines**, capped-bar paths that lost a point (`M,L,L,L,Z` → `M,L,L,Z`) because the
+4px-shorter plot collapsed a near-zero bar body to a cap-only triangle. Legend hunks
+are exactly `height="22"` → `24`, icon `translate(2,4)` → `(2,5)` re-centred, and
+legend `translate` up by 2 per row; widths were already above the floor. No tooltip
+appears in any golden, so the tooltip changes moved nothing.
+
+New `test/components/TargetSize.test.ts`, 9 tests, each with a bite proof: floor→0
+fails four legend tests; dropping the clickable gate fails the "nothing responds"
+test; removing the controls style fails the controls test; removing the row style
+fails both row tests; making the row predicate mode-dependent fails the sizer/mode
+test alone.
+
+No CSS change — everything is config-driven, so it has to be inline.
+
+One nuance the finding gets slightly wrong: the legend item's target is the
+*margin-relative* box (22px), not the 24px slot, which is why the floor has to be
+applied to the box with the margin carried on top, in **both** layout passes (the
+wrap arithmetic must match).
+
+`npm test -w @mochart/core`: 112 files / 1690 tests pass, 97.77% statements.
+Typecheck, `eslint .`, the `@mochart/docs` gates and `vitepress build` all clean.
 
 ### A11Y-8 — arrow-key convention differs between the plot rect and every other roving group
 **Low · Inconsistency · [Chart.ts:948-970](packages/mochart/src/components/Chart.ts#L948) vs [SeriesContainer.ts:85](packages/mochart/src/components/SeriesContainer.ts#L85), [Legend.ts:104](packages/mochart/src/components/Legend.ts#L104), [TooltipContent.ts:281](packages/mochart/src/components/TooltipContent.ts#L281)** — **Open**

@@ -177,6 +177,28 @@ export interface AccessibilityConfig {
    */
   respectReducedMotion: boolean;
   /**
+   * The minimum size (in pixels) of the click targets the chart lays out
+   * itself.
+   *
+   * The floor for the chart chrome a pointer can click: legend item boxes, the
+   * tooltip controls’ buttons, and interactive tooltip rows are laid out at
+   * least this many pixels in each direction the chart controls. The default of
+   * `24` is the WCAG 2.5.8 minimum, which these targets otherwise miss at
+   * ordinary font sizes — a legend item is about 22px tall at a 16px host font,
+   * and they sit one pixel apart, so a mis-hit filters the series next to it.
+   * The floor applies to a target only while clicking it does something
+   * (`legend.filterOnClick` / `focusOnClick`, the tooltip controls, the
+   * tooltip’s click config), so a legend nothing responds to stays compact, and
+   * it is not gated by `enabled` or `hidden`: it is about pointers and touch,
+   * not assistive tech. Series shapes — bars, markers, pie slices — are
+   * deliberately not padded: their size is the data, and growing their hit area
+   * would change which value the pointer lands on. Set to `0` to lay every
+   * target out at its content size.
+   *
+   * @default 24
+   */
+  targetMinSize: number;
+  /**
    * The screen-reader name for the chart when the title has no text.
    *
    * The accessible name of the chart svg when `title.text` is unset; a set

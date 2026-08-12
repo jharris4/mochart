@@ -490,10 +490,21 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       tooltipCategoryIndex, focusedCategoryIndex,
       onFocus, mode, toggleMode: this.toggleMode, minWidth });
 
+    // The click-target floor for a row, keyed off what a click does rather than off the current
+    // mode or copy: the controls toggle their mode at will, and the hidden sizer copy has to
+    // measure the shown rows' height. Its own interactivity gates neither.
+    const { targetMinSize } = mochartConfig.accessibility;
+    const categoryRowClickable = tooltipConfig.showControls || tooltipConfig.focusCategoryOnClick;
+    const seriesRowClickable = (leaderSeriesId: string): boolean => tooltipConfig.showControls ||
+      tooltipConfig.focusSeriesOnClick || (tooltipConfig.filterSeriesOnClick && mochartConfig.seriesById[leaderSeriesId].filterable);
+    const targetStyle = targetMinSize > 0 ? { minHeight: targetMinSize } : {};
+
     const lastLineStyle = minWidth !== null ? { ...baseLineStyle, minWidth } : baseLineStyle;
     const lineStyle = {
       ...lastLineStyle, paddingBottom: tooltipConfig.linePadding
     };
+    const targetLineStyle = { ...lineStyle, ...targetStyle };
+    const lastTargetLineStyle = { ...lastLineStyle, ...targetStyle };
 
     const tooltipLines: RendererItem[] = [];
 
@@ -508,7 +519,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
       tooltipLines.push({
         key: 'category',
         ctor: TooltipCategoryLine,
-        props: { lineStyle, categoryLabel, categoryText: categoryFormat(categoryText!),
+        props: { lineStyle: categoryRowClickable ? targetLineStyle : lineStyle, categoryLabel, categoryText: categoryFormat(categoryText!),
           rowKey: 'category', interactive: categoryRowInteractive, tabStop: false,
           onMouseEnter: (event: Event) => this.onCategoryMouseEnter(event),
           onMouseLeave: (event: Event) => this.onCategoryMouseLeave(event),
@@ -518,6 +529,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     const valueFormats = getSeriesFormats(seriesConfigs, valueAxisConfigs, renderAxisDomains);
     let lastSeriesLineIndex = -1;
+    let lastSeriesLineIsTarget = false;
     for (const seriesConfig of seriesConfigs) {
       if (!seriesConfig.showInTooltip) {
         continue;
@@ -542,6 +554,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
         if (valueText !== null) {
           lastSeriesLineIndex = tooltipLines.length;
           const rowKey = 'series-' + seriesId;
+          const rowIsTarget = seriesRowClickable(focusSeriesId);
+          lastSeriesLineIsTarget = rowIsTarget;
           // filtering acts on the leader (followSeries), so its filterable decides
           const rowFilters = seriesRowFilters && mochartConfig.seriesById[focusSeriesId].filterable;
           const rowInteractive = a11yRows && (seriesRowFocuses || rowFilters);
@@ -553,7 +567,7 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
             ctor: TooltipSeriesLine,
             props: { mochartConfig, seriesConfig, seriesIndex, seriesIsFocused, seriesIsDefocused, seriesIsFiltered, seriesFocusPercentage,
               colorPaletteConfig, svgUniqueId, visible, labelText, valueText,
-              style: lineStyle,
+              style: rowIsTarget ? targetLineStyle : lineStyle,
               rowKey, interactive: rowInteractive, tabStop: false,
               showsFilterState: a11yRows && rowFilters,
               onMouseEnter: (event: Event) => this.onSeriesMouseEnter(event, focusSeriesId),
@@ -566,7 +580,8 @@ export default class TooltipContent extends Renderer<TooltipContentProps, Toolti
 
     // the last rendered row drops the bottom padding, not the last config
     if (lastSeriesLineIndex !== -1) {
-      (tooltipLines[lastSeriesLineIndex].props as { style: unknown }).style = lastLineStyle;
+      (tooltipLines[lastSeriesLineIndex].props as { style: unknown }).style =
+        lastSeriesLineIsTarget ? lastTargetLineStyle : lastLineStyle;
     }
 
     // the remembered roving row keeps the tab stop while it exists; otherwise the first takes it

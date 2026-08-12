@@ -3,6 +3,7 @@ export default function getDefaults() {
     enabled: true,
     hidden: false,
     respectReducedMotion: true,
+    targetMinSize: 24,
     chartLabel: 'Chart',
     chartRoleDescription: 'chart',
     plotLabel: 'Chart values',
