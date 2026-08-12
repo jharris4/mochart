@@ -3227,6 +3227,34 @@ document Lit's child-position requirement; export a `ChartRef` alias from `@moch
 
 ---
 
+### BIND-13 — the single-chart export markup is not well-formed XML
+**Medium · Bug · [Chart.ts:1316](packages/mochart/src/components/Chart.ts#L1316), [export/index.ts](packages/mochart-export/src/index.ts)** — **Open**
+
+*Found while implementing [BIND-7](#bind-7--exports-lose-web-fonts-and-nothing-says-so), not by either review pass.*
+
+Core sets a literal `xmlns` attribute on the live chart svg. The export clone carries it, and serializing that
+clone as a document root makes the serializer emit the namespace declaration a second time, so the single-chart
+export string contains a duplicate attribute:
+
+```
+<svg xmlns="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg"/>
+```
+
+An XML parse of it fails with `duplicate attribute: xmlns`. The stitched multi-chart path is unaffected, because
+its outer svg deliberately omits the attribute.
+
+**This contradicts `REVIEW-FINDINGS.md`'s B1**, which states "the single-chart path was unaffected … never sets
+`xmlns`, and serializes correctly". Either that premise was wrong or the core attribute arrived afterwards; the
+duplicate is present today.
+
+Not established here: whether real browsers dedupe the attribute on parse (jsdom does not). Strict SVG consumers
+reject a duplicate attribute regardless, which is the case the export is for — B1 itself was raised because
+"strict SVG-to-PNG converters reject the document outright".
+
+**Fix:** drop the `xmlns` attribute from the live chart svg — the DOM already carries the namespace, so it is
+redundant there — or `removeAttribute('xmlns')` on the clone in `cloneChartSvg`. Then assert a successful XML
+parse of the single-chart export, which the current tests do only for the stitched output.
+
 # 9. Documentation
 
 Coverage checks that came back clean, so the gaps below are the whole set: 223 `/reference/…`
@@ -4682,7 +4710,7 @@ half and restored the source it had patched; the `stripEmptyStyles` half and bot
 by hand.
 
 ### TEST-13 — mid-animation assertions that can silently not run
-**Low · Weak test · [FollowerAnimation.test.ts:165-183](packages/mochart/test/components/FollowerAnimation.test.ts#L165)** — **Open**
+**Low · Weak test · [FollowerAnimation.test.ts:165-183](packages/mochart/test/components/FollowerAnimation.test.ts#L165)** — **Fixed**
 
 Both wick-glue loops guard their assertion on a DOM query: the filtering loop `break`s the first
 frame `barRects(container, 'up')` is empty, and the restore loop only asserts `if (… .length > 0)`.
@@ -4692,6 +4720,35 @@ so a timing change could reduce the loop to zero assertions and keep only the se
 that the bug never affected.
 
 **Fix:** count the assertions and add `expect(checked).toBeGreaterThanOrEqual(2)` after each loop.
+
+**Fixed by pinning the loop counts, and the finding's premise was verified before trusting it.** Both mid-animation
+sampling loops in `FollowerAnimation.test.ts` now assert they reached their glue assertion at least twice, so a
+timing change cannot silently reduce the test to its settled checks. Headroom was measured first — each loop runs
+all four samples today, so `>= 2` is not tuned to current timing.
+
+Four bite proofs, because the interesting one is that the *old* test was blind:
+
+1. Cutting the animation durations from 1000 to 1 fails the filtering counter with `expected 0 to be greater than
+   or equal to 2`.
+2. With that same break in place, weakening both guards back to `>= 0` — which is what the old code effectively
+   asserted — gives **3 passed**. So the loop really had degenerated to zero assertions and nothing caught it.
+3. The restore loop's skip is real rather than hypothetical: `getVisibleSeriesPacingDeltaPercentage` excludes
+   hidden series from expansion pacing, and relaxing that filter gives the restore phase a nonzero duration during
+   which the restored bars are absent — failing the restore counter the same way.
+4. The frames the loops do sample are still meaningful: disabling
+   `adjustDeltaPercentagesForFollowerCategories` fails the glue assertion inside the loop with a 5px gap.
+
+The third test was left alone: it calls the glue assertion unconditionally on every sampled frame, so it cannot
+silently skip. "Both wick-glue loops" means the filtering and restore loops in the second test, which is right.
+
+Targeted run green (8 files / 77 tests across the animation suites), typecheck and lint clean, and the three source
+files broken for the proofs are byte-identical to HEAD afterwards. A full-suite green could not be reached at the
+time: another agent was mid-edit in `packages/mochart/src`, producing a `jsdocSync` failure and, in a later run, 119
+golden mismatches — `FollowerAnimation` appears in neither failure set.
+
+One thing noticed and left: when the second test fails part-way it aborts before `chart.destroy()`, and the
+`afterEach` clears the DOM and timers without destroying a leaked chart, so the third test then fails with a
+misleading `TypeError`. Cosmetic — it needs a failure to surface.
 
 ### TEST-14 — e2e covers one minimal harness; the shipped gallery, editor, share menu and mobile layout have none
 **Low · Test gap · [demo-basic/e2e/](packages/mochart-demo-basic/e2e/) (5 files, 429 lines)** — **Open**

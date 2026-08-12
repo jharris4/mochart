@@ -164,24 +164,31 @@ describe('followSeries animation sync (hollow candlestick)', () => {
 
     // sample several mid-animation frames — before the fix the segments'
     // synced-to-high edges lagged the body's and overlapped it here
+    let filteringFrames = 0;
     for (const step of [2, 3, 3, 3]) {
       advanceFrames(step);
       if (barRects(container, 'up').length === 0) {
         break; // the filtered candle has finished animating out
       }
       expectSegmentsGluedToBody(container, 'mid-filtering');
+      filteringFrames++;
     }
+    // the guarded assertion above is the point of this test, so a timing change must not silently skip it
+    expect(filteringFrames, 'mid-filtering frames checked').toBeGreaterThanOrEqual(2);
     runFrames();
 
     // restoring the series animates back in, glued throughout
     container.querySelector(getCssClassMatchSelector(getIdCssClass('legendItem', 'up')))!
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    let restoreFrames = 0;
     for (const step of [2, 3, 3, 3]) {
       advanceFrames(step);
       if (barRects(container, 'up').length > 0) {
         expectSegmentsGluedToBody(container, 'mid-restore');
+        restoreFrames++;
       }
     }
+    expect(restoreFrames, 'mid-restore frames checked').toBeGreaterThanOrEqual(2);
     runFrames();
     expectSegmentsGluedToBody(container, 'restored');
 
